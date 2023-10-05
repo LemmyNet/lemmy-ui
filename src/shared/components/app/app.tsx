@@ -1,4 +1,4 @@
-import { isAuthPath, setIsoData } from "@utils/app";
+import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
 import { dataBsTheme } from "@utils/browser";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
@@ -14,6 +14,7 @@ import { Footer } from "./footer";
 import { Navbar } from "./navbar";
 import "./styles.scss";
 import { Theme } from "./theme";
+import AnonymousGuard from "../common/anonymous-guard";
 
 interface AppProps {
   user?: MyUserInfo;
@@ -78,6 +79,10 @@ export class App extends Component<AppProps, any> {
                                   <AuthGuard {...routeProps}>
                                     <RouteComponent {...routeProps} />
                                   </AuthGuard>
+                                ) : isAnonymousPath(path ?? "") ? (
+                                  <AnonymousGuard>
+                                    <RouteComponent {...routeProps} />
+                                  </AnonymousGuard>
                                 ) : (
                                   <RouteComponent {...routeProps} />
                                 ))}

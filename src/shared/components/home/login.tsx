@@ -124,13 +124,6 @@ export class Login extends Component<
     this.handleSubmitTotp = this.handleSubmitTotp.bind(this);
   }
 
-  componentDidMount() {
-    // Navigate to home if already logged in
-    if (UserService.Instance.myUserInfo) {
-      this.context.router.history.push("/");
-    }
-  }
-
   get documentTitle(): string {
     return `${I18NextService.i18n.t("login")} - ${
       this.state.siteRes.site_view.site.name
