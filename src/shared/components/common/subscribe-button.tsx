@@ -201,6 +201,8 @@ class RemoteFetchModal extends Component<
                 value={this.state.instanceText}
                 onInput={linkEvent(this, handleInput)}
                 required
+                enterKeyHint="go"
+                inputMode="url"
               />
             </form>
             <footer className="modal-footer">
