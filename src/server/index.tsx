@@ -20,21 +20,26 @@ const [hostname, port] = process.env["LEMMY_UI_HOST"]
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
-server.use(
-  getStaticDir(),
-  express.static(path.resolve("./dist"), {
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
-    immutable: true,
-  }),
-);
-server.use(setCacheControl);
+
+const serverPath = path.resolve("./dist");
 
 if (
   !process.env["LEMMY_UI_DISABLE_CSP"] &&
   !process.env["LEMMY_UI_DEBUG"] &&
   process.env["NODE_ENV"] !== "development"
 ) {
+  server.use(
+    getStaticDir(),
+    express.static(serverPath, {
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      immutable: true,
+    }),
+  );
   server.use(setDefaultCsp);
+  server.use(setCacheControl);
+} else {
+  // In debug mode, don't use the maxAge and immutable, or it breaks live reload for dev
+  server.use(getStaticDir(), express.static(serverPath));
 }
 
 server.get("/.well-known/security.txt", SecurityHandler);

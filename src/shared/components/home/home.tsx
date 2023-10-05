@@ -14,7 +14,6 @@ import {
   updatePersonBlock,
 } from "@utils/app";
 import {
-  getPageFromString,
   getQueryParams,
   getQueryString,
   getRandomFromList,
@@ -60,6 +59,7 @@ import {
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
   MarkPostAsRead,
+  PaginationCursor,
   PostResponse,
   PurgeComment,
   PurgeItemResponse,
@@ -98,11 +98,11 @@ import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
-import { Paginator } from "../common/paginator";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
+import { PaginatorCursor } from "../common/paginator-cursor";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -123,7 +123,7 @@ interface HomeProps {
   listingType?: ListingType;
   dataType: DataType;
   sort: SortType;
-  page: number;
+  pageCursor?: PaginationCursor;
 }
 
 type HomeData = RouteDataResponse<{
@@ -185,13 +185,14 @@ function getSortTypeFromQuery(type?: string): SortType {
   return (type ? (type as SortType) : mySortType) ?? "Active";
 }
 
-const getHomeQueryParams = () =>
-  getQueryParams<HomeProps>({
+function getHomeQueryParams() {
+  return getQueryParams<HomeProps>({
     sort: getSortTypeFromQuery,
     listingType: getListingTypeFromQuery,
-    page: getPageFromString,
+    pageCursor: cursor => cursor,
     dataType: getDataTypeFromQuery,
   });
+}
 
 const MobileButton = ({
   textKey,
@@ -245,7 +246,8 @@ export class Home extends Component<any, HomeState> {
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
-    this.handlePageChange = this.handlePageChange.bind(this);
+    this.handlePageNext = this.handlePageNext.bind(this);
+    this.handlePagePrev = this.handlePagePrev.bind(this);
 
     this.handleCreateComment = this.handleCreateComment.bind(this);
     this.handleEditComment = this.handleEditComment.bind(this);
@@ -315,7 +317,7 @@ export class Home extends Component<any, HomeState> {
 
   static async fetchInitialData({
     client,
-    query: { dataType: urlDataType, listingType, page: urlPage, sort: urlSort },
+    query: { dataType: urlDataType, listingType, pageCursor, sort: urlSort },
     site,
   }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
     const dataType = getDataTypeFromQuery(urlDataType);
@@ -324,15 +326,13 @@ export class Home extends Component<any, HomeState> {
       site.site_view.local_site.default_post_listing_type;
     const sort = getSortTypeFromQuery(urlSort);
 
-    const page = urlPage ? Number(urlPage) : 1;
-
     let postsRes: RequestState<GetPostsResponse> = EMPTY_REQUEST;
     let commentsRes: RequestState<GetCommentsResponse> = EMPTY_REQUEST;
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
         type_,
-        page,
+        page_cursor: pageCursor,
         limit: fetchLimit,
         sort,
         saved_only: false,
@@ -341,7 +341,6 @@ export class Home extends Component<any, HomeState> {
       postsRes = await client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
-        page,
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
         type_,
@@ -616,18 +615,22 @@ export class Home extends Component<any, HomeState> {
     );
   }
 
-  async updateUrl({ dataType, listingType, page, sort }: Partial<HomeProps>) {
+  async updateUrl({
+    dataType,
+    listingType,
+    pageCursor,
+    sort,
+  }: Partial<HomeProps>) {
     const {
       dataType: urlDataType,
       listingType: urlListingType,
-      page: urlPage,
       sort: urlSort,
     } = getHomeQueryParams();
 
     const queryParams: QueryParams<HomeProps> = {
       dataType: getDataTypeString(dataType ?? urlDataType),
       listingType: listingType ?? urlListingType,
-      page: (page ?? urlPage).toString(),
+      pageCursor: pageCursor,
       sort: sort ?? urlSort,
     };
 
@@ -645,24 +648,28 @@ export class Home extends Component<any, HomeState> {
   }
 
   get posts() {
-    const { page } = getHomeQueryParams();
+    const { pageCursor } = getHomeQueryParams();
 
     return (
       <div className="main-content-wrapper">
         <div>
           {this.selects}
           {this.listings}
-          <Paginator
-            page={page}
-            onChange={this.handlePageChange}
-            nextDisabled={
-              this.state.postsRes?.state !== "success" ||
-              fetchLimit > this.state.postsRes.data.posts.length
-            }
+          <PaginatorCursor
+            prevPage={pageCursor}
+            nextPage={this.getNextPage}
+            onNext={this.handlePageNext}
+            onPrev={this.handlePagePrev}
           />
         </div>
       </div>
     );
+  }
+
+  get getNextPage(): PaginationCursor | undefined {
+    return this.state.postsRes.state === "success"
+      ? this.state.postsRes.data.next_page
+      : undefined;
   }
 
   get listings() {
@@ -804,7 +811,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   async fetchData() {
-    const { dataType, page, listingType, sort } = getHomeQueryParams();
+    const { dataType, pageCursor, listingType, sort } = getHomeQueryParams();
 
     if (dataType === DataType.Post) {
       if (HomeCacheService.active) {
@@ -814,13 +821,12 @@ export class Home extends Component<any, HomeState> {
         window.scrollTo({
           left: 0,
           top: scrollY,
-          behavior: "instant",
         });
       } else {
         this.setState({ postsRes: LOADING_REQUEST });
         this.setState({
           postsRes: await HttpService.client.getPosts({
-            page,
+            page_cursor: pageCursor,
             limit: fetchLimit,
             sort,
             saved_only: false,
@@ -834,7 +840,6 @@ export class Home extends Component<any, HomeState> {
       this.setState({ commentsRes: LOADING_REQUEST });
       this.setState({
         commentsRes: await HttpService.client.getComments({
-          page,
           limit: fetchLimit,
           sort: postToCommentSortType(sort),
           saved_only: false,
@@ -862,24 +867,32 @@ export class Home extends Component<any, HomeState> {
     i.setState({ subscribedCollapsed: !i.state.subscribedCollapsed });
   }
 
-  handlePageChange(page: number) {
+  handlePagePrev() {
+    this.props.history.back();
+    // A hack to scroll to top
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 50);
+  }
+
+  handlePageNext(nextPage: PaginationCursor) {
     this.setState({ scrolled: false });
-    this.updateUrl({ page });
+    this.updateUrl({ pageCursor: nextPage });
   }
 
   handleSortChange(val: SortType) {
     this.setState({ scrolled: false });
-    this.updateUrl({ sort: val, page: 1 });
+    this.updateUrl({ sort: val, pageCursor: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {
     this.setState({ scrolled: false });
-    this.updateUrl({ listingType: val, page: 1 });
+    this.updateUrl({ listingType: val, pageCursor: undefined });
   }
 
   handleDataTypeChange(val: DataType) {
     this.setState({ scrolled: false });
-    this.updateUrl({ dataType: val, page: 1 });
+    this.updateUrl({ dataType: val, pageCursor: undefined });
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {
