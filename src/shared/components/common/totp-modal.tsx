@@ -226,6 +226,7 @@ export default class TotpModal extends Component<
                       ref={element => {
                         this.inputRefs[i] = element;
                       }}
+                      enterKeyHint="done"
                     />
                   ))}
                 </div>
