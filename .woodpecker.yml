@@ -29,7 +29,6 @@ steps:
       repo: dessalines/lemmy-ui
       dockerfile: Dockerfile
       platforms: linux/amd64
-      auto_tag: true
     when:
       event: tag
 
