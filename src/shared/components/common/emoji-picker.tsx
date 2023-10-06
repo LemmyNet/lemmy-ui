@@ -77,5 +77,6 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
 
   handleEmojiClick(e: any) {
     this.props.onEmojiClick?.(e);
+    this.setState({ showPicker: false });
   }
 }
