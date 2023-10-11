@@ -70,20 +70,20 @@ function handleKeyUp(
 
 function handlePaste(modal: TotpModal, event: any) {
   event.preventDefault();
-  const text: string = event.clipboardData.getData("text");
+  const text: string = event.clipboardData.getData("text")?.trim();
 
   if (text.length > TOTP_LENGTH || isNaN(Number(text))) {
     toast(I18NextService.i18n.t("invalid_totp_code"), "danger");
-    for (const inputRef of modal.inputRefs) {
-      inputRef!.value = "";
-    }
-    modal.setState({ totp: "" });
+    modal.clearTotp();
   } else {
     [...text].forEach((num, i) => {
       modal.inputRefs[i]!.value = num;
     });
     modal.setState({ totp: text });
-    handleSubmit(modal, text);
+
+    if (text.length === TOTP_LENGTH) {
+      handleSubmit(modal, text);
+    }
   }
 }
 
@@ -255,6 +255,9 @@ export default class TotpModal extends Component<
 
   clearTotp() {
     this.setState({ totp: "" });
+    for (const inputRef of this.inputRefs) {
+      inputRef!.value = "";
+    }
   }
 
   async handleShow() {
