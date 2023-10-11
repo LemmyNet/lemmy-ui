@@ -30,6 +30,9 @@ async function handleSubmit(modal: TotpModal, totp: string) {
 
   if (!successful) {
     modal.setState({ totp: "" });
+    for (const inputRef of modal.inputRefs) {
+      inputRef!.value = "";
+    }
     modal.inputRefs[0]?.focus();
   }
 }
@@ -39,7 +42,7 @@ function handleInput(
   event: any,
 ) {
   if (isNaN(event.target.value)) {
-    event.preventDefault();
+    modal.inputRefs[i]!.value = "";
     return;
   }
 
@@ -57,8 +60,6 @@ function handleKeyUp(
   event: any,
 ) {
   if (event.key === "Backspace" && i > 0) {
-    event.preventDefault();
-
     modal.setState(prev => ({
       ...prev,
       totp: prev.totp.slice(0, prev.totp.length - 1),
@@ -73,8 +74,14 @@ function handlePaste(modal: TotpModal, event: any) {
 
   if (text.length > TOTP_LENGTH || isNaN(Number(text))) {
     toast(I18NextService.i18n.t("invalid_totp_code"), "danger");
+    for (const inputRef of modal.inputRefs) {
+      inputRef!.value = "";
+    }
     modal.setState({ totp: "" });
   } else {
+    [...text].forEach((num, i) => {
+      modal.inputRefs[i]!.value = num;
+    });
     modal.setState({ totp: text });
     handleSubmit(modal, text);
   }
@@ -215,7 +222,6 @@ export default class TotpModal extends Component<
                       inputMode="numeric"
                       autoComplete="one-time-code"
                       maxLength={1}
-                      value={totp[i] ?? ""}
                       disabled={totp.length !== i}
                       aria-labelledby="totp-input-label"
                       id={`totp-input-${i}`}
