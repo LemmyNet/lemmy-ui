@@ -4,18 +4,19 @@ import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
   CommentAggregates,
-  CreateCommentLike,
-  CreatePostLike,
+  CommentView,
   PostAggregates,
+  PostView,
 } from "lemmy-js-client";
 import { VoteContentType, VoteType } from "../../interfaces";
-import { I18NextService } from "../../services";
+import { I18NextService, HttpService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
+import { XOR } from "@utils/types";
 
 interface VoteButtonsProps {
   voteContentType: VoteContentType;
   id: number;
-  onVote: (i: CreateCommentLike | CreatePostLike) => void;
+  onVote: (res: XOR<PostView, CommentView>) => void;
   enableDownvotes?: boolean;
   counts: CommentAggregates | PostAggregates;
   my_vote?: number;
@@ -45,42 +46,73 @@ const tippy = (counts: CommentAggregates | PostAggregates): string => {
   return `${points} • ${upvotes} • ${downvotes}`;
 };
 
-const handleUpvote = (i: VoteButtons) => {
+async function handleUpvote(i: VoteButtons | VoteButtonsCompact) {
   i.setState({ upvoteLoading: true });
 
   switch (i.props.voteContentType) {
-    case VoteContentType.Comment:
-      i.props.onVote({
+    case VoteContentType.Comment: {
+      const voteRes = await HttpService.client.likeComment({
         comment_id: i.props.id,
         score: newVote(VoteType.Upvote, i.props.my_vote),
       });
-      break;
-    case VoteContentType.Post:
-    default:
-      i.props.onVote({
-        post_id: i.props.id,
-        score: newVote(VoteType.Upvote, i.props.my_vote),
-      });
-  }
-};
 
-const handleDownvote = (i: VoteButtons) => {
+      if (voteRes.state === "success") {
+        i.props.onVote(voteRes.data.comment_view);
+      }
+
+      break;
+    }
+    case VoteContentType.Post:
+    default: {
+      const voteRes = await HttpService.client.likePost({
+        post_id: i.props.id,
+        score: newVote(VoteType.Upvote, i.props.my_vote),
+      });
+
+      if (voteRes.state === "success") {
+        i.props.onVote(voteRes.data.post_view);
+      }
+
+      break;
+    }
+  }
+
+  i.setState({ upvoteLoading: false });
+}
+
+async function handleDownvote(i: VoteButtons | VoteButtonsCompact) {
   i.setState({ downvoteLoading: true });
+
   switch (i.props.voteContentType) {
-    case VoteContentType.Comment:
-      i.props.onVote({
+    case VoteContentType.Comment: {
+      const voteRes = await HttpService.client.likeComment({
         comment_id: i.props.id,
         score: newVote(VoteType.Downvote, i.props.my_vote),
       });
+
+      if (voteRes.state === "success") {
+        i.props.onVote(voteRes.data.comment_view);
+      }
+
       break;
+    }
     case VoteContentType.Post:
-    default:
-      i.props.onVote({
+    default: {
+      const voteRes = await HttpService.client.likePost({
         post_id: i.props.id,
         score: newVote(VoteType.Downvote, i.props.my_vote),
       });
+
+      if (voteRes.state === "success") {
+        i.props.onVote(voteRes.data.post_view);
+      }
+
+      break;
+    }
   }
-};
+
+  i.setState({ downvoteLoading: false });
+}
 
 export class VoteButtonsCompact extends Component<
   VoteButtonsProps,
@@ -93,15 +125,6 @@ export class VoteButtonsCompact extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
-  }
-
-  componentWillReceiveProps(nextProps: VoteButtonsProps) {
-    if (this.props !== nextProps) {
-      this.setState({
-        upvoteLoading: false,
-        downvoteLoading: false,
-      });
-    }
   }
 
   render() {
@@ -172,15 +195,6 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
 
   constructor(props: any, context: any) {
     super(props, context);
-  }
-
-  componentWillReceiveProps(nextProps: VoteButtonsProps) {
-    if (this.props !== nextProps) {
-      this.setState({
-        upvoteLoading: false,
-        downvoteLoading: false,
-      });
-    }
   }
 
   render() {

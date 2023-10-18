@@ -355,7 +355,6 @@ export class Profile extends Component<
                 onBlockPerson={this.handleBlockPersonAlt}
                 onDeleteComment={this.handleDeleteComment}
                 onRemoveComment={this.handleRemoveComment}
-                onCommentVote={this.handleCommentVote}
                 onCommentReport={this.handleCommentReport}
                 onDistinguishComment={this.handleDistinguishComment}
                 onAddModToCommunity={this.handleAddModToCommunity}
@@ -370,7 +369,6 @@ export class Profile extends Component<
                 onCreateComment={this.handleCreateComment}
                 onEditComment={this.handleEditComment}
                 onPostEdit={this.handlePostEdit}
-                onPostVote={this.handlePostVote}
                 onPostReport={this.handlePostReport}
                 onLockPost={this.handleLockPost}
                 onDeletePost={this.handleDeletePost}

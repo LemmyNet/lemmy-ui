@@ -86,7 +86,6 @@ export class CommentReport extends Component<
           onBlockPerson={() => {}}
           onDeleteComment={() => {}}
           onRemoveComment={() => {}}
-          onCommentVote={() => {}}
           onCommentReport={() => {}}
           onDistinguishComment={() => {}}
           onAddModToCommunity={() => {}}

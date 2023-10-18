@@ -691,7 +691,6 @@ export class Search extends Component<any, SearchState> {
                   viewOnly
                   // All of these are unused, since its view only
                   onPostEdit={() => {}}
-                  onPostVote={() => {}}
                   onPostReport={() => {}}
                   onBlockPerson={() => {}}
                   onLockPost={() => {}}
@@ -732,7 +731,6 @@ export class Search extends Component<any, SearchState> {
                   onBlockPerson={() => {}}
                   onDeleteComment={() => {}}
                   onRemoveComment={() => {}}
-                  onCommentVote={() => {}}
                   onCommentReport={() => {}}
                   onDistinguishComment={() => {}}
                   onAddModToCommunity={() => {}}
@@ -793,7 +791,6 @@ export class Search extends Component<any, SearchState> {
         onBlockPerson={() => {}}
         onDeleteComment={() => {}}
         onRemoveComment={() => {}}
-        onCommentVote={() => {}}
         onCommentReport={() => {}}
         onDistinguishComment={() => {}}
         onAddModToCommunity={() => {}}
@@ -842,7 +839,6 @@ export class Search extends Component<any, SearchState> {
                 viewOnly
                 // All of these are unused, since its view only
                 onPostEdit={() => {}}
-                onPostVote={() => {}}
                 onPostReport={() => {}}
                 onBlockPerson={() => {}}
                 onLockPost={() => {}}

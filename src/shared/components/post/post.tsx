@@ -373,7 +373,6 @@ export class Post extends Component<any, PostState> {
                 siteLanguages={this.state.siteRes.discussion_languages}
                 onBlockPerson={this.handleBlockPerson}
                 onPostEdit={this.handlePostEdit}
-                onPostVote={this.handlePostVote}
                 onPostReport={this.handlePostReport}
                 onLockPost={this.handleLockPost}
                 onDeletePost={this.handleDeletePost}
@@ -579,7 +578,6 @@ export class Post extends Component<any, PostState> {
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
             onRemoveComment={this.handleRemoveComment}
-            onCommentVote={this.handleCommentVote}
             onCommentReport={this.handleCommentReport}
             onDistinguishComment={this.handleDistinguishComment}
             onAddModToCommunity={this.handleAddModToCommunity}
@@ -666,7 +664,6 @@ export class Post extends Component<any, PostState> {
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
             onRemoveComment={this.handleRemoveComment}
-            onCommentVote={this.handleCommentVote}
             onCommentReport={this.handleCommentReport}
             onDistinguishComment={this.handleDistinguishComment}
             onAddModToCommunity={this.handleAddModToCommunity}

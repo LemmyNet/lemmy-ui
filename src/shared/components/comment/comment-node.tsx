@@ -1,4 +1,5 @@
 import { colorList, getCommentParentId, showScores } from "@utils/app";
+import merge from "lodash.merge";
 import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
 import {
   amCommunityCreator,
@@ -25,7 +26,6 @@ import {
   CommentView,
   CommunityModeratorView,
   CreateComment,
-  CreateCommentLike,
   CreateCommentReport,
   DeleteComment,
   DistinguishComment,
@@ -65,6 +65,7 @@ import { CommentNodes } from "./comment-nodes";
 import ReportForm from "../common/report-form";
 
 interface CommentNodeState {
+  commentView: CommentView;
   showReply: boolean;
   showEdit: boolean;
   showRemoveDialog: boolean;
@@ -86,8 +87,6 @@ interface CommentNodeState {
   showAdvanced: boolean;
   showReportDialog: boolean;
   createOrEditCommentLoading: boolean;
-  upvoteLoading: boolean;
-  downvoteLoading: boolean;
   saveLoading: boolean;
   readLoading: boolean;
   blockPersonLoading: boolean;
@@ -124,7 +123,6 @@ interface CommentNodeProps {
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
   onCreateComment(form: EditComment | CreateComment): void;
   onEditComment(form: EditComment | CreateComment): void;
-  onCommentVote(form: CreateCommentLike): void;
   onBlockPerson(form: BlockPerson): void;
   onDeleteComment(form: DeleteComment): void;
   onRemoveComment(form: RemoveComment): void;
@@ -141,7 +139,7 @@ interface CommentNodeProps {
 }
 
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
-  state: CommentNodeState = {
+  state = {
     showReply: false,
     showEdit: false,
     showRemoveDialog: false,
@@ -159,8 +157,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     showConfirmAppointAsAdmin: false,
     showReportDialog: false,
     createOrEditCommentLoading: false,
-    upvoteLoading: false,
-    downvoteLoading: false,
     saveLoading: false,
     readLoading: false,
     blockPersonLoading: false,
@@ -173,21 +169,23 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     transferCommunityLoading: false,
     fetchChildrenLoading: false,
     purgeLoading: false,
-  };
+  } as CommentNodeState;
 
-  constructor(props: any, context: any) {
+  constructor(props: CommentNodeProps, context: any) {
     super(props, context);
+
+    this.state = {
+      ...this.state,
+      commentView: props.node.comment_view,
+    };
 
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
     this.handleReportComment = this.handleReportComment.bind(this);
-  }
-
-  get commentView(): CommentView {
-    return this.props.node.comment_view;
+    this.handleVote = this.handleVote.bind(this);
   }
 
   get commentId(): CommentId {
-    return this.commentView.comment.id;
+    return this.state.commentView.comment.id;
   }
 
   componentWillReceiveProps(
@@ -212,8 +210,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         showConfirmAppointAsAdmin: false,
         showReportDialog: false,
         createOrEditCommentLoading: false,
-        upvoteLoading: false,
-        downvoteLoading: false,
         saveLoading: false,
         readLoading: false,
         blockPersonLoading: false,
@@ -232,7 +228,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   render() {
     const node = this.props.node;
-    const cv = this.commentView;
+    const { commentView: cv } = this.state;
 
     const purgeTypeText =
       this.state.purgeType === PurgeType.Comment
@@ -281,7 +277,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           id={`comment-${cv.comment.id}`}
           className={classNames(`details comment-node py-2`, {
             "border-top border-light": !this.props.noBorder,
-            mark: this.isCommentNew || this.commentView.comment.distinguished,
+            mark: this.isCommentNew || cv.comment.distinguished,
           })}
         >
           <div className="ms-2">
@@ -342,11 +338,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   <span
                     className={`me-1 fw-bold ${this.scoreColor}`}
                     aria-label={I18NextService.i18n.t("number_of_points", {
-                      count: Number(this.commentView.counts.score),
-                      formattedCount: numToSI(this.commentView.counts.score),
+                      count: Number(cv.counts.score),
+                      formattedCount: numToSI(cv.counts.score),
                     })}
                   >
-                    {numToSI(this.commentView.counts.score)}
+                    {numToSI(cv.counts.score)}
                   </span>
                   <span className="me-1">•</span>
                 </>
@@ -365,9 +361,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 edit
                 onReplyCancel={this.handleReplyCancel}
                 disabled={this.props.locked}
-                finished={this.props.finished.get(
-                  this.props.node.comment_view.comment.id,
-                )}
+                finished={this.props.finished.get(cv.comment.id)}
                 focus
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
@@ -424,11 +418,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     <>
                       <VoteButtonsCompact
                         voteContentType={VoteContentType.Comment}
-                        id={this.commentView.comment.id}
-                        onVote={this.props.onCommentVote}
+                        id={cv.comment.id}
+                        onVote={this.handleVote}
                         enableDownvotes={this.props.enableDownvotes}
-                        counts={this.commentView.counts}
-                        my_vote={this.commentView.my_vote}
+                        counts={cv.counts}
+                        my_vote={cv.my_vote}
                       />
                       <button
                         className="btn btn-link btn-animate text-muted"
@@ -1107,7 +1101,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onPersonMentionRead={this.props.onPersonMentionRead}
             onCreateComment={this.props.onCreateComment}
             onEditComment={this.props.onEditComment}
-            onCommentVote={this.props.onCommentVote}
             onBlockPerson={this.props.onBlockPerson}
             onSaveComment={this.props.onSaveComment}
             onDeleteComment={this.props.onDeleteComment}
@@ -1131,7 +1124,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get commentReplyOrMentionRead(): boolean {
-    const cv = this.commentView;
+    const { commentView: cv } = this.state;
 
     if (this.isPersonMentionType(cv)) {
       return cv.person_mention.read;
@@ -1143,7 +1136,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   getLinkButton(small = false) {
-    const cv = this.commentView;
+    const { commentView: cv } = this.state;
 
     const classnames = classNames("btn btn-link btn-animate text-muted", {
       "btn-sm": small,
@@ -1177,18 +1170,21 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   get myComment(): boolean {
     return (
       UserService.Instance.myUserInfo?.local_user_view.person.id ===
-      this.commentView.creator.id
+      this.state.commentView.creator.id
     );
   }
 
   get isPostCreator(): boolean {
-    return this.commentView.creator.id === this.commentView.post.creator_id;
+    return (
+      this.state.commentView.creator.id ===
+      this.state.commentView.post.creator_id
+    );
   }
 
   get scoreColor() {
-    if (this.commentView.my_vote === 1) {
+    if (this.state.commentView.my_vote === 1) {
       return "text-info";
-    } else if (this.commentView.my_vote === -1) {
+    } else if (this.state.commentView.my_vote === -1) {
       return "text-danger";
     } else {
       return "text-muted";
@@ -1197,18 +1193,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get pointsTippy(): string {
     const points = I18NextService.i18n.t("number_of_points", {
-      count: Number(this.commentView.counts.score),
-      formattedCount: numToSI(this.commentView.counts.score),
+      count: Number(this.state.commentView.counts.score),
+      formattedCount: numToSI(this.state.commentView.counts.score),
     });
 
     const upvotes = I18NextService.i18n.t("number_of_upvotes", {
-      count: Number(this.commentView.counts.upvotes),
-      formattedCount: numToSI(this.commentView.counts.upvotes),
+      count: Number(this.state.commentView.counts.upvotes),
+      formattedCount: numToSI(this.state.commentView.counts.upvotes),
     });
 
     const downvotes = I18NextService.i18n.t("number_of_downvotes", {
-      count: Number(this.commentView.counts.downvotes),
-      formattedCount: numToSI(this.commentView.counts.downvotes),
+      count: Number(this.state.commentView.counts.downvotes),
+      formattedCount: numToSI(this.state.commentView.counts.downvotes),
     });
 
     return `${points} • ${upvotes} • ${downvotes}`;
@@ -1221,7 +1217,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get commentUnlessRemoved(): string {
-    const comment = this.commentView.comment;
+    const comment = this.state.commentView.comment;
     return comment.removed
       ? `*${I18NextService.i18n.t("removed")}*`
       : comment.deleted
@@ -1350,7 +1346,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get isCommentNew(): boolean {
     const now = subMinutes(new Date(), 10);
-    const then = parseISO(this.commentView.comment.published);
+    const then = parseISO(this.state.commentView.comment.published);
     return isBefore(now, then);
   }
 
@@ -1372,22 +1368,22 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState({ saveLoading: true });
 
     i.props.onSaveComment({
-      comment_id: i.commentView.comment.id,
-      save: !i.commentView.saved,
+      comment_id: i.state.commentView.comment.id,
+      save: !i.state.commentView.saved,
     });
   }
 
   handleBlockPerson(i: CommentNode) {
     i.setState({ blockPersonLoading: true });
     i.props.onBlockPerson({
-      person_id: i.commentView.creator.id,
+      person_id: i.state.commentView.creator.id,
       block: true,
     });
   }
 
   handleMarkAsRead(i: CommentNode) {
     i.setState({ readLoading: true });
-    const cv = i.commentView;
+    const cv = i.state.commentView;
     if (i.isPersonMentionType(cv)) {
       i.props.onPersonMentionRead({
         person_mention_id: cv.person_mention.id,
@@ -1405,7 +1401,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState({ deleteLoading: true });
     i.props.onDeleteComment({
       comment_id: i.commentId,
-      deleted: !i.commentView.comment.deleted,
+      deleted: !i.state.commentView.comment.deleted,
     });
   }
 
@@ -1414,7 +1410,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState({ removeLoading: true });
     i.props.onRemoveComment({
       comment_id: i.commentId,
-      removed: !i.commentView.comment.removed,
+      removed: !i.state.commentView.comment.removed,
       reason: i.state.removeReason,
     });
   }
@@ -1423,16 +1419,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState({ distinguishLoading: true });
     i.props.onDistinguishComment({
       comment_id: i.commentId,
-      distinguished: !i.commentView.comment.distinguished,
+      distinguished: !i.state.commentView.comment.distinguished,
     });
   }
 
   handleBanPersonFromCommunity(i: CommentNode) {
     i.setState({ banLoading: true });
     i.props.onBanPersonFromCommunity({
-      community_id: i.commentView.community.id,
-      person_id: i.commentView.creator.id,
-      ban: !i.commentView.creator_banned_from_community,
+      community_id: i.state.commentView.community.id,
+      person_id: i.state.commentView.creator.id,
+      ban: !i.state.commentView.creator_banned_from_community,
       reason: i.state.banReason,
       remove_data: i.state.removeData,
       expires: futureDaysToUnixTime(i.state.banExpireDays),
@@ -1442,8 +1438,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleBanPerson(i: CommentNode) {
     i.setState({ banLoading: true });
     i.props.onBanPerson({
-      person_id: i.commentView.creator.id,
-      ban: !i.commentView.creator_banned_from_community,
+      person_id: i.state.commentView.creator.id,
+      ban: !i.state.commentView.creator_banned_from_community,
       reason: i.state.banReason,
       remove_data: i.state.removeData,
       expires: futureDaysToUnixTime(i.state.banExpireDays),
@@ -1462,10 +1458,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleAddModToCommunity(i: CommentNode) {
     i.setState({ addModLoading: true });
 
-    const added = !isMod(i.commentView.comment.creator_id, i.props.moderators);
+    const added = !isMod(
+      i.state.commentView.comment.creator_id,
+      i.props.moderators,
+    );
     i.props.onAddModToCommunity({
-      community_id: i.commentView.community.id,
-      person_id: i.commentView.creator.id,
+      community_id: i.state.commentView.community.id,
+      person_id: i.state.commentView.creator.id,
       added,
     });
   }
@@ -1473,9 +1472,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleAddAdmin(i: CommentNode) {
     i.setState({ addAdminLoading: true });
 
-    const added = !isAdmin(i.commentView.comment.creator_id, i.props.admins);
+    const added = !isAdmin(
+      i.state.commentView.comment.creator_id,
+      i.props.admins,
+    );
     i.props.onAddAdmin({
-      person_id: i.commentView.creator.id,
+      person_id: i.state.commentView.creator.id,
       added,
     });
   }
@@ -1483,8 +1485,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleTransferCommunity(i: CommentNode) {
     i.setState({ transferCommunityLoading: true });
     i.props.onTransferCommunity({
-      community_id: i.commentView.community.id,
-      person_id: i.commentView.creator.id,
+      community_id: i.state.commentView.community.id,
+      person_id: i.state.commentView.creator.id,
     });
   }
 
@@ -1505,7 +1507,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     if (i.state.purgeType === PurgeType.Person) {
       i.props.onPurgePerson({
-        person_id: i.commentView.creator.id,
+        person_id: i.state.commentView.creator.id,
         reason: i.state.purgeReason,
       });
     } else {
@@ -1524,6 +1526,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       limit: 999, // TODO
       type_: "All",
       saved_only: false,
+    });
+  }
+
+  handleVote(commentView: CommentView) {
+    this.setState(prev => {
+      merge(prev.commentView, commentView);
+
+      return prev;
     });
   }
 }

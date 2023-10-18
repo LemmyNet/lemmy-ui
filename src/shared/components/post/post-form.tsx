@@ -455,7 +455,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 viewOnly
                 // All of these are unused, since its view only
                 onPostEdit={() => {}}
-                onPostVote={() => {}}
                 onPostReport={() => {}}
                 onBlockPerson={() => {}}
                 onLockPost={() => {}}
@@ -626,7 +625,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 viewOnly
                 // All of these are unused, since its view only
                 onPostEdit={() => {}}
-                onPostVote={() => {}}
                 onPostReport={() => {}}
                 onBlockPerson={() => {}}
                 onLockPost={() => {}}

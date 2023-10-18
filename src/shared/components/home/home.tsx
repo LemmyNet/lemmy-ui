@@ -699,7 +699,6 @@ export class Home extends Component<any, HomeState> {
               siteLanguages={siteRes.discussion_languages}
               onBlockPerson={this.handleBlockPerson}
               onPostEdit={this.handlePostEdit}
-              onPostVote={this.handlePostVote}
               onPostReport={this.handlePostReport}
               onLockPost={this.handleLockPost}
               onDeletePost={this.handleDeletePost}
@@ -743,7 +742,6 @@ export class Home extends Component<any, HomeState> {
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
               onRemoveComment={this.handleRemoveComment}
-              onCommentVote={this.handleCommentVote}
               onCommentReport={this.handleCommentReport}
               onDistinguishComment={this.handleDistinguishComment}
               onAddModToCommunity={this.handleAddModToCommunity}

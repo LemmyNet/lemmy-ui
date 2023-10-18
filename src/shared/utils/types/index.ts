@@ -6,6 +6,7 @@ import { QueryParams } from "./query-params";
 import { RouteDataResponse } from "./route-data-response";
 import { ThemeColor } from "./theme-color";
 import WithComment from "./with-comment";
+import XOR from "./xor";
 
 export {
   Choice,
@@ -16,4 +17,5 @@ export {
   RouteDataResponse,
   ThemeColor,
   WithComment,
+  XOR,
 };

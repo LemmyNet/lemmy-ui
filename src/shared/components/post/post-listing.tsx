@@ -1,4 +1,5 @@
 import { myAuth } from "@utils/app";
+import merge from "lodash.merge";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
@@ -27,7 +28,6 @@ import {
   BanPerson,
   BlockPerson,
   CommunityModeratorView,
-  CreatePostLike,
   CreatePostReport,
   DeletePost,
   EditPost,
@@ -65,6 +65,7 @@ import { PostForm } from "./post-form";
 import ReportForm from "../common/report-form";
 
 interface PostListingState {
+  postView: PostView;
   showEdit: boolean;
   showRemoveDialog: boolean;
   showPurgeDialog: boolean;
@@ -115,7 +116,6 @@ interface PostListingProps {
   enableNsfw?: boolean;
   viewOnly?: boolean;
   onPostEdit(form: EditPost): void;
-  onPostVote(form: CreatePostLike): void;
   onPostReport(form: CreatePostReport): void;
   onBlockPerson(form: BlockPerson): void;
   onLockPost(form: LockPost): void;
@@ -134,7 +134,7 @@ interface PostListingProps {
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
-  state: PostListingState = {
+  state = {
     showEdit: false,
     showRemoveDialog: false,
     showPurgeDialog: false,
@@ -162,7 +162,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     addModLoading: false,
     addAdminLoading: false,
     transferLoading: false,
-  };
+  } as PostListingState;
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -171,6 +171,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       this.state.imageExpanded =
         UserService.Instance.myUserInfo.local_user_view.local_user.auto_expand;
     }
+
+    this.state.postView = this.props.post_view;
 
     this.handleEditPost = this.handleEditPost.bind(this);
     this.handleEditCancel = this.handleEditCancel.bind(this);
@@ -196,12 +198,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
-  get postView(): PostView {
-    return this.props.post_view;
-  }
-
   render() {
-    const post = this.postView.post;
+    const post = this.state.postView.post;
 
     return (
       <div className="post-listing mt-2">
@@ -216,7 +214,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </>
         ) : (
           <PostForm
-            post_view={this.postView}
+            post_view={this.state.postView}
             crossPosts={this.props.crossPosts}
             onEdit={this.handleEditPost}
             onCancel={this.handleEditCancel}
@@ -231,7 +229,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   body() {
-    const body = this.postView.post.body;
+    const body = this.state.postView.post.body;
     return body ? (
       <article id="postContent" className="col-12 card my-2 p-2">
         {this.state.viewSource ? (
@@ -267,7 +265,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       );
     }
 
-    const { post } = this.postView;
+    const { post } = this.state.postView;
     const { url } = post;
 
     // if direct video link
@@ -299,7 +297,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   imgThumb(src: string) {
-    const post_view = this.postView;
+    const post_view = this.state.postView;
 
     return (
       <PictrsImage
@@ -312,7 +310,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get imageSrc(): string | undefined {
-    const post = this.postView.post;
+    const post = this.state.postView.post;
     const url = post.url;
     const thumbnail = post.thumbnail_url;
 
@@ -326,7 +324,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   thumbnail() {
-    const post = this.postView.post;
+    const post = this.state.postView.post;
     const url = post.url;
     const thumbnail = post.thumbnail_url;
 
@@ -412,7 +410,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   createdLine() {
-    const post_view = this.postView;
+    const post_view = this.state.postView;
 
     return (
       <div className="small mb-1 mb-md-0">
@@ -449,7 +447,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get postLink() {
-    const post = this.postView.post;
+    const post = this.state.postView.post;
     return (
       <Link
         className={`d-inline ${
@@ -469,7 +467,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   postTitleLine() {
-    const post = this.postView.post;
+    const post = this.state.postView.post;
     const url = post.url;
 
     return (
@@ -560,7 +558,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   urlLine() {
-    const post = this.postView.post;
+    const post = this.state.postView.post;
     const url = post.url;
 
     return (
@@ -604,7 +602,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    const post_view = this.postView;
+    const post_view = this.state.postView;
     const post = post_view.post;
 
     return (
@@ -631,11 +629,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {mobile && !this.props.viewOnly && (
           <VoteButtonsCompact
             voteContentType={VoteContentType.Post}
-            id={this.postView.post.id}
-            onVote={this.props.onPostVote}
+            id={this.state.postView.post.id}
+            onVote={this.handleVote}
             enableDownvotes={this.props.enableDownvotes}
-            counts={this.postView.counts}
-            my_vote={this.postView.my_vote}
+            counts={this.state.postView.counts}
+            my_vote={this.state.postView.my_vote}
           />
         )}
 
@@ -651,7 +649,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   postActions() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
-    const post_view = this.postView;
+    const post_view = this.state.postView;
     const post = post_view.post;
 
     return (
@@ -761,7 +759,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get commentsButton() {
-    const post_view = this.postView;
+    const post_view = this.state.postView;
     const title = I18NextService.i18n.t("number_of_comments", {
       count: Number(post_view.counts.comments),
       formattedCount: Number(post_view.counts.comments),
@@ -790,14 +788,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get unreadCount(): number | undefined {
-    const pv = this.postView;
+    const pv = this.state.postView;
     return pv.unread_comments === pv.counts.comments || pv.unread_comments === 0
       ? undefined
       : pv.unread_comments;
   }
 
   get saveButton() {
-    const saved = this.postView.saved;
+    const saved = this.state.postView.saved;
     const label = saved
       ? I18NextService.i18n.t("unsave")
       : I18NextService.i18n.t("save");
@@ -886,7 +884,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get deleteButton() {
-    const deleted = this.postView.post.deleted;
+    const deleted = this.state.postView.post.deleted;
     const label = !deleted
       ? I18NextService.i18n.t("delete")
       : I18NextService.i18n.t("restore");
@@ -929,7 +927,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get lockButton() {
-    const locked = this.postView.post.locked;
+    const locked = this.state.postView.post.locked;
     const label = locked
       ? I18NextService.i18n.t("unlock")
       : I18NextService.i18n.t("lock");
@@ -956,12 +954,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get featureButtons() {
-    const featuredCommunity = this.postView.post.featured_community;
+    const featuredCommunity = this.state.postView.post.featured_community;
     const labelCommunity = featuredCommunity
       ? I18NextService.i18n.t("unfeature_from_community")
       : I18NextService.i18n.t("feature_in_community");
 
-    const featuredLocal = this.postView.post.featured_local;
+    const featuredLocal = this.state.postView.post.featured_local;
     const labelLocal = featuredLocal
       ? I18NextService.i18n.t("unfeature_from_local")
       : I18NextService.i18n.t("feature_in_local");
@@ -1135,7 +1133,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get modRemoveButton() {
-    const removed = this.postView.post.removed;
+    const removed = this.state.postView.post.removed;
     return (
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
@@ -1160,7 +1158,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   removeAndBanDialogs() {
-    const post = this.postView;
+    const post = this.state.postView;
     const purgeTypeText =
       this.state.purgeType === PurgeType.Post
         ? I18NextService.i18n.t("purge_post")
@@ -1321,7 +1319,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   mobileThumbnail() {
-    const post = this.postView.post;
+    const post = this.state.postView.post;
     return post.thumbnail_url || (post.url && isImage(post.url)) ? (
       <div className="row">
         <div className={`${this.state.imageExpanded ? "col-12" : "col-9"}`}>
@@ -1378,11 +1376,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <div className="col flex-grow-0">
                 <VoteButtons
                   voteContentType={VoteContentType.Post}
-                  id={this.postView.post.id}
-                  onVote={this.props.onPostVote}
+                  id={this.state.postView.post.id}
+                  onVote={this.handleVote}
                   enableDownvotes={this.props.enableDownvotes}
-                  counts={this.postView.counts}
-                  my_vote={this.postView.my_vote}
+                  counts={this.state.postView.counts}
+                  my_vote={this.state.postView.my_vote}
                 />
               </div>
             )}
@@ -1408,7 +1406,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   private get myPost(): boolean {
     return (
-      this.postView.creator.id ===
+      this.state.postView.creator.id ===
       UserService.Instance.myUserInfo?.local_user_view.person.id
     );
   }
@@ -1442,7 +1440,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleReportSubmit(reason: string) {
     this.props.onPostReport({
-      post_id: this.postView.post.id,
+      post_id: this.state.postView.post.id,
       reason,
     });
 
@@ -1454,7 +1452,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleBlockPersonClick(i: PostListing) {
     i.setState({ blockLoading: true });
     i.props.onBlockPerson({
-      person_id: i.postView.creator.id,
+      person_id: i.state.postView.creator.id,
       block: true,
     });
   }
@@ -1462,22 +1460,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleDeleteClick(i: PostListing) {
     i.setState({ deleteLoading: true });
     i.props.onDeletePost({
-      post_id: i.postView.post.id,
-      deleted: !i.postView.post.deleted,
+      post_id: i.state.postView.post.id,
+      deleted: !i.state.postView.post.deleted,
     });
   }
 
   handleSavePostClick(i: PostListing) {
     i.setState({ saveLoading: true });
     i.props.onSavePost({
-      post_id: i.postView.post.id,
-      save: !i.postView.saved,
+      post_id: i.state.postView.post.id,
+      save: !i.state.postView.saved,
     });
   }
 
   get crossPostParams(): PostFormParams {
     const queryParams: PostFormParams = {};
-    const { name, url } = this.postView.post;
+    const { name, url } = this.state.postView.post;
 
     queryParams.name = name;
 
@@ -1494,7 +1492,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   crossPostBody(): string | undefined {
-    const post = this.postView.post;
+    const post = this.state.postView.post;
     const body = post.body;
 
     return body
@@ -1527,8 +1525,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ removeLoading: true });
     i.props.onRemovePost({
-      post_id: i.postView.post.id,
-      removed: !i.postView.post.removed,
+      post_id: i.state.postView.post.id,
+      removed: !i.state.postView.post.removed,
       reason: i.state.removeReason,
     });
   }
@@ -1536,16 +1534,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleModLock(i: PostListing) {
     i.setState({ lockLoading: true });
     i.props.onLockPost({
-      post_id: i.postView.post.id,
-      locked: !i.postView.post.locked,
+      post_id: i.state.postView.post.id,
+      locked: !i.state.postView.post.locked,
     });
   }
 
   handleModFeaturePostLocal(i: PostListing) {
     i.setState({ featureLocalLoading: true });
     i.props.onFeaturePost({
-      post_id: i.postView.post.id,
-      featured: !i.postView.post.featured_local,
+      post_id: i.state.postView.post.id,
+      featured: !i.state.postView.post.featured_local,
       feature_type: "Local",
     });
   }
@@ -1553,8 +1551,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleModFeaturePostCommunity(i: PostListing) {
     i.setState({ featureCommunityLoading: true });
     i.props.onFeaturePost({
-      post_id: i.postView.post.id,
-      featured: !i.postView.post.featured_community,
+      post_id: i.state.postView.post.id,
+      featured: !i.state.postView.post.featured_community,
       feature_type: "Community",
     });
   }
@@ -1600,12 +1598,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ purgeLoading: true });
     if (i.state.purgeType === PurgeType.Person) {
       i.props.onPurgePerson({
-        person_id: i.postView.creator.id,
+        person_id: i.state.postView.creator.id,
         reason: i.state.purgeReason,
       });
     } else if (i.state.purgeType === PurgeType.Post) {
       i.props.onPurgePost({
-        post_id: i.postView.post.id,
+        post_id: i.state.postView.post.id,
         reason: i.state.purgeReason,
       });
     }
@@ -1644,7 +1642,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const expires = futureDaysToUnixTime(i.state.banExpireDays);
 
     if (i.state.banType === BanType.Community) {
-      const community_id = i.postView.community.id;
+      const community_id = i.state.postView.community.id;
       i.props.onBanPersonFromCommunity({
         community_id,
         person_id,
@@ -1667,8 +1665,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleAddModToCommunity(i: PostListing) {
     i.setState({ addModLoading: true });
     i.props.onAddModToCommunity({
-      community_id: i.postView.community.id,
-      person_id: i.postView.creator.id,
+      community_id: i.state.postView.community.id,
+      person_id: i.state.postView.creator.id,
       added: !i.creatorIsMod_,
     });
   }
@@ -1676,7 +1674,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleAddAdmin(i: PostListing) {
     i.setState({ addAdminLoading: true });
     i.props.onAddAdmin({
-      person_id: i.postView.creator.id,
+      person_id: i.state.postView.creator.id,
       added: !i.creatorIsAdmin_,
     });
   }
@@ -1692,8 +1690,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleTransferCommunity(i: PostListing) {
     i.setState({ transferLoading: true });
     i.props.onTransferCommunity({
-      community_id: i.postView.community.id,
-      person_id: i.postView.creator.id,
+      community_id: i.state.postView.community.id,
+      person_id: i.state.postView.creator.id,
     });
   }
 
@@ -1740,20 +1738,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     setupTippy();
   }
 
+  handleVote(postView: PostView) {
+    this.setState(prev => {
+      merge(prev.postView, postView);
+
+      return prev;
+    });
+  }
+
   get pointsTippy(): string {
     const points = I18NextService.i18n.t("number_of_points", {
-      count: Number(this.postView.counts.score),
-      formattedCount: Number(this.postView.counts.score),
+      count: Number(this.state.postView.counts.score),
+      formattedCount: Number(this.state.postView.counts.score),
     });
 
     const upvotes = I18NextService.i18n.t("number_of_upvotes", {
-      count: Number(this.postView.counts.upvotes),
-      formattedCount: Number(this.postView.counts.upvotes),
+      count: Number(this.state.postView.counts.upvotes),
+      formattedCount: Number(this.state.postView.counts.upvotes),
     });
 
     const downvotes = I18NextService.i18n.t("number_of_downvotes", {
-      count: Number(this.postView.counts.downvotes),
-      formattedCount: Number(this.postView.counts.downvotes),
+      count: Number(this.state.postView.counts.downvotes),
+      formattedCount: Number(this.state.postView.counts.downvotes),
     });
 
     return `${points} • ${upvotes} • ${downvotes}`;
@@ -1761,7 +1767,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get canModOnSelf_(): boolean {
     return canMod(
-      this.postView.creator.id,
+      this.state.postView.creator.id,
       this.props.moderators,
       this.props.admins,
       undefined,
@@ -1771,21 +1777,21 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get canMod_(): boolean {
     return canMod(
-      this.postView.creator.id,
+      this.state.postView.creator.id,
       this.props.moderators,
       this.props.admins,
     );
   }
 
   get canAdmin_(): boolean {
-    return canAdmin(this.postView.creator.id, this.props.admins);
+    return canAdmin(this.state.postView.creator.id, this.props.admins);
   }
 
   get creatorIsMod_(): boolean {
-    return isMod(this.postView.creator.id, this.props.moderators);
+    return isMod(this.state.postView.creator.id, this.props.moderators);
   }
 
   get creatorIsAdmin_(): boolean {
-    return isAdmin(this.postView.creator.id, this.props.admins);
+    return isAdmin(this.state.postView.creator.id, this.props.admins);
   }
 }

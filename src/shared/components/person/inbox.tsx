@@ -492,7 +492,6 @@ export class Inbox extends Component<any, InboxState> {
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
             onRemoveComment={this.handleRemoveComment}
-            onCommentVote={this.handleCommentVote}
             onCommentReport={this.handleCommentReport}
             onDistinguishComment={this.handleDistinguishComment}
             onAddModToCommunity={this.handleAddModToCommunity}
@@ -531,7 +530,6 @@ export class Inbox extends Component<any, InboxState> {
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
             onRemoveComment={this.handleRemoveComment}
-            onCommentVote={this.handleCommentVote}
             onCommentReport={this.handleCommentReport}
             onDistinguishComment={this.handleDistinguishComment}
             onAddModToCommunity={this.handleAddModToCommunity}
@@ -608,7 +606,6 @@ export class Inbox extends Component<any, InboxState> {
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
               onRemoveComment={this.handleRemoveComment}
-              onCommentVote={this.handleCommentVote}
               onCommentReport={this.handleCommentReport}
               onDistinguishComment={this.handleDistinguishComment}
               onAddModToCommunity={this.handleAddModToCommunity}
@@ -657,7 +654,6 @@ export class Inbox extends Component<any, InboxState> {
                 onBlockPerson={this.handleBlockPerson}
                 onDeleteComment={this.handleDeleteComment}
                 onRemoveComment={this.handleRemoveComment}
-                onCommentVote={this.handleCommentVote}
                 onCommentReport={this.handleCommentReport}
                 onDistinguishComment={this.handleDistinguishComment}
                 onAddModToCommunity={this.handleAddModToCommunity}

@@ -422,7 +422,6 @@ export class Community extends Component<
               siteLanguages={site_res.discussion_languages}
               onBlockPerson={this.handleBlockPerson}
               onPostEdit={this.handlePostEdit}
-              onPostVote={this.handlePostVote}
               onPostReport={this.handlePostReport}
               onLockPost={this.handleLockPost}
               onDeletePost={this.handleDeletePost}
@@ -465,7 +464,6 @@ export class Community extends Component<
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
               onRemoveComment={this.handleRemoveComment}
-              onCommentVote={this.handleCommentVote}
               onCommentReport={this.handleCommentReport}
               onDistinguishComment={this.handleDistinguishComment}
               onAddModToCommunity={this.handleAddModToCommunity}
