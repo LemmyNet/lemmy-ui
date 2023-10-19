@@ -46,6 +46,7 @@ import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { PostReport } from "../post/post-report";
 import { PrivateMessageReport } from "../private_message/private-message-report";
+import { UnreadCounterService } from "../../services";
 
 enum UnreadOrAll {
   Unread,
@@ -610,16 +611,28 @@ export class Reports extends Component<any, ReportsState> {
   async handleResolveCommentReport(form: ResolveCommentReport) {
     const res = await HttpService.client.resolveCommentReport(form);
     this.findAndUpdateCommentReport(res);
+    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
+      this.refetch();
+      UnreadCounterService.Instance.updateReports();
+    }
   }
 
   async handleResolvePostReport(form: ResolvePostReport) {
     const res = await HttpService.client.resolvePostReport(form);
     this.findAndUpdatePostReport(res);
+    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
+      this.refetch();
+      UnreadCounterService.Instance.updateReports();
+    }
   }
 
   async handleResolvePrivateMessageReport(form: ResolvePrivateMessageReport) {
     const res = await HttpService.client.resolvePrivateMessageReport(form);
     this.findAndUpdatePrivateMessageReport(res);
+    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
+      this.refetch();
+      UnreadCounterService.Instance.updateReports();
+    }
   }
 
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
