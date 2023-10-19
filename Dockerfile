@@ -39,6 +39,7 @@ RUN rm -rf ./node_modules/npm
 RUN du -sh ./node_modules/* | sort -nr | grep '\dM.*'
 
 FROM node:alpine as runner
+RUN apk update && apk add curl --no-cache
 COPY --from=builder /usr/src/app/dist /app/dist
 COPY --from=builder /usr/src/app/node_modules /app/node_modules
 
