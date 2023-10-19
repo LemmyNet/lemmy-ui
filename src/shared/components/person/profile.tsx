@@ -845,7 +845,7 @@ export class Profile extends Component<
 
   async handleEditComment(form: EditComment) {
     const editCommentRes = await HttpService.client.editComment(form);
-    this.findAndUpdateComment(editCommentRes);
+    this.findAndUpdateCommentEdit(editCommentRes);
 
     return editCommentRes;
   }
@@ -1009,7 +1009,7 @@ export class Profile extends Component<
     }
   }
 
-  findAndUpdateComment(res: RequestState<CommentResponse>) {
+  findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.personRes.state === "success" && res.state === "success") {
         s.personRes.data.comments = editComment(
@@ -1017,6 +1017,18 @@ export class Profile extends Component<
           s.personRes.data.comments,
         );
         s.finished.set(res.data.comment_view.comment.id, true);
+      }
+      return s;
+    });
+  }
+
+  findAndUpdateComment(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.personRes.state === "success" && res.state === "success") {
+        s.personRes.data.comments = editComment(
+          res.data.comment_view,
+          s.personRes.data.comments,
+        );
       }
       return s;
     });

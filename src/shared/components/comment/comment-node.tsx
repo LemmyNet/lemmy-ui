@@ -195,7 +195,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   ): void {
     if (!deepEqual(this.props, nextProps)) {
       this.setState({
-        showReply: false,
         showEdit: false,
         showRemoveDialog: false,
         showBanDialog: false,
