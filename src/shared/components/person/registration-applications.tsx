@@ -23,6 +23,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { RegistrationApplication } from "../common/registration-application";
+import { UnreadCounterService } from "../../services";
 
 enum UnreadOrAll {
   Unread,
@@ -243,6 +244,10 @@ export class RegistrationApplications extends Component<
           approveRes.data.registration_application,
           s.appsRes.data.registration_applications,
         );
+        if (this.state.unreadOrAll === UnreadOrAll.Unread) {
+          this.refetch();
+          UnreadCounterService.Instance.updateApplications();
+        }
       }
       return s;
     });
