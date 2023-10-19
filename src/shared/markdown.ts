@@ -185,6 +185,7 @@ export function setupMarkdown() {
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
+    .use(markdown_it_highlightjs, { inline: true })
     .use(localInstanceLinkParser)
     .use(markdown_it_bidi)
     // .use(markdown_it_emoji, {
