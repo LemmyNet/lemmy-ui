@@ -32,27 +32,36 @@ export class UnreadCounterService {
 
   constructor() {
     if (isBrowser()) {
-      poll(this.update, updateUnreadCountsInterval);
+      poll(this.updateAll, updateUnreadCountsInterval);
     }
   }
 
-  public update = async () => {
+  private get shouldUpdate() {
     if (window.document.visibilityState === "hidden") {
-      return;
+      return false;
     }
     if (!myAuth()) {
-      return;
+      return false;
     }
-    const unreadCountRes = await HttpService.client.getUnreadCount();
-    if (unreadCountRes.state === "success") {
-      this.unreadPrivateMessages = unreadCountRes.data.private_messages;
-      this.unreadReplies = unreadCountRes.data.replies;
-      this.unreadMentions = unreadCountRes.data.mentions;
-      this.unreadInboxCountSubject.next(
-        this.unreadPrivateMessages + this.unreadReplies + this.unreadMentions,
-      );
+    return true;
+  }
+
+  public updatePrivateMessages = async () => {
+    if (this.shouldUpdate) {
+      const unreadCountRes = await HttpService.client.getUnreadCount();
+      if (unreadCountRes.state === "success") {
+        this.unreadPrivateMessages = unreadCountRes.data.private_messages;
+        this.unreadReplies = unreadCountRes.data.replies;
+        this.unreadMentions = unreadCountRes.data.mentions;
+        this.unreadInboxCountSubject.next(
+          this.unreadPrivateMessages + this.unreadReplies + this.unreadMentions,
+        );
+      }
     }
-    if (UserService.Instance.moderatesSomething) {
+  };
+
+  public updateReports = async () => {
+    if (this.shouldUpdate && UserService.Instance.moderatesSomething) {
       const reportCountRes = await HttpService.client.getReportCount({});
       if (reportCountRes.state === "success") {
         this.commentReportCount = reportCountRes.data.comment_reports ?? 0;
@@ -66,7 +75,10 @@ export class UnreadCounterService {
         );
       }
     }
-    if (amAdmin()) {
+  };
+
+  public updateApplications = async () => {
+    if (this.shouldUpdate && amAdmin()) {
       const unreadApplicationsRes =
         await HttpService.client.getUnreadRegistrationApplicationCount();
       if (unreadApplicationsRes.state === "success") {
@@ -75,6 +87,12 @@ export class UnreadCounterService {
         );
       }
     }
+  };
+
+  public updateAll = async () => {
+    this.updatePrivateMessages();
+    this.updateReports();
+    this.updateApplications();
   };
 
   static get Instance() {

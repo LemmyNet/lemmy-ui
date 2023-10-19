@@ -795,7 +795,7 @@ export class Inbox extends Component<any, InboxState> {
         limit,
       }),
     });
-    UnreadCounterService.Instance.update();
+    UnreadCounterService.Instance.updatePrivateMessages();
   }
 
   async handleSortChange(val: CommentSortType) {
