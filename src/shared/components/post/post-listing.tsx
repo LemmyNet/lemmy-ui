@@ -1713,6 +1713,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (myAuth() && !i.props.post_view.read) {
       i.props.onMarkPostAsRead({
         post_id: i.props.post_view.post.id,
+        post_ids: [],
         read: true,
       });
     }
