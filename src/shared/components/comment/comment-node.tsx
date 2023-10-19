@@ -193,13 +193,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>,
   ): void {
-    // Only hide the reply box if this comment is finished
-    if (nextProps.finished.get(nextProps.node.comment_view.comment.id)) {
-      this.setState({
-        showReply: false,
-      });
-    }
-
     if (!deepEqual(this.props, nextProps)) {
       this.setState({
         showEdit: false,
