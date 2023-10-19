@@ -822,7 +822,7 @@ export class Post extends Component<any, PostState> {
 
   async handleEditComment(form: EditComment) {
     const editCommentRes = await HttpService.client.editComment(form);
-    this.findAndUpdateComment(editCommentRes);
+    this.findAndUpdateCommentEdit(editCommentRes);
 
     return editCommentRes;
   }
@@ -1059,7 +1059,7 @@ export class Post extends Component<any, PostState> {
     });
   }
 
-  findAndUpdateComment(res: RequestState<CommentResponse>) {
+  findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments = editComment(
@@ -1067,6 +1067,19 @@ export class Post extends Component<any, PostState> {
           s.commentsRes.data.comments,
         );
         s.finished.set(res.data.comment_view.comment.id, true);
+      }
+      return s;
+    });
+  }
+
+  // No need to set finished on a comment vote, save, etc
+  findAndUpdateComment(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.commentsRes.state === "success" && res.state === "success") {
+        s.commentsRes.data.comments = editComment(
+          res.data.comment_view,
+          s.commentsRes.data.comments,
+        );
       }
       return s;
     });
