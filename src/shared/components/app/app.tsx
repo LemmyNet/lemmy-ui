@@ -54,6 +54,11 @@ export class App extends Component<AppProps, any> {
             >
               {I18NextService.i18n.t("jump_to_content", "Jump to content")}
             </button>
+            <link
+              rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+            ></link>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
             {siteView && (
               <Theme defaultTheme={siteView.local_site.default_theme} />
             )}
