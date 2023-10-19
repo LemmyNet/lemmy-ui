@@ -16,6 +16,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import TotpModal from "../common/totp-modal";
+import { UnreadCounterService } from "../../services";
 
 interface LoginProps {
   prev?: string;
@@ -55,6 +56,8 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
     : i.props.history.action === "PUSH"
     ? i.props.history.back()
     : i.props.history.replace("/");
+
+  UnreadCounterService.Instance.updateAll();
 }
 
 async function handleLoginSubmit(i: Login, event: any) {
