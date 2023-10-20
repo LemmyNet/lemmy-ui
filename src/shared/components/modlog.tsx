@@ -364,7 +364,7 @@ function renderModlogType({ type_, view }: ModlogType) {
     case "ModRemoveCommunity": {
       const mrco = view as ModRemoveCommunityView;
       const {
-        mod_remove_community: { reason, expires, removed },
+        mod_remove_community: { reason, removed },
         community,
       } = mrco;
 
@@ -377,11 +377,6 @@ function renderModlogType({ type_, view }: ModlogType) {
           {reason && (
             <span>
               <div>reason: {reason}</div>
-            </span>
-          )}
-          {expires && (
-            <span>
-              <div>expires: {formatPastDate(expires)}</div>
             </span>
           )}
         </>

@@ -1,4 +1,4 @@
-import { getUnixTime, hostname } from "@utils/helpers";
+import { hostname } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -546,7 +546,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       community_id: i.props.community_view.community.id,
       removed: !i.props.community_view.community.removed,
       reason: i.state.removeReason,
-      expires: getUnixTime(i.state.removeExpires), // TODO fix this
     });
   }
 

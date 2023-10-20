@@ -6069,10 +6069,10 @@ leac@^0.6.0:
   resolved "https://registry.yarnpkg.com/leac/-/leac-0.6.0.tgz#dcf136e382e666bd2475f44a1096061b70dc0912"
   integrity sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==
 
-lemmy-js-client@^0.19.0-rc.13:
-  version "0.19.0-rc.13"
-  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.19.0-rc.13.tgz#e0e15ba6fe3a08cb85130eea7eec4bd2773999f9"
-  integrity sha512-JP9oEh1+Wfttqx5O5EMAVIR/hFVS66iVKmEo8/Uxw8fJfyUeQo7BhKvG8LTYegBE39Womgyu3KxXb7Jy9DRI5A==
+lemmy-js-client@0.19.0-rc.14:
+  version "0.19.0-rc.14"
+  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.19.0-rc.14.tgz#41885611c2d78e5cb6b01cf167d68205a471c215"
+  integrity sha512-U0KKFLrU0K+A7UlZr+k4olrXCXBxD+9cwMicu7L/wFyZ2aWHtGPaeO8V6mk6suv9vn2w2PWuimIIC+YICQ5xKg==
   dependencies:
     cross-fetch "^3.1.5"
     form-data "^4.0.0"
