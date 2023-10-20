@@ -15,6 +15,7 @@ import { Navbar } from "./navbar";
 import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
+import { CodeTheme } from "./code-theme";
 
 interface AppProps {
   user?: MyUserInfo;
@@ -55,7 +56,10 @@ export class App extends Component<AppProps, any> {
               {I18NextService.i18n.t("jump_to_content", "Jump to content")}
             </button>
             {siteView && (
-              <Theme defaultTheme={siteView.local_site.default_theme} />
+              <>
+                <Theme defaultTheme={siteView.local_site.default_theme} />
+                <CodeTheme />
+              </>
             )}
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">

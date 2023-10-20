@@ -77,6 +77,7 @@
     "markdown-it-container": "^3.0.0",
     "markdown-it-emoji": "^2.0.2",
     "markdown-it-footnote": "^3.0.3",
+    "markdown-it-highlightjs": "^4.0.1",
     "markdown-it-html5-embed": "^1.0.0",
     "markdown-it-ruby": "^0.1.1",
     "markdown-it-sub": "^1.0.0",
