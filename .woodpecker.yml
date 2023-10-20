@@ -1,6 +1,6 @@
 steps:
   fetch_git_submodules:
-    image: node:alpine
+    image: node:20-alpine
     commands:
       - apk add git
       - git submodule init
@@ -8,17 +8,17 @@ steps:
       # - git fetch --tags
 
   yarn:
-    image: node:alpine
+    image: node:20-alpine
     commands:
       - yarn
 
   yarn_lint:
-    image: node:alpine
+    image: node:20-alpine
     commands:
       - yarn lint
 
   yarn_build_dev:
-    image: node:alpine
+    image: node:20-alpine
     commands:
       - yarn build:dev
 
