@@ -14,7 +14,6 @@ import markdown_it_html5_embed from "markdown-it-html5-embed";
 import markdown_it_ruby from "markdown-it-ruby";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
-import markdown_it_highlightjs from "markdown-it-highlightjs";
 import Renderer from "markdown-it/lib/renderer";
 import Token from "markdown-it/lib/token";
 import { instanceLinkRegex, relTags } from "./config";
@@ -171,7 +170,6 @@ export function setupMarkdown() {
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
-    .use(markdown_it_highlightjs, { inline: true })
     .use(markdown_it_ruby)
     .use(localInstanceLinkParser)
     .use(markdown_it_bidi);
