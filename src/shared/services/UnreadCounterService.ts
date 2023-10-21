@@ -46,7 +46,7 @@ export class UnreadCounterService {
     return true;
   }
 
-  public async updatePrivateMessages() {
+  public async updateInboxCounts() {
     if (this.shouldUpdate) {
       const unreadCountRes = await HttpService.client.getUnreadCount();
       if (unreadCountRes.state === "success") {
@@ -90,7 +90,7 @@ export class UnreadCounterService {
   }
 
   public updateAll = async () => {
-    this.updatePrivateMessages();
+    this.updateInboxCounts();
     this.updateReports();
     this.updateApplications();
   };
