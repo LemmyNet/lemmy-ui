@@ -46,7 +46,7 @@ export class UnreadCounterService {
     return true;
   }
 
-  public updatePrivateMessages = async () => {
+  public async updatePrivateMessages() {
     if (this.shouldUpdate) {
       const unreadCountRes = await HttpService.client.getUnreadCount();
       if (unreadCountRes.state === "success") {
@@ -58,9 +58,9 @@ export class UnreadCounterService {
         );
       }
     }
-  };
+  }
 
-  public updateReports = async () => {
+  public async updateReports() {
     if (this.shouldUpdate && UserService.Instance.moderatesSomething) {
       const reportCountRes = await HttpService.client.getReportCount({});
       if (reportCountRes.state === "success") {
@@ -75,9 +75,9 @@ export class UnreadCounterService {
         );
       }
     }
-  };
+  }
 
-  public updateApplications = async () => {
+  public async updateApplications() {
     if (this.shouldUpdate && amAdmin()) {
       const unreadApplicationsRes =
         await HttpService.client.getUnreadRegistrationApplicationCount();
@@ -87,7 +87,7 @@ export class UnreadCounterService {
         );
       }
     }
-  };
+  }
 
   public updateAll = async () => {
     this.updatePrivateMessages();
