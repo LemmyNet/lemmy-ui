@@ -32,7 +32,7 @@ export class UnreadCounterService {
 
   constructor() {
     if (isBrowser()) {
-      poll(this.updateAll, updateUnreadCountsInterval);
+      poll(async () => this.updateAll(), updateUnreadCountsInterval);
     }
   }
 
@@ -89,11 +89,11 @@ export class UnreadCounterService {
     }
   }
 
-  public updateAll = async () => {
+  public async updateAll() {
     this.updateInboxCounts();
     this.updateReports();
     this.updateApplications();
-  };
+  }
 
   static get Instance() {
     return this.#instance ?? (this.#instance = new this());
