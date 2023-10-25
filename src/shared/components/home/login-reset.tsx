@@ -2,7 +2,7 @@ import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter, validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
-import { HttpService, I18NextService, UserService } from "../../services";
+import { HttpService, I18NextService } from "../../services";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -30,15 +30,9 @@ export class LoginReset extends Component<any, State> {
     super(props, context);
   }
 
-  componentDidMount() {
-    if (UserService.Instance.myUserInfo) {
-      this.context.router.history.push("/");
-    }
-  }
-
   get documentTitle(): string {
     return `${capitalizeFirstLetter(
-      I18NextService.i18n.t("forgot_password")
+      I18NextService.i18n.t("forgot_password"),
     )} - ${this.state.siteRes.site_view.site.name}`;
   }
 
@@ -127,7 +121,7 @@ export class LoginReset extends Component<any, State> {
 
       const res = await HttpService.client.passwordReset({ email });
 
-      if (res.state == "success") {
+      if (res.state === "success") {
         toast(I18NextService.i18n.t("reset_password_mail_sent"));
         i.context.router.history.push("/login");
       }

@@ -7,7 +7,6 @@ import {
   enableDownvotes,
   getCommentParentId,
   myAuth,
-  myAuthRequired,
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
@@ -63,7 +62,14 @@ import {
 import { fetchLimit, relTags } from "../../config";
 import { CommentViewType, InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import { UnreadCounterService } from "../../services";
+import {
+  EMPTY_REQUEST,
+  EmptyRequestState,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { CommentSortSelect } from "../common/comment-sort-select";
@@ -125,10 +131,10 @@ export class Inbox extends Component<any, InboxState> {
     sort: "New",
     page: 1,
     siteRes: this.isoData.site_res,
-    repliesRes: { state: "empty" },
-    mentionsRes: { state: "empty" },
-    messagesRes: { state: "empty" },
-    markAllAsReadRes: { state: "empty" },
+    repliesRes: EMPTY_REQUEST,
+    mentionsRes: EMPTY_REQUEST,
+    messagesRes: EMPTY_REQUEST,
+    markAllAsReadRes: EMPTY_REQUEST,
     finished: new Map(),
     isIsomorphic: false,
   };
@@ -188,20 +194,20 @@ export class Inbox extends Component<any, InboxState> {
     const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
-          "inbox"
+          "inbox",
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
 
   get hasUnreads(): boolean {
-    if (this.state.unreadOrAll == UnreadOrAll.Unread) {
+    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
       const { repliesRes, mentionsRes, messagesRes } = this.state;
       const replyCount =
-        repliesRes.state == "success" ? repliesRes.data.replies.length : 0;
+        repliesRes.state === "success" ? repliesRes.data.replies.length : 0;
       const mentionCount =
-        mentionsRes.state == "success" ? mentionsRes.data.mentions.length : 0;
+        mentionsRes.state === "success" ? mentionsRes.data.mentions.length : 0;
       const messageCount =
-        messagesRes.state == "success"
+        messagesRes.state === "success"
           ? messagesRes.data.private_messages.length
           : 0;
 
@@ -242,11 +248,11 @@ export class Inbox extends Component<any, InboxState> {
                 className="btn btn-secondary mb-2 mb-sm-3"
                 onClick={linkEvent(this, this.handleMarkAllAsRead)}
               >
-                {this.state.markAllAsReadRes.state == "loading" ? (
+                {this.state.markAllAsReadRes.state === "loading" ? (
                   <Spinner />
                 ) : (
                   capitalizeFirstLetter(
-                    I18NextService.i18n.t("mark_all_as_read")
+                    I18NextService.i18n.t("mark_all_as_read"),
                   )
                 )}
               </button>
@@ -256,6 +262,7 @@ export class Inbox extends Component<any, InboxState> {
             <Paginator
               page={this.state.page}
               onChange={this.handlePageChange}
+              nextDisabled={false}
             />
           </div>
         </div>
@@ -445,22 +452,22 @@ export class Inbox extends Component<any, InboxState> {
 
   buildCombined(): ReplyType[] {
     const replies: ReplyType[] =
-      this.state.repliesRes.state == "success"
+      this.state.repliesRes.state === "success"
         ? this.state.repliesRes.data.replies.map(this.replyToReplyType)
         : [];
     const mentions: ReplyType[] =
-      this.state.mentionsRes.state == "success"
+      this.state.mentionsRes.state === "success"
         ? this.state.mentionsRes.data.mentions.map(this.mentionToReplyType)
         : [];
     const messages: ReplyType[] =
-      this.state.messagesRes.state == "success"
+      this.state.messagesRes.state === "success"
         ? this.state.messagesRes.data.private_messages.map(
-            this.messageToReplyType
+            this.messageToReplyType,
           )
         : [];
 
     return [...replies, ...mentions, ...messages].sort((a, b) =>
-      b.published.localeCompare(a.published)
+      b.published.localeCompare(a.published),
     );
   }
 
@@ -559,9 +566,9 @@ export class Inbox extends Component<any, InboxState> {
 
   all() {
     if (
-      this.state.repliesRes.state == "loading" ||
-      this.state.mentionsRes.state == "loading" ||
-      this.state.messagesRes.state == "loading"
+      this.state.repliesRes.state === "loading" ||
+      this.state.mentionsRes.state === "loading" ||
+      this.state.messagesRes.state === "loading"
     ) {
       return (
         <h1 className="h4">
@@ -718,78 +725,77 @@ export class Inbox extends Component<any, InboxState> {
 
   static async fetchInitialData({
     client,
-    auth,
   }: InitialFetchRequest): Promise<InboxData> {
     const sort: CommentSortType = "New";
-
-    return {
-      mentionsRes: auth
-        ? await client.getPersonMentions({
-            sort,
-            unread_only: true,
-            page: 1,
-            limit: fetchLimit,
-            auth,
-          })
-        : { state: "empty" },
-      messagesRes: auth
-        ? await client.getPrivateMessages({
-            unread_only: true,
-            page: 1,
-            limit: fetchLimit,
-            auth,
-          })
-        : { state: "empty" },
-      repliesRes: auth
-        ? await client.getReplies({
-            sort,
-            unread_only: true,
-            page: 1,
-            limit: fetchLimit,
-            auth,
-          })
-        : { state: "empty" },
+    const empty: EmptyRequestState = EMPTY_REQUEST;
+    let inboxData: InboxData = {
+      mentionsRes: empty,
+      messagesRes: empty,
+      repliesRes: empty,
     };
+
+    if (myAuth()) {
+      const [mentionsRes, messagesRes, repliesRes] = await Promise.all([
+        client.getPersonMentions({
+          sort,
+          unread_only: true,
+          page: 1,
+          limit: fetchLimit,
+        }),
+        client.getPrivateMessages({
+          unread_only: true,
+          page: 1,
+          limit: fetchLimit,
+        }),
+        client.getReplies({
+          sort,
+          unread_only: true,
+          page: 1,
+          limit: fetchLimit,
+        }),
+      ]);
+
+      inboxData = { mentionsRes, messagesRes, repliesRes };
+    }
+
+    return inboxData;
   }
 
   async refetch() {
     const sort = this.state.sort;
-    const unread_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const unread_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     const page = this.state.page;
     const limit = fetchLimit;
-    const auth = myAuthRequired();
 
-    this.setState({ repliesRes: { state: "loading" } });
+    this.setState({ repliesRes: LOADING_REQUEST });
     this.setState({
       repliesRes: await HttpService.client.getReplies({
         sort,
         unread_only,
         page,
         limit,
-        auth,
       }),
     });
 
-    this.setState({ mentionsRes: { state: "loading" } });
+    this.setState({ mentionsRes: LOADING_REQUEST });
     this.setState({
       mentionsRes: await HttpService.client.getPersonMentions({
         sort,
         unread_only,
         page,
         limit,
-        auth,
       }),
     });
 
-    this.setState({ messagesRes: { state: "loading" } });
+    this.setState({ messagesRes: LOADING_REQUEST });
     this.setState({
       messagesRes: await HttpService.client.getPrivateMessages({
         unread_only,
         page,
         limit,
-        auth,
       }),
     });
+    UnreadCounterService.Instance.updateInboxCounts();
   }
 
   async handleSortChange(val: CommentSortType) {
@@ -798,19 +804,17 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   async handleMarkAllAsRead(i: Inbox) {
-    i.setState({ markAllAsReadRes: { state: "loading" } });
+    i.setState({ markAllAsReadRes: LOADING_REQUEST });
 
     i.setState({
-      markAllAsReadRes: await HttpService.client.markAllAsRead({
-        auth: myAuthRequired(),
-      }),
+      markAllAsReadRes: await HttpService.client.markAllAsRead(),
     });
 
-    if (i.state.markAllAsReadRes.state == "success") {
+    if (i.state.markAllAsReadRes.state === "success") {
       i.setState({
-        repliesRes: { state: "empty" },
-        mentionsRes: { state: "empty" },
-        messagesRes: { state: "empty" },
+        repliesRes: EMPTY_REQUEST,
+        mentionsRes: EMPTY_REQUEST,
+        messagesRes: EMPTY_REQUEST,
       });
     }
   }
@@ -837,7 +841,7 @@ export class Inbox extends Component<any, InboxState> {
 
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
-    if (blockPersonRes.state == "success") {
+    if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data);
     }
   }
@@ -868,7 +872,7 @@ export class Inbox extends Component<any, InboxState> {
 
   async handleDeleteComment(form: DeleteComment) {
     const res = await HttpService.client.deleteComment(form);
-    if (res.state == "success") {
+    if (res.state === "success") {
       toast(I18NextService.i18n.t("deleted"));
       this.findAndUpdateComment(res);
     }
@@ -876,7 +880,7 @@ export class Inbox extends Component<any, InboxState> {
 
   async handleRemoveComment(form: RemoveComment) {
     const res = await HttpService.client.removeComment(form);
-    if (res.state == "success") {
+    if (res.state === "success") {
       toast(I18NextService.i18n.t("remove_comment"));
       this.findAndUpdateComment(res);
     }
@@ -917,12 +921,20 @@ export class Inbox extends Component<any, InboxState> {
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
     const res = await HttpService.client.markCommentReplyAsRead(form);
-    this.findAndUpdateCommentReply(res);
+    if (this.state.unreadOrAll === UnreadOrAll.All) {
+      this.findAndUpdateCommentReply(res);
+    } else {
+      await this.refetch();
+    }
   }
 
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
     const res = await HttpService.client.markPersonMentionAsRead(form);
-    this.findAndUpdateMention(res);
+    if (this.state.unreadOrAll === UnreadOrAll.All) {
+      this.findAndUpdateMention(res);
+    } else {
+      await this.refetch();
+    }
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
@@ -947,7 +959,11 @@ export class Inbox extends Component<any, InboxState> {
 
   async handleMarkMessageAsRead(form: MarkPrivateMessageAsRead) {
     const res = await HttpService.client.markPrivateMessageAsRead(form);
-    this.findAndUpdateMessage(res);
+    if (this.state.unreadOrAll === UnreadOrAll.All) {
+      this.findAndUpdateMessage(res);
+    } else {
+      await this.refetch();
+    }
   }
 
   async handleMessageReport(form: CreatePrivateMessageReport) {
@@ -958,9 +974,9 @@ export class Inbox extends Component<any, InboxState> {
   async handleCreateMessage(form: CreatePrivateMessage) {
     const res = await HttpService.client.createPrivateMessage(form);
     this.setState(s => {
-      if (s.messagesRes.state == "success" && res.state == "success") {
+      if (s.messagesRes.state === "success" && res.state === "success") {
         s.messagesRes.data.private_messages.unshift(
-          res.data.private_message_view
+          res.data.private_message_view,
         );
       }
 
@@ -973,7 +989,7 @@ export class Inbox extends Component<any, InboxState> {
       if (s.messagesRes.state === "success" && res.state === "success") {
         s.messagesRes.data.private_messages = editPrivateMessage(
           res.data.private_message_view,
-          s.messagesRes.data.private_messages
+          s.messagesRes.data.private_messages,
         );
       }
       return s;
@@ -982,20 +998,20 @@ export class Inbox extends Component<any, InboxState> {
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
     // Maybe not necessary
-    if (banRes.state == "success") {
+    if (banRes.state === "success") {
       this.setState(s => {
-        if (s.repliesRes.state == "success") {
+        if (s.repliesRes.state === "success") {
           s.repliesRes.data.replies
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
-        if (s.mentionsRes.state == "success") {
+        if (s.mentionsRes.state === "success") {
           s.mentionsRes.data.mentions
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         return s;
@@ -1005,16 +1021,16 @@ export class Inbox extends Component<any, InboxState> {
 
   updateBan(banRes: RequestState<BanPersonResponse>) {
     // Maybe not necessary
-    if (banRes.state == "success") {
+    if (banRes.state === "success") {
       this.setState(s => {
-        if (s.repliesRes.state == "success") {
+        if (s.repliesRes.state === "success") {
           s.repliesRes.data.replies
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
         }
-        if (s.mentionsRes.state == "success") {
+        if (s.mentionsRes.state === "success") {
           s.mentionsRes.data.mentions
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
         }
         return s;
@@ -1023,40 +1039,40 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
-    if (purgeRes.state == "success") {
+    if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }
 
   reportToast(
-    res: RequestState<PrivateMessageReportResponse | CommentReportResponse>
+    res: RequestState<PrivateMessageReportResponse | CommentReportResponse>,
   ) {
-    if (res.state == "success") {
+    if (res.state === "success") {
       toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   // A weird case, since you have only replies and mentions, not comment responses
   findAndUpdateComment(res: RequestState<CommentResponse>) {
-    if (res.state == "success") {
+    if (res.state === "success") {
       this.setState(s => {
-        if (s.repliesRes.state == "success") {
+        if (s.repliesRes.state === "success") {
           s.repliesRes.data.replies = editWith(
             res.data.comment_view,
-            s.repliesRes.data.replies
+            s.repliesRes.data.replies,
           );
         }
-        if (s.mentionsRes.state == "success") {
+        if (s.mentionsRes.state === "success") {
           s.mentionsRes.data.mentions = editWith(
             res.data.comment_view,
-            s.mentionsRes.data.mentions
+            s.mentionsRes.data.mentions,
           );
         }
         // Set finished for the parent
         s.finished.set(
           getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true
+          true,
         );
         return s;
       });
@@ -1065,10 +1081,10 @@ export class Inbox extends Component<any, InboxState> {
 
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
     this.setState(s => {
-      if (s.repliesRes.state == "success" && res.state == "success") {
+      if (s.repliesRes.state === "success" && res.state === "success") {
         s.repliesRes.data.replies = editCommentReply(
           res.data.comment_reply_view,
-          s.repliesRes.data.replies
+          s.repliesRes.data.replies,
         );
       }
       return s;
@@ -1077,10 +1093,10 @@ export class Inbox extends Component<any, InboxState> {
 
   findAndUpdateMention(res: RequestState<PersonMentionResponse>) {
     this.setState(s => {
-      if (s.mentionsRes.state == "success" && res.state == "success") {
+      if (s.mentionsRes.state === "success" && res.state === "success") {
         s.mentionsRes.data.mentions = editMention(
           res.data.person_mention_view,
-          s.mentionsRes.data.mentions
+          s.mentionsRes.data.mentions,
         );
       }
       return s;

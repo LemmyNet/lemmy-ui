@@ -8,18 +8,13 @@ import {
   enableNsfw,
   getCommentParentId,
   getDataTypeString,
-  myAuth,
   postToCommentSortType,
   setIsoData,
   showLocal,
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
-import {
-  getPageFromString,
-  getQueryParams,
-  getQueryString,
-} from "@utils/helpers";
+import { getQueryParams, getQueryString } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
@@ -62,6 +57,8 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MarkPostAsRead,
+  PaginationCursor,
   PostResponse,
   PurgeComment,
   PurgeCommunity,
@@ -83,7 +80,12 @@ import {
   InitialFetchRequest,
 } from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -91,12 +93,12 @@ import { BannerIconHeader } from "../common/banner-icon-header";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import { Paginator } from "../common/paginator";
 import { SortSelect } from "../common/sort-select";
 import { Sidebar } from "../community/sidebar";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
+import { PaginatorCursor } from "../common/paginator-cursor";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -117,13 +119,13 @@ interface State {
 interface CommunityProps {
   dataType: DataType;
   sort: SortType;
-  page: number;
+  pageCursor?: PaginationCursor;
 }
 
 function getCommunityQueryParams() {
   return getQueryParams<CommunityProps>({
     dataType: getDataTypeFromQuery,
-    page: getPageFromString,
+    pageCursor: cursor => cursor,
     sort: getSortTypeFromQuery,
   });
 }
@@ -146,9 +148,9 @@ export class Community extends Component<
 > {
   private isoData = setIsoData<CommunityData>(this.context);
   state: State = {
-    communityRes: { state: "empty" },
-    postsRes: { state: "empty" },
-    commentsRes: { state: "empty" },
+    communityRes: EMPTY_REQUEST,
+    postsRes: EMPTY_REQUEST,
+    commentsRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     showSidebarMobile: false,
     finished: new Map(),
@@ -160,7 +162,8 @@ export class Community extends Component<
 
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
-    this.handlePageChange = this.handlePageChange.bind(this);
+    this.handlePageNext = this.handlePageNext.bind(this);
+    this.handlePagePrev = this.handlePagePrev.bind(this);
 
     // All of the action binds
     this.handleDeleteCommunity = this.handleDeleteCommunity.bind(this);
@@ -195,6 +198,7 @@ export class Community extends Component<
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.mainContentRef = createRef();
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -211,11 +215,10 @@ export class Community extends Component<
   }
 
   async fetchCommunity() {
-    this.setState({ communityRes: { state: "loading" } });
+    this.setState({ communityRes: LOADING_REQUEST });
     this.setState({
       communityRes: await HttpService.client.getCommunity({
         name: this.props.match.params.name,
-        auth: myAuth(),
       }),
     });
   }
@@ -231,8 +234,7 @@ export class Community extends Component<
   static async fetchInitialData({
     client,
     path,
-    query: { dataType: urlDataType, page: urlPage, sort: urlSort },
-    auth,
+    query: { dataType: urlDataType, pageCursor, sort: urlSort },
   }: InitialFetchRequest<QueryParams<CommunityProps>>): Promise<
     Promise<CommunityData>
   > {
@@ -241,41 +243,33 @@ export class Community extends Component<
     const communityName = pathSplit[2];
     const communityForm: GetCommunity = {
       name: communityName,
-      auth,
     };
 
     const dataType = getDataTypeFromQuery(urlDataType);
 
     const sort = getSortTypeFromQuery(urlSort);
 
-    const page = getPageFromString(urlPage);
-
-    let postsResponse: RequestState<GetPostsResponse> = { state: "empty" };
-    let commentsResponse: RequestState<GetCommentsResponse> = {
-      state: "empty",
-    };
+    let postsResponse: RequestState<GetPostsResponse> = EMPTY_REQUEST;
+    let commentsResponse: RequestState<GetCommentsResponse> = EMPTY_REQUEST;
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
         community_name: communityName,
-        page,
+        page_cursor: pageCursor,
         limit: fetchLimit,
         sort,
         type_: "All",
         saved_only: false,
-        auth,
       };
 
       postsResponse = await client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
         community_name: communityName,
-        page,
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
         type_: "All",
         saved_only: false,
-        auth,
       };
 
       commentsResponse = await client.getComments(getCommentsForm);
@@ -288,14 +282,21 @@ export class Community extends Component<
     };
   }
 
+  get getNextPage(): PaginationCursor | undefined {
+    return this.state.postsRes.state === "success"
+      ? this.state.postsRes.data.next_page
+      : undefined;
+  }
+
   get documentTitle(): string {
     const cRes = this.state.communityRes;
-    return cRes.state == "success"
+    return cRes.state === "success"
       ? `${cRes.data.community_view.community.title} - ${this.isoData.site_res.site_view.site.name}`
       : "";
   }
 
   renderCommunity() {
+    const { pageCursor } = getCommunityQueryParams();
     switch (this.state.communityRes.state) {
       case "loading":
         return (
@@ -305,13 +306,13 @@ export class Community extends Component<
         );
       case "success": {
         const res = this.state.communityRes.data;
-        const { page } = getCommunityQueryParams();
 
         return (
           <>
             <HtmlTags
               title={this.documentTitle}
               path={this.context.router.route.match.url}
+              canonicalPath={res.community_view.community.actor_id}
               description={res.community_view.community.description}
               image={res.community_view.community.icon}
             />
@@ -341,7 +342,12 @@ export class Community extends Component<
                 </div>
                 {this.selects(res)}
                 {this.listings(res)}
-                <Paginator page={page} onChange={this.handlePageChange} />
+                <PaginatorCursor
+                  prevPage={pageCursor}
+                  nextPage={this.getNextPage}
+                  onNext={this.handlePageNext}
+                  onPrev={this.handlePagePrev}
+                />
               </main>
               <aside className="d-none d-md-block col-md-4 col-lg-3">
                 {this.sidebar(res)}
@@ -430,6 +436,7 @@ export class Community extends Component<
               onAddAdmin={this.handleAddAdmin}
               onTransferCommunity={this.handleTransferCommunity}
               onFeaturePost={this.handleFeaturePost}
+              onMarkPostAsRead={this.handleMarkPostAsRead}
             />
           );
       }
@@ -447,7 +454,7 @@ export class Community extends Component<
               nodes={commentsToFlatNodes(this.state.commentsRes.data.comments)}
               viewType={CommentViewType.Flat}
               finished={this.state.finished}
-              noIndent
+              isTopLevel
               showContext
               enableDownvotes={enableDownvotes(site_res)}
               moderators={communityRes.moderators}
@@ -534,18 +541,22 @@ export class Community extends Component<
     );
   }
 
-  handlePageChange(page: number) {
-    this.updateUrl({ page });
+  handlePagePrev() {
+    this.props.history.back();
+  }
+
+  handlePageNext(nextPage: PaginationCursor) {
+    this.updateUrl({ pageCursor: nextPage });
     window.scrollTo(0, 0);
   }
 
   handleSortChange(sort: SortType) {
-    this.updateUrl({ sort, page: 1 });
+    this.updateUrl({ sort, pageCursor: undefined });
     window.scrollTo(0, 0);
   }
 
   handleDataTypeChange(dataType: DataType) {
-    this.updateUrl({ dataType, page: 1 });
+    this.updateUrl({ dataType, pageCursor: undefined });
     window.scrollTo(0, 0);
   }
 
@@ -555,54 +566,47 @@ export class Community extends Component<
     }));
   }
 
-  async updateUrl({ dataType, page, sort }: Partial<CommunityProps>) {
-    const {
-      dataType: urlDataType,
-      page: urlPage,
-      sort: urlSort,
-    } = getCommunityQueryParams();
+  async updateUrl({ dataType, pageCursor, sort }: Partial<CommunityProps>) {
+    const { dataType: urlDataType, sort: urlSort } = getCommunityQueryParams();
 
     const queryParams: QueryParams<CommunityProps> = {
       dataType: getDataTypeString(dataType ?? urlDataType),
-      page: (page ?? urlPage).toString(),
+      pageCursor: pageCursor,
       sort: sort ?? urlSort,
     };
 
     this.props.history.push(
-      `/c/${this.props.match.params.name}${getQueryString(queryParams)}`
+      `/c/${this.props.match.params.name}${getQueryString(queryParams)}`,
     );
 
     await this.fetchData();
   }
 
   async fetchData() {
-    const { dataType, page, sort } = getCommunityQueryParams();
+    const { dataType, pageCursor, sort } = getCommunityQueryParams();
     const { name } = this.props.match.params;
 
     if (dataType === DataType.Post) {
-      this.setState({ postsRes: { state: "loading" } });
+      this.setState({ postsRes: LOADING_REQUEST });
       this.setState({
         postsRes: await HttpService.client.getPosts({
-          page,
+          page_cursor: pageCursor,
           limit: fetchLimit,
           sort,
           type_: "All",
           community_name: name,
           saved_only: false,
-          auth: myAuth(),
         }),
       });
     } else {
-      this.setState({ commentsRes: { state: "loading" } });
+      this.setState({ commentsRes: LOADING_REQUEST });
       this.setState({
         commentsRes: await HttpService.client.getComments({
-          page,
           limit: fetchLimit,
           sort: postToCommentSortType(sort),
           type_: "All",
           community_name: name,
           saved_only: false,
-          auth: myAuth(),
         }),
       });
     }
@@ -625,11 +629,11 @@ export class Community extends Component<
     this.updateCommunity(followCommunityRes);
 
     // Update myUserInfo
-    if (followCommunityRes.state == "success") {
+    if (followCommunityRes.state === "success") {
       const communityId = followCommunityRes.data.community_view.community.id;
       const mui = UserService.Instance.myUserInfo;
       if (mui) {
-        mui.follows = mui.follows.filter(i => i.community.id != communityId);
+        mui.follows = mui.follows.filter(i => i.community.id !== communityId);
       }
     }
   }
@@ -656,10 +660,10 @@ export class Community extends Component<
 
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
-    if (blockCommunityRes.state == "success") {
+    if (blockCommunityRes.state === "success") {
       updateCommunityBlock(blockCommunityRes.data);
       this.setState(s => {
-        if (s.communityRes.state == "success") {
+        if (s.communityRes.state === "success") {
           s.communityRes.data.community_view.blocked =
             blockCommunityRes.data.blocked;
         }
@@ -669,7 +673,7 @@ export class Community extends Component<
 
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
-    if (blockPersonRes.state == "success") {
+    if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data);
     }
   }
@@ -695,7 +699,7 @@ export class Community extends Component<
 
   async handleEditComment(form: EditComment) {
     const editCommentRes = await HttpService.client.editComment(form);
-    this.findAndUpdateComment(editCommentRes);
+    this.findAndUpdateCommentEdit(editCommentRes);
 
     return editCommentRes;
   }
@@ -752,14 +756,14 @@ export class Community extends Component<
 
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
-    if (reportRes.state == "success") {
+    if (reportRes.state === "success") {
       toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
-    if (reportRes.state == "success") {
+    if (reportRes.state === "success") {
       toast(I18NextService.i18n.t("report_created"));
     }
   }
@@ -777,14 +781,14 @@ export class Community extends Component<
   async handleAddAdmin(form: AddAdmin) {
     const addAdminRes = await HttpService.client.addAdmin(form);
 
-    if (addAdminRes.state == "success") {
+    if (addAdminRes.state === "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
     }
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
     const transferCommunityRes = await HttpService.client.transferCommunity(
-      form
+      form,
     );
     toast(I18NextService.i18n.t("transfer_community"));
     this.updateCommunityFull(transferCommunityRes);
@@ -800,6 +804,11 @@ export class Community extends Component<
     await HttpService.client.markPersonMentionAsRead(form);
   }
 
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    this.findAndUpdatePost(res);
+  }
+
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
@@ -812,20 +821,20 @@ export class Community extends Component<
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
     // Maybe not necessary
-    if (banRes.state == "success") {
+    if (banRes.state === "success") {
       this.setState(s => {
-        if (s.postsRes.state == "success") {
+        if (s.postsRes.state === "success") {
           s.postsRes.data.posts
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
-        if (s.commentsRes.state == "success") {
+        if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         return s;
@@ -835,16 +844,16 @@ export class Community extends Component<
 
   updateBan(banRes: RequestState<BanPersonResponse>) {
     // Maybe not necessary
-    if (banRes.state == "success") {
+    if (banRes.state === "success") {
       this.setState(s => {
-        if (s.postsRes.state == "success") {
+        if (s.postsRes.state === "success") {
           s.postsRes.data.posts
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
         }
-        if (s.commentsRes.state == "success") {
+        if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
         }
         return s;
@@ -854,7 +863,7 @@ export class Community extends Component<
 
   updateCommunity(res: RequestState<CommunityResponse>) {
     this.setState(s => {
-      if (s.communityRes.state == "success" && res.state == "success") {
+      if (s.communityRes.state === "success" && res.state === "success") {
         s.communityRes.data.community_view = res.data.community_view;
         s.communityRes.data.discussion_languages =
           res.data.discussion_languages;
@@ -865,7 +874,7 @@ export class Community extends Component<
 
   updateCommunityFull(res: RequestState<GetCommunityResponse>) {
     this.setState(s => {
-      if (s.communityRes.state == "success" && res.state == "success") {
+      if (s.communityRes.state === "success" && res.state === "success") {
         s.communityRes.data.community_view = res.data.community_view;
         s.communityRes.data.moderators = res.data.moderators;
       }
@@ -874,18 +883,18 @@ export class Community extends Component<
   }
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
-    if (purgeRes.state == "success") {
+    if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }
 
-  findAndUpdateComment(res: RequestState<CommentResponse>) {
+  findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.commentsRes.state == "success" && res.state == "success") {
+      if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments = editComment(
           res.data.comment_view,
-          s.commentsRes.data.comments
+          s.commentsRes.data.comments,
         );
         s.finished.set(res.data.comment_view.comment.id, true);
       }
@@ -893,15 +902,27 @@ export class Community extends Component<
     });
   }
 
+  findAndUpdateComment(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.commentsRes.state === "success" && res.state === "success") {
+        s.commentsRes.data.comments = editComment(
+          res.data.comment_view,
+          s.commentsRes.data.comments,
+        );
+      }
+      return s;
+    });
+  }
+
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.commentsRes.state == "success" && res.state == "success") {
+      if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments.unshift(res.data.comment_view);
 
         // Set finished for the parent
         s.finished.set(
           getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true
+          true,
         );
       }
       return s;
@@ -910,10 +931,10 @@ export class Community extends Component<
 
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
     this.setState(s => {
-      if (s.commentsRes.state == "success" && res.state == "success") {
+      if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments = editWith(
           res.data.comment_reply_view,
-          s.commentsRes.data.comments
+          s.commentsRes.data.comments,
         );
       }
       return s;
@@ -922,10 +943,10 @@ export class Community extends Component<
 
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
-      if (s.postsRes.state == "success" && res.state == "success") {
+      if (s.postsRes.state === "success" && res.state === "success") {
         s.postsRes.data.posts = editPost(
           res.data.post_view,
-          s.postsRes.data.posts
+          s.postsRes.data.posts,
         );
       }
       return s;
@@ -935,7 +956,7 @@ export class Community extends Component<
   updateModerators(res: RequestState<AddModToCommunityResponse>) {
     // Update the moderators
     this.setState(s => {
-      if (s.communityRes.state == "success" && res.state == "success") {
+      if (s.communityRes.state === "success" && res.state === "success") {
         s.communityRes.data.moderators = res.data.moderators;
       }
       return s;

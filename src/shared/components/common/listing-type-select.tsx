@@ -30,7 +30,7 @@ export class ListingTypeSelect extends Component<
   }
 
   static getDerivedStateFromProps(
-    props: ListingTypeSelectProps
+    props: ListingTypeSelectProps,
   ): ListingTypeSelectState {
     return {
       type_: props.type_,
@@ -107,6 +107,27 @@ export class ListingTypeSelect extends Component<
         >
           {I18NextService.i18n.t("all")}
         </label>
+        {(UserService.Instance.myUserInfo?.moderates.length ?? 0) > 0 && (
+          <>
+            <input
+              id={`${this.id}-moderator-view`}
+              type="radio"
+              className="btn-check"
+              value={"ModeratorView"}
+              checked={this.state.type_ === "ModeratorView"}
+              onChange={linkEvent(this, this.handleTypeChange)}
+            />
+            <label
+              htmlFor={`${this.id}-moderator-view`}
+              title={I18NextService.i18n.t("moderator_view_description")}
+              className={classNames("pointer btn btn-outline-secondary", {
+                active: this.state.type_ === "ModeratorView",
+              })}
+            >
+              {I18NextService.i18n.t("moderator_view")}
+            </label>
+          </>
+        )}
       </div>
     );
   }

@@ -2,7 +2,6 @@ import {
   editCommentReport,
   editPostReport,
   editPrivateMessageReport,
-  myAuthRequired,
   setIsoData,
 } from "@utils/app";
 import { randomStr } from "@utils/helpers";
@@ -36,13 +35,18 @@ import {
   I18NextService,
   UserService,
 } from "../../services";
-import { RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { PostReport } from "../post/post-report";
 import { PrivateMessageReport } from "../private_message/private-message-report";
+import { UnreadCounterService } from "../../services";
 
 enum UnreadOrAll {
   Unread,
@@ -89,9 +93,9 @@ interface ReportsState {
 export class Reports extends Component<any, ReportsState> {
   private isoData = setIsoData<ReportsData>(this.context);
   state: ReportsState = {
-    commentReportsRes: { state: "empty" },
-    postReportsRes: { state: "empty" },
-    messageReportsRes: { state: "empty" },
+    commentReportsRes: EMPTY_REQUEST,
+    postReportsRes: EMPTY_REQUEST,
+    messageReportsRes: EMPTY_REQUEST,
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
     page: 1,
@@ -140,7 +144,7 @@ export class Reports extends Component<any, ReportsState> {
     const mui = UserService.Instance.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
-          "reports"
+          "reports",
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
@@ -160,6 +164,16 @@ export class Reports extends Component<any, ReportsState> {
             <Paginator
               page={this.state.page}
               onChange={this.handlePageChange}
+              nextDisabled={
+                (this.state.messageType === MessageType.All &&
+                  fetchLimit > this.buildCombined.length) ||
+                (this.state.messageType === MessageType.CommentReport &&
+                  fetchLimit > this.commentReports.length) ||
+                (this.state.messageType === MessageType.PostReport &&
+                  fetchLimit > this.postReports.length) ||
+                (this.state.messageType === MessageType.PrivateMessageReport &&
+                  fetchLimit > this.privateMessageReports.length)
+              }
             />
           </div>
         </div>
@@ -352,25 +366,25 @@ export class Reports extends Component<any, ReportsState> {
   get buildCombined(): ItemType[] {
     const commentRes = this.state.commentReportsRes;
     const comments =
-      commentRes.state == "success"
+      commentRes.state === "success"
         ? commentRes.data.comment_reports.map(this.commentReportToItemType)
         : [];
 
     const postRes = this.state.postReportsRes;
     const posts =
-      postRes.state == "success"
+      postRes.state === "success"
         ? postRes.data.post_reports.map(this.postReportToItemType)
         : [];
     const pmRes = this.state.messageReportsRes;
     const privateMessages =
-      pmRes.state == "success"
+      pmRes.state === "success"
         ? pmRes.data.private_message_reports.map(
-            this.privateMessageReportToItemType
+            this.privateMessageReportToItemType,
           )
         : [];
 
     return [...comments, ...posts, ...privateMessages].sort((a, b) =>
-      b.published.localeCompare(a.published)
+      b.published.localeCompare(a.published),
     );
   }
 
@@ -521,7 +535,6 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   static async fetchInitialData({
-    auth,
     client,
   }: InitialFetchRequest): Promise<ReportsData> {
     const unresolved_only = true;
@@ -532,20 +545,18 @@ export class Reports extends Component<any, ReportsState> {
       unresolved_only,
       page,
       limit,
-      auth: auth as string,
     };
 
     const postReportsForm: ListPostReports = {
       unresolved_only,
       page,
       limit,
-      auth: auth as string,
     };
 
     const data: ReportsData = {
       commentReportsRes: await client.listCommentReports(commentReportsForm),
       postReportsRes: await client.listPostReports(postReportsForm),
-      messageReportsRes: { state: "empty" },
+      messageReportsRes: EMPTY_REQUEST,
     };
 
     if (amAdmin()) {
@@ -553,11 +564,10 @@ export class Reports extends Component<any, ReportsState> {
         unresolved_only,
         page,
         limit,
-        auth: auth as string,
       };
 
       data.messageReportsRes = await client.listPrivateMessageReports(
-        privateMessageReportsForm
+        privateMessageReportsForm,
       );
     }
 
@@ -565,15 +575,14 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   async refetch() {
-    const unresolved_only = this.state.unreadOrAll == UnreadOrAll.Unread;
+    const unresolved_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     const page = this.state.page;
     const limit = fetchLimit;
-    const auth = myAuthRequired();
 
     this.setState({
-      commentReportsRes: { state: "loading" },
-      postReportsRes: { state: "loading" },
-      messageReportsRes: { state: "loading" },
+      commentReportsRes: LOADING_REQUEST,
+      postReportsRes: LOADING_REQUEST,
+      messageReportsRes: LOADING_REQUEST,
     });
 
     const form:
@@ -583,7 +592,6 @@ export class Reports extends Component<any, ReportsState> {
       unresolved_only,
       page,
       limit,
-      auth,
     };
 
     this.setState({
@@ -594,7 +602,7 @@ export class Reports extends Component<any, ReportsState> {
     if (amAdmin()) {
       this.setState({
         messageReportsRes: await HttpService.client.listPrivateMessageReports(
-          form
+          form,
         ),
       });
     }
@@ -603,24 +611,36 @@ export class Reports extends Component<any, ReportsState> {
   async handleResolveCommentReport(form: ResolveCommentReport) {
     const res = await HttpService.client.resolveCommentReport(form);
     this.findAndUpdateCommentReport(res);
+    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
+      this.refetch();
+      UnreadCounterService.Instance.updateReports();
+    }
   }
 
   async handleResolvePostReport(form: ResolvePostReport) {
     const res = await HttpService.client.resolvePostReport(form);
     this.findAndUpdatePostReport(res);
+    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
+      this.refetch();
+      UnreadCounterService.Instance.updateReports();
+    }
   }
 
   async handleResolvePrivateMessageReport(form: ResolvePrivateMessageReport) {
     const res = await HttpService.client.resolvePrivateMessageReport(form);
     this.findAndUpdatePrivateMessageReport(res);
+    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
+      this.refetch();
+      UnreadCounterService.Instance.updateReports();
+    }
   }
 
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
     this.setState(s => {
-      if (s.commentReportsRes.state == "success" && res.state == "success") {
+      if (s.commentReportsRes.state === "success" && res.state === "success") {
         s.commentReportsRes.data.comment_reports = editCommentReport(
           res.data.comment_report_view,
-          s.commentReportsRes.data.comment_reports
+          s.commentReportsRes.data.comment_reports,
         );
       }
       return s;
@@ -629,10 +649,10 @@ export class Reports extends Component<any, ReportsState> {
 
   findAndUpdatePostReport(res: RequestState<PostReportResponse>) {
     this.setState(s => {
-      if (s.postReportsRes.state == "success" && res.state == "success") {
+      if (s.postReportsRes.state === "success" && res.state === "success") {
         s.postReportsRes.data.post_reports = editPostReport(
           res.data.post_report_view,
-          s.postReportsRes.data.post_reports
+          s.postReportsRes.data.post_reports,
         );
       }
       return s;
@@ -640,14 +660,14 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   findAndUpdatePrivateMessageReport(
-    res: RequestState<PrivateMessageReportResponse>
+    res: RequestState<PrivateMessageReportResponse>,
   ) {
     this.setState(s => {
-      if (s.messageReportsRes.state == "success" && res.state == "success") {
+      if (s.messageReportsRes.state === "success" && res.state === "success") {
         s.messageReportsRes.data.private_message_reports =
           editPrivateMessageReport(
             res.data.private_message_report_view,
-            s.messageReportsRes.data.private_message_reports
+            s.messageReportsRes.data.private_message_reports,
           );
       }
       return s;

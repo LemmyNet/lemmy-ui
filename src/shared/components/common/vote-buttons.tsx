@@ -1,4 +1,4 @@
-import { myAuthRequired, newVote, showScores } from "@utils/app";
+import { newVote, showScores } from "@utils/app";
 import { numToSI } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
@@ -53,7 +53,6 @@ const handleUpvote = (i: VoteButtons) => {
       i.props.onVote({
         comment_id: i.props.id,
         score: newVote(VoteType.Upvote, i.props.my_vote),
-        auth: myAuthRequired(),
       });
       break;
     case VoteContentType.Post:
@@ -61,7 +60,6 @@ const handleUpvote = (i: VoteButtons) => {
       i.props.onVote({
         post_id: i.props.id,
         score: newVote(VoteType.Upvote, i.props.my_vote),
-        auth: myAuthRequired(),
       });
   }
 };
@@ -73,7 +71,6 @@ const handleDownvote = (i: VoteButtons) => {
       i.props.onVote({
         comment_id: i.props.id,
         score: newVote(VoteType.Downvote, i.props.my_vote),
-        auth: myAuthRequired(),
       });
       break;
     case VoteContentType.Post:
@@ -81,7 +78,6 @@ const handleDownvote = (i: VoteButtons) => {
       i.props.onVote({
         post_id: i.props.id,
         score: newVote(VoteType.Downvote, i.props.my_vote),
-        auth: myAuthRequired(),
       });
   }
 };
@@ -193,7 +189,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
         <button
           type="button"
           className={`btn-animate btn btn-link p-0 ${
-            this.props.my_vote == 1 ? "text-info" : "text-muted"
+            this.props.my_vote === 1 ? "text-info" : "text-muted"
           }`}
           onClick={linkEvent(this, handleUpvote)}
           data-tippy-content={I18NextService.i18n.t("upvote")}
@@ -220,7 +216,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
           <button
             type="button"
             className={`btn-animate btn btn-link p-0 ${
-              this.props.my_vote == -1 ? "text-danger" : "text-muted"
+              this.props.my_vote === -1 ? "text-danger" : "text-muted"
             }`}
             onClick={linkEvent(this, handleDownvote)}
             data-tippy-content={I18NextService.i18n.t("downvote")}

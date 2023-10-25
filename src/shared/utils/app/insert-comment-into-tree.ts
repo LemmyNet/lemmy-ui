@@ -5,7 +5,7 @@ import { CommentNodeI } from "../../interfaces";
 export default function insertCommentIntoTree(
   tree: CommentNodeI[],
   cv: CommentView,
-  parentComment: boolean
+  parentComment: boolean,
 ) {
   // Building a fake node to be used for later
   const node: CommentNodeI = {

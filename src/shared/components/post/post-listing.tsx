@@ -1,4 +1,4 @@
-import { myAuthRequired } from "@utils/app";
+import { myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
@@ -34,6 +34,7 @@ import {
   FeaturePost,
   Language,
   LockPost,
+  MarkPostAsRead,
   PersonView,
   PostView,
   PurgePerson,
@@ -61,6 +62,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
+import ReportForm from "../common/report-form";
 
 interface PostListingState {
   showEdit: boolean;
@@ -83,8 +85,6 @@ interface PostListingState {
   showMoreMobile: boolean;
   showBody: boolean;
   showReportDialog: boolean;
-  reportReason?: string;
-  reportLoading: boolean;
   blockLoading: boolean;
   lockLoading: boolean;
   deleteLoading: boolean;
@@ -130,6 +130,7 @@ interface PostListingProps {
   onAddModToCommunity(form: AddModToCommunity): void;
   onAddAdmin(form: AddAdmin): void;
   onTransferCommunity(form: TransferCommunity): void;
+  onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
@@ -150,7 +151,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showBody: false,
     showReportDialog: false,
     purgeLoading: false,
-    reportLoading: false,
     blockLoading: false,
     lockLoading: false,
     deleteLoading: false,
@@ -167,15 +167,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   constructor(props: any, context: any) {
     super(props, context);
 
+    if (UserService.Instance.myUserInfo) {
+      this.state.imageExpanded =
+        UserService.Instance.myUserInfo.local_user_view.local_user.auto_expand;
+    }
+
     this.handleEditPost = this.handleEditPost.bind(this);
     this.handleEditCancel = this.handleEditCancel.bind(this);
+    this.handleReportSubmit = this.handleReportSubmit.bind(this);
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
     if (this.props !== nextProps) {
       this.setState({
         purgeLoading: false,
-        reportLoading: false,
         blockLoading: false,
         lockLoading: false,
         deleteLoading: false,
@@ -295,6 +300,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   imgThumb(src: string) {
     const post_view = this.postView;
+
     return (
       <PictrsImage
         src={src}
@@ -310,16 +316,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post.url;
     const thumbnail = post.thumbnail_url;
 
-    if (url && isImage(url)) {
-      if (url.includes("pictrs")) {
-        return url;
-      } else if (thumbnail) {
-        return thumbnail;
-      } else {
-        return url;
-      }
-    } else if (thumbnail) {
+    if (thumbnail) {
       return thumbnail;
+    } else if (url && isImage(url)) {
+      return url;
     } else {
       return undefined;
     }
@@ -353,6 +353,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           href={url}
           rel={relTags}
           title={url}
+          target={this.linkTarget}
         >
           {this.imgThumb(this.imageSrc)}
           <Icon
@@ -372,6 +373,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             data-tippy-content={I18NextService.i18n.t("expand_here")}
             onClick={linkEvent(this, this.handleImageExpandClick)}
             aria-label={I18NextService.i18n.t("expand_here")}
+            target={this.linkTarget}
           >
             <div className="thumbnail rounded bg-light d-flex justify-content-center">
               <Icon icon="play" classes="d-flex align-items-center" />
@@ -380,7 +382,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         );
       } else {
         return (
-          <a className="text-body" href={url} title={url} rel={relTags}>
+          <a
+            className="text-body"
+            href={url}
+            title={url}
+            rel={relTags}
+            target={this.linkTarget}
+          >
             <div className="thumbnail rounded bg-light d-flex justify-content-center">
               <Icon icon="external-link" classes="d-flex align-items-center" />
             </div>
@@ -393,6 +401,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           className="text-body"
           to={`/post/${post.id}`}
           title={I18NextService.i18n.t("comments")}
+          target={this.linkTarget}
         >
           <div className="thumbnail rounded bg-light d-flex justify-content-center">
             <Icon icon="message-square" classes="d-flex align-items-center" />
@@ -425,7 +434,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <span className="mx-1 badge text-bg-light">
             {
               this.props.allLanguages.find(
-                lang => lang.id === post_view.post.language_id
+                lang => lang.id === post_view.post.language_id,
               )?.name
             }
           </span>
@@ -521,7 +530,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <small
               className="unselectable pointer ms-2 text-muted fst-italic"
               data-tippy-content={I18NextService.i18n.t(
-                "featured_in_community"
+                "featured_in_community",
               )}
               aria-label={I18NextService.i18n.t("featured_in_community")}
             >
@@ -595,7 +604,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    const post = this.postView.post;
+    const post_view = this.postView;
+    const post = post_view.post;
 
     return (
       <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
@@ -628,6 +638,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             my_vote={this.postView.my_vote}
           />
         )}
+
+        {this.props.showBody && post_view.post.body && this.viewSourceButton}
+
         {UserService.Instance.myUserInfo &&
           !this.props.viewOnly &&
           this.postActions()}
@@ -645,8 +658,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <>
         {this.saveButton}
         {this.crossPostButton}
-
-        {this.props.showBody && post_view.post.body && this.viewSourceButton}
 
         <div className="dropdown">
           <button
@@ -741,6 +752,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  public get linkTarget(): string {
+    return UserService.Instance.myUserInfo?.local_user_view.local_user
+      .open_links_in_new_tab
+      ? "_blank"
+      : // _self is the default target on links when the field is not specified
+        "_self";
+  }
+
   get commentsButton() {
     const post_view = this.postView;
     const title = I18NextService.i18n.t("number_of_comments", {
@@ -754,6 +773,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         title={title}
         to={`/post/${post_view.post.id}?scrollToComments=true`}
         data-tippy-content={title}
+        target={this.linkTarget}
       >
         <Icon icon="message-square" classes="me-1" inline />
         {post_view.counts.comments}
@@ -771,7 +791,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get unreadCount(): number | undefined {
     const pv = this.postView;
-    return pv.unread_comments == pv.counts.comments || pv.unread_comments == 0
+    return pv.unread_comments === pv.counts.comments || pv.unread_comments === 0
       ? undefined
       : pv.unread_comments;
   }
@@ -1121,7 +1141,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(
           this,
-          !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit
+          !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit,
         )}
       >
         {/* TODO: Find an icon for this. */}
@@ -1142,7 +1162,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   removeAndBanDialogs() {
     const post = this.postView;
     const purgeTypeText =
-      this.state.purgeType == PurgeType.Post
+      this.state.purgeType === PurgeType.Post
         ? I18NextService.i18n.t("purge_post")
         : `${I18NextService.i18n.t("purge")} ${post.creator.name}`;
     return (
@@ -1194,7 +1214,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="btn btn-link btn-animate text-muted py-0 d-inline-block"
               onClick={linkEvent(
                 this,
-                this.handleCancelShowConfirmTransferCommunity
+                this.handleCancelShowConfirmTransferCommunity,
               )}
               aria-label={I18NextService.i18n.t("no")}
             >
@@ -1268,30 +1288,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </form>
         )}
         {this.state.showReportDialog && (
-          <form
-            className="form-inline"
-            onSubmit={linkEvent(this, this.handleReportSubmit)}
-          >
-            <label className="visually-hidden" htmlFor="post-report-reason">
-              {I18NextService.i18n.t("reason")}
-            </label>
-            <input
-              type="text"
-              id="post-report-reason"
-              className="form-control me-2"
-              placeholder={I18NextService.i18n.t("reason")}
-              required
-              value={this.state.reportReason}
-              onInput={linkEvent(this, this.handleReportReasonChange)}
-            />
-            <button type="submit" className="btn btn-secondary">
-              {this.state.reportLoading ? (
-                <Spinner />
-              ) : (
-                I18NextService.i18n.t("create_report")
-              )}
-            </button>
-          </form>
+          <ReportForm onSubmit={this.handleReportSubmit} />
         )}
         {this.state.showPurgeDialog && (
           <form
@@ -1313,8 +1310,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             {this.state.purgeLoading ? (
               <Spinner />
             ) : (
-              <button type="submit" className="btn btn-secondary">
-                {this.state.purgeLoading ? <Spinner /> : { purgeTypeText }}
+              <button type="submit" className="btn btn-secondary mt-2">
+                {purgeTypeText}
               </button>
             )}
           </form>
@@ -1411,7 +1408,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   private get myPost(): boolean {
     return (
-      this.postView.creator.id ==
+      this.postView.creator.id ===
       UserService.Instance.myUserInfo?.local_user_view.person.id
     );
   }
@@ -1443,17 +1440,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ showReportDialog: !i.state.showReportDialog });
   }
 
-  handleReportReasonChange(i: PostListing, event: any) {
-    i.setState({ reportReason: event.target.value });
-  }
+  handleReportSubmit(reason: string) {
+    this.props.onPostReport({
+      post_id: this.postView.post.id,
+      reason,
+    });
 
-  handleReportSubmit(i: PostListing, event: any) {
-    event.preventDefault();
-    i.setState({ reportLoading: true });
-    i.props.onPostReport({
-      post_id: i.postView.post.id,
-      reason: i.state.reportReason ?? "",
-      auth: myAuthRequired(),
+    this.setState({
+      showReportDialog: false,
     });
   }
 
@@ -1462,7 +1456,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onBlockPerson({
       person_id: i.postView.creator.id,
       block: true,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1471,7 +1464,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onDeletePost({
       post_id: i.postView.post.id,
       deleted: !i.postView.post.deleted,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1480,7 +1472,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onSavePost({
       post_id: i.postView.post.id,
       save: !i.postView.saved,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1538,7 +1529,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onRemovePost({
       post_id: i.postView.post.id,
       removed: !i.postView.post.removed,
-      auth: myAuthRequired(),
       reason: i.state.removeReason,
     });
   }
@@ -1548,7 +1538,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onLockPost({
       post_id: i.postView.post.id,
       locked: !i.postView.post.locked,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1558,7 +1547,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       post_id: i.postView.post.id,
       featured: !i.postView.post.featured_local,
       feature_type: "Local",
-      auth: myAuthRequired(),
     });
   }
 
@@ -1568,7 +1556,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       post_id: i.postView.post.id,
       featured: !i.postView.post.featured_community,
       feature_type: "Community",
-      auth: myAuthRequired(),
     });
   }
 
@@ -1615,13 +1602,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       i.props.onPurgePerson({
         person_id: i.postView.creator.id,
         reason: i.state.purgeReason,
-        auth: myAuthRequired(),
       });
     } else if (i.state.purgeType === PurgeType.Post) {
       i.props.onPurgePost({
         post_id: i.postView.post.id,
         reason: i.state.purgeReason,
-        auth: myAuthRequired(),
       });
     }
   }
@@ -1650,7 +1635,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     const ban = !i.props.post_view.creator_banned_from_community;
     // If its an unban, restore all their data
-    if (ban == false) {
+    if (ban === false) {
       i.setState({ removeData: false });
     }
     const person_id = i.props.post_view.creator.id;
@@ -1658,7 +1643,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const reason = i.state.banReason;
     const expires = futureDaysToUnixTime(i.state.banExpireDays);
 
-    if (i.state.banType == BanType.Community) {
+    if (i.state.banType === BanType.Community) {
       const community_id = i.postView.community.id;
       i.props.onBanPersonFromCommunity({
         community_id,
@@ -1667,7 +1652,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         remove_data,
         reason,
         expires,
-        auth: myAuthRequired(),
       });
     } else {
       i.props.onBanPerson({
@@ -1676,7 +1660,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         remove_data,
         reason,
         expires,
-        auth: myAuthRequired(),
       });
     }
   }
@@ -1687,7 +1670,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       community_id: i.postView.community.id,
       person_id: i.postView.creator.id,
       added: !i.creatorIsMod_,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1696,7 +1678,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onAddAdmin({
       person_id: i.postView.creator.id,
       added: !i.creatorIsAdmin_,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1713,7 +1694,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onTransferCommunity({
       community_id: i.postView.community.id,
       person_id: i.postView.creator.id,
-      auth: myAuthRequired(),
     });
   }
 
@@ -1729,6 +1709,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ imageExpanded: !i.state.imageExpanded });
     setupTippy();
+
+    if (myAuth() && !i.props.post_view.read) {
+      i.props.onMarkPostAsRead({
+        post_ids: [i.props.post_view.post.id],
+        read: true,
+      });
+    }
   }
 
   handleViewSource(i: PostListing) {
@@ -1778,7 +1765,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       this.props.moderators,
       this.props.admins,
       undefined,
-      true
+      true,
     );
   }
 
@@ -1786,7 +1773,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return canMod(
       this.postView.creator.id,
       this.props.moderators,
-      this.props.admins
+      this.props.admins,
     );
   }
 

@@ -18,23 +18,18 @@ export type IsoDataOptionalSite<T extends RouteData = any> = Partial<
 > &
   Pick<IsoData<T>, Exclude<keyof IsoData<T>, "site_res">>;
 
-export interface ILemmyConfig {
-  wsHost?: string;
-}
-
 declare global {
   interface Window {
     isoData: IsoData;
-    lemmyConfig?: ILemmyConfig;
   }
 }
 
 export interface InitialFetchRequest<T extends ParsedQs = ParsedQs> {
-  auth?: string;
   client: WrappedLemmyHttp;
   path: string;
   query: T;
   site: GetSiteResponse;
+  auth?: string;
 }
 
 export interface PostFormParams {

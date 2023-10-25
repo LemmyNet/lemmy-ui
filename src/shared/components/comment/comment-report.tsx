@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -11,6 +10,7 @@ import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
+import { EMPTY_REQUEST } from "../../services/HttpService";
 
 interface CommentReportProps {
   report: CommentReportView;
@@ -33,9 +33,9 @@ export class CommentReport extends Component<
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & CommentReportProps>
+    nextProps: Readonly<{ children?: InfernoNode } & CommentReportProps>,
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({ loading: false });
     }
   }
@@ -44,7 +44,7 @@ export class CommentReport extends Component<
     const r = this.props.report;
     const comment = r.comment;
     const tippyContent = I18NextService.i18n.t(
-      r.comment_report.resolved ? "unresolve_report" : "resolve_report"
+      r.comment_report.resolved ? "unresolve_report" : "resolve_report",
     );
 
     // Set the original post data ( a troll could change it )
@@ -98,8 +98,8 @@ export class CommentReport extends Component<
           onPersonMentionRead={() => {}}
           onBanPersonFromCommunity={() => {}}
           onBanPerson={() => {}}
-          onCreateComment={() => Promise.resolve({ state: "empty" })}
-          onEditComment={() => Promise.resolve({ state: "empty" })}
+          onCreateComment={() => Promise.resolve(EMPTY_REQUEST)}
+          onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}
@@ -149,7 +149,6 @@ export class CommentReport extends Component<
     i.props.onResolveReport({
       report_id: i.props.report.comment_report.id,
       resolved: !i.props.report.comment_report.resolved,
-      auth: myAuthRequired(),
     });
   }
 }

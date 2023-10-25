@@ -1,4 +1,4 @@
-import { isAuthPath, setIsoData } from "@utils/app";
+import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
 import { dataBsTheme } from "@utils/browser";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
@@ -14,6 +14,8 @@ import { Footer } from "./footer";
 import { Navbar } from "./navbar";
 import "./styles.scss";
 import { Theme } from "./theme";
+import AnonymousGuard from "../common/anonymous-guard";
+import { CodeTheme } from "./code-theme";
 
 interface AppProps {
   user?: MyUserInfo;
@@ -54,7 +56,10 @@ export class App extends Component<AppProps, any> {
               {I18NextService.i18n.t("jump_to_content", "Jump to content")}
             </button>
             {siteView && (
-              <Theme defaultTheme={siteView.local_site.default_theme} />
+              <>
+                <Theme defaultTheme={siteView.local_site.default_theme} />
+                <CodeTheme />
+              </>
             )}
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">
@@ -75,9 +80,13 @@ export class App extends Component<AppProps, any> {
                             <div tabIndex={-1}>
                               {RouteComponent &&
                                 (isAuthPath(path ?? "") ? (
-                                  <AuthGuard>
+                                  <AuthGuard {...routeProps}>
                                     <RouteComponent {...routeProps} />
                                   </AuthGuard>
+                                ) : isAnonymousPath(path ?? "") ? (
+                                  <AnonymousGuard>
+                                    <RouteComponent {...routeProps} />
+                                  </AnonymousGuard>
                                 ) : (
                                   <RouteComponent {...routeProps} />
                                 ))}
@@ -86,7 +95,7 @@ export class App extends Component<AppProps, any> {
                         );
                       }}
                     />
-                  )
+                  ),
                 )}
                 <Route component={ErrorPage} />
               </Switch>

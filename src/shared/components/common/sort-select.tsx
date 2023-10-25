@@ -53,7 +53,13 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
             <option key={"Active"} value={"Active"}>
               {I18NextService.i18n.t("active")}
             </option>,
+            <option key={"Scaled"} value={"Scaled"}>
+              {I18NextService.i18n.t("scaled")}
+            </option>,
           ]}
+          <option value={"Controversial"}>
+            {I18NextService.i18n.t("controversial")}
+          </option>
           <option value={"New"}>{I18NextService.i18n.t("new")}</option>
           <option value={"Old"}>{I18NextService.i18n.t("old")}</option>
           {!this.props.hideMostComments && [
@@ -78,6 +84,15 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
           <option value={"TopWeek"}>{I18NextService.i18n.t("top_week")}</option>
           <option value={"TopMonth"}>
             {I18NextService.i18n.t("top_month")}
+          </option>
+          <option value={"TopThreeMonths"}>
+            {I18NextService.i18n.t("top_three_months")}
+          </option>
+          <option value={"TopSixMonths"}>
+            {I18NextService.i18n.t("top_six_months")}
+          </option>
+          <option value={"TopNineMonths"}>
+            {I18NextService.i18n.t("top_nine_months")}
           </option>
           <option value={"TopYear"}>{I18NextService.i18n.t("top_year")}</option>
           <option value={"TopAll"}>{I18NextService.i18n.t("top_all")}</option>

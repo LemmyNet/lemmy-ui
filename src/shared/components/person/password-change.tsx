@@ -1,11 +1,16 @@
-import { myAuth, setIsoData } from "@utils/app";
+import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { HttpService, I18NextService, UserService } from "../../services";
-import { RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import PasswordInput from "../common/password-input";
 
 interface State {
   passwordChangeRes: RequestState<LoginResponse>;
@@ -21,7 +26,7 @@ export class PasswordChange extends Component<any, State> {
   private isoData = setIsoData(this.context);
 
   state: State = {
-    passwordChangeRes: { state: "empty" },
+    passwordChangeRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     form: {
       token: this.props.match.params.token,
@@ -60,42 +65,28 @@ export class PasswordChange extends Component<any, State> {
   passwordChangeForm() {
     return (
       <form onSubmit={linkEvent(this, this.handlePasswordChangeSubmit)}>
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="new-password">
-            {I18NextService.i18n.t("new_password")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              id="new-password"
-              type="password"
-              value={this.state.form.password}
-              onInput={linkEvent(this, this.handlePasswordChange)}
-              className="form-control"
-              required
-              maxLength={60}
-            />
-          </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="new-password"
+            value={this.state.form.password}
+            onInput={linkEvent(this, this.handlePasswordChange)}
+            showStrength
+            label={I18NextService.i18n.t("new_password")}
+            isNew
+          />
         </div>
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="verify-password">
-            {I18NextService.i18n.t("verify_password")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              id="verify-password"
-              type="password"
-              value={this.state.form.password_verify}
-              onInput={linkEvent(this, this.handleVerifyPasswordChange)}
-              className="form-control"
-              required
-              maxLength={60}
-            />
-          </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="password"
+            value={this.state.form.password_verify}
+            onInput={linkEvent(this, this.handleVerifyPasswordChange)}
+            label={I18NextService.i18n.t("verify_password")}
+          />
         </div>
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
-              {this.state.passwordChangeRes.state == "loading" ? (
+              {this.state.passwordChangeRes.state === "loading" ? (
                 <Spinner />
               ) : (
                 capitalizeFirstLetter(I18NextService.i18n.t("save"))
@@ -119,7 +110,7 @@ export class PasswordChange extends Component<any, State> {
 
   async handlePasswordChangeSubmit(i: PasswordChange, event: any) {
     event.preventDefault();
-    i.setState({ passwordChangeRes: { state: "loading" } });
+    i.setState({ passwordChangeRes: LOADING_REQUEST });
 
     const password = i.state.form.password;
     const password_verify = i.state.form.password_verify;
@@ -139,7 +130,7 @@ export class PasswordChange extends Component<any, State> {
           res: data,
         });
 
-        const site = await HttpService.client.getSite({ auth: myAuth() });
+        const site = await HttpService.client.getSite();
         if (site.state === "success") {
           UserService.Instance.myUserInfo = site.data.my_user;
         }

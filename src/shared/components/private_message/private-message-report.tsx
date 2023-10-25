@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -29,9 +28,9 @@ export class PrivateMessageReport extends Component<Props, State> {
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & Props>
+    nextProps: Readonly<{ children?: InfernoNode } & Props>,
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({ loading: false });
     }
   }
@@ -40,7 +39,7 @@ export class PrivateMessageReport extends Component<Props, State> {
     const r = this.props.report;
     const pmr = r.private_message_report;
     const tippyContent = I18NextService.i18n.t(
-      r.private_message_report.resolved ? "unresolve_report" : "resolve_report"
+      r.private_message_report.resolved ? "unresolve_report" : "resolve_report",
     );
 
     return (
@@ -105,7 +104,6 @@ export class PrivateMessageReport extends Component<Props, State> {
     i.props.onResolveReport({
       report_id: pmr.id,
       resolved: !pmr.resolved,
-      auth: myAuthRequired(),
     });
   }
 }

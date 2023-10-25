@@ -6,12 +6,19 @@ import {
   GetSiteResponse,
   Instance,
 } from "lemmy-js-client";
+import classNames from "classnames";
 import { relTags } from "../../config";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import Tabs from "../common/tabs";
 
 type InstancesData = RouteDataResponse<{
   federatedInstancesResponse: GetFederatedInstancesResponse;
@@ -26,7 +33,7 @@ interface InstancesState {
 export class Instances extends Component<any, InstancesState> {
   private isoData = setIsoData<InstancesData>(this.context);
   state: InstancesState = {
-    instancesRes: { state: "empty" },
+    instancesRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     isIsomorphic: false,
   };
@@ -52,11 +59,11 @@ export class Instances extends Component<any, InstancesState> {
 
   async fetchInstances() {
     this.setState({
-      instancesRes: { state: "loading" },
+      instancesRes: LOADING_REQUEST,
     });
 
     this.setState({
-      instancesRes: await HttpService.client.getFederatedInstances({}),
+      instancesRes: await HttpService.client.getFederatedInstances(),
     });
   }
 
@@ -64,7 +71,7 @@ export class Instances extends Component<any, InstancesState> {
     client,
   }: InitialFetchRequest): Promise<InstancesData> {
     return {
-      federatedInstancesResponse: await client.getFederatedInstances({}),
+      federatedInstancesResponse: await client.getFederatedInstances(),
     };
   }
 
@@ -85,37 +92,32 @@ export class Instances extends Component<any, InstancesState> {
       case "success": {
         const instances = this.state.instancesRes.data.federated_instances;
         return instances ? (
-          <>
-            <h1 className="h4 mb-4">{I18NextService.i18n.t("instances")}</h1>
-            <div className="row">
-              <div className="col-md-6">
-                <h2 className="h5 mb-3">
-                  {I18NextService.i18n.t("linked_instances")}
-                </h2>
-                {this.itemList(instances.linked)}
-              </div>
+          <div className="row">
+            <div className="col-lg-8">
+              <Tabs
+                tabs={["linked", "allowed", "blocked"]
+                  .filter(status => instances[status].length)
+                  .map(status => ({
+                    key: status,
+                    label: I18NextService.i18n.t(`${status}_instances`),
+                    getNode: isSelected => (
+                      <div
+                        role="tabpanel"
+                        className={classNames("tab-pane show", {
+                          active: isSelected,
+                        })}
+                      >
+                        {status === "blocked"
+                          ? this.itemList(instances[status], false)
+                          : this.itemList(instances[status])}
+                      </div>
+                    ),
+                  }))}
+              />
             </div>
-            <div className="row">
-              {instances.allowed && instances.allowed.length > 0 && (
-                <div className="col-md-6">
-                  <h2 className="h5 mb-3">
-                    {I18NextService.i18n.t("allowed_instances")}
-                  </h2>
-                  {this.itemList(instances.allowed)}
-                </div>
-              )}
-              {instances.blocked && instances.blocked.length > 0 && (
-                <div className="col-md-6">
-                  <h2 className="h5 mb-3">
-                    {I18NextService.i18n.t("blocked_instances")}
-                  </h2>
-                  {this.itemList(instances.blocked)}
-                </div>
-              )}
-            </div>
-          </>
+          </div>
         ) : (
-          <></>
+          <h5>No linked instance</h5>
         );
       }
     }
@@ -133,7 +135,7 @@ export class Instances extends Component<any, InstancesState> {
     );
   }
 
-  itemList(items: Instance[]) {
+  itemList(items: Instance[], link = true) {
     return items.length > 0 ? (
       <div className="table-responsive">
         <table id="instances_table" className="table table-sm table-hover">
@@ -148,9 +150,13 @@ export class Instances extends Component<any, InstancesState> {
             {items.map(i => (
               <tr key={i.domain}>
                 <td>
-                  <a href={`https://${i.domain}`} rel={relTags}>
-                    {i.domain}
-                  </a>
+                  {link ? (
+                    <a href={`https://${i.domain}`} rel={relTags}>
+                      {i.domain}{" "}
+                    </a>
+                  ) : (
+                    <span>{i.domain}</span>
+                  )}
                 </td>
                 <td>{i.software}</td>
                 <td>{i.version}</td>

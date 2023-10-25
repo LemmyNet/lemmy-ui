@@ -48,7 +48,12 @@ import {
 import { fetchLimit } from "../config";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
 import { FirstLoadService, I18NextService } from "../services";
-import { HttpService, RequestState } from "../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../services/HttpService";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
@@ -209,20 +214,20 @@ const communityListing = ({
   getListing(
     <CommunityLink community={community} />,
     subscribers,
-    "number_of_subscribers"
+    "number_of_subscribers",
   );
 
 const personListing = ({ person, counts: { comment_count } }: PersonView) =>
   getListing(
     <PersonListing person={person} showApubName />,
     comment_count,
-    "number_of_comments"
+    "number_of_comments",
   );
 
 function getListing(
   listing: JSX.ElementClass,
   count: number,
-  translationKey: "number_of_comments" | "number_of_subscribers"
+  translationKey: "number_of_comments" | "number_of_subscribers",
 ) {
   return (
     <>
@@ -239,14 +244,14 @@ export class Search extends Component<any, SearchState> {
   private isoData = setIsoData<SearchData>(this.context);
 
   state: SearchState = {
-    resolveObjectRes: { state: "empty" },
-    creatorDetailsRes: { state: "empty" },
-    communitiesRes: { state: "empty" },
-    communityRes: { state: "empty" },
+    resolveObjectRes: EMPTY_REQUEST,
+    creatorDetailsRes: EMPTY_REQUEST,
+    communitiesRes: EMPTY_REQUEST,
+    communityRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     creatorSearchOptions: [],
     communitySearchOptions: [],
-    searchRes: { state: "empty" },
+    searchRes: EMPTY_REQUEST,
     searchCreatorLoading: false,
     searchCommunitiesLoading: false,
     isIsomorphic: false,
@@ -343,13 +348,12 @@ export class Search extends Component<any, SearchState> {
   }
 
   async fetchCommunities() {
-    this.setState({ communitiesRes: { state: "loading" } });
+    this.setState({ communitiesRes: LOADING_REQUEST });
     this.setState({
       communitiesRes: await HttpService.client.listCommunities({
         type_: defaultListingType,
         sort: defaultSortType,
         limit: fetchLimit,
-        auth: myAuth(),
       }),
     });
   }
@@ -360,20 +364,15 @@ export class Search extends Component<any, SearchState> {
 
   static async fetchInitialData({
     client,
-    auth,
     query: { communityId, creatorId, q, type, sort, listingType, page },
   }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<SearchData> {
     const community_id = getIdFromString(communityId);
-    let communityResponse: RequestState<GetCommunityResponse> = {
-      state: "empty",
-    };
-    let listCommunitiesResponse: RequestState<ListCommunitiesResponse> = {
-      state: "empty",
-    };
+    let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
+    let listCommunitiesResponse: RequestState<ListCommunitiesResponse> =
+      EMPTY_REQUEST;
     if (community_id) {
       const getCommunityForm: GetCommunity = {
         id: community_id,
-        auth,
       };
 
       communityResponse = await client.getCommunity(getCommunityForm);
@@ -382,22 +381,19 @@ export class Search extends Component<any, SearchState> {
         type_: defaultListingType,
         sort: defaultSortType,
         limit: fetchLimit,
-        auth,
       };
 
       listCommunitiesResponse = await client.listCommunities(
-        listCommunitiesForm
+        listCommunitiesForm,
       );
     }
 
     const creator_id = getIdFromString(creatorId);
-    let creatorDetailsResponse: RequestState<GetPersonDetailsResponse> = {
-      state: "empty",
-    };
+    let creatorDetailsResponse: RequestState<GetPersonDetailsResponse> =
+      EMPTY_REQUEST;
     if (creator_id) {
       const getCreatorForm: GetPersonDetails = {
         person_id: creator_id,
-        auth,
       };
 
       creatorDetailsResponse = await client.getPersonDetails(getCreatorForm);
@@ -405,10 +401,9 @@ export class Search extends Component<any, SearchState> {
 
     const query = getSearchQueryFromQuery(q);
 
-    let searchResponse: RequestState<SearchResponse> = { state: "empty" };
-    let resolveObjectResponse: RequestState<ResolveObjectResponse> = {
-      state: "empty",
-    };
+    let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
+    let resolveObjectResponse: RequestState<ResolveObjectResponse> =
+      EMPTY_REQUEST;
 
     if (query) {
       const form: SearchForm = {
@@ -420,24 +415,22 @@ export class Search extends Component<any, SearchState> {
         listing_type: getListingTypeFromQuery(listingType),
         page: getPageFromString(page),
         limit: fetchLimit,
-        auth,
       };
 
       if (query !== "") {
         searchResponse = await client.search(form);
-        if (auth) {
+        if (myAuth()) {
           const resolveObjectForm: ResolveObject = {
             q: query,
-            auth,
           };
           resolveObjectResponse = await HttpService.silent_client.resolveObject(
-            resolveObjectForm
+            resolveObjectForm,
           );
 
           // If we return this object with a state of failed, the catch-all-handler will redirect
           // to an error page, so we ignore it by covering up the error with the empty state.
           if (resolveObjectResponse.state === "failed") {
-            resolveObjectResponse = { state: "empty" };
+            resolveObjectResponse = EMPTY_REQUEST;
           }
         }
       }
@@ -466,6 +459,10 @@ export class Search extends Component<any, SearchState> {
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
+          canonicalPath={
+            this.context.router.route.match.url +
+            this.context.router.route.location.search
+          }
         />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("search")}</h1>
         {this.selects}
@@ -475,7 +472,14 @@ export class Search extends Component<any, SearchState> {
           this.state.searchRes.state === "success" && (
             <span>{I18NextService.i18n.t("no_results")}</span>
           )}
-        <Paginator page={page} onChange={this.handlePageChange} />
+        <Paginator
+          page={page}
+          onChange={this.handlePageChange}
+          nextDisabled={
+            this.state.searchRes.state !== "success" ||
+            fetchLimit > this.resultsCount
+          }
+        />
       </div>
     );
   }
@@ -541,7 +545,7 @@ export class Search extends Component<any, SearchState> {
     } = this.state;
 
     const hasCommunities =
-      communitiesRes.state == "success" &&
+      communitiesRes.state === "success" &&
       communitiesRes.data.communities.length > 0;
 
     return (
@@ -560,7 +564,7 @@ export class Search extends Component<any, SearchState> {
               {searchTypes.map(option => (
                 <option value={option} key={option}>
                   {I18NextService.i18n.t(
-                    option.toString().toLowerCase() as NoOptionI18nKeys
+                    option.toString().toLowerCase() as NoOptionI18nKeys,
                   )}
                 </option>
               ))}
@@ -615,7 +619,7 @@ export class Search extends Component<any, SearchState> {
     } = this.state;
 
     // Push the possible resolve / federated objects first
-    if (resolveObjectResponse.state == "success") {
+    if (resolveObjectResponse.state === "success") {
       const { comment, post, community, person } = resolveObjectResponse.data;
 
       if (comment) {
@@ -642,7 +646,7 @@ export class Search extends Component<any, SearchState> {
           ...(posts?.map(postViewToCombined) ?? []),
           ...(communities?.map(communityViewToCombined) ?? []),
           ...(users?.map(personViewSafeToCombined) ?? []),
-        ]
+        ],
       );
     }
 
@@ -659,8 +663,8 @@ export class Search extends Component<any, SearchState> {
             (b.data as PersonView).counts.comment_score) -
             ((a.data as CommentView | PostView).counts.score |
               (a.data as CommunityView).counts.subscribers |
-              (a.data as PersonView).counts.comment_score)
-        )
+              (a.data as PersonView).counts.comment_score),
+        ),
       );
     }
 
@@ -702,6 +706,7 @@ export class Search extends Component<any, SearchState> {
                   onAddModToCommunity={() => {}}
                   onAddAdmin={() => {}}
                   onTransferCommunity={() => {}}
+                  onMarkPostAsRead={() => {}}
                 />
               )}
               {i.type_ === "comments" && (
@@ -717,7 +722,7 @@ export class Search extends Component<any, SearchState> {
                   viewType={CommentViewType.Flat}
                   viewOnly
                   locked
-                  noIndent
+                  isTopLevel
                   enableDownvotes={enableDownvotes(this.state.siteRes)}
                   allLanguages={this.state.siteRes.all_languages}
                   siteLanguages={this.state.siteRes.discussion_languages}
@@ -739,8 +744,8 @@ export class Search extends Component<any, SearchState> {
                   onPersonMentionRead={() => {}}
                   onBanPersonFromCommunity={() => {}}
                   onBanPerson={() => {}}
-                  onCreateComment={() => Promise.resolve({ state: "empty" })}
-                  onEditComment={() => Promise.resolve({ state: "empty" })}
+                  onCreateComment={() => Promise.resolve(EMPTY_REQUEST)}
+                  onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
                 />
               )}
               {i.type_ === "communities" && (
@@ -778,7 +783,7 @@ export class Search extends Component<any, SearchState> {
         viewType={CommentViewType.Flat}
         viewOnly
         locked
-        noIndent
+        isTopLevel
         enableDownvotes={enableDownvotes(siteRes)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
@@ -800,8 +805,8 @@ export class Search extends Component<any, SearchState> {
         onPersonMentionRead={() => {}}
         onBanPersonFromCommunity={() => {}}
         onBanPerson={() => {}}
-        onCreateComment={() => Promise.resolve({ state: "empty" })}
-        onEditComment={() => Promise.resolve({ state: "empty" })}
+        onCreateComment={() => Promise.resolve(EMPTY_REQUEST)}
+        onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
       />
     );
   }
@@ -852,6 +857,7 @@ export class Search extends Component<any, SearchState> {
                 onAddModToCommunity={() => {}}
                 onAddAdmin={() => {}}
                 onTransferCommunity={() => {}}
+                onMarkPostAsRead={() => {}}
               />
             </div>
           </div>
@@ -937,13 +943,12 @@ export class Search extends Component<any, SearchState> {
   }
 
   async search() {
-    const auth = myAuth();
     const { searchText: q } = this.state;
     const { communityId, creatorId, type, sort, listingType, page } =
       getSearchQueryParams();
 
     if (q) {
-      this.setState({ searchRes: { state: "loading" } });
+      this.setState({ searchRes: LOADING_REQUEST });
       this.setState({
         searchRes: await HttpService.client.search({
           q,
@@ -954,18 +959,16 @@ export class Search extends Component<any, SearchState> {
           listing_type: listingType,
           page,
           limit: fetchLimit,
-          auth,
         }),
       });
       window.scrollTo(0, 0);
       restoreScrollPosition(this.context);
 
-      if (auth) {
-        this.setState({ resolveObjectRes: { state: "loading" } });
+      if (myAuth()) {
+        this.setState({ resolveObjectRes: LOADING_REQUEST });
         this.setState({
           resolveObjectRes: await HttpService.silent_client.resolveObject({
             q,
-            auth,
           }),
         });
       }
@@ -980,7 +983,7 @@ export class Search extends Component<any, SearchState> {
     this.setState({ searchCreatorLoading: true });
 
     const selectedChoice = creatorSearchOptions.find(
-      choice => getIdFromString(choice.value) === creatorId
+      choice => getIdFromString(choice.value) === creatorId,
     );
 
     if (selectedChoice) {
@@ -1007,7 +1010,7 @@ export class Search extends Component<any, SearchState> {
     const newOptions: Choice[] = [];
 
     const selectedChoice = communitySearchOptions.find(
-      choice => getIdFromString(choice.value) === communityId
+      choice => getIdFromString(choice.value) === communityId,
     );
 
     if (selectedChoice) {

@@ -8,8 +8,14 @@ import {
   Register,
 } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { Spinner } from "../common/icon";
+import PasswordInput from "../common/password-input";
 import { SiteForm } from "./site-form";
 
 interface State {
@@ -34,7 +40,7 @@ export class Setup extends Component<any, State> {
   private isoData = setIsoData(this.context);
 
   state: State = {
-    registerRes: { state: "empty" },
+    registerRes: EMPTY_REQUEST,
     themeList: [],
     form: {
       show_nsfw: true,
@@ -121,46 +127,28 @@ export class Setup extends Component<any, State> {
             />
           </div>
         </div>
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="password">
-            {I18NextService.i18n.t("password")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="password"
-              id="password"
-              value={this.state.form.password}
-              onInput={linkEvent(this, this.handleRegisterPasswordChange)}
-              className="form-control"
-              required
-              autoComplete="new-password"
-              minLength={10}
-              maxLength={60}
-            />
-          </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="password"
+            value={this.state.form.password}
+            onInput={linkEvent(this, this.handleRegisterPasswordChange)}
+            label={I18NextService.i18n.t("password")}
+            isNew
+          />
         </div>
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="verify-password">
-            {I18NextService.i18n.t("verify_password")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="password"
-              id="verify-password"
-              value={this.state.form.password_verify}
-              onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
-              className="form-control"
-              required
-              autoComplete="new-password"
-              minLength={10}
-              maxLength={60}
-            />
-          </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="verify-password"
+            value={this.state.form.password_verify}
+            onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
+            label={I18NextService.i18n.t("verify_password")}
+            isNew
+          />
         </div>
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
-              {this.state.registerRes.state == "loading" ? (
+              {this.state.registerRes.state === "loading" ? (
                 <Spinner />
               ) : (
                 I18NextService.i18n.t("sign_up")
@@ -174,7 +162,7 @@ export class Setup extends Component<any, State> {
 
   async handleRegisterSubmit(i: Setup, event: any) {
     event.preventDefault();
-    i.setState({ registerRes: { state: "loading" } });
+    i.setState({ registerRes: LOADING_REQUEST });
     const {
       username,
       password_verify,
@@ -203,7 +191,7 @@ export class Setup extends Component<any, State> {
         registerRes: await HttpService.client.register(form),
       });
 
-      if (i.state.registerRes.state == "success") {
+      if (i.state.registerRes.state === "success") {
         const data = i.state.registerRes.data;
 
         UserService.Instance.login({ res: data });

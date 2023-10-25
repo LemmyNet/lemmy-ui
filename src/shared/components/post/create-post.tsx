@@ -1,4 +1,4 @@
-import { enableDownvotes, enableNsfw, myAuth, setIsoData } from "@utils/app";
+import { enableDownvotes, enableNsfw, setIsoData } from "@utils/app";
 import { getIdFromString, getQueryParams } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
@@ -14,6 +14,7 @@ import {
 import { InitialFetchRequest, PostFormParams } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
+  EMPTY_REQUEST,
   HttpService,
   RequestState,
   WrappedLemmyHttp,
@@ -57,7 +58,7 @@ export class CreatePost extends Component<
   state: CreatePostState = {
     siteRes: this.isoData.site_res,
     loading: true,
-    initialCommunitiesRes: { state: "empty" },
+    initialCommunitiesRes: EMPTY_REQUEST,
     isIsomorphic: false,
   };
 
@@ -96,12 +97,10 @@ export class CreatePost extends Component<
 
   async fetchCommunity() {
     const { communityId } = getCreatePostQueryParams();
-    const auth = myAuth();
 
     if (communityId) {
       const res = await HttpService.client.getCommunity({
         id: communityId,
-        auth,
       });
       if (res.state === "success") {
         this.setState({
@@ -121,7 +120,7 @@ export class CreatePost extends Component<
       const { communityId } = getCreatePostQueryParams();
 
       const initialCommunitiesRes = await fetchCommunitiesForOptions(
-        HttpService.client
+        HttpService.client,
       );
 
       this.setState({
@@ -239,18 +238,16 @@ export class CreatePost extends Component<
   static async fetchInitialData({
     client,
     query: { communityId },
-    auth,
   }: InitialFetchRequest<
     QueryParams<CreatePostProps>
   >): Promise<CreatePostData> {
     const data: CreatePostData = {
       initialCommunitiesRes: await fetchCommunitiesForOptions(client),
-      communityResponse: { state: "empty" },
+      communityResponse: EMPTY_REQUEST,
     };
 
     if (communityId) {
       const form: GetCommunity = {
-        auth,
         id: getIdFromString(communityId),
       };
 

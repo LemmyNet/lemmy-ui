@@ -1,4 +1,4 @@
-FROM node:20.2-alpine as builder
+FROM node:20-alpine as builder
 RUN apk update && apk add curl yarn python3 build-base gcc wget git --no-cache
 RUN curl -sf https://gobinaries.com/tj/node-prune | sh
 
@@ -38,10 +38,14 @@ RUN rm -rf ./node_modules/npm
 
 RUN du -sh ./node_modules/* | sort -nr | grep '\dM.*'
 
-FROM node:alpine as runner
+FROM node:20-alpine as runner
+RUN apk update && apk add curl --no-cache
 COPY --from=builder /usr/src/app/dist /app/dist
 COPY --from=builder /usr/src/app/node_modules /app/node_modules
 
+RUN chown -R node:node /app
+
+USER node
 EXPOSE 1234
 WORKDIR /app
 CMD node dist/js/server.js

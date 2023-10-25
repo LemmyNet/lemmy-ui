@@ -8,12 +8,12 @@ fs.readdir(translationDir, (_err, files) => {
     const lang = filename.split(".")[0];
     try {
       const json = JSON.parse(
-        fs.readFileSync(translationDir + filename, "utf8")
+        fs.readFileSync(translationDir + filename, "utf8"),
       );
       let data = `export const ${lang} = {\n  translation: {`;
       for (const key in json) {
         if (key in json) {
-          const value = json[key].replace(/"/g, '\\"');
+          const value = json[key].replace(/"/g, '\\"').replace("\n", "\\n");
           data += `\n    ${key}: "${value}",`;
         }
       }
@@ -67,14 +67,14 @@ ${optionKeys.map(key => `${indent}| "${key}"`).join("\n")};
   export type I18nKeys = NoOptionI18nKeys | OptionI18nKeys;
 
   export type TTypedOptions<TKey extends OptionI18nKeys> =${Array.from(
-    optionMap.entries()
+    optionMap.entries(),
   ).reduce(
     (acc, [key, options]) =>
       `${acc} TKey extends \"${key}\" ? ${
         options.reduce((acc, cur) => acc + `${cur}: string | number; `, "{ ") +
         "}"
       } :\n${indent}`,
-    ""
+    "",
   )} (Record<string, unknown> | string);
 
   export interface TFunctionTyped {

@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -42,9 +41,9 @@ export class RegistrationApplication extends Component<
   componentWillReceiveProps(
     nextProps: Readonly<
       { children?: InfernoNode } & RegistrationApplicationProps
-    >
+    >,
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({
         denyExpanded: false,
         approveLoading: false,
@@ -149,7 +148,6 @@ export class RegistrationApplication extends Component<
     i.props.onApproveApplication({
       id: i.props.application.registration_application.id,
       approve: true,
-      auth: myAuthRequired(),
     });
   }
 
@@ -160,7 +158,6 @@ export class RegistrationApplication extends Component<
         id: i.props.application.registration_application.id,
         approve: false,
         deny_reason: i.state.denyReason,
-        auth: myAuthRequired(),
       });
     } else {
       i.setState({ denyExpanded: true });

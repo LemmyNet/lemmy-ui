@@ -35,7 +35,6 @@ import insertCommentIntoTree from "./insert-comment-into-tree";
 import isAuthPath from "./is-auth-path";
 import isPostBlocked from "./is-post-blocked";
 import myAuth from "./my-auth";
-import myAuthRequired from "./my-auth-required";
 import newVote from "./new-vote";
 import nsfwCheck from "./nsfw-check";
 import personSearch from "./person-search";
@@ -53,6 +52,9 @@ import showScores from "./show-scores";
 import siteBannerCss from "./site-banner-css";
 import updateCommunityBlock from "./update-community-block";
 import updatePersonBlock from "./update-person-block";
+import instanceToChoice from "./instance-to-choice";
+import updateInstanceBlock from "./update-instance-block";
+import isAnonymousPath from "./is-anonymous-path";
 
 export {
   buildCommentsTree,
@@ -92,7 +94,6 @@ export {
   isAuthPath,
   isPostBlocked,
   myAuth,
-  myAuthRequired,
   newVote,
   nsfwCheck,
   personSearch,
@@ -110,4 +111,7 @@ export {
   siteBannerCss,
   updateCommunityBlock,
   updatePersonBlock,
+  instanceToChoice,
+  updateInstanceBlock,
+  isAnonymousPath,
 };

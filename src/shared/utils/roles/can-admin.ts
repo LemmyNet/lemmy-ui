@@ -6,7 +6,7 @@ export default function canAdmin(
   creatorId: number,
   admins?: PersonView[],
   myUserInfo = UserService.Instance.myUserInfo,
-  onSelf = false
+  onSelf = false,
 ): boolean {
   return canMod(creatorId, undefined, admins, myUserInfo, onSelf);
 }

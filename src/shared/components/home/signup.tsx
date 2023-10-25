@@ -1,8 +1,6 @@
-import { myAuth, setIsoData } from "@utils/app";
+import { setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { validEmail } from "@utils/helpers";
-import { Options, passwordStrength } from "check-password-strength";
-import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -15,38 +13,17 @@ import {
 import { joinLemmyUrl } from "../../config";
 import { mdToHtml } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-
-const passwordStrengthOptions: Options<string> = [
-  {
-    id: 0,
-    value: "very_weak",
-    minDiversity: 0,
-    minLength: 0,
-  },
-  {
-    id: 1,
-    value: "weak",
-    minDiversity: 2,
-    minLength: 10,
-  },
-  {
-    id: 2,
-    value: "medium",
-    minDiversity: 3,
-    minLength: 12,
-  },
-  {
-    id: 3,
-    value: "strong",
-    minDiversity: 4,
-    minLength: 14,
-  },
-];
+import PasswordInput from "../common/password-input";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -71,8 +48,8 @@ export class Signup extends Component<any, State> {
   private audio?: HTMLAudioElement;
 
   state: State = {
-    registerRes: { state: "empty" },
-    captchaRes: { state: "empty" },
+    registerRes: EMPTY_REQUEST,
+    captchaRes: EMPTY_REQUEST,
     form: {
       show_nsfw: false,
     },
@@ -93,13 +70,13 @@ export class Signup extends Component<any, State> {
   }
 
   async fetchCaptcha() {
-    this.setState({ captchaRes: { state: "loading" } });
+    this.setState({ captchaRes: LOADING_REQUEST });
     this.setState({
-      captchaRes: await HttpService.client.getCaptcha({}),
+      captchaRes: await HttpService.client.getCaptcha(),
     });
 
     this.setState(s => {
-      if (s.captchaRes.state == "success") {
+      if (s.captchaRes.state === "success") {
         s.form.captcha_uuid = s.captchaRes.data.ok?.uuid;
       }
       return s;
@@ -113,12 +90,12 @@ export class Signup extends Component<any, State> {
 
   titleName(siteView: SiteView): string {
     return I18NextService.i18n.t(
-      siteView.local_site.private_instance ? "apply_to_join" : "sign_up"
+      siteView.local_site.private_instance ? "apply_to_join" : "sign_up",
     );
   }
 
   get isLemmyMl(): boolean {
-    return isBrowser() && window.location.hostname == "lemmy.ml";
+    return isBrowser() && window.location.hostname === "lemmy.ml";
   }
 
   render() {
@@ -219,57 +196,28 @@ export class Signup extends Component<any, State> {
           </div>
         </div>
 
-        <div className="mb-3 row">
-          <label
-            className="col-sm-2 col-form-label"
-            htmlFor="register-password"
-          >
-            {I18NextService.i18n.t("password")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="password"
-              id="register-password"
-              value={this.state.form.password}
-              autoComplete="new-password"
-              onInput={linkEvent(this, this.handleRegisterPasswordChange)}
-              minLength={10}
-              maxLength={60}
-              className="form-control"
-              required
-            />
-            {this.state.form.password && (
-              <div className={this.passwordColorClass}>
-                {I18NextService.i18n.t(
-                  this.passwordStrength as NoOptionI18nKeys
-                )}
-              </div>
-            )}
-          </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="register-password"
+            value={this.state.form.password}
+            onInput={linkEvent(this, this.handleRegisterPasswordChange)}
+            showStrength
+            label={I18NextService.i18n.t("password")}
+            isNew
+          />
         </div>
 
-        <div className="mb-3 row">
-          <label
-            className="col-sm-2 col-form-label"
-            htmlFor="register-verify-password"
-          >
-            {I18NextService.i18n.t("verify_password")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="password"
-              id="register-verify-password"
-              value={this.state.form.password_verify}
-              autoComplete="new-password"
-              onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
-              maxLength={60}
-              className="form-control"
-              required
-            />
-          </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="register-verify-password"
+            value={this.state.form.password_verify}
+            onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
+            label={I18NextService.i18n.t("verify_password")}
+            isNew
+          />
         </div>
 
-        {siteView.local_site.registration_mode == "RequireApplication" && (
+        {siteView.local_site.registration_mode === "RequireApplication" && (
           <>
             <div className="mb-3 row">
               <div className="offset-sm-2 col-sm-10">
@@ -281,7 +229,7 @@ export class Signup extends Component<any, State> {
                   <div
                     className="md-div"
                     dangerouslySetInnerHTML={mdToHtml(
-                      siteView.local_site.application_question
+                      siteView.local_site.application_question,
                     )}
                   />
                 )}
@@ -337,7 +285,7 @@ export class Signup extends Component<any, State> {
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
-              {this.state.registerRes.state == "loading" ? (
+              {this.state.registerRes.state === "loading" ? (
                 <Spinner />
               ) : (
                 this.titleName(siteView)
@@ -379,7 +327,7 @@ export class Signup extends Component<any, State> {
                 value={this.state.form.captcha_answer}
                 onInput={linkEvent(
                   this,
-                  this.handleRegisterCaptchaAnswerChange
+                  this.handleRegisterCaptchaAnswerChange,
                 )}
                 required
               />
@@ -420,25 +368,6 @@ export class Signup extends Component<any, State> {
     );
   }
 
-  get passwordStrength(): string | undefined {
-    const password = this.state.form.password;
-    return password
-      ? passwordStrength(password, passwordStrengthOptions).value
-      : undefined;
-  }
-
-  get passwordColorClass(): string {
-    const strength = this.passwordStrength;
-
-    if (strength && ["weak", "medium"].includes(strength)) {
-      return "text-warning";
-    } else if (strength == "strong") {
-      return "text-success";
-    } else {
-      return "text-danger";
-    }
-  }
-
   async handleRegisterSubmit(i: Signup, event: any) {
     event.preventDefault();
     const {
@@ -453,7 +382,7 @@ export class Signup extends Component<any, State> {
       username,
     } = i.state.form;
     if (username && password && password_verify) {
-      i.setState({ registerRes: { state: "loading" } });
+      i.setState({ registerRes: LOADING_REQUEST });
 
       const registerRes = await HttpService.client.register({
         username,
@@ -469,7 +398,7 @@ export class Signup extends Component<any, State> {
       switch (registerRes.state) {
         case "failed": {
           toast(registerRes.msg, "danger");
-          i.setState({ registerRes: { state: "empty" } });
+          i.setState({ registerRes: EMPTY_REQUEST });
           break;
         }
 
@@ -482,7 +411,7 @@ export class Signup extends Component<any, State> {
               res: data,
             });
 
-            const site = await HttpService.client.getSite({ auth: myAuth() });
+            const site = await HttpService.client.getSite();
 
             if (site.state === "success") {
               UserService.Instance.myUserInfo = site.data.my_user;
@@ -511,7 +440,7 @@ export class Signup extends Component<any, State> {
 
   handleRegisterEmailChange(i: Signup, event: any) {
     i.state.form.email = event.target.value;
-    if (i.state.form.email == "") {
+    if (i.state.form.email === "") {
       i.state.form.email = undefined;
     }
     i.setState(i.state);
@@ -556,7 +485,7 @@ export class Signup extends Component<any, State> {
     // This was a bad bug, it should only build the new audio on a new file.
     // Replays would stop prematurely if this was rebuilt every time.
 
-    if (i.state.captchaRes.state == "success" && i.state.captchaRes.data.ok) {
+    if (i.state.captchaRes.state === "success" && i.state.captchaRes.data.ok) {
       const captchaRes = i.state.captchaRes.data.ok;
       if (!i.audio) {
         const base64 = `data:audio/wav;base64,${captchaRes.wav}`;

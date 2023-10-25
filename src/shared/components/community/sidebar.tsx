@@ -1,5 +1,4 @@
-import { myAuthRequired } from "@utils/app";
-import { getUnixTime, hostname } from "@utils/helpers";
+import { hostname } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -22,6 +21,7 @@ import { I18NextService, UserService } from "../../services";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
+import { SubscribeButton } from "../common/subscribe-button";
 import { CommunityForm } from "../community/community-form";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
@@ -79,15 +79,15 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & SidebarProps>
+    nextProps: Readonly<{ children?: InfernoNode } & SidebarProps>,
   ): void {
-    if (this.props.moderators != nextProps.moderators) {
+    if (this.props.moderators !== nextProps.moderators) {
       this.setState({
         showConfirmLeaveModTeam: false,
       });
     }
 
-    if (this.props.community_view != nextProps.community_view) {
+    if (this.props.community_view !== nextProps.community_view) {
       this.setState({
         showEdit: false,
         showPurgeDialog: false,
@@ -123,7 +123,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   sidebar() {
     const myUSerInfo = UserService.Instance.myUserInfo;
-    const { name, actor_id } = this.props.community_view.community;
+    const {
+      community: { name, actor_id },
+    } = this.props.community_view;
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
@@ -131,7 +133,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
-              {myUSerInfo && this.subscribe()}
+              <SubscribeButton
+                communityView={this.props.community_view}
+                onFollow={linkEvent(this, this.handleFollowCommunity)}
+                onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
+                loading={this.state.followCommunityLoading}
+              />
               {this.canPost && this.createPost()}
               {myUSerInfo && this.blockCommunity()}
               {!myUSerInfo && (
@@ -230,58 +237,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  subscribe() {
-    const community_view = this.props.community_view;
-
-    if (community_view.subscribed === "NotSubscribed") {
-      return (
-        <button
-          className="btn btn-secondary d-block mb-2 w-100"
-          onClick={linkEvent(this, this.handleFollowCommunity)}
-        >
-          {this.state.followCommunityLoading ? (
-            <Spinner />
-          ) : (
-            I18NextService.i18n.t("subscribe")
-          )}
-        </button>
-      );
-    }
-
-    if (community_view.subscribed === "Subscribed") {
-      return (
-        <button
-          className="btn btn-secondary d-block mb-2 w-100"
-          onClick={linkEvent(this, this.handleUnfollowCommunity)}
-        >
-          {this.state.followCommunityLoading ? (
-            <Spinner />
-          ) : (
-            <>
-              <Icon icon="check" classes="icon-inline me-1" />
-              {I18NextService.i18n.t("joined")}
-            </>
-          )}
-        </button>
-      );
-    }
-
-    if (community_view.subscribed === "Pending") {
-      return (
-        <button
-          className="btn btn-warning d-block mb-2 w-100"
-          onClick={linkEvent(this, this.handleUnfollowCommunity)}
-        >
-          {this.state.followCommunityLoading ? (
-            <Spinner />
-          ) : (
-            I18NextService.i18n.t("subscribe_pending")
-          )}
-        </button>
-      );
-    }
-  }
-
   blockCommunity() {
     const { subscribed, blocked } = this.props.community_view;
 
@@ -292,7 +247,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           onClick={linkEvent(this, this.handleBlockCommunity)}
         >
           {I18NextService.i18n.t(
-            blocked ? "unblock_community" : "block_community"
+            blocked ? "unblock_community" : "block_community",
           )}
         </button>
       )
@@ -332,7 +287,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                       className="btn btn-link text-muted d-inline-block"
                       onClick={linkEvent(
                         this,
-                        this.handleShowConfirmLeaveModTeamClick
+                        this.handleShowConfirmLeaveModTeamClick,
                       )}
                     >
                       {I18NextService.i18n.t("leave_mod_team")}
@@ -356,7 +311,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                         className="btn btn-link text-muted d-inline-block"
                         onClick={linkEvent(
                           this,
-                          this.handleCancelLeaveModTeamClick
+                          this.handleCancelLeaveModTeamClick,
                         )}
                       >
                         {I18NextService.i18n.t("no")}
@@ -544,7 +499,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onFollowCommunity({
       community_id: i.props.community_view.community.id,
       follow: false,
-      auth: myAuthRequired(),
     });
   }
 
@@ -553,7 +507,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onFollowCommunity({
       community_id: i.props.community_view.community.id,
       follow: true,
-      auth: myAuthRequired(),
     });
   }
 
@@ -563,7 +516,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onBlockCommunity({
       community_id: community.id,
       block: !blocked,
-      auth: myAuthRequired(),
     });
   }
 
@@ -573,9 +525,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       i.setState({ leaveModTeamLoading: true });
       i.props.onLeaveModTeam({
         community_id: i.props.community_view.community.id,
-        person_id: 92,
+        person_id: myId,
         added: false,
-        auth: myAuthRequired(),
       });
     }
   }
@@ -585,7 +536,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onDeleteCommunity({
       community_id: i.props.community_view.community.id,
       deleted: !i.props.community_view.community.deleted,
-      auth: myAuthRequired(),
     });
   }
 
@@ -596,8 +546,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       community_id: i.props.community_view.community.id,
       removed: !i.props.community_view.community.removed,
       reason: i.state.removeReason,
-      expires: getUnixTime(i.state.removeExpires), // TODO fix this
-      auth: myAuthRequired(),
     });
   }
 
@@ -607,7 +555,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onPurgeCommunity({
       community_id: i.props.community_view.community.id,
       reason: i.state.purgeReason,
-      auth: myAuthRequired(),
     });
   }
 }

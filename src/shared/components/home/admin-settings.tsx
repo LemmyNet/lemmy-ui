@@ -1,9 +1,4 @@
-import {
-  fetchThemeList,
-  myAuthRequired,
-  setIsoData,
-  showLocal,
-} from "@utils/app";
+import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -21,7 +16,12 @@ import {
 import { InitialFetchRequest } from "../../interfaces";
 import { removeFromEmojiDataModel, updateEmojiDataModel } from "../../markdown";
 import { FirstLoadService, I18NextService } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -55,9 +55,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     siteRes: this.isoData.site_res,
     banned: [],
     currentTab: "site",
-    bannedRes: { state: "empty" },
-    instancesRes: { state: "empty" },
-    leaveAdminTeamRes: { state: "empty" },
+    bannedRes: EMPTY_REQUEST,
+    instancesRes: EMPTY_REQUEST,
+    leaveAdminTeamRes: EMPTY_REQUEST,
     loading: false,
     themeList: [],
     isIsomorphic: false,
@@ -85,16 +85,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   static async fetchInitialData({
-    auth,
     client,
   }: InitialFetchRequest): Promise<AdminSettingsData> {
     return {
-      bannedRes: await client.getBannedPersons({
-        auth: auth as string,
-      }),
-      instancesRes: await client.getFederatedInstances({
-        auth: auth as string,
-      }),
+      bannedRes: await client.getBannedPersons(),
+      instancesRes: await client.getFederatedInstances(),
     };
   }
 
@@ -150,12 +145,23 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                         loading={this.state.loading}
                       />
                     </div>
-                    <div className="col-12 col-md-6">
-                      {this.admins()}
-                      <hr />
-                      {this.bannedUsers()}
-                    </div>
+                    <div className="col-12 col-md-6">{this.admins()}</div>
                   </div>
+                </div>
+              ),
+            },
+            {
+              key: "banned_users",
+              label: I18NextService.i18n.t("banned_users"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="banned_users-tab-pane"
+                >
+                  {this.bannedUsers()}
                 </div>
               ),
             },
@@ -230,16 +236,14 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
 
   async fetchData() {
     this.setState({
-      bannedRes: { state: "loading" },
-      instancesRes: { state: "loading" },
+      bannedRes: LOADING_REQUEST,
+      instancesRes: LOADING_REQUEST,
       themeList: [],
     });
 
-    const auth = myAuthRequired();
-
     const [bannedRes, instancesRes, themeList] = await Promise.all([
-      HttpService.client.getBannedPersons({ auth }),
-      HttpService.client.getFederatedInstances({ auth }),
+      HttpService.client.getBannedPersons(),
+      HttpService.client.getFederatedInstances(),
       fetchThemeList(),
     ]);
 
@@ -274,7 +278,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         onClick={linkEvent(this, this.handleLeaveAdminTeam)}
         className="btn btn-danger mb-2"
       >
-        {this.state.leaveAdminTeamRes.state == "loading" ? (
+        {this.state.leaveAdminTeamRes.state === "loading" ? (
           <Spinner />
         ) : (
           I18NextService.i18n.t("leave_admin_team")
@@ -295,7 +299,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
         const bans = this.state.bannedRes.data.banned;
         return (
           <>
-            <h2 className="h5">{I18NextService.i18n.t("banned_users")}</h2>
+            <h1 className="h4 mb-4">{I18NextService.i18n.t("banned_users")}</h1>
             <ul className="list-unstyled">
               {bans.map(banned => (
                 <li key={banned.person.id} className="list-inline-item">
@@ -334,11 +338,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   async handleLeaveAdminTeam(i: AdminSettings) {
-    i.setState({ leaveAdminTeamRes: { state: "loading" } });
+    i.setState({ leaveAdminTeamRes: LOADING_REQUEST });
     this.setState({
-      leaveAdminTeamRes: await HttpService.client.leaveAdmin({
-        auth: myAuthRequired(),
-      }),
+      leaveAdminTeamRes: await HttpService.client.leaveAdmin(),
     });
 
     if (this.state.leaveAdminTeamRes.state === "success") {

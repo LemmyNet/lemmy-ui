@@ -1,9 +1,7 @@
-import { myAuthRequired } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
 import { EditSite, Tagline } from "lemmy-js-client";
 import { I18NextService } from "../../services";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
@@ -26,17 +24,10 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   constructor(props: any, context: any) {
     super(props, context);
   }
-  get documentTitle(): string {
-    return I18NextService.i18n.t("taglines");
-  }
 
   render() {
     return (
       <div className="tagline-form col-12">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("taglines")}</h1>
         <div className="table-responsive col-12">
           <table id="taglines_table" className="table table-sm table-hover">
@@ -48,7 +39,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
               {this.state.taglines.map((cv, index) => (
                 <tr key={index}>
                   <td>
-                    {this.state.editingRow == index && (
+                    {this.state.editingRow === index && (
                       <MarkdownTextArea
                         initialContent={cv}
                         onContentChange={s =>
@@ -59,14 +50,14 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                         siteLanguages={[]}
                       />
                     )}
-                    {this.state.editingRow != index && <div>{cv}</div>}
+                    {this.state.editingRow !== index && <div>{cv}</div>}
                   </td>
                   <td className="text-right">
                     <button
                       className="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(
                         { i: this, index: index },
-                        this.handleEditTaglineClick
+                        this.handleEditTaglineClick,
                       )}
                       data-tippy-content={I18NextService.i18n.t("edit")}
                       aria-label={I18NextService.i18n.t("edit")}
@@ -78,7 +69,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                       className="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(
                         { i: this, index: index },
-                        this.handleDeleteTaglineClick
+                        this.handleDeleteTaglineClick,
                       )}
                       data-tippy-content={I18NextService.i18n.t("delete")}
                       aria-label={I18NextService.i18n.t("delete")}
@@ -141,7 +132,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
 
   handleEditTaglineClick(d: { i: TaglineForm; index: number }, event: any) {
     event.preventDefault();
-    if (d.i.state.editingRow == d.index) {
+    if (d.i.state.editingRow === d.index) {
       d.i.setState({ editingRow: undefined });
     } else {
       d.i.setState({ editingRow: d.index });
@@ -151,13 +142,12 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   async handleSaveClick(i: TaglineForm) {
     i.props.onSaveSite({
       taglines: i.state.taglines,
-      auth: myAuthRequired(),
     });
   }
 
   handleAddTaglineClick(
     i: TaglineForm,
-    event: InfernoMouseEvent<HTMLButtonElement>
+    event: InfernoMouseEvent<HTMLButtonElement>,
   ) {
     event.preventDefault();
     const newTaglines = [...i.state.taglines];

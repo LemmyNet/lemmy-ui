@@ -1,10 +1,8 @@
 const webpack = require("webpack");
-const path = require("path");
+const { resolve } = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const nodeExternals = require("webpack-node-externals");
 const CopyPlugin = require("copy-webpack-plugin");
-const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
-const merge = require("lodash.merge");
 const { ServiceWorkerPlugin } = require("service-worker-webpack");
 
 const banner = `
@@ -14,18 +12,18 @@ const banner = `
   @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3.0
   `;
 
-function getBase(env, mode) {
-  return {
+module.exports = (env, argv) => {
+  const mode = argv.mode;
+
+  const base = {
     output: {
-      filename: "js/server.js",
-      publicPath: "/",
       hashFunction: "xxhash64",
     },
     resolve: {
       extensions: [".js", ".jsx", ".ts", ".tsx"],
       alias: {
-        "@": path.resolve(__dirname, "src/"),
-        "@utils": path.resolve(__dirname, "src/shared/utils/"),
+        "@": resolve(__dirname, "src/"),
+        "@utils": resolve(__dirname, "src/shared/utils/"),
       },
     },
     performance: {
@@ -67,42 +65,24 @@ function getBase(env, mode) {
       }),
     ],
   };
-}
 
-const createServerConfig = (env, mode) => {
-  const base = getBase(env, mode);
-  const config = merge({}, base, {
-    mode,
+  const serverConfig = {
+    ...base,
     entry: "./src/server/index.tsx",
     output: {
+      ...base.output,
       filename: "js/server.js",
+      publicPath: "/",
     },
     target: "node",
     externals: [nodeExternals(), "inferno-helmet"],
-  });
+  };
 
-  if (mode === "development") {
-    // config.cache = {
-    //   type: "filesystem",
-    //   name: "server",
-    // };
-
-    config.plugins.push(
-      new RunNodeWebpackPlugin({
-        runOnlyInWatchMode: true,
-      })
-    );
-  }
-
-  return config;
-};
-
-const createClientConfig = (env, mode) => {
-  const base = getBase(env, mode);
-  const config = merge({}, base, {
-    mode,
+  const clientConfig = {
+    ...base,
     entry: "./src/client/index.tsx",
     output: {
+      ...base.output,
       filename: "js/client.js",
       publicPath: `/static/${env.COMMIT_HASH}/`,
     },
@@ -158,18 +138,22 @@ const createClientConfig = (env, mode) => {
         },
       }),
     ],
-  });
+  };
 
-  if (mode === "none") {
-    const BundleAnalyzerPlugin =
-      require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-    config.plugins.push(new BundleAnalyzerPlugin());
+  if (mode === "development") {
+    // serverConfig.cache = {
+    //   type: "filesystem",
+    //   name: "server",
+    // };
+
+    const RunNodeWebpackPlugin = require("run-node-webpack-plugin");
+    serverConfig.plugins.push(
+      new RunNodeWebpackPlugin({ runOnlyInWatchMode: true }),
+    );
+  } else if (mode === "none") {
+    const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+    serverConfig.plugins.push(new BundleAnalyzerPlugin());
   }
 
-  return config;
+  return [serverConfig, clientConfig];
 };
-
-module.exports = (env, properties) => [
-  createServerConfig(env, properties.mode || "development"),
-  createClientConfig(env, properties.mode || "development"),
-];

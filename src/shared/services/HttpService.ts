@@ -3,13 +3,17 @@ import { LemmyHttp } from "lemmy-js-client";
 import { toast } from "../toast";
 import { I18NextService } from "./I18NextService";
 
-export type EmptyRequestState = {
-  state: "empty";
-};
+export const EMPTY_REQUEST = {
+  state: "empty",
+} as const;
 
-type LoadingRequestState = {
-  state: "loading";
-};
+export type EmptyRequestState = typeof EMPTY_REQUEST;
+
+export const LOADING_REQUEST = {
+  state: "loading",
+} as const;
+
+type LoadingRequestState = typeof LOADING_REQUEST;
 
 export type FailedRequestState = {
   state: "failed";
@@ -49,7 +53,7 @@ class WrappedLemmyHttpClient {
     this.#client = client;
 
     for (const key of Object.getOwnPropertyNames(
-      Object.getPrototypeOf(this.#client)
+      Object.getPrototypeOf(this.#client),
     )) {
       if (key !== "constructor") {
         WrappedLemmyHttpClient.prototype[key] = async (...args) => {
@@ -80,7 +84,7 @@ export function wrapClient(client: LemmyHttp, silent = false) {
   // unfortunately, this verbose cast is necessary
   return new WrappedLemmyHttpClient(
     client,
-    silent
+    silent,
   ) as unknown as WrappedLemmyHttp;
 }
 

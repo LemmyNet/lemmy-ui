@@ -1,6 +1,8 @@
 import classNames from "classnames";
 import { Component } from "inferno";
 
+import { UserService } from "../../services";
+
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
 
@@ -13,6 +15,7 @@ interface PictrsImageProps {
   nsfw?: boolean;
   iconOverlay?: boolean;
   pushup?: boolean;
+  cardTop?: boolean;
 }
 
 export class PictrsImage extends Component<PictrsImageProps, any> {
@@ -21,28 +24,40 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
   }
 
   render() {
+    const { src, icon, iconOverlay, banner, thumbnail, nsfw, pushup, cardTop } =
+      this.props;
+    let user_blur_nsfw = true;
+    if (UserService.Instance.myUserInfo) {
+      user_blur_nsfw =
+        UserService.Instance.myUserInfo?.local_user_view.local_user.blur_nsfw;
+    }
+
+    const blur_image = nsfw && user_blur_nsfw;
+
     return (
       <picture>
         <source srcSet={this.src("webp")} type="image/webp" />
-        <source srcSet={this.props.src} />
+        <source srcSet={src} />
         <source srcSet={this.src("jpg")} type="image/jpeg" />
         <img
-          src={this.props.src}
+          src={src}
           alt={this.alt()}
           title={this.alt()}
           loading="lazy"
           className={classNames("overflow-hidden pictrs-image", {
-            "img-fluid": !this.props.icon && !this.props.iconOverlay,
-            banner: this.props.banner,
+            "img-fluid": !(icon || iconOverlay),
+            banner,
             "thumbnail rounded object-fit-cover":
-              this.props.thumbnail && !this.props.icon && !this.props.banner,
-            "img-expanded slight-radius":
-              !this.props.thumbnail && !this.props.icon,
-            "img-blur": this.props.thumbnail && this.props.nsfw,
-            "object-fit-cover img-icon me-1": this.props.icon,
+              thumbnail && !(icon || banner),
+            "img-expanded slight-radius": !(thumbnail || icon),
+            "img-blur": thumbnail && nsfw,
+            "object-fit-cover img-icon me-1": icon,
+            "img-blur-icon": icon && blur_image,
+            "img-blur-thumb": thumbnail && blur_image,
             "ms-2 mb-0 rounded-circle object-fit-cover avatar-overlay":
-              this.props.iconOverlay,
-            "avatar-pushup": this.props.pushup,
+              iconOverlay,
+            "avatar-pushup": pushup,
+            "card-img-top": cardTop,
           })}
         />
       </picture>
@@ -56,7 +71,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     const split = this.props.src.split("/pictrs/image/");
 
     // If theres not multiple, then its not a pictrs image
-    if (split.length == 1) {
+    if (split.length === 1) {
       return this.props.src;
     }
 

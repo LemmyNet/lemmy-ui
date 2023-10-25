@@ -1,4 +1,3 @@
-import { getHttpBaseExternal } from "@utils/env";
 import { readFile } from "fs/promises";
 import { GetSiteResponse } from "lemmy-js-client";
 import path from "path";
@@ -11,7 +10,7 @@ const defaultLogoPathDirectory = path.join(
   process.cwd(),
   "dist",
   "assets",
-  "icons"
+  "icons",
 );
 
 export default async function ({
@@ -21,15 +20,13 @@ export default async function ({
     local_site: { community_creation_admin_only },
   },
 }: GetSiteResponse) {
-  const url = getHttpBaseExternal();
-
   const icon = site.icon ? await fetchIconPng(site.icon) : null;
 
   return {
     name: site.name,
     description: site.description ?? "A link aggregator for the fediverse",
-    start_url: url,
-    scope: url,
+    start_url: "/",
+    scope: "/",
     display: "standalone",
     id: "/",
     background_color: "#222222",
@@ -37,7 +34,7 @@ export default async function ({
     icons: await Promise.all(
       iconSizes.map(async size => {
         let src = await readFile(
-          path.join(defaultLogoPathDirectory, `icon-${size}x${size}.png`)
+          path.join(defaultLogoPathDirectory, `icon-${size}x${size}.png`),
         ).then(buf => buf.toString("base64"));
 
         if (icon) {
@@ -54,7 +51,7 @@ export default async function ({
           src: `data:image/png;base64,${src}`,
           purpose: "any maskable",
         };
-      })
+      }),
     ),
     shortcuts: [
       {
@@ -76,7 +73,8 @@ export default async function ({
         description: "Create a post.",
       },
     ].concat(
-      my_user?.local_user_view.person.admin || !community_creation_admin_only
+      my_user?.local_user_view.local_user.admin ||
+        !community_creation_admin_only
         ? [
             {
               name: "Create Community",
@@ -85,7 +83,7 @@ export default async function ({
               description: "Create a community",
             },
           ]
-        : []
+        : [],
     ),
     related_applications: [
       {

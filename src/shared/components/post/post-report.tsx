@@ -1,4 +1,3 @@
-import { myAuthRequired } from "@utils/app";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { PostReportView, PostView, ResolvePostReport } from "lemmy-js-client";
@@ -26,9 +25,9 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
   }
 
   componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PostReportProps>
+    nextProps: Readonly<{ children?: InfernoNode } & PostReportProps>,
   ): void {
-    if (this.props != nextProps) {
+    if (this.props !== nextProps) {
       this.setState({ loading: false });
     }
   }
@@ -38,7 +37,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     const resolver = r.resolver;
     const post = r.post;
     const tippyContent = I18NextService.i18n.t(
-      r.post_report.resolved ? "unresolve_report" : "resolve_report"
+      r.post_report.resolved ? "unresolve_report" : "resolve_report",
     );
 
     // Set the original post data ( a troll could change it )
@@ -87,6 +86,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           onAddModToCommunity={() => {}}
           onAddAdmin={() => {}}
           onTransferCommunity={() => {}}
+          onMarkPostAsRead={() => {}}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}
@@ -136,7 +136,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     i.props.onResolveReport({
       report_id: i.props.report.post_report.id,
       resolved: !i.props.report.post_report.resolved,
-      auth: myAuthRequired(),
     });
   }
 }

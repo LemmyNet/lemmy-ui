@@ -14,7 +14,6 @@ import {
   updatePersonBlock,
 } from "@utils/app";
 import {
-  getPageFromString,
   getQueryParams,
   getQueryString,
   getRandomFromList,
@@ -59,6 +58,8 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MarkPostAsRead,
+  PaginationCursor,
   PostResponse,
   PurgeComment,
   PurgeItemResponse,
@@ -84,7 +85,12 @@ import {
   I18NextService,
   UserService,
 } from "../../services";
-import { HttpService, RequestState } from "../../services/HttpService";
+import {
+  EMPTY_REQUEST,
+  HttpService,
+  LOADING_REQUEST,
+  RequestState,
+} from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -92,11 +98,11 @@ import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
-import { Paginator } from "../common/paginator";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
+import { PaginatorCursor } from "../common/paginator-cursor";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -117,7 +123,7 @@ interface HomeProps {
   listingType?: ListingType;
   dataType: DataType;
   sort: SortType;
-  page: number;
+  pageCursor?: PaginationCursor;
 }
 
 type HomeData = RouteDataResponse<{
@@ -128,7 +134,6 @@ type HomeData = RouteDataResponse<{
 
 function getRss(listingType: ListingType) {
   const { sort } = getHomeQueryParams();
-  const auth = myAuth();
 
   let rss: string | undefined = undefined;
 
@@ -142,6 +147,7 @@ function getRss(listingType: ListingType) {
       break;
     }
     case "Subscribed": {
+      const auth = myAuth();
       rss = auth ? `/feeds/front/${auth}.xml?sort=${sort}` : undefined;
       break;
     }
@@ -179,13 +185,14 @@ function getSortTypeFromQuery(type?: string): SortType {
   return (type ? (type as SortType) : mySortType) ?? "Active";
 }
 
-const getHomeQueryParams = () =>
-  getQueryParams<HomeProps>({
+function getHomeQueryParams() {
+  return getQueryParams<HomeProps>({
     sort: getSortTypeFromQuery,
     listingType: getListingTypeFromQuery,
-    page: getPageFromString,
+    pageCursor: cursor => cursor,
     dataType: getDataTypeFromQuery,
   });
+}
 
 const MobileButton = ({
   textKey,
@@ -220,9 +227,9 @@ const LinkButton = ({
 export class Home extends Component<any, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);
   state: HomeState = {
-    postsRes: { state: "empty" },
-    commentsRes: { state: "empty" },
-    trendingCommunitiesRes: { state: "empty" },
+    postsRes: EMPTY_REQUEST,
+    commentsRes: EMPTY_REQUEST,
+    trendingCommunitiesRes: EMPTY_REQUEST,
     scrolled: true,
     siteRes: this.isoData.site_res,
     showSubscribedMobile: false,
@@ -239,7 +246,8 @@ export class Home extends Component<any, HomeState> {
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
-    this.handlePageChange = this.handlePageChange.bind(this);
+    this.handlePageNext = this.handlePageNext.bind(this);
+    this.handlePagePrev = this.handlePagePrev.bind(this);
 
     this.handleCreateComment = this.handleCreateComment.bind(this);
     this.handleEditComment = this.handleEditComment.bind(this);
@@ -268,6 +276,7 @@ export class Home extends Component<any, HomeState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -285,9 +294,8 @@ export class Home extends Component<any, HomeState> {
       HomeCacheService.postsRes = postsRes;
     }
 
-    this.state.tagline = getRandomFromList(
-      this.state?.siteRes?.taglines ?? []
-    )?.content;
+    this.state.tagline = getRandomFromList(this.state?.siteRes?.taglines ?? [])
+      ?.content;
   }
 
   componentWillUnmount() {
@@ -298,7 +306,7 @@ export class Home extends Component<any, HomeState> {
     if (
       !this.state.isIsomorphic ||
       !Object.values(this.isoData.routeData).some(
-        res => res.state === "success" || res.state === "failed"
+        res => res.state === "success" || res.state === "failed",
       )
     ) {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
@@ -309,8 +317,7 @@ export class Home extends Component<any, HomeState> {
 
   static async fetchInitialData({
     client,
-    auth,
-    query: { dataType: urlDataType, listingType, page: urlPage, sort: urlSort },
+    query: { dataType: urlDataType, listingType, pageCursor, sort: urlSort },
     site,
   }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
     const dataType = getDataTypeFromQuery(urlDataType);
@@ -319,32 +326,25 @@ export class Home extends Component<any, HomeState> {
       site.site_view.local_site.default_post_listing_type;
     const sort = getSortTypeFromQuery(urlSort);
 
-    const page = urlPage ? Number(urlPage) : 1;
-
-    let postsRes: RequestState<GetPostsResponse> = { state: "empty" };
-    let commentsRes: RequestState<GetCommentsResponse> = {
-      state: "empty",
-    };
+    let postsRes: RequestState<GetPostsResponse> = EMPTY_REQUEST;
+    let commentsRes: RequestState<GetCommentsResponse> = EMPTY_REQUEST;
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
         type_,
-        page,
+        page_cursor: pageCursor,
         limit: fetchLimit,
         sort,
         saved_only: false,
-        auth,
       };
 
       postsRes = await client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
-        page,
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
         type_,
         saved_only: false,
-        auth,
       };
 
       commentsRes = await client.getComments(getCommentsForm);
@@ -354,12 +354,11 @@ export class Home extends Component<any, HomeState> {
       type_: "Local",
       sort: "Hot",
       limit: trendingFetchLimit,
-      auth,
     };
 
     return {
       trendingCommunitiesRes: await client.listCommunities(
-        trendingCommunitiesForm
+        trendingCommunitiesForm,
       ),
       commentsRes,
       postsRes,
@@ -616,18 +615,22 @@ export class Home extends Component<any, HomeState> {
     );
   }
 
-  async updateUrl({ dataType, listingType, page, sort }: Partial<HomeProps>) {
+  async updateUrl({
+    dataType,
+    listingType,
+    pageCursor,
+    sort,
+  }: Partial<HomeProps>) {
     const {
       dataType: urlDataType,
       listingType: urlListingType,
-      page: urlPage,
       sort: urlSort,
     } = getHomeQueryParams();
 
     const queryParams: QueryParams<HomeProps> = {
       dataType: getDataTypeString(dataType ?? urlDataType),
       listingType: listingType ?? urlListingType,
-      page: (page ?? urlPage).toString(),
+      pageCursor: pageCursor,
       sort: sort ?? urlSort,
     };
 
@@ -645,17 +648,28 @@ export class Home extends Component<any, HomeState> {
   }
 
   get posts() {
-    const { page } = getHomeQueryParams();
+    const { pageCursor } = getHomeQueryParams();
 
     return (
       <div className="main-content-wrapper">
         <div>
           {this.selects}
           {this.listings}
-          <Paginator page={page} onChange={this.handlePageChange} />
+          <PaginatorCursor
+            prevPage={pageCursor}
+            nextPage={this.getNextPage}
+            onNext={this.handlePageNext}
+            onPrev={this.handlePagePrev}
+          />
         </div>
       </div>
     );
+  }
+
+  get getNextPage(): PaginationCursor | undefined {
+    return this.state.postsRes.state === "success"
+      ? this.state.postsRes.data.next_page
+      : undefined;
   }
 
   get listings() {
@@ -699,6 +713,7 @@ export class Home extends Component<any, HomeState> {
               onAddAdmin={this.handleAddAdmin}
               onTransferCommunity={this.handleTransferCommunity}
               onFeaturePost={this.handleFeaturePost}
+              onMarkPostAsRead={this.handleMarkPostAsRead}
             />
           );
         }
@@ -718,7 +733,7 @@ export class Home extends Component<any, HomeState> {
               nodes={commentsToFlatNodes(comments)}
               viewType={CommentViewType.Flat}
               finished={this.state.finished}
-              noIndent
+              isTopLevel
               showCommunity
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
@@ -777,7 +792,7 @@ export class Home extends Component<any, HomeState> {
         <div className="col-auto ps-0">
           {getRss(
             listingType ??
-              this.state.siteRes.site_view.local_site.default_post_listing_type
+              this.state.siteRes.site_view.local_site.default_post_listing_type,
           )}
         </div>
       </div>
@@ -785,20 +800,18 @@ export class Home extends Component<any, HomeState> {
   }
 
   async fetchTrendingCommunities() {
-    this.setState({ trendingCommunitiesRes: { state: "loading" } });
+    this.setState({ trendingCommunitiesRes: LOADING_REQUEST });
     this.setState({
       trendingCommunitiesRes: await HttpService.client.listCommunities({
         type_: "Local",
         sort: "Hot",
         limit: trendingFetchLimit,
-        auth: myAuth(),
       }),
     });
   }
 
   async fetchData() {
-    const auth = myAuth();
-    const { dataType, page, listingType, sort } = getHomeQueryParams();
+    const { dataType, pageCursor, listingType, sort } = getHomeQueryParams();
 
     if (dataType === DataType.Post) {
       if (HomeCacheService.active) {
@@ -808,33 +821,29 @@ export class Home extends Component<any, HomeState> {
         window.scrollTo({
           left: 0,
           top: scrollY,
-          behavior: "instant",
         });
       } else {
-        this.setState({ postsRes: { state: "loading" } });
+        this.setState({ postsRes: LOADING_REQUEST });
         this.setState({
           postsRes: await HttpService.client.getPosts({
-            page,
+            page_cursor: pageCursor,
             limit: fetchLimit,
             sort,
             saved_only: false,
             type_: listingType,
-            auth,
           }),
         });
 
         HomeCacheService.postsRes = this.state.postsRes;
       }
     } else {
-      this.setState({ commentsRes: { state: "loading" } });
+      this.setState({ commentsRes: LOADING_REQUEST });
       this.setState({
         commentsRes: await HttpService.client.getComments({
-          page,
           limit: fetchLimit,
           sort: postToCommentSortType(sort),
           saved_only: false,
           type_: listingType,
-          auth,
         }),
       });
     }
@@ -858,24 +867,32 @@ export class Home extends Component<any, HomeState> {
     i.setState({ subscribedCollapsed: !i.state.subscribedCollapsed });
   }
 
-  handlePageChange(page: number) {
+  handlePagePrev() {
+    this.props.history.back();
+    // A hack to scroll to top
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 50);
+  }
+
+  handlePageNext(nextPage: PaginationCursor) {
     this.setState({ scrolled: false });
-    this.updateUrl({ page });
+    this.updateUrl({ pageCursor: nextPage });
   }
 
   handleSortChange(val: SortType) {
     this.setState({ scrolled: false });
-    this.updateUrl({ sort: val, page: 1 });
+    this.updateUrl({ sort: val, pageCursor: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {
     this.setState({ scrolled: false });
-    this.updateUrl({ listingType: val, page: 1 });
+    this.updateUrl({ listingType: val, pageCursor: undefined });
   }
 
   handleDataTypeChange(val: DataType) {
     this.setState({ scrolled: false });
-    this.updateUrl({ dataType: val, page: 1 });
+    this.updateUrl({ dataType: val, pageCursor: undefined });
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {
@@ -900,7 +917,7 @@ export class Home extends Component<any, HomeState> {
 
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
-    if (blockPersonRes.state == "success") {
+    if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data);
     }
   }
@@ -914,7 +931,7 @@ export class Home extends Component<any, HomeState> {
 
   async handleEditComment(form: EditComment) {
     const editCommentRes = await HttpService.client.editComment(form);
-    this.findAndUpdateComment(editCommentRes);
+    this.findAndUpdateCommentEdit(editCommentRes);
 
     return editCommentRes;
   }
@@ -971,14 +988,14 @@ export class Home extends Component<any, HomeState> {
 
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
-    if (reportRes.state == "success") {
+    if (reportRes.state === "success") {
       toast(I18NextService.i18n.t("report_created"));
     }
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
-    if (reportRes.state == "success") {
+    if (reportRes.state === "success") {
       toast(I18NextService.i18n.t("report_created"));
     }
   }
@@ -996,7 +1013,7 @@ export class Home extends Component<any, HomeState> {
   async handleAddAdmin(form: AddAdmin) {
     const addAdminRes = await HttpService.client.addAdmin(form);
 
-    if (addAdminRes.state == "success") {
+    if (addAdminRes.state === "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
     }
   }
@@ -1026,22 +1043,27 @@ export class Home extends Component<any, HomeState> {
     this.updateBan(banRes);
   }
 
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    this.findAndUpdatePost(res);
+  }
+
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
     // Maybe not necessary
-    if (banRes.state == "success") {
+    if (banRes.state === "success") {
       this.setState(s => {
-        if (s.postsRes.state == "success") {
+        if (s.postsRes.state === "success") {
           s.postsRes.data.posts
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
-        if (s.commentsRes.state == "success") {
+        if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned)
+              c => (c.creator_banned_from_community = banRes.data.banned),
             );
         }
         return s;
@@ -1051,16 +1073,16 @@ export class Home extends Component<any, HomeState> {
 
   updateBan(banRes: RequestState<BanPersonResponse>) {
     // Maybe not necessary
-    if (banRes.state == "success") {
+    if (banRes.state === "success") {
       this.setState(s => {
-        if (s.postsRes.state == "success") {
+        if (s.postsRes.state === "success") {
           s.postsRes.data.posts
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
         }
-        if (s.commentsRes.state == "success") {
+        if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
-            .filter(c => c.creator.id == banRes.data.person_view.person.id)
+            .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator.banned = banRes.data.banned));
         }
         return s;
@@ -1069,18 +1091,18 @@ export class Home extends Component<any, HomeState> {
   }
 
   purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
-    if (purgeRes.state == "success") {
+    if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
   }
 
-  findAndUpdateComment(res: RequestState<CommentResponse>) {
+  findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.commentsRes.state == "success" && res.state == "success") {
+      if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments = editComment(
           res.data.comment_view,
-          s.commentsRes.data.comments
+          s.commentsRes.data.comments,
         );
         s.finished.set(res.data.comment_view.comment.id, true);
       }
@@ -1088,15 +1110,27 @@ export class Home extends Component<any, HomeState> {
     });
   }
 
+  findAndUpdateComment(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.commentsRes.state === "success" && res.state === "success") {
+        s.commentsRes.data.comments = editComment(
+          res.data.comment_view,
+          s.commentsRes.data.comments,
+        );
+      }
+      return s;
+    });
+  }
+
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.commentsRes.state == "success" && res.state == "success") {
+      if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments.unshift(res.data.comment_view);
 
         // Set finished for the parent
         s.finished.set(
           getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true
+          true,
         );
       }
       return s;
@@ -1105,10 +1139,10 @@ export class Home extends Component<any, HomeState> {
 
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
     this.setState(s => {
-      if (s.commentsRes.state == "success" && res.state == "success") {
+      if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments = editWith(
           res.data.comment_reply_view,
-          s.commentsRes.data.comments
+          s.commentsRes.data.comments,
         );
       }
       return s;
@@ -1117,10 +1151,10 @@ export class Home extends Component<any, HomeState> {
 
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
-      if (s.postsRes.state == "success" && res.state == "success") {
+      if (s.postsRes.state === "success" && res.state === "success") {
         s.postsRes.data.posts = editPost(
           res.data.post_view,
-          s.postsRes.data.posts
+          s.postsRes.data.posts,
         );
       }
       return s;
