@@ -63,10 +63,9 @@ const spoilerConfig = {
 
   render: (tokens: any, idx: any) => {
     const m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
-    const summary = mdToHtmlInline(md.utils.escapeHtml(m[1])).__html;
-
     if (tokens[idx].nesting === 1) {
       // opening tag
+      const summary = mdToHtmlInline(md.utils.escapeHtml(m[1])).__html;
       return `<details><summary> ${summary} </summary>\n`;
     } else {
       // closing tag
