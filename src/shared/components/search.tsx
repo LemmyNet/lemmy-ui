@@ -89,7 +89,6 @@ interface SearchState {
   searchRes: RequestState<SearchResponse>;
   resolveObjectRes: RequestState<ResolveObjectResponse>;
   creatorDetailsRes: RequestState<GetPersonDetailsResponse>;
-  communitiesRes: RequestState<ListCommunitiesResponse>;
   communityRes: RequestState<GetCommunityResponse>;
   siteRes: GetSiteResponse;
   searchText?: string;
@@ -246,7 +245,6 @@ export class Search extends Component<any, SearchState> {
   state: SearchState = {
     resolveObjectRes: EMPTY_REQUEST,
     creatorDetailsRes: EMPTY_REQUEST,
-    communitiesRes: EMPTY_REQUEST,
     communityRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     creatorSearchOptions: [],
@@ -303,15 +301,15 @@ export class Search extends Component<any, SearchState> {
       if (communitiesRes?.state === "success") {
         this.state = {
           ...this.state,
-          communitiesRes,
+          communitySearchOptions:
+            communitiesRes.data.communities.map(communityToChoice),
         };
       }
 
       if (communityRes?.state === "success") {
-        this.state = {
-          ...this.state,
-          communityRes,
-        };
+        this.state.communitySearchOptions.unshift(
+          communityToChoice(communityRes.data.community_view),
+        );
       }
 
       if (q !== "") {
@@ -338,24 +336,52 @@ export class Search extends Component<any, SearchState> {
 
   async componentDidMount() {
     if (!this.state.isIsomorphic) {
-      const promises = [this.fetchCommunities()];
+      this.setState({ searchCommunitiesLoading: true });
+      const promises: Promise<any>[] = [
+        HttpService.client
+          .listCommunities({
+            type_: defaultListingType,
+            sort: defaultSortType,
+            limit: fetchLimit,
+          })
+          .then(res => {
+            if (res.state === "success") {
+              this.setState({
+                communitySearchOptions:
+                  res.data.communities.map(communityToChoice),
+              });
+            }
+          }),
+      ];
+
+      const { communityId } = getSearchQueryParams();
+
+      if (communityId) {
+        promises.push(
+          HttpService.client.getCommunity({ id: communityId }).then(res => {
+            if (res.state === "success") {
+              this.setState(prev => {
+                prev.communitySearchOptions.unshift(
+                  communityToChoice(res.data.community_view),
+                );
+
+                return prev;
+              });
+            }
+          }),
+        );
+      }
+
       if (this.state.searchText) {
         promises.push(this.search());
       }
 
       await Promise.all(promises);
-    }
-  }
 
-  async fetchCommunities() {
-    this.setState({ communitiesRes: LOADING_REQUEST });
-    this.setState({
-      communitiesRes: await HttpService.client.listCommunities({
-        type_: defaultListingType,
-        sort: defaultSortType,
-        limit: fetchLimit,
-      }),
-    });
+      this.setState({
+        searchCommunitiesLoading: false,
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -541,12 +567,7 @@ export class Search extends Component<any, SearchState> {
       creatorSearchOptions,
       searchCommunitiesLoading,
       searchCreatorLoading,
-      communitiesRes,
     } = this.state;
-
-    const hasCommunities =
-      communitiesRes.state === "success" &&
-      communitiesRes.data.communities.length > 0;
 
     return (
       <>
@@ -588,16 +609,14 @@ export class Search extends Component<any, SearchState> {
           </div>
         </div>
         <div className="row gy-2 gx-4 mb-3">
-          {hasCommunities && (
-            <Filter
-              filterType="community"
-              onChange={this.handleCommunityFilterChange}
-              onSearch={this.handleCommunitySearch}
-              options={communitySearchOptions}
-              value={communityId}
-              loading={searchCommunitiesLoading}
-            />
-          )}
+          <Filter
+            filterType="community"
+            onChange={this.handleCommunityFilterChange}
+            onSearch={this.handleCommunitySearch}
+            options={communitySearchOptions}
+            value={communityId}
+            loading={searchCommunitiesLoading}
+          />
           <Filter
             filterType="creator"
             onChange={this.handleCreatorFilterChange}
@@ -1001,30 +1020,22 @@ export class Search extends Component<any, SearchState> {
   });
 
   handleCommunitySearch = debounce(async (text: string) => {
-    const { communityId } = getSearchQueryParams();
-    const { communitySearchOptions } = this.state;
-    this.setState({
-      searchCommunitiesLoading: true,
-    });
-
-    const newOptions: Choice[] = [];
-
-    const selectedChoice = communitySearchOptions.find(
-      choice => getIdFromString(choice.value) === communityId,
-    );
-
-    if (selectedChoice) {
-      newOptions.push(selectedChoice);
-    }
-
     if (text.length > 0) {
-      newOptions.push(...(await fetchCommunities(text)).map(communityToChoice));
-    }
+      const { communityId } = getSearchQueryParams();
+      const { communitySearchOptions } = this.state;
+      this.setState({
+        searchCommunitiesLoading: true,
+      });
 
-    this.setState({
-      searchCommunitiesLoading: false,
-      communitySearchOptions: newOptions,
-    });
+      const newOptions = communitySearchOptions
+        .filter(choice => getIdFromString(choice.value) === communityId)
+        .concat((await fetchCommunities(text)).map(communityToChoice));
+
+      this.setState({
+        searchCommunitiesLoading: false,
+        communitySearchOptions: newOptions,
+      });
+    }
   });
 
   handleSortChange(sort: SortType) {
