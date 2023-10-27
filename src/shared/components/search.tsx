@@ -312,7 +312,7 @@ export class Search extends Component<any, SearchState> {
         searchCreatorLoading: true,
       });
 
-      const promises: Promise<any>[] = [
+      const promises = [
         HttpService.client
           .listCommunities({
             type_: defaultListingType,
