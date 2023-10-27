@@ -1,7 +1,7 @@
-function dedupByProperty<T, R extends number | string | boolean>(
-  collection: T[],
-  keyFn: (obj: T) => R,
-) {
+function dedupByProperty<
+  T extends Record<string, any>,
+  R extends number | string | boolean,
+>(collection: T[], keyFn: (obj: T) => R) {
   return collection.reduce(
     (acc, cur) => {
       const key = keyFn(cur);
