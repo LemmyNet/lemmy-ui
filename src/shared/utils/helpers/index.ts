@@ -22,6 +22,7 @@ import validEmail from "./valid-email";
 import validInstanceTLD from "./valid-instance-tld";
 import validTitle from "./valid-title";
 import validURL from "./valid-url";
+import dedupByProperty from "./dedup-by-property";
 
 export {
   capitalizeFirstLetter,
@@ -48,4 +49,5 @@ export {
   validInstanceTLD,
   validTitle,
   validURL,
+  dedupByProperty,
 };

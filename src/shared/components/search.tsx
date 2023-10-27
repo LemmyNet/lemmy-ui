@@ -15,6 +15,7 @@ import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
 import {
   capitalizeFirstLetter,
   debounce,
+  dedupByProperty,
   getIdFromString,
   getPageFromString,
   getQueryParams,
@@ -33,7 +34,6 @@ import {
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
-  ListCommunities,
   ListCommunitiesResponse,
   ListingType,
   PersonView,
@@ -88,8 +88,6 @@ type FilterType = "creator" | "community";
 interface SearchState {
   searchRes: RequestState<SearchResponse>;
   resolveObjectRes: RequestState<ResolveObjectResponse>;
-  creatorDetailsRes: RequestState<GetPersonDetailsResponse>;
-  communityRes: RequestState<GetCommunityResponse>;
   siteRes: GetSiteResponse;
   searchText?: string;
   communitySearchOptions: Choice[];
@@ -196,7 +194,7 @@ const Filter = ({
             label: I18NextService.i18n.t("all"),
             value: "0",
           },
-        ].concat(options)}
+        ].concat(dedupByProperty(options, option => option.value))}
         value={value ?? 0}
         onSearch={onSearch}
         onChange={onChange}
@@ -244,8 +242,6 @@ export class Search extends Component<any, SearchState> {
 
   state: SearchState = {
     resolveObjectRes: EMPTY_REQUEST,
-    creatorDetailsRes: EMPTY_REQUEST,
-    communityRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     creatorSearchOptions: [],
     communitySearchOptions: [],
@@ -267,10 +263,7 @@ export class Search extends Component<any, SearchState> {
 
     const { q } = getSearchQueryParams();
 
-    this.state = {
-      ...this.state,
-      searchText: q,
-    };
+    this.state.searchText = q;
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -282,28 +275,18 @@ export class Search extends Component<any, SearchState> {
         searchResponse: searchRes,
       } = this.isoData.routeData;
 
-      this.state = {
-        ...this.state,
-        isIsomorphic: true,
-      };
+      this.state.isIsomorphic = true;
 
       if (creatorDetailsRes?.state === "success") {
-        this.state = {
-          ...this.state,
-          creatorSearchOptions:
-            creatorDetailsRes?.state === "success"
-              ? [personToChoice(creatorDetailsRes.data.person_view)]
-              : [],
-          creatorDetailsRes,
-        };
+        this.state.creatorSearchOptions =
+          creatorDetailsRes.state === "success"
+            ? [personToChoice(creatorDetailsRes.data.person_view)]
+            : [];
       }
 
       if (communitiesRes?.state === "success") {
-        this.state = {
-          ...this.state,
-          communitySearchOptions:
-            communitiesRes.data.communities.map(communityToChoice),
-        };
+        this.state.communitySearchOptions =
+          communitiesRes.data.communities.map(communityToChoice);
       }
 
       if (communityRes?.state === "success") {
@@ -312,31 +295,23 @@ export class Search extends Component<any, SearchState> {
         );
       }
 
-      if (q !== "") {
-        this.state = {
-          ...this.state,
-        };
+      if (searchRes?.state === "success") {
+        this.state.searchRes = searchRes;
+      }
 
-        if (searchRes?.state === "success") {
-          this.state = {
-            ...this.state,
-            searchRes,
-          };
-        }
-
-        if (resolveObjectRes?.state === "success") {
-          this.state = {
-            ...this.state,
-            resolveObjectRes,
-          };
-        }
+      if (resolveObjectRes?.state === "success") {
+        this.state.resolveObjectRes = resolveObjectRes;
       }
     }
   }
 
   async componentDidMount() {
     if (!this.state.isIsomorphic) {
-      this.setState({ searchCommunitiesLoading: true });
+      this.setState({
+        searchCommunitiesLoading: true,
+        searchCreatorLoading: true,
+      });
+
       const promises: Promise<any>[] = [
         HttpService.client
           .listCommunities({
@@ -354,7 +329,7 @@ export class Search extends Component<any, SearchState> {
           }),
       ];
 
-      const { communityId } = getSearchQueryParams();
+      const { communityId, creatorId } = getSearchQueryParams();
 
       if (communityId) {
         promises.push(
@@ -372,6 +347,24 @@ export class Search extends Component<any, SearchState> {
         );
       }
 
+      if (creatorId) {
+        promises.push(
+          HttpService.client
+            .getPersonDetails({
+              person_id: creatorId,
+            })
+            .then(res => {
+              if (res.state === "success") {
+                this.setState(prev => {
+                  prev.creatorSearchOptions.push(
+                    personToChoice(res.data.person_view),
+                  );
+                });
+              }
+            }),
+        );
+      }
+
       if (this.state.searchText) {
         promises.push(this.search());
       }
@@ -380,6 +373,7 @@ export class Search extends Component<any, SearchState> {
 
       this.setState({
         searchCommunitiesLoading: false,
+        searchCreatorLoading: false,
       });
     }
   }
@@ -394,25 +388,19 @@ export class Search extends Component<any, SearchState> {
   }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<SearchData> {
     const community_id = getIdFromString(communityId);
     let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
-    let listCommunitiesResponse: RequestState<ListCommunitiesResponse> =
-      EMPTY_REQUEST;
     if (community_id) {
       const getCommunityForm: GetCommunity = {
         id: community_id,
       };
 
       communityResponse = await client.getCommunity(getCommunityForm);
-    } else {
-      const listCommunitiesForm: ListCommunities = {
-        type_: defaultListingType,
-        sort: defaultSortType,
-        limit: fetchLimit,
-      };
-
-      listCommunitiesResponse = await client.listCommunities(
-        listCommunitiesForm,
-      );
     }
+
+    const listCommunitiesResponse = await client.listCommunities({
+      type_: defaultListingType,
+      sort: defaultSortType,
+      limit: fetchLimit,
+    });
 
     const creator_id = getIdFromString(creatorId);
     let creatorDetailsResponse: RequestState<GetPersonDetailsResponse> =
@@ -443,21 +431,19 @@ export class Search extends Component<any, SearchState> {
         limit: fetchLimit,
       };
 
-      if (query !== "") {
-        searchResponse = await client.search(form);
-        if (myAuth()) {
-          const resolveObjectForm: ResolveObject = {
-            q: query,
-          };
-          resolveObjectResponse = await HttpService.silent_client.resolveObject(
-            resolveObjectForm,
-          );
+      searchResponse = await client.search(form);
+      if (myAuth()) {
+        const resolveObjectForm: ResolveObject = {
+          q: query,
+        };
+        resolveObjectResponse = await HttpService.silent_client.resolveObject(
+          resolveObjectForm,
+        );
 
-          // If we return this object with a state of failed, the catch-all-handler will redirect
-          // to an error page, so we ignore it by covering up the error with the empty state.
-          if (resolveObjectResponse.state === "failed") {
-            resolveObjectResponse = EMPTY_REQUEST;
-          }
+        // If we return this object with a state of failed, the catch-all-handler will redirect
+        // to an error page, so we ignore it by covering up the error with the empty state.
+        if (resolveObjectResponse.state === "failed") {
+          resolveObjectResponse = EMPTY_REQUEST;
         }
       }
     }
@@ -995,34 +981,28 @@ export class Search extends Component<any, SearchState> {
   }
 
   handleCreatorSearch = debounce(async (text: string) => {
-    const { creatorId } = getSearchQueryParams();
-    const { creatorSearchOptions } = this.state;
-    const newOptions: Choice[] = [];
-
-    this.setState({ searchCreatorLoading: true });
-
-    const selectedChoice = creatorSearchOptions.find(
-      choice => getIdFromString(choice.value) === creatorId,
-    );
-
-    if (selectedChoice) {
-      newOptions.push(selectedChoice);
-    }
-
     if (text.length > 0) {
-      newOptions.push(...(await fetchUsers(text)).map(personToChoice));
-    }
+      const { creatorId } = getSearchQueryParams();
+      const { creatorSearchOptions } = this.state;
 
-    this.setState({
-      searchCreatorLoading: false,
-      creatorSearchOptions: newOptions,
-    });
+      this.setState({ searchCreatorLoading: true });
+
+      const newOptions = creatorSearchOptions
+        .filter(choice => getIdFromString(choice.value) === creatorId)
+        .concat((await fetchUsers(text)).map(personToChoice));
+
+      this.setState({
+        searchCreatorLoading: false,
+        creatorSearchOptions: newOptions,
+      });
+    }
   });
 
   handleCommunitySearch = debounce(async (text: string) => {
     if (text.length > 0) {
       const { communityId } = getSearchQueryParams();
       const { communitySearchOptions } = this.state;
+
       this.setState({
         searchCommunitiesLoading: true,
       });
