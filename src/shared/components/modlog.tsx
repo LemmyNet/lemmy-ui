@@ -109,6 +109,7 @@ interface ModlogState {
   loadingUserSearch: boolean;
   modSearchOptions: Choice[];
   userSearchOptions: Choice[];
+  isIsomorphic: boolean;
 }
 
 interface ModlogProps {
@@ -617,27 +618,15 @@ async function createNewOptions({
   oldOptions: Choice[];
   text: string;
 }) {
-  const newOptions: Choice[] = [];
-
-  if (id) {
-    const selectedUser = oldOptions.find(
-      ({ value }) => value === id.toString(),
-    );
-
-    if (selectedUser) {
-      newOptions.push(selectedUser);
-    }
-  }
-
   if (text.length > 0) {
-    newOptions.push(
-      ...(await fetchUsers(text))
-        .slice(0, Number(fetchLimit))
-        .map<Choice>(personToChoice),
-    );
+    return oldOptions
+      .filter(choice => parseInt(choice.value, 10) === id)
+      .concat(
+        (await fetchUsers(text)).slice(0, fetchLimit).map(personToChoice),
+      );
+  } else {
+    return oldOptions;
   }
-
-  return newOptions;
 }
 
 export class Modlog extends Component<
@@ -653,6 +642,7 @@ export class Modlog extends Component<
     loadingUserSearch: false,
     userSearchOptions: [],
     modSearchOptions: [],
+    isIsomorphic: false,
   };
 
   constructor(
@@ -673,6 +663,7 @@ export class Modlog extends Component<
         ...this.state,
         res,
         communityRes,
+        isIsomorphic: true,
       };
 
       if (modUserResponse.state === "success") {
@@ -692,7 +683,40 @@ export class Modlog extends Component<
   }
 
   async componentDidMount() {
-    await this.refetch();
+    if (!this.state.isIsomorphic) {
+      const { modId, userId } = getModlogQueryParams();
+      const promises = [this.refetch()];
+
+      if (userId) {
+        promises.push(
+          HttpService.client
+            .getPersonDetails({ person_id: userId })
+            .then(res => {
+              if (res.state === "success") {
+                this.setState({
+                  userSearchOptions: [personToChoice(res.data.person_view)],
+                });
+              }
+            }),
+        );
+      }
+
+      if (modId) {
+        promises.push(
+          HttpService.client
+            .getPersonDetails({ person_id: modId })
+            .then(res => {
+              if (res.state === "success") {
+                this.setState({
+                  modSearchOptions: [personToChoice(res.data.person_view)],
+                });
+              }
+            }),
+        );
+      }
+
+      await Promise.all(promises);
+    }
   }
 
   get combined() {
