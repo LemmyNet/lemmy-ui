@@ -58,11 +58,9 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
-  MarkPostAsRead,
   PersonView,
   PostResponse,
   PurgeComment,
-  PurgeItemResponse,
   PurgePerson,
   PurgePost,
   RemoveComment,
@@ -70,6 +68,7 @@ import {
   SaveComment,
   SavePost,
   SortType,
+  SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
@@ -222,7 +221,6 @@ export class Profile extends Component<
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
     this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
-    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -378,7 +376,7 @@ export class Profile extends Component<
                 onSavePost={this.handleSavePost}
                 onPurgePost={this.handlePurgePost}
                 onFeaturePost={this.handleFeaturePost}
-                onMarkPostAsRead={this.handleMarkPostAsRead}
+                onMarkPostAsRead={() => {}}
               />
             </div>
 
@@ -947,11 +945,6 @@ export class Profile extends Component<
     await HttpService.client.markPersonMentionAsRead(form);
   }
 
-  async handleMarkPostAsRead(form: MarkPostAsRead) {
-    const res = await HttpService.client.markPostAsRead(form);
-    this.findAndUpdatePost(res);
-  }
-
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
@@ -1002,7 +995,7 @@ export class Profile extends Component<
     }
   }
 
-  purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
+  purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);

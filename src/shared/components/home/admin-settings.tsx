@@ -359,7 +359,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   async handleDeleteEmoji(form: DeleteCustomEmoji) {
     const res = await HttpService.client.deleteCustomEmoji(form);
     if (res.state === "success") {
-      removeFromEmojiDataModel(res.data.id);
+      removeFromEmojiDataModel(form.id);
     }
   }
 

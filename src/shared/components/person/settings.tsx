@@ -23,7 +23,6 @@ import {
   BlockInstanceResponse,
   BlockPersonResponse,
   CommunityBlockView,
-  DeleteAccountResponse,
   GenerateTotpSecretResponse,
   GetFederatedInstancesResponse,
   GetSiteResponse,
@@ -33,6 +32,7 @@ import {
   LoginResponse,
   PersonBlockView,
   SortType,
+  SuccessResponse,
   UpdateTotpResponse,
 } from "lemmy-js-client";
 import { elementUrl, emDash, relTags } from "../../config";
@@ -66,9 +66,9 @@ type SettingsData = RouteDataResponse<{
 }>;
 
 interface SettingsState {
-  saveRes: RequestState<LoginResponse>;
+  saveRes: RequestState<SuccessResponse>;
   changePasswordRes: RequestState<LoginResponse>;
-  deleteAccountRes: RequestState<DeleteAccountResponse>;
+  deleteAccountRes: RequestState<SuccessResponse>;
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   generateTotpRes: RequestState<GenerateTotpSecretResponse>;
   updateTotpRes: RequestState<UpdateTotpResponse>;
@@ -1436,11 +1436,6 @@ export class Settings extends Component<any, SettingsState> {
     });
 
     if (saveRes.state === "success") {
-      UserService.Instance.login({
-        res: saveRes.data,
-        showToast: false,
-      });
-
       const siteRes = await HttpService.client.getSite();
 
       if (siteRes.state === "success") {
@@ -1471,10 +1466,6 @@ export class Settings extends Component<any, SettingsState> {
         old_password,
       });
       if (changePasswordRes.state === "success") {
-        UserService.Instance.login({
-          res: changePasswordRes.data,
-          showToast: false,
-        });
         window.scrollTo(0, 0);
         toast(I18NextService.i18n.t("password_changed"));
       }

@@ -52,11 +52,11 @@ import {
   PrivateMessageView,
   PrivateMessagesResponse,
   PurgeComment,
-  PurgeItemResponse,
   PurgePerson,
   PurgePost,
   RemoveComment,
   SaveComment,
+  SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
@@ -1038,7 +1038,7 @@ export class Inbox extends Component<any, InboxState> {
     }
   }
 
-  purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
+  purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);

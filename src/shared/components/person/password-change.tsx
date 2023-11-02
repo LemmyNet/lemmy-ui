@@ -1,7 +1,7 @@
 import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
-import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
+import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
 import { HttpService, I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -11,9 +11,10 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
+import { toast } from "../../toast";
 
 interface State {
-  passwordChangeRes: RequestState<LoginResponse>;
+  passwordChangeRes: RequestState<SuccessResponse>;
   form: {
     token: string;
     password?: string;
@@ -125,10 +126,7 @@ export class PasswordChange extends Component<any, State> {
       });
 
       if (i.state.passwordChangeRes.state === "success") {
-        const data = i.state.passwordChangeRes.data;
-        UserService.Instance.login({
-          res: data,
-        });
+        toast(I18NextService.i18n.t("password_changed"));
 
         const site = await HttpService.client.getSite();
         if (site.state === "success") {

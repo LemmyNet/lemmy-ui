@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
-import { GetSiteResponse, VerifyEmailResponse } from "lemmy-js-client";
+import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -13,7 +13,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 
 interface State {
-  verifyRes: RequestState<VerifyEmailResponse>;
+  verifyRes: RequestState<SuccessResponse>;
   siteRes: GetSiteResponse;
 }
 

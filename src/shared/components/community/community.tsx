@@ -57,12 +57,10 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
-  MarkPostAsRead,
   PaginationCursor,
   PostResponse,
   PurgeComment,
   PurgeCommunity,
-  PurgeItemResponse,
   PurgePerson,
   PurgePost,
   RemoveComment,
@@ -71,6 +69,7 @@ import {
   SaveComment,
   SavePost,
   SortType,
+  SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
@@ -198,7 +197,6 @@ export class Community extends Component<
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
-    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.mainContentRef = createRef();
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -436,7 +434,7 @@ export class Community extends Component<
               onAddAdmin={this.handleAddAdmin}
               onTransferCommunity={this.handleTransferCommunity}
               onFeaturePost={this.handleFeaturePost}
-              onMarkPostAsRead={this.handleMarkPostAsRead}
+              onMarkPostAsRead={() => {}}
             />
           );
       }
@@ -804,11 +802,6 @@ export class Community extends Component<
     await HttpService.client.markPersonMentionAsRead(form);
   }
 
-  async handleMarkPostAsRead(form: MarkPostAsRead) {
-    const res = await HttpService.client.markPostAsRead(form);
-    this.findAndUpdatePost(res);
-  }
-
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
@@ -882,7 +875,7 @@ export class Community extends Component<
     });
   }
 
-  purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
+  purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
