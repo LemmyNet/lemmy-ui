@@ -1,5 +1,5 @@
 import { isAuthPath } from "@utils/app";
-import { isBrowser } from "@utils/browser";
+import { clearAuthCookie, isBrowser, setAuthCookie } from "@utils/browser";
 import * as cookie from "cookie";
 import jwt_decode from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
@@ -40,6 +40,7 @@ export class UserService {
 
     if (isBrowser() && res.jwt) {
       showToast && toast(I18NextService.i18n.t("logged_in"));
+      setAuthCookie(res.jwt);
       this.#setJwtInfo();
     }
   }
@@ -49,9 +50,7 @@ export class UserService {
     this.myUserInfo = undefined;
 
     if (isBrowser()) {
-      // TODO: call logout here
-      // https://github.com/LemmyNet/lemmy-js-client/pull/208
-      //HttpService.client.logout()
+      clearAuthCookie();
     }
 
     if (isAuthPath(location.pathname)) {
