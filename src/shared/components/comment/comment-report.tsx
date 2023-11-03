@@ -56,6 +56,7 @@ export class CommentReport extends Component<
       post: r.post,
       community: r.community,
       creator_banned_from_community: r.creator_banned_from_community,
+      creator_is_moderator: false,
       counts: r.counts,
       subscribed: "NotSubscribed",
       saved: false,

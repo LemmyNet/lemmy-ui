@@ -61,12 +61,9 @@ import {
   GetSiteResponse,
   LockPost,
   MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
-  MarkPostAsRead,
   PostResponse,
   PurgeComment,
   PurgeCommunity,
-  PurgeItemResponse,
   PurgePerson,
   PurgePost,
   RemoveComment,
@@ -74,6 +71,7 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
+  SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "../../config";
@@ -164,7 +162,6 @@ export class Post extends Component<any, PostState> {
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
     this.handleFetchChildren = this.handleFetchChildren.bind(this);
     this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
-    this.handlePersonMentionRead = this.handlePersonMentionRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
     this.handlePostEdit = this.handlePostEdit.bind(this);
@@ -176,7 +173,6 @@ export class Post extends Component<any, PostState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
-    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
 
     this.state = { ...this.state, commentSectionRef: createRef() };
 
@@ -387,7 +383,7 @@ export class Post extends Component<any, PostState> {
                 onAddAdmin={this.handleAddAdmin}
                 onTransferCommunity={this.handleTransferCommunity}
                 onFeaturePost={this.handleFeaturePost}
-                onMarkPostAsRead={this.handleMarkPostAsRead}
+                onMarkPostAsRead={() => {}}
               />
               <div ref={this.state.commentSectionRef} className="mb-2" />
 
@@ -589,7 +585,7 @@ export class Post extends Component<any, PostState> {
             onPurgeComment={this.handlePurgeComment}
             onPurgePerson={this.handlePurgePerson}
             onCommentReplyRead={this.handleCommentReplyRead}
-            onPersonMentionRead={this.handlePersonMentionRead}
+            onPersonMentionRead={() => {}}
             onBanPersonFromCommunity={this.handleBanFromCommunity}
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
@@ -676,7 +672,7 @@ export class Post extends Component<any, PostState> {
             onPurgeComment={this.handlePurgeComment}
             onPurgePerson={this.handlePurgePerson}
             onCommentReplyRead={this.handleCommentReplyRead}
-            onPersonMentionRead={this.handlePersonMentionRead}
+            onPersonMentionRead={() => {}}
             onBanPersonFromCommunity={this.handleBanFromCommunity}
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
@@ -936,16 +932,6 @@ export class Post extends Component<any, PostState> {
     this.findAndUpdateCommentReply(readRes);
   }
 
-  async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
-    // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
-    await HttpService.client.markPersonMentionAsRead(form);
-  }
-
-  async handleMarkPostAsRead(form: MarkPostAsRead) {
-    const res = await HttpService.client.markPostAsRead(form);
-    this.updatePost(res);
-  }
-
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBan(banRes);
@@ -1029,7 +1015,7 @@ export class Post extends Component<any, PostState> {
     });
   }
 
-  purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
+  purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);

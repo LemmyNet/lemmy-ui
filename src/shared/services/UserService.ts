@@ -35,9 +35,6 @@ export class UserService {
     res: LoginResponse;
     showToast?: boolean;
   }) {
-    const expires = new Date();
-    expires.setDate(expires.getDate() + 365);
-
     if (isBrowser() && res.jwt) {
       showToast && toast(I18NextService.i18n.t("logged_in"));
       setAuthCookie(res.jwt);
@@ -52,6 +49,8 @@ export class UserService {
     if (isBrowser()) {
       clearAuthCookie();
     }
+
+    HttpService.client.logout();
 
     if (isAuthPath(location.pathname)) {
       location.replace("/");

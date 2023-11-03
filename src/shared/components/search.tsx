@@ -665,10 +665,10 @@ export class Search extends Component<any, SearchState> {
         Number(
           ((b.data as CommentView | PostView).counts.score |
             (b.data as CommunityView).counts.subscribers |
-            (b.data as PersonView).counts.comment_score) -
+            (b.data as PersonView).counts.comment_count) -
             ((a.data as CommentView | PostView).counts.score |
               (a.data as CommunityView).counts.subscribers |
-              (a.data as PersonView).counts.comment_score),
+              (a.data as PersonView).counts.comment_count),
         ),
       );
     }
