@@ -6,8 +6,11 @@ import { Component, linkEvent } from "inferno";
 import {
   BannedPersonsResponse,
   CreateCustomEmoji,
+  CreateCustomExternalAuth,
   DeleteCustomEmoji,
+  DeleteCustomExternalAuth,
   EditCustomEmoji,
+  EditCustomExternalAuth,
   EditSite,
   GetFederatedInstancesResponse,
   GetSiteResponse,
@@ -28,6 +31,7 @@ import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
+import { ExternalAuthForm } from "./external-auth-form";
 import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
@@ -228,6 +232,27 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                 </div>
               ),
             },
+            {
+              key: "auth",
+              label: I18NextService.i18n.t("authentication"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="auth-tab-pane"
+                >
+                  <div className="row">
+                    <ExternalAuthForm
+                      onCreate={this.handleCreateExternalAuth}
+                      onDelete={this.handleDeleteExternalAuth}
+                      onEdit={this.handleEditExternalAuth}
+                    />
+                  </div>
+                </div>
+              ),
+            },
           ]}
         />
       </div>
@@ -368,5 +393,47 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
+  }
+
+  async handleEditExternalAuth(form: EditCustomExternalAuth) {
+    this.setState({ loading: true });
+
+    const editRes = await HttpService.client.editCustomExternalAuth(form);
+
+    if (editRes.state === "success") {
+      toast(I18NextService.i18n.t("site_saved"));
+    }
+
+    this.setState({ loading: false });
+
+    return editRes;
+  }
+
+  async handleDeleteExternalAuth(form: DeleteCustomExternalAuth) {
+    this.setState({ loading: true });
+
+    const editRes = await HttpService.client.deleteCustomExternalAuth(form);
+
+    if (editRes.state === "success") {
+      toast(I18NextService.i18n.t("site_saved"));
+    }
+
+    this.setState({ loading: false });
+
+    return editRes;
+  }
+
+  async handleCreateExternalAuth(form: CreateCustomExternalAuth) {
+    this.setState({ loading: true });
+
+    const editRes = await HttpService.client.createCustomExternalAuth(form);
+
+    if (editRes.state === "success") {
+      toast(I18NextService.i18n.t("site_saved"));
+    }
+
+    this.setState({ loading: false });
+
+    return editRes;
   }
 }

@@ -7,6 +7,8 @@ import { Home } from "./components/home/home";
 import { Instances } from "./components/home/instances";
 import { Legal } from "./components/home/legal";
 import { Login } from "./components/home/login";
+import { OAuth } from "./components/home/oauth";
+import { Signup } from "./components/home/signup";
 import { LoginReset } from "./components/home/login-reset";
 import { Setup } from "./components/home/setup";
 import { Signup } from "./components/home/signup";
@@ -47,6 +49,10 @@ export const routes: IRoutePropsWithFetch<Record<string, any>>[] = [
   {
     path: `/signup`,
     component: Signup,
+  },
+  {
+    path: '/oauth/callback',
+    component: OAuth,
   },
   {
     path: `/create_post`,
