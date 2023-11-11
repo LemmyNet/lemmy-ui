@@ -26,6 +26,7 @@ import {
   LoginFetchConfig,
   getLoginQueryParams,
 } from "./components/home/login";
+import { OAuth } from "./components/home/oauth";
 import { LoginReset } from "./components/home/login-reset";
 import { Setup } from "./components/home/setup";
 import { Signup } from "./components/home/signup";
@@ -115,6 +116,10 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
   {
     path: `/signup`,
     component: Signup,
+  },
+  {
+    path: '/oauth/callback',
+    component: OAuth,
   },
   {
     path: `/create_post`,
