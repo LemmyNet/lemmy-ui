@@ -21,6 +21,7 @@ export function setDefaultCsp({
      style-src 'self' 'unsafe-inline';
      form-action 'self';
      base-uri 'self';
+     blob: 'self';
      frame-src *;
      media-src * data:`.replace(/\s+/g, " "),
   );
