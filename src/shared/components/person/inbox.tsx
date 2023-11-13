@@ -864,7 +864,7 @@ export class Inbox extends Component<any, InboxState> {
       toast(I18NextService.i18n.t("edit"));
       this.findAndUpdateComment(res);
     } else if (res.state === "failed") {
-      toast(res.msg, "danger");
+      toast(res.err.message, "danger");
     }
 
     return res;
