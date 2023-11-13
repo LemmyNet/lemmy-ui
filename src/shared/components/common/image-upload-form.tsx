@@ -88,8 +88,7 @@ export class ImageUploadForm extends Component<
           toast(JSON.stringify(res), "danger");
         }
       } else if (res.state === "failed") {
-        console.error(res.msg);
-        toast(res.msg, "danger");
+        toast(res.err.message, "danger");
       }
 
       i.setState({ loading: false });

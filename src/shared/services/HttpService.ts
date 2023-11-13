@@ -17,7 +17,7 @@ type LoadingRequestState = typeof LOADING_REQUEST;
 
 export type FailedRequestState = {
   state: "failed";
-  msg: string;
+  err: Error;
 };
 
 type SuccessRequestState<T> = {
@@ -71,7 +71,7 @@ class WrappedLemmyHttpClient {
             }
             return {
               state: "failed",
-              msg: error,
+              err: error,
             };
           }
         };
