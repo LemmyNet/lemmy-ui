@@ -163,7 +163,7 @@ async function handleGenerateTotp(i: Settings) {
   const generateTotpRes = await HttpService.client.generateTotpSecret();
 
   if (generateTotpRes.state === "failed") {
-    toast(generateTotpRes.msg, "danger");
+    toast(generateTotpRes.err.message, "danger");
   } else {
     i.setState({ show2faModal: true });
   }

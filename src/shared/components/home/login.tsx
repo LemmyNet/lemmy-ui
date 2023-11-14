@@ -73,10 +73,10 @@ async function handleLoginSubmit(i: Login, event: any) {
     });
     switch (loginRes.state) {
       case "failed": {
-        if (loginRes.msg === "missing_totp_token") {
+        if (loginRes.err.message === "missing_totp_token") {
           i.setState({ show2faModal: true });
         } else {
-          toast(I18NextService.i18n.t(loginRes.msg), "danger");
+          toast(I18NextService.i18n.t(loginRes.err.message), "danger");
         }
 
         i.setState({ loginRes });
