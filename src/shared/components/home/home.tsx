@@ -78,12 +78,7 @@ import {
   InitialFetchRequest,
 } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
-import {
-  FirstLoadService,
-  HomeCacheService,
-  I18NextService,
-  UserService,
-} from "../../services";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -288,16 +283,10 @@ export class Home extends Component<any, HomeState> {
         postsRes,
         isIsomorphic: true,
       };
-
-      HomeCacheService.postsRes = postsRes;
     }
 
     this.state.tagline = getRandomFromList(this.state?.siteRes?.taglines ?? [])
       ?.content;
-  }
-
-  componentWillUnmount() {
-    HomeCacheService.activate();
   }
 
   async componentDidMount() {
@@ -812,28 +801,16 @@ export class Home extends Component<any, HomeState> {
     const { dataType, pageCursor, listingType, sort } = getHomeQueryParams();
 
     if (dataType === DataType.Post) {
-      if (HomeCacheService.active) {
-        const { postsRes, scrollY } = HomeCacheService;
-        HomeCacheService.deactivate();
-        this.setState({ postsRes });
-        window.scrollTo({
-          left: 0,
-          top: scrollY,
-        });
-      } else {
-        this.setState({ postsRes: LOADING_REQUEST });
-        this.setState({
-          postsRes: await HttpService.client.getPosts({
-            page_cursor: pageCursor,
-            limit: fetchLimit,
-            sort,
-            saved_only: false,
-            type_: listingType,
-          }),
-        });
-
-        HomeCacheService.postsRes = this.state.postsRes;
-      }
+      this.setState({ postsRes: LOADING_REQUEST });
+      this.setState({
+        postsRes: await HttpService.client.getPosts({
+          page_cursor: pageCursor,
+          limit: fetchLimit,
+          sort,
+          saved_only: false,
+          type_: listingType,
+        }),
+      });
     } else {
       this.setState({ commentsRes: LOADING_REQUEST });
       this.setState({
