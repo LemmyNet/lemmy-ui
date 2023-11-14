@@ -635,18 +635,14 @@ export class Home extends Component<any, HomeState> {
   }
 
   get posts() {
-    const { pageCursor } = getHomeQueryParams();
-
     return (
       <div className="main-content-wrapper">
         <div>
           {this.selects}
           {this.listings}
           <PaginatorCursor
-            prevPage={pageCursor}
             nextPage={this.getNextPage}
             onNext={this.handlePageNext}
-            onPrev={this.handlePagePrev}
           />
         </div>
       </div>
