@@ -3,14 +3,8 @@ import { I18NextService } from "../../services";
 import { PaginationCursor } from "lemmy-js-client";
 
 interface PaginatorCursorProps {
-  prevPage?: PaginationCursor;
   nextPage?: PaginationCursor;
   onNext(val: PaginationCursor): void;
-  onPrev(): void;
-}
-
-function handlePrev(i: PaginatorCursor) {
-  i.props.onPrev();
 }
 
 function handleNext(i: PaginatorCursor) {
@@ -26,13 +20,6 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
   render() {
     return (
       <div className="paginator my-2">
-        <button
-          className="btn btn-secondary me-2"
-          disabled={!this.props.prevPage}
-          onClick={linkEvent(this, handlePrev)}
-        >
-          {I18NextService.i18n.t("prev")}
-        </button>
         <button
           className="btn btn-secondary"
           onClick={linkEvent(this, handleNext)}

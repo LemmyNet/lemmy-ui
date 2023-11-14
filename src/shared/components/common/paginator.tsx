@@ -14,20 +14,22 @@ export class Paginator extends Component<PaginatorProps, any> {
   render() {
     return (
       <div className="paginator my-2">
-        <button
-          className="btn btn-secondary me-2"
-          disabled={this.props.page === 1}
-          onClick={linkEvent(this, this.handlePrev)}
-        >
-          {I18NextService.i18n.t("prev")}
-        </button>
-        <button
-          className="btn btn-secondary"
-          onClick={linkEvent(this, this.handleNext)}
-          disabled={this.props.nextDisabled || false}
-        >
-          {I18NextService.i18n.t("next")}
-        </button>
+        {this.props.page !== 1 && (
+          <button
+            className="btn btn-secondary me-2"
+            onClick={linkEvent(this, this.handlePrev)}
+          >
+            {I18NextService.i18n.t("prev")}
+          </button>
+        )}
+        {!this.props.nextDisabled && (
+          <button
+            className="btn btn-secondary"
+            onClick={linkEvent(this, this.handleNext)}
+          >
+            {I18NextService.i18n.t("next")}
+          </button>
+        )}
       </div>
     );
   }
