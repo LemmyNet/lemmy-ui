@@ -17,7 +17,7 @@ import { capitalizeFirstLetter, debounce } from "@utils/helpers";
 import { Choice, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent } from "inferno";
+import { Component, createRef, linkEvent } from "inferno";
 import {
   BlockCommunityResponse,
   BlockInstanceResponse,
@@ -60,6 +60,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
 import { InitialFetchRequest } from "../../interfaces";
 import TotpModal from "../common/totp-modal";
+import { LoadingEllipses } from "../common/loading-ellipses";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -119,6 +120,8 @@ interface SettingsState {
   searchInstanceOptions: Choice[];
   isIsomorphic: boolean;
   show2faModal: boolean;
+  importOrExportLoading: "importing" | "exporting" | null;
+  settingsFile?: File;
 }
 
 type FilterType = "user" | "community" | "instance";
@@ -183,6 +186,8 @@ function handleClose2faModal(i: Settings) {
 
 export class Settings extends Component<any, SettingsState> {
   private isoData = setIsoData<SettingsData>(this.context);
+  exportSettingsLink = createRef<HTMLAnchorElement>();
+
   state: SettingsState = {
     saveRes: EMPTY_REQUEST,
     deleteAccountRes: EMPTY_REQUEST,
@@ -207,6 +212,7 @@ export class Settings extends Component<any, SettingsState> {
     generateTotpRes: EMPTY_REQUEST,
     updateTotpRes: EMPTY_REQUEST,
     show2faModal: false,
+    importOrExportLoading: null,
   };
 
   constructor(props: any, context: any) {
@@ -332,8 +338,18 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   render() {
+    /* eslint-disable jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid */
     return (
       <div className="person-settings container-lg">
+        <a
+          ref={this.exportSettingsLink}
+          download={`lemmy-settings-${UserService.Instance.myUserInfo?.local_user_view.person.name}.json`}
+          style={{
+            display: "none",
+          }}
+          href="javascript:void(0)"
+          aria-hidden="true"
+        />
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -356,6 +372,7 @@ export class Settings extends Component<any, SettingsState> {
         />
       </div>
     );
+    /* eslint-enable jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid */
   }
 
   userSettings(isSelected: boolean) {
@@ -376,6 +393,9 @@ export class Settings extends Component<any, SettingsState> {
           <div className="col-12 col-md-6">
             <div className="card border-secondary mb-3">
               <div className="card-body">{this.changePasswordHtmlForm()}</div>
+            </div>
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.importExport()}</div>
             </div>
           </div>
         </div>
@@ -591,6 +611,50 @@ export class Settings extends Component<any, SettingsState> {
             </li>
           ))}
         </ul>
+      </>
+    );
+  }
+
+  importExport() {
+    return (
+      <>
+        <h2 className="h5">Import/Export</h2>
+        <p>Import and export your account settings as JSON.</p>
+        {!this.state.importOrExportLoading ? (
+          <>
+            <button
+              className="btn btn-secondary w-100 mb-4"
+              onClick={linkEvent(this, this.handleExportSettings)}
+              type="button"
+            >
+              Export
+            </button>
+            <fieldset className="border border-secondary rounded p-3 bg-dark bg-opacity-25">
+              <input
+                type="file"
+                accept="application/json"
+                className="form-control"
+                aria-label="Import settings file input"
+                onChange={linkEvent(this, this.handleImportFileChange)}
+              />
+              <button
+                className="btn btn-secondary w-100 mt-3"
+                onClick={linkEvent(this, this.handleImportSettings)}
+                type="button"
+              >
+                Import
+              </button>
+            </fieldset>
+          </>
+        ) : (
+          <div>
+            {this.state.importOrExportLoading === "exporting"
+              ? "Exporting"
+              : "Importing"}
+            <LoadingEllipses />
+            <Spinner />
+          </div>
+        )}
       </>
     );
   }
@@ -1472,6 +1536,52 @@ export class Settings extends Component<any, SettingsState> {
 
       i.setState({ changePasswordRes });
     }
+  }
+
+  handleImportFileChange(i: Settings, event) {
+    i.setState({ settingsFile: event.target.files?.item(0) });
+  }
+
+  async handleExportSettings(i: Settings) {
+    i.setState({ importOrExportLoading: "exporting" });
+    const res = await HttpService.client.exportSettings();
+
+    if (res.state === "success") {
+      i.exportSettingsLink.current!.href = encodeURI(
+        `data:application/json,${JSON.stringify(res.data)}`,
+      );
+      i.exportSettingsLink.current?.click();
+    } else if (res.state === "failed") {
+      toast(
+        res.err.message === "rate_limit_error"
+          ? "Please wait a bit before trying to export or import again"
+          : "Error exporting settings",
+        "danger",
+      );
+    }
+
+    i.setState({ importOrExportLoading: null });
+  }
+
+  async handleImportSettings(i: Settings) {
+    i.setState({ importOrExportLoading: "importing" });
+
+    const res = await HttpService.client.importSettings(
+      JSON.parse(await i.state.settingsFile!.text()),
+    );
+
+    if (res.state === "success") {
+      toast("Settings successfully imported!", "success");
+    } else if (res.state === "failed") {
+      toast(
+        res.err.message === "rate_limit_error"
+          ? "Please wait a bit before trying to export or import again"
+          : "Error importing settings",
+        "danger",
+      );
+    }
+
+    i.setState({ importOrExportLoading: null, settingsFile: undefined });
   }
 
   handleDeleteAccountShowConfirmToggle(i: Settings) {
