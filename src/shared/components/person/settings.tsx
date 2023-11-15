@@ -257,6 +257,7 @@ export class Settings extends Component<any, SettingsState> {
           show_read_posts,
           send_notifications_to_email,
           email,
+          open_links_in_new_tab,
         },
         person: {
           avatar,
@@ -294,6 +295,7 @@ export class Settings extends Component<any, SettingsState> {
           bio,
           send_notifications_to_email,
           matrix_user_id,
+          open_links_in_new_tab,
         },
       };
     }
@@ -641,6 +643,7 @@ export class Settings extends Component<any, SettingsState> {
                 className="btn btn-secondary w-100 mt-3"
                 onClick={linkEvent(this, this.handleImportSettings)}
                 type="button"
+                disabled={!this.state.settingsFile}
               >
                 Import
               </button>
@@ -648,11 +651,13 @@ export class Settings extends Component<any, SettingsState> {
           </>
         ) : (
           <div>
-            {this.state.importOrExportLoading === "exporting"
-              ? "Exporting"
-              : "Importing"}
-            <LoadingEllipses />
-            <Spinner />
+            <div className="text-center">
+              {this.state.importOrExportLoading === "exporting"
+                ? "Exporting"
+                : "Importing"}
+              <LoadingEllipses />
+            </div>
+            <Spinner large />
           </div>
         )}
       </>
@@ -1160,6 +1165,7 @@ export class Settings extends Component<any, SettingsState> {
       this.setState({ show2faModal: false });
 
       const siteRes = await HttpService.client.getSite();
+
       UserService.Instance.myUserInfo!.local_user_view.local_user.totp_2fa_enabled =
         enabled;
 
@@ -1572,6 +1578,74 @@ export class Settings extends Component<any, SettingsState> {
 
     if (res.state === "success") {
       toast("Settings successfully imported!", "success");
+
+      const saveRes = i.state.saveRes;
+      i.setState({ saveRes: LOADING_REQUEST });
+
+      const siteRes = await HttpService.client.getSite();
+      i.setState({ saveRes });
+
+      if (siteRes.state === "success") {
+        console.log("Got site res");
+        console.log(siteRes.data.my_user);
+        const {
+          local_user: {
+            show_nsfw,
+            blur_nsfw,
+            auto_expand,
+            theme,
+            default_sort_type,
+            default_listing_type,
+            interface_language,
+            show_avatars,
+            show_bot_accounts,
+            show_scores,
+            show_read_posts,
+            send_notifications_to_email,
+            email,
+            open_links_in_new_tab,
+          },
+          person: {
+            avatar,
+            banner,
+            display_name,
+            bot_account,
+            bio,
+            matrix_user_id,
+          },
+        } = siteRes.data.my_user!.local_user_view;
+
+        UserService.Instance.myUserInfo = siteRes.data.my_user;
+
+        i.setState(prev => ({
+          ...prev,
+          siteRes: siteRes.data,
+          saveUserSettingsForm: {
+            ...prev.saveUserSettingsForm,
+            show_avatars,
+            show_bot_accounts,
+            show_nsfw,
+            teme: theme ?? "browser",
+            avatar,
+            banner,
+            display_name,
+            bio,
+            matrix_user_id,
+            auto_expand,
+            blur_nsfw,
+            bot_account,
+            default_listing_type,
+            default_sort_type,
+            discussion_languages: siteRes.data.my_user?.discussion_languages,
+            email,
+            interface_language,
+            open_links_in_new_tab,
+            send_notifications_to_email,
+            show_read_posts,
+            show_scores,
+          },
+        }));
+      }
     } else if (res.state === "failed") {
       toast(
         res.err.message === "rate_limit_error"
