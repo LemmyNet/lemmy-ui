@@ -120,7 +120,8 @@ interface SettingsState {
   searchInstanceOptions: Choice[];
   isIsomorphic: boolean;
   show2faModal: boolean;
-  importOrExportLoading: "importing" | "exporting" | null;
+  importSettingsRes: RequestState<any>;
+  exportSettingsRes: RequestState<any>;
   settingsFile?: File;
 }
 
@@ -212,7 +213,8 @@ export class Settings extends Component<any, SettingsState> {
     generateTotpRes: EMPTY_REQUEST,
     updateTotpRes: EMPTY_REQUEST,
     show2faModal: false,
-    importOrExportLoading: null,
+    importSettingsRes: EMPTY_REQUEST,
+    exportSettingsRes: EMPTY_REQUEST,
   };
 
   constructor(props: any, context: any) {
@@ -345,10 +347,10 @@ export class Settings extends Component<any, SettingsState> {
       <div className="person-settings container-lg">
         <a
           ref={this.exportSettingsLink}
-          download={`lemmy-settings-${UserService.Instance.myUserInfo?.local_user_view.person.name}.json`}
-          style={{
-            display: "none",
-          }}
+          download={`lemmy_user_settings_${new Date()
+            .toISOString()
+            .replace(/:|-/g, "")}.json`}
+          className="d-none"
           href="javascript:void(0)"
           aria-hidden="true"
         />
@@ -622,7 +624,10 @@ export class Settings extends Component<any, SettingsState> {
       <>
         <h2 className="h5">Import/Export</h2>
         <p>Import and export your account settings as JSON.</p>
-        {!this.state.importOrExportLoading ? (
+        {!(
+          this.state.importSettingsRes.state === "loading" ||
+          this.state.exportSettingsRes.state === "loading"
+        ) ? (
           <>
             <button
               className="btn btn-secondary w-100 mb-4"
@@ -652,7 +657,7 @@ export class Settings extends Component<any, SettingsState> {
         ) : (
           <div>
             <div className="text-center">
-              {this.state.importOrExportLoading === "exporting"
+              {this.state.exportSettingsRes.state === "loading"
                 ? "Exporting"
                 : "Importing"}
               <LoadingEllipses />
@@ -1549,7 +1554,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   async handleExportSettings(i: Settings) {
-    i.setState({ importOrExportLoading: "exporting" });
+    i.setState({ exportSettingsRes: LOADING_REQUEST });
     const res = await HttpService.client.exportSettings();
 
     if (res.state === "success") {
@@ -1566,11 +1571,11 @@ export class Settings extends Component<any, SettingsState> {
       );
     }
 
-    i.setState({ importOrExportLoading: null });
+    i.setState({ exportSettingsRes: EMPTY_REQUEST });
   }
 
   async handleImportSettings(i: Settings) {
-    i.setState({ importOrExportLoading: "importing" });
+    i.setState({ importSettingsRes: LOADING_REQUEST });
 
     const res = await HttpService.client.importSettings(
       JSON.parse(await i.state.settingsFile!.text()),
@@ -1586,8 +1591,6 @@ export class Settings extends Component<any, SettingsState> {
       i.setState({ saveRes });
 
       if (siteRes.state === "success") {
-        console.log("Got site res");
-        console.log(siteRes.data.my_user);
         const {
           local_user: {
             show_nsfw,
@@ -1655,7 +1658,7 @@ export class Settings extends Component<any, SettingsState> {
       );
     }
 
-    i.setState({ importOrExportLoading: null, settingsFile: undefined });
+    i.setState({ importSettingsRes: EMPTY_REQUEST, settingsFile: undefined });
   }
 
   handleDeleteAccountShowConfirmToggle(i: Settings) {
