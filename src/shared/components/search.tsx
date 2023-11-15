@@ -25,7 +25,7 @@ import {
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import type { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent, createRef } from "inferno";
 import {
   CommentView,
   CommunityView,
@@ -239,6 +239,7 @@ function getListing(
 
 export class Search extends Component<any, SearchState> {
   private isoData = setIsoData<SearchData>(this.context);
+  searchInput = createRef<HTMLInputElement>();
 
   state: SearchState = {
     resolveObjectRes: EMPTY_REQUEST,
@@ -306,6 +307,8 @@ export class Search extends Component<any, SearchState> {
   }
 
   async componentDidMount() {
+    this.searchInput.current?.select();
+
     if (!this.state.isIsomorphic) {
       this.setState({
         searchCommunitiesLoading: true,
@@ -530,6 +533,7 @@ export class Search extends Component<any, SearchState> {
             onInput={linkEvent(this, this.handleQChange)}
             required
             minLength={1}
+            ref={this.searchInput}
           />
         </div>
         <div className="col-auto">
