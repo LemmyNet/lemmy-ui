@@ -347,7 +347,7 @@ export class Settings extends Component<any, SettingsState> {
       <div className="person-settings container-lg">
         <a
           ref={this.exportSettingsLink}
-          download={`lemmy_user_settings_${new Date()
+          download={`${I18NextService.i18n.t("export_file_name")}_${new Date()
             .toISOString()
             .replace(/:|-/g, "")}.json`}
           className="d-none"
@@ -622,8 +622,10 @@ export class Settings extends Component<any, SettingsState> {
   importExport() {
     return (
       <>
-        <h2 className="h5">Import/Export</h2>
-        <p>Import and export your account settings as JSON.</p>
+        <h2 className="h5">
+          {I18NextService.i18n.t("import_export_section_title")}
+        </h2>
+        <p>{I18NextService.i18n.t("import_export_section_description")}</p>
         {!(
           this.state.importSettingsRes.state === "loading" ||
           this.state.exportSettingsRes.state === "loading"
@@ -634,7 +636,7 @@ export class Settings extends Component<any, SettingsState> {
               onClick={linkEvent(this, this.handleExportSettings)}
               type="button"
             >
-              Export
+              {I18NextService.i18n.t("export")}
             </button>
             <fieldset className="border border-secondary rounded p-3 bg-dark bg-opacity-25">
               <input
@@ -650,7 +652,7 @@ export class Settings extends Component<any, SettingsState> {
                 type="button"
                 disabled={!this.state.settingsFile}
               >
-                Import
+                {I18NextService.i18n.t("import")}
               </button>
             </fieldset>
           </>
@@ -658,8 +660,8 @@ export class Settings extends Component<any, SettingsState> {
           <div>
             <div className="text-center">
               {this.state.exportSettingsRes.state === "loading"
-                ? "Exporting"
-                : "Importing"}
+                ? I18NextService.i18n.t("exporting")
+                : I18NextService.i18n.t("importing")}
               <LoadingEllipses />
             </div>
             <Spinner large />
@@ -1565,8 +1567,8 @@ export class Settings extends Component<any, SettingsState> {
     } else if (res.state === "failed") {
       toast(
         res.err.message === "rate_limit_error"
-          ? "Please wait a bit before trying to export or import again"
-          : "Error exporting settings",
+          ? I18NextService.i18n.t("import_export_rate_limit_error")
+          : I18NextService.i18n.t("export_error"),
         "danger",
       );
     }
@@ -1582,7 +1584,7 @@ export class Settings extends Component<any, SettingsState> {
     );
 
     if (res.state === "success") {
-      toast("Settings successfully imported!", "success");
+      toast(I18NextService.i18n.t("import_success"), "success");
 
       const saveRes = i.state.saveRes;
       i.setState({ saveRes: LOADING_REQUEST });
@@ -1652,8 +1654,8 @@ export class Settings extends Component<any, SettingsState> {
     } else if (res.state === "failed") {
       toast(
         res.err.message === "rate_limit_error"
-          ? "Please wait a bit before trying to export or import again"
-          : "Error importing settings",
+          ? I18NextService.i18n.t("import_export_rate_limit_error")
+          : I18NextService.i18n.t("import_error"),
         "danger",
       );
     }
