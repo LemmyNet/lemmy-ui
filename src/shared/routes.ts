@@ -11,7 +11,6 @@ import { OAuth } from "./components/home/oauth";
 import { Signup } from "./components/home/signup";
 import { LoginReset } from "./components/home/login-reset";
 import { Setup } from "./components/home/setup";
-import { Signup } from "./components/home/signup";
 import { Modlog } from "./components/modlog";
 import { Inbox } from "./components/person/inbox";
 import { PasswordChange } from "./components/person/password-change";

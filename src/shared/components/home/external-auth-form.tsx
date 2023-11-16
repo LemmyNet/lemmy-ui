@@ -77,7 +77,6 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
               <th>{I18NextService.i18n.t("column_auth_type")}</th>
               <th>{I18NextService.i18n.t("column_auth_settings")}</th>
               <th style="width:121px"></th>
-              </tr>
             </thead>
             <tbody>
               {this.state.externalAuths
