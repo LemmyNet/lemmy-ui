@@ -42,7 +42,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
   private itemsPerPage = 15;
   private emptyState: ExternalAuthFormState = {
     siteRes: this.isoData.site_res,
-    externalAuths: this.isoData.site_res.external_auth.map((x, index) => ({
+    externalAuths: this.isoData.site_res.external_auths.map((x, index) => ({
       id: x.external_auth.id,
       display_name: x.external_auth.display_name,
       auth_type: x.external_auth.auth_type,
@@ -55,14 +55,14 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
       client_secret: x.external_auth.clientSecret,
       scopes: x.external_auth.scopes,
       changed: false,
-    })),
+    })) ?? [],
   };
   state: ExternalAuthFormState;
   constructor(props: any, context: any) {
     super(props, context);
     this.state = this.emptyState;
 
-    this.handlePageChange = this.handlePageChange.bind(this);
+    this.getEditTooltip = this.getEditTooltip.bind(this);
   }
   render() {
     return (
@@ -74,7 +74,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
             className="table table-sm table-hover"
           >
             <thead className="pointer">
-              <th>{I18NextService.i18n.t("column_auth_type")}</th>
+              <th style="width:100px">{I18NextService.i18n.t("column_auth_type")}</th>
               <th>{I18NextService.i18n.t("column_auth_settings")}</th>
               <th style="width:121px"></th>
             </thead>
@@ -243,7 +243,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
                           <input
                             type="text"
                             id={`scopes-${index}`}
-                            className="scopes"
+                            className="form-control"
                             value={cv.scopes}
                             onInput={linkEvent(
                               { form: this, index: index },
@@ -309,9 +309,13 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
           >
             {I18NextService.i18n.t("add_oidc")}
           </button>
-          <div className="row">
-            When registering the application with your identity provider, make sure to specify the redirect URI as <code>{getExternalHost()}/api/v3/oauth/callback</code>.
-          </div>
+        </div>
+        <br />
+        <div className="row">
+          {I18NextService.i18n.t("auth_callback")}
+          <code style="display: inline; width: unset;">
+            {getExternalHost()}/api/v3/oauth/callback
+          </code>
         </div>
       </div>
     );
