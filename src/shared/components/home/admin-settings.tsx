@@ -74,6 +74,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     this.handleEditEmoji = this.handleEditEmoji.bind(this);
     this.handleDeleteEmoji = this.handleDeleteEmoji.bind(this);
     this.handleCreateEmoji = this.handleCreateEmoji.bind(this);
+    this.handleEditExternalAuth = this.handleEditExternalAuth.bind(this);
+    this.handleDeleteExternalAuth = this.handleDeleteExternalAuth.bind(this);
+    this.handleCreateExternalAuth = this.handleCreateExternalAuth.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {

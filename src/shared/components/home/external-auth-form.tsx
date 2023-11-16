@@ -52,7 +52,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
       id_attribute: x.external_auth.id_attribute,
       issuer: x.external_auth.issuer,
       client_id: x.external_auth.client_id,
-      client_secret: x.external_auth.clientSecret,
+      client_secret: x.external_auth.client_secret,
       scopes: x.external_auth.scopes,
       changed: false,
     })) ?? [],
@@ -209,7 +209,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
                             type="text"
                             id={`client-id-${index}`}
                             className="form-control"
-                            value={cv.clientId}
+                            value={cv.client_id}
                             onInput={linkEvent(
                               { form: this, index: index },
                               this.handleClientIdChange,
@@ -226,7 +226,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
                             type="text"
                             id={`client-secret-${index}`}
                             className="form-control"
-                            value={cv.clientSecret}
+                            value={cv.client_secret}
                             placeholder={cv.id === 0 ? "" : "Secret cannot be viewed after saving"}
                             onInput={linkEvent(
                               { form: this, index: index },
@@ -325,7 +325,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
     let noEmptyFields =
       cv.display_name.length > 0 &&
       cv.client_id.length > 0 &&
-      cv.clientSecret.length > 0 &&
+      cv.client_secret.length > 0 &&
       cv.scopes.length > 0;
     if (cv.auth_type === "oauth") {
       noEmptyFields = noEmptyFields &&
@@ -449,7 +449,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
     const external_auths = [...props.form.state.externalAuths];
     const item = {
       ...props.form.state.externalAuths[props.index],
-      clientId: event.target.value,
+      client_id: event.target.value,
       changed: true,
     };
     external_auths[Number(props.index)] = item;
@@ -463,7 +463,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
     const external_auths = [...props.form.state.externalAuths];
     const item = {
       ...props.form.state.externalAuths[props.index],
-      clientSecret: event.target.value,
+      client_secret: event.target.value,
       changed: true,
     };
     external_auths[Number(props.index)] = item;
@@ -544,7 +544,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
         id_attribute: "email",
         issuer: "",
         client_id: "",
-        clientSecret: "",
+        client_secret: "",
         scopes: "openid profile email",
         changed: false,
       };
@@ -569,7 +569,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
         id_attribute: "email",
         issuer: "",
         client_id: "",
-        clientSecret: "",
+        client_secret: "",
         scopes: "openid profile email",
         changed: false,
       };
