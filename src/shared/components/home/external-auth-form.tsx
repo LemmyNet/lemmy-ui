@@ -227,7 +227,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
                             id={`client-secret-${index}`}
                             className="form-control"
                             value={cv.clientSecret}
-                            placeholder={cv.id === 0 ? "Secret cannot be viewed after saving" : ""}
+                            placeholder={cv.id === 0 ? "" : "Secret cannot be viewed after saving"}
                             onInput={linkEvent(
                               { form: this, index: index },
                               this.handleClientSecretChange,
