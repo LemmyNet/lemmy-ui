@@ -86,7 +86,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
                       <select
                         id={`auth-type-${index}`}
                         value={cv.auth_type}
-                        onChange={linkEvent(this, this.handleAuthType)}
+                        onChange={linkEvent({ form: this, index: index }, this.handleAuthType)}
                         className="form-select d-inline-block w-auto"
                       >
                         <option value="oauth">
@@ -562,7 +562,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
       const item: ExternalAuthViewForm = {
         id: 0,
         display_name: "",
-        type: "odic",
+        auth_type: "oidc",
         auth_endpoint: "",
         token_endpoint: "",
         user_endpoint: "",
