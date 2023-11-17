@@ -23,6 +23,7 @@ import validInstanceTLD from "./valid-instance-tld";
 import validTitle from "./valid-title";
 import validURL from "./valid-url";
 import dedupByProperty from "./dedup-by-property";
+import shouldHideSignup from "./should-hide-signup";
 
 export {
   capitalizeFirstLetter,
@@ -50,4 +51,5 @@ export {
   validTitle,
   validURL,
   dedupByProperty,
+  shouldHideSignup,
 };

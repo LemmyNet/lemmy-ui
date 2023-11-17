@@ -1,6 +1,6 @@
 import { showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
-import { numToSI } from "@utils/helpers";
+import { numToSI, shouldHideSignup } from "@utils/helpers";
 import { amAdmin, canCreateCommunity } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
@@ -437,16 +437,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       {I18NextService.i18n.t("login")}
                     </NavLink>
                   </li>
-                  <li className="nav-item">
-                    <NavLink
-                      to="/signup"
-                      className="nav-link"
-                      title={I18NextService.i18n.t("sign_up")}
-                      onMouseUp={linkEvent(this, handleCollapseClick)}
-                    >
-                      {I18NextService.i18n.t("sign_up")}
-                    </NavLink>
-                  </li>
+                  {!shouldHideSignup(this.props.siteRes) && (
+                    <li className="nav-item">
+                      <NavLink
+                        to="/signup"
+                        className="nav-link"
+                        title={I18NextService.i18n.t("sign_up")}
+                        onMouseUp={linkEvent(this, handleCollapseClick)}
+                      >
+                        {I18NextService.i18n.t("sign_up")}
+                      </NavLink>
+                    </li>
+                  )}
                 </>
               )}
             </ul>

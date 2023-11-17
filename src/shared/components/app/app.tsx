@@ -16,6 +16,7 @@ import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
 import { CodeTheme } from "./code-theme";
+import { shouldHideSignup } from "@utils/helpers";
 
 interface AppProps {
   user?: MyUserInfo;
@@ -64,39 +65,44 @@ export class App extends Component<AppProps, any> {
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">
               <Switch>
-                {routes.map(
-                  ({ path, component: RouteComponent, fetchInitialData }) => (
-                    <Route
-                      key={path}
-                      path={path}
-                      exact
-                      component={routeProps => {
-                        if (!fetchInitialData) {
-                          FirstLoadService.falsify();
-                        }
+                {routes
+                  .filter(
+                    ({ path }) =>
+                      !(path === "/signup" && shouldHideSignup(siteRes)),
+                  )
+                  .map(
+                    ({ path, component: RouteComponent, fetchInitialData }) => (
+                      <Route
+                        key={path}
+                        path={path}
+                        exact
+                        component={routeProps => {
+                          if (!fetchInitialData) {
+                            FirstLoadService.falsify();
+                          }
 
-                        return (
-                          <ErrorGuard>
-                            <div tabIndex={-1}>
-                              {RouteComponent &&
-                                (isAuthPath(path ?? "") ? (
-                                  <AuthGuard {...routeProps}>
+                          return (
+                            <ErrorGuard>
+                              <div tabIndex={-1}>
+                                {RouteComponent &&
+                                  (isAuthPath(path ?? "") ? (
+                                    <AuthGuard {...routeProps}>
+                                      <RouteComponent {...routeProps} />
+                                    </AuthGuard>
+                                  ) : isAnonymousPath(path ?? "") ? (
+                                    <AnonymousGuard>
+                                      <RouteComponent {...routeProps} />
+                                    </AnonymousGuard>
+                                  ) : (
                                     <RouteComponent {...routeProps} />
-                                  </AuthGuard>
-                                ) : isAnonymousPath(path ?? "") ? (
-                                  <AnonymousGuard>
-                                    <RouteComponent {...routeProps} />
-                                  </AnonymousGuard>
-                                ) : (
-                                  <RouteComponent {...routeProps} />
-                                ))}
-                            </div>
-                          </ErrorGuard>
-                        );
-                      }}
-                    />
-                  ),
-                )}
+                                  ))}
+                              </div>
+                            </ErrorGuard>
+                          );
+                        }}
+                      />
+                    ),
+                  )}
                 <Route component={ErrorPage} />
               </Switch>
             </div>
