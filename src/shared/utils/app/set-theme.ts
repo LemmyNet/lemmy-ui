@@ -1,5 +1,5 @@
 import { fetchThemeList } from "@utils/app";
-import { isBrowser, loadCss } from "@utils/browser";
+import { dataBsTheme, isBrowser, loadCss } from "@utils/browser";
 
 export default async function setTheme(theme: string, forceReload = false) {
   if (!isBrowser()) {
@@ -32,5 +32,8 @@ export default async function setTheme(theme: string, forceReload = false) {
   const cssLoc = `/css/themes/${theme}.css`;
 
   loadCss(theme, cssLoc);
+  document
+    .getElementById("app")
+    ?.setAttribute("data-bs-theme", dataBsTheme(theme));
   document.getElementById(theme)?.removeAttribute("disabled");
 }

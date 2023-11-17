@@ -9,6 +9,7 @@ import restoreScrollPosition from "./restore-scroll-position";
 import saveScrollPosition from "./save-scroll-position";
 import setAuthCookie from "./set-auth-cookie";
 import share from "./share";
+import updateDataBsTheme from "./update-data-bs-theme";
 
 export {
   canShare,
@@ -22,4 +23,5 @@ export {
   saveScrollPosition,
   setAuthCookie,
   share,
+  updateDataBsTheme,
 };
