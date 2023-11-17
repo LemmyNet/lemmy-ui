@@ -61,6 +61,7 @@ import { PersonListing } from "./person-listing";
 import { InitialFetchRequest } from "../../interfaces";
 import TotpModal from "../common/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
+import { updateDataBsTheme } from "@utils/browser";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -1621,6 +1622,7 @@ export class Settings extends Component<any, SettingsState> {
         } = siteRes.data.my_user!.local_user_view;
 
         UserService.Instance.myUserInfo = siteRes.data.my_user;
+        updateDataBsTheme(siteRes.data);
 
         i.setState(prev => ({
           ...prev,
