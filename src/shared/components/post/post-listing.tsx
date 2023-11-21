@@ -53,7 +53,7 @@ import {
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
-import { Icon, PurgeWarning, Spinner } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
 import { UserBadges } from "../common/user-badges";
@@ -62,7 +62,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
-import ModerationActionForm from "../common/mod-action-form";
+import ModerationActionForm, { BanUpdateForm } from "../common/mod-action-form";
 
 const dialogTypes = [
   "showBanDialog",
@@ -181,6 +181,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleEditCancel = this.handleEditCancel.bind(this);
     this.handleReportSubmit = this.handleReportSubmit.bind(this);
     this.handleModRemoveSubmit = this.handleModRemoveSubmit.bind(this);
+    this.handleModBanBothSubmit = this.handleModBanBothSubmit.bind(this);
+    this.handlePurgeSubmit = this.handlePurgeSubmit.bind(this);
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
@@ -1147,7 +1149,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
         onClick={linkEvent(this, this.handleModRemoveShow)}
       >
-        {/* TODO: Find an icon for this. */}
+        {/* TODO: Find an icon for this. Also, restore post should probably be one translation key due to possible differences in how different languages handle verbs.*/}
         {this.state.removeLoading ? (
           <Spinner />
         ) : !removed ? (
@@ -1164,16 +1166,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   removeAndBanDialogs() {
     const post = this.postView;
-    const purgeTypeText =
-      this.state.purgeType === PurgeType.Post
-        ? I18NextService.i18n.t("purge_post")
-        : `${I18NextService.i18n.t("purge")} ${post.creator.name}`;
     return (
       <>
         {this.state.showRemoveDialog && (
           <ModerationActionForm
             onSubmit={this.handleModRemoveSubmit}
-            buttonText={I18NextService.i18n.t("remove_post")}
+            modActionType="remove"
+            isRemoved={post.post.removed}
           />
         )}
         {this.state.showConfirmTransferCommunity && (
@@ -1204,101 +1203,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </>
         )}
         {this.state.showBanDialog && (
-          <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
-            <div className="mb-3 row col-12">
-              <label
-                className="col-form-label"
-                htmlFor="post-listing-ban-reason"
-              >
-                {I18NextService.i18n.t("reason")}
-              </label>
-              <input
-                type="text"
-                id="post-listing-ban-reason"
-                className="form-control me-2"
-                placeholder={I18NextService.i18n.t("reason")}
-                value={this.state.banReason}
-                onInput={linkEvent(this, this.handleModBanReasonChange)}
-              />
-              <label className="col-form-label" htmlFor="mod-ban-expires">
-                {I18NextService.i18n.t("expires")}
-              </label>
-              <input
-                type="number"
-                id="mod-ban-expires"
-                className="form-control me-2"
-                placeholder={I18NextService.i18n.t("number_of_days")}
-                value={this.state.banExpireDays}
-                onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
-              />
-              <div className="input-group mb-3">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    id="mod-ban-remove-data"
-                    type="checkbox"
-                    checked={this.state.removeData}
-                    onChange={linkEvent(this, this.handleModRemoveDataChange)}
-                  />
-                  <label
-                    className="form-check-label"
-                    htmlFor="mod-ban-remove-data"
-                    title={I18NextService.i18n.t("remove_content_more")}
-                  >
-                    {I18NextService.i18n.t("remove_content")}
-                  </label>
-                </div>
-              </div>
-            </div>
-            {/* TODO hold off on expires until later */}
-            {/* <div class="mb-3 row"> */}
-            {/*   <label class="col-form-label">Expires</label> */}
-            {/*   <input type="date" class="form-control me-2" placeholder={I18NextService.i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
-            {/* </div> */}
-            <div className="mb-3 row">
-              <button type="submit" className="btn btn-secondary">
-                {this.state.banLoading ? (
-                  <Spinner />
-                ) : (
-                  <span>
-                    {I18NextService.i18n.t("ban")} {post.creator.name}
-                  </span>
-                )}
-              </button>
-            </div>
-          </form>
+          <ModerationActionForm
+            onSubmit={this.handleModBanBothSubmit}
+            modActionType="ban"
+            creatorName={post.creator.name}
+          />
         )}
         {this.state.showReportDialog && (
           <ModerationActionForm
             onSubmit={this.handleReportSubmit}
-            buttonText={I18NextService.i18n.t("create-report")}
+            modActionType="report"
           />
         )}
         {this.state.showPurgeDialog && (
-          <form
-            className="form-inline"
-            onSubmit={linkEvent(this, this.handlePurgeSubmit)}
-          >
-            <PurgeWarning />
-            <label className="visually-hidden" htmlFor="purge-reason">
-              {I18NextService.i18n.t("reason")}
-            </label>
-            <input
-              type="text"
-              id="purge-reason"
-              className="form-control me-2"
-              placeholder={I18NextService.i18n.t("reason")}
-              value={this.state.purgeReason}
-              onInput={linkEvent(this, this.handlePurgeReasonChange)}
-            />
-            {this.state.purgeLoading ? (
-              <Spinner />
-            ) : (
-              <button type="submit" className="btn btn-secondary mt-2">
-                {purgeTypeText}
-              </button>
-            )}
-          </form>
+          <ModerationActionForm
+            onSubmit={this.handlePurgeSubmit}
+            modActionType={
+              this.state.purgeType === PurgeType.Post
+                ? "purge-post"
+                : "purge-person"
+            }
+            creatorName={post.creator.name}
+          />
         )}
       </>
     );
@@ -1421,7 +1347,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleShowReportDialog(i: PostListing) {
-    i.setState({ showReportDialog: !i.state.showReportDialog });
+    i.toggleShowModDialog("showReportDialog");
   }
 
   handleReportSubmit(reason: string) {
@@ -1430,9 +1356,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       reason,
     });
 
-    this.setState({
-      showReportDialog: false,
-    });
+    this.toggleShowModDialog("showReportDialog");
   }
 
   handleBlockPersonClick(i: PostListing) {
@@ -1493,10 +1417,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModRemoveShow(i: PostListing) {
-    i.setState({
-      showRemoveDialog: !i.state.showRemoveDialog,
-      showBanDialog: false,
-    });
+    i.toggleShowModDialog("showRemoveDialog");
   }
 
   handleModRemoveReasonChange(i: PostListing, event: any) {
@@ -1543,34 +1464,26 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModBanFromCommunityShow(i: PostListing) {
-    i.setState({
-      showBanDialog: true,
+    i.toggleShowModDialog("showBanDialog", {
       banType: BanType.Community,
-      showRemoveDialog: false,
     });
   }
 
   handleModBanShow(i: PostListing) {
-    i.setState({
-      showBanDialog: true,
+    i.toggleShowModDialog("showBanDialog", {
       banType: BanType.Site,
-      showRemoveDialog: false,
     });
   }
 
   handlePurgePersonShow(i: PostListing) {
-    i.setState({
-      showPurgeDialog: true,
+    i.toggleShowModDialog("showPurgeDialog", {
       purgeType: PurgeType.Person,
-      showRemoveDialog: false,
     });
   }
 
   handlePurgePostShow(i: PostListing) {
-    i.setState({
-      showPurgeDialog: true,
+    i.toggleShowModDialog("showPurgeDialog", {
       purgeType: PurgeType.Post,
-      showRemoveDialog: false,
     });
   }
 
@@ -1578,20 +1491,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ purgeReason: event.target.value });
   }
 
-  handlePurgeSubmit(i: PostListing, event: any) {
-    event.preventDefault();
-    i.setState({ purgeLoading: true });
-    if (i.state.purgeType === PurgeType.Person) {
-      i.props.onPurgePerson({
-        person_id: i.postView.creator.id,
-        reason: i.state.purgeReason,
+  handlePurgeSubmit(reason: string) {
+    if (this.state.purgeType === PurgeType.Person) {
+      this.props.onPurgePerson({
+        person_id: this.postView.creator.id,
+        reason,
       });
-    } else if (i.state.purgeType === PurgeType.Post) {
-      i.props.onPurgePost({
-        post_id: i.postView.post.id,
-        reason: i.state.purgeReason,
+    } else if (this.state.purgeType === PurgeType.Post) {
+      this.props.onPurgePost({
+        post_id: this.postView.post.id,
+        reason,
       });
     }
+
+    this.toggleShowModDialog("showPurgeDialog");
   }
 
   handleModBanReasonChange(i: PostListing, event: any) {
@@ -1602,49 +1515,52 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ banExpireDays: event.target.value });
   }
 
-  handleModBanFromCommunitySubmit(i: PostListing, event: any) {
+  handleModBanFromCommunitySubmit(i: PostListing) {
     i.setState({ banType: BanType.Community });
-    i.handleModBanBothSubmit(i, event);
+    i.handleModBanBothSubmit({});
   }
 
-  handleModBanSubmit(i: PostListing, event: any) {
+  handleModBanSubmit(i: PostListing) {
     i.setState({ banType: BanType.Site });
-    i.handleModBanBothSubmit(i, event);
+    i.handleModBanBothSubmit({});
   }
 
-  handleModBanBothSubmit(i: PostListing, event: any) {
-    event.preventDefault();
-    i.setState({ banLoading: true });
+  handleModBanBothSubmit({
+    reason,
+    shouldRemove,
+    daysUntilExpires,
+  }: BanUpdateForm) {
+    const ban = !this.props.post_view.creator_banned_from_community;
 
-    const ban = !i.props.post_view.creator_banned_from_community;
     // If its an unban, restore all their data
     if (ban === false) {
-      i.setState({ removeData: false });
+      shouldRemove = false;
     }
-    const person_id = i.props.post_view.creator.id;
-    const remove_data = i.state.removeData;
-    const reason = i.state.banReason;
-    const expires = futureDaysToUnixTime(i.state.banExpireDays);
+    const person_id = this.props.post_view.creator.id;
+    const expires = futureDaysToUnixTime(daysUntilExpires);
 
-    if (i.state.banType === BanType.Community) {
-      const community_id = i.postView.community.id;
-      i.props.onBanPersonFromCommunity({
+    if (this.state.banType === BanType.Community) {
+      const community_id = this.postView.community.id;
+      this.props.onBanPersonFromCommunity({
         community_id,
         person_id,
         ban,
-        remove_data,
+        remove_data: shouldRemove,
         reason,
         expires,
       });
     } else {
-      i.props.onBanPerson({
+      this.props.onBanPerson({
         person_id,
         ban,
-        remove_data,
+        remove_data: shouldRemove,
         reason,
         expires,
       });
     }
+
+    this.setState({ banType: undefined });
+    this.toggleShowModDialog("showBanDialog");
   }
 
   handleAddModToCommunity(i: PostListing) {
@@ -1656,7 +1572,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  toggleShowModDialog(dialogType: DialogType) {
+  toggleShowModDialog(
+    dialogType: DialogType,
+    stateOverride: Partial<PostListingState> = {},
+  ) {
     this.setState(prev => ({
       ...prev,
       [dialogType]: !prev[dialogType],
@@ -1669,6 +1588,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           }),
           {},
         ),
+      ...stateOverride,
     }));
   }
 

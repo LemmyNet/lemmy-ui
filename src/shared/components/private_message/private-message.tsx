@@ -250,7 +250,7 @@ export class PrivateMessage extends Component<
         {this.state.showReportDialog && (
           <ModerationActionForm
             onSubmit={this.handleReportSubmit}
-            buttonText={I18NextService.i18n.t("create-report")}
+            modActionType="report"
           />
         )}
         {this.state.showReply && (

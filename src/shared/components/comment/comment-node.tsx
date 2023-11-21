@@ -971,7 +971,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {this.state.showReportDialog && (
           <ModerationActionForm
             onSubmit={this.handleReportComment}
-            buttonText={I18NextService.i18n.t("create-report")}
+            modActionType="report"
           />
         )}
         {this.state.showBanDialog && (
