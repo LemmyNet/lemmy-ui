@@ -13,23 +13,27 @@ interface ModActionFormPropsBan {
   modActionType: "ban";
   onSubmit: (form: BanUpdateForm) => void;
   creatorName: string;
+  onCancel: () => void;
 }
 
 interface ModActionFormPropsPurgePerson {
   modActionType: "purge-person";
   onSubmit: (reason: string) => void;
   creatorName: string;
+  onCancel: () => void;
 }
 
 interface ModActionFormPropsRemove {
   modActionType: "remove";
   onSubmit: (reason: string) => void;
   isRemoved: boolean;
+  onCancel: () => void;
 }
 
 interface ModActionFormPropsRest {
   modActionType: "report" | "purge-post";
   onSubmit: (reason: string) => void;
+  onCancel: () => void;
 }
 
 type ModActionFormProps =
@@ -43,6 +47,7 @@ interface ModActionFormFormState {
   reason: string;
   daysUntilExpire?: number;
   shouldRemoveData?: boolean;
+  shouldPermaBan?: boolean;
 }
 
 function handleReasonChange(i: ModerationActionForm, event: any) {
@@ -53,10 +58,17 @@ function handleExpiryChange(i: ModerationActionForm, event: any) {
   i.setState({ daysUntilExpire: parseInt(event.target.value, 10) });
 }
 
-function handleShouldRemoveChange(i: ModerationActionForm) {
+function handleToggleRemove(i: ModerationActionForm) {
   i.setState(prev => ({
     ...prev,
     shouldRemoveData: !prev.shouldRemoveData,
+  }));
+}
+
+function handleTogglePermaBan(i: ModerationActionForm) {
+  i.setState(prev => ({
+    ...prev,
+    shouldPermaBan: !prev.shouldPermaBan,
   }));
 }
 
@@ -93,14 +105,20 @@ export default class ModerationActionForm extends Component<
     super(props, context);
 
     if (this.props.modActionType === "ban") {
-      this.state.daysUntilExpire = 1;
       this.state.shouldRemoveData = false;
     }
   }
 
   render() {
-    const { loading, reason, daysUntilExpire, shouldRemoveData } = this.state;
-    const id = `mod-form-${randomStr()}`;
+    const {
+      loading,
+      reason,
+      daysUntilExpire,
+      shouldRemoveData,
+      shouldPermaBan,
+    } = this.state;
+    const reasonId = `mod-form-reason-${randomStr()}`;
+    const expiresId = `mod-form-expires-${randomStr()}`;
 
     let buttonText: string;
     switch (this.props.modActionType) {
@@ -137,57 +155,89 @@ export default class ModerationActionForm extends Component<
     }
 
     return (
-      <form className="form-inline" onSubmit={linkEvent(this, handleSubmit)}>
-        {this.props.modActionType.includes("purge") && <PurgeWarning />}
-        <label className="visually-hidden" htmlFor={id}>
-          {I18NextService.i18n.t("reason")}
-        </label>
-        <input
-          type="text"
-          id={id}
-          className="form-control me-2"
-          placeholder={I18NextService.i18n.t("reason")}
-          required
-          value={reason}
-          onInput={linkEvent(this, handleReasonChange)}
-        />
-        {this.props.modActionType === "ban" && (
-          <>
-            <label className="col-form-label" htmlFor="mod-ban-expires">
-              {I18NextService.i18n.t("expires")}
+      <form onSubmit={linkEvent(this, handleSubmit)} className="p-3">
+        <div className="row mb-3">
+          <div className="col-12 col-lg-6 col-xl-7">
+            {this.props.modActionType.includes("purge") && <PurgeWarning />}
+            <label className="visually-hidden" htmlFor={reasonId}>
+              {I18NextService.i18n.t("reason")}
             </label>
             <input
-              type="number"
-              id="mod-ban-expires"
-              className="form-control me-2"
-              placeholder={I18NextService.i18n.t("number_of_days")}
-              min={1}
-              value={daysUntilExpire}
-              onInput={linkEvent(this, handleExpiryChange)}
+              type="text"
+              id={reasonId}
+              className="form-control my-2 my-lg-0"
+              placeholder={I18NextService.i18n.t("reason")}
+              required
+              value={reason}
+              onInput={linkEvent(this, handleReasonChange)}
             />
-            <div className="input-group mb-3">
-              <div className="form-check">
+          </div>
+          {this.props.modActionType === "ban" && (
+            <div className="col-12 col-lg-6 col-xl-5">
+              <label className="visually-hidden" htmlFor={expiresId}>
+                {I18NextService.i18n.t("expires")}
+              </label>
+              <input
+                type="number"
+                id={expiresId}
+                className="form-control my-2 my-lg-0"
+                placeholder="Days until expiration"
+                min={1}
+                value={daysUntilExpire}
+                onInput={linkEvent(this, handleExpiryChange)}
+              />
+            </div>
+          )}
+        </div>
+        <div className="row">
+          <div
+            className="order-1 order-lg-0 my-2 col-12 col-lg-6 col-xxl-5 d-flex justify-content-start align-items-end"
+            style={{
+              "white-space": "nowrap",
+            }}
+          >
+            <button type="submit" className="btn btn-secondary me-3">
+              {loading ? <Spinner /> : capitalizeFirstLetter(buttonText)}
+            </button>
+            <button
+              type="button"
+              className="btn btn-light"
+              onClick={this.props.onCancel}
+            >
+              {I18NextService.i18n.t("cancel")}
+            </button>
+          </div>
+          <div className="mb-2 col-12 col-lg-6 col-xxl-7">
+            <div className="form-check m2-3">
+              <label
+                className="form-check-label me-3 user-select-none"
+                title={I18NextService.i18n.t("remove_content_more")}
+              >
                 <input
-                  className="form-check-input"
-                  id="mod-ban-remove-data"
+                  className="form-check-input user-select-none"
                   type="checkbox"
                   checked={shouldRemoveData}
-                  onChange={linkEvent(this, handleShouldRemoveChange)}
+                  onChange={linkEvent(this, handleToggleRemove)}
                 />
-                <label
-                  className="form-check-label"
-                  htmlFor="mod-ban-remove-data"
-                  title={I18NextService.i18n.t("remove_content_more")}
-                >
-                  {I18NextService.i18n.t("remove_content")}
-                </label>
-              </div>
+                {I18NextService.i18n.t("remove_content")}
+              </label>
             </div>
-          </>
-        )}
-        <button type="submit" className="btn btn-secondary">
-          {loading ? <Spinner /> : capitalizeFirstLetter(buttonText)}
-        </button>
+            <div className="form-check mt-2">
+              <label
+                className="form-check-label"
+                title={I18NextService.i18n.t("remove_content_more")}
+              >
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  onChange={linkEvent(this, handleTogglePermaBan)}
+                  checked={shouldPermaBan}
+                />
+                Permanently ban
+              </label>
+            </div>
+          </div>
+        </div>
       </form>
     );
   }

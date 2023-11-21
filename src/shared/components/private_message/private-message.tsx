@@ -251,6 +251,7 @@ export class PrivateMessage extends Component<
           <ModerationActionForm
             onSubmit={this.handleReportSubmit}
             modActionType="report"
+            onCancel={() => {}}
           />
         )}
         {this.state.showReply && (

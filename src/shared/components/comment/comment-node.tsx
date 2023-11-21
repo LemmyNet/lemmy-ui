@@ -972,6 +972,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           <ModerationActionForm
             onSubmit={this.handleReportComment}
             modActionType="report"
+            onCancel={() => {}}
           />
         )}
         {this.state.showBanDialog && (

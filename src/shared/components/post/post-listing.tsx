@@ -183,6 +183,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleModRemoveSubmit = this.handleModRemoveSubmit.bind(this);
     this.handleModBanBothSubmit = this.handleModBanBothSubmit.bind(this);
     this.handlePurgeSubmit = this.handlePurgeSubmit.bind(this);
+    this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
+    this.handleModBanFromCommunitySubmit =
+      this.handleModBanFromCommunitySubmit.bind(this);
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
@@ -1042,7 +1045,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleModBanFromCommunitySubmit)}
+        onClick={this.handleModBanFromCommunitySubmit}
       >
         {this.state.banLoading ? <Spinner /> : I18NextService.i18n.t("unban")}
       </button>
@@ -1173,6 +1176,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onSubmit={this.handleModRemoveSubmit}
             modActionType="remove"
             isRemoved={post.post.removed}
+            onCancel={this.hideAllDialogs}
           />
         )}
         {this.state.showConfirmTransferCommunity && (
@@ -1207,12 +1211,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onSubmit={this.handleModBanBothSubmit}
             modActionType="ban"
             creatorName={post.creator.name}
+            onCancel={this.hideAllDialogs}
           />
         )}
         {this.state.showReportDialog && (
           <ModerationActionForm
             onSubmit={this.handleReportSubmit}
             modActionType="report"
+            onCancel={this.hideAllDialogs}
           />
         )}
         {this.state.showPurgeDialog && (
@@ -1224,6 +1230,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 : "purge-person"
             }
             creatorName={post.creator.name}
+            onCancel={this.hideAllDialogs}
           />
         )}
       </>
@@ -1515,14 +1522,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ banExpireDays: event.target.value });
   }
 
-  handleModBanFromCommunitySubmit(i: PostListing) {
-    i.setState({ banType: BanType.Community });
-    i.handleModBanBothSubmit({});
+  handleModBanFromCommunitySubmit() {
+    this.setState({ banType: BanType.Community });
+    this.handleModBanBothSubmit({});
   }
 
-  handleModBanSubmit(i: PostListing) {
-    i.setState({ banType: BanType.Site });
-    i.handleModBanBothSubmit({});
+  handleModBanSubmit() {
+    this.setState({ banType: BanType.Site });
+    this.handleModBanBothSubmit({});
   }
 
   handleModBanBothSubmit({
@@ -1590,6 +1597,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         ),
       ...stateOverride,
     }));
+  }
+
+  hideAllDialogs() {
+    this.setState({
+      showBanDialog: false,
+      showPurgeDialog: false,
+      showRemoveDialog: false,
+      showReportDialog: false,
+    });
   }
 
   handleAddAdmin(i: PostListing) {
