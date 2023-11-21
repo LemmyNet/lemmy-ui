@@ -3,20 +3,21 @@ import { I18NextService } from "../../services/I18NextService";
 import { Spinner } from "./icon";
 import { randomStr } from "@utils/helpers";
 
-interface ReportFormProps {
+interface ModActionFormProps {
   onSubmit: (reason: string) => void;
+  buttonText: string;
 }
 
-interface ReportFormState {
+interface ModActionFormFormState {
   loading: boolean;
   reason: string;
 }
 
-function handleReportReasonChange(i: ReportForm, event: any) {
+function handleReportReasonChange(i: ModerationActionForm, event: any) {
   i.setState({ reason: event.target.value });
 }
 
-function handleReportSubmit(i: ReportForm, event: any) {
+function handleSubmit(i: ModerationActionForm, event: any) {
   event.preventDefault();
   i.setState({ loading: true });
   i.props.onSubmit(i.state.reason);
@@ -27,27 +28,24 @@ function handleReportSubmit(i: ReportForm, event: any) {
   });
 }
 
-export default class ReportForm extends Component<
-  ReportFormProps,
-  ReportFormState
+export default class ModerationActionForm extends Component<
+  ModActionFormProps,
+  ModActionFormFormState
 > {
-  state: ReportFormState = {
+  state: ModActionFormFormState = {
     loading: false,
     reason: "",
   };
-  constructor(props, context) {
+  constructor(props: ModActionFormProps, context: any) {
     super(props, context);
   }
 
   render() {
     const { loading, reason } = this.state;
-    const id = `report-form-${randomStr()}`;
+    const id = `mod-form-${randomStr()}`;
 
     return (
-      <form
-        className="form-inline"
-        onSubmit={linkEvent(this, handleReportSubmit)}
-      >
+      <form className="form-inline" onSubmit={linkEvent(this, handleSubmit)}>
         <label className="visually-hidden" htmlFor={id}>
           {I18NextService.i18n.t("reason")}
         </label>
@@ -61,7 +59,7 @@ export default class ReportForm extends Component<
           onInput={linkEvent(this, handleReportReasonChange)}
         />
         <button type="submit" className="btn btn-secondary">
-          {loading ? <Spinner /> : I18NextService.i18n.t("create_report")}
+          {loading ? <Spinner /> : this.props.buttonText}
         </button>
       </form>
     );

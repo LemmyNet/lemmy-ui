@@ -14,7 +14,7 @@ import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";
 import { PrivateMessageForm } from "./private-message-form";
-import ReportForm from "../common/report-form";
+import ModerationActionForm from "../common/mod-action-form";
 
 interface PrivateMessageState {
   showReply: boolean;
@@ -248,7 +248,10 @@ export class PrivateMessage extends Component<
           )}
         </div>
         {this.state.showReportDialog && (
-          <ReportForm onSubmit={this.handleReportSubmit} />
+          <ModerationActionForm
+            onSubmit={this.handleReportSubmit}
+            buttonText={I18NextService.i18n.t("create-report")}
+          />
         )}
         {this.state.showReply && (
           <div className="row">

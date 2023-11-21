@@ -62,17 +62,23 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
-import ReportForm from "../common/report-form";
+import ModerationActionForm from "../common/mod-action-form";
 
-interface PostListingState {
+const dialogTypes = [
+  "showBanDialog",
+  "showRemoveDialog",
+  "showPurgeDialog",
+  "showReportDialog",
+] as const;
+
+type DialogType = (typeof dialogTypes)[number];
+
+type PostListingState = {
   showEdit: boolean;
-  showRemoveDialog: boolean;
-  showPurgeDialog: boolean;
   purgeReason?: string;
   purgeType?: PurgeType;
   purgeLoading: boolean;
   removeReason?: string;
-  showBanDialog: boolean;
   banReason?: string;
   banExpireDays?: number;
   banType?: BanType;
@@ -84,7 +90,6 @@ interface PostListingState {
   showAdvanced: boolean;
   showMoreMobile: boolean;
   showBody: boolean;
-  showReportDialog: boolean;
   blockLoading: boolean;
   lockLoading: boolean;
   deleteLoading: boolean;
@@ -96,7 +101,7 @@ interface PostListingState {
   addModLoading: boolean;
   addAdminLoading: boolean;
   transferLoading: boolean;
-}
+} & { [k in DialogType]: boolean };
 
 interface PostListingProps {
   post_view: PostView;
@@ -136,10 +141,7 @@ interface PostListingProps {
 export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
-    showRemoveDialog: false,
-    showPurgeDialog: false,
     purgeType: PurgeType.Person,
-    showBanDialog: false,
     banType: BanType.Community,
     removeData: false,
     showConfirmTransferSite: false,
@@ -149,7 +151,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showAdvanced: false,
     showMoreMobile: false,
     showBody: false,
-    showReportDialog: false,
     purgeLoading: false,
     blockLoading: false,
     lockLoading: false,
@@ -162,6 +163,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     addModLoading: false,
     addAdminLoading: false,
     transferLoading: false,
+    showBanDialog: false,
+    showPurgeDialog: false,
+    showRemoveDialog: false,
+    showReportDialog: false,
   };
 
   constructor(props: any, context: any) {
@@ -175,6 +180,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleEditPost = this.handleEditPost.bind(this);
     this.handleEditCancel = this.handleEditCancel.bind(this);
     this.handleReportSubmit = this.handleReportSubmit.bind(this);
+    this.handleModRemoveSubmit = this.handleModRemoveSubmit.bind(this);
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
@@ -1139,10 +1145,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <button
         className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(
-          this,
-          !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit,
-        )}
+        onClick={linkEvent(this, this.handleModRemoveShow)}
       >
         {/* TODO: Find an icon for this. */}
         {this.state.removeLoading ? (
@@ -1168,32 +1171,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <>
         {this.state.showRemoveDialog && (
-          <form
-            className="form-inline"
-            onSubmit={linkEvent(this, this.handleModRemoveSubmit)}
-          >
-            <label
-              className="visually-hidden"
-              htmlFor="post-listing-remove-reason"
-            >
-              {I18NextService.i18n.t("reason")}
-            </label>
-            <input
-              type="text"
-              id="post-listing-remove-reason"
-              className="form-control me-2"
-              placeholder={I18NextService.i18n.t("reason")}
-              value={this.state.removeReason}
-              onInput={linkEvent(this, this.handleModRemoveReasonChange)}
-            />
-            <button type="submit" className="btn btn-secondary">
-              {this.state.removeLoading ? (
-                <Spinner />
-              ) : (
-                I18NextService.i18n.t("remove_post")
-              )}
-            </button>
-          </form>
+          <ModerationActionForm
+            onSubmit={this.handleModRemoveSubmit}
+            buttonText={I18NextService.i18n.t("remove_post")}
+          />
         )}
         {this.state.showConfirmTransferCommunity && (
           <>
@@ -1288,7 +1269,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </form>
         )}
         {this.state.showReportDialog && (
-          <ReportForm onSubmit={this.handleReportSubmit} />
+          <ModerationActionForm
+            onSubmit={this.handleReportSubmit}
+            buttonText={I18NextService.i18n.t("create-report")}
+          />
         )}
         {this.state.showPurgeDialog && (
           <form
@@ -1523,14 +1507,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ removeData: event.target.checked });
   }
 
-  handleModRemoveSubmit(i: PostListing, event: any) {
-    event.preventDefault();
-    i.setState({ removeLoading: true });
-    i.props.onRemovePost({
-      post_id: i.postView.post.id,
-      removed: !i.postView.post.removed,
-      reason: i.state.removeReason,
+  handleModRemoveSubmit(reason: string) {
+    this.props.onRemovePost({
+      post_id: this.postView.post.id,
+      removed: !this.postView.post.removed,
+      reason,
     });
+    this.toggleShowModDialog("showRemoveDialog");
   }
 
   handleModLock(i: PostListing) {
@@ -1671,6 +1654,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       person_id: i.postView.creator.id,
       added: !i.creatorIsMod_,
     });
+  }
+
+  toggleShowModDialog(dialogType: DialogType) {
+    this.setState(prev => ({
+      ...prev,
+      [dialogType]: !prev[dialogType],
+      ...dialogTypes
+        .filter(dt => dt !== dialogType)
+        .reduce(
+          (acc, dt) => ({
+            ...acc,
+            [dt]: false,
+          }),
+          {},
+        ),
+    }));
   }
 
   handleAddAdmin(i: PostListing) {

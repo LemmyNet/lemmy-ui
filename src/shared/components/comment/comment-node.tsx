@@ -62,7 +62,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { CommentForm } from "./comment-form";
 import { CommentNodes } from "./comment-nodes";
-import ReportForm from "../common/report-form";
+import ModerationActionForm from "../common/mod-action-form";
 
 interface CommentNodeState {
   showReply: boolean;
@@ -969,7 +969,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           </form>
         )}
         {this.state.showReportDialog && (
-          <ReportForm onSubmit={this.handleReportComment} />
+          <ModerationActionForm
+            onSubmit={this.handleReportComment}
+            buttonText={I18NextService.i18n.t("create-report")}
+          />
         )}
         {this.state.showBanDialog && (
           <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
