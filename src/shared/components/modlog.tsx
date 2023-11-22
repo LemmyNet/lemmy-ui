@@ -747,7 +747,7 @@ export class Modlog extends Component<
   get amAdminOrMod(): boolean {
     const amMod_ =
       this.state.communityRes.state === "success" &&
-      amMod(this.state.communityRes.data.moderators);
+      amMod(this.state.communityRes.data.community_view.community.id);
     return amAdmin() || amMod_;
   }
 

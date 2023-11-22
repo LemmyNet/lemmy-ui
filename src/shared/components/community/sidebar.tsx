@@ -268,7 +268,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <>
         <ul className="list-inline mb-1 text-muted fw-bold">
-          {amMod(this.props.moderators) && (
+          {amMod(this.props.community_view.community.id) && (
             <>
               <li className="list-inline-item-action">
                 <button
@@ -468,7 +468,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   get canPost(): boolean {
     return (
       !this.props.community_view.community.posting_restricted_to_mods ||
-      amMod(this.props.moderators) ||
+      amMod(this.props.community_view.community.id) ||
       amAdmin()
     );
   }

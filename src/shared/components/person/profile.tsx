@@ -18,7 +18,7 @@ import {
   numToSI,
   randomStr,
 } from "@utils/helpers";
-import { canMod, isAdmin, isBanned } from "@utils/roles";
+import { canMod, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -497,7 +497,7 @@ export class Profile extends Component<
                         classNames="ms-1"
                         isBanned={isBanned(pv.person)}
                         isDeleted={pv.person.deleted}
-                        isAdmin={isAdmin(pv.person.id, admins)}
+                        isAdmin={pv.is_admin}
                         isBot={pv.person.bot_account}
                       />
                     </li>
@@ -553,7 +553,7 @@ export class Profile extends Component<
                 )}
 
                 {canMod(pv.person.id, undefined, admins) &&
-                  !isAdmin(pv.person.id, admins) &&
+                  !pv.is_admin &&
                   !showBanDialog &&
                   (!isBanned(pv.person) ? (
                     <button

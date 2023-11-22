@@ -1,10 +1,11 @@
-import { isMod } from "@utils/roles";
-import { CommunityModeratorView } from "lemmy-js-client";
+import { CommunityId } from "lemmy-js-client";
 import { UserService } from "../../services";
 
 export default function amMod(
-  mods?: CommunityModeratorView[],
+  communityId: CommunityId,
   myUserInfo = UserService.Instance.myUserInfo,
 ): boolean {
-  return myUserInfo ? isMod(myUserInfo.local_user_view.person.id, mods) : false;
+  return myUserInfo
+    ? myUserInfo.moderates.map(cmv => cmv.community.id).includes(communityId)
+    : false;
 }
