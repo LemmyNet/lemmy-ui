@@ -13,9 +13,7 @@ import {
   amMod,
   canAdmin,
   canMod,
-  isAdmin,
   isBanned,
-  isMod,
 } from "@utils/roles";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
@@ -299,14 +297,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   imgThumb(src: string) {
-    const post_view = this.postView;
-
+    const pv = this.postView;
     return (
       <PictrsImage
         src={src}
         thumbnail
         alt=""
-        nsfw={post_view.post.nsfw || post_view.community.nsfw}
+        nsfw={pv.post.nsfw || pv.community.nsfw}
       />
     );
   }
@@ -412,38 +409,34 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   createdLine() {
-    const post_view = this.postView;
+    const pv = this.postView;
 
     return (
       <div className="small mb-1 mb-md-0">
-        <PersonListing person={post_view.creator} />
+        <PersonListing person={pv.creator} />
         <UserBadges
           classNames="ms-1"
-          isMod={this.creatorIsMod_}
-          isAdmin={this.creatorIsAdmin_}
-          isBot={post_view.creator.bot_account}
+          isMod={pv.creator_is_moderator}
+          isAdmin={pv.creator_is_admin}
+          isBot={pv.creator.bot_account}
         />
         {this.props.showCommunity && (
           <>
             {" "}
             {I18NextService.i18n.t("to")}{" "}
-            <CommunityLink community={post_view.community} />
+            <CommunityLink community={pv.community} />
           </>
         )}
-        {post_view.post.language_id !== 0 && (
+        {pv.post.language_id !== 0 && (
           <span className="mx-1 badge text-bg-light">
             {
               this.props.allLanguages.find(
-                lang => lang.id === post_view.post.language_id,
+                lang => lang.id === pv.post.language_id,
               )?.name
             }
           </span>
         )}{" "}
-        •{" "}
-        <MomentTime
-          published={post_view.post.published}
-          updated={post_view.post.updated}
-        />
+        • <MomentTime published={pv.post.published} updated={pv.post.updated} />
       </div>
     );
   }
@@ -604,8 +597,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    const post_view = this.postView;
-    const post = post_view.post;
+    const pv = this.postView;
+    const post = pv.post;
 
     return (
       <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
@@ -639,7 +632,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           />
         )}
 
-        {this.props.showBody && post_view.post.body && this.viewSourceButton}
+        {this.props.showBody && pv.post.body && this.viewSourceButton}
 
         {UserService.Instance.myUserInfo &&
           !this.props.viewOnly &&
@@ -651,8 +644,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   postActions() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
-    const post_view = this.postView;
-    const post = post_view.post;
+    const pv = this.postView;
+    const post = pv.post;
 
     return (
       <>
@@ -689,7 +682,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             )}
 
             {/* Any mod can do these, not limited to hierarchy*/}
-            {(amMod(this.props.moderators) || amAdmin()) && (
+            {(amMod(this.postView.community.id) || amAdmin()) && (
               <>
                 <li>
                   <hr className="dropdown-divider" />
@@ -708,21 +701,23 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <li>
                   <hr className="dropdown-divider" />
                 </li>
-                {!this.creatorIsMod_ &&
-                  (!post_view.creator_banned_from_community ? (
+                {!pv.creator_is_moderator &&
+                  (!pv.creator_banned_from_community ? (
                     <li>{this.modBanFromCommunityButton}</li>
                   ) : (
                     <li>{this.modUnbanFromCommunityButton}</li>
                   ))}
-                {!post_view.creator_banned_from_community && (
+                {!pv.creator_banned_from_community && (
                   <li>{this.addModToCommunityButton}</li>
                 )}
               </>
             )}
 
-            {(amCommunityCreator(post_view.creator.id, this.props.moderators) ||
+            {(amCommunityCreator(pv.creator.id, this.props.moderators) ||
               this.canAdmin_) &&
-              this.creatorIsMod_ && <li>{this.transferCommunityButton}</li>}
+              pv.creator_is_moderator && (
+                <li>{this.transferCommunityButton}</li>
+              )}
 
             {/* Admins can ban from all, and appoint other admins */}
             {this.canAdmin_ && (
@@ -730,9 +725,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 <li>
                   <hr className="dropdown-divider" />
                 </li>
-                {!this.creatorIsAdmin_ && (
+                {!pv.creator_is_admin && (
                   <>
-                    {!isBanned(post_view.creator) ? (
+                    {!isBanned(pv.creator) ? (
                       <li>{this.modBanButton}</li>
                     ) : (
                       <li>{this.modUnbanButton}</li>
@@ -741,7 +736,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                     <li>{this.purgePostButton}</li>
                   </>
                 )}
-                {!isBanned(post_view.creator) && post_view.creator.local && (
+                {!isBanned(pv.creator) && pv.creator.local && (
                   <li>{this.toggleAdminButton}</li>
                 )}
               </>
@@ -761,22 +756,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get commentsButton() {
-    const post_view = this.postView;
+    const pv = this.postView;
     const title = I18NextService.i18n.t("number_of_comments", {
-      count: Number(post_view.counts.comments),
-      formattedCount: Number(post_view.counts.comments),
+      count: Number(pv.counts.comments),
+      formattedCount: Number(pv.counts.comments),
     });
 
     return (
       <Link
         className="btn btn-link btn-sm text-muted ps-0"
         title={title}
-        to={`/post/${post_view.post.id}?scrollToComments=true`}
+        to={`/post/${pv.post.id}?scrollToComments=true`}
         data-tippy-content={title}
         target={this.linkTarget}
       >
         <Icon icon="message-square" classes="me-1" inline />
-        {post_view.counts.comments}
+        {pv.counts.comments}
         {this.unreadCount && (
           <>
             {" "}
@@ -1049,7 +1044,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       >
         {this.state.addModLoading ? (
           <Spinner />
-        ) : this.creatorIsMod_ ? (
+        ) : this.postView.creator_is_moderator ? (
           capitalizeFirstLetter(I18NextService.i18n.t("remove_as_mod"))
         ) : (
           capitalizeFirstLetter(I18NextService.i18n.t("appoint_as_mod"))
@@ -1114,7 +1109,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       >
         {this.state.addAdminLoading ? (
           <Spinner />
-        ) : this.creatorIsAdmin_ ? (
+        ) : this.postView.creator_is_admin ? (
           capitalizeFirstLetter(I18NextService.i18n.t("remove_as_admin"))
         ) : (
           capitalizeFirstLetter(I18NextService.i18n.t("appoint_as_admin"))
@@ -1428,7 +1423,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleShare(i: PostListing) {
-    const { name, body, id } = i.props.post_view.post;
+    const { name, body, id } = i.postView.post;
     share({
       title: name,
       text: body?.slice(0, 50),
@@ -1633,12 +1628,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ banLoading: true });
 
-    const ban = !i.props.post_view.creator_banned_from_community;
+    const ban = !i.postView.creator_banned_from_community;
     // If its an unban, restore all their data
     if (ban === false) {
       i.setState({ removeData: false });
     }
-    const person_id = i.props.post_view.creator.id;
+    const person_id = i.postView.creator.id;
     const remove_data = i.state.removeData;
     const reason = i.state.banReason;
     const expires = futureDaysToUnixTime(i.state.banExpireDays);
@@ -1669,7 +1664,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.props.onAddModToCommunity({
       community_id: i.postView.community.id,
       person_id: i.postView.creator.id,
-      added: !i.creatorIsMod_,
+      added: !i.postView.creator_is_moderator,
     });
   }
 
@@ -1677,7 +1672,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ addAdminLoading: true });
     i.props.onAddAdmin({
       person_id: i.postView.creator.id,
-      added: !i.creatorIsAdmin_,
+      added: !i.postView.creator_is_admin,
     });
   }
 
@@ -1710,9 +1705,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ imageExpanded: !i.state.imageExpanded });
     setupTippy();
 
-    if (myAuth() && !i.props.post_view.read) {
+    if (myAuth() && !i.postView.read) {
       i.props.onMarkPostAsRead({
-        post_ids: [i.props.post_view.post.id],
+        post_ids: [i.postView.post.id],
         read: true,
       });
     }
@@ -1779,13 +1774,5 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get canAdmin_(): boolean {
     return canAdmin(this.postView.creator.id, this.props.admins);
-  }
-
-  get creatorIsMod_(): boolean {
-    return isMod(this.postView.creator.id, this.props.moderators);
-  }
-
-  get creatorIsAdmin_(): boolean {
-    return isAdmin(this.postView.creator.id, this.props.admins);
   }
 }
