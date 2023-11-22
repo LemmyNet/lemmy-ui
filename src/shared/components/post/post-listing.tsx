@@ -189,6 +189,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.toggleShowPurgePerson = this.toggleShowPurgePerson.bind(this);
     this.toggleShowPurgePost = this.toggleShowPurgePost.bind(this);
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
+    this.hideAllDialogs = this.hideAllDialogs.bind(this);
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {

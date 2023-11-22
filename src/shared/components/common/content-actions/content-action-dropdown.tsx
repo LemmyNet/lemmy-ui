@@ -1,5 +1,5 @@
 import { Component } from "inferno";
-import { I18NextService, UserService } from "shared/services";
+import { I18NextService, UserService } from "../../../services";
 import { Icon } from "../icon";
 import { CrossPostParams } from "@utils/types";
 import CrossPostButton from "./cross-post-button";
@@ -104,7 +104,7 @@ export default class ContentActionDropdown extends Component<
         <ActionButton
           onClick={onSave}
           inline
-          icon="start"
+          icon="star"
           label={I18NextService.i18n.t(saved ? "unsave" : "save")}
           iconClass={classNames({ "text-warning": saved })}
         />
@@ -140,9 +140,9 @@ export default class ContentActionDropdown extends Component<
                     onClick={onDelete}
                     icon="trash"
                     label={I18NextService.i18n.t(
-                      deleted ? "restore" : "delete",
+                      deleted ? "undelete" : "delete",
                     )}
-                    iconClass={classNames({ "text-danger": deleted })}
+                    iconClass={`text-${deleted ? "success" : "danger"}`}
                   />
                 </li>
               </>
@@ -179,7 +179,6 @@ export default class ContentActionDropdown extends Component<
                           locked ? "unlock" : "lock",
                         )}
                         icon="lock"
-                        iconClass={classNames({ "class-danger": locked })}
                       />
                     </li>
                     <li>

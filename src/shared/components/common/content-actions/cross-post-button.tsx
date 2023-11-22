@@ -1,5 +1,5 @@
 import { Link } from "inferno-router";
-import { I18NextService } from "shared/services";
+import { I18NextService } from "../../../services";
 import { Icon } from "../icon";
 import { CrossPostParams } from "@utils/types";
 import { InfernoNode } from "inferno";

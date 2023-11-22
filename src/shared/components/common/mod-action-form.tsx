@@ -2,6 +2,7 @@ import { Component, linkEvent } from "inferno";
 import { I18NextService } from "../../services/I18NextService";
 import { PurgeWarning, Spinner } from "./icon";
 import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
+import classNames from "classnames";
 
 export interface BanUpdateForm {
   reason?: string;
@@ -13,34 +14,31 @@ interface ModActionFormPropsBan {
   modActionType: "ban";
   onSubmit: (form: BanUpdateForm) => void;
   creatorName: string;
-  onCancel: () => void;
 }
 
 interface ModActionFormPropsPurgePerson {
   modActionType: "purge-person";
   onSubmit: (reason: string) => void;
   creatorName: string;
-  onCancel: () => void;
 }
 
 interface ModActionFormPropsRemove {
   modActionType: "remove";
   onSubmit: (reason: string) => void;
   isRemoved: boolean;
-  onCancel: () => void;
 }
 
 interface ModActionFormPropsRest {
   modActionType: "report" | "purge-post";
   onSubmit: (reason: string) => void;
-  onCancel: () => void;
 }
 
-type ModActionFormProps =
+type ModActionFormProps = (
   | ModActionFormPropsBan
   | ModActionFormPropsRest
   | ModActionFormPropsPurgePerson
-  | ModActionFormPropsRemove;
+  | ModActionFormPropsRemove
+) & { onCancel: () => void };
 
 interface ModActionFormFormState {
   loading: boolean;
@@ -69,6 +67,7 @@ function handleTogglePermaBan(i: ModerationActionForm) {
   i.setState(prev => ({
     ...prev,
     shouldPermaBan: !prev.shouldPermaBan,
+    daysUntilExpire: undefined,
   }));
 }
 
@@ -153,11 +152,16 @@ export default class ModerationActionForm extends Component<
         break;
       }
     }
-
+    const showExpiresField =
+      this.props.modActionType === "ban" && !shouldPermaBan;
     return (
       <form onSubmit={linkEvent(this, handleSubmit)} className="p-3">
         <div className="row mb-3">
-          <div className="col-12 col-lg-6 col-xl-7">
+          <div
+            className={classNames("col-12", {
+              "col-lg-6 col-xl-7": showExpiresField,
+            })}
+          >
             {this.props.modActionType.includes("purge") && <PurgeWarning />}
             <label className="visually-hidden" htmlFor={reasonId}>
               {I18NextService.i18n.t("reason")}
@@ -172,7 +176,7 @@ export default class ModerationActionForm extends Component<
               onInput={linkEvent(this, handleReasonChange)}
             />
           </div>
-          {this.props.modActionType === "ban" && (
+          {showExpiresField && (
             <div className="col-12 col-lg-6 col-xl-5">
               <label className="visually-hidden" htmlFor={expiresId}>
                 {I18NextService.i18n.t("expires")}
