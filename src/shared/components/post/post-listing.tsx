@@ -1,22 +1,9 @@
 import { myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
-import {
-  capitalizeFirstLetter,
-  futureDaysToUnixTime,
-  hostname,
-} from "@utils/helpers";
+import { futureDaysToUnixTime, hostname } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
-import {
-  amAdmin,
-  amCommunityCreator,
-  amMod,
-  canAdmin,
-  canMod,
-  isAdmin,
-  isBanned,
-  isMod,
-} from "@utils/roles";
+import { canAdmin, canMod, isAdmin, isBanned, isMod } from "@utils/roles";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -44,12 +31,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { relTags } from "../../config";
-import {
-  BanType,
-  PostFormParams,
-  PurgeType,
-  VoteContentType,
-} from "../../interfaces";
+import { BanType, PurgeType, VoteContentType } from "../../interfaces";
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
@@ -63,6 +45,8 @@ import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
 import ModerationActionForm, { BanUpdateForm } from "../common/mod-action-form";
+import PostActionDropdown from "../common/content-actions/post-action-dropdown";
+import { CrossPostParams } from "@utils/types";
 
 const dialogTypes = [
   "showBanDialog",
@@ -179,13 +163,32 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     this.handleEditPost = this.handleEditPost.bind(this);
     this.handleEditCancel = this.handleEditCancel.bind(this);
-    this.handleReportSubmit = this.handleReportSubmit.bind(this);
+    this.handleEditClick = this.handleEditClick.bind(this);
+    this.submitReport = this.submitReport.bind(this);
     this.handleModRemoveSubmit = this.handleModRemoveSubmit.bind(this);
     this.handleModBanBothSubmit = this.handleModBanBothSubmit.bind(this);
     this.handlePurgeSubmit = this.handlePurgeSubmit.bind(this);
     this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
     this.handleModBanFromCommunitySubmit =
       this.handleModBanFromCommunitySubmit.bind(this);
+    this.toggleSavePost = this.toggleSavePost.bind(this);
+    this.toggleShowReportDialog = this.toggleShowReportDialog.bind(this);
+    this.blockPerson = this.blockPerson.bind(this);
+    this.toggleDeletePost = this.toggleDeletePost.bind(this);
+    this.handleModLock = this.handleModLock.bind(this);
+    this.handleModFeaturePostCommunity =
+      this.handleModFeaturePostCommunity.bind(this);
+    this.handleModFeaturePostLocal = this.handleModFeaturePostLocal.bind(this);
+    this.toggleModRemoveShow = this.toggleModRemoveShow.bind(this);
+    this.handleBanFromCommunityClick =
+      this.handleBanFromCommunityClick.bind(this);
+    this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
+    this.toggleShowConfirmTransferCommunity =
+      this.toggleShowConfirmTransferCommunity.bind(this);
+    this.handleBanFromSiteClick = this.handleBanFromSiteClick.bind(this);
+    this.toggleShowPurgePerson = this.toggleShowPurgePerson.bind(this);
+    this.toggleShowPurgePost = this.toggleShowPurgePost.bind(this);
+    this.handleAddAdmin = this.handleAddAdmin.bind(this);
   }
 
   componentWillReceiveProps(nextProps: PostListingProps) {
@@ -430,8 +433,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <PersonListing person={post_view.creator} />
         <UserBadges
           classNames="ms-1"
-          isMod={this.creatorIsMod_}
-          isAdmin={this.creatorIsAdmin_}
+          isMod={this.creatorIsMod}
+          isAdmin={this.creatorIsAdmin}
           isBot={post_view.creator.bot_account}
         />
         {this.props.showCommunity && (
@@ -617,6 +620,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   commentsLine(mobile = false) {
     const post_view = this.postView;
     const post = post_view.post;
+    const { admins, moderators } = this.props;
 
     return (
       <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
@@ -652,114 +656,31 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
         {this.props.showBody && post_view.post.body && this.viewSourceButton}
 
-        {UserService.Instance.myUserInfo &&
-          !this.props.viewOnly &&
-          this.postActions()}
+        {UserService.Instance.myUserInfo && !this.props.viewOnly && (
+          <PostActionDropdown
+            postView={this.postView}
+            admins={admins}
+            moderators={moderators}
+            crossPostParams={this.crossPostParams}
+            onSave={this.toggleSavePost}
+            onReport={this.toggleShowReportDialog}
+            onBlock={this.blockPerson}
+            onEdit={this.handleEditClick}
+            onDelete={this.toggleDeletePost}
+            onLock={this.handleModLock}
+            onFeatureCommunity={this.handleModFeaturePostCommunity}
+            onFeatureLocal={this.handleModFeaturePostLocal}
+            onRemove={this.toggleModRemoveShow}
+            onBanFromCommunity={this.handleBanFromCommunityClick}
+            onAddCommunityMod={this.handleAddModToCommunity}
+            onTransferCommunity={this.toggleShowConfirmTransferCommunity}
+            onBanFromLocal={this.handleBanFromSiteClick}
+            onPurgeUser={this.toggleShowPurgePerson}
+            onPurgeContent={this.toggleShowPurgePost}
+            onAddAdmin={this.handleAddAdmin}
+          />
+        )}
       </div>
-    );
-  }
-
-  postActions() {
-    // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
-    // Possible enhancement: Make each button a component.
-    const post_view = this.postView;
-    const post = post_view.post;
-
-    return (
-      <>
-        {this.saveButton}
-        {this.crossPostButton}
-
-        <div className="dropdown">
-          <button
-            className="btn btn-sm btn-link btn-animate text-muted py-0 dropdown-toggle"
-            onClick={linkEvent(this, this.handleShowAdvanced)}
-            data-tippy-content={I18NextService.i18n.t("more")}
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            aria-controls={`advancedButtonsDropdown${post.id}`}
-            aria-label={I18NextService.i18n.t("more")}
-          >
-            <Icon icon="more-vertical" inline />
-          </button>
-
-          <ul
-            className="dropdown-menu"
-            id={`advancedButtonsDropdown${post.id}`}
-          >
-            {!this.myPost ? (
-              <>
-                <li>{this.reportButton}</li>
-                <li>{this.blockButton}</li>
-              </>
-            ) : (
-              <>
-                <li>{this.editButton}</li>
-                <li>{this.deleteButton}</li>
-              </>
-            )}
-
-            {/* Any mod can do these, not limited to hierarchy*/}
-            {(amMod(this.props.moderators) || amAdmin()) && (
-              <>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>{this.lockButton}</li>
-                {this.featureButtons}
-              </>
-            )}
-
-            {(this.canMod_ || this.canAdmin_) && (
-              <li>{this.modRemoveButton}</li>
-            )}
-
-            {this.canMod_ && (
-              <>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                {!this.creatorIsMod_ &&
-                  (!post_view.creator_banned_from_community ? (
-                    <li>{this.modBanFromCommunityButton}</li>
-                  ) : (
-                    <li>{this.modUnbanFromCommunityButton}</li>
-                  ))}
-                {!post_view.creator_banned_from_community && (
-                  <li>{this.addModToCommunityButton}</li>
-                )}
-              </>
-            )}
-
-            {(amCommunityCreator(post_view.creator.id, this.props.moderators) ||
-              this.canAdmin_) &&
-              this.creatorIsMod_ && <li>{this.transferCommunityButton}</li>}
-
-            {/* Admins can ban from all, and appoint other admins */}
-            {this.canAdmin_ && (
-              <>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                {!this.creatorIsAdmin_ && (
-                  <>
-                    {!isBanned(post_view.creator) ? (
-                      <li>{this.modBanButton}</li>
-                    ) : (
-                      <li>{this.modUnbanButton}</li>
-                    )}
-                    <li>{this.purgePersonButton}</li>
-                    <li>{this.purgePostButton}</li>
-                  </>
-                )}
-                {!isBanned(post_view.creator) && post_view.creator.local && (
-                  <li>{this.toggleAdminButton}</li>
-                )}
-              </>
-            )}
-          </ul>
-        </div>
-      </>
     );
   }
 
@@ -807,121 +728,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       : pv.unread_comments;
   }
 
-  get saveButton() {
-    const saved = this.postView.saved;
-    const label = saved
-      ? I18NextService.i18n.t("unsave")
-      : I18NextService.i18n.t("save");
-    return (
-      <button
-        className="btn btn-sm btn-link btn-animate text-muted py-0"
-        onClick={linkEvent(this, this.handleSavePostClick)}
-        data-tippy-content={label}
-        aria-label={label}
-      >
-        {this.state.saveLoading ? (
-          <Spinner />
-        ) : (
-          <Icon
-            icon="star"
-            classes={classNames({ "text-warning": saved })}
-            inline
-          />
-        )}
-      </button>
-    );
-  }
-
-  get crossPostButton() {
-    return (
-      <Link
-        className="btn btn-sm btn-link btn-animate text-muted py-0"
-        to={{
-          /* Empty string properties are required to satisfy type*/
-          pathname: "/create_post",
-          state: { ...this.crossPostParams },
-          hash: "",
-          key: "",
-          search: "",
-        }}
-        title={I18NextService.i18n.t("cross_post")}
-        data-tippy-content={I18NextService.i18n.t("cross_post")}
-        aria-label={I18NextService.i18n.t("cross_post")}
-      >
-        <Icon icon="copy" inline />
-      </Link>
-    );
-  }
-
-  get reportButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleShowReportDialog)}
-        aria-label={I18NextService.i18n.t("show_report_dialog")}
-      >
-        <Icon classes="me-1" icon="flag" inline />
-        {I18NextService.i18n.t("create_report")}
-      </button>
-    );
-  }
-
-  get blockButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleBlockPersonClick)}
-        aria-label={I18NextService.i18n.t("block_user")}
-      >
-        {this.state.blockLoading ? (
-          <Spinner />
-        ) : (
-          <Icon classes="me-1" icon="slash" inline />
-        )}
-        {I18NextService.i18n.t("block_user")}
-      </button>
-    );
-  }
-
-  get editButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleEditClick)}
-        aria-label={I18NextService.i18n.t("edit")}
-      >
-        <Icon classes="me-1" icon="edit" inline />
-        {I18NextService.i18n.t("edit")}
-      </button>
-    );
-  }
-
-  get deleteButton() {
-    const deleted = this.postView.post.deleted;
-    const label = !deleted
-      ? I18NextService.i18n.t("delete")
-      : I18NextService.i18n.t("restore");
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleDeleteClick)}
-      >
-        {this.state.deleteLoading ? (
-          <Spinner />
-        ) : (
-          <>
-            <Icon
-              icon="trash"
-              classes={classNames("me-1", { "text-danger": deleted })}
-              inline
-            />
-            {label}
-          </>
-        )}
-      </button>
-    );
-  }
-
   get viewSourceButton() {
     return (
       <button
@@ -935,234 +741,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           classes={classNames({ "text-success": this.state.viewSource })}
           inline
         />
-      </button>
-    );
-  }
-
-  get lockButton() {
-    const locked = this.postView.post.locked;
-    const label = locked
-      ? I18NextService.i18n.t("unlock")
-      : I18NextService.i18n.t("lock");
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleModLock)}
-        aria-label={label}
-      >
-        {this.state.lockLoading ? (
-          <Spinner />
-        ) : (
-          <>
-            <Icon
-              icon="lock"
-              classes={classNames("me-1", { "text-danger": locked })}
-              inline
-            />
-            {capitalizeFirstLetter(label)}
-          </>
-        )}
-      </button>
-    );
-  }
-
-  get featureButtons() {
-    const featuredCommunity = this.postView.post.featured_community;
-    const labelCommunity = featuredCommunity
-      ? I18NextService.i18n.t("unfeature_from_community")
-      : I18NextService.i18n.t("feature_in_community");
-
-    const featuredLocal = this.postView.post.featured_local;
-    const labelLocal = featuredLocal
-      ? I18NextService.i18n.t("unfeature_from_local")
-      : I18NextService.i18n.t("feature_in_local");
-    return (
-      <>
-        <li>
-          <button
-            className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-            onClick={linkEvent(this, this.handleModFeaturePostCommunity)}
-            data-tippy-content={labelCommunity}
-            aria-label={labelCommunity}
-          >
-            {this.state.featureCommunityLoading ? (
-              <Spinner />
-            ) : (
-              <>
-                <Icon
-                  icon="pin"
-                  classes={classNames("me-1", {
-                    "text-success": featuredCommunity,
-                  })}
-                  inline
-                />
-                {I18NextService.i18n.t("community")}
-              </>
-            )}
-          </button>
-        </li>
-        <li>
-          {amAdmin() && (
-            <button
-              className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-              onClick={linkEvent(this, this.handleModFeaturePostLocal)}
-              data-tippy-content={labelLocal}
-              aria-label={labelLocal}
-            >
-              {this.state.featureLocalLoading ? (
-                <Spinner />
-              ) : (
-                <>
-                  <Icon
-                    icon="pin"
-                    classes={classNames("me-1", {
-                      "text-success": featuredLocal,
-                    })}
-                    inline
-                  />
-                  {I18NextService.i18n.t("local")}
-                </>
-              )}
-            </button>
-          )}
-        </li>
-      </>
-    );
-  }
-
-  get modBanFromCommunityButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleModBanFromCommunityShow)}
-      >
-        {I18NextService.i18n.t("ban_from_community")}
-      </button>
-    );
-  }
-
-  get modUnbanFromCommunityButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={this.handleModBanFromCommunitySubmit}
-      >
-        {this.state.banLoading ? <Spinner /> : I18NextService.i18n.t("unban")}
-      </button>
-    );
-  }
-
-  get addModToCommunityButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleAddModToCommunity)}
-      >
-        {this.state.addModLoading ? (
-          <Spinner />
-        ) : this.creatorIsMod_ ? (
-          capitalizeFirstLetter(I18NextService.i18n.t("remove_as_mod"))
-        ) : (
-          capitalizeFirstLetter(I18NextService.i18n.t("appoint_as_mod"))
-        )}
-      </button>
-    );
-  }
-
-  get modBanButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleModBanShow)}
-      >
-        {capitalizeFirstLetter(I18NextService.i18n.t("ban_from_site"))}
-      </button>
-    );
-  }
-
-  get modUnbanButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleModBanSubmit)}
-      >
-        {this.state.banLoading ? (
-          <Spinner />
-        ) : (
-          capitalizeFirstLetter(I18NextService.i18n.t("unban_from_site"))
-        )}
-      </button>
-    );
-  }
-
-  get purgePersonButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handlePurgePersonShow)}
-      >
-        {capitalizeFirstLetter(I18NextService.i18n.t("purge_user"))}
-      </button>
-    );
-  }
-
-  get purgePostButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handlePurgePostShow)}
-      >
-        {capitalizeFirstLetter(I18NextService.i18n.t("purge_post"))}
-      </button>
-    );
-  }
-
-  get toggleAdminButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleAddAdmin)}
-      >
-        {this.state.addAdminLoading ? (
-          <Spinner />
-        ) : this.creatorIsAdmin_ ? (
-          capitalizeFirstLetter(I18NextService.i18n.t("remove_as_admin"))
-        ) : (
-          capitalizeFirstLetter(I18NextService.i18n.t("appoint_as_admin"))
-        )}
-      </button>
-    );
-  }
-
-  get transferCommunityButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleShowConfirmTransferCommunity)}
-      >
-        {capitalizeFirstLetter(I18NextService.i18n.t("transfer_community"))}
-      </button>
-    );
-  }
-
-  get modRemoveButton() {
-    const removed = this.postView.post.removed;
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleModRemoveShow)}
-      >
-        {/* TODO: Find an icon for this. Also, restore post should probably be one translation key due to possible differences in how different languages handle verbs.*/}
-        {this.state.removeLoading ? (
-          <Spinner />
-        ) : !removed ? (
-          capitalizeFirstLetter(I18NextService.i18n.t("remove_post"))
-        ) : (
-          <>
-            {capitalizeFirstLetter(I18NextService.i18n.t("restore"))}{" "}
-            {I18NextService.i18n.t("post")}
-          </>
-        )}
       </button>
     );
   }
@@ -1196,10 +774,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </button>
             <button
               className="btn btn-link btn-animate text-muted py-0 d-inline-block"
-              onClick={linkEvent(
-                this,
-                this.handleCancelShowConfirmTransferCommunity,
-              )}
+              onClick={this.toggleShowConfirmTransferCommunity}
               aria-label={I18NextService.i18n.t("no")}
             >
               {I18NextService.i18n.t("no")}
@@ -1216,7 +791,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         {this.state.showReportDialog && (
           <ModerationActionForm
-            onSubmit={this.handleReportSubmit}
+            onSubmit={this.submitReport}
             modActionType="report"
             onCancel={this.hideAllDialogs}
           />
@@ -1323,15 +898,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  private get myPost(): boolean {
-    return (
-      this.postView.creator.id ===
-      UserService.Instance.myUserInfo?.local_user_view.person.id
-    );
-  }
-
-  handleEditClick(i: PostListing) {
-    i.setState({ showEdit: true });
+  handleEditClick() {
+    this.setState({ showEdit: true });
   }
 
   handleEditCancel() {
@@ -1353,59 +921,54 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  handleShowReportDialog(i: PostListing) {
-    i.toggleShowModDialog("showReportDialog");
+  toggleShowReportDialog() {
+    this.toggleShowModDialog("showReportDialog");
   }
 
-  handleReportSubmit(reason: string) {
+  submitReport(reason: string) {
     this.props.onPostReport({
       post_id: this.postView.post.id,
       reason,
     });
 
-    this.toggleShowModDialog("showReportDialog");
+    this.hideAllDialogs();
   }
 
-  handleBlockPersonClick(i: PostListing) {
-    i.setState({ blockLoading: true });
-    i.props.onBlockPerson({
-      person_id: i.postView.creator.id,
+  blockPerson() {
+    this.props.onBlockPerson({
+      person_id: this.postView.creator.id,
       block: true,
     });
   }
 
-  handleDeleteClick(i: PostListing) {
-    i.setState({ deleteLoading: true });
-    i.props.onDeletePost({
-      post_id: i.postView.post.id,
-      deleted: !i.postView.post.deleted,
+  toggleDeletePost() {
+    this.props.onDeletePost({
+      post_id: this.postView.post.id,
+      deleted: !this.postView.post.deleted,
     });
   }
 
-  handleSavePostClick(i: PostListing) {
-    i.setState({ saveLoading: true });
-    i.props.onSavePost({
-      post_id: i.postView.post.id,
-      save: !i.postView.saved,
+  toggleSavePost() {
+    this.props.onSavePost({
+      post_id: this.postView.post.id,
+      save: !this.postView.saved,
     });
   }
 
-  get crossPostParams(): PostFormParams {
-    const queryParams: PostFormParams = {};
+  get crossPostParams(): CrossPostParams {
     const { name, url } = this.postView.post;
-
-    queryParams.name = name;
+    const crossPostParams: CrossPostParams = { name };
 
     if (url) {
-      queryParams.url = url;
+      crossPostParams.url = url;
     }
 
     const crossPostBody = this.crossPostBody();
     if (crossPostBody) {
-      queryParams.body = crossPostBody;
+      crossPostParams.body = crossPostBody;
     }
 
-    return queryParams;
+    return crossPostParams;
   }
 
   crossPostBody(): string | undefined {
@@ -1423,8 +986,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return this.props.showBody || this.state.showBody;
   }
 
-  handleModRemoveShow(i: PostListing) {
-    i.toggleShowModDialog("showRemoveDialog");
+  toggleModRemoveShow() {
+    this.toggleShowModDialog("showRemoveDialog");
   }
 
   handleModRemoveReasonChange(i: PostListing, event: any) {
@@ -1441,61 +1004,67 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       removed: !this.postView.post.removed,
       reason,
     });
-    this.toggleShowModDialog("showRemoveDialog");
+    this.hideAllDialogs();
   }
 
-  handleModLock(i: PostListing) {
-    i.setState({ lockLoading: true });
-    i.props.onLockPost({
-      post_id: i.postView.post.id,
-      locked: !i.postView.post.locked,
+  handleModLock() {
+    this.props.onLockPost({
+      post_id: this.postView.post.id,
+      locked: !this.postView.post.locked,
     });
   }
 
-  handleModFeaturePostLocal(i: PostListing) {
-    i.setState({ featureLocalLoading: true });
-    i.props.onFeaturePost({
-      post_id: i.postView.post.id,
-      featured: !i.postView.post.featured_local,
+  handleModFeaturePostLocal() {
+    this.props.onFeaturePost({
+      post_id: this.postView.post.id,
+      featured: !this.postView.post.featured_local,
       feature_type: "Local",
     });
   }
 
-  handleModFeaturePostCommunity(i: PostListing) {
-    i.setState({ featureCommunityLoading: true });
-    i.props.onFeaturePost({
-      post_id: i.postView.post.id,
-      featured: !i.postView.post.featured_community,
+  handleModFeaturePostCommunity() {
+    this.props.onFeaturePost({
+      post_id: this.postView.post.id,
+      featured: !this.postView.post.featured_community,
       feature_type: "Community",
     });
   }
 
-  handleModBanFromCommunityShow(i: PostListing) {
-    i.toggleShowModDialog("showBanDialog", {
-      banType: BanType.Community,
-    });
+  handleModBanFromCommunitySubmit() {
+    this.setState({ banType: BanType.Community });
+    this.handleModBanBothSubmit({});
   }
 
-  handleModBanShow(i: PostListing) {
-    i.toggleShowModDialog("showBanDialog", {
-      banType: BanType.Site,
-    });
+  handleBanFromCommunityClick() {
+    if (this.postView.creator_banned_from_community) {
+      this.handleModBanFromCommunitySubmit();
+    } else {
+      this.toggleShowModDialog("showBanDialog", {
+        banType: BanType.Community,
+      });
+    }
   }
 
-  handlePurgePersonShow(i: PostListing) {
-    i.toggleShowModDialog("showPurgeDialog", {
+  handleBanFromSiteClick() {
+    if (isBanned(this.postView.creator)) {
+      this.handleModBanSubmit();
+    } else {
+      this.toggleShowModDialog("showBanDialog", {
+        banType: BanType.Site,
+      });
+    }
+  }
+
+  toggleShowPurgePerson() {
+    this.toggleShowModDialog("showPurgeDialog", {
       purgeType: PurgeType.Person,
     });
   }
 
-  handlePurgePostShow(i: PostListing) {
-    i.toggleShowModDialog("showPurgeDialog", {
+  toggleShowPurgePost() {
+    this.toggleShowModDialog("showPurgeDialog", {
       purgeType: PurgeType.Post,
     });
-  }
-
-  handlePurgeReasonChange(i: PostListing, event: any) {
-    i.setState({ purgeReason: event.target.value });
   }
 
   handlePurgeSubmit(reason: string) {
@@ -1511,20 +1080,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       });
     }
 
-    this.toggleShowModDialog("showPurgeDialog");
-  }
-
-  handleModBanReasonChange(i: PostListing, event: any) {
-    i.setState({ banReason: event.target.value });
-  }
-
-  handleModBanExpireDaysChange(i: PostListing, event: any) {
-    i.setState({ banExpireDays: event.target.value });
-  }
-
-  handleModBanFromCommunitySubmit() {
-    this.setState({ banType: BanType.Community });
-    this.handleModBanBothSubmit({});
+    this.hideAllDialogs();
   }
 
   handleModBanSubmit() {
@@ -1570,12 +1126,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.toggleShowModDialog("showBanDialog");
   }
 
-  handleAddModToCommunity(i: PostListing) {
-    i.setState({ addModLoading: true });
-    i.props.onAddModToCommunity({
-      community_id: i.postView.community.id,
-      person_id: i.postView.creator.id,
-      added: !i.creatorIsMod_,
+  handleAddModToCommunity() {
+    this.props.onAddModToCommunity({
+      community_id: this.postView.community.id,
+      person_id: this.postView.creator.id,
+      added: !this.creatorIsMod,
     });
   }
 
@@ -1608,36 +1163,25 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  handleAddAdmin(i: PostListing) {
-    i.setState({ addAdminLoading: true });
-    i.props.onAddAdmin({
-      person_id: i.postView.creator.id,
-      added: !i.creatorIsAdmin_,
+  handleAddAdmin() {
+    this.props.onAddAdmin({
+      person_id: this.postView.creator.id,
+      added: !this.creatorIsAdmin,
     });
   }
 
-  handleShowConfirmTransferCommunity(i: PostListing) {
-    i.setState({ showConfirmTransferCommunity: true });
-  }
-
-  handleCancelShowConfirmTransferCommunity(i: PostListing) {
-    i.setState({ showConfirmTransferCommunity: false });
+  toggleShowConfirmTransferCommunity() {
+    this.setState(prev => ({
+      ...prev,
+      showConfirmTransferCommunity: !prev.showConfirmTransferCommunity,
+    }));
   }
 
   handleTransferCommunity(i: PostListing) {
-    i.setState({ transferLoading: true });
     i.props.onTransferCommunity({
       community_id: i.postView.community.id,
       person_id: i.postView.creator.id,
     });
-  }
-
-  handleShowConfirmTransferSite(i: PostListing) {
-    i.setState({ showConfirmTransferSite: true });
-  }
-
-  handleCancelShowConfirmTransferSite(i: PostListing) {
-    i.setState({ showConfirmTransferSite: false });
   }
 
   handleImageExpandClick(i: PostListing, event: any) {
@@ -1655,19 +1199,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleViewSource(i: PostListing) {
     i.setState({ viewSource: !i.state.viewSource });
-  }
-
-  handleShowAdvanced(i: PostListing) {
-    i.setState({ showAdvanced: !i.state.showAdvanced });
-    setupTippy();
-  }
-
-  handleShowMoreMobile(i: PostListing) {
-    i.setState({
-      showMoreMobile: !i.state.showMoreMobile,
-      showAdvanced: !i.state.showAdvanced,
-    });
-    setupTippy();
   }
 
   handleShowBody(i: PostListing) {
@@ -1694,7 +1225,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return `${points} • ${upvotes} • ${downvotes}`;
   }
 
-  get canModOnSelf_(): boolean {
+  get canModOnSelf(): boolean {
     return canMod(
       this.postView.creator.id,
       this.props.moderators,
@@ -1704,7 +1235,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get canMod_(): boolean {
+  get canMod(): boolean {
     return canMod(
       this.postView.creator.id,
       this.props.moderators,
@@ -1712,15 +1243,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get canAdmin_(): boolean {
+  get canAdmin(): boolean {
     return canAdmin(this.postView.creator.id, this.props.admins);
   }
 
-  get creatorIsMod_(): boolean {
+  get creatorIsMod(): boolean {
     return isMod(this.postView.creator.id, this.props.moderators);
   }
 
-  get creatorIsAdmin_(): boolean {
+  get creatorIsAdmin(): boolean {
     return isAdmin(this.postView.creator.id, this.props.admins);
   }
 }

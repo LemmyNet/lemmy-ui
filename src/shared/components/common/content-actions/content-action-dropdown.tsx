@@ -23,7 +23,6 @@ import ActionButton from "./action-button";
 import classNames from "classnames";
 
 interface ContentActionDropdownPropsBase {
-  saved: boolean;
   onSave: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -37,16 +36,16 @@ interface ContentActionDropdownPropsBase {
   onPurgeContent: () => void;
   onPurgeUser: () => void;
   onAddAdmin: () => void;
-  moderators: CommunityModeratorView[];
-  admins: PersonView[];
+  moderators?: CommunityModeratorView[];
+  admins?: PersonView[];
 }
 
-type ContentCommentProps = {
+export type ContentCommentProps = {
   type: "comment";
   commentView: CommentView;
 } & ContentActionDropdownPropsBase;
 
-type ContentPostProps = {
+export type ContentPostProps = {
   type: "post";
   postView: PostView;
   crossPostParams: CrossPostParams;
@@ -56,20 +55,6 @@ type ContentPostProps = {
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
-
-/* type PostActionDropdownProps = Omit<
- *   ContentPostProps,
- *   "type" | "postView" | "commentView"
- * > & {
- *   content: PostView;
- * };
- *
- * type CommentActionDropdownProps = Omit<
- *   ContentCommentProps,
- *   "type" | "postView" | "commentView"
- * > & {
- *   content: CommentView;
- * }; */
 
 export default class ContentActionDropdown extends Component<
   ContentActionDropdownProps,
@@ -378,7 +363,7 @@ export default class ContentActionDropdown extends Component<
     if (this.props.type === "post") {
       return {
         id: this.props.postView.post.id,
-        saved: this.props.saved,
+        saved: this.props.postView.saved,
         deleted: this.props.postView.post.deleted,
         creator: this.props.postView.creator,
         locked: this.props.postView.post.locked,
@@ -389,7 +374,7 @@ export default class ContentActionDropdown extends Component<
     } else {
       return {
         id: this.props.commentView.comment.id,
-        saved: this.props.saved,
+        saved: this.props.commentView.saved,
         deleted: this.props.commentView.comment.deleted,
         creator: this.props.commentView.creator,
         removed: this.props.commentView.comment.removed,
