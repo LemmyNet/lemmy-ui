@@ -14,6 +14,7 @@ interface ModActionFormPropsBan {
   modActionType: "ban";
   onSubmit: (form: BanUpdateForm) => void;
   creatorName: string;
+  isBanned: boolean;
 }
 
 interface ModActionFormPropsPurgePerson {
@@ -118,13 +119,14 @@ export default class ModerationActionForm extends Component<
     } = this.state;
     const reasonId = `mod-form-reason-${randomStr()}`;
     const expiresId = `mod-form-expires-${randomStr()}`;
+    const { modActionType, onCancel } = this.props;
 
     let buttonText: string;
-    switch (this.props.modActionType) {
+    switch (modActionType) {
       case "ban": {
-        buttonText = `${I18NextService.i18n.t("ban")} ${
-          this.props.creatorName
-        }`;
+        buttonText = `${I18NextService.i18n.t(
+          this.props.isBanned ? "unban" : "ban",
+        )} ${this.props.creatorName}`;
         break;
       }
 
@@ -152,8 +154,9 @@ export default class ModerationActionForm extends Component<
         break;
       }
     }
-    const showExpiresField =
-      this.props.modActionType === "ban" && !shouldPermaBan;
+
+    const showExpiresField = modActionType === "ban" && !shouldPermaBan;
+
     return (
       <form onSubmit={linkEvent(this, handleSubmit)} className="p-3">
         <div className="row mb-3">
@@ -189,6 +192,7 @@ export default class ModerationActionForm extends Component<
                 min={1}
                 value={daysUntilExpire}
                 onInput={linkEvent(this, handleExpiryChange)}
+                required
               />
             </div>
           )}
@@ -203,44 +207,42 @@ export default class ModerationActionForm extends Component<
             <button type="submit" className="btn btn-secondary me-3">
               {loading ? <Spinner /> : capitalizeFirstLetter(buttonText)}
             </button>
-            <button
-              type="button"
-              className="btn btn-light"
-              onClick={this.props.onCancel}
-            >
+            <button type="button" className="btn btn-light" onClick={onCancel}>
               {I18NextService.i18n.t("cancel")}
             </button>
           </div>
-          <div className="mb-2 col-12 col-lg-6 col-xxl-7">
-            <div className="form-check m2-3">
-              <label
-                className="form-check-label me-3 user-select-none"
-                title={I18NextService.i18n.t("remove_content_more")}
-              >
-                <input
-                  className="form-check-input user-select-none"
-                  type="checkbox"
-                  checked={shouldRemoveData}
-                  onChange={linkEvent(this, handleToggleRemove)}
-                />
-                {I18NextService.i18n.t("remove_content")}
-              </label>
+          {modActionType === "ban" && (
+            <div className="mb-2 col-12 col-lg-6 col-xxl-7">
+              <div className="form-check m2-3">
+                <label
+                  className="form-check-label me-3 user-select-none"
+                  title={I18NextService.i18n.t("remove_content_more")}
+                >
+                  <input
+                    className="form-check-input user-select-none"
+                    type="checkbox"
+                    checked={shouldRemoveData}
+                    onChange={linkEvent(this, handleToggleRemove)}
+                  />
+                  {I18NextService.i18n.t("remove_content")}
+                </label>
+              </div>
+              <div className="form-check mt-2">
+                <label
+                  className="form-check-label"
+                  title={I18NextService.i18n.t("remove_content_more")}
+                >
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    onChange={linkEvent(this, handleTogglePermaBan)}
+                    checked={shouldPermaBan}
+                  />
+                  Permanently ban
+                </label>
+              </div>
             </div>
-            <div className="form-check mt-2">
-              <label
-                className="form-check-label"
-                title={I18NextService.i18n.t("remove_content_more")}
-              >
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  onChange={linkEvent(this, handleTogglePermaBan)}
-                  checked={shouldPermaBan}
-                />
-                Permanently ban
-              </label>
-            </div>
-          </div>
+          )}
         </div>
       </form>
     );

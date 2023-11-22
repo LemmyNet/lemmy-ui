@@ -61,7 +61,6 @@ type PostListingState = {
   showEdit: boolean;
   purgeReason?: string;
   purgeType?: PurgeType;
-  purgeLoading: boolean;
   removeReason?: string;
   banReason?: string;
   banExpireDays?: number;
@@ -74,16 +73,6 @@ type PostListingState = {
   showAdvanced: boolean;
   showMoreMobile: boolean;
   showBody: boolean;
-  blockLoading: boolean;
-  lockLoading: boolean;
-  deleteLoading: boolean;
-  removeLoading: boolean;
-  saveLoading: boolean;
-  featureCommunityLoading: boolean;
-  featureLocalLoading: boolean;
-  banLoading: boolean;
-  addModLoading: boolean;
-  addAdminLoading: boolean;
   transferLoading: boolean;
 } & { [k in DialogType]: boolean };
 
@@ -135,17 +124,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showAdvanced: false,
     showMoreMobile: false,
     showBody: false,
-    purgeLoading: false,
-    blockLoading: false,
-    lockLoading: false,
-    deleteLoading: false,
-    removeLoading: false,
-    saveLoading: false,
-    featureCommunityLoading: false,
-    featureLocalLoading: false,
-    banLoading: false,
-    addModLoading: false,
-    addAdminLoading: false,
     transferLoading: false,
     showBanDialog: false,
     showPurgeDialog: false,
@@ -195,17 +173,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   componentWillReceiveProps(nextProps: PostListingProps) {
     if (this.props !== nextProps) {
       this.setState({
-        purgeLoading: false,
-        blockLoading: false,
-        lockLoading: false,
-        deleteLoading: false,
-        removeLoading: false,
-        saveLoading: false,
-        featureCommunityLoading: false,
-        featureLocalLoading: false,
-        banLoading: false,
-        addModLoading: false,
-        addAdminLoading: false,
         transferLoading: false,
       });
     }
@@ -788,6 +755,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             modActionType="ban"
             creatorName={post.creator.name}
             onCancel={this.hideAllDialogs}
+            isBanned={
+              this.state.banType === BanType.Community
+                ? post.creator_banned_from_community
+                : post.creator.banned
+            }
           />
         )}
         {this.state.showReportDialog && (

@@ -53,7 +53,7 @@ export default class ActionButton extends Component<
         {this.state.loading ? (
           <Spinner />
         ) : (
-          <Icon classes={classNames("me-1", iconClass)} icon={icon} inline />
+          <Icon classes={classNames("me-2", iconClass)} icon={icon} inline />
         )}
         {!inline && label}
       </button>

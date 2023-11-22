@@ -231,7 +231,7 @@ export default class ContentActionDropdown extends Component<
                           type === "post" ? "remove_post" : "remove_comment",
                         )
                   }
-                  icon={removed ? "restore" : "remove"}
+                  icon={removed ? "restore" : "x"}
                   noLoading
                   onClick={onRemove}
                   iconClass={`text-${removed ? "success" : "danger"}`}
@@ -261,7 +261,6 @@ export default class ContentActionDropdown extends Component<
                       />
                     </li>
                   )}
-
                   {!creatorBannedFromCommunity && (
                     <li>
                       <ActionButton
