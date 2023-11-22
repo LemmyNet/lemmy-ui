@@ -49,6 +49,7 @@ export default class ActionButton extends Component<
         onClick={linkEvent(this, handleClick)}
         aria-label={label}
         data-tippy-content={inline ? label : undefined}
+        disabled={this.state.loading}
       >
         {this.state.loading ? (
           <Spinner />

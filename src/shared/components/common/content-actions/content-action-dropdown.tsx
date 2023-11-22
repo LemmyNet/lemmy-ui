@@ -138,7 +138,7 @@ export default class ContentActionDropdown extends Component<
                 <li>
                   <ActionButton
                     onClick={onDelete}
-                    icon="trash"
+                    icon={deleted ? "undo-trash" : "trash"}
                     label={I18NextService.i18n.t(
                       deleted ? "undelete" : "delete",
                     )}
