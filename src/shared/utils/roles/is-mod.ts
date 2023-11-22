@@ -4,5 +4,5 @@ export default function isMod(
   creatorId: number,
   mods?: CommunityModeratorView[],
 ): boolean {
-  return mods?.map(m => m.moderator.id).includes(creatorId) ?? false;
+  return mods?.some(m => m.moderator.id === creatorId) ?? false;
 }

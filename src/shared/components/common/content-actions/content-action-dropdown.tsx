@@ -1,20 +1,21 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { I18NextService, UserService } from "shared/services";
 import { Icon } from "../icon";
-import SaveButton from "./save-button";
 import { CrossPostParams } from "@utils/types";
 import CrossPostButton from "./cross-post-button";
-import { CommentView, PostView } from "lemmy-js-client";
-import DeleteButton from "./delete-button";
-import BlockButton from "./block-button";
+import { CommentView, CommunityModeratorView, PostView } from "lemmy-js-client";
+import { amAdmin, amMod } from "@utils/roles";
+import ActionButton from "./action-button";
+import classNames from "classnames";
 
 interface ContentActionDropdownPropsBase {
   saved: boolean;
-  onSave: (saved: boolean) => void;
+  onSave: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onReport: () => void;
   onBlock: () => void;
+  moderators: CommunityModeratorView[];
 }
 
 type ContentCommentProps = {
@@ -26,6 +27,7 @@ type ContentPostProps = {
   type: "post";
   postView: PostView;
   crossPostParams: CrossPostParams;
+  onLock: () => void;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -55,8 +57,8 @@ export default class ContentActionDropdown extends Component<
   render() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     // Possible enhancement: Make each button a component.
-    const { onSave, type, onDelete, onBlock } = this.props;
-    const { id, saved, deleted } = this.contentInfo;
+    const { onSave, type, onDelete, onBlock, onEdit, onReport } = this.props;
+    const { id, saved, deleted, locked } = this.contentInfo;
     const dropdownId =
       type === "post"
         ? `post-actions-dropdown-${id}`
@@ -64,7 +66,13 @@ export default class ContentActionDropdown extends Component<
 
     return (
       <>
-        <SaveButton saved={saved} onSave={onSave} />
+        <ActionButton
+          onClick={onSave}
+          inline
+          icon="start"
+          label={I18NextService.i18n.t(saved ? "unsave" : "save")}
+          iconClass={classNames({ "text-warning": saved })}
+        />
         {this.props.type === "post" && (
           <CrossPostButton {...this.props.crossPostParams!} />
         )}
@@ -84,17 +92,64 @@ export default class ContentActionDropdown extends Component<
           <ul className="dropdown-menu" id={dropdownId}>
             {this.amCreator ? (
               <>
-                <li>{this.editButton}</li>
                 <li>
-                  <DeleteButton deleted={deleted} onClick={onDelete} />
+                  <ActionButton
+                    icon="edit"
+                    label={I18NextService.i18n.t("edit")}
+                    noLoading
+                    onClick={onEdit}
+                  />
+                </li>
+                <li>
+                  <ActionButton
+                    onClick={onDelete}
+                    icon="trash"
+                    label={I18NextService.i18n.t(
+                      deleted ? "restore" : "delete",
+                    )}
+                    iconClass={classNames({ "text-danger": deleted })}
+                  />
                 </li>
               </>
             ) : (
               <>
-                <li>{this.reportButton}</li>
                 <li>
-                  <BlockButton onClick={onBlock} />
+                  <ActionButton
+                    icon="flag"
+                    label={I18NextService.i18n.t("create_report")}
+                    onClick={onReport}
+                    noLoading
+                  />
                 </li>
+                <li>
+                  <ActionButton
+                    icon="slash"
+                    label={I18NextService.i18n.t("block_user")}
+                    onClick={onBlock}
+                  />
+                </li>
+              </>
+            )}
+
+            {(amMod(this.props.moderators) || amAdmin()) && (
+              <>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                {type === "post" && (
+                  <>
+                    <li>
+                      <ActionButton
+                        onClick={this.props.onLock}
+                        label={I18NextService.i18n.t(
+                          locked ? "unlock" : "lock",
+                        )}
+                        icon="lock"
+                        iconClass={classNames({ "class-danger": locked })}
+                      />
+                    </li>
+                  </>
+                )}
               </>
             )}
           </ul>
@@ -110,6 +165,7 @@ export default class ContentActionDropdown extends Component<
         saved: this.props.saved,
         deleted: this.props.postView.post.deleted,
         creator: this.props.postView.creator,
+        locked: this.props.postView.post.locked,
       };
     } else {
       return {
@@ -127,31 +183,5 @@ export default class ContentActionDropdown extends Component<
     } = this.contentInfo;
 
     return id === UserService.Instance.myUserInfo?.local_user_view.person.id;
-  }
-
-  get editButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={this.props.onEdit}
-        aria-label={I18NextService.i18n.t("edit")}
-      >
-        <Icon classes="me-1" icon="edit" inline />
-        {I18NextService.i18n.t("edit")}
-      </button>
-    );
-  }
-
-  get reportButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.props.onReport)}
-        aria-label={I18NextService.i18n.t("show_report_dialog")}
-      >
-        <Icon classes="me-1" icon="flag" inline />
-        {I18NextService.i18n.t("create_report")}
-      </button>
-    );
   }
 }
