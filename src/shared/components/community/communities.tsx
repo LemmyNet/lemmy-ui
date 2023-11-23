@@ -185,7 +185,7 @@ export class Communities extends Component<any, CommunitiesState> {
                               {
                                 i: this,
                                 communityId: cv.community.id,
-                                follow: false,
+                                follow: true,
                               },
                               this.handleFollow,
                             )}
@@ -193,7 +193,7 @@ export class Communities extends Component<any, CommunitiesState> {
                               {
                                 i: this,
                                 communityId: cv.community.id,
-                                follow: true,
+                                follow: false,
                               },
                               this.handleFollow,
                             )}

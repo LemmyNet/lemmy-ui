@@ -3,7 +3,7 @@ import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import { futureDaysToUnixTime, hostname } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
-import { canAdmin, canMod, isAdmin, isBanned, isMod } from "@utils/roles";
+import { canAdmin, canMod, isBanned } from "@utils/roles";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -281,14 +281,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   imgThumb(src: string) {
-    const post_view = this.postView;
-
+    const pv = this.postView;
     return (
       <PictrsImage
         src={src}
         thumbnail
         alt=""
-        nsfw={post_view.post.nsfw || post_view.community.nsfw}
+        nsfw={pv.post.nsfw || pv.community.nsfw}
       />
     );
   }
@@ -394,38 +393,34 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   createdLine() {
-    const post_view = this.postView;
+    const pv = this.postView;
 
     return (
       <div className="small mb-1 mb-md-0">
-        <PersonListing person={post_view.creator} />
+        <PersonListing person={pv.creator} />
         <UserBadges
           classNames="ms-1"
-          isMod={this.creatorIsMod}
-          isAdmin={this.creatorIsAdmin}
-          isBot={post_view.creator.bot_account}
+          isMod={pv.creator_is_moderator}
+          isAdmin={pv.creator_is_admin}
+          isBot={pv.creator.bot_account}
         />
         {this.props.showCommunity && (
           <>
             {" "}
             {I18NextService.i18n.t("to")}{" "}
-            <CommunityLink community={post_view.community} />
+            <CommunityLink community={pv.community} />
           </>
         )}
-        {post_view.post.language_id !== 0 && (
+        {pv.post.language_id !== 0 && (
           <span className="mx-1 badge text-bg-light">
             {
               this.props.allLanguages.find(
-                lang => lang.id === post_view.post.language_id,
+                lang => lang.id === pv.post.language_id,
               )?.name
             }
           </span>
         )}{" "}
-        •{" "}
-        <MomentTime
-          published={post_view.post.published}
-          updated={post_view.post.updated}
-        />
+        • <MomentTime published={pv.post.published} updated={pv.post.updated} />
       </div>
     );
   }
@@ -586,9 +581,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    const post_view = this.postView;
-    const post = post_view.post;
-    const { admins, moderators } = this.props;
+    const {
+      admins,
+      moderators,
+      viewOnly,
+      showBody,
+      onPostVote,
+      enableDownvotes,
+    } = this.props;
+    const {
+      post: { local, ap_id, id, body },
+      counts,
+      my_vote,
+    } = this.postView;
 
     return (
       <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
@@ -602,29 +607,29 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <Icon icon="share" inline />
           </button>
         )}
-        {!post.local && (
+        {local && (
           <a
             className="btn btn-sm btn-link btn-animate text-muted py-0"
             title={I18NextService.i18n.t("link")}
-            href={post.ap_id}
+            href={ap_id}
           >
             <Icon icon="fedilink" inline />
           </a>
         )}
-        {mobile && !this.props.viewOnly && (
+        {mobile && !viewOnly && (
           <VoteButtonsCompact
             voteContentType={VoteContentType.Post}
-            id={this.postView.post.id}
-            onVote={this.props.onPostVote}
-            enableDownvotes={this.props.enableDownvotes}
-            counts={this.postView.counts}
-            my_vote={this.postView.my_vote}
+            id={id}
+            onVote={onPostVote}
+            enableDownvotes={enableDownvotes}
+            counts={counts}
+            my_vote={my_vote}
           />
         )}
 
-        {this.props.showBody && post_view.post.body && this.viewSourceButton}
+        {showBody && body && this.viewSourceButton}
 
-        {UserService.Instance.myUserInfo && !this.props.viewOnly && (
+        {UserService.Instance.myUserInfo && !viewOnly && (
           <PostActionDropdown
             postView={this.postView}
             admins={admins}
@@ -661,22 +666,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get commentsButton() {
-    const post_view = this.postView;
+    const pv = this.postView;
     const title = I18NextService.i18n.t("number_of_comments", {
-      count: Number(post_view.counts.comments),
-      formattedCount: Number(post_view.counts.comments),
+      count: Number(pv.counts.comments),
+      formattedCount: Number(pv.counts.comments),
     });
 
     return (
       <Link
         className="btn btn-link btn-sm text-muted ps-0"
         title={title}
-        to={`/post/${post_view.post.id}?scrollToComments=true`}
+        to={`/post/${pv.post.id}?scrollToComments=true`}
         data-tippy-content={title}
         target={this.linkTarget}
       >
         <Icon icon="message-square" classes="me-1" inline />
-        {post_view.counts.comments}
+        {pv.counts.comments}
         {this.unreadCount && (
           <>
             {" "}
@@ -897,7 +902,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleShare(i: PostListing) {
-    const { name, body, id } = i.props.post_view.post;
+    const { name, body, id } = i.postView.post;
     share({
       title: name,
       text: body?.slice(0, 50),
@@ -1121,7 +1126,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.props.onAddModToCommunity({
       community_id: this.postView.community.id,
       person_id: this.postView.creator.id,
-      added: !this.creatorIsMod,
+      added: !this.postView.creator_is_moderator,
     });
   }
 
@@ -1157,7 +1162,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleAddAdmin() {
     this.props.onAddAdmin({
       person_id: this.postView.creator.id,
-      added: !this.creatorIsAdmin,
+      added: !this.postView.creator_is_admin,
     });
   }
 
@@ -1180,9 +1185,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ imageExpanded: !i.state.imageExpanded });
     setupTippy();
 
-    if (myAuth() && !i.props.post_view.read) {
+    if (myAuth() && !i.postView.read) {
       i.props.onMarkPostAsRead({
-        post_ids: [i.props.post_view.post.id],
+        post_ids: [i.postView.post.id],
         read: true,
       });
     }
@@ -1236,13 +1241,5 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get canAdmin(): boolean {
     return canAdmin(this.postView.creator.id, this.props.admins);
-  }
-
-  get creatorIsMod(): boolean {
-    return isMod(this.postView.creator.id, this.props.moderators);
-  }
-
-  get creatorIsAdmin(): boolean {
-    return isAdmin(this.postView.creator.id, this.props.admins);
   }
 }

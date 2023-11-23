@@ -10,7 +10,7 @@ popd
 # look for unused translations
 for langfile in lemmy-translations/translations/*.json; do
     lang=$(basename $langfile .json)
-    if ! grep -q "\"./translations/$lang\"" src/shared/i18next.ts; then
+    if ! grep -q "\"./translations/$lang\"" src/shared/services/I18NextService.ts; then
       echo "Unused language $lang"
     fi
 done

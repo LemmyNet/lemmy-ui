@@ -1,13 +1,6 @@
 import { colorList, getCommentParentId, showScores } from "@utils/app";
 import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
-import {
-  amCommunityCreator,
-  canAdmin,
-  canMod,
-  isAdmin,
-  isBanned,
-  isMod,
-} from "@utils/roles";
+import { amCommunityCreator, canAdmin, canMod, isBanned } from "@utils/roles";
 import classNames from "classnames";
 import isBefore from "date-fns/isBefore";
 import parseISO from "date-fns/parseISO";
@@ -257,8 +250,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       UserService.Instance.myUserInfo,
       true,
     );
-    const isMod_ = isMod(cv.creator.id, this.props.moderators);
-    const isAdmin_ = isAdmin(cv.creator.id, this.props.admins);
+    const isMod_ = cv.creator_is_moderator;
+    const isAdmin_ = cv.creator_is_admin;
     const amCommunityCreator_ = amCommunityCreator(
       cv.creator.id,
       this.props.moderators,
@@ -1465,7 +1458,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleAddModToCommunity(i: CommentNode) {
     i.setState({ addModLoading: true });
 
-    const added = !isMod(i.commentView.comment.creator_id, i.props.moderators);
+    const added = !i.commentView.creator_is_moderator;
     i.props.onAddModToCommunity({
       community_id: i.commentView.community.id,
       person_id: i.commentView.creator.id,
@@ -1476,7 +1469,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleAddAdmin(i: CommentNode) {
     i.setState({ addAdminLoading: true });
 
-    const added = !isAdmin(i.commentView.comment.creator_id, i.props.admins);
+    const added = !i.commentView.creator_is_admin;
     i.props.onAddAdmin({
       person_id: i.commentView.creator.id,
       added,
