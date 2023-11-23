@@ -714,18 +714,33 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   removeAndBanDialogs() {
-    const post = this.postView;
+    const {
+      showConfirmTransferCommunity,
+      showBanDialog,
+      showPurgeDialog,
+      showRemoveDialog,
+      transferLoading,
+      showReportDialog,
+      banType,
+      purgeType,
+    } = this.state;
+    const {
+      post: { removed },
+      creator: { name: creatorName, banned },
+      creator_banned_from_community,
+    } = this.postView;
+
     return (
       <>
-        {this.state.showRemoveDialog && (
+        {showRemoveDialog && (
           <ModerationActionForm
             onSubmit={this.handleModRemoveSubmit}
             modActionType="remove"
-            isRemoved={post.post.removed}
+            isRemoved={removed}
             onCancel={this.hideAllDialogs}
           />
         )}
-        {this.state.showConfirmTransferCommunity && (
+        {showConfirmTransferCommunity && (
           <>
             <button className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0">
               {I18NextService.i18n.t("are_you_sure")}
@@ -734,11 +749,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="btn btn-link btn-animate text-muted py-0 d-inline-block me-1"
               onClick={linkEvent(this, this.handleTransferCommunity)}
             >
-              {this.state.transferLoading ? (
-                <Spinner />
-              ) : (
-                I18NextService.i18n.t("yes")
-              )}
+              {transferLoading ? <Spinner /> : I18NextService.i18n.t("yes")}
             </button>
             <button
               className="btn btn-link btn-animate text-muted py-0 d-inline-block"
@@ -749,35 +760,35 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             </button>
           </>
         )}
-        {this.state.showBanDialog && (
+        {showBanDialog && (
           <ModerationActionForm
             onSubmit={this.handleModBanBothSubmit}
             modActionType="ban"
-            creatorName={post.creator.name}
+            creatorName={creatorName}
             onCancel={this.hideAllDialogs}
             isBanned={
-              this.state.banType === BanType.Community
-                ? post.creator_banned_from_community
-                : post.creator.banned
+              banType === BanType.Community
+                ? creator_banned_from_community
+                : banType === BanType.Site
+                ? banned
+                : false
             }
           />
         )}
-        {this.state.showReportDialog && (
+        {showReportDialog && (
           <ModerationActionForm
             onSubmit={this.submitReport}
             modActionType="report"
             onCancel={this.hideAllDialogs}
           />
         )}
-        {this.state.showPurgeDialog && (
+        {showPurgeDialog && (
           <ModerationActionForm
             onSubmit={this.handlePurgeSubmit}
             modActionType={
-              this.state.purgeType === PurgeType.Post
-                ? "purge-post"
-                : "purge-person"
+              purgeType === PurgeType.Post ? "purge-post" : "purge-person"
             }
-            creatorName={post.creator.name}
+            creatorName={creatorName}
             onCancel={this.hideAllDialogs}
           />
         )}
@@ -1066,17 +1077,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     shouldRemove,
     daysUntilExpires,
   }: BanUpdateForm) {
-    const ban = !this.props.post_view.creator_banned_from_community;
+    const { banType } = this.state;
+    const {
+      creator: { id: person_id, banned: bannedFromSite },
+      creator_banned_from_community,
+      community: { id: community_id },
+    } = this.postView;
+
+    const ban = !(banType === BanType.Community
+      ? creator_banned_from_community
+      : bannedFromSite);
 
     // If its an unban, restore all their data
     if (ban === false) {
       shouldRemove = false;
     }
-    const person_id = this.props.post_view.creator.id;
     const expires = futureDaysToUnixTime(daysUntilExpires);
 
-    if (this.state.banType === BanType.Community) {
-      const community_id = this.postView.community.id;
+    if (banType === BanType.Community) {
       this.props.onBanPersonFromCommunity({
         community_id,
         person_id,
