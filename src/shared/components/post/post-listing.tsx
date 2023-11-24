@@ -3,7 +3,7 @@ import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import { futureDaysToUnixTime, hostname } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
-import { canAdmin, canMod, isBanned } from "@utils/roles";
+import { canAdmin, canMod } from "@utils/roles";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -146,9 +146,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleModRemoveSubmit = this.handleModRemoveSubmit.bind(this);
     this.handleModBanBothSubmit = this.handleModBanBothSubmit.bind(this);
     this.handlePurgeSubmit = this.handlePurgeSubmit.bind(this);
-    this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
-    this.handleModBanFromCommunitySubmit =
-      this.handleModBanFromCommunitySubmit.bind(this);
     this.toggleSavePost = this.toggleSavePost.bind(this);
     this.toggleShowReportDialog = this.toggleShowReportDialog.bind(this);
     this.blockPerson = this.blockPerson.bind(this);
@@ -1019,29 +1016,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  handleModBanFromCommunitySubmit() {
-    this.setState({ banType: BanType.Community });
-    this.handleModBanBothSubmit({});
-  }
-
   handleBanFromCommunityClick() {
-    if (this.postView.creator_banned_from_community) {
-      this.handleModBanFromCommunitySubmit();
-    } else {
-      this.toggleShowModDialog("showBanDialog", {
-        banType: BanType.Community,
-      });
-    }
+    this.toggleShowModDialog("showBanDialog", {
+      banType: BanType.Community,
+    });
   }
 
   handleBanFromSiteClick() {
-    if (isBanned(this.postView.creator)) {
-      this.handleModBanSubmit();
-    } else {
-      this.toggleShowModDialog("showBanDialog", {
-        banType: BanType.Site,
-      });
-    }
+    this.toggleShowModDialog("showBanDialog", {
+      banType: BanType.Site,
+    });
   }
 
   toggleShowPurgePerson() {
@@ -1070,11 +1054,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
 
     this.hideAllDialogs();
-  }
-
-  handleModBanSubmit() {
-    this.setState({ banType: BanType.Site });
-    this.handleModBanBothSubmit({});
   }
 
   handleModBanBothSubmit({
