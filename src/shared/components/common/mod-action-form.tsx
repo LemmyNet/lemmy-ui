@@ -155,7 +155,9 @@ export default class ModerationActionForm extends Component<
       }
     }
 
-    const showExpiresField = modActionType === "ban" && !shouldPermaBan;
+    const isBanned = modActionType === "ban" && this.props.isBanned;
+
+    const showExpiresField = !(isBanned || shouldPermaBan);
 
     return (
       <form onSubmit={linkEvent(this, handleSubmit)} className="p-3">
@@ -211,7 +213,7 @@ export default class ModerationActionForm extends Component<
               {I18NextService.i18n.t("cancel")}
             </button>
           </div>
-          {modActionType === "ban" && (
+          {isBanned && (
             <div className="mb-2 col-12 col-lg-6 col-xxl-7">
               <div className="form-check m2-3">
                 <label
