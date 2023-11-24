@@ -8,7 +8,7 @@ export class LoadingEllipses extends Component<any, LoadingEllipsesState> {
   state: LoadingEllipsesState = {
     ellipses: "...",
   };
-  #interval?: NodeJS.Timer;
+  #interval?: NodeJS.Timeout;
 
   constructor(props: any, context: any) {
     super(props, context);

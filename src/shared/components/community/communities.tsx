@@ -319,9 +319,8 @@ export class Communities extends Component<any, CommunitiesState> {
     };
 
     return {
-      listCommunitiesResponse: await client.listCommunities(
-        listCommunitiesForm,
-      ),
+      listCommunitiesResponse:
+        await client.listCommunities(listCommunitiesForm),
     };
   }
 
