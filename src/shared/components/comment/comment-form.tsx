@@ -79,8 +79,8 @@ export class CommentForm extends Component<CommentFormProps, any> {
     return typeof this.props.node === "number"
       ? capitalizeFirstLetter(I18NextService.i18n.t("post"))
       : this.props.edit
-      ? capitalizeFirstLetter(I18NextService.i18n.t("save"))
-      : capitalizeFirstLetter(I18NextService.i18n.t("reply"));
+        ? capitalizeFirstLetter(I18NextService.i18n.t("save"))
+        : capitalizeFirstLetter(I18NextService.i18n.t("reply"));
   }
 
   handleCommentSubmit(content: string, language_id?: number) {

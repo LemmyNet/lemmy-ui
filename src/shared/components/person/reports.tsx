@@ -601,9 +601,8 @@ export class Reports extends Component<any, ReportsState> {
 
     if (amAdmin()) {
       this.setState({
-        messageReportsRes: await HttpService.client.listPrivateMessageReports(
-          form,
-        ),
+        messageReportsRes:
+          await HttpService.client.listPrivateMessageReports(form),
       });
     }
   }

@@ -1217,8 +1217,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return comment.removed
       ? `*${I18NextService.i18n.t("removed")}*`
       : comment.deleted
-      ? `*${I18NextService.i18n.t("deleted")}*`
-      : comment.content;
+        ? `*${I18NextService.i18n.t("deleted")}*`
+        : comment.content;
   }
 
   handleReplyClick(i: CommentNode) {
