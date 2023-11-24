@@ -55,8 +55,8 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
   prev
     ? i.props.history.replace(prev)
     : i.props.history.action === "PUSH"
-    ? i.props.history.back()
-    : i.props.history.replace("/");
+      ? i.props.history.back()
+      : i.props.history.replace("/");
 
   UnreadCounterService.Instance.updateAll();
 }

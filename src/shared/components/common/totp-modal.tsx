@@ -151,8 +151,8 @@ export default class TotpModal extends Component<
                   type === "generate"
                     ? "enable_totp"
                     : type === "remove"
-                    ? "disable_totp"
-                    : "enter_totp_code",
+                      ? "disable_totp"
+                      : "enter_totp_code",
                 )}
               </h3>
               <button

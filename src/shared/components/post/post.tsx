@@ -906,9 +906,8 @@ export class Post extends Component<any, PostState> {
   }
 
   async handleTransferCommunity(form: TransferCommunity) {
-    const transferCommunityRes = await HttpService.client.transferCommunity(
-      form,
-    );
+    const transferCommunityRes =
+      await HttpService.client.transferCommunity(form);
     this.updateCommunityFull(transferCommunityRes);
   }
 
