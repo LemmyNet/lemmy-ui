@@ -1,20 +1,8 @@
-FROM golang as go-builder
-
-WORKDIR /app
-
-# Gobinaries.com does not support ARM,
-# we have to build node-prune from source
-
-RUN cd /app && \
-  git clone https://github.com/tj/node-prune && \
-  cd /app/node-prune && \
-  CGO_ENABLED=0 go build
-
 FROM node:20-alpine as builder
 
 # Upgrade to edge to fix sharp/libvips issues
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
-    echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 
 # Added vips-dev and pkgconfig so that local vips is used instead of prebuilt
 # Done for two reasons:
@@ -52,12 +40,6 @@ RUN echo "export const VERSION = '$(git describe --tag)';" > "src/shared/version
 RUN yarn --production --prefer-offline --network-timeout 100000
 RUN NODE_OPTIONS="--max-old-space-size=8192" yarn build:prod
 
-# Copy the manually built node-prune here
-RUN mkdir -p /usr/local/bin/
-COPY --from=go-builder /app/node-prune/node-prune /usr/local/bin/node-prune
-RUN chmod +x /usr/local/bin/node-prune
-RUN node-prune /usr/src/app/node_modules
-
 RUN rm -rf ./node_modules/import-sort-parser-typescript
 RUN rm -rf ./node_modules/typescript
 RUN rm -rf ./node_modules/npm
@@ -68,8 +50,8 @@ FROM node:20-alpine as runner
 ENV NODE_ENV=production
 
 # Upgrade to edge to fix sharp/libvips issues
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
-    echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 
 RUN apk update && apk upgrade && apk add curl vips-cpp
 
