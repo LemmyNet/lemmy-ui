@@ -19,6 +19,7 @@ import {
 } from "@utils/roles";
 import ActionButton from "./action-button";
 import classNames from "classnames";
+import { Link } from "inferno-router";
 
 interface ContentActionDropdownPropsBase {
   onSave: () => void;
@@ -41,6 +42,8 @@ interface ContentActionDropdownPropsBase {
 export type ContentCommentProps = {
   type: "comment";
   commentView: CommentView;
+  onReply: () => void;
+  onDistinguish: () => void;
 } & ContentActionDropdownPropsBase;
 
 export type ContentPostProps = {
@@ -102,6 +105,14 @@ export default class ContentActionDropdown extends Component<
 
     return (
       <>
+        {type === "comment" && (
+          <ActionButton
+            onClick={this.props.onReply}
+            icon="reply1"
+            inline
+            label={I18NextService.i18n.t("reply")}
+          />
+        )}
         <ActionButton
           onClick={onSave}
           inline
@@ -109,7 +120,7 @@ export default class ContentActionDropdown extends Component<
           label={I18NextService.i18n.t(saved ? "unsave" : "save")}
           iconClass={classNames({ "text-warning": saved })}
         />
-        {this.props.type === "post" && (
+        {type === "post" && (
           <CrossPostButton {...this.props.crossPostParams!} />
         )}
 
@@ -149,6 +160,20 @@ export default class ContentActionDropdown extends Component<
               </>
             ) : (
               <>
+                {type === "comment" && (
+                  <li>
+                    <Link
+                      className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+                      to={`/create_private_message/${this.props.commentView.creator.id}`}
+                      title={I18NextService.i18n.t("message")}
+                      aria-label={I18NextService.i18n.t("message")}
+                      data-tippy-content={I18NextService.i18n.t("message")}
+                    >
+                      <Icon icon="mail" inline classes="me-2" />
+                      {I18NextService.i18n.t("message")}
+                    </Link>
+                  </li>
+                )}
                 <li>
                   <ActionButton
                     icon="flag"
@@ -166,6 +191,7 @@ export default class ContentActionDropdown extends Component<
                 </li>
               </>
             )}
+
             {(amMod(community.id) || amAdmin()) && (
               <>
                 <li>
@@ -218,6 +244,24 @@ export default class ContentActionDropdown extends Component<
                 )}
               </>
             )}
+            {type === "comment" &&
+              (this.canModOnSelf || this.canAdminOnSelf) && (
+                <li>
+                  <ActionButton
+                    onClick={() => {}}
+                    icon="shield"
+                    label={I18NextService.i18n.t(
+                      this.props.commentView.comment.distinguished
+                        ? "undistinguish"
+                        : "distinguish",
+                    )}
+                    iconClass={classNames({
+                      "text-danger":
+                        this.props.commentView.comment.distinguished,
+                    })}
+                  />
+                </li>
+              )}
             {(this.canMod || this.canAdmin) && (
               <li>
                 <ActionButton
@@ -423,6 +467,27 @@ export default class ContentActionDropdown extends Component<
   get canAdmin() {
     const { creator } = this.contentInfo;
     return canAdmin(creator.id, this.props.admins);
+  }
+
+  get canModOnSelf() {
+    const { creator } = this.contentInfo;
+    return canMod(
+      creator.id,
+      this.props.moderators,
+      this.props.admins,
+      UserService.Instance.myUserInfo,
+      true,
+    );
+  }
+
+  get canAdminOnSelf() {
+    const { creator } = this.contentInfo;
+    return canAdmin(
+      creator.id,
+      this.props.admins,
+      UserService.Instance.myUserInfo,
+      true,
+    );
   }
 
   get id() {

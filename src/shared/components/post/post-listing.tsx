@@ -772,8 +772,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               banType === BanType.Community
                 ? creator_banned_from_community
                 : banType === BanType.Site
-                ? banned
-                : false
+                  ? banned
+                  : false
             }
           />
         )}
