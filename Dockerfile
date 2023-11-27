@@ -65,6 +65,7 @@ RUN rm -rf ./node_modules/npm
 RUN du -sh ./node_modules/* | sort -nr | grep '\dM.*'
 
 FROM node:20-alpine as runner
+ENV NODE_ENV=production
 
 # Upgrade to edge to fix sharp/libvips issues
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories && \
