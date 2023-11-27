@@ -33,8 +33,6 @@ ENV npm_config_target_libc=musl
 # Cache deps
 COPY package.json yarn.lock ./
 
-RUN sed -i 's|"sharp": "^0.32.4"|"sharp": "^0.32.6"|g' package.json
-
 RUN yarn --production --prefer-offline --pure-lockfile --network-timeout 100000
 
 # Build
