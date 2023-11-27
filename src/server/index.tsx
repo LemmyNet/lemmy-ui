@@ -58,28 +58,33 @@ const listener = server.listen(Number(port), hostname, () => {
 });
 
 const signals = {
-  'SIGHUP': 1,
-  'SIGINT': 2,
-  'SIGTERM': 15
+  SIGHUP: 1,
+  SIGINT: 2,
+  SIGTERM: 15,
 };
+
+const exit_signal = 128; // Fatal error signal code on Linux systems
+const exit_timeout = 8; // Because Docker SIGTERMs after 10 secs
 
 const shutdown = (signal, value) => {
   // TODO: Should set a flag here for the listener to reject any further
   // incoming connections with a HTTP 503 error while shutting down.
-  // Otherwise the connection count may not drop to 0 before timeout.
+  // Otherwise the connection count may not reach zero before timeout.
   listener.close(() => {
     console.log(`Lemmy stopped by ${signal} with value ${value}`);
-    process.exit(128 + value);
+    process.exit(exit_signal + value);
   });
-  setTimeout( function () {
-   console.error(`Could not close all connections in time, forcing shutdown because of ${signal}...`);
-   process.exit(128 + value);
-  }, 9*1000);
+  setTimeout(function () {
+    console.error(
+      `Could not close all connections in time, forcing shutdown because of ${signal}...`,
+    );
+    process.exit(exit_signal + value);
+  }, exit_timeout * 1000);
 };
 
 for (const [signal, value] of Object.entries(signals)) {
   process.on(signal, () => {
-    console.log(`Process received a ${signal} signal`);
+    console.log(`Process received a ${signal} signal, shutting down...`);
     shutdown(signal, value);
   });
 }
