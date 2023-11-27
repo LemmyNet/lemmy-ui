@@ -55,7 +55,9 @@ server.get("/*", CatchAllHandler);
 
 const listener = server.listen(Number(port), hostname, () => {
   setupDateFns();
-  console.log(`Lemmy-ui v${VERSION} started listening on http://${hostname}:${port}`);
+  console.log(
+    `Lemmy-ui v${VERSION} started listening on http://${hostname}:${port}`,
+  );
 });
 
 const signals = {
