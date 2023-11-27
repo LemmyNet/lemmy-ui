@@ -52,12 +52,34 @@ server.get("/css/code-themes/:name", CodeThemeHandler);
 server.get("/css/themelist", ThemesListHandler);
 server.get("/*", CatchAllHandler);
 
-server.listen(Number(port), hostname, () => {
+var listener = server.listen(Number(port), hostname, () => {
   setupDateFns();
-  console.log(`http://${hostname}:${port}`);
+  console.log(`Started listening on http://${hostname}:${port}`);
 });
 
-process.on("SIGINT", () => {
-  console.info("Interrupted");
-  process.exit(0);
+var signals = {
+  'SIGHUP': 1,
+  'SIGINT': 2,
+  'SIGTERM': 15
+};
+
+const shutdown = (signal, value) => {
+  // TODO: Should set a flag here for the listener to reject any further
+  // incoming connections with a HTTP 503 error while shutting down.
+  // Otherwise the connection count may not drop to 0 before timeout.
+  listener.close(() => {
+    console.log(`Lemmy stopped by ${signal} with value ${value}`);
+    process.exit(128 + value);
+  });
+  setTimeout( function () {
+   console.error(`Could not close all connections in time, forcing shutdown because of ${signal}...`);
+   process.exit(128 + value);
+  }, 9*1000);
+};
+
+Object.keys(signals).forEach((signal) => {
+  process.on(signal, () => {
+    console.log(`Process received a ${signal} signal`);
+    shutdown(signal, signals[signal]);
+  });
 });
