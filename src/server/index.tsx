@@ -1,5 +1,6 @@
 import { setupDateFns } from "@utils/app";
 import { getStaticDir } from "@utils/env";
+import { VERSION } from "../shared/version";
 import express from "express";
 import path from "path";
 import process from "process";
@@ -54,7 +55,7 @@ server.get("/*", CatchAllHandler);
 
 const listener = server.listen(Number(port), hostname, () => {
   setupDateFns();
-  console.log(`Started listening on http://${hostname}:${port}`);
+  console.log(`Lemmy-ui v{VERSION} started listening on http://${hostname}:${port}`);
 });
 
 const signals = {
