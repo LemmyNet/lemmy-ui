@@ -63,7 +63,7 @@ const signals = {
   SIGTERM: 15,
 };
 
-const exit_signal = 128;       // Fatal error signal code on Linux systems
+const exit_signal = 128; // Fatal error signal code on Linux systems
 const exit_timeout = 8000; // Because Docker SIGTERMs after 10 secs
 
 const shutdown = (signal, value) => {
