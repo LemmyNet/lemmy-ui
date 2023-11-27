@@ -77,9 +77,9 @@ const shutdown = (signal, value) => {
   }, 9*1000);
 };
 
-Object.keys(signals).forEach((signal) => {
+for (const [signal, value] of Object.entries(signals)) {
   process.on(signal, () => {
     console.log(`Process received a ${signal} signal`);
-    shutdown(signal, signals[signal]);
+    shutdown(signal, value);
   });
-});
+}
