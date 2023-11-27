@@ -181,7 +181,7 @@ export default class ModerationActionForm extends Component<
               onInput={linkEvent(this, handleReasonChange)}
             />
           </div>
-          {showExpiresField && (
+          {modActionType === "ban" && showExpiresField && (
             <div className="col-12 col-lg-6 col-xl-5">
               <label className="visually-hidden" htmlFor={expiresId}>
                 {I18NextService.i18n.t("expires")}
@@ -213,7 +213,7 @@ export default class ModerationActionForm extends Component<
               {I18NextService.i18n.t("cancel")}
             </button>
           </div>
-          {isBanned && (
+          {modActionType === "ban" && !isBanned && (
             <div className="mb-2 col-12 col-lg-6 col-xxl-7">
               <div className="form-check m2-3">
                 <label

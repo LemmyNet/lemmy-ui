@@ -826,21 +826,33 @@ export class Post extends Component<any, PostState> {
   async handleDeleteComment(form: DeleteComment) {
     const deleteCommentRes = await HttpService.client.deleteComment(form);
     this.findAndUpdateComment(deleteCommentRes);
+    if (deleteCommentRes.state === "success") {
+      toast(form.deleted ? "Deleted comment" : "Restored comment");
+    }
   }
 
   async handleDeletePost(form: DeletePost) {
     const deleteRes = await HttpService.client.deletePost(form);
     this.updatePost(deleteRes);
+    if (deleteRes.state === "success") {
+      toast(form.deleted ? "Deleted post" : "Undeleted post");
+    }
   }
 
   async handleRemovePost(form: RemovePost) {
     const removeRes = await HttpService.client.removePost(form);
     this.updatePost(removeRes);
+    if (removeRes.state === "success") {
+      toast(form.removed ? "Removed post" : "Restored post");
+    }
   }
 
   async handleRemoveComment(form: RemoveComment) {
     const removeCommentRes = await HttpService.client.removeComment(form);
     this.findAndUpdateComment(removeCommentRes);
+    if (removeCommentRes.state === "success") {
+      toast(form.removed ? "Removed comment" : "Restored comment");
+    }
   }
 
   async handleSaveComment(form: SaveComment) {
@@ -890,6 +902,9 @@ export class Post extends Component<any, PostState> {
   async handleLockPost(form: LockPost) {
     const lockRes = await HttpService.client.lockPost(form);
     this.updatePost(lockRes);
+    if (lockRes.state === "success") {
+      toast(form.locked ? "Locked post" : "Unlocked post");
+    }
   }
 
   async handleDistinguishComment(form: DistinguishComment) {
@@ -902,6 +917,7 @@ export class Post extends Component<any, PostState> {
 
     if (addAdminRes.state === "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
+      toast(form.added ? "Added admin" : "Removed admin");
     }
   }
 
@@ -933,12 +949,22 @@ export class Post extends Component<any, PostState> {
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBan(banRes);
+    this.updateBanFromCommunity(banRes);
+    if (banRes.state === "success") {
+      toast(
+        form.ban
+          ? "Banned user from community"
+          : "Unbanned user from community",
+      );
+    }
   }
 
   async handleBanPerson(form: BanPerson) {
     const banRes = await HttpService.client.banPerson(form);
     this.updateBan(banRes);
+    if (banRes.state === "success") {
+      toast(form.ban ? "Banned user" : "Unbanned user");
+    }
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
