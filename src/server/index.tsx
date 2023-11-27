@@ -52,12 +52,12 @@ server.get("/css/code-themes/:name", CodeThemeHandler);
 server.get("/css/themelist", ThemesListHandler);
 server.get("/*", CatchAllHandler);
 
-var listener = server.listen(Number(port), hostname, () => {
+const listener = server.listen(Number(port), hostname, () => {
   setupDateFns();
   console.log(`Started listening on http://${hostname}:${port}`);
 });
 
-var signals = {
+const signals = {
   'SIGHUP': 1,
   'SIGINT': 2,
   'SIGTERM': 15
