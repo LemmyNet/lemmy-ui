@@ -1,7 +1,14 @@
 import { myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
-import { futureDaysToUnixTime, hostname } from "@utils/helpers";
+import {
+  DialogState,
+  DialogType,
+  futureDaysToUnixTime,
+  getDialogShowToggleFn,
+  getHideAllState,
+  hostname,
+} from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
 import { canAdmin, canMod } from "@utils/roles";
 import classNames from "classnames";
@@ -48,15 +55,6 @@ import ModerationActionForm, { BanUpdateForm } from "../common/mod-action-form";
 import PostActionDropdown from "../common/content-actions/post-action-dropdown";
 import { CrossPostParams } from "@utils/types";
 
-const dialogTypes = [
-  "showBanDialog",
-  "showRemoveDialog",
-  "showPurgeDialog",
-  "showReportDialog",
-] as const;
-
-type DialogType = (typeof dialogTypes)[number];
-
 type PostListingState = {
   showEdit: boolean;
   purgeReason?: string;
@@ -74,7 +72,7 @@ type PostListingState = {
   showMoreMobile: boolean;
   showBody: boolean;
   transferLoading: boolean;
-} & { [k in DialogType]: boolean };
+} & DialogState;
 
 interface PostListingProps {
   post_view: PostView;
@@ -1113,29 +1111,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     dialogType: DialogType,
     stateOverride: Partial<PostListingState> = {},
   ) {
-    this.setState(prev => ({
-      ...prev,
-      [dialogType]: !prev[dialogType],
-      ...dialogTypes
-        .filter(dt => dt !== dialogType)
-        .reduce(
-          (acc, dt) => ({
-            ...acc,
-            [dt]: false,
-          }),
-          {},
-        ),
-      ...stateOverride,
-    }));
+    this.setState(getDialogShowToggleFn(dialogType, stateOverride));
   }
 
   hideAllDialogs() {
-    this.setState({
-      showBanDialog: false,
-      showPurgeDialog: false,
-      showRemoveDialog: false,
-      showReportDialog: false,
-    });
+    this.setState(getHideAllState());
   }
 
   handleAddAdmin() {

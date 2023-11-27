@@ -248,7 +248,7 @@ export default class ContentActionDropdown extends Component<
               (this.canModOnSelf || this.canAdminOnSelf) && (
                 <li>
                   <ActionButton
-                    onClick={() => {}}
+                    onClick={this.props.onDistinguish}
                     icon="shield"
                     label={I18NextService.i18n.t(
                       this.props.commentView.comment.distinguished

@@ -30,7 +30,7 @@ interface ModActionFormPropsRemove {
 }
 
 interface ModActionFormPropsRest {
-  modActionType: "report" | "purge-post";
+  modActionType: "report" | "purge-post" | "purge-comment";
   onSubmit: (reason: string) => void;
 }
 
@@ -130,7 +130,8 @@ export default class ModerationActionForm extends Component<
         break;
       }
 
-      case "purge-post": {
+      case "purge-post":
+      case "purge-comment": {
         buttonText = I18NextService.i18n.t("purge");
         break;
       }

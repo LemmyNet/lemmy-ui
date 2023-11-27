@@ -1,5 +1,12 @@
 import { colorList, getCommentParentId, showScores } from "@utils/app";
-import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
+import {
+  DialogState,
+  DialogType,
+  futureDaysToUnixTime,
+  numToSI,
+  getDialogShowToggleFn,
+  getHideAllState,
+} from "@utils/helpers";
 import classNames from "classnames";
 import isBefore from "date-fns/isBefore";
 import parseISO from "date-fns/parseISO";
@@ -46,7 +53,7 @@ import {
 import { mdToHtml, mdToHtmlNoImages } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
-import { Icon, PurgeWarning, Spinner } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { UserBadges } from "../common/user-badges";
 import { VoteButtonsCompact } from "../common/vote-buttons";
@@ -54,22 +61,15 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { CommentForm } from "./comment-form";
 import { CommentNodes } from "./comment-nodes";
-import ModerationActionForm from "../common/mod-action-form";
+import ModerationActionForm, { BanUpdateForm } from "../common/mod-action-form";
 import CommentActionDropdown from "../common/content-actions/comment-action-dropdown";
 
-interface CommentNodeState {
+type CommentNodeState = {
   showReply: boolean;
   showEdit: boolean;
   showRemoveDialog: boolean;
-  removeReason?: string;
-  showBanDialog: boolean;
-  removeData: boolean;
-  banReason?: string;
-  banExpireDays?: number;
-  banType: BanType;
-  showPurgeDialog: boolean;
-  purgeReason?: string;
-  purgeType: PurgeType;
+  banType?: BanType;
+  purgeType?: PurgeType;
   showConfirmTransferSite: boolean;
   showConfirmTransferCommunity: boolean;
   showConfirmAppointAsMod: boolean;
@@ -77,23 +77,13 @@ interface CommentNodeState {
   collapsed: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
-  showReportDialog: boolean;
   createOrEditCommentLoading: boolean;
   upvoteLoading: boolean;
   downvoteLoading: boolean;
-  saveLoading: boolean;
   readLoading: boolean;
-  blockPersonLoading: boolean;
-  deleteLoading: boolean;
-  removeLoading: boolean;
-  distinguishLoading: boolean;
-  banLoading: boolean;
-  addModLoading: boolean;
-  addAdminLoading: boolean;
   transferCommunityLoading: boolean;
   fetchChildrenLoading: boolean;
-  purgeLoading: boolean;
-}
+} & DialogState;
 
 interface CommentNodeProps {
   node: CommentNodeI;
@@ -139,7 +129,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     showEdit: false,
     showRemoveDialog: false,
     showBanDialog: false,
-    removeData: false,
     banType: BanType.Community,
     showPurgeDialog: false,
     purgeType: PurgeType.Person,
@@ -154,18 +143,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     createOrEditCommentLoading: false,
     upvoteLoading: false,
     downvoteLoading: false,
-    saveLoading: false,
     readLoading: false,
-    blockPersonLoading: false,
-    deleteLoading: false,
-    removeLoading: false,
-    distinguishLoading: false,
-    banLoading: false,
-    addModLoading: false,
-    addAdminLoading: false,
     transferCommunityLoading: false,
     fetchChildrenLoading: false,
-    purgeLoading: false,
   };
 
   constructor(props: any, context: any) {
@@ -191,6 +171,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.handleModBanShow = this.handleModBanShow.bind(this);
     this.handleShowConfirmAppointAsAdmin =
       this.handleShowConfirmAppointAsAdmin.bind(this);
+    this.handleRemoveComment = this.handleRemoveComment.bind(this);
+    this.hideAllDialogs = this.hideAllDialogs.bind(this);
+    this.toggleShowModDialog = this.toggleShowModDialog.bind(this);
+    this.handlePurgeBothSubmit = this.handlePurgeBothSubmit.bind(this);
   }
 
   get commentView(): CommentView {
@@ -209,7 +193,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         showEdit: false,
         showRemoveDialog: false,
         showBanDialog: false,
-        removeData: false,
         banType: BanType.Community,
         showPurgeDialog: false,
         purgeType: PurgeType.Person,
@@ -224,18 +207,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         createOrEditCommentLoading: false,
         upvoteLoading: false,
         downvoteLoading: false,
-        saveLoading: false,
         readLoading: false,
-        blockPersonLoading: false,
-        deleteLoading: false,
-        removeLoading: false,
-        distinguishLoading: false,
-        banLoading: false,
-        addModLoading: false,
-        addAdminLoading: false,
         transferCommunityLoading: false,
         fetchChildrenLoading: false,
-        purgeLoading: false,
       });
     }
   }
@@ -243,14 +217,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   render() {
     const node = this.props.node;
     const cv = this.commentView;
-
-    const purgeTypeText =
-      this.state.purgeType === PurgeType.Comment
-        ? I18NextService.i18n.t("purge_comment")
-        : `${I18NextService.i18n.t("purge")} ${cv.creator.name}`;
-
-    const isMod_ = cv.creator_is_moderator;
-    const isAdmin_ = cv.creator_is_admin;
+    const {
+      creator_is_moderator,
+      creator_is_admin,
+      comment: { id, language_id, published, distinguished, updated, removed },
+      creator,
+      community,
+      post,
+      counts,
+      my_vote,
+      creator_banned_from_community,
+    } = this.commentView;
 
     const moreRepliesBorderColor = this.props.node.depth
       ? colorList[this.props.node.depth % colorList.length]
@@ -265,10 +242,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return (
       <li className="comment list-unstyled">
         <article
-          id={`comment-${cv.comment.id}`}
+          id={`comment-${id}`}
           className={classNames(`details comment-node py-2`, {
             "border-top border-light": !this.props.noBorder,
-            mark: this.isCommentNew || this.commentView.comment.distinguished,
+            mark: this.isCommentNew || distinguished,
           })}
         >
           <div className="ms-2">
@@ -285,7 +262,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 />
               </button>
 
-              <PersonListing person={cv.creator} />
+              <PersonListing person={creator} />
 
               {cv.comment.distinguished && (
                 <Icon icon="shield" inline classes="text-danger ms-1" />
@@ -294,29 +271,29 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <UserBadges
                 classNames="ms-1"
                 isPostCreator={this.isPostCreator}
-                isMod={isMod_}
-                isAdmin={isAdmin_}
+                isMod={creator_is_moderator}
+                isAdmin={creator_is_admin}
                 isBot={cv.creator.bot_account}
               />
 
               {this.props.showCommunity && (
                 <>
                   <span className="mx-1">{I18NextService.i18n.t("to")}</span>
-                  <CommunityLink community={cv.community} />
+                  <CommunityLink community={community} />
                   <span className="mx-2">•</span>
                   <Link className="me-2" to={`/post/${cv.post.id}`}>
-                    {cv.post.name}
+                    {post.name}
                   </Link>
                 </>
               )}
 
               {this.getLinkButton(true)}
 
-              {cv.comment.language_id !== 0 && (
+              {language_id !== 0 && (
                 <span className="badge text-bg-light d-none d-sm-inline me-2">
                   {
                     this.props.allLanguages.find(
-                      lang => lang.id === cv.comment.language_id,
+                      lang => lang.id === language_id,
                     )?.name
                   }
                 </span>
@@ -329,20 +306,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   <span
                     className={`me-1 fw-bold ${this.scoreColor}`}
                     aria-label={I18NextService.i18n.t("number_of_points", {
-                      count: Number(this.commentView.counts.score),
-                      formattedCount: numToSI(this.commentView.counts.score),
+                      count: Number(counts.score),
+                      formattedCount: numToSI(counts.score),
                     })}
                   >
-                    {numToSI(this.commentView.counts.score)}
+                    {numToSI(counts.score)}
                   </span>
                   <span className="me-1">•</span>
                 </>
               )}
               <span>
-                <MomentTime
-                  published={cv.comment.published}
-                  updated={cv.comment.updated}
-                />
+                <MomentTime published={published} updated={updated} />
               </span>
             </div>
             {/* end of user row */}
@@ -352,9 +326,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 edit
                 onReplyCancel={this.handleReplyCancel}
                 disabled={this.props.locked}
-                finished={this.props.finished.get(
-                  this.props.node.comment_view.comment.id,
-                )}
+                finished={this.props.finished.get(id)}
                 focus
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
@@ -411,11 +383,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     <>
                       <VoteButtonsCompact
                         voteContentType={VoteContentType.Comment}
-                        id={this.commentView.comment.id}
+                        id={id}
                         onVote={this.props.onCommentVote}
                         enableDownvotes={this.props.enableDownvotes}
-                        counts={this.commentView.counts}
-                        my_vote={this.commentView.my_vote}
+                        counts={counts}
+                        my_vote={my_vote}
                       />
                       <CommentActionDropdown
                         commentView={this.commentView}
@@ -442,7 +414,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     </>
                   )}
                 </div>
-                {/* end of button group */}
               </>
             )}
           </div>
@@ -463,10 +434,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               ) : (
                 <>
                   {I18NextService.i18n.t("x_more_replies", {
-                    count: node.comment_view.counts.child_count,
-                    formattedCount: numToSI(
-                      node.comment_view.counts.child_count,
-                    ),
+                    count: counts.child_count,
+                    formattedCount: numToSI(counts.child_count),
                   })}{" "}
                   ➔
                 </>
@@ -476,150 +445,53 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         )}
         {/* end of details */}
         {this.state.showRemoveDialog && (
-          <form
-            className="form-inline"
-            onSubmit={linkEvent(this, this.handleRemoveComment)}
-          >
-            <label
-              className="visually-hidden"
-              htmlFor={`mod-remove-reason-${cv.comment.id}`}
-            >
-              {I18NextService.i18n.t("reason")}
-            </label>
-            <input
-              type="text"
-              id={`mod-remove-reason-${cv.comment.id}`}
-              className="form-control me-2"
-              placeholder={I18NextService.i18n.t("reason")}
-              value={this.state.removeReason}
-              onInput={linkEvent(this, this.handleModRemoveReasonChange)}
-            />
-            <button
-              type="submit"
-              className="btn btn-secondary"
-              aria-label={I18NextService.i18n.t("remove_comment")}
-            >
-              {I18NextService.i18n.t("remove_comment")}
-            </button>
-          </form>
+          <ModerationActionForm
+            onSubmit={this.handleRemoveComment}
+            modActionType="remove"
+            isRemoved={removed}
+            onCancel={this.hideAllDialogs}
+          />
         )}
         {this.state.showReportDialog && (
           <ModerationActionForm
             onSubmit={this.handleReportComment}
             modActionType="report"
-            onCancel={() => {}}
+            onCancel={this.hideAllDialogs}
           />
         )}
         {this.state.showBanDialog && (
-          <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
-            <div className="mb-3 row col-12">
-              <label
-                className="col-form-label"
-                htmlFor={`mod-ban-reason-${cv.comment.id}`}
-              >
-                {I18NextService.i18n.t("reason")}
-              </label>
-              <input
-                type="text"
-                id={`mod-ban-reason-${cv.comment.id}`}
-                className="form-control me-2"
-                placeholder={I18NextService.i18n.t("reason")}
-                value={this.state.banReason}
-                onInput={linkEvent(this, this.handleModBanReasonChange)}
-              />
-              <label
-                className="col-form-label"
-                htmlFor={`mod-ban-expires-${cv.comment.id}`}
-              >
-                {I18NextService.i18n.t("expires")}
-              </label>
-              <input
-                type="number"
-                id={`mod-ban-expires-${cv.comment.id}`}
-                className="form-control me-2"
-                placeholder={I18NextService.i18n.t("number_of_days")}
-                value={this.state.banExpireDays}
-                onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
-              />
-              <div className="input-group mb-3">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    id="mod-ban-remove-data"
-                    type="checkbox"
-                    checked={this.state.removeData}
-                    onChange={linkEvent(this, this.handleModRemoveDataChange)}
-                  />
-                  <label
-                    className="form-check-label"
-                    htmlFor="mod-ban-remove-data"
-                    title={I18NextService.i18n.t("remove_content_more")}
-                  >
-                    {I18NextService.i18n.t("remove_content")}
-                  </label>
-                </div>
-              </div>
-            </div>
-            {/* TODO hold off on expires until later */}
-            {/* <div class="mb-3 row"> */}
-            {/*   <label class="col-form-label">Expires</label> */}
-            {/*   <input type="date" class="form-control me-2" placeholder={I18NextService.i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
-            {/* </div> */}
-            <div className="mb-3 row">
-              <button
-                type="submit"
-                className="btn btn-secondary"
-                aria-label={I18NextService.i18n.t("ban")}
-              >
-                {this.state.banLoading ? (
-                  <Spinner />
-                ) : (
-                  <span>
-                    {I18NextService.i18n.t("ban")} {cv.creator.name}
-                  </span>
-                )}
-              </button>
-            </div>
-          </form>
+          <ModerationActionForm
+            modActionType="ban"
+            onCancel={this.hideAllDialogs}
+            creatorName={creator.name}
+            isBanned={
+              this.state.banType === BanType.Community
+                ? creator_banned_from_community
+                : this.state.banType === BanType.Site
+                  ? creator.banned
+                  : false
+            }
+            onSubmit={this.handleModBanBothSubmit}
+          />
         )}
-
         {this.state.showPurgeDialog && (
-          <form onSubmit={linkEvent(this, this.handlePurgeBothSubmit)}>
-            <PurgeWarning />
-            <label className="visually-hidden" htmlFor="purge-reason">
-              {I18NextService.i18n.t("reason")}
-            </label>
-            <input
-              type="text"
-              id="purge-reason"
-              className="form-control my-3"
-              placeholder={I18NextService.i18n.t("reason")}
-              value={this.state.purgeReason}
-              onInput={linkEvent(this, this.handlePurgeReasonChange)}
-            />
-            <div className="mb-3 row col-12">
-              {this.state.purgeLoading ? (
-                <Spinner />
-              ) : (
-                <button
-                  type="submit"
-                  className="btn btn-secondary"
-                  aria-label={purgeTypeText}
-                >
-                  {purgeTypeText}
-                </button>
-              )}
-            </div>
-          </form>
+          <ModerationActionForm
+            modActionType={
+              this.state.purgeType === PurgeType.Comment
+                ? "purge-comment"
+                : "purge-person"
+            }
+            onSubmit={this.handlePurgeBothSubmit}
+            onCancel={this.hideAllDialogs}
+            creatorName={this.commentView.creator.name}
+          />
         )}
         {this.state.showReply && (
           <CommentForm
             node={node}
             onReplyCancel={this.handleReplyCancel}
             disabled={this.props.locked}
-            finished={this.props.finished.get(
-              this.props.node.comment_view.comment.id,
-            )}
+            finished={this.props.finished.get(id)}
             focus
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -767,6 +639,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         : comment.content;
   }
 
+  toggleShowModDialog(
+    dialogType: DialogType,
+    stateOverride: Partial<CommentNodeState> = {},
+  ) {
+    this.setState(getDialogShowToggleFn(dialogType, stateOverride));
+  }
+
+  hideAllDialogs() {
+    this.setState(getHideAllState());
+  }
+
   handleReplyClick() {
     this.setState({ showReply: true });
   }
@@ -780,25 +663,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleShowReportDialog() {
-    this.setState(prev => ({
-      ...prev,
-      showReportDialog: !prev.showReportDialog,
-    }));
+    this.toggleShowModDialog("showReportDialog");
   }
 
   handleModRemoveShow() {
-    this.setState({
-      showRemoveDialog: !this.state.showRemoveDialog,
-      showBanDialog: false,
-    });
-  }
-
-  handleModRemoveReasonChange(i: CommentNode, event: any) {
-    i.setState({ removeReason: event.target.value });
-  }
-
-  handleModRemoveDataChange(i: CommentNode, event: any) {
-    i.setState({ removeData: event.target.checked });
+    this.toggleShowModDialog("showRemoveDialog");
   }
 
   isPersonMentionType(
@@ -814,55 +683,27 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleModBanFromCommunityShow() {
-    this.setState({
-      showBanDialog: true,
-      banType: BanType.Community,
-      showRemoveDialog: false,
-    });
+    this.toggleShowModDialog("showBanDialog", { banType: BanType.Community });
   }
 
   handleModBanShow() {
-    this.setState({
-      showBanDialog: true,
-      banType: BanType.Site,
-      showRemoveDialog: false,
-    });
-  }
-
-  handleModBanReasonChange(i: CommentNode, event: any) {
-    i.setState({ banReason: event.target.value });
-  }
-
-  handleModBanExpireDaysChange(i: CommentNode, event: any) {
-    i.setState({ banExpireDays: event.target.value });
+    this.toggleShowModDialog("showBanDialog", { banType: BanType.Site });
   }
 
   handlePurgePersonShow() {
-    this.setState({
-      showPurgeDialog: true,
+    this.toggleShowModDialog("showPurgeDialog", {
       purgeType: PurgeType.Person,
-      showRemoveDialog: false,
     });
   }
 
   handlePurgeCommentShow() {
-    this.setState({
-      showPurgeDialog: true,
+    this.toggleShowModDialog("showPurgeDialog", {
       purgeType: PurgeType.Comment,
-      showRemoveDialog: false,
     });
-  }
-
-  handlePurgeReasonChange(i: CommentNode, event: any) {
-    i.setState({ purgeReason: event.target.value });
   }
 
   handleShowConfirmAppointAsMod() {
     this.setState({ showConfirmAppointAsMod: true });
-  }
-
-  handleCancelConfirmAppointAsMod(i: CommentNode) {
-    i.setState({ showConfirmAppointAsMod: false });
   }
 
   handleShowConfirmAppointAsAdmin() {
@@ -877,18 +718,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.setState({ showConfirmTransferCommunity: true });
   }
 
-  handleCancelShowConfirmTransferCommunity(i: CommentNode) {
-    i.setState({ showConfirmTransferCommunity: false });
-  }
-
-  handleShowConfirmTransferSite(i: CommentNode) {
-    i.setState({ showConfirmTransferSite: true });
-  }
-
-  handleCancelShowConfirmTransferSite(i: CommentNode) {
-    i.setState({ showConfirmTransferSite: false });
-  }
-
   get isCommentNew(): boolean {
     const now = subMinutes(new Date(), 10);
     const then = parseISO(this.commentView.comment.published);
@@ -898,10 +727,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleCommentCollapse(i: CommentNode) {
     i.setState({ collapsed: !i.state.collapsed });
     setupTippy();
-  }
-
-  handleViewSource(i: CommentNode) {
-    i.setState({ viewSource: !i.state.viewSource });
   }
 
   handleShowAdvanced(i: CommentNode) {
@@ -946,14 +771,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleRemoveComment(i: CommentNode, event: any) {
-    event.preventDefault();
-    i.setState({ removeLoading: true });
-    i.props.onRemoveComment({
-      comment_id: i.commentId,
-      removed: !i.commentView.comment.removed,
-      reason: i.state.removeReason,
+  handleRemoveComment(reason: string) {
+    this.props.onRemoveComment({
+      comment_id: this.commentId,
+      removed: !this.commentView.comment.removed,
+      reason,
     });
+
+    this.hideAllDialogs();
   }
 
   handleDistinguishComment() {
@@ -963,65 +788,49 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleBanPersonFromCommunity(i: CommentNode) {
-    i.setState({ banLoading: true });
-    i.props.onBanPersonFromCommunity({
-      community_id: i.commentView.community.id,
-      person_id: i.commentView.creator.id,
-      ban: !i.commentView.creator_banned_from_community,
-      reason: i.state.banReason,
-      remove_data: i.state.removeData,
-      expires: futureDaysToUnixTime(i.state.banExpireDays),
-    });
-  }
+  handleModBanBothSubmit({
+    reason,
+    shouldRemove,
+    daysUntilExpires,
+  }: BanUpdateForm) {
+    const { banType } = this.state;
+    const {
+      creator: { id: person_id, banned: bannedFromSite },
+      creator_banned_from_community,
+      community: { id: community_id },
+    } = this.commentView;
 
-  handleBanPerson(i: CommentNode) {
-    i.setState({ banLoading: true });
-    i.props.onBanPerson({
-      person_id: i.commentView.creator.id,
-      ban: !i.commentView.creator_banned_from_community,
-      reason: i.state.banReason,
-      remove_data: i.state.removeData,
-      expires: futureDaysToUnixTime(i.state.banExpireDays),
-    });
-  }
+    const ban = !(banType === BanType.Community
+      ? creator_banned_from_community
+      : bannedFromSite);
 
-  handleModBanBothSubmit(i: CommentNode, event: any) {
-    event.preventDefault();
-    if (i.state.banType === BanType.Community) {
-      i.handleBanPersonFromCommunity(i);
-    } else {
-      i.handleBanPerson(i);
+    // If its an unban, restore all their data
+    if (ban === false) {
+      shouldRemove = false;
     }
-  }
+    const expires = futureDaysToUnixTime(daysUntilExpires);
 
-  handleAddModToCommunity(i: CommentNode) {
-    i.setState({ addModLoading: true });
+    if (banType === BanType.Community) {
+      this.props.onBanPersonFromCommunity({
+        community_id,
+        person_id,
+        ban,
+        remove_data: shouldRemove,
+        reason,
+        expires,
+      });
+    } else {
+      this.props.onBanPerson({
+        person_id,
+        ban,
+        remove_data: shouldRemove,
+        reason,
+        expires,
+      });
+    }
 
-    const added = !i.commentView.creator_is_moderator;
-    i.props.onAddModToCommunity({
-      community_id: i.commentView.community.id,
-      person_id: i.commentView.creator.id,
-      added,
-    });
-  }
-
-  handleAddAdmin(i: CommentNode) {
-    i.setState({ addAdminLoading: true });
-
-    const added = !i.commentView.creator_is_admin;
-    i.props.onAddAdmin({
-      person_id: i.commentView.creator.id,
-      added,
-    });
-  }
-
-  handleTransferCommunity(i: CommentNode) {
-    i.setState({ transferCommunityLoading: true });
-    i.props.onTransferCommunity({
-      community_id: i.commentView.community.id,
-      person_id: i.commentView.creator.id,
-    });
+    this.setState({ banType: undefined });
+    this.toggleShowModDialog("showBanDialog");
   }
 
   handleReportComment(reason: string) {
@@ -1030,24 +839,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       reason,
     });
 
-    this.setState({
-      showReportDialog: false,
-    });
+    this.hideAllDialogs();
   }
 
-  handlePurgeBothSubmit(i: CommentNode, event: any) {
-    event.preventDefault();
-    i.setState({ purgeLoading: true });
-
-    if (i.state.purgeType === PurgeType.Person) {
-      i.props.onPurgePerson({
-        person_id: i.commentView.creator.id,
-        reason: i.state.purgeReason,
+  handlePurgeBothSubmit(reason: string) {
+    if (this.state.purgeType === PurgeType.Person) {
+      this.props.onPurgePerson({
+        person_id: this.commentView.creator.id,
+        reason,
       });
     } else {
-      i.props.onPurgeComment({
-        comment_id: i.commentId,
-        reason: i.state.purgeReason,
+      this.props.onPurgeComment({
+        comment_id: this.commentId,
+        reason,
       });
     }
   }
