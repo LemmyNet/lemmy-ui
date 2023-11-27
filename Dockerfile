@@ -82,6 +82,8 @@ LABEL org.opencontainers.image.source="https://github.com/LemmyNet/lemmy-ui"
 LABEL org.opencontainers.image.licenses="AGPL-3.0-or-later"
 LABEL org.opencontainers.image.description="The official web app for Lemmy."
 
+HEALTHCHECK --interval=60s --start-period=10s --retries=2 --timeout=10s CMD curl -ILfSs http://localhost:1234/ > /dev/null || exit 1
+
 USER node
 EXPOSE 1234
 WORKDIR /app
