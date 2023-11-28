@@ -2,7 +2,6 @@ import { initializeSite, isAuthPath } from "@utils/app";
 import { getHttpBaseInternal } from "@utils/env";
 import { ErrorPageData } from "@utils/types";
 import * as cookie from "cookie";
-import fetch from "cross-fetch";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { renderToString } from "inferno-server";
@@ -29,7 +28,7 @@ export default async (req: Request, res: Response) => {
     const headers = setForwardedHeaders(req.headers);
 
     const client = wrapClient(
-      new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers }),
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
 
     const auth = req.headers.cookie
@@ -37,7 +36,8 @@ export default async (req: Request, res: Response) => {
       : undefined;
 
     if (auth) {
-      client.setHeaders({ Authorization: `Bearer ${auth}` });
+      headers["Authorization"] = `Bearer ${auth}`;
+      client.setHeaders(headers);
     }
     const { path, url, query } = req;
 

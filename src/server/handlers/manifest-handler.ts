@@ -1,5 +1,4 @@
 import { getHttpBaseExternal, getHttpBaseInternal } from "@utils/env";
-import fetch from "cross-fetch";
 import type { Request, Response } from "express";
 import { LemmyHttp } from "lemmy-js-client";
 import { wrapClient } from "../../shared/services/HttpService";
@@ -13,7 +12,7 @@ export default async (req: Request, res: Response) => {
   if (!manifest || manifest.start_url !== getHttpBaseExternal()) {
     const headers = setForwardedHeaders(req.headers);
     const client = wrapClient(
-      new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers }),
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     const site = await client.getSite();
 
