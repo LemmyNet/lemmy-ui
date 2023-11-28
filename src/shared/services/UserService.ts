@@ -1,7 +1,7 @@
 import { isAuthPath } from "@utils/app";
 import { clearAuthCookie, isBrowser, setAuthCookie } from "@utils/browser";
 import * as cookie from "cookie";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { LoginResponse, MyUserInfo } from "lemmy-js-client";
 import { toast } from "../toast";
 import { I18NextService } from "./I18NextService";
@@ -83,7 +83,7 @@ export class UserService {
 
       if (jwt) {
         HttpService.client.setHeaders({ Authorization: `Bearer ${jwt}` });
-        this.jwtInfo = { jwt, claims: jwt_decode(jwt) };
+        this.jwtInfo = { jwt, claims: jwtDecode(jwt) };
       }
     }
   }

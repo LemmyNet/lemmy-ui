@@ -28,7 +28,7 @@ steps:
     settings:
       repo: dessalines/lemmy-ui
       dockerfile: Dockerfile
-      platforms: linux/amd64
+      platforms: linux/amd64, linux/arm64
       tag: ${CI_COMMIT_TAG}
     when:
       event: tag
@@ -39,7 +39,7 @@ steps:
     settings:
       repo: dessalines/lemmy-ui
       dockerfile: Dockerfile
-      platforms: linux/amd64
+      platforms: linux/amd64, linux/arm64
       tag: dev
     when:
       event: cron
