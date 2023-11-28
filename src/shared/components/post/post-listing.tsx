@@ -42,7 +42,7 @@ import { BanType, PurgeType, VoteContentType } from "../../interfaces";
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
-import { Icon, Spinner } from "../common/icon";
+import { Icon } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
 import { UserBadges } from "../common/user-badges";
@@ -54,24 +54,16 @@ import { PostForm } from "./post-form";
 import ModerationActionForm, { BanUpdateForm } from "../common/mod-action-form";
 import PostActionDropdown from "../common/content-actions/post-action-dropdown";
 import { CrossPostParams } from "@utils/types";
+import ConfirmationModal from "../common/confirmation-modal";
 
 type PostListingState = {
   showEdit: boolean;
-  purgeReason?: string;
   purgeType?: PurgeType;
-  removeReason?: string;
-  banReason?: string;
-  banExpireDays?: number;
   banType?: BanType;
-  removeData?: boolean;
-  showConfirmTransferSite: boolean;
-  showConfirmTransferCommunity: boolean;
   imageExpanded: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
-  showMoreMobile: boolean;
   showBody: boolean;
-  transferLoading: boolean;
 } & DialogState;
 
 interface PostListingProps {
@@ -114,19 +106,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showEdit: false,
     purgeType: PurgeType.Person,
     banType: BanType.Community,
-    removeData: false,
-    showConfirmTransferSite: false,
-    showConfirmTransferCommunity: false,
     imageExpanded: false,
     viewSource: false,
     showAdvanced: false,
-    showMoreMobile: false,
     showBody: false,
-    transferLoading: false,
     showBanDialog: false,
     showPurgeDialog: false,
     showRemoveDialog: false,
     showReportDialog: false,
+    showAppointAsAdminDialog: false,
+    showAppointAsModDialog: false,
+    showTransferCommunityDialog: false,
   };
 
   constructor(props: any, context: any) {
@@ -156,21 +146,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleBanFromCommunityClick =
       this.handleBanFromCommunityClick.bind(this);
     this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
-    this.toggleShowConfirmTransferCommunity =
-      this.toggleShowConfirmTransferCommunity.bind(this);
+    this.toggleShowTransferCommunity =
+      this.toggleShowTransferCommunity.bind(this);
     this.handleBanFromSiteClick = this.handleBanFromSiteClick.bind(this);
     this.toggleShowPurgePerson = this.toggleShowPurgePerson.bind(this);
     this.toggleShowPurgePost = this.toggleShowPurgePost.bind(this);
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
     this.hideAllDialogs = this.hideAllDialogs.bind(this);
-  }
-
-  componentWillReceiveProps(nextProps: PostListingProps) {
-    if (this.props !== nextProps) {
-      this.setState({
-        transferLoading: false,
-      });
-    }
+    this.handleTransferCommunitySubmit =
+      this.handleTransferCommunitySubmit.bind(this);
   }
 
   get postView(): PostView {
@@ -641,7 +625,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onRemove={this.toggleModRemoveShow}
             onBanFromCommunity={this.handleBanFromCommunityClick}
             onAddCommunityMod={this.handleAddModToCommunity}
-            onTransferCommunity={this.toggleShowConfirmTransferCommunity}
+            onTransferCommunity={this.toggleShowTransferCommunity}
             onBanFromLocal={this.handleBanFromSiteClick}
             onPurgeUser={this.toggleShowPurgePerson}
             onPurgeContent={this.toggleShowPurgePost}
@@ -715,14 +699,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   removeAndBanDialogs() {
     const {
-      showConfirmTransferCommunity,
       showBanDialog,
       showPurgeDialog,
       showRemoveDialog,
-      transferLoading,
       showReportDialog,
       banType,
       purgeType,
+      showTransferCommunityDialog,
+      showAppointAsModDialog,
+      showAppointAsAdminDialog,
     } = this.state;
     const {
       post: { removed },
@@ -739,26 +724,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             isRemoved={removed}
             onCancel={this.hideAllDialogs}
           />
-        )}
-        {showConfirmTransferCommunity && (
-          <>
-            <button className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0">
-              {I18NextService.i18n.t("are_you_sure")}
-            </button>
-            <button
-              className="btn btn-link btn-animate text-muted py-0 d-inline-block me-1"
-              onClick={linkEvent(this, this.handleTransferCommunity)}
-            >
-              {transferLoading ? <Spinner /> : I18NextService.i18n.t("yes")}
-            </button>
-            <button
-              className="btn btn-link btn-animate text-muted py-0 d-inline-block"
-              onClick={this.toggleShowConfirmTransferCommunity}
-              aria-label={I18NextService.i18n.t("no")}
-            >
-              {I18NextService.i18n.t("no")}
-            </button>
-          </>
         )}
         {showBanDialog && (
           <ModerationActionForm
@@ -792,6 +757,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onCancel={this.hideAllDialogs}
           />
         )}
+        <ConfirmationModal
+          show={showTransferCommunityDialog}
+          message="Are you sure you want to transfer the community x to y?"
+          onNo={this.hideAllDialogs}
+          onYes={this.handleTransferCommunitySubmit}
+        />
+        <ConfirmationModal
+          show={showAppointAsModDialog}
+          message="Are you sure you want to appoint x as a moderator for y??"
+          onNo={this.hideAllDialogs}
+          onYes={this.handleAddModToCommunity}
+        />
+        <ConfirmationModal
+          show={showAppointAsAdminDialog}
+          message="Are you sure you want to appoint x as an admin for y??"
+          onNo={this.hideAllDialogs}
+          onYes={this.handleAddAdmin}
+        />
       </>
     );
   }
@@ -974,14 +957,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.toggleShowModDialog("showRemoveDialog");
   }
 
-  handleModRemoveReasonChange(i: PostListing, event: any) {
-    i.setState({ removeReason: event.target.value });
-  }
-
-  handleModRemoveDataChange(i: PostListing, event: any) {
-    i.setState({ removeData: event.target.checked });
-  }
-
   handleModRemoveSubmit(reason: string) {
     this.props.onRemovePost({
       post_id: this.postView.post.id,
@@ -1125,17 +1100,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  toggleShowConfirmTransferCommunity() {
-    this.setState(prev => ({
-      ...prev,
-      showConfirmTransferCommunity: !prev.showConfirmTransferCommunity,
-    }));
+  toggleShowTransferCommunity() {
+    this.toggleShowModDialog("showTransferCommunityDialog");
   }
 
-  handleTransferCommunity(i: PostListing) {
-    i.props.onTransferCommunity({
-      community_id: i.postView.community.id,
-      person_id: i.postView.creator.id,
+  handleTransferCommunitySubmit() {
+    this.props.onTransferCommunity({
+      community_id: this.postView.community.id,
+      person_id: this.postView.creator.id,
     });
   }
 

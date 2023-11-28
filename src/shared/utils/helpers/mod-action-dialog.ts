@@ -3,6 +3,9 @@ const dialogTypes = [
   "showRemoveDialog",
   "showPurgeDialog",
   "showReportDialog",
+  "showTransferCommunityDialog",
+  "showAppointAsModDialog",
+  "showAppointAsAdminDialog",
 ] as const;
 
 export type DialogType = (typeof dialogTypes)[number];
@@ -35,5 +38,8 @@ export function getHideAllState(): DialogState {
     showPurgeDialog: false,
     showRemoveDialog: false,
     showReportDialog: false,
+    showAppointAsAdminDialog: false,
+    showAppointAsModDialog: false,
+    showTransferCommunityDialog: false,
   };
 }
