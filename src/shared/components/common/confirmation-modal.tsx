@@ -6,7 +6,7 @@ interface ConfirmModalProps {
   onYes: () => void;
   onNo: () => void;
   message: string;
-  show?: boolean;
+  show: boolean;
 }
 
 export default class ConfirmationModal extends Component<

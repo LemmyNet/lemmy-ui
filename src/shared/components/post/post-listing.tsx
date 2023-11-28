@@ -1,14 +1,7 @@
 import { myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
-import {
-  DialogState,
-  DialogType,
-  futureDaysToUnixTime,
-  getDialogShowToggleFn,
-  getHideAllState,
-  hostname,
-} from "@utils/helpers";
+import { futureDaysToUnixTime, hostname } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
 import { canAdmin, canMod } from "@utils/roles";
 import classNames from "classnames";
@@ -38,7 +31,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { relTags } from "../../config";
-import { BanType, PurgeType, VoteContentType } from "../../interfaces";
+import { VoteContentType } from "../../interfaces";
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
@@ -51,20 +44,17 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
-import ModerationActionForm, { BanUpdateForm } from "../common/mod-action-form";
+import { BanUpdateForm } from "../common/mod-action-form-modal";
 import PostActionDropdown from "../common/content-actions/post-action-dropdown";
 import { CrossPostParams } from "@utils/types";
-import ConfirmationModal from "../common/confirmation-modal";
 
 type PostListingState = {
   showEdit: boolean;
-  purgeType?: PurgeType;
-  banType?: BanType;
   imageExpanded: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
   showBody: boolean;
-} & DialogState;
+};
 
 interface PostListingProps {
   post_view: PostView;
@@ -104,19 +94,10 @@ interface PostListingProps {
 export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
-    purgeType: PurgeType.Person,
-    banType: BanType.Community,
     imageExpanded: false,
     viewSource: false,
     showAdvanced: false,
     showBody: false,
-    showBanDialog: false,
-    showPurgeDialog: false,
-    showRemoveDialog: false,
-    showReportDialog: false,
-    showAppointAsAdminDialog: false,
-    showAppointAsModDialog: false,
-    showTransferCommunityDialog: false,
   };
 
   constructor(props: any, context: any) {
@@ -130,31 +111,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleEditPost = this.handleEditPost.bind(this);
     this.handleEditCancel = this.handleEditCancel.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
-    this.submitReport = this.submitReport.bind(this);
-    this.handleModRemoveSubmit = this.handleModRemoveSubmit.bind(this);
-    this.handleModBanBothSubmit = this.handleModBanBothSubmit.bind(this);
-    this.handlePurgeSubmit = this.handlePurgeSubmit.bind(this);
-    this.toggleSavePost = this.toggleSavePost.bind(this);
-    this.toggleShowReportDialog = this.toggleShowReportDialog.bind(this);
-    this.blockPerson = this.blockPerson.bind(this);
-    this.toggleDeletePost = this.toggleDeletePost.bind(this);
+    this.handleReport = this.handleReport.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
+    this.handleSavePost = this.handleSavePost.bind(this);
+    this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleDeletePost = this.handleDeletePost.bind(this);
     this.handleModLock = this.handleModLock.bind(this);
     this.handleModFeaturePostCommunity =
       this.handleModFeaturePostCommunity.bind(this);
     this.handleModFeaturePostLocal = this.handleModFeaturePostLocal.bind(this);
-    this.toggleModRemoveShow = this.toggleModRemoveShow.bind(this);
-    this.handleBanFromCommunityClick =
-      this.handleBanFromCommunityClick.bind(this);
-    this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
-    this.toggleShowTransferCommunity =
-      this.toggleShowTransferCommunity.bind(this);
-    this.handleBanFromSiteClick = this.handleBanFromSiteClick.bind(this);
-    this.toggleShowPurgePerson = this.toggleShowPurgePerson.bind(this);
-    this.toggleShowPurgePost = this.toggleShowPurgePost.bind(this);
-    this.handleAddAdmin = this.handleAddAdmin.bind(this);
-    this.hideAllDialogs = this.hideAllDialogs.bind(this);
-    this.handleTransferCommunitySubmit =
-      this.handleTransferCommunitySubmit.bind(this);
+    this.handleAppointCommunityMod = this.handleAppointCommunityMod.bind(this);
+    this.handleAppointAdmin = this.handleAppointAdmin.bind(this);
+    this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
+    this.handleModBanFromCommunity = this.handleModBanFromCommunity.bind(this);
+    this.handleModBanFromSite = this.handleModBanFromSite.bind(this);
+    this.handlePurgePerson = this.handlePurgePerson.bind(this);
+    this.handlePurgePost = this.handlePurgePost.bind(this);
   }
 
   get postView(): PostView {
@@ -614,22 +586,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             admins={admins}
             moderators={moderators}
             crossPostParams={this.crossPostParams}
-            onSave={this.toggleSavePost}
-            onReport={this.toggleShowReportDialog}
-            onBlock={this.blockPerson}
+            onSave={this.handleSavePost}
+            onReport={this.handleReport}
+            onBlock={this.handleBlockPerson}
             onEdit={this.handleEditClick}
-            onDelete={this.toggleDeletePost}
+            onDelete={this.handleDeletePost}
             onLock={this.handleModLock}
             onFeatureCommunity={this.handleModFeaturePostCommunity}
             onFeatureLocal={this.handleModFeaturePostLocal}
-            onRemove={this.toggleModRemoveShow}
-            onBanFromCommunity={this.handleBanFromCommunityClick}
-            onAddCommunityMod={this.handleAddModToCommunity}
-            onTransferCommunity={this.toggleShowTransferCommunity}
-            onBanFromLocal={this.handleBanFromSiteClick}
-            onPurgeUser={this.toggleShowPurgePerson}
-            onPurgeContent={this.toggleShowPurgePost}
-            onAddAdmin={this.handleAddAdmin}
+            onRemove={this.handleRemove}
+            onBanFromCommunity={this.handleModBanFromCommunity}
+            onAppointCommunityMod={this.handleAppointCommunityMod}
+            onTransferCommunity={this.handleTransferCommunity}
+            onBanFromSite={this.handleModBanFromSite}
+            onPurgeUser={this.handlePurgePerson}
+            onPurgeContent={this.handlePurgePost}
+            onAppointAdmin={this.handleAppointAdmin}
           />
         )}
       </div>
@@ -697,88 +669,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  removeAndBanDialogs() {
-    const {
-      showBanDialog,
-      showPurgeDialog,
-      showRemoveDialog,
-      showReportDialog,
-      banType,
-      purgeType,
-      showTransferCommunityDialog,
-      showAppointAsModDialog,
-      showAppointAsAdminDialog,
-    } = this.state;
-    const {
-      post: { removed },
-      creator: { name: creatorName, banned },
-      creator_banned_from_community,
-    } = this.postView;
-
-    return (
-      <>
-        {showRemoveDialog && (
-          <ModerationActionForm
-            onSubmit={this.handleModRemoveSubmit}
-            modActionType="remove"
-            isRemoved={removed}
-            onCancel={this.hideAllDialogs}
-          />
-        )}
-        {showBanDialog && (
-          <ModerationActionForm
-            onSubmit={this.handleModBanBothSubmit}
-            modActionType="ban"
-            creatorName={creatorName}
-            onCancel={this.hideAllDialogs}
-            isBanned={
-              banType === BanType.Community
-                ? creator_banned_from_community
-                : banType === BanType.Site
-                  ? banned
-                  : false
-            }
-          />
-        )}
-        {showReportDialog && (
-          <ModerationActionForm
-            onSubmit={this.submitReport}
-            modActionType="report"
-            onCancel={this.hideAllDialogs}
-          />
-        )}
-        {showPurgeDialog && (
-          <ModerationActionForm
-            onSubmit={this.handlePurgeSubmit}
-            modActionType={
-              purgeType === PurgeType.Post ? "purge-post" : "purge-person"
-            }
-            creatorName={creatorName}
-            onCancel={this.hideAllDialogs}
-          />
-        )}
-        <ConfirmationModal
-          show={showTransferCommunityDialog}
-          message="Are you sure you want to transfer the community x to y?"
-          onNo={this.hideAllDialogs}
-          onYes={this.handleTransferCommunitySubmit}
-        />
-        <ConfirmationModal
-          show={showAppointAsModDialog}
-          message="Are you sure you want to appoint x as a moderator for y??"
-          onNo={this.hideAllDialogs}
-          onYes={this.handleAddModToCommunity}
-        />
-        <ConfirmationModal
-          show={showAppointAsAdminDialog}
-          message="Are you sure you want to appoint x as an admin for y??"
-          onNo={this.hideAllDialogs}
-          onYes={this.handleAddAdmin}
-        />
-      </>
-    );
-  }
-
   mobileThumbnail() {
     const post = this.postView.post;
     return post.thumbnail_url || (post.url && isImage(post.url)) ? (
@@ -825,7 +715,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
               {this.commentsLine(true)}
               {this.duplicatesLine()}
-              {this.removeAndBanDialogs()}
             </div>
           </article>
         </div>
@@ -855,7 +744,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   {this.createdLine()}
                   {this.commentsLine()}
                   {this.duplicatesLine()}
-                  {this.removeAndBanDialogs()}
                 </div>
               </div>
             </div>
@@ -888,34 +776,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  toggleShowReportDialog() {
-    this.toggleShowModDialog("showReportDialog");
-  }
-
-  submitReport(reason: string) {
+  handleReport(reason: string) {
     this.props.onPostReport({
       post_id: this.postView.post.id,
       reason,
     });
-
-    this.hideAllDialogs();
   }
 
-  blockPerson() {
+  handleBlockPerson() {
     this.props.onBlockPerson({
       person_id: this.postView.creator.id,
       block: true,
     });
   }
 
-  toggleDeletePost() {
+  handleDeletePost() {
     this.props.onDeletePost({
       post_id: this.postView.post.id,
       deleted: !this.postView.post.deleted,
     });
   }
 
-  toggleSavePost() {
+  handleSavePost() {
     this.props.onSavePost({
       post_id: this.postView.post.id,
       save: !this.postView.saved,
@@ -953,17 +835,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return this.props.showBody || this.state.showBody;
   }
 
-  toggleModRemoveShow() {
-    this.toggleShowModDialog("showRemoveDialog");
-  }
-
-  handleModRemoveSubmit(reason: string) {
+  handleRemove(reason: string) {
     this.props.onRemovePost({
       post_id: this.postView.post.id,
       removed: !this.postView.post.removed,
       reason,
     });
-    this.hideAllDialogs();
   }
 
   handleModLock() {
@@ -989,61 +866,31 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  handleBanFromCommunityClick() {
-    this.toggleShowModDialog("showBanDialog", {
-      banType: BanType.Community,
+  handlePurgePost(reason: string) {
+    this.props.onPurgePost({
+      post_id: this.postView.post.id,
+      reason,
     });
   }
 
-  handleBanFromSiteClick() {
-    this.toggleShowModDialog("showBanDialog", {
-      banType: BanType.Site,
+  handlePurgePerson(reason: string) {
+    this.props.onPurgePerson({
+      person_id: this.postView.creator.id,
+      reason,
     });
   }
 
-  toggleShowPurgePerson() {
-    this.toggleShowModDialog("showPurgeDialog", {
-      purgeType: PurgeType.Person,
-    });
-  }
-
-  toggleShowPurgePost() {
-    this.toggleShowModDialog("showPurgeDialog", {
-      purgeType: PurgeType.Post,
-    });
-  }
-
-  handlePurgeSubmit(reason: string) {
-    if (this.state.purgeType === PurgeType.Person) {
-      this.props.onPurgePerson({
-        person_id: this.postView.creator.id,
-        reason,
-      });
-    } else if (this.state.purgeType === PurgeType.Post) {
-      this.props.onPurgePost({
-        post_id: this.postView.post.id,
-        reason,
-      });
-    }
-
-    this.hideAllDialogs();
-  }
-
-  handleModBanBothSubmit({
+  handleModBanFromCommunity({
+    daysUntilExpires,
     reason,
     shouldRemove,
-    daysUntilExpires,
   }: BanUpdateForm) {
-    const { banType } = this.state;
     const {
-      creator: { id: person_id, banned: bannedFromSite },
+      creator: { id: person_id },
       creator_banned_from_community,
       community: { id: community_id },
     } = this.postView;
-
-    const ban = !(banType === BanType.Community
-      ? creator_banned_from_community
-      : bannedFromSite);
+    const ban = !creator_banned_from_community;
 
     // If its an unban, restore all their data
     if (ban === false) {
@@ -1051,30 +898,42 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
     const expires = futureDaysToUnixTime(daysUntilExpires);
 
-    if (banType === BanType.Community) {
-      this.props.onBanPersonFromCommunity({
-        community_id,
-        person_id,
-        ban,
-        remove_data: shouldRemove,
-        reason,
-        expires,
-      });
-    } else {
-      this.props.onBanPerson({
-        person_id,
-        ban,
-        remove_data: shouldRemove,
-        reason,
-        expires,
-      });
-    }
-
-    this.setState({ banType: undefined });
-    this.toggleShowModDialog("showBanDialog");
+    this.props.onBanPersonFromCommunity({
+      community_id,
+      person_id,
+      ban,
+      remove_data: shouldRemove,
+      reason,
+      expires,
+    });
   }
 
-  handleAddModToCommunity() {
+  handleModBanFromSite({
+    daysUntilExpires,
+    reason,
+    shouldRemove,
+  }: BanUpdateForm) {
+    const {
+      creator: { id: person_id, banned },
+    } = this.postView;
+    const ban = !banned;
+
+    // If its an unban, restore all their data
+    if (ban === false) {
+      shouldRemove = false;
+    }
+    const expires = futureDaysToUnixTime(daysUntilExpires);
+
+    this.props.onBanPerson({
+      person_id,
+      ban,
+      remove_data: shouldRemove,
+      reason,
+      expires,
+    });
+  }
+
+  handleAppointCommunityMod() {
     this.props.onAddModToCommunity({
       community_id: this.postView.community.id,
       person_id: this.postView.creator.id,
@@ -1082,29 +941,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  toggleShowModDialog(
-    dialogType: DialogType,
-    stateOverride: Partial<PostListingState> = {},
-  ) {
-    this.setState(getDialogShowToggleFn(dialogType, stateOverride));
-  }
-
-  hideAllDialogs() {
-    this.setState(getHideAllState());
-  }
-
-  handleAddAdmin() {
+  handleAppointAdmin() {
     this.props.onAddAdmin({
       person_id: this.postView.creator.id,
       added: !this.postView.creator_is_admin,
     });
   }
 
-  toggleShowTransferCommunity() {
-    this.toggleShowModDialog("showTransferCommunityDialog");
-  }
-
-  handleTransferCommunitySubmit() {
+  handleTransferCommunity() {
     this.props.onTransferCommunity({
       community_id: this.postView.community.id,
       person_id: this.postView.creator.id,

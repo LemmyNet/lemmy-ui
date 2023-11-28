@@ -20,21 +20,24 @@ import {
 import ActionButton from "./action-button";
 import classNames from "classnames";
 import { Link } from "inferno-router";
+import ConfirmationModal from "../confirmation-modal";
+import ModActionFormModal, { BanUpdateForm } from "../mod-action-form-modal";
+import { BanType, PurgeType } from "../../../interfaces";
 
 interface ContentActionDropdownPropsBase {
   onSave: () => void;
   onEdit: () => void;
   onDelete: () => void;
-  onReport: () => void;
+  onReport: (reason: string) => void;
   onBlock: () => void;
-  onRemove: () => void;
-  onBanFromCommunity: () => void;
-  onAddCommunityMod: () => void;
+  onRemove: (reason: string) => void;
+  onBanFromCommunity: (form: BanUpdateForm) => void;
+  onAppointCommunityMod: () => void;
   onTransferCommunity: () => void;
-  onBanFromLocal: () => void;
-  onPurgeContent: () => void;
-  onPurgeUser: () => void;
-  onAddAdmin: () => void;
+  onBanFromSite: (form: BanUpdateForm) => void;
+  onPurgeContent: (reason: string) => void;
+  onPurgeUser: (reason: string) => void;
+  onAppointAdmin: () => void;
   moderators?: CommunityModeratorView[];
   admins?: PersonView[];
 }
@@ -57,33 +60,58 @@ export type ContentPostProps = {
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
 
+const dialogTypes = [
+  "showBanDialog",
+  "showRemoveDialog",
+  "showPurgeDialog",
+  "showReportDialog",
+  "showTransferCommunityDialog",
+  "showAppointModDialog",
+  "showAppointAdminDialog",
+] as const;
+
+type DialogType = (typeof dialogTypes)[number];
+
+type ContentActionDropdownState = {
+  banType?: BanType;
+  purgeType?: PurgeType;
+} & { [key in DialogType]: boolean };
+
 export default class ContentActionDropdown extends Component<
   ContentActionDropdownProps,
-  any
+  ContentActionDropdownState
 > {
+  state: ContentActionDropdownState = {
+    showAppointAdminDialog: false,
+    showAppointModDialog: false,
+    showBanDialog: false,
+    showPurgeDialog: false,
+    showRemoveDialog: false,
+    showReportDialog: false,
+    showTransferCommunityDialog: false,
+  };
+
   constructor(props: ContentActionDropdownProps, context: any) {
     super(props, context);
+
+    this.toggleModDialogShow = this.toggleModDialogShow.bind(this);
+    this.hideAllDialogs = this.hideAllDialogs.bind(this);
+    this.toggleReportDialogShow = this.toggleReportDialogShow.bind(this);
+    this.toggleRemoveShow = this.toggleRemoveShow.bind(this);
+    this.toggleBanFromCommunityShow =
+      this.toggleBanFromCommunityShow.bind(this);
+    this.toggleBanFromSiteShow = this.toggleBanFromSiteShow.bind(this);
+    this.togglePurgePersonShow = this.togglePurgePersonShow.bind(this);
+    this.togglePurgeContentShow = this.togglePurgeContentShow.bind(this);
+    this.toggleTransferCommunityShow =
+      this.toggleTransferCommunityShow.bind(this);
+    this.toggleAppointModShow = this.toggleAppointModShow.bind(this);
+    this.toggleAppointAdminShow = this.toggleAppointAdminShow.bind(this);
   }
 
   render() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
-    const {
-      onSave,
-      type,
-      onDelete,
-      onBlock,
-      onEdit,
-      onReport,
-      onRemove,
-      onBanFromCommunity,
-      onAddCommunityMod,
-      moderators,
-      onTransferCommunity,
-      onBanFromLocal,
-      onPurgeContent,
-      onPurgeUser,
-      onAddAdmin,
-    } = this.props;
+    const { onSave, type, onDelete, onBlock, onEdit, moderators } = this.props;
     const {
       id,
       saved,
@@ -164,7 +192,7 @@ export default class ContentActionDropdown extends Component<
                   <li>
                     <Link
                       className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
-                      to={`/create_private_message/${this.props.commentView.creator.id}`}
+                      to={`/create_private_message/${creator.id}`}
                       title={I18NextService.i18n.t("message")}
                       aria-label={I18NextService.i18n.t("message")}
                       data-tippy-content={I18NextService.i18n.t("message")}
@@ -178,7 +206,7 @@ export default class ContentActionDropdown extends Component<
                   <ActionButton
                     icon="flag"
                     label={I18NextService.i18n.t("create_report")}
-                    onClick={onReport}
+                    onClick={this.toggleReportDialogShow}
                     noLoading
                   />
                 </li>
@@ -278,7 +306,7 @@ export default class ContentActionDropdown extends Component<
                   }
                   icon={removed ? "restore" : "x"}
                   noLoading
-                  onClick={onRemove}
+                  onClick={this.toggleRemoveShow}
                   iconClass={`text-${removed ? "success" : "danger"}`}
                 />
               </li>
@@ -292,7 +320,7 @@ export default class ContentActionDropdown extends Component<
                   {!creator_is_moderator && (
                     <li>
                       <ActionButton
-                        onClick={onBanFromCommunity}
+                        onClick={this.toggleBanFromCommunityShow}
                         label={I18NextService.i18n.t(
                           creator_banned_from_community
                             ? "unban"
@@ -309,7 +337,7 @@ export default class ContentActionDropdown extends Component<
                   {!creator_banned_from_community && (
                     <li>
                       <ActionButton
-                        onClick={onAddCommunityMod}
+                        onClick={this.toggleAppointModShow}
                         label={I18NextService.i18n.t(
                           `${
                             creator_is_moderator ? "remove" : "appoint"
@@ -329,7 +357,7 @@ export default class ContentActionDropdown extends Component<
                 <li>
                   <ActionButton
                     label={I18NextService.i18n.t("transfer_community")}
-                    onClick={onTransferCommunity}
+                    onClick={this.toggleTransferCommunityShow}
                     icon="transfer"
                     noLoading
                   />
@@ -350,7 +378,7 @@ export default class ContentActionDropdown extends Component<
                             ? "unban_from_site"
                             : "ban_from_site",
                         )}
-                        onClick={onBanFromLocal}
+                        onClick={this.toggleBanFromSiteShow}
                         icon={creatorBannedFromLocal ? "unban" : "ban"}
                         iconClass={`text-${
                           creatorBannedFromLocal ? "success" : "danger"
@@ -361,7 +389,7 @@ export default class ContentActionDropdown extends Component<
                     <li>
                       <ActionButton
                         label={I18NextService.i18n.t("purge_user")}
-                        onClick={onPurgeUser}
+                        onClick={this.togglePurgePersonShow}
                         icon="purge"
                         noLoading
                         iconClass="text-danger"
@@ -372,7 +400,7 @@ export default class ContentActionDropdown extends Component<
                         label={I18NextService.i18n.t(
                           `purge_${type === "post" ? "post" : "comment"}`,
                         )}
-                        onClick={onPurgeContent}
+                        onClick={this.togglePurgeContentShow}
                         icon="purge"
                         noLoading
                         iconClass="text-danger"
@@ -386,7 +414,7 @@ export default class ContentActionDropdown extends Component<
                       label={I18NextService.i18n.t(
                         `${creator_is_admin ? "remove" : "appoint"}_as_admin`,
                       )}
-                      onClick={onAddAdmin}
+                      onClick={this.toggleAppointAdminShow}
                       icon={creator_is_admin ? "demote" : "promote"}
                       iconClass={`text-${
                         creator_is_admin ? "danger" : "success"
@@ -398,6 +426,181 @@ export default class ContentActionDropdown extends Component<
             )}
           </ul>
         </div>
+        {this.moderationDialogs}
+      </>
+    );
+  }
+
+  toggleModDialogShow(
+    dialogType: DialogType,
+    stateOverride: Partial<ContentActionDropdownState> = {},
+  ) {
+    this.setState(prev => ({
+      ...prev,
+      [dialogType]: !prev[dialogType],
+      ...dialogTypes
+        .filter(dt => dt !== dialogType)
+        .reduce(
+          (acc, dt) => ({
+            ...acc,
+            [dt]: false,
+          }),
+          {},
+        ),
+      ...stateOverride,
+    }));
+  }
+
+  hideAllDialogs() {
+    this.setState({
+      showBanDialog: false,
+      showPurgeDialog: false,
+      showRemoveDialog: false,
+      showReportDialog: false,
+      showAppointAdminDialog: false,
+      showAppointModDialog: false,
+      showTransferCommunityDialog: false,
+    });
+  }
+
+  toggleReportDialogShow() {
+    this.toggleModDialogShow("showReportDialog");
+  }
+
+  toggleRemoveShow() {
+    this.toggleModDialogShow("showRemoveDialog");
+  }
+
+  toggleBanFromCommunityShow() {
+    this.toggleModDialogShow("showBanDialog", {
+      banType: BanType.Community,
+    });
+  }
+
+  toggleBanFromSiteShow() {
+    this.toggleModDialogShow("showBanDialog", {
+      banType: BanType.Site,
+    });
+  }
+
+  togglePurgePersonShow() {
+    this.toggleModDialogShow("showPurgeDialog", {
+      purgeType: PurgeType.Person,
+    });
+  }
+
+  togglePurgeContentShow() {
+    this.toggleModDialogShow("showPurgeDialog", {
+      purgeType:
+        this.props.type === "post" ? PurgeType.Post : PurgeType.Comment,
+    });
+  }
+
+  toggleTransferCommunityShow() {
+    this.toggleModDialogShow("showTransferCommunityDialog");
+  }
+
+  toggleAppointModShow() {
+    this.toggleModDialogShow("showAppointModDialog");
+  }
+
+  toggleAppointAdminShow() {
+    this.toggleModDialogShow("showAppointAdminDialog");
+  }
+
+  get moderationDialogs() {
+    const {
+      showBanDialog,
+      showPurgeDialog,
+      showRemoveDialog,
+      showReportDialog,
+      banType,
+      purgeType,
+      showTransferCommunityDialog,
+      showAppointModDialog,
+      showAppointAdminDialog,
+    } = this.state;
+    const {
+      removed,
+      creator: { name: creatorName, banned },
+      creator_banned_from_community,
+    } = this.contentInfo;
+    const {
+      onReport,
+      onRemove,
+      onBanFromCommunity,
+      onBanFromSite,
+      onPurgeContent,
+      onPurgeUser,
+      onTransferCommunity,
+      onAppointCommunityMod,
+      onAppointAdmin,
+    } = this.props;
+
+    return (
+      <>
+        <ModActionFormModal
+          onSubmit={onRemove}
+          modActionType="remove"
+          isRemoved={removed}
+          onCancel={this.hideAllDialogs}
+          show={showRemoveDialog}
+        />
+        <ModActionFormModal
+          onSubmit={
+            banType === BanType.Community ? onBanFromCommunity : onBanFromSite
+          }
+          modActionType="ban"
+          creatorName={creatorName}
+          onCancel={this.hideAllDialogs}
+          isBanned={
+            banType === BanType.Community
+              ? creator_banned_from_community
+              : banType === BanType.Site
+                ? banned
+                : false
+          }
+          show={showBanDialog}
+        />
+        <ModActionFormModal
+          onSubmit={onReport}
+          modActionType="report"
+          onCancel={this.hideAllDialogs}
+          show={showReportDialog}
+        />
+        <ModActionFormModal
+          onSubmit={
+            purgeType === PurgeType.Person ? onPurgeUser : onPurgeContent
+          }
+          modActionType={
+            purgeType === PurgeType.Post
+              ? "purge-post"
+              : purgeType === PurgeType.Comment
+                ? "purge-comment"
+                : "purge-person"
+          }
+          creatorName={creatorName}
+          onCancel={this.hideAllDialogs}
+          show={showPurgeDialog}
+        />
+        <ConfirmationModal
+          show={showTransferCommunityDialog}
+          message="Are you sure you want to transfer the community x to y?"
+          onNo={this.hideAllDialogs}
+          onYes={onTransferCommunity}
+        />
+        <ConfirmationModal
+          show={showAppointModDialog}
+          message="Are you sure you want to appoint x as a moderator for y??"
+          onNo={this.hideAllDialogs}
+          onYes={onAppointCommunityMod}
+        />
+        <ConfirmationModal
+          show={showAppointAdminDialog}
+          message="Are you sure you want to appoint x as an admin for y??"
+          onNo={this.hideAllDialogs}
+          onYes={onAppointAdmin}
+        />
       </>
     );
   }
@@ -452,11 +655,11 @@ export default class ContentActionDropdown extends Component<
   }
 
   get amCreator() {
-    const {
-      creator: { id },
-    } = this.contentInfo;
+    const { creator } = this.contentInfo;
 
-    return id === UserService.Instance.myUserInfo?.local_user_view.person.id;
+    return (
+      creator.id === UserService.Instance.myUserInfo?.local_user_view.person.id
+    );
   }
 
   get canMod() {

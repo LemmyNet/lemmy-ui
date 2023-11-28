@@ -1,12 +1,5 @@
 import { colorList, getCommentParentId, showScores } from "@utils/app";
-import {
-  DialogState,
-  DialogType,
-  futureDaysToUnixTime,
-  numToSI,
-  getDialogShowToggleFn,
-  getHideAllState,
-} from "@utils/helpers";
+import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
 import classNames from "classnames";
 import isBefore from "date-fns/isBefore";
 import parseISO from "date-fns/parseISO";
@@ -44,10 +37,8 @@ import {
 import deepEqual from "lodash.isequal";
 import { commentTreeMaxDepth } from "../../config";
 import {
-  BanType,
   CommentNodeI,
   CommentViewType,
-  PurgeType,
   VoteContentType,
 } from "../../interfaces";
 import { mdToHtml, mdToHtmlNoImages } from "../../markdown";
@@ -61,19 +52,12 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { CommentForm } from "./comment-form";
 import { CommentNodes } from "./comment-nodes";
-import ModerationActionForm, { BanUpdateForm } from "../common/mod-action-form";
+import { BanUpdateForm } from "../common/mod-action-form-modal";
 import CommentActionDropdown from "../common/content-actions/comment-action-dropdown";
 
 type CommentNodeState = {
   showReply: boolean;
   showEdit: boolean;
-  showRemoveDialog: boolean;
-  banType?: BanType;
-  purgeType?: PurgeType;
-  showConfirmTransferSite: boolean;
-  showConfirmTransferCommunity: boolean;
-  showConfirmAppointAsMod: boolean;
-  showConfirmAppointAsAdmin: boolean;
   collapsed: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
@@ -81,9 +65,8 @@ type CommentNodeState = {
   upvoteLoading: boolean;
   downvoteLoading: boolean;
   readLoading: boolean;
-  transferCommunityLoading: boolean;
   fetchChildrenLoading: boolean;
-} & DialogState;
+};
 
 interface CommentNodeProps {
   node: CommentNodeI;
@@ -127,24 +110,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   state: CommentNodeState = {
     showReply: false,
     showEdit: false,
-    showRemoveDialog: false,
-    showBanDialog: false,
-    banType: BanType.Community,
-    showPurgeDialog: false,
-    purgeType: PurgeType.Person,
     collapsed: false,
     viewSource: false,
     showAdvanced: false,
-    showConfirmTransferSite: false,
-    showConfirmTransferCommunity: false,
-    showConfirmAppointAsMod: false,
-    showConfirmAppointAsAdmin: false,
-    showReportDialog: false,
     createOrEditCommentLoading: false,
     upvoteLoading: false,
     downvoteLoading: false,
     readLoading: false,
-    transferCommunityLoading: false,
     fetchChildrenLoading: false,
   };
 
@@ -153,28 +125,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
     this.handleReportComment = this.handleReportComment.bind(this);
+    this.handleRemoveComment = this.handleRemoveComment.bind(this);
     this.handleReplyClick = this.handleReplyClick.bind(this);
-    this.handleShowReportDialog = this.handleShowReportDialog.bind(this);
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleSaveComment = this.handleSaveComment.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
-    this.handleModRemoveShow = this.handleModRemoveShow.bind(this);
-    this.handleModBanFromCommunityShow =
-      this.handleModBanFromCommunityShow.bind(this);
-    this.handleShowConfirmAppointAsMod =
-      this.handleShowConfirmAppointAsMod.bind(this);
-    this.handleShowConfirmTransferCommunity;
-    this.handlePurgePersonShow = this.handlePurgePersonShow.bind(this);
-    this.handlePurgeCommentShow = this.handlePurgeCommentShow.bind(this);
-    this.handleModBanShow = this.handleModBanShow.bind(this);
-    this.handleShowConfirmAppointAsAdmin =
-      this.handleShowConfirmAppointAsAdmin.bind(this);
-    this.handleRemoveComment = this.handleRemoveComment.bind(this);
-    this.hideAllDialogs = this.hideAllDialogs.bind(this);
-    this.toggleShowModDialog = this.toggleShowModDialog.bind(this);
-    this.handlePurgeBothSubmit = this.handlePurgeBothSubmit.bind(this);
+    this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
+    this.handleBanFromSite = this.handleBanFromSite.bind(this);
+    this.handleAppointCommunityMod = this.handleAppointCommunityMod.bind(this);
+    this.handleAppointAdmin = this.handleAppointAdmin.bind(this);
+    this.handlePurgePerson = this.handlePurgePerson.bind(this);
+    this.handlePurgeComment = this.handlePurgeComment.bind(this);
+    this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
   }
 
   get commentView(): CommentView {
@@ -191,24 +155,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     if (!deepEqual(this.props, nextProps)) {
       this.setState({
         showEdit: false,
-        showRemoveDialog: false,
-        showBanDialog: false,
-        banType: BanType.Community,
-        showPurgeDialog: false,
-        purgeType: PurgeType.Person,
         collapsed: false,
         viewSource: false,
         showAdvanced: false,
-        showConfirmTransferSite: false,
-        showConfirmTransferCommunity: false,
-        showConfirmAppointAsMod: false,
-        showConfirmAppointAsAdmin: false,
-        showReportDialog: false,
         createOrEditCommentLoading: false,
         upvoteLoading: false,
         downvoteLoading: false,
         readLoading: false,
-        transferCommunityLoading: false,
         fetchChildrenLoading: false,
       });
     }
@@ -220,13 +173,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const {
       creator_is_moderator,
       creator_is_admin,
-      comment: { id, language_id, published, distinguished, updated, removed },
+      comment: { id, language_id, published, distinguished, updated },
       creator,
       community,
       post,
       counts,
       my_vote,
-      creator_banned_from_community,
     } = this.commentView;
 
     const moreRepliesBorderColor = this.props.node.depth
@@ -394,22 +346,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         admins={this.props.admins}
                         moderators={this.props.moderators}
                         onReply={this.handleReplyClick}
-                        onReport={this.handleShowReportDialog}
+                        onReport={this.handleReportComment}
                         onBlock={this.handleBlockPerson}
                         onSave={this.handleSaveComment}
                         onEdit={this.handleEditClick}
                         onDelete={this.handleDeleteComment}
                         onDistinguish={this.handleDistinguishComment}
-                        onRemove={this.handleModRemoveShow}
-                        onBanFromCommunity={this.handleModBanFromCommunityShow}
-                        onAddCommunityMod={this.handleShowConfirmAppointAsMod}
-                        onTransferCommunity={
-                          this.handleShowConfirmTransferCommunity
-                        }
-                        onPurgeUser={this.handlePurgePersonShow}
-                        onPurgeContent={this.handlePurgeCommentShow}
-                        onBanFromLocal={this.handleModBanShow}
-                        onAddAdmin={this.handleShowConfirmAppointAsAdmin}
+                        onRemove={this.handleRemoveComment}
+                        onBanFromCommunity={this.handleBanFromCommunity}
+                        onAppointCommunityMod={this.handleAppointCommunityMod}
+                        onTransferCommunity={this.handleTransferCommunity}
+                        onPurgeUser={this.handlePurgePerson}
+                        onPurgeContent={this.handlePurgeComment}
+                        onBanFromSite={this.handleBanFromSite}
+                        onAppointAdmin={this.handleAppointAdmin}
                       />
                     </>
                   )}
@@ -442,49 +392,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               )}
             </button>
           </div>
-        )}
-        {/* end of details */}
-        {this.state.showRemoveDialog && (
-          <ModerationActionForm
-            onSubmit={this.handleRemoveComment}
-            modActionType="remove"
-            isRemoved={removed}
-            onCancel={this.hideAllDialogs}
-          />
-        )}
-        {this.state.showReportDialog && (
-          <ModerationActionForm
-            onSubmit={this.handleReportComment}
-            modActionType="report"
-            onCancel={this.hideAllDialogs}
-          />
-        )}
-        {this.state.showBanDialog && (
-          <ModerationActionForm
-            modActionType="ban"
-            onCancel={this.hideAllDialogs}
-            creatorName={creator.name}
-            isBanned={
-              this.state.banType === BanType.Community
-                ? creator_banned_from_community
-                : this.state.banType === BanType.Site
-                  ? creator.banned
-                  : false
-            }
-            onSubmit={this.handleModBanBothSubmit}
-          />
-        )}
-        {this.state.showPurgeDialog && (
-          <ModerationActionForm
-            modActionType={
-              this.state.purgeType === PurgeType.Comment
-                ? "purge-comment"
-                : "purge-person"
-            }
-            onSubmit={this.handlePurgeBothSubmit}
-            onCancel={this.hideAllDialogs}
-            creatorName={this.commentView.creator.name}
-          />
         )}
         {this.state.showReply && (
           <CommentForm
@@ -639,17 +546,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         : comment.content;
   }
 
-  toggleShowModDialog(
-    dialogType: DialogType,
-    stateOverride: Partial<CommentNodeState> = {},
-  ) {
-    this.setState(getDialogShowToggleFn(dialogType, stateOverride));
-  }
-
-  hideAllDialogs() {
-    this.setState(getHideAllState());
-  }
-
   handleReplyClick() {
     this.setState({ showReply: true });
   }
@@ -662,14 +558,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.setState({ showReply: false, showEdit: false });
   }
 
-  handleShowReportDialog() {
-    this.toggleShowModDialog("showReportDialog");
-  }
-
-  handleModRemoveShow() {
-    this.toggleShowModDialog("showRemoveDialog");
-  }
-
   isPersonMentionType(
     item: CommentView | PersonMentionView | CommentReplyView,
   ): item is PersonMentionView {
@@ -680,42 +568,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     item: CommentView | PersonMentionView | CommentReplyView,
   ): item is CommentReplyView {
     return (item as CommentReplyView).comment_reply?.id !== undefined;
-  }
-
-  handleModBanFromCommunityShow() {
-    this.toggleShowModDialog("showBanDialog", { banType: BanType.Community });
-  }
-
-  handleModBanShow() {
-    this.toggleShowModDialog("showBanDialog", { banType: BanType.Site });
-  }
-
-  handlePurgePersonShow() {
-    this.toggleShowModDialog("showPurgeDialog", {
-      purgeType: PurgeType.Person,
-    });
-  }
-
-  handlePurgeCommentShow() {
-    this.toggleShowModDialog("showPurgeDialog", {
-      purgeType: PurgeType.Comment,
-    });
-  }
-
-  handleShowConfirmAppointAsMod() {
-    this.setState({ showConfirmAppointAsMod: true });
-  }
-
-  handleShowConfirmAppointAsAdmin() {
-    this.setState({ showConfirmAppointAsAdmin: true });
-  }
-
-  handleCancelConfirmAppointAsAdmin(i: CommentNode) {
-    i.setState({ showConfirmAppointAsAdmin: false });
-  }
-
-  handleShowConfirmTransferCommunity() {
-    this.setState({ showConfirmTransferCommunity: true });
   }
 
   get isCommentNew(): boolean {
@@ -777,8 +629,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       removed: !this.commentView.comment.removed,
       reason,
     });
-
-    this.hideAllDialogs();
   }
 
   handleDistinguishComment() {
@@ -788,21 +638,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleModBanBothSubmit({
+  handleBanFromCommunity({
+    daysUntilExpires,
     reason,
     shouldRemove,
-    daysUntilExpires,
   }: BanUpdateForm) {
-    const { banType } = this.state;
     const {
-      creator: { id: person_id, banned: bannedFromSite },
+      creator: { id: person_id },
       creator_banned_from_community,
       community: { id: community_id },
     } = this.commentView;
 
-    const ban = !(banType === BanType.Community
-      ? creator_banned_from_community
-      : bannedFromSite);
+    const ban = !creator_banned_from_community;
 
     // If its an unban, restore all their data
     if (ban === false) {
@@ -810,27 +657,36 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     }
     const expires = futureDaysToUnixTime(daysUntilExpires);
 
-    if (banType === BanType.Community) {
-      this.props.onBanPersonFromCommunity({
-        community_id,
-        person_id,
-        ban,
-        remove_data: shouldRemove,
-        reason,
-        expires,
-      });
-    } else {
-      this.props.onBanPerson({
-        person_id,
-        ban,
-        remove_data: shouldRemove,
-        reason,
-        expires,
-      });
-    }
+    this.props.onBanPersonFromCommunity({
+      community_id,
+      person_id,
+      ban,
+      remove_data: shouldRemove,
+      reason,
+      expires,
+    });
+  }
 
-    this.setState({ banType: undefined });
-    this.toggleShowModDialog("showBanDialog");
+  handleBanFromSite({ daysUntilExpires, reason, shouldRemove }: BanUpdateForm) {
+    const {
+      creator: { id: person_id, banned },
+    } = this.commentView;
+
+    const ban = !banned;
+
+    // If its an unban, restore all their data
+    if (ban === false) {
+      shouldRemove = false;
+    }
+    const expires = futureDaysToUnixTime(daysUntilExpires);
+
+    this.props.onBanPerson({
+      person_id,
+      ban,
+      remove_data: shouldRemove,
+      reason,
+      expires,
+    });
   }
 
   handleReportComment(reason: string) {
@@ -838,22 +694,42 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       comment_id: this.commentId,
       reason,
     });
-
-    this.hideAllDialogs();
   }
 
-  handlePurgeBothSubmit(reason: string) {
-    if (this.state.purgeType === PurgeType.Person) {
-      this.props.onPurgePerson({
-        person_id: this.commentView.creator.id,
-        reason,
-      });
-    } else {
-      this.props.onPurgeComment({
-        comment_id: this.commentId,
-        reason,
-      });
-    }
+  handleAppointCommunityMod() {
+    this.props.onAddModToCommunity({
+      community_id: this.commentView.community.id,
+      person_id: this.commentView.creator.id,
+      added: !this.commentView.creator_is_moderator,
+    });
+  }
+
+  handleAppointAdmin() {
+    this.props.onAddAdmin({
+      person_id: this.commentView.creator.id,
+      added: !this.commentView.creator_is_admin,
+    });
+  }
+
+  handlePurgePerson(reason: string) {
+    this.props.onPurgePerson({
+      person_id: this.commentView.creator.id,
+      reason,
+    });
+  }
+
+  handlePurgeComment(reason: string) {
+    this.props.onPurgeComment({
+      comment_id: this.commentId,
+      reason,
+    });
+  }
+
+  handleTransferCommunity() {
+    this.props.onTransferCommunity({
+      community_id: this.commentView.community.id,
+      person_id: this.commentView.creator.id,
+    });
   }
 
   handleFetchChildren(i: CommentNode) {

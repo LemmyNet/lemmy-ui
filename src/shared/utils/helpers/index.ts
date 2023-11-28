@@ -23,12 +23,6 @@ import validInstanceTLD from "./valid-instance-tld";
 import validTitle from "./valid-title";
 import validURL from "./valid-url";
 import dedupByProperty from "./dedup-by-property";
-import {
-  DialogState,
-  DialogType,
-  getDialogShowToggleFn,
-  getHideAllState,
-} from "./mod-action-dialog";
 
 export {
   capitalizeFirstLetter,
@@ -56,8 +50,4 @@ export {
   validTitle,
   validURL,
   dedupByProperty,
-  DialogState,
-  DialogType,
-  getDialogShowToggleFn,
-  getHideAllState,
 };

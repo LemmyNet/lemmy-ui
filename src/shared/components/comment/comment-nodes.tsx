@@ -27,7 +27,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
-import { CommentNode } from "./CommentNode";
+import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
