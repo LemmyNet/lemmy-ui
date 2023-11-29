@@ -250,7 +250,7 @@ export class PrivateMessage extends Component<
         </div>
         <ModActionFormModal
           onSubmit={this.handleReportSubmit}
-          modActionType="report"
+          modActionType="report-message"
           onCancel={this.hideReportDialog}
           show={this.state.showReportDialog}
         />

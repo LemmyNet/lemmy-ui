@@ -107,6 +107,7 @@ export default class ContentActionDropdown extends Component<
       this.toggleTransferCommunityShow.bind(this);
     this.toggleAppointModShow = this.toggleAppointModShow.bind(this);
     this.toggleAppointAdminShow = this.toggleAppointAdminShow.bind(this);
+    this.wrapHandler = this.wrapHandler.bind(this);
   }
 
   render() {
@@ -520,11 +521,8 @@ export default class ContentActionDropdown extends Component<
       showAppointModDialog,
       showAppointAdminDialog,
     } = this.state;
-    const {
-      removed,
-      creator: { name: creatorName, banned },
-      creator_banned_from_community,
-    } = this.contentInfo;
+    const { removed, creator, creator_banned_from_community, community } =
+      this.contentInfo;
     const {
       onReport,
       onRemove,
@@ -535,43 +533,47 @@ export default class ContentActionDropdown extends Component<
       onTransferCommunity,
       onAppointCommunityMod,
       onAppointAdmin,
+      type,
     } = this.props;
 
     return (
       <>
         <ModActionFormModal
-          onSubmit={onRemove}
-          modActionType="remove"
+          onSubmit={this.wrapHandler(onRemove)}
+          modActionType={type === "comment" ? "remove-comment" : "remove-post"}
           isRemoved={removed}
           onCancel={this.hideAllDialogs}
           show={showRemoveDialog}
         />
         <ModActionFormModal
-          onSubmit={
-            banType === BanType.Community ? onBanFromCommunity : onBanFromSite
+          onSubmit={this.wrapHandler(
+            banType === BanType.Community ? onBanFromCommunity : onBanFromSite,
+          )}
+          modActionType={
+            banType === BanType.Community ? "community-ban" : "site-ban"
           }
-          modActionType="ban"
-          creatorName={creatorName}
+          creator={creator}
           onCancel={this.hideAllDialogs}
           isBanned={
             banType === BanType.Community
               ? creator_banned_from_community
               : banType === BanType.Site
-                ? banned
+                ? creator.banned
                 : false
           }
+          community={community}
           show={showBanDialog}
         />
         <ModActionFormModal
-          onSubmit={onReport}
-          modActionType="report"
+          onSubmit={this.wrapHandler(onReport)}
+          modActionType={type === "comment" ? "report-comment" : "report-post"}
           onCancel={this.hideAllDialogs}
           show={showReportDialog}
         />
         <ModActionFormModal
-          onSubmit={
-            purgeType === PurgeType.Person ? onPurgeUser : onPurgeContent
-          }
+          onSubmit={this.wrapHandler(
+            purgeType === PurgeType.Person ? onPurgeUser : onPurgeContent,
+          )}
           modActionType={
             purgeType === PurgeType.Post
               ? "purge-post"
@@ -579,7 +581,7 @@ export default class ContentActionDropdown extends Component<
                 ? "purge-comment"
                 : "purge-person"
           }
-          creatorName={creatorName}
+          creator={creator}
           onCancel={this.hideAllDialogs}
           show={showPurgeDialog}
         />
@@ -587,19 +589,19 @@ export default class ContentActionDropdown extends Component<
           show={showTransferCommunityDialog}
           message="Are you sure you want to transfer the community x to y?"
           onNo={this.hideAllDialogs}
-          onYes={onTransferCommunity}
+          onYes={this.wrapHandler(onTransferCommunity)}
         />
         <ConfirmationModal
           show={showAppointModDialog}
           message="Are you sure you want to appoint x as a moderator for y??"
           onNo={this.hideAllDialogs}
-          onYes={onAppointCommunityMod}
+          onYes={this.wrapHandler(onAppointCommunityMod)}
         />
         <ConfirmationModal
           show={showAppointAdminDialog}
           message="Are you sure you want to appoint x as an admin for y??"
           onNo={this.hideAllDialogs}
-          onYes={onAppointAdmin}
+          onYes={this.wrapHandler(onAppointAdmin)}
         />
       </>
     );
@@ -697,5 +699,12 @@ export default class ContentActionDropdown extends Component<
     return this.props.type === "post"
       ? this.props.postView.creator.id
       : this.props.commentView.creator.id;
+  }
+
+  wrapHandler(handler: (arg?: any) => void) {
+    return (arg?: any) => {
+      handler(arg);
+      this.hideAllDialogs();
+    };
   }
 }

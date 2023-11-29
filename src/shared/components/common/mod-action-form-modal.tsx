@@ -1,9 +1,10 @@
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import { I18NextService } from "../../services/I18NextService";
 import { PurgeWarning, Spinner } from "./icon";
-import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
+import { hostname, randomStr } from "@utils/helpers";
 import type { Modal } from "bootstrap";
 import classNames from "classnames";
+import { Community, Person } from "lemmy-js-client";
 
 export interface BanUpdateForm {
   reason?: string;
@@ -11,32 +12,46 @@ export interface BanUpdateForm {
   daysUntilExpires?: number;
 }
 
-interface ModActionFormModalPropsBan {
-  modActionType: "ban";
+interface ModActionFormModalPropsSiteBan {
+  modActionType: "site-ban";
   onSubmit: (form: BanUpdateForm) => void;
-  creatorName: string;
+  creator: Person;
+  isBanned: boolean;
+}
+
+interface ModActionFormModalPropsCommunityBan {
+  modActionType: "community-ban";
+  onSubmit: (form: BanUpdateForm) => void;
+  creator: Person;
+  community: Community;
   isBanned: boolean;
 }
 
 interface ModActionFormModalPropsPurgePerson {
   modActionType: "purge-person";
   onSubmit: (reason: string) => void;
-  creatorName: string;
+  creator: Person;
 }
 
 interface ModActionFormModalPropsRemove {
-  modActionType: "remove";
+  modActionType: "remove-post" | "remove-comment";
   onSubmit: (reason: string) => void;
   isRemoved: boolean;
 }
 
 interface ModActionFormModalPropsRest {
-  modActionType: "report" | "purge-post" | "purge-comment";
+  modActionType:
+    | "report-post"
+    | "report-comment"
+    | "report-message"
+    | "purge-post"
+    | "purge-comment";
   onSubmit: (reason: string) => void;
 }
 
 type ModActionFormModalProps = (
-  | ModActionFormModalPropsBan
+  | ModActionFormModalPropsSiteBan
+  | ModActionFormModalPropsCommunityBan
   | ModActionFormModalPropsRest
   | ModActionFormModalPropsPurgePerson
   | ModActionFormModalPropsRemove
@@ -77,12 +92,12 @@ function handleSubmit(i: ModActionFormModal, event: any) {
   event.preventDefault();
   i.setState({ loading: true });
 
-  if (i.props.modActionType === "ban") {
+  if (i.isBanModal) {
     i.props.onSubmit({
       reason: i.state.reason,
       daysUntilExpires: i.state.daysUntilExpire!,
       shouldRemove: i.state.shouldRemoveData!,
-    });
+    } as BanUpdateForm & string); // Need to and string to handle type weirdness
   } else {
     i.props.onSubmit(i.state.reason);
   }
@@ -91,6 +106,10 @@ function handleSubmit(i: ModActionFormModal, event: any) {
     loading: false,
     reason: "",
   });
+}
+
+function getApubName({ name, actor_id }: { name: string; actor_id: string }) {
+  return `${name}@${hostname(actor_id)}`;
 }
 
 export default class ModActionFormModal extends Component<
@@ -110,7 +129,7 @@ export default class ModActionFormModal extends Component<
     this.modalDivRef = createRef();
     this.reasonRef = createRef();
 
-    if (this.props.modActionType === "ban") {
+    if (this.isBanModal) {
       this.state.shouldRemoveData = false;
     }
 
@@ -163,41 +182,91 @@ export default class ModActionFormModal extends Component<
     const { modActionType, onCancel } = this.props;
 
     let buttonText: string;
+    let headerText: string;
+    let isBanned = false;
     switch (modActionType) {
-      case "ban": {
-        buttonText = `${I18NextService.i18n.t(
+      case "site-ban": {
+        headerText = `${I18NextService.i18n.t(
           this.props.isBanned ? "unban" : "ban",
-        )} ${this.props.creatorName}`;
+        )} ${getApubName(this.props.creator)}`;
+        buttonText = I18NextService.i18n.t(
+          this.props.isBanned ? "unban" : "ban",
+        );
+        isBanned = this.props.isBanned;
         break;
       }
 
-      case "purge-post":
+      case "community-ban": {
+        headerText = `${I18NextService.i18n.t(
+          this.props.isBanned ? "unban" : "ban",
+        )} ${getApubName(this.props.creator)} from ${getApubName(
+          this.props.community,
+        )}`;
+        buttonText = I18NextService.i18n.t(
+          this.props.isBanned ? "unban" : "ban",
+        );
+        isBanned = this.props.isBanned;
+        break;
+      }
+
+      case "purge-post": {
+        headerText = "Purge Post";
+        buttonText = I18NextService.i18n.t("purge");
+        break;
+      }
+
       case "purge-comment": {
+        headerText = "Purge Comment";
         buttonText = I18NextService.i18n.t("purge");
         break;
       }
 
       case "purge-person": {
-        buttonText = `${I18NextService.i18n.t("purge")} ${
-          this.props.creatorName
-        }`;
+        headerText = `${I18NextService.i18n.t("purge")} ${getApubName(
+          this.props.creator,
+        )}`;
+        buttonText = I18NextService.i18n.t("purge");
         break;
       }
 
-      case "remove": {
+      case "remove-post": {
+        headerText =
+          I18NextService.i18n.t(this.props.isRemoved ? "restore" : "remove") +
+          " post";
         buttonText = I18NextService.i18n.t(
           this.props.isRemoved ? "restore" : "remove",
         );
         break;
       }
 
-      case "report": {
+      case "remove-comment": {
+        headerText =
+          I18NextService.i18n.t(this.props.isRemoved ? "restore" : "remove") +
+          " comment";
+        buttonText = I18NextService.i18n.t(
+          this.props.isRemoved ? "restore" : "remove",
+        );
+        break;
+      }
+
+      case "report-post": {
+        headerText = "Report post";
+        buttonText = I18NextService.i18n.t("create_report");
+        break;
+      }
+
+      case "report-comment": {
+        headerText = "Report comment";
+        buttonText = I18NextService.i18n.t("create_report");
+        break;
+      }
+
+      case "report-message": {
+        headerText = "Report message";
         buttonText = I18NextService.i18n.t("create_report");
         break;
       }
     }
-
-    const isBanned = modActionType === "ban" && this.props.isBanned;
 
     const showExpiresField = !(isBanned || shouldPermaBan);
 
@@ -208,11 +277,15 @@ export default class ModActionFormModal extends Component<
         tabIndex={-1}
         aria-hidden
         data-bs-backdrop="static"
+        aria-labelledby="#moderationModalTitle"
         ref={this.modalDivRef}
       >
         <div className="modal-dialog modal-fullscreen-sm-down">
           <div className="modal-content">
             <header className="modal-header">
+              <h3 className="modal-title" id="moderationModalTitle">
+                {headerText}
+              </h3>
               <button
                 type="button"
                 className="btn-close"
@@ -244,7 +317,7 @@ export default class ModActionFormModal extends Component<
                       onInput={linkEvent(this, handleReasonChange)}
                     />
                   </div>
-                  {modActionType === "ban" && showExpiresField && (
+                  {this.isBanModal && showExpiresField && (
                     <div className="col-12 col-lg-6 col-xl-5">
                       <label className="visually-hidden" htmlFor={expiresId}>
                         {I18NextService.i18n.t("expires")}
@@ -263,7 +336,7 @@ export default class ModActionFormModal extends Component<
                   )}
                 </div>
                 <div className="row">
-                  {modActionType === "ban" && !isBanned && (
+                  {this.isBanModal && !isBanned && (
                     <div className="mb-2 col-12 col-lg-6 col-xxl-7">
                       <div className="form-check m2-3">
                         <label
@@ -300,7 +373,7 @@ export default class ModActionFormModal extends Component<
             </div>
             <footer className="modal-footer">
               <button type="submit" className="btn btn-secondary me-3">
-                {loading ? <Spinner /> : capitalizeFirstLetter(buttonText)}
+                {loading ? <Spinner /> : buttonText}
               </button>
               <button
                 type="button"
@@ -318,5 +391,12 @@ export default class ModActionFormModal extends Component<
 
   handleShow() {
     this.reasonRef.current?.focus();
+  }
+
+  get isBanModal() {
+    return (
+      this.props.modActionType === "site-ban" ||
+      this.props.modActionType === "community-ban"
+    );
   }
 }

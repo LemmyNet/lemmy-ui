@@ -75,6 +75,9 @@ export default class ConfirmationModal extends Component<
         <div className="modal-dialog modal-fullscreen-sm-down">
           <div className="modal-content">
             <header className="modal-header">
+              <h3 className="modal-title" id="moderationModalTitle">
+                Confirmation Required
+              </h3>
               <button
                 type="button"
                 className="btn-close"
