@@ -20,6 +20,7 @@ import {
 import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
+import { authCookieName } from "../../shared/config";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -32,7 +33,7 @@ export default async (req: Request, res: Response) => {
     );
 
     const auth = req.headers.cookie
-      ? cookie.parse(req.headers.cookie).jwt
+      ? cookie.parse(req.headers.cookie)[authCookieName]
       : undefined;
 
     if (auth) {
