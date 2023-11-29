@@ -91,6 +91,7 @@ function handleTogglePermaBan(i: ModActionFormModal) {
 function handleSubmit(i: ModActionFormModal, event: any) {
   event.preventDefault();
   i.setState({ loading: true });
+  console.log("In modal handle submit");
 
   if (i.isBanModal) {
     i.props.onSubmit({
@@ -180,6 +181,8 @@ export default class ModActionFormModal extends Component<
     const reasonId = `mod-form-reason-${randomStr()}`;
     const expiresId = `mod-form-expires-${randomStr()}`;
     const { modActionType, onCancel } = this.props;
+
+    const formId = `mod-action-form-${randomStr()}`;
 
     let buttonText: string;
     let headerText: string;
@@ -272,7 +275,7 @@ export default class ModActionFormModal extends Component<
 
     return (
       <div
-        className="modal fade"
+        className="modal modal-lg fade"
         id="moderationModal"
         tabIndex={-1}
         aria-hidden
@@ -294,7 +297,11 @@ export default class ModActionFormModal extends Component<
               />
             </header>
             <div className="modal-body d-flex flex-column  align-items-center justify-content-center">
-              <form onSubmit={linkEvent(this, handleSubmit)} className="p-3">
+              <form
+                onSubmit={linkEvent(this, handleSubmit)}
+                className="p-3 w-75"
+                id={formId}
+              >
                 <div className="row mb-3">
                   <div
                     className={classNames("col-12", {
@@ -372,7 +379,11 @@ export default class ModActionFormModal extends Component<
               </form>
             </div>
             <footer className="modal-footer">
-              <button type="submit" className="btn btn-secondary me-3">
+              <button
+                type="submit"
+                className="btn btn-secondary me-3"
+                form={formId}
+              >
                 {loading ? <Spinner /> : buttonText}
               </button>
               <button
