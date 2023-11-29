@@ -91,14 +91,13 @@ function handleTogglePermaBan(i: ModActionFormModal) {
 function handleSubmit(i: ModActionFormModal, event: any) {
   event.preventDefault();
   i.setState({ loading: true });
-  console.log("In modal handle submit");
 
   if (i.isBanModal) {
     i.props.onSubmit({
       reason: i.state.reason,
       daysUntilExpires: i.state.daysUntilExpire!,
       shouldRemove: i.state.shouldRemoveData!,
-    } as BanUpdateForm & string); // Need to and string to handle type weirdness
+    } as BanUpdateForm & string); // Need to & string to handle type weirdness
   } else {
     i.props.onSubmit(i.state.reason);
   }
@@ -283,7 +282,7 @@ export default class ModActionFormModal extends Component<
         aria-labelledby="#moderationModalTitle"
         ref={this.modalDivRef}
       >
-        <div className="modal-dialog modal-fullscreen-sm-down">
+        <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <header className="modal-header">
               <h3 className="modal-title" id="moderationModalTitle">

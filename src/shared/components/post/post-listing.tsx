@@ -777,7 +777,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleReport(reason: string) {
-    console.log("In post listing fn");
     this.props.onPostReport({
       post_id: this.postView.post.id,
       reason,

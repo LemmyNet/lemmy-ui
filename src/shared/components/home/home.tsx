@@ -869,6 +869,7 @@ export class Home extends Component<any, HomeState> {
   async handleAddModToCommunity(form: AddModToCommunity) {
     // TODO not sure what to do here
     await HttpService.client.addModToCommunity(form);
+    this.setState();
   }
 
   async handlePurgePerson(form: PurgePerson) {
