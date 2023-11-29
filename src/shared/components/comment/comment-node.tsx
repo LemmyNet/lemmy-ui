@@ -195,8 +195,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         banType: BanType.Community,
         showPurgeDialog: false,
         purgeType: PurgeType.Person,
-        collapsed: false,
-        viewSource: false,
         showAdvanced: false,
         showConfirmTransferSite: false,
         showConfirmTransferCommunity: false,
