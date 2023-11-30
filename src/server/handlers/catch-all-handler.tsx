@@ -19,7 +19,6 @@ import {
 import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
-import fetch from "cross-fetch";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
 
 export default async (req: Request, res: Response) => {
@@ -29,7 +28,7 @@ export default async (req: Request, res: Response) => {
     const headers = setForwardedHeaders(req.headers);
 
     const client = wrapClient(
-      new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers }),
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
 
     const { path, url, query } = req;

@@ -31,7 +31,7 @@ export function setForwardedHeaders(headers: IncomingHttpHeaders): {
   const auth = getJwtCookie(headers);
 
   if (auth) {
-    headers["Authorization"] = `Bearer ${auth}`;
+    out["Authorization"] = `Bearer ${auth}`;
   }
 
   return out;
