@@ -234,7 +234,7 @@ export default class ContentActionDropdown extends Component<
                         label={I18NextService.i18n.t(
                           locked ? "unlock" : "lock",
                         )}
-                        icon="lock"
+                        icon={locked ? "unlock" : "lock"}
                       />
                     </li>
                     <li>
@@ -245,11 +245,11 @@ export default class ContentActionDropdown extends Component<
                             ? "unfeature_from_community"
                             : "feature_in_community",
                         )}
-                        icon="pin"
-                        iconClass={classNames({
-                          "text-success":
-                            this.props.postView.post.featured_community,
-                        })}
+                        icon={
+                          this.props.postView.post.featured_community
+                            ? "pin-off"
+                            : "pin"
+                        }
                       />
                     </li>
                     {amAdmin() && (
@@ -261,11 +261,11 @@ export default class ContentActionDropdown extends Component<
                               ? "unfeature_from_local"
                               : "feature_in_local",
                           )}
-                          icon="pin"
-                          iconClass={classNames({
-                            "text-success":
-                              this.props.postView.post.featured_local,
-                          })}
+                          icon={
+                            this.props.postView.post.featured_local
+                              ? "pin-off"
+                              : "pin"
+                          }
                         />
                       </li>
                     )}
@@ -278,16 +278,16 @@ export default class ContentActionDropdown extends Component<
                 <li>
                   <ActionButton
                     onClick={this.props.onDistinguish}
-                    icon="shield"
+                    icon={
+                      this.props.commentView.comment.distinguished
+                        ? "shield-off"
+                        : "shield"
+                    }
                     label={I18NextService.i18n.t(
                       this.props.commentView.comment.distinguished
                         ? "undistinguish"
                         : "distinguish",
                     )}
-                    iconClass={classNames({
-                      "text-danger":
-                        this.props.commentView.comment.distinguished,
-                    })}
                   />
                 </li>
               )}
