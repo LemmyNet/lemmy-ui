@@ -1,7 +1,6 @@
 import { initializeSite, isAuthPath } from "@utils/app";
 import { getHttpBaseInternal } from "@utils/env";
 import { ErrorPageData } from "@utils/types";
-import * as cookie from "cookie";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { renderToString } from "inferno-server";
@@ -20,7 +19,7 @@ import {
 import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
-import { authCookieName } from "../../shared/config";
+import { getJwtCookie } from "../utils/has-jwt-cookie";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -28,18 +27,16 @@ export default async (req: Request, res: Response) => {
 
     const headers = setForwardedHeaders(req.headers);
 
+    const auth = getJwtCookie(req);
+
+    if (auth) {
+      headers["Authorization"] = `Bearer ${auth}`;
+    }
+
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
 
-    const auth = req.headers.cookie
-      ? cookie.parse(req.headers.cookie)[authCookieName]
-      : undefined;
-
-    if (auth) {
-      headers["Authorization"] = `Bearer ${auth}`;
-      client.setHeaders(headers);
-    }
     const { path, url, query } = req;
 
     // Get site data first
