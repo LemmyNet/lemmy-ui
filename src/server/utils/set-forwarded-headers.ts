@@ -1,4 +1,5 @@
 import { IncomingHttpHeaders } from "http";
+import { getJwtCookie } from "./has-jwt-cookie";
 
 export function setForwardedHeaders(headers: IncomingHttpHeaders): {
   [key: string]: string;
@@ -25,6 +26,12 @@ export function setForwardedHeaders(headers: IncomingHttpHeaders): {
 
   if (cookies) {
     out["cookie"] = cookies;
+  }
+
+  const auth = getJwtCookie(headers);
+
+  if (auth) {
+    headers["Authorization"] = `Bearer ${auth}`;
   }
 
   return out;

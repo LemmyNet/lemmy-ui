@@ -19,6 +19,7 @@ import {
 import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
+import fetch from "cross-fetch";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
 
 export default async (req: Request, res: Response) => {
@@ -27,14 +28,8 @@ export default async (req: Request, res: Response) => {
 
     const headers = setForwardedHeaders(req.headers);
 
-    const auth = getJwtCookie(req);
-
-    if (auth) {
-      headers["Authorization"] = `Bearer ${auth}`;
-    }
-
     const client = wrapClient(
-      new LemmyHttp(getHttpBaseInternal(), { headers }),
+      new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers }),
     );
 
     const { path, url, query } = req;
@@ -58,7 +53,7 @@ export default async (req: Request, res: Response) => {
       try_site = await client.getSite();
     }
 
-    if (!auth && isAuthPath(path)) {
+    if (!getJwtCookie(req.headers) && isAuthPath(path)) {
       return res.redirect(`/login?prev=${encodeURIComponent(url)}`);
     }
 

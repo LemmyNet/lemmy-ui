@@ -52,7 +52,7 @@ export function setCacheControl(
     // Static content gets cached publicly for a day
     caching = "public, max-age=86400";
   } else {
-    if (getJwtCookie(req)) {
+    if (getJwtCookie(req.headers)) {
       caching = "private";
     } else {
       caching = "public, max-age=60";
