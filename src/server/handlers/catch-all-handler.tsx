@@ -20,7 +20,6 @@ import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
-import fetch from "cross-fetch";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -34,8 +33,13 @@ export default async (req: Request, res: Response) => {
       headers["Authorization"] = `Bearer ${auth}`;
     }
 
+    // Forward the cookies
+    if (req.headers.cookie) {
+      headers["cookie"] = req.headers.cookie;
+    }
+
     const client = wrapClient(
-      new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch, headers }),
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
 
     const { path, url, query } = req;
