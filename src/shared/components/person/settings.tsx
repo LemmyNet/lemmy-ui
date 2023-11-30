@@ -35,7 +35,7 @@ import {
   SuccessResponse,
   UpdateTotpResponse,
 } from "lemmy-js-client";
-import { elementUrl, emDash, relTags } from "../../config";
+import { elementUrl, emDash, fetchLimit, relTags } from "../../config";
 import { FirstLoadService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -276,6 +276,7 @@ export class Settings extends Component<any, SettingsState> {
         ...this.state,
         personBlocks: mui.person_blocks,
         communityBlocks: mui.community_blocks,
+        instanceBlocks: mui.instance_blocks,
         saveUserSettingsForm: {
           ...this.state.saveUserSettingsForm,
           show_nsfw,
@@ -1240,16 +1241,16 @@ export class Settings extends Component<any, SettingsState> {
       searchInstanceOptions =
         this.state.instancesRes.data.federated_instances?.linked.filter(
           instance =>
-            instance.domain.toLowerCase().includes(text.toLowerCase()) ||
+            instance.domain.toLowerCase().includes(text.toLowerCase()) &&
             !this.state.instanceBlocks.some(
-              blockedIntance => blockedIntance.instance.id === instance.id,
+              blockedInstance => blockedInstance.instance.id === instance.id,
             ),
         ) ?? [];
     }
 
     this.setState({
       searchInstanceOptions: searchInstanceOptions
-        .slice(0, 30)
+        .slice(0, fetchLimit)
         .map(instanceToChoice),
     });
   });
@@ -1552,7 +1553,7 @@ export class Settings extends Component<any, SettingsState> {
     }
   }
 
-  handleImportFileChange(i: Settings, event) {
+  handleImportFileChange(i: Settings, event: any) {
     i.setState({ settingsFile: event.target.files?.item(0) });
   }
 

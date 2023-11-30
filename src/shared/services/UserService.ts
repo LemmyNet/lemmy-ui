@@ -7,6 +7,7 @@ import { toast } from "../toast";
 import { I18NextService } from "./I18NextService";
 import { amAdmin } from "@utils/roles";
 import { HttpService } from ".";
+import { authCookieName } from "../config";
 
 interface Claims {
   sub: number;
@@ -14,18 +15,18 @@ interface Claims {
   iat: number;
 }
 
-interface JwtInfo {
+interface AuthInfo {
   claims: Claims;
-  jwt: string;
+  auth: string;
 }
 
 export class UserService {
   static #instance: UserService;
   public myUserInfo?: MyUserInfo;
-  public jwtInfo?: JwtInfo;
+  public authInfo?: AuthInfo;
 
   private constructor() {
-    this.#setJwtInfo();
+    this.#setAuthInfo();
   }
 
   public login({
@@ -38,12 +39,12 @@ export class UserService {
     if (isBrowser() && res.jwt) {
       showToast && toast(I18NextService.i18n.t("logged_in"));
       setAuthCookie(res.jwt);
-      this.#setJwtInfo();
+      this.#setAuthInfo();
     }
   }
 
   public logout() {
-    this.jwtInfo = undefined;
+    this.authInfo = undefined;
     this.myUserInfo = undefined;
 
     if (isBrowser()) {
@@ -60,10 +61,10 @@ export class UserService {
   }
 
   public auth(throwErr = false): string | undefined {
-    const jwt = this.jwtInfo?.jwt;
+    const auth = this.authInfo?.auth;
 
-    if (jwt) {
-      return jwt;
+    if (auth) {
+      return auth;
     } else {
       const msg = "No JWT cookie found";
 
@@ -77,13 +78,13 @@ export class UserService {
     }
   }
 
-  #setJwtInfo() {
+  #setAuthInfo() {
     if (isBrowser()) {
-      const { jwt } = cookie.parse(document.cookie);
+      const auth = cookie.parse(document.cookie)[authCookieName];
 
-      if (jwt) {
-        HttpService.client.setHeaders({ Authorization: `Bearer ${jwt}` });
-        this.jwtInfo = { jwt, claims: jwtDecode(jwt) };
+      if (auth) {
+        HttpService.client.setHeaders({ Authorization: `Bearer ${auth}` });
+        this.authInfo = { auth, claims: jwtDecode(auth) };
       }
     }
   }

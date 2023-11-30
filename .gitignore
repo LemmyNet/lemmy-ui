@@ -26,6 +26,7 @@ package-lock.json
 *.orig
 
 src/shared/translations
+src/assets/css/themes/*.css
 
 stats.json
 
