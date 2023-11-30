@@ -2985,13 +2985,6 @@ cross-fetch@^3.1.5:
   dependencies:
     node-fetch "^2.6.12"
 
-cross-fetch@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-4.0.0.tgz#f037aef1580bb3a1a35164ea2a848ba81b445983"
-  integrity sha512-e4a5N8lVvuLgAWgnCrLr2PP0YyDOTHa9H/Rj54dirp61qXnNq46m82bRhNqIA5VccJtWBvPTFRV3TtvHUKPB1g==
-  dependencies:
-    node-fetch "^2.6.12"
-
 cross-spawn@^5.0.1:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-5.1.0.tgz#e8bd0efee58fcff6f8f94510a0a554bbfa235449"
@@ -5722,10 +5715,10 @@ leac@^0.6.0:
   resolved "https://registry.yarnpkg.com/leac/-/leac-0.6.0.tgz#dcf136e382e666bd2475f44a1096061b70dc0912"
   integrity sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==
 
-lemmy-js-client@0.19.0-rc.15:
-  version "0.19.0-rc.15"
-  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.19.0-rc.15.tgz#03d600841f5e809bdc5d817c7295b8e6952c48dd"
-  integrity sha512-lCNvke29fPWTX4CIqDnewgNAtDk4D/syHiedyih7wXqW0yHfg2Z1+lm+GVao2QUa2NCNGIMO1vV7FJPiXl95rA==
+lemmy-js-client@0.19.0-rc.19:
+  version "0.19.0-rc.19"
+  resolved "https://registry.yarnpkg.com/lemmy-js-client/-/lemmy-js-client-0.19.0-rc.19.tgz#13932ab2b40cf16aa5218715509ebdc48f874f84"
+  integrity sha512-kae8V33QixbyYIA+pn7+sCeOOWL3eRgnFaNkZU8Y8vxhwZExIhkZus9jzVt/BoyPddVlafyBHxgAUsWXLA4tRA==
   dependencies:
     cross-fetch "^3.1.5"
     form-data "^4.0.0"

@@ -156,7 +156,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       this.setState({
         showEdit: false,
         collapsed: false,
-        viewSource: false,
         showAdvanced: false,
         createOrEditCommentLoading: false,
         upvoteLoading: false,

@@ -16,12 +16,11 @@ export function setDefaultCsp({
     `default-src 'self';
      manifest-src *;
      connect-src *;
-     img-src * data:;
+     img-src * data: blob:;
      script-src 'self' 'nonce-${res.locals.cspNonce}';
      style-src 'self' 'unsafe-inline';
      form-action 'self';
      base-uri 'self';
-     blob: 'self';
      frame-src *;
      media-src * data:`.replace(/\s+/g, " "),
   );
