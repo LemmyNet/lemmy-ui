@@ -21,5 +21,11 @@ export function setForwardedHeaders(headers: IncomingHttpHeaders): {
     out["x-forwarded-for"] = forwardedFor as string;
   }
 
+  const cookies = headers["cookie"];
+
+  if (cookies) {
+    out["cookie"] = cookies;
+  }
+
   return out;
 }

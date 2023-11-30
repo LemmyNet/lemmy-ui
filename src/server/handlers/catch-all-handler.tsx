@@ -33,11 +33,6 @@ export default async (req: Request, res: Response) => {
       headers["Authorization"] = `Bearer ${auth}`;
     }
 
-    // Forward the cookies
-    if (req.headers.cookie) {
-      headers["cookie"] = req.headers.cookie;
-    }
-
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
