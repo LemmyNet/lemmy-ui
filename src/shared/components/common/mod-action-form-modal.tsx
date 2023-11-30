@@ -270,7 +270,7 @@ export default class ModActionFormModal extends Component<
       }
     }
 
-    const showExpiresField = !(isBanned || shouldPermaBan);
+    const showExpiresField = this.isBanModal && !(isBanned || shouldPermaBan);
 
     return (
       <div
@@ -298,7 +298,7 @@ export default class ModActionFormModal extends Component<
             <div className="modal-body d-flex flex-column  align-items-center justify-content-center">
               <form
                 onSubmit={linkEvent(this, handleSubmit)}
-                className="p-3 w-75"
+                className="p-3 w-100 text-body"
                 id={formId}
               >
                 <div className="row mb-3">
@@ -307,9 +307,7 @@ export default class ModActionFormModal extends Component<
                       "col-lg-6 col-xl-7": showExpiresField,
                     })}
                   >
-                    {this.props.modActionType.includes("purge") && (
-                      <PurgeWarning />
-                    )}
+                    {modActionType.includes("purge") && <PurgeWarning />}
                     <label className="visually-hidden" htmlFor={reasonId}>
                       {I18NextService.i18n.t("reason")}
                     </label>
@@ -323,7 +321,7 @@ export default class ModActionFormModal extends Component<
                       onInput={linkEvent(this, handleReasonChange)}
                     />
                   </div>
-                  {this.isBanModal && showExpiresField && (
+                  {showExpiresField && (
                     <div className="col-12 col-lg-6 col-xl-5">
                       <label className="visually-hidden" htmlFor={expiresId}>
                         {I18NextService.i18n.t("expires")}

@@ -85,7 +85,7 @@ export default class ConfirmationModal extends Component<
                 onClick={onNo}
               />
             </header>
-            <div className="modal-body d-flex flex-column  align-items-center justify-content-center">
+            <div className="modal-body d-flex flex-column  align-items-center justify-content-center text-body">
               {message}
             </div>
             <footer className="modal-footer">

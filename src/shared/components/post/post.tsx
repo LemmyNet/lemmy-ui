@@ -868,6 +868,9 @@ export class Post extends Component<any, PostState> {
   async handleFeaturePost(form: FeaturePost) {
     const featureRes = await HttpService.client.featurePost(form);
     this.updatePost(featureRes);
+    if (featureRes.state === "success") {
+      toast(form.featured ? "Featured post" : "Unfeatured post");
+    }
   }
 
   async handleCommentVote(form: CreateCommentLike) {
@@ -910,6 +913,13 @@ export class Post extends Component<any, PostState> {
   async handleDistinguishComment(form: DistinguishComment) {
     const distinguishRes = await HttpService.client.distinguishComment(form);
     this.findAndUpdateComment(distinguishRes);
+    if (distinguishRes.state === "success") {
+      toast(
+        form.distinguished
+          ? "Distinguished comment"
+          : "Comment no longer distinguished",
+      );
+    }
   }
 
   async handleAddAdmin(form: AddAdmin) {
@@ -925,6 +935,9 @@ export class Post extends Component<any, PostState> {
     const transferCommunityRes =
       await HttpService.client.transferCommunity(form);
     this.updateCommunityFull(transferCommunityRes);
+    if (transferCommunityRes.state === "success") {
+      toast("Community successfully transferred");
+    }
   }
 
   async handleFetchChildren(form: GetComments) {
