@@ -89,7 +89,12 @@ export default class ConfirmationModal extends Component<
               {message}
             </div>
             <footer className="modal-footer">
-              <button type="button" className="btn btn-success" onClick={onYes}>
+              <button
+                type="button"
+                className="btn btn-success"
+                onClick={onYes}
+                ref={this.yesButtonRef}
+              >
                 {I18NextService.i18n.t("yes")}
               </button>
               <button type="button" className="btn btn-danger" onClick={onNo}>

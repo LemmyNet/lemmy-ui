@@ -319,6 +319,7 @@ export default class ModActionFormModal extends Component<
                       required
                       value={reason}
                       onInput={linkEvent(this, handleReasonChange)}
+                      ref={this.reasonRef}
                     />
                   </div>
                   {showExpiresField && (
@@ -398,6 +399,7 @@ export default class ModActionFormModal extends Component<
   }
 
   handleShow() {
+    console.log("In handle show");
     this.reasonRef.current?.focus();
   }
 

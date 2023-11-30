@@ -172,7 +172,7 @@ class RemoteFetchModal extends Component<
         aria-hidden
         aria-labelledby="#remoteFetchModalTitle"
       >
-        <div className="modal-dialog modal-fullscreen-sm-down">
+        <div className="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
           <div className="modal-content">
             <header className="modal-header">
               <h3 className="modal-title" id="remoteFetchModalTitle">

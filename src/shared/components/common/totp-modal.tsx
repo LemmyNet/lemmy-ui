@@ -143,7 +143,7 @@ export default class TotpModal extends Component<
         data-bs-backdrop="static"
         ref={this.modalDivRef}
       >
-        <div className="modal-dialog modal-fullscreen-sm-down">
+        <div className="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
           <div className="modal-content">
             <header className="modal-header">
               <h3 className="modal-title" id="totpModalTitle">
