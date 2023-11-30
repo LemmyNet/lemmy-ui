@@ -538,71 +538,91 @@ export default class ContentActionDropdown extends Component<
 
     return (
       <>
-        <ModActionFormModal
-          onSubmit={this.wrapHandler(onRemove)}
-          modActionType={type === "comment" ? "remove-comment" : "remove-post"}
-          isRemoved={removed}
-          onCancel={this.hideAllDialogs}
-          show={showRemoveDialog}
-        />
-        <ModActionFormModal
-          onSubmit={this.wrapHandler(
-            banType === BanType.Community ? onBanFromCommunity : onBanFromSite,
-          )}
-          modActionType={
-            banType === BanType.Community ? "community-ban" : "site-ban"
-          }
-          creator={creator}
-          onCancel={this.hideAllDialogs}
-          isBanned={
-            banType === BanType.Community
-              ? creator_banned_from_community
-              : banType === BanType.Site
-                ? creator.banned
-                : false
-          }
-          community={community}
-          show={showBanDialog}
-        />
-        <ModActionFormModal
-          onSubmit={this.wrapHandler(onReport)}
-          modActionType={type === "comment" ? "report-comment" : "report-post"}
-          onCancel={this.hideAllDialogs}
-          show={showReportDialog}
-        />
-        <ModActionFormModal
-          onSubmit={this.wrapHandler(
-            purgeType === PurgeType.Person ? onPurgeUser : onPurgeContent,
-          )}
-          modActionType={
-            purgeType === PurgeType.Post
-              ? "purge-post"
-              : purgeType === PurgeType.Comment
-                ? "purge-comment"
-                : "purge-person"
-          }
-          creator={creator}
-          onCancel={this.hideAllDialogs}
-          show={showPurgeDialog}
-        />
-        <ConfirmationModal
-          show={showTransferCommunityDialog}
-          message="Are you sure you want to transfer the community x to y?"
-          onNo={this.hideAllDialogs}
-          onYes={this.wrapHandler(onTransferCommunity)}
-        />
-        <ConfirmationModal
-          show={showAppointModDialog}
-          message="Are you sure you want to appoint x as a moderator for y??"
-          onNo={this.hideAllDialogs}
-          onYes={this.wrapHandler(onAppointCommunityMod)}
-        />
-        <ConfirmationModal
-          show={showAppointAdminDialog}
-          message="Are you sure you want to appoint x as an admin for y??"
-          onNo={this.hideAllDialogs}
-          onYes={this.wrapHandler(onAppointAdmin)}
-        />
+        {showRemoveDialog && (
+          <ModActionFormModal
+            onSubmit={this.wrapHandler(onRemove)}
+            modActionType={
+              type === "comment" ? "remove-comment" : "remove-post"
+            }
+            isRemoved={removed}
+            onCancel={this.hideAllDialogs}
+            show={showRemoveDialog}
+          />
+        )}
+        {showBanDialog && (
+          <ModActionFormModal
+            onSubmit={this.wrapHandler(
+              banType === BanType.Community
+                ? onBanFromCommunity
+                : onBanFromSite,
+            )}
+            modActionType={
+              banType === BanType.Community ? "community-ban" : "site-ban"
+            }
+            creator={creator}
+            onCancel={this.hideAllDialogs}
+            isBanned={
+              banType === BanType.Community
+                ? creator_banned_from_community
+                : banType === BanType.Site
+                  ? creator.banned
+                  : false
+            }
+            community={community}
+            show={showBanDialog}
+          />
+        )}
+        {showReportDialog && (
+          <ModActionFormModal
+            onSubmit={this.wrapHandler(onReport)}
+            modActionType={
+              type === "comment" ? "report-comment" : "report-post"
+            }
+            onCancel={this.hideAllDialogs}
+            show={showReportDialog}
+          />
+        )}
+        {showPurgeDialog && (
+          <ModActionFormModal
+            onSubmit={this.wrapHandler(
+              purgeType === PurgeType.Person ? onPurgeUser : onPurgeContent,
+            )}
+            modActionType={
+              purgeType === PurgeType.Post
+                ? "purge-post"
+                : purgeType === PurgeType.Comment
+                  ? "purge-comment"
+                  : "purge-person"
+            }
+            creator={creator}
+            onCancel={this.hideAllDialogs}
+            show={showPurgeDialog}
+          />
+        )}
+        {showTransferCommunityDialog && (
+          <ConfirmationModal
+            show={showTransferCommunityDialog}
+            message="Are you sure you want to transfer the community x to y?"
+            onNo={this.hideAllDialogs}
+            onYes={this.wrapHandler(onTransferCommunity)}
+          />
+        )}
+        {showAppointModDialog && (
+          <ConfirmationModal
+            show={showAppointModDialog}
+            message="Are you sure you want to appoint x as a moderator for y??"
+            onNo={this.hideAllDialogs}
+            onYes={this.wrapHandler(onAppointCommunityMod)}
+          />
+        )}
+        {showAppointAdminDialog && (
+          <ConfirmationModal
+            show={showAppointAdminDialog}
+            message="Are you sure you want to appoint x as an admin for y??"
+            onNo={this.hideAllDialogs}
+            onYes={this.wrapHandler(onAppointAdmin)}
+          />
+        )}
       </>
     );
   }

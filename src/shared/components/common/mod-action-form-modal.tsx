@@ -399,7 +399,6 @@ export default class ModActionFormModal extends Component<
   }
 
   handleShow() {
-    console.log("In handle show");
     this.reasonRef.current?.focus();
   }
 

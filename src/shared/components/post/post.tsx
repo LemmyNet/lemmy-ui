@@ -741,6 +741,9 @@ export class Post extends Component<any, PostState> {
   async handleAddModToCommunity(form: AddModToCommunity) {
     const addModRes = await HttpService.client.addModToCommunity(form);
     this.updateModerators(addModRes);
+    if (addModRes.state === "success") {
+      toast(form.added ? "Added moderator" : "Removed moderator");
+    }
   }
 
   async handleFollow(form: FollowCommunity) {
