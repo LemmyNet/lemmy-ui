@@ -1,4 +1,4 @@
-FROM node:20-alpine as builder
+FROM --platform=$BUILDPLATFORM node:20-alpine as builder
 
 # Upgrade to edge to fix sharp/libvips issues
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories
