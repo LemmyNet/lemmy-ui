@@ -26,6 +26,7 @@ export default async (req: Request, res: Response) => {
     const activeRoute = routes.find(route => matchPath(req.path, route));
 
     const headers = setForwardedHeaders(req.headers);
+    const auth = getJwtCookie(req.headers);
 
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
@@ -52,7 +53,7 @@ export default async (req: Request, res: Response) => {
       try_site = await client.getSite();
     }
 
-    if (!getJwtCookie(req.headers) && isAuthPath(path)) {
+    if (!auth && isAuthPath(path)) {
       return res.redirect(`/login?prev=${encodeURIComponent(url)}`);
     }
 
@@ -70,6 +71,7 @@ export default async (req: Request, res: Response) => {
           path,
           query,
           site,
+          auth,
         };
 
         routeData = await activeRoute.fetchInitialData(initialFetchReq);

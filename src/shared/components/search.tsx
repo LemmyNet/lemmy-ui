@@ -387,6 +387,7 @@ export class Search extends Component<any, SearchState> {
 
   static async fetchInitialData({
     client,
+    auth,
     query: { communityId, creatorId, q, type, sort, listingType, page },
   }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<SearchData> {
     const community_id = getIdFromString(communityId);
@@ -435,7 +436,7 @@ export class Search extends Component<any, SearchState> {
       };
 
       searchResponse = await client.search(form);
-      if (myAuth()) {
+      if (auth) {
         const resolveObjectForm: ResolveObject = {
           q: query,
         };

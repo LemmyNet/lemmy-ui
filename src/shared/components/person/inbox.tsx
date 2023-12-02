@@ -725,6 +725,7 @@ export class Inbox extends Component<any, InboxState> {
 
   static async fetchInitialData({
     client,
+    auth,
   }: InitialFetchRequest): Promise<InboxData> {
     const sort: CommentSortType = "New";
     const empty: EmptyRequestState = EMPTY_REQUEST;
@@ -734,7 +735,7 @@ export class Inbox extends Component<any, InboxState> {
       repliesRes: empty,
     };
 
-    if (myAuth()) {
+    if (auth) {
       const [mentionsRes, messagesRes, repliesRes] = await Promise.all([
         client.getPersonMentions({
           sort,

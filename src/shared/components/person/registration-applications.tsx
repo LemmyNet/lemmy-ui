@@ -1,4 +1,4 @@
-import { editRegistrationApplication, myAuth, setIsoData } from "@utils/app";
+import { editRegistrationApplication, setIsoData } from "@utils/app";
 import { randomStr } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -208,9 +208,10 @@ export class RegistrationApplications extends Component<
 
   static async fetchInitialData({
     client,
+    auth,
   }: InitialFetchRequest): Promise<RegistrationApplicationsData> {
     return {
-      listRegistrationApplicationsResponse: myAuth()
+      listRegistrationApplicationsResponse: auth
         ? await client.listRegistrationApplications({
             unread_only: true,
             page: 1,
