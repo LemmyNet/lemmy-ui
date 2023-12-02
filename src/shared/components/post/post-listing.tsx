@@ -23,6 +23,7 @@ import {
   LockPost,
   MarkPostAsRead,
   PersonView,
+  PostResponse,
   PostView,
   PurgePerson,
   PurgePost,
@@ -47,6 +48,7 @@ import { PostForm } from "./post-form";
 import { BanUpdateForm } from "../common/mod-action-form-modal";
 import PostActionDropdown from "../common/content-actions/post-action-dropdown";
 import { CrossPostParams } from "@utils/types";
+import { RequestState } from "../../services/HttpService";
 
 type PostListingState = {
   showEdit: boolean;
@@ -72,22 +74,22 @@ interface PostListingProps {
   enableDownvotes?: boolean;
   enableNsfw?: boolean;
   viewOnly?: boolean;
-  onPostEdit(form: EditPost): void;
-  onPostVote(form: CreatePostLike): void;
-  onPostReport(form: CreatePostReport): void;
-  onBlockPerson(form: BlockPerson): void;
-  onLockPost(form: LockPost): void;
-  onDeletePost(form: DeletePost): void;
-  onRemovePost(form: RemovePost): void;
-  onSavePost(form: SavePost): void;
-  onFeaturePost(form: FeaturePost): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgePost(form: PurgePost): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onTransferCommunity(form: TransferCommunity): void;
+  onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
+  onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
+  onPostReport(form: CreatePostReport): Promise<void>;
+  onBlockPerson(form: BlockPerson): Promise<void>;
+  onLockPost(form: LockPost): Promise<void>;
+  onDeletePost(form: DeletePost): Promise<void>;
+  onRemovePost(form: RemovePost): Promise<void>;
+  onSavePost(form: SavePost): Promise<void>;
+  onFeaturePost(form: FeaturePost): Promise<void>;
+  onPurgePerson(form: PurgePerson): Promise<void>;
+  onPurgePost(form: PurgePost): Promise<void>;
+  onBanPersonFromCommunity(form: BanFromCommunity): Promise<void>;
+  onBanPerson(form: BanPerson): Promise<void>;
+  onAddModToCommunity(form: AddModToCommunity): Promise<void>;
+  onAddAdmin(form: AddAdmin): Promise<void>;
+  onTransferCommunity(form: TransferCommunity): Promise<void>;
   onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
@@ -764,7 +766,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   // The actual editing is done in the receive for post
   handleEditPost(form: EditPost) {
     this.setState({ showEdit: false });
-    this.props.onPostEdit(form);
+    return this.props.onPostEdit(form);
   }
 
   handleShare(i: PostListing) {
@@ -777,28 +779,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleReport(reason: string) {
-    this.props.onPostReport({
+    return this.props.onPostReport({
       post_id: this.postView.post.id,
       reason,
     });
   }
 
   handleBlockPerson() {
-    this.props.onBlockPerson({
+    return this.props.onBlockPerson({
       person_id: this.postView.creator.id,
       block: true,
     });
   }
 
   handleDeletePost() {
-    this.props.onDeletePost({
+    return this.props.onDeletePost({
       post_id: this.postView.post.id,
       deleted: !this.postView.post.deleted,
     });
   }
 
   handleSavePost() {
-    this.props.onSavePost({
+    return this.props.onSavePost({
       post_id: this.postView.post.id,
       save: !this.postView.saved,
     });
@@ -836,7 +838,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleRemove(reason: string) {
-    this.props.onRemovePost({
+    return this.props.onRemovePost({
       post_id: this.postView.post.id,
       removed: !this.postView.post.removed,
       reason,
@@ -844,14 +846,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModLock() {
-    this.props.onLockPost({
+    return this.props.onLockPost({
       post_id: this.postView.post.id,
       locked: !this.postView.post.locked,
     });
   }
 
   handleModFeaturePostLocal() {
-    this.props.onFeaturePost({
+    return this.props.onFeaturePost({
       post_id: this.postView.post.id,
       featured: !this.postView.post.featured_local,
       feature_type: "Local",
@@ -859,7 +861,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleModFeaturePostCommunity() {
-    this.props.onFeaturePost({
+    return this.props.onFeaturePost({
       post_id: this.postView.post.id,
       featured: !this.postView.post.featured_community,
       feature_type: "Community",
@@ -867,14 +869,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handlePurgePost(reason: string) {
-    this.props.onPurgePost({
+    return this.props.onPurgePost({
       post_id: this.postView.post.id,
       reason,
     });
   }
 
   handlePurgePerson(reason: string) {
-    this.props.onPurgePerson({
+    return this.props.onPurgePerson({
       person_id: this.postView.creator.id,
       reason,
     });
@@ -898,7 +900,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
     const expires = futureDaysToUnixTime(daysUntilExpires);
 
-    this.props.onBanPersonFromCommunity({
+    return this.props.onBanPersonFromCommunity({
       community_id,
       person_id,
       ban,
@@ -924,7 +926,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
     const expires = futureDaysToUnixTime(daysUntilExpires);
 
-    this.props.onBanPerson({
+    return this.props.onBanPerson({
       person_id,
       ban,
       remove_data: shouldRemove,
@@ -934,7 +936,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleAppointCommunityMod() {
-    this.props.onAddModToCommunity({
+    return this.props.onAddModToCommunity({
       community_id: this.postView.community.id,
       person_id: this.postView.creator.id,
       added: !this.postView.creator_is_moderator,
@@ -942,14 +944,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   handleAppointAdmin() {
-    this.props.onAddAdmin({
+    return this.props.onAddAdmin({
       person_id: this.postView.creator.id,
       added: !this.postView.creator_is_admin,
     });
   }
 
   handleTransferCommunity() {
-    this.props.onTransferCommunity({
+    return this.props.onTransferCommunity({
       community_id: this.postView.community.id,
       person_id: this.postView.creator.id,
     });

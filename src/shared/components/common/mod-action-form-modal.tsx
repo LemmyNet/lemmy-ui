@@ -14,14 +14,14 @@ export interface BanUpdateForm {
 
 interface ModActionFormModalPropsSiteBan {
   modActionType: "site-ban";
-  onSubmit: (form: BanUpdateForm) => void;
+  onSubmit: (form: BanUpdateForm) => Promise<void>;
   creator: Person;
   isBanned: boolean;
 }
 
 interface ModActionFormModalPropsCommunityBan {
   modActionType: "community-ban";
-  onSubmit: (form: BanUpdateForm) => void;
+  onSubmit: (form: BanUpdateForm) => Promise<void>;
   creator: Person;
   community: Community;
   isBanned: boolean;
@@ -29,13 +29,13 @@ interface ModActionFormModalPropsCommunityBan {
 
 interface ModActionFormModalPropsPurgePerson {
   modActionType: "purge-person";
-  onSubmit: (reason: string) => void;
+  onSubmit: (reason: string) => Promise<void>;
   creator: Person;
 }
 
 interface ModActionFormModalPropsRemove {
   modActionType: "remove-post" | "remove-comment";
-  onSubmit: (reason: string) => void;
+  onSubmit: (reason: string) => Promise<void>;
   isRemoved: boolean;
 }
 
@@ -46,7 +46,7 @@ interface ModActionFormModalPropsRest {
     | "report-message"
     | "purge-post"
     | "purge-comment";
-  onSubmit: (reason: string) => void;
+  onSubmit: (reason: string) => Promise<void>;
 }
 
 type ModActionFormModalProps = (
@@ -88,18 +88,18 @@ function handleTogglePermaBan(i: ModActionFormModal) {
   }));
 }
 
-function handleSubmit(i: ModActionFormModal, event: any) {
+async function handleSubmit(i: ModActionFormModal, event: any) {
   event.preventDefault();
   i.setState({ loading: true });
 
   if (i.isBanModal) {
-    i.props.onSubmit({
+    await i.props.onSubmit({
       reason: i.state.reason,
       daysUntilExpires: i.state.daysUntilExpire!,
       shouldRemove: i.state.shouldRemoveData!,
     } as BanUpdateForm & string); // Need to & string to handle type weirdness
   } else {
-    i.props.onSubmit(i.state.reason);
+    await i.props.onSubmit(i.state.reason);
   }
 
   i.setState({

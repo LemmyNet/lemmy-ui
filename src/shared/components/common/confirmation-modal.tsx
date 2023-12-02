@@ -3,7 +3,7 @@ import { I18NextService } from "../../services";
 import type { Modal } from "bootstrap";
 
 interface ConfirmModalProps {
-  onYes: () => void;
+  onYes: () => Promise<void>;
   onNo: () => void;
   message: string;
   show: boolean;

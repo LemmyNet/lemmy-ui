@@ -15,6 +15,7 @@ import {
   Language,
   LockPost,
   MarkPostAsRead,
+  PostResponse,
   PostView,
   PurgePerson,
   PurgePost,
@@ -24,6 +25,7 @@ import {
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { PostListing } from "./post-listing";
+import { RequestState } from "shared/services/HttpService";
 
 interface PostListingsProps {
   posts: PostView[];
@@ -34,23 +36,23 @@ interface PostListingsProps {
   enableDownvotes?: boolean;
   enableNsfw?: boolean;
   viewOnly?: boolean;
-  onPostEdit(form: EditPost): void;
-  onPostVote(form: CreatePostLike): void;
-  onPostReport(form: CreatePostReport): void;
-  onBlockPerson(form: BlockPerson): void;
-  onLockPost(form: LockPost): void;
-  onDeletePost(form: DeletePost): void;
-  onRemovePost(form: RemovePost): void;
-  onSavePost(form: SavePost): void;
-  onFeaturePost(form: FeaturePost): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgePost(form: PurgePost): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onTransferCommunity(form: TransferCommunity): void;
-  onMarkPostAsRead(form: MarkPostAsRead): void;
+  onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
+  onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
+  onPostReport(form: CreatePostReport): Promise<void>;
+  onBlockPerson(form: BlockPerson): Promise<void>;
+  onLockPost(form: LockPost): Promise<void>;
+  onDeletePost(form: DeletePost): Promise<void>;
+  onRemovePost(form: RemovePost): Promise<void>;
+  onSavePost(form: SavePost): Promise<void>;
+  onFeaturePost(form: FeaturePost): Promise<void>;
+  onPurgePerson(form: PurgePerson): Promise<void>;
+  onPurgePost(form: PurgePost): Promise<void>;
+  onBanPersonFromCommunity(form: BanFromCommunity): Promise<void>;
+  onBanPerson(form: BanPerson): Promise<void>;
+  onAddModToCommunity(form: AddModToCommunity): Promise<void>;
+  onAddAdmin(form: AddAdmin): Promise<void>;
+  onTransferCommunity(form: TransferCommunity): Promise<void>;
+  onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {

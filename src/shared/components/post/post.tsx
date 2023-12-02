@@ -884,11 +884,13 @@ export class Post extends Component<any, PostState> {
   async handlePostVote(form: CreatePostLike) {
     const voteRes = await HttpService.client.likePost(form);
     this.updatePost(voteRes);
+    return voteRes;
   }
 
   async handlePostEdit(form: EditPost) {
     const res = await HttpService.client.editPost(form);
     this.updatePost(res);
+    return res;
   }
 
   async handleCommentReport(form: CreateCommentReport) {

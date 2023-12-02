@@ -8,6 +8,7 @@ import {
   BanPerson,
   BlockPerson,
   CommentId,
+  CommentResponse,
   CommunityModeratorView,
   CreateComment,
   CreateCommentLike,
@@ -28,6 +29,7 @@ import {
 } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
 import { CommentNode } from "./comment-node";
+import { RequestState } from "shared/services/HttpService";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
@@ -49,25 +51,29 @@ interface CommentNodesProps {
   isChild?: boolean;
   depth?: number;
   finished: Map<CommentId, boolean | undefined>;
-  onSaveComment(form: SaveComment): void;
+  onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
-  onCreateComment(form: EditComment | CreateComment): void;
-  onEditComment(form: EditComment | CreateComment): void;
-  onCommentVote(form: CreateCommentLike): void;
-  onBlockPerson(form: BlockPerson): void;
-  onDeleteComment(form: DeleteComment): void;
-  onRemoveComment(form: RemoveComment): void;
-  onDistinguishComment(form: DistinguishComment): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onTransferCommunity(form: TransferCommunity): void;
+  onCreateComment(
+    form: EditComment | CreateComment,
+  ): Promise<RequestState<CommentResponse>>;
+  onEditComment(
+    form: EditComment | CreateComment,
+  ): Promise<RequestState<CommentResponse>>;
+  onCommentVote(form: CreateCommentLike): Promise<void>;
+  onBlockPerson(form: BlockPerson): Promise<void>;
+  onDeleteComment(form: DeleteComment): Promise<void>;
+  onRemoveComment(form: RemoveComment): Promise<void>;
+  onDistinguishComment(form: DistinguishComment): Promise<void>;
+  onAddModToCommunity(form: AddModToCommunity): Promise<void>;
+  onAddAdmin(form: AddAdmin): Promise<void>;
+  onBanPersonFromCommunity(form: BanFromCommunity): Promise<void>;
+  onBanPerson(form: BanPerson): Promise<void>;
+  onTransferCommunity(form: TransferCommunity): Promise<void>;
   onFetchChildren?(form: GetComments): void;
-  onCommentReport(form: CreateCommentReport): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgeComment(form: PurgeComment): void;
+  onCommentReport(form: CreateCommentReport): Promise<void>;
+  onPurgePerson(form: PurgePerson): Promise<void>;
+  onPurgeComment(form: PurgeComment): Promise<void>;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {

@@ -340,7 +340,7 @@ export class PrivateMessage extends Component<
     });
   }
 
-  handleReportSubmit(reason: string) {
+  async handleReportSubmit(reason: string) {
     this.props.onReport({
       private_message_id: this.props.private_message_view.private_message.id,
       reason,

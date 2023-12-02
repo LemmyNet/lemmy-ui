@@ -14,6 +14,7 @@ import {
   BlockPerson,
   CommentId,
   CommentReplyView,
+  CommentResponse,
   CommentView,
   CommunityModeratorView,
   CreateComment,
@@ -54,6 +55,7 @@ import { CommentForm } from "./comment-form";
 import { CommentNodes } from "./comment-nodes";
 import { BanUpdateForm } from "../common/mod-action-form-modal";
 import CommentActionDropdown from "../common/content-actions/comment-action-dropdown";
+import { RequestState } from "shared/services/HttpService";
 
 type CommentNodeState = {
   showReply: boolean;
@@ -85,25 +87,29 @@ interface CommentNodeProps {
   siteLanguages: number[];
   hideImages?: boolean;
   finished: Map<CommentId, boolean | undefined>;
-  onSaveComment(form: SaveComment): void;
+  onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
-  onCreateComment(form: EditComment | CreateComment): void;
-  onEditComment(form: EditComment | CreateComment): void;
-  onCommentVote(form: CreateCommentLike): void;
-  onBlockPerson(form: BlockPerson): void;
-  onDeleteComment(form: DeleteComment): void;
-  onRemoveComment(form: RemoveComment): void;
-  onDistinguishComment(form: DistinguishComment): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onTransferCommunity(form: TransferCommunity): void;
+  onCreateComment(
+    form: EditComment | CreateComment,
+  ): Promise<RequestState<CommentResponse>>;
+  onEditComment(
+    form: EditComment | CreateComment,
+  ): Promise<RequestState<CommentResponse>>;
+  onCommentVote(form: CreateCommentLike): Promise<void>;
+  onBlockPerson(form: BlockPerson): Promise<void>;
+  onDeleteComment(form: DeleteComment): Promise<void>;
+  onRemoveComment(form: RemoveComment): Promise<void>;
+  onDistinguishComment(form: DistinguishComment): Promise<void>;
+  onAddModToCommunity(form: AddModToCommunity): Promise<void>;
+  onAddAdmin(form: AddAdmin): Promise<void>;
+  onBanPersonFromCommunity(form: BanFromCommunity): Promise<void>;
+  onBanPerson(form: BanPerson): Promise<void>;
+  onTransferCommunity(form: TransferCommunity): Promise<void>;
   onFetchChildren?(form: GetComments): void;
-  onCommentReport(form: CreateCommentReport): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgeComment(form: PurgeComment): void;
+  onCommentReport(form: CreateCommentReport): Promise<void>;
+  onPurgePerson(form: PurgePerson): Promise<void>;
+  onPurgeComment(form: PurgeComment): Promise<void>;
 }
 
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
@@ -585,14 +591,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     setupTippy();
   }
 
-  handleSaveComment() {
+  async handleSaveComment() {
     this.props.onSaveComment({
       comment_id: this.commentView.comment.id,
       save: !this.commentView.saved,
     });
   }
 
-  handleBlockPerson() {
+  async handleBlockPerson() {
     this.props.onBlockPerson({
       person_id: this.commentView.creator.id,
       block: true,
@@ -615,14 +621,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     }
   }
 
-  handleDeleteComment() {
+  async handleDeleteComment() {
     this.props.onDeleteComment({
       comment_id: this.commentId,
       deleted: !this.commentView.comment.deleted,
     });
   }
 
-  handleRemoveComment(reason: string) {
+  async handleRemoveComment(reason: string) {
     this.props.onRemoveComment({
       comment_id: this.commentId,
       removed: !this.commentView.comment.removed,
@@ -630,14 +636,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleDistinguishComment() {
+  async handleDistinguishComment() {
     this.props.onDistinguishComment({
       comment_id: this.commentId,
       distinguished: !this.commentView.comment.distinguished,
     });
   }
 
-  handleBanFromCommunity({
+  async handleBanFromCommunity({
     daysUntilExpires,
     reason,
     shouldRemove,
@@ -666,7 +672,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleBanFromSite({ daysUntilExpires, reason, shouldRemove }: BanUpdateForm) {
+  async handleBanFromSite({
+    daysUntilExpires,
+    reason,
+    shouldRemove,
+  }: BanUpdateForm) {
     const {
       creator: { id: person_id, banned },
     } = this.commentView;
@@ -688,14 +698,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleReportComment(reason: string) {
+  async handleReportComment(reason: string) {
     this.props.onCommentReport({
       comment_id: this.commentId,
       reason,
     });
   }
 
-  handleAppointCommunityMod() {
+  async handleAppointCommunityMod() {
     this.props.onAddModToCommunity({
       community_id: this.commentView.community.id,
       person_id: this.commentView.creator.id,
@@ -703,28 +713,28 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  handleAppointAdmin() {
+  async handleAppointAdmin() {
     this.props.onAddAdmin({
       person_id: this.commentView.creator.id,
       added: !this.commentView.creator_is_admin,
     });
   }
 
-  handlePurgePerson(reason: string) {
+  async handlePurgePerson(reason: string) {
     this.props.onPurgePerson({
       person_id: this.commentView.creator.id,
       reason,
     });
   }
 
-  handlePurgeComment(reason: string) {
+  async handlePurgeComment(reason: string) {
     this.props.onPurgeComment({
       comment_id: this.commentId,
       reason,
     });
   }
 
-  handleTransferCommunity() {
+  async handleTransferCommunity() {
     this.props.onTransferCommunity({
       community_id: this.commentView.community.id,
       person_id: this.commentView.creator.id,

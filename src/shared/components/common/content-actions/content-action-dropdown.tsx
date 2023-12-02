@@ -25,19 +25,19 @@ import ModActionFormModal, { BanUpdateForm } from "../mod-action-form-modal";
 import { BanType, PurgeType } from "../../../interfaces";
 
 interface ContentActionDropdownPropsBase {
-  onSave: () => void;
+  onSave: () => Promise<void>;
   onEdit: () => void;
-  onDelete: () => void;
-  onReport: (reason: string) => void;
-  onBlock: () => void;
-  onRemove: (reason: string) => void;
-  onBanFromCommunity: (form: BanUpdateForm) => void;
-  onAppointCommunityMod: () => void;
-  onTransferCommunity: () => void;
-  onBanFromSite: (form: BanUpdateForm) => void;
-  onPurgeContent: (reason: string) => void;
-  onPurgeUser: (reason: string) => void;
-  onAppointAdmin: () => void;
+  onDelete: () => Promise<void>;
+  onReport: (reason: string) => Promise<void>;
+  onBlock: () => Promise<void>;
+  onRemove: (reason: string) => Promise<void>;
+  onBanFromCommunity: (form: BanUpdateForm) => Promise<void>;
+  onAppointCommunityMod: () => Promise<void>;
+  onTransferCommunity: () => Promise<void>;
+  onBanFromSite: (form: BanUpdateForm) => Promise<void>;
+  onPurgeContent: (reason: string) => Promise<void>;
+  onPurgeUser: (reason: string) => Promise<void>;
+  onAppointAdmin: () => Promise<void>;
   moderators?: CommunityModeratorView[];
   admins?: PersonView[];
 }
@@ -721,9 +721,9 @@ export default class ContentActionDropdown extends Component<
       : this.props.commentView.creator.id;
   }
 
-  wrapHandler(handler: (arg?: any) => void) {
-    return (arg?: any) => {
-      handler(arg);
+  wrapHandler(handler: (arg?: any) => Promise<void>) {
+    return async (arg?: any) => {
+      await handler(arg);
       this.hideAllDialogs();
     };
   }
