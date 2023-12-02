@@ -2,8 +2,7 @@ import { Component, linkEvent } from "inferno";
 import { Icon, Spinner } from "../icon";
 import classNames from "classnames";
 
-interface ActionButtonProps {
-  onClick: () => void;
+interface ActionButtonPropsBase {
   label: string;
   icon: string;
   iconClass?: string;
@@ -11,15 +10,27 @@ interface ActionButtonProps {
   noLoading?: boolean;
 }
 
+interface ActionButtonPropsLoading extends ActionButtonPropsBase {
+  onClick: () => Promise<void>;
+  noLoading?: false;
+}
+
+interface ActionButtonPropsNoLoading extends ActionButtonPropsBase {
+  onClick: () => void;
+  noLoading: true;
+}
+
+type ActionButtonProps = ActionButtonPropsLoading | ActionButtonPropsNoLoading;
+
 interface ActionButtonState {
   loading: boolean;
 }
 
-function handleClick(i: ActionButton) {
+async function handleClick(i: ActionButton) {
   if (!i.props.noLoading) {
     i.setState({ loading: true });
   }
-  i.props.onClick();
+  await i.props.onClick();
   i.setState({ loading: false });
 }
 

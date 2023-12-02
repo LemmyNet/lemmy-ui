@@ -55,7 +55,7 @@ import { CommentForm } from "./comment-form";
 import { CommentNodes } from "./comment-nodes";
 import { BanUpdateForm } from "../common/mod-action-form-modal";
 import CommentActionDropdown from "../common/content-actions/comment-action-dropdown";
-import { RequestState } from "shared/services/HttpService";
+import { RequestState } from "../../services/HttpService";
 
 type CommentNodeState = {
   showReply: boolean;

@@ -29,7 +29,7 @@ import {
 } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
 import { CommentNode } from "./comment-node";
-import { RequestState } from "shared/services/HttpService";
+import { RequestState } from "../../services/HttpService";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];

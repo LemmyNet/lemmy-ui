@@ -46,16 +46,16 @@ export type ContentCommentProps = {
   type: "comment";
   commentView: CommentView;
   onReply: () => void;
-  onDistinguish: () => void;
+  onDistinguish: () => Promise<void>;
 } & ContentActionDropdownPropsBase;
 
 export type ContentPostProps = {
   type: "post";
   postView: PostView;
   crossPostParams: CrossPostParams;
-  onLock: () => void;
-  onFeatureLocal: () => void;
-  onFeatureCommunity: () => void;
+  onLock: () => Promise<void>;
+  onFeatureLocal: () => Promise<void>;
+  onFeatureCommunity: () => Promise<void>;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -140,6 +140,7 @@ export default class ContentActionDropdown extends Component<
             icon="reply1"
             inline
             label={I18NextService.i18n.t("reply")}
+            noLoading
           />
         )}
         <ActionButton
@@ -328,7 +329,7 @@ export default class ContentActionDropdown extends Component<
                             : "ban_from_community",
                         )}
                         icon={creator_banned_from_community ? "unban" : "ban"}
-                        noLoading={!creator_banned_from_community}
+                        noLoading
                         iconClass={`text-${
                           creator_banned_from_community ? "success" : "danger"
                         }`}
@@ -348,6 +349,7 @@ export default class ContentActionDropdown extends Component<
                         iconClass={`text-${
                           creator_is_moderator ? "danger" : "success"
                         }`}
+                        noLoading
                       />
                     </li>
                   )}
@@ -384,7 +386,7 @@ export default class ContentActionDropdown extends Component<
                         iconClass={`text-${
                           creatorBannedFromLocal ? "success" : "danger"
                         }`}
-                        noLoading={creatorBannedFromLocal}
+                        noLoading
                       />
                     </li>
                     <li>
@@ -420,6 +422,7 @@ export default class ContentActionDropdown extends Component<
                       iconClass={`text-${
                         creator_is_admin ? "danger" : "success"
                       }`}
+                      noLoading
                     />
                   </li>
                 )}

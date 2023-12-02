@@ -5,6 +5,7 @@ import { hostname, randomStr } from "@utils/helpers";
 import type { Modal } from "bootstrap";
 import classNames from "classnames";
 import { Community, Person } from "lemmy-js-client";
+import { LoadingEllipses } from "./loading-ellipses";
 
 export interface BanUpdateForm {
   reason?: string;
@@ -183,102 +184,21 @@ export default class ModActionFormModal extends Component<
 
     const formId = `mod-action-form-${randomStr()}`;
 
-    let buttonText: string;
-    let headerText: string;
-    let isBanned = false;
-    switch (modActionType) {
-      case "site-ban": {
-        headerText = `${I18NextService.i18n.t(
-          this.props.isBanned ? "unban" : "ban",
-        )} ${getApubName(this.props.creator)}`;
-        buttonText = I18NextService.i18n.t(
-          this.props.isBanned ? "unban" : "ban",
-        );
-        isBanned = this.props.isBanned;
-        break;
-      }
-
-      case "community-ban": {
-        headerText = `${I18NextService.i18n.t(
-          this.props.isBanned ? "unban" : "ban",
-        )} ${getApubName(this.props.creator)} from ${getApubName(
-          this.props.community,
-        )}`;
-        buttonText = I18NextService.i18n.t(
-          this.props.isBanned ? "unban" : "ban",
-        );
-        isBanned = this.props.isBanned;
-        break;
-      }
-
-      case "purge-post": {
-        headerText = "Purge Post";
-        buttonText = I18NextService.i18n.t("purge");
-        break;
-      }
-
-      case "purge-comment": {
-        headerText = "Purge Comment";
-        buttonText = I18NextService.i18n.t("purge");
-        break;
-      }
-
-      case "purge-person": {
-        headerText = `${I18NextService.i18n.t("purge")} ${getApubName(
-          this.props.creator,
-        )}`;
-        buttonText = I18NextService.i18n.t("purge");
-        break;
-      }
-
-      case "remove-post": {
-        headerText =
-          I18NextService.i18n.t(this.props.isRemoved ? "restore" : "remove") +
-          " post";
-        buttonText = I18NextService.i18n.t(
-          this.props.isRemoved ? "restore" : "remove",
-        );
-        break;
-      }
-
-      case "remove-comment": {
-        headerText =
-          I18NextService.i18n.t(this.props.isRemoved ? "restore" : "remove") +
-          " comment";
-        buttonText = I18NextService.i18n.t(
-          this.props.isRemoved ? "restore" : "remove",
-        );
-        break;
-      }
-
-      case "report-post": {
-        headerText = "Report post";
-        buttonText = I18NextService.i18n.t("create_report");
-        break;
-      }
-
-      case "report-comment": {
-        headerText = "Report comment";
-        buttonText = I18NextService.i18n.t("create_report");
-        break;
-      }
-
-      case "report-message": {
-        headerText = "Report message";
-        buttonText = I18NextService.i18n.t("create_report");
-        break;
-      }
-    }
+    const isBanned =
+      (modActionType === "site-ban" || modActionType === "community-ban") &&
+      this.props.isBanned;
 
     const showExpiresField = this.isBanModal && !(isBanned || shouldPermaBan);
 
     return (
       <div
-        className="modal modal-lg fade"
+        className={classNames("modal fade", {
+          "modal-lg": this.isBanModal,
+        })}
+        data-bs-backdrop="static"
         id="moderationModal"
         tabIndex={-1}
         aria-hidden
-        data-bs-backdrop="static"
         aria-labelledby="#moderationModalTitle"
         ref={this.modalDivRef}
       >
@@ -286,108 +206,118 @@ export default class ModActionFormModal extends Component<
           <div className="modal-content">
             <header className="modal-header">
               <h3 className="modal-title" id="moderationModalTitle">
-                {headerText}
+                {this.headerText}
               </h3>
-              <button
-                type="button"
-                className="btn-close"
-                aria-label="Close"
-                onClick={onCancel}
-              />
             </header>
-            <div className="modal-body d-flex flex-column  align-items-center justify-content-center">
-              <form
-                onSubmit={linkEvent(this, handleSubmit)}
-                className="p-3 w-100 text-body"
-                id={formId}
-              >
-                <div className="row mb-3">
-                  <div
-                    className={classNames("col-12", {
-                      "col-lg-6 col-xl-7": showExpiresField,
-                    })}
-                  >
-                    {modActionType.includes("purge") && <PurgeWarning />}
-                    <label className="visually-hidden" htmlFor={reasonId}>
-                      {I18NextService.i18n.t("reason")}
-                    </label>
-                    <input
-                      type="text"
-                      id={reasonId}
-                      className="form-control my-2 my-lg-0"
-                      placeholder={I18NextService.i18n.t("reason")}
-                      required
-                      value={reason}
-                      onInput={linkEvent(this, handleReasonChange)}
-                      ref={this.reasonRef}
-                    />
+            <div
+              className={classNames("modal-body text-body", {
+                "text-center": loading,
+              })}
+            >
+              {loading ? (
+                <>
+                  <Spinner large />
+                  <div>
+                    {this.loadingText}
+                    <LoadingEllipses />
                   </div>
-                  {showExpiresField && (
-                    <div className="col-12 col-lg-6 col-xl-5">
-                      <label className="visually-hidden" htmlFor={expiresId}>
-                        {I18NextService.i18n.t("expires")}
+                </>
+              ) : (
+                <form
+                  onSubmit={linkEvent(this, handleSubmit)}
+                  className="p-3 w-100 container"
+                  id={formId}
+                >
+                  <div className="row mb-3">
+                    <div
+                      className={classNames("col-12", {
+                        "col-lg-6 col-xl-7": showExpiresField,
+                      })}
+                    >
+                      {modActionType.includes("purge") && <PurgeWarning />}
+                      <label className="visually-hidden" htmlFor={reasonId}>
+                        {I18NextService.i18n.t("reason")}
                       </label>
                       <input
-                        type="number"
-                        id={expiresId}
+                        type="text"
+                        id={reasonId}
                         className="form-control my-2 my-lg-0"
-                        placeholder="Days until expiration"
-                        min={1}
-                        value={daysUntilExpire}
-                        onInput={linkEvent(this, handleExpiryChange)}
+                        placeholder={I18NextService.i18n.t("reason")}
                         required
+                        value={reason}
+                        onInput={linkEvent(this, handleReasonChange)}
+                        ref={this.reasonRef}
                       />
                     </div>
-                  )}
-                </div>
-                <div className="row">
-                  {this.isBanModal && !isBanned && (
-                    <div className="mb-2 col-12 col-lg-6 col-xxl-7">
-                      <div className="form-check m2-3">
-                        <label
-                          className="form-check-label me-3 user-select-none"
-                          title={I18NextService.i18n.t("remove_content_more")}
-                        >
-                          <input
-                            className="form-check-input user-select-none"
-                            type="checkbox"
-                            checked={shouldRemoveData}
-                            onChange={linkEvent(this, handleToggleRemove)}
-                          />
-                          {I18NextService.i18n.t("remove_content")}
+                    {showExpiresField && (
+                      <div className="col-12 col-lg-6 col-xl-5">
+                        <label className="visually-hidden" htmlFor={expiresId}>
+                          {I18NextService.i18n.t("expires")}
                         </label>
+                        <input
+                          type="number"
+                          id={expiresId}
+                          className="form-control my-2 my-lg-0"
+                          placeholder="Days until expiration"
+                          min={1}
+                          value={daysUntilExpire}
+                          onInput={linkEvent(this, handleExpiryChange)}
+                          required
+                        />
                       </div>
-                      <div className="form-check mt-2">
-                        <label
-                          className="form-check-label"
-                          title={I18NextService.i18n.t("remove_content_more")}
-                        >
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            onChange={linkEvent(this, handleTogglePermaBan)}
-                            checked={shouldPermaBan}
-                          />
-                          Permanently ban
-                        </label>
+                    )}
+                  </div>
+                  <div className="row">
+                    {this.isBanModal && !isBanned && (
+                      <div className="mb-2 col-12 col-lg-6 col-xxl-7">
+                        <div className="form-check m2-3">
+                          <label
+                            className="form-check-label me-3 user-select-none"
+                            title={I18NextService.i18n.t("remove_content_more")}
+                          >
+                            <input
+                              className="form-check-input user-select-none"
+                              type="checkbox"
+                              checked={shouldRemoveData}
+                              onChange={linkEvent(this, handleToggleRemove)}
+                            />
+                            {I18NextService.i18n.t("remove_content")}
+                          </label>
+                        </div>
+                        <div className="form-check mt-2">
+                          <label
+                            className="form-check-label"
+                            title={I18NextService.i18n.t("remove_content_more")}
+                          >
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              onChange={linkEvent(this, handleTogglePermaBan)}
+                              checked={shouldPermaBan}
+                            />
+                            Permanently ban
+                          </label>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              </form>
+                    )}
+                  </div>
+                </form>
+              )}
             </div>
             <footer className="modal-footer">
               <button
                 type="submit"
                 className="btn btn-secondary me-3"
                 form={formId}
+                disabled={loading}
               >
-                {loading ? <Spinner /> : buttonText}
+                {this.buttonText}
               </button>
               <button
                 type="button"
                 className="btn btn-light"
                 onClick={onCancel}
+                disabled={loading}
               >
                 {I18NextService.i18n.t("cancel")}
               </button>
@@ -407,5 +337,117 @@ export default class ModActionFormModal extends Component<
       this.props.modActionType === "site-ban" ||
       this.props.modActionType === "community-ban"
     );
+  }
+
+  get headerText() {
+    switch (this.props.modActionType) {
+      case "site-ban": {
+        return `${I18NextService.i18n.t(
+          this.props.isBanned ? "unban" : "ban",
+        )} ${getApubName(this.props.creator)}`;
+      }
+
+      case "community-ban": {
+        return `${I18NextService.i18n.t(
+          this.props.isBanned ? "unban" : "ban",
+        )} ${getApubName(this.props.creator)} from ${getApubName(
+          this.props.community,
+        )}`;
+      }
+
+      case "purge-post": {
+        return "Purge Post";
+      }
+
+      case "purge-comment": {
+        return "Purge Comment";
+      }
+
+      case "purge-person": {
+        return `${I18NextService.i18n.t("purge")} ${getApubName(
+          this.props.creator,
+        )}`;
+      }
+
+      case "remove-post": {
+        return (
+          I18NextService.i18n.t(this.props.isRemoved ? "restore" : "remove") +
+          " post"
+        );
+      }
+
+      case "remove-comment": {
+        return (
+          I18NextService.i18n.t(this.props.isRemoved ? "restore" : "remove") +
+          " comment"
+        );
+      }
+
+      case "report-post": {
+        return "Report post";
+      }
+
+      case "report-comment": {
+        return "Report comment";
+      }
+
+      case "report-message": {
+        return "Report message";
+      }
+    }
+  }
+
+  get buttonText() {
+    switch (this.props.modActionType) {
+      case "site-ban":
+      case "community-ban": {
+        return I18NextService.i18n.t(this.props.isBanned ? "unban" : "ban");
+      }
+
+      case "purge-post":
+      case "purge-comment":
+      case "purge-person": {
+        return I18NextService.i18n.t("purge");
+      }
+
+      case "remove-post":
+      case "remove-comment": {
+        return I18NextService.i18n.t(
+          this.props.isRemoved ? "restore" : "remove",
+        );
+      }
+
+      case "report-post":
+      case "report-comment":
+      case "report-message": {
+        return I18NextService.i18n.t("create_report");
+      }
+    }
+  }
+
+  get loadingText() {
+    switch (this.props.modActionType) {
+      case "site-ban":
+      case "community-ban": {
+        return this.props.isBanned ? "Unbanning" : "Banning";
+      }
+
+      case "purge-post":
+      case "purge-comment":
+      case "purge-person": {
+        return "Purging";
+      }
+
+      case "remove-post":
+      case "remove-comment": {
+        return this.props.isRemoved ? "Restoring" : "Removed";
+      }
+
+      case "report-post":
+      case "report-comment":
+      case "report-message": {
+        return "Creating report";
+      }
+    }
   }
 }

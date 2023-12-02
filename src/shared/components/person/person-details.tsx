@@ -45,7 +45,7 @@ import { setupTippy } from "../../tippy";
 import { CommentNodes } from "../comment/comment-nodes";
 import { Paginator } from "../common/paginator";
 import { PostListing } from "../post/post-listing";
-import { RequestState } from "shared/services/HttpService";
+import { RequestState } from "../../services/HttpService";
 
 interface PersonDetailsProps {
   personRes: GetPersonDetailsResponse;

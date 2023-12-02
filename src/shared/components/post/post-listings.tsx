@@ -25,7 +25,7 @@ import {
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { PostListing } from "./post-listing";
-import { RequestState } from "shared/services/HttpService";
+import { RequestState } from "../../services/HttpService";
 
 interface PostListingsProps {
   posts: PostView[];
