@@ -610,6 +610,7 @@ export default class ContentActionDropdown extends Component<
           <ConfirmationModal
             show={showTransferCommunityDialog}
             message="Are you sure you want to transfer the community x to y?"
+            loadingMessage="Transferring community"
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onTransferCommunity)}
           />
@@ -618,6 +619,7 @@ export default class ContentActionDropdown extends Component<
           <ConfirmationModal
             show={showAppointModDialog}
             message="Are you sure you want to appoint x as a moderator for y??"
+            loadingMessage="Appointing moderator"
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onAppointCommunityMod)}
           />
@@ -626,6 +628,7 @@ export default class ContentActionDropdown extends Component<
           <ConfirmationModal
             show={showAppointAdminDialog}
             message="Are you sure you want to appoint x as an admin for y??"
+            loadingMessage="Appointing admin"
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onAppointAdmin)}
           />
