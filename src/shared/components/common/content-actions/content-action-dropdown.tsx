@@ -131,6 +131,9 @@ export default class ContentActionDropdown extends Component<
         : `comment-actions-dropdown-${id}`;
     const creatorBannedFromLocal = isBanned(creator);
     const showToggleAdmin = !creatorBannedFromLocal && creator.local;
+    const canAppointCommunityMod =
+      (amMod(community.id) || (amAdmin() && community.local)) &&
+      !creator_banned_from_community;
 
     return (
       <>
@@ -275,6 +278,7 @@ export default class ContentActionDropdown extends Component<
               </>
             )}
             {type === "comment" &&
+              this.amCreator &&
               (this.canModOnSelf || this.canAdminOnSelf) && (
                 <li>
                   <ActionButton
@@ -314,7 +318,7 @@ export default class ContentActionDropdown extends Component<
               </li>
             )}
             {this.canMod &&
-              !(creator_is_moderator && creator_banned_from_community) && (
+              (!creator_is_moderator || canAppointCommunityMod) && (
                 <>
                   <li>
                     <hr className="dropdown-divider" />
@@ -336,7 +340,7 @@ export default class ContentActionDropdown extends Component<
                       />
                     </li>
                   )}
-                  {!creator_banned_from_community && (
+                  {canAppointCommunityMod && (
                     <li>
                       <ActionButton
                         onClick={this.toggleAppointModShow}
