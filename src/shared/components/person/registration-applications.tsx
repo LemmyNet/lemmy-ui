@@ -6,6 +6,7 @@ import { Component, linkEvent } from "inferno";
 import {
   ApproveRegistrationApplication,
   GetSiteResponse,
+  LemmyHttp,
   ListRegistrationApplicationsResponse,
   RegistrationApplicationView,
 } from "lemmy-js-client";
@@ -17,6 +18,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { HtmlTags } from "../common/html-tags";
@@ -24,6 +26,7 @@ import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { RegistrationApplication } from "../common/registration-application";
 import { UnreadCounterService } from "../../services";
+import { getHttpBaseInternal } from "../../utils/env";
 
 enum UnreadOrAll {
   Unread,
@@ -207,11 +210,13 @@ export class RegistrationApplications extends Component<
   }
 
   static async fetchInitialData({
-    client,
-    auth,
+    headers,
   }: InitialFetchRequest): Promise<RegistrationApplicationsData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     return {
-      listRegistrationApplicationsResponse: auth
+      listRegistrationApplicationsResponse: headers["Authorization"]
         ? await client.listRegistrationApplications({
             unread_only: true,
             page: 1,

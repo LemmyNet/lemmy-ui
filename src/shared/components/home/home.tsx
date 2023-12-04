@@ -52,6 +52,7 @@ import {
   GetPosts,
   GetPostsResponse,
   GetSiteResponse,
+  LemmyHttp,
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
@@ -84,6 +85,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -97,6 +99,7 @@ import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
+import { getHttpBaseInternal } from "../../utils/env";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -306,10 +309,14 @@ export class Home extends Component<any, HomeState> {
   }
 
   static async fetchInitialData({
-    client,
     query: { dataType: urlDataType, listingType, pageCursor, sort: urlSort },
     site,
+    headers,
   }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
+
     const dataType = getDataTypeFromQuery(urlDataType);
     const type_ =
       getListingTypeFromQuery(listingType, site.my_user) ??

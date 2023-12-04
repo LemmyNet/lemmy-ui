@@ -13,6 +13,7 @@ import {
   CommentReportResponse,
   CommentReportView,
   GetSiteResponse,
+  LemmyHttp,
   ListCommentReports,
   ListCommentReportsResponse,
   ListPostReports,
@@ -39,6 +40,7 @@ import {
   EMPTY_REQUEST,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
@@ -47,6 +49,7 @@ import { Paginator } from "../common/paginator";
 import { PostReport } from "../post/post-report";
 import { PrivateMessageReport } from "../private_message/private-message-report";
 import { UnreadCounterService } from "../../services";
+import { getHttpBaseInternal } from "../../utils/env";
 
 enum UnreadOrAll {
   Unread,
@@ -535,8 +538,11 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   static async fetchInitialData({
-    client,
+    headers,
   }: InitialFetchRequest): Promise<ReportsData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const unresolved_only = true;
     const page = 1;
     const limit = fetchLimit;

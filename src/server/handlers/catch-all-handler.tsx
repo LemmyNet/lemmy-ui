@@ -20,7 +20,6 @@ import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
-import fetch from "cross-fetch";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -30,11 +29,8 @@ export default async (req: Request, res: Response) => {
     const auth = getJwtCookie(req.headers);
 
     const client = wrapClient(
-      new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch }),
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
-
-    // Try client setHeaders after this
-    client.rawClient.setHeaders(headers);
 
     const { path, url, query } = req;
 
@@ -62,22 +58,19 @@ export default async (req: Request, res: Response) => {
     }
 
     if (try_site.state === "success") {
-      const siteData = try_site.data;
       site = try_site.data;
+      initializeSite(site);
 
-      initializeSite(siteData);
-
-      if (path !== "/setup" && !siteData.site_view.local_site.site_setup) {
+      if (path !== "/setup" && !site.site_view.local_site.site_setup) {
         return res.redirect("/setup");
       }
 
-      if (activeRoute?.fetchInitialData) {
+      if (site && activeRoute?.fetchInitialData) {
         const initialFetchReq: InitialFetchRequest = {
-          client,
           path,
           query,
-          site: siteData,
-          auth,
+          site,
+          headers,
         };
 
         routeData = await activeRoute.fetchInitialData(initialFetchReq);

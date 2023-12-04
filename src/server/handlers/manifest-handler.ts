@@ -11,9 +11,9 @@ let manifest: Awaited<ReturnType<typeof generateManifestJson>> | undefined =
 export default async (req: Request, res: Response) => {
   if (!manifest || manifest.start_url !== getHttpBaseExternal()) {
     const headers = setForwardedHeaders(req.headers);
-    const client = wrapClient(new LemmyHttp(getHttpBaseInternal()));
-    client.setHeaders(headers);
-
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const site = await client.getSite();
 
     if (site.state === "success") {

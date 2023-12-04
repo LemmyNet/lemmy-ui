@@ -9,6 +9,7 @@ import {
   GetCommunity,
   GetCommunityResponse,
   GetSiteResponse,
+  LemmyHttp,
   ListCommunitiesResponse,
 } from "lemmy-js-client";
 import { InitialFetchRequest, PostFormParams } from "../../interfaces";
@@ -18,10 +19,12 @@ import {
   HttpService,
   RequestState,
   WrappedLemmyHttp,
+  wrapClient,
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PostForm } from "./post-form";
+import { getHttpBaseInternal } from "../../utils/env";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -236,11 +239,14 @@ export class CreatePost extends Component<
   }
 
   static async fetchInitialData({
-    client,
+    headers,
     query: { communityId },
   }: InitialFetchRequest<
     QueryParams<CreatePostProps>
   >): Promise<CreatePostData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const data: CreatePostData = {
       initialCommunitiesRes: await fetchCommunitiesForOptions(client),
       communityResponse: EMPTY_REQUEST,

@@ -42,6 +42,7 @@ import {
   GetPersonMentionsResponse,
   GetRepliesResponse,
   GetSiteResponse,
+  LemmyHttp,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
   MarkPrivateMessageAsRead,
@@ -69,6 +70,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -77,6 +79,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { PrivateMessage } from "../private_message/private-message";
+import { getHttpBaseInternal } from "../../utils/env";
 
 enum UnreadOrAll {
   Unread,
@@ -724,9 +727,11 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   static async fetchInitialData({
-    client,
-    auth,
+    headers,
   }: InitialFetchRequest): Promise<InboxData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const sort: CommentSortType = "New";
     const empty: EmptyRequestState = EMPTY_REQUEST;
     let inboxData: InboxData = {
@@ -735,7 +740,7 @@ export class Inbox extends Component<any, InboxState> {
       repliesRes: empty,
     };
 
-    if (auth) {
+    if (headers["Authorization"]) {
       const [mentionsRes, messagesRes, repliesRes] = await Promise.all([
         client.getPersonMentions({
           sort,
