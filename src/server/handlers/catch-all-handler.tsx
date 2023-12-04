@@ -38,7 +38,7 @@ export default async (req: Request, res: Response) => {
 
     if (auth) {
       headers["Authorization"] = `Bearer ${auth}`;
-      client.setHeaders(headers);
+      client.rawClient.setHeaders(headers);
     }
     const { path, url, query } = req;
 
