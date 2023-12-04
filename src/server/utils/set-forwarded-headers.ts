@@ -22,17 +22,22 @@ export function setForwardedHeaders(headers: IncomingHttpHeaders): {
     out["x-forwarded-for"] = forwardedFor as string;
   }
 
-  const cookies = headers["cookie"];
+  // const cookies = headers["cookie"];
 
-  if (cookies) {
-    out["cookie"] = cookies;
-  }
+  // if (cookies) {
+  //   out["cookie"] = cookies;
+  // }
 
   const auth = getJwtCookie(headers);
 
   if (auth) {
     out["Authorization"] = `Bearer ${auth}`;
   }
+
+  // No cache
+  //out["Cache-Control"] = "no-cache";
+  //out["cache"] = "no-store";
+  //out["Credentials"] = "include";
 
   return out;
 }

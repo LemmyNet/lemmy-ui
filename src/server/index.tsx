@@ -11,7 +11,7 @@ import SecurityHandler from "./handlers/security-handler";
 import ServiceWorkerHandler from "./handlers/service-worker-handler";
 import ThemeHandler from "./handlers/theme-handler";
 import ThemesListHandler from "./handlers/themes-list-handler";
-import { setCacheControl, setDefaultCsp } from "./middleware";
+import { setDefaultCsp } from "./middleware";
 import CodeThemeHandler from "./handlers/code-theme-handler";
 
 const server = express();
@@ -33,12 +33,12 @@ if (
   server.use(
     getStaticDir(),
     express.static(serverPath, {
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-      immutable: true,
+      // maxAge: 24 * 60 * 60 * 1000, // 1 day
+      // immutable: true,
     }),
   );
   server.use(setDefaultCsp);
-  server.use(setCacheControl);
+  // server.use(setCacheControl);
 } else {
   // In debug mode, don't use the maxAge and immutable, or it breaks live reload for dev
   server.use(getStaticDir(), express.static(serverPath));

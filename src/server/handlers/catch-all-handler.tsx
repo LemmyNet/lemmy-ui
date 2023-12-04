@@ -20,6 +20,7 @@ import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
+import fetch from "cross-fetch";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -29,8 +30,11 @@ export default async (req: Request, res: Response) => {
     const auth = getJwtCookie(req.headers);
 
     const client = wrapClient(
-      new LemmyHttp(getHttpBaseInternal(), { headers }),
+      new LemmyHttp(getHttpBaseInternal(), { fetchFunction: fetch }),
     );
+
+    // Try client setHeaders after this
+    client.setHeaders(headers);
 
     const { path, url, query } = req;
 
@@ -58,19 +62,21 @@ export default async (req: Request, res: Response) => {
     }
 
     if (try_site.state === "success") {
+      const siteData = try_site.data;
       site = try_site.data;
-      initializeSite(site);
 
-      if (path !== "/setup" && !site.site_view.local_site.site_setup) {
+      initializeSite(siteData);
+
+      if (path !== "/setup" && !siteData.site_view.local_site.site_setup) {
         return res.redirect("/setup");
       }
 
-      if (site && activeRoute?.fetchInitialData) {
+      if (activeRoute?.fetchInitialData) {
         const initialFetchReq: InitialFetchRequest = {
           client,
           path,
           query,
-          site,
+          site: siteData,
           auth,
         };
 
