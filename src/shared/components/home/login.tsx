@@ -20,11 +20,15 @@ import TotpModal from "../common/totp-modal";
 
 interface LoginProps {
   prev?: string;
+  err?: string;
 }
 
 const getLoginQueryParams = () =>
   getQueryParams<LoginProps>({
     prev(param) {
+      return param ? decodeURIComponent(param) : undefined;
+    },
+    err(param) {
       return param ? decodeURIComponent(param) : undefined;
     },
   });
@@ -94,14 +98,26 @@ function handleUseExternalAuth(d: {
   index: number;
   external_auth: PublicExternalAuth;
 }) {
-  let requestUri = external_auth.auth_endpoint + "?";
-  requestUri += `client_id=${external_auth.client_id}`;
+  let requestUri = d.external_auth.auth_endpoint + "?";
+  requestUri += `client_id=${d.external_auth.client_id}`;
   requestUri += `&response_type=code`;
-  requestUri += `&redirect_uri=${getExternalHost()}/api/v3/oauth/callback`;
-  const selfUri = `${window.location.protocol}//${window.location.hostname}`;
-  const clientRedirectUri = `${selfUri}/oauth/callback?redirect_uri=${encodeURIComponent(window.location)}`;
-  requestUri += `&state=${external_auth.client_id}|${clientRedirectUri}`;
-  requestUri += `&scope=${external_auth.scopes}`;
+  requestUri += `&scope=${d.external_auth.scopes}`;
+
+  let externalHost = getExternalHost();
+  // Fix for development mode:
+  if (!externalHost.startsWith("http")) {
+    externalHost = "http://" + externalHost;
+  }
+  requestUri += `&redirect_uri=${encodeURIComponent(`${externalHost}/api/v3/oauth/callback`)}`;
+
+  const clientRedirectUri =
+    `${window.location.origin}/oauth/callback?redirect_uri=/`;
+  const state = encodeURIComponent(JSON.stringify({
+    external_auth: d.external_auth.id,
+    client_redirect_uri: clientRedirectUri
+  }));
+  requestUri += `&state=${state}`;
+
   window.location = requestUri;
 }
 
@@ -138,6 +154,37 @@ export class Login extends Component<
   constructor(props: any, context: any) {
     super(props, context);
 
+    const { err } = getLoginQueryParams();
+    switch (err) {
+      case "internal":
+        toast(I18NextService.i18n.t("internal_error"), "danger");
+        break;
+      case "oauth_response":
+        toast(I18NextService.i18n.t("invalid_oauth_response"), "danger");
+        break;
+      case "external_auth":
+        toast(I18NextService.i18n.t("incorrect_oauth"), "danger");
+        break;
+      case "token":
+        toast(I18NextService.i18n.t("identity_provider_error"), "danger");
+        break;
+      case "userinfo":
+        toast(I18NextService.i18n.t("identity_provider_error"), "danger");
+        break;
+      case "user":
+        toast(I18NextService.i18n.t("error_logging_in"), "danger");
+        break;
+      case "application":
+        toast(I18NextService.i18n.t("fill_out_application"), "danger");
+        break;
+      case "email":
+        toast(I18NextService.i18n.t("verify_email"), "danger");
+        break;
+      case "jwt":
+        toast(I18NextService.i18n.t("internal_error"), "danger");
+        break;
+    }
+
     this.handleSubmitTotp = this.handleSubmitTotp.bind(this);
   }
 
@@ -167,13 +214,20 @@ export class Login extends Component<
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
-        {this.state.siteRes.external_auths.map(({ external_auth }, index) => <div className="row">
-          <button
-            onClick={linkEvent({ i: this, index, external_auth }, this.handleUseExternalAuth)}
-          >
-            Login with { external_auth.display_name }
-          </button>
-        </div>)}
+        {this.state.siteRes.external_auths.length > 0 && <div className="row">
+          <div className="col-12 col-lg-6 offset-lg-3">
+            <span>Or</span>
+            {this.state.siteRes.external_auths.map(({ external_auth }, index) =>
+              <button
+                className="btn btn-secondary"
+                style="margin: 0.5rem"
+                onClick={linkEvent({ i: this, index, external_auth }, handleUseExternalAuth)}
+              >
+                Login with { external_auth.display_name }
+              </button>
+            )}
+          </div>
+        </div>}
       </div>
     );
   }

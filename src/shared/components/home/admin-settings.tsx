@@ -401,42 +401,73 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   async handleEditExternalAuth(form: EditCustomExternalAuth) {
     this.setState({ loading: true });
 
-    const editRes = await HttpService.client.editCustomExternalAuth(form);
+    const res = await HttpService.client.editExternalAuth(form);
 
-    if (editRes.state === "success") {
+    if (res.state === "success") {
+      this.setState(s => {
+        s.siteRes.external_auths = s.siteRes.external_auths.slice();
+        const newExternalAuth = res.data.external_auth.external_auth;
+        const index = s.siteRes.external_auths.findIndex(x =>
+          x.external_auth.client_id === newExternalAuth.client_id);
+        if (index >= 0) {
+          Object.assign(s.siteRes.external_auths[index], newExternalAuth);
+          s.siteRes.external_auths[index].client_secret = "";
+        }
+        return s;
+      });
       toast(I18NextService.i18n.t("site_saved"));
     }
 
     this.setState({ loading: false });
 
-    return editRes;
+    return res;
   }
 
   async handleDeleteExternalAuth(form: DeleteCustomExternalAuth) {
     this.setState({ loading: true });
 
-    const editRes = await HttpService.client.deleteCustomExternalAuth(form);
+    const res = await HttpService.client.deleteExternalAuth(form);
 
-    if (editRes.state === "success") {
+    if (res.state === "success") {
+      this.setState(s => {
+        s.siteRes.external_auths = s.siteRes.external_auths.slice();
+        const index = s.siteRes.external_auths.findIndex(x =>
+          x.external_auth.id === res.data.id);
+        if (index >= 0) {
+          s.siteRes.external_auths.splice(index, 1);
+        }
+      });
       toast(I18NextService.i18n.t("site_saved"));
     }
 
     this.setState({ loading: false });
 
-    return editRes;
+    return res;
   }
 
   async handleCreateExternalAuth(form: CreateCustomExternalAuth) {
     this.setState({ loading: true });
 
-    const editRes = await HttpService.client.createCustomExternalAuth(form);
+    const res = await HttpService.client.createExternalAuth(form);
 
-    if (editRes.state === "success") {
+    if (res.state === "success") {
+      this.setState(s => {
+        s.siteRes.external_auths = s.siteRes.external_auths.slice();
+        const newExternalAuth = res.data.external_auth.external_auth;
+        const index = s.siteRes.external_auths.findIndex(x =>
+          x.external_auth.id === newExternalAuth.id);
+        if (index >= 0) {
+          Object.assign(s.siteRes.external_auths[index], newExternalAuth);
+          s.siteRes.external_auths[index].client_secret = "";
+        } else {
+          s.siteRes.external_auths.push(newExternalAuth);
+        }
+      });
       toast(I18NextService.i18n.t("site_saved"));
     }
 
     this.setState({ loading: false });
 
-    return editRes;
+    return res;
   }
 }

@@ -24,9 +24,7 @@ export class OAuth extends Component<any, State> {
     siteRes: this.isoData.site_res,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-
+  async componentDidMount() {
     UserService.Instance.login({
         res: {
             jwt: cookie.parse(document.cookie).jwt,
@@ -45,6 +43,7 @@ export class OAuth extends Component<any, State> {
   render() {
     return (
       <div className="container-lg">
+        <Spinner />
       </div>
     );
   }

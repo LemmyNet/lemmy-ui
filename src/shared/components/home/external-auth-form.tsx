@@ -107,7 +107,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
                             type="text"
                             id={`display-name-${index}`}
                             className="form-control"
-                            value={cv.displayName}
+                            value={cv.display_name}
                             onInput={linkEvent(
                               { form: this, index: index },
                               this.handleDisplayNameChange,
@@ -325,8 +325,10 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
     let noEmptyFields =
       cv.display_name.length > 0 &&
       cv.client_id.length > 0 &&
-      cv.client_secret.length > 0 &&
       cv.scopes.length > 0;
+    if (cv.id === 0) {
+      noEmptyFields = noEmptyFields && cv.client_secret.length > 0;
+    }
     if (cv.auth_type === "oauth") {
       noEmptyFields = noEmptyFields &&
         cv.auth_endpoint.length > 0 &&
@@ -344,20 +346,6 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
     else return I18NextService.i18n.t("external_auth_save_validation");
   }
 
-  handleDisplayNameChange(
-    props: { form: ExternalAuthForm; index: number },
-    event: any,
-  ) {
-    const external_auths = [...props.form.state.externalAuths];
-    const item = {
-      ...props.form.state.externalAuths[props.index],
-      display_name: event.target.value,
-      changed: true,
-    };
-    external_auths[Number(props.index)] = item;
-    props.form.setState({ externalAuths: external_auths });
-  }
-
   handleAuthType(
     props: { form: ExternalAuthForm; index: number },
     event: any,
@@ -366,6 +354,20 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
     const item = {
       ...props.form.state.externalAuths[props.index],
       auth_type: event.target.value,
+      changed: true,
+    };
+    external_auths[Number(props.index)] = item;
+    props.form.setState({ externalAuths: external_auths });
+  }
+
+  handleDisplayNameChange(
+    props: { form: ExternalAuthForm; index: number },
+    event: any,
+  ) {
+    const external_auths = [...props.form.state.externalAuths];
+    const item = {
+      ...props.form.state.externalAuths[props.index],
+      display_name: event.target.value,
       changed: true,
     };
     external_auths[Number(props.index)] = item;
@@ -495,7 +497,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
       });
     } else {
       const external_auths = [...d.i.state.externalAuths];
-      external_auths.splice(Number(props.index), 1);
+      external_auths.splice(Number(d.index), 1);
       d.i.setState({ externalAuths: external_auths });
     }
   }
@@ -541,7 +543,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
         auth_endpoint: "",
         token_endpoint: "",
         user_endpoint: "",
-        id_attribute: "email",
+        id_attribute: "preferred_username",
         issuer: "",
         client_id: "",
         client_secret: "",
@@ -566,7 +568,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
         auth_endpoint: "",
         token_endpoint: "",
         user_endpoint: "",
-        id_attribute: "email",
+        id_attribute: "preferred_username",
         issuer: "",
         client_id: "",
         client_secret: "",
