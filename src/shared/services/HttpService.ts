@@ -36,7 +36,7 @@ export type RequestState<T> =
   | FailedRequestState
   | SuccessRequestState<T>;
 
-export type WrappedLemmyHttp = {
+export type WrappedLemmyHttp = WrappedLemmyHttpClient & {
   [K in keyof LemmyHttp]: LemmyHttp[K] extends (...args: any[]) => any
     ? ReturnType<LemmyHttp[K]> extends Promise<infer U>
       ? (...args: Parameters<LemmyHttp[K]>) => Promise<RequestState<U>>
@@ -47,18 +47,18 @@ export type WrappedLemmyHttp = {
 };
 
 class WrappedLemmyHttpClient {
-  #client: LemmyHttp;
+  rawClient: LemmyHttp;
 
   constructor(client: LemmyHttp, silent = false) {
-    this.#client = client;
+    this.rawClient = client;
 
     for (const key of Object.getOwnPropertyNames(
-      Object.getPrototypeOf(this.#client),
+      Object.getPrototypeOf(this.rawClient),
     )) {
       if (key !== "constructor") {
-        WrappedLemmyHttpClient.prototype[key] = async (...args) => {
+        this[key] = async (...args) => {
           try {
-            const res = await this.#client[key](...args);
+            const res = await this.rawClient[key](...args);
 
             return {
               data: res,

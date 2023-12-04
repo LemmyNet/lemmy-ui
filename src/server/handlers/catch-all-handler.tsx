@@ -34,7 +34,7 @@ export default async (req: Request, res: Response) => {
     );
 
     // Try client setHeaders after this
-    client.setHeaders(headers);
+    client.rawClient.setHeaders(headers);
 
     const { path, url, query } = req;
 
