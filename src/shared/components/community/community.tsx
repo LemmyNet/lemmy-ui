@@ -54,6 +54,7 @@ import {
   GetPosts,
   GetPostsResponse,
   GetSiteResponse,
+  LemmyHttp,
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
@@ -84,6 +85,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -98,6 +100,7 @@ import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
 import { PaginatorCursor } from "../common/paginator-cursor";
+import { getHttpBaseInternal } from "../../utils/env";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -230,12 +233,15 @@ export class Community extends Component<
   }
 
   static async fetchInitialData({
-    client,
+    headers,
     path,
     query: { dataType: urlDataType, pageCursor, sort: urlSort },
   }: InitialFetchRequest<QueryParams<CommunityProps>>): Promise<
     Promise<CommunityData>
   > {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const pathSplit = path.split("/");
 
     const communityName = pathSplit[2];
@@ -247,8 +253,10 @@ export class Community extends Component<
 
     const sort = getSortTypeFromQuery(urlSort);
 
-    let postsResponse: RequestState<GetPostsResponse> = EMPTY_REQUEST;
-    let commentsResponse: RequestState<GetCommentsResponse> = EMPTY_REQUEST;
+    let postsFetch: Promise<RequestState<GetPostsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
+    let commentsFetch: Promise<RequestState<GetCommentsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -260,7 +268,7 @@ export class Community extends Component<
         saved_only: false,
       };
 
-      postsResponse = await client.getPosts(getPostsForm);
+      postsFetch = client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
         community_name: communityName,
@@ -270,13 +278,21 @@ export class Community extends Component<
         saved_only: false,
       };
 
-      commentsResponse = await client.getComments(getCommentsForm);
+      commentsFetch = client.getComments(getCommentsForm);
     }
 
+    const communityFetch = client.getCommunity(communityForm);
+
+    const [communityRes, commentsRes, postsRes] = await Promise.all([
+      communityFetch,
+      commentsFetch,
+      postsFetch,
+    ]);
+
     return {
-      communityRes: await client.getCommunity(communityForm),
-      commentsRes: commentsResponse,
-      postsRes: postsResponse,
+      communityRes,
+      commentsRes,
+      postsRes,
     };
   }
 

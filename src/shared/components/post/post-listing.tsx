@@ -105,11 +105,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    if (UserService.Instance.myUserInfo) {
-      this.state.imageExpanded =
-        UserService.Instance.myUserInfo.local_user_view.local_user.auto_expand;
-    }
-
     this.handleEditPost = this.handleEditPost.bind(this);
     this.handleEditCancel = this.handleEditCancel.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
@@ -129,6 +124,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleModBanFromSite = this.handleModBanFromSite.bind(this);
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
+  }
+
+  componentDidMount(): void {
+    if (UserService.Instance.myUserInfo) {
+      this.setState({
+        imageExpanded:
+          UserService.Instance.myUserInfo.local_user_view.local_user
+            .auto_expand,
+      });
+    }
   }
 
   get postView(): PostView {
@@ -208,7 +213,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     // if direct video link
     if (url && isVideo(url)) {
       return (
-        <div className="embed-responsive mt-3">
+        <div className="embed-responsive ratio ratio-16x9 mt-3">
           <video muted controls className="embed-responsive-item col-12">
             <source src={url} type="video/mp4" />
           </video>
