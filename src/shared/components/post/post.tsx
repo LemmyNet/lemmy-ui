@@ -263,9 +263,14 @@ export class Post extends Component<any, PostState> {
       commentsForm.parent_id = id;
     }
 
+    const [postRes, commentsRes] = await Promise.all([
+      client.getPost(postForm),
+      client.getComments(commentsForm),
+    ]);
+
     return {
-      postRes: await client.getPost(postForm),
-      commentsRes: await client.getComments(commentsForm),
+      postRes,
+      commentsRes,
     };
   }
 
