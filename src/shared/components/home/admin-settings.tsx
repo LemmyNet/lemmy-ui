@@ -11,6 +11,7 @@ import {
   EditSite,
   GetFederatedInstancesResponse,
   GetSiteResponse,
+  LemmyHttp,
   PersonView,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
@@ -21,6 +22,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
@@ -31,6 +33,7 @@ import { EmojiForm } from "./emojis-form";
 import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
+import { getHttpBaseInternal } from "../../utils/env";
 
 type AdminSettingsData = RouteDataResponse<{
   bannedRes: BannedPersonsResponse;
@@ -85,8 +88,11 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   }
 
   static async fetchInitialData({
-    client,
+    headers,
   }: InitialFetchRequest): Promise<AdminSettingsData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     return {
       bannedRes: await client.getBannedPersons(),
       instancesRes: await client.getFederatedInstances(),
