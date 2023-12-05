@@ -323,8 +323,10 @@ export class Home extends Component<any, HomeState> {
       site.site_view.local_site.default_post_listing_type;
     const sort = getSortTypeFromQuery(urlSort, site.my_user);
 
-    let postsRes: RequestState<GetPostsResponse> = EMPTY_REQUEST;
-    let commentsRes: RequestState<GetCommentsResponse> = EMPTY_REQUEST;
+    let postsFetch: Promise<RequestState<GetPostsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
+    let commentsFetch: Promise<RequestState<GetCommentsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -335,7 +337,7 @@ export class Home extends Component<any, HomeState> {
         saved_only: false,
       };
 
-      postsRes = await client.getPosts(getPostsForm);
+      postsFetch = client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
         limit: fetchLimit,
@@ -344,7 +346,7 @@ export class Home extends Component<any, HomeState> {
         saved_only: false,
       };
 
-      commentsRes = await client.getComments(getCommentsForm);
+      commentsFetch = client.getComments(getCommentsForm);
     }
 
     const trendingCommunitiesForm: ListCommunities = {
@@ -353,10 +355,18 @@ export class Home extends Component<any, HomeState> {
       limit: trendingFetchLimit,
     };
 
+    const trendingCommunitiesFetch = client.listCommunities(
+      trendingCommunitiesForm,
+    );
+
+    const [postsRes, commentsRes, trendingCommunitiesRes] = await Promise.all([
+      postsFetch,
+      commentsFetch,
+      trendingCommunitiesFetch,
+    ]);
+
     return {
-      trendingCommunitiesRes: await client.listCommunities(
-        trendingCommunitiesForm,
-      ),
+      trendingCommunitiesRes,
       commentsRes,
       postsRes,
     };
