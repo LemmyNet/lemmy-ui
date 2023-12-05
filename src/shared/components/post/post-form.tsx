@@ -264,12 +264,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         },
         communitySearchOptions: [selectedCommunityChoice].concat(
           (
-            this.props.initialCommunities?.map(
-              ({ community: { id, title } }) => ({
-                label: title,
-                value: id.toString(),
-              }),
-            ) ?? []
+            this.props.initialCommunities?.map(cv => communityToChoice(cv)) ??
+            []
           ).filter(option => option.value !== selectedCommunityChoice.value),
         ),
       };
@@ -277,12 +273,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       this.state = {
         ...this.state,
         communitySearchOptions:
-          this.props.initialCommunities?.map(
-            ({ community: { id, title } }) => ({
-              label: title,
-              value: id.toString(),
-            }),
-          ) ?? [],
+          this.props.initialCommunities?.map(cv => communityToChoice(cv)) ?? [],
       };
     }
 

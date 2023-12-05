@@ -1,4 +1,9 @@
-import { enableDownvotes, enableNsfw, setIsoData } from "@utils/app";
+import {
+  communityToChoice,
+  enableDownvotes,
+  enableNsfw,
+  setIsoData,
+} from "@utils/app";
 import { getIdFromString, getQueryParams } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
@@ -85,10 +90,9 @@ export class CreatePost extends Component<
       };
 
       if (communityRes?.state === "success") {
-        const communityChoice: Choice = {
-          label: communityRes.data.community_view.community.title,
-          value: communityRes.data.community_view.community.id.toString(),
-        };
+        const communityChoice = communityToChoice(
+          communityRes.data.community_view,
+        );
 
         this.state = {
           ...this.state,
@@ -107,10 +111,7 @@ export class CreatePost extends Component<
       });
       if (res.state === "success") {
         this.setState({
-          selectedCommunityChoice: {
-            label: res.data.community_view.community.title,
-            value: res.data.community_view.community.id.toString(),
-          },
+          selectedCommunityChoice: communityToChoice(res.data.community_view),
           loading: false,
         });
       }
