@@ -208,7 +208,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     // if direct video link
     if (url && isVideo(url)) {
       return (
-        <div className="embed-responsive mt-3">
+        <div className="embed-responsive ratio ratio-16x9 mt-3">
           <video muted controls className="embed-responsive-item col-12">
             <source src={url} type="video/mp4" />
           </video>

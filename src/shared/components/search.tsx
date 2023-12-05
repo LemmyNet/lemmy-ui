@@ -34,6 +34,7 @@ import {
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
+  LemmyHttp,
   ListCommunitiesResponse,
   ListingType,
   PersonView,
@@ -53,6 +54,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../services/HttpService";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
@@ -64,6 +66,7 @@ import { SortSelect } from "./common/sort-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
+import { getHttpBaseInternal } from "../utils/env";
 
 interface SearchProps {
   q?: string;
@@ -386,9 +389,12 @@ export class Search extends Component<any, SearchState> {
   }
 
   static async fetchInitialData({
-    client,
+    headers,
     query: { communityId, creatorId, q, type, sort, listingType, page },
   }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<SearchData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const community_id = getIdFromString(communityId);
     let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
     if (community_id) {
@@ -435,7 +441,7 @@ export class Search extends Component<any, SearchState> {
       };
 
       searchResponse = await client.search(form);
-      if (myAuth()) {
+      if (headers["Authorization"]) {
         const resolveObjectForm: ResolveObject = {
           q: query,
         };

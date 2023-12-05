@@ -55,6 +55,7 @@ import {
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
+  LemmyHttp,
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
@@ -80,6 +81,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -92,6 +94,7 @@ import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
+import { getHttpBaseInternal } from "../../utils/env";
 
 type ProfileData = RouteDataResponse<{
   personResponse: GetPersonDetailsResponse;
@@ -275,10 +278,13 @@ export class Profile extends Component<
   }
 
   static async fetchInitialData({
-    client,
+    headers,
     path,
     query: { page, sort, view: urlView },
   }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<ProfileData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const pathSplit = path.split("/");
 
     const username = pathSplit[2];

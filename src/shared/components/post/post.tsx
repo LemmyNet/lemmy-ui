@@ -59,6 +59,7 @@ import {
   GetPost,
   GetPostResponse,
   GetSiteResponse,
+  LemmyHttp,
   LockPost,
   MarkCommentReplyAsRead,
   PostResponse,
@@ -86,6 +87,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -95,6 +97,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
+import { getHttpBaseInternal } from "../../utils/env";
 
 const commentsShownInterval = 15;
 
@@ -231,9 +234,12 @@ export class Post extends Component<any, PostState> {
   }
 
   static async fetchInitialData({
-    client,
+    headers,
     path,
   }: InitialFetchRequest): Promise<PostData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const pathSplit = path.split("/");
 
     const pathType = pathSplit.at(1);

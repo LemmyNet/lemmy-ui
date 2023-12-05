@@ -31,6 +31,7 @@ import {
   GetModlogResponse,
   GetPersonDetails,
   GetPersonDetailsResponse,
+  LemmyHttp,
   ModAddCommunityView,
   ModAddView,
   ModBanFromCommunityView,
@@ -52,6 +53,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../services/HttpService";
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
@@ -60,6 +62,7 @@ import { Paginator } from "./common/paginator";
 import { SearchableSelect } from "./common/searchable-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
+import { getHttpBaseInternal } from "../utils/env";
 
 type FilterType = "mod" | "user";
 
@@ -1004,11 +1007,14 @@ export class Modlog extends Component<
   }
 
   static async fetchInitialData({
-    client,
+    headers,
     path,
     query: { modId: urlModId, page, userId: urlUserId, actionType },
     site,
   }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<ModlogData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const pathSplit = path.split("/");
     const communityId = getIdFromString(pathSplit[2]);
     const modId = !site.site_view.local_site.hide_modlog_mod_names

@@ -52,6 +52,7 @@ import {
   GetPosts,
   GetPostsResponse,
   GetSiteResponse,
+  LemmyHttp,
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
@@ -84,6 +85,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -97,6 +99,7 @@ import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
+import { getHttpBaseInternal } from "../../utils/env";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -163,18 +166,21 @@ function getDataTypeFromQuery(type?: string): DataType {
   return type ? DataType[type] : DataType.Post;
 }
 
-function getListingTypeFromQuery(type?: string): ListingType | undefined {
+function getListingTypeFromQuery(
+  type?: string,
+  myUserInfo = UserService.Instance.myUserInfo,
+): ListingType | undefined {
   const myListingType =
-    UserService.Instance.myUserInfo?.local_user_view?.local_user
-      ?.default_listing_type;
+    myUserInfo?.local_user_view?.local_user?.default_listing_type;
 
   return type ? (type as ListingType) : myListingType;
 }
 
-function getSortTypeFromQuery(type?: string): SortType {
-  const mySortType =
-    UserService.Instance.myUserInfo?.local_user_view?.local_user
-      ?.default_sort_type;
+function getSortTypeFromQuery(
+  type?: string,
+  myUserInfo = UserService.Instance.myUserInfo,
+): SortType {
+  const mySortType = myUserInfo?.local_user_view?.local_user?.default_sort_type;
 
   return (type ? (type as SortType) : mySortType) ?? "Active";
 }
@@ -303,15 +309,19 @@ export class Home extends Component<any, HomeState> {
   }
 
   static async fetchInitialData({
-    client,
     query: { dataType: urlDataType, listingType, pageCursor, sort: urlSort },
     site,
+    headers,
   }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
+
     const dataType = getDataTypeFromQuery(urlDataType);
     const type_ =
-      getListingTypeFromQuery(listingType) ??
+      getListingTypeFromQuery(listingType, site.my_user) ??
       site.site_view.local_site.default_post_listing_type;
-    const sort = getSortTypeFromQuery(urlSort);
+    const sort = getSortTypeFromQuery(urlSort, site.my_user);
 
     let postsRes: RequestState<GetPostsResponse> = EMPTY_REQUEST;
     let commentsRes: RequestState<GetCommentsResponse> = EMPTY_REQUEST;

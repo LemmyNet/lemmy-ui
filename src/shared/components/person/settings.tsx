@@ -28,6 +28,7 @@ import {
   GetSiteResponse,
   Instance,
   InstanceBlockView,
+  LemmyHttp,
   ListingType,
   LoginResponse,
   PersonBlockView,
@@ -42,6 +43,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { I18NextService, languages } from "../../services/I18NextService";
 import { setupTippy } from "../../tippy";
@@ -61,7 +63,8 @@ import { PersonListing } from "./person-listing";
 import { InitialFetchRequest } from "../../interfaces";
 import TotpModal from "../common/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
-import { updateDataBsTheme } from "@utils/browser";
+import { updateDataBsTheme } from "../../utils/browser";
+import { getHttpBaseInternal } from "../../utils/env";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -332,8 +335,11 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   static async fetchInitialData({
-    client,
+    headers,
   }: InitialFetchRequest): Promise<SettingsData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     return {
       instancesRes: await client.getFederatedInstances(),
     };
