@@ -6,6 +6,7 @@ import {
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
+  LemmyHttp,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -14,11 +15,13 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";
+import { getHttpBaseInternal } from "../../utils/env";
 
 type CreatePrivateMessageData = RouteDataResponse<{
   recipientDetailsResponse: GetPersonDetailsResponse;
@@ -65,9 +68,12 @@ export class CreatePrivateMessage extends Component<
   }
 
   static async fetchInitialData({
-    client,
+    headers,
     path,
   }: InitialFetchRequest): Promise<CreatePrivateMessageData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const person_id = Number(path.split("/").pop());
 
     const form: GetPersonDetails = {

@@ -1,7 +1,7 @@
 import { ErrorPageData } from "@utils/types";
 import { CommentView, GetSiteResponse } from "lemmy-js-client";
 import type { ParsedQs } from "qs";
-import { RequestState, WrappedLemmyHttp } from "./services/HttpService";
+import { RequestState } from "./services/HttpService";
 
 /**
  * This contains serialized data, it needs to be deserialized before use.
@@ -25,11 +25,10 @@ declare global {
 }
 
 export interface InitialFetchRequest<T extends ParsedQs = ParsedQs> {
-  client: WrappedLemmyHttp;
   path: string;
   query: T;
   site: GetSiteResponse;
-  auth?: string;
+  headers: { [key: string]: string };
 }
 
 export interface PostFormParams {

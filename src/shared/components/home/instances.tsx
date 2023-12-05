@@ -5,6 +5,7 @@ import {
   GetFederatedInstancesResponse,
   GetSiteResponse,
   Instance,
+  LemmyHttp,
 } from "lemmy-js-client";
 import classNames from "classnames";
 import { relTags } from "../../config";
@@ -15,10 +16,12 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
+import { getHttpBaseInternal } from "../../utils/env";
 
 type InstancesData = RouteDataResponse<{
   federatedInstancesResponse: GetFederatedInstancesResponse;
@@ -68,8 +71,11 @@ export class Instances extends Component<any, InstancesState> {
   }
 
   static async fetchInitialData({
-    client,
+    headers,
   }: InitialFetchRequest): Promise<InstancesData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     return {
       federatedInstancesResponse: await client.getFederatedInstances(),
     };

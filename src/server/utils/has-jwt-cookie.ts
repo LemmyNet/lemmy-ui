@@ -1,9 +1,9 @@
 import * as cookie from "cookie";
-import type { Request } from "express";
 import { authCookieName } from "../../shared/config";
+import { IncomingHttpHeaders } from "http";
 
-export function hasJwtCookie(req: Request): boolean {
-  return Boolean(
-    cookie.parse(req.headers.cookie ?? "")[authCookieName]?.length,
-  );
+export function getJwtCookie(headers: IncomingHttpHeaders): string | undefined {
+  return headers.cookie
+    ? cookie.parse(headers.cookie)[authCookieName] // This can actually be undefined
+    : undefined;
 }
