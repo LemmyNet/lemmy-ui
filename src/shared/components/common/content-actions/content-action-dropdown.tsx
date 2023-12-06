@@ -76,6 +76,7 @@ type DialogType = (typeof dialogTypes)[number];
 type ContentActionDropdownState = {
   banType?: BanType;
   purgeType?: PurgeType;
+  mounted: boolean;
 } & { [key in DialogType]: boolean };
 
 export default class ContentActionDropdown extends Component<
@@ -90,6 +91,7 @@ export default class ContentActionDropdown extends Component<
     showRemoveDialog: false,
     showReportDialog: false,
     showTransferCommunityDialog: false,
+    mounted: false,
   };
 
   constructor(props: ContentActionDropdownProps, context: any) {
@@ -109,6 +111,10 @@ export default class ContentActionDropdown extends Component<
     this.toggleAppointModShow = this.toggleAppointModShow.bind(this);
     this.toggleAppointAdminShow = this.toggleAppointAdminShow.bind(this);
     this.wrapHandler = this.wrapHandler.bind(this);
+  }
+
+  componentDidMount() {
+    this.setState({ mounted: true });
   }
 
   render() {
@@ -528,6 +534,7 @@ export default class ContentActionDropdown extends Component<
       showTransferCommunityDialog,
       showAppointModDialog,
       showAppointAdminDialog,
+      mounted,
     } = this.state;
     const {
       removed,
@@ -550,9 +557,10 @@ export default class ContentActionDropdown extends Component<
       type,
     } = this.props;
 
+    // Wait until componentDidMount runs (which only happens on the browser) to prevent sending over a gratuitous amount of markup
     return (
-      <>
-        {showRemoveDialog && (
+      mounted && (
+        <>
           <ModActionFormModal
             onSubmit={this.wrapHandler(onRemove)}
             modActionType={
@@ -562,8 +570,6 @@ export default class ContentActionDropdown extends Component<
             onCancel={this.hideAllDialogs}
             show={showRemoveDialog}
           />
-        )}
-        {showBanDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(
               banType === BanType.Community
@@ -585,8 +591,6 @@ export default class ContentActionDropdown extends Component<
             community={community}
             show={showBanDialog}
           />
-        )}
-        {showReportDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(onReport)}
             modActionType={
@@ -595,8 +599,6 @@ export default class ContentActionDropdown extends Component<
             onCancel={this.hideAllDialogs}
             show={showReportDialog}
           />
-        )}
-        {showPurgeDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(
               purgeType === PurgeType.Person ? onPurgeUser : onPurgeContent,
@@ -612,8 +614,6 @@ export default class ContentActionDropdown extends Component<
             onCancel={this.hideAllDialogs}
             show={showPurgeDialog}
           />
-        )}
-        {showTransferCommunityDialog && (
           <ConfirmationModal
             show={showTransferCommunityDialog}
             message={I18NextService.i18n.t("transfer_community_are_you_sure", {
@@ -624,8 +624,6 @@ export default class ContentActionDropdown extends Component<
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onTransferCommunity)}
           />
-        )}
-        {showAppointModDialog && (
           <ConfirmationModal
             show={showAppointModDialog}
             message={I18NextService.i18n.t(
@@ -643,8 +641,6 @@ export default class ContentActionDropdown extends Component<
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onAppointCommunityMod)}
           />
-        )}
-        {showAppointAdminDialog && (
           <ConfirmationModal
             show={showAppointAdminDialog}
             message={I18NextService.i18n.t(
@@ -662,8 +658,8 @@ export default class ContentActionDropdown extends Component<
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onAppointAdmin)}
           />
-        )}
-      </>
+        </>
+      )
     );
   }
 
