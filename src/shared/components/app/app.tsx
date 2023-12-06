@@ -17,6 +17,9 @@ import AnonymousGuard from "../common/anonymous-guard";
 import { CodeTheme } from "./code-theme";
 
 export class App extends Component<any, any> {
+  get isoData(): IsoDataOptionalSite {
+    return this.context.store.getState().value;
+  }
   private readonly mainContentRef: RefObject<HTMLElement>;
   constructor(props: any, context: any) {
     super(props, context);
@@ -29,8 +32,7 @@ export class App extends Component<any, any> {
   }
 
   render() {
-    const reduxState: IsoDataOptionalSite = this.context.store.getState().value;
-    const siteRes = reduxState.site_res;
+    const siteRes = this.isoData.site_res;
     const siteView = siteRes?.site_view;
 
     return (
@@ -73,11 +75,16 @@ export class App extends Component<any, any> {
                             <div tabIndex={-1}>
                               {RouteComponent &&
                                 (isAuthPath(path ?? "") ? (
-                                  <AuthGuard {...routeProps}>
+                                  <AuthGuard
+                                    isLoggedIn={!!siteRes?.my_user}
+                                    componentProps={routeProps}
+                                  >
                                     <RouteComponent {...routeProps} />
                                   </AuthGuard>
                                 ) : isAnonymousPath(path ?? "") ? (
-                                  <AnonymousGuard>
+                                  <AnonymousGuard
+                                    isLoggedIn={!!siteRes?.my_user}
+                                  >
                                     <RouteComponent {...routeProps} />
                                   </AnonymousGuard>
                                 ) : (

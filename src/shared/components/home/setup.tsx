@@ -1,4 +1,4 @@
-import { fetchThemeList, setIsoData } from "@utils/app";
+import { fetchThemeList } from "@utils/app";
 import { Component, linkEvent } from "inferno";
 import { Helmet } from "inferno-helmet";
 import {
@@ -7,7 +7,7 @@ import {
   LoginResponse,
   Register,
 } from "lemmy-js-client";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -17,6 +17,7 @@ import {
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import { SiteForm } from "./site-form";
+import { IsoData } from "../../interfaces";
 
 interface State {
   form: {
@@ -37,7 +38,9 @@ interface State {
 }
 
 export class Setup extends Component<any, State> {
-  private isoData = setIsoData(this.context);
+  get isoData(): IsoData {
+    return this.context.store.getState().value;
+  }
 
   state: State = {
     registerRes: EMPTY_REQUEST,
@@ -45,7 +48,7 @@ export class Setup extends Component<any, State> {
     form: {
       show_nsfw: true,
     },
-    doneRegisteringUser: !!UserService.Instance.myUserInfo,
+    doneRegisteringUser: !!this.isoData.site_res.my_user,
     siteRes: this.isoData.site_res,
   };
 
@@ -194,7 +197,7 @@ export class Setup extends Component<any, State> {
       if (i.state.registerRes.state === "success") {
         const data = i.state.registerRes.data;
 
-        UserService.Instance.login({ res: data });
+        HttpService.login({ res: data });
         i.setState({ doneRegisteringUser: true });
       }
     }

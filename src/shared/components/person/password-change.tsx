@@ -1,8 +1,7 @@
-import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
-import { HttpService, I18NextService, UserService } from "../../services";
+import { HttpService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   LOADING_REQUEST,
@@ -12,6 +11,8 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import { toast } from "../../toast";
+import { IsoData } from "../../interfaces";
+import { updateSite } from "@utils/app/setup-redux";
 
 interface State {
   passwordChangeRes: RequestState<SuccessResponse>;
@@ -24,7 +25,9 @@ interface State {
 }
 
 export class PasswordChange extends Component<any, State> {
-  private isoData = setIsoData(this.context);
+  get isoData(): IsoData {
+    return this.context.store.getState().value;
+  }
 
   state: State = {
     passwordChangeRes: EMPTY_REQUEST,
@@ -128,9 +131,10 @@ export class PasswordChange extends Component<any, State> {
       if (i.state.passwordChangeRes.state === "success") {
         toast(I18NextService.i18n.t("password_changed"));
 
+        // TODO test this
         const site = await HttpService.client.getSite();
         if (site.state === "success") {
-          UserService.Instance.myUserInfo = site.data.my_user;
+          i.context.store.dispatch(updateSite(site.data));
         }
 
         i.props.history.replace("/");

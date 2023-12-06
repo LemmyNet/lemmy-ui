@@ -1,10 +1,10 @@
 import { HttpService } from "../services";
 import { updateUnreadCountsInterval } from "../config";
 import { poll } from "@utils/helpers";
-import { myAuth } from "@utils/app";
-import { amAdmin } from "@utils/roles";
+import { amAdmin, moderatesSomething } from "@utils/roles";
 import { isBrowser } from "@utils/browser";
 import { BehaviorSubject } from "rxjs";
+import { MyUserInfo } from "lemmy-js-client";
 
 /**
  * Service to poll and keep track of unread messages / notifications.
@@ -14,6 +14,8 @@ export class UnreadCounterService {
   unreadPrivateMessages = 0;
   unreadReplies = 0;
   unreadMentions = 0;
+  myUserInfo?: MyUserInfo = undefined;
+
   public unreadInboxCountSubject: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
@@ -36,14 +38,18 @@ export class UnreadCounterService {
     }
   }
 
+  public setMyUserInfo(myUserInfo: MyUserInfo) {
+    this.myUserInfo = myUserInfo;
+  }
+
   private get shouldUpdate() {
     if (window.document.visibilityState === "hidden") {
       return false;
-    }
-    if (!myAuth()) {
+    } else if (!this.myUserInfo) {
       return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   public async updateInboxCounts() {
@@ -61,7 +67,7 @@ export class UnreadCounterService {
   }
 
   public async updateReports() {
-    if (this.shouldUpdate && UserService.Instance.moderatesSomething) {
+    if (this.shouldUpdate && moderatesSomething(this.myUserInfo)) {
       const reportCountRes = await HttpService.client.getReportCount({});
       if (reportCountRes.state === "success") {
         this.commentReportCount = reportCountRes.data.comment_reports ?? 0;
@@ -78,7 +84,7 @@ export class UnreadCounterService {
   }
 
   public async updateApplications() {
-    if (this.shouldUpdate && amAdmin()) {
+    if (this.shouldUpdate && amAdmin(this.myUserInfo)) {
       const unreadApplicationsRes =
         await HttpService.client.getUnreadRegistrationApplicationCount();
       if (unreadApplicationsRes.state === "success") {

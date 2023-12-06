@@ -1,30 +1,28 @@
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { UserService } from "../../services";
 import { Spinner } from "./icon";
+
+interface AuthGuardProps {
+  componentProps: RouteComponentProps<Record<string, string>>;
+  isLoggedIn: boolean;
+}
 
 interface AuthGuardState {
   hasRedirected: boolean;
 }
 
-class AuthGuard extends Component<
-  RouteComponentProps<Record<string, string>>,
-  AuthGuardState
-> {
+class AuthGuard extends Component<AuthGuardProps, AuthGuardState> {
   state = {
     hasRedirected: false,
   } as AuthGuardState;
 
-  constructor(
-    props: RouteComponentProps<Record<string, string>>,
-    context: any,
-  ) {
+  constructor(props: AuthGuardProps, context: any) {
     super(props, context);
   }
 
   componentDidMount() {
-    if (!UserService.Instance.myUserInfo) {
-      const { pathname, search } = this.props.location;
+    if (!this.props.isLoggedIn) {
+      const { pathname, search } = this.props.componentProps.location;
       this.context.router.history.replace(
         `/login?prev=${encodeURIComponent(pathname + search)}`,
       );

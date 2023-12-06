@@ -3,12 +3,13 @@ import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, linkEvent } from "inferno";
 import { CommunityView } from "lemmy-js-client";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import { VERSION } from "../../version";
 import { Icon, Spinner } from "./icon";
 import { toast } from "../../toast";
 
 interface SubscribeButtonProps {
+  loggedIn: boolean;
   communityView: CommunityView;
   onFollow: MouseEventHandler;
   onUnFollow: MouseEventHandler;
@@ -25,6 +26,7 @@ export function SubscribeButton({
   onUnFollow,
   loading = false,
   isLink = false,
+  loggedIn,
 }: SubscribeButtonProps) {
   let i18key: NoOptionI18nKeys;
 
@@ -51,7 +53,7 @@ export function SubscribeButton({
     isLink ? "btn-link d-inline-block" : "d-block mb-2 w-100",
   );
 
-  if (!UserService.Instance.myUserInfo) {
+  if (!loggedIn) {
     return (
       <>
         <button

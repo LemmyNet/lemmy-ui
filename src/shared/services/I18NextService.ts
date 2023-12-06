@@ -1,6 +1,5 @@
 import { isBrowser } from "@utils/browser";
 import i18next, { Resource } from "i18next";
-import { UserService } from "../services";
 import { ar } from "../translations/ar";
 import { bg } from "../translations/bg";
 import { ca } from "../translations/ca";
@@ -32,6 +31,7 @@ import { sv } from "../translations/sv";
 import { vi } from "../translations/vi";
 import { zh } from "../translations/zh";
 import { zh_Hant } from "../translations/zh_Hant";
+import { MyUserInfo } from "lemmy-js-client";
 
 export const languages = [
   { resource: ar, code: "ar", name: "العربية" },
@@ -74,20 +74,24 @@ function format(value: any, format: any): any {
   return format === "uppercase" ? value.toUpperCase() : value;
 }
 
-class LanguageDetector {
+export class LanguageDetector {
   static readonly type = "languageDetector";
+  private myLanguages: string[];
 
+  // TODO What's going on here? test this.
   detect() {
+    return this.myLanguages;
+  }
+
+  setupMyLanguages(myUserInfo?: MyUserInfo): string[] {
     const langs: string[] = [];
 
     const myLang =
-      UserService.Instance.myUserInfo?.local_user_view.local_user
-        .interface_language ?? "browser";
+      myUserInfo?.local_user_view.local_user.interface_language ?? "browser";
 
     if (myLang !== "browser") langs.push(myLang);
 
     if (isBrowser()) langs.push(...navigator.languages);
-
     return langs;
   }
 }

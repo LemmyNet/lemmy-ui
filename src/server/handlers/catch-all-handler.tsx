@@ -1,4 +1,4 @@
-import { initializeSite, isAuthPath } from "@utils/app";
+import { initializeSite, isAuthPath, setupRedux } from "@utils/app";
 import { getHttpBaseInternal } from "@utils/env";
 import { ErrorPageData } from "@utils/types";
 import type { Request, Response } from "express";
@@ -21,7 +21,6 @@ import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
 import { Provider } from "inferno-redux";
-import { configureStore, createSlice } from "@reduxjs/toolkit";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -110,12 +109,7 @@ export default async (req: Request, res: Response) => {
       errorPageData,
     };
 
-    const slice = createSlice({
-      name: "isoData",
-      initialState: { value: isoData },
-      reducers: {},
-    });
-    const store = configureStore({ reducer: slice.reducer });
+    const store = setupRedux(isoData);
 
     const wrapper = (
       <Provider store={store}>

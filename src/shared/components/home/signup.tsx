@@ -24,6 +24,7 @@ import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
 import { IsoData } from "../../interfaces";
+import { updateSite } from "@utils/app/setup-redux";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -400,14 +401,15 @@ export class Signup extends Component<any, State> {
 
           // Only log them in if a jwt was set
           if (data.jwt) {
-            UserService.Instance.login({
+            HttpService.login({
               res: data,
             });
 
             const site = await HttpService.client.getSite();
 
+            // TODO test this
             if (site.state === "success") {
-              UserService.Instance.myUserInfo = site.data.my_user;
+              i.context.store.dispatch(updateSite(site.data));
             }
 
             i.props.history.replace("/communities");

@@ -38,7 +38,7 @@ function handleCollapseClick(i: Navbar) {
 }
 
 function handleLogOut(i: Navbar) {
-  HttpService._Instance.logout();
+  HttpService.logout();
   handleCollapseClick(i);
 }
 
@@ -110,7 +110,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           >
             {siteView?.site.icon &&
               showAvatars(this.props.siteRes?.my_user) && (
-                <PictrsImage src={siteView.site.icon} icon />
+                <PictrsImage
+                  src={siteView.site.icon}
+                  icon
+                  myUserInfo={this.props.siteRes?.my_user}
+                />
               )}
             {siteView?.site.name}
           </NavLink>
@@ -379,9 +383,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         aria-expanded="false"
                         data-bs-toggle="dropdown"
                       >
-                        {showAvatars() && person.avatar && (
-                          <PictrsImage src={person.avatar} icon />
-                        )}
+                        {showAvatars(this.props.siteRes?.my_user) &&
+                          person.avatar && (
+                            <PictrsImage
+                              src={person.avatar}
+                              icon
+                              myUserInfo={this.props.siteRes?.my_user}
+                            />
+                          )}
                         {person.display_name ?? person.name}
                       </button>
                       <ul

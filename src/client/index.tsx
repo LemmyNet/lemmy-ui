@@ -16,7 +16,7 @@ async function startClient() {
 
   await setupDateFns();
 
-  const store = setupRedux(windowData);
+  const store = setupRedux(windowData!);
 
   const wrapper = (
     <Provider store={store}>

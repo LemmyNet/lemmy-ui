@@ -1,4 +1,3 @@
-import { myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import {
@@ -255,7 +254,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <>
           <div className="offset-sm-3 my-2 d-none d-sm-block">
             <a href={this.imageSrc} className="d-inline-block">
-              <PictrsImage src={this.imageSrc} />
+              <PictrsImage
+                src={this.imageSrc}
+                myUserInfo={this.props.myUserInfo}
+              />
             </a>
           </div>
           <div className="my-2 d-block d-sm-none">
@@ -264,7 +266,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="p-0 border-0 bg-transparent d-inline-block"
               onClick={linkEvent(this, this.handleImageExpandClick)}
             >
-              <PictrsImage src={this.imageSrc} />
+              <PictrsImage
+                src={this.imageSrc}
+                myUserInfo={this.props.myUserInfo}
+              />
             </button>
           </div>
         </>
@@ -310,6 +315,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         thumbnail
         alt=""
         nsfw={pv.post.nsfw || pv.community.nsfw}
+        myUserInfo={this.props.myUserInfo}
       />
     );
   }
@@ -630,7 +636,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {mobile && !this.props.viewOnly && (
           <VoteButtonsCompact
             voteContentType={VoteContentType.Post}
-            loggedIn={!!this.props.myUserInfo}
+            myUserInfo={this.props.myUserInfo}
             id={this.postView.post.id}
             onVote={this.props.onPostVote}
             enableDownvotes={this.props.enableDownvotes}
@@ -1383,7 +1389,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <div className="col flex-grow-0">
                 <VoteButtons
                   voteContentType={VoteContentType.Post}
-                  loggedIn={!!this.props.myUserInfo}
+                  myUserInfo={this.props.myUserInfo}
                   id={this.postView.post.id}
                   onVote={this.props.onPostVote}
                   enableDownvotes={this.props.enableDownvotes}
@@ -1716,7 +1722,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     i.setState({ imageExpanded: !i.state.imageExpanded });
     setupTippy();
 
-    if (myAuth() && !i.postView.read) {
+    if (!!this.props.myUserInfo && !i.postView.read) {
       i.props.onMarkPostAsRead({
         post_ids: [i.postView.post.id],
         read: true,

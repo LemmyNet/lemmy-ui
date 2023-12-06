@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { PersonView, Site, SiteAggregates } from "lemmy-js-client";
+import { MyUserInfo, PersonView, Site, SiteAggregates } from "lemmy-js-client";
 import { mdToHtml } from "../../markdown";
 import { I18NextService } from "../../services";
 import { Badges } from "../common/badges";
@@ -14,6 +14,7 @@ interface SiteSidebarProps {
   counts?: SiteAggregates;
   admins?: PersonView[];
   isMobile?: boolean;
+  myUserInfo?: MyUserInfo;
 }
 
 interface SiteSidebarState {
@@ -36,7 +37,10 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           <header className="card-header" id="sidebarInfoHeader">
             {this.siteName()}
             {!this.state.collapsed && (
-              <BannerIconHeader banner={this.props.site.banner} />
+              <BannerIconHeader
+                banner={this.props.site.banner}
+                myUserInfo={this.props.myUserInfo}
+              />
             )}
           </header>
 

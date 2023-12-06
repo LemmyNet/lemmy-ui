@@ -6,6 +6,7 @@ import {
   CreateCommunity,
   EditCommunity,
   Language,
+  MyUserInfo,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
@@ -15,6 +16,7 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 
 interface CommunityFormProps {
   community_view?: CommunityView; // If a community is given, that means this is an edit
+  myUserInfo?: MyUserInfo;
   allLanguages: Language[];
   siteLanguages: number[];
   communityLanguages?: number[];
@@ -166,6 +168,7 @@ export class CommunityForm extends Component<
               imageSrc={this.state.form.icon}
               onUpload={this.handleIconUpload}
               onRemove={this.handleIconRemove}
+              isLoggedIn={!!this.props.myUserInfo}
               rounded
             />
           </div>
@@ -180,6 +183,7 @@ export class CommunityForm extends Component<
               imageSrc={this.state.form.banner}
               onUpload={this.handleBannerUpload}
               onRemove={this.handleBannerRemove}
+              isLoggedIn={!!this.props.myUserInfo}
             />
           </div>
         </div>

@@ -1,9 +1,11 @@
 import { Component } from "inferno";
 import { PictrsImage } from "./pictrs-image";
+import { MyUserInfo } from "lemmy-js-client";
 
 interface BannerIconHeaderProps {
   banner?: string;
   icon?: string;
+  myUserInfo?: MyUserInfo;
 }
 
 export class BannerIconHeader extends Component<BannerIconHeaderProps, any> {
@@ -17,13 +19,21 @@ export class BannerIconHeader extends Component<BannerIconHeaderProps, any> {
     return (
       (banner || icon) && (
         <div className="banner-icon-header position-relative mb-2">
-          {banner && <PictrsImage src={banner} banner alt="" />}
+          {banner && (
+            <PictrsImage
+              src={banner}
+              banner
+              alt=""
+              myUserInfo={this.props.myUserInfo}
+            />
+          )}
           {icon && (
             <PictrsImage
               src={icon}
               iconOverlay
               pushup={!!this.props.banner}
               alt=""
+              myUserInfo={this.props.myUserInfo}
             />
           )}
         </div>

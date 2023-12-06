@@ -6,7 +6,6 @@ import {
   fetchCommunities,
   fetchUsers,
   getUpdatedSearchId,
-  myAuth,
   personToChoice,
   showLocal,
 } from "@utils/app";
@@ -979,7 +978,7 @@ export class Search extends Component<any, SearchState> {
       window.scrollTo(0, 0);
       restoreScrollPosition(this.context);
 
-      if (myAuth()) {
+      if (this.isoData.site_res.my_user) {
         this.setState({ resolveObjectRes: LOADING_REQUEST });
         this.setState({
           resolveObjectRes: await HttpService.silent_client.resolveObject({

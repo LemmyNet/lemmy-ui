@@ -1,7 +1,6 @@
 import classNames from "classnames";
 import { Component } from "inferno";
-
-import { UserService } from "../../services";
+import { MyUserInfo } from "lemmy-js-client";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
@@ -16,6 +15,7 @@ interface PictrsImageProps {
   iconOverlay?: boolean;
   pushup?: boolean;
   cardTop?: boolean;
+  myUserInfo?: MyUserInfo;
 }
 
 export class PictrsImage extends Component<PictrsImageProps, any> {
@@ -27,9 +27,9 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     const { src, icon, iconOverlay, banner, thumbnail, nsfw, pushup, cardTop } =
       this.props;
     let user_blur_nsfw = true;
-    if (UserService.Instance.myUserInfo) {
+    if (this.props.myUserInfo) {
       user_blur_nsfw =
-        UserService.Instance.myUserInfo?.local_user_view.local_user.blur_nsfw;
+        this.props.myUserInfo?.local_user_view.local_user.blur_nsfw;
     }
 
     const blur_image = nsfw && user_blur_nsfw;

@@ -167,6 +167,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               imageSrc={this.state.siteForm.icon}
               onUpload={this.handleIconUpload}
               onRemove={this.handleIconRemove}
+              isLoggedIn={!!this.props.siteRes.my_user}
               rounded
             />
           </div>
@@ -181,6 +182,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               imageSrc={this.state.siteForm.banner}
               onUpload={this.handleBannerUpload}
               onRemove={this.handleBannerRemove}
+              isLoggedIn={!!this.props.siteRes.my_user}
             />
           </div>
         </div>

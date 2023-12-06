@@ -104,6 +104,9 @@ export function wrapClient(client: LemmyHttp, silent = false) {
 //   auth: string;
 // }
 
+/**
+ * An HTTP service, only to be used in the browser client
+ */
 export class HttpService {
   static #_instance: HttpService;
   #silent_client: WrappedLemmyHttp;
@@ -114,13 +117,13 @@ export class HttpService {
     const auth = cookie.parse(document.cookie)[authCookieName];
 
     if (auth) {
-      HttpService.client.setHeaders({ Authorization: `Bearer ${auth}` });
+      lemmyHttp.setHeaders({ Authorization: `Bearer ${auth}` });
     }
     this.#client = wrapClient(lemmyHttp);
     this.#silent_client = wrapClient(lemmyHttp, true);
   }
 
-  public login({
+  public static login({
     res,
     showToast = true,
   }: {
@@ -130,15 +133,17 @@ export class HttpService {
     if (isBrowser() && res.jwt) {
       showToast && toast(I18NextService.i18n.t("logged_in"));
       setAuthCookie(res.jwt);
+      const headers = { Authorization: `Bearer ${res.jwt}` };
+      this.#_instance.#client.setHeaders(headers);
+      this.#_instance.#silent_client.setHeaders(headers);
     }
   }
 
-  public logout() {
+  public static logout() {
     if (isBrowser()) {
       clearAuthCookie();
     }
-
-    this.#client.logout();
+    this.#_instance.#client.logout();
 
     if (isAuthPath(location.pathname)) {
       location.replace("/");

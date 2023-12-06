@@ -92,6 +92,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
             <PictrsImage
               src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
               icon
+              myUserInfo={this.props.myUserInfo}
             />
           )}
         <span>{displayName}</span>

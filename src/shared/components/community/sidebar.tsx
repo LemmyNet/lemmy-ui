@@ -110,6 +110,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           this.sidebar()
         ) : (
           <CommunityForm
+            myUserInfo={this.props.myUserInfo}
             community_view={this.props.community_view}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -136,6 +137,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
               <SubscribeButton
+                loggedIn={!!this.props.myUserInfo}
                 communityView={this.props.community_view}
                 onFollow={linkEvent(this, this.handleFollowCommunity)}
                 onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
@@ -180,7 +182,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       <div>
         <h2 className="h5 mb-0">
           {this.props.showIcon && !community.removed && (
-            <BannerIconHeader icon={community.icon} banner={community.banner} />
+            <BannerIconHeader
+              icon={community.icon}
+              banner={community.banner}
+              myUserInfo={this.props.myUserInfo}
+            />
           )}
           <span className="me-2">
             <CommunityLink community={community} hideAvatar />

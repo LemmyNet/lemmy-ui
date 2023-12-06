@@ -560,6 +560,7 @@ export class Inbox extends Component<any, InboxState> {
         return (
           <PrivateMessage
             key={i.id}
+            myUserInfo={this.isoData.site_res.my_user}
             private_message_view={i.view as PrivateMessageView}
             onDelete={this.handleDeleteMessage}
             onMarkRead={this.handleMarkMessageAsRead}
@@ -704,6 +705,7 @@ export class Inbox extends Component<any, InboxState> {
               <PrivateMessage
                 key={pmv.private_message.id}
                 private_message_view={pmv}
+                myUserInfo={this.isoData.site_res.my_user}
                 onDelete={this.handleDeleteMessage}
                 onMarkRead={this.handleMarkMessageAsRead}
                 onReport={this.handleMessageReport}

@@ -186,6 +186,7 @@ export class Communities extends Component<any, CommunitiesState> {
                         <td className="text-right">
                           <SubscribeButton
                             communityView={cv}
+                            loggedIn={!!this.isoData.site_res.my_user}
                             onFollow={linkEvent(
                               {
                                 i: this,

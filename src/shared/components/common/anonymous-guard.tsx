@@ -1,12 +1,17 @@
 import { Component } from "inferno";
-import { UserService } from "../../services";
 import { Spinner } from "./icon";
 
+interface AnonymousGuardProps {
+  isLoggedIn: boolean;
+}
 interface AnonymousGuardState {
   hasRedirected: boolean;
 }
 
-class AnonymousGuard extends Component<any, AnonymousGuardState> {
+class AnonymousGuard extends Component<
+  AnonymousGuardProps,
+  AnonymousGuardState
+> {
   state = {
     hasRedirected: false,
   } as AnonymousGuardState;
@@ -16,7 +21,7 @@ class AnonymousGuard extends Component<any, AnonymousGuardState> {
   }
 
   componentDidMount() {
-    if (UserService.Instance.myUserInfo) {
+    if (this.props.isLoggedIn) {
       this.context.router.history.replace(`/`);
     } else {
       this.setState({ hasRedirected: true });

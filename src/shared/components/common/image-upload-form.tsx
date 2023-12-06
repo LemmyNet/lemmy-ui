@@ -1,7 +1,7 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { HttpService, I18NextService, UserService } from "../../services";
+import { HttpService, I18NextService } from "../../services";
 import { toast } from "../../toast";
 import { Icon } from "./icon";
 
@@ -11,6 +11,7 @@ interface ImageUploadFormProps {
   onUpload(url: string): any;
   onRemove(): any;
   rounded?: boolean;
+  isLoggedIn: boolean;
 }
 
 interface ImageUploadFormState {
@@ -63,7 +64,7 @@ export class ImageUploadForm extends Component<
           accept="image/*,video/*"
           className="small form-control"
           name={this.id}
-          disabled={!UserService.Instance.myUserInfo}
+          disabled={!this.props.isLoggedIn}
           onChange={linkEvent(this, this.handleImageUpload)}
         />
       </form>

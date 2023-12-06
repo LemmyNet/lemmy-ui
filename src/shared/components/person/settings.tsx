@@ -4,7 +4,6 @@ import {
   fetchThemeList,
   fetchUsers,
   instanceToChoice,
-  myAuth,
   personToChoice,
   setTheme,
   showLocal,
@@ -64,6 +63,7 @@ import TotpModal from "../common/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
 import { updateDataBsTheme } from "../../utils/browser";
 import { getHttpBaseInternal } from "../../utils/env";
+import { updateSite } from "@utils/app/setup-redux";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -763,6 +763,7 @@ export class Settings extends Component<any, SettingsState> {
                 imageSrc={this.state.saveUserSettingsForm.avatar}
                 onUpload={this.handleAvatarUpload}
                 onRemove={this.handleAvatarRemove}
+                isLoggedIn={!!this.isoData.site_res.my_user}
                 rounded
               />
             </div>
@@ -777,6 +778,7 @@ export class Settings extends Component<any, SettingsState> {
                 imageSrc={this.state.saveUserSettingsForm.banner}
                 onUpload={this.handleBannerUpload}
                 onRemove={this.handleBannerRemove}
+                isLoggedIn={!!this.isoData.site_res.my_user}
               />
             </div>
           </div>
@@ -1298,13 +1300,11 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   async handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
-    if (myAuth()) {
-      const res = await HttpService.client.blockCommunity({
-        community_id: i.communityId,
-        block: false,
-      });
-      i.ctx.communityBlock(res);
-    }
+    const res = await HttpService.client.blockCommunity({
+      community_id: i.communityId,
+      block: false,
+    });
+    i.ctx.communityBlock(res);
   }
 
   async handleBlockInstance({ value }: Choice) {
@@ -1530,8 +1530,8 @@ export class Settings extends Component<any, SettingsState> {
           siteRes: siteRes.data,
         });
 
-        // TODO need to update this
-        UserService.Instance.myUserInfo = siteRes.data.my_user;
+        // TODO need to test this
+        i.context.store.dispatch(updateSite(siteRes.data));
       }
 
       toast(I18NextService.i18n.t("saved"));
@@ -1631,8 +1631,8 @@ export class Settings extends Component<any, SettingsState> {
           },
         } = siteRes.data.my_user!.local_user_view;
 
-        // TODO need to update redux
-        UserService.Instance.myUserInfo = siteRes.data.my_user;
+        // TODO need to test this
+        i.context.store.dispatch(updateSite(siteRes.data));
         updateDataBsTheme(siteRes.data);
 
         i.setState(prev => ({
@@ -1695,7 +1695,7 @@ export class Settings extends Component<any, SettingsState> {
         delete_content: false,
       });
       if (deleteAccountRes.state === "success") {
-        UserService.Instance.logout();
+        HttpService.logout();
         this.context.router.history.replace("/");
       }
 

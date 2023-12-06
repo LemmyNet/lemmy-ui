@@ -1,10 +1,9 @@
-import { setIsoData } from "@utils/app";
 import { isBrowser, updateDataBsTheme } from "@utils/browser";
 import { getQueryParams } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -17,6 +16,9 @@ import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import TotpModal from "../common/totp-modal";
 import { UnreadCounterService } from "../../services";
+import { IsoData, IsoDataOptionalSite } from "../../interfaces";
+import { updateSite } from "@utils/app/setup-redux";
+import { EnhancedStore } from "@reduxjs/toolkit";
 
 interface LoginProps {
   prev?: string;
@@ -39,15 +41,20 @@ interface State {
   show2faModal: boolean;
 }
 
-async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
-  UserService.Instance.login({
+async function handleLoginSuccess(
+  i: Login,
+  loginRes: LoginResponse,
+  store: EnhancedStore<IsoDataOptionalSite>,
+) {
+  HttpService.login({
     res: loginRes,
   });
   const site = await HttpService.client.getSite();
 
   if (site.state === "success") {
-    // TODO this is the key, you need to update the redux store here
-    UserService.Instance.myUserInfo = site.data.my_user;
+    store.dispatch(updateSite(site.data));
+
+    // TODO why is this just the theme??
     updateDataBsTheme(site.data);
   }
 
@@ -86,7 +93,7 @@ async function handleLoginSubmit(i: Login, event: any) {
       }
 
       case "success": {
-        handleLoginSuccess(i, loginRes.data);
+        handleLoginSuccess(i, loginRes.data, this.context.store);
         break;
       }
     }
@@ -111,7 +118,9 @@ export class Login extends Component<
   RouteComponentProps<Record<string, never>>,
   State
 > {
-  private isoData = setIsoData(this.context);
+  get isoData(): IsoData {
+    return this.context.store.getState().value;
+  }
 
   state: State = {
     loginRes: EMPTY_REQUEST,
@@ -169,7 +178,7 @@ export class Login extends Component<
     const successful = loginRes.state === "success";
     if (successful) {
       this.setState({ show2faModal: false });
-      handleLoginSuccess(this, loginRes.data);
+      handleLoginSuccess(this, loginRes.data, this.context.store);
     } else {
       toast(I18NextService.i18n.t("incorrect_totp_code"), "danger");
     }

@@ -490,6 +490,7 @@ export class Profile extends Component<
             <BannerIconHeader
               banner={pv.person.banner}
               icon={pv.person.avatar}
+              myUserInfo={this.isoData.site_res.my_user}
             />
           )}
           <div className="mb-3">

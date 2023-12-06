@@ -5,11 +5,12 @@ import {
   DeletePrivateMessage,
   EditPrivateMessage,
   MarkPrivateMessageAsRead,
+  MyUserInfo,
   Person,
   PrivateMessageView,
 } from "lemmy-js-client";
 import { mdToHtml } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";
@@ -28,6 +29,7 @@ interface PrivateMessageState {
 
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
+  myUserInfo?: MyUserInfo;
   onDelete(form: DeletePrivateMessage): void;
   onMarkRead(form: MarkPrivateMessageAsRead): void;
   onReport(form: CreatePrivateMessageReport): void;
@@ -57,7 +59,7 @@ export class PrivateMessage extends Component<
 
   get mine(): boolean {
     return (
-      UserService.Instance.myUserInfo?.local_user_view.person.id ===
+      this.props.myUserInfo?.local_user_view.person.id ===
       this.props.private_message_view.creator.id
     );
   }

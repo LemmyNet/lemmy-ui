@@ -507,10 +507,15 @@ export class Community extends Component<
     return (
       community && (
         <div className="mb-2">
-          <BannerIconHeader banner={community.banner} icon={community.icon} />
+          <BannerIconHeader
+            banner={community.banner}
+            icon={community.icon}
+            myUserInfo={this.isoData.site_res.my_user}
+          />
           <h1 className="h4 mb-0 overflow-wrap-anywhere">{community.title}</h1>
           <CommunityLink
             community={community}
+            myUserInfo={this.isoData.site_res.my_user}
             realLink
             useApubName
             muted

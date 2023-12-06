@@ -151,7 +151,11 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
             <h1>{I18NextService.i18n.t("community_federated")}</h1>
             <div className="card mt-5">
               {communityView.community.banner && (
-                <PictrsImage src={communityView.community.banner} cardTop />
+                <PictrsImage
+                  src={communityView.community.banner}
+                  cardTop
+                  myUserInfo={this.isoData.site_res.my_user}
+                />
               )}
               <div className="card-body">
                 <h2 className="card-title">
@@ -163,6 +167,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
                   </div>
                 )}
                 <SubscribeButton
+                  loggedIn={!!this.isoData.site_res.my_user}
                   communityView={communityView}
                   onFollow={linkEvent(this, handleFollow)}
                   onUnFollow={linkEvent(this, handleUnfollow)}
