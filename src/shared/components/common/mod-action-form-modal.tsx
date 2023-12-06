@@ -254,7 +254,9 @@ export default class ModActionFormModal extends Component<
                           type="number"
                           id={expiresId}
                           className="form-control my-2 my-lg-0"
-                          placeholder="Days until expiration"
+                          placeholder={I18NextService.i18n.t(
+                            "days_until_expiration",
+                          )}
                           min={1}
                           value={daysUntilExpire}
                           onInput={linkEvent(this, handleExpiryChange)}
@@ -291,7 +293,7 @@ export default class ModActionFormModal extends Component<
                               onChange={linkEvent(this, handleTogglePermaBan)}
                               checked={shouldPermaBan}
                             />
-                            Permanently ban
+                            {I18NextService.i18n.t("permanently_ban")}
                           </label>
                         </div>
                       </div>

@@ -897,7 +897,11 @@ export class Post extends Component<any, PostState> {
     const featureRes = await HttpService.client.featurePost(form);
     this.updatePost(featureRes);
     if (featureRes.state === "success") {
-      toast(form.featured ? "Featured post" : "Unfeatured post");
+      toast(
+        I18NextService.i18n.t(
+          form.featured ? "featured_post" : "unfeatured_post",
+        ),
+      );
     }
   }
 
