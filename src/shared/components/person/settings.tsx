@@ -6,7 +6,6 @@ import {
   instanceToChoice,
   myAuth,
   personToChoice,
-  setIsoData,
   setTheme,
   showLocal,
   updateCommunityBlock,
@@ -37,7 +36,7 @@ import {
   UpdateTotpResponse,
 } from "lemmy-js-client";
 import { elementUrl, emDash, fetchLimit, relTags } from "../../config";
-import { FirstLoadService, UserService } from "../../services";
+import { FirstLoadService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -60,7 +59,7 @@ import { SortSelect } from "../common/sort-select";
 import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
-import { InitialFetchRequest } from "../../interfaces";
+import { InitialFetchRequest, IsoData } from "../../interfaces";
 import TotpModal from "../common/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
 import { updateDataBsTheme } from "../../utils/browser";
@@ -190,7 +189,9 @@ function handleClose2faModal(i: Settings) {
 }
 
 export class Settings extends Component<any, SettingsState> {
-  private isoData = setIsoData<SettingsData>(this.context);
+  get isoData(): IsoData<SettingsData> {
+    return this.context.store.getState().value;
+  }
   exportSettingsLink = createRef<HTMLAnchorElement>();
 
   state: SettingsState = {
@@ -246,7 +247,7 @@ export class Settings extends Component<any, SettingsState> {
     this.handleEnable2fa = this.handleEnable2fa.bind(this);
     this.handleDisable2fa = this.handleDisable2fa.bind(this);
 
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.site_res.my_user;
     if (mui) {
       const {
         local_user: {
@@ -818,6 +819,7 @@ export class Settings extends Component<any, SettingsState> {
             showAll={true}
             showSite
             onChange={this.handleDiscussionLanguageChange}
+            myUserInfo={this.isoData.site_res.my_user}
           />
           <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-theme">
@@ -1125,7 +1127,7 @@ export class Settings extends Component<any, SettingsState> {
 
   totpSection() {
     const totpEnabled =
-      !!UserService.Instance.myUserInfo?.local_user_view.local_user
+      !!this.isoData.site_res.my_user?.local_user_view.local_user
         .totp_2fa_enabled;
     const { generateTotpRes } = this.state;
 
@@ -1181,7 +1183,7 @@ export class Settings extends Component<any, SettingsState> {
 
       const siteRes = await HttpService.client.getSite();
 
-      UserService.Instance.myUserInfo!.local_user_view.local_user.totp_2fa_enabled =
+      this.isoData.site_res.my_user!.local_user_view.local_user.totp_2fa_enabled =
         enabled;
 
       if (siteRes.state === "success") {
@@ -1349,7 +1351,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleShowAvatarsChange(i: Settings, event: any) {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.site_res.my_user;
     if (mui) {
       mui.local_user_view.local_user.show_avatars = event.target.checked;
     }
@@ -1395,7 +1397,7 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   handleShowScoresChange(i: Settings, event: any) {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.site_res.my_user;
     if (mui) {
       mui.local_user_view.local_user.show_scores = event.target.checked;
     }
@@ -1528,6 +1530,7 @@ export class Settings extends Component<any, SettingsState> {
           siteRes: siteRes.data,
         });
 
+        // TODO need to update this
         UserService.Instance.myUserInfo = siteRes.data.my_user;
       }
 
@@ -1628,6 +1631,7 @@ export class Settings extends Component<any, SettingsState> {
           },
         } = siteRes.data.my_user!.local_user_view;
 
+        // TODO need to update redux
         UserService.Instance.myUserInfo = siteRes.data.my_user;
         updateDataBsTheme(siteRes.data);
 
@@ -1705,8 +1709,8 @@ export class Settings extends Component<any, SettingsState> {
 
   personBlock(res: RequestState<BlockPersonResponse>) {
     if (res.state === "success") {
-      updatePersonBlock(res.data);
-      const mui = UserService.Instance.myUserInfo;
+      updatePersonBlock(res.data, this.isoData.site_res.my_user);
+      const mui = this.isoData.site_res.my_user;
       if (mui) {
         this.setState({ personBlocks: mui.person_blocks });
       }
@@ -1715,8 +1719,8 @@ export class Settings extends Component<any, SettingsState> {
 
   communityBlock(res: RequestState<BlockCommunityResponse>) {
     if (res.state === "success") {
-      updateCommunityBlock(res.data);
-      const mui = UserService.Instance.myUserInfo;
+      updateCommunityBlock(res.data, this.isoData.site_res.my_user);
+      const mui = this.isoData.site_res.my_user;
       if (mui) {
         this.setState({ communityBlocks: mui.community_blocks });
       }
@@ -1730,8 +1734,13 @@ export class Settings extends Component<any, SettingsState> {
     ) {
       const linkedInstances =
         this.state.instancesRes.data.federated_instances?.linked ?? [];
-      updateInstanceBlock(res.data, id, linkedInstances);
-      const mui = UserService.Instance.myUserInfo;
+      updateInstanceBlock(
+        res.data,
+        id,
+        linkedInstances,
+        this.isoData.site_res.my_user,
+      );
+      const mui = this.isoData.site_res.my_user;
       if (mui) {
         this.setState({ instanceBlocks: mui.instance_blocks });
       }

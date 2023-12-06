@@ -1,4 +1,4 @@
-import { enableNsfw, setIsoData } from "@utils/app";
+import { enableNsfw } from "@utils/app";
 import { Component } from "inferno";
 import {
   CreateCommunity as CreateCommunityI,
@@ -7,6 +7,7 @@ import {
 import { HttpService, I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
+import { IsoData } from "../../interfaces";
 
 interface CreateCommunityState {
   siteRes: GetSiteResponse;
@@ -14,7 +15,9 @@ interface CreateCommunityState {
 }
 
 export class CreateCommunity extends Component<any, CreateCommunityState> {
-  private isoData = setIsoData(this.context);
+  get isoData(): IsoData {
+    return this.context.store.getState().value;
+  }
   state: CreateCommunityState = {
     siteRes: this.isoData.site_res,
     loading: false,

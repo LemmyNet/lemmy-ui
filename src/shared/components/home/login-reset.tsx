@@ -1,4 +1,3 @@
-import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter, validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
@@ -6,6 +5,7 @@ import { HttpService, I18NextService } from "../../services";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import { IsoData } from "../../interfaces";
 
 interface State {
   form: {
@@ -16,7 +16,9 @@ interface State {
 }
 
 export class LoginReset extends Component<any, State> {
-  private isoData = setIsoData(this.context);
+  get isoData(): IsoData {
+    return this.context.store.getState().value;
+  }
 
   state: State = {
     form: {

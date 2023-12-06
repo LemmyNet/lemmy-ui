@@ -1,9 +1,4 @@
-import {
-  fetchUsers,
-  getUpdatedSearchId,
-  personToChoice,
-  setIsoData,
-} from "@utils/app";
+import { fetchUsers, getUpdatedSearchId, personToChoice } from "@utils/app";
 import {
   debounce,
   formatPastDate,
@@ -46,7 +41,7 @@ import {
   Person,
 } from "lemmy-js-client";
 import { fetchLimit } from "../config";
-import { InitialFetchRequest } from "../interfaces";
+import { InitialFetchRequest, IsoData } from "../interfaces";
 import { FirstLoadService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
@@ -636,7 +631,9 @@ export class Modlog extends Component<
   RouteComponentProps<{ communityId?: string }>,
   ModlogState
 > {
-  private isoData = setIsoData<ModlogData>(this.context);
+  get isoData(): IsoData<ModlogData> {
+    return this.context.store.getState().value;
+  }
 
   state: ModlogState = {
     res: EMPTY_REQUEST,

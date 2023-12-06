@@ -1,4 +1,3 @@
-import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
@@ -6,14 +5,13 @@ import { IsoDataOptionalSite } from "../../interfaces";
 import { I18NextService } from "../../services";
 
 export class ErrorPage extends Component<any, any> {
-  private isoData: IsoDataOptionalSite = setIsoData(this.context);
-
   constructor(props: any, context: any) {
     super(props, context);
   }
 
   render() {
-    const { errorPageData } = this.isoData;
+    const reduxState: IsoDataOptionalSite = this.context.store.getState();
+    const errorPageData = reduxState.errorPageData;
 
     return (
       <div className="error-page container-lg text-center">
@@ -41,8 +39,7 @@ export class ErrorPage extends Component<any, any> {
               <div>
                 {I18NextService.i18n.t("error_page_admin_matrix", {
                   instance:
-                    this.isoData.site_res?.site_view.site.name ??
-                    "this instance",
+                    reduxState.site_res?.site_view.site.name ?? "this instance",
                 })}
               </div>
               <ul className="mx-auto mt-2" style={{ width: "fit-content" }}>

@@ -9,7 +9,6 @@ import {
   getDataTypeString,
   myAuth,
   postToCommentSortType,
-  setIsoData,
   showLocal,
   updatePersonBlock,
 } from "@utils/app";
@@ -59,6 +58,7 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MyUserInfo,
   PaginationCursor,
   PostResponse,
   PurgeComment,
@@ -77,9 +77,10 @@ import {
   CommentViewType,
   DataType,
   InitialFetchRequest,
+  IsoData,
 } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -168,7 +169,7 @@ function getDataTypeFromQuery(type?: string): DataType {
 
 function getListingTypeFromQuery(
   type?: string,
-  myUserInfo = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ): ListingType | undefined {
   const myListingType =
     myUserInfo?.local_user_view?.local_user?.default_listing_type;
@@ -178,7 +179,7 @@ function getListingTypeFromQuery(
 
 function getSortTypeFromQuery(
   type?: string,
-  myUserInfo = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ): SortType {
   const mySortType = myUserInfo?.local_user_view?.local_user?.default_sort_type;
 
@@ -225,7 +226,9 @@ const LinkButton = ({
 );
 
 export class Home extends Component<any, HomeState> {
-  private isoData = setIsoData<HomeData>(this.context);
+  get isoData(): IsoData<HomeData> {
+    return this.context.store.getState().value;
+  }
   state: HomeState = {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
@@ -242,6 +245,7 @@ export class Home extends Component<any, HomeState> {
 
   constructor(props: any, context: any) {
     super(props, context);
+    console.log(this.isoData);
 
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
@@ -416,7 +420,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   get hasFollows(): boolean {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.site_res.my_user;
     return !!mui && mui.follows.length > 0;
   }
 
@@ -606,7 +610,7 @@ export class Home extends Component<any, HomeState> {
           >
             <div className="card-body">
               <ul className="list-inline mb-0">
-                {UserService.Instance.myUserInfo?.follows.map(cfv => (
+                {this.isoData.site_res.my_user?.follows.map(cfv => (
                   <li
                     key={cfv.community.id}
                     className="list-inline-item d-inline-block"
@@ -734,6 +738,7 @@ export class Home extends Component<any, HomeState> {
           return (
             <CommentNodes
               nodes={commentsToFlatNodes(comments)}
+              myUserInfo={this.isoData.site_res.my_user}
               viewType={CommentViewType.Flat}
               finished={this.state.finished}
               isTopLevel
@@ -909,7 +914,7 @@ export class Home extends Component<any, HomeState> {
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data);
+      updatePersonBlock(blockPersonRes.data, this.isoData.site_res.my_user);
     }
   }
 

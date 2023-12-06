@@ -4,7 +4,7 @@ import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import { CreateComment, EditComment, Language } from "lemmy-js-client";
 import { CommentNodeI } from "../../interfaces";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 
@@ -13,6 +13,7 @@ interface CommentFormProps {
    * Can either be the parent, or the editable comment. The right side is a postId.
    */
   node: CommentNodeI | number;
+  loggedIn: boolean;
   finished?: boolean;
   edit?: boolean;
   disabled?: boolean;
@@ -45,7 +46,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
           " ",
         )}
       >
-        {UserService.Instance.myUserInfo ? (
+        {this.props.loggedIn ? (
           <MarkdownTextArea
             initialContent={initialContent}
             showLanguage

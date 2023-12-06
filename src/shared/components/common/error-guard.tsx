@@ -1,17 +1,17 @@
-import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { ErrorPage } from "../app/error-page";
+import { IsoDataOptionalSite } from "../../interfaces";
 
 class ErrorGuard extends Component<any, any> {
-  private isoData = setIsoData(this.context);
-
   constructor(props: any, context: any) {
     super(props, context);
   }
 
   render() {
-    const errorPageData = this.isoData.errorPageData;
-    const siteRes = this.isoData.site_res;
+    const reduxState: IsoDataOptionalSite = this.context.store.getState().value;
+    const errorPageData = reduxState.errorPageData;
+    const siteRes = reduxState.site_res;
+    console.log(`error guard data: ${reduxState.path}`);
 
     if (errorPageData || !siteRes) {
       return <ErrorPage />;

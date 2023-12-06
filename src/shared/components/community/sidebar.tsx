@@ -12,12 +12,13 @@ import {
   EditCommunity,
   FollowCommunity,
   Language,
+  MyUserInfo,
   PersonView,
   PurgeCommunity,
   RemoveCommunity,
 } from "lemmy-js-client";
 import { mdToHtml } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
@@ -28,6 +29,7 @@ import { PersonListing } from "../person/person-listing";
 
 interface SidebarProps {
   community_view: CommunityView;
+  myUserInfo?: MyUserInfo;
   moderators: CommunityModeratorView[];
   admins: PersonView[];
   allLanguages: Language[];
@@ -122,7 +124,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   sidebar() {
-    const myUSerInfo = UserService.Instance.myUserInfo;
+    const myUserInfo = this.props.myUserInfo;
     const {
       community: { name, actor_id },
     } = this.props.community_view;
@@ -140,8 +142,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 loading={this.state.followCommunityLoading}
               />
               {this.canPost && this.createPost()}
-              {myUSerInfo && this.blockCommunity()}
-              {!myUSerInfo && (
+              {myUserInfo && this.blockCommunity()}
+              {!myUserInfo && (
                 <div className="alert alert-info" role="alert">
                   <T
                     i18nKey="community_not_logged_in_alert"
@@ -268,7 +270,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <>
         <ul className="list-inline mb-1 text-muted fw-bold">
-          {amMod(this.props.community_view.community.id) && (
+          {amMod(
+            this.props.community_view.community.id,
+            this.props.myUserInfo,
+          ) && (
             <>
               <li className="list-inline-item-action">
                 <button
@@ -280,7 +285,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   <Icon icon="edit" classes="icon-inline" />
                 </button>
               </li>
-              {!amTopMod(this.props.moderators) &&
+              {!amTopMod(this.props.moderators, this.props.myUserInfo) &&
                 (!this.state.showConfirmLeaveModTeam ? (
                   <li className="list-inline-item-action">
                     <button
@@ -319,7 +324,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     </li>
                   </>
                 ))}
-              {amTopMod(this.props.moderators) && (
+              {amTopMod(this.props.moderators, this.props.myUserInfo) && (
                 <li className="list-inline-item-action">
                   <button
                     className="btn btn-link text-muted d-inline-block"
@@ -468,8 +473,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   get canPost(): boolean {
     return (
       !this.props.community_view.community.posting_restricted_to_mods ||
-      amMod(this.props.community_view.community.id) ||
-      amAdmin()
+      amMod(this.props.community_view.community.id, this.props.myUserInfo) ||
+      amAdmin(this.props.myUserInfo)
     );
   }
 
@@ -520,7 +525,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleLeaveModTeam(i: Sidebar) {
-    const myId = UserService.Instance.myUserInfo?.local_user_view.person.id;
+    const myId = this.props.myUserInfo?.local_user_view.person.id;
     if (myId) {
       i.setState({ leaveModTeamLoading: true });
       i.props.onLeaveModTeam({

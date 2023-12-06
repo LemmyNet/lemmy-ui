@@ -5,7 +5,6 @@ import {
   enableDownvotes,
   enableNsfw,
   getCommentParentId,
-  setIsoData,
   updatePersonBlock,
 } from "@utils/app";
 import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
@@ -59,6 +58,7 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MyUserInfo,
   PersonView,
   PostResponse,
   PurgeComment,
@@ -73,9 +73,13 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
-import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
+import {
+  InitialFetchRequest,
+  IsoData,
+  PersonDetailsView,
+} from "../../interfaces";
 import { mdToHtml } from "../../markdown";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -159,13 +163,16 @@ const getCommunitiesListing = (
 const Moderates = ({ moderates }: { moderates?: CommunityModeratorView[] }) =>
   getCommunitiesListing("moderates", moderates);
 
-const Follows = () =>
-  getCommunitiesListing("subscribed", UserService.Instance.myUserInfo?.follows);
+const Follows = ({ myUserInfo }: { myUserInfo?: MyUserInfo }) =>
+  getCommunitiesListing("subscribed", myUserInfo?.follows);
 
-function isPersonBlocked(personRes: RequestState<GetPersonDetailsResponse>) {
+function isPersonBlocked(
+  personRes: RequestState<GetPersonDetailsResponse>,
+  myUserInfo?: MyUserInfo,
+) {
   return (
     (personRes.state === "success" &&
-      UserService.Instance.myUserInfo?.person_blocks.some(
+      myUserInfo?.person_blocks.some(
         ({ target: { id } }) => id === personRes.data.person_view.person.id,
       )) ??
     false
@@ -176,7 +183,9 @@ export class Profile extends Component<
   RouteComponentProps<{ username: string }>,
   ProfileState
 > {
-  private isoData = setIsoData<ProfileData>(this.context);
+  get isoData(): IsoData<ProfileData> {
+    return this.context.store.getState().value;
+  }
   state: ProfileState = {
     personRes: EMPTY_REQUEST,
     personBlocked: false,
@@ -269,7 +278,7 @@ export class Profile extends Component<
   get amCurrentUser() {
     if (this.state.personRes.state === "success") {
       return (
-        UserService.Instance.myUserInfo?.local_user_view.person.id ===
+        this.isoData.site_res.my_user?.local_user_view.person.id ===
         this.state.personRes.data.person_view.person.id
       );
     } else {
@@ -388,7 +397,9 @@ export class Profile extends Component<
 
             <div className="col-12 col-md-4">
               <Moderates moderates={personRes.moderates} />
-              {this.amCurrentUser && <Follows />}
+              {this.amCurrentUser && (
+                <Follows myUserInfo={this.isoData.site_res.my_user} />
+              )}
             </div>
           </div>
         );
@@ -511,7 +522,7 @@ export class Profile extends Component<
                 </div>
                 {this.banDialog(pv)}
                 <div className="flex-grow-1 unselectable pointer mx-2"></div>
-                {!this.amCurrentUser && UserService.Instance.myUserInfo && (
+                {!this.amCurrentUser && this.isoData.site_res.my_user && (
                   <>
                     <a
                       className={`d-flex align-self-start btn btn-secondary me-2 ${
@@ -622,7 +633,7 @@ export class Profile extends Component<
                   {format(parseISO(pv.person.published), "PPP")}
                 </span>
               </div>
-              {!UserService.Instance.myUserInfo && (
+              {!this.isoData.site_res.my_user && (
                 <div className="alert alert-info" role="alert">
                   {I18NextService.i18n.t("profile_not_logged_in_alert")}
                 </div>
@@ -799,7 +810,7 @@ export class Profile extends Component<
       block,
     });
     if (res.state === "success") {
-      updatePersonBlock(res.data);
+      updatePersonBlock(res.data, this.isoData.site_res.my_user);
       this.setState({ personBlocked: res.data.blocked });
     }
   }

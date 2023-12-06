@@ -4,13 +4,14 @@ import { hostname, isCakeDay } from "@utils/helpers";
 import classNames from "classnames";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
-import { Person } from "lemmy-js-client";
+import { MyUserInfo, Person } from "lemmy-js-client";
 import { relTags } from "../../config";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
 
 interface PersonListingProps {
   person: Person;
+  myUserInfo?: MyUserInfo;
   realLink?: boolean;
   useApubName?: boolean;
   muted?: boolean;
@@ -87,7 +88,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
       <>
         {!this.props.hideAvatar &&
           !this.props.person.banned &&
-          showAvatars() && (
+          showAvatars(this.props.myUserInfo) && (
             <PictrsImage
               src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
               icon

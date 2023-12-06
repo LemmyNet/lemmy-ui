@@ -1,4 +1,3 @@
-import { setIsoData } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
@@ -9,7 +8,7 @@ import {
 } from "lemmy-js-client";
 import classNames from "classnames";
 import { relTags } from "../../config";
-import { InitialFetchRequest } from "../../interfaces";
+import { InitialFetchRequest, IsoData } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -34,7 +33,9 @@ interface InstancesState {
 }
 
 export class Instances extends Component<any, InstancesState> {
-  private isoData = setIsoData<InstancesData>(this.context);
+  get isoData(): IsoData<InstancesData> {
+    return this.context.store.getState().value;
+  }
   state: InstancesState = {
     instancesRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,

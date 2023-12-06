@@ -19,6 +19,7 @@ import {
   Language,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MyUserInfo,
   PersonView,
   PurgeComment,
   PurgePerson,
@@ -31,6 +32,7 @@ import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
+  myUserInfo?: MyUserInfo;
   moderators?: CommunityModeratorView[];
   admins?: PersonView[];
   maxCommentsShown?: number;
@@ -99,6 +101,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
             <CommentNode
               key={node.comment_view.comment.id}
               node={node}
+              myUserInfo={this.props.myUserInfo}
               noBorder={this.props.noBorder}
               isTopLevel={this.props.isTopLevel}
               viewOnly={this.props.viewOnly}

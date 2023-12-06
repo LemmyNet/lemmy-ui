@@ -1,4 +1,4 @@
-import { enableDownvotes, enableNsfw, setIsoData } from "@utils/app";
+import { enableDownvotes, enableNsfw } from "@utils/app";
 import { getIdFromString, getQueryParams } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
@@ -12,7 +12,7 @@ import {
   LemmyHttp,
   ListCommunitiesResponse,
 } from "lemmy-js-client";
-import { InitialFetchRequest, PostFormParams } from "../../interfaces";
+import { InitialFetchRequest, IsoData, PostFormParams } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -57,7 +57,9 @@ export class CreatePost extends Component<
   RouteComponentProps<Record<string, never>>,
   CreatePostState
 > {
-  private isoData = setIsoData<CreatePostData>(this.context);
+  get isoData(): IsoData<CreatePostData> {
+    return this.context.store.getState().value;
+  }
   state: CreatePostState = {
     siteRes: this.isoData.site_res,
     loading: true,

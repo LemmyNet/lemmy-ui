@@ -498,6 +498,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           selectedLanguageIds={this.state.siteForm.discussion_languages}
           multiple={true}
           onChange={this.handleDiscussionLanguageChange}
+          myUserInfo={this.props.siteRes.my_user}
           showAll
         />
         <div className="mb-3 row">

@@ -1,4 +1,4 @@
-import { editRegistrationApplication, setIsoData } from "@utils/app";
+import { editRegistrationApplication } from "@utils/app";
 import { randomStr } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -11,8 +11,8 @@ import {
   RegistrationApplicationView,
 } from "lemmy-js-client";
 import { fetchLimit } from "../../config";
-import { InitialFetchRequest } from "../../interfaces";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { InitialFetchRequest, IsoData } from "../../interfaces";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -49,7 +49,9 @@ export class RegistrationApplications extends Component<
   any,
   RegistrationApplicationsState
 > {
-  private isoData = setIsoData<RegistrationApplicationsData>(this.context);
+  get isoData(): IsoData<RegistrationApplicationsData> {
+    return this.context.store.getState().value;
+  }
   state: RegistrationApplicationsState = {
     appsRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
@@ -82,7 +84,7 @@ export class RegistrationApplications extends Component<
   }
 
   get documentTitle(): string {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.site_res.my_user;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "registration_applications",

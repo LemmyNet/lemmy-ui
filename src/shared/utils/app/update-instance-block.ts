@@ -1,12 +1,12 @@
 import { BlockInstanceResponse, Instance, MyUserInfo } from "lemmy-js-client";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import { toast } from "../../toast";
 
 export default function updateInstanceBlock(
   data: BlockInstanceResponse,
   id: number,
   linkedInstances: Instance[],
-  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ) {
   if (myUserInfo) {
     const instance = linkedInstances.find(i => i.id === id)!;

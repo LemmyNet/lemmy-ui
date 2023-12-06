@@ -1,4 +1,4 @@
-import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
+import { fetchThemeList, showLocal } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -14,7 +14,7 @@ import {
   LemmyHttp,
   PersonView,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../../interfaces";
+import { InitialFetchRequest, IsoData } from "../../interfaces";
 import { removeFromEmojiDataModel, updateEmojiDataModel } from "../../markdown";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
@@ -53,7 +53,9 @@ interface AdminSettingsState {
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
-  private isoData = setIsoData<AdminSettingsData>(this.context);
+  get isoData(): IsoData<AdminSettingsData> {
+    return this.context.store.getState().value;
+  }
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
     banned: [],

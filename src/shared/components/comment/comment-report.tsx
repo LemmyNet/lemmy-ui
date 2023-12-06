@@ -3,6 +3,7 @@ import { T } from "inferno-i18next-dess";
 import {
   CommentReportView,
   CommentView,
+  MyUserInfo,
   ResolveCommentReport,
 } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
@@ -14,6 +15,7 @@ import { EMPTY_REQUEST } from "../../services/HttpService";
 
 interface CommentReportProps {
   report: CommentReportView;
+  myUserInfo?: MyUserInfo;
   onResolveReport(form: ResolveCommentReport): void;
 }
 
@@ -75,6 +77,7 @@ export class CommentReport extends Component<
       <div className="comment-report">
         <CommentNode
           node={node}
+          myUserInfo={this.props.myUserInfo}
           viewType={CommentViewType.Flat}
           enableDownvotes={true}
           viewOnly={true}

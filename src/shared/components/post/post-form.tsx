@@ -17,6 +17,7 @@ import {
   EditPost,
   GetSiteMetadataResponse,
   Language,
+  MyUserInfo,
   PostView,
   SearchResponse,
 } from "lemmy-js-client";
@@ -28,7 +29,7 @@ import {
   webArchiveUrl,
 } from "../../config";
 import { PostFormParams } from "../../interfaces";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -47,6 +48,7 @@ const MAX_POST_TITLE_LENGTH = 200;
 
 interface PostFormProps {
   post_view?: PostView; // If a post is given, that means this is an edit
+  myUserInfo?: MyUserInfo;
   crossPosts?: PostView[];
   allLanguages: Language[];
   siteLanguages: number[];
@@ -423,7 +425,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               accept="image/*,video/*"
               name="file"
               className="small col-sm-10 form-control"
-              disabled={!UserService.Instance.myUserInfo}
+              disabled={!this.props.myUserInfo}
               onChange={linkEvent(this, handleImageUpload)}
             />
             {this.state.imageLoading && <Spinner />}
@@ -496,6 +498,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           selectedLanguageIds={selectedLangs}
           multiple={false}
           onChange={this.handleLanguageChange}
+          myUserInfo={this.props.myUserInfo}
         />
         {!this.props.post_view && (
           <div className="mb-3 row">

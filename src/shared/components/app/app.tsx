@@ -1,4 +1,4 @@
-import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
+import { isAnonymousPath, isAuthPath } from "@utils/app";
 import { dataBsTheme } from "@utils/browser";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
@@ -17,20 +17,20 @@ import AnonymousGuard from "../common/anonymous-guard";
 import { CodeTheme } from "./code-theme";
 
 export class App extends Component<any, any> {
-  private isoData: IsoDataOptionalSite = setIsoData(this.context);
   private readonly mainContentRef: RefObject<HTMLElement>;
   constructor(props: any, context: any) {
     super(props, context);
     this.mainContentRef = createRef();
   }
 
-  handleJumpToContent(event) {
+  handleJumpToContent(event: any) {
     event.preventDefault();
     this.mainContentRef.current?.focus();
   }
 
   render() {
-    const siteRes = this.isoData.site_res;
+    const reduxState: IsoDataOptionalSite = this.context.store.getState().value;
+    const siteRes = reduxState.site_res;
     const siteView = siteRes?.site_view;
 
     return (

@@ -9,7 +9,6 @@ import {
   getCommentParentId,
   getDataTypeString,
   postToCommentSortType,
-  setIsoData,
   showLocal,
   updateCommunityBlock,
   updatePersonBlock,
@@ -58,6 +57,7 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MyUserInfo,
   PaginationCursor,
   PostResponse,
   PurgeComment,
@@ -78,8 +78,9 @@ import {
   CommentViewType,
   DataType,
   InitialFetchRequest,
+  IsoData,
 } from "../../interfaces";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -136,10 +137,11 @@ function getDataTypeFromQuery(type?: string): DataType {
   return type ? DataType[type] : DataType.Post;
 }
 
-function getSortTypeFromQuery(type?: string): SortType {
-  const mySortType =
-    UserService.Instance.myUserInfo?.local_user_view.local_user
-      .default_sort_type;
+function getSortTypeFromQuery(
+  type?: string,
+  myUserInfo?: MyUserInfo,
+): SortType {
+  const mySortType = myUserInfo?.local_user_view.local_user.default_sort_type;
 
   return type ? (type as SortType) : mySortType ?? "Active";
 }
@@ -148,7 +150,9 @@ export class Community extends Component<
   RouteComponentProps<{ name: string }>,
   State
 > {
-  private isoData = setIsoData<CommunityData>(this.context);
+  get isoData(): IsoData<CommunityData> {
+    return this.context.store.getState().value;
+  }
   state: State = {
     communityRes: EMPTY_REQUEST,
     postsRes: EMPTY_REQUEST,
@@ -463,6 +467,7 @@ export class Community extends Component<
           return (
             <CommentNodes
               nodes={commentsToFlatNodes(this.state.commentsRes.data.comments)}
+              myUserInfo={this.isoData.site_res.my_user}
               viewType={CommentViewType.Flat}
               finished={this.state.finished}
               isTopLevel
@@ -642,7 +647,7 @@ export class Community extends Component<
     // Update myUserInfo
     if (followCommunityRes.state === "success") {
       const communityId = followCommunityRes.data.community_view.community.id;
-      const mui = UserService.Instance.myUserInfo;
+      const mui = this.isoData.site_res.my_user;
       if (mui) {
         mui.follows = mui.follows.filter(i => i.community.id !== communityId);
       }
@@ -672,7 +677,10 @@ export class Community extends Component<
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
     if (blockCommunityRes.state === "success") {
-      updateCommunityBlock(blockCommunityRes.data);
+      updateCommunityBlock(
+        blockCommunityRes.data,
+        this.isoData.site_res.my_user,
+      );
       this.setState(s => {
         if (s.communityRes.state === "success") {
           s.communityRes.data.community_view.blocked =
@@ -685,7 +693,7 @@ export class Community extends Component<
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data);
+      updatePersonBlock(blockPersonRes.data, this.isoData.site_res.my_user);
     }
   }
 

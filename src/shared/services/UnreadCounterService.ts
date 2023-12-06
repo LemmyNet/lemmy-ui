@@ -1,4 +1,4 @@
-import { UserService, HttpService } from "../services";
+import { HttpService } from "../services";
 import { updateUnreadCountsInterval } from "../config";
 import { poll } from "@utils/helpers";
 import { myAuth } from "@utils/app";

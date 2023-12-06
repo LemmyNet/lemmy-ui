@@ -1,9 +1,8 @@
-import { PostView } from "lemmy-js-client";
-import { UserService } from "../../services";
+import { MyUserInfo, PostView } from "lemmy-js-client";
 
 export default function nsfwCheck(
   pv: PostView,
-  myUserInfo = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ): boolean {
   const nsfw = pv.post.nsfw || pv.community.nsfw;
   const myShowNsfw = myUserInfo?.local_user_view.local_user.show_nsfw ?? false;

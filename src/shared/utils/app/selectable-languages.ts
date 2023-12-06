@@ -1,5 +1,4 @@
-import { Language } from "lemmy-js-client";
-import { UserService } from "../../services";
+import { Language, MyUserInfo } from "lemmy-js-client";
 
 /**
  * This shows what language you can select
@@ -13,7 +12,7 @@ export default function selectableLanguages(
   siteLanguages: number[],
   showAll?: boolean,
   showSite?: boolean,
-  myUserInfo = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ): Language[] {
   const allLangIds = allLanguages.map(l => l.id);
   let myLangs = myUserInfo?.discussion_languages ?? allLangIds;

@@ -1,10 +1,9 @@
-import { CommunityModeratorView } from "lemmy-js-client";
-import { UserService } from "../../services";
+import { CommunityModeratorView, MyUserInfo } from "lemmy-js-client";
 
 export default function amCommunityCreator(
   creator_id: number,
   mods?: CommunityModeratorView[],
-  myUserInfo = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ): boolean {
   const myId = myUserInfo?.local_user_view.person.id;
   // Don't allow mod actions on yourself

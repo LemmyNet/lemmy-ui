@@ -9,7 +9,6 @@ import {
   getCommentParentId,
   getDepthFromComment,
   getIdFromProps,
-  setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
@@ -80,8 +79,9 @@ import {
   CommentNodeI,
   CommentViewType,
   InitialFetchRequest,
+  IsoData,
 } from "../../interfaces";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -123,7 +123,9 @@ interface PostState {
 }
 
 export class Post extends Component<any, PostState> {
-  private isoData = setIsoData<PostData>(this.context);
+  get isoData(): IsoData<PostData> {
+    return this.context.store.getState().value;
+  }
   private commentScrollDebounced: () => void;
   state: PostState = {
     postRes: EMPTY_REQUEST,
@@ -402,6 +404,7 @@ export class Post extends Component<any, PostState> {
               {!this.state.commentId && (
                 <CommentForm
                   node={res.post_view.post.id}
+                  loggedIn={!!this.isoData.site_res.my_user}
                   disabled={res.post_view.post.locked}
                   allLanguages={this.state.siteRes.all_languages}
                   siteLanguages={this.state.siteRes.discussion_languages}
@@ -761,7 +764,7 @@ export class Post extends Component<any, PostState> {
     // Update myUserInfo
     if (followCommunityRes.state === "success") {
       const communityId = followCommunityRes.data.community_view.community.id;
-      const mui = UserService.Instance.myUserInfo;
+      const mui = this.isoData.site_res.my_user;
       if (mui) {
         mui.follows = mui.follows.filter(i => i.community.id !== communityId);
       }
@@ -791,7 +794,10 @@ export class Post extends Component<any, PostState> {
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
     if (blockCommunityRes.state === "success") {
-      updateCommunityBlock(blockCommunityRes.data);
+      updateCommunityBlock(
+        blockCommunityRes.data,
+        this.isoData.site_res.my_user,
+      );
       this.setState(s => {
         if (s.postRes.state === "success") {
           s.postRes.data.community_view.blocked =
@@ -804,7 +810,7 @@ export class Post extends Component<any, PostState> {
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data);
+      updatePersonBlock(blockPersonRes.data, this.isoData.site_res.my_user);
     }
   }
 

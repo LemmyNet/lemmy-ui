@@ -1,4 +1,4 @@
-import { editCommunity, setIsoData, showLocal } from "@utils/app";
+import { editCommunity, showLocal } from "@utils/app";
 import {
   getPageFromString,
   getQueryParams,
@@ -17,7 +17,7 @@ import {
   ListingType,
   SortType,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../../interfaces";
+import { InitialFetchRequest, IsoData } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -70,7 +70,9 @@ function getCommunitiesQueryParams() {
 }
 
 export class Communities extends Component<any, CommunitiesState> {
-  private isoData = setIsoData<CommunitiesData>(this.context);
+  get isoData(): IsoData<CommunitiesData> {
+    return this.context.store.getState().value;
+  }
   state: CommunitiesState = {
     listCommunitiesResponse: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,

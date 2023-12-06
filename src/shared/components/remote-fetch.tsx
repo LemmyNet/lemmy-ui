@@ -1,4 +1,3 @@
-import { setIsoData } from "@utils/app";
 import { getQueryParams } from "@utils/helpers";
 import { QueryParams, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
@@ -7,7 +6,7 @@ import {
   LemmyHttp,
   ResolveObjectResponse,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../interfaces";
+import { InitialFetchRequest, IsoData } from "../interfaces";
 import { FirstLoadService, HttpService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
@@ -84,7 +83,9 @@ const handleFollow = (i: RemoteFetch) => handleToggleFollow(i, true);
 const handleUnfollow = (i: RemoteFetch) => handleToggleFollow(i, false);
 
 export class RemoteFetch extends Component<any, RemoteFetchState> {
-  private isoData = setIsoData<RemoteFetchData>(this.context);
+  get isoData(): IsoData<RemoteFetchData> {
+    return this.context.store.getState().value;
+  }
   state: RemoteFetchState = {
     resolveObjectRes: EMPTY_REQUEST,
     isIsomorphic: false,

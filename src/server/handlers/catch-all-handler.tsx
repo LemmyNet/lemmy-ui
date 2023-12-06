@@ -20,6 +20,8 @@ import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
+import { Provider } from "inferno-redux";
+import { configureStore, createSlice } from "@reduxjs/toolkit";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -108,10 +110,19 @@ export default async (req: Request, res: Response) => {
       errorPageData,
     };
 
+    const slice = createSlice({
+      name: "isoData",
+      initialState: { value: isoData },
+      reducers: {},
+    });
+    const store = configureStore({ reducer: slice.reducer });
+
     const wrapper = (
-      <StaticRouter location={url} context={isoData}>
-        <App />
-      </StaticRouter>
+      <Provider store={store}>
+        <StaticRouter location={url} context={{}}>
+          <App />
+        </StaticRouter>
+      </Provider>
     );
 
     const root = renderToString(wrapper);

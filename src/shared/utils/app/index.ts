@@ -43,7 +43,6 @@ import personToChoice from "./person-to-choice";
 import postToCommentSortType from "./post-to-comment-sort-type";
 import searchCommentTree from "./search-comment-tree";
 import selectableLanguages from "./selectable-languages";
-import setIsoData from "./set-iso-data";
 import setTheme from "./set-theme";
 import setupDateFns from "./setup-date-fns";
 import showAvatars from "./show-avatars";
@@ -55,6 +54,7 @@ import updatePersonBlock from "./update-person-block";
 import instanceToChoice from "./instance-to-choice";
 import updateInstanceBlock from "./update-instance-block";
 import isAnonymousPath from "./is-anonymous-path";
+import setupRedux from "./setup-redux";
 
 export {
   buildCommentsTree,
@@ -102,11 +102,11 @@ export {
   postToCommentSortType,
   searchCommentTree,
   selectableLanguages,
-  setIsoData,
   setTheme,
   setupDateFns,
   showAvatars,
   showLocal,
+  setupRedux,
   showScores,
   siteBannerCss,
   updateCommunityBlock,

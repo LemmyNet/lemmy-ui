@@ -7,6 +7,7 @@ import canAdmin from "./can-admin";
 import canCreateCommunity from "./can-create-community";
 import canMod from "./can-mod";
 import isBanned from "./is-banned";
+import moderatesSomething from "./moderates-something";
 
 export {
   amAdmin,
@@ -18,4 +19,5 @@ export {
   canCreateCommunity,
   canMod,
   isBanned,
+  moderatesSomething,
 };

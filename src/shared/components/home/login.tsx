@@ -46,6 +46,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
   const site = await HttpService.client.getSite();
 
   if (site.state === "success") {
+    // TODO this is the key, you need to update the redux store here
     UserService.Instance.myUserInfo = site.data.my_user;
     updateDataBsTheme(site.data);
   }

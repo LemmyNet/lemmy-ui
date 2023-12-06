@@ -1,4 +1,3 @@
-import { setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
@@ -12,7 +11,7 @@ import {
 } from "lemmy-js-client";
 import { joinLemmyUrl } from "../../config";
 import { mdToHtml } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -24,6 +23,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
+import { IsoData } from "../../interfaces";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -44,7 +44,9 @@ interface State {
 }
 
 export class Signup extends Component<any, State> {
-  private isoData = setIsoData(this.context);
+  get isoData(): IsoData {
+    return this.context.store.getState().value;
+  }
   private audio?: HTMLAudioElement;
 
   state: State = {

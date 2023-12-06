@@ -1,9 +1,8 @@
-import { CommunityId } from "lemmy-js-client";
-import { UserService } from "../../services";
+import { CommunityId, MyUserInfo } from "lemmy-js-client";
 
 export default function amMod(
   communityId: CommunityId,
-  myUserInfo = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ): boolean {
   return myUserInfo
     ? myUserInfo.moderates.map(cmv => cmv.community.id).includes(communityId)

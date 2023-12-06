@@ -33,6 +33,7 @@ import {
   Language,
   LockPost,
   MarkPostAsRead,
+  MyUserInfo,
   PersonView,
   PostView,
   PurgePerson,
@@ -49,7 +50,7 @@ import {
   VoteContentType,
 } from "../../interfaces";
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
@@ -98,6 +99,7 @@ interface PostListingState {
 
 interface PostListingProps {
   post_view: PostView;
+  myUserInfo?: MyUserInfo;
   crossPosts?: PostView[];
   moderators?: CommunityModeratorView[];
   admins?: PersonView[];
@@ -171,11 +173,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   componentDidMount(): void {
-    if (UserService.Instance.myUserInfo) {
+    if (this.props.myUserInfo) {
       this.setState({
         imageExpanded:
-          UserService.Instance.myUserInfo.local_user_view.local_user
-            .auto_expand,
+          this.props.myUserInfo.local_user_view.local_user.auto_expand,
       });
     }
   }
@@ -629,6 +630,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {mobile && !this.props.viewOnly && (
           <VoteButtonsCompact
             voteContentType={VoteContentType.Post}
+            loggedIn={!!this.props.myUserInfo}
             id={this.postView.post.id}
             onVote={this.props.onPostVote}
             enableDownvotes={this.props.enableDownvotes}
@@ -639,9 +641,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
         {this.props.showBody && pv.post.body && this.viewSourceButton}
 
-        {UserService.Instance.myUserInfo &&
-          !this.props.viewOnly &&
-          this.postActions()}
+        {this.props.myUserInfo && !this.props.viewOnly && this.postActions()}
       </div>
     );
   }
@@ -687,7 +687,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             )}
 
             {/* Any mod can do these, not limited to hierarchy*/}
-            {(amMod(this.postView.community.id) || amAdmin()) && (
+            {(amMod(this.postView.community.id, this.props.myUserInfo) ||
+              amAdmin(this.props.myUserInfo)) && (
               <>
                 <li>
                   <hr className="dropdown-divider" />
@@ -718,7 +719,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               </>
             )}
 
-            {(amCommunityCreator(pv.creator.id, this.props.moderators) ||
+            {(amCommunityCreator(
+              pv.creator.id,
+              this.props.moderators,
+              this.props.myUserInfo,
+            ) ||
               this.canAdmin_) &&
               pv.creator_is_moderator && (
                 <li>{this.transferCommunityButton}</li>
@@ -753,7 +758,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   public get linkTarget(): string {
-    return UserService.Instance.myUserInfo?.local_user_view.local_user
+    return this.props.myUserInfo?.local_user_view.local_user
       .open_links_in_new_tab
       ? "_blank"
       : // _self is the default target on links when the field is not specified
@@ -1378,6 +1383,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <div className="col flex-grow-0">
                 <VoteButtons
                   voteContentType={VoteContentType.Post}
+                  loggedIn={!!this.props.myUserInfo}
                   id={this.postView.post.id}
                   onVote={this.props.onPostVote}
                   enableDownvotes={this.props.enableDownvotes}
@@ -1409,7 +1415,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   private get myPost(): boolean {
     return (
       this.postView.creator.id ===
-      UserService.Instance.myUserInfo?.local_user_view.person.id
+      this.props.myUserInfo?.local_user_view.person.id
     );
   }
 
@@ -1774,10 +1780,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       this.postView.creator.id,
       this.props.moderators,
       this.props.admins,
+      this.props.myUserInfo,
     );
   }
 
   get canAdmin_(): boolean {
-    return canAdmin(this.postView.creator.id, this.props.admins);
+    return canAdmin(
+      this.postView.creator.id,
+      this.props.admins,
+      this.props.myUserInfo,
+    );
   }
 }

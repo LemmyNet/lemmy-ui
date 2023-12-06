@@ -243,6 +243,7 @@ export class CommunityForm extends Component<
           selectedLanguageIds={this.state.form.discussion_languages}
           multiple={true}
           onChange={this.handleDiscussionLanguageChange}
+          myUserInfo={this.props.myUserInfo}
         />
         <div className="mb-3 row">
           <div className="col-12">

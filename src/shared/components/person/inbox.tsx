@@ -7,7 +7,6 @@ import {
   enableDownvotes,
   getCommentParentId,
   myAuth,
-  setIsoData,
   updatePersonBlock,
 } from "@utils/app";
 import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
@@ -61,8 +60,12 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
-import { CommentViewType, InitialFetchRequest } from "../../interfaces";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import {
+  CommentViewType,
+  InitialFetchRequest,
+  IsoData,
+} from "../../interfaces";
+import { FirstLoadService, I18NextService } from "../../services";
 import { UnreadCounterService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -127,7 +130,9 @@ interface InboxState {
 }
 
 export class Inbox extends Component<any, InboxState> {
-  private isoData = setIsoData<InboxData>(this.context);
+  get isoData(): IsoData<InboxData> {
+    return this.context.store.getState().value;
+  }
   state: InboxState = {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
@@ -194,7 +199,7 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   get documentTitle(): string {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.site_res.my_user;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "inbox",
@@ -483,6 +488,7 @@ export class Inbox extends Component<any, InboxState> {
             nodes={[
               { comment_view: i.view as CommentView, children: [], depth: 0 },
             ]}
+            myUserInfo={this.isoData.site_res.my_user}
             viewType={CommentViewType.Flat}
             finished={this.state.finished}
             markable
@@ -848,7 +854,7 @@ export class Inbox extends Component<any, InboxState> {
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data);
+      updatePersonBlock(blockPersonRes.data, this.isoData.site_res.my_user);
     }
   }
 

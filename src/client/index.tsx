@@ -1,4 +1,4 @@
-import { initializeSite, setupDateFns } from "@utils/app";
+import { initializeSite, setupDateFns, setupRedux } from "@utils/app";
 import { hydrate } from "inferno-hydrate";
 import { BrowserRouter } from "inferno-router";
 import { App } from "../shared/components/app/app";
@@ -6,16 +6,24 @@ import { App } from "../shared/components/app/app";
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
 import "bootstrap/js/dist/modal";
+import { Provider } from "inferno-redux";
 
 async function startClient() {
-  initializeSite(window.isoData.site_res);
+  const windowData = window.isoData;
+  delete window.isoData;
+
+  initializeSite(windowData?.site_res);
 
   await setupDateFns();
 
+  const store = setupRedux(windowData);
+
   const wrapper = (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <Provider store={store}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </Provider>
   );
 
   const root = document.getElementById("root");

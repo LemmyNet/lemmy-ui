@@ -1,15 +1,15 @@
 import { showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { numToSI } from "@utils/helpers";
-import { amAdmin, canCreateCommunity } from "@utils/roles";
+import { amAdmin, canCreateCommunity, moderatesSomething } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import { GetSiteResponse } from "lemmy-js-client";
 import { donateLemmyUrl } from "../../config";
 import {
   I18NextService,
-  UserService,
   UnreadCounterService,
+  HttpService,
 } from "../../services";
 import { toast } from "../../toast";
 import { Icon } from "../common/icon";
@@ -38,7 +38,7 @@ function handleCollapseClick(i: Navbar) {
 }
 
 function handleLogOut(i: Navbar) {
-  UserService.Instance.logout();
+  HttpService._Instance.logout();
   handleCollapseClick(i);
 }
 
@@ -94,7 +94,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   // TODO class active corresponding to current pages
   render() {
     const siteView = this.props.siteRes?.site_view;
-    const person = UserService.Instance.myUserInfo?.local_user_view.person;
+    const person = this.props.siteRes?.my_user?.local_user_view.person;
     return (
       <div className="shadow-sm">
         <nav
@@ -108,9 +108,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             className="d-flex align-items-center navbar-brand me-md-3"
             onMouseUp={linkEvent(this, handleCollapseClick)}
           >
-            {siteView?.site.icon && showAvatars() && (
-              <PictrsImage src={siteView.site.icon} icon />
-            )}
+            {siteView?.site.icon &&
+              showAvatars(this.props.siteRes?.my_user) && (
+                <PictrsImage src={siteView.site.icon} icon />
+              )}
             {siteView?.site.name}
           </NavLink>
           {person && (
@@ -133,7 +134,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   )}
                 </NavLink>
               </li>
-              {UserService.Instance.moderatesSomething && (
+              {moderatesSomething(this.props.siteRes?.my_user) && (
                 <li className="nav-item nav-item-icon">
                   <NavLink
                     to="/reports"
@@ -306,7 +307,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       )}
                     </NavLink>
                   </li>
-                  {UserService.Instance.moderatesSomething && (
+                  {moderatesSomething(this.props.siteRes?.my_user) && (
                     <li id="navModeration" className="nav-item">
                       <NavLink
                         className="nav-link d-inline-flex align-items-center d-md-inline-block"
@@ -467,7 +468,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   requestNotificationPermission() {
-    if (UserService.Instance.myUserInfo) {
+    if (this.props.siteRes?.my_user) {
       document.addEventListener("DOMContentLoaded", function () {
         if (!Notification) {
           toast(I18NextService.i18n.t("notifications_error"), "danger");

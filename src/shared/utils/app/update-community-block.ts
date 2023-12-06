@@ -1,10 +1,10 @@
 import { BlockCommunityResponse, MyUserInfo } from "lemmy-js-client";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import { toast } from "../../toast";
 
 export default function updateCommunityBlock(
   data: BlockCommunityResponse,
-  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ) {
   if (myUserInfo) {
     if (data.blocked) {

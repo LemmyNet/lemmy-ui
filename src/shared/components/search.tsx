@@ -8,7 +8,6 @@ import {
   getUpdatedSearchId,
   myAuth,
   personToChoice,
-  setIsoData,
   showLocal,
 } from "@utils/app";
 import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
@@ -47,7 +46,7 @@ import {
   SortType,
 } from "lemmy-js-client";
 import { fetchLimit } from "../config";
-import { CommentViewType, InitialFetchRequest } from "../interfaces";
+import { CommentViewType, InitialFetchRequest, IsoData } from "../interfaces";
 import { FirstLoadService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
@@ -241,7 +240,9 @@ function getListing(
 }
 
 export class Search extends Component<any, SearchState> {
-  private isoData = setIsoData<SearchData>(this.context);
+  get isoData(): IsoData<SearchData> {
+    return this.context.store.getState().value;
+  }
   searchInput = createRef<HTMLInputElement>();
 
   state: SearchState = {

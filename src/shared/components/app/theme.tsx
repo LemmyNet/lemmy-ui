@@ -1,14 +1,15 @@
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
-import { UserService } from "../../services";
+import { MyUserInfo } from "lemmy-js-client";
 
 interface Props {
   defaultTheme: string;
+  myUserInfo?: MyUserInfo;
 }
 
 export class Theme extends Component<Props> {
   render() {
-    const user = UserService.Instance.myUserInfo;
+    const user = this.props.myUserInfo;
     const hasTheme = user?.local_user_view.local_user.theme !== "browser";
 
     if (user && hasTheme) {

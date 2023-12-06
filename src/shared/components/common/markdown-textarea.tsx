@@ -5,7 +5,7 @@ import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
-import { Language } from "lemmy-js-client";
+import { Language, MyUserInfo } from "lemmy-js-client";
 import {
   concurrentImageUpload,
   markdownFieldCharacterLimit,
@@ -14,7 +14,7 @@ import {
   relTags,
 } from "../../config";
 import { customEmojisLookup, mdToHtml, setupTribute } from "../../markdown";
-import { HttpService, I18NextService, UserService } from "../../services";
+import { HttpService, I18NextService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiPicker } from "./emoji-picker";
@@ -52,6 +52,7 @@ interface MarkdownTextAreaProps {
   onSubmit?(content: string, languageId?: number): void;
   allLanguages: Language[]; // TODO should probably be nullable
   siteLanguages: number[]; // TODO same
+  myUserInfo?: MyUserInfo;
 }
 
 interface ImageUploadStatus {
@@ -168,7 +169,7 @@ export class MarkdownTextArea extends Component<
                 <label
                   htmlFor={`file-upload-${this.id}`}
                   className={classNames("mb-0", {
-                    pointer: UserService.Instance.myUserInfo,
+                    pointer: !!this.props.myUserInfo,
                   })}
                   data-tippy-content={I18NextService.i18n.t("upload_image")}
                 >
@@ -195,7 +196,7 @@ export class MarkdownTextArea extends Component<
                   name="file"
                   className="d-none"
                   multiple
-                  disabled={!UserService.Instance.myUserInfo}
+                  disabled={!this.props.myUserInfo}
                   onChange={linkEvent(this, this.handleImageUpload)}
                 />
                 {this.getFormatButton("header", this.handleInsertHeader)}
@@ -276,6 +277,7 @@ export class MarkdownTextArea extends Component<
             {this.props.showLanguage && (
               <LanguageSelect
                 iconVersion
+                myUserInfo={this.props.myUserInfo}
                 allLanguages={this.props.allLanguages}
                 selectedLanguageIds={
                   languageId ? Array.of(languageId) : undefined

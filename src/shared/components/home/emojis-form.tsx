@@ -1,4 +1,3 @@
-import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import {
@@ -13,6 +12,7 @@ import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiMart } from "../common/emoji-mart";
 import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
+import { IsoData } from "../../interfaces";
 
 interface EmojiFormProps {
   onEdit(form: EditCustomEmoji): void;
@@ -39,7 +39,9 @@ interface CustomEmojiViewForm {
 }
 
 export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
-  private isoData = setIsoData(this.context);
+  get isoData(): IsoData {
+    return this.context.store.getState().value;
+  }
   private itemsPerPage = 15;
   private emptyState: EmojiFormState = {
     siteRes: this.isoData.site_res,

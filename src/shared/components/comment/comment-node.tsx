@@ -27,6 +27,7 @@ import {
   Language,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MyUserInfo,
   PersonMentionView,
   PersonView,
   PurgeComment,
@@ -45,7 +46,7 @@ import {
   VoteContentType,
 } from "../../interfaces";
 import { mdToHtml, mdToHtmlNoImages } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import { setupTippy } from "../../tippy";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
@@ -97,6 +98,7 @@ interface CommentNodeState {
 
 interface CommentNodeProps {
   node: CommentNodeI;
+  myUserInfo?: MyUserInfo;
   moderators?: CommunityModeratorView[];
   admins?: PersonView[];
   noBorder?: boolean;
@@ -238,14 +240,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       cv.creator.id,
       this.props.moderators,
       this.props.admins,
-      UserService.Instance.myUserInfo,
+      this.props.myUserInfo,
       true,
     );
-    const canAdmin_ = canAdmin(cv.creator.id, this.props.admins);
+    const canAdmin_ = canAdmin(
+      cv.creator.id,
+      this.props.admins,
+      this.props.myUserInfo,
+    );
     const canAdminOnSelf = canAdmin(
       cv.creator.id,
       this.props.admins,
-      UserService.Instance.myUserInfo,
+      this.props.myUserInfo,
       true,
     );
     const isMod_ = cv.creator_is_moderator;
@@ -253,6 +259,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const amCommunityCreator_ = amCommunityCreator(
       cv.creator.id,
       this.props.moderators,
+      this.props.myUserInfo,
     );
 
     const moreRepliesBorderColor = this.props.node.depth
@@ -327,7 +334,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               {/* This is an expanding spacer for mobile */}
               <div className="me-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
 
-              {showScores() && (
+              {showScores(this.props.myUserInfo) && (
                 <>
                   <span
                     className={`me-1 fw-bold ${this.scoreColor}`}
@@ -352,6 +359,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             {this.state.showEdit && (
               <CommentForm
                 node={node}
+                loggedIn={!!this.props.myUserInfo}
                 edit
                 onReplyCancel={this.handleReplyCancel}
                 disabled={this.props.locked}
@@ -410,7 +418,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       )}
                     </button>
                   )}
-                  {UserService.Instance.myUserInfo && !this.props.viewOnly && (
+                  {this.props.myUserInfo && !this.props.viewOnly && (
                     <>
                       <VoteButtonsCompact
                         voteContentType={VoteContentType.Comment}
@@ -1067,6 +1075,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {this.state.showReply && (
           <CommentForm
             node={node}
+            loggedIn={!!this.props.myUserInfo}
             onReplyCancel={this.handleReplyCancel}
             disabled={this.props.locked}
             finished={this.props.finished.get(
@@ -1082,6 +1091,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {!this.state.collapsed && node.children.length > 0 && (
           <CommentNodes
             nodes={node.children}
+            myUserInfo={this.props.myUserInfo}
             locked={this.props.locked}
             moderators={this.props.moderators}
             admins={this.props.admins}
@@ -1166,7 +1176,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get myComment(): boolean {
     return (
-      UserService.Instance.myUserInfo?.local_user_view.person.id ===
+      this.props.myUserInfo?.local_user_view.person.id ===
       this.commentView.creator.id
     );
   }

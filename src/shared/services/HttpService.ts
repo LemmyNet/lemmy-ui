@@ -1,7 +1,11 @@
 import { getHttpBase } from "@utils/env";
-import { LemmyHttp } from "lemmy-js-client";
+import { LemmyHttp, LoginResponse } from "lemmy-js-client";
 import { toast } from "../toast";
 import { I18NextService } from "./I18NextService";
+import { clearAuthCookie, isBrowser, setAuthCookie } from "@utils/browser";
+import { isAuthPath } from "@utils/app";
+import cookie from "cookie";
+import { authCookieName } from "../config";
 
 export const EMPTY_REQUEST = {
   state: "empty",
@@ -56,7 +60,7 @@ class WrappedLemmyHttpClient {
       Object.getPrototypeOf(this.rawClient),
     )) {
       if (key !== "constructor") {
-        this[key] = async (...args) => {
+        this[key] = async (...args: any) => {
           try {
             const res = await this.rawClient[key](...args);
 
@@ -88,6 +92,18 @@ export function wrapClient(client: LemmyHttp, silent = false) {
   ) as unknown as WrappedLemmyHttp;
 }
 
+// TODO These are unused for now
+// interface Claims {
+//   sub: number;
+//   iss: string;
+//   iat: number;
+// }
+
+// interface AuthInfo {
+//   claims: Claims;
+//   auth: string;
+// }
+
 export class HttpService {
   static #_instance: HttpService;
   #silent_client: WrappedLemmyHttp;
@@ -95,8 +111,40 @@ export class HttpService {
 
   private constructor() {
     const lemmyHttp = new LemmyHttp(getHttpBase());
+    const auth = cookie.parse(document.cookie)[authCookieName];
+
+    if (auth) {
+      HttpService.client.setHeaders({ Authorization: `Bearer ${auth}` });
+    }
     this.#client = wrapClient(lemmyHttp);
     this.#silent_client = wrapClient(lemmyHttp, true);
+  }
+
+  public login({
+    res,
+    showToast = true,
+  }: {
+    res: LoginResponse;
+    showToast?: boolean;
+  }) {
+    if (isBrowser() && res.jwt) {
+      showToast && toast(I18NextService.i18n.t("logged_in"));
+      setAuthCookie(res.jwt);
+    }
+  }
+
+  public logout() {
+    if (isBrowser()) {
+      clearAuthCookie();
+    }
+
+    this.#client.logout();
+
+    if (isAuthPath(location.pathname)) {
+      location.replace("/");
+    } else {
+      location.reload();
+    }
   }
 
   static get #Instance() {

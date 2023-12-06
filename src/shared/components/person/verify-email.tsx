@@ -1,4 +1,3 @@
-import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
 import { I18NextService } from "../../services";
@@ -11,6 +10,7 @@ import {
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import { IsoData } from "../../interfaces";
 
 interface State {
   verifyRes: RequestState<SuccessResponse>;
@@ -18,7 +18,9 @@ interface State {
 }
 
 export class VerifyEmail extends Component<any, State> {
-  private isoData = setIsoData(this.context);
+  get isoData(): IsoData {
+    return this.context.store.getState().value;
+  }
 
   state: State = {
     verifyRes: EMPTY_REQUEST,

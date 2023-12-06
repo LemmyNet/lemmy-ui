@@ -1,16 +1,18 @@
-import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
 import { mdToHtml } from "../../markdown";
 import { I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
+import { IsoData } from "../../interfaces";
 
 interface LegalState {
   siteRes: GetSiteResponse;
 }
 
 export class Legal extends Component<any, LegalState> {
-  private isoData = setIsoData(this.context);
+  get isoData(): IsoData {
+    return this.context.store.getState().value;
+  }
   state: LegalState = {
     siteRes: this.isoData.site_res,
   };

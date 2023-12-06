@@ -1,4 +1,4 @@
-import { getRecipientIdFromProps, setIsoData } from "@utils/app";
+import { getRecipientIdFromProps } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
@@ -8,7 +8,7 @@ import {
   GetSiteResponse,
   LemmyHttp,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../../interfaces";
+import { InitialFetchRequest, IsoData } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -38,7 +38,9 @@ export class CreatePrivateMessage extends Component<
   any,
   CreatePrivateMessageState
 > {
-  private isoData = setIsoData<CreatePrivateMessageData>(this.context);
+  get isoData(): IsoData<CreatePrivateMessageData> {
+    return this.context.store.getState().value;
+  }
   state: CreatePrivateMessageState = {
     siteRes: this.isoData.site_res,
     recipientRes: EMPTY_REQUEST,

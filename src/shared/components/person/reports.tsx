@@ -2,7 +2,6 @@ import {
   editCommentReport,
   editPostReport,
   editPrivateMessageReport,
-  setIsoData,
 } from "@utils/app";
 import { randomStr } from "@utils/helpers";
 import { amAdmin } from "@utils/roles";
@@ -29,13 +28,8 @@ import {
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
 import { fetchLimit } from "../../config";
-import { InitialFetchRequest } from "../../interfaces";
-import {
-  FirstLoadService,
-  HttpService,
-  I18NextService,
-  UserService,
-} from "../../services";
+import { InitialFetchRequest, IsoData } from "../../interfaces";
+import { FirstLoadService, HttpService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   LOADING_REQUEST,
@@ -94,7 +88,9 @@ interface ReportsState {
 }
 
 export class Reports extends Component<any, ReportsState> {
-  private isoData = setIsoData<ReportsData>(this.context);
+  get isoData(): IsoData<ReportsData> {
+    return this.context.store.getState().value;
+  }
   state: ReportsState = {
     commentReportsRes: EMPTY_REQUEST,
     postReportsRes: EMPTY_REQUEST,
@@ -144,7 +140,7 @@ export class Reports extends Component<any, ReportsState> {
   }
 
   get documentTitle(): string {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.site_res.my_user;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "reports",
@@ -397,6 +393,7 @@ export class Reports extends Component<any, ReportsState> {
         return (
           <CommentReport
             key={i.id}
+            myUserInfo={this.isoData.site_res.my_user}
             report={i.view as CommentReportView}
             onResolveReport={this.handleResolveCommentReport}
           />

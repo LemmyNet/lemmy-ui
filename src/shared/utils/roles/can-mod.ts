@@ -1,11 +1,14 @@
-import { CommunityModeratorView, PersonView } from "lemmy-js-client";
-import { UserService } from "../../services";
+import {
+  CommunityModeratorView,
+  MyUserInfo,
+  PersonView,
+} from "lemmy-js-client";
 
 export default function canMod(
   creator_id: number,
   mods?: CommunityModeratorView[],
   admins?: PersonView[],
-  myUserInfo = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
   onSelf = false,
 ): boolean {
   // You can do moderator actions only on the mods added after you.
