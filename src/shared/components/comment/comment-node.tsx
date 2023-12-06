@@ -161,7 +161,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     if (!deepEqual(this.props, nextProps)) {
       this.setState({
         showEdit: false,
-        collapsed: false,
         showAdvanced: false,
         createOrEditCommentLoading: false,
         upvoteLoading: false,
