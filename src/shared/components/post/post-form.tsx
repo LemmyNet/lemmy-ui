@@ -263,17 +263,16 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           community_id: getIdFromString(selectedCommunityChoice.value),
         },
         communitySearchOptions: [selectedCommunityChoice].concat(
-          (
-            this.props.initialCommunities?.map(cv => communityToChoice(cv)) ??
-            []
-          ).filter(option => option.value !== selectedCommunityChoice.value),
+          (this.props.initialCommunities?.map(communityToChoice) ?? []).filter(
+            option => option.value !== selectedCommunityChoice.value,
+          ),
         ),
       };
     } else {
       this.state = {
         ...this.state,
         communitySearchOptions:
-          this.props.initialCommunities?.map(cv => communityToChoice(cv)) ?? [],
+          this.props.initialCommunities?.map(communityToChoice) ?? [],
       };
     }
 
