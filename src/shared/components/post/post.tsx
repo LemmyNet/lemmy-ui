@@ -18,7 +18,7 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "@utils/browser";
-import { debounce, randomStr } from "@utils/helpers";
+import { debounce, getApubName, randomStr } from "@utils/helpers";
 import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
@@ -753,7 +753,9 @@ export class Post extends Component<any, PostState> {
     const addModRes = await HttpService.client.addModToCommunity(form);
     this.updateModerators(addModRes);
     if (addModRes.state === "success") {
-      toast(form.added ? "Added moderator" : "Removed moderator");
+      toast(
+        I18NextService.i18n.t(form.added ? "appointed_mod" : "removed_mod"),
+      );
     }
   }
 
@@ -841,7 +843,11 @@ export class Post extends Component<any, PostState> {
     const deleteCommentRes = await HttpService.client.deleteComment(form);
     this.findAndUpdateComment(deleteCommentRes);
     if (deleteCommentRes.state === "success") {
-      toast(form.deleted ? "Deleted comment" : "Restored comment");
+      toast(
+        I18NextService.i18n.t(
+          form.deleted ? "deleted_comment" : "undeleted_comment",
+        ),
+      );
     }
   }
 
@@ -849,7 +855,9 @@ export class Post extends Component<any, PostState> {
     const deleteRes = await HttpService.client.deletePost(form);
     this.updatePost(deleteRes);
     if (deleteRes.state === "success") {
-      toast(form.deleted ? "Deleted post" : "Undeleted post");
+      toast(
+        I18NextService.i18n.t(form.deleted ? "deleted_post" : "undeleted_post"),
+      );
     }
   }
 
@@ -857,7 +865,9 @@ export class Post extends Component<any, PostState> {
     const removeRes = await HttpService.client.removePost(form);
     this.updatePost(removeRes);
     if (removeRes.state === "success") {
-      toast(form.removed ? "Removed post" : "Restored post");
+      toast(
+        I18NextService.i18n.t(form.removed ? "removed_post" : "restored_post"),
+      );
     }
   }
 
@@ -865,7 +875,11 @@ export class Post extends Component<any, PostState> {
     const removeCommentRes = await HttpService.client.removeComment(form);
     this.findAndUpdateComment(removeCommentRes);
     if (removeCommentRes.state === "success") {
-      toast(form.removed ? "Removed comment" : "Restored comment");
+      toast(
+        I18NextService.i18n.t(
+          form.removed ? "removed_comment" : "restored_comment",
+        ),
+      );
     }
   }
 
@@ -922,7 +936,9 @@ export class Post extends Component<any, PostState> {
     const lockRes = await HttpService.client.lockPost(form);
     this.updatePost(lockRes);
     if (lockRes.state === "success") {
-      toast(form.locked ? "Locked post" : "Unlocked post");
+      toast(
+        I18NextService.i18n.t(form.locked ? "locked_post" : "unlocked_post"),
+      );
     }
   }
 
@@ -931,9 +947,11 @@ export class Post extends Component<any, PostState> {
     this.findAndUpdateComment(distinguishRes);
     if (distinguishRes.state === "success") {
       toast(
-        form.distinguished
-          ? "Distinguished comment"
-          : "Comment no longer distinguished",
+        I18NextService.i18n.t(
+          form.distinguished
+            ? "distinguished_comment"
+            : "undistinguished_comment",
+        ),
       );
     }
   }
@@ -943,7 +961,9 @@ export class Post extends Component<any, PostState> {
 
     if (addAdminRes.state === "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
-      toast(form.added ? "Added admin" : "Removed admin");
+      toast(
+        I18NextService.i18n.t(form.added ? "appointed_admin" : "removed_admin"),
+      );
     }
   }
 
@@ -952,7 +972,7 @@ export class Post extends Component<any, PostState> {
       await HttpService.client.transferCommunity(form);
     this.updateCommunityFull(transferCommunityRes);
     if (transferCommunityRes.state === "success") {
-      toast("Community successfully transferred");
+      toast(I18NextService.i18n.t("transferred_community"));
     }
   }
 
@@ -979,11 +999,15 @@ export class Post extends Component<any, PostState> {
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
-    if (banRes.state === "success") {
+    if (banRes.state === "success" && this.state.postRes.state === "success") {
       toast(
-        form.ban
-          ? "Banned user from community"
-          : "Unbanned user from community",
+        I18NextService.i18n.t(
+          form.ban ? "banned_from_community" : "unbanned_from_community",
+          {
+            user: getApubName(this.state.postRes.data.post_view.creator),
+            community: getApubName(this.state.postRes.data.post_view.community),
+          },
+        ),
       );
     }
   }
@@ -991,8 +1015,15 @@ export class Post extends Component<any, PostState> {
   async handleBanPerson(form: BanPerson) {
     const banRes = await HttpService.client.banPerson(form);
     this.updateBan(banRes);
-    if (banRes.state === "success") {
-      toast(form.ban ? "Banned user" : "Unbanned user");
+    if (banRes.state === "success" && this.state.postRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(
+          form.ban ? "banned_from_site" : "unbanned_from_site",
+          {
+            user: getApubName(this.state.postRes.data.post_view.creator),
+          },
+        ),
+      );
     }
   }
 

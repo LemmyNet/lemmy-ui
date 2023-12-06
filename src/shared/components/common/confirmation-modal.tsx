@@ -85,15 +85,15 @@ export default class ConfirmationModal extends Component<
         id="confirmModal"
         tabIndex={-1}
         aria-hidden
-        aria-label="Confirm"
+        aria-labelledby="#confirmationModalTitle"
         data-bs-backdrop="static"
         ref={this.modalDivRef}
       >
         <div className="modal-dialog modal-fullscreen-sm-down">
           <div className="modal-content">
             <header className="modal-header">
-              <h3 className="modal-title" id="moderationModalTitle">
-                Confirmation Required
+              <h3 className="modal-title" id="confirmationModalTitle">
+                {I18NextService.i18n.t("confirmation_required")}
               </h3>
             </header>
             <div className="modal-body text-center align-middle text-body">

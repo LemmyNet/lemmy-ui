@@ -1,7 +1,7 @@
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import { I18NextService } from "../../services/I18NextService";
 import { PurgeWarning, Spinner } from "./icon";
-import { hostname, randomStr } from "@utils/helpers";
+import { getApubName, randomStr } from "@utils/helpers";
 import type { Modal } from "bootstrap";
 import classNames from "classnames";
 import { Community, Person } from "lemmy-js-client";
@@ -107,10 +107,6 @@ async function handleSubmit(i: ModActionFormModal, event: any) {
     loading: false,
     reason: "",
   });
-}
-
-function getApubName({ name, actor_id }: { name: string; actor_id: string }) {
-  return `${name}@${hostname(actor_id)}`;
 }
 
 export default class ModActionFormModal extends Component<
@@ -342,57 +338,62 @@ export default class ModActionFormModal extends Component<
   get headerText() {
     switch (this.props.modActionType) {
       case "site-ban": {
-        return `${I18NextService.i18n.t(
-          this.props.isBanned ? "unban" : "ban",
-        )} ${getApubName(this.props.creator)}`;
+        return I18NextService.i18n.t(
+          this.props.isBanned ? "unban_with_name" : "ban_with_name",
+          {
+            user: getApubName(this.props.creator),
+          },
+        );
       }
 
       case "community-ban": {
-        return `${I18NextService.i18n.t(
-          this.props.isBanned ? "unban" : "ban",
-        )} ${getApubName(this.props.creator)} from ${getApubName(
-          this.props.community,
-        )}`;
+        return I18NextService.i18n.t(
+          this.props.isBanned
+            ? "unban_from_community_with_name"
+            : "ban_from_community_with_name",
+          {
+            user: getApubName(this.props.creator),
+            community: getApubName(this.props.community),
+          },
+        );
       }
 
       case "purge-post": {
-        return "Purge Post";
+        return I18NextService.i18n.t("purge_post");
       }
 
       case "purge-comment": {
-        return "Purge Comment";
+        return I18NextService.i18n.t("purge_comment");
       }
 
       case "purge-person": {
-        return `${I18NextService.i18n.t("purge")} ${getApubName(
-          this.props.creator,
-        )}`;
+        return I18NextService.i18n.t("purge_user_with_name", {
+          user: getApubName(this.props.creator),
+        });
       }
 
       case "remove-post": {
-        return (
-          I18NextService.i18n.t(this.props.isRemoved ? "restore" : "remove") +
-          " post"
+        return I18NextService.i18n.t(
+          this.props.isRemoved ? "restore_post" : "remove_post",
         );
       }
 
       case "remove-comment": {
-        return (
-          I18NextService.i18n.t(this.props.isRemoved ? "restore" : "remove") +
-          " comment"
+        return I18NextService.i18n.t(
+          this.props.isRemoved ? "restore_comment" : "remove_comment",
         );
       }
 
       case "report-post": {
-        return "Report post";
+        return I18NextService.i18n.t("report_post");
       }
 
       case "report-comment": {
-        return "Report comment";
+        return I18NextService.i18n.t("report_comment");
       }
 
       case "report-message": {
-        return "Report message";
+        return I18NextService.i18n.t("report_message");
       }
     }
   }
@@ -426,28 +427,36 @@ export default class ModActionFormModal extends Component<
   }
 
   get loadingText() {
+    let translation: string;
+
     switch (this.props.modActionType) {
       case "site-ban":
       case "community-ban": {
-        return this.props.isBanned ? "Unbanning" : "Banning";
+        translation = this.props.isBanned ? "unbanning" : "banning";
+        break;
       }
 
       case "purge-post":
       case "purge-comment":
       case "purge-person": {
-        return "Purging";
+        translation = "purging";
+        break;
       }
 
       case "remove-post":
       case "remove-comment": {
-        return this.props.isRemoved ? "Restoring" : "Removed";
+        translation = this.props.isRemoved ? "restoring" : "removing";
+        break;
       }
 
       case "report-post":
       case "report-comment":
       case "report-message": {
-        return "Creating report";
+        translation = "creating_report";
+        break;
       }
     }
+
+    return I18NextService.i18n.t(translation);
   }
 }

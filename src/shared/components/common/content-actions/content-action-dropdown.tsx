@@ -23,6 +23,7 @@ import { Link } from "inferno-router";
 import ConfirmationModal from "../confirmation-modal";
 import ModActionFormModal, { BanUpdateForm } from "../mod-action-form-modal";
 import { BanType, PurgeType } from "../../../interfaces";
+import { getApubName, hostname } from "@utils/helpers";
 
 interface ContentActionDropdownPropsBase {
   onSave: () => Promise<void>;
@@ -329,7 +330,7 @@ export default class ContentActionDropdown extends Component<
                         onClick={this.toggleBanFromCommunityShow}
                         label={I18NextService.i18n.t(
                           creator_banned_from_community
-                            ? "unban"
+                            ? "unban_from_community"
                             : "ban_from_community",
                         )}
                         icon={creator_banned_from_community ? "unban" : "ban"}
@@ -528,8 +529,14 @@ export default class ContentActionDropdown extends Component<
       showAppointModDialog,
       showAppointAdminDialog,
     } = this.state;
-    const { removed, creator, creator_banned_from_community, community } =
-      this.contentInfo;
+    const {
+      removed,
+      creator,
+      creator_banned_from_community,
+      community,
+      creator_is_admin,
+      creator_is_moderator,
+    } = this.contentInfo;
     const {
       onReport,
       onRemove,
@@ -609,8 +616,11 @@ export default class ContentActionDropdown extends Component<
         {showTransferCommunityDialog && (
           <ConfirmationModal
             show={showTransferCommunityDialog}
-            message="Are you sure you want to transfer the community x to y?"
-            loadingMessage="Transferring community"
+            message={I18NextService.i18n.t("transfer_community_are_you_sure", {
+              user: getApubName(creator),
+              community: getApubName(community),
+            })}
+            loadingMessage={I18NextService.i18n.t("transferring_community")}
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onTransferCommunity)}
           />
@@ -618,8 +628,18 @@ export default class ContentActionDropdown extends Component<
         {showAppointModDialog && (
           <ConfirmationModal
             show={showAppointModDialog}
-            message="Are you sure you want to appoint x as a moderator for y??"
-            loadingMessage="Appointing moderator"
+            message={I18NextService.i18n.t(
+              creator_is_moderator
+                ? "remove_as_mod_are_you_sure"
+                : "appoint_as_mod_are_you_sure",
+              {
+                user: getApubName(creator),
+                community: getApubName(creator),
+              },
+            )}
+            loadingMessage={I18NextService.i18n.t(
+              creator_is_moderator ? "removing_mod" : "appointing_mod",
+            )}
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onAppointCommunityMod)}
           />
@@ -627,8 +647,18 @@ export default class ContentActionDropdown extends Component<
         {showAppointAdminDialog && (
           <ConfirmationModal
             show={showAppointAdminDialog}
-            message="Are you sure you want to appoint x as an admin for y??"
-            loadingMessage="Appointing admin"
+            message={I18NextService.i18n.t(
+              creator_is_admin
+                ? "removing_as_admin_are_you_sure"
+                : "appoint_as_admin_are_you_sure",
+              {
+                user: getApubName(creator),
+                instance: hostname(creator.actor_id),
+              },
+            )}
+            loadingMessage={I18NextService.i18n.t(
+              creator_is_admin ? "removing_admin" : "appointing_admin",
+            )}
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onAppointAdmin)}
           />
