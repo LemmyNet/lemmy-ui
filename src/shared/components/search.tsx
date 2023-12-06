@@ -704,23 +704,23 @@ export class Search extends Component<any, SearchState> {
                   siteLanguages={this.state.siteRes.discussion_languages}
                   viewOnly
                   // All of these are unused, since its view only
-                  onPostEdit={() => {}}
-                  onPostVote={() => {}}
-                  onPostReport={() => {}}
-                  onBlockPerson={() => {}}
-                  onLockPost={() => {}}
-                  onDeletePost={() => {}}
-                  onRemovePost={() => {}}
-                  onSavePost={() => {}}
-                  onFeaturePost={() => {}}
-                  onPurgePerson={() => {}}
-                  onPurgePost={() => {}}
-                  onBanPersonFromCommunity={() => {}}
-                  onBanPerson={() => {}}
-                  onAddModToCommunity={() => {}}
-                  onAddAdmin={() => {}}
-                  onTransferCommunity={() => {}}
-                  onMarkPostAsRead={() => {}}
+                  onPostEdit={async () => EMPTY_REQUEST}
+                  onPostVote={async () => EMPTY_REQUEST}
+                  onPostReport={async () => {}}
+                  onBlockPerson={async () => {}}
+                  onLockPost={async () => {}}
+                  onDeletePost={async () => {}}
+                  onRemovePost={async () => {}}
+                  onSavePost={async () => {}}
+                  onFeaturePost={async () => {}}
+                  onPurgePerson={async () => {}}
+                  onPurgePost={async () => {}}
+                  onBanPersonFromCommunity={async () => {}}
+                  onBanPerson={async () => {}}
+                  onAddModToCommunity={async () => {}}
+                  onAddAdmin={async () => {}}
+                  onTransferCommunity={async () => {}}
+                  onMarkPostAsRead={async () => {}}
                 />
               )}
               {i.type_ === "comments" && (
@@ -742,24 +742,24 @@ export class Search extends Component<any, SearchState> {
                   siteLanguages={this.state.siteRes.discussion_languages}
                   // All of these are unused, since its viewonly
                   finished={new Map()}
-                  onSaveComment={() => {}}
-                  onBlockPerson={() => {}}
-                  onDeleteComment={() => {}}
-                  onRemoveComment={() => {}}
-                  onCommentVote={() => {}}
-                  onCommentReport={() => {}}
-                  onDistinguishComment={() => {}}
-                  onAddModToCommunity={() => {}}
-                  onAddAdmin={() => {}}
-                  onTransferCommunity={() => {}}
-                  onPurgeComment={() => {}}
-                  onPurgePerson={() => {}}
+                  onSaveComment={async () => {}}
+                  onBlockPerson={async () => {}}
+                  onDeleteComment={async () => {}}
+                  onRemoveComment={async () => {}}
+                  onCommentVote={async () => {}}
+                  onCommentReport={async () => {}}
+                  onDistinguishComment={async () => {}}
+                  onAddModToCommunity={async () => {}}
+                  onAddAdmin={async () => {}}
+                  onTransferCommunity={async () => {}}
+                  onPurgeComment={async () => {}}
+                  onPurgePerson={async () => {}}
                   onCommentReplyRead={() => {}}
                   onPersonMentionRead={() => {}}
-                  onBanPersonFromCommunity={() => {}}
-                  onBanPerson={() => {}}
-                  onCreateComment={() => Promise.resolve(EMPTY_REQUEST)}
-                  onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
+                  onBanPersonFromCommunity={async () => {}}
+                  onBanPerson={async () => {}}
+                  onCreateComment={async () => EMPTY_REQUEST}
+                  onEditComment={async () => EMPTY_REQUEST}
                 />
               )}
               {i.type_ === "communities" && (
@@ -803,24 +803,24 @@ export class Search extends Component<any, SearchState> {
         siteLanguages={siteRes.discussion_languages}
         // All of these are unused, since its viewonly
         finished={new Map()}
-        onSaveComment={() => {}}
-        onBlockPerson={() => {}}
-        onDeleteComment={() => {}}
-        onRemoveComment={() => {}}
-        onCommentVote={() => {}}
-        onCommentReport={() => {}}
-        onDistinguishComment={() => {}}
-        onAddModToCommunity={() => {}}
-        onAddAdmin={() => {}}
-        onTransferCommunity={() => {}}
-        onPurgeComment={() => {}}
-        onPurgePerson={() => {}}
+        onSaveComment={async () => {}}
+        onBlockPerson={async () => {}}
+        onDeleteComment={async () => {}}
+        onRemoveComment={async () => {}}
+        onCommentVote={async () => {}}
+        onCommentReport={async () => {}}
+        onDistinguishComment={async () => {}}
+        onAddModToCommunity={async () => {}}
+        onAddAdmin={async () => {}}
+        onTransferCommunity={async () => {}}
+        onPurgeComment={async () => {}}
+        onPurgePerson={async () => {}}
         onCommentReplyRead={() => {}}
         onPersonMentionRead={() => {}}
-        onBanPersonFromCommunity={() => {}}
-        onBanPerson={() => {}}
-        onCreateComment={() => Promise.resolve(EMPTY_REQUEST)}
-        onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
+        onBanPersonFromCommunity={async () => {}}
+        onBanPerson={async () => {}}
+        onCreateComment={async () => EMPTY_REQUEST}
+        onEditComment={async () => EMPTY_REQUEST}
       />
     );
   }
@@ -855,22 +855,22 @@ export class Search extends Component<any, SearchState> {
                 siteLanguages={siteRes.discussion_languages}
                 viewOnly
                 // All of these are unused, since its view only
-                onPostEdit={() => {}}
-                onPostVote={() => {}}
-                onPostReport={() => {}}
-                onBlockPerson={() => {}}
-                onLockPost={() => {}}
-                onDeletePost={() => {}}
-                onRemovePost={() => {}}
-                onSavePost={() => {}}
-                onFeaturePost={() => {}}
-                onPurgePerson={() => {}}
-                onPurgePost={() => {}}
-                onBanPersonFromCommunity={() => {}}
-                onBanPerson={() => {}}
-                onAddModToCommunity={() => {}}
-                onAddAdmin={() => {}}
-                onTransferCommunity={() => {}}
+                onPostEdit={async () => EMPTY_REQUEST}
+                onPostVote={async () => EMPTY_REQUEST}
+                onPostReport={async () => {}}
+                onBlockPerson={async () => {}}
+                onLockPost={async () => {}}
+                onDeletePost={async () => {}}
+                onRemovePost={async () => {}}
+                onSavePost={async () => {}}
+                onFeaturePost={async () => {}}
+                onPurgePerson={async () => {}}
+                onPurgePost={async () => {}}
+                onBanPersonFromCommunity={async () => {}}
+                onBanPerson={async () => {}}
+                onAddModToCommunity={async () => {}}
+                onAddAdmin={async () => {}}
+                onTransferCommunity={async () => {}}
                 onMarkPostAsRead={() => {}}
               />
             </div>

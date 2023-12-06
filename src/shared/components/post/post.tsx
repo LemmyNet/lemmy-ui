@@ -18,7 +18,7 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "@utils/browser";
-import { debounce, randomStr } from "@utils/helpers";
+import { debounce, getApubName, randomStr } from "@utils/helpers";
 import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
@@ -752,6 +752,11 @@ export class Post extends Component<any, PostState> {
   async handleAddModToCommunity(form: AddModToCommunity) {
     const addModRes = await HttpService.client.addModToCommunity(form);
     this.updateModerators(addModRes);
+    if (addModRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(form.added ? "appointed_mod" : "removed_mod"),
+      );
+    }
   }
 
   async handleFollow(form: FollowCommunity) {
@@ -837,21 +842,45 @@ export class Post extends Component<any, PostState> {
   async handleDeleteComment(form: DeleteComment) {
     const deleteCommentRes = await HttpService.client.deleteComment(form);
     this.findAndUpdateComment(deleteCommentRes);
+    if (deleteCommentRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(
+          form.deleted ? "deleted_comment" : "undeleted_comment",
+        ),
+      );
+    }
   }
 
   async handleDeletePost(form: DeletePost) {
     const deleteRes = await HttpService.client.deletePost(form);
     this.updatePost(deleteRes);
+    if (deleteRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(form.deleted ? "deleted_post" : "undeleted_post"),
+      );
+    }
   }
 
   async handleRemovePost(form: RemovePost) {
     const removeRes = await HttpService.client.removePost(form);
     this.updatePost(removeRes);
+    if (removeRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(form.removed ? "removed_post" : "restored_post"),
+      );
+    }
   }
 
   async handleRemoveComment(form: RemoveComment) {
     const removeCommentRes = await HttpService.client.removeComment(form);
     this.findAndUpdateComment(removeCommentRes);
+    if (removeCommentRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(
+          form.removed ? "removed_comment" : "restored_comment",
+        ),
+      );
+    }
   }
 
   async handleSaveComment(form: SaveComment) {
@@ -867,6 +896,13 @@ export class Post extends Component<any, PostState> {
   async handleFeaturePost(form: FeaturePost) {
     const featureRes = await HttpService.client.featurePost(form);
     this.updatePost(featureRes);
+    if (featureRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(
+          form.featured ? "featured_post" : "unfeatured_post",
+        ),
+      );
+    }
   }
 
   async handleCommentVote(form: CreateCommentLike) {
@@ -877,11 +913,13 @@ export class Post extends Component<any, PostState> {
   async handlePostVote(form: CreatePostLike) {
     const voteRes = await HttpService.client.likePost(form);
     this.updatePost(voteRes);
+    return voteRes;
   }
 
   async handlePostEdit(form: EditPost) {
     const res = await HttpService.client.editPost(form);
     this.updatePost(res);
+    return res;
   }
 
   async handleCommentReport(form: CreateCommentReport) {
@@ -901,11 +939,25 @@ export class Post extends Component<any, PostState> {
   async handleLockPost(form: LockPost) {
     const lockRes = await HttpService.client.lockPost(form);
     this.updatePost(lockRes);
+    if (lockRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(form.locked ? "locked_post" : "unlocked_post"),
+      );
+    }
   }
 
   async handleDistinguishComment(form: DistinguishComment) {
     const distinguishRes = await HttpService.client.distinguishComment(form);
     this.findAndUpdateComment(distinguishRes);
+    if (distinguishRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(
+          form.distinguished
+            ? "distinguished_comment"
+            : "undistinguished_comment",
+        ),
+      );
+    }
   }
 
   async handleAddAdmin(form: AddAdmin) {
@@ -913,6 +965,9 @@ export class Post extends Component<any, PostState> {
 
     if (addAdminRes.state === "success") {
       this.setState(s => ((s.siteRes.admins = addAdminRes.data.admins), s));
+      toast(
+        I18NextService.i18n.t(form.added ? "appointed_admin" : "removed_admin"),
+      );
     }
   }
 
@@ -920,6 +975,9 @@ export class Post extends Component<any, PostState> {
     const transferCommunityRes =
       await HttpService.client.transferCommunity(form);
     this.updateCommunityFull(transferCommunityRes);
+    if (transferCommunityRes.state === "success") {
+      toast(I18NextService.i18n.t("transferred_community"));
+    }
   }
 
   async handleFetchChildren(form: GetComments) {
@@ -944,12 +1002,33 @@ export class Post extends Component<any, PostState> {
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBan(banRes);
+    this.updateBanFromCommunity(banRes);
+    if (banRes.state === "success" && this.state.postRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(
+          form.ban ? "banned_from_community" : "unbanned_from_community",
+          {
+            user: getApubName(this.state.postRes.data.post_view.creator),
+            community: getApubName(this.state.postRes.data.post_view.community),
+          },
+        ),
+      );
+    }
   }
 
   async handleBanPerson(form: BanPerson) {
     const banRes = await HttpService.client.banPerson(form);
     this.updateBan(banRes);
+    if (banRes.state === "success" && this.state.postRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(
+          form.ban ? "banned_from_site" : "unbanned_from_site",
+          {
+            user: getApubName(this.state.postRes.data.post_view.creator),
+          },
+        ),
+      );
+    }
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {

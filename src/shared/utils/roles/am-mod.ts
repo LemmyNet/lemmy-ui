@@ -6,6 +6,6 @@ export default function amMod(
   myUserInfo = UserService.Instance.myUserInfo,
 ): boolean {
   return myUserInfo
-    ? myUserInfo.moderates.map(cmv => cmv.community.id).includes(communityId)
+    ? myUserInfo.moderates.some(cmv => cmv.community.id === communityId)
     : false;
 }

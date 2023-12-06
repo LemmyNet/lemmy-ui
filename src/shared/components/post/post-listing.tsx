@@ -1,20 +1,9 @@
 import { myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
-import {
-  capitalizeFirstLetter,
-  futureDaysToUnixTime,
-  hostname,
-} from "@utils/helpers";
+import { futureDaysToUnixTime, hostname } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
-import {
-  amAdmin,
-  amCommunityCreator,
-  amMod,
-  canAdmin,
-  canMod,
-  isBanned,
-} from "@utils/roles";
+import { canAdmin, canMod } from "@utils/roles";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -34,6 +23,7 @@ import {
   LockPost,
   MarkPostAsRead,
   PersonView,
+  PostResponse,
   PostView,
   PurgePerson,
   PurgePost,
@@ -42,16 +32,11 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { relTags } from "../../config";
-import {
-  BanType,
-  PostFormParams,
-  PurgeType,
-  VoteContentType,
-} from "../../interfaces";
+import { VoteContentType } from "../../interfaces";
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { setupTippy } from "../../tippy";
-import { Icon, PurgeWarning, Spinner } from "../common/icon";
+import { Icon } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
 import { UserBadges } from "../common/user-badges";
@@ -60,41 +45,18 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
-import ReportForm from "../common/report-form";
+import { BanUpdateForm } from "../common/mod-action-form-modal";
+import PostActionDropdown from "../common/content-actions/post-action-dropdown";
+import { CrossPostParams } from "@utils/types";
+import { RequestState } from "../../services/HttpService";
 
-interface PostListingState {
+type PostListingState = {
   showEdit: boolean;
-  showRemoveDialog: boolean;
-  showPurgeDialog: boolean;
-  purgeReason?: string;
-  purgeType?: PurgeType;
-  purgeLoading: boolean;
-  removeReason?: string;
-  showBanDialog: boolean;
-  banReason?: string;
-  banExpireDays?: number;
-  banType?: BanType;
-  removeData?: boolean;
-  showConfirmTransferSite: boolean;
-  showConfirmTransferCommunity: boolean;
   imageExpanded: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
-  showMoreMobile: boolean;
   showBody: boolean;
-  showReportDialog: boolean;
-  blockLoading: boolean;
-  lockLoading: boolean;
-  deleteLoading: boolean;
-  removeLoading: boolean;
-  saveLoading: boolean;
-  featureCommunityLoading: boolean;
-  featureLocalLoading: boolean;
-  banLoading: boolean;
-  addModLoading: boolean;
-  addAdminLoading: boolean;
-  transferLoading: boolean;
-}
+};
 
 interface PostListingProps {
   post_view: PostView;
@@ -112,54 +74,32 @@ interface PostListingProps {
   enableDownvotes?: boolean;
   enableNsfw?: boolean;
   viewOnly?: boolean;
-  onPostEdit(form: EditPost): void;
-  onPostVote(form: CreatePostLike): void;
-  onPostReport(form: CreatePostReport): void;
-  onBlockPerson(form: BlockPerson): void;
-  onLockPost(form: LockPost): void;
-  onDeletePost(form: DeletePost): void;
-  onRemovePost(form: RemovePost): void;
-  onSavePost(form: SavePost): void;
-  onFeaturePost(form: FeaturePost): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgePost(form: PurgePost): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onTransferCommunity(form: TransferCommunity): void;
+  onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
+  onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
+  onPostReport(form: CreatePostReport): Promise<void>;
+  onBlockPerson(form: BlockPerson): Promise<void>;
+  onLockPost(form: LockPost): Promise<void>;
+  onDeletePost(form: DeletePost): Promise<void>;
+  onRemovePost(form: RemovePost): Promise<void>;
+  onSavePost(form: SavePost): Promise<void>;
+  onFeaturePost(form: FeaturePost): Promise<void>;
+  onPurgePerson(form: PurgePerson): Promise<void>;
+  onPurgePost(form: PurgePost): Promise<void>;
+  onBanPersonFromCommunity(form: BanFromCommunity): Promise<void>;
+  onBanPerson(form: BanPerson): Promise<void>;
+  onAddModToCommunity(form: AddModToCommunity): Promise<void>;
+  onAddAdmin(form: AddAdmin): Promise<void>;
+  onTransferCommunity(form: TransferCommunity): Promise<void>;
   onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
 export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
-    showRemoveDialog: false,
-    showPurgeDialog: false,
-    purgeType: PurgeType.Person,
-    showBanDialog: false,
-    banType: BanType.Community,
-    removeData: false,
-    showConfirmTransferSite: false,
-    showConfirmTransferCommunity: false,
     imageExpanded: false,
     viewSource: false,
     showAdvanced: false,
-    showMoreMobile: false,
     showBody: false,
-    showReportDialog: false,
-    purgeLoading: false,
-    blockLoading: false,
-    lockLoading: false,
-    deleteLoading: false,
-    removeLoading: false,
-    saveLoading: false,
-    featureCommunityLoading: false,
-    featureLocalLoading: false,
-    banLoading: false,
-    addModLoading: false,
-    addAdminLoading: false,
-    transferLoading: false,
   };
 
   constructor(props: any, context: any) {
@@ -167,7 +107,23 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     this.handleEditPost = this.handleEditPost.bind(this);
     this.handleEditCancel = this.handleEditCancel.bind(this);
-    this.handleReportSubmit = this.handleReportSubmit.bind(this);
+    this.handleEditClick = this.handleEditClick.bind(this);
+    this.handleReport = this.handleReport.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
+    this.handleSavePost = this.handleSavePost.bind(this);
+    this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleDeletePost = this.handleDeletePost.bind(this);
+    this.handleModLock = this.handleModLock.bind(this);
+    this.handleModFeaturePostCommunity =
+      this.handleModFeaturePostCommunity.bind(this);
+    this.handleModFeaturePostLocal = this.handleModFeaturePostLocal.bind(this);
+    this.handleAppointCommunityMod = this.handleAppointCommunityMod.bind(this);
+    this.handleAppointAdmin = this.handleAppointAdmin.bind(this);
+    this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
+    this.handleModBanFromCommunity = this.handleModBanFromCommunity.bind(this);
+    this.handleModBanFromSite = this.handleModBanFromSite.bind(this);
+    this.handlePurgePerson = this.handlePurgePerson.bind(this);
+    this.handlePurgePost = this.handlePurgePost.bind(this);
   }
 
   componentDidMount(): void {
@@ -176,25 +132,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         imageExpanded:
           UserService.Instance.myUserInfo.local_user_view.local_user
             .auto_expand,
-      });
-    }
-  }
-
-  componentWillReceiveProps(nextProps: PostListingProps) {
-    if (this.props !== nextProps) {
-      this.setState({
-        purgeLoading: false,
-        blockLoading: false,
-        lockLoading: false,
-        deleteLoading: false,
-        removeLoading: false,
-        saveLoading: false,
-        featureCommunityLoading: false,
-        featureLocalLoading: false,
-        banLoading: false,
-        addModLoading: false,
-        addAdminLoading: false,
-        transferLoading: false,
       });
     }
   }
@@ -602,8 +539,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    const pv = this.postView;
-    const post = pv.post;
+    const {
+      admins,
+      moderators,
+      viewOnly,
+      showBody,
+      onPostVote,
+      enableDownvotes,
+    } = this.props;
+    const {
+      post: { local, ap_id, id, body },
+      counts,
+      my_vote,
+    } = this.postView;
 
     return (
       <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
@@ -617,138 +565,53 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <Icon icon="share" inline />
           </button>
         )}
-        {!post.local && (
+        {local && (
           <a
             className="btn btn-sm btn-link btn-animate text-muted py-0"
             title={I18NextService.i18n.t("link")}
-            href={post.ap_id}
+            href={ap_id}
           >
             <Icon icon="fedilink" inline />
           </a>
         )}
-        {mobile && !this.props.viewOnly && (
+        {mobile && !viewOnly && (
           <VoteButtonsCompact
             voteContentType={VoteContentType.Post}
-            id={this.postView.post.id}
-            onVote={this.props.onPostVote}
-            enableDownvotes={this.props.enableDownvotes}
-            counts={this.postView.counts}
-            my_vote={this.postView.my_vote}
+            id={id}
+            onVote={onPostVote}
+            enableDownvotes={enableDownvotes}
+            counts={counts}
+            my_vote={my_vote}
           />
         )}
 
-        {this.props.showBody && pv.post.body && this.viewSourceButton}
+        {showBody && body && this.viewSourceButton}
 
-        {UserService.Instance.myUserInfo &&
-          !this.props.viewOnly &&
-          this.postActions()}
+        {UserService.Instance.myUserInfo && !viewOnly && (
+          <PostActionDropdown
+            postView={this.postView}
+            admins={admins}
+            moderators={moderators}
+            crossPostParams={this.crossPostParams}
+            onSave={this.handleSavePost}
+            onReport={this.handleReport}
+            onBlock={this.handleBlockPerson}
+            onEdit={this.handleEditClick}
+            onDelete={this.handleDeletePost}
+            onLock={this.handleModLock}
+            onFeatureCommunity={this.handleModFeaturePostCommunity}
+            onFeatureLocal={this.handleModFeaturePostLocal}
+            onRemove={this.handleRemove}
+            onBanFromCommunity={this.handleModBanFromCommunity}
+            onAppointCommunityMod={this.handleAppointCommunityMod}
+            onTransferCommunity={this.handleTransferCommunity}
+            onBanFromSite={this.handleModBanFromSite}
+            onPurgeUser={this.handlePurgePerson}
+            onPurgeContent={this.handlePurgePost}
+            onAppointAdmin={this.handleAppointAdmin}
+          />
+        )}
       </div>
-    );
-  }
-
-  postActions() {
-    // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
-    // Possible enhancement: Make each button a component.
-    const pv = this.postView;
-    const post = pv.post;
-
-    return (
-      <>
-        {this.saveButton}
-        {this.crossPostButton}
-
-        <div className="dropdown">
-          <button
-            className="btn btn-sm btn-link btn-animate text-muted py-0 dropdown-toggle"
-            onClick={linkEvent(this, this.handleShowAdvanced)}
-            data-tippy-content={I18NextService.i18n.t("more")}
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            aria-controls={`advancedButtonsDropdown${post.id}`}
-            aria-label={I18NextService.i18n.t("more")}
-          >
-            <Icon icon="more-vertical" inline />
-          </button>
-
-          <ul
-            className="dropdown-menu"
-            id={`advancedButtonsDropdown${post.id}`}
-          >
-            {!this.myPost ? (
-              <>
-                <li>{this.reportButton}</li>
-                <li>{this.blockButton}</li>
-              </>
-            ) : (
-              <>
-                <li>{this.editButton}</li>
-                <li>{this.deleteButton}</li>
-              </>
-            )}
-
-            {/* Any mod can do these, not limited to hierarchy*/}
-            {(amMod(this.postView.community.id) || amAdmin()) && (
-              <>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>{this.lockButton}</li>
-                {this.featureButtons}
-              </>
-            )}
-
-            {(this.canMod_ || this.canAdmin_) && (
-              <li>{this.modRemoveButton}</li>
-            )}
-
-            {this.canMod_ && (
-              <>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                {!pv.creator_is_moderator &&
-                  (!pv.creator_banned_from_community ? (
-                    <li>{this.modBanFromCommunityButton}</li>
-                  ) : (
-                    <li>{this.modUnbanFromCommunityButton}</li>
-                  ))}
-                {!pv.creator_banned_from_community && (
-                  <li>{this.addModToCommunityButton}</li>
-                )}
-              </>
-            )}
-
-            {(amCommunityCreator(pv.creator.id, this.props.moderators) ||
-              this.canAdmin_) &&
-              pv.creator_is_moderator && (
-                <li>{this.transferCommunityButton}</li>
-              )}
-
-            {/* Admins can ban from all, and appoint other admins */}
-            {this.canAdmin_ && (
-              <>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                {!pv.creator_is_admin && (
-                  <>
-                    {!isBanned(pv.creator) ? (
-                      <li>{this.modBanButton}</li>
-                    ) : (
-                      <li>{this.modUnbanButton}</li>
-                    )}
-                    <li>{this.purgePersonButton}</li>
-                    <li>{this.purgePostButton}</li>
-                  </>
-                )}
-                {!isBanned(pv.creator) && pv.creator.local && (
-                  <li>{this.toggleAdminButton}</li>
-                )}
-              </>
-            )}
-          </ul>
-        </div>
-      </>
     );
   }
 
@@ -796,121 +659,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       : pv.unread_comments;
   }
 
-  get saveButton() {
-    const saved = this.postView.saved;
-    const label = saved
-      ? I18NextService.i18n.t("unsave")
-      : I18NextService.i18n.t("save");
-    return (
-      <button
-        className="btn btn-sm btn-link btn-animate text-muted py-0"
-        onClick={linkEvent(this, this.handleSavePostClick)}
-        data-tippy-content={label}
-        aria-label={label}
-      >
-        {this.state.saveLoading ? (
-          <Spinner />
-        ) : (
-          <Icon
-            icon="star"
-            classes={classNames({ "text-warning": saved })}
-            inline
-          />
-        )}
-      </button>
-    );
-  }
-
-  get crossPostButton() {
-    return (
-      <Link
-        className="btn btn-sm btn-link btn-animate text-muted py-0"
-        to={{
-          /* Empty string properties are required to satisfy type*/
-          pathname: "/create_post",
-          state: { ...this.crossPostParams },
-          hash: "",
-          key: "",
-          search: "",
-        }}
-        title={I18NextService.i18n.t("cross_post")}
-        data-tippy-content={I18NextService.i18n.t("cross_post")}
-        aria-label={I18NextService.i18n.t("cross_post")}
-      >
-        <Icon icon="copy" inline />
-      </Link>
-    );
-  }
-
-  get reportButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleShowReportDialog)}
-        aria-label={I18NextService.i18n.t("show_report_dialog")}
-      >
-        <Icon classes="me-1" icon="flag" inline />
-        {I18NextService.i18n.t("create_report")}
-      </button>
-    );
-  }
-
-  get blockButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleBlockPersonClick)}
-        aria-label={I18NextService.i18n.t("block_user")}
-      >
-        {this.state.blockLoading ? (
-          <Spinner />
-        ) : (
-          <Icon classes="me-1" icon="slash" inline />
-        )}
-        {I18NextService.i18n.t("block_user")}
-      </button>
-    );
-  }
-
-  get editButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleEditClick)}
-        aria-label={I18NextService.i18n.t("edit")}
-      >
-        <Icon classes="me-1" icon="edit" inline />
-        {I18NextService.i18n.t("edit")}
-      </button>
-    );
-  }
-
-  get deleteButton() {
-    const deleted = this.postView.post.deleted;
-    const label = !deleted
-      ? I18NextService.i18n.t("delete")
-      : I18NextService.i18n.t("restore");
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleDeleteClick)}
-      >
-        {this.state.deleteLoading ? (
-          <Spinner />
-        ) : (
-          <>
-            <Icon
-              icon="trash"
-              classes={classNames("me-1", { "text-danger": deleted })}
-              inline
-            />
-            {label}
-          </>
-        )}
-      </button>
-    );
-  }
-
   get viewSourceButton() {
     return (
       <button
@@ -925,398 +673,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           inline
         />
       </button>
-    );
-  }
-
-  get lockButton() {
-    const locked = this.postView.post.locked;
-    const label = locked
-      ? I18NextService.i18n.t("unlock")
-      : I18NextService.i18n.t("lock");
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleModLock)}
-        aria-label={label}
-      >
-        {this.state.lockLoading ? (
-          <Spinner />
-        ) : (
-          <>
-            <Icon
-              icon="lock"
-              classes={classNames("me-1", { "text-danger": locked })}
-              inline
-            />
-            {capitalizeFirstLetter(label)}
-          </>
-        )}
-      </button>
-    );
-  }
-
-  get featureButtons() {
-    const featuredCommunity = this.postView.post.featured_community;
-    const labelCommunity = featuredCommunity
-      ? I18NextService.i18n.t("unfeature_from_community")
-      : I18NextService.i18n.t("feature_in_community");
-
-    const featuredLocal = this.postView.post.featured_local;
-    const labelLocal = featuredLocal
-      ? I18NextService.i18n.t("unfeature_from_local")
-      : I18NextService.i18n.t("feature_in_local");
-    return (
-      <>
-        <li>
-          <button
-            className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-            onClick={linkEvent(this, this.handleModFeaturePostCommunity)}
-            data-tippy-content={labelCommunity}
-            aria-label={labelCommunity}
-          >
-            {this.state.featureCommunityLoading ? (
-              <Spinner />
-            ) : (
-              <>
-                <Icon
-                  icon="pin"
-                  classes={classNames("me-1", {
-                    "text-success": featuredCommunity,
-                  })}
-                  inline
-                />
-                {I18NextService.i18n.t("community")}
-              </>
-            )}
-          </button>
-        </li>
-        <li>
-          {amAdmin() && (
-            <button
-              className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-              onClick={linkEvent(this, this.handleModFeaturePostLocal)}
-              data-tippy-content={labelLocal}
-              aria-label={labelLocal}
-            >
-              {this.state.featureLocalLoading ? (
-                <Spinner />
-              ) : (
-                <>
-                  <Icon
-                    icon="pin"
-                    classes={classNames("me-1", {
-                      "text-success": featuredLocal,
-                    })}
-                    inline
-                  />
-                  {I18NextService.i18n.t("local")}
-                </>
-              )}
-            </button>
-          )}
-        </li>
-      </>
-    );
-  }
-
-  get modBanFromCommunityButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleModBanFromCommunityShow)}
-      >
-        {I18NextService.i18n.t("ban_from_community")}
-      </button>
-    );
-  }
-
-  get modUnbanFromCommunityButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleModBanFromCommunitySubmit)}
-      >
-        {this.state.banLoading ? <Spinner /> : I18NextService.i18n.t("unban")}
-      </button>
-    );
-  }
-
-  get addModToCommunityButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleAddModToCommunity)}
-      >
-        {this.state.addModLoading ? (
-          <Spinner />
-        ) : this.postView.creator_is_moderator ? (
-          capitalizeFirstLetter(I18NextService.i18n.t("remove_as_mod"))
-        ) : (
-          capitalizeFirstLetter(I18NextService.i18n.t("appoint_as_mod"))
-        )}
-      </button>
-    );
-  }
-
-  get modBanButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleModBanShow)}
-      >
-        {capitalizeFirstLetter(I18NextService.i18n.t("ban_from_site"))}
-      </button>
-    );
-  }
-
-  get modUnbanButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleModBanSubmit)}
-      >
-        {this.state.banLoading ? (
-          <Spinner />
-        ) : (
-          capitalizeFirstLetter(I18NextService.i18n.t("unban_from_site"))
-        )}
-      </button>
-    );
-  }
-
-  get purgePersonButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handlePurgePersonShow)}
-      >
-        {capitalizeFirstLetter(I18NextService.i18n.t("purge_user"))}
-      </button>
-    );
-  }
-
-  get purgePostButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handlePurgePostShow)}
-      >
-        {capitalizeFirstLetter(I18NextService.i18n.t("purge_post"))}
-      </button>
-    );
-  }
-
-  get toggleAdminButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleAddAdmin)}
-      >
-        {this.state.addAdminLoading ? (
-          <Spinner />
-        ) : this.postView.creator_is_admin ? (
-          capitalizeFirstLetter(I18NextService.i18n.t("remove_as_admin"))
-        ) : (
-          capitalizeFirstLetter(I18NextService.i18n.t("appoint_as_admin"))
-        )}
-      </button>
-    );
-  }
-
-  get transferCommunityButton() {
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(this, this.handleShowConfirmTransferCommunity)}
-      >
-        {capitalizeFirstLetter(I18NextService.i18n.t("transfer_community"))}
-      </button>
-    );
-  }
-
-  get modRemoveButton() {
-    const removed = this.postView.post.removed;
-    return (
-      <button
-        className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-        onClick={linkEvent(
-          this,
-          !removed ? this.handleModRemoveShow : this.handleModRemoveSubmit,
-        )}
-      >
-        {/* TODO: Find an icon for this. */}
-        {this.state.removeLoading ? (
-          <Spinner />
-        ) : !removed ? (
-          capitalizeFirstLetter(I18NextService.i18n.t("remove_post"))
-        ) : (
-          <>
-            {capitalizeFirstLetter(I18NextService.i18n.t("restore"))}{" "}
-            {I18NextService.i18n.t("post")}
-          </>
-        )}
-      </button>
-    );
-  }
-
-  removeAndBanDialogs() {
-    const post = this.postView;
-    const purgeTypeText =
-      this.state.purgeType === PurgeType.Post
-        ? I18NextService.i18n.t("purge_post")
-        : `${I18NextService.i18n.t("purge")} ${post.creator.name}`;
-    return (
-      <>
-        {this.state.showRemoveDialog && (
-          <form
-            className="form-inline"
-            onSubmit={linkEvent(this, this.handleModRemoveSubmit)}
-          >
-            <label
-              className="visually-hidden"
-              htmlFor="post-listing-remove-reason"
-            >
-              {I18NextService.i18n.t("reason")}
-            </label>
-            <input
-              type="text"
-              id="post-listing-remove-reason"
-              className="form-control me-2"
-              placeholder={I18NextService.i18n.t("reason")}
-              value={this.state.removeReason}
-              onInput={linkEvent(this, this.handleModRemoveReasonChange)}
-            />
-            <button type="submit" className="btn btn-secondary">
-              {this.state.removeLoading ? (
-                <Spinner />
-              ) : (
-                I18NextService.i18n.t("remove_post")
-              )}
-            </button>
-          </form>
-        )}
-        {this.state.showConfirmTransferCommunity && (
-          <>
-            <button className="d-inline-block me-1 btn btn-link btn-animate text-muted py-0">
-              {I18NextService.i18n.t("are_you_sure")}
-            </button>
-            <button
-              className="btn btn-link btn-animate text-muted py-0 d-inline-block me-1"
-              onClick={linkEvent(this, this.handleTransferCommunity)}
-            >
-              {this.state.transferLoading ? (
-                <Spinner />
-              ) : (
-                I18NextService.i18n.t("yes")
-              )}
-            </button>
-            <button
-              className="btn btn-link btn-animate text-muted py-0 d-inline-block"
-              onClick={linkEvent(
-                this,
-                this.handleCancelShowConfirmTransferCommunity,
-              )}
-              aria-label={I18NextService.i18n.t("no")}
-            >
-              {I18NextService.i18n.t("no")}
-            </button>
-          </>
-        )}
-        {this.state.showBanDialog && (
-          <form onSubmit={linkEvent(this, this.handleModBanBothSubmit)}>
-            <div className="mb-3 row col-12">
-              <label
-                className="col-form-label"
-                htmlFor="post-listing-ban-reason"
-              >
-                {I18NextService.i18n.t("reason")}
-              </label>
-              <input
-                type="text"
-                id="post-listing-ban-reason"
-                className="form-control me-2"
-                placeholder={I18NextService.i18n.t("reason")}
-                value={this.state.banReason}
-                onInput={linkEvent(this, this.handleModBanReasonChange)}
-              />
-              <label className="col-form-label" htmlFor="mod-ban-expires">
-                {I18NextService.i18n.t("expires")}
-              </label>
-              <input
-                type="number"
-                id="mod-ban-expires"
-                className="form-control me-2"
-                placeholder={I18NextService.i18n.t("number_of_days")}
-                value={this.state.banExpireDays}
-                onInput={linkEvent(this, this.handleModBanExpireDaysChange)}
-              />
-              <div className="input-group mb-3">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    id="mod-ban-remove-data"
-                    type="checkbox"
-                    checked={this.state.removeData}
-                    onChange={linkEvent(this, this.handleModRemoveDataChange)}
-                  />
-                  <label
-                    className="form-check-label"
-                    htmlFor="mod-ban-remove-data"
-                    title={I18NextService.i18n.t("remove_content_more")}
-                  >
-                    {I18NextService.i18n.t("remove_content")}
-                  </label>
-                </div>
-              </div>
-            </div>
-            {/* TODO hold off on expires until later */}
-            {/* <div class="mb-3 row"> */}
-            {/*   <label class="col-form-label">Expires</label> */}
-            {/*   <input type="date" class="form-control me-2" placeholder={I18NextService.i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
-            {/* </div> */}
-            <div className="mb-3 row">
-              <button type="submit" className="btn btn-secondary">
-                {this.state.banLoading ? (
-                  <Spinner />
-                ) : (
-                  <span>
-                    {I18NextService.i18n.t("ban")} {post.creator.name}
-                  </span>
-                )}
-              </button>
-            </div>
-          </form>
-        )}
-        {this.state.showReportDialog && (
-          <ReportForm onSubmit={this.handleReportSubmit} />
-        )}
-        {this.state.showPurgeDialog && (
-          <form
-            className="form-inline"
-            onSubmit={linkEvent(this, this.handlePurgeSubmit)}
-          >
-            <PurgeWarning />
-            <label className="visually-hidden" htmlFor="purge-reason">
-              {I18NextService.i18n.t("reason")}
-            </label>
-            <input
-              type="text"
-              id="purge-reason"
-              className="form-control me-2"
-              placeholder={I18NextService.i18n.t("reason")}
-              value={this.state.purgeReason}
-              onInput={linkEvent(this, this.handlePurgeReasonChange)}
-            />
-            {this.state.purgeLoading ? (
-              <Spinner />
-            ) : (
-              <button type="submit" className="btn btn-secondary mt-2">
-                {purgeTypeText}
-              </button>
-            )}
-          </form>
-        )}
-      </>
     );
   }
 
@@ -1366,7 +722,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
               {this.commentsLine(true)}
               {this.duplicatesLine()}
-              {this.removeAndBanDialogs()}
             </div>
           </article>
         </div>
@@ -1396,7 +751,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   {this.createdLine()}
                   {this.commentsLine()}
                   {this.duplicatesLine()}
-                  {this.removeAndBanDialogs()}
                 </div>
               </div>
             </div>
@@ -1406,15 +760,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  private get myPost(): boolean {
-    return (
-      this.postView.creator.id ===
-      UserService.Instance.myUserInfo?.local_user_view.person.id
-    );
-  }
-
-  handleEditClick(i: PostListing) {
-    i.setState({ showEdit: true });
+  handleEditClick() {
+    this.setState({ showEdit: true });
   }
 
   handleEditCancel() {
@@ -1424,7 +771,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   // The actual editing is done in the receive for post
   handleEditPost(form: EditPost) {
     this.setState({ showEdit: false });
-    this.props.onPostEdit(form);
+    return this.props.onPostEdit(form);
   }
 
   handleShare(i: PostListing) {
@@ -1436,61 +783,48 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  handleShowReportDialog(i: PostListing) {
-    i.setState({ showReportDialog: !i.state.showReportDialog });
-  }
-
-  handleReportSubmit(reason: string) {
-    this.props.onPostReport({
+  handleReport(reason: string) {
+    return this.props.onPostReport({
       post_id: this.postView.post.id,
       reason,
     });
-
-    this.setState({
-      showReportDialog: false,
-    });
   }
 
-  handleBlockPersonClick(i: PostListing) {
-    i.setState({ blockLoading: true });
-    i.props.onBlockPerson({
-      person_id: i.postView.creator.id,
+  handleBlockPerson() {
+    return this.props.onBlockPerson({
+      person_id: this.postView.creator.id,
       block: true,
     });
   }
 
-  handleDeleteClick(i: PostListing) {
-    i.setState({ deleteLoading: true });
-    i.props.onDeletePost({
-      post_id: i.postView.post.id,
-      deleted: !i.postView.post.deleted,
+  handleDeletePost() {
+    return this.props.onDeletePost({
+      post_id: this.postView.post.id,
+      deleted: !this.postView.post.deleted,
     });
   }
 
-  handleSavePostClick(i: PostListing) {
-    i.setState({ saveLoading: true });
-    i.props.onSavePost({
-      post_id: i.postView.post.id,
-      save: !i.postView.saved,
+  handleSavePost() {
+    return this.props.onSavePost({
+      post_id: this.postView.post.id,
+      save: !this.postView.saved,
     });
   }
 
-  get crossPostParams(): PostFormParams {
-    const queryParams: PostFormParams = {};
+  get crossPostParams(): CrossPostParams {
     const { name, url } = this.postView.post;
-
-    queryParams.name = name;
+    const crossPostParams: CrossPostParams = { name };
 
     if (url) {
-      queryParams.url = url;
+      crossPostParams.url = url;
     }
 
     const crossPostBody = this.crossPostBody();
     if (crossPostBody) {
-      queryParams.body = crossPostBody;
+      crossPostParams.body = crossPostBody;
     }
 
-    return queryParams;
+    return crossPostParams;
   }
 
   crossPostBody(): string | undefined {
@@ -1508,201 +842,124 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return this.props.showBody || this.state.showBody;
   }
 
-  handleModRemoveShow(i: PostListing) {
-    i.setState({
-      showRemoveDialog: !i.state.showRemoveDialog,
-      showBanDialog: false,
+  handleRemove(reason: string) {
+    return this.props.onRemovePost({
+      post_id: this.postView.post.id,
+      removed: !this.postView.post.removed,
+      reason,
     });
   }
 
-  handleModRemoveReasonChange(i: PostListing, event: any) {
-    i.setState({ removeReason: event.target.value });
-  }
-
-  handleModRemoveDataChange(i: PostListing, event: any) {
-    i.setState({ removeData: event.target.checked });
-  }
-
-  handleModRemoveSubmit(i: PostListing, event: any) {
-    event.preventDefault();
-    i.setState({ removeLoading: true });
-    i.props.onRemovePost({
-      post_id: i.postView.post.id,
-      removed: !i.postView.post.removed,
-      reason: i.state.removeReason,
+  handleModLock() {
+    return this.props.onLockPost({
+      post_id: this.postView.post.id,
+      locked: !this.postView.post.locked,
     });
   }
 
-  handleModLock(i: PostListing) {
-    i.setState({ lockLoading: true });
-    i.props.onLockPost({
-      post_id: i.postView.post.id,
-      locked: !i.postView.post.locked,
-    });
-  }
-
-  handleModFeaturePostLocal(i: PostListing) {
-    i.setState({ featureLocalLoading: true });
-    i.props.onFeaturePost({
-      post_id: i.postView.post.id,
-      featured: !i.postView.post.featured_local,
+  handleModFeaturePostLocal() {
+    return this.props.onFeaturePost({
+      post_id: this.postView.post.id,
+      featured: !this.postView.post.featured_local,
       feature_type: "Local",
     });
   }
 
-  handleModFeaturePostCommunity(i: PostListing) {
-    i.setState({ featureCommunityLoading: true });
-    i.props.onFeaturePost({
-      post_id: i.postView.post.id,
-      featured: !i.postView.post.featured_community,
+  handleModFeaturePostCommunity() {
+    return this.props.onFeaturePost({
+      post_id: this.postView.post.id,
+      featured: !this.postView.post.featured_community,
       feature_type: "Community",
     });
   }
 
-  handleModBanFromCommunityShow(i: PostListing) {
-    i.setState({
-      showBanDialog: true,
-      banType: BanType.Community,
-      showRemoveDialog: false,
+  handlePurgePost(reason: string) {
+    return this.props.onPurgePost({
+      post_id: this.postView.post.id,
+      reason,
     });
   }
 
-  handleModBanShow(i: PostListing) {
-    i.setState({
-      showBanDialog: true,
-      banType: BanType.Site,
-      showRemoveDialog: false,
+  handlePurgePerson(reason: string) {
+    return this.props.onPurgePerson({
+      person_id: this.postView.creator.id,
+      reason,
     });
   }
 
-  handlePurgePersonShow(i: PostListing) {
-    i.setState({
-      showPurgeDialog: true,
-      purgeType: PurgeType.Person,
-      showRemoveDialog: false,
-    });
-  }
+  handleModBanFromCommunity({
+    daysUntilExpires,
+    reason,
+    shouldRemove,
+  }: BanUpdateForm) {
+    const {
+      creator: { id: person_id },
+      creator_banned_from_community,
+      community: { id: community_id },
+    } = this.postView;
+    const ban = !creator_banned_from_community;
 
-  handlePurgePostShow(i: PostListing) {
-    i.setState({
-      showPurgeDialog: true,
-      purgeType: PurgeType.Post,
-      showRemoveDialog: false,
-    });
-  }
-
-  handlePurgeReasonChange(i: PostListing, event: any) {
-    i.setState({ purgeReason: event.target.value });
-  }
-
-  handlePurgeSubmit(i: PostListing, event: any) {
-    event.preventDefault();
-    i.setState({ purgeLoading: true });
-    if (i.state.purgeType === PurgeType.Person) {
-      i.props.onPurgePerson({
-        person_id: i.postView.creator.id,
-        reason: i.state.purgeReason,
-      });
-    } else if (i.state.purgeType === PurgeType.Post) {
-      i.props.onPurgePost({
-        post_id: i.postView.post.id,
-        reason: i.state.purgeReason,
-      });
-    }
-  }
-
-  handleModBanReasonChange(i: PostListing, event: any) {
-    i.setState({ banReason: event.target.value });
-  }
-
-  handleModBanExpireDaysChange(i: PostListing, event: any) {
-    i.setState({ banExpireDays: event.target.value });
-  }
-
-  handleModBanFromCommunitySubmit(i: PostListing, event: any) {
-    i.setState({ banType: BanType.Community });
-    i.handleModBanBothSubmit(i, event);
-  }
-
-  handleModBanSubmit(i: PostListing, event: any) {
-    i.setState({ banType: BanType.Site });
-    i.handleModBanBothSubmit(i, event);
-  }
-
-  handleModBanBothSubmit(i: PostListing, event: any) {
-    event.preventDefault();
-    i.setState({ banLoading: true });
-
-    const ban = !i.postView.creator_banned_from_community;
     // If its an unban, restore all their data
     if (ban === false) {
-      i.setState({ removeData: false });
+      shouldRemove = false;
     }
-    const person_id = i.postView.creator.id;
-    const remove_data = i.state.removeData;
-    const reason = i.state.banReason;
-    const expires = futureDaysToUnixTime(i.state.banExpireDays);
+    const expires = futureDaysToUnixTime(daysUntilExpires);
 
-    if (i.state.banType === BanType.Community) {
-      const community_id = i.postView.community.id;
-      i.props.onBanPersonFromCommunity({
-        community_id,
-        person_id,
-        ban,
-        remove_data,
-        reason,
-        expires,
-      });
-    } else {
-      i.props.onBanPerson({
-        person_id,
-        ban,
-        remove_data,
-        reason,
-        expires,
-      });
+    return this.props.onBanPersonFromCommunity({
+      community_id,
+      person_id,
+      ban,
+      remove_data: shouldRemove,
+      reason,
+      expires,
+    });
+  }
+
+  handleModBanFromSite({
+    daysUntilExpires,
+    reason,
+    shouldRemove,
+  }: BanUpdateForm) {
+    const {
+      creator: { id: person_id, banned },
+    } = this.postView;
+    const ban = !banned;
+
+    // If its an unban, restore all their data
+    if (ban === false) {
+      shouldRemove = false;
     }
-  }
+    const expires = futureDaysToUnixTime(daysUntilExpires);
 
-  handleAddModToCommunity(i: PostListing) {
-    i.setState({ addModLoading: true });
-    i.props.onAddModToCommunity({
-      community_id: i.postView.community.id,
-      person_id: i.postView.creator.id,
-      added: !i.postView.creator_is_moderator,
+    return this.props.onBanPerson({
+      person_id,
+      ban,
+      remove_data: shouldRemove,
+      reason,
+      expires,
     });
   }
 
-  handleAddAdmin(i: PostListing) {
-    i.setState({ addAdminLoading: true });
-    i.props.onAddAdmin({
-      person_id: i.postView.creator.id,
-      added: !i.postView.creator_is_admin,
+  handleAppointCommunityMod() {
+    return this.props.onAddModToCommunity({
+      community_id: this.postView.community.id,
+      person_id: this.postView.creator.id,
+      added: !this.postView.creator_is_moderator,
     });
   }
 
-  handleShowConfirmTransferCommunity(i: PostListing) {
-    i.setState({ showConfirmTransferCommunity: true });
-  }
-
-  handleCancelShowConfirmTransferCommunity(i: PostListing) {
-    i.setState({ showConfirmTransferCommunity: false });
-  }
-
-  handleTransferCommunity(i: PostListing) {
-    i.setState({ transferLoading: true });
-    i.props.onTransferCommunity({
-      community_id: i.postView.community.id,
-      person_id: i.postView.creator.id,
+  handleAppointAdmin() {
+    return this.props.onAddAdmin({
+      person_id: this.postView.creator.id,
+      added: !this.postView.creator_is_admin,
     });
   }
 
-  handleShowConfirmTransferSite(i: PostListing) {
-    i.setState({ showConfirmTransferSite: true });
-  }
-
-  handleCancelShowConfirmTransferSite(i: PostListing) {
-    i.setState({ showConfirmTransferSite: false });
+  handleTransferCommunity() {
+    return this.props.onTransferCommunity({
+      community_id: this.postView.community.id,
+      person_id: this.postView.creator.id,
+    });
   }
 
   handleImageExpandClick(i: PostListing, event: any) {
@@ -1720,19 +977,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleViewSource(i: PostListing) {
     i.setState({ viewSource: !i.state.viewSource });
-  }
-
-  handleShowAdvanced(i: PostListing) {
-    i.setState({ showAdvanced: !i.state.showAdvanced });
-    setupTippy();
-  }
-
-  handleShowMoreMobile(i: PostListing) {
-    i.setState({
-      showMoreMobile: !i.state.showMoreMobile,
-      showAdvanced: !i.state.showAdvanced,
-    });
-    setupTippy();
   }
 
   handleShowBody(i: PostListing) {
@@ -1759,7 +1003,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return `${points} • ${upvotes} • ${downvotes}`;
   }
 
-  get canModOnSelf_(): boolean {
+  get canModOnSelf(): boolean {
     return canMod(
       this.postView.creator.id,
       this.props.moderators,
@@ -1769,7 +1013,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get canMod_(): boolean {
+  get canMod(): boolean {
     return canMod(
       this.postView.creator.id,
       this.props.moderators,
@@ -1777,7 +1021,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get canAdmin_(): boolean {
+  get canAdmin(): boolean {
     return canAdmin(this.postView.creator.id, this.props.admins);
   }
 }

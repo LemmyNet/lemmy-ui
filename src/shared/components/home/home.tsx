@@ -716,7 +716,7 @@ export class Home extends Component<any, HomeState> {
               onAddAdmin={this.handleAddAdmin}
               onTransferCommunity={this.handleTransferCommunity}
               onFeaturePost={this.handleFeaturePost}
-              onMarkPostAsRead={() => {}}
+              onMarkPostAsRead={async () => {}}
             />
           );
         }
@@ -970,11 +970,13 @@ export class Home extends Component<any, HomeState> {
   async handlePostEdit(form: EditPost) {
     const res = await HttpService.client.editPost(form);
     this.findAndUpdatePost(res);
+    return res;
   }
 
   async handlePostVote(form: CreatePostLike) {
     const voteRes = await HttpService.client.likePost(form);
     this.findAndUpdatePost(voteRes);
+    return voteRes;
   }
 
   async handleCommentReport(form: CreateCommentReport) {

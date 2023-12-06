@@ -5,6 +5,7 @@ import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { PostListing } from "./post-listing";
+import { EMPTY_REQUEST } from "../../services/HttpService";
 
 interface PostReportProps {
   report: PostReportView;
@@ -72,23 +73,23 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           siteLanguages={[]}
           hideImage
           // All of these are unused, since its view only
-          onPostEdit={() => {}}
-          onPostVote={() => {}}
-          onPostReport={() => {}}
-          onBlockPerson={() => {}}
-          onLockPost={() => {}}
-          onDeletePost={() => {}}
-          onRemovePost={() => {}}
-          onSavePost={() => {}}
-          onFeaturePost={() => {}}
-          onPurgePerson={() => {}}
-          onPurgePost={() => {}}
-          onBanPersonFromCommunity={() => {}}
-          onBanPerson={() => {}}
-          onAddModToCommunity={() => {}}
-          onAddAdmin={() => {}}
-          onTransferCommunity={() => {}}
-          onMarkPostAsRead={() => {}}
+          onPostEdit={async () => EMPTY_REQUEST}
+          onPostVote={async () => EMPTY_REQUEST}
+          onPostReport={async () => {}}
+          onBlockPerson={async () => {}}
+          onLockPost={async () => {}}
+          onDeletePost={async () => {}}
+          onRemovePost={async () => {}}
+          onSavePost={async () => {}}
+          onFeaturePost={async () => {}}
+          onPurgePerson={async () => {}}
+          onPurgePost={async () => {}}
+          onBanPersonFromCommunity={async () => {}}
+          onBanPerson={async () => {}}
+          onAddModToCommunity={async () => {}}
+          onAddAdmin={async () => {}}
+          onTransferCommunity={async () => {}}
+          onMarkPostAsRead={async () => {}}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}

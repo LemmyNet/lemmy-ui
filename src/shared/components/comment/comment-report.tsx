@@ -84,23 +84,23 @@ export class CommentReport extends Component<
           hideImages
           // All of these are unused, since its viewonly
           finished={new Map()}
-          onSaveComment={() => {}}
-          onBlockPerson={() => {}}
-          onDeleteComment={() => {}}
-          onRemoveComment={() => {}}
-          onCommentVote={() => {}}
-          onCommentReport={() => {}}
-          onDistinguishComment={() => {}}
-          onAddModToCommunity={() => {}}
-          onAddAdmin={() => {}}
-          onTransferCommunity={() => {}}
-          onPurgeComment={() => {}}
-          onPurgePerson={() => {}}
+          onSaveComment={async () => {}}
+          onBlockPerson={async () => {}}
+          onDeleteComment={async () => {}}
+          onRemoveComment={async () => {}}
+          onCommentVote={async () => {}}
+          onCommentReport={async () => {}}
+          onDistinguishComment={async () => {}}
+          onAddModToCommunity={async () => {}}
+          onAddAdmin={async () => {}}
+          onTransferCommunity={async () => {}}
+          onPurgeComment={async () => {}}
+          onPurgePerson={async () => {}}
           onCommentReplyRead={() => {}}
           onPersonMentionRead={() => {}}
-          onBanPersonFromCommunity={() => {}}
-          onBanPerson={() => {}}
-          onCreateComment={() => Promise.resolve(EMPTY_REQUEST)}
+          onBanPersonFromCommunity={async () => {}}
+          onBanPerson={async () => {}}
+          onCreateComment={async () => Promise.resolve(EMPTY_REQUEST)}
           onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
         />
         <div>
