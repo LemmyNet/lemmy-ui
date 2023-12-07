@@ -93,12 +93,23 @@ async function handleLoginSubmit(i: Login, event: any) {
   }
 }
 
-function handleUseExternalAuth(d: {
+async function handleUseExternalAuth(d: {
   i: Login;
   index: number;
   external_auth: PublicExternalAuth;
 }) {
-  let requestUri = d.external_auth.auth_endpoint + "?";
+  let authEndpoint;
+  if (d.external_auth.auth_type === "oidc") {
+    const discoveryEndpoint = d.external_auth.issuer.endsWith(".well-known/openid-configuration") ?
+      d.external_auth.issuer :
+      d.external_auth.issuer + "/.well-known/openid-configuration";
+    const res = await fetch(discoveryEndpoint);
+    authEndpoint = (await res.json()).authorization_endpoint;
+  } else {
+    authEndpoint = d.external_auth.auth_endpoint;
+  }
+
+  let requestUri = authEndpoint + "?";
   requestUri += `client_id=${d.external_auth.client_id}`;
   requestUri += `&response_type=code`;
   requestUri += `&scope=${d.external_auth.scopes}`;
