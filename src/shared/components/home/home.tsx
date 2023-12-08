@@ -52,17 +52,16 @@ import {
   GetPosts,
   GetPostsResponse,
   GetSiteResponse,
+  LemmyHttp,
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
-  MarkPostAsRead,
   PaginationCursor,
   PostResponse,
   PurgeComment,
-  PurgeItemResponse,
   PurgePerson,
   PurgePost,
   RemoveComment,
@@ -70,6 +69,7 @@ import {
   SaveComment,
   SavePost,
   SortType,
+  SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags, trendingFetchLimit } from "../../config";
@@ -79,17 +79,13 @@ import {
   InitialFetchRequest,
 } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
-import {
-  FirstLoadService,
-  HomeCacheService,
-  I18NextService,
-  UserService,
-} from "../../services";
+import { FirstLoadService, I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -103,6 +99,7 @@ import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
+import { getHttpBaseInternal } from "../../utils/env";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -169,18 +166,21 @@ function getDataTypeFromQuery(type?: string): DataType {
   return type ? DataType[type] : DataType.Post;
 }
 
-function getListingTypeFromQuery(type?: string): ListingType | undefined {
+function getListingTypeFromQuery(
+  type?: string,
+  myUserInfo = UserService.Instance.myUserInfo,
+): ListingType | undefined {
   const myListingType =
-    UserService.Instance.myUserInfo?.local_user_view?.local_user
-      ?.default_listing_type;
+    myUserInfo?.local_user_view?.local_user?.default_listing_type;
 
   return type ? (type as ListingType) : myListingType;
 }
 
-function getSortTypeFromQuery(type?: string): SortType {
-  const mySortType =
-    UserService.Instance.myUserInfo?.local_user_view?.local_user
-      ?.default_sort_type;
+function getSortTypeFromQuery(
+  type?: string,
+  myUserInfo = UserService.Instance.myUserInfo,
+): SortType {
+  const mySortType = myUserInfo?.local_user_view?.local_user?.default_sort_type;
 
   return (type ? (type as SortType) : mySortType) ?? "Active";
 }
@@ -276,7 +276,6 @@ export class Home extends Component<any, HomeState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
-    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -290,16 +289,10 @@ export class Home extends Component<any, HomeState> {
         postsRes,
         isIsomorphic: true,
       };
-
-      HomeCacheService.postsRes = postsRes;
     }
 
     this.state.tagline = getRandomFromList(this.state?.siteRes?.taglines ?? [])
       ?.content;
-  }
-
-  componentWillUnmount() {
-    HomeCacheService.activate();
   }
 
   async componentDidMount() {
@@ -316,18 +309,24 @@ export class Home extends Component<any, HomeState> {
   }
 
   static async fetchInitialData({
-    client,
     query: { dataType: urlDataType, listingType, pageCursor, sort: urlSort },
     site,
+    headers,
   }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
+
     const dataType = getDataTypeFromQuery(urlDataType);
     const type_ =
-      getListingTypeFromQuery(listingType) ??
+      getListingTypeFromQuery(listingType, site.my_user) ??
       site.site_view.local_site.default_post_listing_type;
-    const sort = getSortTypeFromQuery(urlSort);
+    const sort = getSortTypeFromQuery(urlSort, site.my_user);
 
-    let postsRes: RequestState<GetPostsResponse> = EMPTY_REQUEST;
-    let commentsRes: RequestState<GetCommentsResponse> = EMPTY_REQUEST;
+    let postsFetch: Promise<RequestState<GetPostsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
+    let commentsFetch: Promise<RequestState<GetCommentsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
@@ -338,7 +337,7 @@ export class Home extends Component<any, HomeState> {
         saved_only: false,
       };
 
-      postsRes = await client.getPosts(getPostsForm);
+      postsFetch = client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
         limit: fetchLimit,
@@ -347,7 +346,7 @@ export class Home extends Component<any, HomeState> {
         saved_only: false,
       };
 
-      commentsRes = await client.getComments(getCommentsForm);
+      commentsFetch = client.getComments(getCommentsForm);
     }
 
     const trendingCommunitiesForm: ListCommunities = {
@@ -356,10 +355,18 @@ export class Home extends Component<any, HomeState> {
       limit: trendingFetchLimit,
     };
 
+    const trendingCommunitiesFetch = client.listCommunities(
+      trendingCommunitiesForm,
+    );
+
+    const [postsRes, commentsRes, trendingCommunitiesRes] = await Promise.all([
+      postsFetch,
+      commentsFetch,
+      trendingCommunitiesFetch,
+    ]);
+
     return {
-      trendingCommunitiesRes: await client.listCommunities(
-        trendingCommunitiesForm,
-      ),
+      trendingCommunitiesRes,
       commentsRes,
       postsRes,
     };
@@ -648,18 +655,14 @@ export class Home extends Component<any, HomeState> {
   }
 
   get posts() {
-    const { pageCursor } = getHomeQueryParams();
-
     return (
       <div className="main-content-wrapper">
         <div>
           {this.selects}
           {this.listings}
           <PaginatorCursor
-            prevPage={pageCursor}
             nextPage={this.getNextPage}
             onNext={this.handlePageNext}
-            onPrev={this.handlePagePrev}
           />
         </div>
       </div>
@@ -713,7 +716,7 @@ export class Home extends Component<any, HomeState> {
               onAddAdmin={this.handleAddAdmin}
               onTransferCommunity={this.handleTransferCommunity}
               onFeaturePost={this.handleFeaturePost}
-              onMarkPostAsRead={this.handleMarkPostAsRead}
+              onMarkPostAsRead={async () => {}}
             />
           );
         }
@@ -814,28 +817,16 @@ export class Home extends Component<any, HomeState> {
     const { dataType, pageCursor, listingType, sort } = getHomeQueryParams();
 
     if (dataType === DataType.Post) {
-      if (HomeCacheService.active) {
-        const { postsRes, scrollY } = HomeCacheService;
-        HomeCacheService.deactivate();
-        this.setState({ postsRes });
-        window.scrollTo({
-          left: 0,
-          top: scrollY,
-        });
-      } else {
-        this.setState({ postsRes: LOADING_REQUEST });
-        this.setState({
-          postsRes: await HttpService.client.getPosts({
-            page_cursor: pageCursor,
-            limit: fetchLimit,
-            sort,
-            saved_only: false,
-            type_: listingType,
-          }),
-        });
-
-        HomeCacheService.postsRes = this.state.postsRes;
-      }
+      this.setState({ postsRes: LOADING_REQUEST });
+      this.setState({
+        postsRes: await HttpService.client.getPosts({
+          page_cursor: pageCursor,
+          limit: fetchLimit,
+          sort,
+          saved_only: false,
+          type_: listingType,
+        }),
+      });
     } else {
       this.setState({ commentsRes: LOADING_REQUEST });
       this.setState({
@@ -931,7 +922,7 @@ export class Home extends Component<any, HomeState> {
 
   async handleEditComment(form: EditComment) {
     const editCommentRes = await HttpService.client.editComment(form);
-    this.findAndUpdateComment(editCommentRes);
+    this.findAndUpdateCommentEdit(editCommentRes);
 
     return editCommentRes;
   }
@@ -979,11 +970,13 @@ export class Home extends Component<any, HomeState> {
   async handlePostEdit(form: EditPost) {
     const res = await HttpService.client.editPost(form);
     this.findAndUpdatePost(res);
+    return res;
   }
 
   async handlePostVote(form: CreatePostLike) {
     const voteRes = await HttpService.client.likePost(form);
     this.findAndUpdatePost(voteRes);
+    return voteRes;
   }
 
   async handleCommentReport(form: CreateCommentReport) {
@@ -1043,11 +1036,6 @@ export class Home extends Component<any, HomeState> {
     this.updateBan(banRes);
   }
 
-  async handleMarkPostAsRead(form: MarkPostAsRead) {
-    const res = await HttpService.client.markPostAsRead(form);
-    this.findAndUpdatePost(res);
-  }
-
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
     // Maybe not necessary
     if (banRes.state === "success") {
@@ -1090,11 +1078,24 @@ export class Home extends Component<any, HomeState> {
     }
   }
 
-  purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
+  purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
+  }
+
+  findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.commentsRes.state === "success" && res.state === "success") {
+        s.commentsRes.data.comments = editComment(
+          res.data.comment_view,
+          s.commentsRes.data.comments,
+        );
+        s.finished.set(res.data.comment_view.comment.id, true);
+      }
+      return s;
+    });
   }
 
   findAndUpdateComment(res: RequestState<CommentResponse>) {
@@ -1104,7 +1105,6 @@ export class Home extends Component<any, HomeState> {
           res.data.comment_view,
           s.commentsRes.data.comments,
         );
-        s.finished.set(res.data.comment_view.comment.id, true);
       }
       return s;
     });

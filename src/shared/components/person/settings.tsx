@@ -17,31 +17,33 @@ import { capitalizeFirstLetter, debounce } from "@utils/helpers";
 import { Choice, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent } from "inferno";
+import { Component, createRef, linkEvent } from "inferno";
 import {
   BlockCommunityResponse,
   BlockInstanceResponse,
   BlockPersonResponse,
   CommunityBlockView,
-  DeleteAccountResponse,
   GenerateTotpSecretResponse,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   Instance,
   InstanceBlockView,
+  LemmyHttp,
   ListingType,
   LoginResponse,
   PersonBlockView,
   SortType,
+  SuccessResponse,
   UpdateTotpResponse,
 } from "lemmy-js-client";
-import { elementUrl, emDash, relTags } from "../../config";
+import { elementUrl, emDash, fetchLimit, relTags } from "../../config";
 import { FirstLoadService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { I18NextService, languages } from "../../services/I18NextService";
 import { setupTippy } from "../../tippy";
@@ -60,15 +62,18 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
 import { InitialFetchRequest } from "../../interfaces";
 import TotpModal from "../common/totp-modal";
+import { LoadingEllipses } from "../common/loading-ellipses";
+import { updateDataBsTheme } from "../../utils/browser";
+import { getHttpBaseInternal } from "../../utils/env";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
 }>;
 
 interface SettingsState {
-  saveRes: RequestState<LoginResponse>;
+  saveRes: RequestState<SuccessResponse>;
   changePasswordRes: RequestState<LoginResponse>;
-  deleteAccountRes: RequestState<DeleteAccountResponse>;
+  deleteAccountRes: RequestState<SuccessResponse>;
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   generateTotpRes: RequestState<GenerateTotpSecretResponse>;
   updateTotpRes: RequestState<UpdateTotpResponse>;
@@ -119,6 +124,9 @@ interface SettingsState {
   searchInstanceOptions: Choice[];
   isIsomorphic: boolean;
   show2faModal: boolean;
+  importSettingsRes: RequestState<any>;
+  exportSettingsRes: RequestState<any>;
+  settingsFile?: File;
 }
 
 type FilterType = "user" | "community" | "instance";
@@ -163,7 +171,7 @@ async function handleGenerateTotp(i: Settings) {
   const generateTotpRes = await HttpService.client.generateTotpSecret();
 
   if (generateTotpRes.state === "failed") {
-    toast(generateTotpRes.msg, "danger");
+    toast(generateTotpRes.err.message, "danger");
   } else {
     i.setState({ show2faModal: true });
   }
@@ -183,6 +191,8 @@ function handleClose2faModal(i: Settings) {
 
 export class Settings extends Component<any, SettingsState> {
   private isoData = setIsoData<SettingsData>(this.context);
+  exportSettingsLink = createRef<HTMLAnchorElement>();
+
   state: SettingsState = {
     saveRes: EMPTY_REQUEST,
     deleteAccountRes: EMPTY_REQUEST,
@@ -207,6 +217,8 @@ export class Settings extends Component<any, SettingsState> {
     generateTotpRes: EMPTY_REQUEST,
     updateTotpRes: EMPTY_REQUEST,
     show2faModal: false,
+    importSettingsRes: EMPTY_REQUEST,
+    exportSettingsRes: EMPTY_REQUEST,
   };
 
   constructor(props: any, context: any) {
@@ -249,9 +261,9 @@ export class Settings extends Component<any, SettingsState> {
           show_bot_accounts,
           show_scores,
           show_read_posts,
-          show_new_post_notifs,
           send_notifications_to_email,
           email,
+          open_links_in_new_tab,
         },
         person: {
           avatar,
@@ -267,6 +279,7 @@ export class Settings extends Component<any, SettingsState> {
         ...this.state,
         personBlocks: mui.person_blocks,
         communityBlocks: mui.community_blocks,
+        instanceBlocks: mui.instance_blocks,
         saveUserSettingsForm: {
           ...this.state.saveUserSettingsForm,
           show_nsfw,
@@ -285,11 +298,11 @@ export class Settings extends Component<any, SettingsState> {
           show_bot_accounts,
           show_scores,
           show_read_posts,
-          show_new_post_notifs,
           email,
           bio,
           send_notifications_to_email,
           matrix_user_id,
+          open_links_in_new_tab,
         },
       };
     }
@@ -322,8 +335,11 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   static async fetchInitialData({
-    client,
+    headers,
   }: InitialFetchRequest): Promise<SettingsData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     return {
       instancesRes: await client.getFederatedInstances(),
     };
@@ -334,8 +350,18 @@ export class Settings extends Component<any, SettingsState> {
   }
 
   render() {
+    /* eslint-disable jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid */
     return (
       <div className="person-settings container-lg">
+        <a
+          ref={this.exportSettingsLink}
+          download={`${I18NextService.i18n.t("export_file_name")}_${new Date()
+            .toISOString()
+            .replace(/:|-/g, "")}.json`}
+          className="d-none"
+          href="javascript:void(0)"
+          aria-hidden="true"
+        />
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -358,6 +384,7 @@ export class Settings extends Component<any, SettingsState> {
         />
       </div>
     );
+    /* eslint-enable jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid */
   }
 
   userSettings(isSelected: boolean) {
@@ -378,6 +405,9 @@ export class Settings extends Component<any, SettingsState> {
           <div className="col-12 col-md-6">
             <div className="card border-secondary mb-3">
               <div className="card-body">{this.changePasswordHtmlForm()}</div>
+            </div>
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.importExport()}</div>
             </div>
           </div>
         </div>
@@ -593,6 +623,58 @@ export class Settings extends Component<any, SettingsState> {
             </li>
           ))}
         </ul>
+      </>
+    );
+  }
+
+  importExport() {
+    return (
+      <>
+        <h2 className="h5">
+          {I18NextService.i18n.t("import_export_section_title")}
+        </h2>
+        <p>{I18NextService.i18n.t("import_export_section_description")}</p>
+        {!(
+          this.state.importSettingsRes.state === "loading" ||
+          this.state.exportSettingsRes.state === "loading"
+        ) ? (
+          <>
+            <button
+              className="btn btn-secondary w-100 mb-4"
+              onClick={linkEvent(this, this.handleExportSettings)}
+              type="button"
+            >
+              {I18NextService.i18n.t("export")}
+            </button>
+            <fieldset className="border border-secondary rounded p-3 bg-dark bg-opacity-25">
+              <input
+                type="file"
+                accept="application/json"
+                className="form-control"
+                aria-label="Import settings file input"
+                onChange={linkEvent(this, this.handleImportFileChange)}
+              />
+              <button
+                className="btn btn-secondary w-100 mt-3"
+                onClick={linkEvent(this, this.handleImportSettings)}
+                type="button"
+                disabled={!this.state.settingsFile}
+              >
+                {I18NextService.i18n.t("import")}
+              </button>
+            </fieldset>
+          </>
+        ) : (
+          <div>
+            <div className="text-center">
+              {this.state.exportSettingsRes.state === "loading"
+                ? I18NextService.i18n.t("exporting")
+                : I18NextService.i18n.t("importing")}
+              <LoadingEllipses />
+            </div>
+            <Spinner large />
+          </div>
+        )}
       </>
     );
   }
@@ -1098,6 +1180,7 @@ export class Settings extends Component<any, SettingsState> {
       this.setState({ show2faModal: false });
 
       const siteRes = await HttpService.client.getSite();
+
       UserService.Instance.myUserInfo!.local_user_view.local_user.totp_2fa_enabled =
         enabled;
 
@@ -1164,16 +1247,16 @@ export class Settings extends Component<any, SettingsState> {
       searchInstanceOptions =
         this.state.instancesRes.data.federated_instances?.linked.filter(
           instance =>
-            instance.domain.toLowerCase().includes(text.toLowerCase()) ||
+            instance.domain.toLowerCase().includes(text.toLowerCase()) &&
             !this.state.instanceBlocks.some(
-              blockedIntance => blockedIntance.instance.id === instance.id,
+              blockedInstance => blockedInstance.instance.id === instance.id,
             ),
         ) ?? [];
     }
 
     this.setState({
       searchInstanceOptions: searchInstanceOptions
-        .slice(0, 30)
+        .slice(0, fetchLimit)
         .map(instanceToChoice),
     });
   });
@@ -1438,11 +1521,6 @@ export class Settings extends Component<any, SettingsState> {
     });
 
     if (saveRes.state === "success") {
-      UserService.Instance.login({
-        res: saveRes.data,
-        showToast: false,
-      });
-
       const siteRes = await HttpService.client.getSite();
 
       if (siteRes.state === "success") {
@@ -1473,16 +1551,125 @@ export class Settings extends Component<any, SettingsState> {
         old_password,
       });
       if (changePasswordRes.state === "success") {
-        UserService.Instance.login({
-          res: changePasswordRes.data,
-          showToast: false,
-        });
         window.scrollTo(0, 0);
         toast(I18NextService.i18n.t("password_changed"));
       }
 
       i.setState({ changePasswordRes });
     }
+  }
+
+  handleImportFileChange(i: Settings, event: any) {
+    i.setState({ settingsFile: event.target.files?.item(0) });
+  }
+
+  async handleExportSettings(i: Settings) {
+    i.setState({ exportSettingsRes: LOADING_REQUEST });
+    const res = await HttpService.client.exportSettings();
+
+    if (res.state === "success") {
+      i.exportSettingsLink.current!.href = encodeURI(
+        `data:application/json,${JSON.stringify(res.data)}`,
+      );
+      i.exportSettingsLink.current?.click();
+    } else if (res.state === "failed") {
+      toast(
+        res.err.message === "rate_limit_error"
+          ? I18NextService.i18n.t("import_export_rate_limit_error")
+          : I18NextService.i18n.t("export_error"),
+        "danger",
+      );
+    }
+
+    i.setState({ exportSettingsRes: EMPTY_REQUEST });
+  }
+
+  async handleImportSettings(i: Settings) {
+    i.setState({ importSettingsRes: LOADING_REQUEST });
+
+    const res = await HttpService.client.importSettings(
+      JSON.parse(await i.state.settingsFile!.text()),
+    );
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("import_success"), "success");
+
+      const saveRes = i.state.saveRes;
+      i.setState({ saveRes: LOADING_REQUEST });
+
+      const siteRes = await HttpService.client.getSite();
+      i.setState({ saveRes });
+
+      if (siteRes.state === "success") {
+        const {
+          local_user: {
+            show_nsfw,
+            blur_nsfw,
+            auto_expand,
+            theme,
+            default_sort_type,
+            default_listing_type,
+            interface_language,
+            show_avatars,
+            show_bot_accounts,
+            show_scores,
+            show_read_posts,
+            send_notifications_to_email,
+            email,
+            open_links_in_new_tab,
+          },
+          person: {
+            avatar,
+            banner,
+            display_name,
+            bot_account,
+            bio,
+            matrix_user_id,
+          },
+        } = siteRes.data.my_user!.local_user_view;
+
+        UserService.Instance.myUserInfo = siteRes.data.my_user;
+        updateDataBsTheme(siteRes.data);
+
+        i.setState(prev => ({
+          ...prev,
+          siteRes: siteRes.data,
+          saveUserSettingsForm: {
+            ...prev.saveUserSettingsForm,
+            show_avatars,
+            show_bot_accounts,
+            show_nsfw,
+            teme: theme ?? "browser",
+            avatar,
+            banner,
+            display_name,
+            bio,
+            matrix_user_id,
+            auto_expand,
+            blur_nsfw,
+            bot_account,
+            default_listing_type,
+            default_sort_type,
+            discussion_languages: siteRes.data.my_user?.discussion_languages,
+            email,
+            interface_language,
+            open_links_in_new_tab,
+            send_notifications_to_email,
+            show_read_posts,
+            show_scores,
+          },
+        }));
+      }
+    } else if (res.state === "failed") {
+      toast(
+        res.err.message === "rate_limit_error"
+          ? I18NextService.i18n.t("import_export_rate_limit_error")
+          : I18NextService.i18n.t("import_error"),
+        "danger",
+      );
+    }
+
+    i.setState({ importSettingsRes: EMPTY_REQUEST, settingsFile: undefined });
   }
 
   handleDeleteAccountShowConfirmToggle(i: Settings) {

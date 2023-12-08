@@ -56,6 +56,8 @@ export class CommentReport extends Component<
       post: r.post,
       community: r.community,
       creator_banned_from_community: r.creator_banned_from_community,
+      creator_is_moderator: false,
+      creator_is_admin: false,
       counts: r.counts,
       subscribed: "NotSubscribed",
       saved: false,
@@ -82,23 +84,23 @@ export class CommentReport extends Component<
           hideImages
           // All of these are unused, since its viewonly
           finished={new Map()}
-          onSaveComment={() => {}}
-          onBlockPerson={() => {}}
-          onDeleteComment={() => {}}
-          onRemoveComment={() => {}}
-          onCommentVote={() => {}}
-          onCommentReport={() => {}}
-          onDistinguishComment={() => {}}
-          onAddModToCommunity={() => {}}
-          onAddAdmin={() => {}}
-          onTransferCommunity={() => {}}
-          onPurgeComment={() => {}}
-          onPurgePerson={() => {}}
+          onSaveComment={async () => {}}
+          onBlockPerson={async () => {}}
+          onDeleteComment={async () => {}}
+          onRemoveComment={async () => {}}
+          onCommentVote={async () => {}}
+          onCommentReport={async () => {}}
+          onDistinguishComment={async () => {}}
+          onAddModToCommunity={async () => {}}
+          onAddAdmin={async () => {}}
+          onTransferCommunity={async () => {}}
+          onPurgeComment={async () => {}}
+          onPurgePerson={async () => {}}
           onCommentReplyRead={() => {}}
           onPersonMentionRead={() => {}}
-          onBanPersonFromCommunity={() => {}}
-          onBanPerson={() => {}}
-          onCreateComment={() => Promise.resolve(EMPTY_REQUEST)}
+          onBanPersonFromCommunity={async () => {}}
+          onBanPerson={async () => {}}
+          onCreateComment={async () => Promise.resolve(EMPTY_REQUEST)}
           onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
         />
         <div>

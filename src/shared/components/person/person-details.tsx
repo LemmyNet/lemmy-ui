@@ -7,6 +7,7 @@ import {
   BanPerson,
   BlockPerson,
   CommentId,
+  CommentResponse,
   CommentView,
   CreateComment,
   CreateCommentLike,
@@ -27,6 +28,7 @@ import {
   MarkPersonMentionAsRead,
   MarkPostAsRead,
   PersonView,
+  PostResponse,
   PostView,
   PurgeComment,
   PurgePerson,
@@ -43,6 +45,7 @@ import { setupTippy } from "../../tippy";
 import { CommentNodes } from "../comment/comment-nodes";
 import { Paginator } from "../common/paginator";
 import { PostListing } from "../post/post-listing";
+import { RequestState } from "../../services/HttpService";
 
 interface PersonDetailsProps {
   personRes: GetPersonDetailsResponse;
@@ -57,34 +60,34 @@ interface PersonDetailsProps {
   enableNsfw: boolean;
   view: PersonDetailsView;
   onPageChange(page: number): number | any;
-  onSaveComment(form: SaveComment): void;
+  onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
-  onCreateComment(form: CreateComment): void;
-  onEditComment(form: EditComment): void;
-  onCommentVote(form: CreateCommentLike): void;
-  onBlockPerson(form: BlockPerson): void;
-  onDeleteComment(form: DeleteComment): void;
-  onRemoveComment(form: RemoveComment): void;
-  onDistinguishComment(form: DistinguishComment): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onTransferCommunity(form: TransferCommunity): void;
+  onCreateComment(form: CreateComment): Promise<RequestState<CommentResponse>>;
+  onEditComment(form: EditComment): Promise<RequestState<CommentResponse>>;
+  onCommentVote(form: CreateCommentLike): Promise<void>;
+  onBlockPerson(form: BlockPerson): Promise<void>;
+  onDeleteComment(form: DeleteComment): Promise<void>;
+  onRemoveComment(form: RemoveComment): Promise<void>;
+  onDistinguishComment(form: DistinguishComment): Promise<void>;
+  onAddModToCommunity(form: AddModToCommunity): Promise<void>;
+  onAddAdmin(form: AddAdmin): Promise<void>;
+  onBanPersonFromCommunity(form: BanFromCommunity): Promise<void>;
+  onBanPerson(form: BanPerson): Promise<void>;
+  onTransferCommunity(form: TransferCommunity): Promise<void>;
   onFetchChildren?(form: GetComments): void;
-  onCommentReport(form: CreateCommentReport): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgeComment(form: PurgeComment): void;
-  onPostEdit(form: EditPost): void;
-  onPostVote(form: CreatePostLike): void;
-  onPostReport(form: CreatePostReport): void;
-  onLockPost(form: LockPost): void;
-  onDeletePost(form: DeletePost): void;
-  onRemovePost(form: RemovePost): void;
-  onSavePost(form: SavePost): void;
-  onFeaturePost(form: FeaturePost): void;
-  onPurgePost(form: PurgePost): void;
+  onCommentReport(form: CreateCommentReport): Promise<void>;
+  onPurgePerson(form: PurgePerson): Promise<void>;
+  onPurgeComment(form: PurgeComment): Promise<void>;
+  onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
+  onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
+  onPostReport(form: CreatePostReport): Promise<void>;
+  onLockPost(form: LockPost): Promise<void>;
+  onDeletePost(form: DeletePost): Promise<void>;
+  onRemovePost(form: RemovePost): Promise<void>;
+  onSavePost(form: SavePost): Promise<void>;
+  onFeaturePost(form: FeaturePost): Promise<void>;
+  onPurgePost(form: PurgePost): Promise<void>;
   onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 

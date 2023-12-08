@@ -258,7 +258,7 @@ export class MarkdownTextArea extends Component<
                       value={this.state.imageUploadStatus.uploaded}
                       max={this.state.imageUploadStatus.total}
                       text={
-                        I18NextService.i18n.t("pictures_uploded_progess", {
+                        I18NextService.i18n.t("pictures_uploaded_progess", {
                           uploaded: this.state.imageUploadStatus.uploaded,
                           total: this.state.imageUploadStatus.total,
                         }) ?? undefined
@@ -494,10 +494,10 @@ export class MarkdownTextArea extends Component<
       }
     } else if (res.state === "failed") {
       i.setState({ imageUploadStatus: undefined });
-      console.error(res.msg);
-      toast(res.msg, "danger");
+      console.error(res.err.message);
+      toast(res.err.message, "danger");
 
-      throw res.msg;
+      throw res.err;
     }
   }
 

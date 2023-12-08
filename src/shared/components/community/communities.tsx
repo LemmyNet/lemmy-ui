@@ -11,6 +11,7 @@ import { Component, linkEvent } from "inferno";
 import {
   CommunityResponse,
   GetSiteResponse,
+  LemmyHttp,
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
@@ -23,6 +24,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
@@ -33,6 +35,7 @@ import { CommunityLink } from "./community-link";
 
 import { communityLimit } from "../../config";
 import { SubscribeButton } from "../common/subscribe-button";
+import { getHttpBaseInternal } from "../../utils/env";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -185,7 +188,7 @@ export class Communities extends Component<any, CommunitiesState> {
                               {
                                 i: this,
                                 communityId: cv.community.id,
-                                follow: false,
+                                follow: true,
                               },
                               this.handleFollow,
                             )}
@@ -193,7 +196,7 @@ export class Communities extends Component<any, CommunitiesState> {
                               {
                                 i: this,
                                 communityId: cv.community.id,
-                                follow: true,
+                                follow: false,
                               },
                               this.handleFollow,
                             )}
@@ -306,11 +309,14 @@ export class Communities extends Component<any, CommunitiesState> {
   }
 
   static async fetchInitialData({
+    headers,
     query: { listingType, sort, page },
-    client,
   }: InitialFetchRequest<
     QueryParams<CommunitiesProps>
   >): Promise<CommunitiesData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const listCommunitiesForm: ListCommunities = {
       type_: getListingTypeFromQuery(listingType),
       sort: getSortTypeFromQuery(sort),
@@ -319,9 +325,8 @@ export class Communities extends Component<any, CommunitiesState> {
     };
 
     return {
-      listCommunitiesResponse: await client.listCommunities(
-        listCommunitiesForm,
-      ),
+      listCommunitiesResponse:
+        await client.listCommunities(listCommunitiesForm),
     };
   }
 

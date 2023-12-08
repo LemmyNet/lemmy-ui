@@ -1,5 +1,6 @@
 import { setupDateFns } from "@utils/app";
 import { getStaticDir } from "@utils/env";
+import { VERSION } from "../shared/version";
 import express from "express";
 import path from "path";
 import process from "process";
@@ -11,6 +12,7 @@ import ServiceWorkerHandler from "./handlers/service-worker-handler";
 import ThemeHandler from "./handlers/theme-handler";
 import ThemesListHandler from "./handlers/themes-list-handler";
 import { setCacheControl, setDefaultCsp } from "./middleware";
+import CodeThemeHandler from "./handlers/code-theme-handler";
 
 const server = express();
 
@@ -47,15 +49,45 @@ server.get("/robots.txt", RobotsHandler);
 server.get("/service-worker.js", ServiceWorkerHandler);
 server.get("/manifest.webmanifest", ManifestHandler);
 server.get("/css/themes/:name", ThemeHandler);
+server.get("/css/code-themes/:name", CodeThemeHandler);
 server.get("/css/themelist", ThemesListHandler);
 server.get("/*", CatchAllHandler);
 
-server.listen(Number(port), hostname, () => {
+const listener = server.listen(Number(port), hostname, () => {
   setupDateFns();
-  console.log(`http://${hostname}:${port}`);
+  console.log(
+    `Lemmy-ui v${VERSION} started listening on http://${hostname}:${port}`,
+  );
 });
 
-process.on("SIGINT", () => {
-  console.info("Interrupted");
-  process.exit(0);
-});
+const signals = {
+  SIGHUP: 1,
+  SIGINT: 2,
+  SIGTERM: 15,
+};
+
+const exit_signal = 128; // Fatal error signal code on Linux systems
+const exit_timeout = 8000; // Because Docker SIGTERMs after 10 secs
+
+function shutdown(signal: string, value: number) {
+  // TODO: Should set a flag here for the listener to reject any further
+  // incoming connections with a HTTP 503 error while shutting down.
+  // Otherwise the connection count may not reach zero before timeout.
+  listener.close(() => {
+    console.log(`Lemmy stopped by ${signal} with value ${value}`);
+    process.exit(exit_signal + value);
+  });
+  setTimeout(() => {
+    console.error(
+      `Could not close all connections in time, forcing shutdown because of ${signal}...`,
+    );
+    process.exit(exit_signal + value);
+  }, exit_timeout);
+}
+
+for (const [signal, value] of Object.entries(signals)) {
+  process.on(signal, () => {
+    console.log(`Process received a ${signal} signal, shutting down...`);
+    shutdown(signal, value);
+  });
+}

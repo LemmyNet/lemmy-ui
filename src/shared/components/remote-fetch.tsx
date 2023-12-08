@@ -2,13 +2,18 @@ import { setIsoData } from "@utils/app";
 import { getQueryParams } from "@utils/helpers";
 import { QueryParams, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
-import { CommunityView, ResolveObjectResponse } from "lemmy-js-client";
+import {
+  CommunityView,
+  LemmyHttp,
+  ResolveObjectResponse,
+} from "lemmy-js-client";
 import { InitialFetchRequest } from "../interfaces";
 import { FirstLoadService, HttpService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../services/HttpService";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
@@ -16,6 +21,7 @@ import { LoadingEllipses } from "./common/loading-ellipses";
 import { PictrsImage } from "./common/pictrs-image";
 import { SubscribeButton } from "./common/subscribe-button";
 import { CommunityLink } from "./community/community-link";
+import { getHttpBaseInternal } from "../utils/env";
 
 interface RemoteFetchProps {
   uri?: string;
@@ -206,15 +212,17 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
   }
 
   static async fetchInitialData({
-    auth,
-    client,
+    headers,
     query: { uri },
   }: InitialFetchRequest<
     QueryParams<RemoteFetchProps>
   >): Promise<RemoteFetchData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const data: RemoteFetchData = { resolveObjectRes: EMPTY_REQUEST };
 
-    if (uri && auth) {
+    if (uri && headers["Authorization"]) {
       data.resolveObjectRes = await client.resolveObject({
         q: uriToQuery(uri),
       });

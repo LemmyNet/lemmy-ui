@@ -42,6 +42,7 @@ import {
   GetPersonMentionsResponse,
   GetRepliesResponse,
   GetSiteResponse,
+  LemmyHttp,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
   MarkPrivateMessageAsRead,
@@ -52,11 +53,11 @@ import {
   PrivateMessageView,
   PrivateMessagesResponse,
   PurgeComment,
-  PurgeItemResponse,
   PurgePerson,
   PurgePost,
   RemoveComment,
   SaveComment,
+  SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
@@ -69,6 +70,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -77,6 +79,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { PrivateMessage } from "../private_message/private-message";
+import { getHttpBaseInternal } from "../../utils/env";
 
 enum UnreadOrAll {
   Unread,
@@ -724,8 +727,11 @@ export class Inbox extends Component<any, InboxState> {
   }
 
   static async fetchInitialData({
-    client,
+    headers,
   }: InitialFetchRequest): Promise<InboxData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const sort: CommentSortType = "New";
     const empty: EmptyRequestState = EMPTY_REQUEST;
     let inboxData: InboxData = {
@@ -734,7 +740,7 @@ export class Inbox extends Component<any, InboxState> {
       repliesRes: empty,
     };
 
-    if (myAuth()) {
+    if (headers["Authorization"]) {
       const [mentionsRes, messagesRes, repliesRes] = await Promise.all([
         client.getPersonMentions({
           sort,
@@ -795,7 +801,7 @@ export class Inbox extends Component<any, InboxState> {
         limit,
       }),
     });
-    UnreadCounterService.Instance.update();
+    UnreadCounterService.Instance.updateInboxCounts();
   }
 
   async handleSortChange(val: CommentSortType) {
@@ -864,7 +870,7 @@ export class Inbox extends Component<any, InboxState> {
       toast(I18NextService.i18n.t("edit"));
       this.findAndUpdateComment(res);
     } else if (res.state === "failed") {
-      toast(res.msg, "danger");
+      toast(res.err.message, "danger");
     }
 
     return res;
@@ -1038,7 +1044,7 @@ export class Inbox extends Component<any, InboxState> {
     }
   }
 
-  purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
+  purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);

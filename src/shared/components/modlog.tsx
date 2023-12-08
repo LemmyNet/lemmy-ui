@@ -31,6 +31,7 @@ import {
   GetModlogResponse,
   GetPersonDetails,
   GetPersonDetailsResponse,
+  LemmyHttp,
   ModAddCommunityView,
   ModAddView,
   ModBanFromCommunityView,
@@ -52,6 +53,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../services/HttpService";
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
@@ -60,6 +62,7 @@ import { Paginator } from "./common/paginator";
 import { SearchableSelect } from "./common/searchable-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
+import { getHttpBaseInternal } from "../utils/env";
 
 type FilterType = "mod" | "user";
 
@@ -109,6 +112,7 @@ interface ModlogState {
   loadingUserSearch: boolean;
   modSearchOptions: Choice[];
   userSearchOptions: Choice[];
+  isIsomorphic: boolean;
 }
 
 interface ModlogProps {
@@ -364,7 +368,7 @@ function renderModlogType({ type_, view }: ModlogType) {
     case "ModRemoveCommunity": {
       const mrco = view as ModRemoveCommunityView;
       const {
-        mod_remove_community: { reason, expires, removed },
+        mod_remove_community: { reason, removed },
         community,
       } = mrco;
 
@@ -377,11 +381,6 @@ function renderModlogType({ type_, view }: ModlogType) {
           {reason && (
             <span>
               <div>reason: {reason}</div>
-            </span>
-          )}
-          {expires && (
-            <span>
-              <div>expires: {formatPastDate(expires)}</div>
             </span>
           )}
         </>
@@ -622,27 +621,15 @@ async function createNewOptions({
   oldOptions: Choice[];
   text: string;
 }) {
-  const newOptions: Choice[] = [];
-
-  if (id) {
-    const selectedUser = oldOptions.find(
-      ({ value }) => value === id.toString(),
-    );
-
-    if (selectedUser) {
-      newOptions.push(selectedUser);
-    }
-  }
-
   if (text.length > 0) {
-    newOptions.push(
-      ...(await fetchUsers(text))
-        .slice(0, Number(fetchLimit))
-        .map<Choice>(personToChoice),
-    );
+    return oldOptions
+      .filter(choice => parseInt(choice.value, 10) === id)
+      .concat(
+        (await fetchUsers(text)).slice(0, fetchLimit).map(personToChoice),
+      );
+  } else {
+    return oldOptions;
   }
-
-  return newOptions;
 }
 
 export class Modlog extends Component<
@@ -658,6 +645,7 @@ export class Modlog extends Component<
     loadingUserSearch: false,
     userSearchOptions: [],
     modSearchOptions: [],
+    isIsomorphic: false,
   };
 
   constructor(
@@ -678,6 +666,7 @@ export class Modlog extends Component<
         ...this.state,
         res,
         communityRes,
+        isIsomorphic: true,
       };
 
       if (modUserResponse.state === "success") {
@@ -697,7 +686,40 @@ export class Modlog extends Component<
   }
 
   async componentDidMount() {
-    await this.refetch();
+    if (!this.state.isIsomorphic) {
+      const { modId, userId } = getModlogQueryParams();
+      const promises = [this.refetch()];
+
+      if (userId) {
+        promises.push(
+          HttpService.client
+            .getPersonDetails({ person_id: userId })
+            .then(res => {
+              if (res.state === "success") {
+                this.setState({
+                  userSearchOptions: [personToChoice(res.data.person_view)],
+                });
+              }
+            }),
+        );
+      }
+
+      if (modId) {
+        promises.push(
+          HttpService.client
+            .getPersonDetails({ person_id: modId })
+            .then(res => {
+              if (res.state === "success") {
+                this.setState({
+                  modSearchOptions: [personToChoice(res.data.person_view)],
+                });
+              }
+            }),
+        );
+      }
+
+      await Promise.all(promises);
+    }
   }
 
   get combined() {
@@ -728,7 +750,7 @@ export class Modlog extends Component<
   get amAdminOrMod(): boolean {
     const amMod_ =
       this.state.communityRes.state === "success" &&
-      amMod(this.state.communityRes.data.moderators);
+      amMod(this.state.communityRes.data.community_view.community.id);
     return amAdmin() || amMod_;
   }
 
@@ -985,11 +1007,14 @@ export class Modlog extends Component<
   }
 
   static async fetchInitialData({
-    client,
+    headers,
     path,
     query: { modId: urlModId, page, userId: urlUserId, actionType },
     site,
   }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<ModlogData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const pathSplit = path.split("/");
     const communityId = getIdFromString(pathSplit[2]);
     const modId = !site.site_view.local_site.hide_modlog_mod_names

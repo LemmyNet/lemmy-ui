@@ -388,7 +388,7 @@ export class Signup extends Component<any, State> {
       });
       switch (registerRes.state) {
         case "failed": {
-          toast(registerRes.msg, "danger");
+          toast(registerRes.err.message, "danger");
           i.setState({ registerRes: EMPTY_REQUEST });
           break;
         }

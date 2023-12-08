@@ -190,8 +190,8 @@ function handleImageUpload(i: PostForm, event: any) {
         toast(JSON.stringify(res), "danger");
       }
     } else if (res.state === "failed") {
-      console.error(res.msg);
-      toast(res.msg, "danger");
+      console.error(res.err.message);
+      toast(res.err.message, "danger");
       i.setState({ imageLoading: false });
     }
   });
@@ -263,26 +263,16 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           community_id: getIdFromString(selectedCommunityChoice.value),
         },
         communitySearchOptions: [selectedCommunityChoice].concat(
-          (
-            this.props.initialCommunities?.map(
-              ({ community: { id, title } }) => ({
-                label: title,
-                value: id.toString(),
-              }),
-            ) ?? []
-          ).filter(option => option.value !== selectedCommunityChoice.value),
+          (this.props.initialCommunities?.map(communityToChoice) ?? []).filter(
+            option => option.value !== selectedCommunityChoice.value,
+          ),
         ),
       };
     } else {
       this.state = {
         ...this.state,
         communitySearchOptions:
-          this.props.initialCommunities?.map(
-            ({ community: { id, title } }) => ({
-              label: title,
-              value: id.toString(),
-            }),
-          ) ?? [],
+          this.props.initialCommunities?.map(communityToChoice) ?? [],
       };
     }
 
@@ -454,23 +444,23 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 siteLanguages={this.props.siteLanguages}
                 viewOnly
                 // All of these are unused, since its view only
-                onPostEdit={() => {}}
-                onPostVote={() => {}}
-                onPostReport={() => {}}
-                onBlockPerson={() => {}}
-                onLockPost={() => {}}
-                onDeletePost={() => {}}
-                onRemovePost={() => {}}
-                onSavePost={() => {}}
-                onFeaturePost={() => {}}
-                onPurgePerson={() => {}}
-                onPurgePost={() => {}}
-                onBanPersonFromCommunity={() => {}}
-                onBanPerson={() => {}}
-                onAddModToCommunity={() => {}}
-                onAddAdmin={() => {}}
-                onTransferCommunity={() => {}}
-                onMarkPostAsRead={() => {}}
+                onPostEdit={async () => EMPTY_REQUEST}
+                onPostVote={async () => EMPTY_REQUEST}
+                onPostReport={async () => {}}
+                onBlockPerson={async () => {}}
+                onLockPost={async () => {}}
+                onDeletePost={async () => {}}
+                onRemovePost={async () => {}}
+                onSavePost={async () => {}}
+                onFeaturePost={async () => {}}
+                onPurgePerson={async () => {}}
+                onPurgePost={async () => {}}
+                onBanPersonFromCommunity={async () => {}}
+                onBanPerson={async () => {}}
+                onAddModToCommunity={async () => {}}
+                onAddAdmin={async () => {}}
+                onTransferCommunity={async () => {}}
+                onMarkPostAsRead={async () => {}}
               />
             </>
           )}
@@ -625,23 +615,23 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 siteLanguages={this.props.siteLanguages}
                 viewOnly
                 // All of these are unused, since its view only
-                onPostEdit={() => {}}
-                onPostVote={() => {}}
-                onPostReport={() => {}}
-                onBlockPerson={() => {}}
-                onLockPost={() => {}}
-                onDeletePost={() => {}}
-                onRemovePost={() => {}}
-                onSavePost={() => {}}
-                onFeaturePost={() => {}}
-                onPurgePerson={() => {}}
-                onPurgePost={() => {}}
-                onBanPersonFromCommunity={() => {}}
-                onBanPerson={() => {}}
-                onAddModToCommunity={() => {}}
-                onAddAdmin={() => {}}
-                onTransferCommunity={() => {}}
-                onMarkPostAsRead={() => {}}
+                onPostEdit={async () => EMPTY_REQUEST}
+                onPostVote={async () => EMPTY_REQUEST}
+                onPostReport={async () => {}}
+                onBlockPerson={async () => {}}
+                onLockPost={async () => {}}
+                onDeletePost={async () => {}}
+                onRemovePost={async () => {}}
+                onSavePost={async () => {}}
+                onFeaturePost={async () => {}}
+                onPurgePerson={async () => {}}
+                onPurgePost={async () => {}}
+                onBanPersonFromCommunity={async () => {}}
+                onBanPerson={async () => {}}
+                onAddModToCommunity={async () => {}}
+                onAddAdmin={async () => {}}
+                onTransferCommunity={async () => {}}
+                onMarkPostAsRead={async () => {}}
               />
             </>
           )

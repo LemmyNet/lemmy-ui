@@ -25,64 +25,42 @@ interface TotpModalState {
 
 const TOTP_LENGTH = 6;
 
-async function handleSubmit(modal: TotpModal, totp: string) {
-  const successful = await modal.props.onSubmit(totp);
+async function handleSubmit(i: TotpModal, totp: string) {
+  const successful = await i.props.onSubmit(totp);
 
   if (!successful) {
-    modal.setState({ totp: "" });
-    for (const inputRef of modal.inputRefs) {
-      inputRef!.value = "";
-    }
-    modal.inputRefs[0]?.focus();
+    i.setState({ totp: "" });
+    i.inputRef.current?.focus();
   }
 }
 
-function handleInput(
-  { modal, i }: { modal: TotpModal; i: number },
-  event: any,
-) {
+function handleInput(i: TotpModal, event: any) {
   if (isNaN(event.target.value)) {
-    modal.inputRefs[i]!.value = "";
     return;
   }
 
-  modal.setState(prev => ({ ...prev, totp: prev.totp + event.target.value }));
-  modal.inputRefs[i + 1]?.focus();
+  i.setState({
+    totp: event.target.value,
+  });
 
-  const { totp } = modal.state;
+  const { totp } = i.state;
   if (totp.length >= TOTP_LENGTH) {
-    handleSubmit(modal, totp);
+    handleSubmit(i, totp);
   }
 }
 
-function handleKeyUp(
-  { modal, i }: { modal: TotpModal; i: number },
-  event: any,
-) {
-  if (event.key === "Backspace" && i > 0) {
-    modal.setState(prev => ({
-      ...prev,
-      totp: prev.totp.slice(0, prev.totp.length - 1),
-    }));
-    modal.inputRefs[i - 1]?.focus();
-  }
-}
-
-function handlePaste(modal: TotpModal, event: any) {
+function handlePaste(i: TotpModal, event: any) {
   event.preventDefault();
   const text: string = event.clipboardData.getData("text")?.trim();
 
   if (text.length > TOTP_LENGTH || isNaN(Number(text))) {
     toast(I18NextService.i18n.t("invalid_totp_code"), "danger");
-    modal.clearTotp();
+    i.clearTotp();
   } else {
-    [...text].forEach((num, i) => {
-      modal.inputRefs[i]!.value = num;
-    });
-    modal.setState({ totp: text });
+    i.setState({ totp: text });
 
     if (text.length === TOTP_LENGTH) {
-      handleSubmit(modal, text);
+      handleSubmit(i, text);
     }
   }
 }
@@ -91,8 +69,8 @@ export default class TotpModal extends Component<
   TotpModalProps,
   TotpModalState
 > {
-  private readonly modalDivRef: RefObject<HTMLDivElement>;
-  inputRefs: (HTMLInputElement | null)[] = [];
+  readonly modalDivRef: RefObject<HTMLDivElement>;
+  readonly inputRef: RefObject<HTMLInputElement>;
   modal: Modal;
   state: TotpModalState = {
     totp: "",
@@ -102,6 +80,7 @@ export default class TotpModal extends Component<
     super(props, context);
 
     this.modalDivRef = createRef();
+    this.inputRef = createRef();
 
     this.clearTotp = this.clearTotp.bind(this);
     this.handleShow = this.handleShow.bind(this);
@@ -164,7 +143,7 @@ export default class TotpModal extends Component<
         data-bs-backdrop="static"
         ref={this.modalDivRef}
       >
-        <div className="modal-dialog modal-fullscreen-sm-down">
+        <div className="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
           <div className="modal-content">
             <header className="modal-header">
               <h3 className="modal-title" id="totpModalTitle">
@@ -172,8 +151,8 @@ export default class TotpModal extends Component<
                   type === "generate"
                     ? "enable_totp"
                     : type === "remove"
-                    ? "disable_totp"
-                    : "enter_totp_code",
+                      ? "disable_totp"
+                      : "enter_totp_code",
                 )}
               </h3>
               <button
@@ -207,34 +186,24 @@ export default class TotpModal extends Component<
               <form id="totp-form">
                 <label
                   className="form-label ms-2 mt-4 fw-bold"
-                  id="totp-input-label"
-                  htmlFor="totp-input-0"
+                  htmlFor="totp-input"
                 >
                   {I18NextService.i18n.t("enter_totp_code")}
                 </label>
                 <div className="d-flex justify-content-between align-items-center p-2">
-                  {Array.from(Array(TOTP_LENGTH).keys()).map(i => (
-                    <input
-                      key={
-                        i /*While using indices as keys is usually bad practice, in this case we don't have to worry about the order of the list items changing.*/
-                      }
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={1}
-                      disabled={totp.length !== i}
-                      aria-labelledby="totp-input-label"
-                      id={`totp-input-${i}`}
-                      className="form-control form-control-lg mx-2 p-1 p-md-2 text-center"
-                      onInput={linkEvent({ modal: this, i }, handleInput)}
-                      onKeyUp={linkEvent({ modal: this, i }, handleKeyUp)}
-                      onPaste={linkEvent(this, handlePaste)}
-                      ref={element => {
-                        this.inputRefs[i] = element;
-                      }}
-                      enterKeyHint="done"
-                    />
-                  ))}
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={TOTP_LENGTH}
+                    id="totp-input"
+                    className="form-control form-control-lg mx-2 p-1 p-md-2 text-center"
+                    onInput={linkEvent(this, handleInput)}
+                    onPaste={linkEvent(this, handlePaste)}
+                    ref={this.inputRef}
+                    enterKeyHint="done"
+                    value={totp}
+                  />
                 </div>
               </form>
             </div>
@@ -255,13 +224,10 @@ export default class TotpModal extends Component<
 
   clearTotp() {
     this.setState({ totp: "" });
-    for (const inputRef of this.inputRefs) {
-      inputRef!.value = "";
-    }
   }
 
   async handleShow() {
-    this.inputRefs[0]?.focus();
+    this.inputRef.current?.focus();
 
     if (this.props.type === "generate") {
       const { getSVG } = await import("@shortcm/qr-image/lib/svg");

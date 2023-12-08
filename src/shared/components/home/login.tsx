@@ -1,5 +1,5 @@
 import { setIsoData } from "@utils/app";
-import { isBrowser } from "@utils/browser";
+import { isBrowser, updateDataBsTheme } from "@utils/browser";
 import { getExternalHost } from "@utils/env";
 import { getQueryParams } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
@@ -17,6 +17,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import TotpModal from "../common/totp-modal";
+import { UnreadCounterService } from "../../services";
 
 interface LoginProps {
   prev?: string;
@@ -51,6 +52,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
 
   if (site.state === "success") {
     UserService.Instance.myUserInfo = site.data.my_user;
+    updateDataBsTheme(site.data);
   }
 
   const { prev } = getLoginQueryParams();
@@ -58,8 +60,10 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
   prev
     ? i.props.history.replace(prev)
     : i.props.history.action === "PUSH"
-    ? i.props.history.back()
-    : i.props.history.replace("/");
+      ? i.props.history.back()
+      : i.props.history.replace("/");
+
+  UnreadCounterService.Instance.updateAll();
 }
 
 async function handleLoginSubmit(i: Login, event: any) {
@@ -75,10 +79,10 @@ async function handleLoginSubmit(i: Login, event: any) {
     });
     switch (loginRes.state) {
       case "failed": {
-        if (loginRes.msg === "missing_totp_token") {
+        if (loginRes.err.message === "missing_totp_token") {
           i.setState({ show2faModal: true });
         } else {
-          toast(I18NextService.i18n.t(loginRes.msg), "danger");
+          toast(I18NextService.i18n.t(loginRes.err.message), "danger");
         }
 
         i.setState({ loginRes });

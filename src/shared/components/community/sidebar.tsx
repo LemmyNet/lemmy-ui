@@ -1,4 +1,4 @@
-import { getUnixTime, hostname } from "@utils/helpers";
+import { hostname } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -268,7 +268,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <>
         <ul className="list-inline mb-1 text-muted fw-bold">
-          {amMod(this.props.moderators) && (
+          {amMod(this.props.community_view.community.id) && (
             <>
               <li className="list-inline-item-action">
                 <button
@@ -468,7 +468,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   get canPost(): boolean {
     return (
       !this.props.community_view.community.posting_restricted_to_mods ||
-      amMod(this.props.moderators) ||
+      amMod(this.props.community_view.community.id) ||
       amAdmin()
     );
   }
@@ -546,7 +546,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       community_id: i.props.community_view.community.id,
       removed: !i.props.community_view.community.removed,
       reason: i.state.removeReason,
-      expires: getUnixTime(i.state.removeExpires), // TODO fix this
     });
   }
 

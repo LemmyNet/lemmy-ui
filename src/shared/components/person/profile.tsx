@@ -18,7 +18,7 @@ import {
   numToSI,
   randomStr,
 } from "@utils/helpers";
-import { canMod, isAdmin, isBanned } from "@utils/roles";
+import { canMod, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -55,14 +55,13 @@ import {
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
+  LemmyHttp,
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
-  MarkPostAsRead,
   PersonView,
   PostResponse,
   PurgeComment,
-  PurgeItemResponse,
   PurgePerson,
   PurgePost,
   RemoveComment,
@@ -70,6 +69,7 @@ import {
   SaveComment,
   SavePost,
   SortType,
+  SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
@@ -81,6 +81,7 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
+  wrapClient,
 } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
@@ -93,6 +94,7 @@ import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
+import { getHttpBaseInternal } from "../../utils/env";
 
 type ProfileData = RouteDataResponse<{
   personResponse: GetPersonDetailsResponse;
@@ -222,7 +224,6 @@ export class Profile extends Component<
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
     this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
-    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -277,10 +278,13 @@ export class Profile extends Component<
   }
 
   static async fetchInitialData({
-    client,
+    headers,
     path,
     query: { page, sort, view: urlView },
   }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<ProfileData> {
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
     const pathSplit = path.split("/");
 
     const username = pathSplit[2];
@@ -378,7 +382,7 @@ export class Profile extends Component<
                 onSavePost={this.handleSavePost}
                 onPurgePost={this.handlePurgePost}
                 onFeaturePost={this.handleFeaturePost}
-                onMarkPostAsRead={this.handleMarkPostAsRead}
+                onMarkPostAsRead={() => {}}
               />
             </div>
 
@@ -499,7 +503,7 @@ export class Profile extends Component<
                         classNames="ms-1"
                         isBanned={isBanned(pv.person)}
                         isDeleted={pv.person.deleted}
-                        isAdmin={isAdmin(pv.person.id, admins)}
+                        isAdmin={pv.is_admin}
                         isBot={pv.person.bot_account}
                       />
                     </li>
@@ -555,7 +559,7 @@ export class Profile extends Component<
                 )}
 
                 {canMod(pv.person.id, undefined, admins) &&
-                  !isAdmin(pv.person.id, admins) &&
+                  !pv.is_admin &&
                   !showBanDialog &&
                   (!isBanned(pv.person) ? (
                     <button
@@ -845,7 +849,7 @@ export class Profile extends Component<
 
   async handleEditComment(form: EditComment) {
     const editCommentRes = await HttpService.client.editComment(form);
-    this.findAndUpdateComment(editCommentRes);
+    this.findAndUpdateCommentEdit(editCommentRes);
 
     return editCommentRes;
   }
@@ -893,11 +897,13 @@ export class Profile extends Component<
   async handlePostVote(form: CreatePostLike) {
     const voteRes = await HttpService.client.likePost(form);
     this.findAndUpdatePost(voteRes);
+    return voteRes;
   }
 
   async handlePostEdit(form: EditPost) {
     const res = await HttpService.client.editPost(form);
     this.findAndUpdatePost(res);
+    return res;
   }
 
   async handleCommentReport(form: CreateCommentReport) {
@@ -945,11 +951,6 @@ export class Profile extends Component<
   async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
     // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
     await HttpService.client.markPersonMentionAsRead(form);
-  }
-
-  async handleMarkPostAsRead(form: MarkPostAsRead) {
-    const res = await HttpService.client.markPostAsRead(form);
-    this.findAndUpdatePost(res);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
@@ -1002,11 +1003,24 @@ export class Profile extends Component<
     }
   }
 
-  purgeItem(purgeRes: RequestState<PurgeItemResponse>) {
+  purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
     }
+  }
+
+  findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
+    this.setState(s => {
+      if (s.personRes.state === "success" && res.state === "success") {
+        s.personRes.data.comments = editComment(
+          res.data.comment_view,
+          s.personRes.data.comments,
+        );
+        s.finished.set(res.data.comment_view.comment.id, true);
+      }
+      return s;
+    });
   }
 
   findAndUpdateComment(res: RequestState<CommentResponse>) {
@@ -1016,7 +1030,6 @@ export class Profile extends Component<
           res.data.comment_view,
           s.personRes.data.comments,
         );
-        s.finished.set(res.data.comment_view.comment.id, true);
       }
       return s;
     });

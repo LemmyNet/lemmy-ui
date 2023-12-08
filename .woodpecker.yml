@@ -1,6 +1,6 @@
 steps:
   fetch_git_submodules:
-    image: node:alpine
+    image: node:20-alpine
     commands:
       - apk add git
       - git submodule init
@@ -8,17 +8,17 @@ steps:
       # - git fetch --tags
 
   yarn:
-    image: node:alpine
+    image: node:20-alpine
     commands:
       - yarn
 
   yarn_lint:
-    image: node:alpine
+    image: node:20-alpine
     commands:
       - yarn lint
 
   yarn_build_dev:
-    image: node:alpine
+    image: node:20-alpine
     commands:
       - yarn build:dev
 
@@ -28,7 +28,7 @@ steps:
     settings:
       repo: dessalines/lemmy-ui
       dockerfile: Dockerfile
-      platforms: linux/amd64
+      platforms: linux/amd64, linux/arm64
       tag: ${CI_COMMIT_TAG}
     when:
       event: tag
@@ -39,7 +39,7 @@ steps:
     settings:
       repo: dessalines/lemmy-ui
       dockerfile: Dockerfile
-      platforms: linux/amd64
+      platforms: linux/amd64, linux/arm64
       tag: dev
     when:
       event: cron

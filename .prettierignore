@@ -1,5 +1,6 @@
 src/shared/translations
 lemmy-translations
 src/assets/css/themes/*.css
+src/assets/css/code-themes/*.css
 stats.json
 dist
