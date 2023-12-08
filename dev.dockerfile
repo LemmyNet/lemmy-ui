@@ -9,7 +9,6 @@ ENV npm_config_target_libc=musl
 
 # Cache deps
 COPY package.json yarn.lock ./
-COPY ./.yalc ./.yalc
 RUN yarn --prefer-offline --pure-lockfile
 
 # Build
