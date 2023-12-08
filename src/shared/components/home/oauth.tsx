@@ -27,11 +27,22 @@ export class OAuth extends Component<any, State> {
   async componentDidMount() {
     UserService.Instance.login({
         res: {
-            jwt: cookie.parse(document.cookie).jwt,
+            jwt: cookie.parse(document.cookie).auth,
             verify_email_sent: false,
             registration_created: false,
         },
     });
+    // Clear auth cookie
+    document.cookie = cookie.serialize("auth", "", {
+      maxAge: -1,
+      sameSite: true,
+      path: "/",
+    });
+    const site = await HttpService.client.getSite();
+  
+    if (site.state === "success") {
+      UserService.Instance.myUserInfo = site.data.my_user;
+    }
 
     window.location = new URLSearchParams(this.props.location.search).get("redirect_uri");
   }

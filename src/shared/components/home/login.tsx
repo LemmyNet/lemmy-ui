@@ -100,9 +100,13 @@ async function handleUseExternalAuth(d: {
 }) {
   let authEndpoint;
   if (d.external_auth.auth_type === "oidc") {
-    const discoveryEndpoint = d.external_auth.issuer.endsWith(".well-known/openid-configuration") ?
-      d.external_auth.issuer :
-      d.external_auth.issuer + "/.well-known/openid-configuration";
+    let discoveryEndpoint = d.external_auth.issuer;
+    if (!discoveryEndpoint.endsWith(".well-known/openid-configuration")) {
+      if (!discoveryEndpoint.endsWith("/")) {
+        discoveryEndpoint += "/";
+      }
+      discoveryEndpoint += ".well-known/openid-configuration";
+    }
     const res = await fetch(discoveryEndpoint);
     authEndpoint = (await res.json()).authorization_endpoint;
   } else {
