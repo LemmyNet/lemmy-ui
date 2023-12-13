@@ -1008,7 +1008,7 @@ export class Post extends Component<any, PostState> {
         I18NextService.i18n.t(
           form.ban ? "banned_from_community" : "unbanned_from_community",
           {
-            user: getApubName(this.state.postRes.data.post_view.creator),
+            user: getApubName(banRes.data.person_view.person),
             community: getApubName(this.state.postRes.data.post_view.community),
           },
         ),
@@ -1024,7 +1024,7 @@ export class Post extends Component<any, PostState> {
         I18NextService.i18n.t(
           form.ban ? "banned_from_site" : "unbanned_from_site",
           {
-            user: getApubName(this.state.postRes.data.post_view.creator),
+            user: getApubName(banRes.data.person_view.person),
           },
         ),
       );
