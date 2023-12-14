@@ -1,5 +1,5 @@
 import { Component, InfernoNode, linkEvent } from "@/inferno";
-import { T } from "inferno-i18next-dess";
+import { Trans as T } from "react-i18next";
 import { PostReportView, PostView, ResolvePostReport } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";

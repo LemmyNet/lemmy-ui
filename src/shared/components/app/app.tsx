@@ -1,7 +1,7 @@
 import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
 import { dataBsTheme } from "@utils/browser";
 import { Component, RefObject, createRef, linkEvent } from "@/inferno";
-import { Provider } from "inferno-i18next-dess";
+import { I18nextProvider as Provider } from "react-i18next";
 import { Route, Switch } from "@/inferno-router";
 import { IsoDataOptionalSite } from "../../interfaces";
 import { routes } from "../../routes";
@@ -35,7 +35,7 @@ export class App extends Component<any, any> {
 
     return (
       <>
-        <Provider i18next={I18NextService.i18n}>
+        <Provider i18n={I18NextService.i18n}>
           <div
             id="app"
             className="lemmy-site"

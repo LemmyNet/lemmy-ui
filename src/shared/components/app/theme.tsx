@@ -1,5 +1,5 @@
 import { Component } from "@/inferno";
-import { Helmet } from "inferno-helmet";
+import { Helmet } from "react-helmet";
 import { UserService } from "../../services";
 
 interface Props {

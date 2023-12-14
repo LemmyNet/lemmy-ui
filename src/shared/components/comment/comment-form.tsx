@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component } from "@/inferno";
-import { T } from "inferno-i18next-dess";
+import { Trans as T } from "react-i18next";
 import { Link } from "@/inferno-router";
 import { CreateComment, EditComment, Language } from "lemmy-js-client";
 import { CommentNodeI } from "../../interfaces";

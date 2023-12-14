@@ -75,7 +75,7 @@ module.exports = (env, argv) => {
       publicPath: "/",
     },
     target: "node",
-    externals: [nodeExternals(), "inferno-helmet"],
+    externals: [nodeExternals(), "react-helmet"],
   };
 
   const clientConfig = {

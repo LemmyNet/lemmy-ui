@@ -16,7 +16,6 @@ import {
 import { capitalizeFirstLetter, debounce } from "@utils/helpers";
 import { Choice, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { NoOptionI18nKeys } from "i18next";
 import { Component, createRef, linkEvent } from "@/inferno";
 import {
   BlockCommunityResponse,
@@ -150,7 +149,7 @@ const Filter = ({
       className="col-md-4 col-form-label"
       htmlFor={`block-${filterType}-filter`}
     >
-      {I18NextService.i18n.t(`block_${filterType}` as NoOptionI18nKeys)}
+      {I18NextService.i18n.t(`block_${filterType}`)}
     </label>
     <div className="col-md-8">
       <SearchableSelect

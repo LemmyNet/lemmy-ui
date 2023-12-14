@@ -2,7 +2,7 @@ import { isBrowser, platform } from "@utils/browser";
 import { numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
-import { NoOptionI18nKeys } from "i18next";
+
 import { Component, linkEvent } from "@/inferno";
 import { Prompt } from "@/inferno-router";
 import { Language } from "lemmy-js-client";
@@ -328,7 +328,7 @@ export class MarkdownTextArea extends Component<
   }
 
   getFormatButton(
-    type: NoOptionI18nKeys,
+    type: string,
     handleClick: (i: MarkdownTextArea, event: any) => void,
   ) {
     let iconType: string;

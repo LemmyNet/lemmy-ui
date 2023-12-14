@@ -2,7 +2,7 @@ import { setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "@/inferno";
-import { T } from "inferno-i18next-dess";
+import { Trans as T } from "react-i18next";
 import {
   CaptchaResponse,
   GetCaptchaResponse,

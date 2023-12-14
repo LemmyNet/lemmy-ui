@@ -21,9 +21,8 @@ import {
 import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, linkEvent } from "@/inferno";
-import { T } from "inferno-i18next-dess";
+import { Trans as T } from "react-i18next";
 import { Link } from "@/inferno-router";
 import {
   AddAdmin,
@@ -199,7 +198,7 @@ const MobileButton = ({
   show,
   onClick,
 }: {
-  textKey: NoOptionI18nKeys;
+  textKey: string;
   show: boolean;
   onClick: MouseEventHandler<HTMLButtonElement>;
 }) => (
@@ -217,7 +216,7 @@ const LinkButton = ({
   translationKey,
 }: {
   path: string;
-  translationKey: NoOptionI18nKeys;
+  translationKey: string;
 }) => (
   <Link className="btn btn-secondary d-block" to={path}>
     {I18NextService.i18n.t(translationKey)}

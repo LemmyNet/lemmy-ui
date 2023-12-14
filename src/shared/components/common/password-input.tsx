@@ -1,6 +1,6 @@
 import { Options, passwordStrength } from "check-password-strength";
 import classNames from "classnames";
-import { NoOptionI18nKeys } from "i18next";
+
 import { Component, FormEventHandler, linkEvent } from "@/inferno";
 import { NavLink } from "@/inferno-router";
 import { I18NextService } from "../../services";
@@ -117,9 +117,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
             </div>
             {showStrength && value && (
               <div className={this.passwordColorClass}>
-                {I18NextService.i18n.t(
-                  this.passwordStrength as NoOptionI18nKeys,
-                )}
+                {I18NextService.i18n.t(this.passwordStrength!)}
               </div>
             )}
             {showForgotLink && (

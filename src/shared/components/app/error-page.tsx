@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { Component } from "@/inferno";
-import { T } from "inferno-i18next-dess";
+import { Trans as T } from "react-i18next";
 import { Link } from "@/inferno-router";
 import { IsoDataOptionalSite } from "../../interfaces";
 import { I18NextService } from "../../services";

@@ -1,6 +1,6 @@
 import { fetchThemeList, setIsoData } from "@utils/app";
 import { Component, linkEvent } from "@/inferno";
-import { Helmet } from "inferno-helmet";
+import { Helmet } from "react-helmet";
 import {
   CreateSite,
   GetSiteResponse,

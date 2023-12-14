@@ -1,12 +1,12 @@
 import { getStaticDir } from "@utils/env";
-import { Helmet } from "inferno-helmet";
-import { renderToString } from "inferno-server";
+import { Helmet } from "react-helmet";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { favIconPngUrl, favIconUrl } from "../../shared/config";
 import { IsoDataOptionalSite } from "../../shared/interfaces";
 import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
+import { renderToString } from "react-dom/server";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
@@ -54,6 +54,7 @@ export async function createSsrHtml(
           <>
             <script
               nonce={cspNonce}
+              async
               src="//cdn.jsdelivr.net/npm/eruda"
             ></script>
             <script nonce={cspNonce}>eruda.init();</script>

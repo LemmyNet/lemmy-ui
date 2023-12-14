@@ -15,9 +15,8 @@ import {
 import { amAdmin, amMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "@/inferno";
-import { T } from "inferno-i18next-dess";
+import { Trans as T } from "react-i18next";
 import { Link } from "@/inferno-router";
 import { RouteComponentProps } from "@/inferno-router";
 import {
@@ -594,7 +593,7 @@ const Filter = ({
 }) => (
   <div className="col-sm-6 mb-3">
     <label className="mb-2" htmlFor={`filter-${filterType}`}>
-      {I18NextService.i18n.t(`filter_by_${filterType}` as NoOptionI18nKeys)}
+      {I18NextService.i18n.t(`filter_by_${filterType}`)}
     </label>
     <SearchableSelect
       id={`filter-${filterType}`}

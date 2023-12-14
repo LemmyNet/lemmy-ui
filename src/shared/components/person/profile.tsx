@@ -24,7 +24,6 @@ import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
-import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "@/inferno";
 import { Link } from "@/inferno-router";
 import { RouteComponentProps } from "@/inferno-router";
@@ -137,7 +136,7 @@ function getViewFromProps(view?: string): PersonDetailsView {
 }
 
 const getCommunitiesListing = (
-  translationKey: NoOptionI18nKeys,
+  translationKey: string,
   communityViews?: { community: Community }[],
 ) =>
   communityViews &&
@@ -436,7 +435,7 @@ export class Profile extends Component<
             active,
           })}
         >
-          {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
+          {I18NextService.i18n.t(view.toLowerCase())}
         </label>
       </>
     );

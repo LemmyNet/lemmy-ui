@@ -3,7 +3,6 @@ import { getHttpBaseInternal } from "@utils/env";
 import { ErrorPageData } from "@utils/types";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "@/inferno-router";
-import { renderToString } from "inferno-server";
 import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import { App } from "../../shared/components/app/app";
 import {
@@ -21,6 +20,7 @@ import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
 import { StaticRouterContext } from "react-router";
+import { renderToString } from "react-dom/server";
 
 export default async (req: Request, res: Response) => {
   try {

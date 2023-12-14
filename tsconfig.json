@@ -23,7 +23,6 @@
       "@utils/*": ["shared/utils/*"]
     },
     "allowJs": true,
-
     "incremental": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
@@ -32,14 +31,16 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "strict": false
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "node_modules/inferno/dist/index.d.ts",
     ".next/types/**/*.ts",
-    "next-env.d.ts"
+    "next-env.d.ts",
+    "next.config.js"
   ],
   "exclude": ["node_modules"]
 }

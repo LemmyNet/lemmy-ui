@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, InfernoNode } from "@/inferno";
-import { T } from "inferno-i18next-dess";
+import { Trans as T } from "react-i18next";
 import { Prompt } from "@/inferno-router";
 import {
   CreatePrivateMessage,

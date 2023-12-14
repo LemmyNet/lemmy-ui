@@ -1,7 +1,7 @@
 import { initializeSite, setupDateFns } from "@utils/app";
-import { hydrate } from "inferno-hydrate";
 import { BrowserRouter } from "@/inferno-router";
 import { App } from "../shared/components/app/app";
+import { hydrateRoot } from "react-dom/client";
 
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
@@ -21,7 +21,7 @@ async function startClient() {
   const root = document.getElementById("root");
 
   if (root) {
-    hydrate(wrapper, root);
+    hydrateRoot(root, wrapper);
   }
 }
 
