@@ -1,3 +1,4 @@
+tsconfig.tsbuildinfo
 dist
 .fusebox
 _site
@@ -29,3 +30,5 @@ src/shared/translations
 
 stats.json
 
+
+.next

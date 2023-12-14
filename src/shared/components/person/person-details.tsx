@@ -1,5 +1,5 @@
 import { commentsToFlatNodes } from "@utils/app";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import {
   AddAdmin,
   AddModToCommunity,

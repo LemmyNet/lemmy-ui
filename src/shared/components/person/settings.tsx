@@ -17,7 +17,7 @@ import { capitalizeFirstLetter, debounce } from "@utils/helpers";
 import { Choice, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, createRef, linkEvent } from "inferno";
+import { Component, createRef, linkEvent } from "@/inferno";
 import {
   BlockCommunityResponse,
   BlockInstanceResponse,
@@ -65,6 +65,7 @@ import TotpModal from "../common/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
 import { updateDataBsTheme } from "../../utils/browser";
 import { getHttpBaseInternal } from "../../utils/env";
+import { FormEvent } from "react";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -190,7 +191,7 @@ function handleClose2faModal(i: Settings) {
 }
 
 export class Settings extends Component<any, SettingsState> {
-  private isoData = setIsoData<SettingsData>(this.context);
+  private isoData = setIsoData<SettingsData>(this);
   exportSettingsLink = createRef<HTMLAnchorElement>();
 
   state: SettingsState = {
@@ -348,6 +349,8 @@ export class Settings extends Component<any, SettingsState> {
   get documentTitle(): string {
     return I18NextService.i18n.t("settings");
   }
+
+  declare context: any;
 
   render() {
     /* eslint-disable jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid */
@@ -1680,7 +1683,7 @@ export class Settings extends Component<any, SettingsState> {
     i.setState(s => ((s.deleteAccountForm.password = event.target.value), s));
   }
 
-  async handleDeleteAccount(i: Settings, event: Event) {
+  async handleDeleteAccount(i: Settings, event: FormEvent) {
     event.preventDefault();
     const password = i.state.deleteAccountForm.password;
     if (password) {

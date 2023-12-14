@@ -7,7 +7,7 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import {
   CommunityResponse,
   GetSiteResponse,
@@ -70,7 +70,7 @@ function getCommunitiesQueryParams() {
 }
 
 export class Communities extends Component<any, CommunitiesState> {
-  private isoData = setIsoData<CommunitiesData>(this.context);
+  private isoData = setIsoData<CommunitiesData>(this);
   state: CommunitiesState = {
     listCommunitiesResponse: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
@@ -298,6 +298,7 @@ export class Communities extends Component<any, CommunitiesState> {
   handleSearchChange(i: Communities, event: any) {
     i.setState({ searchText: event.target.value });
   }
+  declare context: any;
 
   handleSearchSubmit(i: Communities, event: any) {
     event.preventDefault();

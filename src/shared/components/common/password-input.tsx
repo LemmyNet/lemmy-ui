@@ -1,8 +1,8 @@
 import { Options, passwordStrength } from "check-password-strength";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, FormEventHandler, linkEvent } from "inferno";
-import { NavLink } from "inferno-router";
+import { Component, FormEventHandler, linkEvent } from "@/inferno";
+import { NavLink } from "@/inferno-router";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
 

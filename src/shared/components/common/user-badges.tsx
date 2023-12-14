@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { I18NextService } from "../../services";
 
 interface UserBadgesProps {

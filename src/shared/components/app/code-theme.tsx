@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 
 export class CodeTheme extends Component {
   render() {

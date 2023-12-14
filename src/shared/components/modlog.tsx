@@ -16,10 +16,10 @@ import { amAdmin, amMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import { T } from "inferno-i18next-dess";
-import { Link } from "inferno-router";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { Link } from "@/inferno-router";
+import { RouteComponentProps } from "@/inferno-router";
 import {
   AdminPurgeCommentView,
   AdminPurgeCommunityView,
@@ -636,7 +636,7 @@ export class Modlog extends Component<
   RouteComponentProps<{ communityId?: string }>,
   ModlogState
 > {
-  private isoData = setIsoData<ModlogData>(this.context);
+  private isoData = setIsoData<ModlogData>(this);
 
   state: ModlogState = {
     res: EMPTY_REQUEST,
@@ -766,7 +766,7 @@ export class Modlog extends Component<
   get documentTitle(): string {
     return `Modlog - ${this.isoData.site_res.site_view.site.name}`;
   }
-
+  declare context: any;
   render() {
     const {
       loadingModSearch,

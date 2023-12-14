@@ -1,7 +1,7 @@
 import { setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { validEmail } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import { T } from "inferno-i18next-dess";
 import {
   CaptchaResponse,
@@ -44,7 +44,7 @@ interface State {
 }
 
 export class Signup extends Component<any, State> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this);
   private audio?: HTMLAudioElement;
 
   state: State = {
@@ -97,6 +97,7 @@ export class Signup extends Component<any, State> {
   get isLemmyMl(): boolean {
     return isBrowser() && window.location.hostname === "lemmy.ml";
   }
+  declare context: any;
 
   render() {
     return (
@@ -337,13 +338,13 @@ export class Signup extends Component<any, State> {
           <img
             className="rounded-top img-fluid"
             src={this.captchaPngSrc(captchaRes)}
-            style="border-bottom-right-radius: 0; border-bottom-left-radius: 0;"
+            style={{ borderBottomRightRadius: 0, borderBottomLeftRadius: 0 }}
             alt={I18NextService.i18n.t("captcha")}
           />
           {captchaRes.wav && (
             <button
               className="rounded-bottom btn btn-sm btn-secondary d-block"
-              style="border-top-right-radius: 0; border-top-left-radius: 0;"
+              style={{ borderTopRightRadius: 0, borderTopLeftRadius: 0 }}
               title={I18NextService.i18n.t("play_captcha_audio")}
               onClick={linkEvent(this, this.handleCaptchaPlay)}
               type="button"

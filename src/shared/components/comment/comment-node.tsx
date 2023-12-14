@@ -4,8 +4,8 @@ import classNames from "classnames";
 import isBefore from "date-fns/isBefore";
 import parseISO from "date-fns/parseISO";
 import subMinutes from "date-fns/subMinutes";
-import { Component, InfernoNode, linkEvent } from "inferno";
-import { Link } from "inferno-router";
+import { Component, InfernoNode, linkEvent } from "@/inferno";
+import { Link } from "@/inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -377,7 +377,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             className={classNames("details ms-1 comment-node py-2", {
               "border-top border-light": !this.props.noBorder,
             })}
-            style={`border-left: 2px ${moreRepliesBorderColor} solid !important`}
+            style={{
+              borderLeft: `2px ${moreRepliesBorderColor} solid !important`,
+            }}
           >
             <button
               className="btn btn-link text-muted"

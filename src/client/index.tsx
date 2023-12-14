@@ -1,6 +1,6 @@
 import { initializeSite, setupDateFns } from "@utils/app";
 import { hydrate } from "inferno-hydrate";
-import { BrowserRouter } from "inferno-router";
+import { BrowserRouter } from "@/inferno-router";
 import { App } from "../shared/components/app/app";
 
 import "bootstrap/js/dist/collapse";

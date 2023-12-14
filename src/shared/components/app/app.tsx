@@ -1,8 +1,8 @@
 import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
 import { dataBsTheme } from "@utils/browser";
-import { Component, RefObject, createRef, linkEvent } from "inferno";
+import { Component, RefObject, createRef, linkEvent } from "@/inferno";
 import { Provider } from "inferno-i18next-dess";
-import { Route, Switch } from "inferno-router";
+import { Route, Switch } from "@/inferno-router";
 import { IsoDataOptionalSite } from "../../interfaces";
 import { routes } from "../../routes";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -17,7 +17,7 @@ import AnonymousGuard from "../common/anonymous-guard";
 import { CodeTheme } from "./code-theme";
 
 export class App extends Component<any, any> {
-  private isoData: IsoDataOptionalSite = setIsoData(this.context);
+  private isoData: IsoDataOptionalSite = setIsoData(this);
   private readonly mainContentRef: RefObject<HTMLElement>;
   constructor(props: any, context: any) {
     super(props, context);

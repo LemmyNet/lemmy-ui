@@ -7,8 +7,8 @@ import {
 import { getIdFromString, getQueryParams } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import { Component } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { Component } from "@/inferno";
+import { RouteComponentProps } from "@/inferno-router";
 import {
   CreatePost as CreatePostI,
   GetCommunity,
@@ -62,7 +62,7 @@ export class CreatePost extends Component<
   RouteComponentProps<Record<string, never>>,
   CreatePostState
 > {
-  private isoData = setIsoData<CreatePostData>(this.context);
+  private isoData = setIsoData<CreatePostData>(this);
   state: CreatePostState = {
     siteRes: this.isoData.site_res,
     loading: true,
@@ -149,7 +149,7 @@ export class CreatePost extends Component<
       this.state.siteRes.site_view.site.name
     }`;
   }
-
+  declare context: any;
   render() {
     const { selectedCommunityChoice } = this.state;
 

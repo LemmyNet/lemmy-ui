@@ -1,4 +1,4 @@
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "@/inferno";
 import {
   CreatePrivateMessage,
   CreatePrivateMessageReport,

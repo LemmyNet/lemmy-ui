@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { UserService } from "../../services";
 import { Spinner } from "./icon";
 
@@ -10,6 +10,7 @@ class AnonymousGuard extends Component<any, AnonymousGuardState> {
   state = {
     hasRedirected: false,
   } as AnonymousGuardState;
+  declare context: any;
 
   constructor(props: any, context: any) {
     super(props, context);

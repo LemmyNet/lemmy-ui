@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import {
   GetFederatedInstancesResponse,
   GetSiteResponse,
@@ -34,7 +34,7 @@ interface InstancesState {
 }
 
 export class Instances extends Component<any, InstancesState> {
-  private isoData = setIsoData<InstancesData>(this.context);
+  private isoData = setIsoData<InstancesData>(this);
   state: InstancesState = {
     instancesRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
@@ -128,6 +128,7 @@ export class Instances extends Component<any, InstancesState> {
       }
     }
   }
+  declare context: any;
 
   render() {
     return (

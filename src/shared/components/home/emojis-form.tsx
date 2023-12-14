@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import {
   CreateCustomEmoji,
   DeleteCustomEmoji,
@@ -39,7 +39,7 @@ interface CustomEmojiViewForm {
 }
 
 export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this);
   private itemsPerPage = 15;
   private emptyState: EmojiFormState = {
     siteRes: this.isoData.site_res,
@@ -100,7 +100,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                 <th className="text-right d-lg-table-cell">
                   {I18NextService.i18n.t("column_keywords")}
                 </th>
-                <th style="width:121px"></th>
+                <th style={{ width: "121px" }}></th>
               </tr>
             </thead>
             <tbody>
@@ -114,7 +114,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                 )
                 .map((cv, index) => (
                   <tr key={index} ref={e => (this.scrollRef[cv.shortcode] = e)}>
-                    <td style="text-align:center;">
+                    <td style={{ textAlign: "center" }}>
                       {cv.image_url.length > 0 && (
                         <img
                           className="icon-emoji-admin"

@@ -1,5 +1,5 @@
-import { Component } from "inferno";
-import { NavLink } from "inferno-router";
+import { Component } from "@/inferno";
+import { NavLink } from "@/inferno-router";
 import { GetSiteResponse } from "lemmy-js-client";
 import { docsUrl, joinLemmyUrl, repoUrl } from "../../config";
 import { I18NextService } from "../../services";

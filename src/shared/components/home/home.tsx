@@ -22,9 +22,9 @@ import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, MouseEventHandler, linkEvent } from "inferno";
+import { Component, MouseEventHandler, linkEvent } from "@/inferno";
 import { T } from "inferno-i18next-dess";
-import { Link } from "inferno-router";
+import { Link } from "@/inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -225,7 +225,7 @@ const LinkButton = ({
 );
 
 export class Home extends Component<any, HomeState> {
-  private isoData = setIsoData<HomeData>(this.context);
+  private isoData = setIsoData<HomeData>(this);
   state: HomeState = {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
@@ -377,6 +377,7 @@ export class Home extends Component<any, HomeState> {
 
     return description ? `${name} - ${description}` : name;
   }
+  declare context: any;
 
   render() {
     const {
@@ -682,7 +683,7 @@ export class Home extends Component<any, HomeState> {
     if (dataType === DataType.Post) {
       switch (this.state.postsRes?.state) {
         case "empty":
-          return <div style="min-height: 20000px;"></div>;
+          return <div style={{ minHeight: "20000px" }}></div>;
         case "loading":
           return (
             <h5>

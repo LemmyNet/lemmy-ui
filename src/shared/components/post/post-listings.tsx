@@ -1,6 +1,6 @@
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { T } from "inferno-i18next-dess";
-import { Link } from "inferno-router";
+import { Link } from "@/inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,

@@ -1,8 +1,8 @@
 import { setIsoData } from "@utils/app";
 import { isBrowser, updateDataBsTheme } from "@utils/browser";
 import { getQueryParams } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { Component, linkEvent } from "@/inferno";
+import { RouteComponentProps } from "@/inferno-router";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import {
@@ -110,7 +110,7 @@ export class Login extends Component<
   RouteComponentProps<Record<string, never>>,
   State
 > {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this);
 
   state: State = {
     loginRes: EMPTY_REQUEST,
@@ -137,6 +137,7 @@ export class Login extends Component<
   get isLemmyMl(): boolean {
     return isBrowser() && window.location.hostname === "lemmy.ml";
   }
+  declare context: any;
 
   render() {
     return (

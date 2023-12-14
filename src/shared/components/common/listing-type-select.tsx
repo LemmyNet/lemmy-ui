@@ -1,6 +1,6 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import { ListingType } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 

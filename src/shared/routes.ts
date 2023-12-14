@@ -1,4 +1,4 @@
-import { IRouteProps } from "inferno-router/dist/Route";
+import { IRouteProps } from "@/inferno-router";
 import { Communities } from "./components/community/communities";
 import { Community } from "./components/community/community";
 import { CreateCommunity } from "./components/community/create-community";
@@ -27,6 +27,7 @@ import { InitialFetchRequest, RouteData } from "./interfaces";
 
 interface IRoutePropsWithFetch<T extends RouteData> extends IRouteProps {
   fetchInitialData?(req: InitialFetchRequest): Promise<T>;
+  path: string;
 }
 
 export const routes: IRoutePropsWithFetch<Record<string, any>>[] = [

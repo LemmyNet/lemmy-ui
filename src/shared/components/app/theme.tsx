@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { Helmet } from "inferno-helmet";
 import { UserService } from "../../services";
 

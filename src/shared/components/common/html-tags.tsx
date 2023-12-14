@@ -1,6 +1,6 @@
 import { httpExternalPath } from "@utils/env";
 import { htmlToText } from "html-to-text";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { Helmet } from "inferno-helmet";
 import { md } from "../../markdown";
 import { I18NextService } from "../../services";

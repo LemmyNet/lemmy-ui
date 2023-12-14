@@ -1,12 +1,12 @@
 import { setIsoData } from "@utils/app";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { T } from "inferno-i18next-dess";
-import { Link } from "inferno-router";
+import { Link } from "@/inferno-router";
 import { IsoDataOptionalSite } from "../../interfaces";
 import { I18NextService } from "../../services";
 
 export class ErrorPage extends Component<any, any> {
-  private isoData: IsoDataOptionalSite = setIsoData(this.context);
+  private isoData: IsoDataOptionalSite = setIsoData(this);
 
   constructor(props: any, context: any) {
     super(props, context);

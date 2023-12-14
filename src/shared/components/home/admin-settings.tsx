@@ -2,7 +2,7 @@ import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import {
   BannedPersonsResponse,
   CreateCustomEmoji,
@@ -53,7 +53,7 @@ interface AdminSettingsState {
 }
 
 export class AdminSettings extends Component<any, AdminSettingsState> {
-  private isoData = setIsoData<AdminSettingsData>(this.context);
+  private isoData = setIsoData<AdminSettingsData>(this);
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
     banned: [],
@@ -110,6 +110,7 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
       this.state.siteRes.site_view.site.name
     }`;
   }
+  declare context: any;
 
   render() {
     const federationData =

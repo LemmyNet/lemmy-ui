@@ -25,9 +25,9 @@ import classNames from "classnames";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent } from "inferno";
-import { Link } from "inferno-router";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { Component, linkEvent } from "@/inferno";
+import { Link } from "@/inferno-router";
+import { RouteComponentProps } from "@/inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -176,7 +176,7 @@ export class Profile extends Component<
   RouteComponentProps<{ username: string }>,
   ProfileState
 > {
-  private isoData = setIsoData<ProfileData>(this.context);
+  private isoData = setIsoData<ProfileData>(this);
   state: ProfileState = {
     personRes: EMPTY_REQUEST,
     personBlocked: false,
@@ -1002,6 +1002,7 @@ export class Profile extends Component<
       });
     }
   }
+  declare context: any;
 
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {

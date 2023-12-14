@@ -9,8 +9,8 @@ import {
 import { isImage } from "@utils/media";
 import { Choice } from "@utils/types";
 import autosize from "autosize";
-import { Component, InfernoNode, linkEvent } from "inferno";
-import { Prompt } from "inferno-router";
+import { Component, InfernoNode, linkEvent } from "@/inferno";
+import { Prompt } from "@/inferno-router";
 import {
   CommunityView,
   CreatePost,

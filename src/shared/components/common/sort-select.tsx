@@ -1,5 +1,5 @@
 import { randomStr } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import { SortType } from "lemmy-js-client";
 import { relTags, sortingHelpUrl } from "../../config";
 import { I18NextService } from "../../services";

@@ -1,8 +1,8 @@
 import { hostname } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "@/inferno";
 import { T } from "inferno-i18next-dess";
-import { Link } from "inferno-router";
+import { Link } from "@/inferno-router";
 import {
   AddModToCommunity,
   BlockCommunity,

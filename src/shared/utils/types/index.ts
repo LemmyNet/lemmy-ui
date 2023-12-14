@@ -8,7 +8,7 @@ import { ThemeColor } from "./theme-color";
 import WithComment from "./with-comment";
 import CrossPostParams from "./cross-post-params";
 
-export {
+export type {
   Choice,
   CommunityTribute,
   ErrorPageData,

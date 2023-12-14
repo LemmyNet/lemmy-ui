@@ -1,5 +1,5 @@
 import { enableNsfw, setIsoData } from "@utils/app";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import {
   CreateCommunity as CreateCommunityI,
   GetSiteResponse,
@@ -14,7 +14,7 @@ interface CreateCommunityState {
 }
 
 export class CreateCommunity extends Component<any, CreateCommunityState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this);
   state: CreateCommunityState = {
     siteRes: this.isoData.site_res,
     loading: false,
@@ -29,6 +29,7 @@ export class CreateCommunity extends Component<any, CreateCommunityState> {
       this.state.siteRes.site_view.site.name
     }`;
   }
+  declare context: any;
 
   render() {
     return (

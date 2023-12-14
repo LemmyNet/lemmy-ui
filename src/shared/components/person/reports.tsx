@@ -8,7 +8,7 @@ import { randomStr } from "@utils/helpers";
 import { amAdmin } from "@utils/roles";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import {
   CommentReportResponse,
   CommentReportView,
@@ -94,7 +94,7 @@ interface ReportsState {
 }
 
 export class Reports extends Component<any, ReportsState> {
-  private isoData = setIsoData<ReportsData>(this.context);
+  private isoData = setIsoData<ReportsData>(this);
   state: ReportsState = {
     commentReportsRes: EMPTY_REQUEST,
     postReportsRes: EMPTY_REQUEST,
@@ -151,6 +151,7 @@ export class Reports extends Component<any, ReportsState> {
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
+  declare context: any;
 
   render() {
     return (

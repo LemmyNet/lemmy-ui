@@ -1,8 +1,8 @@
-import { Link } from "inferno-router";
+import { Link } from "@/inferno-router";
 import { I18NextService } from "../../../services";
 import { Icon } from "../icon";
 import { CrossPostParams } from "@utils/types";
-import { InfernoNode } from "inferno";
+import { InfernoNode } from "@/inferno";
 
 export default function CrossPostButton(props: CrossPostParams): InfernoNode {
   return (

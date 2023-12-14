@@ -1,7 +1,7 @@
 import { newVote, showScores } from "@utils/app";
 import { numToSI } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import {
   CommentAggregates,
   CreateCommentLike,

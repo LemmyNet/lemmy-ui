@@ -1,5 +1,5 @@
 import { setIsoData } from "@utils/app";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { GetSiteResponse } from "lemmy-js-client";
 import { mdToHtml } from "../../markdown";
 import { I18NextService } from "../../services";
@@ -10,7 +10,7 @@ interface LegalState {
 }
 
 export class Legal extends Component<any, LegalState> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this);
   state: LegalState = {
     siteRes: this.isoData.site_res,
   };
@@ -22,6 +22,7 @@ export class Legal extends Component<any, LegalState> {
   get documentTitle(): string {
     return I18NextService.i18n.t("legal_information");
   }
+  declare context: any;
 
   render() {
     const legal = this.state.siteRes.site_view.local_site.legal_information;

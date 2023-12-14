@@ -2,8 +2,8 @@ import { showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { numToSI } from "@utils/helpers";
 import { amAdmin, canCreateCommunity } from "@utils/roles";
-import { Component, createRef, linkEvent } from "inferno";
-import { NavLink } from "inferno-router";
+import { Component, createRef, linkEvent } from "@/inferno";
+import { NavLink } from "@/inferno-router";
 import { GetSiteResponse } from "lemmy-js-client";
 import { donateLemmyUrl } from "../../config";
 import {
@@ -385,7 +385,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       </button>
                       <ul
                         className="dropdown-menu"
-                        style={{ "min-width": "fit-content" }}
+                        style={{ minWidth: "fit-content" }}
                       >
                         <li>
                           <NavLink
@@ -461,6 +461,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       handleCollapseClick(this);
     }
   }
+  declare context: any;
 
   get currentLocation() {
     return this.context.router.history.location.pathname;

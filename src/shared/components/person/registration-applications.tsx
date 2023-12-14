@@ -2,7 +2,7 @@ import { editRegistrationApplication, setIsoData } from "@utils/app";
 import { randomStr } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import {
   ApproveRegistrationApplication,
   GetSiteResponse,
@@ -49,7 +49,7 @@ export class RegistrationApplications extends Component<
   any,
   RegistrationApplicationsState
 > {
-  private isoData = setIsoData<RegistrationApplicationsData>(this.context);
+  private isoData = setIsoData<RegistrationApplicationsData>(this);
   state: RegistrationApplicationsState = {
     appsRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
@@ -89,6 +89,7 @@ export class RegistrationApplications extends Component<
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
+  declare context: any;
 
   renderApps() {
     switch (this.state.appsRes.state) {

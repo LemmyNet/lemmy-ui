@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
 import { HttpService, I18NextService, UserService } from "../../services";
 import {
@@ -24,7 +24,7 @@ interface State {
 }
 
 export class PasswordChange extends Component<any, State> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this);
 
   state: State = {
     passwordChangeRes: EMPTY_REQUEST,
@@ -43,6 +43,7 @@ export class PasswordChange extends Component<any, State> {
       this.state.siteRes.site_view.site.name
     }`;
   }
+  declare context: any;
 
   render() {
     return (

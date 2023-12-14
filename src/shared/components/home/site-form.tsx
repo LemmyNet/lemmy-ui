@@ -5,8 +5,8 @@ import {
   InfernoMouseEvent,
   InfernoNode,
   linkEvent,
-} from "inferno";
-import { Prompt } from "inferno-router";
+} from "@/inferno";
+import { Prompt } from "@/inferno-router";
 import {
   CreateSite,
   EditSite,
@@ -664,7 +664,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             type="button"
             className="btn btn-sm bg-success ms-2"
             onClick={linkEvent(key, this.handleAddInstance)}
-            style={"width: 2rem; height: 2rem;"}
+            style={{ width: "2rem", height: "2rem" }}
             tabIndex={
               -1 /* Making this untabble because handling enter key in text input makes keyboard support for this button redundant */
             }
@@ -688,7 +688,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 <button
                   id={instance}
                   type="button"
-                  style={"width: 2rem; height: 2rem;"}
+                  style={{ width: "2rem", height: "2rem" }}
                   className="btn btn-sm bg-danger"
                   onClick={linkEvent(
                     { key, instance },

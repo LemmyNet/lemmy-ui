@@ -1,7 +1,7 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { Component, InfernoNode } from "inferno";
+import { Component, InfernoNode } from "@/inferno";
 import { T } from "inferno-i18next-dess";
-import { Prompt } from "inferno-router";
+import { Prompt } from "@/inferno-router";
 import {
   CreatePrivateMessage,
   EditPrivateMessage,

@@ -1,5 +1,5 @@
 import { numToSI } from "@utils/helpers";
-import { Link } from "inferno-router";
+import { Link } from "@/inferno-router";
 import {
   CommunityAggregates,
   CommunityId,

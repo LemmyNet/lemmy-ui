@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 
 interface LoadingEllipsesState {
   ellipses: string;

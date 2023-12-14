@@ -23,7 +23,7 @@ import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
 import classNames from "classnames";
-import { Component, RefObject, createRef, linkEvent } from "inferno";
+import { Component, RefObject, createRef, linkEvent } from "@/inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -123,7 +123,7 @@ interface PostState {
 }
 
 export class Post extends Component<any, PostState> {
-  private isoData = setIsoData<PostData>(this.context);
+  private isoData = setIsoData<PostData>(this);
   private commentScrollDebounced: () => void;
   state: PostState = {
     postRes: EMPTY_REQUEST,
@@ -1104,6 +1104,7 @@ export class Post extends Component<any, PostState> {
     });
   }
 
+  declare context: any;
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));

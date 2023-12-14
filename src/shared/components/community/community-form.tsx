@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
-import { Prompt } from "inferno-router";
+import { Component, linkEvent } from "@/inferno";
+import { Prompt } from "@/inferno-router";
 import {
   CommunityView,
   CreateCommunity,

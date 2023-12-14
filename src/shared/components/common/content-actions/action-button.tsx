@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import { Icon, Spinner } from "../icon";
 import classNames from "classnames";
 
@@ -72,8 +72,3 @@ export default class ActionButton extends Component<
     );
   }
 }
-
-ActionButton.defaultProps = {
-  inline: false,
-  noLoading: false,
-};

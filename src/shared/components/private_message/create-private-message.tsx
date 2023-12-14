@@ -1,6 +1,6 @@
 import { getRecipientIdFromProps, setIsoData } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import {
   CreatePrivateMessage as CreatePrivateMessageI,
   GetPersonDetails,
@@ -38,7 +38,8 @@ export class CreatePrivateMessage extends Component<
   any,
   CreatePrivateMessageState
 > {
-  private isoData = setIsoData<CreatePrivateMessageData>(this.context);
+  declare context: any;
+  private isoData = setIsoData<CreatePrivateMessageData>(this);
   state: CreatePrivateMessageState = {
     siteRes: this.isoData.site_res,
     recipientRes: EMPTY_REQUEST,

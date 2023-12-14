@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 

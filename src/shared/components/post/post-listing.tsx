@@ -5,8 +5,8 @@ import { futureDaysToUnixTime, hostname } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
 import { canAdmin, canMod } from "@utils/roles";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
-import { Link } from "inferno-router";
+import { Component, linkEvent } from "@/inferno";
+import { Link } from "@/inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,
