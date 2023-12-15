@@ -92,7 +92,6 @@ import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
-import { IsoContext } from "@/iso-context";
 import { getDataTypeFromQuery } from "./home-util";
 import { getListingTypeFromQuery } from "./home-util";
 import { getSortTypeFromQuery } from "./home-util";
@@ -276,8 +275,8 @@ export class Home extends Component<
     setupTippy();
   }
 
-  static contextType = IsoContext;
-  declare context: React.ContextType<typeof IsoContext>;
+  // TODO
+  declare context: any;
 
   render() {
     const {

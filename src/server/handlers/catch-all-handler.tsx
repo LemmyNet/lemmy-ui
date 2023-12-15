@@ -25,7 +25,12 @@ export function getLemmyServerClient() {
   const auth = getJwtCookie(rawHeaders);
   return wrapClient(new LemmyHttp(getHttpBaseInternal(), { headers }));
 }
-export async function getIsoData(path: string): Promise<IsoData<{}>> {
+/**
+ * instead of responding to a http request (which is handled by nextjs internally), we just get the "iso data" here and redirect if appropriate
+ */
+export async function getIsoData(
+  path: string,
+): Promise<IsoData<Record<string, never>>> {
   const client = getLemmyServerClient();
 
   // const { path, url, query } = req;
@@ -59,7 +64,7 @@ export async function getIsoData(path: string): Promise<IsoData<{}>> {
     throw new Error(try_site.err.message);
   }
 
-  const isoData: IsoData<{}> = {
+  const isoData: IsoData<Record<string, never>> = {
     path,
     site_res: site!,
     routeData: {},

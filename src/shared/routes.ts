@@ -32,11 +32,6 @@ export interface IRoutePropsWithFetch<T extends RouteData> extends IRouteProps {
 
 export const routes: IRoutePropsWithFetch<Record<string, any>>[] = [
   {
-    path: `/`,
-    component: Home,
-    exact: true,
-  },
-  {
     path: `/login`,
     component: Login,
   },
@@ -66,11 +61,6 @@ export const routes: IRoutePropsWithFetch<Record<string, any>>[] = [
     path: `/communities`,
     component: Communities,
     fetchInitialData: Communities.fetchInitialData,
-  },
-  {
-    path: `/post/:post_id`,
-    component: Post,
-    fetchInitialData: Post.fetchInitialData,
   },
   {
     path: `/comment/:comment_id`,

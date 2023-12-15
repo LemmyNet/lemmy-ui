@@ -41,6 +41,7 @@ export default async function Page(props: {
   );
 }
 
+/** moved from /src/components/post/post */
 async function fetchInitialData({
   path,
 }: InitialFetchRequest): Promise<PostData> {

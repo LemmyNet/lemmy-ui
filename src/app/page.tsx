@@ -9,20 +9,14 @@ import {
   getLemmyServerClient,
 } from "@/server/handlers/catch-all-handler";
 import { QueryParams } from "@/shared/utils/types";
-import {
-  EMPTY_REQUEST,
-  RequestState,
-  wrapClient,
-} from "@/shared/services/HttpService";
+import { EMPTY_REQUEST, RequestState } from "@/shared/services/HttpService";
 import {
   GetComments,
   GetCommentsResponse,
   GetPosts,
   GetPostsResponse,
-  LemmyHttp,
   ListCommunities,
 } from "lemmy-js-client";
-import { getHttpBaseInternal } from "@/shared/utils/env";
 import { fetchLimit, trendingFetchLimit } from "@/shared/config";
 import { postToCommentSortType } from "@/shared/utils/app";
 import { HtmlTags } from "@/shared/components/common/html-tags";
@@ -33,16 +27,20 @@ function documentTitle(isoData: IsoData): string {
   return description ? `${name} - ${description}` : name;
 }
 const path = "/";
+
+/**
+ * nextjs will wrap this with the stuff from layout.tsx and render it purely server side
+ */
 export default async function Page(props: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const isoData1 = await getIsoData(path);
+  const mainIsoData = await getIsoData(path);
   const isoData = {
-    ...isoData1,
+    ...mainIsoData,
     routeData: await fetchInitialData({
       path,
       query: props.searchParams,
-      site: isoData1.site_res,
+      site: mainIsoData.site_res,
       headers: {},
     }),
   };
@@ -54,6 +52,7 @@ export default async function Page(props: {
   );
 }
 
+/** mostly unchanged but moved from /src/components/home */
 async function fetchInitialData({
   query: { dataType: urlDataType, listingType, pageCursor, sort: urlSort },
   site,

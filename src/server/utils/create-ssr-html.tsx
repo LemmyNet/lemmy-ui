@@ -10,6 +10,9 @@ const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
 let appleTouchIcon: string | undefined = undefined;
 
+/**
+ * instead of returning a string this function now returns a JSX element (eliminating XSS issues)
+ */
 export async function createSsrHtml(
   children: React.ReactNode,
   isoData: IsoDataOptionalSite,

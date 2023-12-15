@@ -1,3 +1,6 @@
+/**
+ * i moved these functions to a separate file so they can be used both from the server component /app/page.tsx and from the SSR component /src/components/home/home.tsx
+ */
 import { UserService } from "@/shared/services";
 import { ListingType, SortType } from "lemmy-js-client";
 import { DataType } from "../../interfaces";

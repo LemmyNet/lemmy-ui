@@ -9,11 +9,12 @@
     "moduleResolution": "node",
     "lib": ["es2017", "dom"],
     "jsx": "preserve",
-    "noUnusedLocals": false,
     "baseUrl": "./src",
     "noEmit": true,
     "skipLibCheck": true,
+    // disabled these because they are checked in eslint as well
     "noUnusedParameters": false,
+    "noUnusedLocals": false,
     "noImplicitReturns": false,
     "experimentalDecorators": true,
     "strictNullChecks": true,
@@ -22,6 +23,7 @@
       "@/*": ["*"],
       "@utils/*": ["shared/utils/*"]
     },
+    // automatically added by nextjs
     "allowJs": true,
     "incremental": true,
     "esModuleInterop": true,
