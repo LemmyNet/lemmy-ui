@@ -237,7 +237,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   <span className="mx-1">{I18NextService.i18n.t("to")}</span>
                   <CommunityLink community={community} />
                   <span className="mx-2">•</span>
-                  <Link className="me-2" to={`/post/${cv.post.id}`}>
+                  <Link className="me-2" href={`/post/${cv.post.id}`}>
                     {post.name}
                   </Link>
                 </>
@@ -483,7 +483,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       <>
         <Link
           className={classnames}
-          to={`/comment/${parentCommentId}`}
+          href={`/comment/${parentCommentId}`}
           title={title}
         >
           <Icon icon="link" classes="icon-inline" />

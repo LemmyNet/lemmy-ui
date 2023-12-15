@@ -1576,6 +1576,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-helmet@^6.1.11":
+  version "6.1.11"
+  resolved "https://registry.yarnpkg.com/@types/react-helmet/-/react-helmet-6.1.11.tgz#8cafcafff38f75361f451563ba7b406b0c5d3907"
+  integrity sha512-0QcdGLddTERotCXo3VFlUSWO3ztraw8nZ6e3zJSgG7apwV5xt+pJUS8ewPBqT4NYB1optGLprNQzFleIY84u/g==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-router-dom@5":
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-5.3.3.tgz#e9d6b4a66fcdbd651a5f106c2656a30088cc1e83"
@@ -4232,10 +4239,10 @@ husky@^8.0.3:
   resolved "https://registry.yarnpkg.com/husky/-/husky-8.0.3.tgz#4936d7212e46d1dea28fef29bb3a108872cd9184"
   integrity sha512-+dQSyqPh4x1hlO1swXBiNb2HzTDN1I2IGLQx1GrBuiqFJfoMrnZWwVmatvSiO+Iz8fBUnf+lekwNo4c2LlXItg==
 
-i18next@^23.3.0:
-  version "23.7.6"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-23.7.6.tgz#7328e76c899052d5d33d930164612dd21e575f74"
-  integrity sha512-O66BhXBw0fH4bEJMA0/klQKPEbcwAp5wjXEL803pdAynNbg2f4qhLIYlNHJyE7icrL6XmSZKPYaaXwy11kJ6YQ==
+i18next@^23.7.10:
+  version "23.7.10"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-23.7.10.tgz#390436e91b5bea03a9133f072367284132518e33"
+  integrity sha512-PRFP5uJz7swMKDW+ErbKb/YRawGQdS3J1iaO/d4Mhh7oBnCUqNF04FwVxJAvCLHKNoAOBSwD8wFe8aVNCFPmfA==
   dependencies:
     "@babel/runtime" "^7.23.2"
 

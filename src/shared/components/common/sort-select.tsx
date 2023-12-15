@@ -17,7 +17,6 @@ interface SortSelectState {
 }
 
 export class SortSelect extends Component<SortSelectProps, SortSelectState> {
-  private id = `sort-select-${randomStr()}`;
   state: SortSelectState = {
     sort: this.props.sort,
   };
@@ -36,8 +35,8 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
     return (
       <>
         <select
-          id={this.id}
-          name={this.id}
+          // id={this.id}
+          // name={this.id}
           value={this.state.sort}
           onChange={linkEvent(this, this.handleSortChange)}
           className="sort-select form-select d-inline-block w-auto me-2"

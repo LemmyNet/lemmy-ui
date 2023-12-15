@@ -1,9 +1,10 @@
-import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
+"use client";
+import { isAnonymousPath, isAuthPath } from "@utils/app";
 import { dataBsTheme } from "@utils/browser";
 import { Component, RefObject, createRef, linkEvent } from "@/inferno";
 import { I18nextProvider as Provider } from "react-i18next";
 import { Route, Switch } from "@/inferno-router";
-import { IsoDataOptionalSite } from "../../interfaces";
+import { IsoData, IsoDataOptionalSite } from "../../interfaces";
 import { routes } from "../../routes";
 import { FirstLoadService, I18NextService } from "../../services";
 import AuthGuard from "../common/auth-guard";
@@ -11,13 +12,16 @@ import ErrorGuard from "../common/error-guard";
 import { ErrorPage } from "./error-page";
 import { Footer } from "./footer";
 import { Navbar } from "./navbar";
-import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
 import { CodeTheme } from "./code-theme";
+/*import "bootstrap/js/dist/collapse";
+import "bootstrap/js/dist/dropdown";
+import "bootstrap/js/dist/modal";*/
 
-export class App extends Component<any, any> {
-  private isoData: IsoDataOptionalSite = setIsoData(this);
+export class App extends Component<
+  React.PropsWithChildren<{ isoData: IsoData }>
+> {
   private readonly mainContentRef: RefObject<HTMLElement>;
   constructor(props: any, context: any) {
     super(props, context);
@@ -30,9 +34,8 @@ export class App extends Component<any, any> {
   }
 
   render() {
-    const siteRes = this.isoData.site_res;
+    const siteRes = this.props.isoData.site_res;
     const siteView = siteRes?.site_view;
-
     return (
       <>
         <Provider i18n={I18NextService.i18n}>
@@ -56,42 +59,9 @@ export class App extends Component<any, any> {
             )}
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">
-              <Switch>
-                {routes.map(
-                  ({ path, component: RouteComponent, fetchInitialData }) => (
-                    <Route
-                      key={path}
-                      path={path}
-                      exact
-                      component={routeProps => {
-                        if (!fetchInitialData) {
-                          FirstLoadService.falsify();
-                        }
+              <div tabIndex={-1}>{this.props.children}</div>
 
-                        return (
-                          <ErrorGuard>
-                            <div tabIndex={-1}>
-                              {RouteComponent &&
-                                (isAuthPath(path ?? "") ? (
-                                  <AuthGuard {...routeProps}>
-                                    <RouteComponent {...routeProps} />
-                                  </AuthGuard>
-                                ) : isAnonymousPath(path ?? "") ? (
-                                  <AnonymousGuard>
-                                    <RouteComponent {...routeProps} />
-                                  </AnonymousGuard>
-                                ) : (
-                                  <RouteComponent {...routeProps} />
-                                ))}
-                            </div>
-                          </ErrorGuard>
-                        );
-                      }}
-                    />
-                  ),
-                )}
-                <Route component={ErrorPage} />
-              </Switch>
+              {/* todo: <Route component={ErrorPage} /> */}
             </div>
             <Footer site={siteRes} />
           </div>

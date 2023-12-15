@@ -59,7 +59,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
                 "text-info": !this.props.muted,
               },
             )}
-            to={link}
+            href={link}
           >
             {this.avatarAndName(displayName)}
           </Link>

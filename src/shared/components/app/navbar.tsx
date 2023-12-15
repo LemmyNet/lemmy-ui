@@ -103,7 +103,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         >
           <NavLink
             id="navTitle"
-            to="/"
+            href="/"
             title={siteView?.site.description ?? siteView?.site.name}
             className="d-flex align-items-center navbar-brand me-md-3"
             onMouseUp={linkEvent(this, handleCollapseClick)}
@@ -117,7 +117,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             <ul className="navbar-nav d-flex flex-row ms-auto d-md-none">
               <li id="navMessages" className="nav-item nav-item-icon">
                 <NavLink
-                  to="/inbox"
+                  href="/inbox"
                   className="p-1 nav-link border-0 nav-messages"
                   title={I18NextService.i18n.t("unread_messages", {
                     count: Number(this.state.unreadInboxCount),
@@ -136,7 +136,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               {UserService.Instance.moderatesSomething && (
                 <li className="nav-item nav-item-icon">
                   <NavLink
-                    to="/reports"
+                    href="/reports"
                     className="p-1 nav-link border-0"
                     title={I18NextService.i18n.t("unread_reports", {
                       count: Number(this.state.unreadReportCount),
@@ -156,7 +156,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               {amAdmin() && (
                 <li className="nav-item nav-item-icon">
                   <NavLink
-                    to="/registration_applications"
+                    href="/registration_applications"
                     className="p-1 nav-link border-0"
                     title={I18NextService.i18n.t(
                       "unread_registration_applications",
@@ -201,7 +201,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             <ul id="navbarLinks" className="me-auto navbar-nav">
               <li className="nav-item">
                 <NavLink
-                  to="/communities"
+                  href="/communities"
                   className="nav-link"
                   title={I18NextService.i18n.t("communities")}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
@@ -212,12 +212,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <li className="nav-item">
                 {/* TODO make sure this works: https://github.com/infernojs/inferno/issues/1608 */}
                 <NavLink
-                  to={{
+                  href={{
                     pathname: "/create_post",
                     search: "",
                     hash: "",
-                    key: "",
-                    state: { prevPath: this.currentLocation },
+                    //TODO state: { prevPath: this.currentLocation },
                   }}
                   className="nav-link"
                   title={I18NextService.i18n.t("create_post")}
@@ -229,7 +228,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               {this.props.siteRes && canCreateCommunity(this.props.siteRes) && (
                 <li className="nav-item">
                   <NavLink
-                    to="/create_community"
+                    href="/create_community"
                     className="nav-link"
                     title={I18NextService.i18n.t("create_community")}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
@@ -254,7 +253,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             <ul id="navbarIcons" className="navbar-nav">
               <li id="navSearch" className="nav-item">
                 <NavLink
-                  to="/search"
+                  href="/search"
                   className="nav-link d-inline-flex align-items-center d-md-inline-block"
                   title={I18NextService.i18n.t("search")}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
@@ -268,7 +267,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               {amAdmin() && (
                 <li id="navAdmin" className="nav-item">
                   <NavLink
-                    to="/admin"
+                    href="/admin"
                     className="nav-link d-inline-flex align-items-center d-md-inline-block"
                     title={I18NextService.i18n.t("admin_settings")}
                     onMouseUp={linkEvent(this, handleCollapseClick)}
@@ -285,7 +284,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <li id="navMessages" className="nav-item">
                     <NavLink
                       className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                      to="/inbox"
+                      href="/inbox"
                       title={I18NextService.i18n.t("unread_messages", {
                         count: Number(this.state.unreadInboxCount),
                         formattedCount: numToSI(this.state.unreadInboxCount),
@@ -310,7 +309,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <li id="navModeration" className="nav-item">
                       <NavLink
                         className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                        to="/reports"
+                        href="/reports"
                         title={I18NextService.i18n.t("unread_reports", {
                           count: Number(this.state.unreadReportCount),
                           formattedCount: numToSI(this.state.unreadReportCount),
@@ -337,7 +336,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {amAdmin() && (
                     <li id="navApplications" className="nav-item">
                       <NavLink
-                        to="/registration_applications"
+                        href="/registration_applications"
                         className="nav-link d-inline-flex align-items-center d-md-inline-block"
                         title={I18NextService.i18n.t(
                           "unread_registration_applications",
@@ -389,7 +388,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       >
                         <li>
                           <NavLink
-                            to={`/u/${person.name}`}
+                            href={`/u/${person.name}`}
                             className="dropdown-item px-2"
                             title={I18NextService.i18n.t("profile")}
                             onMouseUp={linkEvent(this, handleCollapseClick)}
@@ -400,7 +399,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         </li>
                         <li>
                           <NavLink
-                            to="/settings"
+                            href="/settings"
                             className="dropdown-item px-2"
                             title={I18NextService.i18n.t("settings")}
                             onMouseUp={linkEvent(this, handleCollapseClick)}
@@ -429,7 +428,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <>
                   <li className="nav-item">
                     <NavLink
-                      to="/login"
+                      href="/login"
                       className="nav-link"
                       title={I18NextService.i18n.t("login")}
                       onMouseUp={linkEvent(this, handleCollapseClick)}
@@ -439,7 +438,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </li>
                   <li className="nav-item">
                     <NavLink
-                      to="/signup"
+                      href="/signup"
                       className="nav-link"
                       title={I18NextService.i18n.t("sign_up")}
                       onMouseUp={linkEvent(this, handleCollapseClick)}

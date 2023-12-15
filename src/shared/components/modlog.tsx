@@ -288,7 +288,7 @@ function renderModlogType({ type_, view }: ModlogType) {
         <>
           <span>{removed ? "Removed " : "Restored "}</span>
           <span>
-            Post <Link to={`/post/${id}`}>{name}</Link>
+            Post <Link href={`/post/${id}`}>{name}</Link>
           </span>
           {reason && (
             <span>
@@ -309,7 +309,7 @@ function renderModlogType({ type_, view }: ModlogType) {
         <>
           <span>{locked ? "Locked " : "Unlocked "}</span>
           <span>
-            Post <Link to={`/post/${id}`}>{name}</Link>
+            Post <Link href={`/post/${id}`}>{name}</Link>
           </span>
         </>
       );
@@ -326,7 +326,7 @@ function renderModlogType({ type_, view }: ModlogType) {
         <>
           <span>{featured ? "Featured " : "Unfeatured "}</span>
           <span>
-            Post <Link to={`/post/${id}`}>{name}</Link>
+            Post <Link href={`/post/${id}`}>{name}</Link>
           </span>
           <span>
             {is_featured_community
@@ -349,7 +349,7 @@ function renderModlogType({ type_, view }: ModlogType) {
         <>
           <span>{removed ? "Removed " : "Restored "}</span>
           <span>
-            Comment <Link to={`/comment/${id}`}>{content}</Link>
+            Comment <Link href={`/comment/${id}`}>{content}</Link>
           </span>
           <span>
             {" "}
@@ -560,7 +560,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       return (
         <>
           <span>
-            Purged a Comment from <Link to={`/post/${id}`}>{name}</Link>
+            Purged a Comment from <Link href={`/post/${id}`}>{name}</Link>
           </span>
           {reason && (
             <span>
@@ -801,7 +801,7 @@ export class Modlog extends Component<
           <h5>
             <Link
               className="text-body"
-              to={`/c/${this.state.communityRes.data.community_view.community.name}`}
+              href={`/c/${this.state.communityRes.data.community_view.community.name}`}
             >
               /c/{this.state.communityRes.data.community_view.community.name}{" "}
             </Link>

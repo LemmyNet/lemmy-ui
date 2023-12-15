@@ -1,6 +1,6 @@
 import { Component } from "@/inferno";
 import { Trans as T } from "react-i18next";
-import { Link } from "@/inferno-router";
+import Link from "next/link";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -26,6 +26,7 @@ import {
 import { I18NextService } from "../../services";
 import { PostListing } from "./post-listing";
 import { RequestState } from "../../services/HttpService";
+import React from "react";
 
 interface PostListingsProps {
   posts: PostView[];
@@ -73,7 +74,7 @@ export class PostListings extends Component<PostListingsProps, any> {
       <div className="post-listings">
         {this.posts.length > 0 ? (
           this.posts.map((post_view, idx) => (
-            <>
+            <React.Fragment key={post_view.post.id}>
               <PostListing
                 post_view={post_view}
                 crossPosts={this.duplicatesMap.get(post_view.post.id)}
@@ -102,14 +103,14 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onMarkPostAsRead={this.props.onMarkPostAsRead}
               />
               {idx + 1 !== this.posts.length && <hr className="my-3" />}
-            </>
+            </React.Fragment>
           ))
         ) : (
           <>
             <div>{I18NextService.i18n.t("no_posts")}</div>
             {this.props.showCommunity && (
               <T i18nKey="subscribe_to_communities">
-                #<Link to="/communities">#</Link>
+                #<Link href="/communities">#</Link>
               </T>
             )}
           </>

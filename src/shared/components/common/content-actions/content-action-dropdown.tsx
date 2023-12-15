@@ -204,7 +204,7 @@ export default class ContentActionDropdown extends Component<
                   <li>
                     <Link
                       className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
-                      to={`/create_private_message/${creator.id}`}
+                      href={`/create_private_message/${creator.id}`}
                       title={I18NextService.i18n.t("message")}
                       aria-label={I18NextService.i18n.t("message")}
                       data-tippy-content={I18NextService.i18n.t("message")}

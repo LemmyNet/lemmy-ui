@@ -123,7 +123,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
             {showForgotLink && (
               <NavLink
                 className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
-                to="/login_reset"
+                href="/login_reset"
               >
                 {I18NextService.i18n.t("forgot_password")}
               </NavLink>

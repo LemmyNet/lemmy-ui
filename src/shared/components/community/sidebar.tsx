@@ -230,7 +230,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         className={`btn btn-secondary d-block mb-2 w-100 ${
           cv.community.deleted || cv.community.removed ? "no-click" : ""
         }`}
-        to={`/create_post?communityId=${cv.community.id}`}
+        href={`/create_post?communityId=${cv.community.id}`}
       >
         {I18NextService.i18n.t("create_a_post")}
       </Link>

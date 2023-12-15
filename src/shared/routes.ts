@@ -25,7 +25,7 @@ import { RemoteFetch } from "./components/remote-fetch";
 import { Search } from "./components/search";
 import { InitialFetchRequest, RouteData } from "./interfaces";
 
-interface IRoutePropsWithFetch<T extends RouteData> extends IRouteProps {
+export interface IRoutePropsWithFetch<T extends RouteData> extends IRouteProps {
   fetchInitialData?(req: InitialFetchRequest): Promise<T>;
   path: string;
 }
@@ -34,7 +34,6 @@ export const routes: IRoutePropsWithFetch<Record<string, any>>[] = [
   {
     path: `/`,
     component: Home,
-    fetchInitialData: Home.fetchInitialData,
     exact: true,
   },
   {

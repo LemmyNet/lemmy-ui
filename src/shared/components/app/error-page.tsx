@@ -31,7 +31,7 @@ export class ErrorPage extends Component<any, any> {
           <p>{I18NextService.i18n.t("not_found_page_message")}</p>
         )}
         {!errorPageData && (
-          <Link to="/" replace>
+          <Link href="/" replace>
             {I18NextService.i18n.t("not_found_return_home_button")}
           </Link>
         )}

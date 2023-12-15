@@ -3,6 +3,7 @@ import classNames from "classnames";
 import { Component, linkEvent } from "@/inferno";
 import { ListingType } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
+import { useId } from "react";
 
 interface ListingTypeSelectProps {
   type_: ListingType;
@@ -15,15 +16,16 @@ interface ListingTypeSelectState {
   type_: ListingType;
 }
 
-export class ListingTypeSelect extends Component<
-  ListingTypeSelectProps,
+class _ListingTypeSelect extends Component<
+  ListingTypeSelectProps & { id: string },
   ListingTypeSelectState
 > {
-  private id = `listing-type-input-${randomStr()}`;
-
   state: ListingTypeSelectState = {
     type_: this.props.type_,
   };
+  get id() {
+    return this.props.id;
+  }
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -132,7 +134,11 @@ export class ListingTypeSelect extends Component<
     );
   }
 
-  handleTypeChange(i: ListingTypeSelect, event: any) {
+  handleTypeChange(i: _ListingTypeSelect, event: any) {
     i.props.onChange(event.target.value);
   }
+}
+
+export function ListingTypeSelect(p: ListingTypeSelectProps) {
+  return <_ListingTypeSelect {...p} id={useId()} />;
 }

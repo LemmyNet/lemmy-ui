@@ -28,20 +28,20 @@ export class Footer extends Component<FooterProps, any> {
               <span className="nav-link">BE: {this.props.site?.version}</span>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/modlog">
+              <NavLink className="nav-link" href="/modlog">
                 {I18NextService.i18n.t("modlog")}
               </NavLink>
             </li>
             {this.props.site?.site_view.local_site.legal_information && (
               <li className="nav-item">
-                <NavLink className="nav-link" to="/legal">
+                <NavLink className="nav-link" href="/legal">
                   {I18NextService.i18n.t("legal_information")}
                 </NavLink>
               </li>
             )}
             {this.props.site?.site_view.local_site.federation_enabled && (
               <li className="nav-item">
-                <NavLink className="nav-link" to="/instances">
+                <NavLink className="nav-link" href="/instances">
                   {I18NextService.i18n.t("instances")}
                 </NavLink>
               </li>

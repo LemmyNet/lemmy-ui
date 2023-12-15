@@ -1,3 +1,4 @@
+"use client";
 import {
   commentsToFlatNodes,
   editComment,
@@ -9,7 +10,6 @@ import {
   getDataTypeString,
   myAuth,
   postToCommentSortType,
-  setIsoData,
   showLocal,
   updatePersonBlock,
 } from "@utils/app";
@@ -23,7 +23,7 @@ import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component, MouseEventHandler, linkEvent } from "@/inferno";
 import { Trans as T } from "react-i18next";
-import { Link } from "@/inferno-router";
+import Link from "next/link";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -72,11 +72,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags, trendingFetchLimit } from "../../config";
-import {
-  CommentViewType,
-  DataType,
-  InitialFetchRequest,
-} from "../../interfaces";
+import { CommentViewType, DataType, IsoData } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import {
@@ -84,13 +80,11 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
-  wrapClient,
 } from "../../services/HttpService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { SortSelect } from "../common/sort-select";
@@ -98,7 +92,11 @@ import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
-import { getHttpBaseInternal } from "../../utils/env";
+import { IsoContext } from "@/iso-context";
+import { getDataTypeFromQuery } from "./home-util";
+import { getListingTypeFromQuery } from "./home-util";
+import { getSortTypeFromQuery } from "./home-util";
+import { useSearchParams } from "next/navigation";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -115,21 +113,21 @@ interface HomeState {
   isIsomorphic: boolean;
 }
 
-interface HomeProps {
+export interface HomeProps {
   listingType?: ListingType;
   dataType: DataType;
   sort: SortType;
   pageCursor?: PaginationCursor;
 }
 
-type HomeData = RouteDataResponse<{
+export type HomeData = RouteDataResponse<{
   postsRes: GetPostsResponse;
   commentsRes: GetCommentsResponse;
   trendingCommunitiesRes: ListCommunitiesResponse;
 }>;
 
-function getRss(listingType: ListingType) {
-  const { sort } = getHomeQueryParams();
+function getRss(searchParams: URLSearchParams, listingType: ListingType) {
+  const { sort } = getHomeQueryParams(searchParams);
 
   let rss: string | undefined = undefined;
 
@@ -161,31 +159,8 @@ function getRss(listingType: ListingType) {
   );
 }
 
-function getDataTypeFromQuery(type?: string): DataType {
-  return type ? DataType[type] : DataType.Post;
-}
-
-function getListingTypeFromQuery(
-  type?: string,
-  myUserInfo = UserService.Instance.myUserInfo,
-): ListingType | undefined {
-  const myListingType =
-    myUserInfo?.local_user_view?.local_user?.default_listing_type;
-
-  return type ? (type as ListingType) : myListingType;
-}
-
-function getSortTypeFromQuery(
-  type?: string,
-  myUserInfo = UserService.Instance.myUserInfo,
-): SortType {
-  const mySortType = myUserInfo?.local_user_view?.local_user?.default_sort_type;
-
-  return (type ? (type as SortType) : mySortType) ?? "Active";
-}
-
-function getHomeQueryParams() {
-  return getQueryParams<HomeProps>({
+function getHomeQueryParams(queryParams: URLSearchParams) {
+  return getQueryParams<HomeProps>(queryParams, {
     sort: getSortTypeFromQuery,
     listingType: getListingTypeFromQuery,
     pageCursor: cursor => cursor,
@@ -218,13 +193,18 @@ const LinkButton = ({
   path: string;
   translationKey: string;
 }) => (
-  <Link className="btn btn-secondary d-block" to={path}>
+  <Link className="btn btn-secondary d-block" href={path}>
     {I18NextService.i18n.t(translationKey)}
   </Link>
 );
 
-export class Home extends Component<any, HomeState> {
-  private isoData = setIsoData<HomeData>(this);
+export class Home extends Component<
+  { isoData: IsoData<HomeData>; searchParams: URLSearchParams },
+  HomeState
+> {
+  private get isoData() {
+    return this.props.isoData;
+  }
   state: HomeState = {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
@@ -277,106 +257,27 @@ export class Home extends Component<any, HomeState> {
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
 
     // Only fetch the data if coming from another route
-    if (FirstLoadService.isFirstLoad) {
-      const { trendingCommunitiesRes, commentsRes, postsRes } =
-        this.isoData.routeData;
+    const { trendingCommunitiesRes, commentsRes, postsRes } =
+      this.isoData.routeData;
 
-      this.state = {
-        ...this.state,
-        trendingCommunitiesRes,
-        commentsRes,
-        postsRes,
-        isIsomorphic: true,
-      };
-    }
+    this.state = {
+      ...this.state,
+      trendingCommunitiesRes,
+      commentsRes,
+      postsRes,
+      isIsomorphic: true,
+    };
 
     this.state.tagline = getRandomFromList(this.state?.siteRes?.taglines ?? [])
       ?.content;
   }
 
   async componentDidMount() {
-    if (
-      !this.state.isIsomorphic ||
-      !Object.values(this.isoData.routeData).some(
-        res => res.state === "success" || res.state === "failed",
-      )
-    ) {
-      await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
-    }
-
     setupTippy();
   }
 
-  static async fetchInitialData({
-    query: { dataType: urlDataType, listingType, pageCursor, sort: urlSort },
-    site,
-    headers,
-  }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
-    const client = wrapClient(
-      new LemmyHttp(getHttpBaseInternal(), { headers }),
-    );
-
-    const dataType = getDataTypeFromQuery(urlDataType);
-    const type_ =
-      getListingTypeFromQuery(listingType, site.my_user) ??
-      site.site_view.local_site.default_post_listing_type;
-    const sort = getSortTypeFromQuery(urlSort, site.my_user);
-
-    let postsFetch: Promise<RequestState<GetPostsResponse>> =
-      Promise.resolve(EMPTY_REQUEST);
-    let commentsFetch: Promise<RequestState<GetCommentsResponse>> =
-      Promise.resolve(EMPTY_REQUEST);
-
-    if (dataType === DataType.Post) {
-      const getPostsForm: GetPosts = {
-        type_,
-        page_cursor: pageCursor,
-        limit: fetchLimit,
-        sort,
-        saved_only: false,
-      };
-
-      postsFetch = client.getPosts(getPostsForm);
-    } else {
-      const getCommentsForm: GetComments = {
-        limit: fetchLimit,
-        sort: postToCommentSortType(sort),
-        type_,
-        saved_only: false,
-      };
-
-      commentsFetch = client.getComments(getCommentsForm);
-    }
-
-    const trendingCommunitiesForm: ListCommunities = {
-      type_: "Local",
-      sort: "Hot",
-      limit: trendingFetchLimit,
-    };
-
-    const trendingCommunitiesFetch = client.listCommunities(
-      trendingCommunitiesForm,
-    );
-
-    const [postsRes, commentsRes, trendingCommunitiesRes] = await Promise.all([
-      postsFetch,
-      commentsFetch,
-      trendingCommunitiesFetch,
-    ]);
-
-    return {
-      trendingCommunitiesRes,
-      commentsRes,
-      postsRes,
-    };
-  }
-
-  get documentTitle(): string {
-    const { name, description } = this.state.siteRes.site_view.site;
-
-    return description ? `${name} - ${description}` : name;
-  }
-  declare context: any;
+  static contextType = IsoContext;
+  declare context: React.ContextType<typeof IsoContext>;
 
   render() {
     const {
@@ -387,13 +288,8 @@ export class Home extends Component<any, HomeState> {
         },
       },
     } = this.state;
-
     return (
       <div className="home container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         {site_setup && (
           <div className="row">
             <main role="main" className="col-12 col-md-8 col-lg-9">
@@ -524,7 +420,7 @@ export class Home extends Component<any, HomeState> {
               <h5 className="mb-0">
                 <T i18nKey="trending_communities">
                   #
-                  <Link className="text-body" to="/communities">
+                  <Link className="text-body" href="/communities">
                     #
                   </Link>
                 </T>
@@ -569,7 +465,7 @@ export class Home extends Component<any, HomeState> {
           <h5 className="mb-0 d-inline">
             <T class="d-inline" i18nKey="subscribed_to_communities">
               #
-              <Link className="text-body" to="/communities">
+              <Link className="text-body" href="/communities">
                 #
               </Link>
             </T>
@@ -632,7 +528,7 @@ export class Home extends Component<any, HomeState> {
       dataType: urlDataType,
       listingType: urlListingType,
       sort: urlSort,
-    } = getHomeQueryParams();
+    } = getHomeQueryParams(this.props.searchParams);
 
     const queryParams: QueryParams<HomeProps> = {
       dataType: getDataTypeString(dataType ?? urlDataType),
@@ -641,7 +537,7 @@ export class Home extends Component<any, HomeState> {
       sort: sort ?? urlSort,
     };
 
-    this.props.history.push({
+    this.context.router.history.push({
       pathname: "/",
       search: getQueryString(queryParams),
     });
@@ -676,7 +572,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   get listings() {
-    const { dataType } = getHomeQueryParams();
+    const { dataType } = getHomeQueryParams(this.props.searchParams);
     const siteRes = this.state.siteRes;
 
     if (dataType === DataType.Post) {
@@ -768,7 +664,9 @@ export class Home extends Component<any, HomeState> {
   }
 
   get selects() {
-    const { listingType, dataType, sort } = getHomeQueryParams();
+    const { listingType, dataType, sort } = getHomeQueryParams(
+      this.props.searchParams,
+    );
 
     return (
       <div className="row align-items-center mb-3 g-3">
@@ -794,6 +692,7 @@ export class Home extends Component<any, HomeState> {
         </div>
         <div className="col-auto ps-0">
           {getRss(
+            this.props.searchParams,
             listingType ??
               this.state.siteRes.site_view.local_site.default_post_listing_type,
           )}
@@ -814,7 +713,9 @@ export class Home extends Component<any, HomeState> {
   }
 
   async fetchData() {
-    const { dataType, pageCursor, listingType, sort } = getHomeQueryParams();
+    const { dataType, pageCursor, listingType, sort } = getHomeQueryParams(
+      this.props.searchParams,
+    );
 
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST });
@@ -859,7 +760,7 @@ export class Home extends Component<any, HomeState> {
   }
 
   handlePagePrev() {
-    this.props.history.back();
+    this.context.router.history.back();
     // A hack to scroll to top
     setTimeout(() => {
       window.scrollTo(0, 0);
@@ -1148,4 +1049,7 @@ export class Home extends Component<any, HomeState> {
       return s;
     });
   }
+}
+export function HomeWrap(props: { isoData: IsoData<HomeData> }) {
+  return <Home isoData={props.isoData} searchParams={useSearchParams()} />;
 }

@@ -18,7 +18,6 @@ export class CommentSortSelect extends Component<
   CommentSortSelectProps,
   CommentSortSelectState
 > {
-  private id = `sort-select-${randomStr()}`;
   state: CommentSortSelectState = {
     sort: this.props.sort,
   };
@@ -37,8 +36,6 @@ export class CommentSortSelect extends Component<
     return (
       <>
         <select
-          id={this.id}
-          name={this.id}
           value={this.state.sort}
           onChange={linkEvent(this, this.handleSortChange)}
           className="sort-select form-select d-inline-block w-auto me-2 mb-2"

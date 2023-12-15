@@ -338,7 +338,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       return (
         <Link
           className="text-body"
-          to={`/post/${post.id}`}
+          href={`/post/${post.id}`}
           title={I18NextService.i18n.t("comments")}
         >
           <div className="thumbnail rounded bg-light d-flex justify-content-center">
@@ -391,7 +391,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ? "link-dark"
             : "link-primary"
         }`}
-        to={`/post/${post.id}`}
+        href={`/post/${post.id}`}
         title={I18NextService.i18n.t("comments")}
       >
         <span
@@ -523,7 +523,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </li>
           {dupes.map(pv => (
             <li key={pv.post.id} className="list-inline-item me-2">
-              <Link to={`/post/${pv.post.id}`}>
+              <Link href={`/post/${pv.post.id}`}>
                 {pv.community.local
                   ? pv.community.name
                   : `${pv.community.name}@${hostname(pv.community.actor_id)}`}
@@ -633,7 +633,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <Link
         className="btn btn-link btn-sm text-muted ps-0"
         title={title}
-        to={`/post/${pv.post.id}?scrollToComments=true`}
+        href={`/post/${pv.post.id}?scrollToComments=true`}
         data-tippy-content={title}
       >
         <Icon icon="message-square" classes="me-1" inline />

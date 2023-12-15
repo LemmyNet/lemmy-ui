@@ -1,3 +1,4 @@
+"use client";
 import {
   buildCommentsTree,
   commentsToFlatNodes,
@@ -80,6 +81,7 @@ import {
   CommentNodeI,
   CommentViewType,
   InitialFetchRequest,
+  IsoData,
 } from "../../interfaces";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import {
@@ -101,7 +103,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 
 const commentsShownInterval = 15;
 
-type PostData = RouteDataResponse<{
+export type PostData = RouteDataResponse<{
   postRes: GetPostResponse;
   commentsRes: GetCommentsResponse;
 }>;
@@ -122,14 +124,24 @@ interface PostState {
   isIsomorphic: boolean;
 }
 
-export class Post extends Component<any, PostState> {
-  private isoData = setIsoData<PostData>(this);
+export class Post extends Component<
+  {
+    isoData: IsoData<PostData>;
+    postId?: number;
+    commentId?: number;
+    searchParams: { [key: string]: string | string[] | undefined };
+  },
+  PostState
+> {
+  private get isoData() {
+    return this.props.isoData;
+  }
   private commentScrollDebounced: () => void;
   state: PostState = {
-    postRes: EMPTY_REQUEST,
-    commentsRes: EMPTY_REQUEST,
-    postId: getIdFromProps(this.props),
-    commentId: getCommentIdFromProps(this.props),
+    postRes: this.isoData.routeData.postRes,
+    commentsRes: this.isoData.routeData.commentsRes,
+    postId: this.props.postId,
+    commentId: this.props.commentId,
     commentSort: "Hot",
     commentViewType: CommentViewType.Tree,
     scrolled: false,
@@ -181,15 +193,6 @@ export class Post extends Component<any, PostState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const { commentsRes, postRes } = this.isoData.routeData;
-
-      this.state = {
-        ...this.state,
-        postRes,
-        commentsRes,
-        isIsomorphic: true,
-      };
-
       if (isBrowser()) {
         if (this.checkScrollIntoCommentsParam) {
           this.scrollIntoCommentSection();
@@ -233,58 +236,13 @@ export class Post extends Component<any, PostState> {
     }
   }
 
-  static async fetchInitialData({
-    headers,
-    path,
-  }: InitialFetchRequest): Promise<PostData> {
-    const client = wrapClient(
-      new LemmyHttp(getHttpBaseInternal(), { headers }),
-    );
-    const pathSplit = path.split("/");
-
-    const pathType = pathSplit.at(1);
-    const id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
-
-    const postForm: GetPost = {};
-
-    const commentsForm: GetComments = {
-      max_depth: commentTreeMaxDepth,
-      sort: "Hot",
-      type_: "All",
-      saved_only: false,
-    };
-
-    // Set the correct id based on the path type
-    if (pathType === "post") {
-      postForm.id = id;
-      commentsForm.post_id = id;
-    } else {
-      postForm.comment_id = id;
-      commentsForm.parent_id = id;
-    }
-
-    const [postRes, commentsRes] = await Promise.all([
-      client.getPost(postForm),
-      client.getComments(commentsForm),
-    ]);
-
-    return {
-      postRes,
-      commentsRes,
-    };
-  }
-
   componentWillUnmount() {
     document.removeEventListener("scroll", this.commentScrollDebounced);
 
-    saveScrollPosition(this.context);
+    // TODO saveScrollPosition(this.context);
   }
 
   async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.fetchPost();
-    }
-
     autosize(document.querySelectorAll("textarea"));
 
     this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
@@ -299,9 +257,7 @@ export class Post extends Component<any, PostState> {
   }
 
   get checkScrollIntoCommentsParam() {
-    return Boolean(
-      new URLSearchParams(this.props.location.search).get("scrollToComments"),
-    );
+    return Boolean(this.props.searchParams.scrollToComments);
   }
 
   scrollIntoCommentSection() {
@@ -360,13 +316,6 @@ export class Post extends Component<any, PostState> {
         return (
           <div className="row">
             <main className="col-12 col-md-8 col-lg-9 mb-3">
-              <HtmlTags
-                title={this.documentTitle}
-                path={this.context.router.route.match.url}
-                canonicalPath={res.post_view.post.ap_id}
-                image={this.imageTag}
-                description={res.post_view.post.body}
-              />
               <PostListing
                 post_view={res.post_view}
                 crossPosts={res.cross_posts}

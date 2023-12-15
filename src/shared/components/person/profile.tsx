@@ -525,7 +525,7 @@ export class Profile extends Component<
                       className={
                         "d-flex align-self-start btn btn-secondary me-2"
                       }
-                      to={`/create_private_message/${pv.person.id}`}
+                      href={`/create_private_message/${pv.person.id}`}
                     >
                       {I18NextService.i18n.t("send_message")}
                     </Link>

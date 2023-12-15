@@ -65,7 +65,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
             <Icon icon="alert-triangle" classes="icon-inline me-2" />
             <T i18nKey="must_login" class="d-inline">
               #
-              <Link className="alert-link" to="/login">
+              <Link className="alert-link" href="/login">
                 #
               </Link>
             </T>

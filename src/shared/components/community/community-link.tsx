@@ -1,7 +1,7 @@
 import { showAvatars } from "@utils/app";
 import { hostname } from "@utils/helpers";
 import { Component } from "@/inferno";
-import { Link } from "@/inferno-router";
+import Link from "next/link";
 import { Community } from "lemmy-js-client";
 import { relTags } from "../../config";
 import { PictrsImage } from "../common/pictrs-image";
@@ -39,7 +39,7 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
       <Link
         title={apubName}
         className={`community-link ${this.props.muted ? "text-muted" : ""}`}
-        to={link}
+        href={link}
       >
         {this.avatarAndName(displayName)}
       </Link>
