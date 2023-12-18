@@ -112,6 +112,13 @@ interface CommentNodeProps {
   onPurgeComment(form: PurgeComment): Promise<void>;
 }
 
+function handleToggleViewSource(i: CommentNode) {
+  i.setState(({ viewSource, ...restPrev }) => ({
+    viewSource: !viewSource,
+    ...restPrev,
+  }));
+}
+
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   state: CommentNodeState = {
     showReply: false,
@@ -306,7 +313,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     />
                   )}
                 </div>
-                <div className="comment-bottom-btns d-flex justify-content-between justify-content-lg-start flex-wrap text-muted fw-bold">
+                <div className="comment-bottom-btns d-flex justify-content-between justify-content-lg-start flex-wrap text-muted fw-bold mt-1">
                   {this.props.showContext && this.getLinkButton()}
                   {this.props.markable && (
                     <button
@@ -345,6 +352,22 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         counts={counts}
                         my_vote={my_vote}
                       />
+                      <button
+                        type="button"
+                        className="btn btn-link btn-animate text-muted"
+                        onClick={linkEvent(this, handleToggleViewSource)}
+                        data-tippy-content={I18NextService.i18n.t(
+                          "view_source",
+                        )}
+                        aria-label={I18NextService.i18n.t("view_source")}
+                      >
+                        <Icon
+                          icon="file-text"
+                          classes={`icon-inline ${
+                            this.state.viewSource && "text-success"
+                          }`}
+                        />
+                      </button>
                       <CommentActionDropdown
                         commentView={this.commentView}
                         admins={this.props.admins}
