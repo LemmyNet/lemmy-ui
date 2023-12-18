@@ -1,6 +1,6 @@
 import { fetchThemeList, setIsoData } from "@utils/app";
-import { Component, linkEvent } from "inferno";
-import { Helmet } from "inferno-helmet";
+import { Component, linkEvent } from "@/inferno";
+import { Helmet } from "react-helmet";
 import {
   CreateSite,
   GetSiteResponse,
@@ -37,7 +37,7 @@ interface State {
 }
 
 export class Setup extends Component<any, State> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this);
 
   state: State = {
     registerRes: EMPTY_REQUEST,

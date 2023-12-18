@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import { I18NextService } from "../../services";
 import { PaginationCursor } from "lemmy-js-client";
 

@@ -17,8 +17,8 @@ import {
 import { getQueryParams, getQueryString } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component, RefObject, createRef, linkEvent } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { Component, RefObject, createRef, linkEvent } from "@/inferno";
+import { RouteComponentProps } from "@/inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -148,7 +148,7 @@ export class Community extends Component<
   RouteComponentProps<{ name: string }>,
   State
 > {
-  private isoData = setIsoData<CommunityData>(this.context);
+  private isoData = setIsoData<CommunityData>(this);
   state: State = {
     communityRes: EMPTY_REQUEST,
     postsRes: EMPTY_REQUEST,
@@ -888,6 +888,7 @@ export class Community extends Component<
       return s;
     });
   }
+  declare context: any;
 
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {

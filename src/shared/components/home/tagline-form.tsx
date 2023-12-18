@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { Component, InfernoMouseEvent, linkEvent } from "inferno";
+import { Component, InfernoMouseEvent, linkEvent } from "@/inferno";
 import { EditSite, Tagline } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
@@ -33,7 +33,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
           <table id="taglines_table" className="table table-sm table-hover">
             <thead className="pointer">
               <th></th>
-              <th style="width:121px"></th>
+              <th style={{ width: "121px" }}></th>
             </thead>
             <tbody>
               {this.state.taglines.map((cv, index) => (

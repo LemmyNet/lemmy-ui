@@ -4,7 +4,7 @@ import {
   RefObject,
   createRef,
   linkEvent,
-} from "inferno";
+} from "@/inferno";
 import { I18NextService } from "../../services";
 import { toast } from "../../toast";
 import type { Modal } from "bootstrap";

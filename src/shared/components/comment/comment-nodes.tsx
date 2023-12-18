@@ -1,6 +1,6 @@
 import { colorList } from "@utils/app";
 import classNames from "classnames";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -97,7 +97,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
           })}
           style={
             this.props.isChild
-              ? `border-left: 2px solid ${borderColor} !important;`
+              ? { borderLeft: `2px solid ${borderColor} !important` }
               : undefined
           }
         >

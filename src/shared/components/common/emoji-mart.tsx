@@ -1,4 +1,4 @@
-import { Component, RefObject, createRef } from "inferno";
+import { Component, RefObject, createRef } from "@/inferno";
 import { getEmojiMart } from "../../markdown";
 
 interface EmojiMartProps {

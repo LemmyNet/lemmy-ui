@@ -1,9 +1,9 @@
 import { setIsoData } from "@utils/app";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { ErrorPage } from "../app/error-page";
 
 class ErrorGuard extends Component<any, any> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this);
 
   constructor(props: any, context: any) {
     super(props, context);

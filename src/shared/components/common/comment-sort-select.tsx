@@ -1,5 +1,5 @@
 import { randomStr } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import { CommentSortType } from "lemmy-js-client";
 import { relTags, sortingHelpUrl } from "../../config";
 import { I18NextService } from "../../services";
@@ -18,7 +18,6 @@ export class CommentSortSelect extends Component<
   CommentSortSelectProps,
   CommentSortSelectState
 > {
-  private id = `sort-select-${randomStr()}`;
   state: CommentSortSelectState = {
     sort: this.props.sort,
   };
@@ -37,8 +36,6 @@ export class CommentSortSelect extends Component<
     return (
       <>
         <select
-          id={this.id}
-          name={this.id}
           value={this.state.sort}
           onChange={linkEvent(this, this.handleSortChange)}
           className="sort-select form-select d-inline-block w-auto me-2 mb-2"

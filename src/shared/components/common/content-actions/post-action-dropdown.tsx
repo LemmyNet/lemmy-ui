@@ -1,4 +1,4 @@
-import { InfernoNode } from "inferno";
+import { InfernoNode } from "@/inferno";
 import ContentActionDropdown, {
   ContentPostProps,
 } from "./content-action-dropdown";

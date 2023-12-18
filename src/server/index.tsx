@@ -4,7 +4,6 @@ import { VERSION } from "../shared/version";
 import express from "express";
 import path from "path";
 import process from "process";
-import CatchAllHandler from "./handlers/catch-all-handler";
 import ManifestHandler from "./handlers/manifest-handler";
 import RobotsHandler from "./handlers/robots-handler";
 import SecurityHandler from "./handlers/security-handler";
@@ -51,7 +50,7 @@ server.get("/manifest.webmanifest", ManifestHandler);
 server.get("/css/themes/:name", ThemeHandler);
 server.get("/css/code-themes/:name", CodeThemeHandler);
 server.get("/css/themelist", ThemesListHandler);
-server.get("/*", CatchAllHandler);
+// server.get("/*", CatchAllHandler);
 
 const listener = server.listen(Number(port), hostname, () => {
   setupDateFns();

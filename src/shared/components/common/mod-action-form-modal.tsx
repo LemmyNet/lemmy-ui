@@ -1,4 +1,4 @@
-import { Component, RefObject, createRef, linkEvent } from "inferno";
+import { Component, RefObject, createRef, linkEvent } from "@/inferno";
 import { I18NextService } from "../../services/I18NextService";
 import { PurgeWarning, Spinner } from "./icon";
 import { getApubName, randomStr } from "@utils/helpers";

@@ -1,6 +1,6 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import { HttpService, I18NextService, UserService } from "../../services";
 import { toast } from "../../toast";
 import { Icon } from "./icon";

@@ -7,5 +7,8 @@ export default function setIsoData<T extends RouteData>(
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
     return window.isoData;
-  } else return context.router.staticContext;
+  } else {
+    console.log(context.context);
+    return context.router.staticContext;
+  }
 }

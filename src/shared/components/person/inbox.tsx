@@ -13,7 +13,7 @@ import {
 import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -127,7 +127,7 @@ interface InboxState {
 }
 
 export class Inbox extends Component<any, InboxState> {
-  private isoData = setIsoData<InboxData>(this.context);
+  private isoData = setIsoData<InboxData>(this);
   state: InboxState = {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
@@ -1043,6 +1043,7 @@ export class Inbox extends Component<any, InboxState> {
       });
     }
   }
+  declare context: any;
 
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {

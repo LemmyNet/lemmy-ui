@@ -1,5 +1,5 @@
-import { Component } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { Component } from "@/inferno";
+import { RouteComponentProps } from "react-router/Route";
 import { UserService } from "../../services";
 import { Spinner } from "./icon";
 
@@ -21,6 +21,7 @@ class AuthGuard extends Component<
   ) {
     super(props, context);
   }
+  declare context: any;
 
   componentDidMount() {
     if (!UserService.Instance.myUserInfo) {

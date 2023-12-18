@@ -1,5 +1,5 @@
 import { numToSI } from "@utils/helpers";
-import { Link } from "inferno-router";
+import { Link } from "@/inferno-router";
 import {
   CommunityAggregates,
   CommunityId,
@@ -134,7 +134,7 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
       <li className="list-inline-item">
         <Link
           className="badge text-bg-primary"
-          to={`/modlog${communityId ? `/${communityId}` : ""}`}
+          href={`/modlog${communityId ? `/${communityId}` : ""}`}
         >
           {I18NextService.i18n.t("modlog")}
         </Link>

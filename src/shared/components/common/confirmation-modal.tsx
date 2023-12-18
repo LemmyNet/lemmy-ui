@@ -1,4 +1,4 @@
-import { Component, RefObject, createRef, linkEvent } from "inferno";
+import { Component, RefObject, createRef, linkEvent } from "@/inferno";
 import { I18NextService } from "../../services";
 import type { Modal } from "bootstrap";
 import { Spinner } from "./icon";

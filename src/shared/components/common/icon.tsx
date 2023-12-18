@@ -1,6 +1,6 @@
 import { getStaticDir } from "@utils/env";
 import classNames from "classnames";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { I18NextService } from "../../services";
 
 interface IconProps {
@@ -10,11 +10,7 @@ interface IconProps {
   small?: boolean;
 }
 
-export class Icon extends Component<IconProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
+export class Icon extends Component<IconProps> {
   render() {
     return (
       <svg
@@ -28,9 +24,9 @@ export class Icon extends Component<IconProps, any> {
             this.props.icon
           }`}
         ></use>
-        <div className="visually-hidden">
+        {/* TODO <div className="visually-hidden">
           <title>{this.props.icon}</title>
-        </div>
+        </div>*/}
       </svg>
     );
   }

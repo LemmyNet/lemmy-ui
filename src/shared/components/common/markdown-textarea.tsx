@@ -2,9 +2,9 @@ import { isBrowser, platform } from "@utils/browser";
 import { numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
-import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent } from "inferno";
-import { Prompt } from "inferno-router";
+
+import { Component, linkEvent } from "@/inferno";
+import { Prompt } from "@/inferno-router";
 import { Language } from "lemmy-js-client";
 import {
   concurrentImageUpload,
@@ -22,6 +22,7 @@ import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 import ProgressBar from "./progress-bar";
 import validUrl from "@utils/helpers/valid-url";
+import { ClipboardEvent, KeyboardEvent } from "react";
 interface MarkdownTextAreaProps {
   /**
    * Initial content inside the textarea
@@ -327,7 +328,7 @@ export class MarkdownTextArea extends Component<
   }
 
   getFormatButton(
-    type: NoOptionI18nKeys,
+    type: string,
     handleClick: (i: MarkdownTextArea, event: any) => void,
   ) {
     let iconType: string;
@@ -514,7 +515,10 @@ export class MarkdownTextArea extends Component<
 
   // Keybind handler
   // Keybinds inspired by github comment area
-  handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
+  handleKeyBinds(
+    i: MarkdownTextArea,
+    event: KeyboardEvent<HTMLTextAreaElement>,
+  ) {
     if (platform.isMac() ? event.metaKey : event.ctrlKey) {
       switch (event.key) {
         case "k": {

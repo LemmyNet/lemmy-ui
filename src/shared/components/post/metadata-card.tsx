@@ -1,6 +1,6 @@
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { Post } from "lemmy-js-client";
-import * as sanitizeHtml from "sanitize-html";
+import sanitizeHtml from "sanitize-html";
 import { relTags } from "../../config";
 import { Icon } from "../common/icon";
 

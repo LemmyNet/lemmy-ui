@@ -1,12 +1,12 @@
 import { validInstanceTLD } from "@utils/helpers";
 import classNames from "classnames";
-import { NoOptionI18nKeys } from "i18next";
-import { Component, MouseEventHandler, linkEvent } from "inferno";
+import { Component, MouseEventHandler, linkEvent } from "@/inferno";
 import { CommunityView } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import { VERSION } from "../../version";
 import { Icon, Spinner } from "./icon";
 import { toast } from "../../toast";
+import { FormEvent } from "react";
 
 interface SubscribeButtonProps {
   communityView: CommunityView;
@@ -26,7 +26,7 @@ export function SubscribeButton({
   loading = false,
   isLink = false,
 }: SubscribeButtonProps) {
-  let i18key: NoOptionI18nKeys;
+  let i18key: string;
 
   switch (subscribed) {
     case "NotSubscribed": {
@@ -109,7 +109,7 @@ function focusInput() {
 
 function submitRemoteFollow(
   { state: { instanceText }, props: { communityActorId } }: RemoteFetchModal,
-  event: Event,
+  event: FormEvent,
 ) {
   event.preventDefault();
   instanceText = instanceText.trim();

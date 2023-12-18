@@ -24,8 +24,7 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import type { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent, createRef } from "inferno";
+import { Component, linkEvent, createRef } from "@/inferno";
 import {
   CommentView,
   CommunityView,
@@ -225,7 +224,7 @@ const personListing = ({ person, counts: { comment_count } }: PersonView) =>
   );
 
 function getListing(
-  listing: JSX.ElementClass,
+  listing: JSX.Element,
   count: number,
   translationKey: "number_of_comments" | "number_of_subscribers",
 ) {
@@ -241,7 +240,8 @@ function getListing(
 }
 
 export class Search extends Component<any, SearchState> {
-  private isoData = setIsoData<SearchData>(this.context);
+  declare context: any;
+  private isoData = setIsoData<SearchData>(this);
   searchInput = createRef<HTMLInputElement>();
 
   state: SearchState = {
@@ -579,9 +579,7 @@ export class Search extends Component<any, SearchState> {
               </option>
               {searchTypes.map(option => (
                 <option value={option} key={option}>
-                  {I18NextService.i18n.t(
-                    option.toString().toLowerCase() as NoOptionI18nKeys,
-                  )}
+                  {I18NextService.i18n.t(option.toString().toLowerCase())}
                 </option>
               ))}
             </select>

@@ -1,7 +1,7 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { Component } from "inferno";
-import { T } from "inferno-i18next-dess";
-import { Link } from "inferno-router";
+import { Component } from "@/inferno";
+import { Trans as T } from "react-i18next";
+import { Link } from "@/inferno-router";
 import { CreateComment, EditComment, Language } from "lemmy-js-client";
 import { CommentNodeI } from "../../interfaces";
 import { I18NextService, UserService } from "../../services";
@@ -65,7 +65,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
             <Icon icon="alert-triangle" classes="icon-inline me-2" />
             <T i18nKey="must_login" class="d-inline">
               #
-              <Link className="alert-link" to="/login">
+              <Link className="alert-link" href="/login">
                 #
               </Link>
             </T>

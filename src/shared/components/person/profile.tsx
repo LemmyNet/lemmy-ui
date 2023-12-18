@@ -24,10 +24,9 @@ import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
-import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent } from "inferno";
-import { Link } from "inferno-router";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { Component, linkEvent } from "@/inferno";
+import { Link } from "@/inferno-router";
+import { RouteComponentProps } from "@/inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -137,7 +136,7 @@ function getViewFromProps(view?: string): PersonDetailsView {
 }
 
 const getCommunitiesListing = (
-  translationKey: NoOptionI18nKeys,
+  translationKey: string,
   communityViews?: { community: Community }[],
 ) =>
   communityViews &&
@@ -176,7 +175,7 @@ export class Profile extends Component<
   RouteComponentProps<{ username: string }>,
   ProfileState
 > {
-  private isoData = setIsoData<ProfileData>(this.context);
+  private isoData = setIsoData<ProfileData>(this);
   state: ProfileState = {
     personRes: EMPTY_REQUEST,
     personBlocked: false,
@@ -436,7 +435,7 @@ export class Profile extends Component<
             active,
           })}
         >
-          {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
+          {I18NextService.i18n.t(view.toLowerCase())}
         </label>
       </>
     );
@@ -526,7 +525,7 @@ export class Profile extends Component<
                       className={
                         "d-flex align-self-start btn btn-secondary me-2"
                       }
-                      to={`/create_private_message/${pv.person.id}`}
+                      href={`/create_private_message/${pv.person.id}`}
                     >
                       {I18NextService.i18n.t("send_message")}
                     </Link>
@@ -1002,6 +1001,7 @@ export class Profile extends Component<
       });
     }
   }
+  declare context: any;
 
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {

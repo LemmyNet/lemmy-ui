@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter, validEmail } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import { GetSiteResponse } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
 import { toast } from "../../toast";
@@ -16,7 +16,7 @@ interface State {
 }
 
 export class LoginReset extends Component<any, State> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this);
 
   state: State = {
     form: {
@@ -110,6 +110,7 @@ export class LoginReset extends Component<any, State> {
   handleEmailInputChange(i: LoginReset, event: any) {
     i.setState(s => ((s.form.email = event.target.value.trim()), s));
   }
+  declare context: any;
 
   async handlePasswordReset(i: LoginReset, event: any) {
     event.preventDefault();

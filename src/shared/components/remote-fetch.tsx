@@ -1,7 +1,7 @@
 import { setIsoData } from "@utils/app";
 import { getQueryParams } from "@utils/helpers";
 import { QueryParams, RouteDataResponse } from "@utils/types";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import {
   CommunityView,
   LemmyHttp,
@@ -84,7 +84,7 @@ const handleFollow = (i: RemoteFetch) => handleToggleFollow(i, true);
 const handleUnfollow = (i: RemoteFetch) => handleToggleFollow(i, false);
 
 export class RemoteFetch extends Component<any, RemoteFetchState> {
-  private isoData = setIsoData<RemoteFetchData>(this.context);
+  private isoData = setIsoData<RemoteFetchData>(this);
   state: RemoteFetchState = {
     resolveObjectRes: EMPTY_REQUEST,
     isIsomorphic: false,
@@ -119,6 +119,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
       }
     }
   }
+  declare context: any;
 
   render() {
     return (

@@ -15,11 +15,10 @@ import {
 import { amAdmin, amMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent } from "inferno";
-import { T } from "inferno-i18next-dess";
-import { Link } from "inferno-router";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { Component, linkEvent } from "@/inferno";
+import { Trans as T } from "react-i18next";
+import { Link } from "@/inferno-router";
+import { RouteComponentProps } from "@/inferno-router";
 import {
   AdminPurgeCommentView,
   AdminPurgeCommunityView,
@@ -289,7 +288,7 @@ function renderModlogType({ type_, view }: ModlogType) {
         <>
           <span>{removed ? "Removed " : "Restored "}</span>
           <span>
-            Post <Link to={`/post/${id}`}>{name}</Link>
+            Post <Link href={`/post/${id}`}>{name}</Link>
           </span>
           {reason && (
             <span>
@@ -310,7 +309,7 @@ function renderModlogType({ type_, view }: ModlogType) {
         <>
           <span>{locked ? "Locked " : "Unlocked "}</span>
           <span>
-            Post <Link to={`/post/${id}`}>{name}</Link>
+            Post <Link href={`/post/${id}`}>{name}</Link>
           </span>
         </>
       );
@@ -327,7 +326,7 @@ function renderModlogType({ type_, view }: ModlogType) {
         <>
           <span>{featured ? "Featured " : "Unfeatured "}</span>
           <span>
-            Post <Link to={`/post/${id}`}>{name}</Link>
+            Post <Link href={`/post/${id}`}>{name}</Link>
           </span>
           <span>
             {is_featured_community
@@ -350,7 +349,7 @@ function renderModlogType({ type_, view }: ModlogType) {
         <>
           <span>{removed ? "Removed " : "Restored "}</span>
           <span>
-            Comment <Link to={`/comment/${id}`}>{content}</Link>
+            Comment <Link href={`/comment/${id}`}>{content}</Link>
           </span>
           <span>
             {" "}
@@ -561,7 +560,7 @@ function renderModlogType({ type_, view }: ModlogType) {
       return (
         <>
           <span>
-            Purged a Comment from <Link to={`/post/${id}`}>{name}</Link>
+            Purged a Comment from <Link href={`/post/${id}`}>{name}</Link>
           </span>
           {reason && (
             <span>
@@ -594,7 +593,7 @@ const Filter = ({
 }) => (
   <div className="col-sm-6 mb-3">
     <label className="mb-2" htmlFor={`filter-${filterType}`}>
-      {I18NextService.i18n.t(`filter_by_${filterType}` as NoOptionI18nKeys)}
+      {I18NextService.i18n.t(`filter_by_${filterType}`)}
     </label>
     <SearchableSelect
       id={`filter-${filterType}`}
@@ -636,7 +635,7 @@ export class Modlog extends Component<
   RouteComponentProps<{ communityId?: string }>,
   ModlogState
 > {
-  private isoData = setIsoData<ModlogData>(this.context);
+  private isoData = setIsoData<ModlogData>(this);
 
   state: ModlogState = {
     res: EMPTY_REQUEST,
@@ -766,7 +765,7 @@ export class Modlog extends Component<
   get documentTitle(): string {
     return `Modlog - ${this.isoData.site_res.site_view.site.name}`;
   }
-
+  declare context: any;
   render() {
     const {
       loadingModSearch,
@@ -802,7 +801,7 @@ export class Modlog extends Component<
           <h5>
             <Link
               className="text-body"
-              to={`/c/${this.state.communityRes.data.community_view.community.name}`}
+              href={`/c/${this.state.communityRes.data.community_view.community.name}`}
             >
               /c/{this.state.communityRes.data.community_view.community.name}{" "}
             </Link>

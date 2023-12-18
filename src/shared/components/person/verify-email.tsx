@@ -1,5 +1,5 @@
 import { setIsoData } from "@utils/app";
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import {
@@ -18,7 +18,7 @@ interface State {
 }
 
 export class VerifyEmail extends Component<any, State> {
-  private isoData = setIsoData(this.context);
+  private isoData = setIsoData(this);
 
   state: State = {
     verifyRes: EMPTY_REQUEST,
@@ -55,6 +55,7 @@ export class VerifyEmail extends Component<any, State> {
       this.state.siteRes.site_view.site.name
     }`;
   }
+  declare context: any;
 
   render() {
     return (

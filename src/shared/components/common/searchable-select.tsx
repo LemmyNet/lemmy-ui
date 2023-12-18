@@ -6,7 +6,7 @@ import {
   createRef,
   linkEvent,
   RefObject,
-} from "inferno";
+} from "@/inferno";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "./icon";
 import { LoadingEllipses } from "./loading-ellipses";

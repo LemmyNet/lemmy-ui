@@ -4,8 +4,8 @@ import classNames from "classnames";
 import isBefore from "date-fns/isBefore";
 import parseISO from "date-fns/parseISO";
 import subMinutes from "date-fns/subMinutes";
-import { Component, InfernoNode, linkEvent } from "inferno";
-import { Link } from "inferno-router";
+import { Component, InfernoNode, linkEvent } from "@/inferno";
+import { Link } from "@/inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -244,7 +244,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   <span className="mx-1">{I18NextService.i18n.t("to")}</span>
                   <CommunityLink community={community} />
                   <span className="mx-2">•</span>
-                  <Link className="me-2" to={`/post/${cv.post.id}`}>
+                  <Link className="me-2" href={`/post/${cv.post.id}`}>
                     {post.name}
                   </Link>
                 </>
@@ -400,7 +400,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             className={classNames("details ms-1 comment-node py-2", {
               "border-top border-light": !this.props.noBorder,
             })}
-            style={`border-left: 2px ${moreRepliesBorderColor} solid !important`}
+            style={{
+              borderLeft: `2px ${moreRepliesBorderColor} solid !important`,
+            }}
           >
             <button
               className="btn btn-link text-muted"
@@ -504,7 +506,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       <>
         <Link
           className={classnames}
-          to={`/comment/${parentCommentId}`}
+          href={`/comment/${parentCommentId}`}
           title={title}
         >
           <Icon icon="link" classes="icon-inline" />

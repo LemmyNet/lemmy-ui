@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, linkEvent } from "@/inferno";
 import { PersonView, Site, SiteAggregates } from "lemmy-js-client";
 import { mdToHtml } from "../../markdown";
 import { I18NextService } from "../../services";

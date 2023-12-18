@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component } from "@/inferno";
 import { I18NextService, UserService } from "../../../services";
 import { Icon } from "../icon";
 import { CrossPostParams } from "@utils/types";
@@ -19,7 +19,7 @@ import {
 } from "@utils/roles";
 import ActionButton from "./action-button";
 import classNames from "classnames";
-import { Link } from "inferno-router";
+import { Link } from "@/inferno-router";
 import ConfirmationModal from "../confirmation-modal";
 import ModActionFormModal, { BanUpdateForm } from "../mod-action-form-modal";
 import { BanType, PurgeType } from "../../../interfaces";
@@ -204,7 +204,7 @@ export default class ContentActionDropdown extends Component<
                   <li>
                     <Link
                       className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
-                      to={`/create_private_message/${creator.id}`}
+                      href={`/create_private_message/${creator.id}`}
                       title={I18NextService.i18n.t("message")}
                       aria-label={I18NextService.i18n.t("message")}
                       data-tippy-content={I18NextService.i18n.t("message")}

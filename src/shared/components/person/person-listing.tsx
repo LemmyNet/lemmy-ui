@@ -2,8 +2,8 @@ import { showAvatars } from "@utils/app";
 import { getStaticDir } from "@utils/env";
 import { hostname, isCakeDay } from "@utils/helpers";
 import classNames from "classnames";
-import { Component } from "inferno";
-import { Link } from "inferno-router";
+import { Component } from "@/inferno";
+import { Link } from "@/inferno-router";
 import { Person } from "lemmy-js-client";
 import { relTags } from "../../config";
 import { PictrsImage } from "../common/pictrs-image";
@@ -59,7 +59,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
                 "text-info": !this.props.muted,
               },
             )}
-            to={link}
+            href={link}
           >
             {this.avatarAndName(displayName)}
           </Link>
