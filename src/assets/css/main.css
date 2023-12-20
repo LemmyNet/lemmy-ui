@@ -451,7 +451,3 @@ br.big {
 .totp-link {
   width: fit-content;
 }
-
-[data-bs-theme="dark"] .mark {
-  background: rgba(243, 208, 101, 0.3);
-}
