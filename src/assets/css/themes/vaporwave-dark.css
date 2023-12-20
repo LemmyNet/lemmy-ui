@@ -171,6 +171,7 @@
   --bs-link-color-rgb: 255, 140, 214;
   --bs-link-hover-color-rgb: 255, 163, 222;
   --bs-code-color: #ff8cd6;
+  --bs-highlight-bg: #888;
   --bs-border-color: #444;
   --bs-border-color-translucent: rgba(255, 255, 255, 0.15);
   --bs-form-valid-color: #69ffc7;
