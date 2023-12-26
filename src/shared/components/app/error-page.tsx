@@ -55,7 +55,13 @@ export class ErrorPage extends Component<any, any> {
             </>
           )}
         {errorPageData?.error && (
-          <T i18nKey="error_code_message" parent="p">
+          <T
+            i18nKey="error_code_message"
+            parent="p"
+            interpolation={{
+              error: errorPageData.error,
+            }}
+          >
             #<strong className="text-danger">#</strong>#
           </T>
         )}
