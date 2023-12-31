@@ -131,7 +131,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       const { auto_expand, blur_nsfw } = UserService.Instance.myUserInfo.local_user_view.local_user;
       this.setState({
         imageExpanded:
-          user.auto_expand && (!user.blur_nsfw || !this.postView.post.nsfw),
+          auto_expand && !(blur_nsfw && this.postView.post.nsfw),
       });
     }
   }
