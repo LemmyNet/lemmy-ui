@@ -97,10 +97,11 @@ import { Icon, Spinner } from "../common/icon";
 import { SortSelect } from "../common/sort-select";
 import { Sidebar } from "../community/sidebar";
 import { SiteSidebar } from "../home/site-sidebar";
-import { PostListings } from "../post/post-listings";
+// import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
+import { PostsLoadingSkeleton } from "../common/loading-skeleton";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -417,39 +418,36 @@ export class Community extends Component<
     if (dataType === DataType.Post) {
       switch (this.state.postsRes.state) {
         case "loading":
-          return (
-            <h5>
-              <Spinner large />
-            </h5>
-          );
+          return <PostsLoadingSkeleton itemCount={10} />;
         case "success":
-          return (
-            <PostListings
-              posts={this.state.postsRes.data.posts}
-              removeDuplicates
-              enableDownvotes={enableDownvotes(site_res)}
-              enableNsfw={enableNsfw(site_res)}
-              allLanguages={site_res.all_languages}
-              siteLanguages={site_res.discussion_languages}
-              onBlockPerson={this.handleBlockPerson}
-              onPostEdit={this.handlePostEdit}
-              onPostVote={this.handlePostVote}
-              onPostReport={this.handlePostReport}
-              onLockPost={this.handleLockPost}
-              onDeletePost={this.handleDeletePost}
-              onRemovePost={this.handleRemovePost}
-              onSavePost={this.handleSavePost}
-              onPurgePerson={this.handlePurgePerson}
-              onPurgePost={this.handlePurgePost}
-              onBanPerson={this.handleBanPerson}
-              onBanPersonFromCommunity={this.handleBanFromCommunity}
-              onAddModToCommunity={this.handleAddModToCommunity}
-              onAddAdmin={this.handleAddAdmin}
-              onTransferCommunity={this.handleTransferCommunity}
-              onFeaturePost={this.handleFeaturePost}
-              onMarkPostAsRead={async () => {}}
-            />
-          );
+          return <PostsLoadingSkeleton itemCount={10} />;
+        // return (
+        //   <PostListings
+        //     posts={this.state.postsRes.data.posts}
+        //     removeDuplicates
+        //     enableDownvotes={enableDownvotes(site_res)}
+        //     enableNsfw={enableNsfw(site_res)}
+        //     allLanguages={site_res.all_languages}
+        //     siteLanguages={site_res.discussion_languages}
+        //     onBlockPerson={this.handleBlockPerson}
+        //     onPostEdit={this.handlePostEdit}
+        //     onPostVote={this.handlePostVote}
+        //     onPostReport={this.handlePostReport}
+        //     onLockPost={this.handleLockPost}
+        //     onDeletePost={this.handleDeletePost}
+        //     onRemovePost={this.handleRemovePost}
+        //     onSavePost={this.handleSavePost}
+        //     onPurgePerson={this.handlePurgePerson}
+        //     onPurgePost={this.handlePurgePost}
+        //     onBanPerson={this.handleBanPerson}
+        //     onBanPersonFromCommunity={this.handleBanFromCommunity}
+        //     onAddModToCommunity={this.handleAddModToCommunity}
+        //     onAddAdmin={this.handleAddAdmin}
+        //     onTransferCommunity={this.handleTransferCommunity}
+        //     onFeaturePost={this.handleFeaturePost}
+        //     onMarkPostAsRead={async () => {}}
+        //   />
+        // );
       }
     } else {
       switch (this.state.commentsRes.state) {
