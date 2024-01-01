@@ -18,7 +18,7 @@ import {
   getQueryString,
   getRandomFromList,
 } from "@utils/helpers";
-import { canCreateCommunity } from "@utils/roles";
+// import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
@@ -100,7 +100,10 @@ import { CommunityLink } from "../community/community-link";
 import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
-import { LoadingPostsSkeleton } from "../common/loading-skeleton";
+import {
+  PostsLoadingSkeleton,
+  TrendingCommunitiesLoadingSkeleton,
+} from "../common/loading-skeleton";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -213,17 +216,17 @@ const MobileButton = ({
   </button>
 );
 
-const LinkButton = ({
-  path,
-  translationKey,
-}: {
-  path: string;
-  translationKey: NoOptionI18nKeys;
-}) => (
-  <Link className="btn btn-secondary d-block" to={path}>
-    {I18NextService.i18n.t(translationKey)}
-  </Link>
-);
+// const LinkButton = ({
+//   path,
+//   translationKey,
+// }: {
+//   path: string;
+//   translationKey: NoOptionI18nKeys;
+// }) => (
+//   <Link className="btn btn-secondary d-block" to={path}>
+//     {I18NextService.i18n.t(translationKey)}
+//   </Link>
+// );
 
 export class Home extends Component<any, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);
@@ -512,48 +515,45 @@ export class Home extends Component<any, HomeState> {
   trendingCommunities() {
     switch (this.state.trendingCommunitiesRes?.state) {
       case "loading":
-        return (
-          <h5>
-            <Spinner large />
-          </h5>
-        );
+        return <TrendingCommunitiesLoadingSkeleton itemCount={5} />;
       case "success": {
-        const trending = this.state.trendingCommunitiesRes.data.communities;
-        return (
-          <>
-            <header className="card-header d-flex align-items-center">
-              <h5 className="mb-0">
-                <T i18nKey="trending_communities">
-                  #
-                  <Link className="text-body" to="/communities">
-                    #
-                  </Link>
-                </T>
-              </h5>
-            </header>
-            <div className="card-body">
-              {trending.length > 0 && (
-                <ul className="list-inline">
-                  {trending.map(cv => (
-                    <li key={cv.community.id} className="list-inline-item">
-                      <CommunityLink community={cv.community} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {canCreateCommunity(this.state.siteRes) && (
-                <LinkButton
-                  path="/create_community"
-                  translationKey="create_a_community"
-                />
-              )}
-              <LinkButton
-                path="/communities"
-                translationKey="explore_communities"
-              />
-            </div>
-          </>
-        );
+        return <TrendingCommunitiesLoadingSkeleton itemCount={5} />;
+        // const trending = this.state.trendingCommunitiesRes.data.communities;
+        // return (
+        //   <>
+        //     <header className="card-header d-flex align-items-center">
+        //       <h5 className="mb-0">
+        //         <T i18nKey="trending_communities">
+        //           #
+        //           <Link className="text-body" to="/communities">
+        //             #
+        //           </Link>
+        //         </T>
+        //       </h5>
+        //     </header>
+        //     <div className="card-body">
+        //       {trending.length > 0 && (
+        //         <ul className="list-inline">
+        //           {trending.map(cv => (
+        //             <li key={cv.community.id} className="list-inline-item">
+        //               <CommunityLink community={cv.community} />
+        //             </li>
+        //           ))}
+        //         </ul>
+        //       )}
+        //       {canCreateCommunity(this.state.siteRes) && (
+        //         <LinkButton
+        //           path="/create_community"
+        //           translationKey="create_a_community"
+        //         />
+        //       )}
+        //       <LinkButton
+        //         path="/communities"
+        //         translationKey="explore_communities"
+        //       />
+        //     </div>
+        //   </>
+        // );
       }
     }
   }
@@ -684,11 +684,11 @@ export class Home extends Component<any, HomeState> {
       switch (this.state.postsRes?.state) {
         // TODO: check if I can merge "empty" and "loading" state on the case 'case' clause
         case "empty":
-          return <LoadingPostsSkeleton itemCount={10} />;
+          return <PostsLoadingSkeleton itemCount={10} />;
         case "loading":
-          return <LoadingPostsSkeleton itemCount={10} />;
+          return <PostsLoadingSkeleton itemCount={10} />;
         case "success": {
-          return <LoadingPostsSkeleton itemCount={10} />;
+          return <PostsLoadingSkeleton itemCount={10} />;
           // TODO: uncomment this and find a way to mock a loading time to see if it's displaying properly
           // const posts = this.state.postsRes.data.posts;
           // return (

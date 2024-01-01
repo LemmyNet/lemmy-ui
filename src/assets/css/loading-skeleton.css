@@ -9,6 +9,8 @@
 }
 
 /* TODO: animation should have different colors for the bright theme */
+/*  should be something like [data-bs-theme=dark] { } */
+/*  also, maybe you shouldn't animate the background-color, but rather the opacity */
 @keyframes skeleton-loading {
   0% {
     background-color: #444;
