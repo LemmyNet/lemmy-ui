@@ -4,7 +4,7 @@ import {
   editPost,
   editWith,
   enableDownvotes,
-  enableNsfw,
+  // enableNsfw,
   getCommentParentId,
   getDataTypeString,
   myAuth,
@@ -96,10 +96,11 @@ import { Icon, Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
-import { PostListings } from "../post/post-listings";
+// import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
+import { LoadingPostsSkeleton } from "../common/loading-skeleton";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -681,44 +682,43 @@ export class Home extends Component<any, HomeState> {
 
     if (dataType === DataType.Post) {
       switch (this.state.postsRes?.state) {
+        // TODO: check if I can merge "empty" and "loading" state on the case 'case' clause
         case "empty":
-          return <div style="min-height: 20000px;"></div>;
+          return <LoadingPostsSkeleton itemCount={10} />;
         case "loading":
-          return (
-            <h5>
-              <Spinner large />
-            </h5>
-          );
+          return <LoadingPostsSkeleton itemCount={10} />;
         case "success": {
-          const posts = this.state.postsRes.data.posts;
-          return (
-            <PostListings
-              posts={posts}
-              showCommunity
-              removeDuplicates
-              enableDownvotes={enableDownvotes(siteRes)}
-              enableNsfw={enableNsfw(siteRes)}
-              allLanguages={siteRes.all_languages}
-              siteLanguages={siteRes.discussion_languages}
-              onBlockPerson={this.handleBlockPerson}
-              onPostEdit={this.handlePostEdit}
-              onPostVote={this.handlePostVote}
-              onPostReport={this.handlePostReport}
-              onLockPost={this.handleLockPost}
-              onDeletePost={this.handleDeletePost}
-              onRemovePost={this.handleRemovePost}
-              onSavePost={this.handleSavePost}
-              onPurgePerson={this.handlePurgePerson}
-              onPurgePost={this.handlePurgePost}
-              onBanPerson={this.handleBanPerson}
-              onBanPersonFromCommunity={this.handleBanFromCommunity}
-              onAddModToCommunity={this.handleAddModToCommunity}
-              onAddAdmin={this.handleAddAdmin}
-              onTransferCommunity={this.handleTransferCommunity}
-              onFeaturePost={this.handleFeaturePost}
-              onMarkPostAsRead={async () => {}}
-            />
-          );
+          return <LoadingPostsSkeleton itemCount={10} />;
+          // TODO: uncomment this and find a way to mock a loading time to see if it's displaying properly
+          // const posts = this.state.postsRes.data.posts;
+          // return (
+          //   <PostListings
+          //     posts={posts}
+          //     showCommunity
+          //     removeDuplicates
+          //     enableDownvotes={enableDownvotes(siteRes)}
+          //     enableNsfw={enableNsfw(siteRes)}
+          //     allLanguages={siteRes.all_languages}
+          //     siteLanguages={siteRes.discussion_languages}
+          //     onBlockPerson={this.handleBlockPerson}
+          //     onPostEdit={this.handlePostEdit}
+          //     onPostVote={this.handlePostVote}
+          //     onPostReport={this.handlePostReport}
+          //     onLockPost={this.handleLockPost}
+          //     onDeletePost={this.handleDeletePost}
+          //     onRemovePost={this.handleRemovePost}
+          //     onSavePost={this.handleSavePost}
+          //     onPurgePerson={this.handlePurgePerson}
+          //     onPurgePost={this.handlePurgePost}
+          //     onBanPerson={this.handleBanPerson}
+          //     onBanPersonFromCommunity={this.handleBanFromCommunity}
+          //     onAddModToCommunity={this.handleAddModToCommunity}
+          //     onAddAdmin={this.handleAddAdmin}
+          //     onTransferCommunity={this.handleTransferCommunity}
+          //     onFeaturePost={this.handleFeaturePost}
+          //     onMarkPostAsRead={async () => {}}
+          //   />
+          // );
         }
       }
     } else {

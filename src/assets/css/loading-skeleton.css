@@ -1,0 +1,20 @@
+.skeleton-pulse {
+  animation: skeleton-loading 1s linear infinite alternate;
+}
+
+.post-line-loading-skeleton {
+  height: 1.5rem;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+/* TODO: animation should have different colors for the bright theme */
+@keyframes skeleton-loading {
+  0% {
+    background-color: #444;
+  }
+
+  100% {
+    background-color: #6a6a6a;
+  }
+}
