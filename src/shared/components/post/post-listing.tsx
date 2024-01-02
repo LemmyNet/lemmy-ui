@@ -128,10 +128,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentDidMount(): void {
     if (UserService.Instance.myUserInfo) {
-      const { auto_expand, blur_nsfw } = UserService.Instance.myUserInfo.local_user_view.local_user;
+      const { auto_expand, blur_nsfw } =
+        UserService.Instance.myUserInfo.local_user_view.local_user;
       this.setState({
-        imageExpanded:
-          auto_expand && !(blur_nsfw && this.postView.post.nsfw),
+        imageExpanded: auto_expand && !(blur_nsfw && this.postView.post.nsfw),
       });
     }
   }
@@ -214,7 +214,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (url && isVideo(url)) {
       return (
         <div className="embed-responsive ratio ratio-16x9 mt-3">
-          <video muted controls className="embed-responsive-item col-12">
+          <video
+            onLoadStart={this.handleVideoLoadStart}
+            onPlay={this.handleVideoLoadStart}
+            onMouseOver={this.handleVideoLoadStart}
+            onFocus={this.handleVideoLoadStart}
+            onVolumeChange={this.handleVideoVolumeChange}
+            controls
+            className="embed-responsive-item col-12"
+          >
             <source src={url} type="video/mp4" />
           </video>
         </div>
@@ -764,6 +772,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleEditCancel() {
     this.setState({ showEdit: false });
+  }
+
+  handleVideoLoadStart(e) {
+    const video = e.target as HTMLVideoElement;
+    const volume = window.volumeLevel;
+    if (volume) video.volume = volume;
+    else window.volumeLevel = video.volume = 0;
+  }
+
+  handleVideoVolumeChange(e) {
+    const video = e.target as HTMLVideoElement;
+    window.volumeLevel = video.volume;
   }
 
   // The actual editing is done in the receive for post
