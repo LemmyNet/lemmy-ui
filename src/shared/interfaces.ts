@@ -21,7 +21,6 @@ export type IsoDataOptionalSite<T extends RouteData = any> = Partial<
 declare global {
   interface Window {
     isoData: IsoData;
-    volumeLevel: number;
   }
 }
 

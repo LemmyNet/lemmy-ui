@@ -776,14 +776,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleVideoLoadStart(e) {
     const video = e.target as HTMLVideoElement;
-    const volume = window.volumeLevel;
-    if (volume) video.volume = volume;
-    else window.volumeLevel = video.volume = 0;
+    const volume = localStorage.getItem("volume_level");
+    if (volume) video.volume = Number(volume);
+    else {
+      video.volume = 0;
+      localStorage.setItem("volume_level", "0");
+    }
   }
 
   handleVideoVolumeChange(e) {
     const video = e.target as HTMLVideoElement;
-    window.volumeLevel = video.volume;
+    localStorage.setItem("volume_level", String(video.volume));
   }
 
   // The actual editing is done in the receive for post
