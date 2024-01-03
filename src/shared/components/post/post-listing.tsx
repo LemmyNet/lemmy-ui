@@ -776,12 +776,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const video = e.target as HTMLVideoElement;
     const volume = localStorage.getItem("video_volume_level");
     const muted = localStorage.getItem("video_muted");
-    if (volume && muted) {
-      video.muted = muted !== "false";
-      video.volume = Number(volume);
-    } else {
-      video.muted = true;
-      video.volume = 0;
+    video.volume = Number(volume || 0);
+    video.muted = muted !== "false";
+    if (!(volume || muted)) {
       localStorage.setItem("video_muted", "true");
       localStorage.setItem("volume_level", "0");
     }
