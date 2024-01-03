@@ -128,10 +128,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentDidMount(): void {
     if (UserService.Instance.myUserInfo) {
-      const { auto_expand, blur_nsfw } = UserService.Instance.myUserInfo.local_user_view.local_user;
+      const { auto_expand, blur_nsfw } =
+        UserService.Instance.myUserInfo.local_user_view.local_user;
       this.setState({
-        imageExpanded:
-          auto_expand && !(blur_nsfw && this.postView.post.nsfw),
+        imageExpanded: auto_expand && !(blur_nsfw && this.postView.post.nsfw),
       });
     }
   }
@@ -214,7 +214,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (url && isVideo(url)) {
       return (
         <div className="embed-responsive ratio ratio-16x9 mt-3">
-          <video muted controls className="embed-responsive-item col-12">
+          <video
+            onLoadStart={linkEvent(this, this.handleVideoLoadStart)}
+            onPlay={linkEvent(this, this.handleVideoLoadStart)}
+            onVolumeChange={linkEvent(this, this.handleVideoVolumeChange)}
+            controls
+            className="embed-responsive-item col-12"
+          >
             <source src={url} type="video/mp4" />
           </video>
         </div>
@@ -764,6 +770,24 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleEditCancel() {
     this.setState({ showEdit: false });
+  }
+
+  handleVideoLoadStart(_i: PostListing, e: Event) {
+    const video = e.target as HTMLVideoElement;
+    const volume = localStorage.getItem("video_volume_level");
+    const muted = localStorage.getItem("video_muted");
+    video.volume = Number(volume || 0);
+    video.muted = muted !== "false";
+    if (!(volume || muted)) {
+      localStorage.setItem("video_muted", "true");
+      localStorage.setItem("volume_level", "0");
+    }
+  }
+
+  handleVideoVolumeChange(_i: PostListing, e: Event) {
+    const video = e.target as HTMLVideoElement;
+    localStorage.setItem("video_muted", video.muted.toString());
+    localStorage.setItem("video_volume_level", video.volume.toString());
   }
 
   // The actual editing is done in the receive for post
