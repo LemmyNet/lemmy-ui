@@ -215,11 +215,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       return (
         <div className="embed-responsive ratio ratio-16x9 mt-3">
           <video
-            onLoadStart={this.handleVideoLoadStart}
-            onPlay={this.handleVideoLoadStart}
-            onMouseOver={this.handleVideoLoadStart}
-            onFocus={this.handleVideoLoadStart}
-            onVolumeChange={this.handleVideoVolumeChange}
+            onLoadStart={linkEvent(this, this.handleVideoLoadStart)}
+            onPlay={linkEvent(this, this.handleVideoLoadStart)}
+            onMouseOver={linkEvent(this, this.handleVideoLoadStart)}
+            onFocus={linkEvent(this, this.handleVideoLoadStart)}
+            onVolumeChange={linkEvent(this, this.handleVideoVolumeChange)}
             controls
             className="embed-responsive-item col-12"
           >
@@ -786,7 +786,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleVideoVolumeChange(e) {
     const video = e.target as HTMLVideoElement;
-    localStorage.setItem("volume_level", String(video.volume));
+    localStorage.setItem("volume_level", video.volume.toString());
   }
 
   // The actual editing is done in the receive for post
