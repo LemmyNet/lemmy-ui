@@ -18,7 +18,7 @@ import {
   getQueryString,
   getRandomFromList,
 } from "@utils/helpers";
-// import { canCreateCommunity } from "@utils/roles";
+import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
@@ -92,7 +92,7 @@ import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
-import { Icon, Spinner } from "../common/icon";
+import { Icon } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
@@ -101,6 +101,7 @@ import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
 import {
+  CommentsLoadingSkeleton,
   PostsLoadingSkeleton,
   TrendingCommunitiesLoadingSkeleton,
 } from "../common/loading-skeleton";
@@ -216,17 +217,17 @@ const MobileButton = ({
   </button>
 );
 
-// const LinkButton = ({
-//   path,
-//   translationKey,
-// }: {
-//   path: string;
-//   translationKey: NoOptionI18nKeys;
-// }) => (
-//   <Link className="btn btn-secondary d-block" to={path}>
-//     {I18NextService.i18n.t(translationKey)}
-//   </Link>
-// );
+const LinkButton = ({
+  path,
+  translationKey,
+}: {
+  path: string;
+  translationKey: NoOptionI18nKeys;
+}) => (
+  <Link className="btn btn-secondary d-block" to={path}>
+    {I18NextService.i18n.t(translationKey)}
+  </Link>
+);
 
 export class Home extends Component<any, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);
@@ -517,43 +518,42 @@ export class Home extends Component<any, HomeState> {
       case "loading":
         return <TrendingCommunitiesLoadingSkeleton itemCount={5} />;
       case "success": {
-        return <TrendingCommunitiesLoadingSkeleton itemCount={5} />;
-        // const trending = this.state.trendingCommunitiesRes.data.communities;
-        // return (
-        //   <>
-        //     <header className="card-header d-flex align-items-center">
-        //       <h5 className="mb-0">
-        //         <T i18nKey="trending_communities">
-        //           #
-        //           <Link className="text-body" to="/communities">
-        //             #
-        //           </Link>
-        //         </T>
-        //       </h5>
-        //     </header>
-        //     <div className="card-body">
-        //       {trending.length > 0 && (
-        //         <ul className="list-inline">
-        //           {trending.map(cv => (
-        //             <li key={cv.community.id} className="list-inline-item">
-        //               <CommunityLink community={cv.community} />
-        //             </li>
-        //           ))}
-        //         </ul>
-        //       )}
-        //       {canCreateCommunity(this.state.siteRes) && (
-        //         <LinkButton
-        //           path="/create_community"
-        //           translationKey="create_a_community"
-        //         />
-        //       )}
-        //       <LinkButton
-        //         path="/communities"
-        //         translationKey="explore_communities"
-        //       />
-        //     </div>
-        //   </>
-        // );
+        const trending = this.state.trendingCommunitiesRes.data.communities;
+        return (
+          <>
+            <header className="card-header d-flex align-items-center">
+              <h5 className="mb-0">
+                <T i18nKey="trending_communities">
+                  #
+                  <Link className="text-body" to="/communities">
+                    #
+                  </Link>
+                </T>
+              </h5>
+            </header>
+            <div className="card-body">
+              {trending.length > 0 && (
+                <ul className="list-inline">
+                  {trending.map(cv => (
+                    <li key={cv.community.id} className="list-inline-item">
+                      <CommunityLink community={cv.community} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {canCreateCommunity(this.state.siteRes) && (
+                <LinkButton
+                  path="/create_community"
+                  translationKey="create_a_community"
+                />
+              )}
+              <LinkButton
+                path="/communities"
+                translationKey="explore_communities"
+              />
+            </div>
+          </>
+        );
       }
     }
   }
@@ -722,11 +722,7 @@ export class Home extends Component<any, HomeState> {
     } else {
       switch (this.state.commentsRes.state) {
         case "loading":
-          return (
-            <h5>
-              <Spinner large />
-            </h5>
-          );
+          return <CommentsLoadingSkeleton />;
         case "success": {
           const comments = this.state.commentsRes.data.comments;
           return (
@@ -802,6 +798,7 @@ export class Home extends Component<any, HomeState> {
 
   async fetchTrendingCommunities() {
     this.setState({ trendingCommunitiesRes: LOADING_REQUEST });
+    await new Promise(resolve => setTimeout(resolve, 3000));
     this.setState({
       trendingCommunitiesRes: await HttpService.client.listCommunities({
         type_: "Local",
@@ -816,6 +813,7 @@ export class Home extends Component<any, HomeState> {
 
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST });
+      await new Promise(resolve => setTimeout(resolve, 3000));
       this.setState({
         postsRes: await HttpService.client.getPosts({
           page_cursor: pageCursor,
@@ -827,6 +825,7 @@ export class Home extends Component<any, HomeState> {
       });
     } else {
       this.setState({ commentsRes: LOADING_REQUEST });
+      await new Promise(resolve => setTimeout(resolve, 3000));
       this.setState({
         commentsRes: await HttpService.client.getComments({
           limit: fetchLimit,

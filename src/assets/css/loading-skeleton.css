@@ -1,22 +1,46 @@
-.skeleton-pulse {
-  animation: skeleton-loading 1s linear infinite alternate;
+.skeleton-pulse[data-bs-theme="dark"] {
+  animation: skeleton-loading-dark 1.2s linear infinite alternate;
+}
+
+.skeleton-pulse[data-bs-theme="light"] {
+  animation: skeleton-loading-light 1.2s linear infinite alternate;
+}
+
+.trending-community-icon-skeleton {
+  border-radius: 100%;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .post-line-loading-skeleton {
   height: 1.5rem;
-  border-radius: 4px;
   margin-bottom: 4px;
+}
+
+.comment-loading-skeleton {
+  height: 8rem;
+  margin-bottom: 8px;
 }
 
 /* TODO: animation should have different colors for the bright theme */
 /*  should be something like [data-bs-theme=dark] { } */
 /*  also, maybe you shouldn't animate the background-color, but rather the opacity */
-@keyframes skeleton-loading {
+@keyframes skeleton-loading-dark {
   0% {
     background-color: #444;
   }
 
   100% {
-    background-color: #6a6a6a;
+    background-color: #5f5f5f;
+  }
+}
+
+@keyframes skeleton-loading-light {
+  0% {
+    background-color: #ddd;
+  }
+
+  100% {
+    background-color: #efefef;
   }
 }

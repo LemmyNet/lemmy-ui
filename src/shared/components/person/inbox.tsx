@@ -80,6 +80,7 @@ import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { PrivateMessage } from "../private_message/private-message";
 import { getHttpBaseInternal } from "../../utils/env";
+import { CommentsLoadingSkeleton } from "../common/loading-skeleton";
 
 enum UnreadOrAll {
   Unread,
@@ -573,11 +574,7 @@ export class Inbox extends Component<any, InboxState> {
       this.state.mentionsRes.state === "loading" ||
       this.state.messagesRes.state === "loading"
     ) {
-      return (
-        <h1 className="h4">
-          <Spinner large />
-        </h1>
-      );
+      return <CommentsLoadingSkeleton />;
     } else {
       return (
         <div>{this.buildCombined().map(r => this.renderReplyType(r))}</div>
@@ -588,11 +585,7 @@ export class Inbox extends Component<any, InboxState> {
   replies() {
     switch (this.state.repliesRes.state) {
       case "loading":
-        return (
-          <h1 className="h4">
-            <Spinner large />
-          </h1>
-        );
+        return <CommentsLoadingSkeleton />;
       case "success": {
         const replies = this.state.repliesRes.data.replies;
         return (
@@ -635,11 +628,7 @@ export class Inbox extends Component<any, InboxState> {
   mentions() {
     switch (this.state.mentionsRes.state) {
       case "loading":
-        return (
-          <h1 className="h4">
-            <Spinner large />
-          </h1>
-        );
+        return <CommentsLoadingSkeleton />;
       case "success": {
         const mentions = this.state.mentionsRes.data.mentions;
         return (
@@ -685,11 +674,7 @@ export class Inbox extends Component<any, InboxState> {
   messages() {
     switch (this.state.messagesRes.state) {
       case "loading":
-        return (
-          <h1 className="h4">
-            <Spinner large />
-          </h1>
-        );
+        return <CommentsLoadingSkeleton />;
       case "success": {
         const messages = this.state.messagesRes.data.private_messages;
         return (
