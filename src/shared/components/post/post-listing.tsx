@@ -217,8 +217,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <video
             onLoadStart={linkEvent(this, this.handleVideoLoadStart)}
             onPlay={linkEvent(this, this.handleVideoLoadStart)}
-            onMouseOver={linkEvent(this, this.handleVideoLoadStart)}
-            onFocus={linkEvent(this, this.handleVideoLoadStart)}
             onVolumeChange={linkEvent(this, this.handleVideoVolumeChange)}
             controls
             className="embed-responsive-item col-12"
@@ -774,19 +772,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.setState({ showEdit: false });
   }
 
-  handleVideoLoadStart(e) {
+  handleVideoLoadStart(_i: PostListing, e: Event) {
     const video = e.target as HTMLVideoElement;
-    const volume = localStorage.getItem("volume_level");
-    if (volume) video.volume = Number(volume);
-    else {
+    const volume = localStorage.getItem("video_volume_level");
+    const muted = localStorage.getItem("video_muted");
+    if (volume && muted) {
+      video.muted = muted !== "false";
+      video.volume = Number(volume);
+    } else {
+      video.muted = true;
       video.volume = 0;
+      localStorage.setItem("video_muted", "true");
       localStorage.setItem("volume_level", "0");
     }
   }
 
-  handleVideoVolumeChange(e) {
+  handleVideoVolumeChange(_i: PostListing, e: Event) {
     const video = e.target as HTMLVideoElement;
-    localStorage.setItem("volume_level", video.volume.toString());
+    localStorage.setItem("video_muted", video.muted.toString());
+    localStorage.setItem(
+      "video_volume_level",
+      video.muted ? "0" : video.volume.toString(),
+    );
   }
 
   // The actual editing is done in the receive for post
