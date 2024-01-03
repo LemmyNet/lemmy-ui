@@ -790,10 +790,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleVideoVolumeChange(_i: PostListing, e: Event) {
     const video = e.target as HTMLVideoElement;
     localStorage.setItem("video_muted", video.muted.toString());
-    localStorage.setItem(
-      "video_volume_level",
-      video.muted ? "0" : video.volume.toString(),
-    );
+    localStorage.setItem("video_volume_level", video.volume.toString());
   }
 
   // The actual editing is done in the receive for post
