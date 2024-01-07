@@ -165,30 +165,25 @@ class CommentsLoadingSkeletonItem extends Component<
 > {
   render() {
     return (
-      <div
-        className="my-2"
-        style={{ padding: "0.5rem", "background-color": "#333" }}
-      >
-        <div className="col flex-grow-1">
-          <div className="row">
-            <div className="col flex-grow-1">
-              <div
-                className="col-6 post-line-loading-skeleton skeleton-pulse"
-                data-bs-theme={this.props.theme}
-              ></div>
-              <div
-                className="col-12 post-line-loading-skeleton skeleton-pulse"
-                data-bs-theme={this.props.theme}
-              ></div>
-              <div
-                className="col-7 post-line-loading-skeleton skeleton-pulse"
-                data-bs-theme={this.props.theme}
-              ></div>
-              <div
-                className="col-4 post-line-loading-skeleton skeleton-pulse"
-                data-bs-theme={this.props.theme}
-              ></div>
-            </div>
+      <div className="col flex-grow-1 my-2 p-2">
+        <div className="row">
+          <div className="col flex-grow-1">
+            <div
+              className="col-6 post-line-loading-skeleton skeleton-pulse"
+              data-bs-theme={this.props.theme}
+            ></div>
+            <div
+              className="col-12 post-line-loading-skeleton skeleton-pulse"
+              data-bs-theme={this.props.theme}
+            ></div>
+            <div
+              className="col-7 post-line-loading-skeleton skeleton-pulse"
+              data-bs-theme={this.props.theme}
+            ></div>
+            <div
+              className="col-4 post-line-loading-skeleton skeleton-pulse"
+              data-bs-theme={this.props.theme}
+            ></div>
           </div>
         </div>
       </div>
