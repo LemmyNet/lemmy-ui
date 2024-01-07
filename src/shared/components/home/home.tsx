@@ -682,11 +682,10 @@ export class Home extends Component<any, HomeState> {
 
     if (dataType === DataType.Post) {
       switch (this.state.postsRes?.state) {
-        // TODO: check if I can merge "empty" and "loading" state on the case 'case' clause
         case "empty":
-          return <PostsLoadingSkeleton itemCount={10} />;
+          return <div style="min-height: 20000px;"></div>;
         case "loading":
-          return <PostsLoadingSkeleton itemCount={10} />;
+          return <PostsLoadingSkeleton />;
         case "success": {
           const posts = this.state.postsRes.data.posts;
           return (
@@ -798,7 +797,6 @@ export class Home extends Component<any, HomeState> {
 
   async fetchTrendingCommunities() {
     this.setState({ trendingCommunitiesRes: LOADING_REQUEST });
-    await new Promise(resolve => setTimeout(resolve, 3000));
     this.setState({
       trendingCommunitiesRes: await HttpService.client.listCommunities({
         type_: "Local",
@@ -813,7 +811,6 @@ export class Home extends Component<any, HomeState> {
 
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST });
-      await new Promise(resolve => setTimeout(resolve, 3000));
       this.setState({
         postsRes: await HttpService.client.getPosts({
           page_cursor: pageCursor,
@@ -825,7 +822,6 @@ export class Home extends Component<any, HomeState> {
       });
     } else {
       this.setState({ commentsRes: LOADING_REQUEST });
-      await new Promise(resolve => setTimeout(resolve, 3000));
       this.setState({
         commentsRes: await HttpService.client.getComments({
           limit: fetchLimit,

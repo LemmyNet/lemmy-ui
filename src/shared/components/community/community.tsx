@@ -421,7 +421,7 @@ export class Community extends Component<
     if (dataType === DataType.Post) {
       switch (this.state.postsRes.state) {
         case "loading":
-          return <PostsLoadingSkeleton itemCount={10} />;
+          return <PostsLoadingSkeleton />;
         case "success":
           return (
             <PostListings
@@ -595,7 +595,6 @@ export class Community extends Component<
 
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST });
-      await new Promise(resolve => setTimeout(resolve, 6000));
       this.setState({
         postsRes: await HttpService.client.getPosts({
           page_cursor: pageCursor,
@@ -608,7 +607,6 @@ export class Community extends Component<
       });
     } else {
       this.setState({ commentsRes: LOADING_REQUEST });
-      await new Promise(resolve => setTimeout(resolve, 6000));
       this.setState({
         commentsRes: await HttpService.client.getComments({
           limit: fetchLimit,
