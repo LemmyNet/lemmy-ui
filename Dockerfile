@@ -45,7 +45,7 @@ RUN du -sh ./node_modules/* | sort -nr | grep '\dM.*'
 FROM node:20-alpine as runner
 ENV NODE_ENV=production
 
-RUN apk update && apk upgrade && apk add curl vips-cpp
+RUN apk update && apk add --no-cache curl vips-cpp && rm -rf /var/cache/apk/*
 
 COPY --from=builder /usr/src/app/dist /app/dist
 COPY --from=builder /usr/src/app/node_modules /app/node_modules
