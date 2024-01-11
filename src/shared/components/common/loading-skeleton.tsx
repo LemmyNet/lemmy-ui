@@ -1,43 +1,46 @@
-import { setIsoData } from "@utils/app";
-import dataBsTheme from "@utils/browser/data-bs-theme";
 import { Component } from "inferno";
 
 interface LoadingSkeletonProps {
   itemCount?: number;
 }
 
-interface LoadingSkeletonItemProps {
-  theme: string;
+interface LoadingSkeletonLineProps {
+  size: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 }
 
-export class PostsLoadingSkeleton extends Component<LoadingSkeletonProps, any> {
-  private theme: string = dataBsTheme(setIsoData(this.context).site_res);
-
+class LoadingSkeletonLine extends Component<LoadingSkeletonLineProps, any> {
   render() {
-    return Array.from({ length: this.props.itemCount ?? 10 }, (_, index) => (
-      <PostsLoadingSkeletonItem key={index} theme={this.theme} />
-    ));
-  }
-}
-
-class PostThumbnailLoadingSkeleton extends Component<
-  LoadingSkeletonItemProps,
-  any
-> {
-  render() {
+    const className = "placeholder placeholder-lg col-" + this.props.size;
     return (
-      <div
-        className="thumbnail rounded d-flex justify-content-center skeleton-pulse"
-        data-bs-theme={this.props.theme}
-      ></div>
+      <p className="placeholder-glow" style={{ margin: "0" }}>
+        <span className={className} style={{ height: "1.3rem" }}></span>
+      </p>
     );
   }
 }
 
-class PostsLoadingSkeletonItem extends Component<
-  LoadingSkeletonItemProps,
-  any
-> {
+export class PostsLoadingSkeleton extends Component<LoadingSkeletonProps, any> {
+  render() {
+    return Array.from({ length: this.props.itemCount ?? 10 }, (_, index) => (
+      <PostsLoadingSkeletonItem key={index} />
+    ));
+  }
+}
+
+class PostThumbnailLoadingSkeleton extends Component<any, any> {
+  render() {
+    return (
+      <div className="thumbnail rounded d-flex justify-content-center placeholder-glow">
+        <span
+          className="placeholder placeholder-lg"
+          style={{ height: "100%", width: "100%", "border-radius": "0.5rem" }}
+        ></span>
+      </div>
+    );
+  }
+}
+
+class PostsLoadingSkeletonItem extends Component<any, any> {
   render() {
     return (
       <>
@@ -46,45 +49,27 @@ class PostsLoadingSkeletonItem extends Component<
           <div className="col flex-grow-1 mt-2">
             <div className="row">
               <div className="col flex-grow-1">
-                <div
-                  className="col-12 post-line-loading-skeleton skeleton-pulse"
-                  data-bs-theme={this.props.theme}
-                ></div>
-                <div
-                  className="col-8 post-line-loading-skeleton skeleton-pulse"
-                  data-bs-theme={this.props.theme}
-                ></div>
-                <div
-                  className="col-6 post-line-loading-skeleton skeleton-pulse"
-                  data-bs-theme={this.props.theme}
-                ></div>
+                <LoadingSkeletonLine size={12} />
+                <LoadingSkeletonLine size={8} />
+                <LoadingSkeletonLine size={6} />
               </div>
               <div className="col flex-grow-0">
-                <PostThumbnailLoadingSkeleton theme={this.props.theme} />
+                <PostThumbnailLoadingSkeleton />
               </div>
             </div>
           </div>
         </div>
         {/* desktop */}
-        <div className="d-none d-sm-block">
-          <div className="col flex-grow-1 mt-2">
+        <div className="d-none d-sm-block my-3">
+          <div className="col flex-grow-1">
             <div className="row">
               <div className="col flex-grow-0">
-                <PostThumbnailLoadingSkeleton theme={this.props.theme} />
+                <PostThumbnailLoadingSkeleton />
               </div>
               <div className="col flex-grow-1">
-                <div
-                  className="col-12 post-line-loading-skeleton skeleton-pulse"
-                  data-bs-theme={this.props.theme}
-                ></div>
-                <div
-                  className="col-8 post-line-loading-skeleton skeleton-pulse"
-                  data-bs-theme={this.props.theme}
-                ></div>
-                <div
-                  className="col-4 post-line-loading-skeleton skeleton-pulse"
-                  data-bs-theme={this.props.theme}
-                ></div>
+                <LoadingSkeletonLine size={12} />
+                <LoadingSkeletonLine size={8} />
+                <LoadingSkeletonLine size={4} />
               </div>
             </div>
           </div>
@@ -98,26 +83,18 @@ export class TrendingCommunitiesLoadingSkeleton extends Component<
   LoadingSkeletonProps,
   any
 > {
-  private theme: string = dataBsTheme(setIsoData(this.context).site_res);
-
   render() {
     return (
       <div className="mb-2">
         {Array.from({ length: this.props.itemCount ?? 10 }, (_, index) => (
-          <TrendingCommunitiesLoadingSkeletonItem
-            key={index}
-            theme={this.theme}
-          />
+          <TrendingCommunitiesLoadingSkeletonItem key={index} />
         ))}
       </div>
     );
   }
 }
 
-class TrendingCommunitiesLoadingSkeletonItem extends Component<
-  LoadingSkeletonItemProps,
-  any
-> {
+class TrendingCommunitiesLoadingSkeletonItem extends Component<any, any> {
   render() {
     return (
       <div
@@ -130,15 +107,21 @@ class TrendingCommunitiesLoadingSkeletonItem extends Component<
         <div className="row">
           <div className="col flex-grow-0" style={{ "padding-right": "0px" }}>
             <div
-              className="trending-community-icon-skeleton d-flex skeleton-pulse"
-              data-bs-theme={this.props.theme}
-            ></div>
+              className="d-flex placeholder-glow"
+              style={{ width: "1.5rem", height: "1.5rem" }}
+            >
+              <span
+                className="placeholder placeholder-lg"
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  "border-radius": "100%",
+                }}
+              ></span>
+            </div>
           </div>
           <div className="col flex-grow-1" style={{ "padding-right": "0px" }}>
-            <div
-              className="col-12 post-line-loading-skeleton skeleton-pulse"
-              data-bs-theme={this.props.theme}
-            ></div>
+            <LoadingSkeletonLine size={12} />
           </div>
         </div>
       </div>
@@ -146,44 +129,24 @@ class TrendingCommunitiesLoadingSkeletonItem extends Component<
   }
 }
 
-export class CommentsLoadingSkeleton extends Component<
-  LoadingSkeletonProps,
-  any
-> {
-  private theme: string = dataBsTheme(setIsoData(this.context).site_res);
-
+export class CommentsLoadingSkeleton extends Component<any, any> {
   render() {
     return Array.from({ length: this.props.itemCount ?? 10 }, (_, index) => (
-      <CommentsLoadingSkeletonItem key={index} theme={this.theme} />
+      <CommentsLoadingSkeletonItem key={index} />
     ));
   }
 }
 
-class CommentsLoadingSkeletonItem extends Component<
-  LoadingSkeletonItemProps,
-  any
-> {
+class CommentsLoadingSkeletonItem extends Component<any, any> {
   render() {
     return (
       <div className="col flex-grow-1 my-2 p-2">
         <div className="row">
           <div className="col flex-grow-1">
-            <div
-              className="col-6 post-line-loading-skeleton skeleton-pulse"
-              data-bs-theme={this.props.theme}
-            ></div>
-            <div
-              className="col-12 post-line-loading-skeleton skeleton-pulse"
-              data-bs-theme={this.props.theme}
-            ></div>
-            <div
-              className="col-7 post-line-loading-skeleton skeleton-pulse"
-              data-bs-theme={this.props.theme}
-            ></div>
-            <div
-              className="col-4 post-line-loading-skeleton skeleton-pulse"
-              data-bs-theme={this.props.theme}
-            ></div>
+            <LoadingSkeletonLine size={6} />
+            <LoadingSkeletonLine size={12} />
+            <LoadingSkeletonLine size={7} />
+            <LoadingSkeletonLine size={4} />
           </div>
         </div>
       </div>
