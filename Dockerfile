@@ -1,4 +1,4 @@
-FROM node:20-alpine as builder
+FROM node:21-alpine as builder
 
 # Added vips-dev and pkgconfig so that local vips is used instead of prebuilt
 # Done for two reasons:
@@ -42,7 +42,7 @@ RUN rm -rf ./node_modules/npm
 
 RUN du -sh ./node_modules/* | sort -nr | grep '\dM.*'
 
-FROM node:20-alpine as runner
+FROM node:21-alpine as runner
 ENV NODE_ENV=production
 
 RUN apk update && apk add --no-cache curl vips-cpp && rm -rf /var/cache/apk/*
@@ -62,4 +62,5 @@ HEALTHCHECK --interval=60s --start-period=10s --retries=2 --timeout=10s CMD curl
 USER node
 EXPOSE 1234
 WORKDIR /app
-CMD exec node dist/js/server.js
+
+CMD ["node", "dist/js/server.js"]
