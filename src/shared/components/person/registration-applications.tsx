@@ -28,9 +28,10 @@ import { RegistrationApplication } from "../common/registration-application";
 import { UnreadCounterService } from "../../services";
 import { getHttpBaseInternal } from "../../utils/env";
 
-enum UnreadOrAll {
+enum RegistrationState {
   Unread,
   All,
+  Denied,
 }
 
 type RegistrationApplicationsData = RouteDataResponse<{
@@ -40,7 +41,7 @@ type RegistrationApplicationsData = RouteDataResponse<{
 interface RegistrationApplicationsState {
   appsRes: RequestState<ListRegistrationApplicationsResponse>;
   siteRes: GetSiteResponse;
-  unreadOrAll: UnreadOrAll;
+  registrationState: RegistrationState;
   page: number;
   isIsomorphic: boolean;
 }
@@ -53,7 +54,7 @@ export class RegistrationApplications extends Component<
   state: RegistrationApplicationsState = {
     appsRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
-    unreadOrAll: UnreadOrAll.Unread,
+    registrationState: RegistrationState.Unread,
     page: 1,
     isIsomorphic: false,
   };
@@ -132,7 +133,7 @@ export class RegistrationApplications extends Component<
     );
   }
 
-  unreadOrAllRadios() {
+  RegistrationStateRadios() {
     const radioId = randomStr();
 
     return (
@@ -141,14 +142,14 @@ export class RegistrationApplications extends Component<
           id={`${radioId}-unread`}
           type="radio"
           className="btn-check"
-          value={UnreadOrAll.Unread}
-          checked={this.state.unreadOrAll === UnreadOrAll.Unread}
-          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+          value={RegistrationState.Unread}
+          checked={this.state.registrationState === RegistrationState.Unread}
+          onChange={linkEvent(this, this.handleRegistrationStateChange)}
         />
         <label
           htmlFor={`${radioId}-unread`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.unreadOrAll === UnreadOrAll.Unread,
+            active: this.state.registrationState === RegistrationState.Unread,
           })}
         >
           {I18NextService.i18n.t("unread")}
@@ -158,17 +159,34 @@ export class RegistrationApplications extends Component<
           id={`${radioId}-all`}
           type="radio"
           className="btn-check"
-          value={UnreadOrAll.All}
-          checked={this.state.unreadOrAll === UnreadOrAll.All}
-          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+          value={RegistrationState.All}
+          checked={this.state.registrationState === RegistrationState.All}
+          onChange={linkEvent(this, this.handleRegistrationStateChange)}
         />
         <label
           htmlFor={`${radioId}-all`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.unreadOrAll === UnreadOrAll.All,
+            active: this.state.registrationState === RegistrationState.All,
           })}
         >
           {I18NextService.i18n.t("all")}
+        </label>
+
+        <input
+          id={`${radioId}-denied`}
+          type="radio"
+          className="btn-check"
+          value={RegistrationState.Denied}
+          checked={this.state.registrationState === RegistrationState.Denied}
+          onChange={linkEvent(this, this.handleRegistrationStateChange)}
+        />
+        <label
+          htmlFor={`${radioId}-denied`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.registrationState === RegistrationState.Denied,
+          })}
+        >
+          {I18NextService.i18n.t("denied")}
         </label>
       </div>
     );
@@ -177,12 +195,15 @@ export class RegistrationApplications extends Component<
   selects() {
     return (
       <div className="mb-2">
-        <span className="me-3">{this.unreadOrAllRadios()}</span>
+        <span className="me-3">{this.RegistrationStateRadios()}</span>
       </div>
     );
   }
 
   applicationList(apps: RegistrationApplicationView[]) {
+    if (this.state.registrationState === RegistrationState.Denied) {
+      apps = apps.filter(ra => ra.registration_application.deny_reason);
+    }
     return (
       <div>
         {apps.map(ra => (
@@ -199,8 +220,8 @@ export class RegistrationApplications extends Component<
     );
   }
 
-  handleUnreadOrAllChange(i: RegistrationApplications, event: any) {
-    i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
+  handleRegistrationStateChange(i: RegistrationApplications, event: any) {
+    i.setState({ registrationState: Number(event.target.value), page: 1 });
     i.refetch();
   }
 
@@ -227,7 +248,8 @@ export class RegistrationApplications extends Component<
   }
 
   async refetch() {
-    const unread_only = this.state.unreadOrAll === UnreadOrAll.Unread;
+    const unread_only =
+      this.state.registrationState === RegistrationState.Unread;
     this.setState({
       appsRes: LOADING_REQUEST,
     });
@@ -249,7 +271,7 @@ export class RegistrationApplications extends Component<
           approveRes.data.registration_application,
           s.appsRes.data.registration_applications,
         );
-        if (this.state.unreadOrAll === UnreadOrAll.Unread) {
+        if (this.state.registrationState === RegistrationState.Unread) {
           this.refetch();
           UnreadCounterService.Instance.updateApplications();
         }
