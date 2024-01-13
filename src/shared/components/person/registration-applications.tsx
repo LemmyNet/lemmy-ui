@@ -202,7 +202,7 @@ export class RegistrationApplications extends Component<
 
   applicationList(apps: RegistrationApplicationView[]) {
     if (this.state.registrationState === RegistrationState.Denied) {
-      apps = apps.filter(ra => ra.registration_application.deny_reason);
+      apps = apps.filter(ra => !ra.creator_local_user.accepted_application);
     }
     return (
       <div>
