@@ -570,7 +570,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <Icon icon="share" inline />
           </button>
         )}
-        {local && (
+        {!local && (
           <a
             className="btn btn-sm btn-link btn-animate text-muted py-0"
             title={I18NextService.i18n.t("link")}
