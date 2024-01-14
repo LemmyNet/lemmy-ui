@@ -1,8 +1,4 @@
-FROM node:20-alpine as builder
-
-# Upgrade to edge to fix sharp/libvips issues
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+FROM node:21-alpine as builder
 
 # Added vips-dev and pkgconfig so that local vips is used instead of prebuilt
 # Done for two reasons:
@@ -38,7 +34,7 @@ COPY .git .git
 RUN echo "export const VERSION = '$(git describe --tag)';" > "src/shared/version.ts"
 
 RUN yarn --production --prefer-offline --network-timeout 100000
-RUN NODE_OPTIONS="--max-old-space-size=8192" yarn build:prod
+RUN yarn build:prod
 
 RUN rm -rf ./node_modules/import-sort-parser-typescript
 RUN rm -rf ./node_modules/typescript
@@ -46,14 +42,10 @@ RUN rm -rf ./node_modules/npm
 
 RUN du -sh ./node_modules/* | sort -nr | grep '\dM.*'
 
-FROM node:20-alpine as runner
+FROM node:21-alpine as runner
 ENV NODE_ENV=production
 
-# Upgrade to edge to fix sharp/libvips issues
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-
-RUN apk update && apk upgrade && apk add curl vips-cpp
+RUN apk update && apk add --no-cache curl vips-cpp && rm -rf /var/cache/apk/*
 
 COPY --from=builder /usr/src/app/dist /app/dist
 COPY --from=builder /usr/src/app/node_modules /app/node_modules
@@ -70,4 +62,5 @@ HEALTHCHECK --interval=60s --start-period=10s --retries=2 --timeout=10s CMD curl
 USER node
 EXPOSE 1234
 WORKDIR /app
-CMD exec node dist/js/server.js
+
+CMD ["node", "dist/js/server.js"]

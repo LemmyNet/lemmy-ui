@@ -21,6 +21,7 @@ import ActionButton from "./action-button";
 import classNames from "classnames";
 import { Link } from "inferno-router";
 import ConfirmationModal from "../confirmation-modal";
+import ViewVotesModal from "../view-votes-modal";
 import ModActionFormModal, { BanUpdateForm } from "../mod-action-form-modal";
 import { BanType, PurgeType } from "../../../interfaces";
 import { getApubName, hostname } from "@utils/helpers";
@@ -69,6 +70,7 @@ const dialogTypes = [
   "showTransferCommunityDialog",
   "showAppointModDialog",
   "showAppointAdminDialog",
+  "showViewVotesDialog",
 ] as const;
 
 type DialogType = (typeof dialogTypes)[number];
@@ -91,6 +93,7 @@ export default class ContentActionDropdown extends Component<
     showRemoveDialog: false,
     showReportDialog: false,
     showTransferCommunityDialog: false,
+    showViewVotesDialog: false,
     mounted: false,
   };
 
@@ -110,6 +113,7 @@ export default class ContentActionDropdown extends Component<
       this.toggleTransferCommunityShow.bind(this);
     this.toggleAppointModShow = this.toggleAppointModShow.bind(this);
     this.toggleAppointAdminShow = this.toggleAppointAdminShow.bind(this);
+    this.toggleViewVotesShow = this.toggleViewVotesShow.bind(this);
     this.wrapHandler = this.wrapHandler.bind(this);
   }
 
@@ -203,7 +207,7 @@ export default class ContentActionDropdown extends Component<
                 {type === "comment" && (
                   <li>
                     <Link
-                      className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+                      className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
                       to={`/create_private_message/${creator.id}`}
                       title={I18NextService.i18n.t("message")}
                       aria-label={I18NextService.i18n.t("message")}
@@ -230,6 +234,16 @@ export default class ContentActionDropdown extends Component<
                   />
                 </li>
               </>
+            )}
+            {amAdmin() && (
+              <li>
+                <ActionButton
+                  onClick={this.toggleViewVotesShow}
+                  label={I18NextService.i18n.t("view_votes")}
+                  icon={"arrow-up"}
+                  noLoading
+                />
+              </li>
             )}
 
             {(amMod(community.id) || amAdmin()) && (
@@ -475,6 +489,7 @@ export default class ContentActionDropdown extends Component<
       showAppointAdminDialog: false,
       showAppointModDialog: false,
       showTransferCommunityDialog: false,
+      showViewVotesDialog: false,
     });
   }
 
@@ -523,6 +538,10 @@ export default class ContentActionDropdown extends Component<
     this.toggleModDialogShow("showAppointAdminDialog");
   }
 
+  toggleViewVotesShow() {
+    this.toggleModDialogShow("showViewVotesDialog");
+  }
+
   get moderationDialogs() {
     const {
       showBanDialog,
@@ -534,6 +553,7 @@ export default class ContentActionDropdown extends Component<
       showTransferCommunityDialog,
       showAppointModDialog,
       showAppointAdminDialog,
+      showViewVotesDialog,
       mounted,
     } = this.state;
     const {
@@ -543,6 +563,7 @@ export default class ContentActionDropdown extends Component<
       community,
       creator_is_admin,
       creator_is_moderator,
+      id,
     } = this.contentInfo;
     const {
       onReport,
@@ -657,6 +678,12 @@ export default class ContentActionDropdown extends Component<
             )}
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onAppointAdmin)}
+          />
+          <ViewVotesModal
+            type={type}
+            id={id}
+            show={showViewVotesDialog}
+            onCancel={this.hideAllDialogs}
           />
         </>
       )
