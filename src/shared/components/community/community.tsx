@@ -503,7 +503,14 @@ export class Community extends Component<
       community && (
         <div className="mb-2">
           <BannerIconHeader banner={community.banner} icon={community.icon} />
-          <h1 className="h4 mb-0 overflow-wrap-anywhere">{community.title}</h1>
+          <div>
+            <h1 className="h4 mb-0 overflow-wrap-anywhere d-inline">
+              {community.title}
+            </h1>
+            {community.posting_restricted_to_mods && (
+              <Icon icon="lock" inline classes="text-danger fs-4 ms-2" />
+            )}
+          </div>
           <CommunityLink
             community={community}
             realLink
