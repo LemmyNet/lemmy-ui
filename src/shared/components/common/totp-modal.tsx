@@ -219,7 +219,7 @@ export default class TotpModal extends Component<
                 form="totp-form"
                 disabled={totp.length !== TOTP_LENGTH || pending}
               >
-                Submit
+                {I18NextService.i18n.t("submit")}
               </button>
               <button
                 type="button"
