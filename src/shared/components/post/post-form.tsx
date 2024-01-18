@@ -23,6 +23,7 @@ import {
 import {
   archiveTodayUrl,
   ghostArchiveUrl,
+  postMarkdownFieldCharacterLimit,
   relTags,
   trendingFetchLimit,
   webArchiveUrl,
@@ -477,6 +478,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
               hideNavigationWarnings
+              maxLength={postMarkdownFieldCharacterLimit}
             />
           </div>
         </div>
