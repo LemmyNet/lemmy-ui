@@ -161,7 +161,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {posting_restricted_to_mods && (
                 <div
-                  className="alert alert-info text-sm-start text-xs-center"
+                  className="alert alert-warning text-sm-start text-xs-center"
                   role="alert"
                 >
                   <Icon
@@ -169,10 +169,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     inline
                     classes="me-sm-2 mx-auto d-sm-inline d-block"
                   />
-                  <div className="d-inline">
-                    <strong className="fw-bold">Community locked:</strong> only
-                    moderators can create posts.
-                  </div>
+                  <T i18nKey="community_locked_message" className="d-inline">
+                    #<strong className="fw-bold">#</strong>#
+                  </T>
                 </div>
               )}
               {this.description()}
