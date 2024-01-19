@@ -1,7 +1,5 @@
 import { getHttpBase } from "@utils/env";
 import { LemmyHttp } from "lemmy-js-client";
-import { toast } from "../toast";
-import { I18NextService } from "./I18NextService";
 
 export const EMPTY_REQUEST = {
   state: "empty",
@@ -49,7 +47,7 @@ export type WrappedLemmyHttp = WrappedLemmyHttpClient & {
 class WrappedLemmyHttpClient {
   rawClient: LemmyHttp;
 
-  constructor(client: LemmyHttp, silent = false) {
+  constructor(client: LemmyHttp) {
     this.rawClient = client;
 
     for (const key of Object.getOwnPropertyNames(
@@ -65,10 +63,6 @@ class WrappedLemmyHttpClient {
               state: !(res === undefined || res === null) ? "success" : "empty",
             };
           } catch (error) {
-            if (!silent) {
-              console.error(`API error: ${error}`);
-              toast(I18NextService.i18n.t(error), "danger");
-            }
             return {
               state: "failed",
               err: error,
@@ -80,23 +74,18 @@ class WrappedLemmyHttpClient {
   }
 }
 
-export function wrapClient(client: LemmyHttp, silent = false) {
+export function wrapClient(client: LemmyHttp) {
   // unfortunately, this verbose cast is necessary
-  return new WrappedLemmyHttpClient(
-    client,
-    silent,
-  ) as unknown as WrappedLemmyHttp;
+  return new WrappedLemmyHttpClient(client) as unknown as WrappedLemmyHttp;
 }
 
 export class HttpService {
   static #_instance: HttpService;
-  #silent_client: WrappedLemmyHttp;
   #client: WrappedLemmyHttp;
 
   private constructor() {
     const lemmyHttp = new LemmyHttp(getHttpBase());
     this.#client = wrapClient(lemmyHttp);
-    this.#silent_client = wrapClient(lemmyHttp, true);
   }
 
   static get #Instance() {
@@ -105,9 +94,5 @@ export class HttpService {
 
   public static get client() {
     return this.#Instance.#client;
-  }
-
-  public static get silent_client() {
-    return this.#Instance.#silent_client;
   }
 }
