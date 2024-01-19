@@ -82,7 +82,7 @@
     "sass-loader": "^14.0.0",
     "serialize-javascript": "^6.0.2",
     "service-worker-webpack": "^1.0.0",
-    "sharp": "^0.33.2",
+    "sharp": "0.32.6",
     "tippy.js": "^6.3.7",
     "toastify-js": "^1.12.0",
     "tributejs": "^5.1.3",
