@@ -291,8 +291,9 @@ export class Home extends Component<any, HomeState> {
       };
     }
 
-    this.state.tagline = getRandomFromList(this.state?.siteRes?.taglines ?? [])
-      ?.content;
+    this.state.tagline = getRandomFromList(
+      this.state?.siteRes?.taglines ?? [],
+    )?.content;
   }
 
   async componentDidMount() {
