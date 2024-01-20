@@ -3,6 +3,7 @@ import { getExternalHost } from "@utils/env";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import {
+  ExternalAuth,
   CreateExternalAuth,
   DeleteExternalAuth,
   EditExternalAuth,
@@ -19,22 +20,7 @@ interface ExternalAuthFormProps {
 
 interface ExternalAuthFormState {
   siteRes: GetSiteResponse;
-  externalAuths: ExternalAuthViewForm[];
-}
-
-interface ExternalAuthViewForm {
-  id: number;
-  display_name: string;
-  auth_type: string;
-  auth_endpoint: string;
-  token_endpoint: string;
-  user_endpoint: string;
-  id_attribute: string;
-  issuer: string;
-  client_id: string;
-  client_secret: string;
-  scopes: string;
-  changed: boolean;
+  externalAuths: ExternalAuth[];
 }
 
 export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalAuthFormState> {
@@ -321,7 +307,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
     );
   }
 
-  canEdit(cv: ExternalAuthViewForm) {
+  canEdit(cv: ExternalAuth) {
     let noEmptyFields =
       cv.display_name.length > 0 &&
       cv.client_id.length > 0 &&
@@ -341,7 +327,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
     return noEmptyFields && cv.changed;
   }
 
-  getEditTooltip(cv: ExternalAuthViewForm) {
+  getEditTooltip(cv: ExternalAuth) {
     if (this.canEdit(cv)) return I18NextService.i18n.t("save");
     else return I18NextService.i18n.t("external_auth_save_validation");
   }
@@ -489,7 +475,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
   handleDeleteAuthClick(d: {
     i: ExternalAuthForm;
     index: number;
-    cv: ExternalAuthViewForm;
+    cv: ExternalAuth;
   }) {
     if (d.cv.id !== 0) {
       d.i.props.onDelete({
@@ -536,7 +522,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
   handleAddOauthClick(form: ExternalAuthForm, event: any) {
     event.preventDefault();
     form.setState(prevState => {
-      const item: ExternalAuthViewForm = {
+      const item: ExternalAuth = {
         id: 0,
         display_name: "",
         auth_type: "oauth",
@@ -561,7 +547,7 @@ export class ExternalAuthForm extends Component<ExternalAuthFormProps, ExternalA
   handleAddOidcClick(form: ExternalAuthForm, event: any) {
     event.preventDefault();
     form.setState(prevState => {
-      const item: ExternalAuthViewForm = {
+      const item: ExternalAuth = {
         id: 0,
         display_name: "",
         auth_type: "oidc",
