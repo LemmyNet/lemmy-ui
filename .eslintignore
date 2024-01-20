@@ -5,3 +5,4 @@ src/api_tests
 **/*.css
 **/*.scss
 **/*.svg
+src/shared/translations/**
