@@ -346,8 +346,9 @@ export function setupTribute() {
           return `${item.original.val} ${shortName}`;
         },
         selectTemplate: (item: any) => {
-          const customEmoji = customEmojisLookup.get(item.original.key)
-            ?.custom_emoji;
+          const customEmoji = customEmojisLookup.get(
+            item.original.key,
+          )?.custom_emoji;
           if (customEmoji === undefined) return `${item.original.val}`;
           else
             return `![${customEmoji.alt_text}](${customEmoji.image_url} "emoji ${customEmoji.shortcode}")`;

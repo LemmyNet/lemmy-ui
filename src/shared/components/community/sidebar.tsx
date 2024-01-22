@@ -122,9 +122,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   sidebar() {
-    const myUSerInfo = UserService.Instance.myUserInfo;
+    const myUserInfo = UserService.Instance.myUserInfo;
     const {
-      community: { name, actor_id },
+      community: { name, actor_id, id, posting_restricted_to_mods },
+      counts,
     } = this.props.community_view;
     return (
       <aside className="mb-3">
@@ -140,8 +141,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 loading={this.state.followCommunityLoading}
               />
               {this.canPost && this.createPost()}
-              {myUSerInfo && this.blockCommunity()}
-              {!myUSerInfo && (
+              {myUserInfo && this.blockCommunity()}
+              {!myUserInfo && (
                 <div className="alert alert-info" role="alert">
                   <T
                     i18nKey="community_not_logged_in_alert"
@@ -158,11 +159,23 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           </section>
           <section id="sidebarInfo" className="card border-secondary mb-3">
             <div className="card-body">
+              {posting_restricted_to_mods && (
+                <div
+                  className="alert alert-warning text-sm-start text-xs-center"
+                  role="alert"
+                >
+                  <Icon
+                    icon="lock"
+                    inline
+                    classes="me-sm-2 mx-auto d-sm-inline d-block"
+                  />
+                  <T i18nKey="community_locked_message" className="d-inline">
+                    #<strong className="fw-bold">#</strong>#
+                  </T>
+                </div>
+              )}
               {this.description()}
-              <Badges
-                communityId={this.props.community_view.community.id}
-                counts={this.props.community_view.counts}
-              />
+              <Badges communityId={id} counts={counts} />
               {this.mods()}
             </div>
           </section>

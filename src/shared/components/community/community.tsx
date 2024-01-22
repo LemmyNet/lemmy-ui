@@ -95,12 +95,12 @@ import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { SortSelect } from "../common/sort-select";
-import { Sidebar } from "../community/sidebar";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
+import { Sidebar } from "./sidebar";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -503,7 +503,21 @@ export class Community extends Component<
       community && (
         <div className="mb-2">
           <BannerIconHeader banner={community.banner} icon={community.icon} />
-          <h1 className="h4 mb-0 overflow-wrap-anywhere">{community.title}</h1>
+          <div>
+            <h1
+              className="h4 mb-0 overflow-wrap-anywhere d-inline"
+              data-tippy-content={
+                community.posting_restricted_to_mods
+                  ? I18NextService.i18n.t("community_locked")
+                  : ""
+              }
+            >
+              {community.title}
+            </h1>
+            {community.posting_restricted_to_mods && (
+              <Icon icon="lock" inline classes="text-danger fs-4 ms-2" />
+            )}
+          </div>
           <CommunityLink
             community={community}
             realLink

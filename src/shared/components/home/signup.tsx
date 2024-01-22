@@ -71,13 +71,9 @@ export class Signup extends Component<any, State> {
 
   async fetchCaptcha() {
     this.setState({ captchaRes: LOADING_REQUEST });
-    HttpService.client.setHeaders({
-      "Cache-Control": "private, no-cache",
-    });
     this.setState({
       captchaRes: await HttpService.client.getCaptcha(),
     });
-    HttpService.client.setHeaders({});
 
     this.setState(s => {
       if (s.captchaRes.state === "success") {
