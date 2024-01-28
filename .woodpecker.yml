@@ -1,3 +1,6 @@
+variables:
+  - &install_pnpm: 'wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -'
+
 steps:
   fetch_git_submodules:
     image: node:20-alpine
@@ -5,23 +8,24 @@ steps:
       - apk add git
       - git submodule init
       - git submodule update --recursive --remote
-      # Install pnpm
-      - wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
-      - source /root/.shrc
+      #- source /root/.shrc
 
   install:
     image: node:20-alpine
     commands:
+      - *install_pnpm
       - pnpm i
 
   lint:
     image: node:20-alpine
     commands:
+      - *install_pnpm
       - pnpm lint
 
   build_dev:
     image: node:20-alpine
     commands:
+      - *install_pnpm
       - pnpm build:dev
 
   publish_release_docker:
