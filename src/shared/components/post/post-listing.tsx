@@ -570,15 +570,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <Icon icon="share" inline />
           </button>
         )}
-        {!local && (
-          <a
-            className="btn btn-sm btn-link btn-animate text-muted py-0"
-            title={I18NextService.i18n.t("link")}
-            href={ap_id}
-          >
-            <Icon icon="fedilink" inline />
-          </a>
-        )}
+        <a
+          className="btn btn-sm btn-link btn-animate text-muted py-0"
+          title={I18NextService.i18n.t("link")}
+          href={ap_id}
+        >
+          <Icon icon="fedilink" inline />
+        </a>
         {mobile && !viewOnly && (
           <VoteButtonsCompact
             voteContentType={VoteContentType.Post}
