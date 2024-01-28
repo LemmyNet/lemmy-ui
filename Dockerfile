@@ -4,10 +4,10 @@ FROM node:21-alpine as builder
 # Done for two reasons:
 # - libvips binaries are not available for ARM32
 # - It can break depending on the CPU (https://github.com/LemmyNet/lemmy-ui/issues/1566)
-RUN apk update && apk upgrade && apk add --no-cache curl yarn python3 build-base gcc wget git vips-dev pkgconfig
+RUN apk update && apk upgrade && apk add --no-cache curl python3 build-base gcc wget git vips-dev pkgconfig
 
-# Install node-gyp
-RUN npm install -g node-gyp
+# Install node-gyp and pnpm
+RUN npm install -g pnpm node-gyp
 
 WORKDIR /usr/src/app
 
@@ -15,10 +15,8 @@ ENV npm_config_target_platform=linux
 ENV npm_config_target_libc=musl
 
 # Cache deps
-COPY package.json yarn.lock ./
-
-RUN yarn --production --prefer-offline --pure-lockfile --network-timeout 100000
-
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm i --production --prefer-offline
 # Build
 COPY generate_translations.js \
   tsconfig.json \
@@ -33,14 +31,12 @@ COPY .git .git
 # Set UI version 
 RUN echo "export const VERSION = '$(git describe --tag)';" > "src/shared/version.ts"
 
-RUN yarn --production --prefer-offline --network-timeout 100000
-RUN yarn build:prod
+RUN pnpm i --production --prefer-offline
+RUN pnpm build:prod
 
 RUN rm -rf ./node_modules/import-sort-parser-typescript
 RUN rm -rf ./node_modules/typescript
 RUN rm -rf ./node_modules/npm
-
-RUN du -sh ./node_modules/* | sort -nr | grep '\dM.*'
 
 FROM node:21-alpine as runner
 ENV NODE_ENV=production
