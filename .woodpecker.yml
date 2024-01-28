@@ -1,5 +1,5 @@
 variables:
-  - &install_pnpm: wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
+  - &install_pnpm "wget -qO- https://get.pnpm.io/install.sh | ENV='$HOME/.shrc' SHELL='$(which sh)' sh -"
 
 steps:
   fetch_git_submodules:
