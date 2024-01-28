@@ -25,6 +25,7 @@ steps:
     image: node:20-alpine
     commands:
       - *install_pnpm
+      - pnpm prebuild:dev
       - pnpm build:dev
 
   publish_release_docker:
