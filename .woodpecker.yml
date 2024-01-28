@@ -5,22 +5,23 @@ steps:
       - apk add git
       - git submodule init
       - git submodule update --recursive --remote
-      # - git fetch --tags
+      # Install pnpm
+      - wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
 
-  yarn:
+  install:
     image: node:20-alpine
     commands:
-      - yarn
+      - pnpm i
 
-  yarn_lint:
+  lint:
     image: node:20-alpine
     commands:
-      - yarn lint
+      - pnpm lint
 
-  yarn_build_dev:
+  build_dev:
     image: node:20-alpine
     commands:
-      - yarn build:dev
+      - pnpm build:dev
 
   publish_release_docker:
     image: woodpeckerci/plugin-docker-buildx
