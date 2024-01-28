@@ -274,6 +274,9 @@ devDependencies:
   prettier-plugin-packagejson:
     specifier: ^2.4.9
     version: 2.4.9(prettier@3.2.4)
+  qs:
+    specifier: ^6.11.2
+    version: 6.11.2
   rimraf:
     specifier: ^5.0.0
     version: 5.0.5
@@ -5948,6 +5951,13 @@ packages:
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.4
+
+  /qs@6.11.2:
+    resolution: {integrity: sha512-tDNIz22aBzCDxLtVH++VnTfzxlfeK5CbqohpSqpJgj1Wg/cQbStNAz3NuqCs5vV+pjBsK4x4pN9HlVh7rcYRiA==}
+    engines: {node: '>=0.6'}
+    dependencies:
+      side-channel: 1.0.4
+    dev: true
 
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
