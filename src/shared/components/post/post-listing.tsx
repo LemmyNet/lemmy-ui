@@ -553,7 +553,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       enableDownvotes,
     } = this.props;
     const {
-      post: { local, ap_id, id, body },
+      post: { ap_id, id, body },
       counts,
       my_vote,
     } = this.postView;
