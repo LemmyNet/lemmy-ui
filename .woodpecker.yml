@@ -1,3 +1,6 @@
+variables:
+  - &install_pnpm "corepack enable pnpm"
+
 steps:
   fetch_git_submodules:
     image: node:20-alpine
@@ -5,22 +8,25 @@ steps:
       - apk add git
       - git submodule init
       - git submodule update --recursive --remote
-      # - git fetch --tags
 
-  yarn:
+  install:
     image: node:20-alpine
     commands:
-      - yarn
+      - *install_pnpm
+      - pnpm i
 
-  yarn_lint:
+  lint:
     image: node:20-alpine
     commands:
-      - yarn lint
+      - *install_pnpm
+      - pnpm lint
 
-  yarn_build_dev:
+  build_dev:
     image: node:20-alpine
     commands:
-      - yarn build:dev
+      - *install_pnpm
+      - pnpm prebuild:dev
+      - pnpm build:dev
 
   publish_release_docker:
     image: woodpeckerci/plugin-docker-buildx
