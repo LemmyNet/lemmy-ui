@@ -16,7 +16,7 @@ ENV npm_config_target_libc=musl
 
 # Cache deps
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm i --production --prefer-offline
+RUN pnpm i
 # Build
 COPY generate_translations.js \
   tsconfig.json \
@@ -31,7 +31,8 @@ COPY .git .git
 # Set UI version 
 RUN echo "export const VERSION = '$(git describe --tag)';" > "src/shared/version.ts"
 
-RUN pnpm i --production --prefer-offline
+RUN pnpm i
+RUN pnpm prebuild:prod
 RUN pnpm build:prod
 
 RUN rm -rf ./node_modules/import-sort-parser-typescript
