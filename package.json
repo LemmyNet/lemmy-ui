@@ -11,7 +11,6 @@
     "clean": "pnpm rimraf dist",
     "dev": "pnpm build:dev --watch",
     "lint": "pnpm translations:generate && tsc --noEmit && eslint --report-unused-disable-directives --ext .js,.ts,.tsx \"src/**\" && prettier --check \"src/**/*.{ts,tsx,js,css,scss}\"",
-    "postinstall": "husky install",
     "prebuild:dev": "pnpm clean && node generate_translations.js",
     "prebuild:prod": "pnpm clean && node generate_translations.js",
     "prepare": "husky",
