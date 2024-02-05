@@ -17,6 +17,15 @@ import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import TotpModal from "../common/totp-modal";
 import { UnreadCounterService } from "../../services";
+import { Link } from "inferno-router";
+
+type LoginPageDisplay =
+  | { type: "normal" }
+  | { type: "pending" }
+  | {
+      type: "denied";
+      reason: string;
+    };
 
 interface LoginProps {
   prev?: string;
@@ -37,6 +46,7 @@ interface State {
   };
   siteRes: GetSiteResponse;
   show2faModal: boolean;
+  display: LoginPageDisplay;
 }
 
 async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
@@ -76,6 +86,10 @@ async function handleLoginSubmit(i: Login, event: any) {
       case "failed": {
         if (loginRes.err.message === "missing_totp_token") {
           i.setState({ show2faModal: true });
+        } else if (
+          loginRes.err.message === "registration_application_is_pending"
+        ) {
+          i.setState({ display: { type: "pending" } });
         } else {
           toast(I18NextService.i18n.t(loginRes.err.message), "danger");
         }
@@ -120,6 +134,7 @@ export class Login extends Component<
     },
     siteRes: this.isoData.site_res,
     show2faModal: false,
+    display: { type: "normal" },
   };
 
   constructor(props: any, context: any) {
@@ -139,6 +154,8 @@ export class Login extends Component<
   }
 
   render() {
+    const { display } = this.state;
+
     return (
       <div className="login container-lg">
         <HtmlTags
@@ -152,7 +169,11 @@ export class Login extends Component<
           onClose={linkEvent(this, handleClose2faModal)}
         />
         <div className="row">
-          <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
+          <div className="col-12 col-lg-6 offset-lg-3">
+            {display.type === "normal"
+              ? this.loginForm()
+              : this.pendingDisplay()}
+          </div>
         </div>
       </div>
     );
@@ -222,6 +243,28 @@ export class Login extends Component<
             </div>
           </div>
         </form>
+      </div>
+    );
+  }
+
+  pendingDisplay() {
+    return (
+      <div className="text-center">
+        <h1>Registration Pending Approval</h1>
+        <p className="fs-5 mt-4 mb-2">
+          Please be patient! An admin still has to approve your application.
+        </p>
+        <Link to="/" replace>
+          {I18NextService.i18n.t("not_found_return_home_button")}
+        </Link>
+      </div>
+    );
+  }
+
+  deniedDisplay() {
+    return (
+      <div>
+        <h1 className="text-center">Registration Denied!</h1>
       </div>
     );
   }
