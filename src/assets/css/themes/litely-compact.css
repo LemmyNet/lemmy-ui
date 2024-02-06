@@ -114,7 +114,7 @@ hr.my-3 {
   --bs-font-sans-serif: -apple-system, BlinkMacSystemFont, "Droid Sans", "Segoe UI", "Helvetica", Arial, sans-serif;
   --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
-  --bs-root-font-size: 93.75%;
+  --bs-root-font-size: 100%;
   --bs-body-font-family: var(--bs-font-sans-serif);
   --bs-body-font-size: 1rem;
   --bs-body-font-weight: 400;
