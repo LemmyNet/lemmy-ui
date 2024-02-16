@@ -1,3 +1,7 @@
+body {
+  overflow-y: scroll !important;
+}
+
 .navbar-expand-lg .navbar-nav .nav-link {
   padding-right: 0.75rem !important;
   padding-left: 0.75rem !important;
