@@ -653,7 +653,7 @@ export default class ContentActionDropdown extends Component<
                 : "appoint_as_mod_are_you_sure",
               {
                 user: getApubName(creator),
-                community: getApubName(creator),
+                community: getApubName(community),
               },
             )}
             loadingMessage={I18NextService.i18n.t(
