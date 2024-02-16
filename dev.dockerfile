@@ -25,6 +25,7 @@ COPY .git .git
 
 # Set UI version 
 RUN echo "export const VERSION = 'dev';" > "src/shared/version.ts"
+RUN echo "export const BUILD_DATE_ISO8601 = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';" > "src/shared/build-date.ts"
 
 RUN pnpm i --prefer-offline
 RUN pnpm build:dev
