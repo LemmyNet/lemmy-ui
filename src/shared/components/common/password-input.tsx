@@ -98,7 +98,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 value={value}
                 required
                 pattern=".{10,60}"
-                title="Password must be between 10 and 60 characters!"
+                title={I18NextService.i18n.t("invalid_password")}
               />
               <button
                 className="btn btn-outline-dark"
