@@ -97,8 +97,8 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 onInput={onInput}
                 value={value}
                 required
-                maxLength={60}
-                minLength={10}
+                pattern=".{10,60}"
+                title="Password must be between 10 and 60 characters!"
               />
               <button
                 className="btn btn-outline-dark"
