@@ -51,7 +51,7 @@ export class App extends Component<any, any> {
             {siteView && (
               <>
                 <Theme defaultTheme={siteView.local_site.default_theme} />
-                <CodeTheme />
+                <CodeTheme defaultTheme={siteView.local_site.default_theme} />
               </>
             )}
             <Navbar siteRes={siteRes} />
