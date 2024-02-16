@@ -97,8 +97,8 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 onInput={onInput}
                 value={value}
                 required
-                maxLength={60}
-                minLength={10}
+                pattern=".{10,60}"
+                title={I18NextService.i18n.t("invalid_password")}
               />
               <button
                 className="btn btn-outline-dark"
