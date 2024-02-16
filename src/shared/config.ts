@@ -33,6 +33,8 @@ export const authCookieName = "jwt";
 // page on route "/communities"
 export const communityLimit = 50;
 
+const queryPairRegex = "[a-zA-Zd_-]+=[a-zA-Zd+-_]+";
+
 /**
  * Accepted formats:
  * !community@server.com
@@ -40,7 +42,9 @@ export const communityLimit = 50;
  * /m/community@server.com
  * /u/username@server.com
  */
-export const instanceLinkRegex =
-  /(\/[cmu]\/|!)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+export const instanceLinkRegex = new RegExp(
+  `(/[cmu]/|!)[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}(?:/?\\?${queryPairRegex}(?:&${queryPairRegex})*)?`,
+  "g",
+);
 
 export const testHost = "0.0.0.0:8536";
