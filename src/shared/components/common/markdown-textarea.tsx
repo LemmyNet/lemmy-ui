@@ -156,72 +156,76 @@ export class MarkdownTextArea extends Component<
         <div className="mb-3 row">
           <div className="col-12">
             <div className="rounded bg-light border">
-              <div
-                className={classNames("d-flex flex-wrap border-bottom", {
-                  "no-click": this.isDisabled,
-                })}
-              >
-                {this.getFormatButton("bold", this.handleInsertBold)}
-                {this.getFormatButton("italic", this.handleInsertItalic)}
-                {this.getFormatButton("link", this.handleInsertLink)}
-                <EmojiPicker onEmojiClick={this.handleEmoji}></EmojiPicker>
-                <label
-                  htmlFor={`file-upload-${this.id}`}
-                  className={classNames("mb-0", {
-                    pointer: UserService.Instance.myUserInfo,
+              {!this.state.previewMode && (
+                <div
+                  className={classNames("d-flex flex-wrap border-bottom", {
+                    "no-click": this.isDisabled,
                   })}
-                  data-tippy-content={I18NextService.i18n.t("upload_image")}
                 >
-                  {this.state.imageUploadStatus ? (
-                    <Spinner />
-                  ) : (
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-link rounded-0 text-muted mb-0"
-                      onClick={() => {
-                        document
-                          .getElementById(`file-upload-${this.id}`)
-                          ?.click();
-                      }}
-                    >
-                      <Icon icon="image" classes="icon-inline" />
-                    </button>
+                  {this.getFormatButton("bold", this.handleInsertBold)}
+                  {this.getFormatButton("italic", this.handleInsertItalic)}
+                  {this.getFormatButton("link", this.handleInsertLink)}
+                  <EmojiPicker onEmojiClick={this.handleEmoji}></EmojiPicker>
+                  <label
+                    htmlFor={`file-upload-${this.id}`}
+                    className={classNames("mb-0", {
+                      pointer: UserService.Instance.myUserInfo,
+                    })}
+                    data-tippy-content={I18NextService.i18n.t("upload_image")}
+                  >
+                    {this.state.imageUploadStatus ? (
+                      <Spinner />
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-link rounded-0 text-muted mb-0"
+                        onClick={() => {
+                          document
+                            .getElementById(`file-upload-${this.id}`)
+                            ?.click();
+                        }}
+                      >
+                        <Icon icon="image" classes="icon-inline" />
+                      </button>
+                    )}
+                  </label>
+                  <input
+                    id={`file-upload-${this.id}`}
+                    type="file"
+                    accept="image/*,video/*"
+                    name="file"
+                    className="d-none"
+                    multiple
+                    disabled={!UserService.Instance.myUserInfo}
+                    onChange={linkEvent(this, this.handleImageUpload)}
+                  />
+                  {this.getFormatButton("header", this.handleInsertHeader)}
+                  {this.getFormatButton(
+                    "strikethrough",
+                    this.handleInsertStrikethrough,
                   )}
-                </label>
-                <input
-                  id={`file-upload-${this.id}`}
-                  type="file"
-                  accept="image/*,video/*"
-                  name="file"
-                  className="d-none"
-                  multiple
-                  disabled={!UserService.Instance.myUserInfo}
-                  onChange={linkEvent(this, this.handleImageUpload)}
-                />
-                {this.getFormatButton("header", this.handleInsertHeader)}
-                {this.getFormatButton(
-                  "strikethrough",
-                  this.handleInsertStrikethrough,
-                )}
-                {this.getFormatButton("quote", this.handleInsertQuote)}
-                {this.getFormatButton("list", this.handleInsertList)}
-                {this.getFormatButton("code", this.handleInsertCode)}
-                {this.getFormatButton("subscript", this.handleInsertSubscript)}
-                {this.getFormatButton(
-                  "superscript",
-                  this.handleInsertSuperscript,
-                )}
-                {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
-                <a
-                  href={markdownHelpUrl}
-                  className="btn btn-sm btn-link rounded-0 text-muted fw-bold"
-                  title={I18NextService.i18n.t("formatting_help")}
-                  rel={relTags}
-                >
-                  <Icon icon="help-circle" classes="icon-inline" />
-                </a>
-              </div>
-
+                  {this.getFormatButton("quote", this.handleInsertQuote)}
+                  {this.getFormatButton("list", this.handleInsertList)}
+                  {this.getFormatButton("code", this.handleInsertCode)}
+                  {this.getFormatButton(
+                    "subscript",
+                    this.handleInsertSubscript,
+                  )}
+                  {this.getFormatButton(
+                    "superscript",
+                    this.handleInsertSuperscript,
+                  )}
+                  {this.getFormatButton("spoiler", this.handleInsertSpoiler)}
+                  <a
+                    href={markdownHelpUrl}
+                    className="btn btn-sm btn-link rounded-0 text-muted fw-bold"
+                    title={I18NextService.i18n.t("formatting_help")}
+                    rel={relTags}
+                  >
+                    <Icon icon="help-circle" classes="icon-inline" />
+                  </a>
+                </div>
+              )}
               <div>
                 <textarea
                   id={this.id}
