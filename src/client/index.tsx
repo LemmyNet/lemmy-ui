@@ -29,6 +29,8 @@ async function startClient() {
 
   if (root) {
     hydrate(wrapper, root);
+
+    root.dispatchEvent(new CustomEvent("lemmy-hydrated", { bubbles: true }));
   }
 }
 
