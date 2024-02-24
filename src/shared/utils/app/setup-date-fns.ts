@@ -106,6 +106,9 @@ const localeByCode = locales.reduce((acc, l) => {
   return acc;
 }, {});
 
+// Use pt-BR for users with removed interface language pt_BR.
+localeByCode["pt_BR"] = localeByCode["pt-BR"];
+
 const EN_US = "en-US";
 
 function langToLocale(lang: string): DateFnsDesc | undefined {

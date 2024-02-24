@@ -800,7 +800,7 @@ export class Settings extends Component<any, SettingsState> {
                 onChange={linkEvent(this, this.handleInterfaceLangChange)}
                 className="form-select d-inline-block w-auto"
               >
-                <option disabled aria-hidden="true">
+                <option disabled aria-hidden="true" selected>
                   {I18NextService.i18n.t("interface_language")}
                 </option>
                 <option value="browser">

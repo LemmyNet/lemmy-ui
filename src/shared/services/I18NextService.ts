@@ -37,7 +37,7 @@ export const languages: TranslationDesc[] = [
   { resource: "oc", code: "oc", name: "Occitan" },
   { resource: "pl", code: "pl", name: "Polski" },
   { resource: "pt", code: "pt", name: "Português" },
-  { resource: "pt_BR", code: "pt_BR", name: "Português (Brasil)" },
+  { resource: "pt_BR", code: "pt-BR", name: "Português (Brasil)" },
   { resource: "ru", code: "ru", name: "Русский" },
   { resource: "sv", code: "sv", name: "Svenska" },
   { resource: "vi", code: "vi", name: "Tiếng Việt" },
@@ -49,6 +49,9 @@ const languageByCode = languages.reduce((acc, l) => {
   acc[l.code] = l;
   return acc;
 }, {});
+
+// Use pt-BR for users with removed interface language pt_BR.
+languageByCode["pt_BR"] = languageByCode["pt-BR"];
 
 async function load(translation: TranslationDesc): Promise<Resource> {
   const { resource } = translation;
