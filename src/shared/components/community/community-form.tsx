@@ -221,7 +221,9 @@ export class CommunityForm extends Component<
           </div>
         )}
         <div className="mb-3 row">
-          <legend className="col-form-label col-6 pt-0">Visibility</legend>
+          <legend className="col-form-label col-6 pt-0">
+            {I18NextService.i18n.t("community_visibility")}
+          </legend>
           <div className="col-6">
             <select
               className="form-select position-static"
@@ -229,8 +231,10 @@ export class CommunityForm extends Component<
               onChange={linkEvent(this, this.handleCommunityVisibilityChange)}
               value={this.state.form.visibilty ?? "Public"}
             >
-              <option value="Public">Public</option>
-              <option value="LocalOnly">Local Only</option>
+              <option value="Public">{I18NextService.i18n.t("public")}</option>
+              <option value="LocalOnly">
+                {I18NextService.i18n.t("local_only")}
+              </option>
             </select>
           </div>
         </div>
