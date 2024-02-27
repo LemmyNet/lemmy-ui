@@ -1,5 +1,5 @@
 import { setDefaultOptions, Locale } from "date-fns";
-import { I18NextService } from "../../services";
+import { I18NextService, LanguageService } from "../../services/I18NextService";
 import { enUS } from "date-fns/locale/en-US";
 import { ImportReport } from "../../dynamic-imports";
 
@@ -153,9 +153,24 @@ export async function verifyDateFnsImports(): Promise<ImportReport> {
   return report;
 }
 
+function bestDateFns(
+  languages: readonly string[],
+  i18n_full_lang: string,
+): DateFnsDesc {
+  const [base_lang] = i18n_full_lang.split("-");
+  for (const lang of languages.filter(x => x.startsWith(base_lang))) {
+    const locale = langToLocale(lang);
+    if (locale) {
+      return locale;
+    }
+  }
+  // Fallback to base langauge first, to avoid mixing languages.
+  return langToLocale(base_lang) ?? localeByCode[EN_US];
+}
+
 export default async function () {
   const i18n_full_lang = I18NextService.i18n.resolvedLanguage ?? EN_US;
-  const localeDesc = langToLocale(i18n_full_lang) ?? localeByCode[EN_US];
+  const localeDesc = bestDateFns(LanguageService.userLanguages, i18n_full_lang);
   try {
     const locale = await load(localeDesc);
     if (locale) {

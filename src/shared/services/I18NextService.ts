@@ -91,17 +91,32 @@ class LanguageDetector {
   static readonly type = "languageDetector";
 
   detect() {
-    const langs: string[] = [];
+    return LanguageService.userLanguages;
+  }
+}
 
+export class LanguageService {
+  private static _serverLanguages: readonly string[] = [];
+  private static get languages(): readonly string[] {
+    if (isBrowser()) {
+      return navigator.languages;
+    } else {
+      return this._serverLanguages;
+    }
+  }
+  static updateLanguages(languages: readonly string[]) {
+    this._serverLanguages = languages;
+    I18NextService.i18n.changeLanguage();
+    setupDateFns();
+  }
+  static get userLanguages(): readonly string[] {
     const myLang =
       UserService.Instance.myUserInfo?.local_user_view.local_user
         .interface_language ?? "browser";
-
-    if (myLang !== "browser") langs.push(myLang);
-
-    if (isBrowser()) langs.push(...navigator.languages);
-
-    return langs;
+    if (myLang === "browser") {
+      return this.languages;
+    }
+    return [myLang, ...this.languages];
   }
 }
 
