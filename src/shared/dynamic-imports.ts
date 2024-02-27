@@ -1,4 +1,5 @@
 import { verifyTranslationImports } from "./services/I18NextService";
+import { verifyDateFnsImports } from "@utils/app/setup-date-fns";
 
 export class ImportReport {
   error: Array<{ id: string; error: Error | string | undefined }> = [];
@@ -7,6 +8,7 @@ export class ImportReport {
 
 export type ImportReportCollection = {
   translation?: ImportReport;
+  "date-fns"?: ImportReport;
 };
 
 function collect(
@@ -39,6 +41,9 @@ export async function verifyDynamicImports(
   const collection: ImportReportCollection = {};
   await verifyTranslationImports().then(report =>
     collect(verbose, "translation", collection, report),
+  );
+  await verifyDateFnsImports().then(report =>
+    collect(verbose, "date-fns", collection, report),
   );
   return collection;
 }

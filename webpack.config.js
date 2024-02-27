@@ -63,6 +63,12 @@ module.exports = (env, argv) => {
       new webpack.BannerPlugin({
         banner,
       }),
+      // helps import("date-fns/locale/${x}.mjs") find "date-fns/locale"
+      new webpack.ContextReplacementPlugin(
+        /date-fns\/locale/,
+        resolve(__dirname, "node_modules/date-fns/locale"),
+        false,
+      ),
     ],
   };
 
