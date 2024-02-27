@@ -9,6 +9,7 @@ export type TranslationDesc = {
   resource: string;
   code: string;
   name: string;
+  bundled?: boolean;
 };
 
 export const languages: TranslationDesc[] = [
@@ -19,7 +20,7 @@ export const languages: TranslationDesc[] = [
   { resource: "da", code: "da", name: "Dansk" },
   { resource: "de", code: "de", name: "Deutsch" },
   { resource: "el", code: "el", name: "Ελληνικά" },
-  { resource: "en", code: "en", name: "English" },
+  { resource: "en", code: "en", name: "English", bundled: true },
   { resource: "eo", code: "eo", name: "Esperanto" },
   { resource: "es", code: "es", name: "Español" },
   { resource: "eu", code: "eu", name: "Euskara" },
@@ -76,6 +77,35 @@ export async function verifyTranslationImports(): Promise<ImportReport> {
   );
   await Promise.all(promises);
   return report;
+}
+
+export function pickTranslations(lang: string): TranslationDesc[] | undefined {
+  const primary = languageByCode[lang];
+  const [head] = (primary?.code ?? lang).split("-");
+  const secondary = head !== lang ? languageByCode[head] : undefined;
+  if (primary && secondary) {
+    return [primary, secondary];
+  } else if (primary) {
+    return [primary];
+  } else if (secondary) {
+    return [secondary];
+  }
+  return undefined;
+}
+
+export function findTranslationChunkNames(
+  languages: readonly string[],
+): string[] {
+  for (const lang of languages) {
+    const translations = pickTranslations(lang);
+    if (!translations) {
+      continue;
+    }
+    return translations
+      .filter(x => !x.bundled)
+      .map(x => `translation-${x.resource}`);
+  }
+  return [];
 }
 
 export async function loadUserLanguage() {
@@ -155,7 +185,7 @@ export class I18NextService {
         compatibilityJSON: "v3",
         supportedLngs: languages.map(l => l.code),
         nonExplicitSupportedLngs: true,
-        // load: 'languageOnly',
+        load: "all",
         // initImmediate: false,
         fallbackLng: "en",
         resources: { en } as Resource,

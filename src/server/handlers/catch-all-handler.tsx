@@ -148,7 +148,14 @@ export default async (req: Request, res: Response) => {
 
     const root = renderToString(wrapper);
 
-    res.send(await createSsrHtml(root, isoData, res.locals.cspNonce));
+    res.send(
+      await createSsrHtml(
+        root,
+        isoData,
+        res.locals.cspNonce,
+        LanguageService.userLanguages,
+      ),
+    );
   } catch (err) {
     // If an error is caught here, the error page couldn't even be rendered
     console.error(err);

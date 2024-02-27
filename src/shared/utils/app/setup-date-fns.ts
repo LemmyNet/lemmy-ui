@@ -1,9 +1,13 @@
 import { setDefaultOptions, Locale } from "date-fns";
-import { I18NextService, LanguageService } from "../../services/I18NextService";
+import {
+  I18NextService,
+  LanguageService,
+  pickTranslations,
+} from "../../services/I18NextService";
 import { enUS } from "date-fns/locale/en-US";
 import { ImportReport } from "../../dynamic-imports";
 
-type DateFnsDesc = { resource: string; code: string };
+type DateFnsDesc = { resource: string; code: string; bundled?: boolean };
 
 const locales: DateFnsDesc[] = [
   { resource: "af", code: "af" },
@@ -32,7 +36,7 @@ const locales: DateFnsDesc[] = [
   { resource: "en-IE", code: "en-IE" },
   { resource: "en-IN", code: "en-IN" },
   { resource: "en-NZ", code: "en-NZ" },
-  { resource: "en-US", code: "en-US" },
+  { resource: "en-US", code: "en-US", bundled: true },
   { resource: "en-ZA", code: "en-ZA" },
   { resource: "eo", code: "eo" },
   { resource: "es", code: "es" },
@@ -166,6 +170,21 @@ function bestDateFns(
   }
   // Fallback to base langauge first, to avoid mixing languages.
   return langToLocale(base_lang) ?? localeByCode[EN_US];
+}
+
+export function findDateFnsChunkNames(languages: readonly string[]): string[] {
+  let i18n_full_lang = EN_US;
+  for (const lang of languages) {
+    if (pickTranslations(lang)) {
+      i18n_full_lang = lang;
+      break;
+    }
+  }
+  const locale = bestDateFns(languages, i18n_full_lang);
+  if (locale.bundled) {
+    return [];
+  }
+  return [`date-fns-${locale.resource}-mjs`];
 }
 
 export default async function () {

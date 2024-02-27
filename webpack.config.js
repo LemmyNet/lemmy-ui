@@ -79,6 +79,7 @@ module.exports = (env, argv) => {
       ...base.output,
       filename: "js/server.js",
       publicPath: "/",
+      chunkLoading: false, // everything bundled
     },
     target: "node",
     externals: [nodeExternals(), "inferno-helmet"],
@@ -91,6 +92,7 @@ module.exports = (env, argv) => {
       ...base.output,
       filename: "js/client.js",
       publicPath: `/static/${env.COMMIT_HASH}/`,
+      chunkFilename: "js/[name].client.js", // predictable names for manual preload
     },
     plugins: [
       ...base.plugins,
