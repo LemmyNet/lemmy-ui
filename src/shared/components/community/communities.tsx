@@ -61,6 +61,7 @@ function getListingTypeFromQuery(listingType?: string): ListingType {
 function getSortTypeFromQuery(type?: string): SortType {
   return type ? (type as SortType) : "TopMonth";
 }
+
 function getCommunitiesQueryParams() {
   return getQueryParams<CommunitiesProps>({
     listingType: getListingTypeFromQuery,
