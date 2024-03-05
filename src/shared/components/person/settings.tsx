@@ -1110,7 +1110,7 @@ export class Settings extends Component<any, SettingsState> {
                       className="form-check-label"
                       htmlFor="delete-account-content"
                     >
-                      Delete all posts, comments and uploaded images
+                      {I18NextService.i18n.t("delete_account_content")}
                     </label>
                   </div>
                 </div>
