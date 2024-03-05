@@ -1103,14 +1103,14 @@ export class Settings extends Component<any, SettingsState> {
                       className="form-check-input"
                       onInput={linkEvent(
                         this,
-                        this.handleDeleteAccountDeleteContentChange,
+                        this.handleDeleteAccountContentChange,
                       )}
                     />
                     <label
                       className="form-check-label"
                       htmlFor="delete-account-content"
                     >
-                      Delete content
+                      Delete all posts, comments and uploaded images
                     </label>
                   </div>
                 </div>
@@ -1696,7 +1696,7 @@ export class Settings extends Component<any, SettingsState> {
     i.setState({ deleteAccountShowConfirm: !i.state.deleteAccountShowConfirm });
   }
 
-  handleDeleteAccountDeleteContentChange(i: Settings, event: any) {
+  handleDeleteAccountContentChange(i: Settings, event: any) {
     i.setState(
       s => ((s.deleteAccountForm.delete_content = event.target.checked), s),
     );
