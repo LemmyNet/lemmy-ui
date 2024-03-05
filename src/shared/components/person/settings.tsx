@@ -1095,17 +1095,25 @@ export class Settings extends Component<any, SettingsState> {
                   )}
                   className="my-2"
                 />
-                <input
-                  id="delete-account-content"
-                  type="checkbox"
-                  onInput={linkEvent(
-                    this,
-                    this.handleDeleteAccountDeleteContentChange,
-                  )}
-                />
-                <label className="my-2" htmlFor="delete-account-content">
-                  Delete content
-                </label>
+                <div className="input-group mb-3">
+                  <div className="form-check">
+                    <input
+                      id="delete-account-content"
+                      type="checkbox"
+                      className="form-check-input"
+                      onInput={linkEvent(
+                        this,
+                        this.handleDeleteAccountDeleteContentChange,
+                      )}
+                    />
+                    <label
+                      className="form-check-label"
+                      htmlFor="delete-account-content"
+                    >
+                      Delete content
+                    </label>
+                  </div>
+                </div>
                 <button
                   type="submit"
                   className="btn btn-danger me-4"
