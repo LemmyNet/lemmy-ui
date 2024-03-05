@@ -108,6 +108,7 @@ interface SettingsState {
     old_password?: string;
   };
   deleteAccountForm: {
+    delete_content?: boolean;
     password?: string;
   };
   personBlocks: PersonBlockView[];
@@ -1094,6 +1095,25 @@ export class Settings extends Component<any, SettingsState> {
                   )}
                   className="my-2"
                 />
+                <div className="input-group mb-3">
+                  <div className="form-check">
+                    <input
+                      id="delete-account-content"
+                      type="checkbox"
+                      className="form-check-input"
+                      onInput={linkEvent(
+                        this,
+                        this.handleDeleteAccountContentChange,
+                      )}
+                    />
+                    <label
+                      className="form-check-label"
+                      htmlFor="delete-account-content"
+                    >
+                      {I18NextService.i18n.t("delete_account_content")}
+                    </label>
+                  </div>
+                </div>
                 <button
                   type="submit"
                   className="btn btn-danger me-4"
@@ -1676,6 +1696,12 @@ export class Settings extends Component<any, SettingsState> {
     i.setState({ deleteAccountShowConfirm: !i.state.deleteAccountShowConfirm });
   }
 
+  handleDeleteAccountContentChange(i: Settings, event: any) {
+    i.setState(
+      s => ((s.deleteAccountForm.delete_content = event.target.checked), s),
+    );
+  }
+
   handleDeleteAccountPasswordChange(i: Settings, event: any) {
     i.setState(s => ((s.deleteAccountForm.password = event.target.value), s));
   }
@@ -1687,8 +1713,7 @@ export class Settings extends Component<any, SettingsState> {
       i.setState({ deleteAccountRes: LOADING_REQUEST });
       const deleteAccountRes = await HttpService.client.deleteAccount({
         password,
-        // TODO: promt user weather he wants the content to be deleted
-        delete_content: false,
+        delete_content: i.state.deleteAccountForm.delete_content || false,
       });
       if (deleteAccountRes.state === "success") {
         UserService.Instance.logout();
