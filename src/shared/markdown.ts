@@ -14,7 +14,10 @@ import markdown_it_html5_embed from "markdown-it-html5-embed";
 import markdown_it_ruby from "markdown-it-ruby";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
-import markdown_it_highlightjs from "markdown-it-highlightjs";
+import markdown_it_highlightjs from "markdown-it-highlightjs/core";
+import hljs from "highlight.js/lib/common";
+import hljs_dockerfile from "highlight.js/lib/languages/dockerfile";
+import hljs_pgsql from "highlight.js/lib/languages/pgsql";
 import Renderer from "markdown-it/lib/renderer";
 import Token from "markdown-it/lib/token";
 import { instanceLinkRegex, relTags } from "./config";
@@ -72,6 +75,21 @@ const spoilerConfig = {
       return "</details>\n";
     }
   },
+};
+
+[
+  { name: "dockerfile", langFn: hljs_dockerfile },
+  { name: "pgsql", langFn: hljs_pgsql },
+].forEach(x => {
+  hljs.registerLanguage(x.name, x.langFn);
+});
+
+const highlightjsConfig = {
+  inline: true,
+  hljs,
+  auto: true,
+  code: true,
+  ignoreIllegals: true,
 };
 
 const html5EmbedConfig = {
@@ -170,7 +188,7 @@ export function setupMarkdown() {
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
-    .use(markdown_it_highlightjs, { inline: true })
+    .use(markdown_it_highlightjs, highlightjsConfig)
     .use(markdown_it_ruby)
     .use(localInstanceLinkParser)
     .use(markdown_it_bidi);
@@ -184,7 +202,7 @@ export function setupMarkdown() {
     .use(markdown_it_footnote)
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
-    .use(markdown_it_highlightjs, { inline: true })
+    .use(markdown_it_highlightjs, highlightjsConfig)
     .use(localInstanceLinkParser)
     .use(markdown_it_bidi)
     // .use(markdown_it_emoji, {
