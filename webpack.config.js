@@ -4,6 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const nodeExternals = require("webpack-node-externals");
 const CopyPlugin = require("copy-webpack-plugin");
 const { ServiceWorkerPlugin } = require("service-worker-webpack");
+const { enabledSyntaxHighlighters } = require("./src/shared/build-config");
 
 const banner = `
   hash:[contentHash], chunkhash:[chunkhash], name:[name], filebase:[base], query:[query], file:[file]
@@ -11,6 +12,12 @@ const banner = `
   Created by dessalines
   @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3.0
   `;
+
+const highlightjs_regex = new RegExp(
+  "^[.][/\\\\](" +
+    enabledSyntaxHighlighters.filter(x => x.match(/^[a-zA-Z-]+$/)).join("|") +
+    ")[.]js$",
+);
 
 module.exports = (env, argv) => {
   const mode = argv.mode;
@@ -63,6 +70,12 @@ module.exports = (env, argv) => {
       new webpack.BannerPlugin({
         banner,
       }),
+      new webpack.ContextReplacementPlugin(
+        /^highlight.js\/lib\/languages$/,
+        resolve(__dirname, "node_modules/highlight.js/lib/languages"),
+        false,
+        highlightjs_regex,
+      ),
     ],
   };
 

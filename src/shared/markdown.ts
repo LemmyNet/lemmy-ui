@@ -15,12 +15,11 @@ import markdown_it_ruby from "markdown-it-ruby";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import markdown_it_highlightjs from "markdown-it-highlightjs/core";
-import hljs from "highlight.js/lib/common";
-import hljs_dockerfile from "highlight.js/lib/languages/dockerfile";
-import hljs_pgsql from "highlight.js/lib/languages/pgsql";
+import hljs from "highlight.js/lib/core";
 import Renderer from "markdown-it/lib/renderer";
 import Token from "markdown-it/lib/token";
 import { instanceLinkRegex, relTags } from "./config";
+import { enabledSyntaxHighlighters } from "./build-config";
 
 export let Tribute: any;
 
@@ -77,12 +76,19 @@ const spoilerConfig = {
   },
 };
 
-[
-  { name: "dockerfile", langFn: hljs_dockerfile },
-  { name: "pgsql", langFn: hljs_pgsql },
-].forEach(x => {
-  hljs.registerLanguage(x.name, x.langFn);
-});
+for (const lang of enabledSyntaxHighlighters) {
+  // "eager" means bundled, imports are resolved pseudo synchronously
+  import(
+    /* webpackMode: "eager" */
+    `highlight.js/lib/languages/${lang}.js`
+  )
+    .then(x => {
+      hljs.registerLanguage(lang, x.default);
+    })
+    .catch(err => {
+      console.error(`Syntax highlighter "${lang}" failed:`, err);
+    });
+}
 
 const highlightjsConfig = {
   inline: true,
