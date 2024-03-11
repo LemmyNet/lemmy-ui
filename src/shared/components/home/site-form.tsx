@@ -63,6 +63,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       description: site.description,
       enable_downvotes: ls.enable_downvotes,
       registration_mode: ls.registration_mode,
+      oauth_registration: ls.oauth_registration,
       enable_nsfw: ls.enable_nsfw,
       community_creation_admin_only: ls.community_creation_admin_only,
       icon: site.icon,
@@ -307,6 +308,28 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         )}
+        <div className="mb-3 row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="create-site-oauth-registration"
+                type="checkbox"
+                checked={this.state.siteForm.oauth_registration}
+                onChange={linkEvent(
+                  this,
+                  this.handleSiteOauthRegistration,
+                )}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-oauth-registration"
+              >
+                {I18NextService.i18n.t("oauth_registration")}
+              </label>
+            </div>
+          </div>
+        </div>
         <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
@@ -752,6 +775,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         enable_downvotes: stateSiteForm.enable_downvotes,
         application_question: stateSiteForm.application_question,
         registration_mode: stateSiteForm.registration_mode,
+        oauth_registration: stateSiteForm.oauth_registration,
         require_email_verification: stateSiteForm.require_email_verification,
         private_instance: stateSiteForm.private_instance,
         default_theme: stateSiteForm.default_theme,
@@ -899,6 +923,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteRegistrationModeChange(i: SiteForm, event: any) {
     i.state.siteForm.registration_mode = event.target.value;
+    i.setState(i.state);
+  }
+
+  handleSiteOauthRegistration(i: SiteForm, event: any) {
+    i.state.siteForm.oauth_registration = event.target.checked;
     i.setState(i.state);
   }
 

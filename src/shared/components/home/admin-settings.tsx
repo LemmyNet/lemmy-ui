@@ -6,8 +6,11 @@ import { Component, linkEvent } from "inferno";
 import {
   BannedPersonsResponse,
   CreateCustomEmoji,
+  CreateCustomExternalAuth,
   DeleteCustomEmoji,
+  DeleteCustomExternalAuth,
   EditCustomEmoji,
+  EditCustomExternalAuth,
   EditSite,
   GetFederatedInstancesResponse,
   GetSiteResponse,
@@ -30,6 +33,7 @@ import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
+import { ExternalAuthForm } from "./external-auth-form";
 import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
@@ -73,6 +77,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     this.handleEditEmoji = this.handleEditEmoji.bind(this);
     this.handleDeleteEmoji = this.handleDeleteEmoji.bind(this);
     this.handleCreateEmoji = this.handleCreateEmoji.bind(this);
+    this.handleEditExternalAuth = this.handleEditExternalAuth.bind(this);
+    this.handleDeleteExternalAuth = this.handleDeleteExternalAuth.bind(this);
+    this.handleCreateExternalAuth = this.handleCreateExternalAuth.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -234,6 +241,27 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
                 </div>
               ),
             },
+            {
+              key: "auth",
+              label: I18NextService.i18n.t("authentication"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="auth-tab-pane"
+                >
+                  <div className="row">
+                    <ExternalAuthForm
+                      onCreate={this.handleCreateExternalAuth}
+                      onDelete={this.handleDeleteExternalAuth}
+                      onEdit={this.handleEditExternalAuth}
+                    />
+                  </div>
+                </div>
+              ),
+            },
           ]}
         />
       </div>
@@ -374,5 +402,78 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
+  }
+
+  async handleEditExternalAuth(form: EditCustomExternalAuth) {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.editExternalAuth(form);
+
+    if (res.state === "success") {
+      this.setState(s => {
+        s.siteRes.external_auths = s.siteRes.external_auths.slice();
+        const newExternalAuth = res.data.external_auth.external_auth;
+        const index = s.siteRes.external_auths.findIndex(x =>
+          x.external_auth.client_id === newExternalAuth.client_id);
+        if (index >= 0) {
+          Object.assign(s.siteRes.external_auths[index], newExternalAuth);
+          s.siteRes.external_auths[index].client_secret = "";
+        }
+        return s;
+      });
+      toast(I18NextService.i18n.t("site_saved"));
+    }
+
+    this.setState({ loading: false });
+
+    return res;
+  }
+
+  async handleDeleteExternalAuth(form: DeleteCustomExternalAuth) {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.deleteExternalAuth(form);
+
+    if (res.state === "success") {
+      this.setState(s => {
+        s.siteRes.external_auths = s.siteRes.external_auths.slice();
+        const index = s.siteRes.external_auths.findIndex(x =>
+          x.external_auth.id === res.data.id);
+        if (index >= 0) {
+          s.siteRes.external_auths.splice(index, 1);
+        }
+      });
+      toast(I18NextService.i18n.t("site_saved"));
+    }
+
+    this.setState({ loading: false });
+
+    return res;
+  }
+
+  async handleCreateExternalAuth(form: CreateCustomExternalAuth) {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.createExternalAuth(form);
+
+    if (res.state === "success") {
+      this.setState(s => {
+        s.siteRes.external_auths = s.siteRes.external_auths.slice();
+        const newExternalAuth = res.data.external_auth.external_auth;
+        const index = s.siteRes.external_auths.findIndex(x =>
+          x.external_auth.id === newExternalAuth.id);
+        if (index >= 0) {
+          Object.assign(s.siteRes.external_auths[index], newExternalAuth);
+          s.siteRes.external_auths[index].client_secret = "";
+        } else {
+          s.siteRes.external_auths.push(newExternalAuth);
+        }
+      });
+      toast(I18NextService.i18n.t("site_saved"));
+    }
+
+    this.setState({ loading: false });
+
+    return res;
   }
 }

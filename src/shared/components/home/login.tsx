@@ -1,5 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { isBrowser, updateDataBsTheme } from "@utils/browser";
+import { getExternalHost } from "@utils/env";
 import { getQueryParams } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -20,11 +21,15 @@ import { UnreadCounterService } from "../../services";
 
 interface LoginProps {
   prev?: string;
+  err?: string;
 }
 
 const getLoginQueryParams = () =>
   getQueryParams<LoginProps>({
     prev(param) {
+      return param ? decodeURIComponent(param) : undefined;
+    },
+    err(param) {
       return param ? decodeURIComponent(param) : undefined;
     },
   });
@@ -92,6 +97,49 @@ async function handleLoginSubmit(i: Login, event: any) {
   }
 }
 
+async function handleUseExternalAuth(d: {
+  i: Login;
+  index: number;
+  external_auth: PublicExternalAuth;
+}) {
+  let authEndpoint;
+  if (d.external_auth.auth_type === "oidc") {
+    let discoveryEndpoint = d.external_auth.issuer;
+    if (!discoveryEndpoint.endsWith(".well-known/openid-configuration")) {
+      if (!discoveryEndpoint.endsWith("/")) {
+        discoveryEndpoint += "/";
+      }
+      discoveryEndpoint += ".well-known/openid-configuration";
+    }
+    const res = await fetch(discoveryEndpoint);
+    authEndpoint = (await res.json()).authorization_endpoint;
+  } else {
+    authEndpoint = d.external_auth.auth_endpoint;
+  }
+
+  let requestUri = authEndpoint + "?";
+  requestUri += `client_id=${d.external_auth.client_id}`;
+  requestUri += `&response_type=code`;
+  requestUri += `&scope=${d.external_auth.scopes}`;
+
+  let externalHost = getExternalHost();
+  // Fix for development mode:
+  if (!externalHost.startsWith("http")) {
+    externalHost = "http://" + externalHost;
+  }
+  requestUri += `&redirect_uri=${encodeURIComponent(`${externalHost}/api/v3/oauth/callback`)}`;
+
+  const clientRedirectUri =
+    `${window.location.origin}/oauth/callback?redirect_uri=/`;
+  const state = encodeURIComponent(JSON.stringify({
+    external_auth: d.external_auth.id,
+    client_redirect_uri: clientRedirectUri
+  }));
+  requestUri += `&state=${state}`;
+
+  window.location = requestUri;
+}
+
 function handleLoginUsernameChange(i: Login, event: any) {
   i.setState(
     prevState => (prevState.form.username_or_email = event.target.value.trim()),
@@ -125,6 +173,37 @@ export class Login extends Component<
   constructor(props: any, context: any) {
     super(props, context);
 
+    const { err } = getLoginQueryParams();
+    switch (err) {
+      case "internal":
+        toast(I18NextService.i18n.t("internal_error"), "danger");
+        break;
+      case "oauth_response":
+        toast(I18NextService.i18n.t("invalid_oauth_response"), "danger");
+        break;
+      case "external_auth":
+        toast(I18NextService.i18n.t("incorrect_oauth"), "danger");
+        break;
+      case "token":
+        toast(I18NextService.i18n.t("identity_provider_error"), "danger");
+        break;
+      case "userinfo":
+        toast(I18NextService.i18n.t("identity_provider_error"), "danger");
+        break;
+      case "user":
+        toast(I18NextService.i18n.t("error_logging_in"), "danger");
+        break;
+      case "application":
+        toast(I18NextService.i18n.t("fill_out_application"), "danger");
+        break;
+      case "email":
+        toast(I18NextService.i18n.t("verify_email"), "danger");
+        break;
+      case "jwt":
+        toast(I18NextService.i18n.t("internal_error"), "danger");
+        break;
+    }
+
     this.handleSubmitTotp = this.handleSubmitTotp.bind(this);
   }
 
@@ -154,6 +233,20 @@ export class Login extends Component<
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
+        {this.state.siteRes.external_auths.length > 0 && <div className="row">
+          <div className="col-12 col-lg-6 offset-lg-3">
+            <span>Or</span>
+            {this.state.siteRes.external_auths.map(({ external_auth }, index) =>
+              <button
+                className="btn btn-secondary"
+                style="margin: 0.5rem"
+                onClick={linkEvent({ i: this, index, external_auth }, handleUseExternalAuth)}
+              >
+                Login with { external_auth.display_name }
+              </button>
+            )}
+          </div>
+        </div>}
       </div>
     );
   }
