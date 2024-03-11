@@ -68,7 +68,12 @@ export class RegistrationApplication extends Component<
           <MomentTime showAgo published={ra.published} />
         </div>
         <div>{I18NextService.i18n.t("answer")}:</div>
-        <div className="md-div" dangerouslySetInnerHTML={mdToHtml(ra.answer)} />
+        <div
+          className="md-div"
+          dangerouslySetInnerHTML={mdToHtml(ra.answer, () =>
+            this.forceUpdate(),
+          )}
+        />
 
         {a.admin && (
           <div>
@@ -88,7 +93,9 @@ export class RegistrationApplication extends Component<
                     {I18NextService.i18n.t("deny_reason")}:{" "}
                     <div
                       className="md-div d-inline-flex"
-                      dangerouslySetInnerHTML={mdToHtml(ra.deny_reason)}
+                      dangerouslySetInnerHTML={mdToHtml(ra.deny_reason, () =>
+                        this.forceUpdate(),
+                      )}
                     />
                   </div>
                 )}

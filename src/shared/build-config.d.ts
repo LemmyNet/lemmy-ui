@@ -1,1 +1,2 @@
-export const enabledSyntaxHighlighters: ["plaintext", ...string[]];
+export const bundledSyntaxHighlighters: ["plaintext", ...string[]];
+export const lazySyntaxHighlighters: string[] | "*";

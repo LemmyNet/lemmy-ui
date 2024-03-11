@@ -4,7 +4,8 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const nodeExternals = require("webpack-node-externals");
 const CopyPlugin = require("copy-webpack-plugin");
 const { ServiceWorkerPlugin } = require("service-worker-webpack");
-const { enabledSyntaxHighlighters } = require("./src/shared/build-config");
+const { bundledSyntaxHighlighters } = require("./src/shared/build-config");
+const { lazySyntaxHighlighters } = require("./src/shared/build-config");
 
 const banner = `
   hash:[contentHash], chunkhash:[chunkhash], name:[name], filebase:[base], query:[query], file:[file]
@@ -13,11 +14,33 @@ const banner = `
   @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3.0
   `;
 
-const highlightjs_regex = new RegExp(
-  "^[.][/\\\\](" +
-    enabledSyntaxHighlighters.filter(x => x.match(/^[a-zA-Z-]+$/)).join("|") +
-    ")[.]js$",
-);
+const contextPlugin = (() => {
+  const check = x => x.match(/^[0-9a-zA-Z-]+$/);
+  const eagerNames = bundledSyntaxHighlighters.filter(check).join("|");
+  const eagerHljs = new RegExp(`^[.][/\\\\](${eagerNames})[.]js\$`);
+  let lazyHljs;
+  if (lazySyntaxHighlighters === "*") {
+    lazyHljs = new RegExp(`^[.][/\\\\](?!(${eagerNames})[.]js\$)[^.]+[.]js\$`);
+  } else {
+    const lazyNames = lazySyntaxHighlighters.filter(check).join("|");
+    lazyHljs = new RegExp(`^[.][/\\\\](${lazyNames})[.]js\$`);
+  }
+
+  // Plugin will be used for all parameterized dynamic imports.
+  return new webpack.ContextReplacementPlugin(/.*/, options => {
+    if (/^highlight.js\/lib\/languages$/.test(options.request)) {
+      if (options.mode == "eager") {
+        options.regExp = eagerHljs;
+      } else {
+        options.regExp = lazyHljs;
+      }
+    } else {
+      return;
+    }
+    options.recursive = false;
+    options.request = resolve(__dirname, "node_modules/" + options.request);
+  });
+})();
 
 module.exports = (env, argv) => {
   const mode = argv.mode;
@@ -70,12 +93,7 @@ module.exports = (env, argv) => {
       new webpack.BannerPlugin({
         banner,
       }),
-      new webpack.ContextReplacementPlugin(
-        /^highlight.js\/lib\/languages$/,
-        resolve(__dirname, "node_modules/highlight.js/lib/languages"),
-        false,
-        highlightjs_regex,
-      ),
+      contextPlugin,
     ],
   };
 
