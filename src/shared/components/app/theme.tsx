@@ -75,7 +75,7 @@ export class Theme extends Component<Props, State> {
   }
 
   renderTheme(theme: string) {
-    const hasTheme = theme !== "browser";
+    const hasTheme = theme !== "browser" && theme !== "browser-compact";
 
     const detectedBsTheme = {};
     if (this.lightQuery) {
@@ -117,7 +117,10 @@ export class Theme extends Component<Props, State> {
           <CodeTheme theme={this.props.defaultTheme} />
         </>
       );
-    } else if (this.props.defaultTheme === "browser-compact") {
+    } else if (
+      this.props.defaultTheme === "browser-compact" ||
+      theme === "browser-compact"
+    ) {
       return (
         <>
           <Helmet htmlAttributes={detectedBsTheme}>

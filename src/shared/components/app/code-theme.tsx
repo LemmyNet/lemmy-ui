@@ -9,7 +9,7 @@ interface CodeThemeProps {
 export class CodeTheme extends Component<CodeThemeProps, any> {
   render() {
     const { theme } = this.props;
-    const hasTheme = theme !== "browser";
+    const hasTheme = theme !== "browser" && theme !== "browser-compact";
 
     if (!hasTheme) {
       return (
