@@ -1,5 +1,4 @@
 import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
-import { dataBsTheme } from "@utils/browser";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
@@ -36,11 +35,7 @@ export class App extends Component<any, any> {
     return (
       <>
         <Provider i18next={I18NextService.i18n}>
-          <div
-            id="app"
-            className="lemmy-site"
-            data-bs-theme={dataBsTheme(siteRes)}
-          >
+          <div id="app" className="lemmy-site">
             <button
               type="button"
               className="btn skip-link bg-light position-absolute start-0 z-3"

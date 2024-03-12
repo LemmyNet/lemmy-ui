@@ -1,23 +1,55 @@
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { UserService } from "../../services";
+import { dataBsTheme, isBrowser } from "@utils/browser";
 
 interface Props {
   defaultTheme: string;
 }
 
 export class Theme extends Component<Props> {
+  private lightQuery?: MediaQueryList;
+  constructor(props, context) {
+    super(props, context);
+    if (isBrowser()) {
+      window.addEventListener("refresh-theme", this.eventListener);
+      this.lightQuery = window.matchMedia("(prefers-color-scheme: light)");
+      this.lightQuery.addEventListener("change", this.eventListener);
+    }
+  }
+
+  private eventListener = e => {
+    if (e.type === "refresh-theme" || e.type === "change") {
+      this.forceUpdate();
+    }
+  };
+
+  componentWillUnmount(): void {
+    if (isBrowser()) {
+      window.removeEventListener("refresh-theme", this.eventListener);
+      this.lightQuery?.removeEventListener("change", this.eventListener);
+    }
+  }
+
   render() {
     const user = UserService.Instance.myUserInfo;
     const hasTheme = user?.local_user_view.local_user.theme !== "browser";
 
+    const detectedBsTheme = {};
+    if (this.lightQuery) {
+      detectedBsTheme["data-bs-theme"] = this.lightQuery.matches
+        ? "light"
+        : "dark";
+    }
+
     if (user && hasTheme) {
+      const theme = user?.local_user_view.local_user.theme;
       return (
-        <Helmet>
+        <Helmet htmlAttributes={{ "data-bs-theme": dataBsTheme(theme) }}>
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/css/themes/${user.local_user_view.local_user.theme}.css`}
+            href={`/css/themes/${theme}.css`}
           />
         </Helmet>
       );
@@ -26,7 +58,11 @@ export class Theme extends Component<Props> {
       this.props.defaultTheme !== "browser-compact"
     ) {
       return (
-        <Helmet>
+        <Helmet
+          htmlAttributes={{
+            "data-bs-theme": dataBsTheme(this.props.defaultTheme),
+          }}
+        >
           <link
             rel="stylesheet"
             type="text/css"
@@ -36,7 +72,7 @@ export class Theme extends Component<Props> {
       );
     } else if (this.props.defaultTheme === "browser-compact") {
       return (
-        <Helmet>
+        <Helmet htmlAttributes={detectedBsTheme}>
           <link
             rel="stylesheet"
             type="text/css"
@@ -55,7 +91,7 @@ export class Theme extends Component<Props> {
       );
     } else {
       return (
-        <Helmet>
+        <Helmet htmlAttributes={detectedBsTheme}>
           <link
             rel="stylesheet"
             type="text/css"

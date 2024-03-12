@@ -63,7 +63,7 @@ import { PersonListing } from "./person-listing";
 import { InitialFetchRequest } from "../../interfaces";
 import TotpModal from "../common/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
-import { updateDataBsTheme } from "../../utils/browser";
+import { refreshTheme } from "../../utils/browser";
 import { getHttpBaseInternal } from "../../utils/env";
 
 type SettingsData = RouteDataResponse<{
@@ -1649,7 +1649,7 @@ export class Settings extends Component<any, SettingsState> {
         } = siteRes.data.my_user!.local_user_view;
 
         UserService.Instance.myUserInfo = siteRes.data.my_user;
-        updateDataBsTheme(siteRes.data);
+        refreshTheme();
 
         i.setState(prev => ({
           ...prev,

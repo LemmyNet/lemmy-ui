@@ -67,6 +67,12 @@ export async function createSsrHtml(
     <!DOCTYPE html>
     <html ${helmet.htmlAttributes.toString()}>
     <head>
+    <script nonce="${cspNonce}">
+    if (!document.documentElement.hasAttribute("data-bs-theme")) {
+      const light = window.matchMedia("(prefers-color-scheme: light)").matches;
+      document.documentElement.setAttribute("data-bs-theme", light ? "light" : "dark");
+    }
+    </script>
     <script nonce="${cspNonce}">window.isoData = ${serialize(isoData)}</script>
   
     <!-- A remote debugging utility for mobile -->

@@ -1,5 +1,5 @@
 import { setIsoData } from "@utils/app";
-import { isBrowser, updateDataBsTheme } from "@utils/browser";
+import { isBrowser, refreshTheme } from "@utils/browser";
 import { getQueryParams } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -47,7 +47,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
 
   if (site.state === "success") {
     UserService.Instance.myUserInfo = site.data.my_user;
-    updateDataBsTheme(site.data);
+    refreshTheme();
   }
 
   const { prev } = getLoginQueryParams();

@@ -5,11 +5,11 @@ import isBrowser from "./is-browser";
 import isDark from "./is-dark";
 import loadCss from "./load-css";
 import platform from "./platform";
+import refreshTheme from "./refresh-theme";
 import restoreScrollPosition from "./restore-scroll-position";
 import saveScrollPosition from "./save-scroll-position";
 import setAuthCookie from "./set-auth-cookie";
 import share from "./share";
-import updateDataBsTheme from "./update-data-bs-theme";
 
 export {
   canShare,
@@ -19,9 +19,9 @@ export {
   isDark,
   loadCss,
   platform,
+  refreshTheme,
   restoreScrollPosition,
   saveScrollPosition,
   setAuthCookie,
   share,
-  updateDataBsTheme,
 };
