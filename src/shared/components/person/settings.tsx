@@ -7,7 +7,6 @@ import {
   myAuth,
   personToChoice,
   setIsoData,
-  setTheme,
   showLocal,
   updateCommunityBlock,
   updateInstanceBlock,
@@ -63,7 +62,7 @@ import { PersonListing } from "./person-listing";
 import { InitialFetchRequest } from "../../interfaces";
 import TotpModal from "../common/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
-import { refreshTheme } from "../../utils/browser";
+import { refreshTheme, setThemeOverride } from "../../utils/browser";
 import { getHttpBaseInternal } from "../../utils/env";
 
 type SettingsData = RouteDataResponse<{
@@ -333,6 +332,10 @@ export class Settings extends Component<any, SettingsState> {
         instancesRes: await HttpService.client.getFederatedInstances(),
       });
     }
+  }
+
+  componentWillUnmount() {
+    setThemeOverride(undefined);
   }
 
   static async fetchInitialData({
@@ -1444,7 +1447,7 @@ export class Settings extends Component<any, SettingsState> {
 
   handleThemeChange(i: Settings, event: any) {
     i.setState(s => ((s.saveUserSettingsForm.theme = event.target.value), s));
-    setTheme(event.target.value, true);
+    setThemeOverride(event.target.value);
   }
 
   handleInterfaceLangChange(i: Settings, event: any) {
@@ -1555,6 +1558,7 @@ export class Settings extends Component<any, SettingsState> {
       window.scrollTo(0, 0);
     }
 
+    setThemeOverride(undefined);
     i.setState({ saveRes });
   }
 
