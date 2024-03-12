@@ -2,6 +2,7 @@ import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { UserService } from "../../services";
 import { dataBsTheme, isBrowser } from "@utils/browser";
+import { CodeTheme } from "./code-theme";
 
 interface Props {
   defaultTheme: string;
@@ -85,68 +86,80 @@ export class Theme extends Component<Props, State> {
 
     if (theme && hasTheme) {
       return (
-        <Helmet htmlAttributes={{ "data-bs-theme": dataBsTheme(theme) }}>
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href={`/css/themes/${theme}.css`}
-          />
-        </Helmet>
+        <>
+          <Helmet htmlAttributes={{ "data-bs-theme": dataBsTheme(theme) }}>
+            <link
+              rel="stylesheet"
+              type="text/css"
+              href={`/css/themes/${theme}.css`}
+            />
+          </Helmet>
+          <CodeTheme theme={theme} />
+        </>
       );
     } else if (
       this.props.defaultTheme !== "browser" &&
       this.props.defaultTheme !== "browser-compact"
     ) {
       return (
-        <Helmet
-          htmlAttributes={{
-            "data-bs-theme": dataBsTheme(this.props.defaultTheme),
-          }}
-        >
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href={`/css/themes/${this.props.defaultTheme}.css`}
-          />
-        </Helmet>
+        <>
+          <Helmet
+            htmlAttributes={{
+              "data-bs-theme": dataBsTheme(this.props.defaultTheme),
+            }}
+          >
+            <link
+              rel="stylesheet"
+              type="text/css"
+              href={`/css/themes/${this.props.defaultTheme}.css`}
+            />
+          </Helmet>
+          <CodeTheme theme={this.props.defaultTheme} />
+        </>
       );
     } else if (this.props.defaultTheme === "browser-compact") {
       return (
-        <Helmet htmlAttributes={detectedBsTheme}>
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href="/css/themes/litely-compact.css"
-            id="default-light"
-            media="(prefers-color-scheme: light)"
-          />
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href="/css/themes/darkly-compact.css"
-            id="default-dark"
-            media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
-          />
-        </Helmet>
+        <>
+          <Helmet htmlAttributes={detectedBsTheme}>
+            <link
+              rel="stylesheet"
+              type="text/css"
+              href="/css/themes/litely-compact.css"
+              id="default-light"
+              media="(prefers-color-scheme: light)"
+            />
+            <link
+              rel="stylesheet"
+              type="text/css"
+              href="/css/themes/darkly-compact.css"
+              id="default-dark"
+              media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
+            />
+          </Helmet>
+          <CodeTheme theme="browser-compact" />
+        </>
       );
     } else {
       return (
-        <Helmet htmlAttributes={detectedBsTheme}>
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href="/css/themes/litely.css"
-            id="default-light"
-            media="(prefers-color-scheme: light)"
-          />
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href="/css/themes/darkly.css"
-            id="default-dark"
-            media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
-          />
-        </Helmet>
+        <>
+          <Helmet htmlAttributes={detectedBsTheme}>
+            <link
+              rel="stylesheet"
+              type="text/css"
+              href="/css/themes/litely.css"
+              id="default-light"
+              media="(prefers-color-scheme: light)"
+            />
+            <link
+              rel="stylesheet"
+              type="text/css"
+              href="/css/themes/darkly.css"
+              id="default-dark"
+              media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
+            />
+          </Helmet>
+          <CodeTheme theme="browser" />
+        </>
       );
     }
   }
