@@ -586,7 +586,9 @@ export class Profile extends Component<
                 <div className="d-flex align-items-center mb-2">
                   <div
                     className="md-div"
-                    dangerouslySetInnerHTML={mdToHtml(pv.person.bio)}
+                    dangerouslySetInnerHTML={mdToHtml(pv.person.bio, () =>
+                      this.forceUpdate(),
+                    )}
                   />
                 </div>
               )}

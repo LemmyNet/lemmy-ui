@@ -2,6 +2,7 @@ import { initializeSite } from "@utils/app";
 import { hydrate } from "inferno-hydrate";
 import { BrowserRouter } from "inferno-router";
 import { App } from "../shared/components/app/app";
+import { lazyHighlightjs } from "../shared/lazy-highlightjs";
 import { loadUserLanguage } from "../shared/services/I18NextService";
 import { verifyDynamicImports } from "../shared/dynamic-imports";
 
@@ -16,6 +17,8 @@ async function startClient() {
   };
 
   initializeSite(window.isoData.site_res);
+
+  lazyHighlightjs.enableLazyLoading();
 
   await loadUserLanguage();
 

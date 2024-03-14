@@ -305,8 +305,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       className="md-div"
                       dangerouslySetInnerHTML={
                         this.props.hideImages
-                          ? mdToHtmlNoImages(this.commentUnlessRemoved)
-                          : mdToHtml(this.commentUnlessRemoved)
+                          ? mdToHtmlNoImages(this.commentUnlessRemoved, () =>
+                              this.forceUpdate(),
+                            )
+                          : mdToHtml(this.commentUnlessRemoved, () =>
+                              this.forceUpdate(),
+                            )
                       }
                     />
                   )}

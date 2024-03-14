@@ -401,7 +401,9 @@ export class Home extends Component<any, HomeState> {
               {tagline && (
                 <div
                   id="tagline"
-                  dangerouslySetInnerHTML={mdToHtml(tagline)}
+                  dangerouslySetInnerHTML={mdToHtml(tagline, () =>
+                    this.forceUpdate(),
+                  )}
                 ></div>
               )}
               <div className="d-block d-md-none">{this.mobileView}</div>
