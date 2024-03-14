@@ -1,8 +1,19 @@
 import { HLJSApi, HLJSPlugin, LanguageFn } from "highlight.js";
 import hljs from "highlight.js/lib/core";
-import { bundledSyntaxHighlighters } from "./build-config";
+import {
+  bundledSyntaxHighlighters,
+  lazySyntaxHighlighters,
+} from "./build-config";
 import { isBrowser } from "@utils/browser";
 import { default as MarkdownIt } from "markdown-it";
+import { ImportReport } from "./dynamic-imports";
+
+async function lazyLoad(lang: string): Promise<LanguageFn> {
+  return import(
+    /* webpackChunkName: "hljs-[request]" */
+    `highlight.js/lib/languages/${lang}.js`
+  ).then(x => x.default);
+}
 
 class LazyHighlightjs implements HLJSPlugin {
   public hljs: HLJSApi;
@@ -35,10 +46,7 @@ class LazyHighlightjs implements HLJSPlugin {
   }
 
   private loadLanguage(lang: string): Promise<LanguageFn> {
-    const promise = import(
-      /* webpackChunkName: "hljs-[request]" */
-      `highlight.js/lib/languages/${lang}.js`
-    ).then(x => x.default);
+    const promise = lazyLoad(lang);
     promise
       .then(x => {
         this.hljs.registerLanguage(lang, x);
@@ -109,3 +117,29 @@ class LazyHighlightjs implements HLJSPlugin {
 }
 
 export const lazyHighlightjs = new LazyHighlightjs(hljs);
+
+export async function verifyHighlighjsImports(): Promise<ImportReport> {
+  const report = new ImportReport();
+  let langs =
+    lazySyntaxHighlighters === "*"
+      ? ["dockerfile", "pgsql", "django", "nginx"]
+      : lazySyntaxHighlighters;
+  if (lazySyntaxHighlighters === "*") {
+    langs = langs.filter(l => !bundledSyntaxHighlighters.includes(l));
+    // Avoid confusions about how few highlighters are enabled.
+    report.message = `Only testing ${langs.length} samples.`;
+  }
+  const promises = langs.map(lang =>
+    lazyLoad(lang)
+      .then(x => {
+        if (x && x instanceof Function && x(hljs).name) {
+          report.success.push(lang);
+        } else {
+          throw "unexpected format";
+        }
+      })
+      .catch(err => report.error.push({ id: lang, error: err })),
+  );
+  await Promise.all(promises);
+  return report;
+}
