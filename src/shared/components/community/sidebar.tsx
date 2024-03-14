@@ -124,7 +124,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   sidebar() {
     const myUserInfo = UserService.Instance.myUserInfo;
     const {
-      community: { name, actor_id, id, posting_restricted_to_mods },
+      community: { name, actor_id, id, posting_restricted_to_mods, visibility },
       counts,
     } = this.props.community_view;
     return (
@@ -175,6 +175,30 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 </div>
               )}
               {this.description()}
+              <div>
+                <div className="fw-semibold mb-1">
+                  <span className="align-middle">
+                    {I18NextService.i18n.t("community_visibility")}:&nbsp;
+                  </span>
+                  <span className="fs-5 fw-medium align-middle">
+                    {I18NextService.i18n.t(
+                      visibility === "Public" ? "public" : "local_only",
+                    )}
+                    <Icon
+                      icon={visibility === "Public" ? "globe" : "house"}
+                      inline
+                      classes="ms-1 text-secondary"
+                    />
+                  </span>
+                </div>
+                <p>
+                  {I18NextService.i18n.t(
+                    visibility === "Public"
+                      ? "public_blurb"
+                      : "local_only_blurb",
+                  )}
+                </p>
+              </div>
               <Badges communityId={id} counts={counts} />
               {this.mods()}
             </div>
