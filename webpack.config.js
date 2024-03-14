@@ -63,6 +63,12 @@ module.exports = (env, argv) => {
       new webpack.BannerPlugin({
         banner,
       }),
+      // helps import("date-fns/locale/${x}.mjs") find "date-fns/locale"
+      new webpack.ContextReplacementPlugin(
+        /date-fns\/locale/,
+        resolve(__dirname, "node_modules/date-fns/locale"),
+        false,
+      ),
     ],
   };
 
@@ -73,6 +79,7 @@ module.exports = (env, argv) => {
       ...base.output,
       filename: "js/server.js",
       publicPath: "/",
+      chunkLoading: false, // everything bundled
     },
     target: "node",
     externals: [nodeExternals(), "inferno-helmet"],
@@ -85,6 +92,7 @@ module.exports = (env, argv) => {
       ...base.output,
       filename: "js/client.js",
       publicPath: `/static/${env.COMMIT_HASH}/`,
+      chunkFilename: "js/[name].client.js", // predictable names for manual preload
     },
     plugins: [
       ...base.plugins,

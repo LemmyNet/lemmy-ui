@@ -7,6 +7,8 @@ import { favIconPngUrl, favIconUrl } from "../../shared/config";
 import { IsoDataOptionalSite } from "../../shared/interfaces";
 import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
+import { findTranslationChunkNames } from "../../shared/services/I18NextService";
+import { findDateFnsChunkNames } from "../../shared/utils/app/setup-date-fns";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
@@ -16,6 +18,7 @@ export async function createSsrHtml(
   root: string,
   isoData: IsoDataOptionalSite,
   cspNonce: string,
+  userLanguages: readonly string[],
 ) {
   const site = isoData.site_res;
 
@@ -63,10 +66,20 @@ export async function createSsrHtml(
 
   const helmet = Helmet.renderStatic();
 
+  const lazyScripts = [
+    ...findTranslationChunkNames(userLanguages),
+    ...findDateFnsChunkNames(userLanguages),
+  ]
+    .filter(x => x !== undefined)
+    .map(x => `${getStaticDir()}/js/${x}.client.js`)
+    .map(x => `<link rel="preload" as="script" href="${x}" />`)
+    .join("");
+
   return `
     <!DOCTYPE html>
     <html ${helmet.htmlAttributes.toString()}>
     <head>
+    ${lazyScripts}
     <script nonce="${cspNonce}">window.isoData = ${serialize(isoData)}</script>
   
     <!-- A remote debugging utility for mobile -->

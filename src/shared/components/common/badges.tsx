@@ -112,12 +112,20 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
         </>
       )}
       {isCommunityAggregates(counts) && (
-        <li className="list-inline-item badge text-bg-secondary">
-          {I18NextService.i18n.t("number_of_subscribers", {
-            count: Number(counts.subscribers),
-            formattedCount: numToSI(counts.subscribers),
-          })}
-        </li>
+        <>
+          <li className="list-inline-item badge text-bg-secondary">
+            {I18NextService.i18n.t("number_of_local_subscribers", {
+              count: Number(counts.subscribers_local),
+              formattedCount: numToSI(counts.subscribers_local),
+            })}
+          </li>
+          <li className="list-inline-item badge text-bg-secondary">
+            {I18NextService.i18n.t("number_of_subscribers", {
+              count: Number(counts.subscribers),
+              formattedCount: numToSI(counts.subscribers),
+            })}
+          </li>
+        </>
       )}
       <li className="list-inline-item badge text-bg-secondary">
         {I18NextService.i18n.t("number_of_posts", {
