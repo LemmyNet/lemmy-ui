@@ -4,8 +4,10 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const nodeExternals = require("webpack-node-externals");
 const CopyPlugin = require("copy-webpack-plugin");
 const { ServiceWorkerPlugin } = require("service-worker-webpack");
-const { bundledSyntaxHighlighters } = require("./src/shared/build-config");
-const { lazySyntaxHighlighters } = require("./src/shared/build-config");
+const {
+  bundledSyntaxHighlighters,
+  lazySyntaxHighlighters,
+} = require("./src/shared/build-config");
 
 const banner = `
   hash:[contentHash], chunkhash:[chunkhash], name:[name], filebase:[base], query:[query], file:[file]
@@ -34,6 +36,7 @@ const contextPlugin = (() => {
       } else {
         options.regExp = lazyHljs;
       }
+    } else if (/^date-fns\/locale$/.test(options.request)) {
     } else {
       return;
     }
@@ -104,6 +107,7 @@ module.exports = (env, argv) => {
       ...base.output,
       filename: "js/server.js",
       publicPath: "/",
+      chunkLoading: false, // everything bundled
     },
     target: "node",
     externals: [nodeExternals(), "inferno-helmet"],
@@ -116,6 +120,7 @@ module.exports = (env, argv) => {
       ...base.output,
       filename: "js/client.js",
       publicPath: `/static/${env.COMMIT_HASH}/`,
+      chunkFilename: "js/[name].client.js", // predictable names for manual preload
     },
     plugins: [
       ...base.plugins,

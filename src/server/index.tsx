@@ -13,6 +13,7 @@ import ThemeHandler from "./handlers/theme-handler";
 import ThemesListHandler from "./handlers/themes-list-handler";
 import { setCacheControl, setDefaultCsp } from "./middleware";
 import CodeThemeHandler from "./handlers/code-theme-handler";
+import { verifyDynamicImports } from "../shared/dynamic-imports";
 
 const server = express();
 
@@ -54,6 +55,8 @@ server.get("/css/themelist", ThemesListHandler);
 server.get("/*", CatchAllHandler);
 
 const listener = server.listen(Number(port), hostname, () => {
+  verifyDynamicImports(true);
+
   setupDateFns();
   console.log(
     `Lemmy-ui v${VERSION} started listening on http://${hostname}:${port}`,
