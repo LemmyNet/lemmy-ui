@@ -102,6 +102,9 @@ export class AdminSettings extends Component<any, AdminSettingsState> {
   async componentDidMount() {
     if (!this.state.isIsomorphic) {
       await this.fetchData();
+    } else {
+      const themeList = await fetchThemeList();
+      this.setState({ themeList });
     }
   }
 

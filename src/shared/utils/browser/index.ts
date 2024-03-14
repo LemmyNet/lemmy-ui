@@ -3,13 +3,13 @@ import clearAuthCookie from "./clear-auth-cookie";
 import dataBsTheme from "./data-bs-theme";
 import isBrowser from "./is-browser";
 import isDark from "./is-dark";
-import loadCss from "./load-css";
 import platform from "./platform";
+import refreshTheme from "./refresh-theme";
 import restoreScrollPosition from "./restore-scroll-position";
 import saveScrollPosition from "./save-scroll-position";
 import setAuthCookie from "./set-auth-cookie";
+import setThemeOverride from "./set-theme-override";
 import share from "./share";
-import updateDataBsTheme from "./update-data-bs-theme";
 
 export {
   canShare,
@@ -17,11 +17,11 @@ export {
   dataBsTheme,
   isBrowser,
   isDark,
-  loadCss,
   platform,
+  refreshTheme,
   restoreScrollPosition,
   saveScrollPosition,
   setAuthCookie,
+  setThemeOverride,
   share,
-  updateDataBsTheme,
 };
