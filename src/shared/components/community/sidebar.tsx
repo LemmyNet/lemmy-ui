@@ -124,7 +124,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   sidebar() {
     const myUserInfo = UserService.Instance.myUserInfo;
     const {
-      community: { name, actor_id, id, posting_restricted_to_mods },
+      community: { name, actor_id, id, posting_restricted_to_mods, visibility },
       counts,
     } = this.props.community_view;
     return (
@@ -175,6 +175,24 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 </div>
               )}
               {this.description()}
+              <div>
+                <div className="fw-semibold mb-1">
+                  <span className="align-middle">Visibility:&nbsp;</span>
+                  <span className="fs-5 fw-medium align-middle">
+                    {visibility === "Public" ? "Public" : "Local Only"}
+                    <Icon
+                      icon={visibility === "Public" ? "globe" : "house"}
+                      inline
+                      classes="ms-1 text-secondary"
+                    />
+                  </span>
+                </div>
+                <p>
+                  {visibility === "Public"
+                    ? "This community can be federated to other instances and be posted/commented in by their users."
+                    : "Only users on this instance can interact with this community."}
+                </p>
+              </div>
               <Badges communityId={id} counts={counts} />
               {this.mods()}
             </div>
