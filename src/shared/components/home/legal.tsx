@@ -32,7 +32,10 @@ export class Legal extends Component<any, LegalState> {
           path={this.context.router.route.match.url}
         />
         {legal && (
-          <div className="md-div" dangerouslySetInnerHTML={mdToHtml(legal)} />
+          <div
+            className="md-div"
+            dangerouslySetInnerHTML={mdToHtml(legal, () => this.forceUpdate())}
+          />
         )}
       </div>
     );

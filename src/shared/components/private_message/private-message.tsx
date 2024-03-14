@@ -135,7 +135,10 @@ export class PrivateMessage extends Component<
               ) : (
                 <div
                   className="md-div"
-                  dangerouslySetInnerHTML={mdToHtml(this.messageUnlessRemoved)}
+                  dangerouslySetInnerHTML={mdToHtml(
+                    this.messageUnlessRemoved,
+                    () => this.forceUpdate(),
+                  )}
                 />
               )}
               <ul className="list-inline mb-0 text-muted fw-bold">
