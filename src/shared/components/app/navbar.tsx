@@ -78,7 +78,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         UnreadCounterService.Instance.unreadApplicationCountSubject.subscribe(
           unreadApplicationCount => this.setState({ unreadApplicationCount }),
         );
-      this.requestNotificationPermission();
 
       document.addEventListener("mouseup", this.handleOutsideMenuClick);
     }
@@ -468,7 +467,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   requestNotificationPermission() {
     if (UserService.Instance.myUserInfo) {
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener("lemmy-hydrated", function () {
         if (!Notification) {
           toast(I18NextService.i18n.t("notifications_error"), "danger");
           return;

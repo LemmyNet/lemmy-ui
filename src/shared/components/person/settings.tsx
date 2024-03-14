@@ -44,7 +44,11 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { I18NextService, languages } from "../../services/I18NextService";
+import {
+  I18NextService,
+  languages,
+  loadUserLanguage,
+} from "../../services/I18NextService";
 import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
@@ -334,7 +338,9 @@ export class Settings extends Component<any, SettingsState> {
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount(): void {
+    // In case `interface_language` change wasn't saved.
+    loadUserLanguage();
     setThemeOverride(undefined);
   }
 
@@ -794,7 +800,7 @@ export class Settings extends Component<any, SettingsState> {
                 onChange={linkEvent(this, this.handleInterfaceLangChange)}
                 className="form-select d-inline-block w-auto"
               >
-                <option disabled aria-hidden="true">
+                <option disabled aria-hidden="true" selected>
                   {I18NextService.i18n.t("interface_language")}
                 </option>
                 <option value="browser">
@@ -1454,6 +1460,12 @@ export class Settings extends Component<any, SettingsState> {
     const newLang = event.target.value ?? "browser";
     I18NextService.i18n.changeLanguage(
       newLang === "browser" ? navigator.languages : newLang,
+      () => {
+        // Now the language is loaded, can be synchronous. Let the state update first.
+        window.requestAnimationFrame(() => {
+          i.forceUpdate();
+        });
+      },
     );
 
     i.setState(
@@ -1552,6 +1564,7 @@ export class Settings extends Component<any, SettingsState> {
         });
 
         UserService.Instance.myUserInfo = siteRes.data.my_user;
+        loadUserLanguage();
       }
 
       toast(I18NextService.i18n.t("saved"));
