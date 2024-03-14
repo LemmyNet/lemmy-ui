@@ -25,6 +25,7 @@
     }
   },
   "include": [
+    "src/shared/build-config.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     "node_modules/inferno/dist/index.d.ts"

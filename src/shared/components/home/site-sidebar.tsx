@@ -99,7 +99,10 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   siteSidebar(sidebar: string) {
     return (
-      <div className="md-div" dangerouslySetInnerHTML={mdToHtml(sidebar)} />
+      <div
+        className="md-div"
+        dangerouslySetInnerHTML={mdToHtml(sidebar, () => this.forceUpdate())}
+      />
     );
   }
 

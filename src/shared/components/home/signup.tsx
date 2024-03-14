@@ -221,6 +221,7 @@ export class Signup extends Component<any, State> {
                     className="md-div"
                     dangerouslySetInnerHTML={mdToHtml(
                       siteView.local_site.application_question,
+                      () => this.forceUpdate(),
                     )}
                   />
                 )}

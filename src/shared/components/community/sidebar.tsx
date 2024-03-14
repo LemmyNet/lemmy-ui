@@ -271,7 +271,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const desc = this.props.community_view.community.description;
     return (
       desc && (
-        <div className="md-div" dangerouslySetInnerHTML={mdToHtml(desc)} />
+        <div
+          className="md-div"
+          dangerouslySetInnerHTML={mdToHtml(desc, () => this.forceUpdate())}
+        />
       )
     );
   }

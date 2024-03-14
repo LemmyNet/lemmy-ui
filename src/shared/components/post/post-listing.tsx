@@ -177,7 +177,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.state.viewSource ? (
           <pre>{body}</pre>
         ) : (
-          <div className="md-div" dangerouslySetInnerHTML={mdToHtml(body)} />
+          <div
+            className="md-div"
+            dangerouslySetInnerHTML={mdToHtml(body, () => this.forceUpdate())}
+          />
         )}
       </article>
     ) : (
