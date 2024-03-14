@@ -177,9 +177,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               {this.description()}
               <div>
                 <div className="fw-semibold mb-1">
-                  <span className="align-middle">Visibility:&nbsp;</span>
+                  <span className="align-middle">
+                    {I18NextService.i18n.t("community_visibility")}:&nbsp;
+                  </span>
                   <span className="fs-5 fw-medium align-middle">
-                    {visibility === "Public" ? "Public" : "Local Only"}
+                    {I18NextService.i18n.t(
+                      visibility === "Public" ? "public" : "local_only",
+                    )}
                     <Icon
                       icon={visibility === "Public" ? "globe" : "house"}
                       inline
@@ -188,9 +192,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </span>
                 </div>
                 <p>
-                  {visibility === "Public"
-                    ? "This community can be federated to other instances and be posted/commented in by their users."
-                    : "Only users on this instance can interact with this community."}
+                  {I18NextService.i18n.t(
+                    visibility === "Public"
+                      ? "public_blurb"
+                      : "local_only_blurb",
+                  )}
                 </p>
               </div>
               <Badges communityId={id} counts={counts} />
