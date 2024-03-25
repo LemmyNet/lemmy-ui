@@ -122,8 +122,8 @@ interface ModlogState {
 
 interface ModlogProps {
   page: number;
-  userId?: number | null;
-  modId?: number | null;
+  userId?: number;
+  modId?: number;
   actionType: ModlogActionType;
 }
 
@@ -911,11 +911,11 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   }
 
   handleUserChange(option: Choice) {
-    this.updateUrl({ userId: getIdFromString(option.value) ?? null, page: 1 });
+    this.updateUrl({ userId: getIdFromString(option.value), page: 1 });
   }
 
   handleModChange(option: Choice) {
-    this.updateUrl({ modId: getIdFromString(option.value) ?? null, page: 1 });
+    this.updateUrl({ modId: getIdFromString(option.value), page: 1 });
   }
 
   handleSearchUsers = debounce(async (text: string) => {
@@ -990,10 +990,10 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
         page,
         limit: fetchLimit,
         type_: actionType,
-        other_person_id: userId ?? undefined,
+        other_person_id: userId,
         mod_person_id: !this.isoData.site_res.site_view.local_site
           .hide_modlog_mod_names
-          ? modId ?? undefined
+          ? modId
           : undefined,
       }),
     });
@@ -1011,24 +1011,23 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   static async fetchInitialData({
     headers,
     path,
-    query: { modId: urlModId, page, userId: urlUserId, actionType },
+    query: { page, userId, modId: modId_, actionType },
     site,
-  }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<ModlogData> {
+  }: InitialFetchRequest<ModlogProps>): Promise<ModlogData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     const pathSplit = path.split("/");
     const communityId = getIdFromString(pathSplit[2]);
     const modId = !site.site_view.local_site.hide_modlog_mod_names
-      ? getIdFromString(urlModId)
+      ? modId_
       : undefined;
-    const userId = getIdFromString(urlUserId);
 
     const modlogForm: GetModlog = {
-      page: getPageFromString(page),
+      page,
       limit: fetchLimit,
       community_id: communityId,
-      type_: getActionFromString(actionType),
+      type_: actionType,
       mod_person_id: modId,
       other_person_id: userId,
     };

@@ -1,6 +1,5 @@
 import { ErrorPageData } from "@utils/types";
 import { CommentView, GetSiteResponse } from "lemmy-js-client";
-import type { ParsedQs } from "qs";
 import { RequestState } from "./services/HttpService";
 
 /**
@@ -25,7 +24,9 @@ declare global {
   }
 }
 
-export interface InitialFetchRequest<T extends ParsedQs = ParsedQs> {
+export interface InitialFetchRequest<
+  T extends Record<string, any> = Record<string, never>,
+> {
   path: string;
   query: T;
   site: GetSiteResponse;

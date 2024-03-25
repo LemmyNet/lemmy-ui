@@ -326,24 +326,11 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   static async fetchInitialData({
-    query: { dataType: urlDataType, listingType, pageCursor, sort: urlSort },
-    site,
+    query: { listingType, dataType, sort, pageCursor },
     headers,
-  }: InitialFetchRequest<QueryParams<HomeProps>>): Promise<HomeData> {
+  }: InitialFetchRequest<HomeProps>): Promise<HomeData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
-    );
-
-    const dataType = getDataTypeFromQuery(urlDataType);
-    const type_ = getListingTypeFromQuery(
-      listingType,
-      site.my_user?.local_user_view.local_user.default_listing_type ??
-        site.site_view.local_site.default_post_listing_type,
-    );
-    const sort = getSortTypeFromQuery(
-      urlSort,
-      site.my_user?.local_user_view.local_user.default_sort_type ??
-        site.site_view.local_site.default_sort_type,
     );
 
     let postsFetch: Promise<RequestState<GetPostsResponse>> =
@@ -353,7 +340,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
-        type_,
+        type_: listingType,
         page_cursor: pageCursor,
         limit: fetchLimit,
         sort,
@@ -365,7 +352,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       const getCommentsForm: GetComments = {
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
-        type_,
+        type_: listingType,
         saved_only: false,
       };
 

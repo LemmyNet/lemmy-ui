@@ -25,6 +25,7 @@ import {
   LanguageService,
   UserService,
 } from "../../shared/services/";
+import { parsePath } from "history";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -49,7 +50,7 @@ export default async (req: Request, res: Response) => {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
 
-    const { path, url, query } = req;
+    const { path, url } = req;
 
     // Get site data first
     // This bypasses errors, so that the client can hit the error on its own,
@@ -84,9 +85,10 @@ export default async (req: Request, res: Response) => {
       }
 
       if (site && activeRoute?.fetchInitialData) {
-        const initialFetchReq: InitialFetchRequest = {
+        const { search } = parsePath(url);
+        const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
           path,
-          query,
+          query: activeRoute.getQueryParams?.(search, site) ?? {},
           site,
           headers,
         };

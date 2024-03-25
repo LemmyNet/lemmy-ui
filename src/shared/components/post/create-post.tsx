@@ -5,7 +5,6 @@ import {
   setIsoData,
 } from "@utils/app";
 import { getIdFromString, getQueryParams } from "@utils/helpers";
-import { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -246,9 +245,7 @@ export class CreatePost extends Component<
   static async fetchInitialData({
     headers,
     query: { communityId },
-  }: InitialFetchRequest<
-    QueryParams<CreatePostProps>
-  >): Promise<CreatePostData> {
+  }: InitialFetchRequest<CreatePostProps>): Promise<CreatePostData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -259,7 +256,7 @@ export class CreatePost extends Component<
 
     if (communityId) {
       const form: GetCommunity = {
-        id: getIdFromString(communityId),
+        id: communityId,
       };
 
       data.communityResponse = await client.getCommunity(form);

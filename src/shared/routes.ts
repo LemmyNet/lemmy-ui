@@ -38,12 +38,15 @@ import { Search, getSearchQueryParams } from "./components/search";
 import { InitialFetchRequest, RouteData } from "./interfaces";
 import { GetSiteResponse } from "lemmy-js-client";
 
-interface IRoutePropsWithFetch<T extends RouteData> extends IRouteProps {
-  fetchInitialData?(req: InitialFetchRequest): Promise<T>;
-  getQueryParams?(source: string | undefined, siteRes: GetSiteResponse): any;
+interface IRoutePropsWithFetch<
+  T extends RouteData,
+  Q extends Record<string, never>,
+> extends IRouteProps {
+  fetchInitialData?(req: InitialFetchRequest<Q>): Promise<T>;
+  getQueryParams?(source: string | undefined, siteRes: GetSiteResponse): Q;
 }
 
-export const routes: IRoutePropsWithFetch<Record<string, any>>[] = [
+export const routes: IRoutePropsWithFetch<Record<string, any>, any>[] = [
   {
     path: `/`,
     component: Home,

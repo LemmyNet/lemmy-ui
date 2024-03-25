@@ -323,17 +323,15 @@ export class Communities extends Component<
   static async fetchInitialData({
     headers,
     query: { listingType, sort, page },
-  }: InitialFetchRequest<
-    QueryParams<CommunitiesProps>
-  >): Promise<CommunitiesData> {
+  }: InitialFetchRequest<CommunitiesProps>): Promise<CommunitiesData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     const listCommunitiesForm: ListCommunities = {
-      type_: getListingTypeFromQuery(listingType),
-      sort: getSortTypeFromQuery(sort),
+      type_: listingType,
+      sort,
       limit: communityLimit,
-      page: getPageFromString(page),
+      page,
     };
 
     return {

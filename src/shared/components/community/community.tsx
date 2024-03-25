@@ -249,10 +249,8 @@ export class Community extends Component<CommunityRouteProps, State> {
   static async fetchInitialData({
     headers,
     path,
-    query: { dataType: urlDataType, pageCursor, sort: urlSort },
-  }: InitialFetchRequest<QueryParams<CommunityProps>>): Promise<
-    Promise<CommunityData>
-  > {
+    query: { dataType, pageCursor, sort },
+  }: InitialFetchRequest<CommunityProps>): Promise<CommunityData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -262,10 +260,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     const communityForm: GetCommunity = {
       name: communityName,
     };
-
-    const dataType = getDataTypeFromQuery(urlDataType);
-
-    const sort = getSortTypeFromQuery(urlSort);
 
     let postsFetch: Promise<RequestState<GetPostsResponse>> =
       Promise.resolve(EMPTY_REQUEST);

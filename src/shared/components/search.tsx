@@ -74,8 +74,8 @@ interface SearchProps {
   type: SearchType;
   sort: SortType;
   listingType: ListingType;
-  communityId?: number | null;
-  creatorId?: number | null;
+  communityId?: number;
+  creatorId?: number;
   page: number;
 }
 
@@ -399,12 +399,19 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   static async fetchInitialData({
     headers,
-    query: { communityId, creatorId, q, type, sort, listingType, page },
-  }: InitialFetchRequest<QueryParams<SearchProps>>): Promise<SearchData> {
+    query: {
+      q: query,
+      type: searchType,
+      sort,
+      listingType: listing_type,
+      communityId: community_id,
+      creatorId: creator_id,
+      page,
+    },
+  }: InitialFetchRequest<SearchProps>): Promise<SearchData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
-    const community_id = getIdFromString(communityId);
     let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
     if (community_id) {
       const getCommunityForm: GetCommunity = {
@@ -420,7 +427,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       limit: fetchLimit,
     });
 
-    const creator_id = getIdFromString(creatorId);
     let creatorDetailsResponse: RequestState<GetPersonDetailsResponse> =
       EMPTY_REQUEST;
     if (creator_id) {
@@ -431,8 +437,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       creatorDetailsResponse = await client.getPersonDetails(getCreatorForm);
     }
 
-    const query = getSearchQueryFromQuery(q);
-
     let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
     let resolveObjectResponse: RequestState<ResolveObjectResponse> =
       EMPTY_REQUEST;
@@ -442,10 +446,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         q: query,
         community_id,
         creator_id,
-        type_: getSearchTypeFromQuery(type),
-        sort: getSortTypeFromQuery(sort),
-        listing_type: getListingTypeFromQuery(listingType),
-        page: getPageFromString(page),
+        type_: searchType,
+        sort,
+        listing_type,
+        page,
         limit: fetchLimit,
       };
 
@@ -1061,14 +1065,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   handleCommunityFilterChange({ value }: Choice) {
     this.updateUrl({
-      communityId: getIdFromString(value) ?? null,
+      communityId: getIdFromString(value),
       page: 1,
     });
   }
 
   handleCreatorFilterChange({ value }: Choice) {
     this.updateUrl({
-      creatorId: getIdFromString(value) ?? null,
+      creatorId: getIdFromString(value),
       page: 1,
     });
   }

@@ -283,21 +283,20 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   static async fetchInitialData({
     headers,
     path,
-    query: { page, sort, view: urlView },
-  }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<ProfileData> {
+    query: { view, sort, page },
+  }: InitialFetchRequest<ProfileProps>): Promise<ProfileData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     const pathSplit = path.split("/");
 
     const username = pathSplit[2];
-    const view = getViewFromProps(urlView);
 
     const form: GetPersonDetails = {
       username: username,
-      sort: getSortTypeFromQuery(sort),
+      sort,
       saved_only: view === PersonDetailsView.Saved,
-      page: getPageFromString(page),
+      page,
       limit: fetchLimit,
     };
 

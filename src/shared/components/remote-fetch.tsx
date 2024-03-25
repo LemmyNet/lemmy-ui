@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { getQueryParams } from "@utils/helpers";
-import { QueryParams, RouteDataResponse } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   CommunityView,
@@ -226,9 +226,7 @@ export class RemoteFetch extends Component<
   static async fetchInitialData({
     headers,
     query: { uri },
-  }: InitialFetchRequest<
-    QueryParams<RemoteFetchProps>
-  >): Promise<RemoteFetchData> {
+  }: InitialFetchRequest<RemoteFetchProps>): Promise<RemoteFetchData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
