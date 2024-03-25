@@ -36,6 +36,7 @@ import { CommunityLink } from "./community-link";
 import { communityLimit } from "../../config";
 import { SubscribeButton } from "../common/subscribe-button";
 import { getHttpBaseInternal } from "../../utils/env";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -62,15 +63,25 @@ function getSortTypeFromQuery(type?: string): SortType {
   return type ? (type as SortType) : "TopMonth";
 }
 
-function getCommunitiesQueryParams() {
-  return getQueryParams<CommunitiesProps>({
-    listingType: getListingTypeFromQuery,
-    sort: getSortTypeFromQuery,
-    page: getPageFromString,
-  });
+export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
+  return getQueryParams<CommunitiesProps>(
+    {
+      listingType: getListingTypeFromQuery,
+      sort: getSortTypeFromQuery,
+      page: getPageFromString,
+    },
+    source,
+    {},
+  );
 }
 
-export class Communities extends Component<any, CommunitiesState> {
+type CommunitiesRouteProps = RouteComponentProps<Record<string, never>> &
+  CommunitiesProps;
+
+export class Communities extends Component<
+  CommunitiesRouteProps,
+  CommunitiesState
+> {
   private isoData = setIsoData<CommunitiesData>(this.context);
   state: CommunitiesState = {
     listCommunitiesResponse: EMPTY_REQUEST,
@@ -79,7 +90,7 @@ export class Communities extends Component<any, CommunitiesState> {
     isIsomorphic: false,
   };
 
-  constructor(props: any, context: any) {
+  constructor(props: CommunitiesRouteProps, context: any) {
     super(props, context);
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleSortChange = this.handleSortChange.bind(this);
@@ -118,7 +129,7 @@ export class Communities extends Component<any, CommunitiesState> {
           </h5>
         );
       case "success": {
-        const { listingType, sort, page } = getCommunitiesQueryParams();
+        const { listingType, sort, page } = this.props;
         return (
           <div>
             <h1 className="h4 mb-4">
@@ -268,7 +279,7 @@ export class Communities extends Component<any, CommunitiesState> {
       listingType: urlListingType,
       sort: urlSort,
       page: urlPage,
-    } = getCommunitiesQueryParams();
+    } = this.props;
 
     const queryParams: QueryParams<CommunitiesProps> = {
       listingType: listingType ?? urlListingType,
@@ -303,7 +314,7 @@ export class Communities extends Component<any, CommunitiesState> {
   handleSearchSubmit(i: Communities, event: any) {
     event.preventDefault();
     const searchParamEncoded = encodeURIComponent(i.state.searchText);
-    const { listingType } = getCommunitiesQueryParams();
+    const { listingType } = i.props;
     i.context.router.history.push(
       `/search?q=${searchParamEncoded}&type=Communities&listingType=${listingType}`,
     );
@@ -346,7 +357,7 @@ export class Communities extends Component<any, CommunitiesState> {
   async refetch() {
     this.setState({ listCommunitiesResponse: LOADING_REQUEST });
 
-    const { listingType, sort, page } = getCommunitiesQueryParams();
+    const { listingType, sort, page } = this.props;
 
     this.setState({
       listCommunitiesResponse: await HttpService.client.listCommunities({

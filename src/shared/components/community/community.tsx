@@ -124,12 +124,26 @@ interface CommunityProps {
   pageCursor?: PaginationCursor;
 }
 
-function getCommunityQueryParams() {
-  return getQueryParams<CommunityProps>({
-    dataType: getDataTypeFromQuery,
-    pageCursor: cursor => cursor,
-    sort: getSortTypeFromQuery,
-  });
+type Fallbacks = { sort: SortType };
+
+export function getCommunityQueryParams(
+  source: string | undefined,
+  siteRes: GetSiteResponse,
+) {
+  const myUserInfo = siteRes.my_user ?? UserService.Instance.myUserInfo;
+  const local_user = myUserInfo?.local_user_view.local_user;
+  const local_site = siteRes.site_view.local_site;
+  return getQueryParams<CommunityProps, Fallbacks>(
+    {
+      dataType: getDataTypeFromQuery,
+      pageCursor: (cursor?: string) => cursor,
+      sort: getSortTypeFromQuery,
+    },
+    source,
+    {
+      sort: local_user?.default_sort_type ?? local_site.default_sort_type,
+    },
+  );
 }
 
 function getDataTypeFromQuery(type?: string): DataType {
@@ -144,10 +158,10 @@ function getSortTypeFromQuery(type?: string): SortType {
   return type ? (type as SortType) : mySortType ?? "Active";
 }
 
-export class Community extends Component<
-  RouteComponentProps<{ name: string }>,
-  State
-> {
+type CommunityRouteProps = RouteComponentProps<{ name: string }> &
+  CommunityProps;
+
+export class Community extends Component<CommunityRouteProps, State> {
   private isoData = setIsoData<CommunityData>(this.context);
   state: State = {
     communityRes: EMPTY_REQUEST,
@@ -159,7 +173,7 @@ export class Community extends Component<
     isIsomorphic: false,
   };
   private readonly mainContentRef: RefObject<HTMLElement>;
-  constructor(props: RouteComponentProps<{ name: string }>, context: any) {
+  constructor(props: CommunityRouteProps, context: any) {
     super(props, context);
 
     this.handleSortChange = this.handleSortChange.bind(this);
@@ -411,7 +425,7 @@ export class Community extends Component<
   }
 
   listings(communityRes: GetCommunityResponse) {
-    const { dataType } = getCommunityQueryParams();
+    const { dataType } = this.props;
     const { site_res } = this.isoData;
 
     if (dataType === DataType.Post) {
@@ -534,7 +548,7 @@ export class Community extends Component<
     // let communityRss = this.state.communityRes.map(r =>
     //   communityRSSUrl(r.community_view.community.actor_id, this.state.sort)
     // );
-    const { dataType, sort } = getCommunityQueryParams();
+    const { dataType, sort } = this.props;
     const communityRss = res
       ? communityRSSUrl(res.community_view.community.actor_id, sort)
       : undefined;
@@ -592,7 +606,7 @@ export class Community extends Component<
   }
 
   async updateUrl({ dataType, pageCursor, sort }: Partial<CommunityProps>) {
-    const { dataType: urlDataType, sort: urlSort } = getCommunityQueryParams();
+    const { dataType: urlDataType, sort: urlSort } = this.props;
 
     const queryParams: QueryParams<CommunityProps> = {
       dataType: getDataTypeString(dataType ?? urlDataType),
@@ -608,7 +622,7 @@ export class Community extends Component<
   }
 
   async fetchData() {
-    const { dataType, pageCursor, sort } = getCommunityQueryParams();
+    const { dataType, pageCursor, sort } = this.props;
     const { name } = this.props.match.params;
 
     if (dataType === DataType.Post) {

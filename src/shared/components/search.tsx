@@ -67,6 +67,7 @@ import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 interface SearchProps {
   q?: string;
@@ -112,16 +113,21 @@ const defaultListingType = "All";
 
 const searchTypes = ["All", "Comments", "Posts", "Communities", "Users", "Url"];
 
-const getSearchQueryParams = () =>
-  getQueryParams<SearchProps>({
-    q: getSearchQueryFromQuery,
-    type: getSearchTypeFromQuery,
-    sort: getSortTypeFromQuery,
-    listingType: getListingTypeFromQuery,
-    communityId: getIdFromString,
-    creatorId: getIdFromString,
-    page: getPageFromString,
-  });
+export function getSearchQueryParams(source?: string): SearchProps {
+  return getQueryParams<SearchProps>(
+    {
+      q: getSearchQueryFromQuery,
+      type: getSearchTypeFromQuery,
+      sort: getSortTypeFromQuery,
+      listingType: getListingTypeFromQuery,
+      communityId: getIdFromString,
+      creatorId: getIdFromString,
+      page: getPageFromString,
+    },
+    source,
+    {},
+  );
+}
 
 const getSearchQueryFromQuery = (q?: string): string | undefined =>
   q ? decodeURIComponent(q) : undefined;
@@ -240,7 +246,10 @@ function getListing(
   );
 }
 
-export class Search extends Component<any, SearchState> {
+type SearchRouteProps = RouteComponentProps<Record<string, never>> &
+  SearchProps;
+
+export class Search extends Component<SearchRouteProps, SearchState> {
   private isoData = setIsoData<SearchData>(this.context);
   searchInput = createRef<HTMLInputElement>();
 
@@ -255,7 +264,7 @@ export class Search extends Component<any, SearchState> {
     isIsomorphic: false,
   };
 
-  constructor(props: any, context: any) {
+  constructor(props: SearchRouteProps, context: any) {
     super(props, context);
 
     this.handleSortChange = this.handleSortChange.bind(this);
@@ -265,7 +274,7 @@ export class Search extends Component<any, SearchState> {
       this.handleCommunityFilterChange.bind(this);
     this.handleCreatorFilterChange = this.handleCreatorFilterChange.bind(this);
 
-    const { q } = getSearchQueryParams();
+    const { q } = this.props;
 
     this.state.searchText = q;
 
@@ -335,7 +344,7 @@ export class Search extends Component<any, SearchState> {
           }),
       ];
 
-      const { communityId, creatorId } = getSearchQueryParams();
+      const { communityId, creatorId } = this.props;
 
       if (communityId) {
         promises.push(
@@ -466,13 +475,13 @@ export class Search extends Component<any, SearchState> {
   }
 
   get documentTitle(): string {
-    const { q } = getSearchQueryParams();
+    const { q } = this.props;
     const name = this.state.siteRes.site_view.site.name;
     return `${I18NextService.i18n.t("search")} - ${q ? `${q} - ` : ""}${name}`;
   }
 
   render() {
-    const { type, page } = getSearchQueryParams();
+    const { type, page } = this.props;
 
     return (
       <div className="search container-lg">
@@ -555,8 +564,7 @@ export class Search extends Component<any, SearchState> {
   }
 
   get selects() {
-    const { type, listingType, sort, communityId, creatorId } =
-      getSearchQueryParams();
+    const { type, listingType, sort, communityId, creatorId } = this.props;
     const {
       communitySearchOptions,
       creatorSearchOptions,
@@ -664,7 +672,7 @@ export class Search extends Component<any, SearchState> {
       );
     }
 
-    const { sort } = getSearchQueryParams();
+    const { sort } = this.props;
 
     // Sort it
     if (sort === "New") {
@@ -959,7 +967,7 @@ export class Search extends Component<any, SearchState> {
   async search() {
     const { searchText: q } = this.state;
     const { communityId, creatorId, type, sort, listingType, page } =
-      getSearchQueryParams();
+      this.props;
 
     if (q) {
       this.setState({ searchRes: LOADING_REQUEST });
@@ -991,7 +999,7 @@ export class Search extends Component<any, SearchState> {
 
   handleCreatorSearch = debounce(async (text: string) => {
     if (text.length > 0) {
-      const { creatorId } = getSearchQueryParams();
+      const { creatorId } = this.props;
       const { creatorSearchOptions } = this.state;
 
       this.setState({ searchCreatorLoading: true });
@@ -1009,7 +1017,7 @@ export class Search extends Component<any, SearchState> {
 
   handleCommunitySearch = debounce(async (text: string) => {
     if (text.length > 0) {
-      const { communityId } = getSearchQueryParams();
+      const { communityId } = this.props;
       const { communitySearchOptions } = this.state;
 
       this.setState({
@@ -1095,7 +1103,7 @@ export class Search extends Component<any, SearchState> {
       sort: urlSort,
       creatorId: urlCreatorId,
       page: urlPage,
-    } = getSearchQueryParams();
+    } = this.props;
 
     let query = q ?? this.state.searchText ?? urlQ;
 

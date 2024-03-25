@@ -1,21 +1,28 @@
-import { isBrowser } from "@utils/browser";
+type Empty = NonNullable<unknown>;
+
+type QueryMapping<PropsT, FallbacksT extends Empty> = {
+  [K in keyof PropsT]-?: (
+    input: string | undefined,
+    fallback: K extends keyof FallbacksT ? FallbacksT[K] : undefined,
+  ) => PropsT[K];
+};
 
 export default function getQueryParams<
-  T extends Record<string, any>,
->(processors: {
-  [K in keyof T]: (param: string) => T[K];
-}): T {
-  if (isBrowser()) {
-    const searchParams = new URLSearchParams(window.location.search);
+  PropsT,
+  FallbacksT extends Empty = Empty,
+>(
+  processors: QueryMapping<PropsT, FallbacksT>,
+  source: string | undefined,
+  fallbacks: FallbacksT,
+): PropsT {
+  const searchParams = new URLSearchParams(source);
 
-    return Array.from(Object.entries(processors)).reduce(
-      (acc, [key, process]) => ({
-        ...acc,
-        [key]: process(searchParams.get(key)),
-      }),
-      {} as T,
+  const ret: Partial<PropsT> = {};
+  for (const key in processors) {
+    ret[key as string] = processors[key](
+      searchParams.get(key) ?? undefined,
+      fallbacks[key as string],
     );
   }
-
-  return {} as T;
+  return ret as PropsT;
 }

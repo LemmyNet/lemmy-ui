@@ -97,13 +97,18 @@ interface ModlogType {
   when_: string;
 }
 
-const getModlogQueryParams = () =>
-  getQueryParams<ModlogProps>({
-    actionType: getActionFromString,
-    modId: getIdFromString,
-    userId: getIdFromString,
-    page: getPageFromString,
-  });
+export function getModlogQueryParams(source?: string): ModlogProps {
+  return getQueryParams<ModlogProps>(
+    {
+      actionType: getActionFromString,
+      modId: getIdFromString,
+      userId: getIdFromString,
+      page: getPageFromString,
+    },
+    source,
+    {},
+  );
+}
 
 interface ModlogState {
   res: RequestState<GetModlogResponse>;
@@ -632,10 +637,10 @@ async function createNewOptions({
   }
 }
 
-export class Modlog extends Component<
-  RouteComponentProps<{ communityId?: string }>,
-  ModlogState
-> {
+type ModlogRouteProps = RouteComponentProps<Record<string, never>> &
+  ModlogProps;
+
+export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   private isoData = setIsoData<ModlogData>(this.context);
 
   state: ModlogState = {
@@ -648,10 +653,7 @@ export class Modlog extends Component<
     isIsomorphic: false,
   };
 
-  constructor(
-    props: RouteComponentProps<{ communityId?: string }>,
-    context: any,
-  ) {
+  constructor(props: ModlogRouteProps, context: any) {
     super(props, context);
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleUserChange = this.handleUserChange.bind(this);
@@ -687,7 +689,7 @@ export class Modlog extends Component<
 
   async componentDidMount() {
     if (!this.state.isIsomorphic) {
-      const { modId, userId } = getModlogQueryParams();
+      const { modId, userId } = this.props;
       const promises = [this.refetch()];
 
       if (userId) {
@@ -774,7 +776,7 @@ export class Modlog extends Component<
       userSearchOptions,
       modSearchOptions,
     } = this.state;
-    const { actionType, modId, userId } = getModlogQueryParams();
+    const { actionType, modId, userId } = this.props;
 
     return (
       <div className="modlog container-lg">
@@ -873,7 +875,7 @@ export class Modlog extends Component<
           </h5>
         );
       case "success": {
-        const page = getModlogQueryParams().page;
+        const page = this.props.page;
         return (
           <div className="table-responsive">
             <table id="modlog_table" className="table table-sm table-hover">
@@ -917,7 +919,7 @@ export class Modlog extends Component<
   }
 
   handleSearchUsers = debounce(async (text: string) => {
-    const { userId } = getModlogQueryParams();
+    const { userId } = this.props;
     const { userSearchOptions } = this.state;
     this.setState({ loadingUserSearch: true });
 
@@ -934,7 +936,7 @@ export class Modlog extends Component<
   });
 
   handleSearchMods = debounce(async (text: string) => {
-    const { modId } = getModlogQueryParams();
+    const { modId } = this.props;
     const { modSearchOptions } = this.state;
     this.setState({ loadingModSearch: true });
 
@@ -956,7 +958,7 @@ export class Modlog extends Component<
       actionType: urlActionType,
       modId: urlModId,
       userId: urlUserId,
-    } = getModlogQueryParams();
+    } = this.props;
 
     const queryParams: QueryParams<ModlogProps> = {
       page: (page ?? urlPage).toString(),
@@ -977,7 +979,7 @@ export class Modlog extends Component<
   }
 
   async refetch() {
-    const { actionType, page, modId, userId } = getModlogQueryParams();
+    const { actionType, page, modId, userId } = this.props;
     const { communityId: urlCommunityId } = this.props.match.params;
     const communityId = getIdFromString(urlCommunityId);
 
