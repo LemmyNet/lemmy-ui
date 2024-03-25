@@ -61,7 +61,8 @@ interface CreatePostState {
   isIsomorphic: boolean;
 }
 
-type CreatePostRouteProps = RouteComponentProps<Record<string, never>> &
+type CreatePostPathProps = Record<string, never>;
+type CreatePostRouteProps = RouteComponentProps<CreatePostPathProps> &
   CreatePostProps;
 
 export class CreatePost extends Component<
@@ -245,7 +246,10 @@ export class CreatePost extends Component<
   static async fetchInitialData({
     headers,
     query: { communityId },
-  }: InitialFetchRequest<CreatePostProps>): Promise<CreatePostData> {
+  }: InitialFetchRequest<
+    CreatePostPathProps,
+    CreatePostProps
+  >): Promise<CreatePostData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

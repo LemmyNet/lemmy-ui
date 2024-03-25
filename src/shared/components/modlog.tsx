@@ -637,8 +637,8 @@ async function createNewOptions({
   }
 }
 
-type ModlogRouteProps = RouteComponentProps<Record<string, never>> &
-  ModlogProps;
+type ModlogPathProps = { communityId?: string };
+type ModlogRouteProps = RouteComponentProps<ModlogPathProps> & ModlogProps;
 
 export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   private isoData = setIsoData<ModlogData>(this.context);
@@ -1010,15 +1010,16 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   static async fetchInitialData({
     headers,
-    path,
     query: { page, userId, modId: modId_, actionType },
+    match: {
+      params: { communityId: urlCommunityId },
+    },
     site,
-  }: InitialFetchRequest<ModlogProps>): Promise<ModlogData> {
+  }: InitialFetchRequest<ModlogPathProps, ModlogProps>): Promise<ModlogData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
-    const pathSplit = path.split("/");
-    const communityId = getIdFromString(pathSplit[2]);
+    const communityId = getIdFromString(urlCommunityId);
     const modId = !site.site_view.local_site.hide_modlog_mod_names
       ? modId_
       : undefined;

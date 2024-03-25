@@ -158,7 +158,8 @@ function getSortTypeFromQuery(type?: string): SortType {
   return type ? (type as SortType) : mySortType ?? "Active";
 }
 
-type CommunityRouteProps = RouteComponentProps<{ name: string }> &
+type CommunityPathProps = { name: string };
+type CommunityRouteProps = RouteComponentProps<CommunityPathProps> &
   CommunityProps;
 
 export class Community extends Component<CommunityRouteProps, State> {
@@ -248,15 +249,18 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   static async fetchInitialData({
     headers,
-    path,
     query: { dataType, pageCursor, sort },
-  }: InitialFetchRequest<CommunityProps>): Promise<CommunityData> {
+    match: {
+      params: { name: communityName },
+    },
+  }: InitialFetchRequest<
+    CommunityPathProps,
+    CommunityProps
+  >): Promise<CommunityData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
-    const pathSplit = path.split("/");
 
-    const communityName = pathSplit[2];
     const communityForm: GetCommunity = {
       name: communityName,
     };

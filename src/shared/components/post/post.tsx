@@ -98,6 +98,7 @@ import { Icon, Spinner } from "../common/icon";
 import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
 import { getHttpBaseInternal } from "../../utils/env";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 const commentsShownInterval = 15;
 
@@ -122,7 +123,12 @@ interface PostState {
   isIsomorphic: boolean;
 }
 
-export class Post extends Component<any, PostState> {
+type PostPathProps =
+  | { post_id: string; comment_id: never }
+  | { post_id: never; comment_id: string };
+type PostRouteProps = RouteComponentProps<PostPathProps>;
+
+export class Post extends Component<PostRouteProps, PostState> {
   private isoData = setIsoData<PostData>(this.context);
   private commentScrollDebounced: () => void;
   state: PostState = {
@@ -235,15 +241,13 @@ export class Post extends Component<any, PostState> {
 
   static async fetchInitialData({
     headers,
-    path,
-  }: InitialFetchRequest): Promise<PostData> {
+    match,
+  }: InitialFetchRequest<PostPathProps>): Promise<PostData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
-    const pathSplit = path.split("/");
-
-    const pathType = pathSplit.at(1);
-    const id = pathSplit.at(2) ? Number(pathSplit.at(2)) : undefined;
+    const postId = getIdFromProps({ match });
+    const commentId = getCommentIdFromProps({ match });
 
     const postForm: GetPost = {};
 
@@ -254,14 +258,11 @@ export class Post extends Component<any, PostState> {
       saved_only: false,
     };
 
-    // Set the correct id based on the path type
-    if (pathType === "post") {
-      postForm.id = id;
-      commentsForm.post_id = id;
-    } else {
-      postForm.comment_id = id;
-      commentsForm.parent_id = id;
-    }
+    postForm.id = postId;
+    postForm.comment_id = commentId;
+
+    commentsForm.post_id = postId;
+    commentsForm.parent_id = commentId;
 
     const [postRes, commentsRes] = await Promise.all([
       client.getPost(postForm),

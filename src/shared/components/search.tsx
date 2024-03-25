@@ -246,8 +246,8 @@ function getListing(
   );
 }
 
-type SearchRouteProps = RouteComponentProps<Record<string, never>> &
-  SearchProps;
+type SearchPathProps = Record<string, never>;
+type SearchRouteProps = RouteComponentProps<SearchPathProps> & SearchProps;
 
 export class Search extends Component<SearchRouteProps, SearchState> {
   private isoData = setIsoData<SearchData>(this.context);
@@ -408,7 +408,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       creatorId: creator_id,
       page,
     },
-  }: InitialFetchRequest<SearchProps>): Promise<SearchData> {
+  }: InitialFetchRequest<SearchPathProps, SearchProps>): Promise<SearchData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

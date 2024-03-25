@@ -40,13 +40,18 @@ import { GetSiteResponse } from "lemmy-js-client";
 
 interface IRoutePropsWithFetch<
   T extends RouteData,
+  P extends Record<string, string>,
   Q extends Record<string, never>,
 > extends IRouteProps {
-  fetchInitialData?(req: InitialFetchRequest<Q>): Promise<T>;
+  fetchInitialData?(req: InitialFetchRequest<P, Q>): Promise<T>;
   getQueryParams?(source: string | undefined, siteRes: GetSiteResponse): Q;
 }
 
-export const routes: IRoutePropsWithFetch<Record<string, any>, any>[] = [
+export const routes: IRoutePropsWithFetch<
+  Record<string, any>,
+  Record<string, string>,
+  any
+>[] = [
   {
     path: `/`,
     component: Home,

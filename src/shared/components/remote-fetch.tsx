@@ -89,7 +89,8 @@ async function handleToggleFollow(i: RemoteFetch, follow: boolean) {
 const handleFollow = (i: RemoteFetch) => handleToggleFollow(i, true);
 const handleUnfollow = (i: RemoteFetch) => handleToggleFollow(i, false);
 
-type RemoteFetchRouteProps = RouteComponentProps<Record<string, never>> &
+type RemoteFetchPathProps = Record<string, never>;
+type RemoteFetchRouteProps = RouteComponentProps<RemoteFetchPathProps> &
   RemoteFetchProps;
 
 export class RemoteFetch extends Component<
@@ -226,7 +227,10 @@ export class RemoteFetch extends Component<
   static async fetchInitialData({
     headers,
     query: { uri },
-  }: InitialFetchRequest<RemoteFetchProps>): Promise<RemoteFetchData> {
+  }: InitialFetchRequest<
+    RemoteFetchPathProps,
+    RemoteFetchProps
+  >): Promise<RemoteFetchData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

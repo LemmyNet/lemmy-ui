@@ -75,7 +75,8 @@ export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
   );
 }
 
-type CommunitiesRouteProps = RouteComponentProps<Record<string, never>> &
+type CommunitiesPathProps = Record<string, never>;
+type CommunitiesRouteProps = RouteComponentProps<CommunitiesPathProps> &
   CommunitiesProps;
 
 export class Communities extends Component<
@@ -323,7 +324,10 @@ export class Communities extends Component<
   static async fetchInitialData({
     headers,
     query: { listingType, sort, page },
-  }: InitialFetchRequest<CommunitiesProps>): Promise<CommunitiesData> {
+  }: InitialFetchRequest<
+    CommunitiesPathProps,
+    CommunitiesProps
+  >): Promise<CommunitiesData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

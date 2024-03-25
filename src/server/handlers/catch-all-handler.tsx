@@ -3,6 +3,7 @@ import { getHttpBaseInternal } from "@utils/env";
 import { ErrorPageData } from "@utils/types";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
+import { Match } from "inferno-router/dist/Route";
 import { renderToString } from "inferno-server";
 import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import { App } from "../../shared/components/app/app";
@@ -41,7 +42,10 @@ export default async (req: Request, res: Response) => {
         .sort((a, b) => b.q - a.q)
         .map(x => (x.lang === "*" ? "en" : x.lang)) ?? [];
 
-    const activeRoute = routes.find(route => matchPath(req.path, route));
+    let match: Match<any> | null | undefined;
+    const activeRoute = routes.find(
+      route => (match = matchPath(req.path, route)),
+    );
 
     const headers = setForwardedHeaders(req.headers);
     const auth = getJwtCookie(req.headers);
@@ -84,11 +88,12 @@ export default async (req: Request, res: Response) => {
         return res.redirect("/setup");
       }
 
-      if (site && activeRoute?.fetchInitialData) {
+      if (site && activeRoute?.fetchInitialData && match) {
         const { search } = parsePath(url);
         const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
           path,
           query: activeRoute.getQueryParams?.(search, site) ?? {},
+          match,
           site,
           headers,
         };

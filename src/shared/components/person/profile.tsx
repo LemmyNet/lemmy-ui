@@ -175,8 +175,8 @@ function isPersonBlocked(personRes: RequestState<GetPersonDetailsResponse>) {
   );
 }
 
-type ProfileRouteProps = RouteComponentProps<{ username: string }> &
-  ProfileProps;
+type ProfilePathProps = { username: string };
+type ProfileRouteProps = RouteComponentProps<ProfilePathProps> & ProfileProps;
 
 export class Profile extends Component<ProfileRouteProps, ProfileState> {
   private isoData = setIsoData<ProfileData>(this.context);
@@ -282,15 +282,17 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   static async fetchInitialData({
     headers,
-    path,
     query: { view, sort, page },
-  }: InitialFetchRequest<ProfileProps>): Promise<ProfileData> {
+    match: {
+      params: { username },
+    },
+  }: InitialFetchRequest<
+    ProfilePathProps,
+    ProfileProps
+  >): Promise<ProfileData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
-    const pathSplit = path.split("/");
-
-    const username = pathSplit[2];
 
     const form: GetPersonDetails = {
       username: username,

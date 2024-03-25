@@ -238,7 +238,8 @@ const LinkButton = ({
   </Link>
 );
 
-type HomeRouteProps = RouteComponentProps<Record<string, never>> & HomeProps;
+type HomePathProps = Record<string, never>;
+type HomeRouteProps = RouteComponentProps<HomePathProps> & HomeProps;
 
 export class Home extends Component<HomeRouteProps, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);
@@ -328,7 +329,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   static async fetchInitialData({
     query: { listingType, dataType, sort, pageCursor },
     headers,
-  }: InitialFetchRequest<HomeProps>): Promise<HomeData> {
+  }: InitialFetchRequest<HomePathProps, HomeProps>): Promise<HomeData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
