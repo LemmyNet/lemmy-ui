@@ -2,7 +2,6 @@ import classNames from "classnames";
 import { Component } from "inferno";
 
 import { UserService } from "../../services";
-import { getQueryString } from "@utils/helpers";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
@@ -69,28 +68,31 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     // sample url:
     // http://localhost:8535/pictrs/image/file.png?thumbnail=256&format=jpg
 
-    const split = this.props.src.split("/pictrs/image/");
-
-    // If theres not multiple, then its not a pictrs image
-    if (split.length === 1) {
+    let url: URL | undefined;
+    try {
+      url = new URL(this.props.src);
+    } catch {
       return this.props.src;
     }
 
-    const host = split[0];
-    const path = split[1];
-
-    const params: Record<string, string> = { format };
-
-    if (this.props.thumbnail) {
-      params["thumbnail"] = thumbnailSize.toString();
-    } else if (this.props.icon) {
-      params["thumbnail"] = iconThumbnailSize.toString();
+    // If theres no match, then its not a pictrs image
+    if (!url.pathname.includes("/pictrs/image/")) {
+      return this.props.src;
     }
 
-    const paramsStr = getQueryString(params);
-    const out = `${host}/pictrs/image/${path}${paramsStr}`;
+    // Keeps original search params. Could probably do `url.search = ""` here.
 
-    return out;
+    url.searchParams.set("format", format);
+
+    if (this.props.thumbnail) {
+      url.searchParams.set("thumbnail", thumbnailSize.toString());
+    } else if (this.props.icon) {
+      url.searchParams.set("thumbnail", iconThumbnailSize.toString());
+    } else {
+      url.searchParams.delete("thumbnail");
+    }
+
+    return url.href;
   }
 
   alt(): string {
