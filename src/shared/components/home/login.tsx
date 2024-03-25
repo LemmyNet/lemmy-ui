@@ -27,7 +27,7 @@ interface LoginProps {
 export function getLoginQueryParams(source?: string): LoginProps {
   return getQueryParams<LoginProps>(
     {
-      prev: (param?: string) => (param ? decodeURIComponent(param) : undefined),
+      prev: (param?: string) => param,
     },
     source,
     {},

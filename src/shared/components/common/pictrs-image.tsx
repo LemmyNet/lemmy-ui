@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { Component } from "inferno";
 
 import { UserService } from "../../services";
+import { getQueryString } from "@utils/helpers";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
@@ -78,16 +79,16 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     const host = split[0];
     const path = split[1];
 
-    const params = { format };
+    const params: Record<string, string> = { format };
 
     if (this.props.thumbnail) {
-      params["thumbnail"] = thumbnailSize;
+      params["thumbnail"] = thumbnailSize.toString();
     } else if (this.props.icon) {
-      params["thumbnail"] = iconThumbnailSize;
+      params["thumbnail"] = iconThumbnailSize.toString();
     }
 
-    const paramsStr = new URLSearchParams(params).toString();
-    const out = `${host}/pictrs/image/${path}?${paramsStr}`;
+    const paramsStr = getQueryString(params);
+    const out = `${host}/pictrs/image/${path}${paramsStr}`;
 
     return out;
   }

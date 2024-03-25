@@ -134,18 +134,19 @@ type HomeData = RouteDataResponse<{
 function getRss(listingType: ListingType, sort: SortType) {
   let rss: string | undefined = undefined;
 
+  const queryString = getQueryString({ sort });
   switch (listingType) {
     case "All": {
-      rss = `/feeds/all.xml?sort=${sort}`;
+      rss = "/feeds/all.xml" + queryString;
       break;
     }
     case "Local": {
-      rss = `/feeds/local.xml?sort=${sort}`;
+      rss = "/feeds/local.xml" + queryString;
       break;
     }
     case "Subscribed": {
       const auth = myAuth();
-      rss = auth ? `/feeds/front/${auth}.xml?sort=${sort}` : undefined;
+      rss = auth ? `/feeds/front/${auth}.xml${queryString}` : undefined;
       break;
     }
   }

@@ -39,8 +39,7 @@ interface RemoteFetchState {
   followCommunityLoading: boolean;
 }
 
-const getUriFromQuery = (uri?: string): string | undefined =>
-  uri ? decodeURIComponent(uri) : undefined;
+const getUriFromQuery = (uri?: string): string | undefined => uri;
 
 export function getRemoteFetchQueryParams(source?: string): RemoteFetchProps {
   return getQueryParams<RemoteFetchProps>(
@@ -53,7 +52,7 @@ export function getRemoteFetchQueryParams(source?: string): RemoteFetchProps {
 }
 
 function uriToQuery(uri: string) {
-  const match = decodeURIComponent(uri).match(/https?:\/\/(.+)\/c\/(.+)/);
+  const match = uri.match(/https?:\/\/(.+)\/c\/(.+)/);
 
   return match ? `!${match[2]}@${match[1]}` : "";
 }

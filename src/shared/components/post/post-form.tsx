@@ -3,6 +3,7 @@ import {
   capitalizeFirstLetter,
   debounce,
   getIdFromString,
+  getQueryString,
   validTitle,
   validURL,
 } from "@utils/helpers";
@@ -380,18 +381,14 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   archive.org {I18NextService.i18n.t("archive_link")}
                 </a>
                 <a
-                  href={`${ghostArchiveUrl}/search?term=${encodeURIComponent(
-                    url,
-                  )}`}
+                  href={`${ghostArchiveUrl}/search${getQueryString({ term: url })}`}
                   className="me-2 d-inline-block float-right text-muted small fw-bold"
                   rel={relTags}
                 >
                   ghostarchive.org {I18NextService.i18n.t("archive_link")}
                 </a>
                 <a
-                  href={`${archiveTodayUrl}/?run=1&url=${encodeURIComponent(
-                    url,
-                  )}`}
+                  href={`${archiveTodayUrl}/${getQueryString({ run: "1", url })}`}
                   className="me-2 d-inline-block float-right text-muted small fw-bold"
                   rel={relTags}
                 >

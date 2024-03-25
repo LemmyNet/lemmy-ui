@@ -456,7 +456,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const { sort } = this.props;
     const { username } = this.props.match.params;
 
-    const profileRss = `/feeds/u/${username}.xml?sort=${sort}`;
+    const profileRss = `/feeds/u/${username}.xml${getQueryString({ sort })}`;
 
     return (
       <div className="mb-2">

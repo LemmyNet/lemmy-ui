@@ -130,8 +130,7 @@ export function getSearchQueryParams(source?: string): SearchProps {
   );
 }
 
-const getSearchQueryFromQuery = (q?: string): string | undefined =>
-  q ? decodeURIComponent(q) : undefined;
+const getSearchQueryFromQuery = (q?: string): string | undefined => q;
 
 function getSearchTypeFromQuery(type_?: string): SearchType {
   return type_ ? (type_ as SearchType) : defaultSearchType;
@@ -1115,11 +1114,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       page: urlPage,
     } = this.props;
 
-    let query = q ?? this.state.searchText ?? urlQ;
-
-    if (query && query.length > 0) {
-      query = encodeURIComponent(query);
-    }
+    const query = q ?? this.state.searchText ?? urlQ;
 
     const queryParams: QueryParams<SearchProps> = {
       q: query,

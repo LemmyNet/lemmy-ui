@@ -1,4 +1,4 @@
-import { hostname } from "@utils/helpers";
+import { getQueryString, hostname } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -267,7 +267,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         className={`btn btn-secondary d-block mb-2 w-100 ${
           cv.community.deleted || cv.community.removed ? "no-click" : ""
         }`}
-        to={`/create_post?communityId=${cv.community.id}`}
+        to={
+          "/create_post" +
+          getQueryString({ communityId: cv.community.id.toString() })
+        }
       >
         {I18NextService.i18n.t("create_a_post")}
       </Link>

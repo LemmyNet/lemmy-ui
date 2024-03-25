@@ -27,6 +27,7 @@ import {
   UserService,
 } from "../../shared/services/";
 import { parsePath } from "history";
+import { getQueryString } from "@utils/helpers";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -76,7 +77,7 @@ export default async (req: Request, res: Response) => {
     }
 
     if (!auth && isAuthPath(path)) {
-      return res.redirect(`/login?prev=${encodeURIComponent(url)}`);
+      return res.redirect(`/login${getQueryString({ prev: url })}`);
     }
 
     if (try_site.state === "success") {

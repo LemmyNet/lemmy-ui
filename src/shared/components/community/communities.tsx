@@ -320,10 +320,10 @@ export class Communities extends Component<
 
   handleSearchSubmit(i: Communities, event: any) {
     event.preventDefault();
-    const searchParamEncoded = encodeURIComponent(i.state.searchText);
+    const searchParamEncoded = i.state.searchText;
     const { listingType } = i.props;
     i.context.router.history.push(
-      `/search?q=${searchParamEncoded}&type=Communities&listingType=${listingType}`,
+      `/search${getQueryString({ q: searchParamEncoded, type: "Communities", listingType })}`,
     );
   }
 
