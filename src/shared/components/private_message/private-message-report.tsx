@@ -52,7 +52,9 @@ export class PrivateMessageReport extends Component<Props, State> {
           {I18NextService.i18n.t("message")}:
           <div
             className="md-div"
-            dangerouslySetInnerHTML={mdToHtml(pmr.original_pm_text)}
+            dangerouslySetInnerHTML={mdToHtml(pmr.original_pm_text, () =>
+              this.forceUpdate(),
+            )}
           />
         </div>
         <div>

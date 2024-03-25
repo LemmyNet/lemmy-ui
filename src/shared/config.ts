@@ -19,7 +19,8 @@ export const postRefetchSeconds: number = 60 * 1000;
 export const trendingFetchLimit = 6;
 export const mentionDropdownFetchLimit = 10;
 export const commentTreeMaxDepth = 8;
-export const markdownFieldCharacterLimit = 50000;
+export const postMarkdownFieldCharacterLimit = 50000;
+export const markdownFieldCharacterLimit = 10000;
 export const maxUploadImages = 20;
 export const concurrentImageUpload = 4;
 export const updateUnreadCountsInterval = 30000;
@@ -32,6 +33,8 @@ export const authCookieName = "jwt";
 // page on route "/communities"
 export const communityLimit = 50;
 
+const queryPairRegex = "[a-zA-Zd_-]+=[a-zA-Zd+-_]+";
+
 /**
  * Accepted formats:
  * !community@server.com
@@ -39,7 +42,9 @@ export const communityLimit = 50;
  * /m/community@server.com
  * /u/username@server.com
  */
-export const instanceLinkRegex =
-  /(\/[cmu]\/|!)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+export const instanceLinkRegex = new RegExp(
+  `(/[cmu]/|!)[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}(?:/?\\?${queryPairRegex}(?:&${queryPairRegex})*)?`,
+  "g",
+);
 
 export const testHost = "0.0.0.0:8536";

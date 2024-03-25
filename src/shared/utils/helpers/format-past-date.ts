@@ -1,5 +1,4 @@
-import formatDistanceStrict from "date-fns/formatDistanceStrict";
-import parseISO from "date-fns/parseISO";
+import { parseISO, formatDistanceStrict } from "date-fns";
 
 export default function (dateString?: string) {
   const parsed = parseISO((dateString ?? Date.now().toString()) + "Z");

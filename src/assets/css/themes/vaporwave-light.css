@@ -74,7 +74,7 @@
   --bs-font-sans-serif: "Lucida Console", Monaco, monospace;
   --bs-font-monospace: Arial, "Noto Sans", sans-serif;
   --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
-  --bs-root-font-size: 93.75%;
+  --bs-root-font-size: 100%;
   --bs-body-font-family: var(--bs-font-sans-serif);
   --bs-body-font-size: 1rem;
   --bs-body-font-weight: 400;

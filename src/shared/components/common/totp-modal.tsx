@@ -21,12 +21,15 @@ interface TotpModalProps {
 interface TotpModalState {
   totp: string;
   qrCode?: string;
+  pending: boolean;
 }
 
 const TOTP_LENGTH = 6;
 
 async function handleSubmit(i: TotpModal, totp: string) {
+  i.setState({ pending: true });
   const successful = await i.props.onSubmit(totp);
+  i.setState({ pending: false });
 
   if (!successful) {
     i.setState({ totp: "" });
@@ -74,6 +77,7 @@ export default class TotpModal extends Component<
   modal: Modal;
   state: TotpModalState = {
     totp: "",
+    pending: false,
   };
 
   constructor(props: TotpModalProps, context: any) {
@@ -131,7 +135,7 @@ export default class TotpModal extends Component<
 
   render() {
     const { type, secretUrl, onClose } = this.props;
-    const { totp } = this.state;
+    const { totp, pending } = this.state;
 
     return (
       <div
@@ -203,11 +207,20 @@ export default class TotpModal extends Component<
                     ref={this.inputRef}
                     enterKeyHint="done"
                     value={totp}
+                    disabled={pending}
                   />
                 </div>
               </form>
             </div>
             <footer className="modal-footer">
+              <button
+                type="submit"
+                className="btn btn-success"
+                form="totp-form"
+                disabled={totp.length !== TOTP_LENGTH || pending}
+              >
+                {I18NextService.i18n.t("submit")}
+              </button>
               <button
                 type="button"
                 className="btn btn-danger"

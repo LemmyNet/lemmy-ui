@@ -1,5 +1,4 @@
 import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
-import { dataBsTheme } from "@utils/browser";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
@@ -14,7 +13,6 @@ import { Navbar } from "./navbar";
 import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
-import { CodeTheme } from "./code-theme";
 
 export class App extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
@@ -36,11 +34,7 @@ export class App extends Component<any, any> {
     return (
       <>
         <Provider i18next={I18NextService.i18n}>
-          <div
-            id="app"
-            className="lemmy-site"
-            data-bs-theme={dataBsTheme(siteRes)}
-          >
+          <div id="app" className="lemmy-site">
             <button
               type="button"
               className="btn skip-link bg-light position-absolute start-0 z-3"
@@ -49,10 +43,7 @@ export class App extends Component<any, any> {
               {I18NextService.i18n.t("jump_to_content", "Jump to content")}
             </button>
             {siteView && (
-              <>
-                <Theme defaultTheme={siteView.local_site.default_theme} />
-                <CodeTheme />
-              </>
+              <Theme defaultTheme={siteView.local_site.default_theme} />
             )}
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">

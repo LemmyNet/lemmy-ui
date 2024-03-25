@@ -177,7 +177,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.state.viewSource ? (
           <pre>{body}</pre>
         ) : (
-          <div className="md-div" dangerouslySetInnerHTML={mdToHtml(body)} />
+          <div
+            className="md-div"
+            dangerouslySetInnerHTML={mdToHtml(body, () => this.forceUpdate())}
+          />
         )}
       </article>
     ) : (
@@ -553,7 +556,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       enableDownvotes,
     } = this.props;
     const {
-      post: { local, ap_id, id, body },
+      post: { ap_id, id, body },
       counts,
       my_vote,
     } = this.postView;
@@ -570,15 +573,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <Icon icon="share" inline />
           </button>
         )}
-        {local && (
-          <a
-            className="btn btn-sm btn-link btn-animate text-muted py-0"
-            title={I18NextService.i18n.t("link")}
-            href={ap_id}
-          >
-            <Icon icon="fedilink" inline />
-          </a>
-        )}
+        <a
+          className="btn btn-sm btn-link btn-animate text-muted py-0"
+          title={I18NextService.i18n.t("link")}
+          href={ap_id}
+        >
+          <Icon icon="fedilink" inline />
+        </a>
         {mobile && !viewOnly && (
           <VoteButtonsCompact
             voteContentType={VoteContentType.Post}

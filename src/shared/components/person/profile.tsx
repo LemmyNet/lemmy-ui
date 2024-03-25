@@ -22,8 +22,7 @@ import { canMod, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import format from "date-fns/format";
-import parseISO from "date-fns/parseISO";
+import { format, parseISO } from "date-fns";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -587,7 +586,9 @@ export class Profile extends Component<
                 <div className="d-flex align-items-center mb-2">
                   <div
                     className="md-div"
-                    dangerouslySetInnerHTML={mdToHtml(pv.person.bio)}
+                    dangerouslySetInnerHTML={mdToHtml(pv.person.bio, () =>
+                      this.forceUpdate(),
+                    )}
                   />
                 </div>
               )}
