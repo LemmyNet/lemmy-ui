@@ -29,6 +29,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
+import { IRoutePropsWithFetch } from "../../routes";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -64,6 +65,11 @@ interface CreatePostState {
 type CreatePostPathProps = Record<string, never>;
 type CreatePostRouteProps = RouteComponentProps<CreatePostPathProps> &
   CreatePostProps;
+export type CreatePostFetchConfig = IRoutePropsWithFetch<
+  CreatePostData,
+  CreatePostPathProps,
+  CreatePostProps
+>;
 
 export class CreatePost extends Component<
   CreatePostRouteProps,

@@ -68,6 +68,7 @@ import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../routes";
 
 interface SearchProps {
   q?: string;
@@ -248,6 +249,11 @@ function getListing(
 
 type SearchPathProps = Record<string, never>;
 type SearchRouteProps = RouteComponentProps<SearchPathProps> & SearchProps;
+export type SearchFetchConfig = IRoutePropsWithFetch<
+  SearchData,
+  SearchPathProps,
+  SearchProps
+>;
 
 export class Search extends Component<SearchRouteProps, SearchState> {
   private isoData = setIsoData<SearchData>(this.context);

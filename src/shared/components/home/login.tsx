@@ -17,6 +17,8 @@ import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import TotpModal from "../common/totp-modal";
 import { UnreadCounterService } from "../../services";
+import { RouteData } from "../../interfaces";
+import { IRoutePropsWithFetch } from "../../routes";
 
 interface LoginProps {
   prev?: string;
@@ -118,6 +120,11 @@ function handleClose2faModal(i: Login) {
 }
 
 type LoginRouteProps = RouteComponentProps<Record<string, never>> & LoginProps;
+export type LoginFetchConfig = IRoutePropsWithFetch<
+  RouteData,
+  Record<string, never>,
+  LoginProps
+>;
 
 export class Login extends Component<LoginRouteProps, State> {
   private isoData = setIsoData(this.context);

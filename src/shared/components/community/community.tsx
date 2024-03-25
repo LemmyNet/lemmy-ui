@@ -101,6 +101,7 @@ import { CommunityLink } from "./community-link";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
 import { Sidebar } from "./sidebar";
+import { IRoutePropsWithFetch } from "../../routes";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -161,6 +162,11 @@ function getSortTypeFromQuery(type?: string): SortType {
 type CommunityPathProps = { name: string };
 type CommunityRouteProps = RouteComponentProps<CommunityPathProps> &
   CommunityProps;
+export type CommunityFetchConfig = IRoutePropsWithFetch<
+  CommunityData,
+  CommunityPathProps,
+  CommunityProps
+>;
 
 export class Community extends Component<CommunityRouteProps, State> {
   private isoData = setIsoData<CommunityData>(this.context);

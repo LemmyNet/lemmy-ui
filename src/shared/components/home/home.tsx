@@ -101,6 +101,7 @@ import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../../routes";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -240,6 +241,11 @@ const LinkButton = ({
 
 type HomePathProps = Record<string, never>;
 type HomeRouteProps = RouteComponentProps<HomePathProps> & HomeProps;
+export type HomeFetchConfig = IRoutePropsWithFetch<
+  HomeData,
+  HomePathProps,
+  HomeProps
+>;
 
 export class Home extends Component<HomeRouteProps, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);

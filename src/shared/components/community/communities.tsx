@@ -37,6 +37,7 @@ import { communityLimit } from "../../config";
 import { SubscribeButton } from "../common/subscribe-button";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../../routes";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -78,6 +79,11 @@ export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
 type CommunitiesPathProps = Record<string, never>;
 type CommunitiesRouteProps = RouteComponentProps<CommunitiesPathProps> &
   CommunitiesProps;
+export type CommunitiesFetchConfig = IRoutePropsWithFetch<
+  CommunitiesData,
+  CommunitiesPathProps,
+  CommunitiesProps
+>;
 
 export class Communities extends Component<
   CommunitiesRouteProps,

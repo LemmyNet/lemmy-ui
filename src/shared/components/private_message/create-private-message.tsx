@@ -23,6 +23,7 @@ import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../../routes";
 
 type CreatePrivateMessageData = RouteDataResponse<{
   recipientDetailsResponse: GetPersonDetailsResponse;
@@ -37,7 +38,12 @@ interface CreatePrivateMessageState {
 
 type CreatePrivateMessagePathProps = { recipient_id: string };
 type CreatePrivateMessageRouteProps =
-  RouteComponentProps<CreatePrivateMessagePathProps>;
+  RouteComponentProps<CreatePrivateMessagePathProps> & Record<string, never>;
+export type CreatePrivateMessageFetchConfig = IRoutePropsWithFetch<
+  CreatePrivateMessageData,
+  CreatePrivateMessagePathProps,
+  Record<string, never>
+>;
 
 export class CreatePrivateMessage extends Component<
   CreatePrivateMessageRouteProps,

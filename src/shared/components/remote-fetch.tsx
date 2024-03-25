@@ -23,6 +23,7 @@ import { SubscribeButton } from "./common/subscribe-button";
 import { CommunityLink } from "./community/community-link";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../routes";
 
 interface RemoteFetchProps {
   uri?: string;
@@ -92,6 +93,11 @@ const handleUnfollow = (i: RemoteFetch) => handleToggleFollow(i, false);
 type RemoteFetchPathProps = Record<string, never>;
 type RemoteFetchRouteProps = RouteComponentProps<RemoteFetchPathProps> &
   RemoteFetchProps;
+export type RemoteFetchFetchConfig = IRoutePropsWithFetch<
+  RemoteFetchData,
+  RemoteFetchPathProps,
+  RemoteFetchProps
+>;
 
 export class RemoteFetch extends Component<
   RemoteFetchRouteProps,

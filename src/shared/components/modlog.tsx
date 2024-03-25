@@ -63,6 +63,7 @@ import { SearchableSelect } from "./common/searchable-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { getHttpBaseInternal } from "../utils/env";
+import { IRoutePropsWithFetch } from "../routes";
 
 type FilterType = "mod" | "user";
 
@@ -639,6 +640,11 @@ async function createNewOptions({
 
 type ModlogPathProps = { communityId?: string };
 type ModlogRouteProps = RouteComponentProps<ModlogPathProps> & ModlogProps;
+export type ModlogFetchConfig = IRoutePropsWithFetch<
+  ModlogData,
+  ModlogPathProps,
+  ModlogProps
+>;
 
 export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   private isoData = setIsoData<ModlogData>(this.context);

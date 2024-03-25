@@ -94,6 +94,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
 import { getHttpBaseInternal } from "../../utils/env";
+import { IRoutePropsWithFetch } from "../../routes";
 
 type ProfileData = RouteDataResponse<{
   personResponse: GetPersonDetailsResponse;
@@ -177,6 +178,11 @@ function isPersonBlocked(personRes: RequestState<GetPersonDetailsResponse>) {
 
 type ProfilePathProps = { username: string };
 type ProfileRouteProps = RouteComponentProps<ProfilePathProps> & ProfileProps;
+export type ProfileFetchConfig = IRoutePropsWithFetch<
+  ProfileData,
+  ProfilePathProps,
+  ProfileProps
+>;
 
 export class Profile extends Component<ProfileRouteProps, ProfileState> {
   private isoData = setIsoData<ProfileData>(this.context);

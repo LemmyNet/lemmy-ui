@@ -99,6 +99,7 @@ import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../../routes";
 
 const commentsShownInterval = 15;
 
@@ -126,7 +127,13 @@ interface PostState {
 type PostPathProps =
   | { post_id: string; comment_id: never }
   | { post_id: never; comment_id: string };
-type PostRouteProps = RouteComponentProps<PostPathProps>;
+type PostRouteProps = RouteComponentProps<PostPathProps> &
+  Record<string, never>;
+export type PostFetchConfig = IRoutePropsWithFetch<
+  PostData,
+  PostPathProps,
+  Record<string, never>
+>;
 
 export class Post extends Component<PostRouteProps, PostState> {
   private isoData = setIsoData<PostData>(this.context);

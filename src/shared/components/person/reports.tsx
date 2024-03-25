@@ -50,6 +50,8 @@ import { PostReport } from "../post/post-report";
 import { PrivateMessageReport } from "../private_message/private-message-report";
 import { UnreadCounterService } from "../../services";
 import { getHttpBaseInternal } from "../../utils/env";
+import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../../routes";
 
 enum UnreadOrAll {
   Unread,
@@ -93,7 +95,15 @@ interface ReportsState {
   isIsomorphic: boolean;
 }
 
-export class Reports extends Component<any, ReportsState> {
+type ReportsRouteProps = RouteComponentProps<Record<string, never>> &
+  Record<string, never>;
+export type ReportsFetchConfig = IRoutePropsWithFetch<
+  ReportsData,
+  Record<string, never>,
+  Record<string, never>
+>;
+
+export class Reports extends Component<ReportsRouteProps, ReportsState> {
   private isoData = setIsoData<ReportsData>(this.context);
   state: ReportsState = {
     commentReportsRes: EMPTY_REQUEST,
