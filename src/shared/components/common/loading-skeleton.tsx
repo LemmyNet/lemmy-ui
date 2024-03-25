@@ -40,27 +40,10 @@ class PostThumbnailLoadingSkeleton extends Component<any, any> {
 class PostsLoadingSkeletonItem extends Component<any, any> {
   render() {
     return (
-      <>
-        {/* mobile */}
-        <div className="d-block d-sm-none">
-          <div className="col flex-grow-1 mt-2">
-            <div className="row">
-              <div className="col flex-grow-1">
-                <LoadingSkeletonLine size={12} />
-                <LoadingSkeletonLine size={8} />
-                <LoadingSkeletonLine size={6} />
-              </div>
-              <div className="col flex-grow-0">
-                <PostThumbnailLoadingSkeleton />
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* desktop */}
-        <div className="d-none d-sm-block my-3">
+        <div className="my-3">
           <div className="col flex-grow-1">
             <div className="row">
-              <div className="col flex-grow-0">
+              <div className="col flex-grow-0 order-last order-sm-first">
                 <PostThumbnailLoadingSkeleton />
               </div>
               <div className="col flex-grow-1">
@@ -71,7 +54,6 @@ class PostsLoadingSkeletonItem extends Component<any, any> {
             </div>
           </div>
         </div>
-      </>
     );
   }
 }
