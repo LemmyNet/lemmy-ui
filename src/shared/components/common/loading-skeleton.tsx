@@ -12,8 +12,8 @@ class LoadingSkeletonLine extends Component<LoadingSkeletonLineProps, any> {
   render() {
     const className = "placeholder placeholder-lg col-" + this.props.size;
     return (
-      <p className="placeholder-glow" style={{ margin: "0" }}>
-        <span className={className} style={{ height: "1.3rem" }}></span>
+      <p className="placeholder-glow m-0">
+        <span className={className} style={{ height: "1.3em" }}></span>
       </p>
     );
   }
@@ -31,10 +31,7 @@ class PostThumbnailLoadingSkeleton extends Component<any, any> {
   render() {
     return (
       <div className="thumbnail rounded d-flex justify-content-center placeholder-glow">
-        <span
-          className="placeholder placeholder-lg"
-          style={{ height: "100%", width: "100%", "border-radius": "0.5rem" }}
-        ></span>
+        <span className="placeholder placeholder-lg h-100 w-100 rounded"></span>
       </div>
     );
   }
@@ -105,22 +102,15 @@ class TrendingCommunitiesLoadingSkeletonItem extends Component<any, any> {
         }}
       >
         <div className="row">
-          <div className="col flex-grow-0" style={{ "padding-right": "0px" }}>
+          <div className="col flex-grow-0 pe-0">
             <div
               className="d-flex placeholder-glow"
               style={{ width: "1.5rem", height: "1.5rem" }}
             >
-              <span
-                className="placeholder placeholder-lg"
-                style={{
-                  height: "100%",
-                  width: "100%",
-                  "border-radius": "100%",
-                }}
-              ></span>
+              <span className="placeholder placeholder-lg w-100 h-100 rounded-circle"></span>
             </div>
           </div>
-          <div className="col flex-grow-1" style={{ "padding-right": "0px" }}>
+          <div className="col flex-grow-1 pe-0">
             <LoadingSkeletonLine size={12} />
           </div>
         </div>
