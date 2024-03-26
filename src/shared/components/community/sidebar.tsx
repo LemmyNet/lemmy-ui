@@ -135,14 +135,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
-              <SubscribeButton
-                communityView={this.props.community_view}
-                onFollow={linkEvent(this, this.handleFollowCommunity)}
-                onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
-                loading={this.state.followCommunityLoading}
-              />
-              {this.canPost && this.createPost()}
-              {myUserInfo && this.blockCommunity()}
+              {!banned_from_community && (
+                <>
+                  <SubscribeButton
+                    communityView={this.props.community_view}
+                    onFollow={linkEvent(this, this.handleFollowCommunity)}
+                    onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
+                    loading={this.state.followCommunityLoading}
+                  />
+                  {this.canPost && this.createPost()}
+                  {myUserInfo && this.blockCommunity()}
+                </>
+              )}
               {!myUserInfo && (
                 <div className="alert alert-info" role="alert">
                   <T
@@ -185,8 +189,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     inline
                     classes="me-sm-2 mx-auto d-sm-inline d-block"
                   />
-                  <strong className="fw-bold">Banned from community</strong>:
-                  You cannot post, comment, or vote here. However, you are still
+                  <strong className="fw-bold">Banned</strong>: You cannot post,
+                  comment, or vote in this community. However, you are still
                   free to browse.
                 </div>
               )}

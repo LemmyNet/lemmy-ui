@@ -188,6 +188,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       post,
       counts,
       my_vote,
+      banned_from_community,
     } = this.commentView;
 
     const moreRepliesBorderColor = this.props.node.depth
@@ -344,54 +345,55 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       )}
                     </button>
                   )}
-                  {UserService.Instance.myUserInfo && !this.props.viewOnly && (
-                    <>
-                      <VoteButtonsCompact
-                        voteContentType={VoteContentType.Comment}
-                        id={id}
-                        onVote={this.props.onCommentVote}
-                        enableDownvotes={this.props.enableDownvotes}
-                        counts={counts}
-                        my_vote={my_vote}
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-link btn-animate text-muted"
-                        onClick={linkEvent(this, handleToggleViewSource)}
-                        data-tippy-content={I18NextService.i18n.t(
-                          "view_source",
-                        )}
-                        aria-label={I18NextService.i18n.t("view_source")}
-                      >
-                        <Icon
-                          icon="file-text"
-                          classes={`icon-inline ${
-                            this.state.viewSource && "text-success"
-                          }`}
+                  {UserService.Instance.myUserInfo &&
+                    !(this.props.viewOnly || banned_from_community) && (
+                      <>
+                        <VoteButtonsCompact
+                          voteContentType={VoteContentType.Comment}
+                          id={id}
+                          onVote={this.props.onCommentVote}
+                          enableDownvotes={this.props.enableDownvotes}
+                          counts={counts}
+                          my_vote={my_vote}
                         />
-                      </button>
-                      <CommentActionDropdown
-                        commentView={this.commentView}
-                        admins={this.props.admins}
-                        moderators={this.props.moderators}
-                        onReply={this.handleReplyClick}
-                        onReport={this.handleReportComment}
-                        onBlock={this.handleBlockPerson}
-                        onSave={this.handleSaveComment}
-                        onEdit={this.handleEditClick}
-                        onDelete={this.handleDeleteComment}
-                        onDistinguish={this.handleDistinguishComment}
-                        onRemove={this.handleRemoveComment}
-                        onBanFromCommunity={this.handleBanFromCommunity}
-                        onAppointCommunityMod={this.handleAppointCommunityMod}
-                        onTransferCommunity={this.handleTransferCommunity}
-                        onPurgeUser={this.handlePurgePerson}
-                        onPurgeContent={this.handlePurgeComment}
-                        onBanFromSite={this.handleBanFromSite}
-                        onAppointAdmin={this.handleAppointAdmin}
-                      />
-                    </>
-                  )}
+                        <button
+                          type="button"
+                          className="btn btn-link btn-animate text-muted"
+                          onClick={linkEvent(this, handleToggleViewSource)}
+                          data-tippy-content={I18NextService.i18n.t(
+                            "view_source",
+                          )}
+                          aria-label={I18NextService.i18n.t("view_source")}
+                        >
+                          <Icon
+                            icon="file-text"
+                            classes={`icon-inline ${
+                              this.state.viewSource && "text-success"
+                            }`}
+                          />
+                        </button>
+                        <CommentActionDropdown
+                          commentView={this.commentView}
+                          admins={this.props.admins}
+                          moderators={this.props.moderators}
+                          onReply={this.handleReplyClick}
+                          onReport={this.handleReportComment}
+                          onBlock={this.handleBlockPerson}
+                          onSave={this.handleSaveComment}
+                          onEdit={this.handleEditClick}
+                          onDelete={this.handleDeleteComment}
+                          onDistinguish={this.handleDistinguishComment}
+                          onRemove={this.handleRemoveComment}
+                          onBanFromCommunity={this.handleBanFromCommunity}
+                          onAppointCommunityMod={this.handleAppointCommunityMod}
+                          onTransferCommunity={this.handleTransferCommunity}
+                          onPurgeUser={this.handlePurgePerson}
+                          onPurgeContent={this.handlePurgeComment}
+                          onBanFromSite={this.handleBanFromSite}
+                          onAppointAdmin={this.handleAppointAdmin}
+                        />
+                      </>
+                    )}
                 </div>
               </>
             )}
