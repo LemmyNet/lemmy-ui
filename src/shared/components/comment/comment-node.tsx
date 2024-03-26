@@ -13,7 +13,6 @@ import {
   CommentId,
   CommentReplyView,
   CommentResponse,
-  CommentView,
   CommunityModeratorView,
   CreateComment,
   CreateCommentLike,
@@ -37,6 +36,7 @@ import deepEqual from "lodash.isequal";
 import { commentTreeMaxDepth } from "../../config";
 import {
   CommentNodeI,
+  CommentNodeView,
   CommentViewType,
   VoteContentType,
 } from "../../interfaces";
@@ -152,7 +152,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
   }
 
-  get commentView(): CommentView {
+  get commentView(): CommentNodeView {
     return this.props.node.comment_view;
   }
 
@@ -591,16 +591,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.setState({ showReply: false, showEdit: false });
   }
 
-  isPersonMentionType(
-    item: CommentView | PersonMentionView | CommentReplyView,
-  ): item is PersonMentionView {
-    return (item as PersonMentionView).person_mention?.id !== undefined;
+  isPersonMentionType(item: CommentNodeView): item is PersonMentionView {
+    return item.person_mention?.id !== undefined;
   }
 
-  isCommentReplyType(
-    item: CommentView | PersonMentionView | CommentReplyView,
-  ): item is CommentReplyView {
-    return (item as CommentReplyView).comment_reply?.id !== undefined;
+  isCommentReplyType(item: CommentNodeView): item is CommentReplyView {
+    return item.comment_reply?.id !== undefined;
   }
 
   get isCommentNew(): boolean {
