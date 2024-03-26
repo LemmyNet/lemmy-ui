@@ -189,9 +189,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     inline
                     classes="me-sm-2 mx-auto d-sm-inline d-block"
                   />
-                  <strong className="fw-bold">Banned</strong>: You cannot post,
-                  comment, or vote in this community. However, you are still
-                  free to browse.
+                  <T i18nKey="banned_from_community_blurb" className="d-inline">
+                    #<strong className="fw-bold">#</strong>#
+                  </T>
                 </div>
               )}
               {this.description()}
