@@ -13,7 +13,7 @@ class LoadingSkeletonLine extends Component<LoadingSkeletonLineProps, any> {
     const className = "placeholder placeholder-lg col-" + this.props.size;
     return (
       <p className="placeholder-glow m-0">
-        <span className={className} style={{ height: "1.3em" }} />
+        <span className={`${className} h-100`} />
       </p>
     );
   }
@@ -76,19 +76,10 @@ export class TrendingCommunitiesLoadingSkeleton extends Component<
 class TrendingCommunitiesLoadingSkeletonItem extends Component<any, any> {
   render() {
     return (
-      <div
-        className="col flex-grow-1 mt-2"
-        style={{
-          "padding-left": "calc(var(--bs-gutter-x) *0.5)",
-          "padding-right": "calc(var(--bs-gutter-x) * 1)",
-        }}
-      >
+      <div className="col flex-grow-1 mt-2 ps-2 pe-4">
         <div className="row">
           <div className="col flex-grow-0 pe-0">
-            <div
-              className="d-flex placeholder-glow"
-              style={{ width: "1.5rem", height: "1.5rem" }}
-            >
+            <div className="d-flex placeholder-glow img-icon">
               <span className="placeholder placeholder-lg w-100 h-100 rounded-circle" />
             </div>
           </div>
