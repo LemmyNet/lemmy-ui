@@ -3,12 +3,7 @@ import { I18NextService, UserService } from "../../../services";
 import { Icon } from "../icon";
 import { CrossPostParams } from "@utils/types";
 import CrossPostButton from "./cross-post-button";
-import {
-  CommentView,
-  CommunityModeratorView,
-  PersonView,
-  PostView,
-} from "lemmy-js-client";
+import { CommunityModeratorView, PersonView, PostView } from "lemmy-js-client";
 import {
   amAdmin,
   amCommunityCreator,
@@ -23,7 +18,7 @@ import { Link } from "inferno-router";
 import ConfirmationModal from "../confirmation-modal";
 import ViewVotesModal from "../view-votes-modal";
 import ModActionFormModal, { BanUpdateForm } from "../mod-action-form-modal";
-import { BanType, PurgeType } from "../../../interfaces";
+import { BanType, CommentNodeView, PurgeType } from "../../../interfaces";
 import { getApubName, hostname } from "@utils/helpers";
 
 interface ContentActionDropdownPropsBase {
@@ -46,7 +41,7 @@ interface ContentActionDropdownPropsBase {
 
 export type ContentCommentProps = {
   type: "comment";
-  commentView: CommentView;
+  commentView: CommentNodeView;
   onReply: () => void;
   onDistinguish: () => Promise<void>;
 } & ContentActionDropdownPropsBase;

@@ -1,8 +1,7 @@
-import { CommentView } from "lemmy-js-client";
-import { CommentNodeI } from "../../interfaces";
+import { CommentNodeI, CommentNodeView } from "../../interfaces";
 
 export default function commentsToFlatNodes(
-  comments: CommentView[],
+  comments: CommentNodeView[],
 ): CommentNodeI[] {
   const nodes: CommentNodeI[] = [];
   for (const comment of comments) {
