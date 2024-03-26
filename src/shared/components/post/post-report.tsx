@@ -59,6 +59,8 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       unread_comments: 0,
       creator_is_moderator: false,
       creator_is_admin: false,
+      banned_from_community: false,
+      hidden: true,
     };
 
     return (
