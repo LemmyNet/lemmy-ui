@@ -126,7 +126,6 @@ export function getSearchQueryParams(source?: string): SearchProps {
       page: getPageFromString,
     },
     source,
-    {},
   );
 }
 

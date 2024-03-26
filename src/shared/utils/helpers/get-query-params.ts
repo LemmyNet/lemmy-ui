@@ -12,8 +12,8 @@ export default function getQueryParams<
   FallbacksT extends Empty = Empty,
 >(
   processors: QueryMapping<PropsT, FallbacksT>,
-  source: string | undefined,
-  fallbacks: FallbacksT,
+  source?: string,
+  fallbacks: FallbacksT = {} as FallbacksT,
 ): PropsT {
   const searchParams = new URLSearchParams(source);
 

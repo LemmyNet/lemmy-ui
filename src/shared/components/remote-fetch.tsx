@@ -47,7 +47,6 @@ export function getRemoteFetchQueryParams(source?: string): RemoteFetchProps {
       uri: getUriFromQuery,
     },
     source,
-    {},
   );
 }
 

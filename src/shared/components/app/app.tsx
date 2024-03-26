@@ -65,18 +65,17 @@ export class App extends Component<any, any> {
                         }
 
                         let queryProps = routeProps;
-                        if (getQueryParams) {
-                          if (this.isoData.site_res) {
-                            queryProps = {
-                              ...queryProps,
-                              ...getQueryParams(
-                                routeProps.location.search,
-                                this.isoData.site_res,
-                              ),
-                            };
-                          } else {
-                            // ErrorGuard will catch this
-                          }
+                        if (getQueryParams && this.isoData.site_res) {
+                          // ErrorGuard will not render its children when
+                          // site_res is missing, this guarantees that props
+                          // will always contain the query params.
+                          queryProps = {
+                            ...routeProps,
+                            ...getQueryParams(
+                              routeProps.location.search,
+                              this.isoData.site_res,
+                            ),
+                          };
                         }
 
                         return (

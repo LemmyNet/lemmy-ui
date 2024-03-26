@@ -72,7 +72,6 @@ export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
       page: getPageFromString,
     },
     source,
-    {},
   );
 }
 

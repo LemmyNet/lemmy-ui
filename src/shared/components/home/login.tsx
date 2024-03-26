@@ -30,7 +30,6 @@ export function getLoginQueryParams(source?: string): LoginProps {
       prev: (param?: string) => param,
     },
     source,
-    {},
   );
 }
 

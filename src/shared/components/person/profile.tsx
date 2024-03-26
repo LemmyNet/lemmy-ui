@@ -126,7 +126,6 @@ export function getProfileQueryParams(source?: string): ProfileProps {
       sort: getSortTypeFromQuery,
     },
     source,
-    {},
   );
 }
 

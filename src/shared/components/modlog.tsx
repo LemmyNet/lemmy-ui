@@ -107,7 +107,6 @@ export function getModlogQueryParams(source?: string): ModlogProps {
       page: getPageFromString,
     },
     source,
-    {},
   );
 }
 

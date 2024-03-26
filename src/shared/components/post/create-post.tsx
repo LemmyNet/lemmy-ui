@@ -46,7 +46,6 @@ export function getCreatePostQueryParams(source?: string): CreatePostProps {
       communityId: getIdFromString,
     },
     source,
-    {},
   );
 }
 
