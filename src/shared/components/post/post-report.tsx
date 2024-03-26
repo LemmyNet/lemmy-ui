@@ -60,7 +60,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       creator_is_moderator: false,
       creator_is_admin: false,
       banned_from_community: false,
-      hidden: true,
+      hidden: false,
     };
 
     return (
