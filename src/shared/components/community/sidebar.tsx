@@ -126,6 +126,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const {
       community: { name, actor_id, id, posting_restricted_to_mods, visibility },
       counts,
+      banned_from_community,
     } = this.props.community_view;
     return (
       <aside className="mb-3">
@@ -172,6 +173,21 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   <T i18nKey="community_locked_message" className="d-inline">
                     #<strong className="fw-bold">#</strong>#
                   </T>
+                </div>
+              )}
+              {banned_from_community && (
+                <div
+                  className="alert alert-danger text-sm-start text-xs-center"
+                  role="alert"
+                >
+                  <Icon
+                    icon="ban"
+                    inline
+                    classes="me-sm-2 mx-auto d-sm-inline d-block"
+                  />
+                  <strong className="fw-bold">Banned from community</strong>:
+                  You cannot post, comment, or vote here. However, you are still
+                  free to browse.
                 </div>
               )}
               {this.description()}
