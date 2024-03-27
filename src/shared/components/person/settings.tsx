@@ -68,6 +68,8 @@ import TotpModal from "../common/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
 import { refreshTheme, setThemeOverride } from "../../utils/browser";
 import { getHttpBaseInternal } from "../../utils/env";
+import { IRoutePropsWithFetch } from "../../routes";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -193,7 +195,15 @@ function handleClose2faModal(i: Settings) {
   i.setState({ show2faModal: false });
 }
 
-export class Settings extends Component<any, SettingsState> {
+type SettingsRouteProps = RouteComponentProps<Record<string, never>> &
+  Record<string, never>;
+export type SettingsFetchConfig = IRoutePropsWithFetch<
+  SettingsData,
+  Record<string, never>,
+  Record<string, never>
+>;
+
+export class Settings extends Component<SettingsRouteProps, SettingsState> {
   private isoData = setIsoData<SettingsData>(this.context);
   exportSettingsLink = createRef<HTMLAnchorElement>();
 

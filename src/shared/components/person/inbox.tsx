@@ -81,6 +81,8 @@ import { Paginator } from "../common/paginator";
 import { PrivateMessage } from "../private_message/private-message";
 import { getHttpBaseInternal } from "../../utils/env";
 import { CommentsLoadingSkeleton } from "../common/loading-skeleton";
+import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../../routes";
 
 enum UnreadOrAll {
   Unread,
@@ -127,7 +129,15 @@ interface InboxState {
   isIsomorphic: boolean;
 }
 
-export class Inbox extends Component<any, InboxState> {
+type InboxRouteProps = RouteComponentProps<Record<string, never>> &
+  Record<string, never>;
+export type InboxFetchConfig = IRoutePropsWithFetch<
+  InboxData,
+  Record<string, never>,
+  Record<string, never>
+>;
+
+export class Inbox extends Component<InboxRouteProps, InboxState> {
   private isoData = setIsoData<InboxData>(this.context);
   state: InboxState = {
     unreadOrAll: UnreadOrAll.Unread,

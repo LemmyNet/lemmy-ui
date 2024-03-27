@@ -63,6 +63,7 @@ import { SearchableSelect } from "./common/searchable-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { getHttpBaseInternal } from "../utils/env";
+import { IRoutePropsWithFetch } from "../routes";
 
 type FilterType = "mod" | "user";
 
@@ -97,13 +98,17 @@ interface ModlogType {
   when_: string;
 }
 
-const getModlogQueryParams = () =>
-  getQueryParams<ModlogProps>({
-    actionType: getActionFromString,
-    modId: getIdFromString,
-    userId: getIdFromString,
-    page: getPageFromString,
-  });
+export function getModlogQueryParams(source?: string): ModlogProps {
+  return getQueryParams<ModlogProps>(
+    {
+      actionType: getActionFromString,
+      modId: getIdFromString,
+      userId: getIdFromString,
+      page: getPageFromString,
+    },
+    source,
+  );
+}
 
 interface ModlogState {
   res: RequestState<GetModlogResponse>;
@@ -117,8 +122,8 @@ interface ModlogState {
 
 interface ModlogProps {
   page: number;
-  userId?: number | null;
-  modId?: number | null;
+  userId?: number;
+  modId?: number;
   actionType: ModlogActionType;
 }
 
@@ -632,10 +637,15 @@ async function createNewOptions({
   }
 }
 
-export class Modlog extends Component<
-  RouteComponentProps<{ communityId?: string }>,
-  ModlogState
-> {
+type ModlogPathProps = { communityId?: string };
+type ModlogRouteProps = RouteComponentProps<ModlogPathProps> & ModlogProps;
+export type ModlogFetchConfig = IRoutePropsWithFetch<
+  ModlogData,
+  ModlogPathProps,
+  ModlogProps
+>;
+
+export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   private isoData = setIsoData<ModlogData>(this.context);
 
   state: ModlogState = {
@@ -648,10 +658,7 @@ export class Modlog extends Component<
     isIsomorphic: false,
   };
 
-  constructor(
-    props: RouteComponentProps<{ communityId?: string }>,
-    context: any,
-  ) {
+  constructor(props: ModlogRouteProps, context: any) {
     super(props, context);
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleUserChange = this.handleUserChange.bind(this);
@@ -687,7 +694,7 @@ export class Modlog extends Component<
 
   async componentDidMount() {
     if (!this.state.isIsomorphic) {
-      const { modId, userId } = getModlogQueryParams();
+      const { modId, userId } = this.props;
       const promises = [this.refetch()];
 
       if (userId) {
@@ -774,7 +781,7 @@ export class Modlog extends Component<
       userSearchOptions,
       modSearchOptions,
     } = this.state;
-    const { actionType, modId, userId } = getModlogQueryParams();
+    const { actionType, modId, userId } = this.props;
 
     return (
       <div className="modlog container-lg">
@@ -873,7 +880,7 @@ export class Modlog extends Component<
           </h5>
         );
       case "success": {
-        const page = getModlogQueryParams().page;
+        const page = this.props.page;
         return (
           <div className="table-responsive">
             <table id="modlog_table" className="table table-sm table-hover">
@@ -909,15 +916,15 @@ export class Modlog extends Component<
   }
 
   handleUserChange(option: Choice) {
-    this.updateUrl({ userId: getIdFromString(option.value) ?? null, page: 1 });
+    this.updateUrl({ userId: getIdFromString(option.value), page: 1 });
   }
 
   handleModChange(option: Choice) {
-    this.updateUrl({ modId: getIdFromString(option.value) ?? null, page: 1 });
+    this.updateUrl({ modId: getIdFromString(option.value), page: 1 });
   }
 
   handleSearchUsers = debounce(async (text: string) => {
-    const { userId } = getModlogQueryParams();
+    const { userId } = this.props;
     const { userSearchOptions } = this.state;
     this.setState({ loadingUserSearch: true });
 
@@ -934,7 +941,7 @@ export class Modlog extends Component<
   });
 
   handleSearchMods = debounce(async (text: string) => {
-    const { modId } = getModlogQueryParams();
+    const { modId } = this.props;
     const { modSearchOptions } = this.state;
     this.setState({ loadingModSearch: true });
 
@@ -956,7 +963,7 @@ export class Modlog extends Component<
       actionType: urlActionType,
       modId: urlModId,
       userId: urlUserId,
-    } = getModlogQueryParams();
+    } = this.props;
 
     const queryParams: QueryParams<ModlogProps> = {
       page: (page ?? urlPage).toString(),
@@ -977,7 +984,7 @@ export class Modlog extends Component<
   }
 
   async refetch() {
-    const { actionType, page, modId, userId } = getModlogQueryParams();
+    const { actionType, page, modId, userId } = this.props;
     const { communityId: urlCommunityId } = this.props.match.params;
     const communityId = getIdFromString(urlCommunityId);
 
@@ -988,10 +995,10 @@ export class Modlog extends Component<
         page,
         limit: fetchLimit,
         type_: actionType,
-        other_person_id: userId ?? undefined,
+        other_person_id: userId,
         mod_person_id: !this.isoData.site_res.site_view.local_site
           .hide_modlog_mod_names
-          ? modId ?? undefined
+          ? modId
           : undefined,
       }),
     });
@@ -1008,25 +1015,25 @@ export class Modlog extends Component<
 
   static async fetchInitialData({
     headers,
-    path,
-    query: { modId: urlModId, page, userId: urlUserId, actionType },
+    query: { page, userId, modId: modId_, actionType },
+    match: {
+      params: { communityId: urlCommunityId },
+    },
     site,
-  }: InitialFetchRequest<QueryParams<ModlogProps>>): Promise<ModlogData> {
+  }: InitialFetchRequest<ModlogPathProps, ModlogProps>): Promise<ModlogData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
-    const pathSplit = path.split("/");
-    const communityId = getIdFromString(pathSplit[2]);
+    const communityId = getIdFromString(urlCommunityId);
     const modId = !site.site_view.local_site.hide_modlog_mod_names
-      ? getIdFromString(urlModId)
+      ? modId_
       : undefined;
-    const userId = getIdFromString(urlUserId);
 
     const modlogForm: GetModlog = {
-      page: getPageFromString(page),
+      page,
       limit: fetchLimit,
       community_id: communityId,
-      type_: getActionFromString(actionType),
+      type_: actionType,
       mod_person_id: modId,
       other_person_id: userId,
     };

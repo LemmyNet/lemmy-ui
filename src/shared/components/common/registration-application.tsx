@@ -74,6 +74,14 @@ export class RegistrationApplication extends Component<
             this.forceUpdate(),
           )}
         />
+        {a.creator_local_user.email && (
+          <div>
+            {I18NextService.i18n.t("email")}:&nbsp;
+            <a href={`mailto:${a.creator_local_user.email}`}>
+              {a.creator_local_user.email}
+            </a>
+          </div>
+        )}
 
         {a.admin && (
           <div>

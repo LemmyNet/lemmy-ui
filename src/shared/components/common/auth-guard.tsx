@@ -2,6 +2,7 @@ import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { UserService } from "../../services";
 import { Spinner } from "./icon";
+import { getQueryString } from "@utils/helpers";
 
 interface AuthGuardState {
   hasRedirected: boolean;
@@ -26,7 +27,7 @@ class AuthGuard extends Component<
     if (!UserService.Instance.myUserInfo) {
       const { pathname, search } = this.props.location;
       this.context.router.history.replace(
-        `/login?prev=${encodeURIComponent(pathname + search)}`,
+        `/login${getQueryString({ prev: pathname + search })}`,
       );
     } else {
       this.setState({ hasRedirected: true });

@@ -5,7 +5,6 @@ import {
   setIsoData,
 } from "@utils/app";
 import { getIdFromString, getQueryParams } from "@utils/helpers";
-import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -30,6 +29,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
+import { IRoutePropsWithFetch } from "../../routes";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -40,10 +40,13 @@ type CreatePostData = RouteDataResponse<{
   initialCommunitiesRes: ListCommunitiesResponse;
 }>;
 
-function getCreatePostQueryParams() {
-  return getQueryParams<CreatePostProps>({
-    communityId: getIdFromString,
-  });
+export function getCreatePostQueryParams(source?: string): CreatePostProps {
+  return getQueryParams<CreatePostProps>(
+    {
+      communityId: getIdFromString,
+    },
+    source,
+  );
 }
 
 function fetchCommunitiesForOptions(client: WrappedLemmyHttp) {
@@ -58,8 +61,17 @@ interface CreatePostState {
   isIsomorphic: boolean;
 }
 
+type CreatePostPathProps = Record<string, never>;
+type CreatePostRouteProps = RouteComponentProps<CreatePostPathProps> &
+  CreatePostProps;
+export type CreatePostFetchConfig = IRoutePropsWithFetch<
+  CreatePostData,
+  CreatePostPathProps,
+  CreatePostProps
+>;
+
 export class CreatePost extends Component<
-  RouteComponentProps<Record<string, never>>,
+  CreatePostRouteProps,
   CreatePostState
 > {
   private isoData = setIsoData<CreatePostData>(this.context);
@@ -70,7 +82,7 @@ export class CreatePost extends Component<
     isIsomorphic: false,
   };
 
-  constructor(props: RouteComponentProps<Record<string, never>>, context: any) {
+  constructor(props: CreatePostRouteProps, context: any) {
     super(props, context);
 
     this.handlePostCreate = this.handlePostCreate.bind(this);
@@ -102,9 +114,7 @@ export class CreatePost extends Component<
     }
   }
 
-  async fetchCommunity() {
-    const { communityId } = getCreatePostQueryParams();
-
+  async fetchCommunity({ communityId }: CreatePostProps) {
     if (communityId) {
       const res = await HttpService.client.getCommunity({
         id: communityId,
@@ -121,7 +131,7 @@ export class CreatePost extends Component<
   async componentDidMount() {
     // TODO test this
     if (!this.state.isIsomorphic) {
-      const { communityId } = getCreatePostQueryParams();
+      const { communityId } = this.props;
 
       const initialCommunitiesRes = await fetchCommunitiesForOptions(
         HttpService.client,
@@ -134,7 +144,7 @@ export class CreatePost extends Component<
       if (
         communityId?.toString() !== this.state.selectedCommunityChoice?.value
       ) {
-        await this.fetchCommunity();
+        await this.fetchCommunity({ communityId });
       } else if (!communityId) {
         this.setState({
           selectedCommunityChoice: undefined,
@@ -199,15 +209,13 @@ export class CreatePost extends Component<
   }
 
   async updateUrl({ communityId }: Partial<CreatePostProps>) {
-    const { communityId: urlCommunityId } = getCreatePostQueryParams();
-
     const locationState = this.props.history.location.state as
       | PostFormParams
       | undefined;
 
     const url = new URL(location.href);
 
-    const newId = (communityId ?? urlCommunityId)?.toString();
+    const newId = communityId?.toString();
 
     if (newId !== undefined) {
       url.searchParams.set("communityId", newId);
@@ -215,9 +223,10 @@ export class CreatePost extends Component<
       url.searchParams.delete("communityId");
     }
 
-    history.replaceState(locationState, "", url);
+    // This bypasses the router and doesn't update the query props.
+    window.history.replaceState(locationState, "", url);
 
-    await this.fetchCommunity();
+    await this.fetchCommunity({ communityId });
   }
 
   handleSelectedCommunityChange(choice: Choice) {
@@ -243,7 +252,8 @@ export class CreatePost extends Component<
     headers,
     query: { communityId },
   }: InitialFetchRequest<
-    QueryParams<CreatePostProps>
+    CreatePostPathProps,
+    CreatePostProps
   >): Promise<CreatePostData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
@@ -255,7 +265,7 @@ export class CreatePost extends Component<
 
     if (communityId) {
       const form: GetCommunity = {
-        id: getIdFromString(communityId),
+        id: communityId,
       };
 
       data.communityResponse = await client.getCommunity(form);

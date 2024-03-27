@@ -27,6 +27,8 @@ import { Paginator } from "../common/paginator";
 import { RegistrationApplication } from "../common/registration-application";
 import { UnreadCounterService } from "../../services";
 import { getHttpBaseInternal } from "../../utils/env";
+import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../../routes";
 
 enum RegistrationState {
   Unread,
@@ -46,8 +48,18 @@ interface RegistrationApplicationsState {
   isIsomorphic: boolean;
 }
 
+type RegistrationApplicationsRouteProps = RouteComponentProps<
+  Record<string, never>
+> &
+  Record<string, never>;
+export type RegistrationApplicationsFetchConfig = IRoutePropsWithFetch<
+  RegistrationApplicationsData,
+  Record<string, never>,
+  Record<string, never>
+>;
+
 export class RegistrationApplications extends Component<
-  any,
+  RegistrationApplicationsRouteProps,
   RegistrationApplicationsState
 > {
   private isoData = setIsoData<RegistrationApplicationsData>(this.context);

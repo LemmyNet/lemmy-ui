@@ -22,6 +22,8 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";
 import { getHttpBaseInternal } from "../../utils/env";
+import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../../routes";
 
 type CreatePrivateMessageData = RouteDataResponse<{
   recipientDetailsResponse: GetPersonDetailsResponse;
@@ -34,8 +36,17 @@ interface CreatePrivateMessageState {
   isIsomorphic: boolean;
 }
 
+type CreatePrivateMessagePathProps = { recipient_id: string };
+type CreatePrivateMessageRouteProps =
+  RouteComponentProps<CreatePrivateMessagePathProps> & Record<string, never>;
+export type CreatePrivateMessageFetchConfig = IRoutePropsWithFetch<
+  CreatePrivateMessageData,
+  CreatePrivateMessagePathProps,
+  Record<string, never>
+>;
+
 export class CreatePrivateMessage extends Component<
-  any,
+  CreatePrivateMessageRouteProps,
   CreatePrivateMessageState
 > {
   private isoData = setIsoData<CreatePrivateMessageData>(this.context);
@@ -69,12 +80,12 @@ export class CreatePrivateMessage extends Component<
 
   static async fetchInitialData({
     headers,
-    path,
-  }: InitialFetchRequest): Promise<CreatePrivateMessageData> {
+    match,
+  }: InitialFetchRequest<CreatePrivateMessagePathProps>): Promise<CreatePrivateMessageData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
-    const person_id = Number(path.split("/").pop());
+    const person_id = getRecipientIdFromProps({ match });
 
     const form: GetPersonDetails = {
       person_id,
