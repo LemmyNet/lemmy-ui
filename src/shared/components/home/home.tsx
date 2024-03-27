@@ -92,7 +92,7 @@ import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
-import { Icon, Spinner } from "../common/icon";
+import { Icon } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
@@ -100,6 +100,11 @@ import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
+import {
+  CommentsLoadingSkeleton,
+  PostsLoadingSkeleton,
+  TrendingCommunitiesLoadingSkeleton,
+} from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 
@@ -531,11 +536,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   trendingCommunities() {
     switch (this.state.trendingCommunitiesRes?.state) {
       case "loading":
-        return (
-          <h5>
-            <Spinner large />
-          </h5>
-        );
+        return <TrendingCommunitiesLoadingSkeleton itemCount={5} />;
       case "success": {
         const trending = this.state.trendingCommunitiesRes.data.communities;
         return (
@@ -704,11 +705,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         case "empty":
           return <div style="min-height: 20000px;"></div>;
         case "loading":
-          return (
-            <h5>
-              <Spinner large />
-            </h5>
-          );
+          return <PostsLoadingSkeleton />;
         case "success": {
           const posts = this.state.postsRes.data.posts;
           return (
@@ -744,11 +741,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     } else {
       switch (this.state.commentsRes.state) {
         case "loading":
-          return (
-            <h5>
-              <Spinner large />
-            </h5>
-          );
+          return <CommentsLoadingSkeleton />;
         case "success": {
           const comments = this.state.commentsRes.data.comments;
           return (

@@ -100,6 +100,10 @@ import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
+import {
+  CommentsLoadingSkeleton,
+  PostsLoadingSkeleton,
+} from "../common/loading-skeleton";
 import { Sidebar } from "./sidebar";
 import { IRoutePropsWithFetch } from "../../routes";
 
@@ -435,11 +439,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (dataType === DataType.Post) {
       switch (this.state.postsRes.state) {
         case "loading":
-          return (
-            <h5>
-              <Spinner large />
-            </h5>
-          );
+          return <PostsLoadingSkeleton />;
         case "success":
           return (
             <PostListings
@@ -472,11 +472,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     } else {
       switch (this.state.commentsRes.state) {
         case "loading":
-          return (
-            <h5>
-              <Spinner large />
-            </h5>
-          );
+          return <CommentsLoadingSkeleton />;
         case "success":
           return (
             <CommentNodes
