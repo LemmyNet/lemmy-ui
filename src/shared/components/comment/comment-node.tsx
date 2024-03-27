@@ -13,7 +13,6 @@ import {
   CommentId,
   CommentReplyView,
   CommentResponse,
-  CommentView,
   CommunityModeratorView,
   CreateComment,
   CreateCommentLike,
@@ -37,6 +36,7 @@ import deepEqual from "lodash.isequal";
 import { commentTreeMaxDepth } from "../../config";
 import {
   CommentNodeI,
+  CommentNodeView,
   CommentViewType,
   VoteContentType,
 } from "../../interfaces";
@@ -152,7 +152,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
   }
 
-  get commentView(): CommentView {
+  get commentView(): CommentNodeView {
     return this.props.node.comment_view;
   }
 
@@ -188,6 +188,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       post,
       counts,
       my_vote,
+      banned_from_community,
     } = this.commentView;
 
     const moreRepliesBorderColor = this.props.node.depth
@@ -344,54 +345,55 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       )}
                     </button>
                   )}
-                  {UserService.Instance.myUserInfo && !this.props.viewOnly && (
-                    <>
-                      <VoteButtonsCompact
-                        voteContentType={VoteContentType.Comment}
-                        id={id}
-                        onVote={this.props.onCommentVote}
-                        enableDownvotes={this.props.enableDownvotes}
-                        counts={counts}
-                        my_vote={my_vote}
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-link btn-animate text-muted"
-                        onClick={linkEvent(this, handleToggleViewSource)}
-                        data-tippy-content={I18NextService.i18n.t(
-                          "view_source",
-                        )}
-                        aria-label={I18NextService.i18n.t("view_source")}
-                      >
-                        <Icon
-                          icon="file-text"
-                          classes={`icon-inline ${
-                            this.state.viewSource && "text-success"
-                          }`}
+                  {UserService.Instance.myUserInfo &&
+                    !(this.props.viewOnly || banned_from_community) && (
+                      <>
+                        <VoteButtonsCompact
+                          voteContentType={VoteContentType.Comment}
+                          id={id}
+                          onVote={this.props.onCommentVote}
+                          enableDownvotes={this.props.enableDownvotes}
+                          counts={counts}
+                          my_vote={my_vote}
                         />
-                      </button>
-                      <CommentActionDropdown
-                        commentView={this.commentView}
-                        admins={this.props.admins}
-                        moderators={this.props.moderators}
-                        onReply={this.handleReplyClick}
-                        onReport={this.handleReportComment}
-                        onBlock={this.handleBlockPerson}
-                        onSave={this.handleSaveComment}
-                        onEdit={this.handleEditClick}
-                        onDelete={this.handleDeleteComment}
-                        onDistinguish={this.handleDistinguishComment}
-                        onRemove={this.handleRemoveComment}
-                        onBanFromCommunity={this.handleBanFromCommunity}
-                        onAppointCommunityMod={this.handleAppointCommunityMod}
-                        onTransferCommunity={this.handleTransferCommunity}
-                        onPurgeUser={this.handlePurgePerson}
-                        onPurgeContent={this.handlePurgeComment}
-                        onBanFromSite={this.handleBanFromSite}
-                        onAppointAdmin={this.handleAppointAdmin}
-                      />
-                    </>
-                  )}
+                        <button
+                          type="button"
+                          className="btn btn-link btn-animate text-muted"
+                          onClick={linkEvent(this, handleToggleViewSource)}
+                          data-tippy-content={I18NextService.i18n.t(
+                            "view_source",
+                          )}
+                          aria-label={I18NextService.i18n.t("view_source")}
+                        >
+                          <Icon
+                            icon="file-text"
+                            classes={`icon-inline ${
+                              this.state.viewSource && "text-success"
+                            }`}
+                          />
+                        </button>
+                        <CommentActionDropdown
+                          commentView={this.commentView}
+                          admins={this.props.admins}
+                          moderators={this.props.moderators}
+                          onReply={this.handleReplyClick}
+                          onReport={this.handleReportComment}
+                          onBlock={this.handleBlockPerson}
+                          onSave={this.handleSaveComment}
+                          onEdit={this.handleEditClick}
+                          onDelete={this.handleDeleteComment}
+                          onDistinguish={this.handleDistinguishComment}
+                          onRemove={this.handleRemoveComment}
+                          onBanFromCommunity={this.handleBanFromCommunity}
+                          onAppointCommunityMod={this.handleAppointCommunityMod}
+                          onTransferCommunity={this.handleTransferCommunity}
+                          onPurgeUser={this.handlePurgePerson}
+                          onPurgeContent={this.handlePurgeComment}
+                          onBanFromSite={this.handleBanFromSite}
+                          onAppointAdmin={this.handleAppointAdmin}
+                        />
+                      </>
+                    )}
                 </div>
               </>
             )}
@@ -589,16 +591,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.setState({ showReply: false, showEdit: false });
   }
 
-  isPersonMentionType(
-    item: CommentView | PersonMentionView | CommentReplyView,
-  ): item is PersonMentionView {
-    return (item as PersonMentionView).person_mention?.id !== undefined;
+  isPersonMentionType(item: CommentNodeView): item is PersonMentionView {
+    return item.person_mention?.id !== undefined;
   }
 
-  isCommentReplyType(
-    item: CommentView | PersonMentionView | CommentReplyView,
-  ): item is CommentReplyView {
-    return (item as CommentReplyView).comment_reply?.id !== undefined;
+  isCommentReplyType(item: CommentNodeView): item is CommentReplyView {
+    return item.comment_reply?.id !== undefined;
   }
 
   get isCommentNew(): boolean {

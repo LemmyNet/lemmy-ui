@@ -63,6 +63,7 @@ export class CommentReport extends Component<
       saved: false,
       creator_blocked: false,
       my_vote: r.my_vote,
+      banned_from_community: false,
     };
 
     const node: CommentNodeI = {

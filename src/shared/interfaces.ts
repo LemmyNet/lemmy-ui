@@ -1,5 +1,10 @@
 import { ErrorPageData } from "@utils/types";
-import { CommentView, GetSiteResponse } from "lemmy-js-client";
+import {
+  CommentReply,
+  CommentView,
+  GetSiteResponse,
+  PersonMention,
+} from "lemmy-js-client";
 import type { ParsedQs } from "qs";
 import { RequestState } from "./services/HttpService";
 
@@ -77,8 +82,14 @@ export enum VoteContentType {
   Comment,
 }
 
+export type CommentNodeView = Omit<CommentView, "banned_from_community"> &
+  Partial<Pick<CommentView, "banned_from_community">> & {
+    person_mention?: PersonMention;
+    comment_reply?: CommentReply;
+  };
+
 export interface CommentNodeI {
-  comment_view: CommentView;
+  comment_view: CommentNodeView;
   children: Array<CommentNodeI>;
   depth: number;
 }
