@@ -407,7 +407,9 @@ export class Post extends Component<PostRouteProps, PostState> {
               <div ref={this.state.commentSectionRef} className="mb-2" />
 
               {/* Only show the top level comment form if its not a context view */}
-              {!this.state.commentId && (
+              {!(
+                this.state.commentId || res.post_view.banned_from_community
+              ) && (
                 <CommentForm
                   node={res.post_view.post.id}
                   disabled={res.post_view.post.locked}

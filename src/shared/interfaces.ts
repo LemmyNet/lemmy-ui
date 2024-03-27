@@ -1,5 +1,10 @@
 import { ErrorPageData } from "@utils/types";
-import { CommentView, GetSiteResponse } from "lemmy-js-client";
+import {
+  CommentReply,
+  CommentView,
+  GetSiteResponse,
+  PersonMention,
+} from "lemmy-js-client";
 import { RequestState } from "./services/HttpService";
 import { Match } from "inferno-router/dist/Route";
 
@@ -81,8 +86,14 @@ export enum VoteContentType {
   Comment,
 }
 
+export type CommentNodeView = Omit<CommentView, "banned_from_community"> &
+  Partial<Pick<CommentView, "banned_from_community">> & {
+    person_mention?: PersonMention;
+    comment_reply?: CommentReply;
+  };
+
 export interface CommentNodeI {
-  comment_view: CommentView;
+  comment_view: CommentNodeView;
   children: Array<CommentNodeI>;
   depth: number;
 }

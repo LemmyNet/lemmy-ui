@@ -126,6 +126,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const {
       community: { name, actor_id, id, posting_restricted_to_mods, visibility },
       counts,
+      banned_from_community,
     } = this.props.community_view;
     return (
       <aside className="mb-3">
@@ -134,14 +135,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
-              <SubscribeButton
-                communityView={this.props.community_view}
-                onFollow={linkEvent(this, this.handleFollowCommunity)}
-                onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
-                loading={this.state.followCommunityLoading}
-              />
-              {this.canPost && this.createPost()}
-              {myUserInfo && this.blockCommunity()}
+              {!banned_from_community && (
+                <>
+                  <SubscribeButton
+                    communityView={this.props.community_view}
+                    onFollow={linkEvent(this, this.handleFollowCommunity)}
+                    onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
+                    loading={this.state.followCommunityLoading}
+                  />
+                  {this.canPost && this.createPost()}
+                  {myUserInfo && this.blockCommunity()}
+                </>
+              )}
               {!myUserInfo && (
                 <div className="alert alert-info" role="alert">
                   <T
@@ -170,6 +175,21 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     classes="me-sm-2 mx-auto d-sm-inline d-block"
                   />
                   <T i18nKey="community_locked_message" className="d-inline">
+                    #<strong className="fw-bold">#</strong>#
+                  </T>
+                </div>
+              )}
+              {banned_from_community && (
+                <div
+                  className="alert alert-danger text-sm-start text-xs-center"
+                  role="alert"
+                >
+                  <Icon
+                    icon="ban"
+                    inline
+                    classes="me-sm-2 mx-auto d-sm-inline d-block"
+                  />
+                  <T i18nKey="banned_from_community_blurb" className="d-inline">
                     #<strong className="fw-bold">#</strong>#
                   </T>
                 </div>
