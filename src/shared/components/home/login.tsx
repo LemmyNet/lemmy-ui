@@ -17,17 +17,21 @@ import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import TotpModal from "../common/totp-modal";
 import { UnreadCounterService } from "../../services";
+import { RouteData } from "../../interfaces";
+import { IRoutePropsWithFetch } from "../../routes";
 
 interface LoginProps {
   prev?: string;
 }
 
-const getLoginQueryParams = () =>
-  getQueryParams<LoginProps>({
-    prev(param) {
-      return param ? decodeURIComponent(param) : undefined;
+export function getLoginQueryParams(source?: string): LoginProps {
+  return getQueryParams<LoginProps>(
+    {
+      prev: (param?: string) => param,
     },
-  });
+    source,
+  );
+}
 
 interface State {
   loginRes: RequestState<LoginResponse>;
@@ -50,7 +54,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
     refreshTheme();
   }
 
-  const { prev } = getLoginQueryParams();
+  const { prev } = i.props;
 
   prev
     ? i.props.history.replace(prev)
@@ -114,10 +118,14 @@ function handleClose2faModal(i: Login) {
   i.setState({ show2faModal: false });
 }
 
-export class Login extends Component<
-  RouteComponentProps<Record<string, never>>,
-  State
-> {
+type LoginRouteProps = RouteComponentProps<Record<string, never>> & LoginProps;
+export type LoginFetchConfig = IRoutePropsWithFetch<
+  RouteData,
+  Record<string, never>,
+  LoginProps
+>;
+
+export class Login extends Component<LoginRouteProps, State> {
   private isoData = setIsoData(this.context);
 
   state: State = {

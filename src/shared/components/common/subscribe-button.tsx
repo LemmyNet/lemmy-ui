@@ -1,4 +1,4 @@
-import { validInstanceTLD } from "@utils/helpers";
+import { getQueryString, validInstanceTLD } from "@utils/helpers";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, linkEvent } from "inferno";
@@ -134,8 +134,8 @@ function submitRemoteFollow(
     instanceText = `http${VERSION !== "dev" ? "s" : ""}://${instanceText}`;
   }
 
-  window.location.href = `${instanceText}/activitypub/externalInteraction?uri=${encodeURIComponent(
-    communityActorId,
+  window.location.href = `${instanceText}/activitypub/externalInteraction${getQueryString(
+    { uri: communityActorId },
   )}`;
 }
 

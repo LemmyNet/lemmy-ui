@@ -34,6 +34,8 @@ import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 import { getHttpBaseInternal } from "../../utils/env";
+import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../../routes";
 
 type AdminSettingsData = RouteDataResponse<{
   bannedRes: BannedPersonsResponse;
@@ -52,7 +54,18 @@ interface AdminSettingsState {
   isIsomorphic: boolean;
 }
 
-export class AdminSettings extends Component<any, AdminSettingsState> {
+type AdminSettingsRouteProps = RouteComponentProps<Record<string, never>> &
+  Record<string, never>;
+export type AdminSettingsFetchConfig = IRoutePropsWithFetch<
+  AdminSettingsData,
+  Record<string, never>,
+  Record<string, never>
+>;
+
+export class AdminSettings extends Component<
+  AdminSettingsRouteProps,
+  AdminSettingsState
+> {
   private isoData = setIsoData<AdminSettingsData>(this.context);
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,

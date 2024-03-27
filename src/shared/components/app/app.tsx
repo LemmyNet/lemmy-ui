@@ -49,7 +49,12 @@ export class App extends Component<any, any> {
             <div className="mt-4 p-0 fl-1">
               <Switch>
                 {routes.map(
-                  ({ path, component: RouteComponent, fetchInitialData }) => (
+                  ({
+                    path,
+                    component: RouteComponent,
+                    fetchInitialData,
+                    getQueryParams,
+                  }) => (
                     <Route
                       key={path}
                       path={path}
@@ -59,20 +64,34 @@ export class App extends Component<any, any> {
                           FirstLoadService.falsify();
                         }
 
+                        let queryProps = routeProps;
+                        if (getQueryParams && this.isoData.site_res) {
+                          // ErrorGuard will not render its children when
+                          // site_res is missing, this guarantees that props
+                          // will always contain the query params.
+                          queryProps = {
+                            ...routeProps,
+                            ...getQueryParams(
+                              routeProps.location.search,
+                              this.isoData.site_res,
+                            ),
+                          };
+                        }
+
                         return (
                           <ErrorGuard>
                             <div tabIndex={-1}>
                               {RouteComponent &&
                                 (isAuthPath(path ?? "") ? (
                                   <AuthGuard {...routeProps}>
-                                    <RouteComponent {...routeProps} />
+                                    <RouteComponent {...queryProps} />
                                   </AuthGuard>
                                 ) : isAnonymousPath(path ?? "") ? (
                                   <AnonymousGuard>
-                                    <RouteComponent {...routeProps} />
+                                    <RouteComponent {...queryProps} />
                                   </AnonymousGuard>
                                 ) : (
-                                  <RouteComponent {...routeProps} />
+                                  <RouteComponent {...queryProps} />
                                 ))}
                             </div>
                           </ErrorGuard>
