@@ -96,16 +96,24 @@ export class PrivateMessageForm extends Component<
           </T>
           {this.props.recipient.matrix_user_id && (
             <>
-              &nbsp;This user already has a matrix account you can reach
-              at&nbsp;
-              <a
-                className="alert-link"
-                rel={relTags}
-                href={`https://matrix.to/#/${this.props.recipient.matrix_user_id}`}
+              &nbsp;
+              <T
+                i18nKey="private_message_form_user_matrix_blurb"
+                parent="span"
+                interpolation={{
+                  matrix_id: this.props.recipient.matrix_user_id,
+                }}
               >
-                {this.props.recipient.matrix_user_id}
-              </a>
-              .
+                #
+                <a
+                  className="alert-link"
+                  rel={relTags}
+                  href={`https://matrix.to/#/${this.props.recipient.matrix_user_id}`}
+                >
+                  #
+                </a>
+                #
+              </T>
             </>
           )}
         </div>
