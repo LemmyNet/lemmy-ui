@@ -94,6 +94,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
 import { getHttpBaseInternal } from "../../utils/env";
+import { IRoutePropsWithFetch } from "../../routes";
 
 type ProfileData = RouteDataResponse<{
   personResponse: GetPersonDetailsResponse;
@@ -117,12 +118,15 @@ interface ProfileProps {
   page: number;
 }
 
-function getProfileQueryParams() {
-  return getQueryParams<ProfileProps>({
-    view: getViewFromProps,
-    page: getPageFromString,
-    sort: getSortTypeFromQuery,
-  });
+export function getProfileQueryParams(source?: string): ProfileProps {
+  return getQueryParams<ProfileProps>(
+    {
+      view: getViewFromProps,
+      page: getPageFromString,
+      sort: getSortTypeFromQuery,
+    },
+    source,
+  );
 }
 
 function getSortTypeFromQuery(sort?: string): SortType {
@@ -171,10 +175,15 @@ function isPersonBlocked(personRes: RequestState<GetPersonDetailsResponse>) {
   );
 }
 
-export class Profile extends Component<
-  RouteComponentProps<{ username: string }>,
-  ProfileState
-> {
+type ProfilePathProps = { username: string };
+type ProfileRouteProps = RouteComponentProps<ProfilePathProps> & ProfileProps;
+export type ProfileFetchConfig = IRoutePropsWithFetch<
+  ProfileData,
+  ProfilePathProps,
+  ProfileProps
+>;
+
+export class Profile extends Component<ProfileRouteProps, ProfileState> {
   private isoData = setIsoData<ProfileData>(this.context);
   state: ProfileState = {
     personRes: EMPTY_REQUEST,
@@ -186,7 +195,7 @@ export class Profile extends Component<
     isIsomorphic: false,
   };
 
-  constructor(props: RouteComponentProps<{ username: string }>, context: any) {
+  constructor(props: ProfileRouteProps, context: any) {
     super(props, context);
 
     this.handleSortChange = this.handleSortChange.bind(this);
@@ -248,7 +257,7 @@ export class Profile extends Component<
   }
 
   async fetchUserData() {
-    const { page, sort, view } = getProfileQueryParams();
+    const { page, sort, view } = this.props;
 
     this.setState({ personRes: LOADING_REQUEST });
     const personRes = await HttpService.client.getPersonDetails({
@@ -278,22 +287,23 @@ export class Profile extends Component<
 
   static async fetchInitialData({
     headers,
-    path,
-    query: { page, sort, view: urlView },
-  }: InitialFetchRequest<QueryParams<ProfileProps>>): Promise<ProfileData> {
+    query: { view, sort, page },
+    match: {
+      params: { username },
+    },
+  }: InitialFetchRequest<
+    ProfilePathProps,
+    ProfileProps
+  >): Promise<ProfileData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
-    const pathSplit = path.split("/");
-
-    const username = pathSplit[2];
-    const view = getViewFromProps(urlView);
 
     const form: GetPersonDetails = {
       username: username,
-      sort: getSortTypeFromQuery(sort),
+      sort,
       saved_only: view === PersonDetailsView.Saved,
-      page: getPageFromString(page),
+      page,
       limit: fetchLimit,
     };
 
@@ -321,7 +331,7 @@ export class Profile extends Component<
       case "success": {
         const siteRes = this.state.siteRes;
         const personRes = this.state.personRes.data;
-        const { page, sort, view } = getProfileQueryParams();
+        const { page, sort, view } = this.props;
 
         return (
           <div className="row">
@@ -415,7 +425,7 @@ export class Profile extends Component<
   }
 
   getRadio(view: PersonDetailsView) {
-    const { view: urlView } = getProfileQueryParams();
+    const { view: urlView } = this.props;
     const active = view === urlView;
     const radioId = randomStr();
 
@@ -442,10 +452,10 @@ export class Profile extends Component<
   }
 
   get selects() {
-    const { sort } = getProfileQueryParams();
+    const { sort } = this.props;
     const { username } = this.props.match.params;
 
-    const profileRss = `/feeds/u/${username}.xml?sort=${sort}`;
+    const profileRss = `/feeds/u/${username}.xml${getQueryString({ sort })}`;
 
     return (
       <div className="mb-2">
@@ -713,11 +723,7 @@ export class Profile extends Component<
   }
 
   async updateUrl({ page, sort, view }: Partial<ProfileProps>) {
-    const {
-      page: urlPage,
-      sort: urlSort,
-      view: urlView,
-    } = getProfileQueryParams();
+    const { page: urlPage, sort: urlSort, view: urlView } = this.props;
 
     const queryParams: QueryParams<ProfileProps> = {
       page: (page ?? urlPage).toString(),

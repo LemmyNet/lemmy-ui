@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { getQueryParams } from "@utils/helpers";
-import { QueryParams, RouteDataResponse } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   CommunityView,
@@ -22,6 +22,8 @@ import { PictrsImage } from "./common/pictrs-image";
 import { SubscribeButton } from "./common/subscribe-button";
 import { CommunityLink } from "./community/community-link";
 import { getHttpBaseInternal } from "../utils/env";
+import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../routes";
 
 interface RemoteFetchProps {
   uri?: string;
@@ -37,16 +39,19 @@ interface RemoteFetchState {
   followCommunityLoading: boolean;
 }
 
-const getUriFromQuery = (uri?: string): string | undefined =>
-  uri ? decodeURIComponent(uri) : undefined;
+const getUriFromQuery = (uri?: string): string | undefined => uri;
 
-const getRemoteFetchQueryParams = () =>
-  getQueryParams<RemoteFetchProps>({
-    uri: getUriFromQuery,
-  });
+export function getRemoteFetchQueryParams(source?: string): RemoteFetchProps {
+  return getQueryParams<RemoteFetchProps>(
+    {
+      uri: getUriFromQuery,
+    },
+    source,
+  );
+}
 
 function uriToQuery(uri: string) {
-  const match = decodeURIComponent(uri).match(/https?:\/\/(.+)\/c\/(.+)/);
+  const match = uri.match(/https?:\/\/(.+)\/c\/(.+)/);
 
   return match ? `!${match[2]}@${match[1]}` : "";
 }
@@ -83,7 +88,19 @@ async function handleToggleFollow(i: RemoteFetch, follow: boolean) {
 const handleFollow = (i: RemoteFetch) => handleToggleFollow(i, true);
 const handleUnfollow = (i: RemoteFetch) => handleToggleFollow(i, false);
 
-export class RemoteFetch extends Component<any, RemoteFetchState> {
+type RemoteFetchPathProps = Record<string, never>;
+type RemoteFetchRouteProps = RouteComponentProps<RemoteFetchPathProps> &
+  RemoteFetchProps;
+export type RemoteFetchFetchConfig = IRoutePropsWithFetch<
+  RemoteFetchData,
+  RemoteFetchPathProps,
+  RemoteFetchProps
+>;
+
+export class RemoteFetch extends Component<
+  RemoteFetchRouteProps,
+  RemoteFetchState
+> {
   private isoData = setIsoData<RemoteFetchData>(this.context);
   state: RemoteFetchState = {
     resolveObjectRes: EMPTY_REQUEST,
@@ -91,7 +108,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
     followCommunityLoading: false,
   };
 
-  constructor(props: any, context: any) {
+  constructor(props: RemoteFetchRouteProps, context: any) {
     super(props, context);
 
     if (FirstLoadService.isFirstLoad) {
@@ -107,7 +124,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
 
   async componentDidMount() {
     if (!this.state.isIsomorphic) {
-      const { uri } = getRemoteFetchQueryParams();
+      const { uri } = this.props;
 
       if (uri) {
         this.setState({ resolveObjectRes: LOADING_REQUEST });
@@ -139,7 +156,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
   get content() {
     const res = this.state.resolveObjectRes;
 
-    const { uri } = getRemoteFetchQueryParams();
+    const { uri } = this.props;
     const remoteCommunityName = uri ? uriToQuery(uri) : "remote community";
 
     switch (res.state) {
@@ -204,7 +221,7 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
   }
 
   get documentTitle(): string {
-    const { uri } = getRemoteFetchQueryParams();
+    const { uri } = this.props;
     const name = this.isoData.site_res.site_view.site.name;
     return `${I18NextService.i18n.t("remote_follow")} - ${
       uri ? `${uri} - ` : ""
@@ -215,7 +232,8 @@ export class RemoteFetch extends Component<any, RemoteFetchState> {
     headers,
     query: { uri },
   }: InitialFetchRequest<
-    QueryParams<RemoteFetchProps>
+    RemoteFetchPathProps,
+    RemoteFetchProps
   >): Promise<RemoteFetchData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),

@@ -3,6 +3,7 @@ import { getHttpBaseInternal } from "@utils/env";
 import { ErrorPageData } from "@utils/types";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
+import { Match } from "inferno-router/dist/Route";
 import { renderToString } from "inferno-server";
 import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import { App } from "../../shared/components/app/app";
@@ -25,6 +26,8 @@ import {
   LanguageService,
   UserService,
 } from "../../shared/services/";
+import { parsePath } from "history";
+import { getQueryString } from "@utils/helpers";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -40,7 +43,10 @@ export default async (req: Request, res: Response) => {
         .sort((a, b) => b.q - a.q)
         .map(x => (x.lang === "*" ? "en" : x.lang)) ?? [];
 
-    const activeRoute = routes.find(route => matchPath(req.path, route));
+    let match: Match<any> | null | undefined;
+    const activeRoute = routes.find(
+      route => (match = matchPath(req.path, route)),
+    );
 
     const headers = setForwardedHeaders(req.headers);
     const auth = getJwtCookie(req.headers);
@@ -49,7 +55,7 @@ export default async (req: Request, res: Response) => {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
 
-    const { path, url, query } = req;
+    const { path, url } = req;
 
     // Get site data first
     // This bypasses errors, so that the client can hit the error on its own,
@@ -71,7 +77,7 @@ export default async (req: Request, res: Response) => {
     }
 
     if (!auth && isAuthPath(path)) {
-      return res.redirect(`/login?prev=${encodeURIComponent(url)}`);
+      return res.redirect(`/login${getQueryString({ prev: url })}`);
     }
 
     if (try_site.state === "success") {
@@ -83,10 +89,12 @@ export default async (req: Request, res: Response) => {
         return res.redirect("/setup");
       }
 
-      if (site && activeRoute?.fetchInitialData) {
-        const initialFetchReq: InitialFetchRequest = {
+      if (site && activeRoute?.fetchInitialData && match) {
+        const { search } = parsePath(url);
+        const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
           path,
-          query,
+          query: activeRoute.getQueryParams?.(search, site) ?? {},
+          match,
           site,
           headers,
         };
