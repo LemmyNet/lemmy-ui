@@ -22,6 +22,8 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { getHttpBaseInternal } from "../../utils/env";
+import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "../../routes";
 
 type InstancesData = RouteDataResponse<{
   federatedInstancesResponse: GetFederatedInstancesResponse;
@@ -33,7 +35,15 @@ interface InstancesState {
   isIsomorphic: boolean;
 }
 
-export class Instances extends Component<any, InstancesState> {
+type InstancesRouteProps = RouteComponentProps<Record<string, never>> &
+  Record<string, never>;
+export type InstancesFetchConfig = IRoutePropsWithFetch<
+  InstancesData,
+  Record<string, never>,
+  Record<string, never>
+>;
+
+export class Instances extends Component<InstancesRouteProps, InstancesState> {
   private isoData = setIsoData<InstancesData>(this.context);
   state: InstancesState = {
     instancesRes: EMPTY_REQUEST,
