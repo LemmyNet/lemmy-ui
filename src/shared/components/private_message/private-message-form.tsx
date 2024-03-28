@@ -94,6 +94,28 @@ export class PrivateMessageForm extends Component<
               #
             </a>
           </T>
+          {this.props.recipient.matrix_user_id && (
+            <>
+              &nbsp;
+              <T
+                i18nKey="private_message_form_user_matrix_blurb"
+                parent="span"
+                interpolation={{
+                  matrix_id: this.props.recipient.matrix_user_id,
+                }}
+              >
+                #
+                <a
+                  className="alert-link"
+                  rel={relTags}
+                  href={`https://matrix.to/#/${this.props.recipient.matrix_user_id}`}
+                >
+                  #
+                </a>
+                #
+              </T>
+            </>
+          )}
         </div>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label">
@@ -101,7 +123,7 @@ export class PrivateMessageForm extends Component<
           </label>
           <div className="col-sm-10">
             <MarkdownTextArea
-              onSubmit={() => {
+              onSubmit={event => {
                 this.handlePrivateMessageSubmit(this, event);
               }}
               initialContent={this.state.content}
