@@ -481,24 +481,27 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </>
           )}
         </div>
-        <div className="mb-3 row">
-          <label
-            className="col-sm-2 col-form-label"
-            htmlFor="post-custom-thumbnail"
-          >
-            {I18NextService.i18n.t("custom_thumbnail_url")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="url"
-              id="post-custom-thumbnail"
-              placeholder={I18NextService.i18n.t("optional")}
-              className="form-control mb-3"
-              value={this.state.form.custom_thumbnail}
-              onInput={linkEvent(this, handleCustomThumbnailChange)}
-            />
+
+        {!isImage(url || "") && (
+          <div className="mb-3 row">
+            <label
+              className="col-sm-2 col-form-label"
+              htmlFor="post-custom-thumbnail"
+            >
+              {I18NextService.i18n.t("custom_thumbnail_url")}
+            </label>
+            <div className="col-sm-10">
+              <input
+                type="url"
+                id="post-custom-thumbnail"
+                placeholder={I18NextService.i18n.t("optional")}
+                className="form-control mb-3"
+                value={this.state.form.custom_thumbnail}
+                onInput={linkEvent(this, handleCustomThumbnailChange)}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label">
