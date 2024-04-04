@@ -9,7 +9,7 @@ steps:
       - git submodule init
       - git submodule update --recursive --remote
     when:
-      - event: pull_request
+      - event: [pull_request, tag]
 
   install:
     image: node:20-alpine
