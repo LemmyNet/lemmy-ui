@@ -72,6 +72,8 @@ interface PostFormState {
     language_id?: number;
     community_id?: number;
     honeypot?: string;
+    custom_thumbnail?: string;
+    alt_text?: string;
   };
   loading: boolean;
   suggestedPostsRes: RequestState<SearchResponse>;
@@ -97,12 +99,14 @@ function handlePostSubmit(i: PostForm, event: any) {
 
   if (pv) {
     i.props.onEdit?.({
+      post_id: pv.post.id,
       name: pForm.name,
       url: pForm.url,
       body: pForm.body,
       nsfw: pForm.nsfw,
-      post_id: pv.post.id,
       language_id: pForm.language_id,
+      custom_thumbnail: pForm.custom_thumbnail,
+      alt_text: pForm.alt_text,
     });
   } else if (pForm.name && pForm.community_id) {
     i.props.onCreate?.({
@@ -113,6 +117,8 @@ function handlePostSubmit(i: PostForm, event: any) {
       nsfw: pForm.nsfw,
       language_id: pForm.language_id,
       honeypot: pForm.honeypot,
+      custom_thumbnail: pForm.custom_thumbnail,
+      alt_text: pForm.alt_text,
     });
   }
 }
@@ -152,6 +158,14 @@ function handlePostNsfwChange(i: PostForm, event: any) {
 
 function handleHoneyPotChange(i: PostForm, event: any) {
   i.setState(s => ((s.form.honeypot = event.target.value), s));
+}
+
+function handleAltTextChange(i: PostForm, event: any) {
+  i.setState(s => ((s.form.alt_text = event.target.value), s));
+}
+
+function handleCustomThumbnailChange(i: PostForm, event: any) {
+  i.setState(s => ((s.form.custom_thumbnail = event.target.value), s));
 }
 
 function handleCancel(i: PostForm) {
@@ -255,6 +269,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           url: post_view.post.url,
           nsfw: post_view.post.nsfw,
           language_id: post_view.post.language_id,
+          custom_thumbnail: post_view.post.thumbnail_url,
+          alt_text: post_view.post.alt_text,
         },
       };
     } else if (selectedCommunityChoice) {
@@ -364,6 +380,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           <div className="col-sm-10">
             <input
               type="url"
+              placeholder={I18NextService.i18n.t("optional")}
               id="post-url"
               className="form-control mb-3"
               value={url}
@@ -428,6 +445,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               </button>
             )}
           </div>
+
           {this.props.crossPosts && this.props.crossPosts.length > 0 && (
             <>
               <div className="my-1 text-muted small fw-bold">
@@ -464,6 +482,27 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           )}
         </div>
 
+        {!isImage(url || "") && (
+          <div className="mb-3 row">
+            <label
+              className="col-sm-2 col-form-label"
+              htmlFor="post-custom-thumbnail"
+            >
+              {I18NextService.i18n.t("custom_thumbnail_url")}
+            </label>
+            <div className="col-sm-10">
+              <input
+                type="url"
+                id="post-custom-thumbnail"
+                placeholder={I18NextService.i18n.t("optional")}
+                className="form-control mb-3"
+                value={this.state.form.custom_thumbnail}
+                onInput={linkEvent(this, handleCustomThumbnailChange)}
+              />
+            </div>
+          </div>
+        )}
+
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label">
             {I18NextService.i18n.t("body")}
@@ -471,6 +510,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           <div className="col-sm-10">
             <MarkdownTextArea
               initialContent={this.state.form.body}
+              placeholder={I18NextService.i18n.t("optional")}
               onContentChange={this.handlePostBodyChange}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
@@ -486,6 +526,25 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           multiple={false}
           onChange={this.handleLanguageChange}
         />
+        {url && isImage(url) && (
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label" htmlFor="post-alt-text">
+              {I18NextService.i18n.t("column_alttext")}
+            </label>
+            <div className="col-sm-10">
+              <input
+                autoComplete="false"
+                name="alt_text"
+                placeholder={I18NextService.i18n.t("optional")}
+                type="text"
+                className="form-control"
+                id="post-alt-text"
+                value={this.state.form.alt_text}
+                onInput={linkEvent(this, handleAltTextChange)}
+              />
+            </div>
+          </div>
+        )}
         {!this.props.post_view && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-community">

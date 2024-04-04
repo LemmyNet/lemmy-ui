@@ -189,12 +189,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get img() {
+    const { post } = this.postView;
+    const { url } = post;
+
     if (this.imageSrc) {
       return (
         <>
           <div className="offset-sm-3 my-2 d-none d-sm-block">
             <a href={this.imageSrc} className="d-inline-block">
-              <PictrsImage src={this.imageSrc} />
+              <PictrsImage src={this.imageSrc} alt={post.alt_text} />
             </a>
           </div>
           <div className="my-2 d-block d-sm-none">
@@ -203,15 +206,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="p-0 border-0 bg-transparent d-inline-block"
               onClick={linkEvent(this, this.handleImageExpandClick)}
             >
-              <PictrsImage src={this.imageSrc} />
+              <PictrsImage src={this.imageSrc} alt={post.alt_text} />
             </button>
           </div>
         </>
       );
     }
-
-    const { post } = this.postView;
-    const { url } = post;
 
     // if direct video link
     if (url && isVideo(url)) {
@@ -253,7 +253,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <PictrsImage
         src={src}
         thumbnail
-        alt=""
+        alt={pv.post.alt_text}
         nsfw={pv.post.nsfw || pv.community.nsfw}
       />
     );
