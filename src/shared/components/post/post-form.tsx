@@ -523,23 +523,25 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           multiple={false}
           onChange={this.handleLanguageChange}
         />
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label">
-            {I18NextService.i18n.t("column_alttext")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              autoComplete="false"
-              name="alt_text"
-              placeholder={I18NextService.i18n.t("optional")}
-              type="text"
-              className="form-control"
-              id="post-alt_text"
-              value={this.state.form.alt_text}
-              onInput={linkEvent(this, handleAltTextChange)}
-            />
+        {url && isImage(url) && (
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label" htmlFor="post-alt-text">
+              {I18NextService.i18n.t("column_alttext")}
+            </label>
+            <div className="col-sm-10">
+              <input
+                autoComplete="false"
+                name="alt_text"
+                placeholder={I18NextService.i18n.t("optional")}
+                type="text"
+                className="form-control"
+                id="post-alt-text"
+                value={this.state.form.alt_text}
+                onInput={linkEvent(this, handleAltTextChange)}
+              />
+            </div>
           </div>
-        </div>
+        )}
         {!this.props.post_view && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-community">
