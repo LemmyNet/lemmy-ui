@@ -54,6 +54,7 @@ import {
   GetPosts,
   GetPostsResponse,
   GetSiteResponse,
+  HidePost,
   LemmyHttp,
   LockPost,
   MarkCommentReplyAsRead,
@@ -225,6 +226,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleHidePost = this.handleHidePost.bind(this);
     this.mainContentRef = createRef();
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -466,6 +468,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onTransferCommunity={this.handleTransferCommunity}
               onFeaturePost={this.handleFeaturePost}
               onMarkPostAsRead={async () => {}}
+              onHidePost={this.handleHidePost}
             />
           );
       }
@@ -812,6 +815,26 @@ export class Community extends Component<CommunityRouteProps, State> {
   async handleLockPost(form: LockPost) {
     const lockRes = await HttpService.client.lockPost(form);
     this.findAndUpdatePost(lockRes);
+  }
+
+  async handleHidePost(form: HidePost) {
+    const hideRes = await HttpService.client.hidePost(form);
+
+    if (hideRes.state === "success") {
+      this.setState(prev => {
+        if (prev.postsRes.state === "success") {
+          for (const post of prev.postsRes.data.posts.filter(p =>
+            form.post_ids.some(id => id === p.post.id),
+          )) {
+            post.hidden = form.hide;
+          }
+        }
+
+        return prev;
+      });
+
+      toast(form.hide ? "Post hidden" : "Post unhidden");
+    }
   }
 
   async handleDistinguishComment(form: DistinguishComment) {

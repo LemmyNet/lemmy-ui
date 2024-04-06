@@ -52,6 +52,7 @@ import {
   GetPosts,
   GetPostsResponse,
   GetSiteResponse,
+  HidePost,
   LemmyHttp,
   ListCommunities,
   ListCommunitiesResponse,
@@ -305,6 +306,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleHidePost = this.handleHidePost.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -734,6 +736,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onTransferCommunity={this.handleTransferCommunity}
               onFeaturePost={this.handleFeaturePost}
               onMarkPostAsRead={async () => {}}
+              onHidePost={this.handleHidePost}
             />
           );
         }
@@ -1048,6 +1051,27 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   async handleBanPerson(form: BanPerson) {
     const banRes = await HttpService.client.banPerson(form);
     this.updateBan(banRes);
+  }
+
+  async handleHidePost(form: HidePost) {
+    const hideRes = await HttpService.client.hidePost(form);
+
+    if (hideRes.state === "success") {
+      this.setState(prev => {
+        if (prev.postsRes.state === "success") {
+          for (const post of prev.postsRes.data.posts.filter(p =>
+            form.post_ids.some(id => id === p.post.id),
+          )) {
+            console.log("Setting hide on post");
+            post.hidden = form.hide;
+          }
+        }
+
+        return prev;
+      });
+
+      toast(form.hide ? "Post hidden" : "Post unhidden");
+    }
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
