@@ -17,6 +17,7 @@ export default function dataBsTheme(siteResOrTheme?: GetSiteResponse | string) {
       "darkly-compact",
       "i386",
       "vaporwave-dark",
+      "boojahub",
     ].includes(theme)
     ? "dark"
     : "light";
