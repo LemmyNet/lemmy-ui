@@ -19,7 +19,7 @@ import {
   getRandomFromList,
 } from "@utils/helpers";
 import { canCreateCommunity } from "@utils/roles";
-import type { QueryParams } from "@utils/types";
+import type { QueryParams, StringBoolean } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, linkEvent } from "inferno";
@@ -129,6 +129,7 @@ interface HomeProps {
   dataType: DataType;
   sort: SortType;
   pageCursor?: PaginationCursor;
+  showHidden?: StringBoolean;
 }
 
 type HomeData = RouteDataResponse<{
@@ -205,6 +206,7 @@ export function getHomeQueryParams(
       listingType: getListingTypeFromQuery,
       pageCursor: (cursor?: string) => cursor,
       dataType: getDataTypeFromQuery,
+      showHidden: (include?: StringBoolean) => include,
     },
     source,
     {
@@ -276,6 +278,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
+    this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
     this.handlePageNext = this.handlePageNext.bind(this);
     this.handlePagePrev = this.handlePagePrev.bind(this);
 
@@ -341,7 +344,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   static async fetchInitialData({
-    query: { listingType, dataType, sort, pageCursor },
+    query: { listingType, dataType, sort, pageCursor, showHidden },
     headers,
   }: InitialFetchRequest<HomePathProps, HomeProps>): Promise<HomeData> {
     const client = wrapClient(
@@ -360,6 +363,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         limit: fetchLimit,
         sort,
         saved_only: false,
+        show_hidden: showHidden === "true",
       };
 
       postsFetch = client.getPosts(getPostsForm);
@@ -650,11 +654,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     listingType,
     pageCursor,
     sort,
+    showHidden,
   }: Partial<HomeProps>) {
     const {
       dataType: urlDataType,
       listingType: urlListingType,
       sort: urlSort,
+      showHidden: urlShowHidden,
     } = this.props;
 
     const queryParams: QueryParams<HomeProps> = {
@@ -662,6 +668,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       listingType: listingType ?? urlListingType,
       pageCursor: pageCursor,
       sort: sort ?? urlSort,
+      showHidden: showHidden ?? urlShowHidden,
     };
 
     this.props.history.push({
@@ -784,7 +791,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get selects() {
-    const { listingType, dataType, sort } = this.props;
+    const { listingType, dataType, sort, showHidden } = this.props;
 
     return (
       <div className="row align-items-center mb-3 g-3">
@@ -794,6 +801,25 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             onChange={this.handleDataTypeChange}
           />
         </div>
+        {dataType === DataType.Post &&
+          (this.state.siteRes.my_user || UserService.Instance.myUserInfo) && (
+            <div className="col-auto form-check form-switch">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="showHiddenPostsSwitch"
+                onChange={this.handleShowHiddenChange}
+                checked={showHidden === "true"}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="showHiddenPostsSwitch"
+              >
+                Show hidden posts
+              </label>
+            </div>
+          )}
         <div className="col-auto">
           <ListingTypeSelect
             type_={
@@ -831,7 +857,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async fetchData() {
-    const { dataType, pageCursor, listingType, sort } = this.props;
+    const { dataType, pageCursor, listingType, sort, showHidden } = this.props;
 
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST });
@@ -842,6 +868,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           sort,
           saved_only: false,
           type_: listingType,
+          show_hidden: showHidden === "true",
         }),
       });
     } else {
@@ -901,6 +928,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   handleDataTypeChange(val: DataType) {
     this.setState({ scrolled: false });
     this.updateUrl({ dataType: val, pageCursor: undefined });
+  }
+
+  handleShowHiddenChange() {
+    this.setState({ scrolled: false });
+    this.updateUrl({
+      showHidden: this.props.showHidden === "true" ? "false" : "true",
+      pageCursor: undefined,
+    });
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {
@@ -1062,7 +1097,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           for (const post of prev.postsRes.data.posts.filter(p =>
             form.post_ids.some(id => id === p.post.id),
           )) {
-            console.log("Setting hide on post");
             post.hidden = form.hide;
           }
         }

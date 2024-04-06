@@ -177,6 +177,17 @@ export default class ContentActionDropdown extends Component<
           </button>
 
           <ul className="dropdown-menu" id={dropdownId}>
+            {type === "post" && (
+              <li>
+                <ActionButton
+                  icon={this.props.postView.hidden ? "eye" : "eye-slash"}
+                  label={
+                    this.props.postView.hidden ? "Unhide Post" : "Hide Post"
+                  }
+                  onClick={this.props.onHidePost}
+                />
+              </li>
+            )}
             {this.amCreator ? (
               <>
                 <li>
@@ -200,7 +211,7 @@ export default class ContentActionDropdown extends Component<
               </>
             ) : (
               <>
-                {type === "comment" ? (
+                {type === "comment" && (
                   <li>
                     <Link
                       className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
@@ -212,16 +223,6 @@ export default class ContentActionDropdown extends Component<
                       <Icon icon="mail" inline classes="me-2" />
                       {I18NextService.i18n.t("message")}
                     </Link>
-                  </li>
-                ) : (
-                  <li>
-                    <ActionButton
-                      icon={this.props.postView.hidden ? "eye" : "eye-slash"}
-                      label={
-                        this.props.postView.hidden ? "Unhide Post" : "Hide Post"
-                      }
-                      onClick={this.props.onHidePost}
-                    />
                   </li>
                 )}
                 <li>

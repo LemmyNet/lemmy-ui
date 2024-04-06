@@ -22,7 +22,6 @@ import {
   FeaturePost,
   GetComments,
   GetPersonDetailsResponse,
-  HidePost,
   Language,
   LockPost,
   MarkCommentReplyAsRead,
@@ -90,7 +89,6 @@ interface PersonDetailsProps {
   onFeaturePost(form: FeaturePost): Promise<void>;
   onPurgePost(form: PurgePost): Promise<void>;
   onMarkPostAsRead(form: MarkPostAsRead): void;
-  onHidePost(form: HidePost): Promise<void>;
 }
 
 enum ItemEnum {
@@ -217,7 +215,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onAddAdmin={this.props.onAddAdmin}
             onTransferCommunity={this.props.onTransferCommunity}
             onMarkPostAsRead={this.props.onMarkPostAsRead}
-            onHidePost={this.props.onHidePost}
+            onHidePost={async () => {}}
           />
         );
       }
@@ -330,7 +328,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               onAddAdmin={this.props.onAddAdmin}
               onTransferCommunity={this.props.onTransferCommunity}
               onMarkPostAsRead={this.props.onMarkPostAsRead}
-              onHidePost={this.props.onHidePost}
+              onHidePost={async () => {}}
             />
             <hr className="my-3" />
           </>

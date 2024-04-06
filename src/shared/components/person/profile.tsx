@@ -54,7 +54,6 @@ import {
   GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
-  HidePost,
   LemmyHttp,
   LockPost,
   MarkCommentReplyAsRead,
@@ -233,7 +232,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
     this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
-    this.handleHidePost = this.handleHidePost.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -394,7 +392,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 onPurgePost={this.handlePurgePost}
                 onFeaturePost={this.handleFeaturePost}
                 onMarkPostAsRead={() => {}}
-                onHidePost={this.handleHidePost}
               />
             </div>
 
@@ -877,26 +874,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   async handleRemovePost(form: RemovePost) {
     const removeRes = await HttpService.client.removePost(form);
     this.findAndUpdatePost(removeRes);
-  }
-
-  async handleHidePost(form: HidePost) {
-    const hidePost = await HttpService.client.hidePost(form);
-
-    if (hidePost.state === "success") {
-      this.setState(prev => {
-        if (prev.personRes.state === "success") {
-          for (const post of prev.personRes.data.posts.filter(p =>
-            form.post_ids.some(id => id === p.post.id),
-          )) {
-            post.hidden = form.hide;
-          }
-        }
-
-        return prev;
-      });
-
-      toast(form.hide ? "Post hidden" : "Post unhidden");
-    }
   }
 
   async handleRemoveComment(form: RemoveComment) {
