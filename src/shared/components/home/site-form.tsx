@@ -503,6 +503,21 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         <div className="mb-3 row">
           <label
             className="col-12 col-form-label"
+            htmlFor="create-site-block-urls"
+          >
+            Block URLs
+          </label>
+
+          <div className="col-12">
+            <textarea
+              className="form-control"
+              placeholder="Put your blocked URLs here, one URL per line."
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
             htmlFor="create-site-actor-name"
           >
             {I18NextService.i18n.t("actor_name_max_length")}
