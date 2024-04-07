@@ -21,6 +21,7 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import classNames from "classnames";
 
 interface SiteFormProps {
   blockedInstances?: Instance[];
@@ -30,7 +31,6 @@ interface SiteFormProps {
   onSaveSite(form: EditSite): void;
   siteRes: GetSiteResponse;
   loading: boolean;
-  blockedUrls?: string[];
 }
 
 interface SiteFormState {
@@ -41,6 +41,7 @@ interface SiteFormState {
   };
   submitted: boolean;
   blockedUrlsText: string;
+  blockedUrlsValid: boolean;
 }
 
 type InstanceKey = "allowed_instances" | "blocked_instances";
@@ -53,7 +54,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       blocked_instances: "",
     },
     submitted: false,
-    blockedUrlsText: this.props.blockedUrls?.join("\n") ?? "",
+    blockedUrlsText: this.props.siteRes.blocked_urls
+      .map(({ url }) => url)
+      .join("\n"),
+    blockedUrlsValid: true,
   };
 
   initSiteForm(): EditSite {
@@ -87,7 +91,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       captcha_difficulty: ls.captcha_difficulty,
       allowed_instances: this.props.allowedInstances?.map(i => i.domain),
       blocked_instances: this.props.blockedInstances?.map(i => i.domain),
-      blocked_urls: this.props.blockedUrls,
+      blocked_urls: this.props.siteRes.blocked_urls.map(({ url }) => url),
     };
   }
 
@@ -726,12 +730,14 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         <div className="col-12">
           <textarea
             id="create-site-block-urls"
-            className="form-control"
+            className={classNames("form-control", {
+              "is-invalid": !this.state.blockedUrlsValid,
+            })}
             placeholder="Put your blocked URLs here, one URL per line."
             value={this.state.blockedUrlsText}
             onInput={linkEvent(this, this.handleBlockedUrlsChange)}
             onBlur={linkEvent(this, this.handleBlockedUrlsBlur)}
-            style={{ "min-height": "fit-content" }}
+            rows={4}
           />
         </div>
       </div>
@@ -1028,22 +1034,28 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   handleBlockedUrlsChange(i: SiteForm, event: any) {
     i.setState(prev => ({
       ...prev,
-      blockedUrlsText: event.target.value,
+      blockedUrlsText: event.target?.value ?? "",
     }));
   }
 
   handleBlockedUrlsBlur(i: SiteForm, event: any) {
-    const inputValue: string = event.currentTarget.value;
+    const inputValue: string = event.currentTarget?.value ?? "";
 
     const newValue = inputValue.replace(/\s+/g, "\n");
-    const newBlockedUrls = newValue.split("\n");
+    console.log(newValue);
+    const newBlockedUrls = newValue?.split("\n") ?? [];
+    console.log(newBlockedUrls);
 
     i.setState(prev => ({
       ...prev,
       blockedUrlsText: newValue,
+      // blockedUrlsValid:
+      //   newBlockedUrls?.every(
+      //     /(?:https?:\/\/)?(?:[a-z\d]+\.)*[a-z\d]+\.[a-z]{2,}\/?/.test,
+      //   ) ?? true,
       siteForm: {
         ...prev.siteForm,
-        blocked_instances: newBlockedUrls,
+        blocked_urls: newBlockedUrls,
       },
     }));
   }
