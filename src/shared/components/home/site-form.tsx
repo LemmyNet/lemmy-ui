@@ -21,6 +21,7 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import UrlListTextarea from "../common/url-list-textarea";
 
 interface SiteFormProps {
   blockedInstances?: Instance[];
@@ -39,7 +40,6 @@ interface SiteFormState {
     blocked_instances: string;
   };
   submitted: boolean;
-  blockedUrlsText: string;
 }
 
 type InstanceKey = "allowed_instances" | "blocked_instances";
@@ -52,9 +52,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       blocked_instances: "",
     },
     submitted: false,
-    blockedUrlsText: this.props.siteRes.blocked_urls
-      .map(({ url }) => url)
-      .join("\n"),
   };
 
   initSiteForm(): EditSite {
@@ -117,6 +114,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.handleInstanceEnterPress = this.handleInstanceEnterPress.bind(this);
     this.handleInstanceTextChange = this.handleInstanceTextChange.bind(this);
+
+    this.handleBlockedUrlsUpdate = this.handleBlockedUrlsUpdate.bind(this);
   }
 
   render() {
@@ -505,7 +504,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           onChange={this.handleDiscussionLanguageChange}
           showAll
         />
-        {this.blockedUrlsTextArea}
+        <UrlListTextarea
+          urls={this.state.siteForm.blocked_urls ?? []}
+          onUpdate={this.handleBlockedUrlsUpdate}
+        />
         <div className="mb-3 row">
           <label
             className="col-12 col-form-label"
@@ -710,31 +712,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             ))}
           </ul>
         )}
-      </div>
-    );
-  }
-
-  get blockedUrlsTextArea() {
-    return (
-      <div className="mb-3 row">
-        <label
-          className="col-12 col-form-label"
-          htmlFor="create-site-block-urls"
-        >
-          Block URLs
-        </label>
-
-        <div className="col-12">
-          <textarea
-            id="create-site-block-urls"
-            className="form-control"
-            placeholder="Put your blocked URLs here, one URL per line."
-            value={this.state.blockedUrlsText}
-            onInput={linkEvent(this, this.handleBlockedUrlsChange)}
-            onBlur={linkEvent(this, this.handleBlockedUrlsBlur)}
-            rows={4}
-          />
-        </div>
       </div>
     );
   }
@@ -1026,40 +1003,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.setState(s => ((s.siteForm.default_post_listing_type = val), s));
   }
 
-  handleBlockedUrlsChange(i: SiteForm, event: any) {
-    i.setState(prev => ({
+  handleBlockedUrlsUpdate(newBlockedUrls: string[]) {
+    this.setState(prev => ({
       ...prev,
-      blockedUrlsText: event.target?.value ?? "",
-    }));
-  }
-
-  handleBlockedUrlsBlur(i: SiteForm, event: any) {
-    const inputValue: string = event.currentTarget?.value ?? "";
-
-    const intermediateText = inputValue.replace(/\s+/g, "\n");
-    const newBlockedUrls: string[] = [];
-
-    for (const str of intermediateText.split("\n")) {
-      let url: string;
-
-      try {
-        url = new URL(str).toString();
-      } catch {
-        try {
-          url = new URL("https://" + str).toString();
-        } catch {
-          continue;
-        }
-      }
-
-      if (newBlockedUrls.every(u => u !== url)) {
-        newBlockedUrls.push(url);
-      }
-    }
-
-    i.setState(prev => ({
-      ...prev,
-      blockedUrlsText: newBlockedUrls.join("\n"),
       siteForm: {
         ...prev.siteForm,
         blocked_urls: newBlockedUrls,
