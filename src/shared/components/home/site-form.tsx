@@ -21,7 +21,6 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import classNames from "classnames";
 
 interface SiteFormProps {
   blockedInstances?: Instance[];
@@ -41,7 +40,6 @@ interface SiteFormState {
   };
   submitted: boolean;
   blockedUrlsText: string;
-  blockedUrlsValid: boolean;
 }
 
 type InstanceKey = "allowed_instances" | "blocked_instances";
@@ -57,7 +55,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     blockedUrlsText: this.props.siteRes.blocked_urls
       .map(({ url }) => url)
       .join("\n"),
-    blockedUrlsValid: true,
   };
 
   initSiteForm(): EditSite {
@@ -730,9 +727,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         <div className="col-12">
           <textarea
             id="create-site-block-urls"
-            className={classNames("form-control", {
-              "is-invalid": !this.state.blockedUrlsValid,
-            })}
+            className="form-control"
             placeholder="Put your blocked URLs here, one URL per line."
             value={this.state.blockedUrlsText}
             onInput={linkEvent(this, this.handleBlockedUrlsChange)}
@@ -1041,18 +1036,30 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   handleBlockedUrlsBlur(i: SiteForm, event: any) {
     const inputValue: string = event.currentTarget?.value ?? "";
 
-    const newValue = inputValue.replace(/\s+/g, "\n");
-    console.log(newValue);
-    const newBlockedUrls = newValue?.split("\n") ?? [];
-    console.log(newBlockedUrls);
+    const intermediateText = inputValue.replace(/\s+/g, "\n");
+    const newBlockedUrls: string[] = [];
+
+    for (const str of intermediateText.split("\n")) {
+      let url: string;
+
+      try {
+        url = new URL(str).toString();
+      } catch {
+        try {
+          url = new URL("https://" + str).toString();
+        } catch {
+          continue;
+        }
+      }
+
+      if (newBlockedUrls.every(u => u !== url)) {
+        newBlockedUrls.push(url);
+      }
+    }
 
     i.setState(prev => ({
       ...prev,
-      blockedUrlsText: newValue,
-      // blockedUrlsValid:
-      //   newBlockedUrls?.every(
-      //     /(?:https?:\/\/)?(?:[a-z\d]+\.)*[a-z\d]+\.[a-z]{2,}\/?/.test,
-      //   ) ?? true,
+      blockedUrlsText: newBlockedUrls.join("\n"),
       siteForm: {
         ...prev.siteForm,
         blocked_urls: newBlockedUrls,
