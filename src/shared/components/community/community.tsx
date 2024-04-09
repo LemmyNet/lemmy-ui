@@ -582,7 +582,7 @@ export class Community extends Component<CommunityRouteProps, State> {
                   className="form-check-label"
                   htmlFor="showHiddenPostsSwitch"
                 >
-                  Show hidden posts
+                  {I18NextService.i18n.t("show_hidden_posts")}
                 </label>
               </div>
             </span>
@@ -875,7 +875,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         return prev;
       });
 
-      toast(form.hide ? "Post hidden" : "Post unhidden");
+      toast(I18NextService.i18n.t(form.hide ? "post_hidden" : "post_unhidden"));
     }
   }
 

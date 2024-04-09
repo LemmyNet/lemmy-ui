@@ -181,9 +181,9 @@ export default class ContentActionDropdown extends Component<
               <li>
                 <ActionButton
                   icon={this.props.postView.hidden ? "eye" : "eye-slash"}
-                  label={
-                    this.props.postView.hidden ? "Unhide Post" : "Hide Post"
-                  }
+                  label={I18NextService.i18n.t(
+                    this.props.postView.hidden ? "unhide_postt" : "hide_post",
+                  )}
                   onClick={this.props.onHidePost}
                 />
               </li>

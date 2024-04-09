@@ -1056,7 +1056,7 @@ export class Post extends Component<PostRouteProps, PostState> {
         return s;
       });
 
-      toast(form.hide ? "Post hidden" : "Post unhidden");
+      toast(I18NextService.i18n.t(form.hide ? "post_hidden" : "post_unhidden"));
     }
   }
 

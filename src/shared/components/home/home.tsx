@@ -1104,7 +1104,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         return prev;
       });
 
-      toast(form.hide ? "Post hidden" : "Post unhidden");
+      toast(I18NextService.i18n.t(form.hide ? "post_hidden" : "post_unhidden"));
     }
   }
 
