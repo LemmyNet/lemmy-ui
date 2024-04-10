@@ -1615,9 +1615,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const res = await HttpService.client.exportSettings();
 
     if (res.state === "success") {
-      i.exportSettingsLink.current!.href = encodeURI(
-        `data:application/json,${JSON.stringify(res.data)}`,
-      );
+      i.exportSettingsLink.current!.href = `data:application/json,${encodeURIComponent(
+        JSON.stringify(res.data),
+      )}`;
       i.exportSettingsLink.current?.click();
     } else if (res.state === "failed") {
       toast(
