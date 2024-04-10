@@ -1,4 +1,5 @@
 import { linkEvent, Component } from "inferno";
+import { I18NextService } from "../../services/I18NextService";
 
 interface UrlListTextareaProps {
   urls: string[];
@@ -56,14 +57,14 @@ export default class UrlListTextarea extends Component<
           className="col-12 col-form-label"
           htmlFor="create-site-block-urls"
         >
-          Block URLs
+          {I18NextService.i18n.t("block_urls")}
         </label>
 
         <div className="col-12">
           <textarea
             id="create-site-block-urls"
             className="form-control"
-            placeholder="Put your blocked URLs here, one URL per line."
+            placeholder={I18NextService.i18n.t("block_urls_placeholder")}
             value={this.state.text}
             onInput={linkEvent(this, handleTextChange)}
             onBlur={linkEvent(this, handleTextBlur)}

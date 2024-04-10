@@ -85,7 +85,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       captcha_difficulty: ls.captcha_difficulty,
       allowed_instances: this.props.allowedInstances?.map(i => i.domain),
       blocked_instances: this.props.blockedInstances?.map(i => i.domain),
-      blocked_urls: this.props.siteRes.blocked_urls.map(({ url }) => url),
+      blocked_urls: this.props.siteRes.blocked_urls.map(u => u.url),
     };
   }
 
