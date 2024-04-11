@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface UserBadgesProps {
   isBanned?: boolean;
@@ -12,7 +13,7 @@ interface UserBadgesProps {
   classNames?: string;
 }
 
-export function getRoleLabelPill({
+function getRoleLabelPill({
   label,
   tooltip,
   classes,
@@ -34,6 +35,7 @@ export function getRoleLabelPill({
   );
 }
 
+@tippyMixin
 export class UserBadges extends Component<UserBadgesProps> {
   render() {
     return (

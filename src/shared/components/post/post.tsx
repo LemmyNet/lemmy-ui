@@ -89,7 +89,6 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { CommentForm } from "../comment/comment-form";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -236,8 +235,6 @@ export class Post extends Component<PostRouteProps, PostState> {
       postRes,
       commentsRes,
     });
-
-    setupTippy();
 
     if (!this.state.commentId) restoreScrollPosition(this.context);
 

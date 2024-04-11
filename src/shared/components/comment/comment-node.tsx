@@ -42,7 +42,7 @@ import {
 } from "../../interfaces";
 import { mdToHtml, mdToHtmlNoImages } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
-import { setupTippy } from "../../tippy";
+import { tippyMixin } from "../mixins/tippy-mixin";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { UserBadges } from "../common/user-badges";
@@ -117,6 +117,7 @@ function handleToggleViewSource(i: CommentNode) {
   }));
 }
 
+@tippyMixin
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   state: CommentNodeState = {
     showReply: false,
@@ -607,12 +608,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   handleCommentCollapse(i: CommentNode) {
     i.setState({ collapsed: !i.state.collapsed });
-    setupTippy();
   }
 
   handleShowAdvanced(i: CommentNode) {
     i.setState({ showAdvanced: !i.state.showAdvanced });
-    setupTippy();
   }
 
   async handleSaveComment() {

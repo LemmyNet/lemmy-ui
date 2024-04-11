@@ -2,6 +2,7 @@ import { Component, linkEvent } from "inferno";
 import { I18NextService } from "../../services";
 import { EmojiMart } from "./emoji-mart";
 import { Icon } from "./icon";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface EmojiPickerProps {
   onEmojiClick?(val: any): any;
@@ -16,6 +17,7 @@ function closeEmojiMartOnEsc(i, event): void {
   event.key === "Escape" && i.setState({ showPicker: false });
 }
 
+@tippyMixin
 export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
   private emptyState: EmojiPickerState = {
     showPicker: false,

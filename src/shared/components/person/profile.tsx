@@ -82,7 +82,6 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
@@ -249,7 +248,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (!this.state.isIsomorphic) {
       await this.fetchUserData();
     }
-    setupTippy();
   }
 
   componentWillUnmount() {

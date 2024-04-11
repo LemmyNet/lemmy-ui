@@ -1,11 +1,13 @@
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface CakeDayProps {
   creatorName: string;
 }
 
+@tippyMixin
 export class CakeDay extends Component<CakeDayProps, any> {
   render() {
     return (

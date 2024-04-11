@@ -13,6 +13,7 @@ import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface CommunityFormProps {
   community_view?: CommunityView; // If a community is given, that means this is an edit
@@ -40,6 +41,7 @@ interface CommunityFormState {
   submitted: boolean;
 }
 
+@tippyMixin
 export class CommunityForm extends Component<
   CommunityFormProps,
   CommunityFormState

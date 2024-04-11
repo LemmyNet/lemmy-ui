@@ -15,6 +15,7 @@ import { toast } from "../../toast";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 import { Subscription } from "rxjs";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface NavbarProps {
   siteRes?: GetSiteResponse;
@@ -42,6 +43,7 @@ function handleLogOut(i: Navbar) {
   handleCollapseClick(i);
 }
 
+@tippyMixin
 export class Navbar extends Component<NavbarProps, NavbarState> {
   collapseButtonRef = createRef<HTMLButtonElement>();
   mobileMenuRef = createRef<HTMLDivElement>();

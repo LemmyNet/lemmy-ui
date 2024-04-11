@@ -87,7 +87,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { setupTippy } from "../../tippy";
+import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { BannerIconHeader } from "../common/banner-icon-header";
@@ -172,6 +172,7 @@ export type CommunityFetchConfig = IRoutePropsWithFetch<
   CommunityProps
 >;
 
+@tippyMixin
 export class Community extends Component<CommunityRouteProps, State> {
   private isoData = setIsoData<CommunityData>(this.context);
   state: State = {
@@ -253,8 +254,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (!this.state.isIsomorphic) {
       await Promise.all([this.fetchCommunity(), this.fetchData()]);
     }
-
-    setupTippy();
   }
 
   static async fetchInitialData({
@@ -649,8 +648,6 @@ export class Community extends Component<CommunityRouteProps, State> {
         }),
       });
     }
-
-    setupTippy();
   }
 
   async handleDeleteCommunity(form: DeleteCommunity) {

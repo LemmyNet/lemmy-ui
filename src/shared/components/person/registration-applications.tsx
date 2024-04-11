@@ -20,7 +20,6 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { setupTippy } from "../../tippy";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
@@ -91,7 +90,6 @@ export class RegistrationApplications extends Component<
     if (!this.state.isIsomorphic) {
       await this.refetch();
     }
-    setupTippy();
   }
 
   get documentTitle(): string {

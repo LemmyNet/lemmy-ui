@@ -87,7 +87,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { setupTippy } from "../../tippy";
+import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
@@ -253,6 +253,7 @@ export type HomeFetchConfig = IRoutePropsWithFetch<
   HomeProps
 >;
 
+@tippyMixin
 export class Home extends Component<HomeRouteProps, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);
   state: HomeState = {
@@ -334,8 +335,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     ) {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
     }
-
-    setupTippy();
   }
 
   static async fetchInitialData({
@@ -852,8 +851,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         }),
       });
     }
-
-    setupTippy();
   }
 
   handleShowSubscribedMobile(i: Home) {

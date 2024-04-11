@@ -49,7 +49,7 @@ import {
   languages,
   loadUserLanguage,
 } from "../../services/I18NextService";
-import { setupTippy } from "../../tippy";
+import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
@@ -203,6 +203,7 @@ export type SettingsFetchConfig = IRoutePropsWithFetch<
   Record<string, never>
 >;
 
+@tippyMixin
 export class Settings extends Component<SettingsRouteProps, SettingsState> {
   private isoData = setIsoData<SettingsData>(this.context);
   exportSettingsLink = createRef<HTMLAnchorElement>();
@@ -334,7 +335,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   async componentDidMount() {
-    setupTippy();
     this.setState({ themeList: await fetchThemeList() });
 
     if (!this.state.isIsomorphic) {

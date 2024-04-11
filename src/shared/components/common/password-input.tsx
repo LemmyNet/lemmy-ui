@@ -5,6 +5,7 @@ import { Component, FormEventHandler, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface PasswordInputProps {
   id: string;
@@ -55,6 +56,7 @@ function handleToggleShow(i: PasswordInput) {
   }));
 }
 
+@tippyMixin
 class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
   state: PasswordInputState = {
     show: false,

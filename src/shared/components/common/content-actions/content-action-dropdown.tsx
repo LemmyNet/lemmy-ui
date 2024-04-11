@@ -20,6 +20,7 @@ import ViewVotesModal from "../view-votes-modal";
 import ModActionFormModal, { BanUpdateForm } from "../mod-action-form-modal";
 import { BanType, CommentNodeView, PurgeType } from "../../../interfaces";
 import { getApubName, hostname } from "@utils/helpers";
+import { tippyMixin } from "../../mixins/tippy-mixin";
 
 interface ContentActionDropdownPropsBase {
   onSave: () => Promise<void>;
@@ -76,6 +77,7 @@ type ContentActionDropdownState = {
   mounted: boolean;
 } & { [key in DialogType]: boolean };
 
+@tippyMixin
 export default class ContentActionDropdown extends Component<
   ContentActionDropdownProps,
   ContentActionDropdownState

@@ -35,7 +35,7 @@ import { relTags } from "../../config";
 import { VoteContentType } from "../../interfaces";
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
-import { setupTippy } from "../../tippy";
+import { tippyMixin } from "../mixins/tippy-mixin";
 import { Icon } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
@@ -93,6 +93,7 @@ interface PostListingProps {
   onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
+@tippyMixin
 export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
@@ -982,7 +983,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleImageExpandClick(i: PostListing, event: any) {
     event.preventDefault();
     i.setState({ imageExpanded: !i.state.imageExpanded });
-    setupTippy();
 
     if (myAuth() && !i.postView.read) {
       i.props.onMarkPostAsRead({
@@ -998,7 +998,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleShowBody(i: PostListing) {
     i.setState({ showBody: !i.state.showBody });
-    setupTippy();
   }
 
   get pointsTippy(): string {

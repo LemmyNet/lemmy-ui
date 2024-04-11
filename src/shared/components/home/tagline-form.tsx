@@ -4,6 +4,7 @@ import { EditSite, Tagline } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface TaglineFormProps {
   taglines: Array<Tagline>;
@@ -16,6 +17,7 @@ interface TaglineFormState {
   editingRow?: number;
 }
 
+@tippyMixin
 export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   state: TaglineFormState = {
     editingRow: undefined,
