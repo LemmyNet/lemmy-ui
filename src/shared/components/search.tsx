@@ -995,7 +995,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           limit: fetchLimit,
         }),
       });
-      window.scrollTo(0, 0);
 
       if (myAuth()) {
         this.setState({ resolveObjectRes: LOADING_REQUEST });

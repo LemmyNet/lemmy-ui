@@ -109,6 +109,7 @@ import {
 } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
+import { snapToTop } from "@utils/browser";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -118,7 +119,6 @@ interface HomeState {
   showTrendingMobile: boolean;
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
-  scrolled: boolean;
   tagline?: string;
   siteRes: GetSiteResponse;
   finished: Map<CommentId, boolean | undefined>;
@@ -263,7 +263,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
     trendingCommunitiesRes: EMPTY_REQUEST,
-    scrolled: true,
     siteRes: this.isoData.site_res,
     showSubscribedMobile: false,
     showTrendingMobile: false,
@@ -678,11 +677,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       search: getQueryString(queryParams),
     });
 
-    if (!this.state.scrolled) {
-      this.setState({ scrolled: true });
-      setTimeout(() => window.scrollTo(0, 0), 0);
-    }
-
     await this.fetchData();
   }
 
@@ -885,27 +879,23 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.props.history.back();
     // A hack to scroll to top
     setTimeout(() => {
-      window.scrollTo(0, 0);
+      snapToTop();
     }, 50);
   }
 
   handlePageNext(nextPage: PaginationCursor) {
-    this.setState({ scrolled: false });
     this.updateUrl({ pageCursor: nextPage });
   }
 
   handleSortChange(val: SortType) {
-    this.setState({ scrolled: false });
     this.updateUrl({ sort: val, pageCursor: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {
-    this.setState({ scrolled: false });
     this.updateUrl({ listingType: val, pageCursor: undefined });
   }
 
   handleDataTypeChange(val: DataType) {
-    this.setState({ scrolled: false });
     this.updateUrl({ dataType: val, pageCursor: undefined });
   }
 

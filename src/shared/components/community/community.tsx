@@ -601,17 +601,14 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   handlePageNext(nextPage: PaginationCursor) {
     this.updateUrl({ pageCursor: nextPage });
-    window.scrollTo(0, 0);
   }
 
   handleSortChange(sort: SortType) {
     this.updateUrl({ sort, pageCursor: undefined });
-    window.scrollTo(0, 0);
   }
 
   handleDataTypeChange(dataType: DataType) {
     this.updateUrl({ dataType, pageCursor: undefined });
-    window.scrollTo(0, 0);
   }
 
   handleShowSidebarMobile(i: Community) {

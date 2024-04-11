@@ -66,7 +66,7 @@ import { PersonListing } from "./person-listing";
 import { InitialFetchRequest } from "../../interfaces";
 import TotpModal from "../common/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
-import { refreshTheme, setThemeOverride } from "../../utils/browser";
+import { refreshTheme, setThemeOverride, snapToTop } from "../../utils/browser";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -1580,7 +1580,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       }
 
       toast(I18NextService.i18n.t("saved"));
-      window.scrollTo(0, 0);
+      snapToTop();
     }
 
     setThemeOverride(undefined);
@@ -1600,7 +1600,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         old_password,
       });
       if (changePasswordRes.state === "success") {
-        window.scrollTo(0, 0);
+        snapToTop();
         toast(I18NextService.i18n.t("password_changed"));
       }
 

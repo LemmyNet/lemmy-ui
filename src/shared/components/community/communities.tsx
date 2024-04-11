@@ -381,8 +381,6 @@ export class Communities extends Component<
         page,
       }),
     });
-
-    window.scrollTo(0, 0);
   }
 
   findAndUpdateCommunity(res: RequestState<CommunityResponse>) {
