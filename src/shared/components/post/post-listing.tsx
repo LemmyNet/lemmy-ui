@@ -91,6 +91,7 @@ interface PostListingProps {
   onAddAdmin(form: AddAdmin): Promise<void>;
   onTransferCommunity(form: TransferCommunity): Promise<void>;
   onMarkPostAsRead(form: MarkPostAsRead): void;
+  onScrollIntoCommentsClick?(e: MouseEvent): void;
 }
 
 @tippyMixin
@@ -637,6 +638,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         title={title}
         to={`/post/${pv.post.id}?scrollToComments=true`}
         data-tippy-content={title}
+        onClick={this.props.onScrollIntoCommentsClick}
       >
         <Icon icon="message-square" classes="me-1" inline />
         {pv.counts.comments}

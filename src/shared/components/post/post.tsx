@@ -195,6 +195,8 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleScrollIntoCommentsClick =
+      this.handleScrollIntoCommentsClick.bind(this);
 
     this.state = { ...this.state, commentSectionRef: createRef() };
 
@@ -299,6 +301,11 @@ export class Post extends Component<PostRouteProps, PostState> {
     document.addEventListener("scroll", this.commentScrollDebounced);
   }
 
+  handleScrollIntoCommentsClick(e: MouseEvent) {
+    this.scrollIntoCommentSection();
+    e.preventDefault();
+  }
+
   get checkScrollIntoCommentsParam() {
     return (
       Boolean(
@@ -398,6 +405,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onTransferCommunity={this.handleTransferCommunity}
                 onFeaturePost={this.handleFeaturePost}
                 onMarkPostAsRead={() => {}}
+                onScrollIntoCommentsClick={this.handleScrollIntoCommentsClick}
               />
               <div ref={this.state.commentSectionRef} className="mb-2" />
 
