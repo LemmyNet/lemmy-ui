@@ -3,6 +3,7 @@ import { format, parseISO } from "date-fns";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface MomentTimeProps {
   published: string;
@@ -16,6 +17,7 @@ function formatDate(input: string) {
   return format(parsed, "PPPPpppp");
 }
 
+@tippyMixin
 export class MomentTime extends Component<MomentTimeProps, any> {
   constructor(props: any, context: any) {
     super(props, context);

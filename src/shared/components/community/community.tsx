@@ -14,7 +14,12 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
-import { getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  getQueryParams,
+  getQueryString,
+  resourcesSettled,
+} from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
@@ -87,7 +92,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { setupTippy } from "../../tippy";
+import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { BannerIconHeader } from "../common/banner-icon-header";
@@ -172,6 +177,8 @@ export type CommunityFetchConfig = IRoutePropsWithFetch<
   CommunityProps
 >;
 
+@scrollMixin
+@tippyMixin
 export class Community extends Component<CommunityRouteProps, State> {
   private isoData = setIsoData<CommunityData>(this.context);
   state: State = {
@@ -184,6 +191,16 @@ export class Community extends Component<CommunityRouteProps, State> {
     isIsomorphic: false,
   };
   private readonly mainContentRef: RefObject<HTMLElement>;
+
+  loadingSettled() {
+    return resourcesSettled([
+      this.state.communityRes,
+      this.props.dataType === DataType.Post
+        ? this.state.postsRes
+        : this.state.commentsRes,
+    ]);
+  }
+
   constructor(props: CommunityRouteProps, context: any) {
     super(props, context);
 
@@ -253,8 +270,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (!this.state.isIsomorphic) {
       await Promise.all([this.fetchCommunity(), this.fetchData()]);
     }
-
-    setupTippy();
   }
 
   static async fetchInitialData({
@@ -586,17 +601,14 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   handlePageNext(nextPage: PaginationCursor) {
     this.updateUrl({ pageCursor: nextPage });
-    window.scrollTo(0, 0);
   }
 
   handleSortChange(sort: SortType) {
     this.updateUrl({ sort, pageCursor: undefined });
-    window.scrollTo(0, 0);
   }
 
   handleDataTypeChange(dataType: DataType) {
     this.updateUrl({ dataType, pageCursor: undefined });
-    window.scrollTo(0, 0);
   }
 
   handleShowSidebarMobile(i: Community) {
@@ -649,8 +661,6 @@ export class Community extends Component<CommunityRouteProps, State> {
         }),
       });
     }
-
-    setupTippy();
   }
 
   async handleDeleteCommunity(form: DeleteCommunity) {

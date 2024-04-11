@@ -25,6 +25,7 @@ import { SubscribeButton } from "../common/subscribe-button";
 import { CommunityForm } from "../community/community-form";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -60,6 +61,7 @@ interface SidebarState {
   purgeCommunityLoading: boolean;
 }
 
+@tippyMixin
 export class Sidebar extends Component<SidebarProps, SidebarState> {
   state: SidebarState = {
     showEdit: false,

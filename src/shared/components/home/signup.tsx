@@ -1,6 +1,7 @@
 import { setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
-import { validEmail } from "@utils/helpers";
+import { resourcesSettled, validEmail } from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
@@ -24,6 +25,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -43,7 +45,11 @@ interface State {
   siteRes: GetSiteResponse;
 }
 
-export class Signup extends Component<any, State> {
+@scrollMixin
+export class Signup extends Component<
+  RouteComponentProps<Record<string, never>>,
+  State
+> {
   private isoData = setIsoData(this.context);
   private audio?: HTMLAudioElement;
 
@@ -56,6 +62,13 @@ export class Signup extends Component<any, State> {
     captchaPlaying: false,
     siteRes: this.isoData.site_res,
   };
+
+  loadingSettled() {
+    return (
+      !this.state.siteRes.site_view.local_site.captcha_enabled ||
+      resourcesSettled([this.state.captchaRes])
+    );
+  }
 
   constructor(props: any, context: any) {
     super(props, context);

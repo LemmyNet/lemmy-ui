@@ -3,7 +3,7 @@ import { numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
 import {
@@ -15,7 +15,7 @@ import {
 } from "../../config";
 import { customEmojisLookup, mdToHtml, setupTribute } from "../../markdown";
 import { HttpService, I18NextService, UserService } from "../../services";
-import { setupTippy } from "../../tippy";
+import { tippyMixin } from "../mixins/tippy-mixin";
 import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
@@ -68,6 +68,7 @@ interface MarkdownTextAreaState {
   submitted: boolean;
 }
 
+@tippyMixin
 export class MarkdownTextArea extends Component<
   MarkdownTextAreaProps,
   MarkdownTextAreaState
@@ -111,13 +112,12 @@ export class MarkdownTextArea extends Component<
       if (this.props.focus) {
         textarea.focus();
       }
-
-      // TODO this is slow for some reason
-      setupTippy();
     }
   }
 
-  componentWillReceiveProps(nextProps: MarkdownTextAreaProps) {
+  componentWillReceiveProps(
+    nextProps: MarkdownTextAreaProps & { children?: InfernoNode },
+  ) {
     if (nextProps.finished) {
       this.setState({
         previewMode: false,

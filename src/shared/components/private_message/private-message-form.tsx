@@ -10,7 +10,6 @@ import {
 } from "lemmy-js-client";
 import { relTags } from "../../config";
 import { I18NextService } from "../../services";
-import { setupTippy } from "../../tippy";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { PersonListing } from "../person/person-listing";
@@ -48,10 +47,6 @@ export class PrivateMessageForm extends Component<
     super(props, context);
 
     this.handleContentChange = this.handleContentChange.bind(this);
-  }
-
-  componentDidMount() {
-    setupTippy();
   }
 
   componentWillReceiveProps(

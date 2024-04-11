@@ -24,6 +24,8 @@ import Tabs from "../common/tabs";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
+import { resourcesSettled } from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 
 type InstancesData = RouteDataResponse<{
   federatedInstancesResponse: GetFederatedInstancesResponse;
@@ -43,6 +45,7 @@ export type InstancesFetchConfig = IRoutePropsWithFetch<
   Record<string, never>
 >;
 
+@scrollMixin
 export class Instances extends Component<InstancesRouteProps, InstancesState> {
   private isoData = setIsoData<InstancesData>(this.context);
   state: InstancesState = {
@@ -50,6 +53,10 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     siteRes: this.isoData.site_res,
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([this.state.instancesRes]);
+  }
 
   constructor(props: any, context: any) {
     super(props, context);

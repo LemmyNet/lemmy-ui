@@ -16,7 +16,7 @@
     "skipLibCheck": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "experimentalDecorators": true,
+    "experimentalDecorators": true, // false for non-legacy decorators
     "strictNullChecks": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {

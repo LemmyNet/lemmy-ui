@@ -12,6 +12,8 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import { toast } from "../../toast";
+import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 interface State {
   passwordChangeRes: RequestState<SuccessResponse>;
@@ -23,7 +25,11 @@ interface State {
   siteRes: GetSiteResponse;
 }
 
-export class PasswordChange extends Component<any, State> {
+@simpleScrollMixin
+export class PasswordChange extends Component<
+  RouteComponentProps<Record<string, never>>,
+  State
+> {
   private isoData = setIsoData(this.context);
 
   state: State = {

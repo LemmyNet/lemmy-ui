@@ -6,6 +6,8 @@ import { HttpService, I18NextService } from "../../services";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 interface State {
   form: {
@@ -15,7 +17,11 @@ interface State {
   siteRes: GetSiteResponse;
 }
 
-export class LoginReset extends Component<any, State> {
+@simpleScrollMixin
+export class LoginReset extends Component<
+  RouteComponentProps<Record<string, never>>,
+  State
+> {
   private isoData = setIsoData(this.context);
 
   state: State = {

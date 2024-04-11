@@ -7,13 +7,19 @@ import {
 import { HttpService, I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
+import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 interface CreateCommunityState {
   siteRes: GetSiteResponse;
   loading: boolean;
 }
 
-export class CreateCommunity extends Component<any, CreateCommunityState> {
+@simpleScrollMixin
+export class CreateCommunity extends Component<
+  RouteComponentProps<Record<string, never>>,
+  CreateCommunityState
+> {
   private isoData = setIsoData(this.context);
   state: CreateCommunityState = {
     siteRes: this.isoData.site_res,

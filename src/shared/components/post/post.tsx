@@ -13,12 +13,14 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
+import { isBrowser } from "@utils/browser";
 import {
-  isBrowser,
-  restoreScrollPosition,
-  saveScrollPosition,
-} from "@utils/browser";
-import { debounce, getApubName, randomStr } from "@utils/helpers";
+  debounce,
+  getApubName,
+  randomStr,
+  resourcesSettled,
+} from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
 import autosize from "autosize";
@@ -89,7 +91,6 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { CommentForm } from "../comment/comment-form";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -135,6 +136,7 @@ export type PostFetchConfig = IRoutePropsWithFetch<
   Record<string, never>
 >;
 
+@scrollMixin
 export class Post extends Component<PostRouteProps, PostState> {
   private isoData = setIsoData<PostData>(this.context);
   private commentScrollDebounced: () => void;
@@ -152,6 +154,10 @@ export class Post extends Component<PostRouteProps, PostState> {
     finished: new Map(),
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([this.state.postRes, this.state.commentsRes]);
+  }
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -189,6 +195,8 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleScrollIntoCommentsClick =
+      this.handleScrollIntoCommentsClick.bind(this);
 
     this.state = { ...this.state, commentSectionRef: createRef() };
 
@@ -237,10 +245,6 @@ export class Post extends Component<PostRouteProps, PostState> {
       commentsRes,
     });
 
-    setupTippy();
-
-    if (!this.state.commentId) restoreScrollPosition(this.context);
-
     if (this.checkScrollIntoCommentsParam) {
       this.scrollIntoCommentSection();
     }
@@ -284,8 +288,6 @@ export class Post extends Component<PostRouteProps, PostState> {
 
   componentWillUnmount() {
     document.removeEventListener("scroll", this.commentScrollDebounced);
-
-    saveScrollPosition(this.context);
   }
 
   async componentDidMount() {
@@ -299,16 +301,16 @@ export class Post extends Component<PostRouteProps, PostState> {
     document.addEventListener("scroll", this.commentScrollDebounced);
   }
 
-  async componentDidUpdate(_lastProps: any) {
-    // Necessary if you are on a post and you click another post (same route)
-    if (_lastProps.location.pathname !== _lastProps.history.location.pathname) {
-      await this.fetchPost();
-    }
+  handleScrollIntoCommentsClick(e: MouseEvent) {
+    this.scrollIntoCommentSection();
+    e.preventDefault();
   }
 
   get checkScrollIntoCommentsParam() {
-    return Boolean(
-      new URLSearchParams(this.props.location.search).get("scrollToComments"),
+    return (
+      Boolean(
+        new URLSearchParams(this.props.location.search).get("scrollToComments"),
+      ) && this.props.history.action !== "POP"
     );
   }
 
@@ -403,6 +405,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onTransferCommunity={this.handleTransferCommunity}
                 onFeaturePost={this.handleFeaturePost}
                 onMarkPostAsRead={() => {}}
+                onScrollIntoCommentsClick={this.handleScrollIntoCommentsClick}
               />
               <div ref={this.state.commentSectionRef} className="mb-2" />
 

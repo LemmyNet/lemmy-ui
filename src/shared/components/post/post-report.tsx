@@ -6,6 +6,7 @@ import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { PostListing } from "./post-listing";
 import { EMPTY_REQUEST } from "../../services/HttpService";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface PostReportProps {
   report: PostReportView;
@@ -16,6 +17,7 @@ interface PostReportState {
   loading: boolean;
 }
 
+@tippyMixin
 export class PostReport extends Component<PostReportProps, PostReportState> {
   state: PostReportState = {
     loading: false,

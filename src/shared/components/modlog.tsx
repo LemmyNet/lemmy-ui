@@ -11,7 +11,9 @@ import {
   getPageFromString,
   getQueryParams,
   getQueryString,
+  resourcesSettled,
 } from "@utils/helpers";
+import { scrollMixin } from "./mixins/scroll-mixin";
 import { amAdmin, amMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
@@ -645,6 +647,7 @@ export type ModlogFetchConfig = IRoutePropsWithFetch<
   ModlogProps
 >;
 
+@scrollMixin
 export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   private isoData = setIsoData<ModlogData>(this.context);
 
@@ -657,6 +660,10 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     modSearchOptions: [],
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([this.state.res]);
+  }
 
   constructor(props: ModlogRouteProps, context: any) {
     super(props, context);

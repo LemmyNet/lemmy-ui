@@ -13,6 +13,7 @@ import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiMart } from "../common/emoji-mart";
 import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface EmojiFormProps {
   onEdit(form: EditCustomEmoji): void;
@@ -38,6 +39,7 @@ interface CustomEmojiViewForm {
   loading: boolean;
 }
 
+@tippyMixin
 export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
   private isoData = setIsoData(this.context);
   private itemsPerPage = 15;

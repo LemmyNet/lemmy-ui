@@ -11,13 +11,19 @@ import {
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 interface State {
   verifyRes: RequestState<SuccessResponse>;
   siteRes: GetSiteResponse;
 }
 
-export class VerifyEmail extends Component<any, State> {
+@simpleScrollMixin
+export class VerifyEmail extends Component<
+  RouteComponentProps<Record<string, never>>,
+  State
+> {
   private isoData = setIsoData(this.context);
 
   state: State = {

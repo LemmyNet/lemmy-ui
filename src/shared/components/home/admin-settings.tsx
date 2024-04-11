@@ -1,5 +1,6 @@
 import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
-import { capitalizeFirstLetter } from "@utils/helpers";
+import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
@@ -62,6 +63,7 @@ export type AdminSettingsFetchConfig = IRoutePropsWithFetch<
   Record<string, never>
 >;
 
+@scrollMixin
 export class AdminSettings extends Component<
   AdminSettingsRouteProps,
   AdminSettingsState
@@ -78,6 +80,10 @@ export class AdminSettings extends Component<
     themeList: [],
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([this.state.bannedRes, this.state.instancesRes]);
+  }
 
   constructor(props: any, context: any) {
     super(props, context);
