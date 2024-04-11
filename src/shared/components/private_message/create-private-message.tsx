@@ -24,6 +24,8 @@ import { PrivateMessageForm } from "./private-message-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
+import { resourcesSettled } from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 
 type CreatePrivateMessageData = RouteDataResponse<{
   recipientDetailsResponse: GetPersonDetailsResponse;
@@ -45,6 +47,7 @@ export type CreatePrivateMessageFetchConfig = IRoutePropsWithFetch<
   Record<string, never>
 >;
 
+@scrollMixin
 export class CreatePrivateMessage extends Component<
   CreatePrivateMessageRouteProps,
   CreatePrivateMessageState
@@ -56,6 +59,10 @@ export class CreatePrivateMessage extends Component<
     recipientId: getRecipientIdFromProps(this.props),
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([this.state.recipientRes]);
+  }
 
   constructor(props: any, context: any) {
     super(props, context);

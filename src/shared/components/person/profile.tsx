@@ -8,7 +8,7 @@ import {
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
-import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import {
   capitalizeFirstLetter,
   futureDaysToUnixTime,
@@ -17,6 +17,7 @@ import {
   getQueryString,
   numToSI,
   randomStr,
+  resourcesSettled,
 } from "@utils/helpers";
 import { canMod, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
@@ -82,7 +83,6 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { setupTippy } from "../../tippy";
 import { toast } from "../../toast";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
@@ -183,6 +183,7 @@ export type ProfileFetchConfig = IRoutePropsWithFetch<
   ProfileProps
 >;
 
+@scrollMixin
 export class Profile extends Component<ProfileRouteProps, ProfileState> {
   private isoData = setIsoData<ProfileData>(this.context);
   state: ProfileState = {
@@ -194,6 +195,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     finished: new Map(),
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([this.state.personRes]);
+  }
 
   constructor(props: ProfileRouteProps, context: any) {
     super(props, context);
@@ -249,11 +254,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (!this.state.isIsomorphic) {
       await this.fetchUserData();
     }
-    setupTippy();
-  }
-
-  componentWillUnmount() {
-    saveScrollPosition(this.context);
   }
 
   async fetchUserData() {
@@ -271,7 +271,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       personRes,
       personBlocked: isPersonBlocked(personRes),
     });
-    restoreScrollPosition(this.context);
   }
 
   get amCurrentUser() {

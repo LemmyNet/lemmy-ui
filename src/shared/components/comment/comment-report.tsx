@@ -11,6 +11,7 @@ import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
 import { EMPTY_REQUEST } from "../../services/HttpService";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface CommentReportProps {
   report: CommentReportView;
@@ -21,6 +22,7 @@ interface CommentReportState {
   loading: boolean;
 }
 
+@tippyMixin
 export class CommentReport extends Component<
   CommentReportProps,
   CommentReportState

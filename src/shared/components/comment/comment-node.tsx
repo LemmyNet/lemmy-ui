@@ -42,7 +42,7 @@ import {
 } from "../../interfaces";
 import { mdToHtml, mdToHtmlNoImages } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
-import { setupTippy } from "../../tippy";
+import { tippyMixin } from "../mixins/tippy-mixin";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { UserBadges } from "../common/user-badges";
@@ -117,6 +117,7 @@ function handleToggleViewSource(i: CommentNode) {
   }));
 }
 
+@tippyMixin
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   state: CommentNodeState = {
     showReply: false,
@@ -501,14 +502,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       ? I18NextService.i18n.t("show_context")
       : I18NextService.i18n.t("link");
 
-    // The context button should show the parent comment by default
-    const parentCommentId = getCommentParentId(cv.comment) ?? cv.comment.id;
-
     return (
       <>
         <Link
           className={classnames}
-          to={`/comment/${parentCommentId}`}
+          to={`/comment/${
+            (this.props.showContext && getCommentParentId(cv.comment)) ||
+            cv.comment.id
+          }`}
           title={title}
         >
           <Icon icon="link" classes="icon-inline" />
@@ -607,12 +608,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   handleCommentCollapse(i: CommentNode) {
     i.setState({ collapsed: !i.state.collapsed });
-    setupTippy();
   }
 
   handleShowAdvanced(i: CommentNode) {
     i.setState({ showAdvanced: !i.state.showAdvanced });
-    setupTippy();
   }
 
   async handleSaveComment() {

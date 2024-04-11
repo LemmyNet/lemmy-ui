@@ -49,7 +49,7 @@ import {
   languages,
   loadUserLanguage,
 } from "../../services/I18NextService";
-import { setupTippy } from "../../tippy";
+import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
@@ -66,10 +66,11 @@ import { PersonListing } from "./person-listing";
 import { InitialFetchRequest } from "../../interfaces";
 import TotpModal from "../common/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
-import { refreshTheme, setThemeOverride } from "../../utils/browser";
+import { refreshTheme, setThemeOverride, snapToTop } from "../../utils/browser";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { simpleScrollMixin } from "../mixins/scroll-mixin";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -203,6 +204,8 @@ export type SettingsFetchConfig = IRoutePropsWithFetch<
   Record<string, never>
 >;
 
+@simpleScrollMixin
+@tippyMixin
 export class Settings extends Component<SettingsRouteProps, SettingsState> {
   private isoData = setIsoData<SettingsData>(this.context);
   exportSettingsLink = createRef<HTMLAnchorElement>();
@@ -334,7 +337,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   async componentDidMount() {
-    setupTippy();
     this.setState({ themeList: await fetchThemeList() });
 
     if (!this.state.isIsomorphic) {
@@ -1578,7 +1580,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       }
 
       toast(I18NextService.i18n.t("saved"));
-      window.scrollTo(0, 0);
+      snapToTop();
     }
 
     setThemeOverride(undefined);
@@ -1598,7 +1600,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         old_password,
       });
       if (changePasswordRes.state === "success") {
-        window.scrollTo(0, 0);
+        snapToTop();
         toast(I18NextService.i18n.t("password_changed"));
       }
 

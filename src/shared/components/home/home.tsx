@@ -17,7 +17,9 @@ import {
   getQueryParams,
   getQueryString,
   getRandomFromList,
+  resourcesSettled,
 } from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams, StringBoolean } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
@@ -88,7 +90,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { setupTippy } from "../../tippy";
+import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "../../toast";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
@@ -109,6 +111,7 @@ import {
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
+import { snapToTop } from "@utils/browser";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -118,7 +121,6 @@ interface HomeState {
   showTrendingMobile: boolean;
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
-  scrolled: boolean;
   tagline?: string;
   siteRes: GetSiteResponse;
   finished: Map<CommentId, boolean | undefined>;
@@ -257,13 +259,14 @@ export type HomeFetchConfig = IRoutePropsWithFetch<
   HomeProps
 >;
 
+@scrollMixin
+@tippyMixin
 export class Home extends Component<HomeRouteProps, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);
   state: HomeState = {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
     trendingCommunitiesRes: EMPTY_REQUEST,
-    scrolled: true,
     siteRes: this.isoData.site_res,
     showSubscribedMobile: false,
     showTrendingMobile: false,
@@ -272,6 +275,15 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     finished: new Map(),
     isIsomorphic: false,
   };
+
+  loadingSettled(): boolean {
+    return resourcesSettled([
+      this.state.trendingCommunitiesRes,
+      this.props.dataType === DataType.Post
+        ? this.state.postsRes
+        : this.state.commentsRes,
+    ]);
+  }
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -340,8 +352,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     ) {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
     }
-
-    setupTippy();
   }
 
   static async fetchInitialData({
@@ -677,11 +687,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       search: getQueryString(queryParams),
     });
 
-    if (!this.state.scrolled) {
-      this.setState({ scrolled: true });
-      setTimeout(() => window.scrollTo(0, 0), 0);
-    }
-
     await this.fetchData();
   }
 
@@ -872,8 +877,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         }),
       });
     }
-
-    setupTippy();
   }
 
   handleShowSubscribedMobile(i: Home) {
@@ -896,33 +899,28 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.props.history.back();
     // A hack to scroll to top
     setTimeout(() => {
-      window.scrollTo(0, 0);
+      snapToTop();
     }, 50);
   }
 
   handlePageNext(nextPage: PaginationCursor) {
-    this.setState({ scrolled: false });
     this.updateUrl({ pageCursor: nextPage });
   }
 
   handleSortChange(val: SortType) {
-    this.setState({ scrolled: false });
     this.updateUrl({ sort: val, pageCursor: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {
-    this.setState({ scrolled: false });
     this.updateUrl({ listingType: val, pageCursor: undefined });
   }
 
   handleDataTypeChange(val: DataType) {
-    this.setState({ scrolled: false });
     this.updateUrl({ dataType: val, pageCursor: undefined });
   }
 
   handleShowHiddenChange(show?: StringBoolean) {
     console.log(`Got ${show}`);
-    this.setState({ scrolled: false });
     this.updateUrl({
       showHidden: show,
       pageCursor: undefined,

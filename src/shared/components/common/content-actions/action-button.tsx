@@ -1,6 +1,7 @@
 import { Component, linkEvent } from "inferno";
 import { Icon, Spinner } from "../icon";
 import classNames from "classnames";
+import { tippyMixin } from "../../mixins/tippy-mixin";
 
 interface ActionButtonPropsBase {
   label: string;
@@ -34,6 +35,7 @@ async function handleClick(i: ActionButton) {
   i.setState({ loading: false });
 }
 
+@tippyMixin
 export default class ActionButton extends Component<
   ActionButtonProps,
   ActionButtonState

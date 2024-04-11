@@ -15,6 +15,7 @@ import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";
 import { PrivateMessageForm } from "./private-message-form";
 import ModActionFormModal from "../common/mod-action-form-modal";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface PrivateMessageState {
   showReply: boolean;
@@ -35,6 +36,7 @@ interface PrivateMessageProps {
   onEdit(form: EditPrivateMessage): void;
 }
 
+@tippyMixin
 export class PrivateMessage extends Component<
   PrivateMessageProps,
   PrivateMessageState

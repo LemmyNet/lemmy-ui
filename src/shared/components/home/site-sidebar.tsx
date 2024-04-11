@@ -7,6 +7,7 @@ import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface SiteSidebarProps {
   site: Site;
@@ -20,6 +21,7 @@ interface SiteSidebarState {
   collapsed: boolean;
 }
 
+@tippyMixin
 export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   state: SiteSidebarState = {
     collapsed: false,

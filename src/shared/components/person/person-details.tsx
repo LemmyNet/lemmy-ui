@@ -41,7 +41,6 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { CommentViewType, PersonDetailsView } from "../../interfaces";
-import { setupTippy } from "../../tippy";
 import { CommentNodes } from "../comment/comment-nodes";
 import { Paginator } from "../common/paginator";
 import { PostListing } from "../post/post-listing";
@@ -107,10 +106,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
     this.handlePageChange = this.handlePageChange.bind(this);
-  }
-
-  componentDidMount() {
-    setupTippy();
   }
 
   render() {

@@ -4,6 +4,7 @@ import {
   getQueryParams,
   getQueryString,
   numToSI,
+  resourcesSettled,
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
@@ -38,6 +39,7 @@ import { SubscribeButton } from "../common/subscribe-button";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
+import { scrollMixin } from "../mixins/scroll-mixin";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -84,6 +86,7 @@ export type CommunitiesFetchConfig = IRoutePropsWithFetch<
   CommunitiesProps
 >;
 
+@scrollMixin
 export class Communities extends Component<
   CommunitiesRouteProps,
   CommunitiesState
@@ -95,6 +98,10 @@ export class Communities extends Component<
     searchText: "",
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([this.state.listCommunitiesResponse]);
+  }
 
   constructor(props: CommunitiesRouteProps, context: any) {
     super(props, context);
@@ -374,8 +381,6 @@ export class Communities extends Component<
         page,
       }),
     });
-
-    window.scrollTo(0, 0);
   }
 
   findAndUpdateCommunity(res: RequestState<CommunityResponse>) {

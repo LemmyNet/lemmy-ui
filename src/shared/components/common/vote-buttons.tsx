@@ -1,7 +1,7 @@
 import { newVote, showScores } from "@utils/app";
 import { numToSI } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import {
   CommentAggregates,
   CreateCommentLike,
@@ -11,6 +11,7 @@ import {
 import { VoteContentType, VoteType } from "../../interfaces";
 import { I18NextService, UserService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
+import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface VoteButtonsProps {
   voteContentType: VoteContentType;
@@ -82,6 +83,7 @@ const handleDownvote = (i: VoteButtons) => {
   }
 };
 
+@tippyMixin
 export class VoteButtonsCompact extends Component<
   VoteButtonsProps,
   VoteButtonsState
@@ -95,7 +97,9 @@ export class VoteButtonsCompact extends Component<
     super(props, context);
   }
 
-  componentWillReceiveProps(nextProps: VoteButtonsProps) {
+  componentWillReceiveProps(
+    nextProps: VoteButtonsProps & { children?: InfernoNode },
+  ) {
     if (this.props !== nextProps) {
       this.setState({
         upvoteLoading: false,
@@ -166,6 +170,7 @@ export class VoteButtonsCompact extends Component<
   }
 }
 
+@tippyMixin
 export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
   state: VoteButtonsState = {
     upvoteLoading: false,
@@ -176,7 +181,9 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
     super(props, context);
   }
 
-  componentWillReceiveProps(nextProps: VoteButtonsProps) {
+  componentWillReceiveProps(
+    nextProps: VoteButtonsProps & { children?: InfernoNode },
+  ) {
     if (this.props !== nextProps) {
       this.setState({
         upvoteLoading: false,

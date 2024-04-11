@@ -13,13 +13,23 @@ import { Navbar } from "./navbar";
 import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
+import { destroyTippy, setupTippy } from "../../tippy";
 
 export class App extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
   private readonly mainContentRef: RefObject<HTMLElement>;
+  private readonly rootRef = createRef<HTMLDivElement>();
   constructor(props: any, context: any) {
     super(props, context);
     this.mainContentRef = createRef();
+  }
+
+  componentDidMount(): void {
+    setupTippy(this.rootRef);
+  }
+
+  componentWillUnmount(): void {
+    destroyTippy();
   }
 
   handleJumpToContent(event) {
@@ -34,7 +44,7 @@ export class App extends Component<any, any> {
     return (
       <>
         <Provider i18next={I18NextService.i18n}>
-          <div id="app" className="lemmy-site">
+          <div id="app" className="lemmy-site" ref={this.rootRef}>
             <button
               type="button"
               className="btn skip-link bg-light position-absolute start-0 z-3"
