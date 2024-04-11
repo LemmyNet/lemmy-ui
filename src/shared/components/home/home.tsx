@@ -108,6 +108,7 @@ import {
 } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
+import PostHiddenSelect from "../common/post-hidden-select";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -801,25 +802,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             onChange={this.handleDataTypeChange}
           />
         </div>
-        {dataType === DataType.Post &&
-          (this.state.siteRes.my_user || UserService.Instance.myUserInfo) && (
-            <div className="col-auto form-check form-switch">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                role="switch"
-                id="showHiddenPostsSwitch"
-                onChange={this.handleShowHiddenChange}
-                checked={showHidden === "true"}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="showHiddenPostsSwitch"
-              >
-                Show hidden posts
-              </label>
-            </div>
-          )}
+        {dataType === DataType.Post && UserService.Instance.myUserInfo && (
+          <div className="col-auto">
+            <PostHiddenSelect
+              showHidden={showHidden}
+              onShowHiddenChange={this.handleShowHiddenChange}
+            />
+          </div>
+        )}
         <div className="col-auto">
           <ListingTypeSelect
             type_={
@@ -930,10 +920,11 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.updateUrl({ dataType: val, pageCursor: undefined });
   }
 
-  handleShowHiddenChange() {
+  handleShowHiddenChange(show?: StringBoolean) {
+    console.log(`Got ${show}`);
     this.setState({ scrolled: false });
     this.updateUrl({
-      showHidden: this.props.showHidden === "true" ? "false" : "true",
+      showHidden: show,
       pageCursor: undefined,
     });
   }

@@ -107,6 +107,7 @@ import {
 } from "../common/loading-skeleton";
 import { Sidebar } from "./sidebar";
 import { IRoutePropsWithFetch } from "../../routes";
+import PostHiddenSelect from "../common/post-hidden-select";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -566,27 +567,14 @@ export class Community extends Component<CommunityRouteProps, State> {
             onChange={this.handleDataTypeChange}
           />
         </span>
-        {dataType === DataType.Post &&
-          (this.state.siteRes.my_user || UserService.Instance.myUserInfo) && (
-            <span className="me-3">
-              <div className="form-check form-switch d-inline-block">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  role="switch"
-                  id="showHiddenPostsSwitch"
-                  onChange={this.handleShowHiddenChange}
-                  checked={showHidden === "true"}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="showHiddenPostsSwitch"
-                >
-                  {I18NextService.i18n.t("show_hidden_posts")}
-                </label>
-              </div>
-            </span>
-          )}
+        {dataType === DataType.Post && UserService.Instance.myUserInfo && (
+          <span className="me-3">
+            <PostHiddenSelect
+              showHidden={showHidden}
+              onShowHiddenChange={this.handleShowHiddenChange}
+            />
+          </span>
+        )}
         <span className="me-2">
           <SortSelect sort={sort} onChange={this.handleSortChange} />
         </span>
@@ -625,9 +613,9 @@ export class Community extends Component<CommunityRouteProps, State> {
     window.scrollTo(0, 0);
   }
 
-  handleShowHiddenChange() {
+  handleShowHiddenChange(show?: StringBoolean) {
     this.updateUrl({
-      showHidden: this.props.showHidden === "true" ? "false" : "true",
+      showHidden: show,
       pageCursor: undefined,
     });
     window.scrollTo(0, 0);
