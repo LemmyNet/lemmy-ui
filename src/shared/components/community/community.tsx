@@ -630,7 +630,6 @@ export class Community extends Component<CommunityRouteProps, State> {
       showHidden: show,
       pageCursor: undefined,
     });
-    window.scrollTo(0, 0);
   }
 
   handleShowSidebarMobile(i: Community) {
