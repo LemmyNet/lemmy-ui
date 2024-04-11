@@ -4,3 +4,4 @@ src/assets/css/themes/*.css
 src/assets/css/code-themes/*.css
 stats.json
 dist
+pnpm-lock.yaml
