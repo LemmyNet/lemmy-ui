@@ -1071,14 +1071,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   handleCommunityFilterChange({ value }: Choice) {
     this.updateUrl({
-      communityId: getIdFromString(value),
+      communityId: getIdFromString(value) ?? 0,
       page: 1,
     });
   }
 
   handleCreatorFilterChange({ value }: Choice) {
     this.updateUrl({
-      creatorId: getIdFromString(value),
+      creatorId: getIdFromString(value) ?? 0,
       page: 1,
     });
   }

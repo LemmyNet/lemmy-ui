@@ -21,6 +21,7 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import UrlListTextarea from "../common/url-list-textarea";
 
 interface SiteFormProps {
   blockedInstances?: Instance[];
@@ -84,6 +85,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       captcha_difficulty: ls.captcha_difficulty,
       allowed_instances: this.props.allowedInstances?.map(i => i.domain),
       blocked_instances: this.props.blockedInstances?.map(i => i.domain),
+      blocked_urls: this.props.siteRes.blocked_urls.map(u => u.url),
     };
   }
 
@@ -112,6 +114,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.handleInstanceEnterPress = this.handleInstanceEnterPress.bind(this);
     this.handleInstanceTextChange = this.handleInstanceTextChange.bind(this);
+
+    this.handleBlockedUrlsUpdate = this.handleBlockedUrlsUpdate.bind(this);
   }
 
   render() {
@@ -499,6 +503,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           multiple={true}
           onChange={this.handleDiscussionLanguageChange}
           showAll
+        />
+        <UrlListTextarea
+          urls={this.state.siteForm.blocked_urls ?? []}
+          onUpdate={this.handleBlockedUrlsUpdate}
         />
         <div className="mb-3 row">
           <label
@@ -993,5 +1001,15 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleDefaultPostListingTypeChange(val: ListingType) {
     this.setState(s => ((s.siteForm.default_post_listing_type = val), s));
+  }
+
+  handleBlockedUrlsUpdate(newBlockedUrls: string[]) {
+    this.setState(prev => ({
+      ...prev,
+      siteForm: {
+        ...prev.siteForm,
+        blocked_urls: newBlockedUrls,
+      },
+    }));
   }
 }

@@ -502,14 +502,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       ? I18NextService.i18n.t("show_context")
       : I18NextService.i18n.t("link");
 
-    // The context button should show the parent comment by default
-    const parentCommentId = getCommentParentId(cv.comment) ?? cv.comment.id;
-
     return (
       <>
         <Link
           className={classnames}
-          to={`/comment/${parentCommentId}`}
+          to={`/comment/${
+            (this.props.showContext && getCommentParentId(cv.comment)) ||
+            cv.comment.id
+          }`}
           title={title}
         >
           <Icon icon="link" classes="icon-inline" />
