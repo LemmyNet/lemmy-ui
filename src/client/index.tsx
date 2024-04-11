@@ -16,6 +16,8 @@ async function startClient() {
     verifyDynamicImports(true).then(x => console.log(x));
   };
 
+  window.history.scrollRestoration = "manual";
+
   initializeSite(window.isoData.site_res);
 
   lazyHighlightjs.enableLazyLoading();

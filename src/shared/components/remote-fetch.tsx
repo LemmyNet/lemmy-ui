@@ -1,5 +1,6 @@
 import { setIsoData } from "@utils/app";
-import { getQueryParams } from "@utils/helpers";
+import { getQueryParams, resourcesSettled } from "@utils/helpers";
+import { scrollMixin } from "./mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
@@ -97,6 +98,7 @@ export type RemoteFetchFetchConfig = IRoutePropsWithFetch<
   RemoteFetchProps
 >;
 
+@scrollMixin
 export class RemoteFetch extends Component<
   RemoteFetchRouteProps,
   RemoteFetchState
@@ -107,6 +109,10 @@ export class RemoteFetch extends Component<
     isIsomorphic: false,
     followCommunityLoading: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([this.state.resolveObjectRes]);
+  }
 
   constructor(props: RemoteFetchRouteProps, context: any) {
     super(props, context);

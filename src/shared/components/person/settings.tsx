@@ -70,6 +70,7 @@ import { refreshTheme, setThemeOverride } from "../../utils/browser";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { simpleScrollMixin } from "../mixins/scroll-mixin";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -203,6 +204,7 @@ export type SettingsFetchConfig = IRoutePropsWithFetch<
   Record<string, never>
 >;
 
+@simpleScrollMixin
 @tippyMixin
 export class Settings extends Component<SettingsRouteProps, SettingsState> {
   private isoData = setIsoData<SettingsData>(this.context);

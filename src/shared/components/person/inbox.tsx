@@ -10,7 +10,12 @@ import {
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
-import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
+import {
+  capitalizeFirstLetter,
+  randomStr,
+  resourcesSettled,
+} from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
@@ -137,6 +142,7 @@ export type InboxFetchConfig = IRoutePropsWithFetch<
   Record<string, never>
 >;
 
+@scrollMixin
 export class Inbox extends Component<InboxRouteProps, InboxState> {
   private isoData = setIsoData<InboxData>(this.context);
   state: InboxState = {
@@ -152,6 +158,14 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     finished: new Map(),
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([
+      this.state.repliesRes,
+      this.state.mentionsRes,
+      this.state.messagesRes,
+    ]);
+  }
 
   constructor(props: any, context: any) {
     super(props, context);

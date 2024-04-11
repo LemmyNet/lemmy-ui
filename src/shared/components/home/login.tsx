@@ -19,6 +19,7 @@ import TotpModal from "../common/totp-modal";
 import { UnreadCounterService } from "../../services";
 import { RouteData } from "../../interfaces";
 import { IRoutePropsWithFetch } from "../../routes";
+import { simpleScrollMixin } from "../mixins/scroll-mixin";
 
 interface LoginProps {
   prev?: string;
@@ -125,6 +126,7 @@ export type LoginFetchConfig = IRoutePropsWithFetch<
   LoginProps
 >;
 
+@simpleScrollMixin
 export class Login extends Component<LoginRouteProps, State> {
   private isoData = setIsoData(this.context);
 

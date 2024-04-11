@@ -17,6 +17,8 @@ import {
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import { SiteForm } from "./site-form";
+import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 interface State {
   form: {
@@ -36,7 +38,11 @@ interface State {
   siteRes: GetSiteResponse;
 }
 
-export class Setup extends Component<any, State> {
+@simpleScrollMixin
+export class Setup extends Component<
+  RouteComponentProps<Record<string, never>>,
+  State
+> {
   private isoData = setIsoData(this.context);
 
   state: State = {

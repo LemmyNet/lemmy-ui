@@ -1,5 +1,6 @@
 import { editRegistrationApplication, setIsoData } from "@utils/app";
-import { randomStr } from "@utils/helpers";
+import { randomStr, resourcesSettled } from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
@@ -57,6 +58,7 @@ export type RegistrationApplicationsFetchConfig = IRoutePropsWithFetch<
   Record<string, never>
 >;
 
+@scrollMixin
 export class RegistrationApplications extends Component<
   RegistrationApplicationsRouteProps,
   RegistrationApplicationsState
@@ -69,6 +71,10 @@ export class RegistrationApplications extends Component<
     page: 1,
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([this.state.appsRes]);
+  }
 
   constructor(props: any, context: any) {
     super(props, context);

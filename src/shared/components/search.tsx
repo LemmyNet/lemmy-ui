@@ -11,7 +11,7 @@ import {
   setIsoData,
   showLocal,
 } from "@utils/app";
-import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import { scrollMixin } from "./mixins/scroll-mixin";
 import {
   capitalizeFirstLetter,
   debounce,
@@ -21,6 +21,7 @@ import {
   getQueryParams,
   getQueryString,
   numToSI,
+  resourcesSettled,
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
@@ -253,6 +254,7 @@ export type SearchFetchConfig = IRoutePropsWithFetch<
   SearchProps
 >;
 
+@scrollMixin
 export class Search extends Component<SearchRouteProps, SearchState> {
   private isoData = setIsoData<SearchData>(this.context);
   searchInput = createRef<HTMLInputElement>();
@@ -267,6 +269,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     searchCommunitiesLoading: false,
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([this.state.searchRes]);
+  }
 
   constructor(props: SearchRouteProps, context: any) {
     super(props, context);
@@ -323,7 +329,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   async componentDidMount() {
-    this.searchInput.current?.select();
+    if (this.props.history.action !== "POP") {
+      this.searchInput.current?.select();
+    }
 
     if (!this.state.isIsomorphic) {
       this.setState({
@@ -395,10 +403,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         searchCreatorLoading: false,
       });
     }
-  }
-
-  componentWillUnmount() {
-    saveScrollPosition(this.context);
   }
 
   static async fetchInitialData({
@@ -992,7 +996,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         }),
       });
       window.scrollTo(0, 0);
-      restoreScrollPosition(this.context);
 
       if (myAuth()) {
         this.setState({ resolveObjectRes: LOADING_REQUEST });

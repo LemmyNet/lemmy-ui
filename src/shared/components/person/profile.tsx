@@ -8,7 +8,7 @@ import {
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
-import { restoreScrollPosition, saveScrollPosition } from "@utils/browser";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import {
   capitalizeFirstLetter,
   futureDaysToUnixTime,
@@ -17,6 +17,7 @@ import {
   getQueryString,
   numToSI,
   randomStr,
+  resourcesSettled,
 } from "@utils/helpers";
 import { canMod, isBanned } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
@@ -182,6 +183,7 @@ export type ProfileFetchConfig = IRoutePropsWithFetch<
   ProfileProps
 >;
 
+@scrollMixin
 export class Profile extends Component<ProfileRouteProps, ProfileState> {
   private isoData = setIsoData<ProfileData>(this.context);
   state: ProfileState = {
@@ -193,6 +195,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     finished: new Map(),
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([this.state.personRes]);
+  }
 
   constructor(props: ProfileRouteProps, context: any) {
     super(props, context);
@@ -250,10 +256,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
-  componentWillUnmount() {
-    saveScrollPosition(this.context);
-  }
-
   async fetchUserData() {
     const { page, sort, view } = this.props;
 
@@ -269,7 +271,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       personRes,
       personBlocked: isPersonBlocked(personRes),
     });
-    restoreScrollPosition(this.context);
   }
 
   get amCurrentUser() {

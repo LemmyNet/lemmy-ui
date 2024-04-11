@@ -14,7 +14,12 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
-import { getQueryParams, getQueryString } from "@utils/helpers";
+import {
+  getQueryParams,
+  getQueryString,
+  resourcesSettled,
+} from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
@@ -172,6 +177,7 @@ export type CommunityFetchConfig = IRoutePropsWithFetch<
   CommunityProps
 >;
 
+@scrollMixin
 @tippyMixin
 export class Community extends Component<CommunityRouteProps, State> {
   private isoData = setIsoData<CommunityData>(this.context);
@@ -185,6 +191,16 @@ export class Community extends Component<CommunityRouteProps, State> {
     isIsomorphic: false,
   };
   private readonly mainContentRef: RefObject<HTMLElement>;
+
+  loadingSettled() {
+    return resourcesSettled([
+      this.state.communityRes,
+      this.props.dataType === DataType.Post
+        ? this.state.postsRes
+        : this.state.commentsRes,
+    ]);
+  }
+
   constructor(props: CommunityRouteProps, context: any) {
     super(props, context);
 

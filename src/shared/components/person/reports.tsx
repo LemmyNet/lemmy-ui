@@ -4,7 +4,8 @@ import {
   editPrivateMessageReport,
   setIsoData,
 } from "@utils/app";
-import { randomStr } from "@utils/helpers";
+import { randomStr, resourcesSettled } from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import { amAdmin } from "@utils/roles";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -103,6 +104,7 @@ export type ReportsFetchConfig = IRoutePropsWithFetch<
   Record<string, never>
 >;
 
+@scrollMixin
 export class Reports extends Component<ReportsRouteProps, ReportsState> {
   private isoData = setIsoData<ReportsData>(this.context);
   state: ReportsState = {
@@ -115,6 +117,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     siteRes: this.isoData.site_res,
     isIsomorphic: false,
   };
+
+  loadingSettled() {
+    return resourcesSettled([
+      this.state.commentReportsRes,
+      this.state.postReportsRes,
+      this.state.messageReportsRes,
+    ]);
+  }
 
   constructor(props: any, context: any) {
     super(props, context);

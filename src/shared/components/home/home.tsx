@@ -17,7 +17,9 @@ import {
   getQueryParams,
   getQueryString,
   getRandomFromList,
+  resourcesSettled,
 } from "@utils/helpers";
+import { scrollMixin } from "../mixins/scroll-mixin";
 import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
@@ -253,6 +255,7 @@ export type HomeFetchConfig = IRoutePropsWithFetch<
   HomeProps
 >;
 
+@scrollMixin
 @tippyMixin
 export class Home extends Component<HomeRouteProps, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);
@@ -269,6 +272,15 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     finished: new Map(),
     isIsomorphic: false,
   };
+
+  loadingSettled(): boolean {
+    return resourcesSettled([
+      this.state.trendingCommunitiesRes,
+      this.props.dataType === DataType.Post
+        ? this.state.postsRes
+        : this.state.commentsRes,
+    ]);
+  }
 
   constructor(props: any, context: any) {
     super(props, context);

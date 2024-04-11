@@ -30,6 +30,7 @@ import { Spinner } from "../common/icon";
 import { PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
+import { simpleScrollMixin } from "../mixins/scroll-mixin";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -70,6 +71,7 @@ export type CreatePostFetchConfig = IRoutePropsWithFetch<
   CreatePostProps
 >;
 
+@simpleScrollMixin
 export class CreatePost extends Component<
   CreatePostRouteProps,
   CreatePostState
