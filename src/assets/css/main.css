@@ -189,10 +189,16 @@ blockquote {
   margin-top: -4px;
 }
 
+/* comments */
 .new-comments {
   max-height: 50vh;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+.comment-content ul,
+.comment-content ol {
+  margin-bottom: 1rem;
 }
 
 .comments {
