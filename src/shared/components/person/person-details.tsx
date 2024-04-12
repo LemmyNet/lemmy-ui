@@ -210,6 +210,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onAddAdmin={this.props.onAddAdmin}
             onTransferCommunity={this.props.onTransferCommunity}
             onMarkPostAsRead={this.props.onMarkPostAsRead}
+            onHidePost={async () => {}}
           />
         );
       }
@@ -322,6 +323,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               onAddAdmin={this.props.onAddAdmin}
               onTransferCommunity={this.props.onTransferCommunity}
               onMarkPostAsRead={this.props.onMarkPostAsRead}
+              onHidePost={async () => {}}
             />
             <hr className="my-3" />
           </>
