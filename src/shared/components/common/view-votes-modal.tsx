@@ -63,7 +63,7 @@ export default class ViewVotesModal extends Component<
 > {
   readonly modalDivRef: RefObject<HTMLDivElement>;
   readonly yesButtonRef: RefObject<HTMLButtonElement>;
-  modal: Modal;
+  modal?: Modal;
   state: ViewVotesModalState = {
     postLikesRes: EMPTY_REQUEST,
     commentLikesRes: EMPTY_REQUEST,
@@ -82,13 +82,17 @@ export default class ViewVotesModal extends Component<
   }
 
   async componentDidMount() {
+    const Modal = (await import("bootstrap/js/dist/modal")).default;
+
+    if (!this.modalDivRef.current) {
+      return;
+    }
+
+    this.modal = new Modal(this.modalDivRef.current!);
     this.modalDivRef.current?.addEventListener(
       "shown.bs.modal",
       this.handleShow,
     );
-
-    const Modal = (await import("bootstrap/js/dist/modal")).default;
-    this.modal = new Modal(this.modalDivRef.current!);
 
     if (this.props.show) {
       this.modal.show();
@@ -102,16 +106,16 @@ export default class ViewVotesModal extends Component<
       this.handleShow,
     );
 
-    this.modal.dispose();
+    this.modal?.dispose();
   }
 
   async componentDidUpdate({ show: prevShow }: ViewVotesModalProps) {
     if (!!prevShow !== !!this.props.show) {
       if (this.props.show) {
-        this.modal.show();
+        this.modal?.show();
         await this.refetch();
       } else {
-        this.modal.hide();
+        this.modal?.hide();
       }
     }
   }
@@ -191,7 +195,7 @@ export default class ViewVotesModal extends Component<
 
   handleDismiss() {
     this.props.onCancel();
-    this.modal.hide();
+    this.modal?.hide();
   }
 
   async handlePageChange(page: number) {

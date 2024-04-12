@@ -74,7 +74,7 @@ export default class TotpModal extends Component<
 > {
   readonly modalDivRef: RefObject<HTMLDivElement>;
   readonly inputRef: RefObject<HTMLInputElement>;
-  modal: Modal;
+  modal?: Modal;
   state: TotpModalState = {
     totp: "",
     pending: false,
@@ -91,6 +91,12 @@ export default class TotpModal extends Component<
   }
 
   async componentDidMount() {
+    const Modal = (await import("bootstrap/js/dist/modal")).default;
+
+    if (!this.modalDivRef.current) {
+      return;
+    }
+
     this.modalDivRef.current?.addEventListener(
       "shown.bs.modal",
       this.handleShow,
@@ -101,7 +107,6 @@ export default class TotpModal extends Component<
       this.clearTotp,
     );
 
-    const Modal = (await import("bootstrap/js/dist/modal")).default;
     this.modal = new Modal(this.modalDivRef.current!);
 
     if (this.props.show) {
@@ -120,15 +125,15 @@ export default class TotpModal extends Component<
       this.clearTotp,
     );
 
-    this.modal.dispose();
+    this.modal?.dispose();
   }
 
   componentDidUpdate({ show: prevShow }: TotpModalProps) {
     if (!!prevShow !== !!this.props.show) {
       if (this.props.show) {
-        this.modal.show();
+        this.modal?.show();
       } else {
-        this.modal.hide();
+        this.modal?.hide();
       }
     }
   }

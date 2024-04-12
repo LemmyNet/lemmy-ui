@@ -28,7 +28,7 @@ export default class ConfirmationModal extends Component<
 > {
   readonly modalDivRef: RefObject<HTMLDivElement>;
   readonly yesButtonRef: RefObject<HTMLButtonElement>;
-  modal: Modal;
+  modal?: Modal;
   state: ConfirmationModalState = {
     loading: false,
   };
@@ -43,12 +43,16 @@ export default class ConfirmationModal extends Component<
   }
 
   async componentDidMount() {
+    const Modal = (await import("bootstrap/js/dist/modal")).default;
+
+    if (!this.modalDivRef.current) {
+      return;
+    }
+
     this.modalDivRef.current?.addEventListener(
       "shown.bs.modal",
       this.handleShow,
     );
-
-    const Modal = (await import("bootstrap/js/dist/modal")).default;
     this.modal = new Modal(this.modalDivRef.current!);
 
     if (this.props.show) {
@@ -62,15 +66,15 @@ export default class ConfirmationModal extends Component<
       this.handleShow,
     );
 
-    this.modal.dispose();
+    this.modal?.dispose();
   }
 
   componentDidUpdate({ show: prevShow }: ConfirmationModalProps) {
     if (!!prevShow !== !!this.props.show) {
       if (this.props.show) {
-        this.modal.show();
+        this.modal?.show();
       } else {
-        this.modal.hide();
+        this.modal?.hide();
       }
     }
   }
