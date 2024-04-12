@@ -44,6 +44,14 @@ export function setupTippy(root: RefObject<Element>) {
 }
 
 export function cleanupTippy() {
+  // Hide tooltips for elements that are no longer connected to the document.
+  shownInstances.forEach(i => {
+    if (!i.reference.isConnected) {
+      console.assert(!i.state.isDestroyed, "hide called on destroyed tippy");
+      i.hide();
+    }
+  });
+
   if (shownInstances.size || instanceCounter < 10) {
     // Avoid randomly closing tooltips.
     return;
