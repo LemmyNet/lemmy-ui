@@ -59,24 +59,30 @@ export type ContentPostProps = {
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
 
-const dialogTypes = [
-  "showBanDialog",
-  "showRemoveDialog",
-  "showPurgeDialog",
-  "showReportDialog",
-  "showTransferCommunityDialog",
-  "showAppointModDialog",
-  "showAppointAdminDialog",
-  "showViewVotesDialog",
-] as const;
+type DialogType =
+  | "BanDialog"
+  | "RemoveDialog"
+  | "PurgeDialog"
+  | "ReportDialog"
+  | "TransferCommunityDialog"
+  | "AppointModDialog"
+  | "AppointAdminDialog"
+  | "ViewVotesDialog";
 
-type DialogType = (typeof dialogTypes)[number];
-
-type ContentActionDropdownState = {
+type ActionTypeState = {
   banType?: BanType;
   purgeType?: PurgeType;
-  mounted: boolean;
-} & { [key in DialogType]: boolean };
+};
+
+type ShowState = {
+  [key in `show${DialogType}`]: boolean;
+};
+
+type RenderState = {
+  [key in `render${DialogType}`]: boolean;
+};
+
+type ContentActionDropdownState = ActionTypeState & ShowState & RenderState;
 
 @tippyMixin
 export default class ContentActionDropdown extends Component<
@@ -92,9 +98,15 @@ export default class ContentActionDropdown extends Component<
     showReportDialog: false,
     showTransferCommunityDialog: false,
     showViewVotesDialog: false,
-    mounted: false,
+    renderAppointAdminDialog: false,
+    renderAppointModDialog: false,
+    renderBanDialog: false,
+    renderPurgeDialog: false,
+    renderRemoveDialog: false,
+    renderReportDialog: false,
+    renderTransferCommunityDialog: false,
+    renderViewVotesDialog: false,
   };
-
   constructor(props: ContentActionDropdownProps, context: any) {
     super(props, context);
 
@@ -113,10 +125,6 @@ export default class ContentActionDropdown extends Component<
     this.toggleAppointAdminShow = this.toggleAppointAdminShow.bind(this);
     this.toggleViewVotesShow = this.toggleViewVotesShow.bind(this);
     this.wrapHandler = this.wrapHandler.bind(this);
-  }
-
-  componentDidMount() {
-    this.setState({ mounted: true });
   }
 
   render() {
@@ -471,26 +479,27 @@ export default class ContentActionDropdown extends Component<
 
   toggleModDialogShow(
     dialogType: DialogType,
-    stateOverride: Partial<ContentActionDropdownState> = {},
+    stateOverride: Partial<ActionTypeState> = {},
   ) {
-    this.setState(prev => ({
-      ...prev,
-      [dialogType]: !prev[dialogType],
-      ...dialogTypes
-        .filter(dt => dt !== dialogType)
-        .reduce(
-          (acc, dt) => ({
-            ...acc,
-            [dt]: false,
-          }),
-          {},
-        ),
+    const showKey: keyof ShowState = `show${dialogType}`;
+    const renderKey: keyof RenderState = `render${dialogType}`;
+    this.setState<keyof ShowState>({
+      showBanDialog: false,
+      showRemoveDialog: false,
+      showPurgeDialog: false,
+      showReportDialog: false,
+      showTransferCommunityDialog: false,
+      showAppointModDialog: false,
+      showAppointAdminDialog: false,
+      showViewVotesDialog: false,
+      [showKey]: !this.state[showKey],
+      [renderKey]: true, // for fade out just keep rendering after show becomes false
       ...stateOverride,
-    }));
+    });
   }
 
   hideAllDialogs() {
-    this.setState({
+    this.setState<keyof ShowState>({
       showBanDialog: false,
       showPurgeDialog: false,
       showRemoveDialog: false,
@@ -503,52 +512,52 @@ export default class ContentActionDropdown extends Component<
   }
 
   toggleReportDialogShow() {
-    this.toggleModDialogShow("showReportDialog");
+    this.toggleModDialogShow("ReportDialog");
   }
 
   toggleRemoveShow() {
-    this.toggleModDialogShow("showRemoveDialog");
+    this.toggleModDialogShow("RemoveDialog");
   }
 
   toggleBanFromCommunityShow() {
-    this.toggleModDialogShow("showBanDialog", {
+    this.toggleModDialogShow("BanDialog", {
       banType: BanType.Community,
     });
   }
 
   toggleBanFromSiteShow() {
-    this.toggleModDialogShow("showBanDialog", {
+    this.toggleModDialogShow("BanDialog", {
       banType: BanType.Site,
     });
   }
 
   togglePurgePersonShow() {
-    this.toggleModDialogShow("showPurgeDialog", {
+    this.toggleModDialogShow("PurgeDialog", {
       purgeType: PurgeType.Person,
     });
   }
 
   togglePurgeContentShow() {
-    this.toggleModDialogShow("showPurgeDialog", {
+    this.toggleModDialogShow("PurgeDialog", {
       purgeType:
         this.props.type === "post" ? PurgeType.Post : PurgeType.Comment,
     });
   }
 
   toggleTransferCommunityShow() {
-    this.toggleModDialogShow("showTransferCommunityDialog");
+    this.toggleModDialogShow("TransferCommunityDialog");
   }
 
   toggleAppointModShow() {
-    this.toggleModDialogShow("showAppointModDialog");
+    this.toggleModDialogShow("AppointModDialog");
   }
 
   toggleAppointAdminShow() {
-    this.toggleModDialogShow("showAppointAdminDialog");
+    this.toggleModDialogShow("AppointAdminDialog");
   }
 
   toggleViewVotesShow() {
-    this.toggleModDialogShow("showViewVotesDialog");
+    this.toggleModDialogShow("ViewVotesDialog");
   }
 
   get moderationDialogs() {
@@ -563,7 +572,14 @@ export default class ContentActionDropdown extends Component<
       showAppointModDialog,
       showAppointAdminDialog,
       showViewVotesDialog,
-      mounted,
+      renderBanDialog,
+      renderPurgeDialog,
+      renderRemoveDialog,
+      renderReportDialog,
+      renderTransferCommunityDialog,
+      renderAppointModDialog,
+      renderAppointAdminDialog,
+      renderViewVotesDialog,
     } = this.state;
     const {
       removed,
@@ -589,8 +605,8 @@ export default class ContentActionDropdown extends Component<
 
     // Wait until componentDidMount runs (which only happens on the browser) to prevent sending over a gratuitous amount of markup
     return (
-      mounted && (
-        <>
+      <>
+        {renderRemoveDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(onRemove)}
             modActionType={
@@ -600,6 +616,8 @@ export default class ContentActionDropdown extends Component<
             onCancel={this.hideAllDialogs}
             show={showRemoveDialog}
           />
+        )}
+        {renderBanDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(
               banType === BanType.Community
@@ -621,6 +639,8 @@ export default class ContentActionDropdown extends Component<
             community={community}
             show={showBanDialog}
           />
+        )}
+        {renderReportDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(onReport)}
             modActionType={
@@ -629,6 +649,8 @@ export default class ContentActionDropdown extends Component<
             onCancel={this.hideAllDialogs}
             show={showReportDialog}
           />
+        )}
+        {renderPurgeDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(
               purgeType === PurgeType.Person ? onPurgeUser : onPurgeContent,
@@ -644,6 +666,8 @@ export default class ContentActionDropdown extends Component<
             onCancel={this.hideAllDialogs}
             show={showPurgeDialog}
           />
+        )}
+        {renderTransferCommunityDialog && (
           <ConfirmationModal
             show={showTransferCommunityDialog}
             message={I18NextService.i18n.t("transfer_community_are_you_sure", {
@@ -654,6 +678,8 @@ export default class ContentActionDropdown extends Component<
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onTransferCommunity)}
           />
+        )}
+        {renderAppointModDialog && (
           <ConfirmationModal
             show={showAppointModDialog}
             message={I18NextService.i18n.t(
@@ -671,6 +697,8 @@ export default class ContentActionDropdown extends Component<
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onAppointCommunityMod)}
           />
+        )}
+        {renderAppointAdminDialog && (
           <ConfirmationModal
             show={showAppointAdminDialog}
             message={I18NextService.i18n.t(
@@ -688,14 +716,16 @@ export default class ContentActionDropdown extends Component<
             onNo={this.hideAllDialogs}
             onYes={this.wrapHandler(onAppointAdmin)}
           />
+        )}
+        {renderViewVotesDialog && (
           <ViewVotesModal
             type={type}
             id={id}
             show={showViewVotesDialog}
             onCancel={this.hideAllDialogs}
           />
-        </>
-      )
+        )}
+      </>
     );
   }
 
