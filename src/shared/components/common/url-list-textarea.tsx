@@ -47,7 +47,7 @@ export default class UrlListTextarea extends Component<
   UrlListTextareaState
 > {
   state: UrlListTextareaState = {
-    text: "",
+    text: this.props.urls.join("\n"),
   };
 
   render() {
