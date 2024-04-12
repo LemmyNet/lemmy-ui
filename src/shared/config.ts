@@ -28,6 +28,7 @@ export const fetchLimit = 20;
 export const relTags = "noopener nofollow";
 export const emDash = "\u2014";
 export const authCookieName = "jwt";
+export const adultConsentLocalStorageKey = "adult-consent";
 
 // No. of max displayed communities per
 // page on route "/communities"

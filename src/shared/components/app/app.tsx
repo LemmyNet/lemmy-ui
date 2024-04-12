@@ -14,6 +14,7 @@ import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
 import { destroyTippy, setupTippy } from "../../tippy";
+import { adultConsentLocalStorageKey } from "shared/config";
 
 export class App extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
@@ -25,6 +26,19 @@ export class App extends Component<any, any> {
   }
 
   componentDidMount(): void {
+    const siteRes = this.isoData.site_res;
+
+    if (
+      siteRes?.site_view.site.content_warning &&
+      !(siteRes?.my_user || localStorage.getItem(adultConsentLocalStorageKey))
+    ) {
+      if (confirm(siteRes.site_view.site.content_warning)) {
+        localStorage.setItem(adultConsentLocalStorageKey, "true");
+      } else {
+        history.back();
+      }
+    }
+
     setupTippy(this.rootRef);
   }
 
