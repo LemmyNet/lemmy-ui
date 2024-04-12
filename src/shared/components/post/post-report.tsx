@@ -94,6 +94,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           onAddAdmin={async () => {}}
           onTransferCommunity={async () => {}}
           onMarkPostAsRead={async () => {}}
+          onHidePost={async () => {}}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}

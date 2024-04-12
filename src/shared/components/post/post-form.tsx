@@ -475,6 +475,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onAddAdmin={async () => {}}
                 onTransferCommunity={async () => {}}
                 onMarkPostAsRead={async () => {}}
+                onHidePost={async () => {}}
               />
             </>
           )}
@@ -688,6 +689,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onAddAdmin={async () => {}}
                 onTransferCommunity={async () => {}}
                 onMarkPostAsRead={async () => {}}
+                onHidePost={async () => {}}
               />
             </>
           )
