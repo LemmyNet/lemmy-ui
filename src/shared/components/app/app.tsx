@@ -14,7 +14,7 @@ import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
 import { destroyTippy, setupTippy } from "../../tippy";
-import { adultConsentLocalStorageKey } from "shared/config";
+import { adultConsentLocalStorageKey } from "../../config";
 
 export class App extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
