@@ -7,6 +7,7 @@ import { RouteDataResponse } from "./route-data-response";
 import { ThemeColor } from "./theme-color";
 import WithComment from "./with-comment";
 import CrossPostParams from "./cross-post-params";
+import StringBoolean from "./string-boolean";
 
 export {
   Choice,
@@ -18,4 +19,5 @@ export {
   ThemeColor,
   WithComment,
   CrossPostParams,
+  StringBoolean,
 };

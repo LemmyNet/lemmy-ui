@@ -741,6 +741,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   onAddAdmin={async () => {}}
                   onTransferCommunity={async () => {}}
                   onMarkPostAsRead={async () => {}}
+                  onHidePost={async () => {}}
                 />
               )}
               {i.type_ === "comments" && (
@@ -892,6 +893,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 onAddAdmin={async () => {}}
                 onTransferCommunity={async () => {}}
                 onMarkPostAsRead={() => {}}
+                onHidePost={async () => {}}
               />
             </div>
           </div>

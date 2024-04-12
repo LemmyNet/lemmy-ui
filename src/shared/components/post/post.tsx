@@ -61,6 +61,7 @@ import {
   GetPost,
   GetPostResponse,
   GetSiteResponse,
+  HidePost,
   LemmyHttp,
   LockPost,
   MarkCommentReplyAsRead,
@@ -195,6 +196,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleHidePost = this.handleHidePost.bind(this);
     this.handleScrollIntoCommentsClick =
       this.handleScrollIntoCommentsClick.bind(this);
 
@@ -405,6 +407,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onTransferCommunity={this.handleTransferCommunity}
                 onFeaturePost={this.handleFeaturePost}
                 onMarkPostAsRead={() => {}}
+                onHidePost={this.handleHidePost}
                 onScrollIntoCommentsClick={this.handleScrollIntoCommentsClick}
               />
               <div ref={this.state.commentSectionRef} className="mb-2" />
@@ -1041,6 +1044,22 @@ export class Post extends Component<PostRouteProps, PostState> {
           },
         ),
       );
+    }
+  }
+
+  async handleHidePost(form: HidePost) {
+    const hideRes = await HttpService.client.hidePost(form);
+
+    if (hideRes.state === "success") {
+      this.setState(s => {
+        if (s.postRes.state === "success") {
+          s.postRes.data.post_view.hidden = form.hide;
+        }
+
+        return s;
+      });
+
+      toast(I18NextService.i18n.t(form.hide ? "post_hidden" : "post_unhidden"));
     }
   }
 

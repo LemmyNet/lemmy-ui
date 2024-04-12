@@ -54,6 +54,7 @@ export type ContentPostProps = {
   onLock: () => Promise<void>;
   onFeatureLocal: () => Promise<void>;
   onFeatureCommunity: () => Promise<void>;
+  onHidePost: () => Promise<void>;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -178,6 +179,17 @@ export default class ContentActionDropdown extends Component<
           </button>
 
           <ul className="dropdown-menu" id={dropdownId}>
+            {type === "post" && (
+              <li>
+                <ActionButton
+                  icon={this.props.postView.hidden ? "eye" : "eye-slash"}
+                  label={I18NextService.i18n.t(
+                    this.props.postView.hidden ? "unhide_post" : "hide_post",
+                  )}
+                  onClick={this.props.onHidePost}
+                />
+              </li>
+            )}
             {this.amCreator ? (
               <>
                 <li>

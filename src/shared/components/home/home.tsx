@@ -21,7 +21,7 @@ import {
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { canCreateCommunity } from "@utils/roles";
-import type { QueryParams } from "@utils/types";
+import type { QueryParams, StringBoolean } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, linkEvent } from "inferno";
@@ -54,6 +54,7 @@ import {
   GetPosts,
   GetPostsResponse,
   GetSiteResponse,
+  HidePost,
   LemmyHttp,
   ListCommunities,
   ListCommunitiesResponse,
@@ -109,6 +110,7 @@ import {
 } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
+import PostHiddenSelect from "../common/post-hidden-select";
 import { snapToTop } from "@utils/browser";
 
 interface HomeState {
@@ -130,6 +132,7 @@ interface HomeProps {
   dataType: DataType;
   sort: SortType;
   pageCursor?: PaginationCursor;
+  showHidden?: StringBoolean;
 }
 
 type HomeData = RouteDataResponse<{
@@ -206,6 +209,7 @@ export function getHomeQueryParams(
       listingType: getListingTypeFromQuery,
       pageCursor: (cursor?: string) => cursor,
       dataType: getDataTypeFromQuery,
+      showHidden: (include?: StringBoolean) => include,
     },
     source,
     {
@@ -287,6 +291,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
+    this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
     this.handlePageNext = this.handlePageNext.bind(this);
     this.handlePagePrev = this.handlePagePrev.bind(this);
 
@@ -317,6 +322,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleHidePost = this.handleHidePost.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -349,7 +355,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   static async fetchInitialData({
-    query: { listingType, dataType, sort, pageCursor },
+    query: { listingType, dataType, sort, pageCursor, showHidden },
     headers,
   }: InitialFetchRequest<HomePathProps, HomeProps>): Promise<HomeData> {
     const client = wrapClient(
@@ -368,6 +374,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         limit: fetchLimit,
         sort,
         saved_only: false,
+        show_hidden: showHidden === "true",
       };
 
       postsFetch = client.getPosts(getPostsForm);
@@ -658,11 +665,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     listingType,
     pageCursor,
     sort,
+    showHidden,
   }: Partial<HomeProps>) {
     const {
       dataType: urlDataType,
       listingType: urlListingType,
       sort: urlSort,
+      showHidden: urlShowHidden,
     } = this.props;
 
     const queryParams: QueryParams<HomeProps> = {
@@ -670,6 +679,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       listingType: listingType ?? urlListingType,
       pageCursor: pageCursor,
       sort: sort ?? urlSort,
+      showHidden: showHidden ?? urlShowHidden,
     };
 
     this.props.history.push({
@@ -739,6 +749,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onTransferCommunity={this.handleTransferCommunity}
               onFeaturePost={this.handleFeaturePost}
               onMarkPostAsRead={async () => {}}
+              onHidePost={this.handleHidePost}
             />
           );
         }
@@ -786,7 +797,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get selects() {
-    const { listingType, dataType, sort } = this.props;
+    const { listingType, dataType, sort, showHidden } = this.props;
 
     return (
       <div className="row align-items-center mb-3 g-3">
@@ -796,6 +807,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             onChange={this.handleDataTypeChange}
           />
         </div>
+        {dataType === DataType.Post && UserService.Instance.myUserInfo && (
+          <div className="col-auto">
+            <PostHiddenSelect
+              showHidden={showHidden}
+              onShowHiddenChange={this.handleShowHiddenChange}
+            />
+          </div>
+        )}
         <div className="col-auto">
           <ListingTypeSelect
             type_={
@@ -833,7 +852,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async fetchData() {
-    const { dataType, pageCursor, listingType, sort } = this.props;
+    const { dataType, pageCursor, listingType, sort, showHidden } = this.props;
 
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST });
@@ -844,6 +863,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           sort,
           saved_only: false,
           type_: listingType,
+          show_hidden: showHidden === "true",
         }),
       });
     } else {
@@ -897,6 +917,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   handleDataTypeChange(val: DataType) {
     this.updateUrl({ dataType: val, pageCursor: undefined });
+  }
+
+  handleShowHiddenChange(show?: StringBoolean) {
+    console.log(`Got ${show}`);
+    this.updateUrl({
+      showHidden: show,
+      pageCursor: undefined,
+    });
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {
@@ -1047,6 +1075,26 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   async handleBanPerson(form: BanPerson) {
     const banRes = await HttpService.client.banPerson(form);
     this.updateBan(banRes);
+  }
+
+  async handleHidePost(form: HidePost) {
+    const hideRes = await HttpService.client.hidePost(form);
+
+    if (hideRes.state === "success") {
+      this.setState(prev => {
+        if (prev.postsRes.state === "success") {
+          for (const post of prev.postsRes.data.posts.filter(p =>
+            form.post_ids.some(id => id === p.post.id),
+          )) {
+            post.hidden = form.hide;
+          }
+        }
+
+        return prev;
+      });
+
+      toast(I18NextService.i18n.t(form.hide ? "post_hidden" : "post_unhidden"));
+    }
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
