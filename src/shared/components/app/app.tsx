@@ -15,11 +15,26 @@ import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
 import { destroyTippy, setupTippy } from "../../tippy";
 import { adultConsentLocalStorageKey } from "../../config";
+import AdultConsentModal from "../common/adult-consent-modal";
 
-export class App extends Component<any, any> {
+interface AppState {
+  showAdultConsentModal: boolean;
+}
+
+function handleAdultConsent(i: App) {
+  localStorage.setItem(adultConsentLocalStorageKey, "true");
+  i.setState({ showAdultConsentModal: false });
+}
+
+export class App extends Component<any, AppState> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
   private readonly mainContentRef: RefObject<HTMLElement>;
   private readonly rootRef = createRef<HTMLDivElement>();
+
+  state: AppState = {
+    showAdultConsentModal: false,
+  };
+
   constructor(props: any, context: any) {
     super(props, context);
     this.mainContentRef = createRef();
@@ -32,11 +47,7 @@ export class App extends Component<any, any> {
       siteRes?.site_view.site.content_warning &&
       !(siteRes?.my_user || localStorage.getItem(adultConsentLocalStorageKey))
     ) {
-      if (confirm(siteRes.site_view.site.content_warning)) {
-        localStorage.setItem(adultConsentLocalStorageKey, "true");
-      } else {
-        history.back();
-      }
+      this.setState({ showAdultConsentModal: true });
     }
 
     setupTippy(this.rootRef);
@@ -129,6 +140,14 @@ export class App extends Component<any, any> {
             </div>
             <Footer site={siteRes} />
           </div>
+          {siteRes?.site_view.site.content_warning && (
+            <AdultConsentModal
+              contentWarning={siteRes.site_view.site.content_warning}
+              show={this.state.showAdultConsentModal}
+              onBack={history.back}
+              onContinue={linkEvent(this, handleAdultConsent)}
+            />
+          )}
         </Provider>
       </>
     );
