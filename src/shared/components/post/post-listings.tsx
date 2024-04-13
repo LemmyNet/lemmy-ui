@@ -12,6 +12,7 @@ import {
   DeletePost,
   EditPost,
   FeaturePost,
+  HidePost,
   Language,
   LockPost,
   MarkPostAsRead,
@@ -53,6 +54,7 @@ interface PostListingsProps {
   onAddAdmin(form: AddAdmin): Promise<void>;
   onTransferCommunity(form: TransferCommunity): Promise<void>;
   onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
+  onHidePost(form: HidePost): Promise<void>;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
@@ -100,6 +102,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onAddAdmin={this.props.onAddAdmin}
                 onTransferCommunity={this.props.onTransferCommunity}
                 onMarkPostAsRead={this.props.onMarkPostAsRead}
+                onHidePost={this.props.onHidePost}
               />
               {idx + 1 !== this.posts.length && <hr className="my-3" />}
             </>

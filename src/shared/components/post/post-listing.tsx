@@ -19,6 +19,7 @@ import {
   DeletePost,
   EditPost,
   FeaturePost,
+  HidePost,
   Language,
   LockPost,
   MarkPostAsRead,
@@ -91,6 +92,7 @@ interface PostListingProps {
   onAddAdmin(form: AddAdmin): Promise<void>;
   onTransferCommunity(form: TransferCommunity): Promise<void>;
   onMarkPostAsRead(form: MarkPostAsRead): void;
+  onHidePost(form: HidePost): Promise<void>;
   onScrollIntoCommentsClick?(e: MouseEvent): void;
 }
 
@@ -126,6 +128,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleModBanFromSite = this.handleModBanFromSite.bind(this);
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
+    this.handleHidePost = this.handleHidePost.bind(this);
   }
 
   componentDidMount(): void {
@@ -611,6 +614,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onPurgeUser={this.handlePurgePerson}
             onPurgeContent={this.handlePurgePost}
             onAppointAdmin={this.handleAppointAdmin}
+            onHidePost={this.handleHidePost}
           />
         )}
       </div>
@@ -904,6 +908,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return this.props.onPurgePerson({
       person_id: this.postView.creator.id,
       reason,
+    });
+  }
+
+  handleHidePost() {
+    return this.props.onHidePost({
+      hide: !this.postView.hidden,
+      post_ids: [this.postView.post.id],
     });
   }
 
