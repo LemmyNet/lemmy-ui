@@ -113,6 +113,7 @@ export default class ContentActionDropdown extends Component<
     renderViewVotesDialog: false,
     dropdownOpenedOnce: false,
   };
+
   constructor(props: ContentActionDropdownProps, context: any) {
     super(props, context);
 
@@ -131,6 +132,7 @@ export default class ContentActionDropdown extends Component<
     this.toggleAppointAdminShow = this.toggleAppointAdminShow.bind(this);
     this.toggleViewVotesShow = this.toggleViewVotesShow.bind(this);
     this.wrapHandler = this.wrapHandler.bind(this);
+    this.handleDropdownToggleClick = this.handleDropdownToggleClick.bind(this);
   }
 
   render() {
@@ -188,7 +190,7 @@ export default class ContentActionDropdown extends Component<
             aria-expanded="false"
             aria-controls={dropdownId}
             aria-label={I18NextService.i18n.t("more")}
-            onClick={() => this.setState({ dropdownOpenedOnce: true })}
+            onClick={this.handleDropdownToggleClick}
           >
             <Icon icon="more-vertical" inline />
           </button>
@@ -494,6 +496,11 @@ export default class ContentActionDropdown extends Component<
         {this.moderationDialogs}
       </>
     );
+  }
+
+  handleDropdownToggleClick() {
+    // This only renders the dropdown. Bootstrap handles the show/hide part.
+    this.setState({ dropdownOpenedOnce: true });
   }
 
   toggleModDialogShow(
