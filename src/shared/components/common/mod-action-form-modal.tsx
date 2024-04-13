@@ -1,4 +1,10 @@
-import { Component, RefObject, createRef, linkEvent } from "inferno";
+import {
+  Component,
+  InfernoNode,
+  RefObject,
+  createRef,
+  linkEvent,
+} from "inferno";
 import { I18NextService } from "../../services/I18NextService";
 import { PurgeWarning, Spinner } from "./icon";
 import { getApubName, randomStr } from "@utils/helpers";
@@ -6,6 +12,7 @@ import type { Modal } from "bootstrap";
 import classNames from "classnames";
 import { Community, Person } from "lemmy-js-client";
 import { LoadingEllipses } from "./loading-ellipses";
+import { modalMixin } from "../mixins/modal-mixin";
 
 export interface BanUpdateForm {
   reason?: string;
@@ -56,7 +63,7 @@ type ModActionFormModalProps = (
   | ModActionFormModalPropsRest
   | ModActionFormModalPropsPurgePerson
   | ModActionFormModalPropsRemove
-) & { onCancel: () => void; show: boolean };
+) & { onCancel: () => void; show: boolean; children?: InfernoNode };
 
 interface ModActionFormFormState {
   loading: boolean;
@@ -109,13 +116,14 @@ async function handleSubmit(i: ModActionFormModal, event: any) {
   });
 }
 
+@modalMixin
 export default class ModActionFormModal extends Component<
   ModActionFormModalProps,
   ModActionFormFormState
 > {
-  private modalDivRef: RefObject<HTMLDivElement>;
+  modalDivRef: RefObject<HTMLDivElement>;
   private reasonRef: RefObject<HTMLInputElement>;
-  modal: Modal;
+  modal?: Modal;
   state: ModActionFormFormState = {
     loading: false,
     reason: "",
@@ -128,41 +136,6 @@ export default class ModActionFormModal extends Component<
 
     if (this.isBanModal) {
       this.state.shouldRemoveData = false;
-    }
-
-    this.handleShow = this.handleShow.bind(this);
-  }
-
-  async componentDidMount() {
-    this.modalDivRef.current?.addEventListener(
-      "shown.bs.modal",
-      this.handleShow,
-    );
-
-    const Modal = (await import("bootstrap/js/dist/modal")).default;
-    this.modal = new Modal(this.modalDivRef.current!);
-
-    if (this.props.show) {
-      this.modal.show();
-    }
-  }
-
-  componentWillUnmount() {
-    this.modalDivRef.current?.removeEventListener(
-      "shown.bs.modal",
-      this.handleShow,
-    );
-
-    this.modal.dispose();
-  }
-
-  componentDidUpdate({ show: prevShow }: ModActionFormModalProps) {
-    if (!!prevShow !== !!this.props.show) {
-      if (this.props.show) {
-        this.modal.show();
-      } else {
-        this.modal.hide();
-      }
     }
   }
 
