@@ -898,34 +898,42 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </form>
-          <div className="input-group mb-3">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="user-show-nsfw"
-                type="checkbox"
-                checked={this.state.saveUserSettingsForm.show_nsfw}
-                onChange={linkEvent(this, this.handleShowNsfwChange)}
-              />
-              <label className="form-check-label" htmlFor="user-show-nsfw">
-                {I18NextService.i18n.t("show_nsfw")}
-              </label>
-            </div>
-          </div>
-          <div className="input-group mb-3">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="user-blur-nsfw"
-                type="checkbox"
-                checked={this.state.saveUserSettingsForm.blur_nsfw}
-                onChange={linkEvent(this, this.handleBlurNsfwChange)}
-              />
-              <label className="form-check-label" htmlFor="user-blur-nsfw">
-                {I18NextService.i18n.t("blur_nsfw")}
-              </label>
-            </div>
-          </div>
+          {this.state.siteRes.site_view.local_site.enable_nsfw && (
+            <>
+              <div className="input-group mb-3">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    id="user-show-nsfw"
+                    type="checkbox"
+                    checked={this.state.saveUserSettingsForm.show_nsfw}
+                    onChange={linkEvent(this, this.handleShowNsfwChange)}
+                  />
+                  <label className="form-check-label" htmlFor="user-show-nsfw">
+                    {I18NextService.i18n.t("show_nsfw")}
+                  </label>
+                </div>
+              </div>
+              <div className="input-group mb-3">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    id="user-blur-nsfw"
+                    type="checkbox"
+                    disabled={!this.state.saveUserSettingsForm.show_nsfw}
+                    checked={
+                      this.state.saveUserSettingsForm.blur_nsfw &&
+                      this.state.saveUserSettingsForm.show_nsfw
+                    }
+                    onChange={linkEvent(this, this.handleBlurNsfwChange)}
+                  />
+                  <label className="form-check-label" htmlFor="user-blur-nsfw">
+                    {I18NextService.i18n.t("blur_nsfw")}
+                  </label>
+                </div>
+              </div>
+            </>
+          )}
           <div className="input-group mb-3">
             <div className="form-check">
               <input

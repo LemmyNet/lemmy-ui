@@ -25,6 +25,7 @@ import validTitle from "./valid-title";
 import validURL from "./valid-url";
 import dedupByProperty from "./dedup-by-property";
 import getApubName from "./apub-name";
+import shouldBlurNsfw from "./should-blur-nsfw";
 
 export {
   capitalizeFirstLetter,
@@ -54,4 +55,5 @@ export {
   validURL,
   dedupByProperty,
   getApubName,
+  shouldBlurNsfw,
 };

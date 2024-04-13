@@ -1,9 +1,9 @@
 import classNames from "classnames";
 import { Component } from "inferno";
 
-import { UserService } from "../../services";
 import { setIsoData } from "@utils/app";
 import { IsoDataOptionalSite } from "shared/interfaces";
+import { shouldBlurNsfw } from "@utils/helpers";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
@@ -31,10 +31,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
     const { src, icon, iconOverlay, banner, thumbnail, nsfw, pushup, cardTop } =
       this.props;
 
-    const blurImage =
-      nsfw &&
-      (!this.isoData.site_res?.site_view.site.content_warning ||
-        UserService.Instance.myUserInfo?.local_user_view.local_user.blur_nsfw);
+    const blurImage = nsfw && shouldBlurNsfw(this.isoData.site_res);
 
     return (
       <picture>
