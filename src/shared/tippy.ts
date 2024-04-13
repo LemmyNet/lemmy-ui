@@ -9,6 +9,7 @@ import {
 let instance: TippyDelegateInstance<TippyProps> | undefined;
 const tippySelector = "[data-tippy-content]";
 const shownInstances: Set<TippyInstance<TippyProps>> = new Set();
+let instanceCounter = 0;
 
 const tippyDelegateOptions: Partial<TippyProps> & { target: string } = {
   delay: [500, 0],
@@ -21,6 +22,19 @@ const tippyDelegateOptions: Partial<TippyProps> & { target: string } = {
   onHidden(i: TippyInstance<TippyProps>) {
     shownInstances.delete(i);
   },
+  onCreate() {
+    instanceCounter++;
+  },
+  onDestroy(i: TippyInstance<TippyProps>) {
+    // Tippy doesn't remove its onDocumentPress listener when destroyed.
+    // Instead the listener removes itself after calling hide for hideOnClick.
+    const origHide = i.hide;
+    // This silences the first warning when hiding a destroyed tippy instance.
+    // hide() is otherwise a noop for destroyed instances.
+    i.hide = () => {
+      i.hide = origHide;
+    };
+  },
 };
 
 export function setupTippy(root: RefObject<Element>) {
@@ -29,24 +43,25 @@ export function setupTippy(root: RefObject<Element>) {
   }
 }
 
-let requested = false;
 export function cleanupTippy() {
-  if (requested) {
+  // Hide tooltips for elements that are no longer connected to the document.
+  shownInstances.forEach(i => {
+    if (!i.reference.isConnected) {
+      console.assert(!i.state.isDestroyed, "hide called on destroyed tippy");
+      i.hide();
+    }
+  });
+
+  if (shownInstances.size || instanceCounter < 10) {
+    // Avoid randomly closing tooltips.
     return;
   }
-  requested = true;
-  queueMicrotask(() => {
-    requested = false;
-    if (shownInstances.size) {
-      // Avoid randomly closing tooltips.
-      return;
-    }
-    // delegate from tippy.js creates tippy instances when needed, but only
-    // destroys them when the delegate instance is destroyed.
-    const current = instance?.reference ?? null;
-    destroyTippy();
-    setupTippy({ current });
-  });
+  instanceCounter = 0;
+  const current = instance?.reference ?? null;
+  // delegate from tippy.js creates tippy instances when needed, but only
+  // destroys them when the delegate instance is destroyed.
+  destroyTippy();
+  setupTippy({ current });
 }
 
 export function destroyTippy() {

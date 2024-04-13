@@ -1,4 +1,10 @@
-import { Component, RefObject, createRef, linkEvent } from "inferno";
+import {
+  Component,
+  InfernoNode,
+  RefObject,
+  createRef,
+  linkEvent,
+} from "inferno";
 import { I18NextService } from "../../services";
 import type { Modal } from "bootstrap";
 import { Icon, Spinner } from "./icon";
@@ -16,8 +22,10 @@ import {
 } from "../../services/HttpService";
 import { fetchLimit } from "../../config";
 import { PersonListing } from "../person/person-listing";
+import { modalMixin } from "../mixins/modal-mixin";
 
 interface ViewVotesModalProps {
+  children?: InfernoNode;
   type: "comment" | "post";
   id: number;
   show: boolean;
@@ -57,13 +65,14 @@ function scoreToIcon(score: number) {
   );
 }
 
+@modalMixin
 export default class ViewVotesModal extends Component<
   ViewVotesModalProps,
   ViewVotesModalState
 > {
   readonly modalDivRef: RefObject<HTMLDivElement>;
   readonly yesButtonRef: RefObject<HTMLButtonElement>;
-  modal: Modal;
+  modal?: Modal;
   state: ViewVotesModalState = {
     postLikesRes: EMPTY_REQUEST,
     commentLikesRes: EMPTY_REQUEST,
@@ -76,42 +85,20 @@ export default class ViewVotesModal extends Component<
     this.modalDivRef = createRef();
     this.yesButtonRef = createRef();
 
-    this.handleShow = this.handleShow.bind(this);
     this.handleDismiss = this.handleDismiss.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
   }
 
   async componentDidMount() {
-    this.modalDivRef.current?.addEventListener(
-      "shown.bs.modal",
-      this.handleShow,
-    );
-
-    const Modal = (await import("bootstrap/js/dist/modal")).default;
-    this.modal = new Modal(this.modalDivRef.current!);
-
     if (this.props.show) {
-      this.modal.show();
       await this.refetch();
     }
   }
 
-  componentWillUnmount() {
-    this.modalDivRef.current?.removeEventListener(
-      "shown.bs.modal",
-      this.handleShow,
-    );
-
-    this.modal.dispose();
-  }
-
-  async componentDidUpdate({ show: prevShow }: ViewVotesModalProps) {
-    if (!!prevShow !== !!this.props.show) {
-      if (this.props.show) {
-        this.modal.show();
+  async componentWillReceiveProps({ show: nextShow }: ViewVotesModalProps) {
+    if (nextShow !== this.props.show) {
+      if (nextShow) {
         await this.refetch();
-      } else {
-        this.modal.hide();
       }
     }
   }
@@ -191,7 +178,7 @@ export default class ViewVotesModal extends Component<
 
   handleDismiss() {
     this.props.onCancel();
-    this.modal.hide();
+    this.modal?.hide();
   }
 
   async handlePageChange(page: number) {

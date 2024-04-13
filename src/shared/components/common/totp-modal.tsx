@@ -1,5 +1,6 @@
 import {
   Component,
+  InfernoNode,
   MouseEventHandler,
   RefObject,
   createRef,
@@ -8,14 +9,16 @@ import {
 import { I18NextService } from "../../services";
 import { toast } from "../../toast";
 import type { Modal } from "bootstrap";
+import { modalMixin } from "../mixins/modal-mixin";
 
 interface TotpModalProps {
+  children?: InfernoNode;
   /**Takes totp as param, returns whether submit was successful*/
   onSubmit: (totp: string) => Promise<boolean>;
   onClose: MouseEventHandler;
   type: "login" | "remove" | "generate";
   secretUrl?: string;
-  show?: boolean;
+  show: boolean;
 }
 
 interface TotpModalState {
@@ -68,13 +71,14 @@ function handlePaste(i: TotpModal, event: any) {
   }
 }
 
+@modalMixin
 export default class TotpModal extends Component<
   TotpModalProps,
   TotpModalState
 > {
   readonly modalDivRef: RefObject<HTMLDivElement>;
   readonly inputRef: RefObject<HTMLInputElement>;
-  modal: Modal;
+  modal?: Modal;
   state: TotpModalState = {
     totp: "",
     pending: false,
@@ -85,52 +89,6 @@ export default class TotpModal extends Component<
 
     this.modalDivRef = createRef();
     this.inputRef = createRef();
-
-    this.clearTotp = this.clearTotp.bind(this);
-    this.handleShow = this.handleShow.bind(this);
-  }
-
-  async componentDidMount() {
-    this.modalDivRef.current?.addEventListener(
-      "shown.bs.modal",
-      this.handleShow,
-    );
-
-    this.modalDivRef.current?.addEventListener(
-      "hidden.bs.modal",
-      this.clearTotp,
-    );
-
-    const Modal = (await import("bootstrap/js/dist/modal")).default;
-    this.modal = new Modal(this.modalDivRef.current!);
-
-    if (this.props.show) {
-      this.modal.show();
-    }
-  }
-
-  componentWillUnmount() {
-    this.modalDivRef.current?.removeEventListener(
-      "shown.bs.modal",
-      this.handleShow,
-    );
-
-    this.modalDivRef.current?.removeEventListener(
-      "hidden.bs.modal",
-      this.clearTotp,
-    );
-
-    this.modal.dispose();
-  }
-
-  componentDidUpdate({ show: prevShow }: TotpModalProps) {
-    if (!!prevShow !== !!this.props.show) {
-      if (this.props.show) {
-        this.modal.show();
-      } else {
-        this.modal.hide();
-      }
-    }
   }
 
   render() {
@@ -253,5 +211,9 @@ export default class TotpModal extends Component<
         ),
       });
     }
+  }
+
+  handleHide() {
+    this.clearTotp();
   }
 }
