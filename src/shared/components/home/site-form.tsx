@@ -116,6 +116,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.handleInstanceTextChange = this.handleInstanceTextChange.bind(this);
 
     this.handleBlockedUrlsUpdate = this.handleBlockedUrlsUpdate.bind(this);
+    this.handleSiteContentWarningChange =
+      this.handleSiteContentWarningChange.bind(this);
   }
 
   render() {
@@ -269,6 +271,25 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         </div>
+        {this.state.siteForm.enable_nsfw && (
+          <div className="mb-3 row">
+            <div className="alert small alert-info" role="alert">
+              <Icon icon="info" classes="icon-inline me-2" />
+              Setting a content warning will display a prompt with the content
+              warning asking for their consent to continue.
+            </div>
+            <label className="col-12 col-form-label">Content Warning</label>
+            <div className="col-12">
+              <MarkdownTextArea
+                initialContent={this.state.siteForm.content_warning}
+                onContentChange={this.handleSiteContentWarningChange}
+                hideNavigationWarnings
+                allLanguages={[]}
+                siteLanguages={[]}
+              />
+            </div>
+          </div>
+        )}
         <div className="mb-3 row">
           <div className="col-12">
             <label
@@ -1011,5 +1032,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         blocked_urls: newBlockedUrls,
       },
     }));
+  }
+
+  handleSiteContentWarningChange(val: string) {
+    this.setState(s => ((s.siteForm.content_warning = val), s));
   }
 }
