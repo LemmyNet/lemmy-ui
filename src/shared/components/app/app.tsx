@@ -26,6 +26,10 @@ function handleAdultConsent(i: App) {
   i.setState({ showAdultConsentModal: false });
 }
 
+function handleAdultConsentGoBack(i: App) {
+  i.context.router.history.back();
+}
+
 export class App extends Component<any, AppState> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
   private readonly mainContentRef: RefObject<HTMLElement>;
@@ -81,6 +85,14 @@ export class App extends Component<any, AppState> {
               <Theme defaultTheme={siteView.local_site.default_theme} />
             )}
             <Navbar siteRes={siteRes} />
+            {siteRes?.site_view.site.content_warning && (
+              <AdultConsentModal
+                contentWarning={siteRes.site_view.site.content_warning}
+                show={this.state.showAdultConsentModal}
+                onBack={linkEvent(this, handleAdultConsentGoBack)}
+                onContinue={linkEvent(this, handleAdultConsent)}
+              />
+            )}
             <div className="mt-4 p-0 fl-1">
               <Switch>
                 {routes.map(
@@ -140,14 +152,6 @@ export class App extends Component<any, AppState> {
             </div>
             <Footer site={siteRes} />
           </div>
-          {siteRes?.site_view.site.content_warning && (
-            <AdultConsentModal
-              contentWarning={siteRes.site_view.site.content_warning}
-              show={this.state.showAdultConsentModal}
-              onBack={history.back}
-              onContinue={linkEvent(this, handleAdultConsent)}
-            />
-          )}
         </Provider>
       </>
     );

@@ -5,7 +5,7 @@ interface AdultConsentModalProps {
   contentWarning: string;
   show: boolean;
   onContinue: LinkedEvent<any, Event> | null;
-  onBack: () => void;
+  onBack: LinkedEvent<any, Event> | null;
 }
 
 @modalMixin

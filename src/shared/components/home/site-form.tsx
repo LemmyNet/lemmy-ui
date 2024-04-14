@@ -276,7 +276,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <div className="alert small alert-info" role="alert">
               <Icon icon="info" classes="icon-inline me-2" />
               Setting a content warning will display a prompt with the content
-              warning asking for their consent to continue.
+              warning asking the user for their consent to continue.
             </div>
             <label className="col-12 col-form-label">Content Warning</label>
             <div className="col-12">
