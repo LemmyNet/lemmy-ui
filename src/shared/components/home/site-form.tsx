@@ -86,6 +86,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       allowed_instances: this.props.allowedInstances?.map(i => i.domain),
       blocked_instances: this.props.blockedInstances?.map(i => i.domain),
       blocked_urls: this.props.siteRes.blocked_urls.map(u => u.url),
+      content_warning: this.props.siteRes.site_view.site.content_warning,
     };
   }
 

@@ -3,6 +3,7 @@ import { modalMixin } from "../mixins/modal-mixin";
 import { adultConsentLocalStorageKey } from "../../config";
 import { setIsoData } from "@utils/app";
 import { IsoDataOptionalSite } from "../../interfaces";
+import { mdToHtml } from "../../markdown";
 
 interface AdultConsentModalProps {
   contentWarning: string;
@@ -29,11 +30,20 @@ class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
         data-bs-backdrop="static"
         ref={this.modalDivRef}
       >
-        <div className="modal-dialog modal-fullscreen-sm-down">
+        <div
+          className="modal-dialog modal-fullscreen-sm-down"
+          data-bs-backdrop="static"
+        >
           <div className="modal-content">
-            <div className="modal-body text-center align-middle text-body">
-              {contentWarning}
-            </div>
+            <header className="modal-header">
+              <h3 className="modal-title">Content Warning</h3>
+            </header>
+            <div
+              className="modal-body text-center align-middle text-body"
+              dangerouslySetInnerHTML={mdToHtml(contentWarning, () =>
+                this.forceUpdate(),
+              )}
+            />
             <footer className="modal-footer">
               <button
                 type="button"
