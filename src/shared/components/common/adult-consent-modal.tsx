@@ -1,5 +1,8 @@
-import { Component, LinkedEvent, RefObject, createRef } from "inferno";
+import { Component, LinkedEvent, createRef, linkEvent } from "inferno";
 import { modalMixin } from "../mixins/modal-mixin";
+import { adultConsentLocalStorageKey } from "../../config";
+import { setIsoData } from "@utils/app";
+import { IsoDataOptionalSite } from "../../interfaces";
 
 interface AdultConsentModalProps {
   contentWarning: string;
@@ -9,12 +12,9 @@ interface AdultConsentModalProps {
 }
 
 @modalMixin
-export default class AdultConsentModal extends Component<
-  AdultConsentModalProps,
-  any
-> {
-  readonly modalDivRef: RefObject<HTMLDivElement> = createRef();
-  readonly continueButtonRef: RefObject<HTMLButtonElement> = createRef();
+class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
+  readonly modalDivRef = createRef<HTMLDivElement>();
+  readonly continueButtonRef = createRef<HTMLButtonElement>();
 
   render() {
     const { contentWarning, onContinue, onBack } = this.props;
@@ -55,5 +55,50 @@ export default class AdultConsentModal extends Component<
 
   handleShow() {
     this.continueButtonRef.current?.focus();
+  }
+}
+
+interface AdultConsentModalState {
+  show: boolean;
+}
+
+function handleAdultConsent(i: AdultConsentModal) {
+  localStorage.setItem(adultConsentLocalStorageKey, "true");
+  i.setState({ show: false });
+}
+
+function handleAdultConsentGoBack(i: AdultConsentModal) {
+  i.context.router.history.back();
+}
+
+export default class AdultConsentModal extends Component<
+  { contentWarning: string },
+  AdultConsentModalState
+> {
+  private isoData: IsoDataOptionalSite = setIsoData(this.context);
+  state: AdultConsentModalState = {
+    show: false,
+  };
+
+  componentDidMount(): void {
+    const siteRes = this.isoData.site_res;
+
+    if (
+      siteRes?.site_view.site.content_warning &&
+      !(siteRes?.my_user || localStorage.getItem(adultConsentLocalStorageKey))
+    ) {
+      this.setState({ show: true });
+    }
+  }
+
+  render() {
+    return (
+      <AdultConsentModalInner
+        contentWarning={this.props.contentWarning}
+        show={this.state.show}
+        onBack={linkEvent(this, handleAdultConsentGoBack)}
+        onContinue={linkEvent(this, handleAdultConsent)}
+      />
+    );
   }
 }

@@ -1,5 +1,5 @@
 import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
-import { Component, RefObject, createRef, linkEvent } from "inferno";
+import { Component, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
 import { IsoDataOptionalSite } from "../../interfaces";
@@ -14,46 +14,14 @@ import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
 import { destroyTippy, setupTippy } from "../../tippy";
-import { adultConsentLocalStorageKey } from "../../config";
 import AdultConsentModal from "../common/adult-consent-modal";
 
-interface AppState {
-  showAdultConsentModal: boolean;
-}
-
-function handleAdultConsent(i: App) {
-  localStorage.setItem(adultConsentLocalStorageKey, "true");
-  i.setState({ showAdultConsentModal: false });
-}
-
-function handleAdultConsentGoBack(i: App) {
-  i.context.router.history.back();
-}
-
-export class App extends Component<any, AppState> {
+export class App extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
-  private readonly mainContentRef: RefObject<HTMLElement>;
+  private readonly mainContentRef = createRef<HTMLElement>();
   private readonly rootRef = createRef<HTMLDivElement>();
 
-  state: AppState = {
-    showAdultConsentModal: false,
-  };
-
-  constructor(props: any, context: any) {
-    super(props, context);
-    this.mainContentRef = createRef();
-  }
-
   componentDidMount(): void {
-    const siteRes = this.isoData.site_res;
-
-    if (
-      siteRes?.site_view.site.content_warning &&
-      !(siteRes?.my_user || localStorage.getItem(adultConsentLocalStorageKey))
-    ) {
-      this.setState({ showAdultConsentModal: true });
-    }
-
     setupTippy(this.rootRef);
   }
 
@@ -88,9 +56,6 @@ export class App extends Component<any, AppState> {
             {siteRes?.site_view.site.content_warning && (
               <AdultConsentModal
                 contentWarning={siteRes.site_view.site.content_warning}
-                show={this.state.showAdultConsentModal}
-                onBack={linkEvent(this, handleAdultConsentGoBack)}
-                onContinue={linkEvent(this, handleAdultConsent)}
               />
             )}
             <div className="mt-4 p-0 fl-1">
