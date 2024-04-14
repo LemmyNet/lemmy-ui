@@ -4,6 +4,7 @@ import { adultConsentLocalStorageKey } from "../../config";
 import { setIsoData } from "@utils/app";
 import { IsoDataOptionalSite } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
+import { UserService } from "../../services";
 
 interface AdultConsentModalProps {
   contentWarning: string;
@@ -95,7 +96,10 @@ export default class AdultConsentModal extends Component<
 
     if (
       siteRes?.site_view.site.content_warning &&
-      !(siteRes?.my_user || localStorage.getItem(adultConsentLocalStorageKey))
+      !(
+        UserService.Instance.myUserInfo ||
+        localStorage.getItem(adultConsentLocalStorageKey)
+      )
     ) {
       this.setState({ show: true });
     }
