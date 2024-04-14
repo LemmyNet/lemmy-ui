@@ -38,7 +38,7 @@ class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
           data-bs-backdrop="static"
         >
           <div className="modal-content">
-            <header className="modal-header text-center">
+            <header className="modal-header justify-content-center">
               <h3 className="modal-title">Content Warning</h3>
             </header>
             {redirectCountdown === Infinity ? (
