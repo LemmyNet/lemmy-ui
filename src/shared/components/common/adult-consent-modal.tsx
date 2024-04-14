@@ -11,6 +11,7 @@ interface AdultConsentModalProps {
   show: boolean;
   onContinue: LinkedEvent<any, Event> | null;
   onBack: LinkedEvent<any, Event> | null;
+  redirectCountdown: number;
 }
 
 @modalMixin
@@ -19,7 +20,8 @@ class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
   readonly continueButtonRef = createRef<HTMLButtonElement>();
 
   render() {
-    const { contentWarning, onContinue, onBack } = this.props;
+    const { contentWarning, onContinue, onBack, redirectCountdown } =
+      this.props;
 
     return (
       <div
@@ -36,15 +38,21 @@ class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
           data-bs-backdrop="static"
         >
           <div className="modal-content">
-            <header className="modal-header">
+            <header className="modal-header text-center">
               <h3 className="modal-title">Content Warning</h3>
             </header>
-            <div
-              className="modal-body text-center align-middle text-body"
-              dangerouslySetInnerHTML={mdToHtml(contentWarning, () =>
-                this.forceUpdate(),
-              )}
-            />
+            {redirectCountdown === Infinity ? (
+              <div
+                className="modal-body text-center align-middle text-body"
+                dangerouslySetInnerHTML={mdToHtml(contentWarning, () =>
+                  this.forceUpdate(),
+                )}
+              />
+            ) : (
+              <div className="modal-body text-center align-middle text-body">
+                Alright 👍. Sending you back in {redirectCountdown}.
+              </div>
+            )}
             <footer className="modal-footer">
               <button
                 type="button"
@@ -71,15 +79,24 @@ class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
 
 interface AdultConsentModalState {
   show: boolean;
+  redirectCountdown: number;
 }
 
 function handleAdultConsent(i: AdultConsentModal) {
   localStorage.setItem(adultConsentLocalStorageKey, "true");
   i.setState({ show: false });
+  location.reload();
 }
 
 function handleAdultConsentGoBack(i: AdultConsentModal) {
-  i.context.router.history.back();
+  i.setState({ redirectCountdown: 5 });
+
+  i.redirectTimeout = setInterval(() => {
+    i.setState(prev => ({
+      ...prev,
+      redirectCountdown: prev.redirectCountdown - 1,
+    }));
+  }, 1000);
 }
 
 export default class AdultConsentModal extends Component<
@@ -87,11 +104,13 @@ export default class AdultConsentModal extends Component<
   AdultConsentModalState
 > {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
+  redirectTimeout: NodeJS.Timeout;
   state: AdultConsentModalState = {
     show: false,
+    redirectCountdown: Infinity,
   };
 
-  componentDidMount(): void {
+  componentDidMount() {
     const siteRes = this.isoData.site_res;
 
     if (
@@ -105,11 +124,24 @@ export default class AdultConsentModal extends Component<
     }
   }
 
+  componentDidUpdate() {
+    if (this.state.redirectCountdown === 0) {
+      this.context.router.history.back();
+    }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.redirectTimeout);
+  }
+
   render() {
+    const { redirectCountdown, show } = this.state;
+
     return (
       <AdultConsentModalInner
         contentWarning={this.props.contentWarning}
-        show={this.state.show}
+        show={show}
+        redirectCountdown={redirectCountdown}
         onBack={linkEvent(this, handleAdultConsentGoBack)}
         onContinue={linkEvent(this, handleAdultConsent)}
       />
