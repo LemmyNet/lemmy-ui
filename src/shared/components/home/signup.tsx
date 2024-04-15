@@ -57,7 +57,7 @@ export class Signup extends Component<
     registerRes: EMPTY_REQUEST,
     captchaRes: EMPTY_REQUEST,
     form: {
-      show_nsfw: false,
+      show_nsfw: !!this.isoData.site_res.site_view.site.content_warning,
     },
     captchaPlaying: false,
     siteRes: this.isoData.site_res,
@@ -261,27 +261,22 @@ export class Signup extends Component<
           </>
         )}
         {this.renderCaptcha()}
-        {!this.state.siteRes.site_view.site.content_warning && (
-          <div className="mb-3 row">
-            <div className="col-sm-10">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="register-show-nsfw"
-                  type="checkbox"
-                  checked={this.state.form.show_nsfw}
-                  onChange={linkEvent(this, this.handleRegisterShowNsfwChange)}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor="register-show-nsfw"
-                >
-                  {I18NextService.i18n.t("show_nsfw")}
-                </label>
-              </div>
+        <div className="mb-3 row">
+          <div className="col-sm-10">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="register-show-nsfw"
+                type="checkbox"
+                checked={this.state.form.show_nsfw}
+                onChange={linkEvent(this, this.handleRegisterShowNsfwChange)}
+              />
+              <label className="form-check-label" htmlFor="register-show-nsfw">
+                {I18NextService.i18n.t("show_nsfw")}
+              </label>
             </div>
           </div>
-        )}
+        </div>
         <input
           tabIndex={-1}
           autoComplete="false"
