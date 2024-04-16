@@ -69,7 +69,7 @@ export class MediaUploads extends Component<Props, any> {
   deleteImageBtn(image: LocalImage) {
     return (
       <button
-        onClick={linkEvent({ i: this, image }, this.handleDeleteImage)}
+        onClick={linkEvent(image, this.handleDeleteImage)}
         className="btn btn-danger"
       >
         {I18NextService.i18n.t("delete")}
@@ -77,7 +77,7 @@ export class MediaUploads extends Component<Props, any> {
     );
   }
 
-  async handleDeleteImage({ image }: { i: MediaUploads; image: LocalImage }) {
+  async handleDeleteImage(image: LocalImage) {
     const form = {
       token: image.pictrs_delete_token,
       filename: image.pictrs_alias,
