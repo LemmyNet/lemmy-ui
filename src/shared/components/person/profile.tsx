@@ -7,6 +7,7 @@ import {
   getCommentParentId,
   setIsoData,
   updatePersonBlock,
+  voteDisplayMode,
 } from "@utils/app";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import {
@@ -357,6 +358,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 limit={fetchLimit}
                 finished={this.state.finished}
                 enableDownvotes={enableDownvotes(siteRes)}
+                voteDisplayMode={voteDisplayMode(siteRes)}
                 enableNsfw={enableNsfw(siteRes)}
                 view={view}
                 onPageChange={this.handlePageChange}

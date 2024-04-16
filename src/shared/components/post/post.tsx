@@ -12,6 +12,7 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
+  voteDisplayMode,
 } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import {
@@ -369,6 +370,7 @@ export class Post extends Component<PostRouteProps, PostState> {
         );
       case "success": {
         const res = this.state.postRes.data;
+        const siteRes = this.state.siteRes;
         return (
           <div className="row">
             <main className="col-12 col-md-8 col-lg-9 mb-3">
@@ -385,11 +387,12 @@ export class Post extends Component<PostRouteProps, PostState> {
                 showBody
                 showCommunity
                 moderators={res.moderators}
-                admins={this.state.siteRes.admins}
-                enableDownvotes={enableDownvotes(this.state.siteRes)}
-                enableNsfw={enableNsfw(this.state.siteRes)}
-                allLanguages={this.state.siteRes.all_languages}
-                siteLanguages={this.state.siteRes.discussion_languages}
+                admins={siteRes.admins}
+                enableDownvotes={enableDownvotes(siteRes)}
+                voteDisplayMode={voteDisplayMode(siteRes)}
+                enableNsfw={enableNsfw(siteRes)}
+                allLanguages={siteRes.all_languages}
+                siteLanguages={siteRes.discussion_languages}
                 onBlockPerson={this.handleBlockPerson}
                 onPostEdit={this.handlePostEdit}
                 onPostVote={this.handlePostVote}
@@ -419,8 +422,8 @@ export class Post extends Component<PostRouteProps, PostState> {
                 <CommentForm
                   node={res.post_view.post.id}
                   disabled={res.post_view.post.locked}
-                  allLanguages={this.state.siteRes.all_languages}
-                  siteLanguages={this.state.siteRes.discussion_languages}
+                  allLanguages={siteRes.all_languages}
+                  siteLanguages={siteRes.discussion_languages}
                   containerClass="post-comment-container"
                   onUpsertComment={this.handleCreateComment}
                   finished={this.state.finished.get(0)}
@@ -581,6 +584,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     // These are already sorted by new
     const commentsRes = this.state.commentsRes;
     const postRes = this.state.postRes;
+    const siteRes = this.state.siteRes;
 
     if (commentsRes.state === "success" && postRes.state === "success") {
       return (
@@ -592,12 +596,13 @@ export class Post extends Component<PostRouteProps, PostState> {
             isTopLevel
             locked={postRes.data.post_view.post.locked}
             moderators={postRes.data.moderators}
-            admins={this.state.siteRes.admins}
-            enableDownvotes={enableDownvotes(this.state.siteRes)}
+            admins={siteRes.admins}
+            enableDownvotes={enableDownvotes(siteRes)}
+            voteDisplayMode={voteDisplayMode(siteRes)}
             showContext
             finished={this.state.finished}
-            allLanguages={this.state.siteRes.all_languages}
-            siteLanguages={this.state.siteRes.discussion_languages}
+            allLanguages={siteRes.all_languages}
+            siteLanguages={siteRes.discussion_languages}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
@@ -652,6 +657,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     const firstComment = this.commentTree().at(0)?.comment_view.comment;
     const depth = getDepthFromComment(firstComment);
     const showContextButton = depth ? depth > 0 : false;
+    const siteRes = this.state.siteRes;
 
     return (
       res.state === "success" && (
@@ -680,11 +686,12 @@ export class Post extends Component<PostRouteProps, PostState> {
             maxCommentsShown={this.state.maxCommentsShown}
             locked={res.data.post_view.post.locked}
             moderators={res.data.moderators}
-            admins={this.state.siteRes.admins}
-            enableDownvotes={enableDownvotes(this.state.siteRes)}
+            admins={siteRes.admins}
+            enableDownvotes={enableDownvotes(siteRes)}
+            voteDisplayMode={voteDisplayMode(siteRes)}
             finished={this.state.finished}
-            allLanguages={this.state.siteRes.all_languages}
-            siteLanguages={this.state.siteRes.discussion_languages}
+            allLanguages={siteRes.all_languages}
+            siteLanguages={siteRes.discussion_languages}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}

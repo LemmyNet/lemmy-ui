@@ -3,6 +3,7 @@ import { T } from "inferno-i18next-dess";
 import {
   CommentReportView,
   CommentView,
+  LocalUserVoteDisplayMode,
   ResolveCommentReport,
 } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "../../interfaces";
@@ -15,6 +16,8 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface CommentReportProps {
   report: CommentReportView;
+  enableDownvotes?: boolean;
+  voteDisplayMode: LocalUserVoteDisplayMode;
   onResolveReport(form: ResolveCommentReport): void;
 }
 
@@ -79,7 +82,8 @@ export class CommentReport extends Component<
         <CommentNode
           node={node}
           viewType={CommentViewType.Flat}
-          enableDownvotes={true}
+          enableDownvotes={this.props.enableDownvotes}
+          voteDisplayMode={this.props.voteDisplayMode}
           viewOnly={true}
           showCommunity={true}
           allLanguages={[]}

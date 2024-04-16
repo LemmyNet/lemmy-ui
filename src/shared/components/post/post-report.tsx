@@ -1,6 +1,11 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
-import { PostReportView, PostView, ResolvePostReport } from "lemmy-js-client";
+import {
+  LocalUserVoteDisplayMode,
+  PostReportView,
+  PostView,
+  ResolvePostReport,
+} from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
@@ -10,6 +15,9 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface PostReportProps {
   report: PostReportView;
+  enableDownvotes?: boolean;
+  voteDisplayMode: LocalUserVoteDisplayMode;
+  enableNsfw?: boolean;
   onResolveReport(form: ResolvePostReport): void;
 }
 
@@ -70,8 +78,9 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         <PostListing
           post_view={pv}
           showCommunity={true}
-          enableDownvotes={true}
-          enableNsfw={true}
+          enableDownvotes={this.props.enableDownvotes}
+          voteDisplayMode={this.props.voteDisplayMode}
+          enableNsfw={this.props.enableNsfw}
           viewOnly={true}
           allLanguages={[]}
           siteLanguages={[]}

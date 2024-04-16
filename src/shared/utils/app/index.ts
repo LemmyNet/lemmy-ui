@@ -18,6 +18,8 @@ import editPrivateMessageReport from "./edit-private-message-report";
 import editRegistrationApplication from "./edit-registration-application";
 import editWith from "./edit-with";
 import enableDownvotes from "./enable-downvotes";
+import voteDisplayMode from "./vote-display-mode";
+import calculateUpvotePct from "./calculate-upvote-pct";
 import enableNsfw from "./enable-nsfw";
 import fetchCommunities from "./fetch-communities";
 import fetchSearchResults from "./fetch-search-results";
@@ -112,4 +114,6 @@ export {
   instanceToChoice,
   updateInstanceBlock,
   isAnonymousPath,
+  voteDisplayMode,
+  calculateUpvotePct,
 };

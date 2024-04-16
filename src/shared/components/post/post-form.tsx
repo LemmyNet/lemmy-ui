@@ -18,6 +18,7 @@ import {
   EditPost,
   GetSiteMetadataResponse,
   Language,
+  LocalUserVoteDisplayMode,
   PostView,
   SearchResponse,
 } from "lemmy-js-client";
@@ -57,6 +58,7 @@ interface PostFormProps {
   onEdit?(form: EditPost): void;
   enableNsfw?: boolean;
   enableDownvotes?: boolean;
+  voteDisplayMode: LocalUserVoteDisplayMode;
   selectedCommunityChoice?: Choice;
   onSelectCommunity?: (choice: Choice) => void;
   initialCommunities?: CommunityView[];
@@ -453,6 +455,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 showCommunity
                 posts={this.props.crossPosts}
                 enableDownvotes={this.props.enableDownvotes}
+                voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
@@ -667,6 +670,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 showCommunity
                 posts={suggestedPosts}
                 enableDownvotes={this.props.enableDownvotes}
+                voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}

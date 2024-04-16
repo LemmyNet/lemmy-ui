@@ -100,6 +100,9 @@ interface SettingsState {
     matrix_user_id?: string;
     show_avatars?: boolean;
     show_scores?: boolean;
+    show_upvotes?: boolean;
+    show_downvotes?: boolean;
+    show_upvote_percentage?: boolean;
     send_notifications_to_email?: boolean;
     bot_account?: boolean;
     show_bot_accounts?: boolean;
@@ -276,7 +279,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           interface_language,
           show_avatars,
           show_bot_accounts,
-          show_scores,
           show_read_posts,
           send_notifications_to_email,
           email,
@@ -289,6 +291,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           bot_account,
           bio,
           matrix_user_id,
+        },
+        local_user_vote_display_mode: {
+          score: show_scores,
+          upvotes: show_upvotes,
+          downvotes: show_downvotes,
+          upvote_percentage: show_upvote_percentage,
         },
       } = mui.local_user_view;
 
@@ -314,6 +322,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           bot_account,
           show_bot_accounts,
           show_scores,
+          show_upvotes,
+          show_downvotes,
+          show_upvote_percentage,
           show_read_posts,
           email,
           bio,
@@ -958,6 +969,54 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="form-check">
               <input
                 className="form-check-input"
+                id="user-show-upvotes"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.show_upvotes}
+                onChange={linkEvent(this, this.handleShowUpvotesChange)}
+              />
+              <label className="form-check-label" htmlFor="user-show-upvotes">
+                {I18NextService.i18n.t("show_upvotes")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-show-downvotes"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.show_downvotes}
+                onChange={linkEvent(this, this.handleShowDownvotesChange)}
+              />
+              <label className="form-check-label" htmlFor="user-show-downvotes">
+                {I18NextService.i18n.t("show_downvotes")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-show-upvote-percentage"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.show_upvote_percentage}
+                onChange={linkEvent(
+                  this,
+                  this.handleShowUpvotePercentageChange,
+                )}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="user-show-upvote-percentage"
+              >
+                {I18NextService.i18n.t("show_upvote_percentage")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
                 id="user-show-avatars"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_avatars}
@@ -1438,10 +1497,47 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   handleShowScoresChange(i: Settings, event: any) {
     const mui = UserService.Instance.myUserInfo;
     if (mui) {
-      mui.local_user_view.local_user.show_scores = event.target.checked;
+      mui.local_user_view.local_user_vote_display_mode.score =
+        event.target.checked;
     }
     i.setState(
       s => ((s.saveUserSettingsForm.show_scores = event.target.checked), s),
+    );
+  }
+
+  handleShowUpvotesChange(i: Settings, event: any) {
+    const mui = UserService.Instance.myUserInfo;
+    if (mui) {
+      mui.local_user_view.local_user_vote_display_mode.upvotes =
+        event.target.checked;
+    }
+    i.setState(
+      s => ((s.saveUserSettingsForm.show_upvotes = event.target.checked), s),
+    );
+  }
+
+  handleShowDownvotesChange(i: Settings, event: any) {
+    const mui = UserService.Instance.myUserInfo;
+    if (mui) {
+      mui.local_user_view.local_user_vote_display_mode.downvotes =
+        event.target.checked;
+    }
+    i.setState(
+      s => ((s.saveUserSettingsForm.show_downvotes = event.target.checked), s),
+    );
+  }
+
+  handleShowUpvotePercentageChange(i: Settings, event: any) {
+    const mui = UserService.Instance.myUserInfo;
+    if (mui) {
+      mui.local_user_view.local_user_vote_display_mode.upvote_percentage =
+        event.target.checked;
+    }
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.show_upvote_percentage = event.target.checked),
+        s
+      ),
     );
   }
 
@@ -1580,7 +1676,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       }
 
       toast(I18NextService.i18n.t("saved"));
-      snapToTop();
+
+      // You need to reload the page, to properly update the siteRes everywhere
+      setTimeout(() => location.reload(), 500);
     }
 
     setThemeOverride(undefined);

@@ -10,6 +10,7 @@ import {
   personToChoice,
   setIsoData,
   showLocal,
+  voteDisplayMode,
 } from "@utils/app";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import {
@@ -707,6 +708,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   get all() {
     const combined = this.buildCombined();
+    const siteRes = this.state.siteRes;
 
     return (
       <div>
@@ -718,10 +720,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   key={(i.data as PostView).post.id}
                   post_view={i.data as PostView}
                   showCommunity
-                  enableDownvotes={enableDownvotes(this.state.siteRes)}
-                  enableNsfw={enableNsfw(this.state.siteRes)}
-                  allLanguages={this.state.siteRes.all_languages}
-                  siteLanguages={this.state.siteRes.discussion_languages}
+                  enableDownvotes={enableDownvotes(siteRes)}
+                  voteDisplayMode={voteDisplayMode(siteRes)}
+                  enableNsfw={enableNsfw(siteRes)}
+                  allLanguages={siteRes.all_languages}
+                  siteLanguages={siteRes.discussion_languages}
                   viewOnly
                   // All of these are unused, since its view only
                   onPostEdit={async () => EMPTY_REQUEST}
@@ -758,9 +761,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   viewOnly
                   locked
                   isTopLevel
-                  enableDownvotes={enableDownvotes(this.state.siteRes)}
-                  allLanguages={this.state.siteRes.all_languages}
-                  siteLanguages={this.state.siteRes.discussion_languages}
+                  enableDownvotes={enableDownvotes(siteRes)}
+                  voteDisplayMode={voteDisplayMode(siteRes)}
+                  allLanguages={siteRes.all_languages}
+                  siteLanguages={siteRes.discussion_languages}
                   // All of these are unused, since its viewonly
                   finished={new Map()}
                   onSaveComment={async () => {}}
@@ -820,6 +824,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         locked
         isTopLevel
         enableDownvotes={enableDownvotes(siteRes)}
+        voteDisplayMode={voteDisplayMode(siteRes)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
         // All of these are unused, since its viewonly
@@ -871,6 +876,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 post_view={pv}
                 showCommunity
                 enableDownvotes={enableDownvotes(siteRes)}
+                voteDisplayMode={voteDisplayMode(siteRes)}
                 enableNsfw={enableNsfw(siteRes)}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}

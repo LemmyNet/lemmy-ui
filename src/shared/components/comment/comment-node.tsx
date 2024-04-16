@@ -1,4 +1,4 @@
-import { colorList, getCommentParentId, showScores } from "@utils/app";
+import { colorList, getCommentParentId } from "@utils/app";
 import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
 import classNames from "classnames";
 import { isBefore, parseISO, subMinutes } from "date-fns";
@@ -22,6 +22,7 @@ import {
   EditComment,
   GetComments,
   Language,
+  LocalUserVoteDisplayMode,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
   PersonMentionView,
@@ -54,6 +55,7 @@ import { CommentNodes } from "./comment-nodes";
 import { BanUpdateForm } from "../common/mod-action-form-modal";
 import CommentActionDropdown from "../common/content-actions/comment-action-dropdown";
 import { RequestState } from "../../services/HttpService";
+import { VoteDisplay } from "../common/vote-display";
 
 type CommentNodeState = {
   showReply: boolean;
@@ -80,6 +82,7 @@ interface CommentNodeProps {
   showContext?: boolean;
   showCommunity?: boolean;
   enableDownvotes?: boolean;
+  voteDisplayMode: LocalUserVoteDisplayMode;
   viewType: CommentViewType;
   allLanguages: Language[];
   siteLanguages: number[];
@@ -264,20 +267,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               {/* This is an expanding spacer for mobile */}
               <div className="me-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
 
-              {showScores() && (
-                <>
-                  <span
-                    className={`me-1 fw-bold ${this.scoreColor}`}
-                    aria-label={I18NextService.i18n.t("number_of_points", {
-                      count: Number(counts.score),
-                      formattedCount: numToSI(counts.score),
-                    })}
-                  >
-                    {numToSI(counts.score)}
-                  </span>
-                  <span className="me-1">•</span>
-                </>
-              )}
+              <VoteDisplay
+                voteDisplayMode={this.props.voteDisplayMode}
+                myVote={my_vote}
+                counts={counts}
+              />
               <span>
                 <MomentTime published={published} updated={updated} />
               </span>
@@ -354,8 +348,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           id={id}
                           onVote={this.props.onCommentVote}
                           enableDownvotes={this.props.enableDownvotes}
+                          voteDisplayMode={this.props.voteDisplayMode}
                           counts={counts}
-                          my_vote={my_vote}
+                          myVote={my_vote}
                         />
                         <button
                           type="button"
@@ -445,6 +440,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             moderators={this.props.moderators}
             admins={this.props.admins}
             enableDownvotes={this.props.enableDownvotes}
+            voteDisplayMode={this.props.voteDisplayMode}
             viewType={this.props.viewType}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -534,35 +530,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get isPostCreator(): boolean {
     return this.commentView.creator.id === this.commentView.post.creator_id;
-  }
-
-  get scoreColor() {
-    if (this.commentView.my_vote === 1) {
-      return "text-info";
-    } else if (this.commentView.my_vote === -1) {
-      return "text-danger";
-    } else {
-      return "text-muted";
-    }
-  }
-
-  get pointsTippy(): string {
-    const points = I18NextService.i18n.t("number_of_points", {
-      count: Number(this.commentView.counts.score),
-      formattedCount: numToSI(this.commentView.counts.score),
-    });
-
-    const upvotes = I18NextService.i18n.t("number_of_upvotes", {
-      count: Number(this.commentView.counts.upvotes),
-      formattedCount: numToSI(this.commentView.counts.upvotes),
-    });
-
-    const downvotes = I18NextService.i18n.t("number_of_downvotes", {
-      count: Number(this.commentView.counts.downvotes),
-      formattedCount: numToSI(this.commentView.counts.downvotes),
-    });
-
-    return `${points} • ${upvotes} • ${downvotes}`;
   }
 
   get expandText(): string {

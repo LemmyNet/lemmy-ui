@@ -2,7 +2,10 @@ import {
   editCommentReport,
   editPostReport,
   editPrivateMessageReport,
+  enableDownvotes,
+  enableNsfw,
   setIsoData,
+  voteDisplayMode,
 } from "@utils/app";
 import { randomStr, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -412,12 +415,15 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   }
 
   renderItemType(i: ItemType) {
+    const siteRes = this.state.siteRes;
     switch (i.type_) {
       case MessageEnum.CommentReport:
         return (
           <CommentReport
             key={i.id}
             report={i.view as CommentReportView}
+            enableDownvotes={enableDownvotes(siteRes)}
+            voteDisplayMode={voteDisplayMode(siteRes)}
             onResolveReport={this.handleResolveCommentReport}
           />
         );
@@ -426,6 +432,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <PostReport
             key={i.id}
             report={i.view as PostReportView}
+            enableDownvotes={enableDownvotes(siteRes)}
+            voteDisplayMode={voteDisplayMode(siteRes)}
+            enableNsfw={enableNsfw(siteRes)}
             onResolveReport={this.handleResolvePostReport}
           />
         );
@@ -457,6 +466,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
   commentReports() {
     const res = this.state.commentReportsRes;
+    const siteRes = this.state.siteRes;
     switch (res.state) {
       case "loading":
         return (
@@ -474,6 +484,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                 <CommentReport
                   key={cr.comment_report.id}
                   report={cr}
+                  enableDownvotes={enableDownvotes(siteRes)}
+                  voteDisplayMode={voteDisplayMode(siteRes)}
                   onResolveReport={this.handleResolveCommentReport}
                 />
               </>
@@ -486,6 +498,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
   postReports() {
     const res = this.state.postReportsRes;
+    const siteRes = this.state.siteRes;
     switch (res.state) {
       case "loading":
         return (
@@ -502,6 +515,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                 <hr />
                 <PostReport
                   key={pr.post_report.id}
+                  enableDownvotes={enableDownvotes(siteRes)}
+                  voteDisplayMode={voteDisplayMode(siteRes)}
+                  enableNsfw={enableNsfw(siteRes)}
                   report={pr}
                   onResolveReport={this.handleResolvePostReport}
                 />
