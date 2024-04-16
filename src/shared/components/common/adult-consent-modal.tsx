@@ -25,7 +25,7 @@ class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
 
     return (
       <div
-        className="modal fade"
+        className="modal"
         id="adultConsentModal"
         tabIndex={-1}
         aria-hidden
