@@ -4,7 +4,7 @@ import { adultConsentLocalStorageKey } from "../../config";
 import { setIsoData } from "@utils/app";
 import { IsoDataOptionalSite } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
-import { UserService } from "../../services";
+import { I18NextService, UserService } from "../../services";
 
 interface AdultConsentModalProps {
   contentWarning: string;
@@ -39,7 +39,9 @@ class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
         >
           <div className="modal-content">
             <header className="modal-header justify-content-center">
-              <h3 className="modal-title">Content Warning</h3>
+              <h3 className="modal-title">
+                {I18NextService.i18n.t("content_warning")}
+              </h3>
             </header>
             {redirectCountdown === Infinity ? (
               <div
@@ -50,7 +52,9 @@ class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
               />
             ) : (
               <div className="modal-body text-center align-middle text-body">
-                Alright 👍. Sending you back in {redirectCountdown}.
+                {I18NextService.i18n.t("sending_back_message", {
+                  seconds: redirectCountdown,
+                })}
               </div>
             )}
             <footer className="modal-footer">
@@ -60,10 +64,10 @@ class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
                 onClick={onContinue}
                 ref={this.continueButtonRef}
               >
-                Continue
+                {I18NextService.i18n.t("continue")}
               </button>
               <button type="button" className="btn btn-danger" onClick={onBack}>
-                Go back
+                {I18NextService.i18n.t("go_back")}
               </button>
             </footer>
           </div>

@@ -276,10 +276,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div className="mb-3 row">
             <div className="alert small alert-info" role="alert">
               <Icon icon="info" classes="icon-inline me-2" />
-              Setting a content warning will display a prompt with the content
-              warning asking the user for their consent to continue.
+              {I18NextService.i18n.t("content_warning_setting_blurb")}
             </div>
-            <label className="col-12 col-form-label">Content Warning</label>
+            <label className="col-12 col-form-label">
+              {I18NextService.i18n.t("content_warning")}
+            </label>
             <div className="col-12">
               <MarkdownTextArea
                 initialContent={this.state.siteForm.content_warning}
