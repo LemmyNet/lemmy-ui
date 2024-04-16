@@ -77,9 +77,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
             />
           )}
         <span>{name}</span>
-        {serverStr !== undefined && (
-          <small className="text-muted">{serverStr}</small>
-        )}
+        {serverStr && <small className="text-muted">{serverStr}</small>}
       </>
     );
   }

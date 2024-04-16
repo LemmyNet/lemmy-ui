@@ -63,9 +63,7 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
           icon && <PictrsImage src={icon} icon nsfw={nsfw} />}
         <span className="overflow-wrap-anywhere">
           {title}
-          {serverStr !== undefined && (
-            <small className="text-muted">{serverStr}</small>
-          )}
+          {serverStr && <small className="text-muted">{serverStr}</small>}
         </span>
       </>
     );
