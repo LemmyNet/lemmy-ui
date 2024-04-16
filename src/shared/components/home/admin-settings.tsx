@@ -13,6 +13,7 @@ import {
   GetFederatedInstancesResponse,
   GetSiteResponse,
   LemmyHttp,
+  ListMediaResponse,
   PersonView,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
@@ -37,10 +38,14 @@ import { TaglineForm } from "./tagline-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
+import { MediaUploads } from "../common/media-uploads";
+import { Paginator } from "../common/paginator";
+import { snapToTop } from "@utils/browser";
 
 type AdminSettingsData = RouteDataResponse<{
   bannedRes: BannedPersonsResponse;
   instancesRes: GetFederatedInstancesResponse;
+  uploadsRes: ListMediaResponse;
 }>;
 
 interface AdminSettingsState {
@@ -50,6 +55,8 @@ interface AdminSettingsState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
+  uploadsRes: RequestState<ListMediaResponse>;
+  uploadsPage: number;
   loading: boolean;
   themeList: string[];
   isIsomorphic: boolean;
@@ -76,13 +83,19 @@ export class AdminSettings extends Component<
     bannedRes: EMPTY_REQUEST,
     instancesRes: EMPTY_REQUEST,
     leaveAdminTeamRes: EMPTY_REQUEST,
+    uploadsRes: EMPTY_REQUEST,
+    uploadsPage: 1,
     loading: false,
     themeList: [],
     isIsomorphic: false,
   };
 
   loadingSettled() {
-    return resourcesSettled([this.state.bannedRes, this.state.instancesRes]);
+    return resourcesSettled([
+      this.state.bannedRes,
+      this.state.instancesRes,
+      this.state.uploadsRes,
+    ]);
   }
 
   constructor(props: any, context: any) {
@@ -92,15 +105,17 @@ export class AdminSettings extends Component<
     this.handleEditEmoji = this.handleEditEmoji.bind(this);
     this.handleDeleteEmoji = this.handleDeleteEmoji.bind(this);
     this.handleCreateEmoji = this.handleCreateEmoji.bind(this);
+    this.handleUploadsPageChange = this.handleUploadsPageChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const { bannedRes, instancesRes } = this.isoData.routeData;
+      const { bannedRes, instancesRes, uploadsRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
         bannedRes,
         instancesRes,
+        uploadsRes,
         isIsomorphic: true,
       };
     }
@@ -115,6 +130,7 @@ export class AdminSettings extends Component<
     return {
       bannedRes: await client.getBannedPersons(),
       instancesRes: await client.getFederatedInstances(),
+      uploadsRes: await client.listAllMedia(),
     };
   }
 
@@ -256,6 +272,21 @@ export class AdminSettings extends Component<
                 </div>
               ),
             },
+            {
+              key: "uploads",
+              label: I18NextService.i18n.t("uploads"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="uploads-tab-pane"
+                >
+                  {this.uploads()}
+                </div>
+              ),
+            },
           ]}
         />
       </div>
@@ -266,20 +297,32 @@ export class AdminSettings extends Component<
     this.setState({
       bannedRes: LOADING_REQUEST,
       instancesRes: LOADING_REQUEST,
+      uploadsRes: LOADING_REQUEST,
       themeList: [],
     });
 
-    const [bannedRes, instancesRes, themeList] = await Promise.all([
+    const [bannedRes, instancesRes, uploadsRes, themeList] = await Promise.all([
       HttpService.client.getBannedPersons(),
       HttpService.client.getFederatedInstances(),
+      HttpService.client.listAllMedia({
+        page: this.state.uploadsPage,
+      }),
       fetchThemeList(),
     ]);
 
     this.setState({
       bannedRes,
       instancesRes,
+      uploadsRes,
       themeList,
     });
+  }
+
+  async fetchUploadsOnly() {
+    const uploadsRes = await HttpService.client.listAllMedia({
+      page: this.state.uploadsPage,
+    });
+    this.setState({ uploadsRes });
   }
 
   admins() {
@@ -341,6 +384,30 @@ export class AdminSettings extends Component<
     }
   }
 
+  uploads() {
+    switch (this.state.uploadsRes.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success": {
+        const uploadsRes = this.state.uploadsRes.data;
+        return (
+          <div>
+            <MediaUploads showUploader uploads={uploadsRes} />
+            <Paginator
+              page={this.state.uploadsPage}
+              onChange={this.handleUploadsPageChange}
+              nextDisabled={false}
+            />
+          </div>
+        );
+      }
+    }
+  }
+
   async handleEditSite(form: EditSite) {
     this.setState({ loading: true });
 
@@ -396,5 +463,11 @@ export class AdminSettings extends Component<
     if (res.state === "success") {
       updateEmojiDataModel(res.data.custom_emoji);
     }
+  }
+
+  async handleUploadsPageChange(val: number) {
+    this.setState({ uploadsPage: val });
+    snapToTop();
+    await this.fetchUploadsOnly();
   }
 }
