@@ -6,7 +6,7 @@ import { StaticRouter, matchPath } from "inferno-router";
 import { Match } from "inferno-router/dist/Route";
 import { renderToString } from "inferno-server";
 import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
-import { App } from "../../shared/components/app/app";
+import App from "../../shared/components/app/app";
 import {
   InitialFetchRequest,
   IsoDataOptionalSite,
