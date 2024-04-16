@@ -24,64 +24,47 @@ export class PersonListing extends Component<PersonListingProps, any> {
   }
 
   render() {
-    const person = this.props.person;
+    const { person, useApubName } = this.props;
     const local = person.local;
-    let apubName: string, link: string;
+    let link: string;
+    let serverStr: string | undefined = undefined;
+
+    const name = useApubName ? person.name : person.display_name ?? person.name;
 
     if (local) {
-      apubName = `@${person.name}`;
       link = `/u/${person.name}`;
     } else {
-      const domain = hostname(person.actor_id);
-      apubName = `@${person.name}@${domain}`;
+      serverStr = `@${hostname(person.actor_id)}`;
       link = !this.props.realLink
-        ? `/u/${person.name}@${domain}`
+        ? `/u/${person.name}${serverStr}`
         : person.actor_id;
     }
 
-    let displayName = this.props.useApubName
-      ? apubName
-      : person.display_name ?? apubName;
-
-    if (this.props.showApubName && !local && person.display_name) {
-      displayName = `${displayName} (${apubName})`;
-    }
-
+    const classes = classNames(
+      "person-listing d-inline-flex align-items-baseline",
+      {
+        "text-muted": this.props.muted,
+        "text-info": !this.props.muted,
+      },
+    );
     return (
       <>
         {!this.props.realLink ? (
-          <Link
-            title={apubName}
-            className={classNames(
-              "person-listing d-inline-flex align-items-baseline",
-              {
-                "text-muted": this.props.muted,
-                "text-info": !this.props.muted,
-              },
-            )}
-            to={link}
-          >
-            {this.avatarAndName(displayName)}
+          <Link title={name} className={classes} to={link}>
+            {this.avatarAndName(name, serverStr)}
           </Link>
         ) : (
-          <a
-            title={apubName}
-            className={`person-listing d-inline-flex align-items-baseline ${
-              this.props.muted ? "text-muted" : "text-info"
-            }`}
-            href={link}
-            rel={relTags}
-          >
-            {this.avatarAndName(displayName)}
+          <a title={name} className={classes} href={link} rel={relTags}>
+            {this.avatarAndName(name, serverStr)}
           </a>
         )}
 
-        {isCakeDay(person.published) && <CakeDay creatorName={apubName} />}
+        {isCakeDay(person.published) && <CakeDay creatorName={name} />}
       </>
     );
   }
 
-  avatarAndName(displayName: string) {
+  avatarAndName(name: string, serverStr?: string) {
     const avatar = this.props.person.avatar;
     return (
       <>
@@ -93,7 +76,10 @@ export class PersonListing extends Component<PersonListingProps, any> {
               icon
             />
           )}
-        <span>{displayName}</span>
+        <span>{name}</span>
+        {serverStr !== undefined && (
+          <small className="text-muted">{serverStr}</small>
+        )}
       </>
     );
   }
