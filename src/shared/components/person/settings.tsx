@@ -1,5 +1,6 @@
 import {
   communityToChoice,
+  enableDownvotes,
   fetchCommunities,
   fetchThemeList,
   fetchUsers,
@@ -714,6 +715,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
   saveUserSettingsHtmlForm() {
     const selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
+    const siteRes = this.state.siteRes;
 
     return (
       <>
@@ -746,8 +748,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 onContentChange={this.handleBioChange}
                 maxLength={300}
                 hideNavigationWarnings
-                allLanguages={this.state.siteRes.all_languages}
-                siteLanguages={this.state.siteRes.discussion_languages}
+                allLanguages={siteRes.all_languages}
+                siteLanguages={siteRes.discussion_languages}
               />
             </div>
           </div>
@@ -843,8 +845,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </div>
           </div>
           <LanguageSelect
-            allLanguages={this.state.siteRes.all_languages}
-            siteLanguages={this.state.siteRes.discussion_languages}
+            allLanguages={siteRes.all_languages}
+            siteLanguages={siteRes.discussion_languages}
             selectedLanguageIds={selectedLangs}
             multiple={true}
             showLanguageWarning={true}
@@ -979,20 +981,25 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               </label>
             </div>
           </div>
-          <div className="input-group mb-3">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="user-show-downvotes"
-                type="checkbox"
-                checked={this.state.saveUserSettingsForm.show_downvotes}
-                onChange={linkEvent(this, this.handleShowDownvotesChange)}
-              />
-              <label className="form-check-label" htmlFor="user-show-downvotes">
-                {I18NextService.i18n.t("show_downvotes")}
-              </label>
+          {enableDownvotes(siteRes) && (
+            <div className="input-group mb-3">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  id="user-show-downvotes"
+                  type="checkbox"
+                  checked={this.state.saveUserSettingsForm.show_downvotes}
+                  onChange={linkEvent(this, this.handleShowDownvotesChange)}
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor="user-show-downvotes"
+                >
+                  {I18NextService.i18n.t("show_downvotes")}
+                </label>
+              </div>
             </div>
-          </div>
+          )}
           <div className="input-group mb-3">
             <div className="form-check">
               <input
