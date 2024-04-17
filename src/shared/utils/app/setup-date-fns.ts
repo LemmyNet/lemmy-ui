@@ -168,7 +168,7 @@ function bestDateFns(
       return locale;
     }
   }
-  // Fallback to base langauge first, to avoid mixing languages.
+  // Fallback to base language first, to avoid mixing languages.
   return langToLocale(base_lang) ?? localeByCode[EN_US];
 }
 

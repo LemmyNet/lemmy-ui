@@ -74,7 +74,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
       return this.props.src;
     }
 
-    // If theres no match, then its not a pictrs image
+    // If there's no match, then it's not a pictrs image
     if (!url.pathname.includes("/pictrs/image/")) {
       return this.props.src;
     }
