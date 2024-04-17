@@ -67,6 +67,7 @@ export enum PersonDetailsView {
   Comments = "Comments",
   Posts = "Posts",
   Saved = "Saved",
+  Uploads = "Uploads",
 }
 
 export enum PurgeType {
