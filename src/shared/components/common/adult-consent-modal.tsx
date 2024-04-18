@@ -1,12 +1,11 @@
 import { Component, LinkedEvent, createRef, linkEvent } from "inferno";
 import { modalMixin } from "../mixins/modal-mixin";
-import { adultConsentLocalStorageKey } from "../../config";
-import { setIsoData } from "@utils/app";
-import { IsoDataOptionalSite } from "../../interfaces";
+import { adultConsentCookieKey } from "../../config";
 import { mdToHtml } from "../../markdown";
 import { I18NextService } from "../../services";
-import { isBrowser } from "@utils/browser";
-import { Helmet } from "inferno-helmet";
+import { isHttps } from "@utils/env";
+import { IsoData } from "../../interfaces";
+import { setIsoData } from "@utils/app";
 
 interface AdultConsentModalProps {
   contentWarning: string;
@@ -35,13 +34,6 @@ class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
         data-bs-backdrop="static"
         ref={this.modalDivRef}
       >
-        <Helmet
-          htmlAttributes={{
-            // There is a hack included in create-ssr-html that fixes this
-            // attribute early based on localStorage.
-            "data-lemmy-blur": this.props.show ? "on" : "off",
-          }}
-        />
         <div
           className="modal-dialog modal-fullscreen-sm-down"
           data-bs-backdrop="static"
@@ -96,7 +88,8 @@ interface AdultConsentModalState {
 }
 
 function handleAdultConsent(i: AdultConsentModal) {
-  localStorage.setItem(adultConsentLocalStorageKey, "true");
+  document.cookie = `${adultConsentCookieKey}=true; Path=/; SameSite=Strict${isHttps() ? "; Secure" : ""}`;
+  document.querySelector("#app")?.removeAttribute("data-adult-consent");
   i.setState({ show: false });
 }
 
@@ -112,31 +105,15 @@ function handleAdultConsentGoBack(i: AdultConsentModal) {
 }
 
 export default class AdultConsentModal extends Component<
-  { contentWarning: string },
+  Pick<AdultConsentModalProps, "contentWarning">,
   AdultConsentModalState
 > {
-  private isoData: IsoDataOptionalSite = setIsoData(this.context);
+  private isoData: IsoData = setIsoData(this.context);
   redirectTimeout: NodeJS.Timeout;
   state: AdultConsentModalState = {
-    show: false,
+    show: this.isoData.showAdultConsentModal,
     redirectCountdown: Infinity,
   };
-
-  componentWillMount() {
-    const siteRes = this.isoData.site_res;
-
-    if (siteRes?.site_view.site.content_warning) {
-      if (isBrowser()) {
-        if (localStorage.getItem(adultConsentLocalStorageKey) !== "true") {
-          this.setState({ show: true });
-        } else {
-          this.setState({ show: false });
-        }
-      } else {
-        this.setState({ show: true });
-      }
-    }
-  }
 
   componentDidUpdate() {
     if (this.state.redirectCountdown === 0) {

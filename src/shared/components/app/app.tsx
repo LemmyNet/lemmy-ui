@@ -13,39 +13,39 @@ import { Navbar } from "./navbar";
 import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
-import { destroyTippy, setupTippy } from "../../tippy";
 import AdultConsentModal from "../common/adult-consent-modal";
 
-export class App extends Component<any, any> {
+function handleJumpToContent(event) {
+  event.preventDefault();
+}
+
+export default class App extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
-  private readonly mainContentRef = createRef<HTMLElement>();
   private readonly rootRef = createRef<HTMLDivElement>();
-
-  componentDidMount(): void {
-    setupTippy(this.rootRef);
-  }
-
-  componentWillUnmount(): void {
-    destroyTippy();
-  }
-
-  handleJumpToContent(event) {
-    event.preventDefault();
-    this.mainContentRef.current?.focus();
-  }
 
   render() {
     const siteRes = this.isoData.site_res;
     const siteView = siteRes?.site_view;
 
     return (
-      <>
-        <Provider i18next={I18NextService.i18n}>
-          <div id="app" className="lemmy-site" ref={this.rootRef}>
+      <Provider i18next={I18NextService.i18n}>
+        {/* This fragment is required to avoid an SSR error*/}
+        <>
+          {this.isoData.showAdultConsentModal && (
+            <AdultConsentModal
+              contentWarning={siteView!.site.content_warning!}
+            />
+          )}
+          <div
+            id="app"
+            className="lemmy-site"
+            ref={this.rootRef}
+            data-adult-consent={this.isoData.showAdultConsentModal}
+          >
             <button
               type="button"
               className="btn skip-link bg-light position-absolute start-0 z-3"
-              onClick={linkEvent(this, this.handleJumpToContent)}
+              onClick={linkEvent(this, handleJumpToContent)}
             >
               {I18NextService.i18n.t("jump_to_content", "Jump to content")}
             </button>
@@ -53,11 +53,6 @@ export class App extends Component<any, any> {
               <Theme defaultTheme={siteView.local_site.default_theme} />
             )}
             <Navbar siteRes={siteRes} />
-            {siteRes?.site_view.site.content_warning && (
-              <AdultConsentModal
-                contentWarning={siteRes.site_view.site.content_warning}
-              />
-            )}
             <div className="mt-4 p-0 fl-1">
               <Switch>
                 {routes.map(
@@ -117,8 +112,8 @@ export class App extends Component<any, any> {
             </div>
             <Footer site={siteRes} />
           </div>
-        </Provider>
-      </>
+        </>
+      </Provider>
     );
   }
 }

@@ -16,6 +16,7 @@ export interface IsoData<T extends RouteData = any> {
   routeData: T;
   site_res: GetSiteResponse;
   errorPageData?: ErrorPageData;
+  showAdultConsentModal: boolean;
 }
 
 export type IsoDataOptionalSite<T extends RouteData = any> = Partial<
