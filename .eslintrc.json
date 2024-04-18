@@ -49,6 +49,7 @@
     "prettier/prettier": "error",
     "quote-props": 0,
     "unicorn/filename-case": 0,
-    "jsx-a11y/media-has-caption": 0
+    "jsx-a11y/media-has-caption": 0,
+    "jsx-a11y/label-has-associated-control": 0
   }
 }

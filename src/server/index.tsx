@@ -14,8 +14,10 @@ import ThemesListHandler from "./handlers/themes-list-handler";
 import { setCacheControl, setDefaultCsp } from "./middleware";
 import CodeThemeHandler from "./handlers/code-theme-handler";
 import { verifyDynamicImports } from "../shared/dynamic-imports";
+import cookieParser from "cookie-parser";
 
 const server = express();
+server.use(cookieParser());
 
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
   ? process.env["LEMMY_UI_HOST"].split(":")

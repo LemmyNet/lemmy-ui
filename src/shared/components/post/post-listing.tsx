@@ -1,4 +1,4 @@
-import { myAuth } from "@utils/app";
+import { myAuth, setIsoData } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import { futureDaysToUnixTime, hostname } from "@utils/helpers";
@@ -33,7 +33,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { relTags } from "../../config";
-import { VoteContentType } from "../../interfaces";
+import { IsoDataOptionalSite, VoteContentType } from "../../interfaces";
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -98,9 +98,10 @@ interface PostListingProps {
 
 @tippyMixin
 export class PostListing extends Component<PostListingProps, PostListingState> {
+  private readonly isoData: IsoDataOptionalSite = setIsoData(this.context);
   state: PostListingState = {
     showEdit: false,
-    imageExpanded: false,
+    imageExpanded: !!this.isoData.site_res?.site_view.site.content_warning,
     viewSource: false,
     showAdvanced: false,
     showBody: false,

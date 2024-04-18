@@ -6,7 +6,7 @@ import { StaticRouter, matchPath } from "inferno-router";
 import { Match } from "inferno-router/dist/Route";
 import { renderToString } from "inferno-server";
 import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
-import { App } from "../../shared/components/app/app";
+import App from "../../shared/components/app/app";
 import {
   InitialFetchRequest,
   IsoDataOptionalSite,
@@ -28,6 +28,7 @@ import {
 } from "../../shared/services/";
 import { parsePath } from "history";
 import { getQueryString } from "@utils/helpers";
+import { adultConsentCookieKey } from "../../shared/config";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -142,6 +143,9 @@ export default async (req: Request, res: Response) => {
       site_res: site,
       routeData,
       errorPageData,
+      showAdultConsentModal:
+        !!site?.site_view.site.content_warning &&
+        !(site.my_user || req.cookies[adultConsentCookieKey]),
     };
 
     const wrapper = (

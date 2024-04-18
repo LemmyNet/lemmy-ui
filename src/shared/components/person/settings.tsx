@@ -918,7 +918,11 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 className="form-check-input"
                 id="user-blur-nsfw"
                 type="checkbox"
-                checked={this.state.saveUserSettingsForm.blur_nsfw}
+                disabled={!this.state.saveUserSettingsForm.show_nsfw}
+                checked={
+                  this.state.saveUserSettingsForm.blur_nsfw &&
+                  this.state.saveUserSettingsForm.show_nsfw
+                }
                 onChange={linkEvent(this, this.handleBlurNsfwChange)}
               />
               <label className="form-check-label" htmlFor="user-blur-nsfw">
