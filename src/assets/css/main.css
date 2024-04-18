@@ -461,7 +461,3 @@ br.big {
 .totp-link {
   width: fit-content;
 }
-
-#adultConsentModal {
-  backdrop-filter: blur(10px);
-}

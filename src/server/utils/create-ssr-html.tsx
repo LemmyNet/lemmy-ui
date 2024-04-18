@@ -75,6 +75,20 @@ export async function createSsrHtml(
     .map(x => `<link rel="preload" as="script" href="${x}" />`)
     .join("");
 
+  // Blurring has to happen even if all style sheets fail to load.
+  const blurStyles = !site?.site_view.site.content_warning
+    ? ""
+    : `
+    <style>
+      [data-lemmy-blur=on] #app > :not(#adultConsentModal) {
+        filter: blur(10px);
+        pointer-events: none; ${/* prevent accidental link clicks */ ""}
+      }
+      html[data-lemmy-blur=on] {
+        overflow: hidden; ${/* Firefox on Android allows otherwise to peek behind the urlbar */ ""}
+      }
+    </style>`;
+
   return `
     <!DOCTYPE html>
     <html ${helmet.htmlAttributes.toString()}>
@@ -84,7 +98,12 @@ export async function createSsrHtml(
       const light = window.matchMedia("(prefers-color-scheme: light)").matches;
       document.documentElement.setAttribute("data-bs-theme", light ? "light" : "dark");
     }
+    if (document.documentElement.hasAttribute("data-lemmy-blur")) {
+      const consent = localStorage.getItem("adult-consent") === "true";
+      document.documentElement.setAttribute("data-lemmy-blur", consent ? "off" : "on");
+    }
     </script>
+    ${blurStyles}
     ${lazyScripts}
     <script nonce="${cspNonce}">window.isoData = ${serialize(isoData)}</script>
   

@@ -4,7 +4,9 @@ import { adultConsentLocalStorageKey } from "../../config";
 import { setIsoData } from "@utils/app";
 import { IsoDataOptionalSite } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
+import { isBrowser } from "@utils/browser";
+import { Helmet } from "inferno-helmet";
 
 interface AdultConsentModalProps {
   contentWarning: string;
@@ -33,6 +35,13 @@ class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
         data-bs-backdrop="static"
         ref={this.modalDivRef}
       >
+        <Helmet
+          htmlAttributes={{
+            // There is a hack included in create-ssr-html that fixes this
+            // attribute early based on localStorage.
+            "data-lemmy-blur": this.props.show ? "on" : "off",
+          }}
+        />
         <div
           className="modal-dialog modal-fullscreen-sm-down"
           data-bs-backdrop="static"
@@ -89,7 +98,6 @@ interface AdultConsentModalState {
 function handleAdultConsent(i: AdultConsentModal) {
   localStorage.setItem(adultConsentLocalStorageKey, "true");
   i.setState({ show: false });
-  location.reload();
 }
 
 function handleAdultConsentGoBack(i: AdultConsentModal) {
@@ -114,17 +122,19 @@ export default class AdultConsentModal extends Component<
     redirectCountdown: Infinity,
   };
 
-  componentDidMount() {
+  componentWillMount() {
     const siteRes = this.isoData.site_res;
 
-    if (
-      siteRes?.site_view.site.content_warning &&
-      !(
-        UserService.Instance.myUserInfo ||
-        localStorage.getItem(adultConsentLocalStorageKey)
-      )
-    ) {
-      this.setState({ show: true });
+    if (siteRes?.site_view.site.content_warning) {
+      if (isBrowser()) {
+        if (localStorage.getItem(adultConsentLocalStorageKey) !== "true") {
+          this.setState({ show: true });
+        } else {
+          this.setState({ show: false });
+        }
+      } else {
+        this.setState({ show: true });
+      }
     }
   }
 
