@@ -89,8 +89,8 @@ interface AdultConsentModalState {
 
 function handleAdultConsent(i: AdultConsentModal) {
   document.cookie = `${adultConsentCookieKey}=true; Path=/; SameSite=Strict${isHttps() ? "; Secure" : ""}`;
-  document.querySelector("#app")?.removeAttribute("data-adult-consent");
   i.setState({ show: false });
+  location.reload();
 }
 
 function handleAdultConsentGoBack(i: AdultConsentModal) {

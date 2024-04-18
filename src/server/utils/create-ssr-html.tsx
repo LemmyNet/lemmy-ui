@@ -98,6 +98,16 @@ export async function createSsrHtml(
     ${helmet.title.toString()}
     ${helmet.meta.toString()}
   
+    <style>
+    #app[data-adult-consent] {
+      filter: blur(10px);
+      -webkit-filter: blur(10px);
+      -moz-filter: blur(10px);
+      -o-filter: blur(10px);
+      -ms-filter: blur(10px);
+    }
+    </style>
+
     <!-- Required meta tags -->
     <meta name="Description" content="Lemmy">
     <meta charset="utf-8">

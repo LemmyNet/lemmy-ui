@@ -461,11 +461,3 @@ br.big {
 .totp-link {
   width: fit-content;
 }
-
-#app[data-adult-consent] {
-  filter: blur(10px);
-  -webkit-filter: blur(10px);
-  -moz-filter: blur(10px);
-  -o-filter: blur(10px);
-  -ms-filter: blur(10px);
-}

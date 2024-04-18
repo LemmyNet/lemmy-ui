@@ -40,7 +40,7 @@ export default class App extends Component<any, any> {
             id="app"
             className="lemmy-site"
             ref={this.rootRef}
-            data-adult-consent={this.isoData.showAdultConsentModal}
+            data-adult-consent={this.isoData.showAdultConsentModal || null}
           >
             <button
               type="button"
