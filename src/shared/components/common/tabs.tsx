@@ -20,7 +20,7 @@ function handleSwitchTab({ ctx, tab }: { ctx: Tabs; tab: string }) {
 }
 
 export default class Tabs extends Component<TabsProps, TabsState> {
-  constructor(props: TabsProps, context) {
+  constructor(props: TabsProps, context: any) {
     super(props, context);
 
     this.state = {

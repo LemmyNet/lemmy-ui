@@ -5,9 +5,6 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { Component, linkEvent } from "inferno";
 import { I18NextService } from "../../services/I18NextService";
 
-// Need to disable this rule because ESLint flat out lies about labels not
-// having an associated control in this component
-/* eslint-disable jsx-a11y/label-has-associated-control */
 interface PostHiddenSelectProps {
   showHidden?: StringBoolean;
   onShowHiddenChange: (hidden?: StringBoolean) => void;

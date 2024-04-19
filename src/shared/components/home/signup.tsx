@@ -57,7 +57,7 @@ export class Signup extends Component<
     registerRes: EMPTY_REQUEST,
     captchaRes: EMPTY_REQUEST,
     form: {
-      show_nsfw: false,
+      show_nsfw: !!this.isoData.site_res.site_view.site.content_warning,
     },
     captchaPlaying: false,
     siteRes: this.isoData.site_res,

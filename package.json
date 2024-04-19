@@ -42,6 +42,7 @@
     "classnames": "^2.5.1",
     "clean-webpack-plugin": "^4.0.0",
     "cookie": "^0.6.0",
+    "cookie-parser": "^1.4.6",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^6.10.0",
     "date-fns": "^3.6.0",
@@ -60,7 +61,7 @@
     "inferno-router": "^8.2.3",
     "inferno-server": "^8.2.3",
     "jwt-decode": "^4.0.0",
-    "lemmy-js-client": "0.19.4-alpha.16",
+    "lemmy-js-client": "0.19.4-alpha.18",
     "lodash.isequal": "^4.5.0",
     "markdown-it": "^14.1.0",
     "markdown-it-bidi": "^0.1.0",
@@ -94,6 +95,7 @@
     "@types/autosize": "^4.0.3",
     "@types/bootstrap": "^5.2.10",
     "@types/cookie": "^0.6.0",
+    "@types/cookie-parser": "^1.4.7",
     "@types/express": "^4.17.21",
     "@types/html-to-text": "^9.0.4",
     "@types/lodash.isequal": "^4.5.8",
@@ -139,7 +141,7 @@
       "sortpack"
     ]
   },
-  "packageManager": "pnpm@8.14.3",
+  "packageManager": "pnpm@9.0.1+sha256.46d50ee2afecb42b185ebbd662dc7bdd52ef5be56bf035bb615cab81a75345df",
   "engineStrict": true,
   "importSort": {
     ".js, .jsx, .ts, .tsx": {
