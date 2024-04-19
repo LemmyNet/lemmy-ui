@@ -14,6 +14,7 @@ import {
   FeaturePost,
   HidePost,
   Language,
+  LocalUserVoteDisplayMode,
   LockPost,
   MarkPostAsRead,
   PostResponse,
@@ -35,6 +36,7 @@ interface PostListingsProps {
   showCommunity?: boolean;
   removeDuplicates?: boolean;
   enableDownvotes?: boolean;
+  voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw?: boolean;
   viewOnly?: boolean;
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
@@ -81,6 +83,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 crossPosts={this.duplicatesMap.get(post_view.post.id)}
                 showCommunity={this.props.showCommunity}
                 enableDownvotes={this.props.enableDownvotes}
+                voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
                 viewOnly={this.props.viewOnly}
                 allLanguages={this.props.allLanguages}

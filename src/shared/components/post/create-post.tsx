@@ -3,6 +3,7 @@ import {
   enableDownvotes,
   enableNsfw,
   setIsoData,
+  voteDisplayMode,
 } from "@utils/app";
 import { getIdFromString, getQueryParams } from "@utils/helpers";
 import { Choice, RouteDataResponse } from "@utils/types";
@@ -163,7 +164,7 @@ export class CreatePost extends Component<
   }
 
   render() {
-    const { selectedCommunityChoice } = this.state;
+    const { selectedCommunityChoice, siteRes } = this.state;
 
     const locationState = this.props.history.location.state as
       | PostFormParams
@@ -191,10 +192,11 @@ export class CreatePost extends Component<
               <PostForm
                 onCreate={this.handlePostCreate}
                 params={locationState}
-                enableDownvotes={enableDownvotes(this.state.siteRes)}
-                enableNsfw={enableNsfw(this.state.siteRes)}
-                allLanguages={this.state.siteRes.all_languages}
-                siteLanguages={this.state.siteRes.discussion_languages}
+                enableDownvotes={enableDownvotes(siteRes)}
+                voteDisplayMode={voteDisplayMode(siteRes)}
+                enableNsfw={enableNsfw(siteRes)}
+                allLanguages={siteRes.all_languages}
+                siteLanguages={siteRes.discussion_languages}
                 selectedCommunityChoice={selectedCommunityChoice}
                 onSelectCommunity={this.handleSelectedCommunityChange}
                 initialCommunities={

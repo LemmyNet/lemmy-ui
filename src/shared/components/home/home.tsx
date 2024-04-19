@@ -12,6 +12,7 @@ import {
   setIsoData,
   showLocal,
   updatePersonBlock,
+  voteDisplayMode,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -729,6 +730,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showCommunity
               removeDuplicates
               enableDownvotes={enableDownvotes(siteRes)}
+              voteDisplayMode={voteDisplayMode(siteRes)}
               enableNsfw={enableNsfw(siteRes)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
@@ -769,6 +771,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showCommunity
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
+              voteDisplayMode={voteDisplayMode(siteRes)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               onSaveComment={this.handleSaveComment}

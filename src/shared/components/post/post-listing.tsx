@@ -21,6 +21,7 @@ import {
   FeaturePost,
   HidePost,
   Language,
+  LocalUserVoteDisplayMode,
   LockPost,
   MarkPostAsRead,
   PersonView,
@@ -73,6 +74,7 @@ interface PostListingProps {
   showBody?: boolean;
   hideImage?: boolean;
   enableDownvotes?: boolean;
+  voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw?: boolean;
   viewOnly?: boolean;
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
@@ -168,6 +170,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
             enableDownvotes={this.props.enableDownvotes}
+            voteDisplayMode={this.props.voteDisplayMode}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
           />
@@ -392,7 +395,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             }
           </span>
         )}{" "}
-        • <MomentTime published={pv.post.published} updated={pv.post.updated} />
+        · <MomentTime published={pv.post.published} updated={pv.post.updated} />
       </div>
     );
   }
@@ -553,12 +556,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    const { admins, moderators, showBody, onPostVote, enableDownvotes } =
-      this.props;
+    const {
+      admins,
+      moderators,
+      showBody,
+      onPostVote,
+      enableDownvotes,
+      voteDisplayMode,
+    } = this.props;
     const {
       post: { ap_id, id, body },
-      counts,
       my_vote,
+      counts,
     } = this.postView;
 
     return (
@@ -585,9 +594,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             voteContentType={VoteContentType.Post}
             id={id}
             onVote={onPostVote}
-            enableDownvotes={enableDownvotes}
             counts={counts}
-            my_vote={my_vote}
+            enableDownvotes={enableDownvotes}
+            voteDisplayMode={voteDisplayMode}
+            myVote={my_vote}
           />
         )}
 
@@ -743,8 +753,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   id={this.postView.post.id}
                   onVote={this.props.onPostVote}
                   enableDownvotes={this.props.enableDownvotes}
+                  voteDisplayMode={this.props.voteDisplayMode}
                   counts={this.postView.counts}
-                  my_vote={this.postView.my_vote}
+                  myVote={this.postView.my_vote}
                 />
               </div>
             )}

@@ -18,6 +18,7 @@ import {
   EditComment,
   GetComments,
   Language,
+  LocalUserVoteDisplayMode,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
   PersonView,
@@ -44,6 +45,7 @@ interface CommentNodesProps {
   showContext?: boolean;
   showCommunity?: boolean;
   enableDownvotes?: boolean;
+  voteDisplayMode: LocalUserVoteDisplayMode;
   viewType: CommentViewType;
   allLanguages: Language[];
   siteLanguages: number[];
@@ -115,6 +117,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               showContext={this.props.showContext}
               showCommunity={this.props.showCommunity}
               enableDownvotes={this.props.enableDownvotes}
+              voteDisplayMode={this.props.voteDisplayMode}
               viewType={this.props.viewType}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}

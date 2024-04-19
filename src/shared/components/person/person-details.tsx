@@ -23,6 +23,7 @@ import {
   GetComments,
   GetPersonDetailsResponse,
   Language,
+  LocalUserVoteDisplayMode,
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
@@ -56,6 +57,7 @@ interface PersonDetailsProps {
   limit: number;
   sort: SortType;
   enableDownvotes: boolean;
+  voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw: boolean;
   view: PersonDetailsView;
   onPageChange(page: number): number | any;
@@ -157,6 +159,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             showCommunity
             showContext
             enableDownvotes={this.props.enableDownvotes}
+            voteDisplayMode={this.props.voteDisplayMode}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             onCommentReplyRead={this.props.onCommentReplyRead}
@@ -190,6 +193,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             admins={this.props.admins}
             showCommunity
             enableDownvotes={this.props.enableDownvotes}
+            voteDisplayMode={this.props.voteDisplayMode}
             enableNsfw={this.props.enableNsfw}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -267,6 +271,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           showCommunity
           showContext
           enableDownvotes={this.props.enableDownvotes}
+          voteDisplayMode={this.props.voteDisplayMode}
           allLanguages={this.props.allLanguages}
           siteLanguages={this.props.siteLanguages}
           onCommentReplyRead={this.props.onCommentReplyRead}
@@ -303,6 +308,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               admins={this.props.admins}
               showCommunity
               enableDownvotes={this.props.enableDownvotes}
+              voteDisplayMode={this.props.voteDisplayMode}
               enableNsfw={this.props.enableNsfw}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}

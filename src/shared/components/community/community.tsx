@@ -13,6 +13,7 @@ import {
   showLocal,
   updateCommunityBlock,
   updatePersonBlock,
+  voteDisplayMode,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -422,11 +423,11 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   sidebar(res: GetCommunityResponse) {
-    const { site_res } = this.isoData;
+    const siteRes = this.isoData.site_res;
     // For some reason, this returns an empty vec if it matches the site langs
     const communityLangs =
       res.discussion_languages.length === 0
-        ? site_res.all_languages.map(({ id }) => id)
+        ? siteRes.all_languages.map(({ id }) => id)
         : res.discussion_languages;
 
     return (
@@ -434,11 +435,11 @@ export class Community extends Component<CommunityRouteProps, State> {
         <Sidebar
           community_view={res.community_view}
           moderators={res.moderators}
-          admins={site_res.admins}
-          enableNsfw={enableNsfw(site_res)}
+          admins={siteRes.admins}
+          enableNsfw={enableNsfw(siteRes)}
           editable
-          allLanguages={site_res.all_languages}
-          siteLanguages={site_res.discussion_languages}
+          allLanguages={siteRes.all_languages}
+          siteLanguages={siteRes.discussion_languages}
           communityLanguages={communityLangs}
           onDeleteCommunity={this.handleDeleteCommunity}
           onRemoveCommunity={this.handleRemoveCommunity}
@@ -457,7 +458,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   listings(communityRes: GetCommunityResponse) {
     const { dataType } = this.props;
-    const { site_res } = this.isoData;
+    const siteRes = this.isoData.site_res;
 
     if (dataType === DataType.Post) {
       switch (this.state.postsRes.state) {
@@ -468,10 +469,11 @@ export class Community extends Component<CommunityRouteProps, State> {
             <PostListings
               posts={this.state.postsRes.data.posts}
               removeDuplicates
-              enableDownvotes={enableDownvotes(site_res)}
-              enableNsfw={enableNsfw(site_res)}
-              allLanguages={site_res.all_languages}
-              siteLanguages={site_res.discussion_languages}
+              enableDownvotes={enableDownvotes(siteRes)}
+              voteDisplayMode={voteDisplayMode(siteRes)}
+              enableNsfw={enableNsfw(siteRes)}
+              allLanguages={siteRes.all_languages}
+              siteLanguages={siteRes.discussion_languages}
               onBlockPerson={this.handleBlockPerson}
               onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}
@@ -505,11 +507,12 @@ export class Community extends Component<CommunityRouteProps, State> {
               finished={this.state.finished}
               isTopLevel
               showContext
-              enableDownvotes={enableDownvotes(site_res)}
+              enableDownvotes={enableDownvotes(siteRes)}
+              voteDisplayMode={voteDisplayMode(siteRes)}
               moderators={communityRes.moderators}
-              admins={site_res.admins}
-              allLanguages={site_res.all_languages}
-              siteLanguages={site_res.discussion_languages}
+              admins={siteRes.admins}
+              allLanguages={siteRes.all_languages}
+              siteLanguages={siteRes.discussion_languages}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
