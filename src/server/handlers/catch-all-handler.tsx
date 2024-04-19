@@ -145,7 +145,7 @@ export default async (req: Request, res: Response) => {
       errorPageData,
       showAdultConsentModal:
         !!site?.site_view.site.content_warning &&
-        !(site.my_user || req.cookies[adultConsentCookieKey]),
+        !req.cookies[adultConsentCookieKey],
     };
 
     const wrapper = (

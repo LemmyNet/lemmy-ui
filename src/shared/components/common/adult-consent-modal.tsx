@@ -96,6 +96,7 @@ function handleAdultConsent(i: AdultConsentModal) {
 function handleAdultConsentGoBack(i: AdultConsentModal) {
   i.setState({ redirectCountdown: 5 });
 
+  clearInterval(i.redirectTimeout);
   i.redirectTimeout = setInterval(() => {
     i.setState(prev => ({
       ...prev,

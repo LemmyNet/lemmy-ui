@@ -103,7 +103,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   private readonly isoData: IsoDataOptionalSite = setIsoData(this.context);
   state: PostListingState = {
     showEdit: false,
-    imageExpanded: !!this.isoData.site_res?.site_view.site.content_warning,
+    imageExpanded: false,
     viewSource: false,
     showAdvanced: false,
     showBody: false,
@@ -135,7 +135,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   componentDidMount(): void {
-    if (UserService.Instance.myUserInfo) {
+    if (
+      UserService.Instance.myUserInfo &&
+      !this.isoData.showAdultConsentModal
+    ) {
       const { auto_expand, blur_nsfw } =
         UserService.Instance.myUserInfo.local_user_view.local_user;
       this.setState({
