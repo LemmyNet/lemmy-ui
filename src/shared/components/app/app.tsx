@@ -14,6 +14,7 @@ import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
 import AdultConsentModal from "../common/adult-consent-modal";
+import { destroyTippy, setupTippy } from "../../tippy";
 
 function handleJumpToContent(event) {
   event.preventDefault();
@@ -22,6 +23,14 @@ function handleJumpToContent(event) {
 export default class App extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
   private readonly rootRef = createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    setupTippy(this.rootRef);
+  }
+
+  componentWillUnmount() {
+    destroyTippy();
+  }
 
   render() {
     const siteRes = this.isoData.site_res;
