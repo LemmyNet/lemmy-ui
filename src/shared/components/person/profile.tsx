@@ -20,7 +20,7 @@ import {
   randomStr,
   resourcesSettled,
 } from "@utils/helpers";
-import { canMod, isBanned } from "@utils/roles";
+import { canMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -542,7 +542,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     return (
       pv && (
         <div>
-          {!isBanned(pv.person) && (
+          {!pv.person.banned && (
             <BannerIconHeader
               banner={pv.person.banner}
               icon={pv.person.avatar}
@@ -568,7 +568,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     <li className="list-inline-item">
                       <UserBadges
                         classNames="ms-1"
-                        isBanned={isBanned(pv.person)}
+                        isBanned={pv.person.banned}
                         isDeleted={pv.person.deleted}
                         isAdmin={pv.is_admin}
                         isBot={pv.person.bot_account}
@@ -628,7 +628,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 {canMod(pv.person.id, undefined, admins) &&
                   !pv.is_admin &&
                   !showBanDialog &&
-                  (!isBanned(pv.person) ? (
+                  (!pv.person.banned ? (
                     <button
                       className={
                         "d-flex align-self-start btn btn-secondary me-2"
