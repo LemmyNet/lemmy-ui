@@ -1,9 +1,10 @@
 import classNames from "classnames";
-import { Component } from "inferno";
+import { Component, linkEvent } from "inferno";
 
 import { UserService } from "../../services";
 import { setIsoData } from "@utils/app";
 import { IsoData } from "../../interfaces";
+import { getStaticDir } from "@utils/env";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
@@ -20,12 +21,34 @@ interface PictrsImageProps {
   cardTop?: boolean;
 }
 
-export class PictrsImage extends Component<PictrsImageProps, any> {
+interface PictrsImageState {
+  src: string;
+}
+
+function handleImgLoadError(i: PictrsImage) {
+  i.setState({
+    src: `${getStaticDir()}/assets/images/broken-image-fallback.png`,
+  });
+}
+
+export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
   private readonly isoData: IsoData = setIsoData(this.context);
 
+  state: PictrsImageState = {
+    src: this.props.src,
+  };
+
+  componentDidUpdate(prevProps: PictrsImageProps) {
+    if (prevProps.src !== this.props.src) {
+      this.setState({ src: this.props.src });
+    }
+  }
+
   render() {
-    const { src, icon, iconOverlay, banner, thumbnail, nsfw, pushup, cardTop } =
+    const { icon, iconOverlay, banner, thumbnail, nsfw, pushup, cardTop } =
       this.props;
+
+    const { src } = this.state;
 
     const blurImage =
       nsfw &&
@@ -58,6 +81,7 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
               "avatar-pushup": pushup,
               "card-img-top": cardTop,
             })}
+            onError={linkEvent(this, handleImgLoadError)}
           />
         </picture>
       )
@@ -70,14 +94,14 @@ export class PictrsImage extends Component<PictrsImageProps, any> {
 
     let url: URL | undefined;
     try {
-      url = new URL(this.props.src);
+      url = new URL(this.state.src);
     } catch {
-      return this.props.src;
+      return this.state.src;
     }
 
     // If there's no match, then it's not a pictrs image
     if (!url.pathname.includes("/pictrs/image/")) {
-      return this.props.src;
+      return this.state.src;
     }
 
     // Keeps original search params. Could probably do `url.search = ""` here.
