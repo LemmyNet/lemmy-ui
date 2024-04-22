@@ -105,6 +105,7 @@ export async function createSsrHtml(
       -moz-filter: blur(10px);
       -o-filter: blur(10px);
       -ms-filter: blur(10px);
+      pointer-events: none;
     }
     </style>
 
