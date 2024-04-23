@@ -858,12 +858,6 @@ export default class ContentActionDropdown extends Component<
     );
   }
 
-  get id() {
-    return this.props.type === "post"
-      ? this.props.postView.post.id
-      : this.props.commentView.comment.id;
-  }
-
   wrapHandler(handler: (arg?: any) => Promise<void>) {
     return async (arg?: any) => {
       await handler(arg);
