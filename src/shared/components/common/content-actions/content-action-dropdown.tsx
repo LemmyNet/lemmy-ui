@@ -351,12 +351,14 @@ export default class ContentActionDropdown extends Component<
                   <Link
                     className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
                     to={`/modlog?${type === "post" ? "postId" : "commentId"}=${id}`}
-                    title="Moderation History"
-                    aria-label="Moderation History"
-                    data-tippy-content="Moderation History"
+                    title={I18NextService.i18n.t("moderation_history")}
+                    aria-label={I18NextService.i18n.t("moderation_history")}
+                    data-tippy-content={I18NextService.i18n.t(
+                      "moderation_history",
+                    )}
                   >
                     <Icon icon="history" inline classes="me-2" />
-                    {I18NextService.i18n.t("Moderation History")}
+                    {I18NextService.i18n.t("moderation_history")}
                   </Link>
                 </li>
                 {(this.canMod || this.canAdmin) && (
