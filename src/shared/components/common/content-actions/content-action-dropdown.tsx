@@ -347,6 +347,18 @@ export default class ContentActionDropdown extends Component<
                       />
                     </li>
                   )}
+                <li>
+                  <Link
+                    className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+                    to={`/modlog?${type === "post" ? "postId" : "commentId"}=${id}`}
+                    title="Moderation History"
+                    aria-label="Moderation History"
+                    data-tippy-content="Moderation History"
+                  >
+                    <Icon icon="history" inline classes="me-2" />
+                    {I18NextService.i18n.t("Moderation History")}
+                  </Link>
+                </li>
                 {(this.canMod || this.canAdmin) && (
                   <li>
                     <ActionButton
@@ -416,7 +428,8 @@ export default class ContentActionDropdown extends Component<
                       )}
                     </>
                   )}
-                {(amCommunityCreator(this.id, moderators) || this.canAdmin) &&
+                {(amCommunityCreator(creator.id, moderators) ||
+                  this.canAdmin) &&
                   creator_is_moderator && (
                     <li>
                       <ActionButton
@@ -845,8 +858,8 @@ export default class ContentActionDropdown extends Component<
 
   get id() {
     return this.props.type === "post"
-      ? this.props.postView.creator.id
-      : this.props.commentView.creator.id;
+      ? this.props.postView.post.id
+      : this.props.commentView.comment.id;
   }
 
   wrapHandler(handler: (arg?: any) => Promise<void>) {
