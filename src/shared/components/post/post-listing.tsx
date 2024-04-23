@@ -204,6 +204,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const { post } = this.postView;
     const { url } = post;
 
+    if (this.isoData.showAdultConsentModal) {
+      return <></>;
+    }
+
     if (this.imageSrc) {
       return (
         <>
