@@ -23,6 +23,7 @@ import {
 import { fetchLimit } from "../../config";
 import { PersonListing } from "../person/person-listing";
 import { modalMixin } from "../mixins/modal-mixin";
+import { UserBadges } from "./user-badges";
 
 interface ViewVotesModalProps {
   children?: InfernoNode;
@@ -47,6 +48,12 @@ function voteViewTable(votes: VoteView[]) {
             <tr key={v.creator.id}>
               <td className="text-start">
                 <PersonListing person={v.creator} useApubName />
+                <UserBadges
+                  classNames="ms-1"
+                  isBot={v.creator.bot_account}
+                  isDeleted={v.creator.deleted}
+                  isBanned={v.creator.banned || v.creator_banned_from_community}
+                />
               </td>
               <td className="text-end">{scoreToIcon(v.score)}</td>
             </tr>
