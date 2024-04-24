@@ -107,6 +107,8 @@ export function getModlogQueryParams(source?: string): ModlogProps {
       modId: getIdFromString,
       userId: getIdFromString,
       page: getPageFromString,
+      commentId: getIdFromString,
+      postId: getIdFromString,
     },
     source,
   );
@@ -127,6 +129,8 @@ interface ModlogProps {
   userId?: number;
   modId?: number;
   actionType: ModlogActionType;
+  postId?: number;
+  commentId?: number;
 }
 
 function getActionFromString(action?: string): ModlogActionType {
@@ -991,7 +995,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   }
 
   async refetch() {
-    const { actionType, page, modId, userId } = this.props;
+    const { actionType, page, modId, userId, postId, commentId } = this.props;
     const { communityId: urlCommunityId } = this.props.match.params;
     const communityId = getIdFromString(urlCommunityId);
 
@@ -1007,6 +1011,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           .hide_modlog_mod_names
           ? modId
           : undefined,
+        comment_id: commentId,
+        post_id: postId,
       }),
     });
 
@@ -1022,7 +1028,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   static async fetchInitialData({
     headers,
-    query: { page, userId, modId: modId_, actionType },
+    query: { page, userId, modId: modId_, actionType, commentId, postId },
     match: {
       params: { communityId: urlCommunityId },
     },
@@ -1043,6 +1049,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       type_: actionType,
       mod_person_id: modId,
       other_person_id: userId,
+      comment_id: commentId,
+      post_id: postId,
     };
 
     let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
