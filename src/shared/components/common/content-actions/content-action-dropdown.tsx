@@ -10,7 +10,6 @@ import {
   amMod,
   canAdmin,
   canMod,
-  isBanned,
 } from "@utils/roles";
 import ActionButton from "./action-button";
 import classNames from "classnames";
@@ -154,7 +153,7 @@ export default class ContentActionDropdown extends Component<
       type === "post"
         ? `post-actions-dropdown-${id}`
         : `comment-actions-dropdown-${id}`;
-    const creatorBannedFromLocal = isBanned(creator);
+    const creatorBannedFromLocal = creator.banned;
     const showToggleAdmin = !creatorBannedFromLocal && creator.local;
     const canAppointCommunityMod =
       (amMod(community.id) || (amAdmin() && community.local)) &&
