@@ -506,7 +506,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   get selects() {
-    const { sort } = this.props;
+    const { sort, view } = this.props;
     const { username } = this.props.match.params;
 
     const profileRss = `/feeds/u/${username}.xml${getQueryString({ sort })}`;
@@ -522,12 +522,19 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             hideMostComments
           />
         </div>
-        <div className="col-auto">
-          <a href={profileRss} rel={relTags} title="RSS">
-            <Icon icon="rss" classes="text-muted small ps-0" />
-          </a>
-          <link rel="alternate" type="application/atom+xml" href={profileRss} />
-        </div>
+        {/* Don't show the rss feed for the Saved view, as that's not implemented.*/}
+        {view !== PersonDetailsView.Saved && (
+          <div className="col-auto">
+            <a href={profileRss} rel={relTags} title="RSS">
+              <Icon icon="rss" classes="text-muted small ps-0" />
+            </a>
+            <link
+              rel="alternate"
+              type="application/atom+xml"
+              href={profileRss}
+            />
+          </div>
+        )}
       </div>
     );
   }
