@@ -14,6 +14,12 @@ function handleTextChange(i: UrlListTextarea, event: any) {
   i.setState({ text: event.target.value });
 }
 
+const URL_SCHEME = "https://";
+
+function processUrl(str: string) {
+  return new URL(str).toString().replace(URL_SCHEME, "");
+}
+
 function handleTextBlur(i: UrlListTextarea, event: any) {
   const inputValue: string = event.currentTarget?.value ?? "";
 
@@ -24,10 +30,10 @@ function handleTextBlur(i: UrlListTextarea, event: any) {
     let url: string;
 
     try {
-      url = new URL(str).toString();
+      url = processUrl(str);
     } catch {
       try {
-        url = new URL("https://" + str).toString();
+        url = processUrl(URL_SCHEME + str);
       } catch {
         continue;
       }
