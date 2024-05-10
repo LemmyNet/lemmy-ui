@@ -47,6 +47,8 @@ export class PrivateMessageForm extends Component<
     super(props, context);
 
     this.handleContentChange = this.handleContentChange.bind(this);
+    this.handlePrivateMessageSubmit =
+      this.handlePrivateMessageSubmit.bind(this);
   }
 
   componentWillReceiveProps(
@@ -118,9 +120,7 @@ export class PrivateMessageForm extends Component<
           </label>
           <div className="col-sm-10">
             <MarkdownTextArea
-              onSubmit={event => {
-                this.handlePrivateMessageSubmit(this, event);
-              }}
+              onSubmit={this.handlePrivateMessageSubmit}
               initialContent={this.state.content}
               onContentChange={this.handleContentChange}
               allLanguages={[]}
@@ -140,20 +140,19 @@ export class PrivateMessageForm extends Component<
     );
   }
 
-  handlePrivateMessageSubmit(i: PrivateMessageForm, event: any) {
-    event.preventDefault();
-    i.setState({ loading: true, submitted: true });
-    const pm = i.props.privateMessageView;
-    const content = i.state.content ?? "";
+  handlePrivateMessageSubmit() {
+    this.setState({ loading: true, submitted: true });
+    const pm = this.props.privateMessageView;
+    const content = this.state.content ?? "";
     if (pm) {
-      i.props.onEdit?.({
+      this.props.onEdit?.({
         private_message_id: pm.private_message.id,
         content,
       });
     } else {
-      i.props.onCreate?.({
+      this.props.onCreate?.({
         content,
-        recipient_id: i.props.recipient.id,
+        recipient_id: this.props.recipient.id,
       });
     }
   }
