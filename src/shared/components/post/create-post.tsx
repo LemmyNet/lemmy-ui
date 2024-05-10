@@ -32,6 +32,7 @@ import { PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { toast } from "../../toast";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -164,7 +165,7 @@ export class CreatePost extends Component<
   }
 
   render() {
-    const { selectedCommunityChoice, siteRes } = this.state;
+    const { selectedCommunityChoice, siteRes, loading } = this.state;
 
     const locationState = this.props.history.location.state as
       | PostFormParams
@@ -204,6 +205,7 @@ export class CreatePost extends Component<
                     ? this.state.initialCommunitiesRes.data.communities
                     : []
                 }
+                loading={loading}
               />
             </div>
           </div>
@@ -245,10 +247,11 @@ export class CreatePost extends Component<
     if (res.state === "success") {
       const postId = res.data.post_view.post.id;
       this.props.history.replace(`/post/${postId}`);
-    } else {
+    } else if (res.state === "failed") {
       this.setState({
         loading: false,
       });
+      toast(res.err.message, "danger");
     }
   }
 
