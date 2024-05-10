@@ -68,9 +68,11 @@ export class CreateCommunity extends Component<
     const res = await HttpService.client.createCommunity(form);
 
     if (res.state === "success") {
-      // We only ever use the community part of CommunityModeratorView, so forcing the type here will suffice.
-      // @ts-ignore
-      UserService.Instance.myUserInfo?.moderates.push(res.data.community_view);
+      const myUser = UserService.Instance.myUserInfo!;
+      UserService.Instance.myUserInfo?.moderates.push({
+        community: res.data.community_view.community,
+        moderator: myUser.local_user_view.person,
+      });
       const name = res.data.community_view.community.name;
       this.props.history.replace(`/c/${name}`);
     } else {
