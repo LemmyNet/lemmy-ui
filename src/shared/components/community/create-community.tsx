@@ -4,7 +4,7 @@ import {
   CreateCommunity as CreateCommunityI,
   GetSiteResponse,
 } from "lemmy-js-client";
-import { HttpService, I18NextService } from "../../services";
+import { HttpService, I18NextService, UserService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
@@ -68,6 +68,9 @@ export class CreateCommunity extends Component<
     const res = await HttpService.client.createCommunity(form);
 
     if (res.state === "success") {
+      // We only ever use the community part of CommunityModeratorView, so forcing the type here will suffice.
+      // @ts-ignore
+      UserService.Instance.myUserInfo?.moderates.push(res.data.community_view);
       const name = res.data.community_view.community.name;
       this.props.history.replace(`/c/${name}`);
     } else {
