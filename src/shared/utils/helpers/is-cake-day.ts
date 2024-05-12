@@ -1,34 +1,18 @@
-import { parseISO, getYear, getDayOfYear, isLeapYear } from "date-fns";
+import { getYear, isSameDay, isSameYear, parse, setYear } from "date-fns";
 
-const leapDay = getDayOfYear(new Date(2024, 1, 29));
+// Returns a date in local time with the same year, month and day. Ignores the
+// source timezone. The goal is to show the same date in all timezones.
+export function cakeDate(published: string): Date {
+  return parse(published.substring(0, 10), "yyyy-MM-dd", new Date(0));
+}
 
 export default function isCakeDay(published: string): boolean {
-  const createDate = parseISO(published);
-  const createDateDayOfYear = getDayOfYear(createDate);
-  const isCreateDateLeapYear = isLeapYear(createDate);
-
+  const createDate = cakeDate(published);
   const currentDate = new Date();
-  let currentDateDayOfYear = getDayOfYear(currentDate);
-  const isCurrentDateLeapYear = isLeapYear(currentDate);
 
-  if (
-    isCreateDateLeapYear &&
-    !isCurrentDateLeapYear &&
-    currentDateDayOfYear >= leapDay
-  ) {
-    ++currentDateDayOfYear;
-  }
-
-  if (
-    !isCreateDateLeapYear &&
-    isCurrentDateLeapYear &&
-    createDateDayOfYear >= leapDay
-  ) {
-    --currentDateDayOfYear;
-  }
-
+  // The day-overflow of Date makes leap days become 03-01 in non leap years.
   return (
-    createDateDayOfYear === currentDateDayOfYear &&
-    getYear(createDate) !== getYear(currentDate)
+    isSameDay(currentDate, setYear(createDate, getYear(currentDate))) &&
+    !isSameYear(currentDate, createDate)
   );
 }
