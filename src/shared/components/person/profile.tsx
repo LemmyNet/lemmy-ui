@@ -24,7 +24,7 @@ import { canMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -99,6 +99,7 @@ import { PersonListing } from "./person-listing";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
 import { MediaUploads } from "../common/media-uploads";
+import { cakeDate } from "@utils/helpers";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
@@ -695,7 +696,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 <Icon icon="cake" />
                 <span className="ms-2">
                   {I18NextService.i18n.t("cake_day_title")}{" "}
-                  {format(parseISO(pv.person.published), "PPP")}
+                  {format(cakeDate(pv.person.published), "PPP")}
                 </span>
               </div>
               {!UserService.Instance.myUserInfo && (
