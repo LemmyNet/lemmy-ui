@@ -421,6 +421,9 @@ export class AdminSettings extends Component<
         return s;
       });
       toast(I18NextService.i18n.t("site_saved"));
+
+      // You need to reload the page, to properly update the siteRes everywhere
+      setTimeout(() => location.reload(), 500);
     }
 
     this.setState({ loading: false });
