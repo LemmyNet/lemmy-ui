@@ -821,7 +821,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const res = await this.props.onPostEdit(form);
 
     if (res.state === "success") {
-      toast("Post edited");
+      toast(I18NextService.i18n.t("edited_post"));
     } else if (res.state === "failed") {
       toast(I18NextService.i18n.t(res.err.message), "danger");
     }
