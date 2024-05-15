@@ -77,9 +77,6 @@ importers:
       emoji-short-name:
         specifier: ^2.0.0
         version: 2.0.0
-      eslint-config-prettier:
-        specifier: ^9.1.0
-        version: 9.1.0(eslint@9.2.0)
       express:
         specifier: ~4.19.2
         version: 4.19.2
@@ -261,6 +258,9 @@ importers:
       eslint:
         specifier: ^9.2.0
         version: 9.2.0
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@9.2.0)
       eslint-plugin-inferno:
         specifier: ^7.33.3
         version: 7.34.0(eslint@9.2.0)
