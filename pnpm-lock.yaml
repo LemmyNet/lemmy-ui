@@ -73,7 +73,7 @@ importers:
         version: 3.6.0
       emoji-mart:
         specifier: ^5.5.2
-        version: 5.5.2
+        version: 5.6.0
       emoji-short-name:
         specifier: ^2.0.0
         version: 2.0.0
@@ -2092,8 +2092,8 @@ packages:
   electron-to-chromium@1.4.747:
     resolution: {integrity: sha512-+FnSWZIAvFHbsNVmUxhEqWiaOiPMcfum1GQzlWCg/wLigVtshOsjXHyEFfmt6cFK6+HkS3QOJBv6/3OPumbBfw==}
 
-  emoji-mart@5.5.2:
-    resolution: {integrity: sha512-Sqc/nso4cjxhOwWJsp9xkVm8OF5c+mJLZJFoFfzRuKO+yWiN7K8c96xmtughYb0d/fZ8UC6cLIQ/p4BR6Pv3/A==}
+  emoji-mart@5.6.0:
+    resolution: {integrity: sha512-eJp3QRe79pjwa+duv+n7+5YsNhRcMl812EcFVwrnRvYKoNPoQb5qxU8DG6Bgwji0akHdp6D4Ln6tYLG58MFSow==}
 
   emoji-regex@10.3.0:
     resolution: {integrity: sha512-QpLs9D9v9kArv4lfDEgg1X/gN5XLnf/A6l9cs8SPZLRZR3ZkY9+kwIQTxm+fsSej5UMYGE8fdoaZVIBlqG0XTw==}
@@ -6711,7 +6711,7 @@ snapshots:
 
   electron-to-chromium@1.4.747: {}
 
-  emoji-mart@5.5.2: {}
+  emoji-mart@5.6.0: {}
 
   emoji-regex@10.3.0: {}
 
