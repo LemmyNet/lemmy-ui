@@ -51,6 +51,7 @@ import { BanUpdateForm } from "../common/mod-action-form-modal";
 import PostActionDropdown from "../common/content-actions/post-action-dropdown";
 import { CrossPostParams } from "@utils/types";
 import { RequestState } from "../../services/HttpService";
+import { toast } from "../../toast";
 
 type PostListingState = {
   showEdit: boolean;
@@ -58,6 +59,7 @@ type PostListingState = {
   viewSource: boolean;
   showAdvanced: boolean;
   showBody: boolean;
+  loading: boolean;
 };
 
 interface PostListingProps {
@@ -107,6 +109,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     viewSource: false,
     showAdvanced: false,
     showBody: false,
+    loading: false,
   };
 
   constructor(props: any, context: any) {
@@ -176,6 +179,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             voteDisplayMode={this.props.voteDisplayMode}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            loading={this.state.loading}
           />
         )}
       </div>
@@ -812,9 +816,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   // The actual editing is done in the receive for post
-  handleEditPost(form: EditPost) {
-    this.setState({ showEdit: false });
-    return this.props.onPostEdit(form);
+  async handleEditPost(form: EditPost) {
+    this.setState({ showEdit: false, loading: true });
+    const res = await this.props.onPostEdit(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("edited_post"));
+    } else if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
+    }
   }
 
   handleShare(i: PostListing) {

@@ -62,6 +62,7 @@ interface PostFormProps {
   selectedCommunityChoice?: Choice;
   onSelectCommunity?: (choice: Choice) => void;
   initialCommunities?: CommunityView[];
+  loading: boolean;
 }
 
 interface PostFormState {
@@ -76,7 +77,6 @@ interface PostFormState {
     custom_thumbnail?: string;
     alt_text?: string;
   };
-  loading: boolean;
   suggestedPostsRes: RequestState<SearchResponse>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
   imageLoading: boolean;
@@ -93,7 +93,7 @@ function handlePostSubmit(i: PostForm, event: any) {
   if ((i.state.form.url ?? "") === "") {
     i.setState(s => ((s.form.url = undefined), s));
   }
-  i.setState({ loading: true, submitted: true });
+  i.setState({ submitted: true });
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
@@ -240,7 +240,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     suggestedPostsRes: EMPTY_REQUEST,
     metadataRes: EMPTY_REQUEST,
     form: {},
-    loading: false,
     imageLoading: false,
     imageDeleteUrl: "",
     communitySearchLoading: false,
@@ -597,11 +596,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button
-              disabled={!this.state.form.community_id || this.state.loading}
+              disabled={!this.state.form.community_id || this.props.loading}
               type="submit"
               className="btn btn-secondary me-2"
             >
-              {this.state.loading ? (
+              {this.props.loading ? (
                 <Spinner />
               ) : this.props.post_view ? (
                 capitalizeFirstLetter(I18NextService.i18n.t("save"))
