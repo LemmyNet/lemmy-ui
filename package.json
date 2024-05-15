@@ -108,7 +108,7 @@
     "@types/toastify-js": "^1.12.3",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
-    "eslint": "^8.57.0",
+    "eslint": "^9.0.0",
     "eslint-plugin-inferno": "^7.33.3",
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-prettier": "^5.1.3",
