@@ -314,7 +314,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           />
         </button>
       );
-    } else if (!this.props.hideImage && url && thumbnail && this.imageSrc) {
+    } else if (
+      !this.props.hideImage &&
+      url &&
+      thumbnail &&
+      this.imageSrc &&
+      !isVideo(url)
+    ) {
       return (
         <a
           className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0"
@@ -334,7 +340,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       if ((!this.props.hideImage && isVideo(url)) || post.embed_video_url) {
         return (
           <a
-            className="text-body"
+            // className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0"
+            className={classNames(
+              "thumbnail rounded",
+              thumbnail
+                ? "overflow-hidden d-inline-block position-relative p-0 border-0"
+                : "text-body bg-light d-flex justify-content-center",
+            )}
             href={url}
             title={url}
             rel={relTags}
@@ -343,9 +355,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             aria-label={I18NextService.i18n.t("expand_here")}
             target={this.linkTarget}
           >
-            <div className="thumbnail rounded bg-light d-flex justify-content-center">
-              <Icon icon="play" classes="d-flex align-items-center" />
-            </div>
+            {thumbnail && this.imgThumb(thumbnail)}
+            <Icon
+              icon="video"
+              classes={
+                thumbnail
+                  ? "d-block text-white position-absolute end-0 top-0 mini-overlay text-opacity-75 text-opacity-100-hover"
+                  : "d-flex align-items-center"
+              }
+            />
           </a>
         );
       } else {
