@@ -340,7 +340,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       if ((!this.props.hideImage && isVideo(url)) || post.embed_video_url) {
         return (
           <a
-            // className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0"
             className={classNames(
               "thumbnail rounded",
               thumbnail
