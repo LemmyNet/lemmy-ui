@@ -201,7 +201,7 @@ export default class TotpModal extends Component<
     this.inputRef.current?.focus();
 
     if (this.props.type === "generate") {
-      const { getSVG } = await import("@shortcm/qr-image/lib/svg");
+      const { getSVG } = await import("qreator/lib/svg");
 
       this.setState({
         qrCode: URL.createObjectURL(
