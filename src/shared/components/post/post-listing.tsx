@@ -212,27 +212,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       return <></>;
     }
 
-    if (this.imageSrc) {
-      return (
-        <>
-          <div className="offset-sm-3 my-2 d-none d-sm-block">
-            <a href={this.imageSrc} className="d-inline-block">
-              <PictrsImage src={this.imageSrc} alt={post.alt_text} />
-            </a>
-          </div>
-          <div className="my-2 d-block d-sm-none">
-            <button
-              type="button"
-              className="p-0 border-0 bg-transparent d-inline-block"
-              onClick={linkEvent(this, this.handleImageExpandClick)}
-            >
-              <PictrsImage src={this.imageSrc} alt={post.alt_text} />
-            </button>
-          </div>
-        </>
-      );
-    }
-
     // if direct video link
     if (url && isVideo(url)) {
       return (
@@ -261,6 +240,27 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             title={post.embed_title}
           ></iframe>
         </div>
+      );
+    }
+
+    if (this.imageSrc) {
+      return (
+        <>
+          <div className="offset-sm-3 my-2 d-none d-sm-block">
+            <a href={this.imageSrc} className="d-inline-block">
+              <PictrsImage src={this.imageSrc} alt={post.alt_text} />
+            </a>
+          </div>
+          <div className="my-2 d-block d-sm-none">
+            <button
+              type="button"
+              className="p-0 border-0 bg-transparent d-inline-block"
+              onClick={linkEvent(this, this.handleImageExpandClick)}
+            >
+              <PictrsImage src={this.imageSrc} alt={post.alt_text} />
+            </button>
+          </div>
+        </>
       );
     }
 
@@ -314,7 +314,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           />
         </button>
       );
-    } else if (!this.props.hideImage && url && thumbnail && this.imageSrc) {
+    } else if (
+      !this.props.hideImage &&
+      url &&
+      thumbnail &&
+      this.imageSrc &&
+      !isVideo(url)
+    ) {
       return (
         <a
           className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0"
@@ -334,7 +340,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       if ((!this.props.hideImage && isVideo(url)) || post.embed_video_url) {
         return (
           <a
-            className="text-body"
+            className={classNames(
+              "thumbnail rounded",
+              thumbnail
+                ? "overflow-hidden d-inline-block position-relative p-0 border-0"
+                : "text-body bg-light d-flex justify-content-center",
+            )}
             href={url}
             title={url}
             rel={relTags}
@@ -343,9 +354,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             aria-label={I18NextService.i18n.t("expand_here")}
             target={this.linkTarget}
           >
-            <div className="thumbnail rounded bg-light d-flex justify-content-center">
-              <Icon icon="play" classes="d-flex align-items-center" />
-            </div>
+            {thumbnail && this.imgThumb(thumbnail)}
+            <Icon
+              icon="video"
+              classes={
+                thumbnail
+                  ? "d-block text-white position-absolute end-0 top-0 mini-overlay text-opacity-75 text-opacity-100-hover"
+                  : "d-flex align-items-center"
+              }
+            />
           </a>
         );
       } else {
@@ -705,19 +722,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   mobileThumbnail() {
-    const post = this.postView.post;
-    return post.thumbnail_url || (post.url && isImage(post.url)) ? (
+    return (
       <div className="row">
-        <div className={`${this.state.imageExpanded ? "col-12" : "col-9"}`}>
-          {this.postTitleLine()}
-        </div>
+        <div className="col-9">{this.postTitleLine()}</div>
         <div className="col-3 mobile-thumbnail-container">
           {/* Post thumbnail */}
-          {!this.state.imageExpanded && this.thumbnail()}
+          {this.thumbnail()}
         </div>
       </div>
-    ) : (
-      this.postTitleLine()
     );
   }
 
