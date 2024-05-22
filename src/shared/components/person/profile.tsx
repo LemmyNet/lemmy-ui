@@ -110,6 +110,9 @@ type ProfileData = RouteDataResponse<{
 
 interface ProfileState {
   personRes: RequestState<GetPersonDetailsResponse>;
+  // personRes and personDetailsRes point to `===` identical data. This allows
+  // to render the start of the profile while the new details are loading.
+  personDetailsRes: RequestState<GetPersonDetailsResponse>;
   uploadsRes: RequestState<ListMediaResponse>;
   personBlocked: boolean;
   banReason?: string;
@@ -197,6 +200,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   private isoData = setIsoData<ProfileData>(this.context);
   state: ProfileState = {
     personRes: EMPTY_REQUEST,
+    personDetailsRes: EMPTY_REQUEST,
     uploadsRes: EMPTY_REQUEST,
     personBlocked: false,
     siteRes: this.isoData.site_res,
@@ -207,7 +211,12 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   };
 
   loadingSettled() {
-    return resourcesSettled([this.state.personRes]);
+    return resourcesSettled([
+      this.state.personRes,
+      this.props.view === PersonDetailsView.Uploads
+        ? this.state.uploadsRes
+        : this.state.personDetailsRes,
+    ]);
   }
 
   constructor(props: ProfileRouteProps, context: any) {
@@ -255,6 +264,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       this.state = {
         ...this.state,
         personRes,
+        personDetailsRes: personRes,
         uploadsRes,
         isIsomorphic: true,
         personBlocked: isPersonBlocked(personRes),
@@ -264,7 +274,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   async componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.fetchUserData(this.props);
+      await this.fetchUserData(this.props, true);
     }
   }
 
@@ -289,7 +299,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       newUsername ||
       reload
     ) {
-      this.fetchUserData(nextProps);
+      this.fetchUserData(nextProps, reload || newUsername);
     }
   }
 
@@ -305,15 +315,33 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.setState({ uploadsRes });
   }
 
-  async fetchUserData(props: ProfileRouteProps) {
+  async fetchUserData(props: ProfileRouteProps, showBothLoading = false) {
     const { page, sort, view } = props;
 
     if (view === PersonDetailsView.Uploads) {
       this.fetchUploads(props);
-      return;
+      if (!showBothLoading) {
+        return;
+      }
+      this.setState({
+        personRes: LOADING_REQUEST,
+        personDetailsRes: LOADING_REQUEST,
+      });
+    } else {
+      if (showBothLoading) {
+        this.setState({
+          personRes: LOADING_REQUEST,
+          personDetailsRes: LOADING_REQUEST,
+          uploadsRes: EMPTY_REQUEST,
+        });
+      } else {
+        this.setState({
+          personDetailsRes: LOADING_REQUEST,
+          uploadsRes: EMPTY_REQUEST,
+        });
+      }
     }
 
-    this.setState({ personRes: LOADING_REQUEST, uploadsRes: EMPTY_REQUEST });
     const personRes = await HttpService.client.getPersonDetails({
       username: props.match.params.username,
       sort,
@@ -324,6 +352,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     this.setState({
       personRes,
+      personDetailsRes: personRes,
       personBlocked: isPersonBlocked(personRes),
     });
   }
@@ -418,6 +447,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         const personRes = this.state.personRes.data;
         const { page, sort, view } = this.props;
 
+        const personDetailsState = this.state.personDetailsRes.state;
+        const personDetailsRes =
+          personDetailsState === "success" && this.state.personDetailsRes.data;
+
         return (
           <div className="row">
             <div className="col-12 col-md-8">
@@ -437,8 +470,11 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
               {this.renderUploadsRes()}
 
+              {personDetailsState === "loading" ? (
+                <h5><Spinner large /></h5>
+              ) : personDetailsRes && (
               <PersonDetails
-                personRes={personRes}
+                personRes={personDetailsRes}
                 admins={siteRes.admins}
                 sort={sort}
                 page={page}
@@ -481,6 +517,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 onFeaturePost={this.handleFeaturePost}
                 onMarkPostAsRead={() => {}}
               />
+              )}
             </div>
 
             <div className="col-12 col-md-4">

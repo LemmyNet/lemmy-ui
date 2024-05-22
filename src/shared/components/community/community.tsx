@@ -107,7 +107,7 @@ import { CommentNodes } from "../comment/comment-nodes";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
-import { Icon, Spinner } from "../common/icon";
+import { Icon } from "../common/icon";
 import { SortSelect } from "../common/sort-select";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
@@ -122,6 +122,7 @@ import { Sidebar } from "./sidebar";
 import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
+import { LoadingEllipses } from "../common/loading-ellipses";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -379,18 +380,12 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   renderCommunity() {
-    switch (this.state.communityRes.state) {
-      case "loading":
-        return (
-          <h5>
-            <Spinner large />
-          </h5>
-        );
-      case "success": {
-        const res = this.state.communityRes.data;
-
-        return (
-          <>
+    const res =
+      this.state.communityRes.state === "success" &&
+      this.state.communityRes.data;
+    return (
+      <>
+          {res && (
             <HtmlTags
               title={this.documentTitle}
               path={this.context.router.route.match.url}
@@ -398,13 +393,9 @@ export class Community extends Component<CommunityRouteProps, State> {
               description={res.community_view.community.description}
               image={res.community_view.community.icon}
             />
+          )}
 
-            <div className="row">
-              <main
-                className="col-12 col-md-8 col-lg-9"
-                ref={this.mainContentRef}
-              >
-                {this.communityInfo(res)}
+                {this.communityInfo()}
                 <div className="d-block d-md-none">
                   <button
                     className="btn btn-secondary d-inline-block mb-2 me-3"
@@ -420,32 +411,38 @@ export class Community extends Component<CommunityRouteProps, State> {
                       classes="icon-inline"
                     />
                   </button>
-                  {this.state.showSidebarMobile && this.sidebar(res)}
+                  {this.state.showSidebarMobile && this.sidebar()}
                 </div>
-                {this.selects(res)}
-                {this.listings(res)}
-                <PaginatorCursor
-                  nextPage={this.getNextPage}
-                  onNext={this.handlePageNext}
-                />
-              </main>
-              <aside className="d-none d-md-block col-md-4 col-lg-3">
-                {this.sidebar(res)}
-              </aside>
-            </div>
-          </>
-        );
-      }
-    }
+      </>
+    );
   }
 
   render() {
     return (
-      <div className="community container-lg">{this.renderCommunity()}</div>
+      <div className="community container-lg">
+        <div className="row">
+          <main className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
+            {this.renderCommunity()}
+            {this.selects()}
+            {this.listings()}
+            <PaginatorCursor
+              nextPage={this.getNextPage}
+              onNext={this.handlePageNext}
+            />
+          </main>
+          <aside className="d-none d-md-block col-md-4 col-lg-3">
+            {this.sidebar()}
+          </aside>
+        </div>
+      </div>
     );
   }
 
-  sidebar(res: GetCommunityResponse) {
+  sidebar() {
+    if (this.state.communityRes.state !== "success") {
+      return undefined;
+    }
+    const res = this.state.communityRes.data;
     const siteRes = this.isoData.site_res;
     // For some reason, this returns an empty vec if it matches the site langs
     const communityLangs =
@@ -479,7 +476,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     );
   }
 
-  listings(communityRes: GetCommunityResponse) {
+  listings() {
     const { dataType } = this.props;
     const siteRes = this.isoData.site_res;
 
@@ -519,6 +516,9 @@ export class Community extends Component<CommunityRouteProps, State> {
           );
       }
     } else {
+      if (this.state.communityRes.state !== "success") {
+        return;
+      }
       switch (this.state.commentsRes.state) {
         case "loading":
           return <CommentsLoadingSkeleton />;
@@ -532,7 +532,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
               voteDisplayMode={voteDisplayMode(siteRes)}
-              moderators={communityRes.moderators}
+              moderators={this.state.communityRes.data.moderators}
               admins={siteRes.admins}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
@@ -560,41 +560,57 @@ export class Community extends Component<CommunityRouteProps, State> {
     }
   }
 
-  communityInfo(res: GetCommunityResponse) {
-    const community = res.community_view.community;
+  communityInfo() {
+    const res =
+      (this.state.communityRes.state === "success" &&
+        this.state.communityRes.data) ||
+      undefined;
+    const community = res && res.community_view.community;
+    const urlCommunityName = this.props.match.params.name;
 
     return (
-      community && (
         <div className="mb-2">
-          <BannerIconHeader banner={community.banner} icon={community.icon} />
+          {community && (
+            <BannerIconHeader banner={community.banner} icon={community.icon} />
+          )}
           <div>
             <h1
               className="h4 mb-0 overflow-wrap-anywhere d-inline"
               data-tippy-content={
-                community.posting_restricted_to_mods
+                community?.posting_restricted_to_mods
                   ? I18NextService.i18n.t("community_locked")
                   : ""
               }
             >
-              {community.title}
+              {community?.title ?? (
+                <>
+                  {urlCommunityName}
+                  <LoadingEllipses />
+                </>
+              )}
             </h1>
-            {community.posting_restricted_to_mods && (
+            {community?.posting_restricted_to_mods && (
               <Icon icon="lock" inline classes="text-danger fs-4 ms-2" />
             )}
           </div>
-          <CommunityLink
-            community={community}
-            realLink
-            useApubName
-            muted
-            hideAvatar
-          />
+          {(community && (
+            <CommunityLink
+              community={community}
+              realLink
+              useApubName
+              muted
+              hideAvatar
+            />
+          )) ??
+            urlCommunityName}
         </div>
-      )
     );
   }
 
-  selects(res: GetCommunityResponse) {
+  selects() {
+    const res =
+      this.state.communityRes.state === "success" &&
+      this.state.communityRes.data;
     const { dataType, sort, showHidden } = this.props;
     const communityRss = res
       ? communityRSSUrl(res.community_view.community.actor_id, sort)

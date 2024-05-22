@@ -109,16 +109,12 @@ export class RegistrationApplications extends Component<
   }
 
   renderApps() {
-    switch (this.state.appsRes.state) {
-      case "loading":
-        return (
-          <h5>
-            <Spinner large />
-          </h5>
-        );
-      case "success": {
-        const apps = this.state.appsRes.data.registration_applications;
-        return (
+    const appsState = this.state.appsRes.state;
+    const apps =
+      appsState === "success" &&
+      this.state.appsRes.data.registration_applications;
+
+    return (
           <div className="row">
             <div className="col-12">
               <HtmlTags
@@ -129,17 +125,25 @@ export class RegistrationApplications extends Component<
                 {I18NextService.i18n.t("registration_applications")}
               </h1>
               {this.selects()}
+              {apps ? (
+            <>
               {this.applicationList(apps)}
               <Paginator
                 page={this.state.page}
                 onChange={this.handlePageChange}
                 nextDisabled={fetchLimit > apps.length}
               />
+            </>
+              ) : (
+                appsState === "loading" && (
+                  <div className="text-center">
+                    <Spinner large />
+                  </div>
+                )
+              )}
             </div>
           </div>
-        );
-      }
-    }
+    );
   }
 
   render() {

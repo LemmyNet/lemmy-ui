@@ -138,7 +138,7 @@ export class Communities extends Component<
     }`;
   }
 
-  renderListings() {
+  renderListingsTable() {
     switch (this.state.listCommunitiesResponse.state) {
       case "loading":
         return (
@@ -147,28 +147,7 @@ export class Communities extends Component<
           </h5>
         );
       case "success": {
-        const { listingType, sort, page } = this.props;
         return (
-          <div>
-            <h1 className="h4 mb-4">
-              {I18NextService.i18n.t("list_of_communities")}
-            </h1>
-            <div className="row g-3 align-items-center mb-2">
-              <div className="col-auto">
-                <ListingTypeSelect
-                  type_={listingType}
-                  showLocal={showLocal(this.isoData)}
-                  showSubscribed
-                  onChange={this.handleListingTypeChange}
-                />
-              </div>
-              <div className="col-auto me-auto">
-                <SortSelect sort={sort} onChange={this.handleSortChange} />
-              </div>
-              <div className="col-auto">{this.searchForm()}</div>
-            </div>
-
-            <div className="table-responsive">
               <table
                 id="community_table"
                 className="table table-sm table-hover"
@@ -238,29 +217,49 @@ export class Communities extends Component<
                   )}
                 </tbody>
               </table>
-            </div>
-            <Paginator
-              page={page}
-              onChange={this.handlePageChange}
-              nextDisabled={
-                communityLimit >
-                this.state.listCommunitiesResponse.data.communities.length
-              }
-            />
-          </div>
         );
       }
     }
   }
 
   render() {
+    const { listingType, sort, page } = this.props;
     return (
       <div className="communities container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        {this.renderListings()}
+        <div>
+          <h1 className="h4 mb-4">
+            {I18NextService.i18n.t("list_of_communities")}
+          </h1>
+          <div className="row g-3 align-items-center mb-2">
+            <div className="col-auto">
+              <ListingTypeSelect
+                type_={listingType}
+                showLocal={showLocal(this.isoData)}
+                showSubscribed
+                onChange={this.handleListingTypeChange}
+              />
+            </div>
+            <div className="col-auto me-auto">
+              <SortSelect sort={sort} onChange={this.handleSortChange} />
+            </div>
+            <div className="col-auto">{this.searchForm()}</div>
+          </div>
+
+          <div className="table-responsive">{this.renderListingsTable()}</div>
+          <Paginator
+            page={page}
+            onChange={this.handlePageChange}
+            nextDisabled={
+              this.state.listCommunitiesResponse.state !== "success" ||
+              communityLimit >
+                this.state.listCommunitiesResponse.data.communities.length
+            }
+          />
+        </div>
       </div>
     );
   }

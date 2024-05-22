@@ -63,6 +63,7 @@ import { PersonListing } from "./person/person-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { IRoutePropsWithFetch } from "../routes";
 import { isBrowser } from "@utils/browser";
+import { LoadingEllipses } from "./common/loading-ellipses";
 
 type FilterType = "mod" | "user";
 
@@ -814,6 +815,11 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       modSearchOptions,
     } = this.state;
     const { actionType, modId, userId } = this.props;
+    const { communityId } = this.props.match.params;
+
+    const communityState = this.state.communityRes.state;
+    const communityResp =
+      communityState === "success" && this.state.communityRes.data;
 
     return (
       <div className="modlog container-lg">
@@ -837,15 +843,21 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             #<strong>#</strong>#
           </T>
         </div>
-        {this.state.communityRes.state === "success" && (
+        {communityId && (
           <h5>
+            {communityResp ? (
+              <>
             <Link
               className="text-body"
-              to={`/c/${this.state.communityRes.data.community_view.community.name}`}
+              to={`/c/${communityResp.community_view.community.name}`}
             >
-              /c/{this.state.communityRes.data.community_view.community.name}{" "}
-            </Link>
+              /c/{communityResp.community_view.community.name}
+            </Link>{" "}
             <span>{I18NextService.i18n.t("modlog")}</span>
+              </>
+            ) : (
+              communityState === "loading" && <LoadingEllipses />
+            )}
           </h5>
         )}
         <div className="row mb-2">
@@ -956,6 +968,10 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   }
 
   handleSearchUsers = debounce(async (text: string) => {
+    if (!text.length) {
+      return;
+    }
+
     const { userId } = this.props;
     const { userSearchOptions } = this.state;
     this.setState({ loadingUserSearch: true });
@@ -973,6 +989,10 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   });
 
   handleSearchMods = debounce(async (text: string) => {
+    if (!text.length) {
+      return;
+    }
+
     const { modId } = this.props;
     const { modSearchOptions } = this.state;
     this.setState({ loadingModSearch: true });
