@@ -56,6 +56,7 @@ import { UnreadCounterService } from "../../services";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
+import { isBrowser } from "@utils/browser";
 
 enum UnreadOrAll {
   Unread,
@@ -160,8 +161,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+  async componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
       await this.refetch();
     }
   }

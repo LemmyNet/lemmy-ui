@@ -1,12 +1,13 @@
 import { getQueryString, validInstanceTLD } from "@utils/helpers";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, MouseEventHandler, linkEvent } from "inferno";
+import { Component, MouseEventHandler, createRef, linkEvent } from "inferno";
 import { CommunityView } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import { VERSION } from "../../version";
 import { Icon, Spinner } from "./icon";
 import { toast } from "../../toast";
+import { modalMixin } from "../mixins/modal-mixin";
 
 interface SubscribeButtonProps {
   communityView: CommunityView;
@@ -64,7 +65,7 @@ export function SubscribeButton({
         >
           {I18NextService.i18n.t("subscribe")}
         </button>
-        <RemoteFetchModal communityActorId={actor_id} />
+        <RemoteFetchModal show={false} communityActorId={actor_id} />
       </>
     );
   }
@@ -93,6 +94,7 @@ export function SubscribeButton({
 
 interface RemoteFetchModalProps {
   communityActorId: string;
+  show: boolean;
 }
 
 interface RemoteFetchModalState {
@@ -101,10 +103,6 @@ interface RemoteFetchModalState {
 
 function handleInput(i: RemoteFetchModal, event: any) {
   i.setState({ instanceText: event.target.value });
-}
-
-function focusInput() {
-  document.getElementById("remoteFetchInstance")?.focus();
 }
 
 function submitRemoteFollow(
@@ -139,6 +137,7 @@ function submitRemoteFollow(
   )}`;
 }
 
+@modalMixin
 class RemoteFetchModal extends Component<
   RemoteFetchModalProps,
   RemoteFetchModalState
@@ -147,20 +146,15 @@ class RemoteFetchModal extends Component<
     instanceText: "",
   };
 
+  modalDivRef = createRef<HTMLDivElement>();
+  inputRef = createRef<HTMLInputElement>();
+
   constructor(props: any, context: any) {
     super(props, context);
   }
 
-  componentDidMount() {
-    document
-      .getElementById("remoteFetchModal")
-      ?.addEventListener("shown.bs.modal", focusInput);
-  }
-
-  componentWillUnmount(): void {
-    document
-      .getElementById("remoteFetchModal")
-      ?.removeEventListener("shown.bs.modal", focusInput);
+  handleShow() {
+    this.inputRef.current?.focus();
   }
 
   render() {
@@ -171,6 +165,7 @@ class RemoteFetchModal extends Component<
         tabIndex={-1}
         aria-hidden
         aria-labelledby="#remoteFetchModalTitle"
+        ref={this.modalDivRef}
       >
         <div className="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
           <div className="modal-content">
@@ -203,6 +198,7 @@ class RemoteFetchModal extends Component<
                 required
                 enterKeyHint="go"
                 inputMode="url"
+                ref={this.inputRef}
               />
             </form>
             <footer className="modal-footer">

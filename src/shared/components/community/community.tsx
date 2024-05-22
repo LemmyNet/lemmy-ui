@@ -114,6 +114,7 @@ import {
 import { Sidebar } from "./sidebar";
 import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
+import { isBrowser } from "@utils/browser";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -274,8 +275,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     });
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+  async componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
       await Promise.all([this.fetchCommunity(), this.fetchData()]);
     }
   }

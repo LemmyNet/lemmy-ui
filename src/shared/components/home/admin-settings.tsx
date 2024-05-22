@@ -41,6 +41,7 @@ import { IRoutePropsWithFetch } from "../../routes";
 import { MediaUploads } from "../common/media-uploads";
 import { Paginator } from "../common/paginator";
 import { snapToTop } from "@utils/browser";
+import { isBrowser } from "@utils/browser";
 
 type AdminSettingsData = RouteDataResponse<{
   bannedRes: BannedPersonsResponse;
@@ -132,12 +133,14 @@ export class AdminSettings extends Component<
     };
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.fetchData();
-    } else {
-      const themeList = await fetchThemeList();
-      this.setState({ themeList });
+  async componentWillMount() {
+    if (isBrowser()) {
+      if (!this.state.isIsomorphic) {
+        await this.fetchData();
+      } else {
+        const themeList = await fetchThemeList();
+        this.setState({ themeList });
+      }
     }
   }
 

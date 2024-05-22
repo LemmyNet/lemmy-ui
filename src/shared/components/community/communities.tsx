@@ -40,6 +40,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 import { scrollMixin } from "../mixins/scroll-mixin";
+import { isBrowser } from "@utils/browser";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -121,8 +122,8 @@ export class Communities extends Component<
     }
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+  async componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
       await this.refetch();
     }
   }

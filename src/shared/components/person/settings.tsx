@@ -348,7 +348,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
   }
 
-  async componentDidMount() {
+  async componentWillMount() {
     this.setState({ themeList: await fetchThemeList() });
 
     if (!this.state.isIsomorphic) {

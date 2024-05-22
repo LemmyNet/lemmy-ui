@@ -63,7 +63,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     this.handleOutsideMenuClick = this.handleOutsideMenuClick.bind(this);
   }
 
-  async componentDidMount() {
+  async componentWillMount() {
     // Subscribe to jwt changes
     if (isBrowser()) {
       // On the first load, check the unreads

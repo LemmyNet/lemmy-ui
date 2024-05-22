@@ -112,7 +112,7 @@ import {
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
-import { snapToTop } from "@utils/browser";
+import { isBrowser, snapToTop } from "@utils/browser";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -344,12 +344,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     )?.content;
   }
 
-  async componentDidMount() {
+  async componentWillMount() {
     if (
-      !this.state.isIsomorphic ||
-      !Object.values(this.isoData.routeData).some(
-        res => res.state === "success" || res.state === "failed",
-      )
+      (!this.state.isIsomorphic ||
+        !Object.values(this.isoData.routeData).some(
+          res => res.state === "success" || res.state === "failed",
+        )) &&
+      isBrowser()
     ) {
       await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
     }

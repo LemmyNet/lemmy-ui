@@ -26,6 +26,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
+import { isBrowser } from "@utils/browser";
 
 type InstancesData = RouteDataResponse<{
   federatedInstancesResponse: GetFederatedInstancesResponse;
@@ -71,8 +72,8 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     }
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+  async componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
       await this.fetchInstances();
     }
   }

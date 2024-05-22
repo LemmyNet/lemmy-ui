@@ -100,6 +100,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
 import { MediaUploads } from "../common/media-uploads";
 import { cakeDate } from "@utils/helpers";
+import { isBrowser } from "@utils/browser";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
@@ -260,8 +261,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+  async componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
       await this.fetchUserData();
     }
   }

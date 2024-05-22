@@ -1,6 +1,7 @@
 import { Component } from "inferno";
 import { UserService } from "../../services";
 import { Spinner } from "./icon";
+import { isBrowser } from "@utils/browser";
 
 class AnonymousGuard extends Component<any, any> {
   constructor(props: any, context: any) {
@@ -11,8 +12,8 @@ class AnonymousGuard extends Component<any, any> {
     return UserService.Instance.myUserInfo;
   }
 
-  componentDidMount() {
-    if (this.hasAuth()) {
+  componentWillMount() {
+    if (this.hasAuth() && isBrowser()) {
       this.context.router.history.replace(`/`);
     }
   }

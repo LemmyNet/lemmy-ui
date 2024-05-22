@@ -10,7 +10,7 @@ import {
 import { isImage } from "@utils/media";
 import { Choice } from "@utils/types";
 import autosize from "autosize";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode, createRef, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
   CommunityView,
@@ -132,8 +132,9 @@ function copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
     );
     d.i.setState({ suggestedPostsRes: EMPTY_REQUEST });
     setTimeout(() => {
-      const textarea: any = document.getElementById("post-title");
-      autosize.update(textarea);
+      if (d.i.postTitleRef.current) {
+        autosize.update(d.i.postTitleRef.current);
+      }
     }, 10);
   }
 }
@@ -248,6 +249,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     submitted: false,
   };
 
+  postTitleRef = createRef<HTMLTextAreaElement>();
+
   constructor(props: PostFormProps, context: any) {
     super(props, context);
     this.fetchSimilarPosts = debounce(this.fetchSimilarPosts.bind(this));
@@ -306,10 +309,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   componentDidMount() {
-    const textarea: any = document.getElementById("post-title");
-
-    if (textarea) {
-      autosize(textarea);
+    if (this.postTitleRef.current) {
+      autosize(this.postTitleRef.current);
     }
   }
 
@@ -382,6 +383,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               rows={1}
               minLength={3}
               maxLength={MAX_POST_TITLE_LENGTH}
+              ref={this.postTitleRef}
             />
             {!validTitle(this.state.form.name) && (
               <div className="invalid-feedback">

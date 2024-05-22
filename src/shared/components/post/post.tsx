@@ -24,7 +24,6 @@ import {
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isImage } from "@utils/media";
 import { RouteDataResponse } from "@utils/types";
-import autosize from "autosize";
 import classNames from "classnames";
 import { Component, RefObject, createRef, linkEvent } from "inferno";
 import {
@@ -293,13 +292,15 @@ export class Post extends Component<PostRouteProps, PostState> {
     document.removeEventListener("scroll", this.commentScrollDebounced);
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.fetchPost();
+  async componentWillMount() {
+    if (isBrowser()) {
+      if (!this.state.isIsomorphic) {
+        await this.fetchPost();
+      }
     }
+  }
 
-    autosize(document.querySelectorAll("textarea"));
-
+  componentDidMount() {
     this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
     document.addEventListener("scroll", this.commentScrollDebounced);
   }

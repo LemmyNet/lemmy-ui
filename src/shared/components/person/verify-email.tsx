@@ -13,6 +13,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { isBrowser } from "@utils/browser";
 
 interface State {
   verifyRes: RequestState<SuccessResponse>;
@@ -52,8 +53,10 @@ export class VerifyEmail extends Component<
     }
   }
 
-  async componentDidMount() {
-    await this.verify();
+  async componentWillMount() {
+    if (isBrowser()) {
+      await this.verify();
+    }
   }
 
   get documentTitle(): string {

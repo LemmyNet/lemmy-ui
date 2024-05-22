@@ -3,6 +3,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { UserService } from "../../services";
 import { Spinner } from "./icon";
 import { getQueryString } from "@utils/helpers";
+import { isBrowser } from "@utils/browser";
 
 class AuthGuard extends Component<
   RouteComponentProps<Record<string, string>>,
@@ -19,8 +20,8 @@ class AuthGuard extends Component<
     return UserService.Instance.myUserInfo;
   }
 
-  componentDidMount() {
-    if (!this.hasAuth()) {
+  componentWillMount() {
+    if (!this.hasAuth() && isBrowser()) {
       const { pathname, search } = this.props.location;
       this.context.router.history.replace(
         `/login${getQueryString({ prev: pathname + search })}`,

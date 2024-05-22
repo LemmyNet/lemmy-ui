@@ -71,6 +71,7 @@ import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../routes";
+import { isBrowser } from "@utils/browser";
 
 interface SearchProps {
   q?: string;
@@ -329,12 +330,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
-  async componentDidMount() {
-    if (this.props.history.action !== "POP") {
-      this.searchInput.current?.select();
-    }
-
-    if (!this.state.isIsomorphic) {
+  async compoentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
       this.setState({
         searchCommunitiesLoading: true,
         searchCreatorLoading: true,
@@ -403,6 +400,12 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         searchCommunitiesLoading: false,
         searchCreatorLoading: false,
       });
+    }
+  }
+
+  componentDidMount() {
+    if (this.props.history.action !== "POP") {
+      this.searchInput.current?.select();
     }
   }
 

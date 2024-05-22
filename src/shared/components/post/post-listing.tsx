@@ -137,7 +137,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleHidePost = this.handleHidePost.bind(this);
   }
 
-  componentDidMount(): void {
+  componentWillMount(): void {
     if (
       UserService.Instance.myUserInfo &&
       !this.isoData.showAdultConsentModal

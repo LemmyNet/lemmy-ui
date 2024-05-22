@@ -26,6 +26,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
+import { isBrowser } from "@utils/browser";
 
 type CreatePrivateMessageData = RouteDataResponse<{
   recipientDetailsResponse: GetPersonDetailsResponse;
@@ -79,8 +80,8 @@ export class CreatePrivateMessage extends Component<
     }
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+  async componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
       await this.fetchPersonDetails();
     }
   }

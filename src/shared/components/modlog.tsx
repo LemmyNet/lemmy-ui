@@ -66,6 +66,7 @@ import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { IRoutePropsWithFetch } from "../routes";
+import { isBrowser } from "@utils/browser";
 
 type FilterType = "mod" | "user";
 
@@ -703,8 +704,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     }
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+  async componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
       const { modId, userId } = this.props;
       const promises = [this.refetch()];
 

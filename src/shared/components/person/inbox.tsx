@@ -89,6 +89,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { CommentsLoadingSkeleton } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
+import { isBrowser } from "@utils/browser";
 
 enum UnreadOrAll {
   Unread,
@@ -213,8 +214,8 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     }
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+  async componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
       await this.refetch();
     }
   }
