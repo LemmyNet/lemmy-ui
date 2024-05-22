@@ -354,9 +354,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
+  fetchDefaultCommunitiesToken?: symbol;
   async fetchDefaultCommunities({
     communityId,
   }: Pick<SearchRouteProps, "communityId">) {
+    const token = (this.fetchDefaultCommunitiesToken = Symbol());
     this.setState({
       searchCommunitiesLoading: true,
     });
@@ -366,6 +368,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       sort: defaultSortType,
       limit: fetchLimit,
     });
+
+    if (token !== this.fetchDefaultCommunitiesToken) {
+      return;
+    }
 
     if (res.state === "success") {
       const retainSelected: false | undefined | Choice =
@@ -386,9 +392,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     });
   }
 
+  fetchSelectedCommunityToken?: symbol;
   async fetchSelectedCommunity({
     communityId,
   }: Pick<SearchRouteProps, "communityId">) {
+    const token = (this.fetchSelectedCommunityToken = Symbol());
     const needsSelectedCommunity = () => {
       return !this.state.communitySearchOptions.some(
         choice => choice.value === communityId?.toString(),
@@ -396,7 +404,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     };
     if (communityId && needsSelectedCommunity()) {
       const res = await HttpService.client.getCommunity({ id: communityId });
-      if (res.state === "success" && needsSelectedCommunity()) {
+      if (
+        res.state === "success" &&
+        needsSelectedCommunity() &&
+        token === this.fetchSelectedCommunityToken
+      ) {
         this.setState(prev => {
           prev.communitySearchOptions.unshift(
             communityToChoice(res.data.community_view),
@@ -407,9 +419,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
+  fetchSelectedCreatorToken?: symbol;
   async fetchSelectedCreator({
     creatorId,
   }: Pick<SearchRouteProps, "creatorId">) {
+    const token = (this.fetchSelectedCreatorToken = Symbol());
     const needsSelectedCreator = () => {
       return !this.state.creatorSearchOptions.some(
         choice => choice.value === creatorId?.toString(),
@@ -425,6 +439,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const res = await HttpService.client.getPersonDetails({
       person_id: creatorId,
     });
+
+    if (token !== this.fetchSelectedCreatorToken) {
+      return;
+    }
 
     if (res.state === "success" && needsSelectedCreator()) {
       this.setState(prev => {
@@ -1024,31 +1042,36 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     return resObjCount + searchCount;
   }
 
+  searchToken?: symbol;
   async search(props: SearchRouteProps) {
+    const token = (this.searchToken = Symbol());
     const { q, communityId, creatorId, type, sort, listingType, page } = props;
 
     if (q) {
       this.setState({ searchRes: LOADING_REQUEST });
-      this.setState({
-        searchRes: await HttpService.client.search({
-          q,
-          community_id: communityId ?? undefined,
-          creator_id: creatorId ?? undefined,
-          type_: type,
-          sort,
-          listing_type: listingType,
-          page,
-          limit: fetchLimit,
-        }),
+      const searchRes = await HttpService.client.search({
+        q,
+        community_id: communityId ?? undefined,
+        creator_id: creatorId ?? undefined,
+        type_: type,
+        sort,
+        listing_type: listingType,
+        page,
+        limit: fetchLimit,
       });
+      if (token !== this.searchToken) {
+        return;
+      }
+      this.setState({ searchRes });
 
       if (myAuth()) {
         this.setState({ resolveObjectRes: LOADING_REQUEST });
-        this.setState({
-          resolveObjectRes: await HttpService.client.resolveObject({
-            q,
-          }),
+        const resolveObjectRes = await HttpService.client.resolveObject({
+          q,
         });
+        if (token === this.searchToken) {
+          this.setState({ resolveObjectRes });
+        }
       }
     } else {
       this.setState({ searchRes: EMPTY_REQUEST });

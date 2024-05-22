@@ -785,40 +785,60 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     return inboxData;
   }
 
+  refetchToken?: symbol;
   async refetch() {
+    const token = (this.refetchToken = Symbol());
     const sort = this.state.sort;
     const unread_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     const page = this.state.page;
     const limit = fetchLimit;
 
-    this.setState({ repliesRes: LOADING_REQUEST });
     this.setState({
-      repliesRes: await HttpService.client.getReplies({
+      repliesRes: LOADING_REQUEST,
+      mentionsRes: LOADING_REQUEST,
+      messagesRes: LOADING_REQUEST,
+    });
+    const repliesPromise = HttpService.client
+      .getReplies({
         sort,
         unread_only,
         page,
         limit,
-      }),
-    });
+      })
+      .then(repliesRes => {
+        if (token === this.refetchToken) {
+          this.setState({
+            repliesRes,
+          });
+        }
+      });
 
-    this.setState({ mentionsRes: LOADING_REQUEST });
-    this.setState({
-      mentionsRes: await HttpService.client.getPersonMentions({
+    const mentionsPromise = HttpService.client
+      .getPersonMentions({
         sort,
         unread_only,
         page,
         limit,
-      }),
-    });
+      })
+      .then(mentionsRes => {
+        if (token === this.refetchToken) {
+          this.setState({ mentionsRes });
+        }
+      });
 
-    this.setState({ messagesRes: LOADING_REQUEST });
-    this.setState({
-      messagesRes: await HttpService.client.getPrivateMessages({
+    const messagesPromise = HttpService.client
+      .getPrivateMessages({
         unread_only,
         page,
         limit,
-      }),
-    });
+      })
+      .then(messagesRes => {
+        if (token === this.refetchToken) {
+          this.setState({ messagesRes });
+        }
+      });
+
+    await Promise.all([repliesPromise, mentionsPromise, messagesPromise]);
     UnreadCounterService.Instance.updateInboxCounts();
   }
 

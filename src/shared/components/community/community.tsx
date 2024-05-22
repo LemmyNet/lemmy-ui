@@ -274,13 +274,16 @@ export class Community extends Component<CommunityRouteProps, State> {
     }
   }
 
+  fetchCommunityToken?: symbol;
   async fetchCommunity(props: CommunityRouteProps) {
+    const token = (this.fetchCommunityToken = Symbol());
     this.setState({ communityRes: LOADING_REQUEST });
-    this.setState({
-      communityRes: await HttpService.client.getCommunity({
-        name: props.match.params.name,
-      }),
+    const communityRes = await HttpService.client.getCommunity({
+      name: props.match.params.name,
     });
+    if (token === this.fetchCommunityToken) {
+      this.setState({ communityRes });
+    }
   }
 
   async componentWillMount() {
@@ -702,34 +705,38 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.props.history.push(`/c/${name}${getQueryString(queryParams)}`);
   }
 
+  fetchDataToken?: symbol;
   async fetchData(props: CommunityRouteProps) {
+    const token = (this.fetchDataToken = Symbol());
     const { dataType, pageCursor, sort, showHidden } = props;
     const { name } = props.match.params;
 
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
-      this.setState({
-        postsRes: await HttpService.client.getPosts({
-          page_cursor: pageCursor,
-          limit: fetchLimit,
-          sort,
-          type_: "All",
-          community_name: name,
-          saved_only: false,
-          show_hidden: showHidden === "true",
-        }),
+      const postsRes = await HttpService.client.getPosts({
+        page_cursor: pageCursor,
+        limit: fetchLimit,
+        sort,
+        type_: "All",
+        community_name: name,
+        saved_only: false,
+        show_hidden: showHidden === "true",
       });
+      if (token === this.fetchDataToken) {
+        this.setState({ postsRes });
+      }
     } else {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
-      this.setState({
-        commentsRes: await HttpService.client.getComments({
-          limit: fetchLimit,
-          sort: postToCommentSortType(sort),
-          type_: "All",
-          community_name: name,
-          saved_only: false,
-        }),
+      const commentsRes = await HttpService.client.getComments({
+        limit: fetchLimit,
+        sort: postToCommentSortType(sort),
+        type_: "All",
+        community_name: name,
+        saved_only: false,
       });
+      if (token === this.fetchDataToken) {
+        this.setState({ commentsRes });
+      }
     }
   }
 

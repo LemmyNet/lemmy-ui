@@ -303,7 +303,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
+  fetchUploadsToken?: symbol;
   async fetchUploads(props: ProfileRouteProps) {
+    const token = (this.fetchUploadsToken = Symbol());
     const { page } = props;
     this.setState({ uploadsRes: LOADING_REQUEST });
     const form: ListMedia = {
@@ -312,10 +314,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       limit: fetchLimit,
     };
     const uploadsRes = await HttpService.client.listMedia(form);
-    this.setState({ uploadsRes });
+    if (token === this.fetchUploadsToken) {
+      this.setState({ uploadsRes });
+    }
   }
 
+  fetchUserDataToken?: symbol;
   async fetchUserData(props: ProfileRouteProps, showBothLoading = false) {
+    const token = (this.fetchUploadsToken = this.fetchUserDataToken = Symbol());
     const { page, sort, view } = props;
 
     if (view === PersonDetailsView.Uploads) {
@@ -350,11 +356,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       limit: fetchLimit,
     });
 
-    this.setState({
-      personRes,
-      personDetailsRes: personRes,
-      personBlocked: isPersonBlocked(personRes),
-    });
+    if (token === this.fetchUserDataToken) {
+      this.setState({
+        personRes,
+        personDetailsRes: personRes,
+        personBlocked: isPersonBlocked(personRes),
+      });
+    }
   }
 
   get amCurrentUser() {
@@ -470,7 +478,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
               {this.renderUploadsRes()}
 
-              {personDetailsState === "loading" ? (
+              {personDetailsState === "loading" &&
+              this.props.view !== PersonDetailsView.Uploads ? (
                 <h5>
                   <Spinner large />
                 </h5>

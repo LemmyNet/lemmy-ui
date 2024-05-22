@@ -732,14 +732,16 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     }
   }
 
+  fetchUserToken?: symbol;
   async fetchUser(props: ModlogRouteProps) {
+    const token = (this.fetchUserToken = Symbol());
     const { userId } = props;
 
     if (userId) {
       const res = await HttpService.client.getPersonDetails({
         person_id: userId,
       });
-      if (res.state === "success") {
+      if (res.state === "success" && token === this.fetchUserToken) {
         this.setState({
           userSearchOptions: [personToChoice(res.data.person_view)],
         });
@@ -747,14 +749,16 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     }
   }
 
+  fetchModToken?: symbol;
   async fetchMod(props: ModlogRouteProps) {
+    const token = (this.fetchModToken = Symbol());
     const { modId } = props;
 
     if (modId) {
       const res = await HttpService.client.getPersonDetails({
         person_id: modId,
       });
-      if (res.state === "success") {
+      if (res.state === "success" && token === this.fetchModToken) {
         this.setState({
           modSearchOptions: [personToChoice(res.data.person_view)],
         });
@@ -1034,40 +1038,46 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     );
   }
 
+  fetchModlogToken?: symbol;
   async fetchModlog(props: ModlogRouteProps) {
+    const token = (this.fetchModlogToken = Symbol());
     const { actionType, page, modId, userId, postId, commentId } = props;
     const { communityId: urlCommunityId } = props.match.params;
     const communityId = getIdFromString(urlCommunityId);
 
     this.setState({ res: LOADING_REQUEST });
-    this.setState({
-      res: await HttpService.client.getModlog({
-        community_id: communityId,
-        page,
-        limit: fetchLimit,
-        type_: actionType,
-        other_person_id: userId,
-        mod_person_id: !this.isoData.site_res.site_view.local_site
-          .hide_modlog_mod_names
-          ? modId
-          : undefined,
-        comment_id: commentId,
-        post_id: postId,
-      }),
+    const res = await HttpService.client.getModlog({
+      community_id: communityId,
+      page,
+      limit: fetchLimit,
+      type_: actionType,
+      other_person_id: userId,
+      mod_person_id: !this.isoData.site_res.site_view.local_site
+        .hide_modlog_mod_names
+        ? modId
+        : undefined,
+      comment_id: commentId,
+      post_id: postId,
     });
+    if (token === this.fetchModlogToken) {
+      this.setState({ res });
+    }
   }
 
+  fetchCommunityToken?: symbol;
   async fetchCommunity(props: ModlogRouteProps) {
+    const token = (this.fetchCommunityToken = Symbol());
     const { communityId: urlCommunityId } = props.match.params;
     const communityId = getIdFromString(urlCommunityId);
 
     if (communityId) {
       this.setState({ communityRes: LOADING_REQUEST });
-      this.setState({
-        communityRes: await HttpService.client.getCommunity({
-          id: communityId,
-        }),
+      const communityRes = await HttpService.client.getCommunity({
+        id: communityId,
       });
+      if (token === this.fetchCommunityToken) {
+        this.setState({ communityRes });
+      }
     } else {
       this.setState({ communityRes: EMPTY_REQUEST });
     }

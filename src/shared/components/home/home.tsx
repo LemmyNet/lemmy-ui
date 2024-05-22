@@ -858,6 +858,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     });
   }
 
+  fetchDataToken?: symbol;
   async fetchData({
     dataType,
     pageCursor,
@@ -865,28 +866,31 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     sort,
     showHidden,
   }: HomeProps) {
+    const token = (this.fetchDataToken = Symbol());
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
-      this.setState({
-        postsRes: await HttpService.client.getPosts({
-          page_cursor: pageCursor,
-          limit: fetchLimit,
-          sort,
-          saved_only: false,
-          type_: listingType,
-          show_hidden: showHidden === "true",
-        }),
+      const postsRes = await HttpService.client.getPosts({
+        page_cursor: pageCursor,
+        limit: fetchLimit,
+        sort,
+        saved_only: false,
+        type_: listingType,
+        show_hidden: showHidden === "true",
       });
+      if (token === this.fetchDataToken) {
+        this.setState({ postsRes });
+      }
     } else {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
-      this.setState({
-        commentsRes: await HttpService.client.getComments({
-          limit: fetchLimit,
-          sort: postToCommentSortType(sort),
-          saved_only: false,
-          type_: listingType,
-        }),
+      const commentsRes = await HttpService.client.getComments({
+        limit: fetchLimit,
+        sort: postToCommentSortType(sort),
+        saved_only: false,
+        type_: listingType,
       });
+      if (token === this.fetchDataToken) {
+        this.setState({ commentsRes });
+      }
     }
   }
 

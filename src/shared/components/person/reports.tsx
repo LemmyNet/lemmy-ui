@@ -453,9 +453,22 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   }
 
   all() {
+    const combined = this.buildCombined;
+    if (
+      combined.length === 0 &&
+      (this.state.commentReportsRes.state === "loading" ||
+        this.state.postReportsRes.state === "loading" ||
+        this.state.messageReportsRes.state === "loading")
+    ) {
+      return (
+        <h5>
+          <Spinner large />
+        </h5>
+      );
+    }
     return (
       <div>
-        {this.buildCombined.map(i => (
+        {combined.map(i => (
           <>
             <hr />
             {this.renderItemType(i)}
@@ -618,7 +631,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     return data;
   }
 
+  refetchToken?: symbol;
   async refetch() {
+    const token = (this.refetchToken = Symbol());
     const unresolved_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     const page = this.state.page;
     const limit = fetchLimit;
@@ -638,17 +653,30 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       limit,
     };
 
-    this.setState({
-      commentReportsRes: await HttpService.client.listCommentReports(form),
-      postReportsRes: await HttpService.client.listPostReports(form),
-    });
+    const commentReportPromise = HttpService.client
+      .listCommentReports(form)
+      .then(commentReportsRes => {
+        if (token === this.refetchToken) {
+          this.setState({ commentReportsRes });
+        }
+      });
+    const postReportPromise = HttpService.client
+      .listPostReports(form)
+      .then(postReportsRes => {
+        if (token === this.refetchToken) {
+          this.setState({ postReportsRes });
+        }
+      });
 
     if (amAdmin()) {
-      this.setState({
-        messageReportsRes:
-          await HttpService.client.listPrivateMessageReports(form),
-      });
+      const messageReportsRes =
+        await HttpService.client.listPrivateMessageReports(form);
+      if (token === this.refetchToken) {
+        this.setState({ messageReportsRes });
+      }
     }
+
+    await Promise.all([commentReportPromise, postReportPromise]);
   }
 
   async handleResolveCommentReport(form: ResolveCommentReport) {

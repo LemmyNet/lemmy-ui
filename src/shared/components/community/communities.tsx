@@ -361,17 +361,19 @@ export class Communities extends Component<
     data.i.findAndUpdateCommunity(res);
   }
 
+  fetchToken?: symbol;
   async refetch({ listingType, sort, page }: CommunitiesProps) {
+    const token = (this.fetchToken = Symbol());
     this.setState({ listCommunitiesResponse: LOADING_REQUEST });
-
-    this.setState({
-      listCommunitiesResponse: await HttpService.client.listCommunities({
-        type_: listingType,
-        sort: sort,
-        limit: communityLimit,
-        page,
-      }),
+    const listCommunitiesResponse = await HttpService.client.listCommunities({
+      type_: listingType,
+      sort: sort,
+      limit: communityLimit,
+      page,
     });
+    if (token === this.fetchToken) {
+      this.setState({ listCommunitiesResponse });
+    }
   }
 
   findAndUpdateCommunity(res: RequestState<CommunityResponse>) {

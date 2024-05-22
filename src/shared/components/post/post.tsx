@@ -280,27 +280,24 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
+  fetchPostToken?: symbol;
   async fetchPost(props: PostRouteProps) {
-    this.setState({
-      postRes: LOADING_REQUEST,
-    });
-
+    const token = (this.fetchPostToken = Symbol());
+    this.setState({ postRes: LOADING_REQUEST });
     const postRes = await HttpService.client.getPost({
       id: getIdFromProps(props),
       comment_id: getCommentIdFromProps(props),
     });
-
-    this.setState({
-      postRes,
-    });
+    if (token === this.fetchPostToken) {
+      this.setState({ postRes });
+    }
   }
 
+  fetchCommentsToken?: symbol;
   async fetchComments(props: PostRouteProps) {
+    const token = (this.fetchCommentsToken = Symbol());
     const { sort } = props;
-    this.setState({
-      commentsRes: LOADING_REQUEST,
-    });
-
+    this.setState({ commentsRes: LOADING_REQUEST });
     const commentsRes = await HttpService.client.getComments({
       post_id: getIdFromProps(props),
       parent_id: getCommentIdFromProps(props),
@@ -309,10 +306,9 @@ export class Post extends Component<PostRouteProps, PostState> {
       type_: "All",
       saved_only: false,
     });
-
-    this.setState({
-      commentsRes,
-    });
+    if (token === this.fetchCommentsToken) {
+      this.setState({ commentsRes });
+    }
   }
 
   updateUrl(props: PartialPostRouteProps, replace = false) {

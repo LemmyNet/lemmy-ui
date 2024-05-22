@@ -268,19 +268,22 @@ export class RegistrationApplications extends Component<
     };
   }
 
+  refetchToken?: symbol;
   async refetch() {
+    const token = (this.refetchToken = Symbol());
     const unread_only =
       this.state.registrationState === RegistrationState.Unread;
     this.setState({
       appsRes: LOADING_REQUEST,
     });
-    this.setState({
-      appsRes: await HttpService.client.listRegistrationApplications({
-        unread_only: unread_only,
-        page: this.state.page,
-        limit: fetchLimit,
-      }),
+    const appsRes = await HttpService.client.listRegistrationApplications({
+      unread_only: unread_only,
+      page: this.state.page,
+      limit: fetchLimit,
     });
+    if (token === this.refetchToken) {
+      this.setState({ appsRes });
+    }
   }
 
   async handleApproveApplication(form: ApproveRegistrationApplication) {
