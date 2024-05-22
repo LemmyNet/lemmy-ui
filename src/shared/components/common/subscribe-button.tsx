@@ -65,7 +65,7 @@ export function SubscribeButton({
         >
           {I18NextService.i18n.t("subscribe")}
         </button>
-        <RemoteFetchModal show={false} communityActorId={actor_id} />
+        <RemoteFetchModal communityActorId={actor_id} />
       </>
     );
   }
@@ -94,7 +94,7 @@ export function SubscribeButton({
 
 interface RemoteFetchModalProps {
   communityActorId: string;
-  show: boolean;
+  show?: boolean;
 }
 
 interface RemoteFetchModalState {
