@@ -15,11 +15,7 @@ export class LoadingEllipses extends Component<any, LoadingEllipsesState> {
   }
 
   render() {
-    return (
-      this.state.ellipses || (
-        <span dangerouslySetInnerHTML={{ __html: "&nbsp;" }} />
-      )
-    );
+    return this.state.ellipses;
   }
 
   componentDidMount() {

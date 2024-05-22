@@ -860,7 +860,12 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
                 <span>{I18NextService.i18n.t("modlog")}</span>
               </>
             ) : (
-              communityState === "loading" && <LoadingEllipses />
+              communityState === "loading" && (
+                <>
+                  <LoadingEllipses />
+                  &nbsp;
+                </>
+              )
             )}
           </h5>
         )}
