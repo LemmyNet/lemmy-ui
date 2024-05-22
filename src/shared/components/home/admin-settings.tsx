@@ -51,7 +51,6 @@ type AdminSettingsData = RouteDataResponse<{
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
   banned: PersonView[];
-  currentTab: string;
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
@@ -79,7 +78,6 @@ export class AdminSettings extends Component<
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
     banned: [],
-    currentTab: "site",
     bannedRes: EMPTY_REQUEST,
     instancesRes: EMPTY_REQUEST,
     leaveAdminTeamRes: EMPTY_REQUEST,
@@ -429,10 +427,6 @@ export class AdminSettings extends Component<
     this.setState({ loading: false });
 
     return editRes;
-  }
-
-  handleSwitchTab(i: { ctx: AdminSettings; tab: string }) {
-    i.ctx.setState({ currentTab: i.tab });
   }
 
   async handleLeaveAdminTeam(i: AdminSettings) {
