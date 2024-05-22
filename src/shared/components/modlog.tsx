@@ -1,9 +1,4 @@
-import {
-  fetchUsers,
-  getUpdatedSearchId,
-  personToChoice,
-  setIsoData,
-} from "@utils/app";
+import { fetchUsers, personToChoice, setIsoData } from "@utils/app";
 import {
   debounce,
   formatPastDate,
@@ -12,6 +7,7 @@ import {
   getQueryParams,
   getQueryString,
   resourcesSettled,
+  bareRoutePush,
 } from "@utils/helpers";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { amAdmin, amMod } from "@utils/roles";
@@ -706,38 +702,62 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   async componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      const { modId, userId } = this.props;
-      const promises = [this.refetch()];
+      await Promise.all([
+        this.fetchModlog(this.props),
+        this.fetchCommunity(this.props),
+        this.fetchUser(this.props),
+        this.fetchMod(this.props),
+      ]);
+    }
+  }
 
-      if (userId) {
-        promises.push(
-          HttpService.client
-            .getPersonDetails({ person_id: userId })
-            .then(res => {
-              if (res.state === "success") {
-                this.setState({
-                  userSearchOptions: [personToChoice(res.data.person_view)],
-                });
-              }
-            }),
-        );
+  componentWillReceiveProps(nextProps: ModlogRouteProps) {
+    this.fetchModlog(nextProps);
+
+    const reload = bareRoutePush(this.props, nextProps);
+
+    if (nextProps.modId !== this.props.modId || reload) {
+      this.fetchMod(nextProps);
+    }
+    if (nextProps.userId !== this.props.userId || reload) {
+      this.fetchUser(nextProps);
+    }
+    if (
+      nextProps.match.params.communityId !==
+        this.props.match.params.communityId ||
+      reload
+    ) {
+      this.fetchCommunity(nextProps);
+    }
+  }
+
+  async fetchUser(props: ModlogRouteProps) {
+    const { userId } = props;
+
+    if (userId) {
+      const res = await HttpService.client.getPersonDetails({
+        person_id: userId,
+      });
+      if (res.state === "success") {
+        this.setState({
+          userSearchOptions: [personToChoice(res.data.person_view)],
+        });
       }
+    }
+  }
 
-      if (modId) {
-        promises.push(
-          HttpService.client
-            .getPersonDetails({ person_id: modId })
-            .then(res => {
-              if (res.state === "success") {
-                this.setState({
-                  modSearchOptions: [personToChoice(res.data.person_view)],
-                });
-              }
-            }),
-        );
+  async fetchMod(props: ModlogRouteProps) {
+    const { modId } = props;
+
+    if (modId) {
+      const res = await HttpService.client.getPersonDetails({
+        person_id: modId,
+      });
+      if (res.state === "success") {
+        this.setState({
+          modSearchOptions: [personToChoice(res.data.person_view)],
+        });
       }
-
-      await Promise.all(promises);
     }
   }
 
@@ -969,35 +989,34 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     });
   });
 
-  async updateUrl({ actionType, modId, page, userId }: Partial<ModlogProps>) {
+  async updateUrl(props: Partial<ModlogProps>) {
     const {
-      page: urlPage,
-      actionType: urlActionType,
-      modId: urlModId,
-      userId: urlUserId,
-    } = this.props;
+      actionType,
+      modId,
+      page,
+      userId,
+      match: {
+        params: { communityId },
+      },
+    } = { ...this.props, ...props };
 
     const queryParams: QueryParams<ModlogProps> = {
-      page: (page ?? urlPage).toString(),
-      actionType: actionType ?? urlActionType,
-      modId: getUpdatedSearchId(modId, urlModId),
-      userId: getUpdatedSearchId(userId, urlUserId),
+      page: page.toString(),
+      actionType: actionType,
+      modId: modId?.toString(),
+      userId: userId?.toString(),
     };
-
-    const communityId = this.props.match.params.communityId;
 
     this.props.history.push(
       `/modlog${communityId ? `/${communityId}` : ""}${getQueryString(
         queryParams,
       )}`,
     );
-
-    await this.refetch();
   }
 
-  async refetch() {
-    const { actionType, page, modId, userId, postId, commentId } = this.props;
-    const { communityId: urlCommunityId } = this.props.match.params;
+  async fetchModlog(props: ModlogRouteProps) {
+    const { actionType, page, modId, userId, postId, commentId } = props;
+    const { communityId: urlCommunityId } = props.match.params;
     const communityId = getIdFromString(urlCommunityId);
 
     this.setState({ res: LOADING_REQUEST });
@@ -1016,6 +1035,11 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
         post_id: postId,
       }),
     });
+  }
+
+  async fetchCommunity(props: ModlogRouteProps) {
+    const { communityId: urlCommunityId } = props.match.params;
+    const communityId = getIdFromString(urlCommunityId);
 
     if (communityId) {
       this.setState({ communityRes: LOADING_REQUEST });
@@ -1024,6 +1048,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           id: communityId,
         }),
       });
+    } else {
+      this.setState({ communityRes: EMPTY_REQUEST });
     }
   }
 

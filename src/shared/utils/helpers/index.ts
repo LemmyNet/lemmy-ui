@@ -1,3 +1,4 @@
+import bareRoutePush from "./bare-route-push";
 import capitalizeFirstLetter from "./capitalize-first-letter";
 import debounce from "./debounce";
 import editListImmutable from "./edit-list-immutable";
@@ -27,6 +28,7 @@ import dedupByProperty from "./dedup-by-property";
 import getApubName from "./apub-name";
 
 export {
+  bareRoutePush,
   cakeDate,
   capitalizeFirstLetter,
   debounce,

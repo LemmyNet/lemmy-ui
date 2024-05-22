@@ -19,11 +19,18 @@ import {
   getQueryParams,
   getQueryString,
   resourcesSettled,
+  bareRoutePush,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import type { QueryParams, StringBoolean } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component, RefObject, createRef, linkEvent } from "inferno";
+import {
+  Component,
+  InfernoNode,
+  RefObject,
+  createRef,
+  linkEvent,
+} from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   AddAdmin,
@@ -266,19 +273,34 @@ export class Community extends Component<CommunityRouteProps, State> {
     }
   }
 
-  async fetchCommunity() {
+  async fetchCommunity(props: CommunityRouteProps) {
     this.setState({ communityRes: LOADING_REQUEST });
     this.setState({
       communityRes: await HttpService.client.getCommunity({
-        name: this.props.match.params.name,
+        name: props.match.params.name,
       }),
     });
   }
 
   async componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await Promise.all([this.fetchCommunity(), this.fetchData()]);
+      await Promise.all([
+        this.fetchCommunity(this.props),
+        this.fetchData(this.props),
+      ]);
     }
+  }
+
+  componentWillReceiveProps(
+    nextProps: CommunityRouteProps & { children?: InfernoNode },
+  ) {
+    if (
+      bareRoutePush(this.props, nextProps) ||
+      this.props.match.params.name !== nextProps.match.params.name
+    ) {
+      this.fetchCommunity(nextProps);
+    }
+    this.fetchData(nextProps);
   }
 
   static async fetchInitialData({
@@ -642,38 +664,36 @@ export class Community extends Component<CommunityRouteProps, State> {
     }));
   }
 
-  async updateUrl({
-    dataType,
-    pageCursor,
-    sort,
-    showHidden,
-  }: Partial<CommunityProps>) {
+  async updateUrl(props: Partial<CommunityProps>) {
     const {
-      dataType: urlDataType,
-      sort: urlSort,
-      showHidden: urlShowHidden,
-    } = this.props;
-
-    const queryParams: QueryParams<CommunityProps> = {
-      dataType: getDataTypeString(dataType ?? urlDataType),
-      pageCursor: pageCursor,
-      sort: sort ?? urlSort,
-      showHidden: showHidden ?? urlShowHidden,
+      dataType,
+      pageCursor,
+      sort,
+      showHidden,
+      match: {
+        params: { name },
+      },
+    } = {
+      ...this.props,
+      ...props,
     };
 
-    this.props.history.push(
-      `/c/${this.props.match.params.name}${getQueryString(queryParams)}`,
-    );
+    const queryParams: QueryParams<CommunityProps> = {
+      dataType: getDataTypeString(dataType ?? DataType.Post),
+      pageCursor: pageCursor,
+      sort: sort,
+      showHidden: showHidden,
+    };
 
-    await this.fetchData();
+    this.props.history.push(`/c/${name}${getQueryString(queryParams)}`);
   }
 
-  async fetchData() {
-    const { dataType, pageCursor, sort, showHidden } = this.props;
-    const { name } = this.props.match.params;
+  async fetchData(props: CommunityRouteProps) {
+    const { dataType, pageCursor, sort, showHidden } = props;
+    const { name } = props.match.params;
 
     if (dataType === DataType.Post) {
-      this.setState({ postsRes: LOADING_REQUEST });
+      this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       this.setState({
         postsRes: await HttpService.client.getPosts({
           page_cursor: pageCursor,
@@ -686,7 +706,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         }),
       });
     } else {
-      this.setState({ commentsRes: LOADING_REQUEST });
+      this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
       this.setState({
         commentsRes: await HttpService.client.getComments({
           limit: fetchLimit,

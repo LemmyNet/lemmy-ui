@@ -19,6 +19,7 @@ import {
   numToSI,
   randomStr,
   resourcesSettled,
+  bareRoutePush,
 } from "@utils/helpers";
 import { canMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
@@ -263,16 +264,58 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   async componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.fetchUserData();
+      await this.fetchUserData(this.props);
     }
   }
 
-  async fetchUserData() {
-    const { page, sort, view } = this.props;
+  componentWillReceiveProps(nextProps: ProfileRouteProps) {
+    // Overview, Posts and Comments views can use the same data.
+    const sharedViewTypes = [nextProps.view, this.props.view].every(
+      v =>
+        v === PersonDetailsView.Overview ||
+        v === PersonDetailsView.Posts ||
+        v === PersonDetailsView.Comments,
+    );
 
-    this.setState({ personRes: LOADING_REQUEST });
+    const reload = bareRoutePush(this.props, nextProps);
+
+    const newUsername =
+      nextProps.match.params.username !== this.props.match.params.username;
+
+    if (
+      (nextProps.view !== this.props.view && !sharedViewTypes) ||
+      nextProps.sort !== this.props.sort ||
+      nextProps.page !== this.props.page ||
+      newUsername ||
+      reload
+    ) {
+      this.fetchUserData(nextProps);
+    }
+  }
+
+  async fetchUploads(props: ProfileRouteProps) {
+    const { page } = props;
+    this.setState({ uploadsRes: LOADING_REQUEST });
+    const form: ListMedia = {
+      // userId?
+      page,
+      limit: fetchLimit,
+    };
+    const uploadsRes = await HttpService.client.listMedia(form);
+    this.setState({ uploadsRes });
+  }
+
+  async fetchUserData(props: ProfileRouteProps) {
+    const { page, sort, view } = props;
+
+    if (view === PersonDetailsView.Uploads) {
+      this.fetchUploads(props);
+      return;
+    }
+
+    this.setState({ personRes: LOADING_REQUEST, uploadsRes: EMPTY_REQUEST });
     const personRes = await HttpService.client.getPersonDetails({
-      username: this.props.match.params.username,
+      username: props.match.params.username,
       sort,
       saved_only: view === PersonDetailsView.Saved,
       page,
@@ -283,16 +326,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       personRes,
       personBlocked: isPersonBlocked(personRes),
     });
-
-    if (view === PersonDetailsView.Uploads) {
-      this.setState({ uploadsRes: LOADING_REQUEST });
-      const form: ListMedia = {
-        page,
-        limit: fetchLimit,
-      };
-      const uploadsRes = await HttpService.client.listMedia(form);
-      this.setState({ uploadsRes });
-    }
   }
 
   get amCurrentUser() {
@@ -789,19 +822,23 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
-  async updateUrl({ page, sort, view }: Partial<ProfileProps>) {
-    const { page: urlPage, sort: urlSort, view: urlView } = this.props;
+  async updateUrl(props: Partial<ProfileRouteProps>) {
+    const {
+      page,
+      sort,
+      view,
+      match: {
+        params: { username },
+      },
+    } = { ...this.props, ...props };
 
     const queryParams: QueryParams<ProfileProps> = {
-      page: (page ?? urlPage).toString(),
-      sort: sort ?? urlSort,
-      view: view ?? urlView,
+      page: page?.toString(),
+      sort,
+      view,
     };
 
-    const { username } = this.props.match.params;
-
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
-    await this.fetchUserData();
   }
 
   handlePageChange(page: number) {

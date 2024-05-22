@@ -31,7 +31,6 @@ import getDataTypeString from "./get-data-type-string";
 import getDepthFromComment from "./get-depth-from-comment";
 import getIdFromProps from "./get-id-from-props";
 import getRecipientIdFromProps from "./get-recipient-id-from-props";
-import getUpdatedSearchId from "./get-updated-search-id";
 import initializeSite from "./initialize-site";
 import insertCommentIntoTree from "./insert-comment-into-tree";
 import isAuthPath from "./is-auth-path";
@@ -89,7 +88,6 @@ export {
   getDepthFromComment,
   getIdFromProps,
   getRecipientIdFromProps,
-  getUpdatedSearchId,
   initializeSite,
   insertCommentIntoTree,
   isAuthPath,

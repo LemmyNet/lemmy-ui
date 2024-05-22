@@ -124,8 +124,12 @@ export class Communities extends Component<
 
   async componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.refetch();
+      await this.refetch(this.props);
     }
+  }
+
+  componentWillReceiveProps(nextProps: CommunitiesRouteProps) {
+    this.refetch(nextProps);
   }
 
   get documentTitle(): string {
@@ -288,22 +292,16 @@ export class Communities extends Component<
     );
   }
 
-  async updateUrl({ listingType, sort, page }: Partial<CommunitiesProps>) {
-    const {
-      listingType: urlListingType,
-      sort: urlSort,
-      page: urlPage,
-    } = this.props;
+  async updateUrl(props: Partial<CommunitiesProps>) {
+    const { listingType, sort, page } = { ...this.props, ...props };
 
     const queryParams: QueryParams<CommunitiesProps> = {
-      listingType: listingType ?? urlListingType,
-      sort: sort ?? urlSort,
-      page: (page ?? urlPage)?.toString(),
+      listingType: listingType,
+      sort: sort,
+      page: page?.toString(),
     };
 
     this.props.history.push(`/communities${getQueryString(queryParams)}`);
-
-    await this.refetch();
   }
 
   handlePageChange(page: number) {
@@ -369,10 +367,8 @@ export class Communities extends Component<
     data.i.findAndUpdateCommunity(res);
   }
 
-  async refetch() {
+  async refetch({ listingType, sort, page }: CommunitiesProps) {
     this.setState({ listCommunitiesResponse: LOADING_REQUEST });
-
-    const { listingType, sort, page } = this.props;
 
     this.setState({
       listCommunitiesResponse: await HttpService.client.listCommunities({

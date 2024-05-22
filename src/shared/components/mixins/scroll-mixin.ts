@@ -68,7 +68,6 @@ export function scrollMixin<
       nextProps: Readonly<{ children?: InfernoNode } & P>,
       nextContext: any,
     ) {
-      // Currently this is hypothetical. Components unmount before route changes.
       if (this.props.location.key !== nextProps.location.key) {
         this.saveFinalPosition();
         this.reset();
