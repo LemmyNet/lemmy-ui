@@ -2,7 +2,7 @@ import { Modal } from "bootstrap";
 import { Component, InfernoNode, RefObject } from "inferno";
 
 export function modalMixin<
-  P extends { show: boolean },
+  P extends { show?: boolean },
   S,
   Base extends new (...args: any[]) => Component<P, S> & {
     readonly modalDivRef: RefObject<HTMLDivElement>;

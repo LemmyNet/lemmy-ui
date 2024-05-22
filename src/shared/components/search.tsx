@@ -5,7 +5,6 @@ import {
   enableNsfw,
   fetchCommunities,
   fetchUsers,
-  getUpdatedSearchId,
   myAuth,
   personToChoice,
   setIsoData,
@@ -71,6 +70,7 @@ import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../routes";
+import { isBrowser } from "@utils/browser";
 
 interface SearchProps {
   q?: string;
@@ -96,7 +96,6 @@ interface SearchState {
   searchRes: RequestState<SearchResponse>;
   resolveObjectRes: RequestState<ResolveObjectResponse>;
   siteRes: GetSiteResponse;
-  searchText?: string;
   communitySearchOptions: Choice[];
   creatorSearchOptions: Choice[];
   searchCreatorLoading: boolean;
@@ -285,10 +284,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       this.handleCommunityFilterChange.bind(this);
     this.handleCreatorFilterChange = this.handleCreatorFilterChange.bind(this);
 
-    const { q } = this.props;
-
-    this.state.searchText = q;
-
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       const {
@@ -329,81 +324,142 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
-  async componentDidMount() {
-    if (this.props.history.action !== "POP") {
+  componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
+      this.fetchAll(this.props);
+    }
+  }
+
+  componentDidMount() {
+    if (this.props.history.action !== "POP" || this.state.isIsomorphic) {
       this.searchInput.current?.select();
     }
+  }
 
-    if (!this.state.isIsomorphic) {
-      this.setState({
-        searchCommunitiesLoading: true,
-        searchCreatorLoading: true,
-      });
+  componentWillReceiveProps(nextProps: SearchRouteProps) {
+    if (nextProps.communityId !== this.props.communityId) {
+      this.fetchSelectedCommunity(nextProps);
+    }
+    if (nextProps.creatorId !== this.props.creatorId) {
+      this.fetchSelectedCreator(nextProps);
+    }
+    this.search(nextProps);
+  }
 
-      const promises = [
-        HttpService.client
-          .listCommunities({
-            type_: defaultListingType,
-            sort: defaultSortType,
-            limit: fetchLimit,
-          })
-          .then(res => {
-            if (res.state === "success") {
-              this.setState({
-                communitySearchOptions:
-                  res.data.communities.map(communityToChoice),
-              });
-            }
-          }),
-      ];
+  componentDidUpdate(prevProps: SearchRouteProps) {
+    if (this.props.location.key !== prevProps.location.key) {
+      if (this.props.history.action !== "POP") {
+        this.searchInput.current?.select();
+      }
+    }
+  }
 
-      const { communityId, creatorId } = this.props;
+  fetchDefaultCommunitiesToken?: symbol;
+  async fetchDefaultCommunities({
+    communityId,
+  }: Pick<SearchRouteProps, "communityId">) {
+    const token = (this.fetchDefaultCommunitiesToken = Symbol());
+    this.setState({
+      searchCommunitiesLoading: true,
+    });
 
-      if (communityId) {
-        promises.push(
-          HttpService.client.getCommunity({ id: communityId }).then(res => {
-            if (res.state === "success") {
-              this.setState(prev => {
-                prev.communitySearchOptions.unshift(
-                  communityToChoice(res.data.community_view),
-                );
+    const res = await HttpService.client.listCommunities({
+      type_: defaultListingType,
+      sort: defaultSortType,
+      limit: fetchLimit,
+    });
 
-                return prev;
-              });
-            }
-          }),
+    if (token !== this.fetchDefaultCommunitiesToken) {
+      return;
+    }
+
+    if (res.state === "success") {
+      const retainSelected: false | undefined | Choice =
+        !res.data.communities.some(cv => cv.community.id === communityId) &&
+        this.state.communitySearchOptions.find(
+          choice => choice.value === communityId?.toString(),
         );
-      }
-
-      if (creatorId) {
-        promises.push(
-          HttpService.client
-            .getPersonDetails({
-              person_id: creatorId,
-            })
-            .then(res => {
-              if (res.state === "success") {
-                this.setState(prev => {
-                  prev.creatorSearchOptions.push(
-                    personToChoice(res.data.person_view),
-                  );
-                });
-              }
-            }),
-        );
-      }
-
-      if (this.state.searchText) {
-        promises.push(this.search());
-      }
-
-      await Promise.all(promises);
-
+      const choices = res.data.communities.map(communityToChoice);
       this.setState({
-        searchCommunitiesLoading: false,
-        searchCreatorLoading: false,
+        communitySearchOptions: retainSelected
+          ? [retainSelected, ...choices]
+          : choices,
       });
     }
+
+    this.setState({
+      searchCommunitiesLoading: false,
+    });
+  }
+
+  fetchSelectedCommunityToken?: symbol;
+  async fetchSelectedCommunity({
+    communityId,
+  }: Pick<SearchRouteProps, "communityId">) {
+    const token = (this.fetchSelectedCommunityToken = Symbol());
+    const needsSelectedCommunity = () => {
+      return !this.state.communitySearchOptions.some(
+        choice => choice.value === communityId?.toString(),
+      );
+    };
+    if (communityId && needsSelectedCommunity()) {
+      const res = await HttpService.client.getCommunity({ id: communityId });
+      if (
+        res.state === "success" &&
+        needsSelectedCommunity() &&
+        token === this.fetchSelectedCommunityToken
+      ) {
+        this.setState(prev => {
+          prev.communitySearchOptions.unshift(
+            communityToChoice(res.data.community_view),
+          );
+          return prev;
+        });
+      }
+    }
+  }
+
+  fetchSelectedCreatorToken?: symbol;
+  async fetchSelectedCreator({
+    creatorId,
+  }: Pick<SearchRouteProps, "creatorId">) {
+    const token = (this.fetchSelectedCreatorToken = Symbol());
+    const needsSelectedCreator = () => {
+      return !this.state.creatorSearchOptions.some(
+        choice => choice.value === creatorId?.toString(),
+      );
+    };
+
+    if (!creatorId || !needsSelectedCreator()) {
+      return;
+    }
+
+    this.setState({ searchCreatorLoading: true });
+
+    const res = await HttpService.client.getPersonDetails({
+      person_id: creatorId,
+    });
+
+    if (token !== this.fetchSelectedCreatorToken) {
+      return;
+    }
+
+    if (res.state === "success" && needsSelectedCreator()) {
+      this.setState(prev => {
+        prev.creatorSearchOptions.push(personToChoice(res.data.person_view));
+      });
+    }
+
+    this.setState({ searchCreatorLoading: false });
+  }
+
+  async fetchAll(props: SearchRouteProps) {
+    await Promise.all([
+      this.fetchDefaultCommunities(props),
+      this.fetchSelectedCommunity(props),
+      this.fetchSelectedCreator(props),
+      this.search(props),
+    ]);
   }
 
   static async fetchInitialData({
@@ -551,13 +607,15 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onSubmit={linkEvent(this, this.handleSearchSubmit)}
       >
         <div className="col-auto flex-grow-1 flex-sm-grow-0">
+          {/* key is necessary for defaultValue to update when props.q changes,
+              e.g. back button. */}
           <input
+            key={this.context.router.history.location.key}
             type="text"
             className="form-control me-2 mb-2 col-sm-8"
-            value={this.state.searchText}
+            defaultValue={this.props.q ?? ""}
             placeholder={`${I18NextService.i18n.t("search")}...`}
             aria-label={I18NextService.i18n.t("search")}
-            onInput={linkEvent(this, this.handleQChange)}
             required
             minLength={1}
             ref={this.searchInput}
@@ -984,34 +1042,39 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     return resObjCount + searchCount;
   }
 
-  async search() {
-    const { searchText: q } = this.state;
-    const { communityId, creatorId, type, sort, listingType, page } =
-      this.props;
+  searchToken?: symbol;
+  async search(props: SearchRouteProps) {
+    const token = (this.searchToken = Symbol());
+    const { q, communityId, creatorId, type, sort, listingType, page } = props;
 
     if (q) {
       this.setState({ searchRes: LOADING_REQUEST });
-      this.setState({
-        searchRes: await HttpService.client.search({
-          q,
-          community_id: communityId ?? undefined,
-          creator_id: creatorId ?? undefined,
-          type_: type,
-          sort,
-          listing_type: listingType,
-          page,
-          limit: fetchLimit,
-        }),
+      const searchRes = await HttpService.client.search({
+        q,
+        community_id: communityId ?? undefined,
+        creator_id: creatorId ?? undefined,
+        type_: type,
+        sort,
+        listing_type: listingType,
+        page,
+        limit: fetchLimit,
       });
+      if (token !== this.searchToken) {
+        return;
+      }
+      this.setState({ searchRes });
 
       if (myAuth()) {
         this.setState({ resolveObjectRes: LOADING_REQUEST });
-        this.setState({
-          resolveObjectRes: await HttpService.client.resolveObject({
-            q,
-          }),
+        const resolveObjectRes = await HttpService.client.resolveObject({
+          q,
         });
+        if (token === this.searchToken) {
+          this.setState({ resolveObjectRes });
+        }
       }
+    } else {
+      this.setState({ searchRes: EMPTY_REQUEST });
     }
   }
 
@@ -1053,8 +1116,12 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   });
 
+  getQ(): string | undefined {
+    return this.searchInput.current?.value ?? this.props.q;
+  }
+
   handleSortChange(sort: SortType) {
-    this.updateUrl({ sort, page: 1 });
+    this.updateUrl({ sort, page: 1, q: this.getQ() });
   }
 
   handleTypeChange(i: Search, event: any) {
@@ -1063,6 +1130,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     i.updateUrl({
       type,
       page: 1,
+      q: i.getQ(),
     });
   }
 
@@ -1074,20 +1142,23 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.updateUrl({
       listingType,
       page: 1,
+      q: this.getQ(),
     });
   }
 
   handleCommunityFilterChange({ value }: Choice) {
     this.updateUrl({
-      communityId: getIdFromString(value) ?? 0,
+      communityId: getIdFromString(value),
       page: 1,
+      q: this.getQ(),
     });
   }
 
   handleCreatorFilterChange({ value }: Choice) {
     this.updateUrl({
-      creatorId: getIdFromString(value) ?? 0,
+      creatorId: getIdFromString(value),
       page: 1,
+      q: this.getQ(),
     });
   }
 
@@ -1095,44 +1166,25 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     event.preventDefault();
 
     i.updateUrl({
-      q: i.state.searchText,
+      q: i.getQ(),
       page: 1,
     });
   }
 
-  handleQChange(i: Search, event: any) {
-    i.setState({ searchText: event.target.value });
-  }
-
-  async updateUrl({
-    q,
-    type,
-    listingType,
-    sort,
-    communityId,
-    creatorId,
-    page,
-  }: Partial<SearchProps>) {
-    const {
-      q: urlQ,
-      type: urlType,
-      listingType: urlListingType,
-      communityId: urlCommunityId,
-      sort: urlSort,
-      creatorId: urlCreatorId,
-      page: urlPage,
-    } = this.props;
-
-    const query = q ?? this.state.searchText ?? urlQ;
+  async updateUrl(props: Partial<SearchProps>) {
+    const { q, type, listingType, sort, communityId, creatorId, page } = {
+      ...this.props,
+      ...props,
+    };
 
     const queryParams: QueryParams<SearchProps> = {
-      q: query,
-      type: type ?? urlType,
-      listingType: listingType ?? urlListingType,
-      communityId: getUpdatedSearchId(communityId, urlCommunityId),
-      creatorId: getUpdatedSearchId(creatorId, urlCreatorId),
-      page: (page ?? urlPage).toString(),
-      sort: sort ?? urlSort,
+      q,
+      type: type,
+      listingType: listingType,
+      communityId: communityId?.toString(),
+      creatorId: creatorId?.toString(),
+      page: page?.toString(),
+      sort: sort,
     };
 
     this.props.history.push(`/search${getQueryString(queryParams)}`);

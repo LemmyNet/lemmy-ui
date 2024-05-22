@@ -502,7 +502,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       <>
         <Link
           className={classnames}
-          to={`/comment/${
+          to={`/post/${cv.post.id}/${
             (this.props.showContext && getCommentParentId(cv.comment)) ||
             cv.comment.id
           }`}

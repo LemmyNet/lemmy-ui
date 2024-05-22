@@ -25,6 +25,7 @@ import { CommunityLink } from "./community/community-link";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../routes";
+import { isBrowser } from "@utils/browser";
 
 interface RemoteFetchProps {
   uri?: string;
@@ -128,8 +129,8 @@ export class RemoteFetch extends Component<
     }
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+  async componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
       const { uri } = this.props;
 
       if (uri) {

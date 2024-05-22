@@ -29,6 +29,7 @@ import { UnreadCounterService } from "../../services";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
+import { isBrowser } from "@utils/browser";
 
 enum RegistrationState {
   Unread,
@@ -92,8 +93,8 @@ export class RegistrationApplications extends Component<
     }
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
+  async componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
       await this.refetch();
     }
   }
@@ -108,37 +109,41 @@ export class RegistrationApplications extends Component<
   }
 
   renderApps() {
-    switch (this.state.appsRes.state) {
-      case "loading":
-        return (
-          <h5>
-            <Spinner large />
-          </h5>
-        );
-      case "success": {
-        const apps = this.state.appsRes.data.registration_applications;
-        return (
-          <div className="row">
-            <div className="col-12">
-              <HtmlTags
-                title={this.documentTitle}
-                path={this.context.router.route.match.url}
-              />
-              <h1 className="h4 mb-4">
-                {I18NextService.i18n.t("registration_applications")}
-              </h1>
-              {this.selects()}
+    const appsState = this.state.appsRes.state;
+    const apps =
+      appsState === "success" &&
+      this.state.appsRes.data.registration_applications;
+
+    return (
+      <div className="row">
+        <div className="col-12">
+          <HtmlTags
+            title={this.documentTitle}
+            path={this.context.router.route.match.url}
+          />
+          <h1 className="h4 mb-4">
+            {I18NextService.i18n.t("registration_applications")}
+          </h1>
+          {this.selects()}
+          {apps ? (
+            <>
               {this.applicationList(apps)}
               <Paginator
                 page={this.state.page}
                 onChange={this.handlePageChange}
                 nextDisabled={fetchLimit > apps.length}
               />
-            </div>
-          </div>
-        );
-      }
-    }
+            </>
+          ) : (
+            appsState === "loading" && (
+              <div className="text-center">
+                <Spinner large />
+              </div>
+            )
+          )}
+        </div>
+      </div>
+    );
   }
 
   render() {
@@ -263,19 +268,22 @@ export class RegistrationApplications extends Component<
     };
   }
 
+  refetchToken?: symbol;
   async refetch() {
+    const token = (this.refetchToken = Symbol());
     const unread_only =
       this.state.registrationState === RegistrationState.Unread;
     this.setState({
       appsRes: LOADING_REQUEST,
     });
-    this.setState({
-      appsRes: await HttpService.client.listRegistrationApplications({
-        unread_only: unread_only,
-        page: this.state.page,
-        limit: fetchLimit,
-      }),
+    const appsRes = await HttpService.client.listRegistrationApplications({
+      unread_only: unread_only,
+      page: this.state.page,
+      limit: fetchLimit,
     });
+    if (token === this.refetchToken) {
+      this.setState({ appsRes });
+    }
   }
 
   async handleApproveApplication(form: ApproveRegistrationApplication) {

@@ -40,6 +40,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 import { scrollMixin } from "../mixins/scroll-mixin";
+import { isBrowser } from "@utils/browser";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -121,10 +122,14 @@ export class Communities extends Component<
     }
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.refetch();
+  async componentWillMount() {
+    if (!this.state.isIsomorphic && isBrowser()) {
+      await this.refetch(this.props);
     }
+  }
+
+  componentWillReceiveProps(nextProps: CommunitiesRouteProps) {
+    this.refetch(nextProps);
   }
 
   get documentTitle(): string {
@@ -133,7 +138,7 @@ export class Communities extends Component<
     }`;
   }
 
-  renderListings() {
+  renderListingsTable() {
     switch (this.state.listCommunitiesResponse.state) {
       case "loading":
         return (
@@ -142,120 +147,114 @@ export class Communities extends Component<
           </h5>
         );
       case "success": {
-        const { listingType, sort, page } = this.props;
         return (
-          <div>
-            <h1 className="h4 mb-4">
-              {I18NextService.i18n.t("list_of_communities")}
-            </h1>
-            <div className="row g-3 align-items-center mb-2">
-              <div className="col-auto">
-                <ListingTypeSelect
-                  type_={listingType}
-                  showLocal={showLocal(this.isoData)}
-                  showSubscribed
-                  onChange={this.handleListingTypeChange}
-                />
-              </div>
-              <div className="col-auto me-auto">
-                <SortSelect sort={sort} onChange={this.handleSortChange} />
-              </div>
-              <div className="col-auto">{this.searchForm()}</div>
-            </div>
-
-            <div className="table-responsive">
-              <table
-                id="community_table"
-                className="table table-sm table-hover"
-              >
-                <thead className="pointer">
-                  <tr>
-                    <th>{I18NextService.i18n.t("name")}</th>
-                    <th className="text-right">
-                      {I18NextService.i18n.t("subscribers")}
-                    </th>
-                    <th className="text-right">
-                      {I18NextService.i18n.t("users")} /{" "}
-                      {I18NextService.i18n.t("month")}
-                    </th>
-                    <th className="text-right d-none d-lg-table-cell">
-                      {I18NextService.i18n.t("posts")}
-                    </th>
-                    <th className="text-right d-none d-lg-table-cell">
-                      {I18NextService.i18n.t("comments")}
-                    </th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {this.state.listCommunitiesResponse.data.communities.map(
-                    cv => (
-                      <tr key={cv.community.id}>
-                        <td>
-                          <CommunityLink community={cv.community} />
-                        </td>
-                        <td className="text-right">
-                          {numToSI(cv.counts.subscribers)}
-                        </td>
-                        <td className="text-right">
-                          {numToSI(cv.counts.users_active_month)}
-                        </td>
-                        <td className="text-right d-none d-lg-table-cell">
-                          {numToSI(cv.counts.posts)}
-                        </td>
-                        <td className="text-right d-none d-lg-table-cell">
-                          {numToSI(cv.counts.comments)}
-                        </td>
-                        <td className="text-right">
-                          <SubscribeButton
-                            communityView={cv}
-                            onFollow={linkEvent(
-                              {
-                                i: this,
-                                communityId: cv.community.id,
-                                follow: true,
-                              },
-                              this.handleFollow,
-                            )}
-                            onUnFollow={linkEvent(
-                              {
-                                i: this,
-                                communityId: cv.community.id,
-                                follow: false,
-                              },
-                              this.handleFollow,
-                            )}
-                            isLink
-                          />
-                        </td>
-                      </tr>
-                    ),
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <Paginator
-              page={page}
-              onChange={this.handlePageChange}
-              nextDisabled={
-                communityLimit >
-                this.state.listCommunitiesResponse.data.communities.length
-              }
-            />
-          </div>
+          <table id="community_table" className="table table-sm table-hover">
+            <thead className="pointer">
+              <tr>
+                <th>{I18NextService.i18n.t("name")}</th>
+                <th className="text-right">
+                  {I18NextService.i18n.t("subscribers")}
+                </th>
+                <th className="text-right">
+                  {I18NextService.i18n.t("users")} /{" "}
+                  {I18NextService.i18n.t("month")}
+                </th>
+                <th className="text-right d-none d-lg-table-cell">
+                  {I18NextService.i18n.t("posts")}
+                </th>
+                <th className="text-right d-none d-lg-table-cell">
+                  {I18NextService.i18n.t("comments")}
+                </th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.listCommunitiesResponse.data.communities.map(cv => (
+                <tr key={cv.community.id}>
+                  <td>
+                    <CommunityLink community={cv.community} />
+                  </td>
+                  <td className="text-right">
+                    {numToSI(cv.counts.subscribers)}
+                  </td>
+                  <td className="text-right">
+                    {numToSI(cv.counts.users_active_month)}
+                  </td>
+                  <td className="text-right d-none d-lg-table-cell">
+                    {numToSI(cv.counts.posts)}
+                  </td>
+                  <td className="text-right d-none d-lg-table-cell">
+                    {numToSI(cv.counts.comments)}
+                  </td>
+                  <td className="text-right">
+                    <SubscribeButton
+                      communityView={cv}
+                      onFollow={linkEvent(
+                        {
+                          i: this,
+                          communityId: cv.community.id,
+                          follow: true,
+                        },
+                        this.handleFollow,
+                      )}
+                      onUnFollow={linkEvent(
+                        {
+                          i: this,
+                          communityId: cv.community.id,
+                          follow: false,
+                        },
+                        this.handleFollow,
+                      )}
+                      isLink
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         );
       }
     }
   }
 
   render() {
+    const { listingType, sort, page } = this.props;
     return (
       <div className="communities container-lg">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        {this.renderListings()}
+        <div>
+          <h1 className="h4 mb-4">
+            {I18NextService.i18n.t("list_of_communities")}
+          </h1>
+          <div className="row g-3 align-items-center mb-2">
+            <div className="col-auto">
+              <ListingTypeSelect
+                type_={listingType}
+                showLocal={showLocal(this.isoData)}
+                showSubscribed
+                onChange={this.handleListingTypeChange}
+              />
+            </div>
+            <div className="col-auto me-auto">
+              <SortSelect sort={sort} onChange={this.handleSortChange} />
+            </div>
+            <div className="col-auto">{this.searchForm()}</div>
+          </div>
+
+          <div className="table-responsive">{this.renderListingsTable()}</div>
+          <Paginator
+            page={page}
+            onChange={this.handlePageChange}
+            nextDisabled={
+              this.state.listCommunitiesResponse.state !== "success" ||
+              communityLimit >
+                this.state.listCommunitiesResponse.data.communities.length
+            }
+          />
+        </div>
       </div>
     );
   }
@@ -287,22 +286,16 @@ export class Communities extends Component<
     );
   }
 
-  async updateUrl({ listingType, sort, page }: Partial<CommunitiesProps>) {
-    const {
-      listingType: urlListingType,
-      sort: urlSort,
-      page: urlPage,
-    } = this.props;
+  async updateUrl(props: Partial<CommunitiesProps>) {
+    const { listingType, sort, page } = { ...this.props, ...props };
 
     const queryParams: QueryParams<CommunitiesProps> = {
-      listingType: listingType ?? urlListingType,
-      sort: sort ?? urlSort,
-      page: (page ?? urlPage)?.toString(),
+      listingType: listingType,
+      sort: sort,
+      page: page?.toString(),
     };
 
     this.props.history.push(`/communities${getQueryString(queryParams)}`);
-
-    await this.refetch();
   }
 
   handlePageChange(page: number) {
@@ -368,19 +361,19 @@ export class Communities extends Component<
     data.i.findAndUpdateCommunity(res);
   }
 
-  async refetch() {
+  fetchToken?: symbol;
+  async refetch({ listingType, sort, page }: CommunitiesProps) {
+    const token = (this.fetchToken = Symbol());
     this.setState({ listCommunitiesResponse: LOADING_REQUEST });
-
-    const { listingType, sort, page } = this.props;
-
-    this.setState({
-      listCommunitiesResponse: await HttpService.client.listCommunities({
-        type_: listingType,
-        sort: sort,
-        limit: communityLimit,
-        page,
-      }),
+    const listCommunitiesResponse = await HttpService.client.listCommunities({
+      type_: listingType,
+      sort: sort,
+      limit: communityLimit,
+      page,
     });
+    if (token === this.fetchToken) {
+      this.setState({ listCommunitiesResponse });
+    }
   }
 
   findAndUpdateCommunity(res: RequestState<CommunityResponse>) {

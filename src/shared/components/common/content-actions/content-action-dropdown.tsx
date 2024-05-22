@@ -643,7 +643,6 @@ export default class ContentActionDropdown extends Component<
       type,
     } = this.props;
 
-    // Wait until componentDidMount runs (which only happens on the browser) to prevent sending over a gratuitous amount of markup
     return (
       <>
         {renderRemoveDialog && (

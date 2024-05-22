@@ -76,8 +76,11 @@ export class Signup extends Component<
     this.handleAnswerChange = this.handleAnswerChange.bind(this);
   }
 
-  async componentDidMount() {
-    if (this.state.siteRes.site_view.local_site.captcha_enabled) {
+  async componentWillMount() {
+    if (
+      this.state.siteRes.site_view.local_site.captcha_enabled &&
+      isBrowser()
+    ) {
       await this.fetchCaptcha();
     }
   }

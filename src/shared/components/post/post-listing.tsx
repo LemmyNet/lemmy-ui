@@ -137,7 +137,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleHidePost = this.handleHidePost.bind(this);
   }
 
-  componentDidMount(): void {
+  unlisten = () => {};
+
+  componentWillMount(): void {
     if (
       UserService.Instance.myUserInfo &&
       !this.isoData.showAdultConsentModal
@@ -148,6 +150,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         imageExpanded: auto_expand && !(blur_nsfw && this.postView.post.nsfw),
       });
     }
+
+    // Leave edit mode on navigation
+    this.unlisten = this.context.router.history.listen(() => {
+      if (this.state.showEdit) {
+        this.setState({ showEdit: false });
+      }
+    });
+  }
+
+  componentWillUnmount(): void {
+    this.unlisten();
   }
 
   get postView(): PostView {

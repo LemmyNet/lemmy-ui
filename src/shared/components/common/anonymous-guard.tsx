@@ -1,30 +1,25 @@
 import { Component } from "inferno";
 import { UserService } from "../../services";
 import { Spinner } from "./icon";
+import { isBrowser } from "@utils/browser";
 
-interface AnonymousGuardState {
-  hasRedirected: boolean;
-}
-
-class AnonymousGuard extends Component<any, AnonymousGuardState> {
-  state = {
-    hasRedirected: false,
-  } as AnonymousGuardState;
-
+class AnonymousGuard extends Component<any, any> {
   constructor(props: any, context: any) {
     super(props, context);
   }
 
-  componentDidMount() {
-    if (UserService.Instance.myUserInfo) {
+  hasAuth() {
+    return UserService.Instance.myUserInfo;
+  }
+
+  componentWillMount() {
+    if (this.hasAuth() && isBrowser()) {
       this.context.router.history.replace(`/`);
-    } else {
-      this.setState({ hasRedirected: true });
     }
   }
 
   render() {
-    return this.state.hasRedirected ? this.props.children : <Spinner />;
+    return !this.hasAuth() ? this.props.children : <Spinner />;
   }
 }
 

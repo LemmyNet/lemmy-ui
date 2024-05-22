@@ -1,6 +1,6 @@
 import { isBrowser, nextUserAction, snapToTop } from "../../utils/browser";
 import { Component, InfernoNode } from "inferno";
-import { Location } from "history";
+import { Location, History, Action } from "history";
 
 function restoreScrollPosition(props: { location: Location }) {
   const key: string = props.location.key;
@@ -25,7 +25,7 @@ function dropScrollPosition(props: { location: Location }) {
 }
 
 export function scrollMixin<
-  P extends { location: Location },
+  P extends { location: Location; history: History },
   S,
   Base extends new (
     ...args: any
@@ -68,10 +68,11 @@ export function scrollMixin<
       nextProps: Readonly<{ children?: InfernoNode } & P>,
       nextContext: any,
     ) {
-      // Currently this is hypothetical. Components unmount before route changes.
       if (this.props.location.key !== nextProps.location.key) {
-        this.saveFinalPosition();
-        this.reset();
+        if (nextProps.history.action !== Action.Replace) {
+          this.saveFinalPosition();
+          this.reset();
+        }
       }
       return super.componentWillReceiveProps?.(nextProps, nextContext);
     }
@@ -131,7 +132,7 @@ export function scrollMixin<
 }
 
 export function simpleScrollMixin<
-  P extends { location: Location },
+  P extends { location: Location; history: History },
   S,
   Base extends new (...args: any) => Component<P, S>,
 >(base: Base, _context?: ClassDecoratorContext<Base>) {

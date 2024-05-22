@@ -53,7 +53,11 @@ import {
   CreatePost,
   getCreatePostQueryParams,
 } from "./components/post/create-post";
-import { Post, PostFetchConfig } from "./components/post/post";
+import {
+  Post,
+  PostFetchConfig,
+  getPostQueryParams,
+} from "./components/post/post";
 import {
   CreatePrivateMessage,
   CreatePrivateMessageFetchConfig,
@@ -87,6 +91,7 @@ export interface IRoutePropsWithFetch<
   component: Inferno.ComponentClass<
     RouteComponentProps<PathPropsT> & QueryPropsT
   >;
+  mountedSameRouteNavKey?: string;
 }
 
 export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
@@ -96,6 +101,7 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     fetchInitialData: Home.fetchInitialData,
     exact: true,
     getQueryParams: getHomeQueryParams,
+    mountedSameRouteNavKey: "home",
   } as HomeFetchConfig,
   {
     path: `/login`,
@@ -130,28 +136,38 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     component: Communities,
     fetchInitialData: Communities.fetchInitialData,
     getQueryParams: getCommunitiesQueryParams,
+    mountedSameRouteNavKey: "communities",
   } as CommunitiesFetchConfig,
   {
-    path: `/post/:post_id`,
+    // "/comment/:post_id?/:comment_id" would be preferable as direct comment
+    // link, but it looks like a Route can't match multiple paths and a
+    // component can't stay mounted across routes.
+    path: `/post/:post_id/:comment_id?`,
     component: Post,
     fetchInitialData: Post.fetchInitialData,
+    getQueryParams: getPostQueryParams,
+    mountedSameRouteNavKey: "post",
   } as PostFetchConfig,
   {
     path: `/comment/:comment_id`,
     component: Post,
     fetchInitialData: Post.fetchInitialData,
+    getQueryParams: getPostQueryParams,
+    mountedSameRouteNavKey: "post",
   } as PostFetchConfig,
   {
     path: `/c/:name`,
     component: Community,
     fetchInitialData: Community.fetchInitialData,
     getQueryParams: getCommunityQueryParams,
+    mountedSameRouteNavKey: "community",
   } as CommunityFetchConfig,
   {
     path: `/u/:username`,
     component: Profile,
     fetchInitialData: Profile.fetchInitialData,
     getQueryParams: getProfileQueryParams,
+    mountedSameRouteNavKey: "profile",
   } as ProfileFetchConfig,
   {
     path: `/inbox`,
@@ -164,16 +180,11 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     fetchInitialData: Settings.fetchInitialData,
   } as SettingsFetchConfig,
   {
-    path: `/modlog/:communityId`,
+    path: `/modlog/:communityId?`,
     component: Modlog,
     fetchInitialData: Modlog.fetchInitialData,
     getQueryParams: getModlogQueryParams,
-  } as ModlogFetchConfig,
-  {
-    path: `/modlog`,
-    component: Modlog,
-    fetchInitialData: Modlog.fetchInitialData,
-    getQueryParams: getModlogQueryParams,
+    mountedSameRouteNavKey: "modlog",
   } as ModlogFetchConfig,
   { path: `/setup`, component: Setup },
   {
@@ -196,6 +207,7 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     component: Search,
     fetchInitialData: Search.fetchInitialData,
     getQueryParams: getSearchQueryParams,
+    mountedSameRouteNavKey: "search",
   } as SearchFetchConfig,
   {
     path: `/password_change/:token`,

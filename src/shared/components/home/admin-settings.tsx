@@ -41,6 +41,7 @@ import { IRoutePropsWithFetch } from "../../routes";
 import { MediaUploads } from "../common/media-uploads";
 import { Paginator } from "../common/paginator";
 import { snapToTop } from "@utils/browser";
+import { isBrowser } from "@utils/browser";
 
 type AdminSettingsData = RouteDataResponse<{
   bannedRes: BannedPersonsResponse;
@@ -51,7 +52,6 @@ type AdminSettingsData = RouteDataResponse<{
 interface AdminSettingsState {
   siteRes: GetSiteResponse;
   banned: PersonView[];
-  currentTab: string;
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
@@ -79,7 +79,6 @@ export class AdminSettings extends Component<
   state: AdminSettingsState = {
     siteRes: this.isoData.site_res,
     banned: [],
-    currentTab: "site",
     bannedRes: EMPTY_REQUEST,
     instancesRes: EMPTY_REQUEST,
     leaveAdminTeamRes: EMPTY_REQUEST,
@@ -134,12 +133,14 @@ export class AdminSettings extends Component<
     };
   }
 
-  async componentDidMount() {
-    if (!this.state.isIsomorphic) {
-      await this.fetchData();
-    } else {
-      const themeList = await fetchThemeList();
-      this.setState({ themeList });
+  async componentWillMount() {
+    if (isBrowser()) {
+      if (!this.state.isIsomorphic) {
+        await this.fetchData();
+      } else {
+        const themeList = await fetchThemeList();
+        this.setState({ themeList });
+      }
     }
   }
 
@@ -429,10 +430,6 @@ export class AdminSettings extends Component<
     this.setState({ loading: false });
 
     return editRes;
-  }
-
-  handleSwitchTab(i: { ctx: AdminSettings; tab: string }) {
-    i.ctx.setState({ currentTab: i.tab });
   }
 
   async handleLeaveAdminTeam(i: AdminSettings) {

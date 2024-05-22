@@ -19,6 +19,7 @@ import PasswordInput from "../common/password-input";
 import { SiteForm } from "./site-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { isBrowser } from "@utils/browser";
 
 interface State {
   form: {
@@ -61,8 +62,10 @@ export class Setup extends Component<
     this.handleCreateSite = this.handleCreateSite.bind(this);
   }
 
-  async componentDidMount() {
-    this.setState({ themeList: await fetchThemeList() });
+  async componentWillMount() {
+    if (isBrowser()) {
+      this.setState({ themeList: await fetchThemeList() });
+    }
   }
 
   get documentTitle(): string {

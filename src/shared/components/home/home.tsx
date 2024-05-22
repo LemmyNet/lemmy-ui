@@ -19,13 +19,14 @@ import {
   getQueryString,
   getRandomFromList,
   resourcesSettled,
+  bareRoutePush,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams, StringBoolean } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, MouseEventHandler, linkEvent } from "inferno";
+import { Component, InfernoNode, MouseEventHandler, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
@@ -112,7 +113,7 @@ import {
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
-import { snapToTop } from "@utils/browser";
+import { isBrowser, snapToTop } from "@utils/browser";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -344,14 +345,28 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     )?.content;
   }
 
-  async componentDidMount() {
+  async componentWillMount() {
     if (
-      !this.state.isIsomorphic ||
-      !Object.values(this.isoData.routeData).some(
-        res => res.state === "success" || res.state === "failed",
-      )
+      (!this.state.isIsomorphic ||
+        !Object.values(this.isoData.routeData).some(
+          res => res.state === "success" || res.state === "failed",
+        )) &&
+      isBrowser()
     ) {
-      await Promise.all([this.fetchTrendingCommunities(), this.fetchData()]);
+      await Promise.all([
+        this.fetchTrendingCommunities(),
+        this.fetchData(this.props),
+      ]);
+    }
+  }
+
+  componentWillReceiveProps(
+    nextProps: HomeRouteProps & { children?: InfernoNode },
+  ) {
+    this.fetchData(nextProps);
+
+    if (bareRoutePush(this.props, nextProps)) {
+      this.fetchTrendingCommunities();
     }
   }
 
@@ -661,34 +676,23 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     );
   }
 
-  async updateUrl({
-    dataType,
-    listingType,
-    pageCursor,
-    sort,
-    showHidden,
-  }: Partial<HomeProps>) {
-    const {
-      dataType: urlDataType,
-      listingType: urlListingType,
-      sort: urlSort,
-      showHidden: urlShowHidden,
-    } = this.props;
-
+  async updateUrl(props: Partial<HomeProps>) {
+    const { dataType, listingType, pageCursor, sort, showHidden } = {
+      ...this.props,
+      ...props,
+    };
     const queryParams: QueryParams<HomeProps> = {
-      dataType: getDataTypeString(dataType ?? urlDataType),
-      listingType: listingType ?? urlListingType,
+      dataType: getDataTypeString(dataType ?? DataType.Post),
+      listingType: listingType,
       pageCursor: pageCursor,
-      sort: sort ?? urlSort,
-      showHidden: showHidden ?? urlShowHidden,
+      sort: sort,
+      showHidden: showHidden,
     };
 
     this.props.history.push({
       pathname: "/",
       search: getQueryString(queryParams),
     });
-
-    await this.fetchData();
   }
 
   get posts() {
@@ -854,31 +858,39 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     });
   }
 
-  async fetchData() {
-    const { dataType, pageCursor, listingType, sort, showHidden } = this.props;
-
+  fetchDataToken?: symbol;
+  async fetchData({
+    dataType,
+    pageCursor,
+    listingType,
+    sort,
+    showHidden,
+  }: HomeProps) {
+    const token = (this.fetchDataToken = Symbol());
     if (dataType === DataType.Post) {
-      this.setState({ postsRes: LOADING_REQUEST });
-      this.setState({
-        postsRes: await HttpService.client.getPosts({
-          page_cursor: pageCursor,
-          limit: fetchLimit,
-          sort,
-          saved_only: false,
-          type_: listingType,
-          show_hidden: showHidden === "true",
-        }),
+      this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
+      const postsRes = await HttpService.client.getPosts({
+        page_cursor: pageCursor,
+        limit: fetchLimit,
+        sort,
+        saved_only: false,
+        type_: listingType,
+        show_hidden: showHidden === "true",
       });
+      if (token === this.fetchDataToken) {
+        this.setState({ postsRes });
+      }
     } else {
-      this.setState({ commentsRes: LOADING_REQUEST });
-      this.setState({
-        commentsRes: await HttpService.client.getComments({
-          limit: fetchLimit,
-          sort: postToCommentSortType(sort),
-          saved_only: false,
-          type_: listingType,
-        }),
+      this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
+      const commentsRes = await HttpService.client.getComments({
+        limit: fetchLimit,
+        sort: postToCommentSortType(sort),
+        saved_only: false,
+        type_: listingType,
       });
+      if (token === this.fetchDataToken) {
+        this.setState({ commentsRes });
+      }
     }
   }
 

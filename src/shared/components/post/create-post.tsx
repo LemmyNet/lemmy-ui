@@ -33,6 +33,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { toast } from "../../toast";
+import { isBrowser } from "@utils/browser";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -81,7 +82,7 @@ export class CreatePost extends Component<
   private isoData = setIsoData<CreatePostData>(this.context);
   state: CreatePostState = {
     siteRes: this.isoData.site_res,
-    loading: true,
+    loading: false,
     initialCommunitiesRes: EMPTY_REQUEST,
     isIsomorphic: false,
   };
@@ -132,9 +133,9 @@ export class CreatePost extends Component<
     }
   }
 
-  async componentDidMount() {
+  async componentWillMount() {
     // TODO test this
-    if (!this.state.isIsomorphic) {
+    if (!this.state.isIsomorphic && isBrowser()) {
       const { communityId } = this.props;
 
       const initialCommunitiesRes = await fetchCommunitiesForOptions(

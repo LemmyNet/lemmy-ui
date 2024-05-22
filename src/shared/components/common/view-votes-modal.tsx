@@ -24,6 +24,7 @@ import { fetchLimit } from "../../config";
 import { PersonListing } from "../person/person-listing";
 import { modalMixin } from "../mixins/modal-mixin";
 import { UserBadges } from "./user-badges";
+import { isBrowser } from "@utils/browser";
 
 interface ViewVotesModalProps {
   children?: InfernoNode;
@@ -96,8 +97,8 @@ export default class ViewVotesModal extends Component<
     this.handlePageChange = this.handlePageChange.bind(this);
   }
 
-  async componentDidMount() {
-    if (this.props.show) {
+  async componentWillMount() {
+    if (this.props.show && isBrowser()) {
       await this.refetch();
     }
   }
