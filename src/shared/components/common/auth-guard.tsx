@@ -4,18 +4,10 @@ import { UserService } from "../../services";
 import { Spinner } from "./icon";
 import { getQueryString } from "@utils/helpers";
 
-interface AuthGuardState {
-  hasRedirected: boolean;
-}
-
 class AuthGuard extends Component<
   RouteComponentProps<Record<string, string>>,
-  AuthGuardState
+  any
 > {
-  state = {
-    hasRedirected: false,
-  } as AuthGuardState;
-
   constructor(
     props: RouteComponentProps<Record<string, string>>,
     context: any,
@@ -23,19 +15,21 @@ class AuthGuard extends Component<
     super(props, context);
   }
 
+  hasAuth() {
+    return UserService.Instance.myUserInfo;
+  }
+
   componentDidMount() {
-    if (!UserService.Instance.myUserInfo) {
+    if (!this.hasAuth()) {
       const { pathname, search } = this.props.location;
       this.context.router.history.replace(
         `/login${getQueryString({ prev: pathname + search })}`,
       );
-    } else {
-      this.setState({ hasRedirected: true });
     }
   }
 
   render() {
-    return this.state.hasRedirected ? this.props.children : <Spinner />;
+    return this.hasAuth() ? this.props.children : <Spinner />;
   }
 }
 
