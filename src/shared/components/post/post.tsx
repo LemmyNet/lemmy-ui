@@ -588,6 +588,10 @@ export class Post extends Component<PostRouteProps, PostState> {
                 res.post_view.banned_from_community
               ) && (
                 <CommentForm
+                  key={
+                    this.context.router.history.location.key
+                    // reset on new location, otherwise <Prompt /> stops working
+                  }
                   node={res.post_view.post.id}
                   disabled={res.post_view.post.locked}
                   allLanguages={siteRes.all_languages}

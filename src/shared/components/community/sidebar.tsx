@@ -80,6 +80,21 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     this.handleEditCancel = this.handleEditCancel.bind(this);
   }
 
+  unlisten = () => {};
+
+  componentWillMount() {
+    // Leave edit mode on navigation
+    this.unlisten = this.context.router.history.listen(() => {
+      if (this.state.showEdit) {
+        this.setState({ showEdit: false });
+      }
+    });
+  }
+
+  componentWillUnmount(): void {
+    this.unlisten();
+  }
+
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & SidebarProps>,
   ): void {
