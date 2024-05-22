@@ -39,7 +39,7 @@ function handleSearch(i: SearchableSelect, e: ChangeEvent<HTMLInputElement>) {
 }
 
 function focusSearch(i: SearchableSelect) {
-  if (i.toggleButtonRef.current?.ariaExpanded !== "true") {
+  if (i.toggleButtonRef.current?.ariaExpanded === "true") {
     i.searchInputRef.current?.focus();
 
     if (i.props.onSearch) {

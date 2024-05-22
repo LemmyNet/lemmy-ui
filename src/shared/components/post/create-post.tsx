@@ -81,7 +81,7 @@ export class CreatePost extends Component<
   private isoData = setIsoData<CreatePostData>(this.context);
   state: CreatePostState = {
     siteRes: this.isoData.site_res,
-    loading: true,
+    loading: false,
     initialCommunitiesRes: EMPTY_REQUEST,
     isIsomorphic: false,
   };

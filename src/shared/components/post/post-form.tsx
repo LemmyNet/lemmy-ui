@@ -316,7 +316,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & PostFormProps>,
   ): void {
-    if (this.props !== nextProps) {
+    if (
+      this.props.selectedCommunityChoice?.value !==
+        nextProps.selectedCommunityChoice?.value &&
+      nextProps.selectedCommunityChoice
+    ) {
       this.setState(
         s => (
           (s.form.community_id = getIdFromString(
@@ -325,6 +329,22 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           s
         ),
       );
+      this.setState({
+        communitySearchOptions: [nextProps.selectedCommunityChoice].concat(
+          (nextProps.initialCommunities?.map(communityToChoice) ?? []).filter(
+            option => option.value !== nextProps.selectedCommunityChoice?.value,
+          ),
+        ),
+      });
+    }
+    if (
+      !this.props.initialCommunities?.length &&
+      nextProps.initialCommunities?.length
+    ) {
+      this.setState({
+        communitySearchOptions:
+          nextProps.initialCommunities?.map(communityToChoice) ?? [],
+      });
     }
   }
 
