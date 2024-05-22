@@ -575,6 +575,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
   static async fetchInitialData({
     headers,
+    site,
   }: InitialFetchRequest): Promise<ReportsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
@@ -601,7 +602,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       messageReportsRes: EMPTY_REQUEST,
     };
 
-    if (amAdmin()) {
+    if (amAdmin(site.my_user)) {
       const privateMessageReportsForm: ListPrivateMessageReports = {
         unresolved_only,
         page,
