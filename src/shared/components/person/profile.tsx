@@ -471,52 +471,56 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
               {this.renderUploadsRes()}
 
               {personDetailsState === "loading" ? (
-                <h5><Spinner large /></h5>
-              ) : personDetailsRes && (
-              <PersonDetails
-                personRes={personDetailsRes}
-                admins={siteRes.admins}
-                sort={sort}
-                page={page}
-                limit={fetchLimit}
-                finished={this.state.finished}
-                enableDownvotes={enableDownvotes(siteRes)}
-                voteDisplayMode={voteDisplayMode(siteRes)}
-                enableNsfw={enableNsfw(siteRes)}
-                view={view}
-                onPageChange={this.handlePageChange}
-                allLanguages={siteRes.all_languages}
-                siteLanguages={siteRes.discussion_languages}
-                // TODO all the forms here
-                onSaveComment={this.handleSaveComment}
-                onBlockPerson={this.handleBlockPersonAlt}
-                onDeleteComment={this.handleDeleteComment}
-                onRemoveComment={this.handleRemoveComment}
-                onCommentVote={this.handleCommentVote}
-                onCommentReport={this.handleCommentReport}
-                onDistinguishComment={this.handleDistinguishComment}
-                onAddModToCommunity={this.handleAddModToCommunity}
-                onAddAdmin={this.handleAddAdmin}
-                onTransferCommunity={this.handleTransferCommunity}
-                onPurgeComment={this.handlePurgeComment}
-                onPurgePerson={this.handlePurgePerson}
-                onCommentReplyRead={this.handleCommentReplyRead}
-                onPersonMentionRead={this.handlePersonMentionRead}
-                onBanPersonFromCommunity={this.handleBanFromCommunity}
-                onBanPerson={this.handleBanPerson}
-                onCreateComment={this.handleCreateComment}
-                onEditComment={this.handleEditComment}
-                onPostEdit={this.handlePostEdit}
-                onPostVote={this.handlePostVote}
-                onPostReport={this.handlePostReport}
-                onLockPost={this.handleLockPost}
-                onDeletePost={this.handleDeletePost}
-                onRemovePost={this.handleRemovePost}
-                onSavePost={this.handleSavePost}
-                onPurgePost={this.handlePurgePost}
-                onFeaturePost={this.handleFeaturePost}
-                onMarkPostAsRead={() => {}}
-              />
+                <h5>
+                  <Spinner large />
+                </h5>
+              ) : (
+                personDetailsRes && (
+                  <PersonDetails
+                    personRes={personDetailsRes}
+                    admins={siteRes.admins}
+                    sort={sort}
+                    page={page}
+                    limit={fetchLimit}
+                    finished={this.state.finished}
+                    enableDownvotes={enableDownvotes(siteRes)}
+                    voteDisplayMode={voteDisplayMode(siteRes)}
+                    enableNsfw={enableNsfw(siteRes)}
+                    view={view}
+                    onPageChange={this.handlePageChange}
+                    allLanguages={siteRes.all_languages}
+                    siteLanguages={siteRes.discussion_languages}
+                    // TODO all the forms here
+                    onSaveComment={this.handleSaveComment}
+                    onBlockPerson={this.handleBlockPersonAlt}
+                    onDeleteComment={this.handleDeleteComment}
+                    onRemoveComment={this.handleRemoveComment}
+                    onCommentVote={this.handleCommentVote}
+                    onCommentReport={this.handleCommentReport}
+                    onDistinguishComment={this.handleDistinguishComment}
+                    onAddModToCommunity={this.handleAddModToCommunity}
+                    onAddAdmin={this.handleAddAdmin}
+                    onTransferCommunity={this.handleTransferCommunity}
+                    onPurgeComment={this.handlePurgeComment}
+                    onPurgePerson={this.handlePurgePerson}
+                    onCommentReplyRead={this.handleCommentReplyRead}
+                    onPersonMentionRead={this.handlePersonMentionRead}
+                    onBanPersonFromCommunity={this.handleBanFromCommunity}
+                    onBanPerson={this.handleBanPerson}
+                    onCreateComment={this.handleCreateComment}
+                    onEditComment={this.handleEditComment}
+                    onPostEdit={this.handlePostEdit}
+                    onPostVote={this.handlePostVote}
+                    onPostReport={this.handlePostReport}
+                    onLockPost={this.handleLockPost}
+                    onDeletePost={this.handleDeletePost}
+                    onRemovePost={this.handleRemovePost}
+                    onSavePost={this.handleSavePost}
+                    onPurgePost={this.handlePurgePost}
+                    onFeaturePost={this.handleFeaturePost}
+                    onMarkPostAsRead={() => {}}
+                  />
+                )
               )}
             </div>
 

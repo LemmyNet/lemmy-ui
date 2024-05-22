@@ -385,34 +385,32 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.state.communityRes.data;
     return (
       <>
-          {res && (
-            <HtmlTags
-              title={this.documentTitle}
-              path={this.context.router.route.match.url}
-              canonicalPath={res.community_view.community.actor_id}
-              description={res.community_view.community.description}
-              image={res.community_view.community.icon}
-            />
-          )}
+        {res && (
+          <HtmlTags
+            title={this.documentTitle}
+            path={this.context.router.route.match.url}
+            canonicalPath={res.community_view.community.actor_id}
+            description={res.community_view.community.description}
+            image={res.community_view.community.icon}
+          />
+        )}
 
-                {this.communityInfo()}
-                <div className="d-block d-md-none">
-                  <button
-                    className="btn btn-secondary d-inline-block mb-2 me-3"
-                    onClick={linkEvent(this, this.handleShowSidebarMobile)}
-                  >
-                    {I18NextService.i18n.t("sidebar")}{" "}
-                    <Icon
-                      icon={
-                        this.state.showSidebarMobile
-                          ? `minus-square`
-                          : `plus-square`
-                      }
-                      classes="icon-inline"
-                    />
-                  </button>
-                  {this.state.showSidebarMobile && this.sidebar()}
-                </div>
+        {this.communityInfo()}
+        <div className="d-block d-md-none">
+          <button
+            className="btn btn-secondary d-inline-block mb-2 me-3"
+            onClick={linkEvent(this, this.handleShowSidebarMobile)}
+          >
+            {I18NextService.i18n.t("sidebar")}{" "}
+            <Icon
+              icon={
+                this.state.showSidebarMobile ? `minus-square` : `plus-square`
+              }
+              classes="icon-inline"
+            />
+          </button>
+          {this.state.showSidebarMobile && this.sidebar()}
+        </div>
       </>
     );
   }
@@ -569,41 +567,41 @@ export class Community extends Component<CommunityRouteProps, State> {
     const urlCommunityName = this.props.match.params.name;
 
     return (
-        <div className="mb-2">
-          {community && (
-            <BannerIconHeader banner={community.banner} icon={community.icon} />
-          )}
-          <div>
-            <h1
-              className="h4 mb-0 overflow-wrap-anywhere d-inline"
-              data-tippy-content={
-                community?.posting_restricted_to_mods
-                  ? I18NextService.i18n.t("community_locked")
-                  : ""
-              }
-            >
-              {community?.title ?? (
-                <>
-                  {urlCommunityName}
-                  <LoadingEllipses />
-                </>
-              )}
-            </h1>
-            {community?.posting_restricted_to_mods && (
-              <Icon icon="lock" inline classes="text-danger fs-4 ms-2" />
+      <div className="mb-2">
+        {community && (
+          <BannerIconHeader banner={community.banner} icon={community.icon} />
+        )}
+        <div>
+          <h1
+            className="h4 mb-0 overflow-wrap-anywhere d-inline"
+            data-tippy-content={
+              community?.posting_restricted_to_mods
+                ? I18NextService.i18n.t("community_locked")
+                : ""
+            }
+          >
+            {community?.title ?? (
+              <>
+                {urlCommunityName}
+                <LoadingEllipses />
+              </>
             )}
-          </div>
-          {(community && (
-            <CommunityLink
-              community={community}
-              realLink
-              useApubName
-              muted
-              hideAvatar
-            />
-          )) ??
-            urlCommunityName}
+          </h1>
+          {community?.posting_restricted_to_mods && (
+            <Icon icon="lock" inline classes="text-danger fs-4 ms-2" />
+          )}
         </div>
+        {(community && (
+          <CommunityLink
+            community={community}
+            realLink
+            useApubName
+            muted
+            hideAvatar
+          />
+        )) ??
+          urlCommunityName}
+      </div>
     );
   }
 

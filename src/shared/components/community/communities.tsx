@@ -148,75 +148,70 @@ export class Communities extends Component<
         );
       case "success": {
         return (
-              <table
-                id="community_table"
-                className="table table-sm table-hover"
-              >
-                <thead className="pointer">
-                  <tr>
-                    <th>{I18NextService.i18n.t("name")}</th>
-                    <th className="text-right">
-                      {I18NextService.i18n.t("subscribers")}
-                    </th>
-                    <th className="text-right">
-                      {I18NextService.i18n.t("users")} /{" "}
-                      {I18NextService.i18n.t("month")}
-                    </th>
-                    <th className="text-right d-none d-lg-table-cell">
-                      {I18NextService.i18n.t("posts")}
-                    </th>
-                    <th className="text-right d-none d-lg-table-cell">
-                      {I18NextService.i18n.t("comments")}
-                    </th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {this.state.listCommunitiesResponse.data.communities.map(
-                    cv => (
-                      <tr key={cv.community.id}>
-                        <td>
-                          <CommunityLink community={cv.community} />
-                        </td>
-                        <td className="text-right">
-                          {numToSI(cv.counts.subscribers)}
-                        </td>
-                        <td className="text-right">
-                          {numToSI(cv.counts.users_active_month)}
-                        </td>
-                        <td className="text-right d-none d-lg-table-cell">
-                          {numToSI(cv.counts.posts)}
-                        </td>
-                        <td className="text-right d-none d-lg-table-cell">
-                          {numToSI(cv.counts.comments)}
-                        </td>
-                        <td className="text-right">
-                          <SubscribeButton
-                            communityView={cv}
-                            onFollow={linkEvent(
-                              {
-                                i: this,
-                                communityId: cv.community.id,
-                                follow: true,
-                              },
-                              this.handleFollow,
-                            )}
-                            onUnFollow={linkEvent(
-                              {
-                                i: this,
-                                communityId: cv.community.id,
-                                follow: false,
-                              },
-                              this.handleFollow,
-                            )}
-                            isLink
-                          />
-                        </td>
-                      </tr>
-                    ),
-                  )}
-                </tbody>
-              </table>
+          <table id="community_table" className="table table-sm table-hover">
+            <thead className="pointer">
+              <tr>
+                <th>{I18NextService.i18n.t("name")}</th>
+                <th className="text-right">
+                  {I18NextService.i18n.t("subscribers")}
+                </th>
+                <th className="text-right">
+                  {I18NextService.i18n.t("users")} /{" "}
+                  {I18NextService.i18n.t("month")}
+                </th>
+                <th className="text-right d-none d-lg-table-cell">
+                  {I18NextService.i18n.t("posts")}
+                </th>
+                <th className="text-right d-none d-lg-table-cell">
+                  {I18NextService.i18n.t("comments")}
+                </th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.listCommunitiesResponse.data.communities.map(cv => (
+                <tr key={cv.community.id}>
+                  <td>
+                    <CommunityLink community={cv.community} />
+                  </td>
+                  <td className="text-right">
+                    {numToSI(cv.counts.subscribers)}
+                  </td>
+                  <td className="text-right">
+                    {numToSI(cv.counts.users_active_month)}
+                  </td>
+                  <td className="text-right d-none d-lg-table-cell">
+                    {numToSI(cv.counts.posts)}
+                  </td>
+                  <td className="text-right d-none d-lg-table-cell">
+                    {numToSI(cv.counts.comments)}
+                  </td>
+                  <td className="text-right">
+                    <SubscribeButton
+                      communityView={cv}
+                      onFollow={linkEvent(
+                        {
+                          i: this,
+                          communityId: cv.community.id,
+                          follow: true,
+                        },
+                        this.handleFollow,
+                      )}
+                      onUnFollow={linkEvent(
+                        {
+                          i: this,
+                          communityId: cv.community.id,
+                          follow: false,
+                        },
+                        this.handleFollow,
+                      )}
+                      isLink
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         );
       }
     }

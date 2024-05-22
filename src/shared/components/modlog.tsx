@@ -847,13 +847,13 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           <h5>
             {communityResp ? (
               <>
-            <Link
-              className="text-body"
-              to={`/c/${communityResp.community_view.community.name}`}
-            >
-              /c/{communityResp.community_view.community.name}
-            </Link>{" "}
-            <span>{I18NextService.i18n.t("modlog")}</span>
+                <Link
+                  className="text-body"
+                  to={`/c/${communityResp.community_view.community.name}`}
+                >
+                  /c/{communityResp.community_view.community.name}
+                </Link>{" "}
+                <span>{I18NextService.i18n.t("modlog")}</span>
               </>
             ) : (
               communityState === "loading" && <LoadingEllipses />

@@ -115,17 +115,17 @@ export class RegistrationApplications extends Component<
       this.state.appsRes.data.registration_applications;
 
     return (
-          <div className="row">
-            <div className="col-12">
-              <HtmlTags
-                title={this.documentTitle}
-                path={this.context.router.route.match.url}
-              />
-              <h1 className="h4 mb-4">
-                {I18NextService.i18n.t("registration_applications")}
-              </h1>
-              {this.selects()}
-              {apps ? (
+      <div className="row">
+        <div className="col-12">
+          <HtmlTags
+            title={this.documentTitle}
+            path={this.context.router.route.match.url}
+          />
+          <h1 className="h4 mb-4">
+            {I18NextService.i18n.t("registration_applications")}
+          </h1>
+          {this.selects()}
+          {apps ? (
             <>
               {this.applicationList(apps)}
               <Paginator
@@ -134,15 +134,15 @@ export class RegistrationApplications extends Component<
                 nextDisabled={fetchLimit > apps.length}
               />
             </>
-              ) : (
-                appsState === "loading" && (
-                  <div className="text-center">
-                    <Spinner large />
-                  </div>
-                )
-              )}
-            </div>
-          </div>
+          ) : (
+            appsState === "loading" && (
+              <div className="text-center">
+                <Spinner large />
+              </div>
+            )
+          )}
+        </div>
+      </div>
     );
   }
 
