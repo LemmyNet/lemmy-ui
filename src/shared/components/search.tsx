@@ -26,7 +26,7 @@ import {
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import type { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent, createRef, FormEvent } from "inferno";
+import { Component, linkEvent, createRef } from "inferno";
 import {
   CommentView,
   CommunityView,
@@ -96,7 +96,6 @@ interface SearchState {
   searchRes: RequestState<SearchResponse>;
   resolveObjectRes: RequestState<ResolveObjectResponse>;
   siteRes: GetSiteResponse;
-  searchText?: string;
   communitySearchOptions: Choice[];
   creatorSearchOptions: Choice[];
   searchCreatorLoading: boolean;
@@ -285,10 +284,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       this.handleCommunityFilterChange.bind(this);
     this.handleCreatorFilterChange = this.handleCreatorFilterChange.bind(this);
 
-    const { q } = this.props;
-
-    this.state.searchText = q;
-
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       const {
@@ -347,9 +342,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
     if (nextProps.creatorId !== this.props.creatorId) {
       this.fetchSelectedCreator(nextProps);
-    }
-    if (nextProps.q !== this.props.q) {
-      this.setState({ searchText: nextProps.q });
     }
     this.search(nextProps);
   }
@@ -597,13 +589,15 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onSubmit={linkEvent(this, this.handleSearchSubmit)}
       >
         <div className="col-auto flex-grow-1 flex-sm-grow-0">
+          {/* key is necessary for defaultValue to update when props.q changes,
+              e.g. back button. */}
           <input
+            key={this.context.router.history.location.key}
             type="text"
             className="form-control me-2 mb-2 col-sm-8"
-            value={this.state.searchText ?? ""}
+            defaultValue={this.props.q ?? ""}
             placeholder={`${I18NextService.i18n.t("search")}...`}
             aria-label={I18NextService.i18n.t("search")}
-            onInput={linkEvent(this, this.handleQChange)}
             required
             minLength={1}
             ref={this.searchInput}
@@ -1099,8 +1093,12 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   });
 
+  getQ(): string | undefined {
+    return this.searchInput.current?.value ?? this.props.q;
+  }
+
   handleSortChange(sort: SortType) {
-    this.updateUrl({ sort, page: 1, q: this.state.searchText });
+    this.updateUrl({ sort, page: 1, q: this.getQ() });
   }
 
   handleTypeChange(i: Search, event: any) {
@@ -1109,7 +1107,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     i.updateUrl({
       type,
       page: 1,
-      q: i.state.searchText,
+      q: i.getQ(),
     });
   }
 
@@ -1121,7 +1119,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.updateUrl({
       listingType,
       page: 1,
-      q: this.state.searchText,
+      q: this.getQ(),
     });
   }
 
@@ -1129,7 +1127,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.updateUrl({
       communityId: getIdFromString(value),
       page: 1,
-      q: this.state.searchText,
+      q: this.getQ(),
     });
   }
 
@@ -1137,7 +1135,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.updateUrl({
       creatorId: getIdFromString(value),
       page: 1,
-      q: this.state.searchText,
+      q: this.getQ(),
     });
   }
 
@@ -1145,14 +1143,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     event.preventDefault();
 
     i.updateUrl({
-      q: i.state.searchText,
+      q: i.getQ(),
       page: 1,
     });
-  }
-
-  handleQChange(i: Search, event: FormEvent<HTMLInputElement>) {
-    // This rerenders everything on every keystroke.
-    i.setState({ searchText: event.target.value });
   }
 
   async updateUrl(props: Partial<SearchProps>) {
