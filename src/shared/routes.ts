@@ -87,6 +87,7 @@ export interface IRoutePropsWithFetch<
   component: Inferno.ComponentClass<
     RouteComponentProps<PathPropsT> & QueryPropsT
   >;
+  mountedSameRouteNavKey?: string;
 }
 
 export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [

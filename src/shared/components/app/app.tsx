@@ -33,7 +33,13 @@ export default class App extends Component<any, any> {
   }
 
   routes = routes.map(
-    ({ path, component: RouteComponent, fetchInitialData, getQueryParams }) => (
+    ({
+      path,
+      component: RouteComponent,
+      fetchInitialData,
+      getQueryParams,
+      mountedSameRouteNavKey,
+    }) => (
       <Route
         key={path}
         path={path}
@@ -57,20 +63,24 @@ export default class App extends Component<any, any> {
             };
           }
 
+          // When key is location.key the component will be recreated when
+          // navigating to itself. This is usesful to e.g. reset forms.
+          const key = mountedSameRouteNavKey ?? routeProps.location.key;
+
           return (
             <ErrorGuard>
               <div tabIndex={-1}>
                 {RouteComponent &&
                   (isAuthPath(path ?? "") ? (
                     <AuthGuard {...routeProps}>
-                      <RouteComponent {...queryProps} />
+                      <RouteComponent key={key} {...queryProps} />
                     </AuthGuard>
                   ) : isAnonymousPath(path ?? "") ? (
                     <AnonymousGuard>
-                      <RouteComponent {...queryProps} />
+                      <RouteComponent key={key} {...queryProps} />
                     </AnonymousGuard>
                   ) : (
-                    <RouteComponent {...queryProps} />
+                    <RouteComponent key={key} {...queryProps} />
                   ))}
               </div>
             </ErrorGuard>
