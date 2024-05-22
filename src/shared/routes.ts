@@ -53,7 +53,11 @@ import {
   CreatePost,
   getCreatePostQueryParams,
 } from "./components/post/create-post";
-import { Post, PostFetchConfig } from "./components/post/post";
+import {
+  Post,
+  PostFetchConfig,
+  getPostQueryParams,
+} from "./components/post/post";
 import {
   CreatePrivateMessage,
   CreatePrivateMessageFetchConfig,
@@ -135,14 +139,21 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     mountedSameRouteNavKey: "communities",
   } as CommunitiesFetchConfig,
   {
-    path: `/post/:post_id`,
+    // "/comment/:post_id?/:comment_id" would be preferable as direct comment
+    // link, but it looks like a Route can't match multiple paths and a
+    // component can't stay mounted across routes.
+    path: `/post/:post_id/:comment_id?`,
     component: Post,
     fetchInitialData: Post.fetchInitialData,
+    getQueryParams: getPostQueryParams,
+    mountedSameRouteNavKey: "post",
   } as PostFetchConfig,
   {
     path: `/comment/:comment_id`,
     component: Post,
     fetchInitialData: Post.fetchInitialData,
+    getQueryParams: getPostQueryParams,
+    mountedSameRouteNavKey: "post",
   } as PostFetchConfig,
   {
     path: `/c/:name`,

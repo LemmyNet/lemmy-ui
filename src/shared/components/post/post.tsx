@@ -18,14 +18,17 @@ import { isBrowser } from "@utils/browser";
 import {
   debounce,
   getApubName,
+  getQueryParams,
+  getQueryString,
   randomStr,
   resourcesSettled,
+  bareRoutePush,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isImage } from "@utils/media";
-import { RouteDataResponse } from "@utils/types";
+import { QueryParams, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component, RefObject, createRef, linkEvent } from "inferno";
+import { Component, createRef, linkEvent } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -102,6 +105,7 @@ import { PostListing } from "./post-listing";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
+import { compareAsc, compareDesc } from "date-fns";
 
 const commentsShownInterval = 15;
 
@@ -111,44 +115,107 @@ type PostData = RouteDataResponse<{
 }>;
 
 interface PostState {
-  postId?: number;
-  commentId?: number;
   postRes: RequestState<GetPostResponse>;
   commentsRes: RequestState<GetCommentsResponse>;
-  commentSort: CommentSortType;
-  commentViewType: CommentViewType;
-  scrolled?: boolean;
   siteRes: GetSiteResponse;
-  commentSectionRef?: RefObject<HTMLDivElement>;
   showSidebarMobile: boolean;
   maxCommentsShown: number;
   finished: Map<CommentId, boolean | undefined>;
   isIsomorphic: boolean;
 }
 
-type PostPathProps =
-  | { post_id: string; comment_id: never }
-  | { post_id: never; comment_id: string };
-type PostRouteProps = RouteComponentProps<PostPathProps> &
-  Record<string, never>;
+const defaultCommentSort: CommentSortType = "Hot";
+
+function getCommentSortTypeFromQuery(source?: string): CommentSortType {
+  if (!source) {
+    return defaultCommentSort;
+  }
+  switch (source) {
+    case "Hot":
+    case "Top":
+    case "New":
+    case "Old":
+    case "Controversial":
+      return source;
+    default:
+      return defaultCommentSort;
+  }
+}
+
+function getQueryStringFromCommentSortType(
+  sort: CommentSortType,
+): undefined | string {
+  if (sort === defaultCommentSort) {
+    return undefined;
+  }
+  return sort;
+}
+
+const defaultCommentView: CommentViewType = CommentViewType.Tree;
+
+function getCommentViewTypeFromQuery(source?: string): CommentViewType {
+  switch (source) {
+    case "Tree":
+      return CommentViewType.Tree;
+    case "Flat":
+      return CommentViewType.Flat;
+    default:
+      return defaultCommentView;
+  }
+}
+
+function getQueryStringFromCommentView(
+  view: CommentViewType,
+): string | undefined {
+  if (view === defaultCommentView) {
+    return undefined;
+  }
+  switch (view) {
+    case CommentViewType.Tree:
+      return "Tree";
+    case CommentViewType.Flat:
+      return "Flat";
+    default:
+      return undefined;
+  }
+}
+
+interface PostProps {
+  sort: CommentSortType;
+  view: CommentViewType;
+  scrollToComments: boolean;
+}
+export function getPostQueryParams(source: string | undefined): PostProps {
+  return getQueryParams<PostProps>(
+    {
+      scrollToComments: (s?: string) => !!s,
+      sort: getCommentSortTypeFromQuery,
+      view: getCommentViewTypeFromQuery,
+    },
+    source,
+  );
+}
+
+type PostPathProps = { post_id?: string; comment_id?: string };
+type PostRouteProps = RouteComponentProps<PostPathProps> & PostProps;
+type PartialPostRouteProps = Partial<
+  PostProps & { match: { params: PostPathProps } }
+>;
 export type PostFetchConfig = IRoutePropsWithFetch<
   PostData,
   PostPathProps,
-  Record<string, never>
+  PostProps
 >;
 
 @scrollMixin
 export class Post extends Component<PostRouteProps, PostState> {
   private isoData = setIsoData<PostData>(this.context);
   private commentScrollDebounced: () => void;
+  private shouldScrollToComments: boolean = false;
+  private commentSectionRef = createRef<HTMLDivElement>();
   state: PostState = {
     postRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
-    postId: getIdFromProps(this.props),
-    commentId: getCommentIdFromProps(this.props),
-    commentSort: "Hot",
-    commentViewType: CommentViewType.Tree,
-    scrolled: false,
     siteRes: this.isoData.site_res,
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
@@ -200,8 +267,6 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleScrollIntoCommentsClick =
       this.handleScrollIntoCommentsClick.bind(this);
 
-    this.state = { ...this.state, commentSectionRef: createRef() };
-
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       const { commentsRes, postRes } = this.isoData.routeData;
@@ -212,70 +277,107 @@ export class Post extends Component<PostRouteProps, PostState> {
         commentsRes,
         isIsomorphic: true,
       };
-
-      if (isBrowser()) {
-        if (this.checkScrollIntoCommentsParam) {
-          this.scrollIntoCommentSection();
-        }
-      }
     }
   }
 
-  async fetchPost() {
+  async fetchPost(props: PostRouteProps) {
     this.setState({
       postRes: LOADING_REQUEST,
-      commentsRes: LOADING_REQUEST,
     });
 
-    const [postRes, commentsRes] = await Promise.all([
-      await HttpService.client.getPost({
-        id: this.state.postId,
-        comment_id: this.state.commentId,
-      }),
-      HttpService.client.getComments({
-        post_id: this.state.postId,
-        parent_id: this.state.commentId,
-        max_depth: commentTreeMaxDepth,
-        sort: this.state.commentSort,
-        type_: "All",
-        saved_only: false,
-      }),
-    ]);
+    const postRes = await HttpService.client.getPost({
+      id: getIdFromProps(props),
+      comment_id: getCommentIdFromProps(props),
+    });
 
     this.setState({
       postRes,
-      commentsRes,
+    });
+  }
+
+  async fetchComments(props: PostRouteProps) {
+    const { sort } = props;
+    this.setState({
+      commentsRes: LOADING_REQUEST,
     });
 
-    if (this.checkScrollIntoCommentsParam) {
-      this.scrollIntoCommentSection();
+    const commentsRes = await HttpService.client.getComments({
+      post_id: getIdFromProps(props),
+      parent_id: getCommentIdFromProps(props),
+      max_depth: commentTreeMaxDepth,
+      sort,
+      type_: "All",
+      saved_only: false,
+    });
+
+    this.setState({
+      commentsRes,
+    });
+  }
+
+  updateUrl(props: PartialPostRouteProps, replace = false) {
+    const {
+      view,
+      sort,
+      match: {
+        params: { comment_id, post_id },
+      },
+    } = {
+      ...this.props,
+      ...props,
+    };
+
+    const query: QueryParams<PostProps> = {
+      sort: getQueryStringFromCommentSortType(sort),
+      view: getQueryStringFromCommentView(view),
+    };
+
+    // Not inheriting old scrollToComments
+    if (props.scrollToComments) {
+      query.scrollToComments = true.toString();
+    }
+
+    let pathname: string | undefined;
+    if (comment_id && post_id) {
+      pathname = `/post/${post_id}/${comment_id}`;
+    } else if (comment_id) {
+      pathname = `/comment/${comment_id}`;
+    } else {
+      pathname = `/post/${post_id}`;
+    }
+
+    const location = { pathname, search: getQueryString(query) };
+    if (replace || this.props.location.pathname === pathname) {
+      this.props.history.replace(location);
+    } else {
+      this.props.history.push(location);
     }
   }
 
   static async fetchInitialData({
     headers,
     match,
-  }: InitialFetchRequest<PostPathProps>): Promise<PostData> {
+    query: { sort },
+  }: InitialFetchRequest<PostPathProps, PostProps>): Promise<PostData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     const postId = getIdFromProps({ match });
     const commentId = getCommentIdFromProps({ match });
 
-    const postForm: GetPost = {};
+    const postForm: GetPost = {
+      id: postId,
+      comment_id: commentId,
+    };
 
     const commentsForm: GetComments = {
+      post_id: postId,
+      parent_id: commentId,
       max_depth: commentTreeMaxDepth,
-      sort: "Hot",
+      sort,
       type_: "All",
       saved_only: false,
     };
-
-    postForm.id = postId;
-    postForm.comment_id = commentId;
-
-    commentsForm.post_id = postId;
-    commentsForm.parent_id = commentId;
 
     const [postRes, commentsRes] = await Promise.all([
       client.getPost(postForm),
@@ -294,8 +396,12 @@ export class Post extends Component<PostRouteProps, PostState> {
 
   async componentWillMount() {
     if (isBrowser()) {
+      this.shouldScrollToComments = this.props.scrollToComments;
       if (!this.state.isIsomorphic) {
-        await this.fetchPost();
+        await Promise.all([
+          this.fetchPost(this.props),
+          this.fetchComments(this.props),
+        ]);
       }
     }
   }
@@ -303,6 +409,64 @@ export class Post extends Component<PostRouteProps, PostState> {
   componentDidMount() {
     this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
     document.addEventListener("scroll", this.commentScrollDebounced);
+
+    if (this.state.isIsomorphic) {
+      this.maybeScrollToComments();
+    }
+  }
+
+  componentWillReceiveProps(nextProps: PostRouteProps): void {
+    const { post_id: nextPost, comment_id: nextComment } =
+      nextProps.match.params;
+    const { post_id: prevPost, comment_id: prevComment } =
+      this.props.match.params;
+
+    const newOrder =
+      this.props.sort !== nextProps.sort || this.props.view !== nextProps.view;
+
+    // For comment links restore sort type from current props.
+    if (
+      nextPost === prevPost &&
+      nextComment &&
+      newOrder &&
+      !nextProps.location.search &&
+      nextProps.history.action === "PUSH"
+    ) {
+      this.updateUrl({ match: nextProps.match }, true);
+      return;
+    }
+
+    const needPost =
+      prevPost !== nextPost ||
+      (bareRoutePush(this.props, nextProps) && !nextComment);
+    const needComments =
+      needPost ||
+      prevComment !== nextComment ||
+      nextProps.sort !== this.props.sort;
+
+    if (needPost) {
+      this.fetchPost(nextProps);
+    }
+    if (needComments) {
+      this.fetchComments(nextProps);
+    }
+
+    if (
+      nextProps.scrollToComments &&
+      this.props.scrollToComments !== nextProps.scrollToComments
+    ) {
+      this.shouldScrollToComments = true;
+    }
+  }
+
+  componentDidUpdate(): void {
+    if (
+      this.commentSectionRef.current &&
+      this.state.postRes.state === "success" &&
+      this.state.commentsRes.state === "success"
+    ) {
+      this.maybeScrollToComments();
+    }
   }
 
   handleScrollIntoCommentsClick(e: MouseEvent) {
@@ -310,16 +474,18 @@ export class Post extends Component<PostRouteProps, PostState> {
     e.preventDefault();
   }
 
-  get checkScrollIntoCommentsParam() {
-    return (
-      Boolean(
-        new URLSearchParams(this.props.location.search).get("scrollToComments"),
-      ) && this.props.history.action !== "POP"
-    );
+  maybeScrollToComments() {
+    if (this.shouldScrollToComments) {
+      this.shouldScrollToComments = false;
+      if (this.props.history.action !== "POP" || this.state.isIsomorphic) {
+        this.scrollIntoCommentSection();
+      }
+    }
   }
 
   scrollIntoCommentSection() {
-    this.state.commentSectionRef?.current?.scrollIntoView();
+    // This doesn't work when in a background tab in firefox.
+    this.commentSectionRef.current?.scrollIntoView();
   }
 
   isBottom(el: Element): boolean {
@@ -414,11 +580,12 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onHidePost={this.handleHidePost}
                 onScrollIntoCommentsClick={this.handleScrollIntoCommentsClick}
               />
-              <div ref={this.state.commentSectionRef} className="mb-2" />
+              <div ref={this.commentSectionRef} className="mb-2" />
 
               {/* Only show the top level comment form if its not a context view */}
               {!(
-                this.state.commentId || res.post_view.banned_from_community
+                getCommentIdFromProps(this.props) ||
+                res.post_view.banned_from_community
               ) && (
                 <CommentForm
                   node={res.post_view.post.id}
@@ -448,10 +615,8 @@ export class Post extends Component<PostRouteProps, PostState> {
                 {this.state.showSidebarMobile && this.sidebar()}
               </div>
               {this.sortRadios()}
-              {this.state.commentViewType === CommentViewType.Tree &&
-                this.commentsTree()}
-              {this.state.commentViewType === CommentViewType.Flat &&
-                this.commentsFlat()}
+              {this.props.view === CommentViewType.Tree && this.commentsTree()}
+              {this.props.view === CommentViewType.Flat && this.commentsFlat()}
             </main>
             <aside className="d-none d-md-block col-md-4 col-lg-3">
               {this.sidebar()}
@@ -483,13 +648,13 @@ export class Post extends Component<PostRouteProps, PostState> {
             type="radio"
             className="btn-check"
             value={"Hot"}
-            checked={this.state.commentSort === "Hot"}
+            checked={this.props.sort === "Hot"}
             onChange={linkEvent(this, this.handleCommentSortChange)}
           />
           <label
             htmlFor={`${radioId}-hot`}
             className={classNames("btn btn-outline-secondary pointer", {
-              active: this.state.commentSort === "Hot",
+              active: this.props.sort === "Hot",
             })}
           >
             {I18NextService.i18n.t("hot")}
@@ -499,13 +664,13 @@ export class Post extends Component<PostRouteProps, PostState> {
             type="radio"
             className="btn-check"
             value={"Top"}
-            checked={this.state.commentSort === "Top"}
+            checked={this.props.sort === "Top"}
             onChange={linkEvent(this, this.handleCommentSortChange)}
           />
           <label
             htmlFor={`${radioId}-top`}
             className={classNames("btn btn-outline-secondary pointer", {
-              active: this.state.commentSort === "Top",
+              active: this.props.sort === "Top",
             })}
           >
             {I18NextService.i18n.t("top")}
@@ -515,13 +680,13 @@ export class Post extends Component<PostRouteProps, PostState> {
             type="radio"
             className="btn-check"
             value={"Controversial"}
-            checked={this.state.commentSort === "Controversial"}
+            checked={this.props.sort === "Controversial"}
             onChange={linkEvent(this, this.handleCommentSortChange)}
           />
           <label
             htmlFor={`${radioId}-controversial`}
             className={classNames("btn btn-outline-secondary pointer", {
-              active: this.state.commentSort === "Controversial",
+              active: this.props.sort === "Controversial",
             })}
           >
             {I18NextService.i18n.t("controversial")}
@@ -531,13 +696,13 @@ export class Post extends Component<PostRouteProps, PostState> {
             type="radio"
             className="btn-check"
             value={"New"}
-            checked={this.state.commentSort === "New"}
+            checked={this.props.sort === "New"}
             onChange={linkEvent(this, this.handleCommentSortChange)}
           />
           <label
             htmlFor={`${radioId}-new`}
             className={classNames("btn btn-outline-secondary pointer", {
-              active: this.state.commentSort === "New",
+              active: this.props.sort === "New",
             })}
           >
             {I18NextService.i18n.t("new")}
@@ -547,13 +712,13 @@ export class Post extends Component<PostRouteProps, PostState> {
             type="radio"
             className="btn-check"
             value={"Old"}
-            checked={this.state.commentSort === "Old"}
+            checked={this.props.sort === "Old"}
             onChange={linkEvent(this, this.handleCommentSortChange)}
           />
           <label
             htmlFor={`${radioId}-old`}
             className={classNames("btn btn-outline-secondary pointer", {
-              active: this.state.commentSort === "Old",
+              active: this.props.sort === "Old",
             })}
           >
             {I18NextService.i18n.t("old")}
@@ -565,13 +730,13 @@ export class Post extends Component<PostRouteProps, PostState> {
             type="radio"
             className="btn-check"
             value={CommentViewType.Flat}
-            checked={this.state.commentViewType === CommentViewType.Flat}
+            checked={this.props.view === CommentViewType.Flat}
             onChange={linkEvent(this, this.handleCommentViewTypeChange)}
           />
           <label
             htmlFor={`${radioId}-chat`}
             className={classNames("btn btn-outline-secondary pointer", {
-              active: this.state.commentViewType === CommentViewType.Flat,
+              active: this.props.view === CommentViewType.Flat,
             })}
           >
             {I18NextService.i18n.t("chat")}
@@ -582,6 +747,14 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   commentsFlat() {
+    if (this.state.commentsRes.state === "loading") {
+      return (
+        <div className="text-center">
+          <Spinner large />
+        </div>
+      );
+    }
+
     // These are already sorted by new
     const commentsRes = this.state.commentsRes;
     const postRes = this.state.postRes;
@@ -591,8 +764,8 @@ export class Post extends Component<PostRouteProps, PostState> {
       return (
         <div>
           <CommentNodes
-            nodes={commentsToFlatNodes(commentsRes.data.comments)}
-            viewType={this.state.commentViewType}
+            nodes={this.sortedFlatNodes()}
+            viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
             isTopLevel
             locked={postRes.data.post_view.post.locked}
@@ -653,7 +826,29 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
+  sortedFlatNodes(): CommentNodeI[] {
+    if (this.state.commentsRes.state !== "success") {
+      return [];
+    }
+    const nodeToDate = (node: CommentNodeI) =>
+      node.comment_view.comment.published;
+    const nodes = commentsToFlatNodes(this.state.commentsRes.data.comments);
+    if (this.props.sort === "New") {
+      return nodes.sort((a, b) => compareDesc(nodeToDate(a), nodeToDate(b)));
+    } else {
+      return nodes.sort((a, b) => compareAsc(nodeToDate(a), nodeToDate(b)));
+    }
+  }
+
   commentsTree() {
+    if (this.state.commentsRes.state === "loading") {
+      return (
+        <div className="text-center">
+          <Spinner large />
+        </div>
+      );
+    }
+
     const res = this.state.postRes;
     const firstComment = this.commentTree().at(0)?.comment_view.comment;
     const depth = getDepthFromComment(firstComment);
@@ -663,11 +858,11 @@ export class Post extends Component<PostRouteProps, PostState> {
     return (
       res.state === "success" && (
         <div>
-          {!!this.state.commentId && (
+          {!!getCommentIdFromProps(this.props) && (
             <>
               <button
                 className="ps-0 d-block btn btn-link text-muted"
-                onClick={linkEvent(this, this.handleViewPost)}
+                onClick={linkEvent(this, this.handleViewAllComments)}
               >
                 {I18NextService.i18n.t("view_all_comments")} ➔
               </button>
@@ -683,7 +878,7 @@ export class Post extends Component<PostRouteProps, PostState> {
           )}
           <CommentNodes
             nodes={this.commentTree()}
-            viewType={this.state.commentViewType}
+            viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
             locked={res.data.post_view.post.locked}
             moderators={res.data.moderators}
@@ -720,50 +915,69 @@ export class Post extends Component<PostRouteProps, PostState> {
 
   commentTree(): CommentNodeI[] {
     if (this.state.commentsRes.state === "success") {
-      return buildCommentsTree(
-        this.state.commentsRes.data.comments,
-        !!this.state.commentId,
-      );
-    } else {
-      return [];
+      const comments = this.state.commentsRes.data.comments;
+      if (comments.length) {
+        return buildCommentsTree(comments, !!getCommentIdFromProps(this.props));
+      }
     }
+    return [];
   }
 
   async handleCommentSortChange(i: Post, event: any) {
-    i.setState({
-      commentSort: event.target.value as CommentSortType,
-      commentViewType: CommentViewType.Tree,
-      commentsRes: LOADING_REQUEST,
-      postRes: LOADING_REQUEST,
-    });
-    await i.fetchPost();
+    const sort = event.target.value as CommentSortType;
+    const flattenable = sort === "New" || sort === "Old";
+    if (flattenable || i.props.view !== CommentViewType.Flat) {
+      i.updateUrl({ sort });
+    } else {
+      i.updateUrl({ sort, view: CommentViewType.Tree });
+    }
   }
 
   handleCommentViewTypeChange(i: Post, event: any) {
-    i.setState({
-      commentViewType: Number(event.target.value),
-      commentSort: "New",
-    });
+    const flattenable = i.props.sort === "New" || i.props.sort === "Old";
+    const view: CommentViewType = Number(event.target.value);
+    if (flattenable || view !== CommentViewType.Flat) {
+      i.updateUrl({ view });
+    } else {
+      i.updateUrl({ view, sort: "New" });
+    }
   }
 
   handleShowSidebarMobile(i: Post) {
     i.setState({ showSidebarMobile: !i.state.showSidebarMobile });
   }
 
-  handleViewPost(i: Post) {
-    if (i.state.postRes.state === "success") {
-      const id = i.state.postRes.data.post_view.post.id;
-      i.context.router.history.push(`/post/${id}`);
+  handleViewAllComments(i: Post) {
+    const id =
+      getIdFromProps(i.props) ||
+      (i.state.postRes.state === "success" &&
+        i.state.postRes.data.post_view.post.id);
+    if (id) {
+      i.updateUrl({
+        match: { params: { post_id: id.toString() } },
+      });
     }
   }
 
   handleViewContext(i: Post) {
     if (i.state.commentsRes.state === "success") {
-      const parentId = getCommentParentId(
-        i.state.commentsRes.data.comments.at(0)?.comment,
+      const commentId = getCommentIdFromProps(i.props);
+      const commentView = i.state.commentsRes.data.comments.find(
+        c => c.comment.id === commentId,
       );
-      if (parentId) {
-        i.context.router.history.push(`/comment/${parentId}`);
+
+      const parentId = getCommentParentId(commentView?.comment);
+      const postId = commentView?.post.id;
+
+      if (parentId && postId) {
+        i.updateUrl({
+          match: {
+            params: {
+              post_id: postId.toString(),
+              comment_id: parentId.toString(),
+            },
+          },
+        });
       }
     }
   }
