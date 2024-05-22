@@ -32,6 +32,54 @@ export default class App extends Component<any, any> {
     destroyTippy();
   }
 
+  routes = routes.map(
+    ({ path, component: RouteComponent, fetchInitialData, getQueryParams }) => (
+      <Route
+        key={path}
+        path={path}
+        exact
+        component={routeProps => {
+          if (!fetchInitialData) {
+            FirstLoadService.falsify();
+          }
+
+          let queryProps = routeProps;
+          if (getQueryParams && this.isoData.site_res) {
+            // ErrorGuard will not render its children when
+            // site_res is missing, this guarantees that props
+            // will always contain the query params.
+            queryProps = {
+              ...routeProps,
+              ...getQueryParams(
+                routeProps.location.search,
+                this.isoData.site_res,
+              ),
+            };
+          }
+
+          return (
+            <ErrorGuard>
+              <div tabIndex={-1}>
+                {RouteComponent &&
+                  (isAuthPath(path ?? "") ? (
+                    <AuthGuard {...routeProps}>
+                      <RouteComponent {...queryProps} />
+                    </AuthGuard>
+                  ) : isAnonymousPath(path ?? "") ? (
+                    <AnonymousGuard>
+                      <RouteComponent {...queryProps} />
+                    </AnonymousGuard>
+                  ) : (
+                    <RouteComponent {...queryProps} />
+                  ))}
+              </div>
+            </ErrorGuard>
+          );
+        }}
+      />
+    ),
+  );
+
   render() {
     const siteRes = this.isoData.site_res;
     const siteView = siteRes?.site_view;
@@ -64,58 +112,7 @@ export default class App extends Component<any, any> {
             <Navbar siteRes={siteRes} />
             <div className="mt-4 p-0 fl-1">
               <Switch>
-                {routes.map(
-                  ({
-                    path,
-                    component: RouteComponent,
-                    fetchInitialData,
-                    getQueryParams,
-                  }) => (
-                    <Route
-                      key={path}
-                      path={path}
-                      exact
-                      component={routeProps => {
-                        if (!fetchInitialData) {
-                          FirstLoadService.falsify();
-                        }
-
-                        let queryProps = routeProps;
-                        if (getQueryParams && this.isoData.site_res) {
-                          // ErrorGuard will not render its children when
-                          // site_res is missing, this guarantees that props
-                          // will always contain the query params.
-                          queryProps = {
-                            ...routeProps,
-                            ...getQueryParams(
-                              routeProps.location.search,
-                              this.isoData.site_res,
-                            ),
-                          };
-                        }
-
-                        return (
-                          <ErrorGuard>
-                            <div tabIndex={-1}>
-                              {RouteComponent &&
-                                (isAuthPath(path ?? "") ? (
-                                  <AuthGuard {...routeProps}>
-                                    <RouteComponent {...queryProps} />
-                                  </AuthGuard>
-                                ) : isAnonymousPath(path ?? "") ? (
-                                  <AnonymousGuard>
-                                    <RouteComponent {...queryProps} />
-                                  </AnonymousGuard>
-                                ) : (
-                                  <RouteComponent {...queryProps} />
-                                ))}
-                            </div>
-                          </ErrorGuard>
-                        );
-                      }}
-                    />
-                  ),
-                )}
+                {this.routes}
                 <Route component={ErrorPage} />
               </Switch>
             </div>
