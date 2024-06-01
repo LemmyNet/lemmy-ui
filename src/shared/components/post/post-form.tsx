@@ -618,7 +618,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button
-              disabled={!this.state.form.community_id || this.props.loading}
+              disabled={
+                !this.state.form.community_id ||
+                this.props.loading ||
+                this.state.submitted
+              }
               type="submit"
               className="btn btn-secondary me-2"
             >

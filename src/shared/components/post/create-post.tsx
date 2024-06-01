@@ -243,6 +243,7 @@ export class CreatePost extends Component<
   }
 
   async handlePostCreate(form: CreatePostI) {
+    this.setState({ loading: true });
     const res = await HttpService.client.createPost(form);
 
     if (res.state === "success") {
