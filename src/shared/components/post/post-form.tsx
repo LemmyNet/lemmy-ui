@@ -54,8 +54,8 @@ interface PostFormProps {
   siteLanguages: number[];
   params?: PostFormParams;
   onCancel?(): void;
-  onCreate?(form: CreatePost): void;
-  onEdit?(form: EditPost): void;
+  onCreate?(form: CreatePost, bypassNavWarning: () => void): void;
+  onEdit?(form: EditPost, bypassNavWarning: () => void): void;
   enableNsfw?: boolean;
   enableDownvotes?: boolean;
   voteDisplayMode: LocalUserVoteDisplayMode;
@@ -85,6 +85,7 @@ interface PostFormState {
   communitySearchOptions: Choice[];
   previewMode: boolean;
   submitted: boolean;
+  bypassNavWarning: boolean;
 }
 
 function handlePostSubmit(i: PostForm, event: any) {
@@ -93,34 +94,46 @@ function handlePostSubmit(i: PostForm, event: any) {
   if ((i.state.form.url ?? "") === "") {
     i.setState(s => ((s.form.url = undefined), s));
   }
+  // This forces `props.loading` to become true, then false, to enable the
+  // submit button again.
   i.setState({ submitted: true });
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
 
   if (pv) {
-    i.props.onEdit?.({
-      post_id: pv.post.id,
-      name: pForm.name,
-      url: pForm.url,
-      body: pForm.body,
-      nsfw: pForm.nsfw,
-      language_id: pForm.language_id,
-      custom_thumbnail: pForm.custom_thumbnail,
-      alt_text: pForm.alt_text,
-    });
+    i.props.onEdit?.(
+      {
+        post_id: pv.post.id,
+        name: pForm.name,
+        url: pForm.url,
+        body: pForm.body,
+        nsfw: pForm.nsfw,
+        language_id: pForm.language_id,
+        custom_thumbnail: pForm.custom_thumbnail,
+        alt_text: pForm.alt_text,
+      },
+      () => {
+        i.setState({ bypassNavWarning: true });
+      },
+    );
   } else if (pForm.name && pForm.community_id) {
-    i.props.onCreate?.({
-      name: pForm.name,
-      community_id: pForm.community_id,
-      url: pForm.url,
-      body: pForm.body,
-      nsfw: pForm.nsfw,
-      language_id: pForm.language_id,
-      honeypot: pForm.honeypot,
-      custom_thumbnail: pForm.custom_thumbnail,
-      alt_text: pForm.alt_text,
-    });
+    i.props.onCreate?.(
+      {
+        name: pForm.name,
+        community_id: pForm.community_id,
+        url: pForm.url,
+        body: pForm.body,
+        nsfw: pForm.nsfw,
+        language_id: pForm.language_id,
+        honeypot: pForm.honeypot,
+        custom_thumbnail: pForm.custom_thumbnail,
+        alt_text: pForm.alt_text,
+      },
+      () => {
+        i.setState({ bypassNavWarning: true });
+      },
+    );
   }
 }
 
@@ -247,6 +260,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     previewMode: false,
     communitySearchOptions: [],
     submitted: false,
+    bypassNavWarning: false,
   };
 
   postTitleRef = createRef<HTMLTextAreaElement>();
@@ -348,7 +362,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       });
     }
     if (this.props.loading && !nextProps.loading) {
-      this.setState({ submitted: false });
+      this.setState({ submitted: false, bypassNavWarning: false });
     }
   }
 
@@ -367,7 +381,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               this.state.form.name ||
               this.state.form.url ||
               this.state.form.body
-            ) && !this.state.submitted
+            ) && !this.state.bypassNavWarning
           }
         />
         <div className="mb-3 row">

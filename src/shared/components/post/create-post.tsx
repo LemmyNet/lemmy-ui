@@ -230,12 +230,13 @@ export class CreatePost extends Component<
     });
   }
 
-  async handlePostCreate(form: CreatePostI) {
+  async handlePostCreate(form: CreatePostI, bypassNavWarning: () => void) {
     this.setState({ loading: true });
     const res = await HttpService.client.createPost(form);
 
     if (res.state === "success") {
       const postId = res.data.post_view.post.id;
+      bypassNavWarning();
       this.props.history.replace(`/post/${postId}`);
     } else if (res.state === "failed") {
       this.setState({
