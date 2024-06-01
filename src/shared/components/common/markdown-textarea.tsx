@@ -3,7 +3,7 @@ import { numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
 import {
@@ -41,7 +41,6 @@ interface MarkdownTextAreaProps {
   replyType?: boolean;
   focus?: boolean;
   disabled?: boolean;
-  finished?: boolean;
   /**
    * Whether to show the language selector
    */
@@ -112,27 +111,6 @@ export class MarkdownTextArea extends Component<
       if (this.props.focus) {
         textarea.focus();
       }
-    }
-  }
-
-  componentWillReceiveProps(
-    nextProps: MarkdownTextAreaProps & { children?: InfernoNode },
-  ) {
-    if (nextProps.finished) {
-      this.setState({
-        previewMode: false,
-        imageUploadStatus: undefined,
-        loading: false,
-        content: undefined,
-      });
-      if (this.props.replyType) {
-        this.props.onReplyCancel?.();
-      }
-
-      const textarea: any = document.getElementById(this.id);
-      const form: any = document.getElementById(this.formId);
-      form.reset();
-      setTimeout(() => autosize.update(textarea), 10);
     }
   }
 

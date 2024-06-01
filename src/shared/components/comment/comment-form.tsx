@@ -13,7 +13,6 @@ interface CommentFormProps {
    * Can either be the parent, or the editable comment. The right side is a postId.
    */
   node: CommentNodeI | number;
-  finished?: boolean;
   edit?: boolean;
   disabled?: boolean;
   focus?: boolean;
@@ -50,7 +49,6 @@ export class CommentForm extends Component<CommentFormProps, any> {
             initialContent={initialContent}
             showLanguage
             buttonTitle={this.buttonTitle}
-            finished={this.props.finished}
             replyType={typeof this.props.node !== "number"}
             focus={this.props.focus}
             disabled={this.props.disabled}

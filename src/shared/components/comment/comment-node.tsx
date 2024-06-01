@@ -87,7 +87,6 @@ interface CommentNodeProps {
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages?: boolean;
-  finished: Map<CommentId, boolean | undefined>;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
@@ -283,7 +282,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 edit
                 onReplyCancel={this.handleReplyCancel}
                 disabled={this.props.locked}
-                finished={this.props.finished.get(id)}
                 focus
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
@@ -425,7 +423,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             node={node}
             onReplyCancel={this.handleReplyCancel}
             disabled={this.props.locked}
-            finished={this.props.finished.get(id)}
             focus
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -447,7 +444,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             hideImages={this.props.hideImages}
             isChild={!this.props.isTopLevel}
             depth={this.props.node.depth + 1}
-            finished={this.props.finished}
             onCommentReplyRead={this.props.onCommentReplyRead}
             onPersonMentionRead={this.props.onPersonMentionRead}
             onCreateComment={this.props.onCreateComment}

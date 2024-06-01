@@ -39,7 +39,6 @@ import {
   BanPersonResponse,
   BlockCommunity,
   BlockPerson,
-  CommentId,
   CommentReplyResponse,
   CommentResponse,
   CommentSortType,
@@ -120,7 +119,6 @@ interface PostState {
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   maxCommentsShown: number;
-  finished: Map<CommentId, boolean | undefined>;
   isIsomorphic: boolean;
 }
 
@@ -219,7 +217,6 @@ export class Post extends Component<PostRouteProps, PostState> {
     siteRes: this.isoData.site_res,
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
-    finished: new Map(),
     isIsomorphic: false,
   };
 
@@ -594,7 +591,6 @@ export class Post extends Component<PostRouteProps, PostState> {
                   siteLanguages={siteRes.discussion_languages}
                   containerClass="post-comment-container"
                   onUpsertComment={this.handleCreateComment}
-                  finished={this.state.finished.get(0)}
                 />
               )}
               <div className="d-block d-md-none">
@@ -774,7 +770,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             enableDownvotes={enableDownvotes(siteRes)}
             voteDisplayMode={voteDisplayMode(siteRes)}
             showContext
-            finished={this.state.finished}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             onSaveComment={this.handleSaveComment}
@@ -885,7 +880,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             admins={siteRes.admins}
             enableDownvotes={enableDownvotes(siteRes)}
             voteDisplayMode={voteDisplayMode(siteRes)}
-            finished={this.state.finished}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             onSaveComment={this.handleSaveComment}
@@ -1380,9 +1374,6 @@ export class Post extends Component<PostRouteProps, PostState> {
         );
 
         comments.splice(foundCommentParentIndex + 1, 0, newComment);
-
-        // Set finished for the parent
-        s.finished.set(newCommentParentId ?? 0, true);
       }
       return s;
     });
@@ -1395,13 +1386,11 @@ export class Post extends Component<PostRouteProps, PostState> {
           res.data.comment_view,
           s.commentsRes.data.comments,
         );
-        s.finished.set(res.data.comment_view.comment.id, true);
       }
       return s;
     });
   }
 
-  // No need to set finished on a comment vote, save, etc
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {

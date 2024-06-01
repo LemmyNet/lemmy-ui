@@ -6,7 +6,6 @@ import {
   BanFromCommunity,
   BanPerson,
   BlockPerson,
-  CommentId,
   CommentResponse,
   CommentView,
   CreateComment,
@@ -49,7 +48,6 @@ import { RequestState } from "../../services/HttpService";
 
 interface PersonDetailsProps {
   personRes: GetPersonDetailsResponse;
-  finished: Map<CommentId, boolean | undefined>;
   admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
@@ -153,7 +151,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             key={i.id}
             nodes={[{ comment_view: c, children: [], depth: 0 }]}
             viewType={CommentViewType.Flat}
-            finished={this.props.finished}
             admins={this.props.admins}
             noBorder
             showCommunity
@@ -266,7 +263,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           nodes={commentsToFlatNodes(this.props.personRes.comments)}
           viewType={CommentViewType.Flat}
           admins={this.props.admins}
-          finished={this.props.finished}
           isTopLevel
           showCommunity
           showContext

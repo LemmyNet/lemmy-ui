@@ -5,7 +5,6 @@ import {
   editPrivateMessage,
   editWith,
   enableDownvotes,
-  getCommentParentId,
   myAuth,
   setIsoData,
   updatePersonBlock,
@@ -28,7 +27,6 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
-  CommentId,
   CommentReplyResponse,
   CommentReplyView,
   CommentReportResponse,
@@ -132,7 +130,6 @@ interface InboxState {
   sort: CommentSortType;
   page: number;
   siteRes: GetSiteResponse;
-  finished: Map<CommentId, boolean | undefined>;
   isIsomorphic: boolean;
 }
 
@@ -157,7 +154,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     mentionsRes: EMPTY_REQUEST,
     messagesRes: EMPTY_REQUEST,
     markAllAsReadRes: EMPTY_REQUEST,
-    finished: new Map(),
     isIsomorphic: false,
   };
 
@@ -512,7 +508,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               { comment_view: i.view as CommentView, children: [], depth: 0 },
             ]}
             viewType={CommentViewType.Flat}
-            finished={this.state.finished}
             markable
             showCommunity
             showContext
@@ -551,7 +546,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                 depth: 0,
               },
             ]}
-            finished={this.state.finished}
             viewType={CommentViewType.Flat}
             markable
             showCommunity
@@ -623,7 +617,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             <CommentNodes
               nodes={commentsToFlatNodes(replies)}
               viewType={CommentViewType.Flat}
-              finished={this.state.finished}
               markable
               showCommunity
               showContext
@@ -670,7 +663,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                 key={umv.person_mention.id}
                 nodes={[{ comment_view: umv, children: [], depth: 0 }]}
                 viewType={CommentViewType.Flat}
-                finished={this.state.finished}
                 markable
                 showCommunity
                 showContext
@@ -1113,11 +1105,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             s.mentionsRes.data.mentions,
           );
         }
-        // Set finished for the parent
-        s.finished.set(
-          getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true,
-        );
         return s;
       });
     }

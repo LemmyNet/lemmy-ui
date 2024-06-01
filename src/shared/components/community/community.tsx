@@ -6,7 +6,6 @@ import {
   editWith,
   enableDownvotes,
   enableNsfw,
-  getCommentParentId,
   getDataTypeString,
   postToCommentSortType,
   setIsoData,
@@ -42,7 +41,6 @@ import {
   BanPersonResponse,
   BlockCommunity,
   BlockPerson,
-  CommentId,
   CommentReplyResponse,
   CommentResponse,
   CommunityResponse,
@@ -136,7 +134,6 @@ interface State {
   commentsRes: RequestState<GetCommentsResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
-  finished: Map<CommentId, boolean | undefined>;
   isIsomorphic: boolean;
 }
 
@@ -201,7 +198,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     commentsRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     showSidebarMobile: false,
-    finished: new Map(),
     isIsomorphic: false,
   };
   private readonly mainContentRef: RefObject<HTMLElement>;
@@ -528,7 +524,6 @@ export class Community extends Component<CommunityRouteProps, State> {
             <CommentNodes
               nodes={commentsToFlatNodes(this.state.commentsRes.data.comments)}
               viewType={CommentViewType.Flat}
-              finished={this.state.finished}
               isTopLevel
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
@@ -1038,7 +1033,6 @@ export class Community extends Component<CommunityRouteProps, State> {
           res.data.comment_view,
           s.commentsRes.data.comments,
         );
-        s.finished.set(res.data.comment_view.comment.id, true);
       }
       return s;
     });
@@ -1060,12 +1054,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments.unshift(res.data.comment_view);
-
-        // Set finished for the parent
-        s.finished.set(
-          getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true,
-        );
       }
       return s;
     });

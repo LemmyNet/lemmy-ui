@@ -90,7 +90,6 @@ export class CommentReport extends Component<
           siteLanguages={[]}
           hideImages
           // All of these are unused, since its viewonly
-          finished={new Map()}
           onSaveComment={async () => {}}
           onBlockPerson={async () => {}}
           onDeleteComment={async () => {}}
