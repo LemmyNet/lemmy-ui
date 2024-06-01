@@ -39,6 +39,7 @@ import {
   BanPersonResponse,
   BlockCommunity,
   BlockPerson,
+  CommentId,
   CommentReplyResponse,
   CommentResponse,
   CommentSortType,
@@ -120,6 +121,7 @@ interface PostState {
   showSidebarMobile: boolean;
   maxCommentsShown: number;
   isIsomorphic: boolean;
+  lastCreatedCommentId?: CommentId;
 }
 
 const defaultCommentSort: CommentSortType = "Hot";
@@ -233,6 +235,8 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleFollow = this.handleFollow.bind(this);
     this.handleModRemoveCommunity = this.handleModRemoveCommunity.bind(this);
     this.handleCreateComment = this.handleCreateComment.bind(this);
+    this.handleCreateToplevelComment =
+      this.handleCreateToplevelComment.bind(this);
     this.handleEditComment = this.handleEditComment.bind(this);
     this.handleSaveComment = this.handleSaveComment.bind(this);
     this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
@@ -582,7 +586,8 @@ export class Post extends Component<PostRouteProps, PostState> {
               ) && (
                 <CommentForm
                   key={
-                    this.context.router.history.location.key
+                    this.context.router.history.location.key +
+                    this.state.lastCreatedCommentId
                     // reset on new location, otherwise <Prompt /> stops working
                   }
                   node={res.post_view.post.id}
@@ -590,7 +595,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   containerClass="post-comment-container"
-                  onUpsertComment={this.handleCreateComment}
+                  onUpsertComment={this.handleCreateToplevelComment}
                 />
               )}
               <div className="d-block d-md-none">
@@ -1057,6 +1062,14 @@ export class Post extends Component<PostRouteProps, PostState> {
     return res;
   }
 
+  async handleCreateToplevelComment(form: CreateComment) {
+    const res = await this.handleCreateComment(form);
+    if (res.state === "success") {
+      this.setState({ lastCreatedCommentId: res.data.comment_view.comment.id });
+    }
+    return res;
+  }
+
   async handleCreateComment(form: CreateComment) {
     const createCommentRes = await HttpService.client.createComment(form);
     this.createAndUpdateComments(createCommentRes);
@@ -1377,6 +1390,9 @@ export class Post extends Component<PostRouteProps, PostState> {
       }
       return s;
     });
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
+    }
   }
 
   findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
@@ -1389,6 +1405,9 @@ export class Post extends Component<PostRouteProps, PostState> {
       }
       return s;
     });
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
+    }
   }
 
   findAndUpdateComment(res: RequestState<CommentResponse>) {
@@ -1401,6 +1420,9 @@ export class Post extends Component<PostRouteProps, PostState> {
       }
       return s;
     });
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
+    }
   }
 
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
@@ -1413,6 +1435,9 @@ export class Post extends Component<PostRouteProps, PostState> {
       }
       return s;
     });
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
+    }
   }
 
   updateModerators(res: RequestState<AddModToCommunityResponse>) {

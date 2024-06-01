@@ -2,11 +2,17 @@ import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { CreateComment, EditComment, Language } from "lemmy-js-client";
+import {
+  CommentResponse,
+  CreateComment,
+  EditComment,
+  Language,
+} from "lemmy-js-client";
 import { CommentNodeI } from "../../interfaces";
 import { I18NextService, UserService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import { RequestState } from "shared/services/HttpService";
 
 interface CommentFormProps {
   /**
@@ -20,7 +26,9 @@ interface CommentFormProps {
   allLanguages: Language[];
   siteLanguages: number[];
   containerClass?: string;
-  onUpsertComment(form: EditComment | CreateComment): void;
+  onUpsertComment(
+    form: EditComment | CreateComment,
+  ): Promise<RequestState<CommentResponse>>;
 }
 
 export class CommentForm extends Component<CommentFormProps, any> {
@@ -81,32 +89,35 @@ export class CommentForm extends Component<CommentFormProps, any> {
         : capitalizeFirstLetter(I18NextService.i18n.t("reply"));
   }
 
-  handleCommentSubmit(content: string, language_id?: number) {
+  async handleCommentSubmit(
+    content: string,
+    language_id?: number,
+  ): Promise<boolean> {
     const { node, onUpsertComment, edit } = this.props;
     if (typeof node === "number") {
       const post_id = node;
-      onUpsertComment({
+      return onUpsertComment({
         content,
         post_id,
         language_id,
-      });
+      }).then(r => r.state !== "failed");
     } else {
       if (edit) {
         const comment_id = node.comment_view.comment.id;
-        onUpsertComment({
+        return onUpsertComment({
           content,
           comment_id,
           language_id,
-        });
+        }).then(r => r.state !== "failed");
       } else {
         const post_id = node.comment_view.post.id;
         const parent_id = node.comment_view.comment.id;
-        this.props.onUpsertComment({
+        return onUpsertComment({
           content,
           parent_id,
           post_id,
           language_id,
-        });
+        }).then(r => r.state !== "failed");
       }
     }
   }

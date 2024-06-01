@@ -988,9 +988,10 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     this.findAndUpdateMessage(res);
   }
 
-  async handleEditMessage(form: EditPrivateMessage) {
+  async handleEditMessage(form: EditPrivateMessage): Promise<boolean> {
     const res = await HttpService.client.editPrivateMessage(form);
     this.findAndUpdateMessage(res);
+    return res.state !== "failed";
   }
 
   async handleMarkMessageAsRead(form: MarkPrivateMessageAsRead) {
@@ -1007,7 +1008,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     this.reportToast(res);
   }
 
-  async handleCreateMessage(form: CreatePrivateMessage) {
+  async handleCreateMessage(form: CreatePrivateMessage): Promise<boolean> {
     const res = await HttpService.client.createPrivateMessage(form);
     this.setState(s => {
       if (s.messagesRes.state === "success" && res.state === "success") {
@@ -1018,6 +1019,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
       return s;
     });
+    return res.state !== "failed";
   }
 
   findAndUpdateMessage(res: RequestState<PrivateMessageResponse>) {

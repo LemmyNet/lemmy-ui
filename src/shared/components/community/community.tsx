@@ -815,6 +815,9 @@ export class Community extends Component<CommunityRouteProps, State> {
     const createCommentRes = await HttpService.client.createComment(form);
     this.createAndUpdateComments(createCommentRes);
 
+    if (createCommentRes.state === "failed") {
+      toast(I18NextService.i18n.t(createCommentRes.err.message), "danger");
+    }
     return createCommentRes;
   }
 
@@ -822,6 +825,9 @@ export class Community extends Component<CommunityRouteProps, State> {
     const editCommentRes = await HttpService.client.editComment(form);
     this.findAndUpdateCommentEdit(editCommentRes);
 
+    if (editCommentRes.state === "failed") {
+      toast(I18NextService.i18n.t(editCommentRes.err.message), "danger");
+    }
     return editCommentRes;
   }
 

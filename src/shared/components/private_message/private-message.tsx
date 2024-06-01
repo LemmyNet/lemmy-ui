@@ -32,8 +32,8 @@ interface PrivateMessageProps {
   onDelete(form: DeletePrivateMessage): void;
   onMarkRead(form: MarkPrivateMessageAsRead): void;
   onReport(form: CreatePrivateMessageReport): void;
-  onCreate(form: CreatePrivateMessage): void;
-  onEdit(form: EditPrivateMessage): void;
+  onCreate(form: CreatePrivateMessage): Promise<boolean>;
+  onEdit(form: EditPrivateMessage): Promise<boolean>;
 }
 
 @tippyMixin

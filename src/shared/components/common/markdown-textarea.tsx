@@ -48,7 +48,7 @@ interface MarkdownTextAreaProps {
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): void;
   onReplyCancel?(): void;
-  onSubmit?(content: string, languageId?: number): void;
+  onSubmit?(content: string, languageId?: number): Promise<boolean>;
   allLanguages: Language[]; // TODO should probably be nullable
   siteLanguages: number[]; // TODO same
 }
@@ -553,11 +553,15 @@ export class MarkdownTextArea extends Component<
     this.setState({ languageId: val[0] });
   }
 
-  handleSubmit(i: MarkdownTextArea, event: any) {
+  async handleSubmit(i: MarkdownTextArea, event: any) {
     event.preventDefault();
     if (i.state.content) {
       i.setState({ loading: true, submitted: true });
-      i.props.onSubmit?.(i.state.content, i.state.languageId);
+      const success = await i.props.onSubmit?.(
+        i.state.content,
+        i.state.languageId,
+      );
+      i.setState({ loading: false, submitted: success ?? true });
     }
   }
 

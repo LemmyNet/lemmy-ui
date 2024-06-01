@@ -19,8 +19,8 @@ interface PrivateMessageFormProps {
   privateMessageView?: PrivateMessageView; // If a pm is given, that means this is an edit
   replyType?: boolean;
   onCancel?(): any;
-  onCreate?(form: CreatePrivateMessage): void;
-  onEdit?(form: EditPrivateMessage): void;
+  onCreate?(form: CreatePrivateMessage): Promise<boolean>;
+  onEdit?(form: EditPrivateMessage): Promise<boolean>;
 }
 
 interface PrivateMessageFormState {
@@ -140,21 +140,23 @@ export class PrivateMessageForm extends Component<
     );
   }
 
-  handlePrivateMessageSubmit() {
+  async handlePrivateMessageSubmit(): Promise<boolean> {
     this.setState({ loading: true, submitted: true });
     const pm = this.props.privateMessageView;
     const content = this.state.content ?? "";
+    let success: boolean | undefined;
     if (pm) {
-      this.props.onEdit?.({
+      success = await this.props.onEdit?.({
         private_message_id: pm.private_message.id,
         content,
       });
     } else {
-      this.props.onCreate?.({
+      success = await this.props.onCreate?.({
         content,
         recipient_id: this.props.recipient.id,
       });
     }
+    return success ?? true;
   }
 
   handleContentChange(val: string) {

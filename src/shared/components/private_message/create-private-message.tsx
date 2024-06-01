@@ -168,7 +168,9 @@ export class CreatePrivateMessage extends Component<
     );
   }
 
-  async handlePrivateMessageCreate(form: CreatePrivateMessageI) {
+  async handlePrivateMessageCreate(
+    form: CreatePrivateMessageI,
+  ): Promise<boolean> {
     const res = await HttpService.client.createPrivateMessage(form);
 
     if (res.state === "success") {
@@ -177,5 +179,6 @@ export class CreatePrivateMessage extends Component<
       // Navigate to the front
       this.context.router.history.push("/");
     }
+    return res.state !== "failed";
   }
 }
