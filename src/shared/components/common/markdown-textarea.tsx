@@ -127,8 +127,8 @@ export class MarkdownTextArea extends Component<
           message={I18NextService.i18n.t("block_leaving")}
           when={
             !this.props.hideNavigationWarnings &&
-            !!this.state.content &&
-            !this.state.submitted
+            ((!!this.state.content && !this.state.submitted) ||
+              this.state.loading)
           }
         />
         <div className="mb-3 row">
