@@ -169,10 +169,10 @@ importers:
         version: 2.13.0
       sass:
         specifier: ^1.77.2
-        version: 1.77.2
+        version: 1.77.4
       sass-loader:
         specifier: ^14.2.1
-        version: 14.2.1(sass@1.77.2)(webpack@5.91.0(webpack-cli@5.1.4))
+        version: 14.2.1(sass@1.77.4)(webpack@5.91.0(webpack-cli@5.1.4))
       serialize-javascript:
         specifier: ^6.0.2
         version: 6.0.2
@@ -3928,8 +3928,8 @@ packages:
       webpack:
         optional: true
 
-  sass@1.77.2:
-    resolution: {integrity: sha512-eb4GZt1C3avsX3heBNlrc7I09nyT00IUuo4eFhAbeXWU2fvA7oXI53SxODVAA+zgZCk9aunAZgO+losjR3fAwA==}
+  sass@1.77.4:
+    resolution: {integrity: sha512-vcF3Ckow6g939GMA4PeU7b2K/9FALXk2KF9J87txdHzXbUF9XRQRwSxcAs/fGaTnJeBFd7UoV22j3lzMLdM0Pw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -8373,14 +8373,14 @@ snapshots:
       parse-srcset: 1.0.2
       postcss: 8.4.38
 
-  sass-loader@14.2.1(sass@1.77.2)(webpack@5.91.0(webpack-cli@5.1.4)):
+  sass-loader@14.2.1(sass@1.77.4)(webpack@5.91.0(webpack-cli@5.1.4)):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
-      sass: 1.77.2
+      sass: 1.77.4
       webpack: 5.91.0(webpack-cli@5.1.4)
 
-  sass@1.77.2:
+  sass@1.77.4:
     dependencies:
       chokidar: 3.6.0
       immutable: 4.3.6
