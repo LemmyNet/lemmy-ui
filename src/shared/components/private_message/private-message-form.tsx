@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { Component, InfernoNode } from "inferno";
+import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Prompt } from "inferno-router";
 import {
@@ -49,14 +49,6 @@ export class PrivateMessageForm extends Component<
     this.handleContentChange = this.handleContentChange.bind(this);
     this.handlePrivateMessageSubmit =
       this.handlePrivateMessageSubmit.bind(this);
-  }
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageFormProps>,
-  ): void {
-    if (this.props !== nextProps) {
-      this.setState({ loading: false, content: undefined, previewMode: false });
-    }
   }
 
   render() {

@@ -991,6 +991,9 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   async handleEditMessage(form: EditPrivateMessage): Promise<boolean> {
     const res = await HttpService.client.editPrivateMessage(form);
     this.findAndUpdateMessage(res);
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
+    }
     return res.state !== "failed";
   }
 
@@ -1019,6 +1022,9 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
       return s;
     });
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
+    }
     return res.state !== "failed";
   }
 
@@ -1088,6 +1094,8 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   ) {
     if (res.state === "success") {
       toast(I18NextService.i18n.t("report_created"));
+    } else if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
     }
   }
 

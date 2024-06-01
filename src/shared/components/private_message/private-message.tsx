@@ -1,4 +1,4 @@
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, linkEvent } from "inferno";
 import {
   CreatePrivateMessage,
   CreatePrivateMessageReport,
@@ -56,6 +56,8 @@ export class PrivateMessage extends Component<
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
     this.handleReportSubmit = this.handleReportSubmit.bind(this);
     this.hideReportDialog = this.hideReportDialog.bind(this);
+    this.handleCreate = this.handleCreate.bind(this);
+    this.handleEdit = this.handleEdit.bind(this);
   }
 
   get mine(): boolean {
@@ -63,22 +65,6 @@ export class PrivateMessage extends Component<
       UserService.Instance.myUserInfo?.local_user_view.person.id ===
       this.props.private_message_view.creator.id
     );
-  }
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>,
-  ): void {
-    if (this.props !== nextProps) {
-      this.setState({
-        showReply: false,
-        showEdit: false,
-        collapsed: false,
-        viewSource: false,
-        showReportDialog: false,
-        deleteLoading: false,
-        readLoading: false,
-      });
-    }
   }
 
   render() {
@@ -126,7 +112,7 @@ export class PrivateMessage extends Component<
             <PrivateMessageForm
               recipient={otherPerson}
               privateMessageView={message_view}
-              onEdit={this.props.onEdit}
+              onEdit={this.handleEdit}
               onCancel={this.handleReplyCancel}
             />
           )}
@@ -265,7 +251,7 @@ export class PrivateMessage extends Component<
               <PrivateMessageForm
                 replyType={true}
                 recipient={otherPerson}
-                onCreate={this.props.onCreate}
+                onCreate={this.handleCreate}
                 onCancel={this.handleReplyCancel}
               />
             </div>
@@ -304,7 +290,6 @@ export class PrivateMessage extends Component<
 
   handleEditClick(i: PrivateMessage) {
     i.setState({ showEdit: true });
-    i.setState(i.state);
   }
 
   handleDeleteClick(i: PrivateMessage) {
@@ -317,6 +302,22 @@ export class PrivateMessage extends Component<
 
   handleReplyCancel() {
     this.setState({ showReply: false, showEdit: false });
+  }
+
+  async handleCreate(form: CreatePrivateMessage): Promise<boolean> {
+    const success = await this.props.onCreate(form);
+    if (success) {
+      this.setState({ showReply: false });
+    }
+    return success;
+  }
+
+  async handleEdit(form: EditPrivateMessage): Promise<boolean> {
+    const success = await this.props.onEdit(form);
+    if (success) {
+      this.setState({ showEdit: false });
+    }
+    return success;
   }
 
   handleMarkRead(i: PrivateMessage) {
