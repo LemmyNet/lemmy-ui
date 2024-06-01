@@ -19,8 +19,14 @@ interface PrivateMessageFormProps {
   privateMessageView?: PrivateMessageView; // If a pm is given, that means this is an edit
   replyType?: boolean;
   onCancel?(): any;
-  onCreate?(form: CreatePrivateMessage): Promise<boolean>;
-  onEdit?(form: EditPrivateMessage): Promise<boolean>;
+  onCreate?(
+    form: CreatePrivateMessage,
+    bypassNavWarning: () => void,
+  ): Promise<boolean>;
+  onEdit?(
+    form: EditPrivateMessage,
+    bypassNavWarning: () => void,
+  ): Promise<boolean>;
 }
 
 interface PrivateMessageFormState {
@@ -28,6 +34,7 @@ interface PrivateMessageFormState {
   loading: boolean;
   previewMode: boolean;
   submitted: boolean;
+  bypassNavWarning?: boolean;
 }
 
 export class PrivateMessageForm extends Component<
@@ -57,7 +64,9 @@ export class PrivateMessageForm extends Component<
         <Prompt
           message={I18NextService.i18n.t("block_leaving")}
           when={
-            !this.state.loading && !!this.state.content && !this.state.submitted
+            !this.state.bypassNavWarning &&
+            ((!!this.state.content && !this.state.submitted) ||
+              this.state.loading)
           }
         />
         {!this.props.privateMessageView && (
@@ -138,16 +147,27 @@ export class PrivateMessageForm extends Component<
     const content = this.state.content ?? "";
     let success: boolean | undefined;
     if (pm) {
-      success = await this.props.onEdit?.({
-        private_message_id: pm.private_message.id,
-        content,
-      });
+      success = await this.props.onEdit?.(
+        {
+          private_message_id: pm.private_message.id,
+          content,
+        },
+        () => {
+          this.setState({ bypassNavWarning: true });
+        },
+      );
     } else {
-      success = await this.props.onCreate?.({
-        content,
-        recipient_id: this.props.recipient.id,
-      });
+      success = await this.props.onCreate?.(
+        {
+          content,
+          recipient_id: this.props.recipient.id,
+        },
+        () => {
+          this.setState({ bypassNavWarning: true });
+        },
+      );
     }
+    this.setState({ loading: false, submitted: success ?? true });
     return success ?? true;
   }
 

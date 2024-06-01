@@ -170,12 +170,14 @@ export class CreatePrivateMessage extends Component<
 
   async handlePrivateMessageCreate(
     form: CreatePrivateMessageI,
+    bypassNavWarning: () => void,
   ): Promise<boolean> {
     const res = await HttpService.client.createPrivateMessage(form);
 
     if (res.state === "success") {
       toast(I18NextService.i18n.t("message_sent"));
 
+      bypassNavWarning();
       // Navigate to the front
       this.context.router.history.push("/");
     } else if (res.state === "failed") {
