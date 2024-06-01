@@ -347,6 +347,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           nextProps.initialCommunities?.map(communityToChoice) ?? [],
       });
     }
+    if (this.props.loading && !nextProps.loading) {
+      this.setState({ submitted: false });
+    }
   }
 
   render() {
