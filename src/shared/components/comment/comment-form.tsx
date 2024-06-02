@@ -94,31 +94,33 @@ export class CommentForm extends Component<CommentFormProps, any> {
     language_id?: number,
   ): Promise<boolean> {
     const { node, onUpsertComment, edit } = this.props;
+    let response: RequestState<CommentResponse>;
+
     if (typeof node === "number") {
       const post_id = node;
-      return onUpsertComment({
+      response = await onUpsertComment({
         content,
         post_id,
         language_id,
-      }).then(r => r.state !== "failed");
+      });
+    } else if (edit) {
+      const comment_id = node.comment_view.comment.id;
+      response = await onUpsertComment({
+        content,
+        comment_id,
+        language_id,
+      });
     } else {
-      if (edit) {
-        const comment_id = node.comment_view.comment.id;
-        return onUpsertComment({
-          content,
-          comment_id,
-          language_id,
-        }).then(r => r.state !== "failed");
-      } else {
-        const post_id = node.comment_view.post.id;
-        const parent_id = node.comment_view.comment.id;
-        return onUpsertComment({
-          content,
-          parent_id,
-          post_id,
-          language_id,
-        }).then(r => r.state !== "failed");
-      }
+      const post_id = node.comment_view.post.id;
+      const parent_id = node.comment_view.comment.id;
+      response = await onUpsertComment({
+        content,
+        parent_id,
+        post_id,
+        language_id,
+      });
     }
+
+    return response.state !== "failed";
   }
 }
