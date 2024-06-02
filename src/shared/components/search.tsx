@@ -824,7 +824,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   // All of these are unused, since its viewonly
-                  finished={new Map()}
                   onSaveComment={async () => {}}
                   onBlockPerson={async () => {}}
                   onDeleteComment={async () => {}}
@@ -886,7 +885,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
         // All of these are unused, since its viewonly
-        finished={new Map()}
         onSaveComment={async () => {}}
         onBlockPerson={async () => {}}
         onDeleteComment={async () => {}}

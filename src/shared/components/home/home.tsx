@@ -5,7 +5,6 @@ import {
   editWith,
   enableDownvotes,
   enableNsfw,
-  getCommentParentId,
   getDataTypeString,
   myAuth,
   postToCommentSortType,
@@ -37,7 +36,6 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
-  CommentId,
   CommentReplyResponse,
   CommentResponse,
   CreateComment,
@@ -125,7 +123,6 @@ interface HomeState {
   subscribedCollapsed: boolean;
   tagline?: string;
   siteRes: GetSiteResponse;
-  finished: Map<CommentId, boolean | undefined>;
   isIsomorphic: boolean;
 }
 
@@ -274,7 +271,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     showTrendingMobile: false,
     showSidebarMobile: false,
     subscribedCollapsed: false,
-    finished: new Map(),
     isIsomorphic: false,
   };
 
@@ -770,7 +766,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <CommentNodes
               nodes={commentsToFlatNodes(comments)}
               viewType={CommentViewType.Flat}
-              finished={this.state.finished}
               isTopLevel
               showCommunity
               showContext
@@ -973,6 +968,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const createCommentRes = await HttpService.client.createComment(form);
     this.createAndUpdateComments(createCommentRes);
 
+    if (createCommentRes.state === "failed") {
+      toast(I18NextService.i18n.t(createCommentRes.err.message), "danger");
+    }
     return createCommentRes;
   }
 
@@ -980,6 +978,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const editCommentRes = await HttpService.client.editComment(form);
     this.findAndUpdateCommentEdit(editCommentRes);
 
+    if (editCommentRes.state === "failed") {
+      toast(I18NextService.i18n.t(editCommentRes.err.message), "danger");
+    }
     return editCommentRes;
   }
 
@@ -1168,7 +1169,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           res.data.comment_view,
           s.commentsRes.data.comments,
         );
-        s.finished.set(res.data.comment_view.comment.id, true);
       }
       return s;
     });
@@ -1190,12 +1190,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments.unshift(res.data.comment_view);
-
-        // Set finished for the parent
-        s.finished.set(
-          getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true,
-        );
       }
       return s;
     });

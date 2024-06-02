@@ -120,8 +120,8 @@ interface PostState {
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   maxCommentsShown: number;
-  finished: Map<CommentId, boolean | undefined>;
   isIsomorphic: boolean;
+  lastCreatedCommentId?: CommentId;
 }
 
 const defaultCommentSort: CommentSortType = "Hot";
@@ -219,7 +219,6 @@ export class Post extends Component<PostRouteProps, PostState> {
     siteRes: this.isoData.site_res,
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
-    finished: new Map(),
     isIsomorphic: false,
   };
 
@@ -236,6 +235,8 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleFollow = this.handleFollow.bind(this);
     this.handleModRemoveCommunity = this.handleModRemoveCommunity.bind(this);
     this.handleCreateComment = this.handleCreateComment.bind(this);
+    this.handleCreateToplevelComment =
+      this.handleCreateToplevelComment.bind(this);
     this.handleEditComment = this.handleEditComment.bind(this);
     this.handleSaveComment = this.handleSaveComment.bind(this);
     this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
@@ -585,7 +586,8 @@ export class Post extends Component<PostRouteProps, PostState> {
               ) && (
                 <CommentForm
                   key={
-                    this.context.router.history.location.key
+                    this.context.router.history.location.key +
+                    this.state.lastCreatedCommentId
                     // reset on new location, otherwise <Prompt /> stops working
                   }
                   node={res.post_view.post.id}
@@ -593,8 +595,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   containerClass="post-comment-container"
-                  onUpsertComment={this.handleCreateComment}
-                  finished={this.state.finished.get(0)}
+                  onUpsertComment={this.handleCreateToplevelComment}
                 />
               )}
               <div className="d-block d-md-none">
@@ -774,7 +775,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             enableDownvotes={enableDownvotes(siteRes)}
             voteDisplayMode={voteDisplayMode(siteRes)}
             showContext
-            finished={this.state.finished}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             onSaveComment={this.handleSaveComment}
@@ -885,7 +885,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             admins={siteRes.admins}
             enableDownvotes={enableDownvotes(siteRes)}
             voteDisplayMode={voteDisplayMode(siteRes)}
-            finished={this.state.finished}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             onSaveComment={this.handleSaveComment}
@@ -1060,6 +1059,14 @@ export class Post extends Component<PostRouteProps, PostState> {
     const res = await HttpService.client.editCommunity(form);
     this.updateCommunity(res);
 
+    return res;
+  }
+
+  async handleCreateToplevelComment(form: CreateComment) {
+    const res = await this.handleCreateComment(form);
+    if (res.state === "success") {
+      this.setState({ lastCreatedCommentId: res.data.comment_view.comment.id });
+    }
     return res;
   }
 
@@ -1380,12 +1387,12 @@ export class Post extends Component<PostRouteProps, PostState> {
         );
 
         comments.splice(foundCommentParentIndex + 1, 0, newComment);
-
-        // Set finished for the parent
-        s.finished.set(newCommentParentId ?? 0, true);
       }
       return s;
     });
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
+    }
   }
 
   findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
@@ -1395,13 +1402,14 @@ export class Post extends Component<PostRouteProps, PostState> {
           res.data.comment_view,
           s.commentsRes.data.comments,
         );
-        s.finished.set(res.data.comment_view.comment.id, true);
       }
       return s;
     });
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
+    }
   }
 
-  // No need to set finished on a comment vote, save, etc
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
@@ -1412,6 +1420,9 @@ export class Post extends Component<PostRouteProps, PostState> {
       }
       return s;
     });
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
+    }
   }
 
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
@@ -1424,6 +1435,9 @@ export class Post extends Component<PostRouteProps, PostState> {
       }
       return s;
     });
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.message), "danger");
+    }
   }
 
   updateModerators(res: RequestState<AddModToCommunityResponse>) {

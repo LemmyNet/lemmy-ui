@@ -4,7 +4,6 @@ import {
   editWith,
   enableDownvotes,
   enableNsfw,
-  getCommentParentId,
   setIsoData,
   updatePersonBlock,
   voteDisplayMode,
@@ -38,7 +37,6 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
-  CommentId,
   CommentReplyResponse,
   CommentResponse,
   Community,
@@ -120,7 +118,6 @@ interface ProfileState {
   showBanDialog: boolean;
   removeData: boolean;
   siteRes: GetSiteResponse;
-  finished: Map<CommentId, boolean | undefined>;
   isIsomorphic: boolean;
 }
 
@@ -206,7 +203,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     siteRes: this.isoData.site_res,
     showBanDialog: false,
     removeData: false,
-    finished: new Map(),
     isIsomorphic: false,
   };
 
@@ -491,7 +487,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     sort={sort}
                     page={page}
                     limit={fetchLimit}
-                    finished={this.state.finished}
                     enableDownvotes={enableDownvotes(siteRes)}
                     voteDisplayMode={voteDisplayMode(siteRes)}
                     enableNsfw={enableNsfw(siteRes)}
@@ -1178,7 +1173,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           res.data.comment_view,
           s.personRes.data.comments,
         );
-        s.finished.set(res.data.comment_view.comment.id, true);
       }
       return s;
     });
@@ -1200,11 +1194,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.setState(s => {
       if (s.personRes.state === "success" && res.state === "success") {
         s.personRes.data.comments.unshift(res.data.comment_view);
-        // Set finished for the parent
-        s.finished.set(
-          getCommentParentId(res.data.comment_view.comment) ?? 0,
-          true,
-        );
       }
       return s;
     });

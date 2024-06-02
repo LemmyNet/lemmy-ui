@@ -7,7 +7,6 @@ import {
   BanFromCommunity,
   BanPerson,
   BlockPerson,
-  CommentId,
   CommentResponse,
   CommunityModeratorView,
   CreateComment,
@@ -52,7 +51,6 @@ interface CommentNodesProps {
   hideImages?: boolean;
   isChild?: boolean;
   depth?: number;
-  finished: Map<CommentId, boolean | undefined>;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
@@ -124,7 +122,6 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               hideImages={this.props.hideImages}
               onCommentReplyRead={this.props.onCommentReplyRead}
               onPersonMentionRead={this.props.onPersonMentionRead}
-              finished={this.props.finished}
               onCreateComment={this.props.onCreateComment}
               onEditComment={this.props.onEditComment}
               onCommentVote={this.props.onCommentVote}

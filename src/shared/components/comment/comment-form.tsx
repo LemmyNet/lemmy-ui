@@ -2,18 +2,23 @@ import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { CreateComment, EditComment, Language } from "lemmy-js-client";
+import {
+  CommentResponse,
+  CreateComment,
+  EditComment,
+  Language,
+} from "lemmy-js-client";
 import { CommentNodeI } from "../../interfaces";
 import { I18NextService, UserService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
+import { RequestState } from "../../services/HttpService";
 
 interface CommentFormProps {
   /**
    * Can either be the parent, or the editable comment. The right side is a postId.
    */
   node: CommentNodeI | number;
-  finished?: boolean;
   edit?: boolean;
   disabled?: boolean;
   focus?: boolean;
@@ -21,7 +26,9 @@ interface CommentFormProps {
   allLanguages: Language[];
   siteLanguages: number[];
   containerClass?: string;
-  onUpsertComment(form: EditComment | CreateComment): void;
+  onUpsertComment(
+    form: EditComment | CreateComment,
+  ): Promise<RequestState<CommentResponse>>;
 }
 
 export class CommentForm extends Component<CommentFormProps, any> {
@@ -50,7 +57,6 @@ export class CommentForm extends Component<CommentFormProps, any> {
             initialContent={initialContent}
             showLanguage
             buttonTitle={this.buttonTitle}
-            finished={this.props.finished}
             replyType={typeof this.props.node !== "number"}
             focus={this.props.focus}
             disabled={this.props.disabled}
@@ -83,33 +89,38 @@ export class CommentForm extends Component<CommentFormProps, any> {
         : capitalizeFirstLetter(I18NextService.i18n.t("reply"));
   }
 
-  handleCommentSubmit(content: string, language_id?: number) {
+  async handleCommentSubmit(
+    content: string,
+    language_id?: number,
+  ): Promise<boolean> {
     const { node, onUpsertComment, edit } = this.props;
+    let response: RequestState<CommentResponse>;
+
     if (typeof node === "number") {
       const post_id = node;
-      onUpsertComment({
+      response = await onUpsertComment({
         content,
         post_id,
         language_id,
       });
+    } else if (edit) {
+      const comment_id = node.comment_view.comment.id;
+      response = await onUpsertComment({
+        content,
+        comment_id,
+        language_id,
+      });
     } else {
-      if (edit) {
-        const comment_id = node.comment_view.comment.id;
-        onUpsertComment({
-          content,
-          comment_id,
-          language_id,
-        });
-      } else {
-        const post_id = node.comment_view.post.id;
-        const parent_id = node.comment_view.comment.id;
-        this.props.onUpsertComment({
-          content,
-          parent_id,
-          post_id,
-          language_id,
-        });
-      }
+      const post_id = node.comment_view.post.id;
+      const parent_id = node.comment_view.comment.id;
+      response = await onUpsertComment({
+        content,
+        parent_id,
+        post_id,
+        language_id,
+      });
     }
+
+    return response.state !== "failed";
   }
 }

@@ -2,7 +2,7 @@ import { colorList, getCommentParentId } from "@utils/app";
 import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
 import classNames from "classnames";
 import { isBefore, parseISO, subMinutes } from "date-fns";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
   AddAdmin,
@@ -33,7 +33,6 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
-import deepEqual from "lodash.isequal";
 import { commentTreeMaxDepth } from "../../config";
 import {
   CommentNodeI,
@@ -87,7 +86,6 @@ interface CommentNodeProps {
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages?: boolean;
-  finished: Map<CommentId, boolean | undefined>;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
@@ -139,6 +137,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     super(props, context);
 
     this.handleReplyCancel = this.handleReplyCancel.bind(this);
+    this.handleCreateComment = this.handleCreateComment.bind(this);
+    this.handleEditComment = this.handleEditComment.bind(this);
     this.handleReportComment = this.handleReportComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
     this.handleReplyClick = this.handleReplyClick.bind(this);
@@ -162,22 +162,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get commentId(): CommentId {
     return this.commentView.comment.id;
-  }
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>,
-  ): void {
-    if (!deepEqual(this.props, nextProps)) {
-      this.setState({
-        showEdit: false,
-        showAdvanced: false,
-        createOrEditCommentLoading: false,
-        upvoteLoading: false,
-        downvoteLoading: false,
-        readLoading: false,
-        fetchChildrenLoading: false,
-      });
-    }
   }
 
   render() {
@@ -283,12 +267,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 edit
                 onReplyCancel={this.handleReplyCancel}
                 disabled={this.props.locked}
-                finished={this.props.finished.get(id)}
                 focus
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
                 containerClass="comment-comment-container"
-                onUpsertComment={this.props.onEditComment}
+                onUpsertComment={this.handleEditComment}
               />
             )}
             {!this.state.showEdit && !this.state.collapsed && (
@@ -425,12 +408,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             node={node}
             onReplyCancel={this.handleReplyCancel}
             disabled={this.props.locked}
-            finished={this.props.finished.get(id)}
             focus
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             containerClass="comment-comment-container"
-            onUpsertComment={this.props.onCreateComment}
+            onUpsertComment={this.handleCreateComment}
           />
         )}
         {!this.state.collapsed && node.children.length > 0 && (
@@ -447,7 +429,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             hideImages={this.props.hideImages}
             isChild={!this.props.isTopLevel}
             depth={this.props.node.depth + 1}
-            finished={this.props.finished}
             onCommentReplyRead={this.props.onCommentReplyRead}
             onPersonMentionRead={this.props.onPersonMentionRead}
             onCreateComment={this.props.onCreateComment}
@@ -557,6 +538,26 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   handleReplyCancel() {
     this.setState({ showReply: false, showEdit: false });
+  }
+
+  async handleCreateComment(
+    form: CreateComment,
+  ): Promise<RequestState<CommentResponse>> {
+    const res = await this.props.onCreateComment(form);
+    if (res.state !== "failed") {
+      this.setState({ showReply: false, showEdit: false });
+    }
+    return res;
+  }
+
+  async handleEditComment(
+    form: EditComment,
+  ): Promise<RequestState<CommentResponse>> {
+    const res = await this.props.onEditComment(form);
+    if (res.state !== "failed") {
+      this.setState({ showReply: false, showEdit: false });
+    }
+    return res;
   }
 
   isPersonMentionType(item: CommentNodeView): item is PersonMentionView {

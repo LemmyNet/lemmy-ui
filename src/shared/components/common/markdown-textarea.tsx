@@ -3,7 +3,7 @@ import { numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
 import {
@@ -41,7 +41,6 @@ interface MarkdownTextAreaProps {
   replyType?: boolean;
   focus?: boolean;
   disabled?: boolean;
-  finished?: boolean;
   /**
    * Whether to show the language selector
    */
@@ -49,7 +48,7 @@ interface MarkdownTextAreaProps {
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): void;
   onReplyCancel?(): void;
-  onSubmit?(content: string, languageId?: number): void;
+  onSubmit?(content: string, languageId?: number): Promise<boolean>;
   allLanguages: Language[]; // TODO should probably be nullable
   siteLanguages: number[]; // TODO same
 }
@@ -115,27 +114,6 @@ export class MarkdownTextArea extends Component<
     }
   }
 
-  componentWillReceiveProps(
-    nextProps: MarkdownTextAreaProps & { children?: InfernoNode },
-  ) {
-    if (nextProps.finished) {
-      this.setState({
-        previewMode: false,
-        imageUploadStatus: undefined,
-        loading: false,
-        content: undefined,
-      });
-      if (this.props.replyType) {
-        this.props.onReplyCancel?.();
-      }
-
-      const textarea: any = document.getElementById(this.id);
-      const form: any = document.getElementById(this.formId);
-      form.reset();
-      setTimeout(() => autosize.update(textarea), 10);
-    }
-  }
-
   render() {
     const languageId = this.state.languageId;
 
@@ -149,8 +127,8 @@ export class MarkdownTextArea extends Component<
           message={I18NextService.i18n.t("block_leaving")}
           when={
             !this.props.hideNavigationWarnings &&
-            !!this.state.content &&
-            !this.state.submitted
+            ((!!this.state.content && !this.state.submitted) ||
+              this.state.loading)
           }
         />
         <div className="mb-3 row">
@@ -575,11 +553,15 @@ export class MarkdownTextArea extends Component<
     this.setState({ languageId: val[0] });
   }
 
-  handleSubmit(i: MarkdownTextArea, event: any) {
+  async handleSubmit(i: MarkdownTextArea, event: any) {
     event.preventDefault();
     if (i.state.content) {
       i.setState({ loading: true, submitted: true });
-      i.props.onSubmit?.(i.state.content, i.state.languageId);
+      const success = await i.props.onSubmit?.(
+        i.state.content,
+        i.state.languageId,
+      );
+      i.setState({ loading: false, submitted: success ?? true });
     }
   }
 

@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { Component, InfernoNode } from "inferno";
+import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Prompt } from "inferno-router";
 import {
@@ -19,8 +19,14 @@ interface PrivateMessageFormProps {
   privateMessageView?: PrivateMessageView; // If a pm is given, that means this is an edit
   replyType?: boolean;
   onCancel?(): any;
-  onCreate?(form: CreatePrivateMessage): void;
-  onEdit?(form: EditPrivateMessage): void;
+  onCreate?(
+    form: CreatePrivateMessage,
+    bypassNavWarning: () => void,
+  ): Promise<boolean>;
+  onEdit?(
+    form: EditPrivateMessage,
+    bypassNavWarning: () => void,
+  ): Promise<boolean>;
 }
 
 interface PrivateMessageFormState {
@@ -28,6 +34,7 @@ interface PrivateMessageFormState {
   loading: boolean;
   previewMode: boolean;
   submitted: boolean;
+  bypassNavWarning?: boolean;
 }
 
 export class PrivateMessageForm extends Component<
@@ -51,21 +58,15 @@ export class PrivateMessageForm extends Component<
       this.handlePrivateMessageSubmit.bind(this);
   }
 
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageFormProps>,
-  ): void {
-    if (this.props !== nextProps) {
-      this.setState({ loading: false, content: undefined, previewMode: false });
-    }
-  }
-
   render() {
     return (
       <form className="private-message-form">
         <Prompt
           message={I18NextService.i18n.t("block_leaving")}
           when={
-            !this.state.loading && !!this.state.content && !this.state.submitted
+            !this.state.bypassNavWarning &&
+            ((!!this.state.content && !this.state.submitted) ||
+              this.state.loading)
           }
         />
         {!this.props.privateMessageView && (
@@ -140,21 +141,34 @@ export class PrivateMessageForm extends Component<
     );
   }
 
-  handlePrivateMessageSubmit() {
+  async handlePrivateMessageSubmit(): Promise<boolean> {
     this.setState({ loading: true, submitted: true });
     const pm = this.props.privateMessageView;
     const content = this.state.content ?? "";
+    let success: boolean | undefined;
     if (pm) {
-      this.props.onEdit?.({
-        private_message_id: pm.private_message.id,
-        content,
-      });
+      success = await this.props.onEdit?.(
+        {
+          private_message_id: pm.private_message.id,
+          content,
+        },
+        () => {
+          this.setState({ bypassNavWarning: true });
+        },
+      );
     } else {
-      this.props.onCreate?.({
-        content,
-        recipient_id: this.props.recipient.id,
-      });
+      success = await this.props.onCreate?.(
+        {
+          content,
+          recipient_id: this.props.recipient.id,
+        },
+        () => {
+          this.setState({ bypassNavWarning: true });
+        },
+      );
     }
+    this.setState({ loading: false, submitted: success ?? true });
+    return success ?? true;
   }
 
   handleContentChange(val: string) {

@@ -27,7 +27,6 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
-import { Spinner } from "../common/icon";
 import { PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
@@ -178,39 +177,28 @@ export class CreatePost extends Component<
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        {this.state.loading ? (
-          <h5>
-            <Spinner large />
-          </h5>
-        ) : (
-          <div className="row">
-            <div
-              id="createPostForm"
-              className="col-12 col-lg-6 offset-lg-3 mb-4"
-            >
-              <h1 className="h4 mb-4">
-                {I18NextService.i18n.t("create_post")}
-              </h1>
-              <PostForm
-                onCreate={this.handlePostCreate}
-                params={locationState}
-                enableDownvotes={enableDownvotes(siteRes)}
-                voteDisplayMode={voteDisplayMode(siteRes)}
-                enableNsfw={enableNsfw(siteRes)}
-                allLanguages={siteRes.all_languages}
-                siteLanguages={siteRes.discussion_languages}
-                selectedCommunityChoice={selectedCommunityChoice}
-                onSelectCommunity={this.handleSelectedCommunityChange}
-                initialCommunities={
-                  this.state.initialCommunitiesRes.state === "success"
-                    ? this.state.initialCommunitiesRes.data.communities
-                    : []
-                }
-                loading={loading}
-              />
-            </div>
+        <div className="row">
+          <div id="createPostForm" className="col-12 col-lg-6 offset-lg-3 mb-4">
+            <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>
+            <PostForm
+              onCreate={this.handlePostCreate}
+              params={locationState}
+              enableDownvotes={enableDownvotes(siteRes)}
+              voteDisplayMode={voteDisplayMode(siteRes)}
+              enableNsfw={enableNsfw(siteRes)}
+              allLanguages={siteRes.all_languages}
+              siteLanguages={siteRes.discussion_languages}
+              selectedCommunityChoice={selectedCommunityChoice}
+              onSelectCommunity={this.handleSelectedCommunityChange}
+              initialCommunities={
+                this.state.initialCommunitiesRes.state === "success"
+                  ? this.state.initialCommunitiesRes.data.communities
+                  : []
+              }
+              loading={loading}
+            />
           </div>
-        )}
+        </div>
       </div>
     );
   }
@@ -242,11 +230,13 @@ export class CreatePost extends Component<
     });
   }
 
-  async handlePostCreate(form: CreatePostI) {
+  async handlePostCreate(form: CreatePostI, bypassNavWarning: () => void) {
+    this.setState({ loading: true });
     const res = await HttpService.client.createPost(form);
 
     if (res.state === "success") {
       const postId = res.data.post_view.post.id;
+      bypassNavWarning();
       this.props.history.replace(`/post/${postId}`);
     } else if (res.state === "failed") {
       this.setState({

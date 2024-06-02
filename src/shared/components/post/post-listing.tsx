@@ -842,13 +842,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   // The actual editing is done in the receive for post
   async handleEditPost(form: EditPost) {
-    this.setState({ showEdit: false, loading: true });
+    this.setState({ loading: true });
     const res = await this.props.onPostEdit(form);
 
     if (res.state === "success") {
       toast(I18NextService.i18n.t("edited_post"));
+      this.setState({ loading: false, showEdit: false });
     } else if (res.state === "failed") {
       toast(I18NextService.i18n.t(res.err.message), "danger");
+      this.setState({ loading: false });
     }
   }
 
