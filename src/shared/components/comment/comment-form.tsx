@@ -12,7 +12,7 @@ import { CommentNodeI } from "../../interfaces";
 import { I18NextService, UserService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import { RequestState } from "shared/services/HttpService";
+import { RequestState } from "../../services/HttpService";
 
 interface CommentFormProps {
   /**

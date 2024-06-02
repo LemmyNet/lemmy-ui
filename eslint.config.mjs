@@ -79,6 +79,17 @@ export default [
       "unicorn/filename-case": 0,
       "jsx-a11y/media-has-caption": 0,
       "jsx-a11y/label-has-associated-control": 0,
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["assets/*", "client/*", "server/*", "shared/*"],
+              message: "Use relative import instead.",
+            },
+          ],
+        },
+      ],
     },
   },
 ];
