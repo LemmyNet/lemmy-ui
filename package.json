@@ -1,7 +1,7 @@
 {
   "name": "lemmy-ui",
   "description": "An isomorphic UI for lemmy",
-  "version": "0.19.4-rc.7",
+  "version": "0.19.4-rc.8",
   "author": "Dessalines <tyhou13@gmx.com>",
   "license": "AGPL-3.0",
   "scripts": {
