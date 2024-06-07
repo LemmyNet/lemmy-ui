@@ -8,7 +8,7 @@ import {
   validURL,
 } from "@utils/helpers";
 import { isImage } from "@utils/media";
-import { Choice } from "@utils/types";
+import { Choice, StringBoolean } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, createRef, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
@@ -63,6 +63,13 @@ interface PostFormProps {
   onSelectCommunity?: (choice: Choice) => void;
   initialCommunities?: CommunityView[];
   loading: boolean;
+  onTitleBlur?: (title: string) => void;
+  onUrlBlur?: (url: string) => void;
+  onBodyBlur?: (body: string) => void;
+  onLanguageChange?: (languageId?: number) => void;
+  onNsfwChange?: (nsfw: StringBoolean) => void;
+  onThumbnailUrlBlur?: (thumbnailUrl: string) => void;
+  onAltTextBlur?: (altText: string) => void;
 }
 
 interface PostFormState {
@@ -167,8 +174,18 @@ function handlePostUrlChange(i: PostForm, event: any) {
   i.fetchPageTitle();
 }
 
+function handlePostUrlBlur(i: PostForm, event: any) {
+  i.setState({ bypassNavWarning: true });
+  i.props.onUrlBlur?.(event.target.value);
+  i.setState({ bypassNavWarning: false });
+}
+
 function handlePostNsfwChange(i: PostForm, event: any) {
   i.setState(s => ((s.form.nsfw = event.target.checked), s));
+
+  i.setState({ bypassNavWarning: true });
+  i.props.onNsfwChange?.(event.target.checked ? "true" : "false");
+  i.setState({ bypassNavWarning: false });
 }
 
 function handleHoneyPotChange(i: PostForm, event: any) {
@@ -179,8 +196,20 @@ function handleAltTextChange(i: PostForm, event: any) {
   i.setState(s => ((s.form.alt_text = event.target.value), s));
 }
 
+function handleAltTextBlur(i: PostForm, event: any) {
+  i.setState({ bypassNavWarning: true });
+  i.props.onAltTextBlur?.(event.target.value);
+  i.setState({ bypassNavWarning: false });
+}
+
 function handleCustomThumbnailChange(i: PostForm, event: any) {
   i.setState(s => ((s.form.custom_thumbnail = event.target.value), s));
+}
+
+function handleCustomThumbnailBlur(i: PostForm, event: any) {
+  i.setState({ bypassNavWarning: true });
+  i.props.onThumbnailUrlBlur?.(event.target.value);
+  i.setState({ bypassNavWarning: false });
 }
 
 function handleCancel(i: PostForm) {
@@ -206,8 +235,6 @@ function handleImageUpload(i: PostForm, event: any) {
   i.setState({ imageLoading: true });
 
   HttpService.client.uploadImage({ image: file }).then(res => {
-    console.log("pictrs upload:");
-    console.log(res);
     if (res.state === "success") {
       if (res.data.msg === "ok") {
         i.state.form.url = res.data.url;
@@ -231,6 +258,12 @@ function handleImageUpload(i: PostForm, event: any) {
 function handlePostNameChange(i: PostForm, event: any) {
   i.setState(s => ((s.form.name = event.target.value), s));
   i.fetchSimilarPosts();
+}
+
+function handlePostNameBlur(i: PostForm, event: any) {
+  i.setState({ bypassNavWarning: true });
+  i.props.onTitleBlur?.(event.target.value);
+  i.setState({ bypassNavWarning: false });
 }
 
 function handleImageDelete(i: PostForm) {
@@ -270,6 +303,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.fetchSimilarPosts = debounce(this.fetchSimilarPosts.bind(this));
     this.fetchPageTitle = debounce(this.fetchPageTitle.bind(this));
     this.handlePostBodyChange = this.handlePostBodyChange.bind(this);
+    this.handlePostBodyBlur = this.handlePostBodyBlur.bind(this);
     this.handleLanguageChange = this.handleLanguageChange.bind(this);
     this.handleCommunitySelect = this.handleCommunitySelect.bind(this);
 
@@ -393,6 +427,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               value={this.state.form.name}
               id="post-title"
               onInput={linkEvent(this, handlePostNameChange)}
+              onBlur={linkEvent(this, handlePostNameBlur)}
               className={`form-control ${
                 !validTitle(this.state.form.name) && "is-invalid"
               }`}
@@ -423,6 +458,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               className="form-control mb-3"
               value={url}
               onInput={linkEvent(this, handlePostUrlChange)}
+              onBlur={linkEvent(this, handlePostUrlBlur)}
               onPaste={linkEvent(this, handleImageUploadPaste)}
             />
             {this.renderSuggestedTitleCopy()}
@@ -538,6 +574,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 className="form-control mb-3"
                 value={this.state.form.custom_thumbnail}
                 onInput={linkEvent(this, handleCustomThumbnailChange)}
+                onBlur={linkEvent(this, handleCustomThumbnailBlur)}
               />
             </div>
           </div>
@@ -552,6 +589,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               initialContent={this.state.form.body}
               placeholder={I18NextService.i18n.t("optional")}
               onContentChange={this.handlePostBodyChange}
+              onContentBlur={this.handlePostBodyBlur}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
               hideNavigationWarnings
@@ -581,6 +619,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 id="post-alt-text"
                 value={this.state.form.alt_text}
                 onInput={linkEvent(this, handleAltTextChange)}
+                onBlur={linkEvent(this, handleAltTextBlur)}
               />
             </div>
           </div>
@@ -776,8 +815,18 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.setState(s => ((s.form.body = val), s));
   }
 
+  handlePostBodyBlur(val: string) {
+    this.setState({ bypassNavWarning: true });
+    this.props.onBodyBlur?.(val);
+    this.setState({ bypassNavWarning: false });
+  }
+
   handleLanguageChange(val: number[]) {
     this.setState(s => ((s.form.language_id = val.at(0)), s));
+
+    this.setState({ bypassNavWarning: true });
+    this.props.onLanguageChange?.(val.at(0));
+    this.setState({ bypassNavWarning: false });
   }
 
   handleCommunitySearch = debounce(async (text: string) => {
@@ -804,8 +853,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   });
 
   handleCommunitySelect(choice: Choice) {
-    if (this.props.onSelectCommunity) {
-      this.props.onSelectCommunity(choice);
-    }
+    this.setState({ bypassNavWarning: true });
+    this.props.onSelectCommunity?.(choice);
+    this.setState({ bypassNavWarning: false });
   }
 }

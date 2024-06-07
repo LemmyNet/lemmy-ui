@@ -930,7 +930,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   handleShowHiddenChange(show?: StringBoolean) {
-    console.log(`Got ${show}`);
     this.updateUrl({
       showHidden: show,
       pageCursor: undefined,

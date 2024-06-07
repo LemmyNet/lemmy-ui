@@ -47,6 +47,7 @@ interface MarkdownTextAreaProps {
   showLanguage?: boolean;
   hideNavigationWarnings?: boolean;
   onContentChange?(val: string): void;
+  onContentBlur?(val: string): void;
   onReplyCancel?(): void;
   onSubmit?(content: string, languageId?: number): Promise<boolean>;
   allLanguages: Language[]; // TODO should probably be nullable
@@ -215,6 +216,7 @@ export class MarkdownTextArea extends Component<
                   )}
                   value={this.state.content}
                   onInput={linkEvent(this, this.handleContentChange)}
+                  onBlur={linkEvent(this, this.handleContentBlur)}
                   onPaste={linkEvent(this, this.handlePaste)}
                   onKeyDown={linkEvent(this, this.handleKeyBinds)}
                   required
@@ -457,8 +459,6 @@ export class MarkdownTextArea extends Component<
 
   async uploadSingleImage(i: MarkdownTextArea, image: File) {
     const res = await HttpService.client.uploadImage({ image });
-    console.log("pictrs upload:");
-    console.log(res);
     if (res.state === "success") {
       if (res.data.msg === "ok") {
         const imageMarkdown = `![](${res.data.url})`;
@@ -494,6 +494,10 @@ export class MarkdownTextArea extends Component<
   handleContentChange(i: MarkdownTextArea, event: any) {
     i.setState({ content: event.target.value });
     i.contentChange();
+  }
+
+  handleContentBlur(i: MarkdownTextArea, event: any) {
+    i.props.onContentBlur?.(event.target.value);
   }
 
   // Keybind handler

@@ -497,8 +497,6 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     }));
 
     HttpService.client.uploadImage({ image: file }).then(res => {
-      console.log("pictrs upload:");
-      console.log(res);
       if (res.state === "success") {
         if (res.data.msg === "ok") {
           pictrsDeleteToast(file.name, res.data.delete_url as string);

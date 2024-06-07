@@ -77,8 +77,6 @@ export class ImageUploadForm extends Component<
     i.setState({ loading: true });
 
     HttpService.client.uploadImage({ image }).then(res => {
-      console.log("pictrs upload:");
-      console.log(res);
       if (res.state === "success") {
         if (res.data.msg === "ok") {
           i.props.onUpload(res.data.url as string);
