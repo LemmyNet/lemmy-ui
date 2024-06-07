@@ -12,6 +12,7 @@ import {
 } from "@utils/helpers";
 import {
   Choice,
+  CrossPostParams,
   QueryParams,
   RouteDataResponse,
   StringBoolean,
@@ -206,14 +207,19 @@ export class CreatePost extends Component<
       url,
     } = this.props;
 
+    // Only use the name, url, and body from this
+    const locationState = this.props.history.location.state as
+      | CrossPostParams
+      | undefined;
+
     const params: PostFormParams = {
-      body,
+      name: title || locationState?.name,
+      url: url || locationState?.url,
+      body: body || locationState?.body,
       community_id: communityId,
       custom_thumbnail: customThumbnailUrl,
       language_id: languageId,
-      name: title,
       nsfw: nsfw === "true",
-      url,
     };
 
     return (
