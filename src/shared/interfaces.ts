@@ -46,6 +46,11 @@ export interface PostFormParams {
   name?: string;
   url?: string;
   body?: string;
+  nsfw?: boolean;
+  language_id?: number;
+  community_id?: number;
+  custom_thumbnail?: string;
+  alt_text?: string;
 }
 
 export enum CommentViewType {

@@ -5,8 +5,17 @@ import {
   setIsoData,
   voteDisplayMode,
 } from "@utils/app";
-import { getIdFromString, getQueryParams } from "@utils/helpers";
-import { Choice, RouteDataResponse } from "@utils/types";
+import {
+  getIdFromString,
+  getQueryParams,
+  getQueryString,
+} from "@utils/helpers";
+import {
+  Choice,
+  QueryParams,
+  RouteDataResponse,
+  StringBoolean,
+} from "@utils/types";
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -36,6 +45,13 @@ import { isBrowser } from "@utils/browser";
 
 export interface CreatePostProps {
   communityId?: number;
+  url?: string;
+  title?: string;
+  body?: string;
+  languageId?: number;
+  nsfw?: StringBoolean;
+  customThumbnailUrl?: string;
+  altText?: string;
 }
 
 type CreatePostData = RouteDataResponse<{
@@ -47,6 +63,13 @@ export function getCreatePostQueryParams(source?: string): CreatePostProps {
   return getQueryParams<CreatePostProps>(
     {
       communityId: getIdFromString,
+      url: (url?: string) => url,
+      body: (body?: string) => body,
+      languageId: getIdFromString,
+      nsfw: (nsfw?: StringBoolean) => nsfw,
+      customThumbnailUrl: (customThumbnailUrl?: string) => customThumbnailUrl,
+      title: (title?: string) => title,
+      altText: (altText?: string) => altText,
     },
     source,
   );
@@ -92,8 +115,15 @@ export class CreatePost extends Component<
     this.handlePostCreate = this.handlePostCreate.bind(this);
     this.handleSelectedCommunityChange =
       this.handleSelectedCommunityChange.bind(this);
+    this.handleTitleBlur = this.handleTitleBlur.bind(this);
+    this.handleUrlBlur = this.handleUrlBlur.bind(this);
+    this.handleBodyBlur = this.handleBodyBlur.bind(this);
+    this.handleLanguageChange = this.handleLanguageChange.bind(this);
+    this.handleNsfwChange = this.handleNsfwChange.bind(this);
+    this.handleThumbnailUrlBlur = this.handleThumbnailUrlBlur.bind(this);
+    this.handleAltTextBlur = this.handleAltTextBlur.bind(this);
 
-    // Only fetch the data if coming from another route
+    // Only fetch the data if coming from another routeupdate
     if (FirstLoadService.isFirstLoad) {
       const { communityResponse: communityRes, initialCommunitiesRes } =
         this.isoData.routeData;
@@ -166,10 +196,25 @@ export class CreatePost extends Component<
 
   render() {
     const { selectedCommunityChoice, siteRes, loading } = this.state;
+    const {
+      body,
+      communityId,
+      customThumbnailUrl,
+      languageId,
+      title,
+      nsfw,
+      url,
+    } = this.props;
 
-    const locationState = this.props.history.location.state as
-      | PostFormParams
-      | undefined;
+    const params: PostFormParams = {
+      body,
+      community_id: communityId,
+      custom_thumbnail: customThumbnailUrl,
+      language_id: languageId,
+      name: title,
+      nsfw: nsfw === "true",
+      url,
+    };
 
     return (
       <div className="create-post container-lg">
@@ -182,7 +227,7 @@ export class CreatePost extends Component<
             <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>
             <PostForm
               onCreate={this.handlePostCreate}
-              params={locationState}
+              params={params}
               enableDownvotes={enableDownvotes(siteRes)}
               voteDisplayMode={voteDisplayMode(siteRes)}
               enableNsfw={enableNsfw(siteRes)}
@@ -196,6 +241,12 @@ export class CreatePost extends Component<
                   : []
               }
               loading={loading}
+              onBodyBlur={this.handleBodyBlur}
+              onLanguageChange={this.handleLanguageChange}
+              onTitleBlur={this.handleTitleBlur}
+              onUrlBlur={this.handleUrlBlur}
+              onThumbnailUrlBlur={this.handleThumbnailUrlBlur}
+              onNsfwChange={this.handleNsfwChange}
             />
           </div>
         </div>
@@ -203,23 +254,36 @@ export class CreatePost extends Component<
     );
   }
 
-  async updateUrl({ communityId }: Partial<CreatePostProps>) {
-    const locationState = this.props.history.location.state as
-      | PostFormParams
-      | undefined;
+  async updateUrl(props: Partial<CreatePostProps>) {
+    const {
+      body,
+      communityId,
+      customThumbnailUrl,
+      languageId,
+      nsfw,
+      url,
+      title,
+      altText,
+    } = {
+      ...this.props,
+      ...props,
+    };
 
-    const url = new URL(location.href);
+    const createPostQueryParams: QueryParams<CreatePostProps> = {
+      body,
+      communityId: communityId?.toString(),
+      customThumbnailUrl,
+      languageId: languageId?.toString(),
+      title,
+      nsfw,
+      url,
+      altText,
+    };
 
-    const newId = communityId?.toString();
-
-    if (newId !== undefined) {
-      url.searchParams.set("communityId", newId);
-    } else {
-      url.searchParams.delete("communityId");
-    }
-
-    // This bypasses the router and doesn't update the query props.
-    window.history.replaceState(locationState, "", url);
+    this.props.history.replace({
+      pathname: "/create_post",
+      search: getQueryString(createPostQueryParams),
+    });
 
     await this.fetchCommunity({ communityId });
   }
@@ -228,6 +292,34 @@ export class CreatePost extends Component<
     this.updateUrl({
       communityId: getIdFromString(choice?.value),
     });
+  }
+
+  handleTitleBlur(title: string) {
+    this.updateUrl({ title });
+  }
+
+  handleUrlBlur(url: string) {
+    this.updateUrl({ url });
+  }
+
+  handleBodyBlur(body: string) {
+    this.updateUrl({ body });
+  }
+
+  handleLanguageChange(languageId: number) {
+    this.updateUrl({ languageId });
+  }
+
+  handleNsfwChange(nsfw: StringBoolean) {
+    this.updateUrl({ nsfw });
+  }
+
+  handleThumbnailUrlBlur(customThumbnailUrl: string) {
+    this.updateUrl({ customThumbnailUrl });
+  }
+
+  handleAltTextBlur(altText: string) {
+    this.updateUrl({ altText });
   }
 
   async handlePostCreate(form: CreatePostI, bypassNavWarning: () => void) {
