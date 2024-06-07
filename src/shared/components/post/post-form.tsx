@@ -63,7 +63,7 @@ interface PostFormProps {
   onSelectCommunity?: (choice: Choice) => void;
   initialCommunities?: CommunityView[];
   loading: boolean;
-  onTitleBlur?: (title: string) => void;
+  onTitleUrlChange?: (title: string) => void;
   onUrlBlur?: (url: string) => void;
   onBodyBlur?: (body: string) => void;
   onLanguageChange?: (languageId?: number) => void;
@@ -164,9 +164,7 @@ function copySuggestedTitle({
       }
     }, 10);
 
-    i.setState({ bypassNavWarning: true });
-    i.props.onTitleBlur?.(suggestedTitle);
-    i.setState({ bypassNavWarning: false });
+    i.updateUrl(() => i.props.onTitleUrlChange?.(suggestedTitle));
   }
 }
 
@@ -186,17 +184,15 @@ function handlePostUrlChange(i: PostForm, event: any) {
 }
 
 function handlePostUrlBlur(i: PostForm, event: any) {
-  i.setState({ bypassNavWarning: true });
-  i.props.onUrlBlur?.(event.target.value);
-  i.setState({ bypassNavWarning: false });
+  i.updateUrl(() => i.props.onUrlBlur?.(event.target.value));
 }
 
 function handlePostNsfwChange(i: PostForm, event: any) {
   i.setState(s => ((s.form.nsfw = event.target.checked), s));
 
-  i.setState({ bypassNavWarning: true });
-  i.props.onNsfwChange?.(event.target.checked ? "true" : "false");
-  i.setState({ bypassNavWarning: false });
+  i.updateUrl(() =>
+    i.props.onNsfwChange?.(event.target.checked ? "true" : "false"),
+  );
 }
 
 function handleHoneyPotChange(i: PostForm, event: any) {
@@ -208,9 +204,7 @@ function handleAltTextChange(i: PostForm, event: any) {
 }
 
 function handleAltTextBlur(i: PostForm, event: any) {
-  i.setState({ bypassNavWarning: true });
-  i.props.onAltTextBlur?.(event.target.value);
-  i.setState({ bypassNavWarning: false });
+  i.updateUrl(() => i.props.onAltTextBlur?.(event.target.value));
 }
 
 function handleCustomThumbnailChange(i: PostForm, event: any) {
@@ -218,9 +212,7 @@ function handleCustomThumbnailChange(i: PostForm, event: any) {
 }
 
 function handleCustomThumbnailBlur(i: PostForm, event: any) {
-  i.setState({ bypassNavWarning: true });
-  i.props.onThumbnailUrlBlur?.(event.target.value);
-  i.setState({ bypassNavWarning: false });
+  i.updateUrl(() => i.props.onThumbnailUrlBlur?.(event.target.value));
 }
 
 function handleCancel(i: PostForm) {
@@ -272,9 +264,7 @@ function handlePostNameChange(i: PostForm, event: any) {
 }
 
 function handlePostNameBlur(i: PostForm, event: any) {
-  i.setState({ bypassNavWarning: true });
-  i.props.onTitleBlur?.(event.target.value);
-  i.setState({ bypassNavWarning: false });
+  i.updateUrl(() => i.props.onTitleUrlChange?.(event.target.value));
 }
 
 function handleImageDelete(i: PostForm) {
@@ -317,6 +307,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.handlePostBodyBlur = this.handlePostBodyBlur.bind(this);
     this.handleLanguageChange = this.handleLanguageChange.bind(this);
     this.handleCommunitySelect = this.handleCommunitySelect.bind(this);
+    this.updateUrl = this.updateUrl.bind(this);
 
     const { post_view, selectedCommunityChoice, params } = this.props;
 
@@ -831,17 +822,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   }
 
   handlePostBodyBlur(val: string) {
-    this.setState({ bypassNavWarning: true });
-    this.props.onBodyBlur?.(val);
-    this.setState({ bypassNavWarning: false });
+    this.updateUrl(() => this.props.onBodyBlur?.(val));
   }
 
   handleLanguageChange(val: number[]) {
     this.setState(s => ((s.form.language_id = val.at(0)), s));
-
-    this.setState({ bypassNavWarning: true });
-    this.props.onLanguageChange?.(val.at(0));
-    this.setState({ bypassNavWarning: false });
+    this.updateUrl(() => this.props.onLanguageChange?.(val.at(0)));
   }
 
   handleCommunitySearch = debounce(async (text: string) => {
@@ -868,8 +854,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   });
 
   handleCommunitySelect(choice: Choice) {
+    this.updateUrl(() => this.props.onSelectCommunity?.(choice));
+  }
+
+  updateUrl(update: () => void) {
     this.setState({ bypassNavWarning: true });
-    this.props.onSelectCommunity?.(choice);
+    update();
     this.setState({ bypassNavWarning: false });
   }
 }

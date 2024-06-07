@@ -116,7 +116,7 @@ export class CreatePost extends Component<
     this.handlePostCreate = this.handlePostCreate.bind(this);
     this.handleSelectedCommunityChange =
       this.handleSelectedCommunityChange.bind(this);
-    this.handleTitleBlur = this.handleTitleBlur.bind(this);
+    this.handleTitleUrlChange = this.handleTitleUrlChange.bind(this);
     this.handleUrlBlur = this.handleUrlBlur.bind(this);
     this.handleBodyBlur = this.handleBodyBlur.bind(this);
     this.handleLanguageChange = this.handleLanguageChange.bind(this);
@@ -249,7 +249,7 @@ export class CreatePost extends Component<
               loading={loading}
               onBodyBlur={this.handleBodyBlur}
               onLanguageChange={this.handleLanguageChange}
-              onTitleBlur={this.handleTitleBlur}
+              onTitleUrlChange={this.handleTitleUrlChange}
               onUrlBlur={this.handleUrlBlur}
               onThumbnailUrlBlur={this.handleThumbnailUrlBlur}
               onNsfwChange={this.handleNsfwChange}
@@ -300,7 +300,7 @@ export class CreatePost extends Component<
     });
   }
 
-  handleTitleBlur(title: string) {
+  handleTitleUrlChange(title: string) {
     this.updateUrl({ title });
   }
 
