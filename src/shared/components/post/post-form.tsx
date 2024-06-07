@@ -150,7 +150,7 @@ function copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
     d.i.setState(
       s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s),
     );
-    d.i.setState({ suggestedPostsRes: EMPTY_REQUEST });
+    d.i.setState({ metadataRes: EMPTY_REQUEST });
     setTimeout(() => {
       if (d.i.postTitleRef.current) {
         autosize.update(d.i.postTitleRef.current);
@@ -174,12 +174,6 @@ function handlePostUrlChange(i: PostForm, event: any) {
   i.fetchPageTitle();
 }
 
-function handlePostUrlBlur(i: PostForm, event: any) {
-  i.setState({ bypassNavWarning: true });
-  i.props.onUrlBlur?.(event.target.value);
-  i.setState({ bypassNavWarning: false });
-}
-
 function handlePostNsfwChange(i: PostForm, event: any) {
   i.setState(s => ((s.form.nsfw = event.target.checked), s));
 
@@ -196,20 +190,8 @@ function handleAltTextChange(i: PostForm, event: any) {
   i.setState(s => ((s.form.alt_text = event.target.value), s));
 }
 
-function handleAltTextBlur(i: PostForm, event: any) {
-  i.setState({ bypassNavWarning: true });
-  i.props.onAltTextBlur?.(event.target.value);
-  i.setState({ bypassNavWarning: false });
-}
-
 function handleCustomThumbnailChange(i: PostForm, event: any) {
   i.setState(s => ((s.form.custom_thumbnail = event.target.value), s));
-}
-
-function handleCustomThumbnailBlur(i: PostForm, event: any) {
-  i.setState({ bypassNavWarning: true });
-  i.props.onThumbnailUrlBlur?.(event.target.value);
-  i.setState({ bypassNavWarning: false });
 }
 
 function handleCancel(i: PostForm) {
@@ -258,12 +240,6 @@ function handleImageUpload(i: PostForm, event: any) {
 function handlePostNameChange(i: PostForm, event: any) {
   i.setState(s => ((s.form.name = event.target.value), s));
   i.fetchSimilarPosts();
-}
-
-function handlePostNameBlur(i: PostForm, event: any) {
-  i.setState({ bypassNavWarning: true });
-  i.props.onTitleBlur?.(event.target.value);
-  i.setState({ bypassNavWarning: false });
 }
 
 function handleImageDelete(i: PostForm) {
@@ -427,7 +403,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               value={this.state.form.name}
               id="post-title"
               onInput={linkEvent(this, handlePostNameChange)}
-              onBlur={linkEvent(this, handlePostNameBlur)}
               className={`form-control ${
                 !validTitle(this.state.form.name) && "is-invalid"
               }`}
@@ -458,7 +433,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               className="form-control mb-3"
               value={url}
               onInput={linkEvent(this, handlePostUrlChange)}
-              onBlur={linkEvent(this, handlePostUrlBlur)}
               onPaste={linkEvent(this, handleImageUploadPaste)}
             />
             {this.renderSuggestedTitleCopy()}
@@ -574,7 +548,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 className="form-control mb-3"
                 value={this.state.form.custom_thumbnail}
                 onInput={linkEvent(this, handleCustomThumbnailChange)}
-                onBlur={linkEvent(this, handleCustomThumbnailBlur)}
               />
             </div>
           </div>
@@ -619,7 +592,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 id="post-alt-text"
                 value={this.state.form.alt_text}
                 onInput={linkEvent(this, handleAltTextChange)}
-                onBlur={linkEvent(this, handleAltTextBlur)}
               />
             </div>
           </div>
