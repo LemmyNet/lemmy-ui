@@ -121,6 +121,7 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     component: CreatePost,
     fetchInitialData: CreatePost.fetchInitialData,
     getQueryParams: getCreatePostQueryParams,
+    mountedSameRouteNavKey: "create_post",
   } as CreatePostFetchConfig,
   {
     path: `/create_community`,

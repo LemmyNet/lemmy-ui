@@ -95,7 +95,6 @@ interface PostFormState {
   previewMode: boolean;
   submitted: boolean;
   bypassNavWarning: boolean;
-  urlBlurTimeout?: NodeJS.Timeout;
 }
 
 function handlePostSubmit(i: PostForm, event: any) {
@@ -155,9 +154,6 @@ function copySuggestedTitle({
   suggestedTitle?: string;
 }) {
   if (suggestedTitle) {
-    clearTimeout(i.state.urlBlurTimeout);
-    i.setState({ urlBlurTimeout: undefined });
-
     i.setState(
       s => (
         (s.form.name = suggestedTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s
@@ -192,11 +188,7 @@ function handlePostUrlChange(i: PostForm, event: any) {
 }
 
 function handlePostUrlBlur(i: PostForm, event: any) {
-  i.setState({
-    urlBlurTimeout: setTimeout(() => {
-      i.updateUrl(() => i.props.onUrlBlur?.(event.target.value));
-    }, 500),
-  });
+  i.updateUrl(() => i.props.onUrlBlur?.(event.target.value));
 }
 
 function handlePostNsfwChange(i: PostForm, event: any) {
@@ -417,6 +409,14 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
     if (this.props.loading && !nextProps.loading) {
       this.setState({ submitted: false, bypassNavWarning: false });
+    }
+    if (this.props.params !== nextProps.params && nextProps.params) {
+      const params = nextProps.params;
+      for (const k in params) {
+        if (this.props.params?.[k] !== params[k]) {
+          this.setState(s => ({ form: { ...s.form, [k]: params[k] } }));
+        }
+      }
     }
   }
 
