@@ -63,13 +63,14 @@ interface PostFormProps {
   onSelectCommunity?: (choice: Choice) => void;
   initialCommunities?: CommunityView[];
   loading: boolean;
-  onTitleUrlChange?: (title: string) => void;
+  onTitleBlur?: (title: string) => void;
   onUrlBlur?: (url: string) => void;
   onBodyBlur?: (body: string) => void;
   onLanguageChange?: (languageId?: number) => void;
   onNsfwChange?: (nsfw: StringBoolean) => void;
   onThumbnailUrlBlur?: (thumbnailUrl: string) => void;
   onAltTextBlur?: (altText: string) => void;
+  onCopySuggestedTitle?: (url: string, title: string) => void;
 }
 
 interface PostFormState {
@@ -93,6 +94,7 @@ interface PostFormState {
   previewMode: boolean;
   submitted: boolean;
   bypassNavWarning: boolean;
+  urlBlurTimeout?: NodeJS.Timeout;
 }
 
 function handlePostSubmit(i: PostForm, event: any) {
@@ -152,6 +154,9 @@ function copySuggestedTitle({
   suggestedTitle?: string;
 }) {
   if (suggestedTitle) {
+    clearTimeout(i.state.urlBlurTimeout);
+    i.setState({ urlBlurTimeout: undefined });
+
     i.setState(
       s => (
         (s.form.name = suggestedTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s
@@ -164,7 +169,9 @@ function copySuggestedTitle({
       }
     }, 10);
 
-    i.updateUrl(() => i.props.onTitleUrlChange?.(suggestedTitle));
+    i.updateUrl(() =>
+      i.props.onCopySuggestedTitle?.(i.state.form.url!, suggestedTitle),
+    );
   }
 }
 
@@ -184,7 +191,11 @@ function handlePostUrlChange(i: PostForm, event: any) {
 }
 
 function handlePostUrlBlur(i: PostForm, event: any) {
-  i.updateUrl(() => i.props.onUrlBlur?.(event.target.value));
+  i.setState({
+    urlBlurTimeout: setTimeout(() => {
+      i.updateUrl(() => i.props.onUrlBlur?.(event.target.value));
+    }, 500),
+  });
 }
 
 function handlePostNsfwChange(i: PostForm, event: any) {
@@ -264,7 +275,7 @@ function handlePostNameChange(i: PostForm, event: any) {
 }
 
 function handlePostNameBlur(i: PostForm, event: any) {
-  i.updateUrl(() => i.props.onTitleUrlChange?.(event.target.value));
+  i.updateUrl(() => i.props.onTitleBlur?.(event.target.value));
 }
 
 function handleImageDelete(i: PostForm) {

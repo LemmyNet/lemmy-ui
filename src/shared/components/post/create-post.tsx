@@ -116,13 +116,14 @@ export class CreatePost extends Component<
     this.handlePostCreate = this.handlePostCreate.bind(this);
     this.handleSelectedCommunityChange =
       this.handleSelectedCommunityChange.bind(this);
-    this.handleTitleUrlChange = this.handleTitleUrlChange.bind(this);
+    this.handleTitleBlur = this.handleTitleBlur.bind(this);
     this.handleUrlBlur = this.handleUrlBlur.bind(this);
     this.handleBodyBlur = this.handleBodyBlur.bind(this);
     this.handleLanguageChange = this.handleLanguageChange.bind(this);
     this.handleNsfwChange = this.handleNsfwChange.bind(this);
     this.handleThumbnailUrlBlur = this.handleThumbnailUrlBlur.bind(this);
     this.handleAltTextBlur = this.handleAltTextBlur.bind(this);
+    this.handleCopySuggestedTitle = this.handleCopySuggestedTitle.bind(this);
 
     // Only fetch the data if coming from another routeupdate
     if (FirstLoadService.isFirstLoad) {
@@ -249,10 +250,11 @@ export class CreatePost extends Component<
               loading={loading}
               onBodyBlur={this.handleBodyBlur}
               onLanguageChange={this.handleLanguageChange}
-              onTitleUrlChange={this.handleTitleUrlChange}
+              onTitleBlur={this.handleTitleBlur}
               onUrlBlur={this.handleUrlBlur}
               onThumbnailUrlBlur={this.handleThumbnailUrlBlur}
               onNsfwChange={this.handleNsfwChange}
+              onCopySuggestedTitle={this.handleCopySuggestedTitle}
             />
           </div>
         </div>
@@ -300,7 +302,7 @@ export class CreatePost extends Component<
     });
   }
 
-  handleTitleUrlChange(title: string) {
+  handleTitleBlur(title: string) {
     this.updateUrl({ title });
   }
 
@@ -326,6 +328,10 @@ export class CreatePost extends Component<
 
   handleAltTextBlur(altText: string) {
     this.updateUrl({ altText });
+  }
+
+  handleCopySuggestedTitle(url: string, title: string) {
+    this.updateUrl({ url, title });
   }
 
   async handlePostCreate(form: CreatePostI, bypassNavWarning: () => void) {
