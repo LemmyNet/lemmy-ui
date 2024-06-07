@@ -44,6 +44,7 @@ import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
+import { isBrowser } from "@utils/browser";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -367,8 +368,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         },
       };
     }
+  }
 
-    if (this.state.form.url) {
+  componentWillMount() {
+    if (this.state.form.url && isBrowser()) {
       this.fetchPageTitle();
     }
   }
