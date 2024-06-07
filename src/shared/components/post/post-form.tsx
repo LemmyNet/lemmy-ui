@@ -144,18 +144,29 @@ function handlePostSubmit(i: PostForm, event: any) {
   }
 }
 
-function copySuggestedTitle(d: { i: PostForm; suggestedTitle?: string }) {
-  const sTitle = d.suggestedTitle;
-  if (sTitle) {
-    d.i.setState(
-      s => ((s.form.name = sTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s),
+function copySuggestedTitle({
+  i,
+  suggestedTitle,
+}: {
+  i: PostForm;
+  suggestedTitle?: string;
+}) {
+  if (suggestedTitle) {
+    i.setState(
+      s => (
+        (s.form.name = suggestedTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s
+      ),
     );
-    d.i.setState({ suggestedPostsRes: EMPTY_REQUEST });
+    i.setState({ suggestedPostsRes: EMPTY_REQUEST });
     setTimeout(() => {
-      if (d.i.postTitleRef.current) {
-        autosize.update(d.i.postTitleRef.current);
+      if (i.postTitleRef.current) {
+        autosize.update(i.postTitleRef.current);
       }
     }, 10);
+
+    i.setState({ bypassNavWarning: true });
+    i.props.onTitleBlur?.(suggestedTitle);
+    i.setState({ bypassNavWarning: false });
   }
 }
 
@@ -353,6 +364,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           ...params,
         },
       };
+    }
+
+    if (this.state.form.url) {
+      this.fetchPageTitle();
     }
   }
 
