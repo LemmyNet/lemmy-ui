@@ -6,6 +6,7 @@ import {
   voteDisplayMode,
 } from "@utils/app";
 import {
+  bareRoutePush,
   getIdFromString,
   getQueryParams,
   getQueryString,
@@ -90,6 +91,7 @@ interface CreatePostState {
   selectedCommunityChoice?: Choice;
   initialCommunitiesRes: RequestState<ListCommunitiesResponse>;
   isIsomorphic: boolean;
+  resetCounter: number; // resets PostForm when changed
 }
 
 type CreatePostPathProps = Record<string, never>;
@@ -112,6 +114,7 @@ export class CreatePost extends Component<
     loading: false,
     initialCommunitiesRes: EMPTY_REQUEST,
     isIsomorphic: false,
+    resetCounter: 0,
   };
 
   constructor(props: CreatePostRouteProps, context: any) {
@@ -194,6 +197,15 @@ export class CreatePost extends Component<
     }
   }
 
+  componentWillReceiveProps(nextProps: CreatePostRouteProps) {
+    if (bareRoutePush(this.props, nextProps)) {
+      this.setState(s => ({ resetCounter: s.resetCounter + 1 }));
+    }
+    if (this.props.communityId !== nextProps.communityId) {
+      this.fetchCommunity(nextProps);
+    }
+  }
+
   get documentTitle(): string {
     return `${I18NextService.i18n.t("create_post")} - ${
       this.state.siteRes.site_view.site.name
@@ -237,6 +249,7 @@ export class CreatePost extends Component<
           <div id="createPostForm" className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>
             <PostForm
+              key={this.state.resetCounter}
               onCreate={this.handlePostCreate}
               params={params}
               enableDownvotes={enableDownvotes(siteRes)}
