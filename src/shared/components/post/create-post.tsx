@@ -80,6 +80,10 @@ function fetchCommunitiesForOptions(client: WrappedLemmyHttp) {
   return client.listCommunities({ limit: 30, sort: "TopMonth", type_: "All" });
 }
 
+function stringAsQueryParam(param?: string) {
+  return (param?.length ?? 0) > 0 ? param : undefined;
+}
+
 interface CreatePostState {
   siteRes: GetSiteResponse;
   loading: boolean;
@@ -278,14 +282,14 @@ export class CreatePost extends Component<
     };
 
     const createPostQueryParams: QueryParams<CreatePostProps> = {
-      body,
+      body: stringAsQueryParam(body),
       communityId: communityId?.toString(),
-      customThumbnailUrl,
+      customThumbnailUrl: stringAsQueryParam(customThumbnailUrl),
       languageId: languageId?.toString(),
-      title,
+      title: stringAsQueryParam(title),
       nsfw,
-      url,
-      altText,
+      url: stringAsQueryParam(url),
+      altText: stringAsQueryParam(altText),
     };
 
     this.props.history.replace({
