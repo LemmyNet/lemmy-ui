@@ -194,6 +194,18 @@ export class CreatePost extends Component<
           loading: false,
         });
       }
+
+      const locationState = this.props.history.location.state as
+        | CrossPostParams
+        | undefined;
+      if (locationState) {
+        this.updateUrl({
+          title: locationState.name,
+          url: locationState.url,
+          body: locationState.body,
+        });
+        this.setState(s => ({ resetCounter: s.resetCounter + 1 }));
+      }
     }
   }
 
@@ -224,15 +236,10 @@ export class CreatePost extends Component<
       url,
     } = this.props;
 
-    // Only use the name, url, and body from this
-    const locationState = this.props.history.location.state as
-      | CrossPostParams
-      | undefined;
-
     const params: PostFormParams = {
-      name: title || locationState?.name,
-      url: url || locationState?.url,
-      body: body || locationState?.body,
+      name: title,
+      url,
+      body,
       community_id: communityId,
       custom_thumbnail: customThumbnailUrl,
       language_id: languageId,
