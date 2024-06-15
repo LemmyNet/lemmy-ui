@@ -301,6 +301,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   fetchUploadsToken?: symbol;
   async fetchUploads(props: ProfileRouteProps) {
+    if (!this.amCurrentUser) {
+      return;
+    }
+
     const token = (this.fetchUploadsToken = Symbol());
     const { page } = props;
     this.setState({ uploadsRes: LOADING_REQUEST });
@@ -553,7 +557,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         {this.getRadio(PersonDetailsView.Comments)}
         {this.getRadio(PersonDetailsView.Posts)}
         {this.amCurrentUser && this.getRadio(PersonDetailsView.Saved)}
-        {this.getRadio(PersonDetailsView.Uploads)}
+        {this.amCurrentUser && this.getRadio(PersonDetailsView.Uploads)}
       </div>
     );
   }
