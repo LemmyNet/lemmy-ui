@@ -225,8 +225,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       return <></>;
     }
 
-    // if direct video link
-    if (url && isVideo(url)) {
+    // if direct video link or embedded video link
+    if (url && (isVideo(url) || post.embed_video_url)) {
       return (
         <div className="embed-responsive ratio ratio-16x9 mt-3">
           <video
@@ -236,22 +236,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             controls
             className="embed-responsive-item col-12"
           >
-            <source src={url} type="video/mp4" />
+            <source src={post.embed_video_url ?? url} type="video/mp4" />
           </video>
-        </div>
-      );
-    }
-
-    // if embedded video link
-    if (url && post.embed_video_url) {
-      return (
-        <div className="ratio ratio-16x9">
-          <iframe
-            allowFullScreen
-            className="post-metadata-iframe"
-            src={post.embed_video_url}
-            title={post.embed_title}
-          ></iframe>
         </div>
       );
     }
