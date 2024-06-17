@@ -236,7 +236,7 @@ importers:
         version: 2.0.10
       '@types/node':
         specifier: ^20.14.2
-        version: 20.14.2
+        version: 20.14.3
       '@types/path-browserify':
         specifier: ^1.0.2
         version: 1.0.2
@@ -1312,8 +1312,8 @@ packages:
   '@types/node-forge@1.3.11':
     resolution: {integrity: sha512-FQx220y22OKNTqaByeBGqHWYz4cl94tpcxeFdvBo3wjG6XPBuZ0BNgNZRV5J5TFmmcsJ4IzsLkmGRiQbnYsBEQ==}
 
-  '@types/node@20.14.2':
-    resolution: {integrity: sha512-xyu6WAMVwv6AKFLB+e/7ySZVr/0zLCzOa7rSpq6jNwpqOrUbcACDWC+53d4n2QHOnDou0fbIsg8wZu/sxrnI4Q==}
+  '@types/node@20.14.3':
+    resolution: {integrity: sha512-Nuzqa6WAxeGnve6SXqiPAM9rA++VQs+iLZ1DDd56y0gdvygSZlQvZuvdFPR3yLqkVxPu4WrO02iDEyH1g+wazw==}
 
   '@types/path-browserify@1.0.2':
     resolution: {integrity: sha512-ZkC5IUqqIFPXx3ASTTybTzmQdwHwe2C0u3eL75ldQ6T9E9IWFJodn6hIfbZGab73DfyiHN4Xw15gNxUq2FbvBA==}
@@ -5767,11 +5767,11 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
 
   '@types/bonjour@3.5.13':
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
 
   '@types/bootstrap@5.2.10':
     dependencies:
@@ -5780,11 +5780,11 @@ snapshots:
   '@types/connect-history-api-fallback@1.5.4':
     dependencies:
       '@types/express-serve-static-core': 4.19.3
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
 
   '@types/cookie-parser@1.4.7':
     dependencies:
@@ -5808,7 +5808,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.3':
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
       '@types/qs': 6.9.15
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -5823,7 +5823,7 @@ snapshots:
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
 
   '@types/html-to-text@9.0.4': {}
 
@@ -5831,7 +5831,7 @@ snapshots:
 
   '@types/http-proxy@1.17.14':
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
 
   '@types/json-schema@7.0.15': {}
 
@@ -5860,9 +5860,9 @@ snapshots:
 
   '@types/node-forge@1.3.11':
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
 
-  '@types/node@20.14.2':
+  '@types/node@20.14.3':
     dependencies:
       undici-types: 5.26.5
 
@@ -5874,7 +5874,7 @@ snapshots:
 
   '@types/resolve@1.17.1':
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
 
   '@types/retry@0.12.2': {}
 
@@ -5885,7 +5885,7 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
 
   '@types/serialize-javascript@5.0.4': {}
 
@@ -5896,12 +5896,12 @@ snapshots:
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
       '@types/send': 0.17.4
 
   '@types/sockjs@0.3.36':
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
 
   '@types/toastify-js@1.12.3': {}
 
@@ -5909,7 +5909,7 @@ snapshots:
 
   '@types/ws@8.5.10':
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
 
   '@typescript-eslint/eslint-plugin@7.13.1(@typescript-eslint/parser@7.13.1(eslint@9.5.0)(typescript@5.4.5))(eslint@9.5.0)(typescript@5.4.5)':
     dependencies:
@@ -7688,13 +7688,13 @@ snapshots:
 
   jest-worker@26.6.2:
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
       merge-stream: 2.0.0
       supports-color: 7.2.0
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.14.2
+      '@types/node': 20.14.3
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
