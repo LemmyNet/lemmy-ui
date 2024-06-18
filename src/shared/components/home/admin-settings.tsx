@@ -347,8 +347,8 @@ export class AdminSettings extends Component<
         </ul>
         {this.leaveAdmin()}
         <ConfirmationModal
-          message="Are you sure you want to leave the admin team?"
-          loadingMessage="Leaving admin team"
+          message={I18NextService.i18n.t("leave_admin_team_confirmation")}
+          loadingMessage={I18NextService.i18n.t("leaving_admin_team")}
           onNo={this.handleToggleShowLeaveAdminConfirmation}
           onYes={this.handleLeaveAdminTeam}
           show={this.state.showConfirmLeaveAdmin}
