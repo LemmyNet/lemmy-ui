@@ -5,8 +5,9 @@ export default function getQueryString<
   Object.entries(obj)
     .filter(([, val]) => val !== undefined && val !== null)
     .forEach(([key, val]) => searchParams.set(key, val ?? ""));
-  if (searchParams.size) {
-    return "?" + searchParams.toString();
+  const params = searchParams.toString();
+  if (params) {
+    return "?" + params;
   }
   return "";
 }
