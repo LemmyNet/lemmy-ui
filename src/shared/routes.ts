@@ -26,7 +26,6 @@ import {
   LoginFetchConfig,
   getLoginQueryParams,
 } from "./components/home/login";
-import { OAuth } from "./components/home/oauth";
 import { LoginReset } from "./components/home/login-reset";
 import { Setup } from "./components/home/setup";
 import { Signup } from "./components/home/signup";
@@ -76,6 +75,11 @@ import {
 import { InitialFetchRequest, RouteData } from "./interfaces";
 import { GetSiteResponse } from "lemmy-js-client";
 import { Inferno } from "inferno";
+import {
+  OAuthCallback,
+  OAuthCallbackConfig,
+  getOAuthCallbackQueryParams,
+} from "./components/home/oauth-callback";
 
 export interface IRoutePropsWithFetch<
   DataT extends RouteData,
@@ -116,10 +120,6 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
   {
     path: `/signup`,
     component: Signup,
-  },
-  {
-    path: '/oauth/callback',
-    component: OAuth,
   },
   {
     path: `/create_post`,
@@ -223,6 +223,11 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     path: `/verify_email/:token`,
     component: VerifyEmail,
   },
+  {
+    path: `/oauth/callback`,
+    getQueryParams: getOAuthCallbackQueryParams,
+    component: OAuthCallback,
+  } as OAuthCallbackConfig,
   {
     path: `/instances`,
     component: Instances,

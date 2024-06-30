@@ -343,10 +343,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 id="create-site-oauth-registration"
                 type="checkbox"
                 checked={this.state.siteForm.oauth_registration}
-                onChange={linkEvent(
-                  this,
-                  this.handleSiteOauthRegistration,
-                )}
+                onChange={linkEvent(this, this.handleSiteOauthRegistration)}
               />
               <label
                 className="form-check-label"

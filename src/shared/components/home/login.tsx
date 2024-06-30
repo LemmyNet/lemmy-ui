@@ -1,10 +1,9 @@
 import { setIsoData } from "@utils/app";
 import { isBrowser, refreshTheme } from "@utils/browser";
-import { getExternalHost } from "@utils/env";
 import { getQueryParams } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
+import { GetSiteResponse, LoginResponse, OAuthProvider } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -24,17 +23,16 @@ import { simpleScrollMixin } from "../mixins/scroll-mixin";
 
 interface LoginProps {
   prev?: string;
-  err?: string;
 }
 
 export function getLoginQueryParams(source?: string): LoginProps {
   return getQueryParams<LoginProps>(
     {
       prev: (param?: string) => param,
-      err(param) {
-        return param ? decodeURIComponent(param) : undefined;
-      },
-  });
+    },
+    source,
+  );
+}
 
 interface State {
   loginRes: RequestState<LoginResponse>;
@@ -54,6 +52,8 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
 
   if (site.state === "success") {
     UserService.Instance.myUserInfo = site.data.my_user;
+    const isoData = setIsoData(i.context);
+    isoData.site_res.oauth_providers = site.data.oauth_providers;
     refreshTheme();
   }
 
@@ -107,47 +107,38 @@ async function handleLoginSubmit(i: Login, event: any) {
   }
 }
 
-async function handleUseExternalAuth(d: {
+async function handleUseOAuthProvider(d: {
   i: Login;
   index: number;
-  external_auth: PublicExternalAuth;
+  oauth_provider: OAuthProvider;
 }) {
-  let authEndpoint;
-  if (d.external_auth.auth_type === "oidc") {
-    let discoveryEndpoint = d.external_auth.issuer;
-    if (!discoveryEndpoint.endsWith(".well-known/openid-configuration")) {
-      if (!discoveryEndpoint.endsWith("/")) {
-        discoveryEndpoint += "/";
-      }
-      discoveryEndpoint += ".well-known/openid-configuration";
-    }
-    const res = await fetch(discoveryEndpoint);
-    authEndpoint = (await res.json()).authorization_endpoint;
-  } else {
-    authEndpoint = d.external_auth.auth_endpoint;
-  }
+  const redirectUri = `${window.location.origin}/oauth/callback`;
 
-  let requestUri = authEndpoint + "?";
-  requestUri += `client_id=${d.external_auth.client_id}`;
-  requestUri += `&response_type=code`;
-  requestUri += `&scope=${d.external_auth.scopes}`;
+  const state = crypto.randomUUID();
+  const requestUri =
+    d.oauth_provider.authorization_endpoint +
+    "?" +
+    [
+      `client_id=${encodeURIComponent(d.oauth_provider.client_id)}`,
+      `response_type=code`,
+      `scope=${encodeURIComponent(d.oauth_provider.scopes)}`,
+      `redirect_uri=${encodeURIComponent(redirectUri)}`,
+      `state=${state}`,
+    ].join("&");
 
-  let externalHost = getExternalHost();
-  // Fix for development mode:
-  if (!externalHost.startsWith("http")) {
-    externalHost = "http://" + externalHost;
-  }
-  requestUri += `&redirect_uri=${encodeURIComponent(`${externalHost}/api/v3/oauth/callback`)}`;
+  // store state in local storage
+  localStorage.setItem(
+    "oauth_state",
+    JSON.stringify({
+      state,
+      oauth_provider_id: d.oauth_provider.id,
+      redirect_uri: redirectUri,
+      prev: d.i.props.prev,
+      expires_at: Date.now() + 5 * 60_000,
+    }),
+  );
 
-  const clientRedirectUri =
-    `${window.location.origin}/oauth/callback?redirect_uri=/`;
-  const state = encodeURIComponent(JSON.stringify({
-    external_auth: d.external_auth.id,
-    client_redirect_uri: clientRedirectUri
-  }));
-  requestUri += `&state=${state}`;
-
-  window.location = requestUri;
+  window.location.assign(requestUri);
 }
 
 function handleLoginUsernameChange(i: Login, event: any) {
@@ -188,37 +179,6 @@ export class Login extends Component<LoginRouteProps, State> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    const { err } = getLoginQueryParams();
-    switch (err) {
-      case "internal":
-        toast(I18NextService.i18n.t("internal_error"), "danger");
-        break;
-      case "oauth_response":
-        toast(I18NextService.i18n.t("invalid_oauth_response"), "danger");
-        break;
-      case "external_auth":
-        toast(I18NextService.i18n.t("incorrect_oauth"), "danger");
-        break;
-      case "token":
-        toast(I18NextService.i18n.t("identity_provider_error"), "danger");
-        break;
-      case "userinfo":
-        toast(I18NextService.i18n.t("identity_provider_error"), "danger");
-        break;
-      case "user":
-        toast(I18NextService.i18n.t("error_logging_in"), "danger");
-        break;
-      case "application":
-        toast(I18NextService.i18n.t("fill_out_application"), "danger");
-        break;
-      case "email":
-        toast(I18NextService.i18n.t("verify_email"), "danger");
-        break;
-      case "jwt":
-        toast(I18NextService.i18n.t("internal_error"), "danger");
-        break;
-    }
-
     this.handleSubmitTotp = this.handleSubmitTotp.bind(this);
   }
 
@@ -248,20 +208,27 @@ export class Login extends Component<LoginRouteProps, State> {
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
-        {this.state.siteRes.external_auths.length > 0 && <div className="row">
-          <div className="col-12 col-lg-6 offset-lg-3">
-            <span>Or</span>
-            {this.state.siteRes.external_auths.map(({ external_auth }, index) =>
-              <button
-                className="btn btn-secondary"
-                style="margin: 0.5rem"
-                onClick={linkEvent({ i: this, index, external_auth }, handleUseExternalAuth)}
-              >
-                Login with { external_auth.display_name }
-              </button>
-            )}
+        {this.state.siteRes.oauth_providers.filter(Boolean).length > 0 && (
+          <div className="row">
+            <div className="col-12 col-lg-6 offset-lg-3">
+              <span>Or</span>
+              {this.state.siteRes.oauth_providers
+                .filter(Boolean)
+                .map((oauth_provider: OAuthProvider, index) => (
+                  <button
+                    className="btn btn-secondary"
+                    style="margin: 0.5rem"
+                    onClick={linkEvent(
+                      { i: this, index, oauth_provider },
+                      handleUseOAuthProvider,
+                    )}
+                  >
+                    Login with {oauth_provider.display_name}
+                  </button>
+                ))}
+            </div>
           </div>
-        </div>}
+        )}
       </div>
     );
   }

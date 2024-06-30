@@ -7,16 +7,17 @@ import { Component } from "inferno";
 import {
   BannedPersonsResponse,
   CreateCustomEmoji,
-  CreateCustomExternalAuth,
+  CreateOAuthProvider,
   DeleteCustomEmoji,
-  DeleteCustomExternalAuth,
+  DeleteOAuthProvider,
   EditCustomEmoji,
-  EditCustomExternalAuth,
+  EditOAuthProvider,
   EditSite,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   LemmyHttp,
   ListMediaResponse,
+  OAuthProvider,
   PersonView,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
@@ -35,7 +36,7 @@ import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
-import { ExternalAuthForm } from "./external-auth-form";
+import { OAuthProviderForm } from "./oauth-provider-form";
 import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
@@ -115,9 +116,9 @@ export class AdminSettings extends Component<
     this.handleToggleShowLeaveAdminConfirmation =
       this.handleToggleShowLeaveAdminConfirmation.bind(this);
     this.handleLeaveAdminTeam = this.handleLeaveAdminTeam.bind(this);
-    this.handleEditExternalAuth = this.handleEditExternalAuth.bind(this);
-    this.handleDeleteExternalAuth = this.handleDeleteExternalAuth.bind(this);
-    this.handleCreateExternalAuth = this.handleCreateExternalAuth.bind(this);
+    this.handleEditOAuthProvider = this.handleEditOAuthProvider.bind(this);
+    this.handleDeleteOAuthProvider = this.handleDeleteOAuthProvider.bind(this);
+    this.handleCreateOAuthProvider = this.handleCreateOAuthProvider.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -287,34 +288,38 @@ export class AdminSettings extends Component<
               ),
             },
             {
-<<<<<<< HEAD
               key: "uploads",
               label: I18NextService.i18n.t("uploads"),
-=======
-              key: "auth",
-              label: I18NextService.i18n.t("authentication"),
->>>>>>> ad615a78 (WIP External Auth)
               getNode: isSelected => (
                 <div
                   className={classNames("tab-pane", {
                     active: isSelected,
                   })}
                   role="tabpanel"
-<<<<<<< HEAD
                   id="uploads-tab-pane"
                 >
                   {this.uploads()}
-=======
+                </div>
+              ),
+            },
+            {
+              key: "auth",
+              label: I18NextService.i18n.t("authentication"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
                   id="auth-tab-pane"
                 >
                   <div className="row">
-                    <ExternalAuthForm
-                      onCreate={this.handleCreateExternalAuth}
-                      onDelete={this.handleDeleteExternalAuth}
-                      onEdit={this.handleEditExternalAuth}
+                    <OAuthProviderForm
+                      onCreate={this.handleCreateOAuthProvider}
+                      onDelete={this.handleDeleteOAuthProvider}
+                      onEdit={this.handleEditOAuthProvider}
                     />
                   </div>
->>>>>>> ad615a78 (WIP External Auth)
                 </div>
               ),
             },
@@ -515,22 +520,18 @@ export class AdminSettings extends Component<
     await this.fetchUploadsOnly();
   }
 
-  async handleEditExternalAuth(form: EditCustomExternalAuth) {
+  async handleEditOAuthProvider(form: EditOAuthProvider) {
     this.setState({ loading: true });
 
-    const res = await HttpService.client.editExternalAuth(form);
+    const res = await HttpService.client.editOAuthProvider(form);
 
     if (res.state === "success") {
+      const newOAuthProvider = res.data;
       this.setState(s => {
-        s.siteRes.external_auths = s.siteRes.external_auths.slice();
-        const newExternalAuth = res.data.external_auth.external_auth;
-        const index = s.siteRes.external_auths.findIndex(x =>
-          x.external_auth.client_id === newExternalAuth.client_id);
-        if (index >= 0) {
-          Object.assign(s.siteRes.external_auths[index], newExternalAuth);
-          s.siteRes.external_auths[index].client_secret = "";
-        }
-        return s;
+        (s.siteRes.oauth_providers = s.siteRes.oauth_providers.map(p =>
+          p?.client_id === newOAuthProvider.client_id ? newOAuthProvider : p,
+        )),
+          s;
       });
       toast(I18NextService.i18n.t("site_saved"));
     }
@@ -540,19 +541,17 @@ export class AdminSettings extends Component<
     return res;
   }
 
-  async handleDeleteExternalAuth(form: DeleteCustomExternalAuth) {
+  async handleDeleteOAuthProvider(form: DeleteOAuthProvider) {
     this.setState({ loading: true });
 
-    const res = await HttpService.client.deleteExternalAuth(form);
+    const res = await HttpService.client.deleteOAuthProvider(form);
 
     if (res.state === "success") {
       this.setState(s => {
-        s.siteRes.external_auths = s.siteRes.external_auths.slice();
-        const index = s.siteRes.external_auths.findIndex(x =>
-          x.external_auth.id === res.data.id);
-        if (index >= 0) {
-          s.siteRes.external_auths.splice(index, 1);
-        }
+        (s.siteRes.oauth_providers = s.siteRes.oauth_providers.filter(
+          p => p?.id !== form.id,
+        )),
+          s;
       });
       toast(I18NextService.i18n.t("site_saved"));
     }
@@ -562,29 +561,37 @@ export class AdminSettings extends Component<
     return res;
   }
 
-  async handleCreateExternalAuth(form: CreateCustomExternalAuth) {
+  async handleCreateOAuthProvider(
+    form: CreateOAuthProvider,
+  ): Promise<OAuthProvider | null> {
     this.setState({ loading: true });
 
-    const res = await HttpService.client.createExternalAuth(form);
+    const res = await HttpService.client.createOAuthProvider(form);
 
     if (res.state === "success") {
-      this.setState(s => {
-        s.siteRes.external_auths = s.siteRes.external_auths.slice();
-        const newExternalAuth = res.data.external_auth.external_auth;
-        const index = s.siteRes.external_auths.findIndex(x =>
-          x.external_auth.id === newExternalAuth.id);
-        if (index >= 0) {
-          Object.assign(s.siteRes.external_auths[index], newExternalAuth);
-          s.siteRes.external_auths[index].client_secret = "";
-        } else {
-          s.siteRes.external_auths.push(newExternalAuth);
-        }
+      return new Promise(resolve => {
+        this.setState(s => {
+          s.siteRes.oauth_providers = s.siteRes.oauth_providers.slice();
+          const newOAuthProvider: OAuthProvider = res.data;
+          const index = s.siteRes.oauth_providers.findIndex(
+            x => x?.id === newOAuthProvider.id,
+          );
+          if (index >= 0) {
+            Object.assign(
+              s.siteRes.oauth_providers[index] || {},
+              newOAuthProvider,
+            );
+          } else {
+            s.siteRes.oauth_providers.push(newOAuthProvider);
+          }
+          resolve(newOAuthProvider);
+        });
+        toast(I18NextService.i18n.t("site_saved"));
       });
-      toast(I18NextService.i18n.t("site_saved"));
     }
 
     this.setState({ loading: false });
 
-    return res;
+    return null;
   }
 }
