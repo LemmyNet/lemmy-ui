@@ -208,13 +208,12 @@ export class Login extends Component<LoginRouteProps, State> {
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
-        {this.state.siteRes.oauth_providers.filter(Boolean).length > 0 && (
+        {this.state.siteRes.oauth_providers.length > 0 && (
           <div className="row">
             <div className="col-12 col-lg-6 offset-lg-3">
               <span>Or</span>
-              {this.state.siteRes.oauth_providers
-                .filter(Boolean)
-                .map((oauth_provider: OAuthProvider, index) => (
+              {this.state.siteRes.oauth_providers.map(
+                (oauth_provider: OAuthProvider, index) => (
                   <button
                     className="btn btn-secondary"
                     style="margin: 0.5rem"
@@ -225,7 +224,8 @@ export class Login extends Component<LoginRouteProps, State> {
                   >
                     Login with {oauth_provider.display_name}
                   </button>
-                ))}
+                ),
+              )}
             </div>
           </div>
         )}
