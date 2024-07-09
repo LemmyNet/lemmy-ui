@@ -70,7 +70,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
       toast(I18NextService.i18n.t("oauth_authorization_invalid"), "danger");
       this.props.history.push("/login");
     } else {
-      const loginRes = await HttpService.client.registerWithOAuth({
+      const loginRes = await HttpService.client.authenticateWithOAuth({
         code: this.props.code,
         oauth_provider_id: local_oauth_state.oauth_provider_id,
         redirect_uri: local_oauth_state.redirect_uri,
