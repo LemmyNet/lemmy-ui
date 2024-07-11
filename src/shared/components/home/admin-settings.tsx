@@ -546,6 +546,7 @@ export class AdminSettings extends Component<
 
     const res = await HttpService.client.deleteOAuthProvider(form);
 
+    let succeeded = false;
     if (res.state === "success") {
       this.setState(s => {
         (s.siteRes.oauth_providers = s.siteRes.oauth_providers.filter(
@@ -554,11 +555,14 @@ export class AdminSettings extends Component<
           s;
       });
       toast(I18NextService.i18n.t("site_saved"));
+      succeeded = true;
+    } else {
+      toast(I18NextService.i18n.t("couldnt_delete_oauth_provider"), "danger");
     }
 
     this.setState({ loading: false });
 
-    return res;
+    return succeeded;
   }
 
   async handleCreateOAuthProvider(

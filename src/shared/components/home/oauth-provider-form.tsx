@@ -38,7 +38,7 @@ type OAuthProviderExt = OAuthProvider & {
 interface OAuthProviderFormProps {
   onEdit(form: EditOAuthProvider): void;
   onCreate(form: CreateOAuthProvider): Promise<OAuthProvider | null>;
-  onDelete(form: DeleteOAuthProvider): void;
+  onDelete(form: DeleteOAuthProvider): boolean;
 }
 
 interface OAuthProviderFormState {
@@ -49,7 +49,7 @@ interface OAuthProviderFormState {
 
 function formatProvider(provider: OAuthProvider | null): OAuthProviderExt {
   return {
-    id: provider?.id || "",
+    id: provider?.id || 0,
     display_name: provider?.display_name || "",
     issuer: provider?.issuer || "",
     authorization_endpoint: provider?.authorization_endpoint || "",
@@ -160,7 +160,7 @@ export class OAuthProviderForm extends Component<
                           type="text"
                           id={`issuer-${index}`}
                           className="form-control"
-                          disabled={cv.id !== ""}
+                          disabled={!!cv.id}
                           value={cv.issuer}
                           onInput={linkEvent(
                             {
@@ -307,7 +307,7 @@ export class OAuthProviderForm extends Component<
                           type="text"
                           id={`client-id-${index}`}
                           className="form-control"
-                          disabled={cv.id !== ""}
+                          disabled={!!cv.id}
                           value={cv.client_id}
                           onInput={linkEvent(
                             {
@@ -334,9 +334,7 @@ export class OAuthProviderForm extends Component<
                           className="form-control"
                           value={cv.client_secret}
                           placeholder={
-                            cv.id === ""
-                              ? ""
-                              : "Secret cannot be viewed after saving"
+                            !cv.id ? "" : "Secret cannot be viewed after saving"
                           }
                           onInput={linkEvent(
                             {
@@ -565,7 +563,7 @@ export class OAuthProviderForm extends Component<
       (cv.issuer?.length || 0) > 0 &&
       cv.client_id.length > 0 &&
       cv.scopes.length > 0;
-    if (cv.id === "") {
+    if (!cv.id) {
       noEmptyFields = noEmptyFields && (cv?.client_secret?.length || 0) > 0;
     }
     noEmptyFields =
@@ -620,13 +618,15 @@ export class OAuthProviderForm extends Component<
       ...prevState,
       onConfirm: async () => {
         if (d.cv.id) {
-          d.i.props.onDelete({ id: d.cv.id });
-          d.i.setState(prevState => ({
-            ...prevState,
-            OAuthProviders: prevState.OAuthProviders.filter(
-              p => p?.id !== d.cv.id,
-            ),
-          }));
+          const deleted = await d.i.props.onDelete({ id: d.cv.id });
+          if (deleted) {
+            d.i.setState(prevState => ({
+              ...prevState,
+              OAuthProviders: prevState.OAuthProviders.filter(
+                p => p?.id !== d.cv.id,
+              ),
+            }));
+          }
         } else {
           d.i.setState(prevState => ({
             ...prevState,
@@ -640,7 +640,7 @@ export class OAuthProviderForm extends Component<
   }
 
   async handleEditAuthClick(d: { i: OAuthProviderForm; cv: OAuthProviderExt }) {
-    if (d.cv.id !== "") {
+    if (d.cv.id) {
       d.i.props.onEdit({
         id: d.cv.id,
         display_name: d.cv.display_name,
@@ -696,7 +696,7 @@ export class OAuthProviderForm extends Component<
     event.preventDefault();
     form.setState(prevState => {
       const item: OAuthProviderExt = {
-        id: "",
+        id: 0,
         display_name: "",
         issuer: "",
         authorization_endpoint: "",
