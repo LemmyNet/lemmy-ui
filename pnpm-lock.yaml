@@ -88,7 +88,7 @@ importers:
         version: 9.0.5
       i18next:
         specifier: ^23.11.5
-        version: 23.12.0
+        version: 23.12.1
       inferno:
         specifier: ^8.2.3
         version: 8.2.3
@@ -2652,8 +2652,8 @@ packages:
     resolution: {integrity: sha512-Y93lCzHYgGWdrJ66yIktxiaGULYc6oGiABxhcO5AufBeOyoIdZF7bIfLaOrbM0iGIOXQQgxxRrFEnb+Y6w1n4A==}
     engines: {node: '>=10.18'}
 
-  i18next@23.12.0:
-    resolution: {integrity: sha512-aEoMCs1wDYeBhG5uv1vavhVX/IXbp/unxBqME+H3Zxxe62JyB/IUcNkciQsC4klnb/B1hnoPCEY6zCM/0xDwZg==}
+  i18next@23.12.1:
+    resolution: {integrity: sha512-l4y291ZGRgUhKuqVSiqyuU2DDzxKStlIWSaoNBR4grYmh0X+pRYbFpTMs3CnJ5ECKbOI8sQcJ3PbTUfLgPRaMA==}
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -7504,7 +7504,7 @@ snapshots:
 
   hyperdyperid@1.2.0: {}
 
-  i18next@23.12.0:
+  i18next@23.12.1:
     dependencies:
       '@babel/runtime': 7.24.8
 
