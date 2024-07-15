@@ -24,7 +24,6 @@ const PRESET_OAUTH_PROVIDERS = [
     name_claim: "name",
     scopes: "openid name email",
     auto_verify_email: true,
-    auto_approve_application: true,
     account_linking_enabled: true,
     enabled: true,
   },
@@ -61,7 +60,6 @@ function formatProvider(provider: OAuthProvider | null): OAuthProviderExt {
     client_secret: "",
     scopes: provider?.scopes || "",
     auto_verify_email: provider?.auto_verify_email || false,
-    auto_approve_application: provider?.auto_approve_application || false,
     account_linking_enabled: provider?.account_linking_enabled || false,
     enabled: provider?.enabled || false,
     published: provider?.published || "",
@@ -403,34 +401,6 @@ export class OAuthProviderForm extends Component<
                         <div className="form-check">
                           <input
                             className="form-check-input"
-                            id={`auto-approve-application-${index}`}
-                            type="checkbox"
-                            checked={cv.auto_approve_application}
-                            onInput={linkEvent(
-                              {
-                                form: this,
-                                propertyName: "auto_approve_application",
-                                index: index,
-                              },
-                              this.handleCheckboxPropertyChange,
-                            )}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor={`auto-approve-application-${index}`}
-                          >
-                            {I18NextService.i18n.t(
-                              "oauth_auto_approve_application",
-                            )}
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mb-3 row">
-                      <div className="col-12">
-                        <div className="form-check">
-                          <input
-                            className="form-check-input"
                             id={`account-linking-enabled-${index}`}
                             type="checkbox"
                             checked={cv.account_linking_enabled}
@@ -652,7 +622,6 @@ export class OAuthProviderForm extends Component<
         client_secret: d.cv.client_secret || "",
         scopes: d.cv.scopes,
         auto_verify_email: d.cv.auto_verify_email || false,
-        auto_approve_application: d.cv.auto_approve_application || false,
         account_linking_enabled: d.cv.account_linking_enabled || false,
         enabled: d.cv.enabled || false,
       });
@@ -677,7 +646,6 @@ export class OAuthProviderForm extends Component<
         client_secret: d.cv.client_secret,
         scopes: d.cv.scopes,
         auto_verify_email: d.cv.auto_verify_email || false,
-        auto_approve_application: d.cv.auto_approve_application || false,
         account_linking_enabled: d.cv.account_linking_enabled || false,
         enabled: d.cv.enabled || false,
       });
@@ -708,7 +676,6 @@ export class OAuthProviderForm extends Component<
         client_secret: "",
         scopes: "openid name email",
         auto_verify_email: false,
-        auto_approve_application: false,
         account_linking_enabled: false,
         enabled: false,
         published: "",
@@ -739,7 +706,6 @@ export class OAuthProviderForm extends Component<
           client_secret: "",
           scopes: "openid name email",
           auto_verify_email: false,
-          auto_approve_application: false,
           account_linking_enabled: false,
           enabled: false,
           published: "",
