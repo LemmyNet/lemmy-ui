@@ -29,7 +29,9 @@ export class PersonListing extends Component<PersonListingProps, any> {
     let link: string;
     let serverStr: string | undefined = undefined;
 
-    const name = useApubName ? person.name : person.display_name ?? person.name;
+    const name = useApubName
+      ? person.name
+      : (person.display_name ?? person.name);
 
     if (local) {
       link = `/u/${person.name}`;

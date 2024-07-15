@@ -10,7 +10,7 @@
     "build:prod": "webpack --env COMMIT_HASH=$(git rev-parse --short HEAD) --mode=production",
     "clean": "pnpm rimraf dist",
     "dev": "node generate_translations.js && pnpm build:dev --watch",
-    "lint": "pnpm translations:generate && tsc --noEmit && eslint --report-unused-disable-directives && prettier --check \"src/**/*.{ts,tsx,js,mjs,css,scss}\"",
+    "lint": "pnpm translations:generate && tsc --noEmit && pnpm eslint --report-unused-disable-directives && pnpm prettier --check \"src/**/*.{ts,tsx,js,mjs,css,scss}\"",
     "prebuild:dev": "pnpm clean && node generate_translations.js",
     "prebuild:prod": "pnpm clean && node generate_translations.js",
     "prepare": "husky",
