@@ -762,7 +762,9 @@ export class MarkdownTextArea extends Component<
   getSelectedText(): string {
     const { selectionStart: start, selectionEnd: end } =
       document.getElementById(this.id) as any;
-    return start !== end ? this.state.content?.substring(start, end) ?? "" : "";
+    return start !== end
+      ? (this.state.content?.substring(start, end) ?? "")
+      : "";
   }
 
   get isDisabled() {
