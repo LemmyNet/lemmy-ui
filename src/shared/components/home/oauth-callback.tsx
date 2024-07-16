@@ -74,6 +74,8 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
         code: this.props.code,
         oauth_provider_id: local_oauth_state.oauth_provider_id,
         redirect_uri: local_oauth_state.redirect_uri,
+        show_nsfw: local_oauth_state.show_nsfw,
+        answer: local_oauth_state.answer,
       });
 
       switch (loginRes.state) {
@@ -96,7 +98,17 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
           break;
         }
         case "failed": {
+          let err_redirect = "/login";
           switch (loginRes.err.message) {
+            case "registration_application_answer_required":
+              toast(
+                I18NextService.i18n.t(
+                  "registration_application_answer_required",
+                ),
+                "danger",
+              );
+              err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
+              break;
             case "registration_application_is_pending":
               toast(
                 I18NextService.i18n.t("registration_application_pending"),
@@ -124,7 +136,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
             default:
               toast(I18NextService.i18n.t("incorrect_login"), "danger");
           }
-          this.props.history.push("/login");
+          this.props.history.push(err_redirect);
         }
       }
     }

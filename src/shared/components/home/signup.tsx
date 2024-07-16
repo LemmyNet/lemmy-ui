@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { isBrowser } from "@utils/browser";
-import { resourcesSettled, validEmail } from "@utils/helpers";
+import { getQueryParams, resourcesSettled, validEmail } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -26,6 +26,13 @@ import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteData } from "../../interfaces";
+import { IRoutePropsWithFetch } from "../../routes";
+import { handleUseOAuthProvider } from "./login";
+
+interface SignupProps {
+  sso_provider_id?: string;
+}
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -45,11 +52,25 @@ interface State {
   siteRes: GetSiteResponse;
 }
 
+export function getSignupQueryParams(source?: string): SignupProps {
+  return getQueryParams<SignupProps>(
+    {
+      sso_provider_id: (param?: string) => param,
+    },
+    source,
+  );
+}
+
+type SignupRouteProps = RouteComponentProps<Record<string, never>> &
+  SignupProps;
+export type SignupFetchConfig = IRoutePropsWithFetch<
+  RouteData,
+  Record<string, never>,
+  SignupProps
+>;
+
 @scrollMixin
-export class Signup extends Component<
-  RouteComponentProps<Record<string, never>>,
-  State
-> {
+export class Signup extends Component<SignupRouteProps, State> {
   private isoData = setIsoData(this.context);
   private audio?: HTMLAudioElement;
 
@@ -132,6 +153,10 @@ export class Signup extends Component<
 
   registerForm() {
     const siteView = this.state.siteRes.site_view;
+    const oauth_provider = this.state.siteRes.oauth_providers.find(
+      provider => provider.id === Number(this.props?.sso_provider_id || -1),
+    );
+
     return (
       <form
         className="was-validated"
@@ -149,80 +174,88 @@ export class Signup extends Component<
           </div>
         )}
 
-        <div className="mb-3 row">
-          <label
-            className="col-sm-2 col-form-label"
-            htmlFor="register-username"
-          >
-            {I18NextService.i18n.t("username")}
-          </label>
+        {!oauth_provider && (
+          <div className="mb-3 row">
+            <label
+              className="col-sm-2 col-form-label"
+              htmlFor="register-username"
+            >
+              {I18NextService.i18n.t("username")}
+            </label>
 
-          <div className="col-sm-10">
-            <input
-              type="text"
-              id="register-username"
-              className="form-control"
-              value={this.state.form.username}
-              onInput={linkEvent(this, this.handleRegisterUsernameChange)}
-              required
-              minLength={3}
-              pattern="[a-zA-Z0-9_]+"
-              title={I18NextService.i18n.t("community_reqs")}
+            <div className="col-sm-10">
+              <input
+                type="text"
+                id="register-username"
+                className="form-control"
+                value={this.state.form.username}
+                onInput={linkEvent(this, this.handleRegisterUsernameChange)}
+                required
+                minLength={3}
+                pattern="[a-zA-Z0-9_]+"
+                title={I18NextService.i18n.t("community_reqs")}
+              />
+            </div>
+          </div>
+        )}
+
+        {!oauth_provider && (
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label" htmlFor="register-email">
+              {I18NextService.i18n.t("email")}
+            </label>
+            <div className="col-sm-10">
+              <input
+                type="email"
+                id="register-email"
+                className="form-control"
+                placeholder={
+                  siteView.local_site.require_email_verification
+                    ? I18NextService.i18n.t("required")
+                    : I18NextService.i18n.t("optional")
+                }
+                value={this.state.form.email}
+                autoComplete="email"
+                onInput={linkEvent(this, this.handleRegisterEmailChange)}
+                required={siteView.local_site.require_email_verification}
+                minLength={3}
+              />
+              {!siteView.local_site.require_email_verification &&
+                this.state.form.email &&
+                !validEmail(this.state.form.email) && (
+                  <div className="mt-2 mb-0 alert alert-warning" role="alert">
+                    <Icon icon="alert-triangle" classes="icon-inline me-2" />
+                    {I18NextService.i18n.t("no_password_reset")}
+                  </div>
+                )}
+            </div>
+          </div>
+        )}
+
+        {!oauth_provider && (
+          <div className="mb-3">
+            <PasswordInput
+              id="register-password"
+              value={this.state.form.password}
+              onInput={linkEvent(this, this.handleRegisterPasswordChange)}
+              showStrength
+              label={I18NextService.i18n.t("password")}
+              isNew
             />
           </div>
-        </div>
+        )}
 
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="register-email">
-            {I18NextService.i18n.t("email")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="email"
-              id="register-email"
-              className="form-control"
-              placeholder={
-                siteView.local_site.require_email_verification
-                  ? I18NextService.i18n.t("required")
-                  : I18NextService.i18n.t("optional")
-              }
-              value={this.state.form.email}
-              autoComplete="email"
-              onInput={linkEvent(this, this.handleRegisterEmailChange)}
-              required={siteView.local_site.require_email_verification}
-              minLength={3}
+        {!oauth_provider && (
+          <div className="mb-3">
+            <PasswordInput
+              id="register-verify-password"
+              value={this.state.form.password_verify}
+              onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
+              label={I18NextService.i18n.t("verify_password")}
+              isNew
             />
-            {!siteView.local_site.require_email_verification &&
-              this.state.form.email &&
-              !validEmail(this.state.form.email) && (
-                <div className="mt-2 mb-0 alert alert-warning" role="alert">
-                  <Icon icon="alert-triangle" classes="icon-inline me-2" />
-                  {I18NextService.i18n.t("no_password_reset")}
-                </div>
-              )}
           </div>
-        </div>
-
-        <div className="mb-3">
-          <PasswordInput
-            id="register-password"
-            value={this.state.form.password}
-            onInput={linkEvent(this, this.handleRegisterPasswordChange)}
-            showStrength
-            label={I18NextService.i18n.t("password")}
-            isNew
-          />
-        </div>
-
-        <div className="mb-3">
-          <PasswordInput
-            id="register-verify-password"
-            value={this.state.form.password_verify}
-            onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
-            label={I18NextService.i18n.t("verify_password")}
-            isNew
-          />
-        </div>
+        )}
 
         {siteView.local_site.registration_mode === "RequireApplication" && (
           <>
@@ -290,17 +323,39 @@ export class Signup extends Component<
           value={this.state.form.honeypot}
           onInput={linkEvent(this, this.handleHoneyPotChange)}
         />
-        <div className="mb-3 row">
-          <div className="col-sm-10">
-            <button type="submit" className="btn btn-secondary">
-              {this.state.registerRes.state === "loading" ? (
-                <Spinner />
-              ) : (
-                this.titleName(siteView)
-              )}
-            </button>
+        {(oauth_provider !== undefined && (
+          <div className="mb-3 row">
+            <div className="col-sm-10">
+              <button
+                className="btn btn-secondary"
+                onClick={linkEvent(
+                  {
+                    i: undefined,
+                    index: undefined,
+                    oauth_provider,
+                    answer: this.state.form.answer,
+                    show_nsfw: this.state.form.show_nsfw,
+                  },
+                  handleUseOAuthProvider,
+                )}
+              >
+                {this.titleName(siteView)} with {oauth_provider.display_name}
+              </button>
+            </div>
           </div>
-        </div>
+        )) || (
+          <div className="mb-3 row">
+            <div className="col-sm-10">
+              <button type="submit" className="btn btn-secondary">
+                {this.state.registerRes.state === "loading" ? (
+                  <Spinner />
+                ) : (
+                  this.titleName(siteView)
+                )}
+              </button>
+            </div>
+          </div>
+        )}
       </form>
     );
   }

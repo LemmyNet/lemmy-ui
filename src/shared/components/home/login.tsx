@@ -107,10 +107,12 @@ async function handleLoginSubmit(i: Login, event: any) {
   }
 }
 
-async function handleUseOAuthProvider(d: {
-  i: Login;
-  index: number;
+export async function handleUseOAuthProvider(d: {
+  i: Login | undefined;
+  index: number | undefined;
   oauth_provider: OAuthProvider;
+  answer: string | undefined;
+  show_nsfw: boolean | undefined;
 }) {
   const redirectUri = `${window.location.origin}/oauth/callback`;
 
@@ -133,7 +135,9 @@ async function handleUseOAuthProvider(d: {
       state,
       oauth_provider_id: d.oauth_provider.id,
       redirect_uri: redirectUri,
-      prev: d.i.props.prev,
+      prev: d.i?.props?.prev || "/",
+      answer: d.answer,
+      show_nsfw: d.show_nsfw,
       expires_at: Date.now() + 5 * 60_000,
     }),
   );
@@ -218,7 +222,13 @@ export class Login extends Component<LoginRouteProps, State> {
                     className="btn btn-secondary"
                     style="margin: 0.5rem"
                     onClick={linkEvent(
-                      { i: this, index, oauth_provider },
+                      {
+                        i: this,
+                        index,
+                        oauth_provider,
+                        answer: undefined,
+                        show_nsfw: undefined,
+                      },
                       handleUseOAuthProvider,
                     )}
                   >
