@@ -28,7 +28,7 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
 
     const title = useApubName
       ? community.name
-      : community.title ?? community.name;
+      : (community.title ?? community.name);
 
     if (local) {
       link = `/c/${community.name}`;
