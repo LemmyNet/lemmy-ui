@@ -1,25 +1,42 @@
-import { readFile } from "fs/promises";
 import { Site } from "lemmy-js-client";
-import path from "path";
 import { fetchIconPng } from "./fetch-icon-png";
+import { getStaticDir } from "@utils/env";
 
+type Icon = { sizes: string; src: string; type: string; purpose: string };
 const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
-
-const defaultLogoPathDirectory = path.join(
-  process.cwd(),
-  "dist",
-  "assets",
-  "icons",
-);
+let icons: Icon[] | null = null;
 
 export default async function (site: Site) {
-  let icon: ArrayBuffer | null;
-  try {
-    icon = site.icon ? await fetchIconPng(site.icon) : null;
-  } catch (e) {
-    console.log(
-      `Failed to fetch site logo for manifest icon. Using default icon`,
-    );
+  if (!icons) {
+    try {
+      const icon = site.icon ? await fetchIconPng(site.icon) : null;
+
+      icons = await Promise.all(
+        iconSizes.map(async size => {
+          let src = `${getStaticDir()}/assets/icons/icon-${size}x${size}.png`;
+
+          if (icon) {
+            const sharp = (await import("sharp")).default;
+            src = `data:image/png:base64,${await sharp(icon)
+              .resize(size, size)
+              .png()
+              .toBuffer()
+              .then(buf => buf.toString("base64"))}`;
+          }
+
+          return {
+            sizes: `${size}x${size}`,
+            type: "image/png",
+            src,
+            purpose: "any maskable",
+          };
+        }),
+      );
+    } catch (e) {
+      console.log(
+        `Failed to fetch site logo for manifest icon. Using default icon`,
+      );
+    }
   }
 
   return {
@@ -31,29 +48,7 @@ export default async function (site: Site) {
     id: "/",
     background_color: "#222222",
     theme_color: "#222222",
-    icons: await Promise.all(
-      iconSizes.map(async size => {
-        let src = await readFile(
-          path.join(defaultLogoPathDirectory, `icon-${size}x${size}.png`),
-        ).then(buf => buf.toString("base64"));
-
-        if (icon) {
-          const sharp = (await import("sharp")).default;
-          src = await sharp(icon)
-            .resize(size, size)
-            .png()
-            .toBuffer()
-            .then(buf => buf.toString("base64"));
-        }
-
-        return {
-          sizes: `${size}x${size}`,
-          type: "image/png",
-          src: `data:image/png;base64,${src}`,
-          purpose: "any maskable",
-        };
-      }),
-    ),
+    icons,
     shortcuts: [
       {
         name: "Search",
