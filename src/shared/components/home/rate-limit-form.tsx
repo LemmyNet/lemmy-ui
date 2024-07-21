@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { Component, FormEventHandler, linkEvent } from "inferno";
 import { EditSite, LocalSiteRateLimit } from "lemmy-js-client";
 import { I18NextService } from "../../services";
-import { Spinner } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 
 const rateLimitTypes = [
@@ -144,6 +144,10 @@ export default class RateLimitsForm extends Component<
         <h1 className="h4 mb-4">
           {I18NextService.i18n.t("rate_limit_header")}
         </h1>
+        <div className="alert small alert-info" role="alert">
+          <Icon icon="info" classes="icon-inline me-2" />
+          {I18NextService.i18n.t("rate_limit_info")}
+        </div>
         <Tabs
           tabs={rateLimitTypes.map(rateLimitType => ({
             key: rateLimitType,
