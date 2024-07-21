@@ -32,8 +32,8 @@ export async function createSsrHtml(
     `<script nonce="${cspNonce}"`,
   );
 
-  try {
-    if (!appleTouchIcon) {
+  if (!appleTouchIcon) {
+    try {
       appleTouchIcon = site?.site_view.site.icon
         ? `data:image/png;base64,${await sharp(
             await fetchIconPng(site.site_view.site.icon),
@@ -50,12 +50,12 @@ export async function createSsrHtml(
             .toBuffer()
             .then(buf => buf.toString("base64"))}`
         : favIconPngUrl;
+    } catch (e) {
+      console.log(
+        "Could not fetch site logo for apple touch icon. Using default icon.",
+      );
+      appleTouchIcon = favIconPngUrl;
     }
-  } catch (e) {
-    console.log(
-      "Could not fetch site logo for apple touch icon. Using default icon.",
-    );
-    appleTouchIcon = favIconPngUrl;
   }
 
   const erudaStr =
