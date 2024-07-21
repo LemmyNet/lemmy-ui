@@ -144,7 +144,7 @@ function getSortTypeFromQuery(sort?: string): SortType {
 
 function getViewFromProps(view?: string): PersonDetailsView {
   return view
-    ? PersonDetailsView[view] ?? PersonDetailsView.Overview
+    ? (PersonDetailsView[view] ?? PersonDetailsView.Overview)
     : PersonDetailsView.Overview;
 }
 

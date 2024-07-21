@@ -176,7 +176,7 @@ function getSortTypeFromQuery(type?: string): SortType {
     UserService.Instance.myUserInfo?.local_user_view.local_user
       .default_sort_type;
 
-  return type ? (type as SortType) : mySortType ?? "Active";
+  return type ? (type as SortType) : (mySortType ?? "Active");
 }
 
 type CommunityPathProps = { name: string };
