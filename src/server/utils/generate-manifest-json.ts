@@ -13,7 +13,14 @@ const defaultLogoPathDirectory = path.join(
 );
 
 export default async function (site: Site) {
-  const icon = site.icon ? await fetchIconPng(site.icon) : null;
+  let icon: ArrayBuffer | null;
+  try {
+    icon = site.icon ? await fetchIconPng(site.icon) : null;
+  } catch (e) {
+    console.log(
+      `Failed to fetch site logo for manifest icon. Using default icon`,
+    );
+  }
 
   return {
     name: site.name,

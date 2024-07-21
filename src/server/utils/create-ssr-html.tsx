@@ -32,23 +32,30 @@ export async function createSsrHtml(
     `<script nonce="${cspNonce}"`,
   );
 
-  if (!appleTouchIcon) {
-    appleTouchIcon = site?.site_view.site.icon
-      ? `data:image/png;base64,${await sharp(
-          await fetchIconPng(site.site_view.site.icon),
-        )
-          .resize(180, 180)
-          .extend({
-            bottom: 20,
-            top: 20,
-            left: 20,
-            right: 20,
-            background: "#222222",
-          })
-          .png()
-          .toBuffer()
-          .then(buf => buf.toString("base64"))}`
-      : favIconPngUrl;
+  try {
+    if (!appleTouchIcon) {
+      appleTouchIcon = site?.site_view.site.icon
+        ? `data:image/png;base64,${await sharp(
+            await fetchIconPng(site.site_view.site.icon),
+          )
+            .resize(180, 180)
+            .extend({
+              bottom: 20,
+              top: 20,
+              left: 20,
+              right: 20,
+              background: "#222222",
+            })
+            .png()
+            .toBuffer()
+            .then(buf => buf.toString("base64"))}`
+        : favIconPngUrl;
+    }
+  } catch (e) {
+    console.log(
+      "Could not fetch site logo for apple touch icon. Using default icon.",
+    );
+    appleTouchIcon = favIconPngUrl;
   }
 
   const erudaStr =
