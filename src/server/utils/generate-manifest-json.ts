@@ -15,7 +15,7 @@ function mapIcon(src: string, size: number): Icon {
   };
 }
 
-function generateDeafultIcons() {
+function generateDefaultIcons() {
   return iconSizes.map(size =>
     mapIcon(`${getStaticDir()}/assets/icons/icon-${size}x${size}.png`, size),
   );
@@ -40,13 +40,13 @@ export default async function (site: Site) {
           }),
         );
       } else {
-        icons = generateDeafultIcons();
+        icons = generateDefaultIcons();
       }
     } catch (e) {
       console.log(
         `Failed to fetch site logo for manifest icon. Using default icon`,
       );
-      icons = generateDeafultIcons();
+      icons = generateDefaultIcons();
     }
   }
 
