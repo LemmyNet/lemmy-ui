@@ -6,36 +6,47 @@ type Icon = { sizes: string; src: string; type: string; purpose: string };
 const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
 let icons: Icon[] | null = null;
 
+function mapIcon(src: string, size: number): Icon {
+  return {
+    sizes: `${size}x${size}`,
+    type: "image/png",
+    src,
+    purpose: "any maskable",
+  };
+}
+
+function generateDefaultIcons() {
+  return iconSizes.map(size =>
+    mapIcon(`${getStaticDir()}/assets/icons/icon-${size}x${size}.png`, size),
+  );
+}
+
 export default async function (site: Site) {
   if (!icons) {
     try {
       const icon = site.icon ? await fetchIconPng(site.icon) : null;
 
-      icons = await Promise.all(
-        iconSizes.map(async size => {
-          let src = `${getStaticDir()}/assets/icons/icon-${size}x${size}.png`;
-
-          if (icon) {
+      if (icon) {
+        icons = await Promise.all(
+          iconSizes.map(async size => {
             const sharp = (await import("sharp")).default;
-            src = `data:image/png:base64,${await sharp(icon)
+            const src = `data:image/png:base64,${await sharp(icon)
               .resize(size, size)
               .png()
               .toBuffer()
               .then(buf => buf.toString("base64"))}`;
-          }
 
-          return {
-            sizes: `${size}x${size}`,
-            type: "image/png",
-            src,
-            purpose: "any maskable",
-          };
-        }),
-      );
+            return mapIcon(src, size);
+          }),
+        );
+      } else {
+        icons = generateDefaultIcons();
+      }
     } catch (e) {
       console.log(
         `Failed to fetch site logo for manifest icon. Using default icon`,
       );
+      icons = generateDefaultIcons();
     }
   }
 
