@@ -878,7 +878,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get crossPostParams(): CrossPostParams {
-    const { name, url } = this.postView.post;
+    const { name, url, alt_text, nsfw, language_id } = this.postView.post;
     const crossPostParams: CrossPostParams = { name };
 
     if (url) {
@@ -888,6 +888,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const crossPostBody = this.crossPostBody();
     if (crossPostBody) {
       crossPostParams.body = crossPostBody;
+    }
+
+    if (alt_text) {
+      crossPostParams.altText = alt_text;
+    }
+
+    if (nsfw) {
+      crossPostParams.nsfw = nsfw ? "true" : "false";
+    }
+
+    if (language_id !== undefined) {
+      crossPostParams.languageId = language_id;
     }
 
     return crossPostParams;
