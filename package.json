@@ -145,7 +145,7 @@
       "sortpack"
     ]
   },
-  "packageManager": "pnpm@9.5.0",
+  "packageManager": "pnpm@9.6.0",
   "engineStrict": true,
   "importSort": {
     ".js, .jsx, .ts, .tsx": {
