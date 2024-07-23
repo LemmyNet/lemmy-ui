@@ -907,8 +907,9 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             options={userSearchOptions}
             loading={loadingUserSearch}
           />
-          {!this.isoData.site_res.site_view.local_site
-            .hide_modlog_mod_names && (
+          {(this.amAdminOrMod ||
+            !this.isoData.site_res.site_view.local_site
+              .hide_modlog_mod_names) && (
             <Filter
               filterType="mod"
               onChange={this.handleModChange}
