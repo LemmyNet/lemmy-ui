@@ -75,6 +75,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
         oauth_provider_id: local_oauth_state.oauth_provider_id,
         redirect_uri: local_oauth_state.redirect_uri,
         show_nsfw: local_oauth_state.show_nsfw,
+        username: local_oauth_state.username,
         answer: local_oauth_state.answer,
       });
 
@@ -100,6 +101,13 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
         case "failed": {
           let err_redirect = "/login";
           switch (loginRes.err.message) {
+            case "registration_username_required":
+              toast(
+                I18NextService.i18n.t("registration_username_required"),
+                "danger",
+              );
+              err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
+              break;
             case "registration_application_answer_required":
               toast(
                 I18NextService.i18n.t(
@@ -132,6 +140,9 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
               break;
             case "email_already_exists":
               toast(I18NextService.i18n.t("email_already_exists"), "danger");
+              break;
+            case "username_already_exists":
+              toast(I18NextService.i18n.t("username_already_exists"), "danger");
               break;
             default:
               toast(I18NextService.i18n.t("incorrect_login"), "danger");

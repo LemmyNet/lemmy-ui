@@ -21,8 +21,7 @@ const PRESET_OAUTH_PROVIDERS = [
     token_endpoint: "https://api.privacyportal.org/oauth/token",
     userinfo_endpoint: "https://api.privacyportal.org/oauth/userinfo",
     id_claim: "sub",
-    name_claim: "name",
-    scopes: "openid name email",
+    scopes: "openid email",
     auto_verify_email: true,
     account_linking_enabled: true,
     enabled: true,
@@ -37,7 +36,7 @@ type OAuthProviderExt = OAuthProvider & {
 interface OAuthProviderFormProps {
   onEdit(form: EditOAuthProvider): void;
   onCreate(form: CreateOAuthProvider): Promise<OAuthProvider | null>;
-  onDelete(form: DeleteOAuthProvider): boolean;
+  onDelete(form: DeleteOAuthProvider): Promise<boolean>;
 }
 
 interface OAuthProviderFormState {
@@ -55,7 +54,6 @@ function formatProvider(provider: OAuthProvider | null): OAuthProviderExt {
     token_endpoint: provider?.token_endpoint || "",
     userinfo_endpoint: provider?.userinfo_endpoint || "",
     id_claim: provider?.id_claim || "",
-    name_claim: provider?.name_claim || "",
     client_id: provider?.client_id || "",
     client_secret: "",
     scopes: provider?.scopes || "",
@@ -75,7 +73,8 @@ export class OAuthProviderForm extends Component<
   private emptyState: OAuthProviderFormState = {
     siteRes: this.isoData.site_res,
     OAuthProviders:
-      this.isoData.site_res.oauth_providers.map(formatProvider) ?? [],
+      (this.isoData.site_res.admin_oauth_providers || []).map(formatProvider) ??
+      [],
   };
   state: OAuthProviderFormState;
   constructor(props: any, context: any) {
@@ -261,31 +260,6 @@ export class OAuthProviderForm extends Component<
                             {
                               form: this,
                               propertyName: "id_claim",
-                              index: index,
-                            },
-                            this.handlePropertyChange,
-                          )}
-                        />
-                      </div>
-                    </div>
-                    <div className="mb-3 row">
-                      <label
-                        className="col-12 col-form-label"
-                        htmlFor={`name-claim-${index}`}
-                      >
-                        {I18NextService.i18n.t("oauth_name_claim")}
-                      </label>
-                      <div className="col-12">
-                        <input
-                          type="text"
-                          id={`name-claim-${index}`}
-                          className="form-control"
-                          value={cv.name_claim}
-                          placeholder="name"
-                          onInput={linkEvent(
-                            {
-                              form: this,
-                              propertyName: "name_claim",
                               index: index,
                             },
                             this.handlePropertyChange,
@@ -541,8 +515,7 @@ export class OAuthProviderForm extends Component<
       cv.authorization_endpoint.length > 0 &&
       (cv.token_endpoint?.length || 0) > 0 &&
       (cv.userinfo_endpoint?.length || 0) > 0 &&
-      (cv.id_claim?.length || 0) > 0 &&
-      (cv.name_claim?.length || 0) > 0;
+      (cv.id_claim?.length || 0) > 0;
     return noEmptyFields && cv.changed;
   }
 
@@ -618,7 +591,6 @@ export class OAuthProviderForm extends Component<
         token_endpoint: d.cv.token_endpoint || "",
         userinfo_endpoint: d.cv.userinfo_endpoint || "",
         id_claim: d.cv.id_claim || "",
-        name_claim: d.cv.name_claim || "",
         client_secret: d.cv.client_secret || "",
         scopes: d.cv.scopes,
         auto_verify_email: d.cv.auto_verify_email || false,
@@ -641,7 +613,6 @@ export class OAuthProviderForm extends Component<
         token_endpoint: d.cv.token_endpoint || "",
         userinfo_endpoint: d.cv.userinfo_endpoint || "",
         id_claim: d.cv.id_claim || "",
-        name_claim: d.cv.name_claim || "",
         client_id: d.cv.client_id,
         client_secret: d.cv.client_secret,
         scopes: d.cv.scopes,
@@ -671,10 +642,9 @@ export class OAuthProviderForm extends Component<
         token_endpoint: "",
         userinfo_endpoint: "",
         id_claim: "",
-        name_claim: "",
         client_id: "",
         client_secret: "",
-        scopes: "openid name email",
+        scopes: "openid email",
         auto_verify_email: false,
         account_linking_enabled: false,
         enabled: false,
@@ -701,10 +671,9 @@ export class OAuthProviderForm extends Component<
           token_endpoint: "",
           userinfo_endpoint: "",
           id_claim: "",
-          name_claim: "",
           client_id: "",
           client_secret: "",
-          scopes: "openid name email",
+          scopes: "openid email",
           auto_verify_email: false,
           account_linking_enabled: false,
           enabled: false,

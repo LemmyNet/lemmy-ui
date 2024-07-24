@@ -153,9 +153,7 @@ export class Signup extends Component<SignupRouteProps, State> {
 
   registerForm() {
     const siteView = this.state.siteRes.site_view;
-    const oauth_provider = this.state.siteRes.oauth_providers.find(
-      provider => provider.id === Number(this.props?.sso_provider_id || -1),
-    );
+    const oauth_provider = getOAuthProvider(this);
 
     return (
       <form
@@ -174,30 +172,28 @@ export class Signup extends Component<SignupRouteProps, State> {
           </div>
         )}
 
-        {!oauth_provider && (
-          <div className="mb-3 row">
-            <label
-              className="col-sm-2 col-form-label"
-              htmlFor="register-username"
-            >
-              {I18NextService.i18n.t("username")}
-            </label>
+        <div className="mb-3 row">
+          <label
+            className="col-sm-2 col-form-label"
+            htmlFor="register-username"
+          >
+            {I18NextService.i18n.t("username")}
+          </label>
 
-            <div className="col-sm-10">
-              <input
-                type="text"
-                id="register-username"
-                className="form-control"
-                value={this.state.form.username}
-                onInput={linkEvent(this, this.handleRegisterUsernameChange)}
-                required
-                minLength={3}
-                pattern="[a-zA-Z0-9_]+"
-                title={I18NextService.i18n.t("community_reqs")}
-              />
-            </div>
+          <div className="col-sm-10">
+            <input
+              type="text"
+              id="register-username"
+              className="form-control"
+              value={this.state.form.username}
+              onInput={linkEvent(this, this.handleRegisterUsernameChange)}
+              required
+              minLength={3}
+              pattern="[a-zA-Z0-9_]+"
+              title={I18NextService.i18n.t("community_reqs")}
+            />
           </div>
-        )}
+        </div>
 
         {!oauth_provider && (
           <div className="mb-3 row">
@@ -323,39 +319,22 @@ export class Signup extends Component<SignupRouteProps, State> {
           value={this.state.form.honeypot}
           onInput={linkEvent(this, this.handleHoneyPotChange)}
         />
-        {(oauth_provider !== undefined && (
-          <div className="mb-3 row">
-            <div className="col-sm-10">
-              <button
-                className="btn btn-secondary"
-                onClick={linkEvent(
-                  {
-                    i: undefined,
-                    index: undefined,
-                    oauth_provider,
-                    answer: this.state.form.answer,
-                    show_nsfw: this.state.form.show_nsfw,
-                  },
-                  handleUseOAuthProvider,
-                )}
-              >
-                {this.titleName(siteView)} with {oauth_provider.display_name}
-              </button>
-            </div>
+        <div className="mb-3 row">
+          <div className="col-sm-10">
+            <button type="submit" className="btn btn-secondary">
+              {this.state.registerRes.state === "loading" ? (
+                <Spinner />
+              ) : (
+                [
+                  this.titleName(siteView),
+                  ...(oauth_provider !== undefined
+                    ? [`(${oauth_provider.display_name})`]
+                    : []),
+                ].join(" ")
+              )}
+            </button>
           </div>
-        )) || (
-          <div className="mb-3 row">
-            <div className="col-sm-10">
-              <button type="submit" className="btn btn-secondary">
-                {this.state.registerRes.state === "loading" ? (
-                  <Spinner />
-                ) : (
-                  this.titleName(siteView)
-                )}
-              </button>
-            </div>
-          </div>
-        )}
+        </div>
       </form>
     );
   }
@@ -444,6 +423,21 @@ export class Signup extends Component<SignupRouteProps, State> {
       password_verify,
       username,
     } = i.state.form;
+
+    const oauthProvider = getOAuthProvider(i);
+
+    // oauth registration
+    if (username && oauthProvider)
+      return handleUseOAuthProvider({
+        i: undefined,
+        index: undefined,
+        oauth_provider: oauthProvider,
+        username,
+        answer,
+        show_nsfw,
+      });
+
+    // normal registration
     if (username && password && password_verify) {
       i.setState({ registerRes: LOADING_REQUEST });
 
@@ -570,4 +564,10 @@ export class Signup extends Component<SignupRouteProps, State> {
   captchaPngSrc(captcha: CaptchaResponse) {
     return `data:image/png;base64,${captcha.png}`;
   }
+}
+
+function getOAuthProvider(signup: Signup) {
+  return (signup.state.siteRes.oauth_providers || []).find(
+    provider => provider.id === Number(signup.props?.sso_provider_id || -1),
+  );
 }

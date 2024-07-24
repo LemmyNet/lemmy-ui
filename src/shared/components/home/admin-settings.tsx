@@ -528,7 +528,9 @@ export class AdminSettings extends Component<
     if (res.state === "success") {
       const newOAuthProvider = res.data;
       this.setState(s => {
-        (s.siteRes.oauth_providers = s.siteRes.oauth_providers.map(p =>
+        (s.siteRes.admin_oauth_providers = (
+          s.siteRes.admin_oauth_providers || []
+        ).map(p =>
           p?.client_id === newOAuthProvider.client_id ? newOAuthProvider : p,
         )),
           s;
@@ -549,9 +551,9 @@ export class AdminSettings extends Component<
     let succeeded = false;
     if (res.state === "success") {
       this.setState(s => {
-        (s.siteRes.oauth_providers = s.siteRes.oauth_providers.filter(
-          p => p?.id !== form.id,
-        )),
+        (s.siteRes.admin_oauth_providers = (
+          s.siteRes.admin_oauth_providers || []
+        ).filter(p => p?.id !== form.id)),
           s;
       });
       toast(I18NextService.i18n.t("site_saved"));
@@ -575,18 +577,20 @@ export class AdminSettings extends Component<
     if (res.state === "success") {
       return new Promise(resolve => {
         this.setState(s => {
-          s.siteRes.oauth_providers = s.siteRes.oauth_providers.slice();
+          s.siteRes.admin_oauth_providers = (
+            s.siteRes.admin_oauth_providers || []
+          ).slice();
           const newOAuthProvider: OAuthProvider = res.data;
-          const index = s.siteRes.oauth_providers.findIndex(
+          const index = s.siteRes.admin_oauth_providers.findIndex(
             x => x?.id === newOAuthProvider.id,
           );
           if (index >= 0) {
             Object.assign(
-              s.siteRes.oauth_providers[index] || {},
+              s.siteRes.admin_oauth_providers[index] || {},
               newOAuthProvider,
             );
           } else {
-            s.siteRes.oauth_providers.push(newOAuthProvider);
+            s.siteRes.admin_oauth_providers.push(newOAuthProvider);
           }
           resolve(newOAuthProvider);
         });

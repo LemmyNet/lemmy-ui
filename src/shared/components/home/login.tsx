@@ -3,7 +3,12 @@ import { isBrowser, refreshTheme } from "@utils/browser";
 import { getQueryParams } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { GetSiteResponse, LoginResponse, OAuthProvider } from "lemmy-js-client";
+import {
+  GetSiteResponse,
+  LoginResponse,
+  OAuthProvider,
+  PublicOAuthProvider,
+} from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -54,6 +59,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
     UserService.Instance.myUserInfo = site.data.my_user;
     const isoData = setIsoData(i.context);
     isoData.site_res.oauth_providers = site.data.oauth_providers;
+    isoData.site_res.admin_oauth_providers = site.data.admin_oauth_providers;
     refreshTheme();
   }
 
@@ -111,6 +117,7 @@ export async function handleUseOAuthProvider(d: {
   i: Login | undefined;
   index: number | undefined;
   oauth_provider: OAuthProvider;
+  username: string | undefined;
   answer: string | undefined;
   show_nsfw: boolean | undefined;
 }) {
@@ -136,6 +143,7 @@ export async function handleUseOAuthProvider(d: {
       oauth_provider_id: d.oauth_provider.id,
       redirect_uri: redirectUri,
       prev: d.i?.props?.prev || "/",
+      username: d.username,
       answer: d.answer,
       show_nsfw: d.show_nsfw,
       expires_at: Date.now() + 5 * 60_000,
@@ -212,12 +220,12 @@ export class Login extends Component<LoginRouteProps, State> {
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
-        {this.state.siteRes.oauth_providers.length > 0 && (
+        {(this.state.siteRes.oauth_providers?.length || 0) > 0 && (
           <div className="row">
             <div className="col-12 col-lg-6 offset-lg-3">
               <span>Or</span>
-              {this.state.siteRes.oauth_providers.map(
-                (oauth_provider: OAuthProvider, index) => (
+              {(this.state.siteRes.oauth_providers || []).map(
+                (oauth_provider: PublicOAuthProvider, index) => (
                   <button
                     className="btn btn-secondary"
                     style="margin: 0.5rem"
@@ -226,6 +234,7 @@ export class Login extends Component<LoginRouteProps, State> {
                         i: this,
                         index,
                         oauth_provider,
+                        username: undefined,
                         answer: undefined,
                         show_nsfw: undefined,
                       },
