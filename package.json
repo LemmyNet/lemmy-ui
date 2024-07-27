@@ -79,7 +79,7 @@
     "rxjs": "^7.8.1",
     "sanitize-html": "^2.13.0",
     "sass": "^1.77.4",
-    "sass-loader": "^15.0.0",
+    "sass-loader": "^16.0.0",
     "serialize-javascript": "^6.0.2",
     "service-worker-webpack": "^1.0.0",
     "sharp": "0.33.4",
