@@ -27,7 +27,7 @@ import {
   ghostArchiveUrl,
   postMarkdownFieldCharacterLimit,
   relTags,
-  trendingFetchLimit,
+  similarPostFetchLimit,
   webArchiveUrl,
 } from "../../config";
 import { PostFormParams } from "../../interfaces";
@@ -825,7 +825,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           listing_type: "All",
           community_id: this.state.form.community_id,
           page: 1,
-          limit: trendingFetchLimit,
+          limit: similarPostFetchLimit,
         }),
       });
     }
