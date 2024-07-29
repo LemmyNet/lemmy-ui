@@ -16,7 +16,6 @@ export const webArchiveUrl = "https://web.archive.org";
 export const elementUrl = "https://element.io";
 
 export const postRefetchSeconds: number = 60 * 1000;
-export const trendingFetchLimit = 6;
 export const mentionDropdownFetchLimit = 10;
 export const commentTreeMaxDepth = 8;
 export const postMarkdownFieldCharacterLimit = 50000;
@@ -25,6 +24,7 @@ export const maxUploadImages = 20;
 export const concurrentImageUpload = 4;
 export const updateUnreadCountsInterval = 30000;
 export const fetchLimit = 20;
+export const similarPostFetchLimit = 6;
 export const relTags = "noopener nofollow";
 export const emDash = "\u2014";
 export const authCookieName = "jwt";
