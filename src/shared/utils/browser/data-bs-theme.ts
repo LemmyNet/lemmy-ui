@@ -9,15 +9,7 @@ export default function dataBsTheme(siteResOrTheme?: GetSiteResponse | string) {
         siteResOrTheme?.site_view.local_site.default_theme ??
         "browser");
 
-  return (isDark() && theme === "browser") ||
-    [
-      "darkly",
-      "darkly-red",
-      "darkly-pureblack",
-      "darkly-compact",
-      "i386",
-      "vaporwave-dark",
-    ].includes(theme)
+  return (isDark() && theme === "browser") || theme.includes("dark")
     ? "dark"
     : "light";
 }
