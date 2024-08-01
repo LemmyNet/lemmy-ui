@@ -42,7 +42,7 @@ export default async function (site: Site) {
       } else {
         icons = generateDefaultIcons();
       }
-    } catch (e) {
+    } catch {
       console.log(
         `Failed to fetch site logo for manifest icon. Using default icon`,
       );
