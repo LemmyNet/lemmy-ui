@@ -50,7 +50,7 @@ export async function createSsrHtml(
             .toBuffer()
             .then(buf => buf.toString("base64"))}`
         : favIconPngUrl;
-    } catch (e) {
+    } catch {
       console.log(
         "Could not fetch site logo for apple touch icon. Using default icon.",
       );

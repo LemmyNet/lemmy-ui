@@ -451,7 +451,7 @@ export class MarkdownTextArea extends Component<
             }));
           }),
         );
-      } catch (e) {
+      } catch {
         errorOccurred = true;
       }
     }
