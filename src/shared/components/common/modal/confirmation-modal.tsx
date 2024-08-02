@@ -1,10 +1,4 @@
-import {
-  Component,
-  InfernoNode,
-  RefObject,
-  createRef,
-  linkEvent,
-} from "inferno";
+import { Component, RefObject, createRef, linkEvent } from "inferno";
 import { I18NextService } from "../../../services";
 import type { Modal } from "bootstrap";
 import { Spinner } from "../icon";
@@ -12,7 +6,6 @@ import { LoadingEllipses } from "../loading-ellipses";
 import { modalMixin } from "../../mixins/modal-mixin";
 
 interface ConfirmationModalProps {
-  children?: InfernoNode;
   onYes: () => Promise<void>;
   onNo: () => void;
   message: string;

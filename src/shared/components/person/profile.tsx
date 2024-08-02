@@ -20,7 +20,7 @@ import {
   resourcesSettled,
   bareRoutePush,
 } from "@utils/helpers";
-import { canMod } from "@utils/roles";
+import { canAdmin, canMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -100,6 +100,7 @@ import { IRoutePropsWithFetch } from "../../routes";
 import { MediaUploads } from "../common/media-uploads";
 import { cakeDate } from "@utils/helpers";
 import { isBrowser } from "@utils/browser";
+import DisplayModal from "../common/modal/display-modal";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
@@ -119,6 +120,7 @@ interface ProfileState {
   removeData: boolean;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
+  showRegistrationDialog: boolean;
 }
 
 interface ProfileProps {
@@ -204,6 +206,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     showBanDialog: false,
     removeData: false,
     isIsomorphic: false,
+    showRegistrationDialog: false,
   };
 
   loadingSettled() {
@@ -252,6 +255,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
     this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
+    this.handleRegistrationShow = this.handleRegistrationShow.bind(this);
+    this.handleRegistrationClose = this.handleRegistrationClose.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -628,6 +633,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       personBlocked,
       siteRes: { admins },
       showBanDialog,
+      showRegistrationDialog,
     } = this.state;
 
     return (
@@ -740,6 +746,29 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
                     </button>
                   ))}
+                {canAdmin(pv.person.id, admins) && (
+                  <>
+                    <button
+                      className={
+                        "d-flex registration-self-start btn btn-secondary me-2"
+                      }
+                      aria-label="View registration"
+                      onClick={this.handleRegistrationShow}
+                    >
+                      View registration
+                    </button>
+                    {showRegistrationDialog && (
+                      <DisplayModal
+                        onClose={this.handleRegistrationClose}
+                        loadingMessage="Loading registration"
+                        title={`${pv.person.display_name ?? pv.person.name}'s Registration`}
+                        show={showRegistrationDialog}
+                      >
+                        Stuff
+                      </DisplayModal>
+                    )}
+                  </>
+                )}
               </div>
               {pv.person.bio && (
                 <div className="d-flex align-items-center mb-2">
@@ -923,6 +952,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   handleModBanSubmitCancel(i: Profile) {
     i.setState({ showBanDialog: false });
+  }
+
+  handleRegistrationShow() {
+    this.setState({ showRegistrationDialog: true });
+  }
+
+  handleRegistrationClose() {
+    this.setState({ showRegistrationDialog: false });
   }
 
   async handleModBanSubmit(i: Profile, event: any) {
