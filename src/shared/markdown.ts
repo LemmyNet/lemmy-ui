@@ -41,7 +41,8 @@ export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<
 >();
 
 if (isBrowser()) {
-  Tribute = await import("tributejs");
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  Tribute = require("tributejs");
 }
 
 export function mdToHtml(text: string, rerender: () => void) {
