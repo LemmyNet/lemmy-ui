@@ -42,7 +42,7 @@ import { MediaUploads } from "../common/media-uploads";
 import { Paginator } from "../common/paginator";
 import { snapToTop } from "@utils/browser";
 import { isBrowser } from "@utils/browser";
-import ConfirmationModal from "../common/confirmation-modal";
+import ConfirmationModal from "../common/modal/confirmation-modal";
 
 type AdminSettingsData = RouteDataResponse<{
   bannedRes: BannedPersonsResponse;

@@ -47,7 +47,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { MetadataCard } from "./metadata-card";
 import { PostForm } from "./post-form";
-import { BanUpdateForm } from "../common/mod-action-form-modal";
+import { BanUpdateForm } from "../common/modal/mod-action-form-modal";
 import PostActionDropdown from "../common/content-actions/post-action-dropdown";
 import { CrossPostParams } from "@utils/types";
 import { RequestState } from "../../services/HttpService";

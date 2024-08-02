@@ -6,10 +6,10 @@ import {
   createRef,
   linkEvent,
 } from "inferno";
-import { I18NextService } from "../../services";
-import { toast } from "../../toast";
+import { I18NextService } from "../../../services";
+import { toast } from "../../../toast";
 import type { Modal } from "bootstrap";
-import { modalMixin } from "../mixins/modal-mixin";
+import { modalMixin } from "../../mixins/modal-mixin";
 
 interface TotpModalProps {
   children?: InfernoNode;

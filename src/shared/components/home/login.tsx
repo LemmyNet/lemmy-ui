@@ -15,7 +15,7 @@ import { toast } from "../../toast";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
-import TotpModal from "../common/totp-modal";
+import TotpModal from "../common/modal/totp-modal";
 import { UnreadCounterService } from "../../services";
 import { RouteData } from "../../interfaces";
 import { IRoutePropsWithFetch } from "../../routes";

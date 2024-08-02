@@ -13,7 +13,7 @@ import { Navbar } from "./navbar";
 import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
-import AdultConsentModal from "../common/adult-consent-modal";
+import AdultConsentModal from "../common/modal/adult-consent-modal";
 import { destroyTippy, setupTippy } from "../../tippy";
 
 function handleJumpToContent(event) {
