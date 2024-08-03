@@ -7,6 +7,7 @@ import { canAdmin, canMod } from "@utils/roles";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
+import { T } from "inferno-i18next-dess";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -33,7 +34,7 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
-import { relTags } from "../../config";
+import { relTags, torrentHelpUrl } from "../../config";
 import { IsoDataOptionalSite, VoteContentType } from "../../interfaces";
 import { mdToHtml, mdToHtmlInline } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
@@ -52,6 +53,9 @@ import PostActionDropdown from "../common/content-actions/post-action-dropdown";
 import { CrossPostParams } from "@utils/types";
 import { RequestState } from "../../services/HttpService";
 import { toast } from "../../toast";
+import isMagnetLink, {
+  extractMagnetLinkDownloadName,
+} from "@utils/media/is-magnet-link";
 
 type PostListingState = {
   showEdit: boolean;
@@ -176,6 +180,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             {this.listing()}
             {this.state.imageExpanded && !this.props.hideImage && this.img}
+            {this.showBody &&
+              post.url &&
+              isMagnetLink(post.url) &&
+              this.torrentHelp()}
             {this.showBody && post.url && post.embed_title && (
               <MetadataCard post={post} />
             )}
@@ -217,6 +225,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  torrentHelp() {
+    return (
+      <div className="alert alert-info small my-2" role="alert">
+        <Icon icon="info" classes="icon-inline me-2" />
+        <T parent="span" i18nKey="torrent_help">
+          #
+          <a className="alert-link" rel={relTags} href={torrentHelpUrl}>
+            #
+          </a>
+        </T>
+      </div>
+    );
+  }
   get img() {
     const { post } = this.postView;
     const { url } = post;
@@ -542,20 +563,31 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const post = this.postView.post;
     const url = post.url;
 
-    return (
-      <p className="small m-0">
-        {url && !(hostname(url) === getExternalHost()) && (
-          <a
-            className="fst-italic link-dark link-opacity-75 link-opacity-100-hover"
-            href={url}
-            title={url}
-            rel={relTags}
-          >
-            {hostname(url)}
-          </a>
-        )}
-      </p>
-    );
+    if (url) {
+      // If its a torrent link, extract the download name
+      const linkName = isMagnetLink(url)
+        ? extractMagnetLinkDownloadName(url)
+        : !(hostname(url) === getExternalHost())
+          ? hostname(url)
+          : null;
+
+      if (linkName) {
+        return (
+          <p className="small m-0">
+            {url && !(hostname(url) === getExternalHost()) && (
+              <a
+                className="fst-italic link-dark link-opacity-75 link-opacity-100-hover"
+                href={url}
+                title={url}
+                rel={relTags}
+              >
+                {linkName}
+              </a>
+            )}
+          </p>
+        );
+      }
+    }
   }
 
   duplicatesLine() {
