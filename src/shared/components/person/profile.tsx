@@ -20,7 +20,7 @@ import {
   resourcesSettled,
   bareRoutePush,
 } from "@utils/helpers";
-import { amAdmin, canMod, canAdmin } from "@utils/roles";
+import { amAdmin, canMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -73,6 +73,7 @@ import {
   SortType,
   SuccessResponse,
   TransferCommunity,
+  RegistrationApplicationResponse,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
@@ -113,6 +114,7 @@ interface ProfileState {
   // to render the start of the profile while the new details are loading.
   personDetailsRes: RequestState<GetPersonDetailsResponse>;
   uploadsRes: RequestState<ListMediaResponse>;
+  registrationRes: RequestState<RegistrationApplicationResponse>;
   personBlocked: boolean;
   banReason?: string;
   banExpireDays?: number;
@@ -207,6 +209,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     removeData: false,
     isIsomorphic: false,
     showRegistrationDialog: false,
+    registrationRes: EMPTY_REQUEST,
   };
 
   loadingSettled() {
@@ -634,6 +637,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       siteRes: { admins },
       showBanDialog,
       showRegistrationDialog,
+      registrationRes,
     } = this.state;
 
     return (
@@ -758,7 +762,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
                     </button>
                   ))}
-                {canAdmin(pv.person.id, admins) && (
+                {amAdmin() && (
                   <>
                     <button
                       className={
@@ -773,10 +777,23 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       <DisplayModal
                         onClose={this.handleRegistrationClose}
                         loadingMessage="Loading registration"
-                        title={`${pv.person.display_name ?? pv.person.name}'s Registration`}
+                        title={`${pv.person.display_name ?? pv.person.name}'s registration`}
                         show={showRegistrationDialog}
+                        loading={registrationRes.state === "loading"}
                       >
-                        Stuff
+                        {registrationRes.state === "success" ? (
+                          <article
+                            dangerouslySetInnerHTML={mdToHtml(
+                              registrationRes.data.registration_application
+                                .registration_application.answer,
+                              () => this.forceUpdate(),
+                            )}
+                          />
+                        ) : registrationRes.state === "failed" ? (
+                          "Could not fetch registration application"
+                        ) : (
+                          ""
+                        )}
                       </DisplayModal>
                     )}
                   </>
@@ -967,7 +984,25 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   handleRegistrationShow() {
+    if (this.state.registrationRes.state !== "success") {
+      this.setState({ registrationRes: LOADING_REQUEST });
+    }
+
     this.setState({ showRegistrationDialog: true });
+
+    if (this.state.personDetailsRes.state === "success") {
+      HttpService.client
+        .getRegistrationApplication({
+          person_id: this.state.personDetailsRes.data.person_view.person.id,
+        })
+        .then(res => {
+          this.setState({ registrationRes: res });
+
+          if (res.state === "failed") {
+            toast("Could not fetch registration application", "danger");
+          }
+        });
+    }
   }
 
   handleRegistrationClose() {

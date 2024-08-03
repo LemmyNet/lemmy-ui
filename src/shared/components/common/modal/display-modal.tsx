@@ -6,26 +6,17 @@ import { modalMixin } from "../../mixins/modal-mixin";
 
 interface DisplayModalProps {
   children: InfernoNode;
-  loadingMessage: string;
+  loadingMessage?: string;
   title: string;
   onClose: () => void;
   show: boolean;
-}
-
-interface DisplayModalState {
-  loading: boolean;
+  loading?: boolean;
 }
 
 @modalMixin
-export default class DisplayModal extends Component<
-  DisplayModalProps,
-  DisplayModalState
-> {
+export default class DisplayModal extends Component<DisplayModalProps, any> {
   readonly modalDivRef: RefObject<HTMLDivElement>;
   modal?: Modal;
-  state: DisplayModalState = {
-    loading: false,
-  };
 
   constructor(props: DisplayModalProps, context: any) {
     super(props, context);
@@ -34,8 +25,7 @@ export default class DisplayModal extends Component<
   }
 
   render() {
-    const { children, loadingMessage, title, onClose } = this.props;
-    const { loading } = this.state;
+    const { children, loadingMessage, title, onClose, loading } = this.props;
 
     return (
       <div
@@ -62,13 +52,13 @@ export default class DisplayModal extends Component<
             </header>
             <div className="modal-body">
               {loading ? (
-                <>
+                <div class="text-center align-middle text-body">
                   <Spinner large />
                   <div>
                     {loadingMessage}
                     <LoadingEllipses />
                   </div>
-                </>
+                </div>
               ) : (
                 children
               )}
