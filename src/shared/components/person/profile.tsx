@@ -776,8 +776,12 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     {showRegistrationDialog && (
                       <DisplayModal
                         onClose={this.handleRegistrationClose}
-                        loadingMessage="Loading registration"
-                        title={`${pv.person.display_name ?? pv.person.name}'s registration`}
+                        loadingMessage={I18NextService.i18n.t(
+                          "loading_registration",
+                        )}
+                        title={I18NextService.i18n.t("registration_for_user", {
+                          name: pv.person.display_name ?? pv.person.name,
+                        })}
                         show={showRegistrationDialog}
                         loading={registrationRes.state === "loading"}
                       >
@@ -790,7 +794,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                             )}
                           />
                         ) : registrationRes.state === "failed" ? (
-                          "Could not fetch registration application"
+                          I18NextService.i18n.t("fetch_registration_error")
                         ) : (
                           ""
                         )}
@@ -999,7 +1003,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           this.setState({ registrationRes: res });
 
           if (res.state === "failed") {
-            toast("Could not fetch registration application", "danger");
+            toast(I18NextService.i18n.t("fetch_registration_error"), "danger");
           }
         });
     }
