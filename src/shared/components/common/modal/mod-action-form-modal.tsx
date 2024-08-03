@@ -328,7 +328,12 @@ export default class ModActionFormModal extends Component<
             : "ban_from_community_with_name",
           {
             user: getApubName(this.props.creator),
-            community: getApubName(this.props.community!),
+            community: getApubName(
+              this.props.community ?? {
+                actor_id: "",
+                name: "",
+              },
+            ),
           },
         );
       }
