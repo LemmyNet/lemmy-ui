@@ -174,7 +174,7 @@ export default class ContentActionDropdown extends Component<
             ),
           }
         : {
-            modHistoryItemLink: `/modlog?commentId"=${id}`,
+            modHistoryItemLink: `/modlog?commentId=${id}`,
             modHistoryItemTranslation: I18NextService.i18n.t(
               "comment_moderation_history",
             ),
