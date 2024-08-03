@@ -20,7 +20,7 @@ import {
   resourcesSettled,
   bareRoutePush,
 } from "@utils/helpers";
-import { canMod } from "@utils/roles";
+import { amAdmin, canMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -671,15 +671,27 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 <div className="flex-grow-1 unselectable pointer mx-2"></div>
                 {!this.amCurrentUser && UserService.Instance.myUserInfo && (
                   <>
-                    <a
-                      className={`d-flex align-self-start btn btn-secondary me-2 ${
-                        !pv.person.matrix_user_id && "invisible"
-                      }`}
-                      rel={relTags}
-                      href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
-                    >
-                      {I18NextService.i18n.t("send_secure_message")}
-                    </a>
+                    {amAdmin() && (
+                      <Link
+                        className={
+                          "d-flex align-self-start btn btn-secondary me-2"
+                        }
+                        to={`/modlog?userId=${pv.person.id}`}
+                      >
+                        {I18NextService.i18n.t("user_moderation_history", {
+                          user: pv.person.name,
+                        })}
+                      </Link>
+                    )}
+                    {pv.person.matrix_user_id && (
+                      <a
+                        className={`d-flex align-self-start btn btn-secondary me-2`}
+                        rel={relTags}
+                        href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
+                      >
+                        {I18NextService.i18n.t("send_secure_message")}
+                      </a>
+                    )}
                     <Link
                       className={
                         "d-flex align-self-start btn btn-secondary me-2"
