@@ -9,6 +9,7 @@ export const donateLemmyUrl = `${joinLemmyUrl}/donate`;
 export const docsUrl = `${joinLemmyUrl}/docs/en/index.html`;
 export const helpGuideUrl = `${joinLemmyUrl}/docs/en/users/01-getting-started.html`; // TODO find a way to redirect to the non-en folder
 export const markdownHelpUrl = `${joinLemmyUrl}/docs/en/users/02-media.html`;
+export const torrentHelpUrl = `${markdownHelpUrl}#torrents`;
 export const sortingHelpUrl = `${joinLemmyUrl}/docs/en/users/03-votes-and-ranking.html`;
 export const archiveTodayUrl = "https://archive.today";
 export const ghostArchiveUrl = "https://ghostarchive.org";
