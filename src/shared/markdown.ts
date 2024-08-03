@@ -18,6 +18,8 @@ import { Renderer, Token } from "markdown-it";
 import { instanceLinkRegex, relTags } from "./config";
 import { lazyHighlightjs } from "./lazy-highlightjs";
 
+let Tribute: any;
+
 export let md: MarkdownIt = new MarkdownIt();
 
 export let mdNoImages: MarkdownIt = new MarkdownIt();
@@ -334,7 +336,10 @@ export function getEmojiMart(
 }
 
 export async function setupTribute() {
-  const Tribute = (await import("tributejs")).default;
+  if (Tribute === null) {
+    console.debug("Tribute is null, importing...");
+    Tribute = (await import("tributejs")).default;
+  }
 
   return new Tribute({
     noMatchTemplate: function () {
