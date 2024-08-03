@@ -159,6 +159,26 @@ export default class ContentActionDropdown extends Component<
       (amMod(community.id) || (amAdmin() && community.local)) &&
       !creator_banned_from_community;
 
+    const modHistoryUserTranslation = I18NextService.i18n.t(
+      "user_moderation_history",
+      { user: creator.name },
+    );
+
+    // The link and translation string for the item
+    const { modHistoryItemLink, modHistoryItemTranslation } =
+      type === "post"
+        ? {
+            modHistoryItemLink: `/modlog?postId=${id}`,
+            modHistoryItemTranslation: I18NextService.i18n.t(
+              "post_moderation_history",
+            ),
+          }
+        : {
+            modHistoryItemLink: `/modlog?commentId"=${id}`,
+            modHistoryItemTranslation: I18NextService.i18n.t(
+              "comment_moderation_history",
+            ),
+          };
     return (
       <>
         {type === "comment" && (
@@ -349,15 +369,23 @@ export default class ContentActionDropdown extends Component<
                 <li>
                   <Link
                     className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-                    to={`/modlog?${type === "post" ? "postId" : "commentId"}=${id}`}
-                    title={I18NextService.i18n.t("moderation_history")}
-                    aria-label={I18NextService.i18n.t("moderation_history")}
-                    data-tippy-content={I18NextService.i18n.t(
-                      "moderation_history",
-                    )}
+                    to={`/modlog?userId=${creator.id}`}
+                    title={modHistoryUserTranslation}
+                    aria-label={modHistoryUserTranslation}
+                    data-tippy-content={modHistoryUserTranslation}
                   >
                     <Icon icon="history" inline classes="me-2" />
-                    {I18NextService.i18n.t("moderation_history")}
+                    {modHistoryUserTranslation}
+                  </Link>
+                  <Link
+                    className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+                    to={modHistoryItemLink}
+                    title={modHistoryItemTranslation}
+                    aria-label={modHistoryItemTranslation}
+                    data-tippy-content={modHistoryItemTranslation}
+                  >
+                    <Icon icon="history" inline classes="me-2" />
+                    {modHistoryItemTranslation}
                   </Link>
                 </li>
                 {(this.canMod || this.canAdmin) && (

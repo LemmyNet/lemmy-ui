@@ -17,9 +17,6 @@ import markdown_it_highlightjs from "markdown-it-highlightjs/core";
 import { Renderer, Token } from "markdown-it";
 import { instanceLinkRegex, relTags } from "./config";
 import { lazyHighlightjs } from "./lazy-highlightjs";
-import { isBrowser } from "@utils/browser";
-
-export let Tribute: any;
 
 export let md: MarkdownIt = new MarkdownIt();
 
@@ -39,10 +36,6 @@ export let customEmojisLookup: Map<string, CustomEmojiView> = new Map<
   string,
   CustomEmojiView
 >();
-
-if (isBrowser()) {
-  Tribute = await import("tributejs");
-}
 
 export function mdToHtml(text: string, rerender: () => void) {
   return { __html: lazyHighlightjs.render(md, text, rerender) };
@@ -340,7 +333,9 @@ export function getEmojiMart(
   return new Picker(pickerOptions);
 }
 
-export function setupTribute() {
+export async function setupTribute() {
+  const Tribute = (await import("tributejs")).default;
+
   return new Tribute({
     noMatchTemplate: function () {
       return "";

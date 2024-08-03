@@ -76,8 +76,6 @@ export class MarkdownTextArea extends Component<
   private id = `markdown-textarea-${randomStr()}`;
   private formId = `markdown-form-${randomStr()}`;
 
-  private tribute: any;
-
   state: MarkdownTextAreaState = {
     content: this.props.initialContent,
     languageId: this.props.initialLanguageId,
@@ -91,26 +89,25 @@ export class MarkdownTextArea extends Component<
 
     this.handleLanguageChange = this.handleLanguageChange.bind(this);
     this.handleEmoji = this.handleEmoji.bind(this);
-
-    if (isBrowser()) {
-      this.tribute = setupTribute();
-    }
   }
 
-  componentDidMount() {
-    const textarea: any = document.getElementById(this.id);
-    if (textarea) {
-      autosize(textarea);
-      this.tribute.attach(textarea);
-      textarea.addEventListener("tribute-replaced", () => {
-        this.setState({ content: textarea.value });
-        autosize.update(textarea);
-      });
+  async componentDidMount() {
+    if (isBrowser()) {
+      const tribute = await setupTribute();
+      const textarea: any = document.getElementById(this.id);
+      if (textarea) {
+        autosize(textarea);
+        tribute.attach(textarea);
+        textarea.addEventListener("tribute-replaced", () => {
+          this.setState({ content: textarea.value });
+          autosize.update(textarea);
+        });
 
-      this.quoteInsert();
+        this.quoteInsert();
 
-      if (this.props.focus) {
-        textarea.focus();
+        if (this.props.focus) {
+          textarea.focus();
+        }
       }
     }
   }
