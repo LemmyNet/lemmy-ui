@@ -14,9 +14,11 @@ import {
 import ActionButton from "./action-button";
 import classNames from "classnames";
 import { Link } from "inferno-router";
-import ConfirmationModal from "../confirmation-modal";
-import ViewVotesModal from "../view-votes-modal";
-import ModActionFormModal, { BanUpdateForm } from "../mod-action-form-modal";
+import ConfirmationModal from "../modal/confirmation-modal";
+import ViewVotesModal from "../modal/view-votes-modal";
+import ModActionFormModal, {
+  BanUpdateForm,
+} from "../modal/mod-action-form-modal";
 import { BanType, CommentNodeView, PurgeType } from "../../../interfaces";
 import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";

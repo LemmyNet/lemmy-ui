@@ -14,7 +14,7 @@ import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";
 import { PrivateMessageForm } from "./private-message-form";
-import ModActionFormModal from "../common/mod-action-form-modal";
+import ModActionFormModal from "../common/modal/mod-action-form-modal";
 import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface PrivateMessageState {

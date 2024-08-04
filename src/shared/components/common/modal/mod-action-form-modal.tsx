@@ -5,14 +5,14 @@ import {
   createRef,
   linkEvent,
 } from "inferno";
-import { I18NextService } from "../../services/I18NextService";
-import { PurgeWarning, Spinner } from "./icon";
+import { I18NextService } from "../../../services/I18NextService";
+import { PurgeWarning, Spinner } from "../icon";
 import { getApubName, randomStr } from "@utils/helpers";
 import type { Modal } from "bootstrap";
 import classNames from "classnames";
 import { Community, Person } from "lemmy-js-client";
-import { LoadingEllipses } from "./loading-ellipses";
-import { modalMixin } from "../mixins/modal-mixin";
+import { LoadingEllipses } from "../loading-ellipses";
+import { modalMixin } from "../../mixins/modal-mixin";
 
 export interface BanUpdateForm {
   reason?: string;
@@ -31,7 +31,7 @@ interface ModActionFormModalPropsCommunityBan {
   modActionType: "community-ban";
   onSubmit: (form: BanUpdateForm) => Promise<void>;
   creator: Person;
-  community: Community;
+  community?: Community;
   isBanned: boolean;
 }
 
@@ -328,7 +328,12 @@ export default class ModActionFormModal extends Component<
             : "ban_from_community_with_name",
           {
             user: getApubName(this.props.creator),
-            community: getApubName(this.props.community),
+            community: getApubName(
+              this.props.community ?? {
+                actor_id: "",
+                name: "",
+              },
+            ),
           },
         );
       }

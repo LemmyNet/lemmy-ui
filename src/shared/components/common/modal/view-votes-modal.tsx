@@ -5,10 +5,10 @@ import {
   createRef,
   linkEvent,
 } from "inferno";
-import { I18NextService } from "../../services";
+import { I18NextService } from "../../../services";
 import type { Modal } from "bootstrap";
-import { Icon, Spinner } from "./icon";
-import { Paginator } from "../common/paginator";
+import { Icon, Spinner } from "../icon";
+import { Paginator } from "../paginator";
 import {
   ListCommentLikesResponse,
   ListPostLikesResponse,
@@ -19,11 +19,11 @@ import {
   HttpService,
   LOADING_REQUEST,
   RequestState,
-} from "../../services/HttpService";
-import { fetchLimit } from "../../config";
-import { PersonListing } from "../person/person-listing";
-import { modalMixin } from "../mixins/modal-mixin";
-import { UserBadges } from "./user-badges";
+} from "../../../services/HttpService";
+import { fetchLimit } from "../../../config";
+import { PersonListing } from "../../person/person-listing";
+import { modalMixin } from "../../mixins/modal-mixin";
+import { UserBadges } from "../user-badges";
 import { isBrowser } from "@utils/browser";
 
 interface ViewVotesModalProps {

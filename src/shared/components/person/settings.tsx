@@ -65,7 +65,7 @@ import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
 import { InitialFetchRequest } from "../../interfaces";
-import TotpModal from "../common/totp-modal";
+import TotpModal from "../common/modal/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
 import {
   isBrowser,

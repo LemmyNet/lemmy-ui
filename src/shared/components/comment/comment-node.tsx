@@ -51,7 +51,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { CommentForm } from "./comment-form";
 import { CommentNodes } from "./comment-nodes";
-import { BanUpdateForm } from "../common/mod-action-form-modal";
+import { BanUpdateForm } from "../common/modal/mod-action-form-modal";
 import CommentActionDropdown from "../common/content-actions/comment-action-dropdown";
 import { RequestState } from "../../services/HttpService";
 import { VoteDisplay } from "../common/vote-display";
