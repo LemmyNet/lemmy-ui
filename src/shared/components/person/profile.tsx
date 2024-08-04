@@ -768,10 +768,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       className={
                         "d-flex registration-self-start btn btn-secondary me-2"
                       }
-                      aria-label="View registration"
+                      aria-label={I18NextService.i18n.t("view_registration")}
                       onClick={this.handleRegistrationShow}
                     >
-                      View registration
+                      {I18NextService.i18n.t("view_registration")}
                     </button>
                     {showRegistrationDialog && (
                       <DisplayModal
