@@ -336,7 +336,8 @@ export function getEmojiMart(
 }
 
 export async function setupTribute() {
-  if (Tribute === null) {
+  // eslint-disable-next-line eqeqeq
+  if (Tribute == null) {
     console.debug("Tribute is null, importing...");
     Tribute = (await import("tributejs")).default;
   }
