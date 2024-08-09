@@ -45,6 +45,9 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
 import { isBrowser } from "@utils/browser";
+import isMagnetLink, {
+  extractMagnetLinkDownloadName,
+} from "@utils/media/is-magnet-link";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -806,10 +809,25 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   async fetchPageTitle() {
     const url = this.state.form.url;
     if (url && validURL(url)) {
-      this.setState({ metadataRes: LOADING_REQUEST });
-      this.setState({
-        metadataRes: await HttpService.client.getSiteMetadata({ url }),
-      });
+      // If its a magnet link, fill in the download name
+      if (isMagnetLink(url)) {
+        const title = extractMagnetLinkDownloadName(url);
+        if (title) {
+          this.setState({
+            metadataRes: {
+              state: "success",
+              data: {
+                metadata: { title },
+              },
+            },
+          });
+        }
+      } else {
+        this.setState({ metadataRes: LOADING_REQUEST });
+        this.setState({
+          metadataRes: await HttpService.client.getSiteMetadata({ url }),
+        });
+      }
     }
   }
 
