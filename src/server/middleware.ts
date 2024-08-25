@@ -1,6 +1,10 @@
 import * as crypto from "crypto";
 import type { NextFunction, Request, Response } from "express";
 import { getJwtCookie } from "./utils/has-jwt-cookie";
+import { setForwardedHeaders } from "./utils/set-forwarded-headers";
+import { wrapClient } from "../shared/services/HttpService";
+import { LemmyHttp } from "lemmy-js-client";
+import { getHttpBaseInternal } from "@utils/env";
 
 export function setDefaultCsp({
   res,
@@ -60,6 +64,23 @@ export function setCacheControl(
   }
 
   res.setHeader("Cache-Control", caching);
+
+  next();
+}
+
+export function setRequestClient({
+  req,
+  next,
+}: {
+  req: Request;
+  next: NextFunction;
+}) {
+  const client = wrapClient(
+    new LemmyHttp(getHttpBaseInternal(), {
+      headers: setForwardedHeaders(req.headers),
+    }),
+  );
+  req.client = client;
 
   next();
 }

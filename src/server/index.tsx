@@ -11,7 +11,7 @@ import SecurityHandler from "./handlers/security-handler";
 import ServiceWorkerHandler from "./handlers/service-worker-handler";
 import ThemeHandler from "./handlers/theme-handler";
 import ThemesListHandler from "./handlers/themes-list-handler";
-import { setCacheControl, setDefaultCsp } from "./middleware";
+import { setCacheControl, setDefaultCsp, setRequestClient } from "./middleware";
 import CodeThemeHandler from "./handlers/code-theme-handler";
 import { verifyDynamicImports } from "../shared/dynamic-imports";
 import cookieParser from "cookie-parser";
@@ -47,6 +47,7 @@ if (
   server.use(getStaticDir(), express.static(serverPath));
 }
 
+server.use(setRequestClient);
 server.get("/.well-known/security.txt", SecurityHandler);
 server.get("/robots.txt", RobotsHandler);
 server.get("/service-worker.js", ServiceWorkerHandler);
