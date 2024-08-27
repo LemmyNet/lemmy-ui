@@ -252,6 +252,7 @@ export function setupEmojiDataModel(custom_emoji_views: CustomEmojiView[]) {
     custom_emoji_views,
     x => x.custom_emoji.category,
   );
+  customEmojis.length = 0;
   for (const [category, emojis] of Object.entries(groupedEmojis)) {
     customEmojis.push({
       id: category,
