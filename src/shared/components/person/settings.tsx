@@ -113,7 +113,6 @@ interface SettingsState {
     bot_account?: boolean;
     show_bot_accounts?: boolean;
     show_read_posts?: boolean;
-    show_new_post_notifs?: boolean;
     discussion_languages?: number[];
     open_links_in_new_tab?: boolean;
   };
@@ -1097,23 +1096,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="form-check">
               <input
                 className="form-check-input"
-                id="user-show-new-post-notifs"
-                type="checkbox"
-                checked={this.state.saveUserSettingsForm.show_new_post_notifs}
-                onChange={linkEvent(this, this.handleShowNewPostNotifs)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="user-show-new-post-notifs"
-              >
-                {I18NextService.i18n.t("show_new_post_notifs")}
-              </label>
-            </div>
-          </div>
-          <div className="input-group mb-3">
-            <div className="form-check">
-              <input
-                className="form-check-input"
                 id="user-send-notifications-to-email"
                 type="checkbox"
                 disabled={!this.state.saveUserSettingsForm.email}
@@ -1493,14 +1475,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   handleReadPosts(i: Settings, event: any) {
     i.setState(
       s => ((s.saveUserSettingsForm.show_read_posts = event.target.checked), s),
-    );
-  }
-
-  handleShowNewPostNotifs(i: Settings, event: any) {
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.show_new_post_notifs = event.target.checked), s
-      ),
     );
   }
 
