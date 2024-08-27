@@ -223,6 +223,7 @@ export class MarkdownTextArea extends Component<
                     this.props.maxLength ?? markdownFieldCharacterLimit
                   }
                   placeholder={this.props.placeholder}
+                  spellCheck
                 />
                 {this.state.previewMode && this.state.content && (
                   <div
