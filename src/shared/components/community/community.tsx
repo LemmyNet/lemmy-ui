@@ -485,7 +485,6 @@ export class Community extends Component<CommunityRouteProps, State> {
           return (
             <PostListings
               posts={this.state.postsRes.data.posts}
-              removeDuplicates
               enableDownvotes={enableDownvotes(siteRes)}
               voteDisplayMode={voteDisplayMode(siteRes)}
               enableNsfw={enableNsfw(siteRes)}
