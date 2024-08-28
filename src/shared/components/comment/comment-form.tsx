@@ -74,6 +74,9 @@ export class CommentForm extends Component<CommentFormProps, any> {
               <Link className="alert-link" to="/login">
                 #
               </Link>
+              <Link className="alert-link" to="/signup">
+                #
+              </Link>
             </T>
           </div>
         )}
