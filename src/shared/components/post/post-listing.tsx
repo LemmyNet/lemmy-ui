@@ -1,7 +1,7 @@
 import { myAuth, setIsoData } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
-import { futureDaysToUnixTime, hostname } from "@utils/helpers";
+import { formatPastDate, futureDaysToUnixTime, hostname } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
 import { canAdmin, canMod } from "@utils/roles";
 import classNames from "classnames";
@@ -56,7 +56,7 @@ import { toast } from "../../toast";
 import isMagnetLink, {
   extractMagnetLinkDownloadName,
 } from "@utils/media/is-magnet-link";
-import { formatDistanceToNow } from "date-fns";
+import { unixTimeToDateStr } from "@utils/helpers/get-unix-time";
 
 type PostListingState = {
   showEdit: boolean;
@@ -461,8 +461,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}{" "}
         {pv.post.scheduled_publish_time && (
           <span className="mx-1 badge text-bg-light">
-            {"Publish in " +
-              formatDistanceToNow(pv.post.scheduled_publish_time)}
+            {I18NextService.i18n.t("publish_in_time", {
+              time: formatPastDate(
+                unixTimeToDateStr(pv.post.scheduled_publish_time),
+              ),
+            })}
           </span>
         )}{" "}
         · <MomentTime published={pv.post.published} updated={pv.post.updated} />

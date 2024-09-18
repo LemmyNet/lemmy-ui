@@ -4,6 +4,7 @@ import {
   debounce,
   getIdFromString,
   getQueryString,
+  getUnixTime,
   validTitle,
   validURL,
 } from "@utils/helpers";
@@ -48,6 +49,7 @@ import { isBrowser } from "@utils/browser";
 import isMagnetLink, {
   extractMagnetLinkDownloadName,
 } from "@utils/media/is-magnet-link";
+import { unixTimeToLocalDateStr } from "@utils/helpers/get-unix-time";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -88,7 +90,8 @@ interface PostFormState {
     honeypot?: string;
     custom_thumbnail?: string;
     alt_text?: string;
-    scheduled_publish_time?: Date;
+    // Javascript treats this field as a string, that can't have timezone info.
+    scheduled_publish_time?: string;
   };
   suggestedPostsRes: RequestState<SearchResponse>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
@@ -113,8 +116,7 @@ function handlePostSubmit(i: PostForm, event: any) {
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
-  const scheduled_publish_time =
-    (pForm.scheduled_publish_time?.getTime() ?? 0) / 1000;
+  const scheduled_publish_time = getUnixTime(pForm.scheduled_publish_time);
 
   if (pv) {
     i.props.onEdit?.(
@@ -337,12 +339,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     // Means its an edit
     if (post_view) {
-      let scheduled_publish_time;
-      if (post_view.post.scheduled_publish_time) {
-        scheduled_publish_time = new Date(
-          post_view.post.scheduled_publish_time,
-        ).getTime();
-      }
       this.state = {
         ...this.state,
         form: {
@@ -354,7 +350,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           language_id: post_view.post.language_id,
           custom_thumbnail: post_view.post.thumbnail_url,
           alt_text: post_view.post.alt_text,
-          scheduled_publish_time,
+          scheduled_publish_time: unixTimeToLocalDateStr(
+            post_view.post.scheduled_publish_time,
+          ),
         },
       };
     } else if (selectedCommunityChoice) {
@@ -711,12 +709,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-schedule">
-            Scheduled publish time
+            {I18NextService.i18n.t("scheduled_publish_time")}
           </label>
           <div className="col-sm-10">
             <input
               type="datetime-local"
-              value={this.state.form.scheduled_publish_time?.toString()}
+              value={this.state.form.scheduled_publish_time}
+              min={unixTimeToLocalDateStr(Date.now())}
               id="post-schedule"
               className="form-control mb-3"
               onInput={linkEvent(this, handlePostScheduleChange)}
