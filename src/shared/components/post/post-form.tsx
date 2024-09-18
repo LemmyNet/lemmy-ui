@@ -88,7 +88,7 @@ interface PostFormState {
     honeypot?: string;
     custom_thumbnail?: string;
     alt_text?: string;
-    scheduled_publish_time?: number;
+    scheduled_publish_time?: Date;
   };
   suggestedPostsRes: RequestState<SearchResponse>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
@@ -113,6 +113,8 @@ function handlePostSubmit(i: PostForm, event: any) {
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
+  const scheduled_publish_time =
+    (pForm.scheduled_publish_time?.getTime() ?? 0) / 1000;
 
   if (pv) {
     i.props.onEdit?.(
@@ -125,7 +127,7 @@ function handlePostSubmit(i: PostForm, event: any) {
         language_id: pForm.language_id,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
-        scheduled_publish_time: pForm.scheduled_publish_time,
+        scheduled_publish_time,
       },
       () => {
         i.setState({ bypassNavWarning: true });
@@ -143,7 +145,7 @@ function handlePostSubmit(i: PostForm, event: any) {
         honeypot: pForm.honeypot,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
-        scheduled_publish_time: pForm.scheduled_publish_time,
+        scheduled_publish_time,
       },
       () => {
         i.setState({ bypassNavWarning: true });
@@ -206,8 +208,7 @@ function handlePostNsfwChange(i: PostForm, event: any) {
 }
 
 function handlePostScheduleChange(i: PostForm, event: any) {
-  const now = Math.round(new Date().getTime() / 1000);
-  const scheduled_publish_time = now + event.target.value * 60;
+  const scheduled_publish_time = event.target.value;
 
   i.setState(prev => ({
     ...prev,
@@ -216,18 +217,6 @@ function handlePostScheduleChange(i: PostForm, event: any) {
       scheduled_publish_time,
     },
   }));
-}
-
-function convertScheduleTime(
-  scheduled_publish_time?: number,
-): string | undefined {
-  if (scheduled_publish_time) {
-    const difference = scheduled_publish_time - new Date().getTime();
-    const minutes = Math.round(difference / 1000);
-    return minutes.toString();
-  } else {
-    return undefined;
-  }
 }
 
 function handleHoneyPotChange(i: PostForm, event: any) {
@@ -726,11 +715,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </label>
           <div className="col-sm-10">
             <input
-              type="text"
-              placeholder="5 minutes"
-              value={convertScheduleTime(
-                this.state.form.scheduled_publish_time,
-              )}
+              type="datetime-local"
+              value={this.state.form.scheduled_publish_time?.toString()}
               id="post-schedule"
               className="form-control mb-3"
               onInput={linkEvent(this, handlePostScheduleChange)}
