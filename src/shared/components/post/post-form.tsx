@@ -330,7 +330,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     communitySearchOptions: [],
     submitted: false,
     bypassNavWarning: false,
-    scheduled_publish_time: undefined,
   };
 
   postTitleRef = createRef<HTMLTextAreaElement>();
@@ -349,7 +348,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     // Means its an edit
     if (post_view) {
-      let scheduled_publish_time = undefined;
+      let scheduled_publish_time;
       if (post_view.post.scheduled_publish_time) {
         scheduled_publish_time = new Date(
           post_view.post.scheduled_publish_time,
