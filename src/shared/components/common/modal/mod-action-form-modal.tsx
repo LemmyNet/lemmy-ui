@@ -16,7 +16,7 @@ import { modalMixin } from "../../mixins/modal-mixin";
 
 export interface BanUpdateForm {
   reason?: string;
-  shouldRemove?: boolean;
+  shouldRemoveOrRestoreData?: boolean;
   daysUntilExpires?: number;
 }
 
@@ -104,7 +104,7 @@ async function handleSubmit(i: ModActionFormModal, event: any) {
     await i.props.onSubmit({
       reason: i.state.reason,
       daysUntilExpires: i.state.daysUntilExpire!,
-      shouldRemove: i.state.shouldRemoveData!,
+      shouldRemoveOrRestoreData: i.state.shouldRemoveData!,
     } as BanUpdateForm & string); // Need to & string to handle type weirdness
   } else {
     await i.props.onSubmit(i.state.reason);

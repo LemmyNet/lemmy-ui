@@ -64,7 +64,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       description: site.description,
       enable_downvotes: ls.enable_downvotes,
       registration_mode: ls.registration_mode,
-      enable_nsfw: ls.enable_nsfw,
       community_creation_admin_only: ls.community_creation_admin_only,
       icon: site.icon,
       banner: site.banner,
