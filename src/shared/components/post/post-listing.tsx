@@ -56,6 +56,7 @@ import { toast } from "../../toast";
 import isMagnetLink, {
   extractMagnetLinkDownloadName,
 } from "@utils/media/is-magnet-link";
+import { formatDistanceToNow } from "date-fns";
 
 type PostListingState = {
   showEdit: boolean;
@@ -433,7 +434,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   createdLine() {
     const pv = this.postView;
-
     return (
       <div className="small mb-1 mb-md-0">
         <PersonListing person={pv.creator} />
@@ -457,6 +457,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 lang => lang.id === pv.post.language_id,
               )?.name
             }
+          </span>
+        )}{" "}
+        {pv.post.scheduled_publish_time && (
+          <span className="mx-1 badge text-bg-light">
+            {"Publish in " +
+              formatDistanceToNow(pv.post.scheduled_publish_time)}
           </span>
         )}{" "}
         · <MomentTime published={pv.post.published} updated={pv.post.updated} />

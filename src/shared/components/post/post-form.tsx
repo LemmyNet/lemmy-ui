@@ -88,6 +88,7 @@ interface PostFormState {
     honeypot?: string;
     custom_thumbnail?: string;
     alt_text?: string;
+    scheduled_publish_time?: number;
   };
   suggestedPostsRes: RequestState<SearchResponse>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
@@ -124,6 +125,7 @@ function handlePostSubmit(i: PostForm, event: any) {
         language_id: pForm.language_id,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
+        scheduled_publish_time: pForm.scheduled_publish_time,
       },
       () => {
         i.setState({ bypassNavWarning: true });
@@ -141,6 +143,7 @@ function handlePostSubmit(i: PostForm, event: any) {
         honeypot: pForm.honeypot,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
+        scheduled_publish_time: pForm.scheduled_publish_time,
       },
       () => {
         i.setState({ bypassNavWarning: true });
@@ -200,6 +203,31 @@ function handlePostNsfwChange(i: PostForm, event: any) {
   i.updateUrl(() =>
     i.props.onNsfwChange?.(event.target.checked ? "true" : "false"),
   );
+}
+
+function handlePostScheduleChange(i: PostForm, event: any) {
+  const now = Math.round(new Date().getTime() / 1000);
+  const scheduled_publish_time = now + event.target.value * 60;
+
+  i.setState(prev => ({
+    ...prev,
+    form: {
+      ...prev.form,
+      scheduled_publish_time,
+    },
+  }));
+}
+
+function convertScheduleTime(
+  scheduled_publish_time?: number,
+): string | undefined {
+  if (scheduled_publish_time) {
+    const difference = scheduled_publish_time - new Date().getTime();
+    const minutes = Math.round(difference / 1000);
+    return minutes.toString();
+  } else {
+    return undefined;
+  }
 }
 
 function handleHoneyPotChange(i: PostForm, event: any) {
@@ -302,6 +330,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     communitySearchOptions: [],
     submitted: false,
     bypassNavWarning: false,
+    scheduled_publish_time: undefined,
   };
 
   postTitleRef = createRef<HTMLTextAreaElement>();
@@ -320,6 +349,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
     // Means its an edit
     if (post_view) {
+      let scheduled_publish_time = undefined;
+      if (post_view.post.scheduled_publish_time) {
+        scheduled_publish_time = new Date(
+          post_view.post.scheduled_publish_time,
+        ).getTime();
+      }
       this.state = {
         ...this.state,
         form: {
@@ -331,6 +366,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           language_id: post_view.post.language_id,
           custom_thumbnail: post_view.post.thumbnail_url,
           alt_text: post_view.post.alt_text,
+          scheduled_publish_time,
         },
       };
     } else if (selectedCommunityChoice) {
@@ -684,6 +720,25 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </label>
           </div>
         )}
+
+        <div className="mb-3 row">
+          <label className="col-sm-2 col-form-label" htmlFor="post-schedule">
+            Scheduled publish time
+          </label>
+          <div className="col-sm-10">
+            <input
+              type="text"
+              placeholder="5 minutes"
+              value={convertScheduleTime(
+                this.state.form.scheduled_publish_time,
+              )}
+              id="post-schedule"
+              className="form-control mb-3"
+              onInput={linkEvent(this, handlePostScheduleChange)}
+            />
+          </div>
+        </div>
+
         <input
           tabIndex={-1}
           autoComplete="false"
