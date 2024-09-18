@@ -514,6 +514,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               value={this.state.changePasswordForm.old_password}
               onInput={linkEvent(this, this.handleOldPasswordChange)}
               label={I18NextService.i18n.t("old_password")}
+              required={false}
             />
           </div>
           <div className="input-group mb-3">
@@ -1681,12 +1682,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const { new_password, new_password_verify, old_password } =
       i.state.changePasswordForm;
 
-    if (new_password && old_password && new_password_verify) {
+    if (new_password && new_password_verify) {
       i.setState({ changePasswordRes: LOADING_REQUEST });
       const changePasswordRes = await HttpService.client.changePassword({
         new_password,
         new_password_verify,
-        old_password,
+        old_password: old_password || "",
       });
       if (changePasswordRes.state === "success") {
         snapToTop();

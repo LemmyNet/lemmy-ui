@@ -45,17 +45,19 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
   private itemsPerPage = 15;
   private emptyState: EmojiFormState = {
     siteRes: this.isoData.site_res,
-    customEmojis: this.isoData.site_res.custom_emojis.map((x, index) => ({
-      id: x.custom_emoji.id,
-      category: x.custom_emoji.category,
-      shortcode: x.custom_emoji.shortcode,
-      image_url: x.custom_emoji.image_url,
-      alt_text: x.custom_emoji.alt_text,
-      keywords: x.keywords.map(x => x.keyword).join(" "),
-      changed: false,
-      page: 1 + Math.floor(index / this.itemsPerPage),
-      loading: false,
-    })),
+    customEmojis: (this.isoData.site_res.custom_emojis || []).map(
+      (x, index) => ({
+        id: x.custom_emoji.id,
+        category: x.custom_emoji.category,
+        shortcode: x.custom_emoji.shortcode,
+        image_url: x.custom_emoji.image_url,
+        alt_text: x.custom_emoji.alt_text,
+        keywords: x.keywords.map(x => x.keyword).join(" "),
+        changed: false,
+        page: 1 + Math.floor(index / this.itemsPerPage),
+        loading: false,
+      }),
+    ),
     page: 1,
   };
   state: EmojiFormState;

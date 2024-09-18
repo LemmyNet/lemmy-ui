@@ -7,13 +7,17 @@ import { Component } from "inferno";
 import {
   BannedPersonsResponse,
   CreateCustomEmoji,
+  CreateOAuthProvider,
   DeleteCustomEmoji,
+  DeleteOAuthProvider,
   EditCustomEmoji,
+  EditOAuthProvider,
   EditSite,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   LemmyHttp,
   ListMediaResponse,
+  OAuthProvider,
   PersonView,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
@@ -32,6 +36,7 @@ import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
+import { OAuthProviderForm } from "./oauth-provider-form";
 import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
@@ -111,6 +116,9 @@ export class AdminSettings extends Component<
     this.handleToggleShowLeaveAdminConfirmation =
       this.handleToggleShowLeaveAdminConfirmation.bind(this);
     this.handleLeaveAdminTeam = this.handleLeaveAdminTeam.bind(this);
+    this.handleEditOAuthProvider = this.handleEditOAuthProvider.bind(this);
+    this.handleDeleteOAuthProvider = this.handleDeleteOAuthProvider.bind(this);
+    this.handleCreateOAuthProvider = this.handleCreateOAuthProvider.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -250,7 +258,7 @@ export class AdminSettings extends Component<
                 >
                   <div className="row">
                     <TaglineForm
-                      taglines={this.state.siteRes.taglines}
+                      taglines={this.state.siteRes.taglines || []}
                       onSaveSite={this.handleEditSite}
                       loading={this.state.loading}
                     />
@@ -291,6 +299,27 @@ export class AdminSettings extends Component<
                   id="uploads-tab-pane"
                 >
                   {this.uploads()}
+                </div>
+              ),
+            },
+            {
+              key: "auth",
+              label: I18NextService.i18n.t("authentication"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="auth-tab-pane"
+                >
+                  <div className="row">
+                    <OAuthProviderForm
+                      onCreate={this.handleCreateOAuthProvider}
+                      onDelete={this.handleDeleteOAuthProvider}
+                      onEdit={this.handleEditOAuthProvider}
+                    />
+                  </div>
                 </div>
               ),
             },
@@ -489,5 +518,94 @@ export class AdminSettings extends Component<
     this.setState({ uploadsPage: val });
     snapToTop();
     await this.fetchUploadsOnly();
+  }
+
+  async handleEditOAuthProvider(form: EditOAuthProvider) {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.editOAuthProvider(form);
+
+    if (res.state === "success") {
+      const newOAuthProvider = res.data;
+      this.setState(s => {
+        s.siteRes.admin_oauth_providers = (
+          s.siteRes.admin_oauth_providers || []
+        ).map(p => {
+          return p?.client_id === newOAuthProvider.client_id
+            ? newOAuthProvider
+            : p;
+        });
+        return s;
+      });
+      toast(I18NextService.i18n.t("site_saved"));
+    } else {
+      toast(I18NextService.i18n.t("couldnt_edit_oauth_provider"), "danger");
+    }
+
+    this.setState({ loading: false });
+
+    return res;
+  }
+
+  async handleDeleteOAuthProvider(form: DeleteOAuthProvider) {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.deleteOAuthProvider(form);
+
+    let succeeded = false;
+    if (res.state === "success") {
+      this.setState(s => {
+        s.siteRes.admin_oauth_providers = (
+          s.siteRes.admin_oauth_providers || []
+        ).filter(p => p?.id !== form.id);
+        return s;
+      });
+      toast(I18NextService.i18n.t("site_saved"));
+      succeeded = true;
+    } else {
+      toast(I18NextService.i18n.t("couldnt_delete_oauth_provider"), "danger");
+    }
+
+    this.setState({ loading: false });
+
+    return succeeded;
+  }
+
+  async handleCreateOAuthProvider(
+    form: CreateOAuthProvider,
+  ): Promise<OAuthProvider | null> {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.createOAuthProvider(form);
+    let newOAuthProvider: OAuthProvider;
+
+    if (res.state === "success") {
+      newOAuthProvider = res.data;
+
+      this.setState(s => {
+        s.siteRes.admin_oauth_providers = (
+          s.siteRes.admin_oauth_providers || []
+        ).slice();
+        const index = s.siteRes.admin_oauth_providers.findIndex(
+          x => x?.id === newOAuthProvider?.id,
+        );
+        if (index >= 0) {
+          Object.assign(
+            s.siteRes.admin_oauth_providers[index] || {},
+            newOAuthProvider,
+          );
+        } else {
+          s.siteRes.admin_oauth_providers.push(newOAuthProvider);
+        }
+      });
+      toast(I18NextService.i18n.t("site_saved"));
+      this.setState({ loading: false });
+      return newOAuthProvider;
+    }
+
+    // handle failure
+    toast(I18NextService.i18n.t("couldnt_create_oauth_provider"), "danger");
+    this.setState({ loading: false });
+    return null;
   }
 }
