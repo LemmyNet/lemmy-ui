@@ -680,21 +680,23 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               onChange={this.handleListingTypeChange}
             />
           </div>
-          <div className="col">
-            <input
-              className="btn-check"
-              id="post-title-only"
-              type="checkbox"
-              checked={postTitleOnly}
-              onChange={this.handlePostTitleChange}
-            />
-            <label
-              className="btn btn-outline-secondary"
-              htmlFor="post-title-only"
-            >
-              {I18NextService.i18n.t("post_title_only")}
-            </label>
-          </div>
+          {(type === "All" || type === "Posts") && (
+            <div className="col">
+              <input
+                className="btn-check"
+                id="post-title-only"
+                type="checkbox"
+                checked={postTitleOnly}
+                onChange={this.handlePostTitleChange}
+              />
+              <label
+                className="btn btn-outline-secondary"
+                htmlFor="post-title-only"
+              >
+                {I18NextService.i18n.t("post_title_only")}
+              </label>
+            </div>
+          )}
           <div className="col">
             <SortSelect
               sort={sort}
