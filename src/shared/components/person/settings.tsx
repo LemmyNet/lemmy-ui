@@ -22,16 +22,15 @@ import {
   BlockCommunityResponse,
   BlockInstanceResponse,
   BlockPersonResponse,
-  CommunityBlockView,
+  Community,
   GenerateTotpSecretResponse,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   Instance,
-  InstanceBlockView,
   LemmyHttp,
   ListingType,
   LoginResponse,
-  PersonBlockView,
+  Person,
   SortType,
   SuccessResponse,
   UpdateTotpResponse,
@@ -125,9 +124,9 @@ interface SettingsState {
     delete_content?: boolean;
     password?: string;
   };
-  personBlocks: PersonBlockView[];
-  communityBlocks: CommunityBlockView[];
-  instanceBlocks: InstanceBlockView[];
+  personBlocks: Person[];
+  communityBlocks: Community[];
+  instanceBlocks: Instance[];
   currentTab: string;
   themeList: string[];
   deleteAccountShowConfirm: boolean;
@@ -556,14 +555,14 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <>
         <h2 className="h5">{I18NextService.i18n.t("blocked_users")}</h2>
         <ul className="list-unstyled mb-0">
-          {this.state.personBlocks.map(pb => (
-            <li key={pb.target.id}>
+          {this.state.personBlocks.map(p => (
+            <li key={p.id}>
               <span>
-                <PersonListing person={pb.target} />
+                <PersonListing person={p} />
                 <button
                   className="btn btn-sm"
                   onClick={linkEvent(
-                    { ctx: this, recipientId: pb.target.id },
+                    { ctx: this, recipientId: p.id },
                     this.handleUnblockPerson,
                   )}
                   data-tippy-content={I18NextService.i18n.t("unblock_user")}
@@ -600,14 +599,14 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <>
         <h2 className="h5">{I18NextService.i18n.t("blocked_communities")}</h2>
         <ul className="list-unstyled mb-0">
-          {this.state.communityBlocks.map(cb => (
-            <li key={cb.community.id}>
+          {this.state.communityBlocks.map(c => (
+            <li key={c.id}>
               <span>
-                <CommunityLink community={cb.community} />
+                <CommunityLink community={c} />
                 <button
                   className="btn btn-sm"
                   onClick={linkEvent(
-                    { ctx: this, communityId: cb.community.id },
+                    { ctx: this, communityId: c.id },
                     this.handleUnblockCommunity,
                   )}
                   data-tippy-content={I18NextService.i18n.t(
@@ -645,14 +644,14 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <>
         <h2 className="h5">{I18NextService.i18n.t("blocked_instances")}</h2>
         <ul className="list-unstyled mb-0">
-          {this.state.instanceBlocks.map(ib => (
-            <li key={ib.instance.id}>
+          {this.state.instanceBlocks.map(i => (
+            <li key={i.id}>
               <span>
-                {ib.instance.domain}
+                {i.domain}
                 <button
                   className="btn btn-sm"
                   onClick={linkEvent(
-                    { ctx: this, instanceId: ib.instance.id },
+                    { ctx: this, instanceId: i.id },
                     this.handleUnblockInstance,
                   )}
                   data-tippy-content={I18NextService.i18n.t("unblock_instance")}
@@ -1349,7 +1348,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           instance =>
             instance.domain.toLowerCase().includes(text.toLowerCase()) &&
             !this.state.instanceBlocks.some(
-              blockedInstance => blockedInstance.instance.id === instance.id,
+              blockedInstance => blockedInstance.id === instance.id,
             ),
         ) ?? [];
     }
@@ -1751,7 +1750,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             interface_language,
             show_avatars,
             show_bot_accounts,
-            show_scores,
             show_read_posts,
             send_notifications_to_email,
             email,
@@ -1795,7 +1793,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             open_links_in_new_tab,
             send_notifications_to_email,
             show_read_posts,
-            show_scores,
           },
         }));
       }

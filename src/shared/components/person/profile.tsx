@@ -119,7 +119,7 @@ interface ProfileState {
   banReason?: string;
   banExpireDays?: number;
   showBanDialog: boolean;
-  removeData: boolean;
+  removeOrRestoreData: boolean;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
   showRegistrationDialog: boolean;
@@ -182,7 +182,7 @@ function isPersonBlocked(personRes: RequestState<GetPersonDetailsResponse>) {
   return (
     (personRes.state === "success" &&
       UserService.Instance.myUserInfo?.person_blocks.some(
-        ({ target: { id } }) => id === personRes.data.person_view.person.id,
+        ({ id }) => id === personRes.data.person_view.person.id,
       )) ??
     false
   );
@@ -206,7 +206,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     personBlocked: false,
     siteRes: this.isoData.site_res,
     showBanDialog: false,
-    removeData: false,
+    removeOrRestoreData: false,
     isIsomorphic: false,
     showRegistrationDialog: false,
     registrationRes: EMPTY_REQUEST,
@@ -891,7 +891,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   className="form-check-input"
                   id="mod-ban-remove-data"
                   type="checkbox"
-                  checked={this.state.removeData}
+                  checked={this.state.removeOrRestoreData}
                   onChange={linkEvent(this, this.handleModRemoveDataChange)}
                 />
                 <label
@@ -980,7 +980,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   handleModRemoveDataChange(i: Profile, event: any) {
-    i.setState({ removeData: event.target.checked });
+    i.setState({ removeOrRestoreData: event.target.checked });
   }
 
   handleModBanSubmitCancel(i: Profile) {
@@ -1015,7 +1015,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   async handleModBanSubmit(i: Profile, event: any) {
     event.preventDefault();
-    const { removeData, banReason, banExpireDays } = i.state;
+    const { banReason, banExpireDays } = i.state;
 
     const personRes = i.state.personRes;
 
@@ -1025,13 +1025,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
       // If its an unban, restore all their data
       if (!ban) {
-        i.setState({ removeData: false });
+        i.setState({ removeOrRestoreData: true });
       }
 
       const res = await HttpService.client.banPerson({
         person_id: person.id,
         ban,
-        remove_data: removeData,
+        remove_or_restore_data: i.state.removeOrRestoreData,
         reason: banReason,
         expires: futureDaysToUnixTime(banExpireDays),
       });

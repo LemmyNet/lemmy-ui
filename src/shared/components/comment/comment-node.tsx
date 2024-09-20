@@ -637,7 +637,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   async handleBanFromCommunity({
     daysUntilExpires,
     reason,
-    shouldRemove,
+    shouldRemoveOrRestoreData,
   }: BanUpdateForm) {
     const {
       creator: { id: person_id },
@@ -646,10 +646,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     } = this.commentView;
 
     const ban = !creator_banned_from_community;
-
     // If its an unban, restore all their data
     if (ban === false) {
-      shouldRemove = false;
+      shouldRemoveOrRestoreData = true;
     }
     const expires = futureDaysToUnixTime(daysUntilExpires);
 
@@ -657,7 +656,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       community_id,
       person_id,
       ban,
-      remove_data: shouldRemove,
+      remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
       expires,
     });
@@ -666,7 +665,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   async handleBanFromSite({
     daysUntilExpires,
     reason,
-    shouldRemove,
+    shouldRemoveOrRestoreData,
   }: BanUpdateForm) {
     const {
       creator: { id: person_id, banned },
@@ -676,14 +675,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     // If its an unban, restore all their data
     if (ban === false) {
-      shouldRemove = false;
+      shouldRemoveOrRestoreData = true;
     }
     const expires = futureDaysToUnixTime(daysUntilExpires);
 
     this.props.onBanPerson({
       person_id,
       ban,
-      remove_data: shouldRemove,
+      remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
       expires,
     });

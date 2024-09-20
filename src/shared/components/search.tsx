@@ -18,6 +18,7 @@ import {
   dedupByProperty,
   getIdFromString,
   getPageFromString,
+  getBoolFromString,
   getQueryParams,
   getQueryString,
   numToSI,
@@ -77,6 +78,7 @@ interface SearchProps {
   type: SearchType;
   sort: SortType;
   listingType: ListingType;
+  postTitleOnly?: boolean;
   communityId?: number;
   creatorId?: number;
   page: number;
@@ -122,6 +124,7 @@ export function getSearchQueryParams(source?: string): SearchProps {
       type: getSearchTypeFromQuery,
       sort: getSortTypeFromQuery,
       listingType: getListingTypeFromQuery,
+      postTitleOnly: getBoolFromString,
       communityId: getIdFromString,
       creatorId: getIdFromString,
       page: getPageFromString,
@@ -283,6 +286,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.handleCommunityFilterChange =
       this.handleCommunityFilterChange.bind(this);
     this.handleCreatorFilterChange = this.handleCreatorFilterChange.bind(this);
+    this.handlePostTitleChange = this.handlePostTitleChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -469,6 +473,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       type: searchType,
       sort,
       listingType: listing_type,
+      postTitleOnly: post_title_only,
       communityId: community_id,
       creatorId: creator_id,
       page,
@@ -514,6 +519,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         type_: searchType,
         sort,
         listing_type,
+        post_title_only,
         page,
         limit: fetchLimit,
       };
@@ -635,7 +641,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   get selects() {
-    const { type, listingType, sort, communityId, creatorId } = this.props;
+    const { type, listingType, postTitleOnly, sort, communityId, creatorId } =
+      this.props;
     const {
       communitySearchOptions,
       creatorSearchOptions,
@@ -673,6 +680,23 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               onChange={this.handleListingTypeChange}
             />
           </div>
+          {(type === "All" || type === "Posts") && (
+            <div className="col">
+              <input
+                className="btn-check"
+                id="post-title-only"
+                type="checkbox"
+                checked={postTitleOnly}
+                onChange={this.handlePostTitleChange}
+              />
+              <label
+                className="btn btn-outline-secondary"
+                htmlFor="post-title-only"
+              >
+                {I18NextService.i18n.t("post_title_only")}
+              </label>
+            </div>
+          )}
           <div className="col">
             <SortSelect
               sort={sort}
@@ -1043,7 +1067,16 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   searchToken?: symbol;
   async search(props: SearchRouteProps) {
     const token = (this.searchToken = Symbol());
-    const { q, communityId, creatorId, type, sort, listingType, page } = props;
+    const {
+      q,
+      communityId,
+      creatorId,
+      type,
+      sort,
+      listingType,
+      postTitleOnly,
+      page,
+    } = props;
 
     if (q) {
       this.setState({ searchRes: LOADING_REQUEST });
@@ -1054,6 +1087,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         type_: type,
         sort,
         listing_type: listingType,
+        post_title_only: postTitleOnly,
         page,
         limit: fetchLimit,
       });
@@ -1122,6 +1156,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.updateUrl({ sort, page: 1, q: this.getQ() });
   }
 
+  handlePostTitleChange(event: any) {
+    const postTitleOnly = event.target.checked;
+    this.updateUrl({ postTitleOnly, q: this.getQ() });
+  }
+
   handleTypeChange(i: Search, event: any) {
     const type = event.target.value as SearchType;
 
@@ -1170,7 +1209,16 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   async updateUrl(props: Partial<SearchProps>) {
-    const { q, type, listingType, sort, communityId, creatorId, page } = {
+    const {
+      q,
+      type,
+      listingType,
+      postTitleOnly,
+      sort,
+      communityId,
+      creatorId,
+      page,
+    } = {
       ...this.props,
       ...props,
     };
@@ -1179,6 +1227,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       q,
       type: type,
       listingType: listingType,
+      postTitleOnly: postTitleOnly?.toString(),
       communityId: communityId?.toString(),
       creatorId: creatorId?.toString(),
       page: page?.toString(),

@@ -1023,7 +1023,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleModBanFromCommunity({
     daysUntilExpires,
     reason,
-    shouldRemove,
+    shouldRemoveOrRestoreData,
   }: BanUpdateForm) {
     const {
       creator: { id: person_id },
@@ -1034,7 +1034,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     // If its an unban, restore all their data
     if (ban === false) {
-      shouldRemove = false;
+      shouldRemoveOrRestoreData = true;
     }
     const expires = futureDaysToUnixTime(daysUntilExpires);
 
@@ -1042,7 +1042,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       community_id,
       person_id,
       ban,
-      remove_data: shouldRemove,
+      remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
       expires,
     });
@@ -1051,7 +1051,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleModBanFromSite({
     daysUntilExpires,
     reason,
-    shouldRemove,
+    shouldRemoveOrRestoreData,
   }: BanUpdateForm) {
     const {
       creator: { id: person_id, banned },
@@ -1060,14 +1060,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     // If its an unban, restore all their data
     if (ban === false) {
-      shouldRemove = false;
+      shouldRemoveOrRestoreData = true;
     }
     const expires = futureDaysToUnixTime(daysUntilExpires);
 
     return this.props.onBanPerson({
       person_id,
       ban,
-      remove_data: shouldRemove,
+      remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
       expires,
     });
