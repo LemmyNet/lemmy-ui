@@ -196,61 +196,77 @@ export class Signup extends Component<SignupRouteProps, State> {
         </div>
 
         {!oauth_provider && (
-          <div className="mb-3 row">
-            <label className="col-sm-2 col-form-label" htmlFor="register-email">
-              {I18NextService.i18n.t("email")}
-            </label>
-            <div className="col-sm-10">
-              <input
-                type="email"
-                id="register-email"
-                className="form-control"
-                placeholder={
-                  siteView.local_site.require_email_verification
-                    ? I18NextService.i18n.t("required")
-                    : I18NextService.i18n.t("optional")
-                }
-                value={this.state.form.email}
-                autoComplete="email"
-                onInput={linkEvent(this, this.handleRegisterEmailChange)}
-                required={siteView.local_site.require_email_verification}
-                minLength={3}
-              />
-              {!siteView.local_site.require_email_verification &&
-                this.state.form.email &&
-                !validEmail(this.state.form.email) && (
-                  <div className="mt-2 mb-0 alert alert-warning" role="alert">
-                    <Icon icon="alert-triangle" classes="icon-inline me-2" />
-                    {I18NextService.i18n.t("no_password_reset")}
-                  </div>
-                )}
-            </div>
-          </div>
-        )}
+          <>
+            {
+              <div className="mb-3 row">
+                <label
+                  className="col-sm-2 col-form-label"
+                  htmlFor="register-email"
+                >
+                  {I18NextService.i18n.t("email")}
+                </label>
+                <div className="col-sm-10">
+                  <input
+                    type="email"
+                    id="register-email"
+                    className="form-control"
+                    placeholder={
+                      siteView.local_site.require_email_verification
+                        ? I18NextService.i18n.t("required")
+                        : I18NextService.i18n.t("optional")
+                    }
+                    value={this.state.form.email}
+                    autoComplete="email"
+                    onInput={linkEvent(this, this.handleRegisterEmailChange)}
+                    required={siteView.local_site.require_email_verification}
+                    minLength={3}
+                  />
+                  {!siteView.local_site.require_email_verification &&
+                    this.state.form.email &&
+                    !validEmail(this.state.form.email) && (
+                      <div
+                        className="mt-2 mb-0 alert alert-warning"
+                        role="alert"
+                      >
+                        <Icon
+                          icon="alert-triangle"
+                          classes="icon-inline me-2"
+                        />
+                        {I18NextService.i18n.t("no_password_reset")}
+                      </div>
+                    )}
+                </div>
+              </div>
+            }
 
-        {!oauth_provider && (
-          <div className="mb-3">
-            <PasswordInput
-              id="register-password"
-              value={this.state.form.password}
-              onInput={linkEvent(this, this.handleRegisterPasswordChange)}
-              showStrength
-              label={I18NextService.i18n.t("password")}
-              isNew
-            />
-          </div>
-        )}
+            {
+              <div className="mb-3">
+                <PasswordInput
+                  id="register-password"
+                  value={this.state.form.password}
+                  onInput={linkEvent(this, this.handleRegisterPasswordChange)}
+                  showStrength
+                  label={I18NextService.i18n.t("password")}
+                  isNew
+                />
+              </div>
+            }
 
-        {!oauth_provider && (
-          <div className="mb-3">
-            <PasswordInput
-              id="register-verify-password"
-              value={this.state.form.password_verify}
-              onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
-              label={I18NextService.i18n.t("verify_password")}
-              isNew
-            />
-          </div>
+            {
+              <div className="mb-3">
+                <PasswordInput
+                  id="register-verify-password"
+                  value={this.state.form.password_verify}
+                  onInput={linkEvent(
+                    this,
+                    this.handleRegisterPasswordVerifyChange,
+                  )}
+                  label={I18NextService.i18n.t("verify_password")}
+                  isNew
+                />
+              </div>
+            }
+          </>
         )}
 
         {siteView.local_site.registration_mode === "RequireApplication" && (
@@ -327,7 +343,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               ) : (
                 [
                   this.titleName(siteView),
-                  ...(oauth_provider !== undefined
+                  ...(oauth_provider
                     ? [`(${oauth_provider.display_name})`]
                     : []),
                 ].join(" ")
@@ -429,8 +445,6 @@ export class Signup extends Component<SignupRouteProps, State> {
     // oauth registration
     if (username && oauthProvider)
       return handleUseOAuthProvider({
-        i: undefined,
-        index: undefined,
         oauth_provider: oauthProvider,
         username,
         answer,
@@ -567,7 +581,7 @@ export class Signup extends Component<SignupRouteProps, State> {
 }
 
 function getOAuthProvider(signup: Signup) {
-  return (signup.state.siteRes.oauth_providers || []).find(
-    provider => provider.id === Number(signup.props?.sso_provider_id || -1),
+  return (signup.state.siteRes.oauth_providers ?? []).find(
+    provider => provider.id === Number(signup.props?.sso_provider_id ?? -1),
   );
 }

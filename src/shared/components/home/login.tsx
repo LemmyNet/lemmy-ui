@@ -115,24 +115,23 @@ async function handleLoginSubmit(i: Login, event: any) {
   }
 }
 
-export async function handleUseOAuthProvider(d: {
-  i: Login | undefined;
-  index: number | undefined;
+export async function handleUseOAuthProvider(params: {
   oauth_provider: OAuthProvider;
-  username: string | undefined;
-  answer: string | undefined;
-  show_nsfw: boolean | undefined;
+  username?: string;
+  prev?: string;
+  answer?: string;
+  show_nsfw?: boolean;
 }) {
   const redirectUri = `${window.location.origin}/oauth/callback`;
 
   const state = crypto.randomUUID();
   const requestUri =
-    d.oauth_provider.authorization_endpoint +
+    params.oauth_provider.authorization_endpoint +
     "?" +
     [
-      `client_id=${encodeURIComponent(d.oauth_provider.client_id)}`,
+      `client_id=${encodeURIComponent(params.oauth_provider.client_id)}`,
       `response_type=code`,
-      `scope=${encodeURIComponent(d.oauth_provider.scopes)}`,
+      `scope=${encodeURIComponent(params.oauth_provider.scopes)}`,
       `redirect_uri=${encodeURIComponent(redirectUri)}`,
       `state=${state}`,
     ].join("&");
@@ -142,12 +141,12 @@ export async function handleUseOAuthProvider(d: {
     "oauth_state",
     JSON.stringify({
       state,
-      oauth_provider_id: d.oauth_provider.id,
+      oauth_provider_id: params.oauth_provider.id,
       redirect_uri: redirectUri,
-      prev: d.i?.props?.prev || "/",
-      username: d.username,
-      answer: d.answer,
-      show_nsfw: d.show_nsfw,
+      prev: params.prev ?? "/",
+      username: params.username,
+      answer: params.answer,
+      show_nsfw: params.show_nsfw,
       expires_at: Date.now() + 5 * 60_000,
     }),
   );
@@ -194,6 +193,7 @@ export class Login extends Component<LoginRouteProps, State> {
     super(props, context);
 
     this.handleSubmitTotp = this.handleSubmitTotp.bind(this);
+    this.handleLoginWithProvider = this.handleLoginWithProvider.bind(this);
   }
 
   get documentTitle(): string {
@@ -225,25 +225,19 @@ export class Login extends Component<LoginRouteProps, State> {
         {(this.state.siteRes.oauth_providers?.length || 0) > 0 && (
           <div className="row">
             <div className="col-12 col-lg-6 offset-lg-3">
-              <span>Or</span>
-              {(this.state.siteRes.oauth_providers || []).map(
-                (oauth_provider: PublicOAuthProvider, index) => (
+              <span>{I18NextService.i18n.t("or")}</span>
+              {(this.state.siteRes.oauth_providers ?? []).map(
+                (oauth_provider: PublicOAuthProvider) => (
                   <button
-                    className="btn btn-secondary"
-                    style="margin: 0.5rem"
+                    className="btn btn-secondary m-2"
                     onClick={linkEvent(
-                      {
-                        i: this,
-                        index,
-                        oauth_provider,
-                        username: undefined,
-                        answer: undefined,
-                        show_nsfw: undefined,
-                      },
-                      handleUseOAuthProvider,
+                      { oauth_provider },
+                      this.handleLoginWithProvider,
                     )}
                   >
-                    Login with {oauth_provider.display_name}
+                    {I18NextService.i18n.t("oauth_login_with_provider", {
+                      provider_name: oauth_provider.display_name,
+                    })}
                   </button>
                 ),
               )}
@@ -270,6 +264,13 @@ export class Login extends Component<LoginRouteProps, State> {
     }
 
     return successful;
+  }
+
+  async handleLoginWithProvider(params: { oauth_provider: OAuthProvider }) {
+    handleUseOAuthProvider({
+      oauth_provider: params.oauth_provider,
+      prev: this.props.prev ?? "/",
+    });
   }
 
   loginForm() {

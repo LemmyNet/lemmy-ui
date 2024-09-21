@@ -13,8 +13,8 @@ import { HttpService } from "../../services/HttpService";
 import { toast } from "../../toast";
 
 interface OAuthCallbackProps {
-  code: string | undefined;
-  state: string | undefined;
+  code?: string;
+  state?: string;
 }
 
 export function getOAuthCallbackQueryParams(
@@ -102,53 +102,23 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
           let err_redirect = "/login";
           switch (loginRes.err.message) {
             case "registration_username_required":
-              toast(
-                I18NextService.i18n.t("registration_username_required"),
-                "danger",
-              );
-              err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
-              break;
             case "registration_application_answer_required":
-              toast(
-                I18NextService.i18n.t(
-                  "registration_application_answer_required",
-                ),
-                "danger",
-              );
               err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
+              toast(I18NextService.i18n.t(loginRes.err.message), "danger");
               break;
             case "registration_application_is_pending":
-              toast(
-                I18NextService.i18n.t("registration_application_pending"),
-                "danger",
-              );
-              break;
             case "registration_denied":
-              toast(I18NextService.i18n.t("registration_denied"), "danger");
-              break;
             case "oauth_authorization_invalid":
-              toast(
-                I18NextService.i18n.t("oauth_authorization_invalid"),
-                "danger",
-              );
-              break;
             case "oauth_login_failed":
-              toast(I18NextService.i18n.t("oauth_login_failed"), "danger");
-              break;
             case "oauth_registration_closed":
-              toast(I18NextService.i18n.t("registration_closed"), "danger");
-              break;
             case "email_already_exists":
-              toast(I18NextService.i18n.t("email_already_exists"), "danger");
-              break;
             case "username_already_exists":
-              toast(I18NextService.i18n.t("username_already_exists"), "danger");
-              break;
             case "no_email_setup":
-              toast(I18NextService.i18n.t("no_email_setup"), "danger");
+              toast(I18NextService.i18n.t(loginRes.err.message), "danger");
               break;
             default:
               toast(I18NextService.i18n.t("incorrect_login"), "danger");
+              break;
           }
           this.props.history.push(err_redirect);
         }

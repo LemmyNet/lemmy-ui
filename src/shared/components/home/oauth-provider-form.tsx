@@ -74,7 +74,7 @@ export class OAuthProviderForm extends Component<
   private emptyState: OAuthProviderFormState = {
     siteRes: this.isoData.site_res,
     OAuthProviders:
-      (this.isoData.site_res.admin_oauth_providers || []).map(formatProvider) ??
+      (this.isoData.site_res.admin_oauth_providers ?? []).map(formatProvider) ??
       [],
   };
   state: OAuthProviderFormState;

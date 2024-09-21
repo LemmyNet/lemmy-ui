@@ -529,7 +529,7 @@ export class AdminSettings extends Component<
       const newOAuthProvider = res.data;
       this.setState(s => {
         s.siteRes.admin_oauth_providers = (
-          s.siteRes.admin_oauth_providers || []
+          s.siteRes.admin_oauth_providers ?? []
         ).map(p => {
           return p?.client_id === newOAuthProvider.client_id
             ? newOAuthProvider
@@ -556,7 +556,7 @@ export class AdminSettings extends Component<
     if (res.state === "success") {
       this.setState(s => {
         s.siteRes.admin_oauth_providers = (
-          s.siteRes.admin_oauth_providers || []
+          s.siteRes.admin_oauth_providers ?? []
         ).filter(p => p?.id !== form.id);
         return s;
       });
@@ -584,7 +584,7 @@ export class AdminSettings extends Component<
 
       this.setState(s => {
         s.siteRes.admin_oauth_providers = (
-          s.siteRes.admin_oauth_providers || []
+          s.siteRes.admin_oauth_providers ?? []
         ).slice();
         const index = s.siteRes.admin_oauth_providers.findIndex(
           x => x?.id === newOAuthProvider?.id,
