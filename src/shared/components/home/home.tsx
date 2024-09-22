@@ -16,7 +16,6 @@ import {
 import {
   getQueryParams,
   getQueryString,
-  getRandomFromList,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -67,7 +66,7 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
-  SortType,
+  PostSortType,
   SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
@@ -122,7 +121,7 @@ interface HomeState {
 interface HomeProps {
   listingType?: ListingType;
   dataType: DataType;
-  sort: SortType;
+  sort: PostSortType;
   pageCursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
@@ -132,7 +131,7 @@ type HomeData = RouteDataResponse<{
   commentsRes: GetCommentsResponse;
 }>;
 
-function getRss(listingType: ListingType, sort: SortType) {
+function getRss(listingType: ListingType, sort: PostSortType) {
   let rss: string | undefined = undefined;
 
   const queryString = getQueryString({ sort });
@@ -177,13 +176,13 @@ function getListingTypeFromQuery(
 
 function getSortTypeFromQuery(
   type: string | undefined,
-  fallback: SortType,
-): SortType {
-  return type ? (type as SortType) : fallback;
+  fallback: PostSortType,
+): PostSortType {
+  return type ? (type as PostSortType) : fallback;
 }
 
 type Fallbacks = {
-  sort: SortType;
+  sort: PostSortType;
   listingType: ListingType;
 };
 
@@ -204,7 +203,8 @@ export function getHomeQueryParams(
     },
     source,
     {
-      sort: local_user?.default_sort_type ?? local_site.default_sort_type,
+      sort:
+        local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
       listingType:
         local_user?.default_listing_type ??
         local_site.default_post_listing_type,
@@ -311,9 +311,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       };
     }
 
-    this.state.tagline = getRandomFromList(
-      this.state?.siteRes?.taglines ?? [],
-    )?.content;
+    this.state.tagline = this.state?.siteRes?.tagline?.content;
   }
 
   async componentWillMount() {
@@ -799,7 +797,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.updateUrl({ pageCursor: nextPage });
   }
 
-  handleSortChange(val: SortType) {
+  handleSortChange(val: PostSortType) {
     this.updateUrl({ sort: val, pageCursor: undefined });
   }
 

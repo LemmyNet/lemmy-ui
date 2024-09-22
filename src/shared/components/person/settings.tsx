@@ -927,9 +927,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </label>
             <div className="col-sm-9">
               <SortSelect
+                commentSort
                 sort={
                   this.state.saveUserSettingsForm.default_comment_sort_type ??
-                  "Active"
+                  "Hot"
                 }
                 onChange={this.handleCommentSortTypeChange}
               />

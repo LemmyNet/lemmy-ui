@@ -81,7 +81,7 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
-  SortType,
+  PostSortType,
   SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
@@ -139,12 +139,12 @@ interface State {
 
 interface CommunityProps {
   dataType: DataType;
-  sort: SortType;
+  sort: PostSortType;
   pageCursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
 
-type Fallbacks = { sort: SortType };
+type Fallbacks = { sort: PostSortType };
 
 export function getCommunityQueryParams(
   source: string | undefined,
@@ -162,7 +162,8 @@ export function getCommunityQueryParams(
     },
     source,
     {
-      sort: local_user?.default_sort_type ?? local_site.default_sort_type,
+      sort:
+        local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
     },
   );
 }
@@ -171,12 +172,11 @@ function getDataTypeFromQuery(type?: string): DataType {
   return type ? DataType[type] : DataType.Post;
 }
 
-function getSortTypeFromQuery(type?: string): SortType {
-  const mySortType =
-    UserService.Instance.myUserInfo?.local_user_view.local_user
-      .default_sort_type;
-
-  return type ? (type as SortType) : (mySortType ?? "Active");
+function getSortTypeFromQuery(
+  type: string | undefined,
+  fallback: PostSortType,
+): PostSortType {
+  return type ? (type as PostSortType) : fallback;
 }
 
 type CommunityPathProps = { name: string };
@@ -654,7 +654,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.updateUrl({ pageCursor: nextPage });
   }
 
-  handleSortChange(sort: SortType) {
+  handleSortChange(sort: PostSortType) {
     this.updateUrl({ sort, pageCursor: undefined });
   }
 

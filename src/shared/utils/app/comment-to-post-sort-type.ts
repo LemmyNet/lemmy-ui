@@ -2,41 +2,38 @@ import { CommentSortType, PostSortType } from "lemmy-js-client";
 
 function assertType<T>(_: T) {}
 
-export default function postToCommentSortType(
+export default function commentToPostSortType(
   sort: PostSortType | CommentSortType,
-): CommentSortType {
+): PostSortType {
   switch (sort) {
+    case "Active":
     case "Hot":
     case "New":
     case "Old":
+    case "TopDay":
+    case "TopWeek":
+    case "TopMonth":
+    case "TopYear":
+    case "TopAll":
+    case "MostComments":
+    case "NewComments":
+    case "TopHour":
+    case "TopSixHour":
+    case "TopTwelveHour":
+    case "TopThreeMonths":
+    case "TopSixMonths":
+    case "TopNineMonths":
     case "Controversial":
-    case "Top": {
-      assertType<CommentSortType>(sort);
+    case "Scaled": {
+      assertType<PostSortType>(sort);
       return sort;
     }
   }
 
-  assertType<PostSortType>(sort);
+  assertType<CommentSortType>(sort);
   switch (sort) {
-    case "TopAll":
-    case "TopHour":
-    case "TopSixHour":
-    case "TopTwelveHour":
-    case "TopDay":
-    case "TopWeek":
-    case "TopMonth":
-    case "TopThreeMonths":
-    case "TopSixMonths":
-    case "TopNineMonths":
-    case "TopYear": {
-      return "Top";
-    }
-    case "NewComments":
-    case "MostComments":
-    case "Scaled":
-    case "Active": {
-      return "Hot";
-    }
+    case "Top":
+      return "TopAll";
     default: {
       assertType<never>(sort);
       return "Hot";
