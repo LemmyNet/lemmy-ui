@@ -1,30 +1,45 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
-import { EditSite, Tagline } from "lemmy-js-client";
-import { I18NextService } from "../../services";
+import { Tagline } from "lemmy-js-client";
+import { HttpService, I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import { Paginator } from "../common/paginator";
+import classNames from "classnames";
+import { isBrowser } from "@utils/browser";
 
-interface TaglineFormProps {
-  taglines: Array<Tagline>;
-  onSaveSite(form: EditSite): void;
-  loading: boolean;
+interface EditableTagline {
+  change?: "update" | "delete";
+  editMode?: boolean;
+  tagline: Tagline;
 }
 
 interface TaglineFormState {
-  taglines: Array<string>;
-  editingRow?: number;
+  taglines: Array<EditableTagline>;
+  page: number;
+  loading: boolean;
 }
 
 @tippyMixin
-export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
+export class TaglineForm extends Component<
+  Record<never, never>,
+  TaglineFormState
+> {
   state: TaglineFormState = {
-    editingRow: undefined,
-    taglines: this.props.taglines.map(x => x.content),
+    taglines: [],
+    page: 1,
+    loading: false,
   };
   constructor(props: any, context: any) {
     super(props, context);
+    this.handlePageChange = this.handlePageChange.bind(this);
+  }
+
+  componentWillMount(): void {
+    if (isBrowser()) {
+      this.handlePageChange(1);
+    }
   }
 
   render() {
@@ -32,18 +47,27 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
       <div className="tagline-form col-12">
         <h1 className="h4 mb-4">{I18NextService.i18n.t("taglines")}</h1>
         <div className="table-responsive col-12">
+          <div>
+            <Paginator
+              page={this.state.page}
+              onChange={this.handlePageChange}
+              nextDisabled={false}
+            />
+          </div>
           <table id="taglines_table" className="table table-sm table-hover">
             <thead className="pointer">
               <th></th>
+              <th style="width:60px"></th>
               <th style="width:121px"></th>
             </thead>
             <tbody>
               {this.state.taglines.map((cv, index) => (
                 <tr key={index}>
                   <td>
-                    {this.state.editingRow === index && (
+                    {cv.editMode ? (
                       <MarkdownTextArea
-                        initialContent={cv}
+                        initialContent={cv.tagline.content}
+                        focus={true}
                         onContentChange={s =>
                           this.handleTaglineChange(this, index, s)
                         }
@@ -51,8 +75,26 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                         allLanguages={[]}
                         siteLanguages={[]}
                       />
+                    ) : (
+                      <div>{cv.tagline.content}</div>
                     )}
-                    {this.state.editingRow !== index && <div>{cv}</div>}
+                  </td>
+                  <td
+                    className={classNames("text-center", {
+                      "border-info": cv.change === "update",
+                      "border-danger": cv.change === "delete",
+                    })}
+                  >
+                    {cv.change === "update" && (
+                      <span>
+                        <Icon icon="transfer" />
+                      </span>
+                    )}
+                    {cv.change === "delete" && (
+                      <span>
+                        <Icon icon="trash" />
+                      </span>
+                    )}
                   </td>
                   <td className="text-right">
                     <button
@@ -99,9 +141,9 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
               <button
                 onClick={linkEvent(this, this.handleSaveClick)}
                 className="btn btn-secondary me-2"
-                disabled={this.props.loading}
+                disabled={this.state.loading}
               >
-                {this.props.loading ? (
+                {this.state.loading ? (
                   <Spinner />
                 ) : (
                   capitalizeFirstLetter(I18NextService.i18n.t("save"))
@@ -115,49 +157,92 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   }
 
   handleTaglineChange(i: TaglineForm, index: number, val: string) {
-    if (i.state.taglines) {
-      i.setState(prev => ({
-        ...prev,
-        taglines: prev.taglines.map((tl, i) => (i === index ? val : tl)),
-      }));
-    }
+    const editable = i.state.taglines[index];
+    i.setState(() => {
+      editable.change = "update";
+      const tagline: Tagline = editable.tagline;
+      tagline.content = val;
+    });
   }
 
-  handleDeleteTaglineClick(d: { i: TaglineForm; index: number }, event: any) {
+  async handleDeleteTaglineClick(
+    d: { i: TaglineForm; index: number },
+    event: any,
+  ) {
     event.preventDefault();
-    d.i.setState(prev => ({
-      ...prev,
-      taglines: prev.taglines.filter((_, i) => i !== d.index),
-      editingRow: undefined,
-    }));
+    const editable = d.i.state.taglines[d.index];
+    d.i.setState(() => {
+      editable.change = "delete";
+      editable.editMode = false;
+    });
   }
 
   handleEditTaglineClick(d: { i: TaglineForm; index: number }, event: any) {
     event.preventDefault();
-    if (d.i.state.editingRow === d.index) {
-      d.i.setState({ editingRow: undefined });
-    } else {
-      d.i.setState({ editingRow: d.index });
-    }
-  }
-
-  async handleSaveClick(i: TaglineForm) {
-    i.props.onSaveSite({
-      taglines: i.state.taglines,
+    const editable = d.i.state.taglines[d.index];
+    d.i.setState(prev => {
+      prev.taglines
+        .filter(x => x !== editable)
+        .forEach(x => {
+          x.editMode = false;
+        });
+      editable.editMode = !editable.editMode;
     });
   }
 
-  handleAddTaglineClick(
+  async handleSaveClick(i: TaglineForm) {
+    const promises: Promise<any>[] = [];
+    for (const editable of i.state.taglines) {
+      if (editable.change === "update") {
+        promises.push(
+          HttpService.client.editTagline(editable.tagline).then(() => {
+            editable.change = undefined;
+          }),
+        );
+      } else if (editable.change === "delete") {
+        promises.push(
+          HttpService.client.deleteTagline(editable.tagline).then(() => {
+            editable.change = undefined;
+          }),
+        );
+      }
+    }
+    await Promise.all(promises);
+    i.handlePageChange(i.state.page);
+  }
+
+  async handleAddTaglineClick(
     i: TaglineForm,
     event: InfernoMouseEvent<HTMLButtonElement>,
   ) {
     event.preventDefault();
-    const newTaglines = [...i.state.taglines];
-    newTaglines.push("");
-
-    i.setState({
-      taglines: newTaglines,
-      editingRow: newTaglines.length - 1,
+    const tagRes = await HttpService.client.createTagline({
+      content: "",
     });
+    if (tagRes.state === "success") {
+      i.setState(prev => {
+        prev.taglines.forEach(x => {
+          x.editMode = false;
+        });
+        prev.taglines.push({
+          tagline: tagRes.data.tagline,
+          editMode: true,
+        });
+      });
+    }
+  }
+
+  async handlePageChange(val: number) {
+    this.setState({ loading: true });
+    const taglineRes = await HttpService.client.listTaglines({ page: val });
+    if (taglineRes.state === "success") {
+      this.setState({
+        page: val,
+        loading: false,
+        taglines: taglineRes.data.taglines.map(t => ({ tagline: t })),
+      });
+    } else {
+      this.setState({ loading: false });
+    }
   }
 }

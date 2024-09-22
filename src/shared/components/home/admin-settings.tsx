@@ -249,11 +249,7 @@ export class AdminSettings extends Component<
                   id="taglines-tab-pane"
                 >
                   <div className="row">
-                    <TaglineForm
-                      taglines={this.state.siteRes.taglines}
-                      onSaveSite={this.handleEditSite}
-                      loading={this.state.loading}
-                    />
+                    <TaglineForm />
                   </div>
                 </div>
               ),
@@ -431,7 +427,6 @@ export class AdminSettings extends Component<
       this.setState(s => {
         s.siteRes.site_view = editRes.data.site_view;
         // TODO: Where to get taglines from?
-        s.siteRes.taglines = editRes.data.taglines;
         return s;
       });
       toast(I18NextService.i18n.t("site_saved"));
