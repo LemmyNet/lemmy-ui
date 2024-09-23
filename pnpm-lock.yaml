@@ -154,7 +154,7 @@ importers:
         version: 2.9.1(webpack@5.94.0(webpack-cli@5.1.4))
       qreator:
         specifier: ^9.3.0
-        version: 9.3.0
+        version: 9.4.0
       register-service-worker:
         specifier: ^1.7.2
         version: 1.7.2
@@ -3764,8 +3764,8 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  qreator@9.3.0:
-    resolution: {integrity: sha512-u811D9aywKnWjFt8p9p2RnbeWI0kGDEv2AbncYHX2r3MOHL6vO1ZkWRjpZpZx4h/NfTJz6i+/UZnVRQloZLEBA==}
+  qreator@9.4.0:
+    resolution: {integrity: sha512-pjz5VlyD4TkhOG7g2FCp4IjiRZj9xnMveJ0fjFqcwxDITmQdve0gDGustXu7WndzfwE3V/oylEwxsEDiyg1obw==}
     engines: {node: '>=18'}
 
   qs@6.13.0:
@@ -8356,7 +8356,7 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  qreator@9.3.0:
+  qreator@9.4.0:
     dependencies:
       color-string: 1.9.1
       js-base64: 3.7.7
