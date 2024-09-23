@@ -36,7 +36,7 @@ import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
-import { OAuthProviderForm } from "./oauth-provider-form";
+import { OAuthProviderForm } from "./oauth/oauth-provider-form";
 import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";

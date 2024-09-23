@@ -9,9 +9,9 @@ import {
   EditOAuthProvider,
   GetSiteResponse,
 } from "lemmy-js-client";
-import { I18NextService } from "../../services";
-import { Icon } from "../common/icon";
-import ConfirmationModal from "../common/modal/confirmation-modal";
+import { I18NextService } from "../../../services";
+import { Icon } from "../../common/icon";
+import ConfirmationModal from "../../common/modal/confirmation-modal";
 
 const PRESET_OAUTH_PROVIDERS = [
   {

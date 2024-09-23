@@ -2,15 +2,15 @@ import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { refreshTheme } from "@utils/browser";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
-import { Spinner } from "../common/icon";
+import { Spinner } from "../../common/icon";
 import { getQueryParams } from "@utils/helpers";
-import { IRoutePropsWithFetch } from "../../routes";
-import { RouteData } from "../../interfaces";
-import { I18NextService, UserService } from "../../services";
+import { IRoutePropsWithFetch } from "../../../routes";
+import { RouteData } from "../../../interfaces";
+import { I18NextService, UserService } from "../../../services";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { UnreadCounterService } from "../../services";
-import { HttpService } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { UnreadCounterService } from "../../../services";
+import { HttpService } from "../../../services/HttpService";
+import { toast } from "../../../toast";
 
 interface OAuthCallbackProps {
   code?: string;

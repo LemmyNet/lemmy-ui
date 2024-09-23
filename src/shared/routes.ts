@@ -83,7 +83,7 @@ import {
   OAuthCallback,
   OAuthCallbackConfig,
   getOAuthCallbackQueryParams,
-} from "./components/home/oauth-callback";
+} from "./components/home/oauth/oauth-callback";
 
 export interface IRoutePropsWithFetch<
   DataT extends RouteData,
