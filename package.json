@@ -47,7 +47,7 @@
     "date-fns": "^3.6.0",
     "emoji-mart": "^5.6.0",
     "emoji-short-name": "^2.0.0",
-    "express": "~4.19.2",
+    "express": "~4.21.0",
     "highlight.js": "^11.10.0",
     "history": "^5.3.0",
     "html-to-text": "^9.0.5",
