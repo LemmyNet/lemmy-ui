@@ -63,7 +63,7 @@
     "lemmy-js-client": "0.20.0-alpha.7",
     "lodash.isequal": "^4.5.0",
     "markdown-it": "^14.1.0",
-    "markdown-it-bidi": "^0.1.0",
+    "markdown-it-bidi": "^0.2.0",
     "markdown-it-container": "^4.0.0",
     "markdown-it-emoji": "^3.0.0",
     "markdown-it-footnote": "^4.0.0",

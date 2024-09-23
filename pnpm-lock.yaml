@@ -123,8 +123,8 @@ importers:
         specifier: ^14.1.0
         version: 14.1.0
       markdown-it-bidi:
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       markdown-it-container:
         specifier: ^4.0.0
         version: 4.0.0
@@ -3126,8 +3126,8 @@ packages:
   magic-string@0.25.9:
     resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
 
-  markdown-it-bidi@0.1.0:
-    resolution: {integrity: sha512-4GloQnF+PiILh6wkLAIeSxCLo9qUW7LcKj/08GyCpvo0LLC6YEhrZBvM9RkMkieGG7i4uIRE/F5jmU14DgR8Wg==}
+  markdown-it-bidi@0.2.0:
+    resolution: {integrity: sha512-7vm0gsynh8I1wcz5zD/Z2pWRbn/99HFlF9qfoH1u0bmdcOVSi+X4PCINujz+VqPVIbg/9q2wCFCdqMKLL3y7nQ==}
 
   markdown-it-container@4.0.0:
     resolution: {integrity: sha512-HaNccxUH0l7BNGYbFbjmGpf5aLHAMTinqRZQAEQbMr2cdD3z91Q6kIo1oUn1CQndkT03jat6ckrdRYuwwqLlQw==}
@@ -7848,7 +7848,7 @@ snapshots:
     dependencies:
       sourcemap-codec: 1.4.8
 
-  markdown-it-bidi@0.1.0: {}
+  markdown-it-bidi@0.2.0: {}
 
   markdown-it-container@4.0.0: {}
 
