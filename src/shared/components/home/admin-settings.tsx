@@ -36,7 +36,6 @@ import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
-import { OAuthProviderForm } from "./oauth/oauth-provider-form";
 import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
@@ -48,6 +47,7 @@ import { Paginator } from "../common/paginator";
 import { snapToTop } from "@utils/browser";
 import { isBrowser } from "@utils/browser";
 import ConfirmationModal from "../common/modal/confirmation-modal";
+import OAuthProvidersTab from "./oauth/oauth-providers-tab";
 
 type AdminSettingsData = RouteDataResponse<{
   bannedRes: BannedPersonsResponse;
@@ -313,13 +313,14 @@ export class AdminSettings extends Component<
                   role="tabpanel"
                   id="auth-tab-pane"
                 >
-                  <div className="row">
+                  {/* <div className="row">
                     <OAuthProviderForm
                       onCreate={this.handleCreateOAuthProvider}
                       onDelete={this.handleDeleteOAuthProvider}
                       onEdit={this.handleEditOAuthProvider}
                     />
-                  </div>
+                  </div> */}
+                  <OAuthProvidersTab />
                 </div>
               ),
             },

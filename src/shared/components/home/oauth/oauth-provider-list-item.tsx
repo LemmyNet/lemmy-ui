@@ -1,5 +1,6 @@
 import { OAuthProvider } from "lemmy-js-client";
 import { I18NextService } from "../../../services/I18NextService";
+import { Icon } from "../../common/icon";
 
 type OAuthProviderListItemProps = {
   provider: OAuthProvider;
@@ -23,21 +24,24 @@ export default function OAuthProviderListItem({
   provider,
 }: OAuthProviderListItemProps) {
   return (
-    <li>
+    <li className="oauth-item list-group-item">
       <details>
-        <summary className="d-flex justify-content-between">
-          <div>{provider.display_name}</div>
+        <summary className="d-flex justify-content-between align-items-center">
+          <div className="fw-semibold">
+            <Icon icon="caret-right" classes="oauth-item-caret me-1" />
+            {provider.display_name}
+          </div>
           <div>
-            <button className="d-inline-block btn btn-outline-primary">
+            <button className="d-inline-block btn btn-outline-secondary me-2">
               Edit
             </button>
-            <button className="d-inline-block btn brn-outline-danger">
+            <button className="d-inline-block btn btn-outline-danger">
               Delete
             </button>
           </div>
         </summary>
         <div className="container">
-          <dl className="row row-cols-1 row-cols-sm-2">
+          <dl className="row row-cols-1 row-cols-sm-2 row-cols-md-3">
             <TextInfoField i18nKey="oauth_issuer" data={provider.issuer} />
             <TextInfoField
               i18nKey="oauth_authorization_endpoint"

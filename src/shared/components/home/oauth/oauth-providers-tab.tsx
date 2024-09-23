@@ -24,13 +24,18 @@ export default class OAuthProvidersTab extends Component<
   render(_props: Readonly<any>, state: Readonly<OAuthProvidersTabState>) {
     return (
       <div className="oauth-providers-tab">
-        <h1>{I18NextService.i18n.t("oauth_config")}</h1>
+        <h1 className="h4 mb-4">{I18NextService.i18n.t("oauth_config")}</h1>
         {state.oauthProviders.length > 0 ? (
-          <ul>
-            {state.oauthProviders.map(provider => (
-              <OAuthProviderListItem provider={provider} key={provider.id} />
-            ))}
-          </ul>
+          <>
+            <h2 className="h5 mb-2">
+              {I18NextService.i18n.t("oauth_providers")}
+            </h2>
+            <ul className="list-group">
+              {state.oauthProviders.map(provider => (
+                <OAuthProviderListItem provider={provider} key={provider.id} />
+              ))}
+            </ul>
+          </>
         ) : (
           <div>{I18NextService.i18n.t("no_oauth_providers_blurb")}</div>
         )}
