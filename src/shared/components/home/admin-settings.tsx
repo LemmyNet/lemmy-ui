@@ -314,6 +314,9 @@ export class AdminSettings extends Component<
                   id="auth-tab-pane"
                 >
                   <OAuthProvidersTab
+                    oauthProviders={
+                      this.state.siteRes.admin_oauth_providers ?? []
+                    }
                     onCreate={this.handleCreateOAuthProvider}
                     onDelete={this.handleDeleteOAuthProvider}
                     onEdit={this.handleEditOAuthProvider}
@@ -550,23 +553,19 @@ export class AdminSettings extends Component<
 
     const res = await HttpService.client.deleteOAuthProvider(form);
 
-    let succeeded = false;
     if (res.state === "success") {
       this.setState(s => {
         s.siteRes.admin_oauth_providers = (
           s.siteRes.admin_oauth_providers ?? []
-        ).filter(p => p?.id !== form.id);
+        ).filter(p => p.id !== form.id);
         return s;
       });
       toast(I18NextService.i18n.t("site_saved"));
-      succeeded = true;
     } else {
       toast(I18NextService.i18n.t("couldnt_delete_oauth_provider"), "danger");
     }
 
     this.setState({ loading: false });
-
-    return succeeded;
   }
 
   async handleCreateOAuthProvider(

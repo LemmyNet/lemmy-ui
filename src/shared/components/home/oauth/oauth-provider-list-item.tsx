@@ -6,6 +6,7 @@ import { MouseEventHandler } from "inferno";
 type OAuthProviderListItemProps = {
   provider: OAuthProvider;
   onEdit: MouseEventHandler<HTMLButtonElement>;
+  onDelete: MouseEventHandler<HTMLButtonElement>;
 };
 
 type TextInfoFieldProps = {
@@ -29,6 +30,7 @@ function boolToYesNo(value?: boolean) {
 export default function OAuthProviderListItem({
   provider,
   onEdit,
+  onDelete,
 }: OAuthProviderListItemProps) {
   return (
     <li className="oauth-item list-group-item">
@@ -46,7 +48,10 @@ export default function OAuthProviderListItem({
               <Icon icon="edit" classes="me-1" />
               {I18NextService.i18n.t("edit")}
             </button>
-            <button className="d-inline-block btn btn-outline-danger">
+            <button
+              className="d-inline-block btn btn-outline-danger"
+              onClick={onDelete}
+            >
               <Icon icon="trash" classes="me-1" />
               {I18NextService.i18n.t("delete")}
             </button>
