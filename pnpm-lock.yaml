@@ -308,7 +308,7 @@ importers:
         version: 4.0.0(webpack@5.94.0(webpack-cli@5.1.4))
       terser:
         specifier: ^5.31.6
-        version: 5.31.6
+        version: 5.33.0
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -4266,8 +4266,8 @@ packages:
       uglify-js:
         optional: true
 
-  terser@5.31.6:
-    resolution: {integrity: sha512-PQ4DAriWzKj+qgehQ7LK5bQqCFNMmlhjR2PFFLuqGCpuCAauxemVBWwWOxo3UIwWQx8+Pr61Df++r76wDmkQBg==}
+  terser@5.33.0:
+    resolution: {integrity: sha512-JuPVaB7s1gdFKPKTelwUyRq5Sid2A3Gko2S0PncwdBq7kN9Ti9HPWDQ06MPsEDGsZeVESjKEnyGy68quBk1w6g==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -8506,7 +8506,7 @@ snapshots:
       jest-worker: 26.6.2
       rollup: 2.79.1
       serialize-javascript: 4.0.0
-      terser: 5.31.6
+      terser: 5.33.0
 
   rollup@2.79.1:
     optionalDependencies:
@@ -8948,10 +8948,10 @@ snapshots:
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
-      terser: 5.31.6
+      terser: 5.33.0
       webpack: 5.94.0(webpack-cli@5.1.4)
 
-  terser@5.31.6:
+  terser@5.33.0:
     dependencies:
       '@jridgewell/source-map': 0.3.6
       acorn: 8.12.1
