@@ -18,9 +18,8 @@ type OAuthProvidersTabProps = {
 };
 
 type OAuthProvidersTabState = {
-  showCreateOrEditModal: boolean;
-  upsertingProvider?: OAuthProvider;
-  providerIdToDelete?: number;
+  providerToCreateOrEdit?: OAuthProvider;
+  providerToDelete?: OAuthProvider;
 };
 
 function handleShowEditProviderModal({
@@ -30,34 +29,32 @@ function handleShowEditProviderModal({
   tab: OAuthProvidersTab;
   provider: OAuthProvider;
 }) {
-  tab.setState({ upsertingProvider: provider, showCreateOrEditModal: true });
+  tab.setState({ providerToCreateOrEdit: provider });
 }
 
 function handleCloseCreateOrEditModal(tab: OAuthProvidersTab) {
-  tab.setState({ showCreateOrEditModal: false, upsertingProvider: undefined });
+  tab.setState({ providerToCreateOrEdit: undefined });
 }
 
 function handleTryDeleteOauthProvider({
   tab,
-  id,
+  provider,
 }: {
   tab: OAuthProvidersTab;
-  id: number;
+  provider: OAuthProvider;
 }) {
-  tab.setState({ providerIdToDelete: id });
+  tab.setState({ providerToDelete: provider });
 }
 
 function handleCloseDeleteConfirmationModal(tab: OAuthProvidersTab) {
-  tab.setState({ providerIdToDelete: undefined });
+  tab.setState({ providerToDelete: undefined });
 }
 
 export default class OAuthProvidersTab extends Component<
   OAuthProvidersTabProps,
   OAuthProvidersTabState
 > {
-  state: OAuthProvidersTabState = {
-    showCreateOrEditModal: false,
-  };
+  state: OAuthProvidersTabState = {};
 
   constructor(props: OAuthProvidersTabProps, context: any) {
     super(props, context);
@@ -68,9 +65,8 @@ export default class OAuthProvidersTab extends Component<
   render(
     { oauthProviders }: Readonly<OAuthProvidersTabProps>,
     {
-      showCreateOrEditModal,
-      upsertingProvider,
-      providerIdToDelete,
+      providerToDelete,
+      providerToCreateOrEdit,
     }: Readonly<OAuthProvidersTabState>,
   ) {
     return (
@@ -91,7 +87,7 @@ export default class OAuthProvidersTab extends Component<
                     handleShowEditProviderModal,
                   )}
                   onDelete={linkEvent(
-                    { tab: this, id: provider.id },
+                    { provider, tab: this },
                     handleTryDeleteOauthProvider,
                   )}
                 />
@@ -102,12 +98,12 @@ export default class OAuthProvidersTab extends Component<
           <div>{I18NextService.i18n.t("no_oauth_providers_blurb")}</div>
         )}
         <CreateOrEditOAuthProviderModal
-          show={showCreateOrEditModal}
+          show={!!providerToCreateOrEdit}
           onClose={linkEvent(this, handleCloseCreateOrEditModal)}
-          provider={upsertingProvider}
+          provider={providerToCreateOrEdit}
         />
         <ConfirmationModal
-          show={providerIdToDelete !== undefined}
+          show={!!providerToDelete}
           message={I18NextService.i18n.t("delete_oauth_provider_are_you_sure")}
           loadingMessage={I18NextService.i18n.t("deleting_oauth_provider")}
           onNo={linkEvent(this, handleCloseDeleteConfirmationModal)}
@@ -118,12 +114,12 @@ export default class OAuthProvidersTab extends Component<
   }
 
   async handleDeleteProvider() {
-    const id = this.state.providerIdToDelete;
+    const id = this.state.providerToDelete?.id;
 
     if (id !== undefined) {
       await this.props.onDelete({ id });
     }
 
-    this.setState({ providerIdToDelete: undefined });
+    this.setState({ providerToDelete: undefined });
   }
 }
