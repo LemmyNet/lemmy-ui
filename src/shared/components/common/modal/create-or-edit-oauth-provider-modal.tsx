@@ -1,51 +1,91 @@
 import {
   Component,
   FormEventHandler,
+  MouseEventHandler,
   RefObject,
   createRef,
   linkEvent,
 } from "inferno";
 import type { Modal } from "bootstrap";
 import { modalMixin } from "../../mixins/modal-mixin";
-import { OAuthProvider } from "lemmy-js-client";
 import { I18NextService } from "../../../services/I18NextService";
+import { OAuthProvider } from "lemmy-js-client";
 
-type PartialOAuthProvider = Partial<OAuthProvider> & { client_secret?: string };
+type EditingProvider = Partial<OAuthProvider> & { client_secret?: string };
 
 interface CreateOrEditOAuthProviderModalProps {
-  onClose: () => void;
+  onClose: MouseEventHandler<HTMLButtonElement>;
   show: boolean;
-  provider: PartialOAuthProvider;
+  provider?: OAuthProvider;
 }
 
 interface CreateOrEditOAuthProviderModalState {
   changed: boolean;
-  client_state?: string;
+  provider: Partial<OAuthProvider>;
 }
 
-function handlePropertyChange(modal: CreateOrEditOAuthProviderModal) {
-  modal.setState({ changed: true });
-}
-
-function handleSecretChange(modal: CreateOrEditOAuthProviderModal, event: any) {
-  modal.setState({ client_state: event.target.value, changed: true });
-}
-
-type ProviderTextFieldProps = {
+interface ProviderFieldProps {
   id: string;
   i18nKey: string;
-  type?: "text" | "url" | "password";
-  initialValue?: string;
   onInput: FormEventHandler<HTMLInputElement>;
+}
+
+interface ProviderTextFieldProps extends ProviderFieldProps {
   disabled?: boolean;
   placeholder?: string;
-};
+  type?: "text" | "url" | "password";
+  value?: string;
+}
+
+type ProviderBooleanProperties =
+  | "enabled"
+  | "account_linking_enabled"
+  | "auto_verify_email";
+
+interface ProviderCheckboxFieldProps extends ProviderFieldProps {
+  checked?: boolean;
+}
+
+function handleTextPropertyChange(
+  {
+    modal,
+    property,
+  }: {
+    modal: CreateOrEditOAuthProviderModal;
+    property: Exclude<keyof EditingProvider, ProviderBooleanProperties>;
+  },
+  event: any,
+) {
+  modal.setState(prevState => ({
+    changed: true,
+    provider: {
+      ...prevState.provider,
+      [property]: event.target.value,
+    },
+  }));
+}
+
+function handleBooleanPropertyChange({
+  modal,
+  property,
+}: {
+  modal: CreateOrEditOAuthProviderModal;
+  property: Extract<keyof EditingProvider, ProviderBooleanProperties>;
+}) {
+  modal.setState(prevState => ({
+    changed: true,
+    provider: {
+      ...prevState.provider,
+      [property]: !prevState.provider[property],
+    },
+  }));
+}
 
 function ProviderTextField({
   id,
   i18nKey,
   type = "text",
-  initialValue,
+  value,
   onInput,
 }: ProviderTextFieldProps) {
   return (
@@ -55,11 +95,33 @@ function ProviderTextField({
       </label>
       <input
         type={type}
-        id="display-name"
+        id={id}
         className="form-control"
-        value={initialValue}
+        value={value}
         onInput={onInput}
       />
+    </div>
+  );
+}
+
+function ProviderCheckboxField({
+  i18nKey,
+  id,
+  onInput,
+  checked,
+}: ProviderCheckboxFieldProps) {
+  return (
+    <div className="form-check form-check-inline">
+      <input
+        id={id}
+        type="checkbox"
+        className="form-check-input"
+        checked={checked}
+        onInput={onInput}
+      />
+      <label htmlFor={id} className="form-check-label">
+        {I18NextService.i18n.t(i18nKey)}
+      </label>
     </div>
   );
 }
@@ -72,7 +134,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
   readonly modalDivRef: RefObject<HTMLDivElement>;
   modal?: Modal;
 
-  state: CreateOrEditOAuthProviderModalState = { changed: false };
+  state: CreateOrEditOAuthProviderModalState = { changed: false, provider: {} };
 
   constructor(props: CreateOrEditOAuthProviderModalProps, context: any) {
     super(props, context);
@@ -80,10 +142,20 @@ export default class CreateOrEditOAuthProviderModal extends Component<
     this.modalDivRef = createRef();
   }
 
-  render() {
-    const { provider, onClose } = this.props;
-    const onInput = linkEvent(this, handlePropertyChange);
+  componentDidUpdate(prevProps: Readonly<CreateOrEditOAuthProviderModalProps>) {
+    if (
+      this.props.show &&
+      this.props.show !== prevProps.show &&
+      this.props.provider
+    ) {
+      this.setState({ provider: this.props.provider });
+    }
+  }
 
+  render(
+    { onClose }: CreateOrEditOAuthProviderModalProps,
+    { provider }: CreateOrEditOAuthProviderModalState,
+  ) {
     return (
       <div
         className="modal fade"
@@ -96,78 +168,108 @@ export default class CreateOrEditOAuthProviderModal extends Component<
       >
         <div className="modal-dialog modal-fullscreen-sm-down">
           <div className="modal-content">
-            <header className="modal-header">
-              <h1 className="modal-title" id="create-or-edit-oauth-modal-title">
-                {provider.id
-                  ? "Create OAuth Provider"
-                  : `Edit ${provider.display_name}`}
+            <div className="modal-header">
+              <h1
+                className="modal-title h4"
+                id="create-or-edit-oauth-modal-title"
+              >
+                {provider
+                  ? `Edit ${provider.display_name}`
+                  : "Create OAuth Provider"}
               </h1>
               <button
                 type="button"
                 className="btn-close"
-                aria-label="Close"
+                aria-label={I18NextService.i18n.t("cancel")}
                 onClick={onClose}
               />
-            </header>
-            <div className="modal-body">
+            </div>
+            <div className="modal-body p-2-!important">
               <form class="container">
-                <div class="row row-cols-1 row-cols-sm-2">
+                <div className="row row-cols-1 row-cols-sm-2 mb-3">
                   <ProviderTextField
                     id="display-name"
                     i18nKey="oauth_display_name"
-                    initialValue={provider.display_name}
-                    onInput={onInput}
+                    value={provider?.display_name}
+                    onInput={linkEvent(
+                      { modal: this, property: "display_name" },
+                      handleTextPropertyChange,
+                    )}
                   />
+                </div>
+                <div class="row row-cols-1 g-3 mb-3">
                   <ProviderTextField
                     id="issuer"
                     i18nKey="oauth_issuer"
-                    initialValue={provider.issuer}
-                    onInput={onInput}
+                    value={provider?.issuer}
+                    onInput={linkEvent(
+                      { modal: this, property: "issuer" },
+                      handleTextPropertyChange,
+                    )}
                     type="url"
-                    disabled={!!provider.id}
+                    disabled={!!provider}
                   />
                   <ProviderTextField
                     id="authorization-endpoint"
                     i18nKey="oauth_authorization_endpoint"
-                    initialValue={provider.authorization_endpoint}
-                    onInput={onInput}
+                    value={provider?.authorization_endpoint}
+                    onInput={linkEvent(
+                      { modal: this, property: "authorization_endpoint" },
+                      handleTextPropertyChange,
+                    )}
                     type="url"
                   />
                   <ProviderTextField
                     id="token-endpoint"
                     i18nKey="oauth_token_endpoint"
-                    initialValue={provider.token_endpoint}
-                    onInput={onInput}
+                    value={provider?.token_endpoint}
+                    onInput={linkEvent(
+                      { modal: this, property: "token_endpoint" },
+                      handleTextPropertyChange,
+                    )}
                     type="url"
                   />
                   <ProviderTextField
                     id="userinfo-endpoint"
                     i18nKey="oauth_userinfo_endpoint"
-                    initialValue={provider.userinfo_endpoint}
-                    onInput={onInput}
+                    value={provider?.userinfo_endpoint}
+                    onInput={linkEvent(
+                      { modal: this, property: "userinfo_endpoint" },
+                      handleTextPropertyChange,
+                    )}
                     type="url"
                   />
+                </div>
+                <div className="row row-cols-1 row-cols-sm-2 g-3">
                   <ProviderTextField
                     id="id-claim"
                     i18nKey="oauth_id_claim"
-                    initialValue={provider.id_claim}
-                    onInput={onInput}
+                    value={provider?.id_claim}
+                    onInput={linkEvent(
+                      { modal: this, property: "id_claim" },
+                      handleTextPropertyChange,
+                    )}
                   />
                   <ProviderTextField
                     id="client-id"
                     i18nKey="oauth_client_id"
-                    initialValue={provider.client_id}
-                    disabled={!!provider.id}
-                    onInput={onInput}
+                    value={provider?.client_id}
+                    disabled={!!provider}
+                    onInput={linkEvent(
+                      { modal: this, property: "client_id" },
+                      handleTextPropertyChange,
+                    )}
                   />
                   <ProviderTextField
                     id="client-secret"
-                    i18nKey="oauth_client_scret"
-                    initialValue={provider.client_secret}
-                    onInput={linkEvent(this, handleSecretChange)}
+                    i18nKey="oauth_client_secret"
+                    onInput={linkEvent(
+                      { modal: this, property: "client_secret" },
+                      handleTextPropertyChange,
+                    )}
                     type="password"
                     placeholder={
-                      provider.id
+                      provider
                         ? I18NextService.i18n.t(
                             "cannot_view_secret_after_saving",
                           )
@@ -177,11 +279,66 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                   <ProviderTextField
                     id="scopes"
                     i18nKey="oauth_scopes"
-                    initialValue={provider.scopes}
-                    onInput={onInput}
+                    value={provider?.scopes}
+                    onInput={linkEvent(
+                      { modal: this, property: "scopes" },
+                      handleTextPropertyChange,
+                    )}
                   />
                 </div>
+                <div className="row">
+                  <div className="col">
+                    <ProviderCheckboxField
+                      id="auto-verfiy-email"
+                      i18nKey="oauth_auto_verify_email"
+                      checked={provider?.auto_verify_email}
+                      onInput={linkEvent(
+                        {
+                          modal: this,
+                          property: "auto_verify_email",
+                        },
+                        handleBooleanPropertyChange,
+                      )}
+                    />
+                    <ProviderCheckboxField
+                      id="account-linking-enabled"
+                      i18nKey="oauth_account_linking_enabled"
+                      checked={provider?.account_linking_enabled}
+                      onInput={linkEvent(
+                        {
+                          modal: this,
+                          property: "account_linking_enabled",
+                        },
+                        handleBooleanPropertyChange,
+                      )}
+                    />
+                    <ProviderCheckboxField
+                      id="oauth-enabled"
+                      i18nKey="oauth_enabled"
+                      checked={provider?.enabled}
+                      onInput={linkEvent(
+                        {
+                          modal: this,
+                          property: "enabled",
+                        },
+                        handleBooleanPropertyChange,
+                      )}
+                    />
+                  </div>
+                </div>
               </form>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={onClose}
+              >
+                {I18NextService.i18n.t("cancel")}
+              </button>
+              <button type="button" className="btn btn-success">
+                {I18NextService.i18n.t("save")}
+              </button>
             </div>
           </div>
         </div>

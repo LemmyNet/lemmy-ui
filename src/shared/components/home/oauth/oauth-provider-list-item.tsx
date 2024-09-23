@@ -1,9 +1,11 @@
 import { OAuthProvider } from "lemmy-js-client";
 import { I18NextService } from "../../../services/I18NextService";
 import { Icon } from "../../common/icon";
+import { MouseEventHandler } from "inferno";
 
 type OAuthProviderListItemProps = {
   provider: OAuthProvider;
+  onEdit: MouseEventHandler<HTMLButtonElement>;
 };
 
 type TextInfoFieldProps = {
@@ -20,8 +22,13 @@ function TextInfoField({ i18nKey, data }: TextInfoFieldProps) {
   );
 }
 
+function boolToYesNo(value?: boolean) {
+  return I18NextService.i18n.t(value ? "yes" : "no");
+}
+
 export default function OAuthProviderListItem({
   provider,
+  onEdit,
 }: OAuthProviderListItemProps) {
   return (
     <li className="oauth-item list-group-item">
@@ -32,11 +39,16 @@ export default function OAuthProviderListItem({
             {provider.display_name}
           </div>
           <div>
-            <button className="d-inline-block btn btn-outline-secondary me-2">
-              Edit
+            <button
+              className="d-inline-block btn btn-outline-secondary me-2"
+              onClick={onEdit}
+            >
+              <Icon icon="edit" classes="me-1" />
+              {I18NextService.i18n.t("edit")}
             </button>
             <button className="d-inline-block btn btn-outline-danger">
-              Delete
+              <Icon icon="trash" classes="me-1" />
+              {I18NextService.i18n.t("delete")}
             </button>
           </div>
         </summary>
@@ -61,6 +73,18 @@ export default function OAuthProviderListItem({
               data={provider.client_id}
             />
             <TextInfoField i18nKey="oauth_scopes" data={provider.scopes} />
+            <TextInfoField
+              i18nKey="oauth_auto_verify_email"
+              data={boolToYesNo(provider.auto_verify_email)}
+            />
+            <TextInfoField
+              i18nKey="oauth_account_linking_enabled"
+              data={boolToYesNo(provider.account_linking_enabled)}
+            />
+            <TextInfoField
+              i18nKey="oauth_enabled"
+              data={boolToYesNo(provider.enabled)}
+            />
           </dl>
         </div>
       </details>

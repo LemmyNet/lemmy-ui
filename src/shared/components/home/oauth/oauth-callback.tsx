@@ -106,7 +106,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
               err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
               toast(I18NextService.i18n.t(loginRes.err.message), "danger");
               break;
-            case "registration_application_is_pending":
+            case "registration_application_pending":
             case "registration_denied":
             case "oauth_authorization_invalid":
             case "oauth_login_failed":

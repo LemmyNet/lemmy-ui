@@ -313,14 +313,11 @@ export class AdminSettings extends Component<
                   role="tabpanel"
                   id="auth-tab-pane"
                 >
-                  {/* <div className="row">
-                    <OAuthProviderForm
-                      onCreate={this.handleCreateOAuthProvider}
-                      onDelete={this.handleDeleteOAuthProvider}
-                      onEdit={this.handleEditOAuthProvider}
-                    />
-                  </div> */}
-                  <OAuthProvidersTab />
+                  <OAuthProvidersTab
+                    onCreate={this.handleCreateOAuthProvider}
+                    onDelete={this.handleDeleteOAuthProvider}
+                    onEdit={this.handleEditOAuthProvider}
+                  />
                 </div>
               ),
             },
