@@ -136,7 +136,7 @@ importers:
         version: 4.0.0
       markdown-it-highlightjs:
         specifier: ^4.1.0
-        version: 4.1.0
+        version: 4.2.0
       markdown-it-html5-embed:
         specifier: ^1.0.0
         version: 1.0.0
@@ -3160,8 +3160,8 @@ packages:
   markdown-it-footnote@4.0.0:
     resolution: {integrity: sha512-WYJ7urf+khJYl3DqofQpYfEYkZKbmXmwxQV8c8mO/hGIhgZ1wOe7R4HLFNwqx7TjILbnC98fuyeSsin19JdFcQ==}
 
-  markdown-it-highlightjs@4.1.0:
-    resolution: {integrity: sha512-aYcgme5aYn10BHEvLZaCNgwxU2oaAX9inK9dwCv38wJdq7tal5FzZrLdQQY8MR3I1H07S3BKgYGRX2kKuPT+sA==}
+  markdown-it-highlightjs@4.2.0:
+    resolution: {integrity: sha512-NC7pXE8KkOl6xWJVRNt8p6wgJVznXKsE0HgYGdk6DD2tn1l4L9f0ALf3VIoGVkotNU1uGQatSxfBF1zZPUMmuQ==}
 
   markdown-it-html5-embed@1.0.0:
     resolution: {integrity: sha512-SPgugO/1+/9sZcgxoxijoTHSUpCUgFCNe1MSuTmDxDkV6NQrVzMclhRMFgE/rcHO+2rhIg3U7Oy80XA/E8ytpg==}
@@ -7937,7 +7937,7 @@ snapshots:
 
   markdown-it-footnote@4.0.0: {}
 
-  markdown-it-highlightjs@4.1.0:
+  markdown-it-highlightjs@4.2.0:
     dependencies:
       highlight.js: 11.10.0
 
