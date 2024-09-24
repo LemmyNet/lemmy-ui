@@ -37,7 +37,7 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
-  SortType,
+  PostSortType,
   TransferCommunity,
 } from "lemmy-js-client";
 import { CommentViewType, PersonDetailsView } from "../../interfaces";
@@ -53,7 +53,7 @@ interface PersonDetailsProps {
   siteLanguages: number[];
   page: number;
   limit: number;
-  sort: SortType;
+  sort: PostSortType;
   enableDownvotes: boolean;
   voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw: boolean;

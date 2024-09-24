@@ -1,6 +1,8 @@
-import { CommentSortType, SortType } from "lemmy-js-client";
+import { CommentSortType, PostSortType } from "lemmy-js-client";
 
-export default function postToCommentSortType(sort: SortType): CommentSortType {
+export default function postToCommentSortType(
+  sort: PostSortType,
+): CommentSortType {
   switch (sort) {
     case "Active":
     case "Hot":

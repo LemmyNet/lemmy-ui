@@ -46,7 +46,7 @@ import {
   Search as SearchForm,
   SearchResponse,
   SearchType,
-  SortType,
+  PostSortType,
 } from "lemmy-js-client";
 import { fetchLimit } from "../config";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
@@ -76,9 +76,9 @@ import { isBrowser } from "@utils/browser";
 interface SearchProps {
   q?: string;
   type: SearchType;
-  sort: SortType;
+  sort: PostSortType;
   listingType: ListingType;
-  postTitleOnly?: boolean;
+  titleOnly?: boolean;
   communityId?: number;
   creatorId?: number;
   page: number;
@@ -124,7 +124,7 @@ export function getSearchQueryParams(source?: string): SearchProps {
       type: getSearchTypeFromQuery,
       sort: getSortTypeFromQuery,
       listingType: getListingTypeFromQuery,
-      postTitleOnly: getBoolFromString,
+      titleOnly: getBoolFromString,
       communityId: getIdFromString,
       creatorId: getIdFromString,
       page: getPageFromString,
@@ -139,8 +139,8 @@ function getSearchTypeFromQuery(type_?: string): SearchType {
   return type_ ? (type_ as SearchType) : defaultSearchType;
 }
 
-function getSortTypeFromQuery(sort?: string): SortType {
-  return sort ? (sort as SortType) : defaultSortType;
+function getSortTypeFromQuery(sort?: string): PostSortType {
+  return sort ? (sort as PostSortType) : defaultSortType;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
@@ -286,7 +286,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.handleCommunityFilterChange =
       this.handleCommunityFilterChange.bind(this);
     this.handleCreatorFilterChange = this.handleCreatorFilterChange.bind(this);
-    this.handlePostTitleChange = this.handlePostTitleChange.bind(this);
+    this.handleTitleOnlyChange = this.handleTitleOnlyChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -473,7 +473,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       type: searchType,
       sort,
       listingType: listing_type,
-      postTitleOnly: post_title_only,
+      titleOnly: title_only,
       communityId: community_id,
       creatorId: creator_id,
       page,
@@ -519,7 +519,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         type_: searchType,
         sort,
         listing_type,
-        post_title_only,
+        title_only,
         page,
         limit: fetchLimit,
       };
@@ -595,7 +595,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       case "Comments":
         return this.comments;
       case "Posts":
-      case "Url":
         return this.posts;
       case "Communities":
         return this.communities;
@@ -641,7 +640,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   get selects() {
-    const { type, listingType, postTitleOnly, sort, communityId, creatorId } =
+    const { type, listingType, titleOnly, sort, communityId, creatorId } =
       this.props;
     const {
       communitySearchOptions,
@@ -684,15 +683,12 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             <div className="col">
               <input
                 className="btn-check"
-                id="post-title-only"
+                id="title-only"
                 type="checkbox"
-                checked={postTitleOnly}
-                onChange={this.handlePostTitleChange}
+                checked={titleOnly}
+                onChange={this.handleTitleOnlyChange}
               />
-              <label
-                className="btn btn-outline-secondary"
-                htmlFor="post-title-only"
-              >
+              <label className="btn btn-outline-secondary" htmlFor="title-only">
                 {I18NextService.i18n.t("post_title_only")}
               </label>
             </div>
@@ -1074,7 +1070,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       type,
       sort,
       listingType,
-      postTitleOnly,
+      titleOnly,
       page,
     } = props;
 
@@ -1087,7 +1083,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         type_: type,
         sort,
         listing_type: listingType,
-        post_title_only: postTitleOnly,
+        title_only: titleOnly,
         page,
         limit: fetchLimit,
       });
@@ -1152,13 +1148,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     return this.searchInput.current?.value ?? this.props.q;
   }
 
-  handleSortChange(sort: SortType) {
+  handleSortChange(sort: PostSortType) {
     this.updateUrl({ sort, page: 1, q: this.getQ() });
   }
 
-  handlePostTitleChange(event: any) {
-    const postTitleOnly = event.target.checked;
-    this.updateUrl({ postTitleOnly, q: this.getQ() });
+  handleTitleOnlyChange(event: any) {
+    const titleOnly = event.target.checked;
+    this.updateUrl({ titleOnly, q: this.getQ() });
   }
 
   handleTypeChange(i: Search, event: any) {
@@ -1213,7 +1209,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       q,
       type,
       listingType,
-      postTitleOnly,
+      titleOnly,
       sort,
       communityId,
       creatorId,
@@ -1227,7 +1223,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       q,
       type: type,
       listingType: listingType,
-      postTitleOnly: postTitleOnly?.toString(),
+      titleOnly: titleOnly?.toString(),
       communityId: communityId?.toString(),
       creatorId: creatorId?.toString(),
       page: page?.toString(),
