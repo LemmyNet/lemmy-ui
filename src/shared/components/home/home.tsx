@@ -1,5 +1,6 @@
 import {
   commentsToFlatNodes,
+  commentToPostSortType,
   editComment,
   editPost,
   editWith,
@@ -69,6 +70,7 @@ import {
   PostSortType,
   SuccessResponse,
   TransferCommunity,
+  CommentSortType,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
 import {
@@ -724,7 +726,15 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           />
         </div>
         <div className="col-auto">
-          <SortSelect sort={sort} onChange={this.handleSortChange} />
+          {this.props.dataType === DataType.Post ? (
+            <SortSelect sort={sort} onChange={this.handleSortChange} />
+          ) : (
+            <SortSelect
+              sort={postToCommentSortType(sort)}
+              onChange={this.handleSortChange}
+              commentSort
+            />
+          )}
         </div>
         <div className="col-auto ps-0">
           {getRss(
@@ -797,8 +807,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.updateUrl({ pageCursor: nextPage });
   }
 
-  handleSortChange(val: PostSortType) {
-    this.updateUrl({ sort: val, pageCursor: undefined });
+  handleSortChange(val: PostSortType | CommentSortType) {
+    this.updateUrl({ sort: commentToPostSortType(val), pageCursor: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {
