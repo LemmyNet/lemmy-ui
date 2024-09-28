@@ -11,6 +11,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { isBrowser } from "@utils/browser";
 import classNames from "classnames";
 import { amAdmin } from "@utils/roles";
+import { Prompt } from "inferno-router";
 
 interface EditableEmoji {
   change?: "update" | "delete" | "create";
@@ -59,9 +60,17 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
     }
   }
 
+  hasPendingChanges() {
+    return this.state.emojis.some(x => x.change);
+  }
+
   render() {
     return (
       <div className="home-emojis-form col-12">
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
+          when={this.hasPendingChanges()}
+        />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("custom_emojis")}</h1>
         {this.state.emojiMartCustom.length > 0 && (
           <div>
@@ -292,6 +301,7 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
             page={this.state.page}
             onChange={this.handlePageChange}
             nextDisabled={false}
+            disabled={this.hasPendingChanges()}
           />
         </div>
       </div>
@@ -366,8 +376,16 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
     if (emojiIndex >= 0) {
       const { shortcode } = this.state.allEmojis[emojiIndex].custom_emoji;
       const page = Math.floor(emojiIndex / this.itemsPerPage) + 1;
-      await this.handlePageChange(page);
-      await new Promise(r => setTimeout(r));
+      if (page !== this.state.page) {
+        if (
+          this.hasPendingChanges() &&
+          !confirm(I18NextService.i18n.t("block_leaving"))
+        ) {
+          return;
+        }
+        await this.handlePageChange(page);
+        await new Promise(r => setTimeout(r));
+      }
       if (shortcode) {
         const categoryInput: HTMLInputElement | undefined =
           this.scrollRef[shortcode];

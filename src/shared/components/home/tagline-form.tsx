@@ -8,6 +8,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { Paginator } from "../common/paginator";
 import classNames from "classnames";
 import { isBrowser } from "@utils/browser";
+import { Prompt } from "inferno-router";
 
 interface EditableTagline {
   change?: "update" | "delete";
@@ -42,18 +43,19 @@ export class TaglineForm extends Component<
     }
   }
 
+  hasPendingChanges(): boolean {
+    return this.state.taglines.some(x => x.change);
+  }
+
   render() {
     return (
       <div className="tagline-form col-12">
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
+          when={this.hasPendingChanges()}
+        />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("taglines")}</h1>
         <div className="table-responsive col-12">
-          <div>
-            <Paginator
-              page={this.state.page}
-              onChange={this.handlePageChange}
-              nextDisabled={false}
-            />
-          </div>
           <table id="taglines_table" className="table table-sm table-hover">
             <thead className="pointer">
               <th></th>
@@ -141,7 +143,7 @@ export class TaglineForm extends Component<
               <button
                 onClick={linkEvent(this, this.handleSaveClick)}
                 className="btn btn-secondary me-2"
-                disabled={this.state.loading}
+                disabled={this.state.loading || !this.hasPendingChanges()}
               >
                 {this.state.loading ? (
                   <Spinner />
@@ -150,6 +152,14 @@ export class TaglineForm extends Component<
                 )}
               </button>
             </div>
+          </div>
+          <div>
+            <Paginator
+              page={this.state.page}
+              onChange={this.handlePageChange}
+              nextDisabled={false}
+              disabled={this.hasPendingChanges()}
+            />
           </div>
         </div>
       </div>
