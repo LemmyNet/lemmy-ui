@@ -243,8 +243,8 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
                       )}
                     </td>
                     <td>
-                      <div>
-                        <span title={this.getEditTooltip(editable)}>
+                      <div class="row flex-nowrap g-0">
+                        <span class="col" title={this.getEditTooltip(editable)}>
                           <button
                             className={classNames("btn btn-link btn-animate", {
                               "text-success": this.canSave(editable),
@@ -267,7 +267,7 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
                           </button>
                         </span>
                         <button
-                          className="btn btn-link btn-animate text-muted"
+                          className="col btn btn-link btn-animate text-muted"
                           onClick={linkEvent(
                             { i: this, index: index, cv: editable },
                             this.handleDeleteEmojiClick,
@@ -281,6 +281,23 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
                             icon="trash"
                             classes="icon-inline text-danger"
                           />
+                        </button>
+                        <button
+                          className={classNames(
+                            "col btn btn-link btn-animate",
+                            {
+                              "text-danger": !!editable.change,
+                            },
+                          )}
+                          onClick={linkEvent(
+                            { i: this, cv: editable },
+                            this.handleCancelEmojiClick,
+                          )}
+                          data-tippy-content={I18NextService.i18n.t("cancel")}
+                          aria-label={I18NextService.i18n.t("cancel")}
+                          disabled={!editable.change}
+                        >
+                          {I18NextService.i18n.t("cancel")}
                         </button>
                       </div>
                     </td>
@@ -355,7 +372,7 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
       const startIndex = (page - 1) * this.itemsPerPage;
       const emojis = allEmojis
         .slice(startIndex, startIndex + this.itemsPerPage)
-        .map(x => ({ emoji: x }));
+        .map(x => ({ emoji: structuredClone(x) })); // clone for restore after cancel
       this.setState({
         loading: false,
         allEmojis,
@@ -505,6 +522,26 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
         d.i.setState(() => {
           editable.emoji = resp.data.custom_emoji;
           editable.change = undefined;
+        });
+      }
+    }
+  }
+
+  async handleCancelEmojiClick(d: { i: EmojiForm; cv: EditableEmoji }) {
+    if (d.cv.change === "create") {
+      d.i.setState(() => {
+        return {
+          emojis: d.i.state.emojis.filter(x => x !== d.cv),
+        };
+      });
+    } else if (d.cv.change === "update" || d.cv.change === "delete") {
+      const original = d.i.state.allEmojis.find(
+        x => x.custom_emoji.id === d.cv.emoji.custom_emoji.id,
+      );
+      if (original) {
+        d.i.setState(() => {
+          d.cv.emoji = structuredClone(original);
+          d.cv.change = undefined;
         });
       }
     }

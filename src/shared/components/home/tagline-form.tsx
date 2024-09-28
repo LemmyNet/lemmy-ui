@@ -11,9 +11,15 @@ import { isBrowser } from "@utils/browser";
 import { Prompt } from "inferno-router";
 
 interface EditableTagline {
-  change?: "update" | "delete";
+  change?: "update" | "delete" | "create";
   editMode?: boolean;
   tagline: Tagline;
+}
+
+function markForUpdate(editable: EditableTagline) {
+  if (editable.change !== "create") {
+    editable.change = "update";
+  }
 }
 
 interface TaglineFormState {
@@ -56,7 +62,10 @@ export class TaglineForm extends Component<
         />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("taglines")}</h1>
         <div className="table-responsive col-12">
-          <table id="taglines_table" className="table table-sm table-hover">
+          <table
+            id="taglines_table"
+            className="table table-sm table-hover align-middle"
+          >
             <thead className="pointer">
               <th></th>
               <th style="width:60px"></th>
@@ -85,6 +94,7 @@ export class TaglineForm extends Component<
                     className={classNames("text-center", {
                       "border-info": cv.change === "update",
                       "border-danger": cv.change === "delete",
+                      "border-warning": cv.change === "create",
                     })}
                   >
                     {cv.change === "update" && (
@@ -95,6 +105,11 @@ export class TaglineForm extends Component<
                     {cv.change === "delete" && (
                       <span>
                         <Icon icon="trash" />
+                      </span>
+                    )}
+                    {cv.change === "create" && (
+                      <span>
+                        <Icon icon="add" inline />
                       </span>
                     )}
                   </td>
@@ -151,6 +166,14 @@ export class TaglineForm extends Component<
                   capitalizeFirstLetter(I18NextService.i18n.t("save"))
                 )}
               </button>
+              {this.hasPendingChanges() && (
+                <button
+                  onClick={linkEvent(this, this.handleCancelClick)}
+                  className="btn btn-secondary me-2"
+                >
+                  {I18NextService.i18n.t("cancel")}
+                </button>
+              )}
             </div>
           </div>
           <div>
@@ -169,7 +192,7 @@ export class TaglineForm extends Component<
   handleTaglineChange(i: TaglineForm, index: number, val: string) {
     const editable = i.state.taglines[index];
     i.setState(() => {
-      editable.change = "update";
+      markForUpdate(editable);
       const tagline: Tagline = editable.tagline;
       tagline.content = val;
     });
@@ -181,10 +204,17 @@ export class TaglineForm extends Component<
   ) {
     event.preventDefault();
     const editable = d.i.state.taglines[d.index];
-    d.i.setState(() => {
-      editable.change = "delete";
-      editable.editMode = false;
-    });
+    if (editable.change === "create") {
+      // This drops the entry immediately, other deletes have to be saved.
+      d.i.setState(prev => {
+        return { taglines: prev.taglines.filter(x => x !== editable) };
+      });
+    } else {
+      d.i.setState(() => {
+        editable.change = "delete";
+        editable.editMode = false;
+      });
+    }
   }
 
   handleEditTaglineClick(d: { i: TaglineForm; index: number }, event: any) {
@@ -205,19 +235,45 @@ export class TaglineForm extends Component<
     for (const editable of i.state.taglines) {
       if (editable.change === "update") {
         promises.push(
-          HttpService.client.editTagline(editable.tagline).then(() => {
-            editable.change = undefined;
+          HttpService.client.editTagline(editable.tagline).then(res => {
+            if (res.state === "success") {
+              i.setState(() => {
+                editable.change = undefined;
+                editable.tagline = res.data.tagline;
+              });
+            }
           }),
         );
       } else if (editable.change === "delete") {
         promises.push(
-          HttpService.client.deleteTagline(editable.tagline).then(() => {
-            editable.change = undefined;
+          HttpService.client.deleteTagline(editable.tagline).then(res => {
+            if (res.state === "success") {
+              i.setState(() => {
+                editable.change = undefined;
+                return {
+                  taglines: this.state.taglines.filter(x => x !== editable),
+                };
+              });
+            }
+          }),
+        );
+      } else if (editable.change === "create") {
+        promises.push(
+          HttpService.client.createTagline(editable.tagline).then(res => {
+            if (res.state === "success") {
+              i.setState(() => {
+                editable.change = undefined;
+                editable.tagline = res.data.tagline;
+              });
+            }
           }),
         );
       }
     }
     await Promise.all(promises);
+  }
+
+  async handleCancelClick(i: TaglineForm) {
     i.handlePageChange(i.state.page);
   }
 
@@ -226,20 +282,16 @@ export class TaglineForm extends Component<
     event: InfernoMouseEvent<HTMLButtonElement>,
   ) {
     event.preventDefault();
-    const tagRes = await HttpService.client.createTagline({
-      content: "",
-    });
-    if (tagRes.state === "success") {
-      i.setState(prev => {
-        prev.taglines.forEach(x => {
-          x.editMode = false;
-        });
-        prev.taglines.push({
-          tagline: tagRes.data.tagline,
-          editMode: true,
-        });
+    i.setState(prev => {
+      prev.taglines.forEach(x => {
+        x.editMode = false;
       });
-    }
+      prev.taglines.push({
+        tagline: { id: -1, content: "", published: "" },
+        change: "create",
+        editMode: true,
+      });
+    });
   }
 
   async handlePageChange(val: number) {
