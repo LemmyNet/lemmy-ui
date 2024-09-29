@@ -206,15 +206,17 @@ export function setupMarkdown() {
   ) {
     //Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
     const item = tokens[idx] as any;
-    let title = item.attrs.length >= 3 ? item.attrs[2][1] : "";
+    const url = item.attrs.length > 0 ? item.attrs[0][1] : "";
+    const altText = item.attrs.length > 1 ? item.attrs[1][1] : "";
+    const title = item.attrs.length > 2 ? item.attrs[2][1] : "";
     const splitTitle = title.split(/ (.*)/, 2);
     const isEmoji = splitTitle[0] === "emoji";
+    let shortcode: string | undefined;
     if (isEmoji) {
-      title = splitTitle[1];
+      shortcode = splitTitle[1];
     }
     // customEmojisLookup is empty in SSR, CSR rerenders markdown anyway
-    const customEmoji = customEmojisLookup.get(title);
-    const isLocalEmoji = customEmoji !== undefined;
+    const isLocalEmoji = shortcode && customEmojisLookup.has(shortcode);
     if (!isLocalEmoji) {
       const imgElement =
         defaultImageRenderer?.(tokens, idx, options, env, self) ?? "";
@@ -225,10 +227,8 @@ export function setupMarkdown() {
       } else return "";
     }
     return `<img class="icon icon-emoji" src="${
-      customEmoji!.custom_emoji.image_url
-    }" title="${customEmoji!.custom_emoji.shortcode}" alt="${
-      customEmoji!.custom_emoji.alt_text
-    }"/>`;
+      url
+    }" title="${shortcode}" alt="${altText}"/>`;
   };
   md.renderer.rules.table_open = function () {
     return '<table class="table">';
