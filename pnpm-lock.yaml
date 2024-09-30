@@ -114,8 +114,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 0.20.0-alpha.7
-        version: 0.20.0-alpha.7
+        specifier: 0.20.0-alpha.17
+        version: 0.20.0-alpha.17
       lodash.isequal:
         specifier: ^4.5.0
         version: 4.5.0
@@ -3059,8 +3059,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  lemmy-js-client@0.20.0-alpha.7:
-    resolution: {integrity: sha512-lhPs8gJFLX0EvlwkkgtTF2F/v22lKjcQ81u7u5CShrO05Dii33fZ5x9SrEJYHD0qw4FIN/jpfKucN9QnndScpA==}
+  lemmy-js-client@0.20.0-alpha.17:
+    resolution: {integrity: sha512-4iZQtZNldhioTecSgi1LMR4E3uK5IcQ+EuWg4aAXmciOIHxPXPAHy7qSLuHqbzEiL1QP5G3MFwQnlVf/sJkFaQ==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -7779,7 +7779,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  lemmy-js-client@0.20.0-alpha.7: {}
+  lemmy-js-client@0.20.0-alpha.17: {}
 
   leven@3.1.0: {}
 
