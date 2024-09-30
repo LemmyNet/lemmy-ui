@@ -350,19 +350,15 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
         this.needsRefetch = false;
         allEmojis = emojiRes.data.custom_emojis;
         allEmojis.sort((a, b) => {
-          if (a.custom_emoji.category < b.custom_emoji.category) {
-            return -1;
+          const categoryOrder = a.custom_emoji.category.localeCompare(
+            b.custom_emoji.category,
+          );
+          if (categoryOrder === 0) {
+            return a.custom_emoji.shortcode.localeCompare(
+              b.custom_emoji.shortcode,
+            );
           }
-          if (a.custom_emoji.category > b.custom_emoji.category) {
-            return 1;
-          }
-          if (a.custom_emoji.shortcode < b.custom_emoji.shortcode) {
-            return -1;
-          }
-          if (a.custom_emoji.shortcode > b.custom_emoji.shortcode) {
-            return 1;
-          }
-          return 0;
+          return categoryOrder;
         });
       }
       emojiMartCustom = emojiMartCategories(allEmojis);
