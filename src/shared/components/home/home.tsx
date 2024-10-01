@@ -108,6 +108,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser, snapToTop } from "@utils/browser";
+import { CommentSortSelect } from "../common/comment-sort-select";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -729,10 +730,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           {this.props.dataType === DataType.Post ? (
             <SortSelect sort={sort} onChange={this.handleSortChange} />
           ) : (
-            <SortSelect
+            <CommentSortSelect
               sort={postToCommentSortType(sort)}
               onChange={this.handleSortChange}
-              commentSort
             />
           )}
         </div>

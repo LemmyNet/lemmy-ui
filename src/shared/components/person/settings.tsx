@@ -77,6 +77,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { CommentSortSelect } from "../common/comment-sort-select";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -926,8 +927,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               {I18NextService.i18n.t("comment_sort_type")}
             </label>
             <div className="col-sm-9">
-              <SortSelect
-                commentSort
+              <CommentSortSelect
                 sort={
                   this.state.saveUserSettingsForm.default_comment_sort_type ??
                   "Hot"

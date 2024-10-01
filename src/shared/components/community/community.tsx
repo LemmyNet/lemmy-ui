@@ -123,6 +123,7 @@ import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
 import { LoadingEllipses } from "../common/loading-ellipses";
+import { CommentSortSelect } from "../common/comment-sort-select";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -633,10 +634,9 @@ export class Community extends Component<CommunityRouteProps, State> {
           {this.props.dataType === DataType.Post ? (
             <SortSelect sort={sort} onChange={this.handleSortChange} />
           ) : (
-            <SortSelect
+            <CommentSortSelect
               sort={postToCommentSortType(sort)}
               onChange={this.handleSortChange}
-              commentSort
             />
           )}
         </span>
