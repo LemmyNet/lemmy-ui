@@ -257,29 +257,46 @@ export class MarkdownTextArea extends Component<
           </div>
 
           <div className="col-12 d-flex align-items-center flex-wrap mt-2">
-            {this.props.showLanguage && (
-              <LanguageSelect
-                iconVersion
-                allLanguages={this.props.allLanguages}
-                selectedLanguageIds={
-                  languageId ? Array.of(languageId) : undefined
-                }
-                siteLanguages={this.props.siteLanguages}
-                onChange={this.handleLanguageChange}
-                disabled={this.isDisabled}
-              />
-            )}
+            {this.state.previewMode && this.state.content && (
+                  <div
+                    className="card border-secondary card-body md-div"
+                    dangerouslySetInnerHTML={mdToHtml(this.state.content, () =>
+                      this.forceUpdate(),
+                    )}
+                  />
+                )}
+                {this.state.imageUploadStatus &&
+                  this.state.imageUploadStatus.total > 1 && (
+                    <ProgressBar
+                      className="mt-2"
+                      striped
+                      animated
+                      value={this.state.imageUploadStatus.uploaded}
+                      max={this.state.imageUploadStatus.total}
+                      text={
+                        I18NextService.i18n.t("pictures_uploaded_progess", {
+                          uploaded: this.state.imageUploadStatus.uploaded,
+                          total: this.state.imageUploadStatus.total,
+                        }) ?? undefined
+                      }
+                    />
+                  )}
+              </div>
+              <label className="visually-hidden" htmlFor={this.id}>
+                {I18NextService.i18n.t("body")}
+              </label>
+            </div>
+          </div>
 
-            {/* A flex expander */}
-            <div className="flex-grow-1"></div>
-
-            {this.props.replyType && (
+          <div className="col-12 d-flex align-items-center flex-wrap mt-2">
+            {this.props.buttonTitle && (
               <button
-                type="button"
+                type="submit"
                 className="btn btn-sm btn-secondary ms-2"
-                onClick={linkEvent(this, this.handleReplyCancel)}
+                disabled={this.isDisabled || !this.state.content}
               >
-                {I18NextService.i18n.t("cancel")}
+                {this.state.loading && <Spinner className="me-1" />}
+                {this.props.buttonTitle}
               </button>
             )}
             <button
@@ -294,15 +311,30 @@ export class MarkdownTextArea extends Component<
                 ? I18NextService.i18n.t("edit")
                 : I18NextService.i18n.t("preview")}
             </button>
-            {this.props.buttonTitle && (
+            {this.props.replyType && (
               <button
-                type="submit"
+                type="button"
                 className="btn btn-sm btn-secondary ms-2"
-                disabled={this.isDisabled || !this.state.content}
+                onClick={linkEvent(this, this.handleReplyCancel)}
               >
-                {this.state.loading && <Spinner className="me-1" />}
-                {this.props.buttonTitle}
+                {I18NextService.i18n.t("cancel")}
               </button>
+            )}
+
+            {/* A flex expander */}
+            <div className="flex-grow-1"></div>
+
+            {this.props.showLanguage && (
+              <LanguageSelect
+                iconVersion
+                allLanguages={this.props.allLanguages}
+                selectedLanguageIds={
+                  languageId ? Array.of(languageId) : undefined
+                }
+                siteLanguages={this.props.siteLanguages}
+                onChange={this.handleLanguageChange}
+                disabled={this.isDisabled}
+              />
             )}
           </div>
         </div>
