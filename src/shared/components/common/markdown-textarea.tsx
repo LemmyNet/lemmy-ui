@@ -255,7 +255,6 @@ export class MarkdownTextArea extends Component<
               </label>
             </div>
           </div>
-        </div>
 
           <div className="col-12 d-flex align-items-center flex-wrap mt-2">
             {this.state.previewMode && this.state.content && (
