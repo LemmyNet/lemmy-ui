@@ -1,11 +1,11 @@
 import buildCommentsTree from "./build-comments-tree";
 import { colorList } from "./color-list";
+import commentToPostSortType from "./comment-to-post-sort-type";
 import commentsToFlatNodes from "./comments-to-flat-nodes";
 import communityRSSUrl from "./community-rss-url";
 import communitySearch from "./community-search";
 import communitySelectName from "./community-select-name";
 import communityToChoice from "./community-to-choice";
-import convertCommentSortType from "./convert-comment-sort-type";
 import editComment from "./edit-comment";
 import editCommentReply from "./edit-comment-reply";
 import editCommentReport from "./edit-comment-report";
@@ -59,12 +59,12 @@ import isAnonymousPath from "./is-anonymous-path";
 export {
   buildCommentsTree,
   colorList,
+  commentToPostSortType,
   commentsToFlatNodes,
   communityRSSUrl,
   communitySearch,
   communitySelectName,
   communityToChoice,
-  convertCommentSortType,
   editComment,
   editCommentReply,
   editCommentReport,

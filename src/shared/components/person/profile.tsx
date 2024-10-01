@@ -70,7 +70,7 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
-  SortType,
+  PostSortType,
   SuccessResponse,
   TransferCommunity,
   RegistrationApplicationResponse,
@@ -127,7 +127,7 @@ interface ProfileState {
 
 interface ProfileProps {
   view: PersonDetailsView;
-  sort: SortType;
+  sort: PostSortType;
   page: number;
 }
 
@@ -142,8 +142,8 @@ export function getProfileQueryParams(source?: string): ProfileProps {
   );
 }
 
-function getSortTypeFromQuery(sort?: string): SortType {
-  return sort ? (sort as SortType) : "New";
+function getSortTypeFromQuery(sort?: string): PostSortType {
+  return sort ? (sort as PostSortType) : "New";
 }
 
 function getViewFromProps(view?: string): PersonDetailsView {
@@ -956,7 +956,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.updateUrl({ page });
   }
 
-  handleSortChange(sort: SortType) {
+  handleSortChange(sort: PostSortType) {
     this.updateUrl({ sort, page: 1 });
   }
 
