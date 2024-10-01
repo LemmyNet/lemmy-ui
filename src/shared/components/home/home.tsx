@@ -267,6 +267,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     super(props, context);
 
     this.handleSortChange = this.handleSortChange.bind(this);
+    this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
@@ -732,7 +733,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           ) : (
             <CommentSortSelect
               sort={postToCommentSortType(sort)}
-              onChange={this.handleSortChange}
+              onChange={this.handleCommentSortChange}
             />
           )}
         </div>
@@ -807,7 +808,11 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.updateUrl({ pageCursor: nextPage });
   }
 
-  handleSortChange(val: PostSortType | CommentSortType) {
+  handleSortChange(val: PostSortType) {
+    this.updateUrl({ sort: val, pageCursor: undefined });
+  }
+
+  handleCommentSortChange(val: CommentSortType) {
     this.updateUrl({ sort: commentToPostSortType(val), pageCursor: undefined });
   }
 

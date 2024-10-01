@@ -218,6 +218,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     super(props, context);
 
     this.handleSortChange = this.handleSortChange.bind(this);
+    this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handlePageNext = this.handlePageNext.bind(this);
     this.handlePagePrev = this.handlePagePrev.bind(this);
@@ -636,7 +637,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           ) : (
             <CommentSortSelect
               sort={postToCommentSortType(sort)}
-              onChange={this.handleSortChange}
+              onChange={this.handleCommentSortChange}
             />
           )}
         </span>
@@ -664,7 +665,14 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.updateUrl({ pageCursor: nextPage });
   }
 
-  handleSortChange(sort: PostSortType | CommentSortType) {
+  handleSortChange(sort: PostSortType) {
+    this.updateUrl({
+      sort: sort,
+      pageCursor: undefined,
+    });
+  }
+
+  handleCommentSortChange(sort: CommentSortType) {
     this.updateUrl({
       sort: commentToPostSortType(sort),
       pageCursor: undefined,
