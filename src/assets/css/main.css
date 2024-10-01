@@ -466,6 +466,10 @@ br.big {
   transform: rotate(90deg);
 }
 
+.default-oauth-providers-section > ul {
+  list-style: none;
+}
+
 em-emoji-picker {
   width: 100%;
 }

@@ -22,6 +22,25 @@ type OAuthProvidersTabState = {
   providerToDelete?: OAuthProvider;
 };
 
+const PRESET_OAUTH_PROVIDERS: Omit<
+  CreateOAuthProvider,
+  "client_id" | "client_secret"
+>[] = [
+  {
+    display_name: "Privacy Portal",
+    issuer: "https://api.privacyportal.org/",
+    authorization_endpoint: "https://app.privacyportal.org/oauth/authorize",
+    token_endpoint: "https://api.privacyportal.org/oauth/token",
+    userinfo_endpoint: "https://api.privacyportal.org/oauth/userinfo",
+    id_claim: "sub",
+    scopes: "openid email",
+    auto_verify_email: true,
+    account_linking_enabled: true,
+    enabled: true,
+  },
+  // additional preset providers can be added here
+];
+
 function handleShowEditProviderModal({
   provider,
   tab,
@@ -96,6 +115,25 @@ export default class OAuthProvidersTab extends Component<
           </>
         ) : (
           <div>{I18NextService.i18n.t("no_oauth_providers_blurb")}</div>
+        )}
+        <button type="button" className="btn btn-secondary btn-small mt-3">
+          {I18NextService.i18n.t("add_oauth_provider")}
+        </button>
+        {PRESET_OAUTH_PROVIDERS.length > 0 && (
+          <section className="default-oauth-providers-section mt-4">
+            <h2 className="h5 mb-3">
+              {I18NextService.i18n.t("oauth_provider_presets")}
+            </h2>
+            <ul className="d-flex gap-2 ps-0">
+              {PRESET_OAUTH_PROVIDERS.map(provider => (
+                <li key={provider.issuer}>
+                  <button className="btn btn-secondary btn-small">
+                    {provider.display_name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
         <CreateOrEditOAuthProviderModal
           show={!!providerToCreateOrEdit}
