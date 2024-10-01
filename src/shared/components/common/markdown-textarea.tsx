@@ -281,6 +281,7 @@ export class MarkdownTextArea extends Component<
                       }
                     />
                   )}
+              </div>
               <label className="visually-hidden" htmlFor={this.id}>
                 {I18NextService.i18n.t("body")}
               </label>
