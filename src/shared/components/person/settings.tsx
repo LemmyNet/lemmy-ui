@@ -22,6 +22,7 @@ import {
   BlockCommunityResponse,
   BlockInstanceResponse,
   BlockPersonResponse,
+  CommentSortType,
   Community,
   GenerateTotpSecretResponse,
   GetFederatedInstancesResponse,
@@ -31,7 +32,7 @@ import {
   ListingType,
   LoginResponse,
   Person,
-  SortType,
+  PostSortType,
   SuccessResponse,
   UpdateTotpResponse,
 } from "lemmy-js-client";
@@ -76,6 +77,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { CommentSortSelect } from "../common/comment-sort-select";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -94,7 +96,8 @@ interface SettingsState {
     blur_nsfw?: boolean;
     auto_expand?: boolean;
     theme?: string;
-    default_sort_type?: SortType;
+    default_post_sort_type?: PostSortType;
+    default_comment_sort_type?: CommentSortType;
     default_listing_type?: ListingType;
     interface_language?: string;
     avatar?: string;
@@ -248,7 +251,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.handleSortTypeChange = this.handleSortTypeChange.bind(this);
+    this.handlePostSortTypeChange = this.handlePostSortTypeChange.bind(this);
+    this.handleCommentSortTypeChange =
+      this.handleCommentSortTypeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleBioChange = this.handleBioChange.bind(this);
     this.handleDiscussionLanguageChange =
@@ -276,9 +281,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         local_user: {
           show_nsfw,
           blur_nsfw,
-          auto_expand,
           theme,
-          default_sort_type,
+          default_post_sort_type,
+          default_comment_sort_type,
           default_listing_type,
           interface_language,
           show_avatars,
@@ -313,9 +318,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           ...this.state.saveUserSettingsForm,
           show_nsfw,
           blur_nsfw,
-          auto_expand,
           theme: theme ?? "browser",
-          default_sort_type,
+          default_post_sort_type,
+          default_comment_sort_type,
           default_listing_type,
           interface_language,
           discussion_languages: mui.discussion_languages,
@@ -906,14 +911,29 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           </form>
           <form className="mb-3 row">
             <label className="col-sm-3 col-form-label">
-              {I18NextService.i18n.t("sort_type")}
+              {I18NextService.i18n.t("post_sort_type")}
             </label>
             <div className="col-sm-9">
               <SortSelect
                 sort={
-                  this.state.saveUserSettingsForm.default_sort_type ?? "Active"
+                  this.state.saveUserSettingsForm.default_post_sort_type ??
+                  "Active"
                 }
-                onChange={this.handleSortTypeChange}
+                onChange={this.handlePostSortTypeChange}
+              />
+            </div>
+          </form>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {I18NextService.i18n.t("comment_sort_type")}
+            </label>
+            <div className="col-sm-9">
+              <CommentSortSelect
+                sort={
+                  this.state.saveUserSettingsForm.default_comment_sort_type ??
+                  "Hot"
+                }
+                onChange={this.handleCommentSortTypeChange}
               />
             </div>
           </form>
@@ -1581,8 +1601,16 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
-  handleSortTypeChange(val: SortType) {
-    this.setState(s => ((s.saveUserSettingsForm.default_sort_type = val), s));
+  handlePostSortTypeChange(val: PostSortType) {
+    this.setState(
+      s => ((s.saveUserSettingsForm.default_post_sort_type = val), s),
+    );
+  }
+
+  handleCommentSortTypeChange(val: CommentSortType) {
+    this.setState(
+      s => ((s.saveUserSettingsForm.default_comment_sort_type = val), s),
+    );
   }
 
   handleListingTypeChange(val: ListingType) {
@@ -1744,9 +1772,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           local_user: {
             show_nsfw,
             blur_nsfw,
-            auto_expand,
             theme,
-            default_sort_type,
+            default_post_sort_type,
+            default_comment_sort_type,
             default_listing_type,
             interface_language,
             show_avatars,
@@ -1783,11 +1811,11 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             display_name,
             bio,
             matrix_user_id,
-            auto_expand,
             blur_nsfw,
             bot_account,
             default_listing_type,
-            default_sort_type,
+            default_post_sort_type,
+            default_comment_sort_type,
             discussion_languages: siteRes.data.my_user?.discussion_languages,
             email,
             interface_language,

@@ -6,11 +6,8 @@ import classNames from "classnames";
 import { Component } from "inferno";
 import {
   BannedPersonsResponse,
-  CreateCustomEmoji,
   CreateOAuthProvider,
-  DeleteCustomEmoji,
   DeleteOAuthProvider,
-  EditCustomEmoji,
   EditOAuthProvider,
   EditSite,
   GetFederatedInstancesResponse,
@@ -21,7 +18,6 @@ import {
   PersonView,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
-import { removeFromEmojiDataModel, updateEmojiDataModel } from "../../markdown";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -109,9 +105,6 @@ export class AdminSettings extends Component<
     super(props, context);
 
     this.handleEditSite = this.handleEditSite.bind(this);
-    this.handleEditEmoji = this.handleEditEmoji.bind(this);
-    this.handleDeleteEmoji = this.handleDeleteEmoji.bind(this);
-    this.handleCreateEmoji = this.handleCreateEmoji.bind(this);
     this.handleUploadsPageChange = this.handleUploadsPageChange.bind(this);
     this.handleToggleShowLeaveAdminConfirmation =
       this.handleToggleShowLeaveAdminConfirmation.bind(this);
@@ -257,11 +250,7 @@ export class AdminSettings extends Component<
                   id="taglines-tab-pane"
                 >
                   <div className="row">
-                    <TaglineForm
-                      taglines={this.state.siteRes.taglines || []}
-                      onSaveSite={this.handleEditSite}
-                      loading={this.state.loading}
-                    />
+                    <TaglineForm />
                   </div>
                 </div>
               ),
@@ -278,11 +267,7 @@ export class AdminSettings extends Component<
                   id="emojis-tab-pane"
                 >
                   <div className="row">
-                    <EmojiForm
-                      onCreate={this.handleCreateEmoji}
-                      onDelete={this.handleDeleteEmoji}
-                      onEdit={this.handleEditEmoji}
-                    />
+                    <EmojiForm />
                   </div>
                 </div>
               ),
@@ -461,7 +446,6 @@ export class AdminSettings extends Component<
       this.setState(s => {
         s.siteRes.site_view = editRes.data.site_view;
         // TODO: Where to get taglines from?
-        s.siteRes.taglines = editRes.data.taglines;
         return s;
       });
       toast(I18NextService.i18n.t("site_saved"));
@@ -491,27 +475,6 @@ export class AdminSettings extends Component<
       toast(I18NextService.i18n.t("left_admin_team"));
       this.setState({ showConfirmLeaveAdmin: false });
       this.context.router.history.replace("/");
-    }
-  }
-
-  async handleEditEmoji(form: EditCustomEmoji) {
-    const res = await HttpService.client.editCustomEmoji(form);
-    if (res.state === "success") {
-      updateEmojiDataModel(res.data.custom_emoji);
-    }
-  }
-
-  async handleDeleteEmoji(form: DeleteCustomEmoji) {
-    const res = await HttpService.client.deleteCustomEmoji(form);
-    if (res.state === "success") {
-      removeFromEmojiDataModel(form.id);
-    }
-  }
-
-  async handleCreateEmoji(form: CreateCustomEmoji) {
-    const res = await HttpService.client.createCustomEmoji(form);
-    if (res.state === "success") {
-      updateEmojiDataModel(res.data.custom_emoji);
     }
   }
 

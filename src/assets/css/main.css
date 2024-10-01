@@ -465,3 +465,7 @@ br.big {
 .oauth-item details[open] .oauth-item-caret {
   transform: rotate(90deg);
 }
+
+em-emoji-picker {
+  width: 100%;
+}

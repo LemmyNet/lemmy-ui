@@ -2,7 +2,6 @@ import { capitalizeFirstLetter, validInstanceTLD } from "@utils/helpers";
 import {
   Component,
   InfernoKeyboardEvent,
-  InfernoMouseEvent,
   InfernoNode,
   linkEvent,
 } from "inferno";
@@ -896,42 +895,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteLegalInfoChange(val: string) {
     this.setState(s => ((s.siteForm.legal_information = val), s));
-  }
-
-  handleTaglineChange(i: SiteForm, index: number, val: string) {
-    const taglines = i.state.siteForm.taglines;
-    if (taglines) {
-      taglines[index] = val;
-      i.setState(i.state);
-    }
-  }
-
-  handleDeleteTaglineClick(
-    i: SiteForm,
-    index: number,
-    event: InfernoMouseEvent<HTMLButtonElement>,
-  ) {
-    event.preventDefault();
-    const taglines = i.state.siteForm.taglines;
-    if (taglines) {
-      taglines.splice(index, 1);
-      i.state.siteForm.taglines = undefined;
-      i.setState(i.state);
-      i.state.siteForm.taglines = taglines;
-      i.setState(i.state);
-    }
-  }
-
-  handleAddTaglineClick(
-    i: SiteForm,
-    event: InfernoMouseEvent<HTMLButtonElement>,
-  ) {
-    event.preventDefault();
-    if (!i.state.siteForm.taglines) {
-      i.state.siteForm.taglines = [];
-    }
-    i.state.siteForm.taglines.push("");
-    i.setState(i.state);
   }
 
   handleSiteApplicationQuestionChange(val: string) {
