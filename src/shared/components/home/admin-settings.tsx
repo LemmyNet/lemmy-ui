@@ -507,8 +507,6 @@ export class AdminSettings extends Component<
     }
 
     this.setState({ loading: false });
-
-    return res;
   }
 
   async handleDeleteOAuthProvider(form: DeleteOAuthProvider) {

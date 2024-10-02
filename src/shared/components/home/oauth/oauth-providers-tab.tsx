@@ -12,7 +12,7 @@ import ConfirmationModal from "../../common/modal/confirmation-modal";
 
 type OAuthProvidersTabProps = {
   oauthProviders: OAuthProvider[];
-  onEdit(form: EditOAuthProvider): void;
+  onEdit(form: EditOAuthProvider): Promise<void>;
   onCreate(form: CreateOAuthProvider): Promise<OAuthProvider | null>;
   onDelete(form: DeleteOAuthProvider): Promise<void>;
 };
@@ -20,6 +20,7 @@ type OAuthProvidersTabProps = {
 type OAuthProvidersTabState = {
   providerToCreateOrEdit?: OAuthProvider;
   providerToDelete?: OAuthProvider;
+  showCreateOrEditModal: boolean;
 };
 
 const PRESET_OAUTH_PROVIDERS: Omit<
@@ -41,18 +42,24 @@ const PRESET_OAUTH_PROVIDERS: Omit<
   // additional preset providers can be added here
 ];
 
-function handleShowEditProviderModal({
+function handleShowCreateOrEditProviderModal({
   provider,
   tab,
 }: {
   tab: OAuthProvidersTab;
-  provider: OAuthProvider;
+  provider: OAuthProvider | undefined;
 }) {
-  tab.setState({ providerToCreateOrEdit: provider });
+  tab.setState({
+    providerToCreateOrEdit: provider,
+    showCreateOrEditModal: true,
+  });
 }
 
 function handleCloseCreateOrEditModal(tab: OAuthProvidersTab) {
-  tab.setState({ providerToCreateOrEdit: undefined });
+  tab.setState({
+    providerToCreateOrEdit: undefined,
+    showCreateOrEditModal: false,
+  });
 }
 
 function handleTryDeleteOauthProvider({
@@ -73,12 +80,14 @@ export default class OAuthProvidersTab extends Component<
   OAuthProvidersTabProps,
   OAuthProvidersTabState
 > {
-  state: OAuthProvidersTabState = {};
+  state: OAuthProvidersTabState = { showCreateOrEditModal: false };
 
   constructor(props: OAuthProvidersTabProps, context: any) {
     super(props, context);
 
     this.handleDeleteProvider = this.handleDeleteProvider.bind(this);
+    this.handleCreateOrEditProviderSubmit =
+      this.handleCreateOrEditProviderSubmit.bind(this);
   }
 
   render(
@@ -86,6 +95,7 @@ export default class OAuthProvidersTab extends Component<
     {
       providerToDelete,
       providerToCreateOrEdit,
+      showCreateOrEditModal,
     }: Readonly<OAuthProvidersTabState>,
   ) {
     return (
@@ -103,7 +113,7 @@ export default class OAuthProvidersTab extends Component<
                   key={provider.id}
                   onEdit={linkEvent(
                     { provider, tab: this },
-                    handleShowEditProviderModal,
+                    handleShowCreateOrEditProviderModal,
                   )}
                   onDelete={linkEvent(
                     { provider, tab: this },
@@ -116,7 +126,14 @@ export default class OAuthProvidersTab extends Component<
         ) : (
           <div>{I18NextService.i18n.t("no_oauth_providers_blurb")}</div>
         )}
-        <button type="button" className="btn btn-secondary btn-small mt-3">
+        <button
+          type="button"
+          className="btn btn-secondary btn-small mt-3"
+          onClick={linkEvent(
+            { provider: undefined, tab: this },
+            handleShowCreateOrEditProviderModal,
+          )}
+        >
           {I18NextService.i18n.t("add_oauth_provider")}
         </button>
         {PRESET_OAUTH_PROVIDERS.length > 0 && (
@@ -124,21 +141,38 @@ export default class OAuthProvidersTab extends Component<
             <h2 className="h5 mb-3">
               {I18NextService.i18n.t("oauth_provider_presets")}
             </h2>
-            <ul className="d-flex gap-2 ps-0">
-              {PRESET_OAUTH_PROVIDERS.map(provider => (
-                <li key={provider.issuer}>
-                  <button className="btn btn-secondary btn-small">
-                    {provider.display_name}
-                  </button>
-                </li>
-              ))}
+            <ul className="d-flex flex-wrap gap-3 ps-0">
+              {PRESET_OAUTH_PROVIDERS.map(provider => {
+                const isAlreadyUsed = oauthProviders.some(
+                  p => p.issuer === provider.issuer,
+                );
+
+                return (
+                  <li key={provider.issuer}>
+                    <button
+                      className="btn btn-secondary btn-small"
+                      disabled={isAlreadyUsed}
+                      data-tippy-content={
+                        isAlreadyUsed
+                          ? I18NextService.i18n.t(
+                              "preset_oauth_provider_already_used",
+                            )
+                          : ""
+                      }
+                    >
+                      {provider.display_name}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         )}
         <CreateOrEditOAuthProviderModal
-          show={!!providerToCreateOrEdit}
+          show={showCreateOrEditModal}
           onClose={linkEvent(this, handleCloseCreateOrEditModal)}
           provider={providerToCreateOrEdit}
+          onSubmit={this.handleCreateOrEditProviderSubmit}
         />
         <ConfirmationModal
           show={!!providerToDelete}
@@ -159,5 +193,20 @@ export default class OAuthProvidersTab extends Component<
     }
 
     this.setState({ providerToDelete: undefined });
+  }
+
+  async handleCreateOrEditProviderSubmit(
+    provider: CreateOAuthProvider | EditOAuthProvider,
+  ) {
+    if (this.state.providerToCreateOrEdit) {
+      await this.props.onEdit(provider as EditOAuthProvider);
+    } else {
+      await this.props.onCreate(provider as CreateOAuthProvider);
+    }
+
+    this.setState({
+      showCreateOrEditModal: false,
+      providerToCreateOrEdit: undefined,
+    });
   }
 }

@@ -9,7 +9,11 @@ import {
 import type { Modal } from "bootstrap";
 import { modalMixin } from "../../mixins/modal-mixin";
 import { I18NextService } from "../../../services/I18NextService";
-import { OAuthProvider } from "lemmy-js-client";
+import {
+  CreateOAuthProvider,
+  EditOAuthProvider,
+  OAuthProvider,
+} from "lemmy-js-client";
 
 type EditingProvider = Partial<OAuthProvider> & { client_secret?: string };
 
@@ -17,11 +21,15 @@ interface CreateOrEditOAuthProviderModalProps {
   onClose: MouseEventHandler<HTMLButtonElement>;
   show: boolean;
   provider?: OAuthProvider;
+  onSubmit: (
+    provider: CreateOAuthProvider | EditOAuthProvider,
+  ) => Promise<void>;
 }
 
 interface CreateOrEditOAuthProviderModalState {
   changed: boolean;
-  provider: Partial<OAuthProvider>;
+  provider: Partial<CreateOAuthProvider>;
+  loading: boolean;
 }
 
 interface ProviderFieldProps {
@@ -45,6 +53,8 @@ type ProviderBooleanProperties =
 interface ProviderCheckboxFieldProps extends ProviderFieldProps {
   checked?: boolean;
 }
+
+const FORM_ID = "create-or-edit-oauth-provider-form-id";
 
 function handleTextPropertyChange(
   {
@@ -99,6 +109,7 @@ function ProviderTextField({
         className="form-control"
         value={value}
         onInput={onInput}
+        required
       />
     </div>
   );
@@ -134,12 +145,18 @@ export default class CreateOrEditOAuthProviderModal extends Component<
   readonly modalDivRef: RefObject<HTMLDivElement>;
   modal?: Modal;
 
-  state: CreateOrEditOAuthProviderModalState = { changed: false, provider: {} };
+  state: CreateOrEditOAuthProviderModalState = {
+    changed: false,
+    provider: {},
+    loading: false,
+  };
 
   constructor(props: CreateOrEditOAuthProviderModalProps, context: any) {
     super(props, context);
 
     this.modalDivRef = createRef();
+
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidUpdate(prevProps: Readonly<CreateOrEditOAuthProviderModalProps>) {
@@ -153,8 +170,8 @@ export default class CreateOrEditOAuthProviderModal extends Component<
   }
 
   render(
-    { onClose }: CreateOrEditOAuthProviderModalProps,
-    { provider }: CreateOrEditOAuthProviderModalState,
+    { onClose, provider: propsProvider }: CreateOrEditOAuthProviderModalProps,
+    { provider, changed, loading }: CreateOrEditOAuthProviderModalState,
   ) {
     return (
       <div
@@ -173,9 +190,9 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                 className="modal-title h4"
                 id="create-or-edit-oauth-modal-title"
               >
-                {provider
+                {propsProvider
                   ? `Edit ${provider.display_name}`
-                  : "Create OAuth Provider"}
+                  : "Add OAuth Provider"}
               </h1>
               <button
                 type="button"
@@ -185,7 +202,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
               />
             </div>
             <div className="modal-body p-2-!important">
-              <form class="container">
+              <form id={FORM_ID} class="container" onSubmit={this.handleSubmit}>
                 <div className="row row-cols-1 row-cols-sm-2 mb-3">
                   <ProviderTextField
                     id="display-name"
@@ -336,13 +353,26 @@ export default class CreateOrEditOAuthProviderModal extends Component<
               >
                 {I18NextService.i18n.t("cancel")}
               </button>
-              <button type="button" className="btn btn-success">
-                {I18NextService.i18n.t("save")}
+              <button
+                type="submit"
+                form={FORM_ID}
+                className="btn btn-success"
+                disabled={!changed || loading}
+              >
+                {I18NextService.i18n.t(propsProvider ? "edit" : "add")}
               </button>
             </div>
           </div>
         </div>
       </div>
     );
+  }
+
+  async handleSubmit(event) {
+    event.preventDefault();
+
+    this.setState({ loading: true });
+    await this.props.onSubmit(this.state.provider as CreateOAuthProvider);
+    this.setState({ loading: false });
   }
 }
