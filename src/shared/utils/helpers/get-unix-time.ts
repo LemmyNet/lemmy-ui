@@ -13,10 +13,6 @@ export function unixTimeToLocalDateStr(unixTime?: number): string | undefined {
     : undefined;
 }
 
-export function unixTimeToDateStr(unixTime?: number): string | undefined {
-  return unixTime ? new Date(unixTime).toISOString() : undefined;
-}
-
 function convertUTCDateToLocalDate(date: Date): Date {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
 }

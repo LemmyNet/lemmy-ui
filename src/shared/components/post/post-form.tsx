@@ -336,9 +336,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.updateUrl = this.updateUrl.bind(this);
 
     const { post_view, selectedCommunityChoice, params } = this.props;
-
     // Means its an edit
     if (post_view) {
+      const unix = getUnixTime(post_view.post.scheduled_publish_time);
+      const unix2 = unix ? unix * 1000 : undefined;
+      var scheduled_publish_time = unixTimeToLocalDateStr(unix2);
       this.state = {
         ...this.state,
         form: {
@@ -350,7 +352,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           language_id: post_view.post.language_id,
           custom_thumbnail: post_view.post.thumbnail_url,
           alt_text: post_view.post.alt_text,
-          scheduled_publish_time: post_view.post.scheduled_publish_time,
+          scheduled_publish_time,
         },
       };
     } else if (selectedCommunityChoice) {
