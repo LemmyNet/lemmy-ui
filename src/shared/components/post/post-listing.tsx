@@ -1,7 +1,7 @@
 import { myAuth, setIsoData } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
-import { futureDaysToUnixTime, hostname } from "@utils/helpers";
+import { formatPastDate, futureDaysToUnixTime, hostname } from "@utils/helpers";
 import { isImage, isVideo } from "@utils/media";
 import { canAdmin, canMod } from "@utils/roles";
 import classNames from "classnames";
@@ -433,7 +433,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   createdLine() {
     const pv = this.postView;
-
     return (
       <div className="small mb-1 mb-md-0">
         <PersonListing person={pv.creator} />
@@ -457,6 +456,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 lang => lang.id === pv.post.language_id,
               )?.name
             }
+          </span>
+        )}{" "}
+        {pv.post.scheduled_publish_time && (
+          <span className="mx-1 badge text-bg-light">
+            {I18NextService.i18n.t("publish_in_time", {
+              time: formatPastDate(pv.post.scheduled_publish_time),
+            })}
           </span>
         )}{" "}
         · <MomentTime published={pv.post.published} updated={pv.post.updated} />
