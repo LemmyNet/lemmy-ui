@@ -4,7 +4,6 @@ import {
   debounce,
   getIdFromString,
   getQueryString,
-  getUnixTime,
   validTitle,
   validURL,
 } from "@utils/helpers";
@@ -49,7 +48,11 @@ import { isBrowser } from "@utils/browser";
 import isMagnetLink, {
   extractMagnetLinkDownloadName,
 } from "@utils/media/is-magnet-link";
-import { unixTimeToLocalDateStr } from "@utils/helpers/get-unix-time";
+import {
+  getUnixTimeLemmy,
+  getUnixTime,
+  unixTimeToLocalDateStr,
+} from "@utils/helpers/get-unix-time";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -116,7 +119,7 @@ function handlePostSubmit(i: PostForm, event: any) {
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
-  const scheduled_publish_time = getUnixTime(pForm.scheduled_publish_time);
+  const scheduled_publish_time = getUnixTimeLemmy(pForm.scheduled_publish_time);
 
   if (pv) {
     i.props.onEdit?.(
@@ -339,8 +342,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     // Means its an edit
     if (post_view) {
       const unix = getUnixTime(post_view.post.scheduled_publish_time);
-      const unix2 = unix ? unix * 1000 : undefined;
-      var scheduled_publish_time = unixTimeToLocalDateStr(unix2);
+      var scheduled_publish_time = unixTimeToLocalDateStr(unix);
       this.state = {
         ...this.state,
         form: {

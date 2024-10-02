@@ -1,5 +1,14 @@
-export default function getUnixTime(text?: string): number | undefined {
+/**
+ * Converts timestamp string to unix timestamp in seconds, as used by Lemmy API
+ */
+export function getUnixTimeLemmy(text?: string): number | undefined {
   return text ? new Date(text).getTime() / 1000 : undefined;
+}
+/**
+ * Converts timestamp string to unix timestamp in millis, as used by Javascript
+ */
+export function getUnixTime(text?: string): number | undefined {
+  return text ? new Date(text).getTime() : undefined;
 }
 
 /**
