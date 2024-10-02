@@ -350,9 +350,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           language_id: post_view.post.language_id,
           custom_thumbnail: post_view.post.thumbnail_url,
           alt_text: post_view.post.alt_text,
-          scheduled_publish_time: unixTimeToLocalDateStr(
-            post_view.post.scheduled_publish_time,
-          ),
+          scheduled_publish_time: post_view.post.scheduled_publish_time,
         },
       };
     } else if (selectedCommunityChoice) {

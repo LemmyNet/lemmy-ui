@@ -12,14 +12,11 @@ export default function updateInstanceBlock(
     const instance = linkedInstances.find(i => i.id === id)!;
 
     if (data.blocked) {
-      myUserInfo.instance_blocks.push({
-        person: myUserInfo.local_user_view.person,
-        instance,
-      });
+      myUserInfo.instance_blocks.push(instance);
       toast(`${I18NextService.i18n.t("blocked")} ${instance.domain}`);
     } else {
       myUserInfo.instance_blocks = myUserInfo.instance_blocks.filter(
-        i => i.instance.id !== id,
+        i => i.id !== id,
       );
       toast(`${I18NextService.i18n.t("unblocked")} ${instance.domain}`);
     }

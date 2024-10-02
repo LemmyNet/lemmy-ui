@@ -8,16 +8,13 @@ export default function updatePersonBlock(
 ) {
   if (myUserInfo) {
     if (data.blocked) {
-      myUserInfo.person_blocks.push({
-        person: myUserInfo.local_user_view.person,
-        target: data.person_view.person,
-      });
+      myUserInfo.person_blocks.push(data.person_view.person);
       toast(
         `${I18NextService.i18n.t("blocked")} ${data.person_view.person.name}`,
       );
     } else {
       myUserInfo.person_blocks = myUserInfo.person_blocks.filter(
-        i => i.target.id !== data.person_view.person.id,
+        p => p.id !== data.person_view.person.id,
       );
       toast(
         `${I18NextService.i18n.t("unblocked")} ${data.person_view.person.name}`,

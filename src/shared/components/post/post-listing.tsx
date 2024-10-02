@@ -56,7 +56,6 @@ import { toast } from "../../toast";
 import isMagnetLink, {
   extractMagnetLinkDownloadName,
 } from "@utils/media/is-magnet-link";
-import { unixTimeToDateStr } from "@utils/helpers/get-unix-time";
 
 type PostListingState = {
   showEdit: boolean;
@@ -149,10 +148,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       UserService.Instance.myUserInfo &&
       !this.isoData.showAdultConsentModal
     ) {
-      const { auto_expand, blur_nsfw } =
-        UserService.Instance.myUserInfo.local_user_view.local_user;
+      const blur_nsfw =
+        UserService.Instance.myUserInfo.local_user_view.local_user.blur_nsfw;
       this.setState({
-        imageExpanded: auto_expand && !(blur_nsfw && this.postView.post.nsfw),
+        imageExpanded: !(blur_nsfw && this.postView.post.nsfw),
       });
     }
 
@@ -462,9 +461,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {pv.post.scheduled_publish_time && (
           <span className="mx-1 badge text-bg-light">
             {I18NextService.i18n.t("publish_in_time", {
-              time: formatPastDate(
-                unixTimeToDateStr(pv.post.scheduled_publish_time),
-              ),
+              time: formatPastDate(pv.post.scheduled_publish_time),
             })}
           </span>
         )}{" "}
@@ -1032,7 +1029,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleModBanFromCommunity({
     daysUntilExpires,
     reason,
-    shouldRemove,
+    shouldRemoveOrRestoreData,
   }: BanUpdateForm) {
     const {
       creator: { id: person_id },
@@ -1043,7 +1040,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     // If its an unban, restore all their data
     if (ban === false) {
-      shouldRemove = false;
+      shouldRemoveOrRestoreData = true;
     }
     const expires = futureDaysToUnixTime(daysUntilExpires);
 
@@ -1051,7 +1048,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       community_id,
       person_id,
       ban,
-      remove_data: shouldRemove,
+      remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
       expires,
     });
@@ -1060,7 +1057,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleModBanFromSite({
     daysUntilExpires,
     reason,
-    shouldRemove,
+    shouldRemoveOrRestoreData,
   }: BanUpdateForm) {
     const {
       creator: { id: person_id, banned },
@@ -1069,14 +1066,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     // If its an unban, restore all their data
     if (ban === false) {
-      shouldRemove = false;
+      shouldRemoveOrRestoreData = true;
     }
     const expires = futureDaysToUnixTime(daysUntilExpires);
 
     return this.props.onBanPerson({
       person_id,
       ban,
-      remove_data: shouldRemove,
+      remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
       expires,
     });

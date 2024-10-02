@@ -1,5 +1,6 @@
 import {
   commentsToFlatNodes,
+  commentToPostSortType,
   editComment,
   editPost,
   editWith,
@@ -16,7 +17,6 @@ import {
 import {
   getQueryParams,
   getQueryString,
-  getRandomFromList,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -67,9 +67,10 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
-  SortType,
+  PostSortType,
   SuccessResponse,
   TransferCommunity,
+  CommentSortType,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
 import {
@@ -107,6 +108,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser, snapToTop } from "@utils/browser";
+import { CommentSortSelect } from "../common/comment-sort-select";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -122,7 +124,7 @@ interface HomeState {
 interface HomeProps {
   listingType?: ListingType;
   dataType: DataType;
-  sort: SortType;
+  sort: PostSortType;
   pageCursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
@@ -132,7 +134,7 @@ type HomeData = RouteDataResponse<{
   commentsRes: GetCommentsResponse;
 }>;
 
-function getRss(listingType: ListingType, sort: SortType) {
+function getRss(listingType: ListingType, sort: PostSortType) {
   let rss: string | undefined = undefined;
 
   const queryString = getQueryString({ sort });
@@ -177,13 +179,13 @@ function getListingTypeFromQuery(
 
 function getSortTypeFromQuery(
   type: string | undefined,
-  fallback: SortType,
-): SortType {
-  return type ? (type as SortType) : fallback;
+  fallback: PostSortType,
+): PostSortType {
+  return type ? (type as PostSortType) : fallback;
 }
 
 type Fallbacks = {
-  sort: SortType;
+  sort: PostSortType;
   listingType: ListingType;
 };
 
@@ -204,7 +206,8 @@ export function getHomeQueryParams(
     },
     source,
     {
-      sort: local_user?.default_sort_type ?? local_site.default_sort_type,
+      sort:
+        local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
       listingType:
         local_user?.default_listing_type ??
         local_site.default_post_listing_type,
@@ -264,6 +267,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     super(props, context);
 
     this.handleSortChange = this.handleSortChange.bind(this);
+    this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
@@ -311,9 +315,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       };
     }
 
-    this.state.tagline = getRandomFromList(
-      this.state?.siteRes?.taglines ?? [],
-    )?.content;
+    this.state.tagline = this.state?.siteRes?.tagline?.content;
   }
 
   async componentWillMount() {
@@ -726,7 +728,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           />
         </div>
         <div className="col-auto">
-          <SortSelect sort={sort} onChange={this.handleSortChange} />
+          {this.props.dataType === DataType.Post ? (
+            <SortSelect sort={sort} onChange={this.handleSortChange} />
+          ) : (
+            <CommentSortSelect
+              sort={postToCommentSortType(sort)}
+              onChange={this.handleCommentSortChange}
+            />
+          )}
         </div>
         <div className="col-auto ps-0">
           {getRss(
@@ -799,8 +808,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.updateUrl({ pageCursor: nextPage });
   }
 
-  handleSortChange(val: SortType) {
+  handleSortChange(val: PostSortType) {
     this.updateUrl({ sort: val, pageCursor: undefined });
+  }
+
+  handleCommentSortChange(val: CommentSortType) {
+    this.updateUrl({ sort: commentToPostSortType(val), pageCursor: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {

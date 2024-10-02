@@ -1,5 +1,6 @@
 import {
   commentsToFlatNodes,
+  commentToPostSortType,
   communityRSSUrl,
   editComment,
   editPost,
@@ -81,9 +82,10 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
-  SortType,
+  PostSortType,
   SuccessResponse,
   TransferCommunity,
+  CommentSortType,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
 import {
@@ -121,6 +123,7 @@ import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
 import { LoadingEllipses } from "../common/loading-ellipses";
+import { CommentSortSelect } from "../common/comment-sort-select";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -139,12 +142,12 @@ interface State {
 
 interface CommunityProps {
   dataType: DataType;
-  sort: SortType;
+  sort: PostSortType;
   pageCursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
 
-type Fallbacks = { sort: SortType };
+type Fallbacks = { sort: PostSortType };
 
 export function getCommunityQueryParams(
   source: string | undefined,
@@ -162,7 +165,8 @@ export function getCommunityQueryParams(
     },
     source,
     {
-      sort: local_user?.default_sort_type ?? local_site.default_sort_type,
+      sort:
+        local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
     },
   );
 }
@@ -171,12 +175,11 @@ function getDataTypeFromQuery(type?: string): DataType {
   return type ? DataType[type] : DataType.Post;
 }
 
-function getSortTypeFromQuery(type?: string): SortType {
-  const mySortType =
-    UserService.Instance.myUserInfo?.local_user_view.local_user
-      .default_sort_type;
-
-  return type ? (type as SortType) : (mySortType ?? "Active");
+function getSortTypeFromQuery(
+  type: string | undefined,
+  fallback: PostSortType,
+): PostSortType {
+  return type ? (type as PostSortType) : fallback;
 }
 
 type CommunityPathProps = { name: string };
@@ -215,6 +218,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     super(props, context);
 
     this.handleSortChange = this.handleSortChange.bind(this);
+    this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handlePageNext = this.handlePageNext.bind(this);
     this.handlePagePrev = this.handlePagePrev.bind(this);
@@ -628,7 +632,14 @@ export class Community extends Component<CommunityRouteProps, State> {
           </span>
         )}
         <span className="me-2">
-          <SortSelect sort={sort} onChange={this.handleSortChange} />
+          {this.props.dataType === DataType.Post ? (
+            <SortSelect sort={sort} onChange={this.handleSortChange} />
+          ) : (
+            <CommentSortSelect
+              sort={postToCommentSortType(sort)}
+              onChange={this.handleCommentSortChange}
+            />
+          )}
         </span>
         {communityRss && (
           <>
@@ -654,8 +665,18 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.updateUrl({ pageCursor: nextPage });
   }
 
-  handleSortChange(sort: SortType) {
-    this.updateUrl({ sort, pageCursor: undefined });
+  handleSortChange(sort: PostSortType) {
+    this.updateUrl({
+      sort: sort,
+      pageCursor: undefined,
+    });
+  }
+
+  handleCommentSortChange(sort: CommentSortType) {
+    this.updateUrl({
+      sort: commentToPostSortType(sort),
+      pageCursor: undefined,
+    });
   }
 
   handleDataTypeChange(dataType: DataType) {

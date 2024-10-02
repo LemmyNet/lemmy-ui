@@ -22,17 +22,17 @@ import {
   BlockCommunityResponse,
   BlockInstanceResponse,
   BlockPersonResponse,
-  CommunityBlockView,
+  CommentSortType,
+  Community,
   GenerateTotpSecretResponse,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   Instance,
-  InstanceBlockView,
   LemmyHttp,
   ListingType,
   LoginResponse,
-  PersonBlockView,
-  SortType,
+  Person,
+  PostSortType,
   SuccessResponse,
   UpdateTotpResponse,
 } from "lemmy-js-client";
@@ -77,6 +77,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "../../routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { CommentSortSelect } from "../common/comment-sort-select";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -95,7 +96,8 @@ interface SettingsState {
     blur_nsfw?: boolean;
     auto_expand?: boolean;
     theme?: string;
-    default_sort_type?: SortType;
+    default_post_sort_type?: PostSortType;
+    default_comment_sort_type?: CommentSortType;
     default_listing_type?: ListingType;
     interface_language?: string;
     avatar?: string;
@@ -125,9 +127,9 @@ interface SettingsState {
     delete_content?: boolean;
     password?: string;
   };
-  personBlocks: PersonBlockView[];
-  communityBlocks: CommunityBlockView[];
-  instanceBlocks: InstanceBlockView[];
+  personBlocks: Person[];
+  communityBlocks: Community[];
+  instanceBlocks: Instance[];
   currentTab: string;
   themeList: string[];
   deleteAccountShowConfirm: boolean;
@@ -249,7 +251,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.handleSortTypeChange = this.handleSortTypeChange.bind(this);
+    this.handlePostSortTypeChange = this.handlePostSortTypeChange.bind(this);
+    this.handleCommentSortTypeChange =
+      this.handleCommentSortTypeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleBioChange = this.handleBioChange.bind(this);
     this.handleDiscussionLanguageChange =
@@ -277,9 +281,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         local_user: {
           show_nsfw,
           blur_nsfw,
-          auto_expand,
           theme,
-          default_sort_type,
+          default_post_sort_type,
+          default_comment_sort_type,
           default_listing_type,
           interface_language,
           show_avatars,
@@ -314,9 +318,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           ...this.state.saveUserSettingsForm,
           show_nsfw,
           blur_nsfw,
-          auto_expand,
           theme: theme ?? "browser",
-          default_sort_type,
+          default_post_sort_type,
+          default_comment_sort_type,
           default_listing_type,
           interface_language,
           discussion_languages: mui.discussion_languages,
@@ -556,14 +560,14 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <>
         <h2 className="h5">{I18NextService.i18n.t("blocked_users")}</h2>
         <ul className="list-unstyled mb-0">
-          {this.state.personBlocks.map(pb => (
-            <li key={pb.target.id}>
+          {this.state.personBlocks.map(p => (
+            <li key={p.id}>
               <span>
-                <PersonListing person={pb.target} />
+                <PersonListing person={p} />
                 <button
                   className="btn btn-sm"
                   onClick={linkEvent(
-                    { ctx: this, recipientId: pb.target.id },
+                    { ctx: this, recipientId: p.id },
                     this.handleUnblockPerson,
                   )}
                   data-tippy-content={I18NextService.i18n.t("unblock_user")}
@@ -600,14 +604,14 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <>
         <h2 className="h5">{I18NextService.i18n.t("blocked_communities")}</h2>
         <ul className="list-unstyled mb-0">
-          {this.state.communityBlocks.map(cb => (
-            <li key={cb.community.id}>
+          {this.state.communityBlocks.map(c => (
+            <li key={c.id}>
               <span>
-                <CommunityLink community={cb.community} />
+                <CommunityLink community={c} />
                 <button
                   className="btn btn-sm"
                   onClick={linkEvent(
-                    { ctx: this, communityId: cb.community.id },
+                    { ctx: this, communityId: c.id },
                     this.handleUnblockCommunity,
                   )}
                   data-tippy-content={I18NextService.i18n.t(
@@ -645,14 +649,14 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <>
         <h2 className="h5">{I18NextService.i18n.t("blocked_instances")}</h2>
         <ul className="list-unstyled mb-0">
-          {this.state.instanceBlocks.map(ib => (
-            <li key={ib.instance.id}>
+          {this.state.instanceBlocks.map(i => (
+            <li key={i.id}>
               <span>
-                {ib.instance.domain}
+                {i.domain}
                 <button
                   className="btn btn-sm"
                   onClick={linkEvent(
-                    { ctx: this, instanceId: ib.instance.id },
+                    { ctx: this, instanceId: i.id },
                     this.handleUnblockInstance,
                   )}
                   data-tippy-content={I18NextService.i18n.t("unblock_instance")}
@@ -906,14 +910,29 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           </form>
           <form className="mb-3 row">
             <label className="col-sm-3 col-form-label">
-              {I18NextService.i18n.t("sort_type")}
+              {I18NextService.i18n.t("post_sort_type")}
             </label>
             <div className="col-sm-9">
               <SortSelect
                 sort={
-                  this.state.saveUserSettingsForm.default_sort_type ?? "Active"
+                  this.state.saveUserSettingsForm.default_post_sort_type ??
+                  "Active"
                 }
-                onChange={this.handleSortTypeChange}
+                onChange={this.handlePostSortTypeChange}
+              />
+            </div>
+          </form>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {I18NextService.i18n.t("comment_sort_type")}
+            </label>
+            <div className="col-sm-9">
+              <CommentSortSelect
+                sort={
+                  this.state.saveUserSettingsForm.default_comment_sort_type ??
+                  "Hot"
+                }
+                onChange={this.handleCommentSortTypeChange}
               />
             </div>
           </form>
@@ -1349,7 +1368,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           instance =>
             instance.domain.toLowerCase().includes(text.toLowerCase()) &&
             !this.state.instanceBlocks.some(
-              blockedInstance => blockedInstance.instance.id === instance.id,
+              blockedInstance => blockedInstance.id === instance.id,
             ),
         ) ?? [];
     }
@@ -1581,8 +1600,16 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
-  handleSortTypeChange(val: SortType) {
-    this.setState(s => ((s.saveUserSettingsForm.default_sort_type = val), s));
+  handlePostSortTypeChange(val: PostSortType) {
+    this.setState(
+      s => ((s.saveUserSettingsForm.default_post_sort_type = val), s),
+    );
+  }
+
+  handleCommentSortTypeChange(val: CommentSortType) {
+    this.setState(
+      s => ((s.saveUserSettingsForm.default_comment_sort_type = val), s),
+    );
   }
 
   handleListingTypeChange(val: ListingType) {
@@ -1744,14 +1771,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           local_user: {
             show_nsfw,
             blur_nsfw,
-            auto_expand,
             theme,
-            default_sort_type,
+            default_post_sort_type,
+            default_comment_sort_type,
             default_listing_type,
             interface_language,
             show_avatars,
             show_bot_accounts,
-            show_scores,
             show_read_posts,
             send_notifications_to_email,
             email,
@@ -1784,18 +1810,17 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             display_name,
             bio,
             matrix_user_id,
-            auto_expand,
             blur_nsfw,
             bot_account,
             default_listing_type,
-            default_sort_type,
+            default_post_sort_type,
+            default_comment_sort_type,
             discussion_languages: siteRes.data.my_user?.discussion_languages,
             email,
             interface_language,
             open_links_in_new_tab,
             send_notifications_to_email,
             show_read_posts,
-            show_scores,
           },
         }));
       }

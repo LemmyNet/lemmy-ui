@@ -16,13 +16,15 @@ import AnonymousGuard from "../common/anonymous-guard";
 import AdultConsentModal from "../common/modal/adult-consent-modal";
 import { destroyTippy, setupTippy } from "../../tippy";
 
-function handleJumpToContent(event) {
+function handleJumpToContent(app: App, event: any) {
   event.preventDefault();
+  app.contentRef.current?.focus();
 }
 
 export default class App extends Component<any, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
   private readonly rootRef = createRef<HTMLDivElement>();
+  readonly contentRef = createRef<HTMLDivElement>();
 
   componentDidMount() {
     setupTippy(this.rootRef);
@@ -69,7 +71,7 @@ export default class App extends Component<any, any> {
 
           return (
             <ErrorGuard>
-              <div tabIndex={-1}>
+              <div tabIndex={-1} ref={this.contentRef}>
                 {RouteComponent &&
                   (isAuthPath(path ?? "") ? (
                     <AuthGuard {...routeProps}>

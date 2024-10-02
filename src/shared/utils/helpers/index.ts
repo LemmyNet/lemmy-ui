@@ -5,6 +5,7 @@ import editListImmutable from "./edit-list-immutable";
 import formatPastDate from "./format-past-date";
 import futureDaysToUnixTime from "./future-days-to-unix-time";
 import getIdFromString from "./get-id-from-string";
+import getBoolFromString from "./get-bool-from-string";
 import getPageFromString from "./get-page-from-string";
 import getQueryParams from "./get-query-params";
 import getQueryString from "./get-query-string";
@@ -36,6 +37,7 @@ export {
   formatPastDate,
   futureDaysToUnixTime,
   getIdFromString,
+  getBoolFromString,
   getPageFromString,
   getQueryParams,
   getQueryString,
