@@ -208,7 +208,11 @@ export default class CreateOrEditOAuthProviderModal extends Component<
               />
             </div>
             <div className="modal-body p-2-!important">
-              <form id={FORM_ID} class="container" onSubmit={this.handleSubmit}>
+              <form
+                id={FORM_ID}
+                className="container"
+                onSubmit={this.handleSubmit}
+              >
                 <div className="row row-cols-1 mb-3 gy-2">
                   <ProviderTextField
                     id="display-name"

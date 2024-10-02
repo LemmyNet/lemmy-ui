@@ -25,6 +25,7 @@ import { UnreadCounterService } from "../../services";
 import { RouteData } from "../../interfaces";
 import { IRoutePropsWithFetch } from "../../routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import DisplayModal from "../common/modal/display-modal";
 
 interface LoginProps {
   prev?: string;
@@ -47,6 +48,7 @@ interface State {
   };
   siteRes: GetSiteResponse;
   show2faModal: boolean;
+  showOAuthModal: boolean;
 }
 
 async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
@@ -168,6 +170,14 @@ function handleClose2faModal(i: Login) {
   i.setState({ show2faModal: false });
 }
 
+function handleShowOAuthModal(i: Login) {
+  i.setState({ showOAuthModal: true });
+}
+
+function handleCloseOAuthModal(i: Login) {
+  i.setState({ showOAuthModal: false });
+}
+
 type LoginRouteProps = RouteComponentProps<Record<string, never>> & LoginProps;
 export type LoginFetchConfig = IRoutePropsWithFetch<
   RouteData,
@@ -187,6 +197,7 @@ export class Login extends Component<LoginRouteProps, State> {
     },
     siteRes: this.isoData.site_res,
     show2faModal: false,
+    showOAuthModal: false,
   };
 
   constructor(props: any, context: any) {
@@ -219,6 +230,25 @@ export class Login extends Component<LoginRouteProps, State> {
           show={this.state.show2faModal}
           onClose={linkEvent(this, handleClose2faModal)}
         />
+        <DisplayModal
+          show={this.state.showOAuthModal}
+          title={I18NextService.i18n.t("available_oauth_providers")}
+          onClose={linkEvent(this, handleCloseOAuthModal)}
+        >
+          {(this.state.siteRes.oauth_providers ?? []).map(
+            (provider: PublicOAuthProvider) => (
+              <button
+                className="btn btn-primary m-2"
+                onClick={linkEvent(
+                  { oauth_provider: provider },
+                  this.handleLoginWithProvider,
+                )}
+              >
+                {provider.display_name}
+              </button>
+            ),
+          )}
+        </DisplayModal>
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
@@ -226,21 +256,12 @@ export class Login extends Component<LoginRouteProps, State> {
           <div className="row">
             <div className="col-12 col-lg-6 offset-lg-3">
               <span>{I18NextService.i18n.t("or")}</span>
-              {(this.state.siteRes.oauth_providers ?? []).map(
-                (oauth_provider: PublicOAuthProvider) => (
-                  <button
-                    className="btn btn-secondary m-2"
-                    onClick={linkEvent(
-                      { oauth_provider },
-                      this.handleLoginWithProvider,
-                    )}
-                  >
-                    {I18NextService.i18n.t("oauth_login_with_provider", {
-                      provider_name: oauth_provider.display_name,
-                    })}
-                  </button>
-                ),
-              )}
+              <button
+                className="btn btn-secondary m-2"
+                onClick={linkEvent(this, handleShowOAuthModal)}
+              >
+                {I18NextService.i18n.t("oauth_login_with_provider")}
+              </button>
             </div>
           </div>
         )}

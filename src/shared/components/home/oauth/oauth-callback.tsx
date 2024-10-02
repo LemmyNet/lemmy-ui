@@ -58,17 +58,19 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
       localStorage.getItem("oauth_state") || "{}",
     );
     if (
-      !this.props.state ||
-      !this.props.code ||
-      !local_oauth_state?.state ||
-      !local_oauth_state?.oauth_provider_id ||
-      !local_oauth_state?.expires_at ||
-      this.props.state !== local_oauth_state.state ||
+      !(
+        this.props.state &&
+        this.props.code &&
+        local_oauth_state?.state &&
+        local_oauth_state?.oauth_provider_id &&
+        local_oauth_state?.expires_at &&
+        this.props.state === local_oauth_state.state
+      ) ||
       local_oauth_state.expires_at < Date.now()
     ) {
       // oauth failed or expired
       toast(I18NextService.i18n.t("oauth_authorization_invalid"), "danger");
-      this.props.history.push("/login");
+      this.props.history.replace("/login");
     } else {
       const loginRes = await HttpService.client.authenticateWithOAuth({
         code: this.props.code,
