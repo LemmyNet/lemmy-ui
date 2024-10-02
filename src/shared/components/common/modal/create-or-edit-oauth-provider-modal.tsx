@@ -14,13 +14,16 @@ import {
   EditOAuthProvider,
   OAuthProvider,
 } from "lemmy-js-client";
+import { ProviderToEdit } from "@utils/types/oauth";
 
-type EditingProvider = Partial<OAuthProvider> & { client_secret?: string };
+export type CreateOrEditOAuthProviderModalData =
+  | { type: "add"; provider?: ProviderToEdit }
+  | { type: "edit" | "add"; provider: OAuthProvider };
 
 interface CreateOrEditOAuthProviderModalProps {
   onClose: MouseEventHandler<HTMLButtonElement>;
   show: boolean;
-  provider?: OAuthProvider;
+  data: CreateOrEditOAuthProviderModalData;
   onSubmit: (
     provider: CreateOAuthProvider | EditOAuthProvider,
   ) => Promise<void>;
@@ -43,6 +46,7 @@ interface ProviderTextFieldProps extends ProviderFieldProps {
   placeholder?: string;
   type?: "text" | "url" | "password";
   value?: string;
+  required?: boolean;
 }
 
 type ProviderBooleanProperties =
@@ -62,7 +66,7 @@ function handleTextPropertyChange(
     property,
   }: {
     modal: CreateOrEditOAuthProviderModal;
-    property: Exclude<keyof EditingProvider, ProviderBooleanProperties>;
+    property: Exclude<keyof CreateOAuthProvider, ProviderBooleanProperties>;
   },
   event: any,
 ) {
@@ -80,7 +84,7 @@ function handleBooleanPropertyChange({
   property,
 }: {
   modal: CreateOrEditOAuthProviderModal;
-  property: Extract<keyof EditingProvider, ProviderBooleanProperties>;
+  property: Extract<keyof ProviderToEdit, ProviderBooleanProperties>;
 }) {
   modal.setState(prevState => ({
     changed: true,
@@ -97,6 +101,9 @@ function ProviderTextField({
   type = "text",
   value,
   onInput,
+  required = true,
+  disabled,
+  placeholder,
 }: ProviderTextFieldProps) {
   return (
     <div className="col">
@@ -109,7 +116,9 @@ function ProviderTextField({
         className="form-control"
         value={value}
         onInput={onInput}
-        required
+        required={required}
+        disabled={disabled}
+        placeholder={placeholder}
       />
     </div>
   );
@@ -122,7 +131,7 @@ function ProviderCheckboxField({
   checked,
 }: ProviderCheckboxFieldProps) {
   return (
-    <div className="form-check form-check-inline">
+    <div className="form-check form-check-inline m-2">
       <input
         id={id}
         type="checkbox"
@@ -160,17 +169,13 @@ export default class CreateOrEditOAuthProviderModal extends Component<
   }
 
   componentDidUpdate(prevProps: Readonly<CreateOrEditOAuthProviderModalProps>) {
-    if (
-      this.props.show &&
-      this.props.show !== prevProps.show &&
-      this.props.provider
-    ) {
-      this.setState({ provider: this.props.provider });
+    if (this.props.show && this.props.show !== prevProps.show) {
+      this.setState({ provider: this.props.data.provider ?? {} });
     }
   }
 
   render(
-    { onClose, provider: propsProvider }: CreateOrEditOAuthProviderModalProps,
+    { onClose, data }: CreateOrEditOAuthProviderModalProps,
     { provider, changed, loading }: CreateOrEditOAuthProviderModalState,
   ) {
     return (
@@ -190,8 +195,8 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                 className="modal-title h4"
                 id="create-or-edit-oauth-modal-title"
               >
-                {propsProvider
-                  ? `Edit ${provider.display_name}`
+                {data.type === "edit"
+                  ? `Edit ${data.provider.display_name}`
                   : "Add OAuth Provider"}
               </h1>
               <button
@@ -203,7 +208,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
             </div>
             <div className="modal-body p-2-!important">
               <form id={FORM_ID} class="container" onSubmit={this.handleSubmit}>
-                <div className="row row-cols-1 row-cols-sm-2 mb-3">
+                <div className="row row-cols-1 mb-3 gy-2">
                   <ProviderTextField
                     id="display-name"
                     i18nKey="oauth_display_name"
@@ -213,8 +218,6 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                       handleTextPropertyChange,
                     )}
                   />
-                </div>
-                <div class="row row-cols-1 g-3 mb-3">
                   <ProviderTextField
                     id="issuer"
                     i18nKey="oauth_issuer"
@@ -224,7 +227,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                       handleTextPropertyChange,
                     )}
                     type="url"
-                    disabled={!!provider}
+                    disabled={data.type === "edit"}
                   />
                   <ProviderTextField
                     id="authorization-endpoint"
@@ -256,8 +259,6 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                     )}
                     type="url"
                   />
-                </div>
-                <div className="row row-cols-1 row-cols-sm-2 g-3">
                   <ProviderTextField
                     id="id-claim"
                     i18nKey="oauth_id_claim"
@@ -271,7 +272,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                     id="client-id"
                     i18nKey="oauth_client_id"
                     value={provider?.client_id}
-                    disabled={!!provider}
+                    disabled={data.type === "edit"}
                     onInput={linkEvent(
                       { modal: this, property: "client_id" },
                       handleTextPropertyChange,
@@ -292,6 +293,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                           )
                         : undefined
                     }
+                    required={data.type === "add"}
                   />
                   <ProviderTextField
                     id="scopes"
@@ -359,7 +361,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                 className="btn btn-success"
                 disabled={!changed || loading}
               >
-                {I18NextService.i18n.t(propsProvider ? "edit" : "add")}
+                {I18NextService.i18n.t(data.type === "edit" ? "edit" : "add")}
               </button>
             </div>
           </div>

@@ -14,7 +14,6 @@ import {
   GetSiteResponse,
   LemmyHttp,
   ListMediaResponse,
-  OAuthProvider,
   PersonView,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
@@ -495,9 +494,7 @@ export class AdminSettings extends Component<
         s.siteRes.admin_oauth_providers = (
           s.siteRes.admin_oauth_providers ?? []
         ).map(p => {
-          return p?.client_id === newOAuthProvider.client_id
-            ? newOAuthProvider
-            : p;
+          return p?.id === newOAuthProvider.id ? newOAuthProvider : p;
         });
         return s;
       });
@@ -529,41 +526,22 @@ export class AdminSettings extends Component<
     this.setState({ loading: false });
   }
 
-  async handleCreateOAuthProvider(
-    form: CreateOAuthProvider,
-  ): Promise<OAuthProvider | null> {
+  async handleCreateOAuthProvider(form: CreateOAuthProvider) {
     this.setState({ loading: true });
 
     const res = await HttpService.client.createOAuthProvider(form);
-    let newOAuthProvider: OAuthProvider;
-
     if (res.state === "success") {
-      newOAuthProvider = res.data;
-
       this.setState(s => {
-        s.siteRes.admin_oauth_providers = (
-          s.siteRes.admin_oauth_providers ?? []
-        ).slice();
-        const index = s.siteRes.admin_oauth_providers.findIndex(
-          x => x?.id === newOAuthProvider?.id,
-        );
-        if (index >= 0) {
-          Object.assign(
-            s.siteRes.admin_oauth_providers[index] || {},
-            newOAuthProvider,
-          );
-        } else {
-          s.siteRes.admin_oauth_providers.push(newOAuthProvider);
-        }
+        s.siteRes.admin_oauth_providers = [
+          ...(s.siteRes.admin_oauth_providers ?? []),
+          res.data,
+        ];
       });
       toast(I18NextService.i18n.t("site_saved"));
-      this.setState({ loading: false });
-      return newOAuthProvider;
+    } else {
+      toast(I18NextService.i18n.t("couldnt_create_oauth_provider"), "danger");
     }
 
-    // handle failure
-    toast(I18NextService.i18n.t("couldnt_create_oauth_provider"), "danger");
     this.setState({ loading: false });
-    return null;
   }
 }

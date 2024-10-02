@@ -7,26 +7,25 @@ import {
   OAuthProvider,
 } from "lemmy-js-client";
 import OAuthProviderListItem from "./oauth-provider-list-item";
-import CreateOrEditOAuthProviderModal from "../../common/modal/create-or-edit-oauth-provider-modal";
+import CreateOrEditOAuthProviderModal, {
+  CreateOrEditOAuthProviderModalData,
+} from "../../common/modal/create-or-edit-oauth-provider-modal";
 import ConfirmationModal from "../../common/modal/confirmation-modal";
+import { ProviderToEdit } from "@utils/types/oauth";
 
 type OAuthProvidersTabProps = {
   oauthProviders: OAuthProvider[];
   onEdit(form: EditOAuthProvider): Promise<void>;
-  onCreate(form: CreateOAuthProvider): Promise<OAuthProvider | null>;
+  onCreate(form: CreateOAuthProvider): Promise<void>;
   onDelete(form: DeleteOAuthProvider): Promise<void>;
 };
 
 type OAuthProvidersTabState = {
-  providerToCreateOrEdit?: OAuthProvider;
   providerToDelete?: OAuthProvider;
-  showCreateOrEditModal: boolean;
+  createOrEditModalData?: CreateOrEditOAuthProviderModalData;
 };
 
-const PRESET_OAUTH_PROVIDERS: Omit<
-  CreateOAuthProvider,
-  "client_id" | "client_secret"
->[] = [
+const PRESET_OAUTH_PROVIDERS: ProviderToEdit[] = [
   {
     display_name: "Privacy Portal",
     issuer: "https://api.privacyportal.org/",
@@ -43,22 +42,20 @@ const PRESET_OAUTH_PROVIDERS: Omit<
 ];
 
 function handleShowCreateOrEditProviderModal({
-  provider,
+  data,
   tab,
 }: {
   tab: OAuthProvidersTab;
-  provider: OAuthProvider | undefined;
+  data: CreateOrEditOAuthProviderModalData;
 }) {
   tab.setState({
-    providerToCreateOrEdit: provider,
-    showCreateOrEditModal: true,
+    createOrEditModalData: data,
   });
 }
 
 function handleCloseCreateOrEditModal(tab: OAuthProvidersTab) {
   tab.setState({
-    providerToCreateOrEdit: undefined,
-    showCreateOrEditModal: false,
+    createOrEditModalData: undefined,
   });
 }
 
@@ -80,7 +77,7 @@ export default class OAuthProvidersTab extends Component<
   OAuthProvidersTabProps,
   OAuthProvidersTabState
 > {
-  state: OAuthProvidersTabState = { showCreateOrEditModal: false };
+  state: OAuthProvidersTabState = {};
 
   constructor(props: OAuthProvidersTabProps, context: any) {
     super(props, context);
@@ -94,8 +91,7 @@ export default class OAuthProvidersTab extends Component<
     { oauthProviders }: Readonly<OAuthProvidersTabProps>,
     {
       providerToDelete,
-      providerToCreateOrEdit,
-      showCreateOrEditModal,
+      createOrEditModalData,
     }: Readonly<OAuthProvidersTabState>,
   ) {
     return (
@@ -112,7 +108,7 @@ export default class OAuthProvidersTab extends Component<
                   provider={provider}
                   key={provider.id}
                   onEdit={linkEvent(
-                    { provider, tab: this },
+                    { data: { type: "edit", provider }, tab: this },
                     handleShowCreateOrEditProviderModal,
                   )}
                   onDelete={linkEvent(
@@ -130,7 +126,7 @@ export default class OAuthProvidersTab extends Component<
           type="button"
           className="btn btn-secondary btn-small mt-3"
           onClick={linkEvent(
-            { provider: undefined, tab: this },
+            { data: { type: "add" }, tab: this },
             handleShowCreateOrEditProviderModal,
           )}
         >
@@ -152,13 +148,10 @@ export default class OAuthProvidersTab extends Component<
                     <button
                       className="btn btn-secondary btn-small"
                       disabled={isAlreadyUsed}
-                      data-tippy-content={
-                        isAlreadyUsed
-                          ? I18NextService.i18n.t(
-                              "preset_oauth_provider_already_used",
-                            )
-                          : ""
-                      }
+                      onClick={linkEvent(
+                        { data: { type: "add", provider }, tab: this },
+                        handleShowCreateOrEditProviderModal,
+                      )}
                     >
                       {provider.display_name}
                     </button>
@@ -169,10 +162,10 @@ export default class OAuthProvidersTab extends Component<
           </section>
         )}
         <CreateOrEditOAuthProviderModal
-          show={showCreateOrEditModal}
+          show={!!createOrEditModalData}
           onClose={linkEvent(this, handleCloseCreateOrEditModal)}
-          provider={providerToCreateOrEdit}
           onSubmit={this.handleCreateOrEditProviderSubmit}
+          data={createOrEditModalData ?? { type: "add" }}
         />
         <ConfirmationModal
           show={!!providerToDelete}
@@ -198,15 +191,14 @@ export default class OAuthProvidersTab extends Component<
   async handleCreateOrEditProviderSubmit(
     provider: CreateOAuthProvider | EditOAuthProvider,
   ) {
-    if (this.state.providerToCreateOrEdit) {
+    if (this.state.createOrEditModalData?.type === "edit") {
       await this.props.onEdit(provider as EditOAuthProvider);
     } else {
       await this.props.onCreate(provider as CreateOAuthProvider);
     }
 
     this.setState({
-      showCreateOrEditModal: false,
-      providerToCreateOrEdit: undefined,
+      createOrEditModalData: undefined,
     });
   }
 }
