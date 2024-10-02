@@ -186,6 +186,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
         aria-hidden
         aria-labelledby="#create-or-edit-oauth-modal-title"
         data-bs-backdrop="static"
+        data-bs-keyboard="false"
         ref={this.modalDivRef}
       >
         <div className="modal-dialog modal-fullscreen-sm-down">
@@ -287,13 +288,14 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                     )}
                     type="password"
                     placeholder={
-                      provider
+                      data.type === "edit"
                         ? I18NextService.i18n.t(
                             "cannot_view_secret_after_saving",
                           )
                         : undefined
                     }
                     required={data.type === "add"}
+                    value={provider.client_secret}
                   />
                   <ProviderTextField
                     id="scopes"
@@ -334,7 +336,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                     <ProviderCheckboxField
                       id="oauth-enabled"
                       i18nKey="oauth_enabled"
-                      checked={provider?.enabled}
+                      checked={provider?.enabled ?? true}
                       onInput={linkEvent(
                         {
                           modal: this,
@@ -375,6 +377,6 @@ export default class CreateOrEditOAuthProviderModal extends Component<
 
     this.setState({ loading: true });
     await this.props.onSubmit(this.state.provider as CreateOAuthProvider);
-    this.setState({ loading: false });
+    this.setState({ loading: false, changed: false, provider: {} });
   }
 }
