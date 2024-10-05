@@ -272,7 +272,7 @@ importers:
         version: 5.2.1(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@9.11.1))(eslint@9.11.1)(prettier@3.3.3)
       globals:
         specifier: ^15.9.0
-        version: 15.9.0
+        version: 15.10.0
       husky:
         specifier: ^9.1.5
         version: 9.1.6
@@ -2481,8 +2481,8 @@ packages:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
     engines: {node: '>=18'}
 
-  globals@15.9.0:
-    resolution: {integrity: sha512-SmSKyLLKFbSr6rptvP8izbyxJL4ILwqO9Jg23UA0sDlGlu58V59D1//I3vlc0KJphVdUR7vMjHIplYnzBxorQA==}
+  globals@15.10.0:
+    resolution: {integrity: sha512-tqFIbz83w4Y5TCbtgjZjApohbuh7K9BxGYFm7ifwDR240tvdb7P9x+/9VvUKlmkPoiknoJtanI8UOrqxS3a7lQ==}
     engines: {node: '>=18'}
 
   globalthis@1.0.4:
@@ -7216,7 +7216,7 @@ snapshots:
 
   globals@14.0.0: {}
 
-  globals@15.9.0: {}
+  globals@15.10.0: {}
 
   globalthis@1.0.4:
     dependencies:
