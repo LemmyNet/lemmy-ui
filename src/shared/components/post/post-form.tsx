@@ -48,6 +48,11 @@ import { isBrowser } from "@utils/browser";
 import isMagnetLink, {
   extractMagnetLinkDownloadName,
 } from "@utils/media/is-magnet-link";
+import {
+  getUnixTimeLemmy,
+  getUnixTime,
+  unixTimeToLocalDateStr,
+} from "@utils/helpers/get-unix-time";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -88,6 +93,8 @@ interface PostFormState {
     honeypot?: string;
     custom_thumbnail?: string;
     alt_text?: string;
+    // Javascript treats this field as a string, that can't have timezone info.
+    scheduled_publish_time?: string;
   };
   suggestedPostsRes: RequestState<SearchResponse>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
@@ -112,6 +119,7 @@ function handlePostSubmit(i: PostForm, event: any) {
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
+  const scheduled_publish_time = getUnixTimeLemmy(pForm.scheduled_publish_time);
 
   if (pv) {
     i.props.onEdit?.(
@@ -124,6 +132,7 @@ function handlePostSubmit(i: PostForm, event: any) {
         language_id: pForm.language_id,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
+        scheduled_publish_time,
       },
       () => {
         i.setState({ bypassNavWarning: true });
@@ -141,6 +150,7 @@ function handlePostSubmit(i: PostForm, event: any) {
         honeypot: pForm.honeypot,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
+        scheduled_publish_time,
       },
       () => {
         i.setState({ bypassNavWarning: true });
@@ -200,6 +210,18 @@ function handlePostNsfwChange(i: PostForm, event: any) {
   i.updateUrl(() =>
     i.props.onNsfwChange?.(event.target.checked ? "true" : "false"),
   );
+}
+
+function handlePostScheduleChange(i: PostForm, event: any) {
+  const scheduled_publish_time = event.target.value;
+
+  i.setState(prev => ({
+    ...prev,
+    form: {
+      ...prev.form,
+      scheduled_publish_time,
+    },
+  }));
 }
 
 function handleHoneyPotChange(i: PostForm, event: any) {
@@ -317,9 +339,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     this.updateUrl = this.updateUrl.bind(this);
 
     const { post_view, selectedCommunityChoice, params } = this.props;
-
     // Means its an edit
     if (post_view) {
+      const unix = getUnixTime(post_view.post.scheduled_publish_time);
+      var scheduled_publish_time = unixTimeToLocalDateStr(unix);
       this.state = {
         ...this.state,
         form: {
@@ -331,6 +354,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           language_id: post_view.post.language_id,
           custom_thumbnail: post_view.post.thumbnail_url,
           alt_text: post_view.post.alt_text,
+          scheduled_publish_time,
         },
       };
     } else if (selectedCommunityChoice) {
@@ -684,6 +708,23 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </label>
           </div>
         )}
+
+        <div className="mb-3 row">
+          <label className="col-sm-2 col-form-label" htmlFor="post-schedule">
+            {I18NextService.i18n.t("scheduled_publish_time")}
+          </label>
+          <div className="col-sm-10">
+            <input
+              type="datetime-local"
+              value={this.state.form.scheduled_publish_time}
+              min={unixTimeToLocalDateStr(Date.now())}
+              id="post-schedule"
+              className="form-control mb-3"
+              onInput={linkEvent(this, handlePostScheduleChange)}
+            />
+          </div>
+        </div>
+
         <input
           tabIndex={-1}
           autoComplete="false"
