@@ -462,6 +462,14 @@ br.big {
   width: fit-content;
 }
 
+.oauth-item details[open] .oauth-item-caret {
+  transform: rotate(90deg);
+}
+
+.default-oauth-providers-section > ul {
+  list-style: none;
+}
+
 em-emoji-picker {
   width: 100%;
 }

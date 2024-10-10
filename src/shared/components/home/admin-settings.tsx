@@ -6,6 +6,9 @@ import classNames from "classnames";
 import { Component } from "inferno";
 import {
   BannedPersonsResponse,
+  CreateOAuthProvider,
+  DeleteOAuthProvider,
+  EditOAuthProvider,
   EditSite,
   GetFederatedInstancesResponse,
   GetSiteResponse,
@@ -39,6 +42,7 @@ import { Paginator } from "../common/paginator";
 import { snapToTop } from "@utils/browser";
 import { isBrowser } from "@utils/browser";
 import ConfirmationModal from "../common/modal/confirmation-modal";
+import OAuthProvidersTab from "./oauth/oauth-providers-tab";
 
 type AdminSettingsData = RouteDataResponse<{
   bannedRes: BannedPersonsResponse;
@@ -104,6 +108,9 @@ export class AdminSettings extends Component<
     this.handleToggleShowLeaveAdminConfirmation =
       this.handleToggleShowLeaveAdminConfirmation.bind(this);
     this.handleLeaveAdminTeam = this.handleLeaveAdminTeam.bind(this);
+    this.handleEditOAuthProvider = this.handleEditOAuthProvider.bind(this);
+    this.handleDeleteOAuthProvider = this.handleDeleteOAuthProvider.bind(this);
+    this.handleCreateOAuthProvider = this.handleCreateOAuthProvider.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -276,6 +283,28 @@ export class AdminSettings extends Component<
                   id="uploads-tab-pane"
                 >
                   {this.uploads()}
+                </div>
+              ),
+            },
+            {
+              key: "auth",
+              label: I18NextService.i18n.t("authentication"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="auth-tab-pane"
+                >
+                  <OAuthProvidersTab
+                    oauthProviders={
+                      this.state.siteRes.admin_oauth_providers ?? []
+                    }
+                    onCreate={this.handleCreateOAuthProvider}
+                    onDelete={this.handleDeleteOAuthProvider}
+                    onEdit={this.handleEditOAuthProvider}
+                  />
                 </div>
               ),
             },
@@ -452,5 +481,67 @@ export class AdminSettings extends Component<
     this.setState({ uploadsPage: val });
     snapToTop();
     await this.fetchUploadsOnly();
+  }
+
+  async handleEditOAuthProvider(form: EditOAuthProvider) {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.editOAuthProvider(form);
+
+    if (res.state === "success") {
+      const newOAuthProvider = res.data;
+      this.setState(s => {
+        s.siteRes.admin_oauth_providers = (
+          s.siteRes.admin_oauth_providers ?? []
+        ).map(p => {
+          return p?.id === newOAuthProvider.id ? newOAuthProvider : p;
+        });
+        return s;
+      });
+      toast(I18NextService.i18n.t("site_saved"));
+    } else {
+      toast(I18NextService.i18n.t("couldnt_edit_oauth_provider"), "danger");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleDeleteOAuthProvider(form: DeleteOAuthProvider) {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.deleteOAuthProvider(form);
+
+    if (res.state === "success") {
+      this.setState(s => {
+        s.siteRes.admin_oauth_providers = (
+          s.siteRes.admin_oauth_providers ?? []
+        ).filter(p => p.id !== form.id);
+        return s;
+      });
+      toast(I18NextService.i18n.t("site_saved"));
+    } else {
+      toast(I18NextService.i18n.t("couldnt_delete_oauth_provider"), "danger");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleCreateOAuthProvider(form: CreateOAuthProvider) {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.createOAuthProvider(form);
+    if (res.state === "success") {
+      this.setState(s => {
+        s.siteRes.admin_oauth_providers = [
+          ...(s.siteRes.admin_oauth_providers ?? []),
+          res.data,
+        ];
+      });
+      toast(I18NextService.i18n.t("site_saved"));
+    } else {
+      toast(I18NextService.i18n.t("couldnt_create_oauth_provider"), "danger");
+    }
+
+    this.setState({ loading: false });
   }
 }

@@ -4,10 +4,11 @@ import type { Modal } from "bootstrap";
 import { Spinner } from "../icon";
 import { LoadingEllipses } from "../loading-ellipses";
 import { modalMixin } from "../../mixins/modal-mixin";
+import { MouseEventHandler } from "inferno";
 
 interface ConfirmationModalProps {
   onYes: () => Promise<void>;
-  onNo: () => void;
+  onNo: MouseEventHandler<HTMLButtonElement>;
   message: string;
   loadingMessage: string;
   show: boolean;
