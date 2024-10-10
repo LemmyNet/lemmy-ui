@@ -16,9 +16,9 @@ type TextInfoFieldProps = {
 
 function TextInfoField({ i18nKey, data }: TextInfoFieldProps) {
   return (
-    <div className="col">
+    <div className="col overflow-auto">
       <dt>{I18NextService.i18n.t(i18nKey)}</dt>
-      <dd>{data}</dd>
+      <dd className="text-truncate">{data}</dd>
     </div>
   );
 }
