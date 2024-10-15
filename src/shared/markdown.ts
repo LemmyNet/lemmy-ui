@@ -14,7 +14,7 @@ import markdown_it_ruby from "markdown-it-ruby";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import markdown_it_highlightjs from "markdown-it-highlightjs/core";
-import markdown_it_mermaid from "@wekanteam/markdown-it-mermaid";
+import markdown_it_mermaid from "@agoose77/markdown-it-mermaid";
 import { Renderer, Token } from "markdown-it";
 import { instanceLinkRegex, relTags } from "./config";
 import { lazyHighlightjs } from "./lazy-highlightjs";
