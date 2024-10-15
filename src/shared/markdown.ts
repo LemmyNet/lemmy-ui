@@ -14,6 +14,7 @@ import markdown_it_ruby from "markdown-it-ruby";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import markdown_it_highlightjs from "markdown-it-highlightjs/core";
+import markdown_it_mermaid from "@wekanteam/markdown-it-mermaid";
 import { Renderer, Token } from "markdown-it";
 import { instanceLinkRegex, relTags } from "./config";
 import { lazyHighlightjs } from "./lazy-highlightjs";
@@ -176,6 +177,7 @@ export function setupMarkdown() {
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
     .use(markdown_it_highlightjs, highlightjsConfig)
+    .use(markdown_it_mermaid)
     .use(markdown_it_ruby)
     .use(localInstanceLinkParser)
     .use(markdown_it_bidi);
@@ -190,6 +192,7 @@ export function setupMarkdown() {
     .use(markdown_it_html5_embed, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
     .use(markdown_it_highlightjs, highlightjsConfig)
+    .use(markdown_it_mermaid)
     .use(localInstanceLinkParser)
     .use(markdown_it_bidi)
     // .use(markdown_it_emoji, {
