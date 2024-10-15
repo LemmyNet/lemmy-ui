@@ -1,4 +1,10 @@
-import { Component, InfernoNode, RefObject, createRef } from "inferno";
+import {
+  Component,
+  InfernoNode,
+  MouseEventHandler,
+  RefObject,
+  createRef,
+} from "inferno";
 import type { Modal } from "bootstrap";
 import { Spinner } from "../icon";
 import { LoadingEllipses } from "../loading-ellipses";
@@ -8,7 +14,7 @@ interface DisplayModalProps {
   children: InfernoNode;
   loadingMessage?: string;
   title: string;
-  onClose: () => void;
+  onClose: MouseEventHandler<HTMLButtonElement>;
   show: boolean;
   loading?: boolean;
 }
