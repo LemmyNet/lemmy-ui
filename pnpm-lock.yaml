@@ -169,10 +169,10 @@ importers:
         version: 2.13.1
       sass:
         specifier: ^1.77.8
-        version: 1.80.3
+        version: 1.80.4
       sass-loader:
         specifier: ^16.0.1
-        version: 16.0.2(sass@1.80.3)(webpack@5.95.0)
+        version: 16.0.2(sass@1.80.4)(webpack@5.95.0)
       serialize-javascript:
         specifier: ^6.0.2
         version: 6.0.2
@@ -3929,8 +3929,8 @@ packages:
       webpack:
         optional: true
 
-  sass@1.80.3:
-    resolution: {integrity: sha512-ptDWyVmDMVielpz/oWy3YP3nfs7LpJTHIJZboMVs8GEC9eUmtZTZhMHlTW98wY4aEorDfjN38+Wr/XjskFWcfA==}
+  sass@1.80.4:
+    resolution: {integrity: sha512-rhMQ2tSF5CsuuspvC94nPM9rToiAFw2h3JTrLlgmNw1MH79v8Cr3DH6KF6o6r+8oofY3iYVPUf66KzC8yuVN1w==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -8384,14 +8384,14 @@ snapshots:
       parse-srcset: 1.0.2
       postcss: 8.4.47
 
-  sass-loader@16.0.2(sass@1.80.3)(webpack@5.95.0):
+  sass-loader@16.0.2(sass@1.80.4)(webpack@5.95.0):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
-      sass: 1.80.3
+      sass: 1.80.4
       webpack: 5.95.0(webpack-cli@5.1.4)
 
-  sass@1.80.3:
+  sass@1.80.4:
     dependencies:
       '@parcel/watcher': 2.4.1
       chokidar: 4.0.1
