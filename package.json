@@ -69,7 +69,7 @@
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-highlightjs": "^4.1.0",
     "markdown-it-html5-embed": "^1.0.0",
-    "markdown-it-ruby": "^0.1.1",
+    "markdown-it-ruby": "^1.0.0",
     "markdown-it-sub": "^2.0.0",
     "markdown-it-sup": "^2.0.0",
     "mini-css-extract-plugin": "^2.9.1",
