@@ -154,7 +154,7 @@ importers:
         version: 2.9.1(webpack@5.95.0)
       qreator:
         specifier: ^9.3.0
-        version: 9.6.0(react@18.3.1)
+        version: 9.7.0(react@18.3.1)
       register-service-worker:
         specifier: ^1.7.2
         version: 1.7.2
@@ -3753,8 +3753,8 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  qreator@9.6.0:
-    resolution: {integrity: sha512-wmzGkIiWBV9NFIw8r/Zmw111PQyneV3uqwpw1zPWdX8hiimwoF9maZ8GvcIqk5eo9C3aiiuWN4+0z5SQkwaXCA==}
+  qreator@9.7.0:
+    resolution: {integrity: sha512-yon0h4oNDa0oU62pkd1xisbLc3UZVlV+E2iRRU02KiB/0MR4SvH3v9YpwSa365O0mkjjOdZHPuR5Q9z+bWRjIw==}
     engines: {node: '>=18'}
 
   qs@6.13.0:
@@ -8245,7 +8245,7 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  qreator@9.6.0(react@18.3.1):
+  qreator@9.7.0(react@18.3.1):
     dependencies:
       '@types/react-dom': 18.3.1
       color-string: 1.9.1
