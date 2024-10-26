@@ -141,8 +141,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       markdown-it-ruby:
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^1.0.0
+        version: 1.0.0
       markdown-it-sub:
         specifier: ^2.0.0
         version: 2.0.0
@@ -3168,8 +3168,8 @@ packages:
   markdown-it-html5-embed@1.0.0:
     resolution: {integrity: sha512-SPgugO/1+/9sZcgxoxijoTHSUpCUgFCNe1MSuTmDxDkV6NQrVzMclhRMFgE/rcHO+2rhIg3U7Oy80XA/E8ytpg==}
 
-  markdown-it-ruby@0.1.1:
-    resolution: {integrity: sha512-ct8t/Drt7scv20VdaQtOhpBOC2SDICaW8E/WQS8kY2eUdu0eoDwW8ugXcCy8Vku4Y5CuA5qrewlHpwaFsJxbpQ==}
+  markdown-it-ruby@1.0.0:
+    resolution: {integrity: sha512-vFGLWQpKJNYfvAGQjEUvWaQnIkvP3jm5hnzO8SCuyro0bqsowZNCn9KIKwjUHEh94e4sc43xtlrACTO1EqtsdA==}
 
   markdown-it-sub@2.0.0:
     resolution: {integrity: sha512-iCBKgwCkfQBRg2vApy9vx1C1Tu6D8XYo8NvevI3OlwzBRmiMtsJ2sXupBgEA7PPxiDwNni3qIUkhZ6j5wofDUA==}
@@ -7845,7 +7845,7 @@ snapshots:
       markdown-it: 8.4.2
       mimoza: 1.0.0
 
-  markdown-it-ruby@0.1.1: {}
+  markdown-it-ruby@1.0.0: {}
 
   markdown-it-sub@2.0.0: {}
 
