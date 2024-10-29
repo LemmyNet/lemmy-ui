@@ -11,7 +11,7 @@ import {
   LoginResponse,
   SiteView,
 } from "lemmy-js-client";
-import { joinLemmyUrl } from "../../config";
+import { joinLemmyUrl, validActorRegexPattern } from "../../config";
 import { mdToHtml } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import {
@@ -189,7 +189,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               onInput={linkEvent(this, this.handleRegisterUsernameChange)}
               required
               minLength={3}
-              pattern="[a-zA-Z0-9_]+"
+              pattern={validActorRegexPattern}
               title={I18NextService.i18n.t("community_reqs")}
             />
           </div>
