@@ -1,4 +1,4 @@
-FROM node:20-alpine as builder
+FROM node:22-alpine as builder
 RUN apk update && apk add curl python3 build-base gcc wget git --no-cache
 RUN corepack enable pnpm
 
@@ -30,7 +30,7 @@ RUN echo "export const BUILD_DATE_ISO8601 = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';"
 RUN pnpm i --prefer-offline
 RUN pnpm build:dev
 
-FROM node:20-alpine as runner
+FROM node:22-alpine as runner
 COPY --from=builder /usr/src/app/dist /app/dist
 COPY --from=builder /usr/src/app/node_modules /app/node_modules
 
