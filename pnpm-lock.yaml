@@ -151,7 +151,7 @@ importers:
         version: 2.0.0
       mini-css-extract-plugin:
         specifier: ^2.9.1
-        version: 2.9.1(webpack@5.95.0)
+        version: 2.9.2(webpack@5.95.0)
       qreator:
         specifier: ^9.3.0
         version: 9.7.0(react@18.3.1)
@@ -2335,8 +2335,8 @@ packages:
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
-  fast-uri@3.0.2:
-    resolution: {integrity: sha512-GR6f0hD7XXyNJa25Tb9BuIdN0tdr+0BMi6/CJPH3wJO1JjNG3n/VsSw38AwRdKZABm8lGbPfakLRkYzx2V9row==}
+  fast-uri@3.0.3:
+    resolution: {integrity: sha512-aLrHthzCjH5He4Z2H9YZ+v6Ujb9ocRuW6ZzkJQOrTxleEijANq4v1TsaPaVG1PZcuurEzrLcWRyYBYXD5cEiaw==}
 
   fastest-levenshtein@1.0.16:
     resolution: {integrity: sha512-eRnCtTTtGZFpQCwhJiUOuxPQWRXVKYDn0b2PeHfXL6/Zi53SLAzAHfVhVWK2AryC/WH05kGfxhFIPvTF0SXQzg==}
@@ -3245,8 +3245,8 @@ packages:
   mimoza@1.0.0:
     resolution: {integrity: sha512-+j7SSye/hablu66K/jjeyPmk6WL8RoXfeZ+MMn37vSNDGuaWY/5wm10LpSpxAHX4kNoEwkTWYHba8ePVip+Hqg==}
 
-  mini-css-extract-plugin@2.9.1:
-    resolution: {integrity: sha512-+Vyi+GCCOHnrJ2VPS+6aPoXN2k2jgUzDRhTFLjjTBn23qyXJXkjUWQgTL+mXpF5/A8ixLdCc6kWsoeOjKGejKQ==}
+  mini-css-extract-plugin@2.9.2:
+    resolution: {integrity: sha512-GJuACcS//jtq4kCtd5ii/M0SZf7OZRH+BxdqXZHaJfb8TJiVl+NgQRPwiYt2EuqeSkNydn/7vP+bcE27C5mb9w==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
@@ -6139,7 +6139,7 @@ snapshots:
   ajv@8.17.1:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.0.2
+      fast-uri: 3.0.3
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -7010,7 +7010,7 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fast-uri@3.0.2: {}
+  fast-uri@3.0.3: {}
 
   fastest-levenshtein@1.0.16: {}
 
@@ -7912,7 +7912,7 @@ snapshots:
     dependencies:
       mime-db: 1.53.0
 
-  mini-css-extract-plugin@2.9.1(webpack@5.95.0):
+  mini-css-extract-plugin@2.9.2(webpack@5.95.0):
     dependencies:
       schema-utils: 4.2.0
       tapable: 2.2.1
