@@ -1058,10 +1058,11 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       limit: fetchLimit,
       type_: actionType,
       other_person_id: userId,
-      mod_person_id: !this.isoData.site_res.site_view.local_site
-        .hide_modlog_mod_names
-        ? modId
-        : undefined,
+      mod_person_id:
+        this.amAdminOrMod ||
+        !this.isoData.site_res.site_view.local_site.hide_modlog_mod_names
+          ? modId
+          : undefined,
       comment_id: commentId,
       post_id: postId,
     });
