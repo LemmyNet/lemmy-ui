@@ -1058,10 +1058,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       limit: fetchLimit,
       type_: actionType,
       other_person_id: userId,
-      mod_person_id: !this.isoData.site_res.site_view.local_site
-        .hide_modlog_mod_names
-        ? modId
-        : undefined,
+      mod_person_id: modId,
       comment_id: commentId,
       post_id: postId,
     });
@@ -1091,19 +1088,15 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   static async fetchInitialData({
     headers,
-    query: { page, userId, modId: modId_, actionType, commentId, postId },
+    query: { page, userId, modId, actionType, commentId, postId },
     match: {
       params: { communityId: urlCommunityId },
     },
-    site,
   }: InitialFetchRequest<ModlogPathProps, ModlogProps>): Promise<ModlogData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     const communityId = getIdFromString(urlCommunityId);
-    const modId = !site.site_view.local_site.hide_modlog_mod_names
-      ? modId_
-      : undefined;
 
     const modlogForm: GetModlog = {
       page,
