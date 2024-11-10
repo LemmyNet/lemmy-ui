@@ -460,12 +460,29 @@ export class MarkdownTextArea extends Component<
     if (res.state === "success") {
       if (res.data.msg === "ok") {
         const imageMarkdown = `![](${res.data.url})`;
-        i.setState(({ content }) => ({
-          content: content ? `${content}\n${imageMarkdown}` : imageMarkdown,
-        }));
+        const textarea: HTMLTextAreaElement = document.getElementById(
+          i.id,
+        ) as HTMLTextAreaElement;
+        const cursorPosition = textarea.selectionStart;
+
+        i.setState(({ content }) => {
+          const currentContent = content || "";
+          return {
+            content:
+              currentContent.slice(0, cursorPosition) +
+              imageMarkdown +
+              currentContent.slice(cursorPosition),
+          };
+        });
+
         i.contentChange();
-        const textarea: any = document.getElementById(i.id);
-        autosize.update(textarea);
+        // Update cursor position to after the inserted image link
+        setTimeout(() => {
+          textarea.selectionStart = cursorPosition + imageMarkdown.length;
+          textarea.selectionEnd = cursorPosition + imageMarkdown.length;
+          autosize.update(textarea);
+        }, 10);
+
         pictrsDeleteToast(image.name, res.data.delete_url as string);
       } else if (res.data.msg === "too_large") {
         toast(I18NextService.i18n.t("upload_too_large"), "danger");
