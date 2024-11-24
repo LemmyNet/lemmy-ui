@@ -25,6 +25,10 @@ import { UnreadCounterService } from "../../services";
 import { RouteData } from "../../interfaces";
 import { IRoutePropsWithFetch } from "../../routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import {
+  generateCodeVerifier,
+  createCodeChallenge,
+} from "@utils/helpers/oauth";
 
 interface LoginProps {
   prev?: string;
@@ -126,16 +130,32 @@ export async function handleUseOAuthProvider(params: {
   const redirectUri = `${window.location.origin}/oauth/callback`;
 
   const state = crypto.randomUUID();
+
+  let codeVerifier: string | undefined;
+  if (params.oauth_provider.use_pkce) {
+    codeVerifier = generateCodeVerifier();
+  }
+  let codeChallenge: string | undefined;
+  if (codeVerifier) {
+    codeChallenge = await createCodeChallenge(codeVerifier);
+  }
+
+  const queryPairs = [
+    `client_id=${encodeURIComponent(params.oauth_provider.client_id)}`,
+    `response_type=code`,
+    `scope=${encodeURIComponent(params.oauth_provider.scopes)}`,
+    `redirect_uri=${encodeURIComponent(redirectUri)}`,
+    `state=${state}`,
+    ...(codeChallenge
+      ? [
+          `code_challenge=${encodeURIComponent(codeChallenge)}`,
+          "code_challenge_method=S256",
+        ]
+      : []),
+  ];
+
   const requestUri =
-    params.oauth_provider.authorization_endpoint +
-    "?" +
-    [
-      `client_id=${encodeURIComponent(params.oauth_provider.client_id)}`,
-      `response_type=code`,
-      `scope=${encodeURIComponent(params.oauth_provider.scopes)}`,
-      `redirect_uri=${encodeURIComponent(redirectUri)}`,
-      `state=${state}`,
-    ].join("&");
+    params.oauth_provider.authorization_endpoint + "?" + queryPairs.join("&");
 
   // store state in local storage
   localStorage.setItem(
@@ -149,6 +169,7 @@ export async function handleUseOAuthProvider(params: {
       answer: params.answer,
       show_nsfw: params.show_nsfw,
       expires_at: Date.now() + 5 * 60_000,
+      ...(codeVerifier ? { pkce_code_verifier: codeVerifier } : {}),
     }),
   );
 

@@ -36,6 +36,7 @@ const PRESET_OAUTH_PROVIDERS: ProviderToEdit[] = [
     scopes: "openid email",
     auto_verify_email: true,
     account_linking_enabled: true,
+    use_pkce: true,
     enabled: true,
   },
   // additional preset providers can be added here
