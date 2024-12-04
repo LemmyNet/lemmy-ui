@@ -2,14 +2,14 @@ variables:
   - &install_pnpm "corepack enable pnpm"
 
 steps:
-  fetch_git_submodules:
-    image: alpine:3
-    commands:
-      - apk add git
-      - git submodule init
-      - git submodule update --recursive --remote
-    when:
-      - event: [pull_request, tag]
+  # fetch_git_submodules:
+  #   image: alpine:3
+  #   commands:
+  #     - apk add git
+  #     - git submodule init
+  #     - git submodule update --recursive --remote
+  #   when:
+  #     - event: [pull_request, tag]
 
   install:
     image: node:20-alpine
