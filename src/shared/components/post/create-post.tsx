@@ -203,6 +203,9 @@ export class CreatePost extends Component<
           title: locationState.name,
           url: locationState.url,
           body: locationState.body,
+          altText: locationState.altText,
+          nsfw: locationState.nsfw,
+          languageId: locationState.languageId,
         });
         this.setState(s => ({ resetCounter: s.resetCounter + 1 }));
       }
@@ -234,6 +237,7 @@ export class CreatePost extends Component<
       title,
       nsfw,
       url,
+      altText,
     } = this.props;
 
     const params: PostFormParams = {
@@ -244,6 +248,7 @@ export class CreatePost extends Component<
       custom_thumbnail: customThumbnailUrl,
       language_id: languageId,
       nsfw: nsfw === "true",
+      alt_text: altText,
     };
 
     return (
@@ -278,6 +283,7 @@ export class CreatePost extends Component<
               onUrlBlur={this.handleUrlBlur}
               onThumbnailUrlBlur={this.handleThumbnailUrlBlur}
               onNsfwChange={this.handleNsfwChange}
+              onAltTextBlur={this.handleAltTextBlur}
               onCopySuggestedTitle={this.handleCopySuggestedTitle}
             />
           </div>

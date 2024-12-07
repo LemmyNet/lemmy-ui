@@ -16,7 +16,7 @@ import {
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
-  SortType,
+  PostSortType,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -55,7 +55,7 @@ interface CommunitiesState {
 
 interface CommunitiesProps {
   listingType: ListingType;
-  sort: SortType;
+  sort: PostSortType;
   page: number;
 }
 
@@ -63,8 +63,8 @@ function getListingTypeFromQuery(listingType?: string): ListingType {
   return listingType ? (listingType as ListingType) : "Local";
 }
 
-function getSortTypeFromQuery(type?: string): SortType {
-  return type ? (type as SortType) : "TopMonth";
+function getSortTypeFromQuery(type?: string): PostSortType {
+  return type ? (type as PostSortType) : "TopMonth";
 }
 
 export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
@@ -302,7 +302,7 @@ export class Communities extends Component<
     this.updateUrl({ page });
   }
 
-  handleSortChange(val: SortType) {
+  handleSortChange(val: PostSortType) {
     this.updateUrl({ sort: val, page: 1 });
   }
 

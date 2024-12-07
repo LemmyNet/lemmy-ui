@@ -18,6 +18,7 @@ import {
   dedupByProperty,
   getIdFromString,
   getPageFromString,
+  getBoolFromString,
   getQueryParams,
   getQueryString,
   numToSI,
@@ -45,7 +46,7 @@ import {
   Search as SearchForm,
   SearchResponse,
   SearchType,
-  SortType,
+  PostSortType,
 } from "lemmy-js-client";
 import { fetchLimit } from "../config";
 import { CommentViewType, InitialFetchRequest } from "../interfaces";
@@ -75,8 +76,9 @@ import { isBrowser } from "@utils/browser";
 interface SearchProps {
   q?: string;
   type: SearchType;
-  sort: SortType;
+  sort: PostSortType;
   listingType: ListingType;
+  titleOnly?: boolean;
   communityId?: number;
   creatorId?: number;
   page: number;
@@ -122,6 +124,7 @@ export function getSearchQueryParams(source?: string): SearchProps {
       type: getSearchTypeFromQuery,
       sort: getSortTypeFromQuery,
       listingType: getListingTypeFromQuery,
+      titleOnly: getBoolFromString,
       communityId: getIdFromString,
       creatorId: getIdFromString,
       page: getPageFromString,
@@ -136,8 +139,8 @@ function getSearchTypeFromQuery(type_?: string): SearchType {
   return type_ ? (type_ as SearchType) : defaultSearchType;
 }
 
-function getSortTypeFromQuery(sort?: string): SortType {
-  return sort ? (sort as SortType) : defaultSortType;
+function getSortTypeFromQuery(sort?: string): PostSortType {
+  return sort ? (sort as PostSortType) : defaultSortType;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
@@ -283,6 +286,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.handleCommunityFilterChange =
       this.handleCommunityFilterChange.bind(this);
     this.handleCreatorFilterChange = this.handleCreatorFilterChange.bind(this);
+    this.handleTitleOnlyChange = this.handleTitleOnlyChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -469,6 +473,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       type: searchType,
       sort,
       listingType: listing_type,
+      titleOnly: title_only,
       communityId: community_id,
       creatorId: creator_id,
       page,
@@ -514,6 +519,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         type_: searchType,
         sort,
         listing_type,
+        title_only,
         page,
         limit: fetchLimit,
       };
@@ -589,7 +595,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       case "Comments":
         return this.comments;
       case "Posts":
-      case "Url":
         return this.posts;
       case "Communities":
         return this.communities;
@@ -635,7 +640,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   get selects() {
-    const { type, listingType, sort, communityId, creatorId } = this.props;
+    const { type, listingType, titleOnly, sort, communityId, creatorId } =
+      this.props;
     const {
       communitySearchOptions,
       creatorSearchOptions,
@@ -673,6 +679,20 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               onChange={this.handleListingTypeChange}
             />
           </div>
+          {(type === "All" || type === "Posts") && (
+            <div className="col">
+              <input
+                className="btn-check"
+                id="title-only"
+                type="checkbox"
+                checked={titleOnly}
+                onChange={this.handleTitleOnlyChange}
+              />
+              <label className="btn btn-outline-secondary" htmlFor="title-only">
+                {I18NextService.i18n.t("post_title_only")}
+              </label>
+            </div>
+          )}
           <div className="col">
             <SortSelect
               sort={sort}
@@ -1043,7 +1063,16 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   searchToken?: symbol;
   async search(props: SearchRouteProps) {
     const token = (this.searchToken = Symbol());
-    const { q, communityId, creatorId, type, sort, listingType, page } = props;
+    const {
+      q,
+      communityId,
+      creatorId,
+      type,
+      sort,
+      listingType,
+      titleOnly,
+      page,
+    } = props;
 
     if (q) {
       this.setState({ searchRes: LOADING_REQUEST });
@@ -1054,6 +1083,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         type_: type,
         sort,
         listing_type: listingType,
+        title_only: titleOnly,
         page,
         limit: fetchLimit,
       });
@@ -1118,8 +1148,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     return this.searchInput.current?.value ?? this.props.q;
   }
 
-  handleSortChange(sort: SortType) {
+  handleSortChange(sort: PostSortType) {
     this.updateUrl({ sort, page: 1, q: this.getQ() });
+  }
+
+  handleTitleOnlyChange(event: any) {
+    const titleOnly = event.target.checked;
+    this.updateUrl({ titleOnly, q: this.getQ() });
   }
 
   handleTypeChange(i: Search, event: any) {
@@ -1170,7 +1205,16 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   async updateUrl(props: Partial<SearchProps>) {
-    const { q, type, listingType, sort, communityId, creatorId, page } = {
+    const {
+      q,
+      type,
+      listingType,
+      titleOnly,
+      sort,
+      communityId,
+      creatorId,
+      page,
+    } = {
       ...this.props,
       ...props,
     };
@@ -1179,6 +1223,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       q,
       type: type,
       listingType: listingType,
+      titleOnly: titleOnly?.toString(),
       communityId: communityId?.toString(),
       creatorId: creatorId?.toString(),
       page: page?.toString(),

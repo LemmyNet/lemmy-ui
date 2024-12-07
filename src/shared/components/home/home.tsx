@@ -1,5 +1,6 @@
 import {
   commentsToFlatNodes,
+  commentToPostSortType,
   editComment,
   editPost,
   editWith,
@@ -16,12 +17,9 @@ import {
 import {
   getQueryParams,
   getQueryString,
-  getRandomFromList,
   resourcesSettled,
-  bareRoutePush,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { canCreateCommunity } from "@utils/roles";
 import type { QueryParams, StringBoolean } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
@@ -56,8 +54,6 @@ import {
   GetSiteResponse,
   HidePost,
   LemmyHttp,
-  ListCommunities,
-  ListCommunitiesResponse,
   ListingType,
   LockPost,
   MarkCommentReplyAsRead,
@@ -71,11 +67,12 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
-  SortType,
+  PostSortType,
   SuccessResponse,
   TransferCommunity,
+  CommentSortType,
 } from "lemmy-js-client";
-import { fetchLimit, relTags, trendingFetchLimit } from "../../config";
+import { fetchLimit, relTags } from "../../config";
 import {
   CommentViewType,
   DataType,
@@ -106,19 +103,17 @@ import { getHttpBaseInternal } from "../../utils/env";
 import {
   CommentsLoadingSkeleton,
   PostsLoadingSkeleton,
-  TrendingCommunitiesLoadingSkeleton,
 } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser, snapToTop } from "@utils/browser";
+import { CommentSortSelect } from "../common/comment-sort-select";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
   commentsRes: RequestState<GetCommentsResponse>;
-  trendingCommunitiesRes: RequestState<ListCommunitiesResponse>;
   showSubscribedMobile: boolean;
-  showTrendingMobile: boolean;
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
   tagline?: string;
@@ -129,7 +124,7 @@ interface HomeState {
 interface HomeProps {
   listingType?: ListingType;
   dataType: DataType;
-  sort: SortType;
+  sort: PostSortType;
   pageCursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
@@ -137,10 +132,9 @@ interface HomeProps {
 type HomeData = RouteDataResponse<{
   postsRes: GetPostsResponse;
   commentsRes: GetCommentsResponse;
-  trendingCommunitiesRes: ListCommunitiesResponse;
 }>;
 
-function getRss(listingType: ListingType, sort: SortType) {
+function getRss(listingType: ListingType, sort: PostSortType) {
   let rss: string | undefined = undefined;
 
   const queryString = getQueryString({ sort });
@@ -185,13 +179,13 @@ function getListingTypeFromQuery(
 
 function getSortTypeFromQuery(
   type: string | undefined,
-  fallback: SortType,
-): SortType {
-  return type ? (type as SortType) : fallback;
+  fallback: PostSortType,
+): PostSortType {
+  return type ? (type as PostSortType) : fallback;
 }
 
 type Fallbacks = {
-  sort: SortType;
+  sort: PostSortType;
   listingType: ListingType;
 };
 
@@ -212,7 +206,8 @@ export function getHomeQueryParams(
     },
     source,
     {
-      sort: local_user?.default_sort_type ?? local_site.default_sort_type,
+      sort:
+        local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
       listingType:
         local_user?.default_listing_type ??
         local_site.default_post_listing_type,
@@ -238,18 +233,6 @@ const MobileButton = ({
   </button>
 );
 
-const LinkButton = ({
-  path,
-  translationKey,
-}: {
-  path: string;
-  translationKey: NoOptionI18nKeys;
-}) => (
-  <Link className="btn btn-secondary d-block" to={path}>
-    {I18NextService.i18n.t(translationKey)}
-  </Link>
-);
-
 type HomePathProps = Record<string, never>;
 type HomeRouteProps = RouteComponentProps<HomePathProps> & HomeProps;
 export type HomeFetchConfig = IRoutePropsWithFetch<
@@ -265,10 +248,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   state: HomeState = {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
-    trendingCommunitiesRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     showSubscribedMobile: false,
-    showTrendingMobile: false,
     showSidebarMobile: false,
     subscribedCollapsed: false,
     isIsomorphic: false,
@@ -276,7 +257,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   loadingSettled(): boolean {
     return resourcesSettled([
-      this.state.trendingCommunitiesRes,
       this.props.dataType === DataType.Post
         ? this.state.postsRes
         : this.state.commentsRes,
@@ -287,6 +267,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     super(props, context);
 
     this.handleSortChange = this.handleSortChange.bind(this);
+    this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
@@ -324,21 +305,17 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const { trendingCommunitiesRes, commentsRes, postsRes } =
-        this.isoData.routeData;
+      const { commentsRes, postsRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
-        trendingCommunitiesRes,
         commentsRes,
         postsRes,
         isIsomorphic: true,
       };
     }
 
-    this.state.tagline = getRandomFromList(
-      this.state?.siteRes?.taglines ?? [],
-    )?.content;
+    this.state.tagline = this.state?.siteRes?.tagline?.content;
   }
 
   async componentWillMount() {
@@ -349,10 +326,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         )) &&
       isBrowser()
     ) {
-      await Promise.all([
-        this.fetchTrendingCommunities(),
-        this.fetchData(this.props),
-      ]);
+      await this.fetchData(this.props);
     }
   }
 
@@ -360,10 +334,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     nextProps: HomeRouteProps & { children?: InfernoNode },
   ) {
     this.fetchData(nextProps);
-
-    if (bareRoutePush(this.props, nextProps)) {
-      this.fetchTrendingCommunities();
-    }
   }
 
   static async fetchInitialData({
@@ -401,24 +371,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       commentsFetch = client.getComments(getCommentsForm);
     }
 
-    const trendingCommunitiesForm: ListCommunities = {
-      type_: "Local",
-      sort: "Hot",
-      limit: trendingFetchLimit,
-    };
-
-    const trendingCommunitiesFetch = client.listCommunities(
-      trendingCommunitiesForm,
-    );
-
-    const [postsRes, commentsRes, trendingCommunitiesRes] = await Promise.all([
+    const [postsRes, commentsRes] = await Promise.all([
       postsFetch,
       commentsFetch,
-      trendingCommunitiesFetch,
     ]);
 
     return {
-      trendingCommunitiesRes,
       commentsRes,
       postsRes,
     };
@@ -481,7 +439,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         admins,
       },
       showSubscribedMobile,
-      showTrendingMobile,
       showSidebarMobile,
     } = this.state;
 
@@ -496,11 +453,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             />
           )}
           <MobileButton
-            textKey="trending"
-            show={showTrendingMobile}
-            onClick={linkEvent(this, this.handleShowTrendingMobile)}
-          />
-          <MobileButton
             textKey="sidebar"
             show={showSidebarMobile}
             onClick={linkEvent(this, this.handleShowSidebarMobile)}
@@ -513,11 +465,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showLocal={showLocal(this.isoData)}
               isMobile={true}
             />
-          )}
-          {showTrendingMobile && (
-            <div className="card border-secondary mb-3">
-              {this.trendingCommunities()}
-            </div>
           )}
           {showSubscribedMobile && (
             <div className="card border-secondary mb-3">
@@ -539,9 +486,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     return (
       <div id="sidebarContainer">
-        <section id="sidebarMain" className="card border-secondary mb-3">
-          {this.trendingCommunities()}
-        </section>
         <SiteSidebar
           site={site}
           admins={admins}
@@ -560,51 +504,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         )}
       </div>
     );
-  }
-
-  trendingCommunities() {
-    switch (this.state.trendingCommunitiesRes?.state) {
-      case "loading":
-        return <TrendingCommunitiesLoadingSkeleton itemCount={5} />;
-      case "success": {
-        const trending = this.state.trendingCommunitiesRes.data.communities;
-        return (
-          <>
-            <header className="card-header d-flex align-items-center">
-              <h5 className="mb-0">
-                <T i18nKey="trending_communities">
-                  #
-                  <Link className="text-body" to="/communities">
-                    #
-                  </Link>
-                </T>
-              </h5>
-            </header>
-            <div className="card-body">
-              {trending.length > 0 && (
-                <ul className="list-inline">
-                  {trending.map(cv => (
-                    <li key={cv.community.id} className="list-inline-item">
-                      <CommunityLink community={cv.community} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {canCreateCommunity(this.state.siteRes) && (
-                <LinkButton
-                  path="/create_community"
-                  translationKey="create_a_community"
-                />
-              )}
-              <LinkButton
-                path="/communities"
-                translationKey="explore_communities"
-              />
-            </div>
-          </>
-        );
-      }
-    }
   }
 
   subscribedCommunities(isMobile = false) {
@@ -829,7 +728,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           />
         </div>
         <div className="col-auto">
-          <SortSelect sort={sort} onChange={this.handleSortChange} />
+          {this.props.dataType === DataType.Post ? (
+            <SortSelect sort={sort} onChange={this.handleSortChange} />
+          ) : (
+            <CommentSortSelect
+              sort={postToCommentSortType(sort)}
+              onChange={this.handleCommentSortChange}
+            />
+          )}
         </div>
         <div className="col-auto ps-0">
           {getRss(
@@ -840,17 +746,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         </div>
       </div>
     );
-  }
-
-  async fetchTrendingCommunities() {
-    this.setState({ trendingCommunitiesRes: LOADING_REQUEST });
-    this.setState({
-      trendingCommunitiesRes: await HttpService.client.listCommunities({
-        type_: "Local",
-        sort: "Hot",
-        limit: trendingFetchLimit,
-      }),
-    });
   }
 
   fetchDataToken?: symbol;
@@ -893,10 +788,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     i.setState({ showSubscribedMobile: !i.state.showSubscribedMobile });
   }
 
-  handleShowTrendingMobile(i: Home) {
-    i.setState({ showTrendingMobile: !i.state.showTrendingMobile });
-  }
-
   handleShowSidebarMobile(i: Home) {
     i.setState({ showSidebarMobile: !i.state.showSidebarMobile });
   }
@@ -917,8 +808,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.updateUrl({ pageCursor: nextPage });
   }
 
-  handleSortChange(val: SortType) {
+  handleSortChange(val: PostSortType) {
     this.updateUrl({ sort: val, pageCursor: undefined });
+  }
+
+  handleCommentSortChange(val: CommentSortType) {
+    this.updateUrl({ sort: commentToPostSortType(val), pageCursor: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {

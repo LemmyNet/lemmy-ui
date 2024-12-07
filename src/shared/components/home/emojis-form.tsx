@@ -1,79 +1,81 @@
-import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
-import {
-  CreateCustomEmoji,
-  DeleteCustomEmoji,
-  EditCustomEmoji,
-  GetSiteResponse,
-} from "lemmy-js-client";
-import { customEmojisLookup } from "../../markdown";
+import { CustomEmojiView } from "lemmy-js-client";
+import { emojiMartCategories, EmojiMartCategory } from "../../markdown";
 import { HttpService, I18NextService } from "../../services";
 import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiMart } from "../common/emoji-mart";
 import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import { isBrowser } from "@utils/browser";
+import classNames from "classnames";
+import { amAdmin } from "@utils/roles";
+import { Prompt } from "inferno-router";
 
-interface EmojiFormProps {
-  onEdit(form: EditCustomEmoji): void;
-  onCreate(form: CreateCustomEmoji): void;
-  onDelete(form: DeleteCustomEmoji): void;
+interface EditableEmoji {
+  change?: "update" | "delete" | "create";
+  emoji: CustomEmojiView;
+  loading?: boolean;
+}
+
+function markForUpdate(editable: EditableEmoji) {
+  if (editable.change !== "create") {
+    editable.change = "update";
+  }
 }
 
 interface EmojiFormState {
-  siteRes: GetSiteResponse;
-  customEmojis: CustomEmojiViewForm[];
-  page: number;
-}
-
-interface CustomEmojiViewForm {
-  id: number;
-  category: string;
-  shortcode: string;
-  image_url: string;
-  alt_text: string;
-  keywords: string;
-  changed: boolean;
+  emojis: EditableEmoji[]; // Emojis for the current page
+  allEmojis: CustomEmojiView[]; // All emojis for emoji lookup across pages
+  emojiMartCustom: EmojiMartCategory[];
+  emojiMartKey: number;
   page: number;
   loading: boolean;
 }
 
 @tippyMixin
-export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
-  private isoData = setIsoData(this.context);
+export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
   private itemsPerPage = 15;
-  private emptyState: EmojiFormState = {
-    siteRes: this.isoData.site_res,
-    customEmojis: this.isoData.site_res.custom_emojis.map((x, index) => ({
-      id: x.custom_emoji.id,
-      category: x.custom_emoji.category,
-      shortcode: x.custom_emoji.shortcode,
-      image_url: x.custom_emoji.image_url,
-      alt_text: x.custom_emoji.alt_text,
-      keywords: x.keywords.map(x => x.keyword).join(" "),
-      changed: false,
-      page: 1 + Math.floor(index / this.itemsPerPage),
-      loading: false,
-    })),
+  private needsRefetch = true;
+  state: EmojiFormState = {
+    emojis: [],
+    allEmojis: [],
+    emojiMartCustom: [],
+    emojiMartKey: 1,
+    loading: false,
     page: 1,
   };
-  state: EmojiFormState;
   private scrollRef: any = {};
   constructor(props: any, context: any) {
     super(props, context);
-    this.state = this.emptyState;
 
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleEmojiClick = this.handleEmojiClick.bind(this);
   }
+
+  async componentWillMount() {
+    if (isBrowser()) {
+      this.handlePageChange(1);
+    }
+  }
+
+  hasPendingChanges() {
+    return this.state.emojis.some(x => x.change);
+  }
+
   render() {
     return (
       <div className="home-emojis-form col-12">
+        <Prompt
+          message={I18NextService.i18n.t("block_leaving")}
+          when={this.hasPendingChanges()}
+        />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("custom_emojis")}</h1>
-        {customEmojisLookup.size > 0 && (
+        {this.state.emojiMartCustom.length > 0 && (
           <div>
             <EmojiMart
+              key={this.state.emojiMartKey}
               onEmojiClick={this.handleEmojiClick}
               pickerOptions={this.configurePicker()}
             ></EmojiMart>
@@ -87,6 +89,10 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
             <thead className="pointer">
               <tr>
                 <th>{I18NextService.i18n.t("column_emoji")}</th>
+                <th
+                  className="text-right"
+                  // Upload button
+                />
                 <th className="text-right">
                   {I18NextService.i18n.t("column_shortcode")}
                 </th>
@@ -102,20 +108,15 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                 <th className="text-right d-lg-table-cell">
                   {I18NextService.i18n.t("column_keywords")}
                 </th>
+                <th></th>
                 <th style="width:121px"></th>
               </tr>
             </thead>
             <tbody>
-              {this.state.customEmojis
-                .slice(
-                  Number((this.state.page - 1) * this.itemsPerPage),
-                  Number(
-                    (this.state.page - 1) * this.itemsPerPage +
-                      this.itemsPerPage,
-                  ),
-                )
-                .map((cv, index) => (
-                  <tr key={index} ref={e => (this.scrollRef[cv.shortcode] = e)}>
+              {this.state.emojis.map((editable: EditableEmoji, index) => {
+                const cv = editable.emoji.custom_emoji;
+                return (
+                  <tr key={index}>
                     <td style="text-align:center;">
                       {cv.image_url.length > 0 && (
                         <img
@@ -124,7 +125,9 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                           alt={cv.alt_text}
                         />
                       )}
-                      {cv.image_url.length === 0 && (
+                    </td>
+                    <td>
+                      {
                         <label
                           // TODO: Fix this linting violation
                           // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
@@ -150,7 +153,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                             )}
                           />
                         </label>
-                      )}
+                      }
                     </td>
                     <td className="text-right">
                       <input
@@ -167,6 +170,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                     </td>
                     <td className="text-right">
                       <input
+                        ref={e => (this.scrollRef[cv.shortcode] = e)}
                         type="text"
                         placeholder="Category"
                         className="form-control"
@@ -206,31 +210,54 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                         type="text"
                         placeholder="Keywords"
                         className="form-control"
-                        value={cv.keywords}
+                        value={editable.emoji.keywords
+                          .map(k => k.keyword)
+                          .join(" ")}
                         onInput={linkEvent(
                           { form: this, index: index },
                           this.handleEmojiKeywordChange,
                         )}
                       />
                     </td>
+                    <td
+                      className={classNames("", {
+                        "border-info": editable.change === "update",
+                        "border-danger": editable.change === "delete",
+                        "border-warning": editable.change === "create",
+                      })}
+                    >
+                      {editable.change === "update" && (
+                        <span>
+                          <Icon icon="transfer" />
+                        </span>
+                      )}
+                      {editable.change === "delete" && (
+                        <span>
+                          <Icon icon="trash" />
+                        </span>
+                      )}
+                      {editable.change === "create" && (
+                        <span>
+                          <Icon icon="add" />
+                        </span>
+                      )}
+                    </td>
                     <td>
-                      <div>
-                        <span title={this.getEditTooltip(cv)}>
+                      <div class="row flex-nowrap g-0">
+                        <span class="col" title={this.getEditTooltip(editable)}>
                           <button
-                            className={
-                              (this.canEdit(cv)
-                                ? "text-success "
-                                : "text-muted ") + "btn btn-link btn-animate"
-                            }
+                            className={classNames("btn btn-link btn-animate", {
+                              "text-success": this.canSave(editable),
+                            })}
                             onClick={linkEvent(
-                              { i: this, cv: cv },
-                              this.handleEditEmojiClick,
+                              { i: this, cv: editable },
+                              this.handleSaveEmojiClick,
                             )}
                             data-tippy-content={I18NextService.i18n.t("save")}
                             aria-label={I18NextService.i18n.t("save")}
-                            disabled={!this.canEdit(cv)}
+                            disabled={!this.canSave(editable)}
                           >
-                            {cv.loading ? (
+                            {editable.loading ? (
                               <Spinner />
                             ) : (
                               capitalizeFirstLetter(
@@ -240,14 +267,14 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                           </button>
                         </span>
                         <button
-                          className="btn btn-link btn-animate text-muted"
+                          className="col btn btn-link btn-animate text-muted"
                           onClick={linkEvent(
-                            { i: this, index: index, cv: cv },
+                            { i: this, index: index, cv: editable },
                             this.handleDeleteEmojiClick,
                           )}
                           data-tippy-content={I18NextService.i18n.t("delete")}
                           aria-label={I18NextService.i18n.t("delete")}
-                          disabled={cv.loading}
+                          disabled={editable.loading}
                           title={I18NextService.i18n.t("delete")}
                         >
                           <Icon
@@ -255,10 +282,28 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                             classes="icon-inline text-danger"
                           />
                         </button>
+                        <button
+                          className={classNames(
+                            "col btn btn-link btn-animate",
+                            {
+                              "text-danger": !!editable.change,
+                            },
+                          )}
+                          onClick={linkEvent(
+                            { i: this, cv: editable },
+                            this.handleCancelEmojiClick,
+                          )}
+                          data-tippy-content={I18NextService.i18n.t("cancel")}
+                          aria-label={I18NextService.i18n.t("cancel")}
+                          disabled={!editable.change}
+                        >
+                          {I18NextService.i18n.t("cancel")}
+                        </button>
                       </div>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
             </tbody>
           </table>
           <br />
@@ -273,43 +318,91 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
             page={this.state.page}
             onChange={this.handlePageChange}
             nextDisabled={false}
+            disabled={this.hasPendingChanges()}
           />
         </div>
       </div>
     );
   }
 
-  canEdit(cv: CustomEmojiViewForm) {
-    const noEmptyFields =
-      cv.alt_text.length > 0 &&
-      cv.category.length > 0 &&
-      cv.image_url.length > 0 &&
-      cv.shortcode.length > 0;
-    const noDuplicateShortCodes =
-      this.state.customEmojis.filter(
-        x => x.shortcode === cv.shortcode && x.id !== cv.id,
-      ).length === 0;
-    return noEmptyFields && noDuplicateShortCodes && !cv.loading && cv.changed;
+  canSave(cv: EditableEmoji) {
+    const requiredFields =
+      cv.emoji.custom_emoji.image_url.length > 0 &&
+      cv.emoji.custom_emoji.shortcode.length > 0;
+    return requiredFields && !cv.loading;
   }
 
-  getEditTooltip(cv: CustomEmojiViewForm) {
-    if (this.canEdit(cv)) return I18NextService.i18n.t("save");
+  getEditTooltip(cv: EditableEmoji) {
+    if (this.canSave(cv)) return I18NextService.i18n.t("save");
     else return I18NextService.i18n.t("custom_emoji_save_validation");
   }
 
-  handlePageChange(page: number) {
-    this.setState({ page: page });
+  async handlePageChange(page: number) {
+    this.setState({ loading: true });
+    let allEmojis: CustomEmojiView[] = this.state.allEmojis;
+    let emojiMartCustom: EmojiMartCategory[] = this.state.emojiMartCustom;
+    let emojiMartKey: number = this.state.emojiMartKey;
+    if (this.needsRefetch) {
+      const emojiRes = await HttpService.client.listCustomEmojis({
+        ignore_page_limits: true,
+      });
+      if (emojiRes.state === "success") {
+        this.needsRefetch = false;
+        allEmojis = emojiRes.data.custom_emojis;
+        allEmojis.sort((a, b) => {
+          const categoryOrder = a.custom_emoji.category.localeCompare(
+            b.custom_emoji.category,
+          );
+          if (categoryOrder === 0) {
+            return a.custom_emoji.shortcode.localeCompare(
+              b.custom_emoji.shortcode,
+            );
+          }
+          return categoryOrder;
+        });
+      }
+      emojiMartCustom = emojiMartCategories(allEmojis);
+      emojiMartKey++;
+    }
+    if (allEmojis) {
+      const startIndex = (page - 1) * this.itemsPerPage;
+      const emojis = allEmojis
+        .slice(startIndex, startIndex + this.itemsPerPage)
+        .map(x => ({ emoji: structuredClone(x) })); // clone for restore after cancel
+      this.setState({
+        loading: false,
+        allEmojis,
+        emojiMartCustom,
+        emojiMartKey,
+        emojis,
+        page,
+      });
+    } else {
+      this.setState({ loading: false, page });
+    }
   }
 
-  handleEmojiClick(e: any) {
-    const view = customEmojisLookup.get(e.id);
-    if (view) {
-      const page = this.state.customEmojis.find(
-        x => x.id === view.custom_emoji.id,
-      )?.page;
-      if (page) {
-        this.setState({ page: page });
-        this.scrollRef[view.custom_emoji.shortcode].scrollIntoView();
+  async handleEmojiClick(e: any) {
+    const emojiIndex = this.state.allEmojis.findIndex(
+      x => x.custom_emoji.shortcode === e.id,
+    );
+    if (emojiIndex >= 0) {
+      const { shortcode } = this.state.allEmojis[emojiIndex].custom_emoji;
+      const page = Math.floor(emojiIndex / this.itemsPerPage) + 1;
+      if (page !== this.state.page) {
+        if (
+          this.hasPendingChanges() &&
+          !confirm(I18NextService.i18n.t("block_leaving"))
+        ) {
+          return;
+        }
+        await this.handlePageChange(page);
+        await new Promise(r => setTimeout(r));
+      }
+      if (shortcode) {
+        const categoryInput: HTMLInputElement | undefined =
+          this.scrollRef[shortcode];
+        categoryInput?.focus();
       }
     }
   }
@@ -318,32 +411,22 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     props: { form: EmojiForm; index: number },
     event: any,
   ) {
-    const custom_emojis = [...props.form.state.customEmojis];
-    const pagedIndex =
-      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    const item = {
-      ...props.form.state.customEmojis[pagedIndex],
-      category: event.target.value,
-      changed: true,
-    };
-    custom_emojis[Number(pagedIndex)] = item;
-    props.form.setState({ customEmojis: custom_emojis });
+    const editable: EditableEmoji = props.form.state.emojis[props.index];
+    props.form.setState(() => {
+      markForUpdate(editable);
+      editable.emoji.custom_emoji.category = event.target.value;
+    });
   }
 
   handleEmojiShortCodeChange(
     props: { form: EmojiForm; index: number },
     event: any,
   ) {
-    const custom_emojis = [...props.form.state.customEmojis];
-    const pagedIndex =
-      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    const item = {
-      ...props.form.state.customEmojis[pagedIndex],
-      shortcode: event.target.value,
-      changed: true,
-    };
-    custom_emojis[Number(pagedIndex)] = item;
-    props.form.setState({ customEmojis: custom_emojis });
+    const editable: EditableEmoji = props.form.state.emojis[props.index];
+    props.form.setState(() => {
+      markForUpdate(editable);
+      editable.emoji.custom_emoji.shortcode = event.target.value;
+    });
   }
 
   handleEmojiImageUrlChange(
@@ -354,28 +437,11 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     }: { form: EmojiForm; index: number; overrideValue: string | null },
     event: any,
   ) {
-    form.setState(prevState => {
-      const custom_emojis = [...form.state.customEmojis];
-      const pagedIndex = (form.state.page - 1) * form.itemsPerPage + index;
-      const item = {
-        ...form.state.customEmojis[pagedIndex],
-        image_url: overrideValue ?? event.target.value,
-        changed: true,
-      };
-      custom_emojis[Number(pagedIndex)] = item;
-      return {
-        ...prevState,
-        customEmojis: prevState.customEmojis.map((ce, i) =>
-          i === pagedIndex
-            ? {
-                ...ce,
-                image_url: overrideValue ?? event.target.value,
-                changed: true,
-                loading: false,
-              }
-            : ce,
-        ),
-      };
+    const editable: EditableEmoji = form.state.emojis[index];
+    form.setState(() => {
+      markForUpdate(editable);
+      editable.emoji.custom_emoji.image_url =
+        overrideValue ?? event.target.value;
     });
   }
 
@@ -383,97 +449,117 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     props: { form: EmojiForm; index: number },
     event: any,
   ) {
-    const custom_emojis = [...props.form.state.customEmojis];
-    const pagedIndex =
-      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    const item = {
-      ...props.form.state.customEmojis[pagedIndex],
-      alt_text: event.target.value,
-      changed: true,
-    };
-    custom_emojis[Number(pagedIndex)] = item;
-    props.form.setState({ customEmojis: custom_emojis });
+    const editable: EditableEmoji = props.form.state.emojis[props.index];
+    props.form.setState(() => {
+      markForUpdate(editable);
+      editable.emoji.custom_emoji.alt_text = event.target.value;
+    });
   }
 
   handleEmojiKeywordChange(
     props: { form: EmojiForm; index: number },
     event: any,
   ) {
-    const custom_emojis = [...props.form.state.customEmojis];
-    const pagedIndex =
-      (props.form.state.page - 1) * props.form.itemsPerPage + props.index;
-    const item = {
-      ...props.form.state.customEmojis[pagedIndex],
-      keywords: event.target.value,
-      changed: true,
-    };
-    custom_emojis[Number(pagedIndex)] = item;
-    props.form.setState({ customEmojis: custom_emojis });
+    const editable: EditableEmoji = props.form.state.emojis[props.index];
+    props.form.setState(() => {
+      markForUpdate(editable);
+      editable.emoji.keywords = event.target.value
+        .split(" ")
+        .map((x: string) => ({ id: -1, keyword: x }));
+    });
   }
 
   handleDeleteEmojiClick(d: {
     i: EmojiForm;
     index: number;
-    cv: CustomEmojiViewForm;
+    cv: EditableEmoji;
   }) {
-    const pagedIndex = (d.i.state.page - 1) * d.i.itemsPerPage + d.index;
-    if (d.cv.id !== 0) {
-      d.i.props.onDelete({
-        id: d.cv.id,
-      });
+    if (d.cv.change === "create") {
+      // This drops the entry immediately, other deletes have to be saved.
+      d.i.setState(prev => ({
+        emojis: prev.emojis.filter(x => x !== d.cv),
+      }));
     } else {
-      const custom_emojis = [...d.i.state.customEmojis];
-      custom_emojis.splice(Number(pagedIndex), 1);
-      d.i.setState({ customEmojis: custom_emojis });
-    }
-  }
-
-  handleEditEmojiClick(d: { i: EmojiForm; cv: CustomEmojiViewForm }) {
-    const keywords = d.cv.keywords
-      .split(" ")
-      .filter(x => x.length > 0) as string[];
-    const uniqueKeywords = Array.from(new Set(keywords));
-    if (d.cv.id !== 0) {
-      d.i.props.onEdit({
-        id: d.cv.id,
-        category: d.cv.category,
-        image_url: d.cv.image_url,
-        alt_text: d.cv.alt_text,
-        keywords: uniqueKeywords,
-      });
-    } else {
-      d.i.props.onCreate({
-        category: d.cv.category,
-        shortcode: d.cv.shortcode,
-        image_url: d.cv.image_url,
-        alt_text: d.cv.alt_text,
-        keywords: uniqueKeywords,
+      d.i.setState(() => {
+        d.cv.change = "delete";
       });
     }
   }
 
-  handleAddEmojiClick(form: EmojiForm, event: any) {
+  async handleSaveEmojiClick(d: { i: EmojiForm; cv: EditableEmoji }) {
+    d.i.needsRefetch = true;
+    const editable = d.cv;
+    if (editable.change === "update") {
+      const resp = await HttpService.client.editCustomEmoji({
+        ...editable.emoji.custom_emoji,
+        keywords: editable.emoji.keywords.map(x => x.keyword),
+      });
+      if (resp.state === "success") {
+        d.i.setState(() => {
+          editable.emoji = resp.data.custom_emoji;
+          editable.change = undefined;
+        });
+      }
+    } else if (editable.change === "delete") {
+      const resp = await HttpService.client.deleteCustomEmoji(
+        editable.emoji.custom_emoji,
+      );
+      if (resp.state === "success") {
+        d.i.setState(prev => ({
+          emojis: prev.emojis.filter(x => x !== editable),
+        }));
+      }
+    } else if (editable.change === "create") {
+      const resp = await HttpService.client.createCustomEmoji({
+        ...editable.emoji.custom_emoji,
+        keywords: editable.emoji.keywords.map(x => x.keyword),
+      });
+      if (resp.state === "success") {
+        d.i.setState(() => {
+          editable.emoji = resp.data.custom_emoji;
+          editable.change = undefined;
+        });
+      }
+    }
+  }
+
+  async handleCancelEmojiClick(d: { i: EmojiForm; cv: EditableEmoji }) {
+    if (d.cv.change === "create") {
+      d.i.setState(() => {
+        return {
+          emojis: d.i.state.emojis.filter(x => x !== d.cv),
+        };
+      });
+    } else if (d.cv.change === "update" || d.cv.change === "delete") {
+      const original = d.i.state.allEmojis.find(
+        x => x.custom_emoji.id === d.cv.emoji.custom_emoji.id,
+      );
+      if (original) {
+        d.i.setState(() => {
+          d.cv.emoji = structuredClone(original);
+          d.cv.change = undefined;
+        });
+      }
+    }
+  }
+
+  async handleAddEmojiClick(form: EmojiForm, event: any) {
     event.preventDefault();
-    form.setState(prevState => {
-      const page =
-        1 + Math.floor(prevState.customEmojis.length / form.itemsPerPage);
-      const item: CustomEmojiViewForm = {
-        id: 0,
-        shortcode: "",
-        alt_text: "",
-        category: "",
-        image_url: "",
-        keywords: "",
-        changed: false,
-        page: page,
-        loading: false,
-      };
-
-      return {
-        ...prevState,
-        customEmojis: [...prevState.customEmojis, item],
-        page,
-      };
+    form.setState(prev => {
+      prev.emojis.push({
+        emoji: {
+          custom_emoji: {
+            id: -1,
+            published: "",
+            category: "",
+            shortcode: "",
+            image_url: "",
+            alt_text: "",
+          },
+          keywords: [],
+        },
+        change: "create",
+      });
     });
   }
 
@@ -489,14 +575,15 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
       file = event;
     }
 
-    form.setState(prevState => ({
-      ...prevState,
-      customEmojis: prevState.customEmojis.map((cv, i) =>
-        i === index ? { ...cv, loading: true } : cv,
-      ),
-    }));
+    const editable = form.state.emojis[index];
+    form.setState(() => {
+      editable.loading = true;
+    });
 
     HttpService.client.uploadImage({ image: file }).then(res => {
+      form.setState(() => {
+        editable.loading = false;
+      });
       if (res.state === "success") {
         if (res.data.msg === "ok") {
           pictrsDeleteToast(file.name, res.data.delete_url as string);
@@ -517,10 +604,20 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
   }
 
   configurePicker(): any {
+    const custom = this.state.emojiMartCustom;
+    if (process.env["NODE_ENV"] === "development") {
+      // Once an emoji-mart Picker is initialized with these options, other
+      // instances also only show the custom emojis.
+      console.assert(
+        amAdmin(),
+        "EmojiMart doesn't deal well with differently configured instances.",
+      );
+    }
     return {
       data: { categories: [], emojis: [], aliases: [] },
       maxFrequentRows: 0,
       dynamicWidth: true,
+      custom,
     };
   }
 }

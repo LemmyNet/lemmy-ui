@@ -16,6 +16,7 @@ interface PasswordInputProps {
   label?: string | null;
   showForgotLink?: boolean;
   isNew?: boolean;
+  required?: boolean;
 }
 
 interface PasswordInputState {
@@ -77,6 +78,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
         label,
         showForgotLink,
         isNew,
+        required,
       },
       state: { show },
     } = this;
@@ -98,9 +100,11 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 autoComplete={isNew ? "new-password" : "current-password"}
                 onInput={onInput}
                 value={value}
-                required
-                pattern=".{10,60}"
+                required={required !== false}
+                pattern=".+"
                 title={I18NextService.i18n.t("invalid_password")}
+                minLength={isNew ? 10 : undefined}
+                maxLength={isNew ? 60 : undefined}
               />
               <button
                 className="btn btn-outline-dark"

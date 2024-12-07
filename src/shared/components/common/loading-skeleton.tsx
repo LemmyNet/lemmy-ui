@@ -58,40 +58,6 @@ class PostsLoadingSkeletonItem extends Component<any, any> {
   }
 }
 
-export class TrendingCommunitiesLoadingSkeleton extends Component<
-  LoadingSkeletonProps,
-  any
-> {
-  render() {
-    return (
-      <div className="mb-2">
-        {Array.from({ length: this.props.itemCount ?? 10 }, (_, index) => (
-          <TrendingCommunitiesLoadingSkeletonItem key={index} />
-        ))}
-      </div>
-    );
-  }
-}
-
-class TrendingCommunitiesLoadingSkeletonItem extends Component<any, any> {
-  render() {
-    return (
-      <div className="col flex-grow-1 mt-2 ps-2 pe-4">
-        <div className="row">
-          <div className="col flex-grow-0 pe-0">
-            <div className="d-flex placeholder-glow img-icon">
-              <span className="placeholder placeholder-lg w-100 h-100 rounded-circle" />
-            </div>
-          </div>
-          <div className="col flex-grow-1 pe-0">
-            <LoadingSkeletonLine size={12} />
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
-
 export class CommentsLoadingSkeleton extends Component<any, any> {
   render() {
     return Array.from({ length: this.props.itemCount ?? 10 }, (_, index) => (

@@ -1,10 +1,10 @@
 import { Component, LinkedEvent, createRef, linkEvent } from "inferno";
-import { modalMixin } from "../mixins/modal-mixin";
-import { adultConsentCookieKey } from "../../config";
-import { mdToHtml } from "../../markdown";
-import { I18NextService } from "../../services";
+import { modalMixin } from "../../mixins/modal-mixin";
+import { adultConsentCookieKey } from "../../../config";
+import { mdToHtml } from "../../../markdown";
+import { I18NextService } from "../../../services";
 import { isHttps } from "@utils/env";
-import { IsoData } from "../../interfaces";
+import { IsoData } from "../../../interfaces";
 import { setIsoData } from "@utils/app";
 
 interface AdultConsentModalProps {

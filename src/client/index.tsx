@@ -5,6 +5,7 @@ import App from "../shared/components/app/app";
 import { lazyHighlightjs } from "../shared/lazy-highlightjs";
 import { loadUserLanguage } from "../shared/services/I18NextService";
 import { verifyDynamicImports } from "../shared/dynamic-imports";
+import { setupEmojiDataModel } from "../shared/markdown";
 
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
@@ -22,7 +23,7 @@ async function startClient() {
 
   lazyHighlightjs.enableLazyLoading();
 
-  await loadUserLanguage();
+  await Promise.all([loadUserLanguage(), setupEmojiDataModel()]);
 
   const wrapper = (
     <BrowserRouter>

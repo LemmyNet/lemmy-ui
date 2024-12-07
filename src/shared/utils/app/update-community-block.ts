@@ -8,10 +8,7 @@ export default function updateCommunityBlock(
 ) {
   if (myUserInfo) {
     if (data.blocked) {
-      myUserInfo.community_blocks.push({
-        person: myUserInfo.local_user_view.person,
-        community: data.community_view.community,
-      });
+      myUserInfo.community_blocks.push(data.community_view.community);
       toast(
         `${I18NextService.i18n.t("blocked")} ${
           data.community_view.community.name
@@ -19,7 +16,7 @@ export default function updateCommunityBlock(
       );
     } else {
       myUserInfo.community_blocks = myUserInfo.community_blocks.filter(
-        i => i.community.id !== data.community_view.community.id,
+        c => c.id !== data.community_view.community.id,
       );
       toast(
         `${I18NextService.i18n.t("unblocked")} ${

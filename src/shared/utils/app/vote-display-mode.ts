@@ -5,7 +5,6 @@ export default function voteDisplayMode(
 ): LocalUserVoteDisplayMode {
   return (
     siteRes?.my_user?.local_user_view.local_user_vote_display_mode ?? {
-      local_user_id: -1,
       upvotes: true,
       downvotes: true,
       score: false,

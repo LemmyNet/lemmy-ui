@@ -20,7 +20,7 @@ import {
   resourcesSettled,
   bareRoutePush,
 } from "@utils/helpers";
-import { canMod } from "@utils/roles";
+import { amAdmin, canMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -70,9 +70,10 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
-  SortType,
+  PostSortType,
   SuccessResponse,
   TransferCommunity,
+  RegistrationApplicationResponse,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
@@ -100,6 +101,7 @@ import { IRoutePropsWithFetch } from "../../routes";
 import { MediaUploads } from "../common/media-uploads";
 import { cakeDate } from "@utils/helpers";
 import { isBrowser } from "@utils/browser";
+import DisplayModal from "../common/modal/display-modal";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
@@ -112,18 +114,20 @@ interface ProfileState {
   // to render the start of the profile while the new details are loading.
   personDetailsRes: RequestState<GetPersonDetailsResponse>;
   uploadsRes: RequestState<ListMediaResponse>;
+  registrationRes: RequestState<RegistrationApplicationResponse>;
   personBlocked: boolean;
   banReason?: string;
   banExpireDays?: number;
   showBanDialog: boolean;
-  removeData: boolean;
+  removeOrRestoreData: boolean;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
+  showRegistrationDialog: boolean;
 }
 
 interface ProfileProps {
   view: PersonDetailsView;
-  sort: SortType;
+  sort: PostSortType;
   page: number;
 }
 
@@ -138,8 +142,8 @@ export function getProfileQueryParams(source?: string): ProfileProps {
   );
 }
 
-function getSortTypeFromQuery(sort?: string): SortType {
-  return sort ? (sort as SortType) : "New";
+function getSortTypeFromQuery(sort?: string): PostSortType {
+  return sort ? (sort as PostSortType) : "New";
 }
 
 function getViewFromProps(view?: string): PersonDetailsView {
@@ -178,7 +182,7 @@ function isPersonBlocked(personRes: RequestState<GetPersonDetailsResponse>) {
   return (
     (personRes.state === "success" &&
       UserService.Instance.myUserInfo?.person_blocks.some(
-        ({ target: { id } }) => id === personRes.data.person_view.person.id,
+        ({ id }) => id === personRes.data.person_view.person.id,
       )) ??
     false
   );
@@ -202,8 +206,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     personBlocked: false,
     siteRes: this.isoData.site_res,
     showBanDialog: false,
-    removeData: false,
+    removeOrRestoreData: false,
     isIsomorphic: false,
+    showRegistrationDialog: false,
+    registrationRes: EMPTY_REQUEST,
   };
 
   loadingSettled() {
@@ -252,6 +258,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
     this.handleModBanSubmit = this.handleModBanSubmit.bind(this);
+    this.handleRegistrationShow = this.handleRegistrationShow.bind(this);
+    this.handleRegistrationClose = this.handleRegistrationClose.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -628,6 +636,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       personBlocked,
       siteRes: { admins },
       showBanDialog,
+      showRegistrationDialog,
+      registrationRes,
     } = this.state;
 
     return (
@@ -671,15 +681,27 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 <div className="flex-grow-1 unselectable pointer mx-2"></div>
                 {!this.amCurrentUser && UserService.Instance.myUserInfo && (
                   <>
-                    <a
-                      className={`d-flex align-self-start btn btn-secondary me-2 ${
-                        !pv.person.matrix_user_id && "invisible"
-                      }`}
-                      rel={relTags}
-                      href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
-                    >
-                      {I18NextService.i18n.t("send_secure_message")}
-                    </a>
+                    {amAdmin() && (
+                      <Link
+                        className={
+                          "d-flex align-self-start btn btn-secondary me-2"
+                        }
+                        to={`/modlog?userId=${pv.person.id}`}
+                      >
+                        {I18NextService.i18n.t("user_moderation_history", {
+                          user: pv.person.name,
+                        })}
+                      </Link>
+                    )}
+                    {pv.person.matrix_user_id && (
+                      <a
+                        className={`d-flex align-self-start btn btn-secondary me-2`}
+                        rel={relTags}
+                        href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
+                      >
+                        {I18NextService.i18n.t("send_secure_message")}
+                      </a>
+                    )}
                     <Link
                       className={
                         "d-flex align-self-start btn btn-secondary me-2"
@@ -740,6 +762,46 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
                     </button>
                   ))}
+                {amAdmin() && (
+                  <>
+                    <button
+                      className={
+                        "d-flex registration-self-start btn btn-secondary me-2"
+                      }
+                      aria-label={I18NextService.i18n.t("view_registration")}
+                      onClick={this.handleRegistrationShow}
+                    >
+                      {I18NextService.i18n.t("view_registration")}
+                    </button>
+                    {showRegistrationDialog && (
+                      <DisplayModal
+                        onClose={this.handleRegistrationClose}
+                        loadingMessage={I18NextService.i18n.t(
+                          "loading_registration",
+                        )}
+                        title={I18NextService.i18n.t("registration_for_user", {
+                          name: pv.person.display_name ?? pv.person.name,
+                        })}
+                        show={showRegistrationDialog}
+                        loading={registrationRes.state === "loading"}
+                      >
+                        {registrationRes.state === "success" ? (
+                          <article
+                            dangerouslySetInnerHTML={mdToHtml(
+                              registrationRes.data.registration_application
+                                .registration_application.answer,
+                              () => this.forceUpdate(),
+                            )}
+                          />
+                        ) : registrationRes.state === "failed" ? (
+                          I18NextService.i18n.t("fetch_registration_error")
+                        ) : (
+                          ""
+                        )}
+                      </DisplayModal>
+                    )}
+                  </>
+                )}
               </div>
               {pv.person.bio && (
                 <div className="d-flex align-items-center mb-2">
@@ -829,7 +891,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   className="form-check-input"
                   id="mod-ban-remove-data"
                   type="checkbox"
-                  checked={this.state.removeData}
+                  checked={this.state.removeOrRestoreData}
                   onChange={linkEvent(this, this.handleModRemoveDataChange)}
                 />
                 <label
@@ -894,7 +956,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.updateUrl({ page });
   }
 
-  handleSortChange(sort: SortType) {
+  handleSortChange(sort: PostSortType) {
     this.updateUrl({ sort, page: 1 });
   }
 
@@ -918,16 +980,42 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   handleModRemoveDataChange(i: Profile, event: any) {
-    i.setState({ removeData: event.target.checked });
+    i.setState({ removeOrRestoreData: event.target.checked });
   }
 
   handleModBanSubmitCancel(i: Profile) {
     i.setState({ showBanDialog: false });
   }
 
+  handleRegistrationShow() {
+    if (this.state.registrationRes.state !== "success") {
+      this.setState({ registrationRes: LOADING_REQUEST });
+    }
+
+    this.setState({ showRegistrationDialog: true });
+
+    if (this.state.personDetailsRes.state === "success") {
+      HttpService.client
+        .getRegistrationApplication({
+          person_id: this.state.personDetailsRes.data.person_view.person.id,
+        })
+        .then(res => {
+          this.setState({ registrationRes: res });
+
+          if (res.state === "failed") {
+            toast(I18NextService.i18n.t("fetch_registration_error"), "danger");
+          }
+        });
+    }
+  }
+
+  handleRegistrationClose() {
+    this.setState({ showRegistrationDialog: false });
+  }
+
   async handleModBanSubmit(i: Profile, event: any) {
     event.preventDefault();
-    const { removeData, banReason, banExpireDays } = i.state;
+    const { banReason, banExpireDays } = i.state;
 
     const personRes = i.state.personRes;
 
@@ -937,13 +1025,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
       // If its an unban, restore all their data
       if (!ban) {
-        i.setState({ removeData: false });
+        i.setState({ removeOrRestoreData: true });
       }
 
       const res = await HttpService.client.banPerson({
         person_id: person.id,
         ban,
-        remove_data: removeData,
+        remove_or_restore_data: i.state.removeOrRestoreData,
         reason: banReason,
         expires: futureDaysToUnixTime(banExpireDays),
       });

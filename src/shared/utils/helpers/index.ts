@@ -5,12 +5,12 @@ import editListImmutable from "./edit-list-immutable";
 import formatPastDate from "./format-past-date";
 import futureDaysToUnixTime from "./future-days-to-unix-time";
 import getIdFromString from "./get-id-from-string";
+import getBoolFromString from "./get-bool-from-string";
 import getPageFromString from "./get-page-from-string";
 import getQueryParams from "./get-query-params";
 import getQueryString from "./get-query-string";
 import getRandomCharFromAlphabet from "./get-random-char-from-alphabet";
 import getRandomFromList from "./get-random-from-list";
-import getUnixTime from "./get-unix-time";
 import { groupBy } from "./group-by";
 import hostname from "./hostname";
 import hsl from "./hsl";
@@ -36,12 +36,12 @@ export {
   formatPastDate,
   futureDaysToUnixTime,
   getIdFromString,
+  getBoolFromString,
   getPageFromString,
   getQueryParams,
   getQueryString,
   getRandomCharFromAlphabet,
   getRandomFromList,
-  getUnixTime,
   groupBy,
   hostname,
   hsl,

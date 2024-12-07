@@ -136,7 +136,7 @@ function langToLocale(lang: string): DateFnsDesc | undefined {
 async function load(locale: DateFnsDesc): Promise<Locale> {
   return import(
     /* webpackChunkName: `date-fns-[request]` */
-    `date-fns/locale/${locale.resource}.mjs`
+    `date-fns/locale/${locale.resource}.js`
   ).then(x => x.default);
 }
 
@@ -184,7 +184,7 @@ export function findDateFnsChunkNames(languages: readonly string[]): string[] {
   if (locale.bundled) {
     return [];
   }
-  return [`date-fns-${locale.resource}-mjs`];
+  return [`date-fns-${locale.resource}-js`];
 }
 
 export default async function () {

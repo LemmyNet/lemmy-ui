@@ -6,7 +6,7 @@ export default function (dateString?: string) {
     return formatDistanceStrict(parsed, new Date(), {
       addSuffix: true,
     });
-  } catch (e) {
+  } catch {
     return "indeterminate";
   }
 }

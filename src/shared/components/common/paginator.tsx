@@ -5,6 +5,7 @@ interface PaginatorProps {
   page: number;
   onChange(val: number): any;
   nextDisabled: boolean;
+  disabled?: boolean;
 }
 
 export class Paginator extends Component<PaginatorProps, any> {
@@ -18,6 +19,7 @@ export class Paginator extends Component<PaginatorProps, any> {
           <button
             className="btn btn-secondary me-2"
             onClick={linkEvent(this, this.handlePrev)}
+            disabled={this.props.disabled}
           >
             {I18NextService.i18n.t("prev")}
           </button>
@@ -26,6 +28,7 @@ export class Paginator extends Component<PaginatorProps, any> {
           <button
             className="btn btn-secondary"
             onClick={linkEvent(this, this.handleNext)}
+            disabled={this.props.disabled}
           >
             {I18NextService.i18n.t("next")}
           </button>

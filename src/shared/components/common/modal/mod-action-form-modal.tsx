@@ -5,18 +5,18 @@ import {
   createRef,
   linkEvent,
 } from "inferno";
-import { I18NextService } from "../../services/I18NextService";
-import { PurgeWarning, Spinner } from "./icon";
+import { I18NextService } from "../../../services/I18NextService";
+import { PurgeWarning, Spinner } from "../icon";
 import { getApubName, randomStr } from "@utils/helpers";
 import type { Modal } from "bootstrap";
 import classNames from "classnames";
 import { Community, Person } from "lemmy-js-client";
-import { LoadingEllipses } from "./loading-ellipses";
-import { modalMixin } from "../mixins/modal-mixin";
+import { LoadingEllipses } from "../loading-ellipses";
+import { modalMixin } from "../../mixins/modal-mixin";
 
 export interface BanUpdateForm {
   reason?: string;
-  shouldRemove?: boolean;
+  shouldRemoveOrRestoreData?: boolean;
   daysUntilExpires?: number;
 }
 
@@ -31,7 +31,7 @@ interface ModActionFormModalPropsCommunityBan {
   modActionType: "community-ban";
   onSubmit: (form: BanUpdateForm) => Promise<void>;
   creator: Person;
-  community: Community;
+  community?: Community;
   isBanned: boolean;
 }
 
@@ -69,7 +69,7 @@ interface ModActionFormFormState {
   loading: boolean;
   reason: string;
   daysUntilExpire?: number;
-  shouldRemoveData?: boolean;
+  shouldRemoveOrRestoreData?: boolean;
   shouldPermaBan?: boolean;
 }
 
@@ -84,7 +84,7 @@ function handleExpiryChange(i: ModActionFormModal, event: any) {
 function handleToggleRemove(i: ModActionFormModal) {
   i.setState(prev => ({
     ...prev,
-    shouldRemoveData: !prev.shouldRemoveData,
+    shouldRemoveOrRestoreData: !prev.shouldRemoveOrRestoreData,
   }));
 }
 
@@ -104,7 +104,7 @@ async function handleSubmit(i: ModActionFormModal, event: any) {
     await i.props.onSubmit({
       reason: i.state.reason,
       daysUntilExpires: i.state.daysUntilExpire!,
-      shouldRemove: i.state.shouldRemoveData!,
+      shouldRemoveOrRestoreData: i.state.shouldRemoveOrRestoreData!,
     } as BanUpdateForm & string); // Need to & string to handle type weirdness
   } else {
     await i.props.onSubmit(i.state.reason);
@@ -135,7 +135,7 @@ export default class ModActionFormModal extends Component<
     this.reasonRef = createRef();
 
     if (this.isBanModal) {
-      this.state.shouldRemoveData = false;
+      this.state.shouldRemoveOrRestoreData = false;
     }
   }
 
@@ -144,7 +144,7 @@ export default class ModActionFormModal extends Component<
       loading,
       reason,
       daysUntilExpire,
-      shouldRemoveData,
+      shouldRemoveOrRestoreData,
       shouldPermaBan,
     } = this.state;
     const reasonId = `mod-form-reason-${randomStr()}`;
@@ -249,7 +249,7 @@ export default class ModActionFormModal extends Component<
                             <input
                               className="form-check-input user-select-none"
                               type="checkbox"
-                              checked={shouldRemoveData}
+                              checked={shouldRemoveOrRestoreData}
                               onChange={linkEvent(this, handleToggleRemove)}
                             />
                             {I18NextService.i18n.t("remove_content")}
@@ -328,7 +328,12 @@ export default class ModActionFormModal extends Component<
             : "ban_from_community_with_name",
           {
             user: getApubName(this.props.creator),
-            community: getApubName(this.props.community),
+            community: getApubName(
+              this.props.community ?? {
+                actor_id: "",
+                name: "",
+              },
+            ),
           },
         );
       }

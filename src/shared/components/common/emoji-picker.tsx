@@ -13,8 +13,10 @@ interface EmojiPickerState {
   showPicker: boolean;
 }
 
-function closeEmojiMartOnEsc(i, event): void {
-  event.key === "Escape" && i.setState({ showPicker: false });
+function closeEmojiMartOnEsc(i: EmojiPicker, event: KeyboardEvent): void {
+  if (event.key === "Escape") {
+    i.setState({ showPicker: false });
+  }
 }
 
 @tippyMixin
@@ -72,9 +74,11 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
     e.preventDefault();
     i.setState({ showPicker: !i.state.showPicker });
 
-    i.state.showPicker
-      ? document.addEventListener("keyup", e => closeEmojiMartOnEsc(i, e))
-      : document.removeEventListener("keyup", e => closeEmojiMartOnEsc(i, e));
+    if (i.state.showPicker) {
+      document.addEventListener("keyup", e => closeEmojiMartOnEsc(i, e));
+    } else {
+      document.removeEventListener("keyup", e => closeEmojiMartOnEsc(i, e));
+    }
   }
 
   handleEmojiClick(e: any) {
