@@ -172,7 +172,7 @@ importers:
         version: 1.81.0
       sass-loader:
         specifier: ^16.0.1
-        version: 16.0.3(sass@1.81.0)(webpack@5.96.1)
+        version: 16.0.4(sass@1.81.0)(webpack@5.96.1)
       serialize-javascript:
         specifier: ^6.0.2
         version: 6.0.2
@@ -3972,8 +3972,8 @@ packages:
   sanitize-html@2.13.1:
     resolution: {integrity: sha512-ZXtKq89oue4RP7abL9wp/9URJcqQNABB5GGJ2acW1sdO8JTVl92f4ygD7Yc9Ze09VAZhnt2zegeU0tbNsdcLYg==}
 
-  sass-loader@16.0.3:
-    resolution: {integrity: sha512-gosNorT1RCkuCMyihv6FBRR7BMV06oKRAs+l4UMp1mlcVg9rWN6KMmUj3igjQwmYys4mDP3etEYJgiHRbgHCHA==}
+  sass-loader@16.0.4:
+    resolution: {integrity: sha512-LavLbgbBGUt3wCiYzhuLLu65+fWXaXLmq7YxivLhEqmiupCFZ5sKUAipK3do6V80YSU0jvSxNhEdT13IXNr3rg==}
     engines: {node: '>= 18.12.0'}
     peerDependencies:
       '@rspack/core': 0.x || 1.x
@@ -8513,7 +8513,7 @@ snapshots:
       parse-srcset: 1.0.2
       postcss: 8.4.47
 
-  sass-loader@16.0.3(sass@1.81.0)(webpack@5.96.1):
+  sass-loader@16.0.4(sass@1.81.0)(webpack@5.96.1):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
