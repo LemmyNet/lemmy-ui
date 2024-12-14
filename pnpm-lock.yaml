@@ -79,7 +79,7 @@ importers:
         version: 4.21.2
       highlight.js:
         specifier: ^11.10.0
-        version: 11.10.0
+        version: 11.11.0
       history:
         specifier: ^5.3.0
         version: 5.3.0
@@ -2588,8 +2588,8 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
-  highlight.js@11.10.0:
-    resolution: {integrity: sha512-SYVnVFswQER+zu1laSya563s+F8VDGt7o35d4utbamowvUNLLMovFqwCLSocpZTz3MgaSRA1IbqRWZv97dtErQ==}
+  highlight.js@11.11.0:
+    resolution: {integrity: sha512-6ErL7JlGu2CNFHyRQEuDogOyGPNiqcuWdt4iSSFUPyferNTGlNTPFqeV36Y/XwA4V/TJ8l0sxp6FTnxud/mf8g==}
     engines: {node: '>=12.0.0'}
 
   history@5.3.0:
@@ -7315,7 +7315,7 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  highlight.js@11.10.0: {}
+  highlight.js@11.11.0: {}
 
   history@5.3.0:
     dependencies:
@@ -7910,7 +7910,7 @@ snapshots:
 
   markdown-it-highlightjs@4.2.0:
     dependencies:
-      highlight.js: 11.10.0
+      highlight.js: 11.11.0
 
   markdown-it-html5-embed@1.0.0:
     dependencies:
