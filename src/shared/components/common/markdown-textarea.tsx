@@ -4,6 +4,7 @@ import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
+import { createElement } from "inferno-create-element";
 import { Prompt } from "inferno-router";
 import { Language } from "lemmy-js-client";
 import {
@@ -52,6 +53,7 @@ interface MarkdownTextAreaProps {
   onSubmit?(content: string, languageId?: number): Promise<boolean>;
   allLanguages: Language[]; // TODO should probably be nullable
   siteLanguages: number[]; // TODO same
+  renderAsDiv?: boolean;
 }
 
 interface ImageUploadStatus {
@@ -114,13 +116,16 @@ export class MarkdownTextArea extends Component<
 
   render() {
     const languageId = this.state.languageId;
-
-    return (
-      <form
-        className="markdown-textarea"
-        id={this.formId}
-        onSubmit={linkEvent(this, this.handleSubmit)}
-      >
+    return createElement(
+      this.props.renderAsDiv ? "div" : "form",
+      {
+        className: "markdown-textarea",
+        id: this.formId,
+        onSubmit: this.props.renderAsDiv
+          ? undefined
+          : linkEvent(this, this.handleSubmit),
+      },
+      <>
         <Prompt
           message={I18NextService.i18n.t("block_leaving")}
           when={
@@ -306,7 +311,7 @@ export class MarkdownTextArea extends Component<
             )}
           </div>
         </div>
-      </form>
+      </>,
     );
   }
 
