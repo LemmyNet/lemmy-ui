@@ -258,6 +258,7 @@ export class Signup extends Component<
                   hideNavigationWarnings
                   allLanguages={[]}
                   siteLanguages={[]}
+                  renderAsDiv={true}
                 />
               </div>
             </div>
