@@ -303,6 +303,7 @@ export class Signup extends Component<SignupRouteProps, State> {
                   hideNavigationWarnings
                   allLanguages={[]}
                   siteLanguages={[]}
+                  renderAsDiv={true}
                 />
               </div>
             </div>
