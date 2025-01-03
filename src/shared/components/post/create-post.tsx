@@ -206,6 +206,7 @@ export class CreatePost extends Component<
           altText: locationState.altText,
           nsfw: locationState.nsfw,
           languageId: locationState.languageId,
+          customThumbnailUrl: locationState.customThumbnailUrl,
         });
         this.setState(s => ({ resetCounter: s.resetCounter + 1 }));
       }

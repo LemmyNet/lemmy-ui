@@ -916,7 +916,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get crossPostParams(): CrossPostParams {
-    const { name, url, alt_text, nsfw, language_id } = this.postView.post;
+    const { name, url, alt_text, nsfw, language_id, thumbnail_url } =
+      this.postView.post;
     const crossPostParams: CrossPostParams = { name };
 
     if (url) {
@@ -938,6 +939,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (language_id !== undefined) {
       crossPostParams.languageId = language_id;
+    }
+
+    if (thumbnail_url) {
+      crossPostParams.customThumbnailUrl = thumbnail_url;
     }
 
     return crossPostParams;
