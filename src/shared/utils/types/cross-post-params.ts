@@ -7,4 +7,5 @@ export default interface CrossPostParams {
   altText?: string;
   nsfw?: StringBoolean;
   languageId?: number;
+  customThumbnailUrl?: string;
 }
