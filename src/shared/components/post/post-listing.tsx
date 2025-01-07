@@ -245,7 +245,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post.url;
 
     // if direct video link or embedded video link
-    if (url && isVideo(url)) {
+    if ((url && isVideo(url)) || isVideo(post.embed_video_url ?? "")) {
       return (
         <div className="ratio ratio-16x9 mt-3">
           <video
