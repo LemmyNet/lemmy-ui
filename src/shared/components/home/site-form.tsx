@@ -87,6 +87,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       blocked_instances: this.props.blockedInstances?.map(i => i.domain),
       blocked_urls: this.props.siteRes.blocked_urls.map(u => u.url),
       content_warning: this.props.siteRes.site_view.site.content_warning,
+      enable_nsfw: !!this.props.siteRes.site_view.site.content_warning,
     };
   }
 
@@ -925,6 +926,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteEnableNsfwChange(i: SiteForm, event: any) {
     i.state.siteForm.enable_nsfw = event.target.checked;
+    if (!event.target.checked) {
+      i.state.siteForm.content_warning = "";
+    }
     i.setState(i.state);
   }
 
@@ -1037,6 +1041,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleSiteContentWarningChange(val: string) {
-    this.setState(s => ((s.siteForm.content_warning = val), s));
+    this.state.siteForm.content_warning = val;
+    if (val) {
+      this.state.siteForm.enable_nsfw = true;
+    }
+    this.setState(this.state);
   }
 }
