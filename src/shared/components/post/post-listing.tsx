@@ -650,7 +650,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         <a
           className="btn btn-sm btn-link btn-animate text-muted py-0"
-          title={I18NextService.i18n.t("link")}
+          title={I18NextService.i18n.t("fedilink")}
           href={ap_id}
         >
           <Icon icon="fedilink" inline />
