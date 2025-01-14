@@ -701,29 +701,30 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           {I18NextService.i18n.t(key)}
         </label>
         <div className="d-flex justify-content-between align-items-center">
-          <input
-            type="text"
-            placeholder="instance.tld"
-            id={id}
-            className="form-control"
-            value={value}
-            onInput={linkEvent(key, this.handleInstanceTextChange)}
-            onKeyUp={linkEvent(key, this.handleInstanceEnterPress)}
-          />
-          <button
-            type="button"
-            className="btn btn-sm bg-success ms-2"
-            onClick={linkEvent(key, this.handleAddInstance)}
-            style={"width: 2rem; height: 2rem;"}
-            tabIndex={
-              -1 /* Making this untabble because handling enter key in text input makes keyboard support for this button redundant */
-            }
-          >
-            <Icon
-              icon="add"
-              classes="icon-inline text-light m-auto d-block position-static"
+          <div className="input-group ms-2">
+            <input
+              type="text"
+              placeholder="instance.tld"
+              id={id}
+              className="form-control"
+              value={value}
+              onInput={linkEvent(key, this.handleInstanceTextChange)}
+              onKeyUp={linkEvent(key, this.handleInstanceEnterPress)}
             />
-          </button>
+            <button
+              type="button"
+              className="btn bg-success"
+              onClick={linkEvent(key, this.handleAddInstance)}
+              tabIndex={
+                -1 /* Making this untabble because handling enter key in text input makes keyboard support for this button redundant */
+              }
+            >
+              <Icon
+                icon="add"
+                classes="icon-inline text-light m-auto d-block position-static"
+              />
+            </button>
+          </div>
         </div>
         {selectedInstances && selectedInstances.length > 0 && (
           <ul className="mt-3 list-unstyled w-100 d-flex flex-column justify-content-around align-items-center">
@@ -738,7 +739,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 <button
                   id={instance}
                   type="button"
-                  style={"width: 2rem; height: 2rem;"}
                   className="btn btn-sm bg-danger"
                   onClick={linkEvent(
                     { key, instance },
