@@ -493,7 +493,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         </Link>
         <a
           className={classnames}
-          title={I18NextService.i18n.t("link")}
+          title={I18NextService.i18n.t("fedilink")}
           href={cv.comment.ap_id}
         >
           <Icon icon="fedilink" classes="icon-inline" />
