@@ -58,7 +58,7 @@
     "inferno-hydrate": "^9.0.0",
     "inferno-i18next-dess": "0.0.2",
     "inferno-router": "^8.2.3",
-    "inferno-server": "^8.2.3",
+    "inferno-server": "^9.0.0",
     "jwt-decode": "^4.0.0",
     "lemmy-js-client": "0.20.0-alpha.17",
     "lodash.isequal": "^4.5.0",

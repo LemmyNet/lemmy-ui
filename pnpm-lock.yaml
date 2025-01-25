@@ -108,8 +108,8 @@ importers:
         specifier: ^8.2.3
         version: 8.2.3(history@5.3.0)(path-to-regexp-es6@1.7.0)
       inferno-server:
-        specifier: ^8.2.3
-        version: 8.2.3
+        specifier: ^9.0.0
+        version: 9.0.1
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
@@ -2831,8 +2831,8 @@ packages:
       history: ^5.3.0
       path-to-regexp-es6: 1.7.0
 
-  inferno-server@8.2.3:
-    resolution: {integrity: sha512-swaDCaTYPplKwcBDbveu7xKIAooLXOOdfRoETTCIZwKyfKBGR3JnqsrwcL6miFR8TG6CNibvYKG8eSYHzkoA4Q==}
+  inferno-server@9.0.1:
+    resolution: {integrity: sha512-Ru5x5twgxaUgW9QDZn7loYfRri/VYzSGXfcaPSTmLcz9pHdac6JoXgFV8qK3oBkp1oLm7f/0YKN5vthQQ1mlAA==}
     engines: {node: '>=8'}
 
   inferno-shared@8.2.3:
@@ -7940,9 +7940,9 @@ snapshots:
       inferno: 8.2.3
       path-to-regexp-es6: 1.7.0
 
-  inferno-server@8.2.3:
+  inferno-server@9.0.1:
     dependencies:
-      inferno: 8.2.3
+      inferno: 9.0.1
 
   inferno-shared@8.2.3: {}
 
