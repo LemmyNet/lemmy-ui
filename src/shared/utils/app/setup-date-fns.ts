@@ -100,6 +100,7 @@ const locales: DateFnsDesc[] = [
   { resource: "uz", code: "uz" },
   { resource: "uz-Cyrl", code: "uz-Cyrl" },
   { resource: "vi", code: "vi" },
+  { resource: "zh-CN", code: "zh" },
   { resource: "zh-CN", code: "zh-CN" },
   { resource: "zh-HK", code: "zh-HK" },
   { resource: "zh-TW", code: "zh-TW" },
