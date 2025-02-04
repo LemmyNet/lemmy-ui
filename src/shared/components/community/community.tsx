@@ -176,8 +176,8 @@ function getDataTypeFromQuery(type?: string): DataType {
 }
 
 function getSortTypeFromQuery(
-  type: string | undefined,
   fallback: PostSortType,
+  type?: string,
 ): PostSortType {
   return type ? (type as PostSortType) : fallback;
 }

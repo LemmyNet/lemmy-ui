@@ -202,6 +202,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             loading={this.state.loading}
+            isNsfwCommunity={this.postView.community.nsfw}
           />
         )}
       </div>
@@ -245,7 +246,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post.url;
 
     // if direct video link or embedded video link
-    if (url && isVideo(url)) {
+    if ((url && isVideo(url)) || isVideo(post.embed_video_url ?? "")) {
       return (
         <div className="ratio ratio-16x9 mt-3">
           <video
@@ -649,7 +650,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         )}
         <a
           className="btn btn-sm btn-link btn-animate text-muted py-0"
-          title={I18NextService.i18n.t("link")}
+          title={I18NextService.i18n.t("fedilink")}
           href={ap_id}
         >
           <Icon icon="fedilink" inline />
@@ -916,7 +917,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get crossPostParams(): CrossPostParams {
-    const { name, url, alt_text, nsfw, language_id } = this.postView.post;
+    const { name, url, alt_text, nsfw, language_id, thumbnail_url } =
+      this.postView.post;
     const crossPostParams: CrossPostParams = { name };
 
     if (url) {
@@ -938,6 +940,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (language_id !== undefined) {
       crossPostParams.languageId = language_id;
+    }
+
+    if (thumbnail_url) {
+      crossPostParams.customThumbnailUrl = thumbnail_url;
     }
 
     return crossPostParams;
