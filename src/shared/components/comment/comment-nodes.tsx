@@ -97,7 +97,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
           })}
           style={
             this.props.isChild
-              ? `border-left: 2px solid ${borderColor} !important;`
+              ? `border-left: var(--comment-border-width) solid ${borderColor} !important;`
               : undefined
           }
         >
