@@ -94,7 +94,7 @@ importers:
         version: 8.2.3
       inferno-create-element:
         specifier: ^9.0.0
-        version: 9.0.1
+        version: 9.0.2
       inferno-helmet:
         specifier: ^5.2.1
         version: 5.2.1(inferno@8.2.3)
@@ -2810,8 +2810,8 @@ packages:
   inferno-create-element@8.2.3:
     resolution: {integrity: sha512-YEwX4OiFlgeTutvE16uCGxkaSVwZ1DklpAPX8okjVsGaLIWQrM8QIQFxn3mTLWSu70Uea+afQfKL5wE4hxn39Q==}
 
-  inferno-create-element@9.0.1:
-    resolution: {integrity: sha512-GOMF2156QRAA6XeznGioF4rOouTyYvJWlhTWlDcUrh+FshBpnDcbOnMDgNUORHwkZLW7hZxdK/Dmc0dj+mQVWw==}
+  inferno-create-element@9.0.2:
+    resolution: {integrity: sha512-nveSzCGA94PlqODwiV+5aPmhqONHYSD0SWFUUlQ71VEE8niSJhRZj0uNYRz+Dh4xAxzEKz9ZQdjVCkelnTYeKw==}
 
   inferno-helmet@5.2.1:
     resolution: {integrity: sha512-9xzUGENVoz8qk67s0UhHlGNGZKG9Ia0mk5KoCNgkkIcGNhk7mNIINm7jJ5OOigVetz2DwI94jHzouTggb49AJg==}
@@ -7903,9 +7903,9 @@ snapshots:
     dependencies:
       inferno: 8.2.3
 
-  inferno-create-element@9.0.1:
+  inferno-create-element@9.0.2:
     dependencies:
-      inferno: 9.0.1
+      inferno: 9.0.2
 
   inferno-helmet@5.2.1(inferno@8.2.3):
     dependencies:
