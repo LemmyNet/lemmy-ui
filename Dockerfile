@@ -6,11 +6,11 @@ FROM node:alpine as builder
 # - It can break depending on the CPU (https://github.com/LemmyNet/lemmy-ui/issues/1566)
 RUN apk update && apk upgrade && apk add --no-cache curl python3 build-base gcc wget git vips-dev pkgconfig
 
+# Install node-gyp and corepack
+RUN npm install -g node-gyp corepack
+
 # Enable corepack to use pnpm
 RUN corepack enable
-
-# Install node-gyp
-RUN npm install -g node-gyp
 
 WORKDIR /usr/src/app
 

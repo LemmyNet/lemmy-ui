@@ -1,5 +1,9 @@
 FROM node:22-alpine as builder
 RUN apk update && apk add curl python3 build-base gcc wget git --no-cache
+
+# Install corepack
+RUN npm install -g corepack
+
 RUN corepack enable pnpm
 
 WORKDIR /usr/src/app
