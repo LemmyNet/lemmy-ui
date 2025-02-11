@@ -94,13 +94,13 @@ importers:
         version: 8.2.3
       inferno-create-element:
         specifier: ^9.0.0
-        version: 9.0.1
+        version: 9.0.2
       inferno-helmet:
         specifier: ^5.2.1
         version: 5.2.1(inferno@8.2.3)
       inferno-hydrate:
         specifier: ^9.0.0
-        version: 9.0.1
+        version: 9.0.2
       inferno-i18next-dess:
         specifier: 0.0.2
         version: 0.0.2
@@ -269,7 +269,7 @@ importers:
         version: 6.10.2(eslint@9.20.0)
       eslint-plugin-prettier:
         specifier: ^5.2.1
-        version: 5.2.3(@types/eslint@9.6.1)(eslint-config-prettier@10.0.1(eslint@9.20.0))(eslint@9.20.0)(prettier@3.4.2)
+        version: 5.2.3(@types/eslint@9.6.1)(eslint-config-prettier@10.0.1(eslint@9.20.0))(eslint@9.20.0)(prettier@3.5.0)
       globals:
         specifier: ^15.9.0
         version: 15.14.0
@@ -284,16 +284,16 @@ importers:
         version: 15.4.3
       prettier:
         specifier: ^3.4.2
-        version: 3.4.2
+        version: 3.5.0
       prettier-plugin-import-sort:
         specifier: ^0.0.7
-        version: 0.0.7(prettier@3.4.2)
+        version: 0.0.7(prettier@3.5.0)
       prettier-plugin-organize-imports:
         specifier: ^4.0.0
-        version: 4.1.0(prettier@3.4.2)(typescript@5.7.3)
+        version: 4.1.0(prettier@3.5.0)(typescript@5.7.3)
       prettier-plugin-packagejson:
         specifier: ^2.5.2
-        version: 2.5.8(prettier@3.4.2)
+        version: 2.5.8(prettier@3.5.0)
       qs:
         specifier: ^6.13.0
         version: 6.14.0
@@ -2810,14 +2810,14 @@ packages:
   inferno-create-element@8.2.3:
     resolution: {integrity: sha512-YEwX4OiFlgeTutvE16uCGxkaSVwZ1DklpAPX8okjVsGaLIWQrM8QIQFxn3mTLWSu70Uea+afQfKL5wE4hxn39Q==}
 
-  inferno-create-element@9.0.1:
-    resolution: {integrity: sha512-GOMF2156QRAA6XeznGioF4rOouTyYvJWlhTWlDcUrh+FshBpnDcbOnMDgNUORHwkZLW7hZxdK/Dmc0dj+mQVWw==}
+  inferno-create-element@9.0.2:
+    resolution: {integrity: sha512-nveSzCGA94PlqODwiV+5aPmhqONHYSD0SWFUUlQ71VEE8niSJhRZj0uNYRz+Dh4xAxzEKz9ZQdjVCkelnTYeKw==}
 
   inferno-helmet@5.2.1:
     resolution: {integrity: sha512-9xzUGENVoz8qk67s0UhHlGNGZKG9Ia0mk5KoCNgkkIcGNhk7mNIINm7jJ5OOigVetz2DwI94jHzouTggb49AJg==}
 
-  inferno-hydrate@9.0.1:
-    resolution: {integrity: sha512-kU8HleYM9GnyPdAnj/N78pTV2p+0iBehm3SweR+4mgIS7P3keCCvqGjcUK6OtYPuNPga9eDQArmrl8wzeYA2kg==}
+  inferno-hydrate@9.0.2:
+    resolution: {integrity: sha512-RUOzyPZukYVd6euoQ/T1gujj2PJM/W7AWDloO4CYTizV03qLNKGIHpApe8cs2IaCDyE/+SAIHgQR2kGfkL8J1w==}
 
   inferno-i18next-dess@0.0.2:
     resolution: {integrity: sha512-TkpBTZzfqgK7O8gIJ7gLB9CvP1bEOfO8OA7vUfJpd2kgGom9eoj6xbAMUPk5BNH6nBN5Y+mCaG/dInQjW5Jkug==}
@@ -2846,11 +2846,17 @@ packages:
   inferno-vnode-flags@9.0.1:
     resolution: {integrity: sha512-WyPnS3GXXIRzLx/0RJoMnq4NPkC9OsmsO7C5HWjXwoV3ko1ePeZ2qf+aJCMFuz91juR1p0QSPdXKKSLoM+Mxrg==}
 
+  inferno-vnode-flags@9.0.2:
+    resolution: {integrity: sha512-DWsKLdpMoX8ahn/wu5O9vS57AL/+OFYjdiXVrQfWFiYhSF19yUZCkb0IzhUuZDPN/GXqkm2M4TI+X2TkRAaRMA==}
+
   inferno@8.2.3:
     resolution: {integrity: sha512-LMeRlCe+RlXw8kHCLyOWRk2PsZ3Fo4jkESyAR1g4FfPT48N78i11YhTVXW2ukCx5MFjv+qrfa73JzJWU9sg4CQ==}
 
   inferno@9.0.1:
     resolution: {integrity: sha512-CuUodlL32NHGTcDEnaJaZDODsv2fXeWXBNq61O/7aFdw/1kT63bFssfL7H3FMygGqByeKXbFYnaau302byFz0g==}
+
+  inferno@9.0.2:
+    resolution: {integrity: sha512-jN1hz3IInNyt+G37b2SULfAyK8Mrbh2Az+OLYQYW2zKIue0TOoNKWh1umyNyomwMrG5vjHQu275CUOPPoTIWCQ==}
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
@@ -3940,8 +3946,8 @@ packages:
       prettier:
         optional: true
 
-  prettier@3.4.2:
-    resolution: {integrity: sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==}
+  prettier@3.5.0:
+    resolution: {integrity: sha512-quyMrVt6svPS7CjQ9gKb3GLEX/rl3BCL2oa/QkNcXv4YNVBC9olt3s+H7ukto06q7B1Qz46PbrKLO34PR6vXcA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -7287,10 +7293,10 @@ snapshots:
       safe-regex-test: 1.0.3
       string.prototype.includes: 2.0.1
 
-  eslint-plugin-prettier@5.2.3(@types/eslint@9.6.1)(eslint-config-prettier@10.0.1(eslint@9.20.0))(eslint@9.20.0)(prettier@3.4.2):
+  eslint-plugin-prettier@5.2.3(@types/eslint@9.6.1)(eslint-config-prettier@10.0.1(eslint@9.20.0))(eslint@9.20.0)(prettier@3.5.0):
     dependencies:
       eslint: 9.20.0
-      prettier: 3.4.2
+      prettier: 3.5.0
       prettier-linter-helpers: 1.0.0
       synckit: 0.9.2
     optionalDependencies:
@@ -7897,9 +7903,9 @@ snapshots:
     dependencies:
       inferno: 8.2.3
 
-  inferno-create-element@9.0.1:
+  inferno-create-element@9.0.2:
     dependencies:
-      inferno: 9.0.1
+      inferno: 9.0.2
 
   inferno-helmet@5.2.1(inferno@8.2.3):
     dependencies:
@@ -7909,9 +7915,9 @@ snapshots:
     transitivePeerDependencies:
       - inferno
 
-  inferno-hydrate@9.0.1:
+  inferno-hydrate@9.0.2:
     dependencies:
-      inferno: 9.0.1
+      inferno: 9.0.2
 
   inferno-i18next-dess@0.0.2:
     dependencies:
@@ -7946,6 +7952,8 @@ snapshots:
 
   inferno-vnode-flags@9.0.1: {}
 
+  inferno-vnode-flags@9.0.2: {}
+
   inferno@8.2.3:
     dependencies:
       csstype: 3.1.3
@@ -7956,6 +7964,12 @@ snapshots:
     dependencies:
       csstype: 3.1.3
       inferno-vnode-flags: 9.0.1
+      opencollective-postinstall: 2.0.3
+
+  inferno@9.0.2:
+    dependencies:
+      csstype: 3.1.3
+      inferno-vnode-flags: 9.0.2
       opencollective-postinstall: 2.0.3
 
   inflight@1.0.6:
@@ -8827,29 +8841,29 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-import-sort@0.0.7(prettier@3.4.2):
+  prettier-plugin-import-sort@0.0.7(prettier@3.5.0):
     dependencies:
       import-sort: 6.0.0
       import-sort-config: 6.0.0
       import-sort-parser-babylon: 6.0.0
       import-sort-parser-typescript: 6.0.0
-      prettier: 3.4.2
+      prettier: 3.5.0
     transitivePeerDependencies:
       - supports-color
 
-  prettier-plugin-organize-imports@4.1.0(prettier@3.4.2)(typescript@5.7.3):
+  prettier-plugin-organize-imports@4.1.0(prettier@3.5.0)(typescript@5.7.3):
     dependencies:
-      prettier: 3.4.2
+      prettier: 3.5.0
       typescript: 5.7.3
 
-  prettier-plugin-packagejson@2.5.8(prettier@3.4.2):
+  prettier-plugin-packagejson@2.5.8(prettier@3.5.0):
     dependencies:
       sort-package-json: 2.14.0
       synckit: 0.9.2
     optionalDependencies:
-      prettier: 3.4.2
+      prettier: 3.5.0
 
-  prettier@3.4.2: {}
+  prettier@3.5.0: {}
 
   pretty-bytes@5.6.0: {}
 
