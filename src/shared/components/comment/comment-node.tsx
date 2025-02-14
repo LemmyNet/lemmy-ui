@@ -383,7 +383,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             className={classNames("details ms-1 comment-node py-2", {
               "border-top border-light": !this.props.noBorder,
             })}
-            style={`border-left: 2px ${moreRepliesBorderColor} solid !important`}
+            style={`border-left: var(--comment-border-width) ${moreRepliesBorderColor} solid !important`}
           >
             <button
               className="btn btn-link text-muted"
