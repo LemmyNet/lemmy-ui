@@ -4,6 +4,8 @@ The official web app for [Lemmy](https://github.com/LemmyNet/lemmy), written in 
 
 Based off of MrFoxPro's [inferno-isomorphic-template](https://github.com/MrFoxPro/inferno-isomorphic-template).
 
+[Development Instructions](https://join-lemmy.org/docs/contributors/01-overview.html)
+
 ## Configuration
 
 The following environment variables can be used to configure lemmy-ui:
