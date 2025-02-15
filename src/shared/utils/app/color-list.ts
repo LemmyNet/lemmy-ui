@@ -1,11 +1,9 @@
-import { hsl } from "@utils/helpers";
-
 export const colorList: string[] = [
-  hsl(0),
-  hsl(50),
-  hsl(100),
-  hsl(150),
-  hsl(200),
-  hsl(250),
-  hsl(300),
+  "var(--comment-node-1-color)",
+  "var(--comment-node-2-color)",
+  "var(--comment-node-3-color)",
+  "var(--comment-node-4-color)",
+  "var(--comment-node-5-color)",
+  "var(--comment-node-6-color)",
+  "var(--comment-node-7-color)",
 ];
