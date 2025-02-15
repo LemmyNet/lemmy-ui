@@ -105,8 +105,8 @@ importers:
         specifier: 0.0.2
         version: 0.0.2
       inferno-router:
-        specifier: ^8.2.3
-        version: 8.2.3(history@5.3.0)(path-to-regexp-es6@1.7.0)
+        specifier: ^9.0.0
+        version: 9.0.2(history@5.3.0)
       inferno-server:
         specifier: ^9.0.0
         version: 9.0.2
@@ -2687,9 +2687,6 @@ packages:
   history@5.3.0:
     resolution: {integrity: sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==}
 
-  hoist-non-inferno-statics@1.1.3:
-    resolution: {integrity: sha512-mPrAYwL0lUL2jbJyqsg64gKbk3e4x9ESPsiejFVdhQP3IO4Ykuu8ZssIh1aKshAekk3aSVqxFVEkhzf1LpkzYg==}
-
   hpack.js@2.1.6:
     resolution: {integrity: sha512-zJxVehUdMGIKsRaNt7apO2Gqp0BdqW5yaiGHXXmbpvxgBYVZnAql+BJb4RO5ad2MgpbZKn5G6nMnegrH1FcNYQ==}
 
@@ -2825,11 +2822,10 @@ packages:
   inferno-i18next-dess@0.0.2:
     resolution: {integrity: sha512-TkpBTZzfqgK7O8gIJ7gLB9CvP1bEOfO8OA7vUfJpd2kgGom9eoj6xbAMUPk5BNH6nBN5Y+mCaG/dInQjW5Jkug==}
 
-  inferno-router@8.2.3:
-    resolution: {integrity: sha512-1AWsV8k/XKttlGFJkCAkVdMLe69zAbH12rMhl6uxVy8W2rD8okYsM/M7KUzbYqO1KnDfnXE5zV5XqanTotp6Cg==}
+  inferno-router@9.0.2:
+    resolution: {integrity: sha512-PXMZloDoVa7hbjVOUnQoztYT9Vpt8g38YTvJWy3qmIctKJrvoT3MTFKGyUhhHc53qRzQuCRHlNMyxDp3gp7A4A==}
     peerDependencies:
       history: ^5.3.0
-      path-to-regexp-es6: 1.7.0
 
   inferno-server@9.0.2:
     resolution: {integrity: sha512-vUUbryGH0NSQNbtTak+DapBH2vKag1XScZH/M/0BUWxLKC7N2Fb+yRlSQKu+NhALHe1+dGSOsc5wEDmkr6Zyvg==}
@@ -3803,14 +3799,11 @@ packages:
     resolution: {integrity: sha512-ypGJsmGtdXUOeM5u93TyeIEfEhM6s+ljAhrk5vAvSx8uyY/02OvrZnA0YNGUrPXfpJMgI1ODd3nwz8Npx4O4cg==}
     engines: {node: 20 || >=22}
 
-  path-to-regexp-es6@1.7.0:
-    resolution: {integrity: sha512-QdT7okCAMGv7FR7w6KWFH9OSMivOgtXAGKodD6MDZBNR/XNL16W+hHoj6qBmV6cy/7eR1fr0Qujrg9OhBf5QPw==}
-
   path-to-regexp@0.1.12:
     resolution: {integrity: sha512-RA1GjUVMnvYFxuqovrEqZoxxW5NUZqbwKtYz/Tt7nXerk0LbLblQmrsgdeOxV5SFHf0UDggjS/bSeOZwt1pmEQ==}
 
-  path-to-regexp@1.7.0:
-    resolution: {integrity: sha512-nifX1uj4S9IrK/w3Xe7kKvNEepXivANs9ng60Iq7PU/BlouV3yL/VUhFqTuTq33ykwUqoNcTeGo5vdOBP4jS/Q==}
+  path-to-regexp@1.9.0:
+    resolution: {integrity: sha512-xIp7/apCFJuUHdDLWe8O1HIkb0kQrOMb/0u6FXQjemHn/ii5LrIzU6bdECnsiTF/GjZkMEKg1xdiZwNqDYlZ6g==}
 
   path-type@4.0.0:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
@@ -7757,8 +7750,6 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.26.9
 
-  hoist-non-inferno-statics@1.1.3: {}
-
   hpack.js@2.1.6:
     dependencies:
       inherits: 2.0.4
@@ -7935,12 +7926,11 @@ snapshots:
       inferno-shared: 8.2.3
       inferno-vnode-flags: 8.2.3
 
-  inferno-router@8.2.3(history@5.3.0)(path-to-regexp-es6@1.7.0):
+  inferno-router@9.0.2(history@5.3.0):
     dependencies:
       history: 5.3.0
-      hoist-non-inferno-statics: 1.1.3
-      inferno: 8.2.3
-      path-to-regexp-es6: 1.7.0
+      inferno: 9.0.2
+      path-to-regexp: 1.9.0
 
   inferno-server@9.0.2:
     dependencies:
@@ -8741,13 +8731,9 @@ snapshots:
       lru-cache: 11.0.2
       minipass: 7.1.2
 
-  path-to-regexp-es6@1.7.0:
-    dependencies:
-      path-to-regexp: 1.7.0
-
   path-to-regexp@0.1.12: {}
 
-  path-to-regexp@1.7.0:
+  path-to-regexp@1.9.0:
     dependencies:
       isarray: 0.0.1
 
