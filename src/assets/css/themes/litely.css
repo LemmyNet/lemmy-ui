@@ -81,7 +81,7 @@
   --bs-dark-border-subtle: #adb5bd;
   --bs-white-rgb: 255, 255, 255;
   --bs-black-rgb: 34, 34, 34;
-  --bs-font-sans-serif: -apple-system, BlinkMacSystemFont, "Droid Sans", "Segoe UI", "Helvetica", Arial, sans-serif;
+  --bs-font-sans-serif: -apple-system, BlinkMacSystemFont, "Droid Sans", "Segoe UI", Verdana, "Arimo", "Helvetica", Arial, sans-serif;
   --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
   --bs-root-font-size: 100%;
