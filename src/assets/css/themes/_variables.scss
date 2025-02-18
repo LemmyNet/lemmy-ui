@@ -1,3 +1,12 @@
 $link-decoration: none;
 $min-contrast-ratio: 3;
 $font-size-root: 100%;
+:root {
+  --comment-node-1-color: hsla(0, 35%, 50%, 0.5);
+  --comment-node-2-color: hsla(50, 35%, 50%, 0.5);
+  --comment-node-3-color: hsla(100, 35%, 50%, 0.5);
+  --comment-node-4-color: hsla(150, 35%, 50%, 0.5);
+  --comment-node-5-color: hsla(200, 35%, 50%, 0.5);
+  --comment-node-6-color: hsla(250, 35%, 50%, 0.5);
+  --comment-node-7-color: hsla(300, 35%, 50%, 0.5);
+}
