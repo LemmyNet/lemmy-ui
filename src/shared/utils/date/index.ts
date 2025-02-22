@@ -188,7 +188,7 @@ export function findDateFnsChunkNames(languages: readonly string[]): string[] {
   return [`date-fns-${locale.resource}-js`];
 }
 
-export default async function () {
+export async function setupDateFns() {
   const i18n_full_lang = I18NextService.i18n.resolvedLanguage ?? EN_US;
   const localeDesc = bestDateFns(LanguageService.userLanguages, i18n_full_lang);
   try {
