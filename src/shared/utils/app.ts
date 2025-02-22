@@ -30,7 +30,7 @@ import {
   IsoData,
   RouteData,
   VoteType,
-} from "../../interfaces";
+} from "@utils/types";
 import { CommentSortType, PostSortType } from "lemmy-js-client";
 import { editListImmutable, getQueryString, hostname } from "@utils/helpers";
 import {

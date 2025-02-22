@@ -1,5 +1,6 @@
 import {
   CommentAggregates,
+  Comment,
   CommentReply,
   CommentView,
   CommunityView,
