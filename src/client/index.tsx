@@ -19,6 +19,7 @@ async function startClient() {
 
   window.history.scrollRestoration = "manual";
 
+  // TODO do this also for the user res
   initializeSite(window.isoData.site_res);
 
   lazyHighlightjs.enableLazyLoading();

@@ -1,17 +1,17 @@
-import { initializeSite, isAuthPath } from "@utils/app";
+import { initializeUser, isAuthPath } from "@utils/app";
 import { getHttpBaseInternal } from "@utils/env";
 import { ErrorPageData } from "@utils/types";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { Match } from "inferno-router/dist/Route";
 import { renderToString } from "inferno-server";
-import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
+import { GetSiteResponse, LemmyHttp, MyUserInfo } from "lemmy-js-client";
 import App from "../../shared/components/app/app";
 import {
   InitialFetchRequest,
   IsoDataOptionalSite,
   RouteData,
-} from "../../shared/interfaces";
+} from "@utils/types";
 import { routes } from "../../shared/routes";
 import {
   FailedRequestState,
@@ -62,29 +62,32 @@ export default async (req: Request, res: Response) => {
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
     let site: GetSiteResponse | undefined = undefined;
+    let myUserInfo: MyUserInfo | undefined = undefined;
     let routeData: RouteData = {};
     let errorPageData: ErrorPageData | undefined = undefined;
-    let try_site = await client.getSite();
+    const trySite = await client.getSite();
+    let tryUser = await client.getMyUser();
 
-    if (
-      try_site.state === "failed" &&
-      try_site.err.message === "not_logged_in"
-    ) {
+    if (tryUser.state === "failed" && tryUser.err.message === "not_logged_in") {
       console.error(
         "Incorrect JWT token, skipping auth so frontend can remove jwt cookie",
       );
       client.setHeaders({});
-      try_site = await client.getSite();
+      tryUser = await client.getMyUser();
     }
 
     if (!auth && isAuthPath(path)) {
       return res.redirect(`/login${getQueryString({ prev: url })}`);
     }
 
-    if (try_site.state === "success") {
-      site = try_site.data;
-      initializeSite(site);
+    if (tryUser.state === "success") {
+      myUserInfo = tryUser.data;
+      initializeUser(myUserInfo);
       LanguageService.updateLanguages(languages);
+    }
+
+    if (trySite.state === "success") {
+      site = trySite.data;
 
       if (path !== "/setup" && !site.site_view.local_site.site_setup) {
         return res.redirect("/setup");
@@ -116,9 +119,9 @@ export default async (req: Request, res: Response) => {
       if (!activeRoute) {
         res.status(404);
       }
-    } else if (try_site.state === "failed") {
+    } else if (trySite.state === "failed") {
       res.status(500);
-      errorPageData = getErrorPageData(new Error(try_site.err.message), site);
+      errorPageData = getErrorPageData(new Error(trySite.err.message), site);
     }
 
     const error = Object.values(routeData).find(
@@ -145,7 +148,7 @@ export default async (req: Request, res: Response) => {
       errorPageData,
       showAdultConsentModal:
         !!site?.site_view.site.content_warning &&
-        !(site.my_user || req.cookies[adultConsentCookieKey]),
+        !(myUserInfo || req.cookies[adultConsentCookieKey]),
     };
 
     const wrapper = (
@@ -155,7 +158,7 @@ export default async (req: Request, res: Response) => {
     );
 
     // Another request could have initialized a new site.
-    initializeSite(site);
+    initializeUser(myUserInfo);
     LanguageService.updateLanguages(languages);
 
     const root = renderToString(wrapper);

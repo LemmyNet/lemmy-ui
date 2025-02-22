@@ -1,4 +1,4 @@
-import { setupDateFns } from "@utils/app";
+import { setupDateFns } from "@utils/date";
 import { getStaticDir } from "@utils/env";
 import { VERSION } from "../shared/version";
 import express from "express";
