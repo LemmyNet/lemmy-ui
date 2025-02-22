@@ -2,6 +2,7 @@ $link-decoration: none;
 $min-contrast-ratio: 3;
 $font-size-root: 100%;
 :root {
+  --comment-border-width: 2px;
   --comment-node-1-color: hsla(0, 35%, 50%, 0.5);
   --comment-node-2-color: hsla(50, 35%, 50%, 0.5);
   --comment-node-3-color: hsla(100, 35%, 50%, 0.5);
