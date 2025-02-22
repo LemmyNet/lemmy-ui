@@ -15,7 +15,7 @@ import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import markdown_it_highlightjs from "markdown-it-highlightjs/core";
 import { Renderer, Token } from "markdown-it";
-import { instanceLinkRegex, relTags } from "./config";
+import { relTags } from "./config";
 import { lazyHighlightjs } from "./lazy-highlightjs";
 import { HttpService } from "./services";
 import { WrappedLemmyHttp } from "./services/HttpService";
@@ -398,3 +398,17 @@ interface EmojiMartCustomEmoji {
 interface EmojiMartSkin {
   src: string;
 }
+
+const queryPairRegex = "[a-zA-Zd_-]+=[a-zA-Zd+-_]+";
+
+/**
+ * Accepted formats:
+ * !community@server.com
+ * /c/community@server.com
+ * /m/community@server.com
+ * /u/username@server.com
+ */
+export const instanceLinkRegex = new RegExp(
+  `(/[cmu]/|!)[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}(?:/?\\?${queryPairRegex}(?:&${queryPairRegex})*)?`,
+  "g",
+);

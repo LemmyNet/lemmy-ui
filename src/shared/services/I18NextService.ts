@@ -3,7 +3,7 @@ import i18next, { BackendModule, ReadCallback, Resource } from "i18next";
 import { ImportReport } from "../dynamic-imports";
 import { UserService } from "../services";
 import { en } from "../translations/en";
-import { setupDateFns } from "@utils/app";
+import { setupDateFns } from "@utils/date";
 
 export type TranslationDesc = {
   resource: string;

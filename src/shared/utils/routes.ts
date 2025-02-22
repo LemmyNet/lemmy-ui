@@ -76,7 +76,7 @@ import {
   SearchFetchConfig,
   getSearchQueryParams,
 } from "./components/search";
-import { InitialFetchRequest, RouteData } from "./interfaces";
+import { InitialFetchRequest, RouteData } from "@utils/types";
 import { GetSiteResponse } from "lemmy-js-client";
 import { Inferno } from "inferno";
 import {

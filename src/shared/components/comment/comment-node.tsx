@@ -24,8 +24,8 @@ import {
   Language,
   LocalUserVoteDisplayMode,
   MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
-  PersonMentionView,
+  MarkPersonCommentMentionAsRead,
+  PersonCommentMentionView,
   PersonView,
   PurgeComment,
   PurgePerson,
@@ -88,7 +88,7 @@ interface CommentNodeProps {
   hideImages?: boolean;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
-  onPersonMentionRead(form: MarkPersonMentionAsRead): void;
+  onPersonMentionRead(form: MarkPersonCommentMentionAsRead): void;
   onCreateComment(
     form: EditComment | CreateComment,
   ): Promise<RequestState<CommentResponse>>;
@@ -460,7 +460,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const cv = this.commentView;
 
     if (this.isPersonMentionType(cv)) {
-      return cv.person_mention.read;
+      return cv.person_comment_mention.read;
     } else if (this.isCommentReplyType(cv)) {
       return cv.comment_reply.read;
     } else {
@@ -560,8 +560,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return res;
   }
 
-  isPersonMentionType(item: CommentNodeView): item is PersonMentionView {
-    return item.person_mention?.id !== undefined;
+  isPersonMentionType(item: CommentNodeView): item is PersonCommentMentionView {
+    return item.person_comment_mention?.id !== undefined;
   }
 
   isCommentReplyType(item: CommentNodeView): item is CommentReplyView {
@@ -601,8 +601,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const cv = i.commentView;
     if (i.isPersonMentionType(cv)) {
       i.props.onPersonMentionRead({
-        person_mention_id: cv.person_mention.id,
-        read: !cv.person_mention.read,
+        person_comment_mention_id: cv.person_comment_mention.id,
+        read: !cv.person_comment_mention.read,
       });
     } else if (i.isCommentReplyType(cv)) {
       i.props.onCommentReplyRead({
@@ -738,7 +738,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       max_depth: commentTreeMaxDepth,
       limit: 999, // TODO
       type_: "All",
-      saved_only: false,
     });
   }
 }

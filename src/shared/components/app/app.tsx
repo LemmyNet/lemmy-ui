@@ -2,9 +2,9 @@ import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
 import { Component, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
-import { IsoDataOptionalSite } from "../../interfaces";
-import { routes } from "../../routes";
-import { FirstLoadService, I18NextService } from "../../services";
+import { IsoDataOptionalSite } from "@utils/types";
+import { routes } from "@utils/routes";
+import { FirstLoadService, I18NextService } from "@services";
 import AuthGuard from "../common/auth-guard";
 import ErrorGuard from "../common/error-guard";
 import { ErrorPage } from "./error-page";
@@ -14,7 +14,7 @@ import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
 import AdultConsentModal from "../common/modal/adult-consent-modal";
-import { destroyTippy, setupTippy } from "../../tippy";
+import { destroyTippy, setupTippy } from "@utils/tippy";
 
 function handleJumpToContent(app: App, event: any) {
   event.preventDefault();

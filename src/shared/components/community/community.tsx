@@ -348,7 +348,6 @@ export class Community extends Component<CommunityRouteProps, State> {
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
         type_: "All",
-        saved_only: false,
       };
 
       commentsFetch = client.getComments(getCommentsForm);
@@ -392,7 +391,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           <HtmlTags
             title={this.documentTitle}
             path={this.context.router.route.match.url}
-            canonicalPath={res.community_view.community.actor_id}
+            canonicalPath={res.community_view.community.ap_id}
             description={res.community_view.community.description}
             image={res.community_view.community.icon}
           />

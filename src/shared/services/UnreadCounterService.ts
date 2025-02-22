@@ -11,16 +11,10 @@ import { BehaviorSubject } from "rxjs";
  */
 export class UnreadCounterService {
   // fetched by HttpService.getUnreadCount, appear in inbox
-  unreadPrivateMessages = 0;
-  unreadReplies = 0;
-  unreadMentions = 0;
   public unreadInboxCountSubject: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
   // fetched by HttpService.getReportCount, appear in report page
-  commentReportCount = 0;
-  postReportCount = 0;
-  messageReportCount = 0;
   public unreadReportCountSubject: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
@@ -50,12 +44,7 @@ export class UnreadCounterService {
     if (this.shouldUpdate) {
       const unreadCountRes = await HttpService.client.getUnreadCount();
       if (unreadCountRes.state === "success") {
-        this.unreadPrivateMessages = unreadCountRes.data.private_messages;
-        this.unreadReplies = unreadCountRes.data.replies;
-        this.unreadMentions = unreadCountRes.data.mentions;
-        this.unreadInboxCountSubject.next(
-          this.unreadPrivateMessages + this.unreadReplies + this.unreadMentions,
-        );
+        this.unreadInboxCountSubject.next(unreadCountRes.data.count);
       }
     }
   }
@@ -64,15 +53,7 @@ export class UnreadCounterService {
     if (this.shouldUpdate && UserService.Instance.moderatesSomething) {
       const reportCountRes = await HttpService.client.getReportCount({});
       if (reportCountRes.state === "success") {
-        this.commentReportCount = reportCountRes.data.comment_reports ?? 0;
-        this.postReportCount = reportCountRes.data.post_reports ?? 0;
-        this.messageReportCount =
-          reportCountRes.data.private_message_reports ?? 0;
-        this.unreadReportCountSubject.next(
-          this.commentReportCount +
-            this.postReportCount +
-            this.messageReportCount,
-        );
+        this.unreadReportCountSubject.next(reportCountRes.data.count);
       }
     }
   }

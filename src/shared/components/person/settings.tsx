@@ -20,7 +20,6 @@ import { NoOptionI18nKeys } from "i18next";
 import { Component, createRef, linkEvent } from "inferno";
 import {
   BlockCommunityResponse,
-  BlockInstanceResponse,
   BlockPersonResponse,
   CommentSortType,
   Community,
@@ -1434,13 +1433,14 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   async handleBlockInstance({ value }: Choice) {
+    const block = true;
     if (value !== "0") {
       const id = Number(value);
-      const res = await HttpService.client.blockInstance({
-        block: true,
+      const res = await HttpService.client.userBlockInstance({
+        block,
         instance_id: id,
       });
-      this.instanceBlock(id, res);
+      this.instanceBlock(id, block, res);
     }
   }
 
@@ -1451,11 +1451,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     ctx: Settings;
     instanceId: number;
   }) {
-    const res = await HttpService.client.blockInstance({
-      block: false,
+    const block = false;
+    const res = await HttpService.client.userBlockInstance({
+      block,
       instance_id: instanceId,
     });
-    ctx.instanceBlock(instanceId, res);
+    ctx.instanceBlock(instanceId, block, res);
   }
 
   handleShowNsfwChange(i: Settings, event: any) {
@@ -1692,14 +1693,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     });
 
     if (saveRes.state === "success") {
-      const siteRes = await HttpService.client.getSite();
+      const userRes = await HttpService.client.getMyUser();
 
-      if (siteRes.state === "success") {
-        i.setState({
-          siteRes: siteRes.data,
-        });
-
-        UserService.Instance.myUserInfo = siteRes.data.my_user;
+      if (userRes.state === "success") {
+        UserService.Instance.myUserInfo = userRes.data;
         loadUserLanguage();
       }
 
@@ -1772,10 +1769,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       const saveRes = i.state.saveRes;
       i.setState({ saveRes: LOADING_REQUEST });
 
-      const siteRes = await HttpService.client.getSite();
+      const userRes = await HttpService.client.getMyUser();
       i.setState({ saveRes });
 
-      if (siteRes.state === "success") {
+      if (userRes.state === "success") {
         const {
           local_user: {
             show_nsfw,
@@ -1800,14 +1797,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             bio,
             matrix_user_id,
           },
-        } = siteRes.data.my_user!.local_user_view;
+        } = userRes.data.local_user_view;
 
-        UserService.Instance.myUserInfo = siteRes.data.my_user;
+        UserService.Instance.myUserInfo = userRes.data;
         refreshTheme();
 
         i.setState(prev => ({
           ...prev,
-          siteRes: siteRes.data,
           saveUserSettingsForm: {
             ...prev.saveUserSettingsForm,
             show_avatars,
@@ -1824,7 +1820,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             default_listing_type,
             default_post_sort_type,
             default_comment_sort_type,
-            discussion_languages: siteRes.data.my_user?.discussion_languages,
+            discussion_languages: userRes.data.discussion_languages,
             email,
             interface_language,
             open_links_in_new_tab,
@@ -1901,14 +1897,18 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
   }
 
-  instanceBlock(id: number, res: RequestState<BlockInstanceResponse>) {
+  instanceBlock(
+    id: number,
+    blocked: boolean,
+    res: RequestState<SuccessResponse>,
+  ) {
     if (
       res.state === "success" &&
       this.state.instancesRes.state === "success"
     ) {
       const linkedInstances =
         this.state.instancesRes.data.federated_instances?.linked ?? [];
-      updateInstanceBlock(res.data, id, linkedInstances);
+      updateInstanceBlock(blocked, id, linkedInstances);
       const mui = UserService.Instance.myUserInfo;
       if (mui) {
         this.setState({ instanceBlocks: mui.instance_blocks });

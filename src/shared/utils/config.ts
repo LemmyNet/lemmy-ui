@@ -35,20 +35,6 @@ export const adultConsentCookieKey = "adultConsent";
 // page on route "/communities"
 export const communityLimit = 50;
 
-const queryPairRegex = "[a-zA-Zd_-]+=[a-zA-Zd+-_]+";
-
-/**
- * Accepted formats:
- * !community@server.com
- * /c/community@server.com
- * /m/community@server.com
- * /u/username@server.com
- */
-export const instanceLinkRegex = new RegExp(
-  `(/[cmu]/|!)[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}(?:/?\\?${queryPairRegex}(?:&${queryPairRegex})*)?`,
-  "g",
-);
-
 export const testHost = "0.0.0.0:8536";
 
 export const validActorRegexPattern =
