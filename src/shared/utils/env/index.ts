@@ -1,25 +1,72 @@
-import getBaseLocal from "./get-base-local";
-import getExternalHost from "./get-external-host";
-import getHost from "./get-host";
-import getHttpBase from "./get-http-base";
-import getHttpBaseExternal from "./get-http-base-external";
-import getHttpBaseInternal from "./get-http-base-internal";
-import getInternalHost from "./get-internal-host";
-import getSecure from "./get-secure";
-import getStaticDir from "./get-static-dir";
-import httpExternalPath from "./http-external-path";
-import isHttps from "./is-https";
+import { isBrowser } from "@utils/browser";
+import { testHost } from "../../config";
 
-export {
-  getBaseLocal,
-  getExternalHost,
-  getHost,
-  getHttpBase,
-  getHttpBaseExternal,
-  getHttpBaseInternal,
-  getInternalHost,
-  getSecure,
-  getStaticDir,
-  httpExternalPath,
-  isHttps,
-};
+export function getBaseLocal(s = "") {
+  return `http${s}://${getHost()}`;
+}
+
+export function getExternalHost() {
+  return isBrowser()
+    ? `${window.location.hostname}${
+        ["1234", "1235"].includes(window.location.port)
+          ? ":8536"
+          : window.location.port === ""
+            ? ""
+            : `:${window.location.port}`
+      }`
+    : process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST || testHost;
+}
+
+export function getHost() {
+  return isBrowser() ? getExternalHost() : getInternalHost();
+}
+
+export function getHttpBase() {
+  return getBaseLocal(getSecure());
+}
+
+export function getHttpBaseExternal() {
+  return `http${getSecure()}://${getExternalHost()}`;
+}
+
+export function getHttpBaseInternal() {
+  return getBaseLocal(); // Don't use secure here
+}
+
+export function getInternalHost() {
+  return !isBrowser()
+    ? (process.env.LEMMY_UI_LEMMY_INTERNAL_HOST ?? testHost)
+    : testHost; // used for local dev
+}
+
+export function getSecure() {
+  return (
+    isBrowser()
+      ? window.location.protocol.includes("https")
+      : process.env.LEMMY_UI_HTTPS === "true"
+  )
+    ? "s"
+    : "";
+}
+
+/**
+ * Returns path to static directory, intended
+ * for cache-busting based on latest commit hash.
+ */
+export function getStaticDir() {
+  return `/static/${process.env.COMMIT_HASH}`;
+}
+
+/**
+ * This is for html tags, don't include port
+ */
+export function httpExternalPath(path: string) {
+  return `http${getSecure()}://${getExternalHost().replace(
+    /:\d+/g,
+    "",
+  )}${path}`;
+}
+
+export function isHttps() {
+  return getSecure() === "s";
+}
