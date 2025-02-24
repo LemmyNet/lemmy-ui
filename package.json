@@ -114,7 +114,7 @@
     "eslint-plugin-inferno": "^7.34.0",
     "eslint-plugin-jsx-a11y": "^6.9.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "globals": "^15.9.0",
+    "globals": "^16.0.0",
     "husky": "^9.1.5",
     "import-sort-style-module": "^6.0.0",
     "lint-staged": "^15.2.9",
