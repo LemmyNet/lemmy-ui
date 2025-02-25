@@ -203,7 +203,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     showSidebarMobile: false,
     isIsomorphic: false,
   };
-  private readonly mainContentRef: RefObject<HTMLElement>;
+  private readonly mainContentRef: RefObject<HTMLDivElement>;
 
   loadingSettled() {
     return resourcesSettled([
@@ -422,7 +422,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     return (
       <div className="community container-lg">
         <div className="row">
-          <main className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
+          <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
             {this.renderCommunity()}
             {this.selects()}
             {this.listings()}
@@ -430,7 +430,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               nextPage={this.getNextPage}
               onNext={this.handlePageNext}
             />
-          </main>
+          </div>
           <aside className="d-none d-md-block col-md-4 col-lg-3">
             {this.sidebar()}
           </aside>
