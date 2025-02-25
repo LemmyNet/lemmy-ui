@@ -203,7 +203,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     showSidebarMobile: false,
     isIsomorphic: false,
   };
-  private readonly mainContentRef: RefObject<HTMLElement>;
+  private readonly mainContentRef: RefObject<HTMLDivElement>;
 
   loadingSettled() {
     return resourcesSettled([
