@@ -406,7 +406,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         />
         {site_setup && (
           <div className="row">
-            <main role="main" className="col-12 col-md-8 col-lg-9">
+            <div className="col-12 col-md-8 col-lg-9">
               {tagline && (
                 <div
                   id="tagline"
@@ -417,7 +417,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               )}
               <div className="d-block d-md-none">{this.mobileView}</div>
               {this.posts}
-            </main>
+            </div>
             <aside className="d-none d-md-block col-md-4 col-lg-3">
               {this.mySidebar}
             </aside>
