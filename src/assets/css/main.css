@@ -306,8 +306,8 @@ hr {
   display: block;
   height: 1.5em;
   width: 1.5em;
-  background: rgba(0, 0, 0, 0.4);
-  background-color: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.7);
   border-bottom-left-radius: 0.25rem !important;
   border-top-right-radius: 0.25rem !important;
 }
