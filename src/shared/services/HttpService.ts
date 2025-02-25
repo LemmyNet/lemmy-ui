@@ -54,7 +54,7 @@ class WrappedLemmyHttpClient {
       Object.getPrototypeOf(this.rawClient),
     )) {
       if (key !== "constructor") {
-        this[key] = async (...args) => {
+        this[key] = async (...args: any) => {
           try {
             const res = await this.rawClient[key](...args);
 

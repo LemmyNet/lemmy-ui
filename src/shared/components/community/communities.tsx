@@ -1,6 +1,5 @@
 import { editCommunity, setIsoData, showLocal } from "@utils/app";
 import {
-  getPageFromString,
   getQueryParams,
   getQueryString,
   numToSI,
@@ -11,14 +10,13 @@ import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   CommunityResponse,
-  GetSiteResponse,
   LemmyHttp,
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
-  PostSortType,
+  CommunitySortType,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../../interfaces";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -30,17 +28,17 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
-import { Paginator } from "../common/paginator";
-import { SortSelect } from "../common/sort-select";
+
 import { CommunityLink } from "./community-link";
 
-import { communityLimit } from "../../config";
+import { communityLimit } from "@utils/config";
 import { SubscribeButton } from "../common/subscribe-button";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
+import { CommunitySortSelect } from "@components/common/community-sort-select";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -48,23 +46,22 @@ type CommunitiesData = RouteDataResponse<{
 
 interface CommunitiesState {
   listCommunitiesResponse: RequestState<ListCommunitiesResponse>;
-  siteRes: GetSiteResponse;
   searchText: string;
   isIsomorphic: boolean;
 }
 
 interface CommunitiesProps {
   listingType: ListingType;
-  sort: PostSortType;
-  page: number;
+  sort: CommunitySortType;
+  // TODO add pagination
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
   return listingType ? (listingType as ListingType) : "Local";
 }
 
-function getSortTypeFromQuery(type?: string): PostSortType {
-  return type ? (type as PostSortType) : "TopMonth";
+function getSortTypeFromQuery(type?: string): CommunitySortType {
+  return type ? (type as CommunitySortType) : "ActiveMonthly";
 }
 
 export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
@@ -72,7 +69,6 @@ export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
     {
       listingType: getListingTypeFromQuery,
       sort: getSortTypeFromQuery,
-      page: getPageFromString,
     },
     source,
   );
@@ -95,7 +91,6 @@ export class Communities extends Component<
   private isoData = setIsoData<CommunitiesData>(this.context);
   state: CommunitiesState = {
     listCommunitiesResponse: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
     searchText: "",
     isIsomorphic: false,
   };
@@ -106,7 +101,6 @@ export class Communities extends Component<
 
   constructor(props: CommunitiesRouteProps, context: any) {
     super(props, context);
-    this.handlePageChange = this.handlePageChange.bind(this);
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
 
@@ -134,7 +128,7 @@ export class Communities extends Component<
 
   get documentTitle(): string {
     return `${I18NextService.i18n.t("communities")} - ${
-      this.state.siteRes.site_view.site.name
+      this.isoData.siteRes?.site_view.site.name
     }`;
   }
 
@@ -218,7 +212,7 @@ export class Communities extends Component<
   }
 
   render() {
-    const { listingType, sort, page } = this.props;
+    const { listingType, sort } = this.props;
     return (
       <div className="communities container-lg">
         <HtmlTags
@@ -239,21 +233,15 @@ export class Communities extends Component<
               />
             </div>
             <div className="col-auto me-auto">
-              <SortSelect sort={sort} onChange={this.handleSortChange} />
+              <CommunitySortSelect
+                sort={sort}
+                onChange={this.handleSortChange}
+              />
             </div>
             <div className="col-auto">{this.searchForm()}</div>
           </div>
-
           <div className="table-responsive">{this.renderListingsTable()}</div>
-          <Paginator
-            page={page}
-            onChange={this.handlePageChange}
-            nextDisabled={
-              this.state.listCommunitiesResponse.state !== "success" ||
-              communityLimit >
-                this.state.listCommunitiesResponse.data.communities.length
-            }
-          />
+          /* TODO Add paginator here */
         </div>
       </div>
     );
@@ -287,29 +275,23 @@ export class Communities extends Component<
   }
 
   async updateUrl(props: Partial<CommunitiesProps>) {
-    const { listingType, sort, page } = { ...this.props, ...props };
+    const { listingType, sort } = { ...this.props, ...props };
 
     const queryParams: QueryParams<CommunitiesProps> = {
       listingType: listingType,
       sort: sort,
-      page: page?.toString(),
     };
 
     this.props.history.push(`/communities${getQueryString(queryParams)}`);
   }
 
-  handlePageChange(page: number) {
-    this.updateUrl({ page });
-  }
-
-  handleSortChange(val: PostSortType) {
-    this.updateUrl({ sort: val, page: 1 });
+  handleSortChange(val: CommunitySortType) {
+    this.updateUrl({ sort: val });
   }
 
   handleListingTypeChange(val: ListingType) {
     this.updateUrl({
       listingType: val,
-      page: 1,
     });
   }
 
@@ -328,7 +310,7 @@ export class Communities extends Component<
 
   static async fetchInitialData({
     headers,
-    query: { listingType, sort, page },
+    query: { listingType, sort },
   }: InitialFetchRequest<
     CommunitiesPathProps,
     CommunitiesProps
@@ -336,11 +318,11 @@ export class Communities extends Component<
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
+    // TODO add time range picker
     const listCommunitiesForm: ListCommunities = {
       type_: listingType,
       sort,
       limit: communityLimit,
-      page,
     };
 
     return {
@@ -362,14 +344,13 @@ export class Communities extends Component<
   }
 
   fetchToken?: symbol;
-  async refetch({ listingType, sort, page }: CommunitiesProps) {
+  async refetch({ listingType, sort }: CommunitiesProps) {
     const token = (this.fetchToken = Symbol());
     this.setState({ listCommunitiesResponse: LOADING_REQUEST });
     const listCommunitiesResponse = await HttpService.client.listCommunities({
       type_: listingType,
       sort: sort,
       limit: communityLimit,
-      page,
     });
     if (token === this.fetchToken) {
       this.setState({ listCommunitiesResponse });

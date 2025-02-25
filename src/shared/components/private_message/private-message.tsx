@@ -8,7 +8,7 @@ import {
   Person,
   PrivateMessageView,
 } from "lemmy-js-client";
-import { mdToHtml } from "../../markdown";
+import { mdToHtml } from "@utils/markdown";
 import { I18NextService, UserService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";

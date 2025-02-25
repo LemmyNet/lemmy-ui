@@ -29,7 +29,7 @@ export class LoginReset extends Component<
       email: "",
       loading: false,
     },
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
   };
 
   constructor(props: any, context: any) {

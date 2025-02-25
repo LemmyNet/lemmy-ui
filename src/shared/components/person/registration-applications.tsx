@@ -67,7 +67,7 @@ export class RegistrationApplications extends Component<
   private isoData = setIsoData<RegistrationApplicationsData>(this.context);
   state: RegistrationApplicationsState = {
     appsRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     registrationState: RegistrationState.Unread,
     page: 1,
     isIsomorphic: false,

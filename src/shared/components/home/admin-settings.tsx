@@ -79,7 +79,7 @@ export class AdminSettings extends Component<
 > {
   private isoData = setIsoData<AdminSettingsData>(this.context);
   state: AdminSettingsState = {
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     banned: [],
     bannedRes: EMPTY_REQUEST,
     instancesRes: EMPTY_REQUEST,

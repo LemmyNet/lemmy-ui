@@ -16,14 +16,14 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import TotpModal from "../common/modal/totp-modal";
 import { UnreadCounterService } from "../../services";
-import { RouteData } from "../../interfaces";
-import { IRoutePropsWithFetch } from "../../routes";
+import { RouteData } from "@utils/types";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 
 interface LoginProps {
@@ -59,8 +59,8 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
   if (site.state === "success") {
     UserService.Instance.myUserInfo = site.data.my_user;
     const isoData = setIsoData(i.context);
-    isoData.site_res.oauth_providers = site.data.oauth_providers;
-    isoData.site_res.admin_oauth_providers = site.data.admin_oauth_providers;
+    isoData.siteRes.oauth_providers = site.data.oauth_providers;
+    isoData.siteRes.admin_oauth_providers = site.data.admin_oauth_providers;
     refreshTheme();
   }
 
@@ -186,7 +186,7 @@ export class Login extends Component<LoginRouteProps, State> {
       username_or_email: "",
       password: "",
     },
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     show2faModal: false,
     showOAuthModal: false,
   };

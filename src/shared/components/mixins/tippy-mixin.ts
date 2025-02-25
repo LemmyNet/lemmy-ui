@@ -1,5 +1,5 @@
 import { Component, InfernoNode } from "inferno";
-import { cleanupTippy } from "../../tippy";
+import { cleanupTippy } from "@utils/tippy";
 
 export function tippyMixin<
   P,

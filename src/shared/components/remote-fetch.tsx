@@ -8,7 +8,7 @@ import {
   LemmyHttp,
   ResolveObjectResponse,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../interfaces";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, HttpService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
@@ -24,7 +24,7 @@ import { SubscribeButton } from "./common/subscribe-button";
 import { CommunityLink } from "./community/community-link";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 
 interface RemoteFetchProps {
@@ -229,7 +229,7 @@ export class RemoteFetch extends Component<
 
   get documentTitle(): string {
     const { uri } = this.props;
-    const name = this.isoData.site_res.site_view.site.name;
+    const name = this.isoData.siteRes.site_view.site.name;
     return `${I18NextService.i18n.t("remote_follow")} - ${
       uri ? `${uri} - ` : ""
     }${name}`;

@@ -12,7 +12,7 @@ interface LegalState {
 export class Legal extends Component<any, LegalState> {
   private isoData = setIsoData(this.context);
   state: LegalState = {
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
   };
 
   constructor(props: any, context: any) {

@@ -11,7 +11,7 @@ class ErrorGuard extends Component<any, any> {
 
   render() {
     const errorPageData = this.isoData.errorPageData;
-    const siteRes = this.isoData.site_res;
+    const siteRes = this.isoData.siteRes;
 
     if (errorPageData || !siteRes) {
       return <ErrorPage />;

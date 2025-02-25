@@ -53,7 +53,7 @@ export class Setup extends Component<
       show_nsfw: true,
     },
     doneRegisteringUser: !!UserService.Instance.myUserInfo,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
   };
 
   constructor(props: any, context: any) {
