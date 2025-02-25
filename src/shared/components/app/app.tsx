@@ -2,9 +2,9 @@ import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
 import { Component, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
-import { IsoDataOptionalSite } from "@utils/types";
+import { IsoData } from "@utils/types";
 import { routes } from "@utils/routes";
-import { FirstLoadService, I18NextService } from "@services";
+import { FirstLoadService, I18NextService } from "@services/index";
 import AuthGuard from "../common/auth-guard";
 import ErrorGuard from "../common/error-guard";
 import { ErrorPage } from "./error-page";
@@ -22,7 +22,7 @@ function handleJumpToContent(app: App, event: any) {
 }
 
 export default class App extends Component<any, any> {
-  private isoData: IsoDataOptionalSite = setIsoData(this.context);
+  private isoData: IsoData = setIsoData(this.context);
   private readonly rootRef = createRef<HTMLDivElement>();
   readonly contentRef = createRef<HTMLDivElement>();
 
@@ -52,7 +52,7 @@ export default class App extends Component<any, any> {
           }
 
           let queryProps = routeProps;
-          if (getQueryParams && this.isoData.site_res) {
+          if (getQueryParams && this.isoData.siteRes) {
             // ErrorGuard will not render its children when
             // site_res is missing, this guarantees that props
             // will always contain the query params.
@@ -60,7 +60,7 @@ export default class App extends Component<any, any> {
               ...routeProps,
               ...getQueryParams(
                 routeProps.location.search,
-                this.isoData.site_res,
+                this.isoData.siteRes,
               ),
             };
           }
@@ -93,7 +93,7 @@ export default class App extends Component<any, any> {
   );
 
   render() {
-    const siteRes = this.isoData.site_res;
+    const siteRes = this.isoData.siteRes;
     const siteView = siteRes?.site_view;
 
     return (

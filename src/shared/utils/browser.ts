@@ -1,5 +1,5 @@
 import * as cookie from "cookie";
-import { authCookieName } from "../../config";
+import { authCookieName } from "@utils/config";
 import { GetSiteResponse, MyUserInfo } from "lemmy-js-client";
 import { isHttps } from "@utils/env";
 

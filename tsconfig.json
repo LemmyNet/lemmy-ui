@@ -31,8 +31,11 @@
       "@utils/*": [
         "shared/utils/*"
       ],
-      "@services": [
-        "shared/services/index.ts"
+      "@services/*": [
+        "shared/services/*"
+      ],
+      "@components/*": [
+        "shared/components/*"
       ]
     }
   },

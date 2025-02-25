@@ -8,7 +8,7 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
@@ -29,7 +29,7 @@ export class VerifyEmail extends Component<
 
   state: State = {
     verifyRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
   };
 
   constructor(props: any, context: any) {

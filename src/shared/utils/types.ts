@@ -8,8 +8,9 @@ import {
   GetSiteResponse,
   PersonCommentMention,
   PersonView,
+  MyUserInfo,
 } from "lemmy-js-client";
-import { RequestState } from "../../services/HttpService";
+import { RequestState } from "@services/HttpService";
 import { Match } from "inferno-router/dist/Route";
 
 /**
@@ -18,15 +19,11 @@ import { Match } from "inferno-router/dist/Route";
 export interface IsoData<T extends RouteData = any> {
   path: string;
   routeData: T;
-  site_res: GetSiteResponse;
+  siteRes?: GetSiteResponse;
+  myUserInfo?: MyUserInfo;
   errorPageData?: ErrorPageData;
   showAdultConsentModal: boolean;
 }
-
-export type IsoDataOptionalSite<T extends RouteData = any> = Partial<
-  IsoData<T>
-> &
-  Pick<IsoData<T>, Exclude<keyof IsoData<T>, "site_res">>;
 
 declare global {
   interface Window {

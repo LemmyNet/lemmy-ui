@@ -3,7 +3,7 @@ import hljs from "highlight.js/lib/core";
 import {
   bundledSyntaxHighlighters,
   lazySyntaxHighlighters,
-} from "./build-config";
+} from "../build-config";
 import { isBrowser } from "@utils/browser";
 import { default as MarkdownIt } from "markdown-it";
 import { ImportReport } from "./dynamic-imports";

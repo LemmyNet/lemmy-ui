@@ -8,6 +8,7 @@ interface PaginatorProps {
   disabled?: boolean;
 }
 
+// TODO deprecate this
 export class Paginator extends Component<PaginatorProps, any> {
   constructor(props: any, context: any) {
     super(props, context);

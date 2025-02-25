@@ -51,7 +51,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   private isoData = setIsoData<InstancesData>(this.context);
   state: InstancesState = {
     instancesRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     isIsomorphic: false,
   };
 

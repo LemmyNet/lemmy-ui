@@ -118,7 +118,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: MessageType.All,
     page: 1,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     isIsomorphic: false,
   };
 

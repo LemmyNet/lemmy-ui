@@ -45,7 +45,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
   private isoData = setIsoData(this.context);
 
   state: State = {
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
   };
 
   constructor(props: any, context: any) {

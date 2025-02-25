@@ -1,18 +1,14 @@
-import { initializeUser, isAuthPath } from "@utils/app";
+import { isAuthPath } from "@utils/app";
 import { getHttpBaseInternal } from "@utils/env";
-import { ErrorPageData } from "@utils/types";
+import { ErrorPageData, IsoData } from "@utils/types";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { Match } from "inferno-router/dist/Route";
 import { renderToString } from "inferno-server";
 import { GetSiteResponse, LemmyHttp, MyUserInfo } from "lemmy-js-client";
 import App from "../../shared/components/app/app";
-import {
-  InitialFetchRequest,
-  IsoDataOptionalSite,
-  RouteData,
-} from "@utils/types";
-import { routes } from "../../shared/routes";
+import { InitialFetchRequest, RouteData } from "@utils/types";
+import { routes } from "@utils/routes";
 import {
   FailedRequestState,
   wrapClient,
@@ -21,28 +17,15 @@ import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
-import {
-  I18NextService,
-  LanguageService,
-  UserService,
-} from "../../shared/services/";
+import { I18NextService, LanguageService } from "../../shared/services/";
 import { parsePath } from "history";
 import { getQueryString } from "@utils/helpers";
-import { adultConsentCookieKey } from "../../shared/config";
+import { adultConsentCookieKey } from "@utils/config";
+import { setupMarkdown } from "@utils/markdown";
 
 export default async (req: Request, res: Response) => {
   try {
-    const languages: string[] =
-      req.headers["accept-language"]
-        ?.split(",")
-        .map(x => {
-          const [head, tail] = x.split(/;\s*q?\s*=?/); // at ";", remove "q="
-          const q = Number(tail ?? 1); // no q means q=1
-          return { lang: head.trim(), q: Number.isNaN(q) ? 0 : q };
-        })
-        .filter(x => x.lang)
-        .sort((a, b) => b.q - a.q)
-        .map(x => (x.lang === "*" ? "en" : x.lang)) ?? [];
+    const languages = headerLanguages(req.headers["accept-language"]);
 
     let match: Match<any> | null | undefined;
     const activeRoute = routes.find(
@@ -61,7 +44,7 @@ export default async (req: Request, res: Response) => {
     // Get site data first
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
-    let site: GetSiteResponse | undefined = undefined;
+    let siteRes: GetSiteResponse | undefined = undefined;
     let myUserInfo: MyUserInfo | undefined = undefined;
     let routeData: RouteData = {};
     let errorPageData: ErrorPageData | undefined = undefined;
@@ -82,24 +65,22 @@ export default async (req: Request, res: Response) => {
 
     if (tryUser.state === "success") {
       myUserInfo = tryUser.data;
-      initializeUser(myUserInfo);
-      LanguageService.updateLanguages(languages);
     }
 
     if (trySite.state === "success") {
-      site = trySite.data;
+      siteRes = trySite.data;
 
-      if (path !== "/setup" && !site.site_view.local_site.site_setup) {
+      if (path !== "/setup" && !siteRes.site_view.local_site.site_setup) {
         return res.redirect("/setup");
       }
 
-      if (site && activeRoute?.fetchInitialData && match) {
+      if (siteRes && activeRoute?.fetchInitialData && match) {
         const { search } = parsePath(url);
         const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
           path,
-          query: activeRoute.getQueryParams?.(search, site) ?? {},
+          query: activeRoute.getQueryParams?.(search, siteRes) ?? {},
           match,
-          site,
+          site: siteRes,
           headers,
         };
 
@@ -109,7 +90,7 @@ export default async (req: Request, res: Response) => {
             // use global state after the first await of an unresolved promise.
             // This simulates another request entering or leaving this
             // "success" block.
-            UserService.Instance.myUserInfo = undefined;
+            myUserInfo = undefined;
             I18NextService.i18n.changeLanguage("cimode");
           });
         }
@@ -121,7 +102,7 @@ export default async (req: Request, res: Response) => {
       }
     } else if (trySite.state === "failed") {
       res.status(500);
-      errorPageData = getErrorPageData(new Error(trySite.err.message), site);
+      errorPageData = getErrorPageData(new Error(trySite.err.message), siteRes);
     }
 
     const error = Object.values(routeData).find(
@@ -137,17 +118,18 @@ export default async (req: Request, res: Response) => {
         return res.redirect(`/signup`);
       } else {
         res.status(500);
-        errorPageData = getErrorPageData(new Error(error.err.message), site);
+        errorPageData = getErrorPageData(new Error(error.err.message), siteRes);
       }
     }
 
-    const isoData: IsoDataOptionalSite = {
+    const isoData: IsoData = {
       path,
-      site_res: site,
+      siteRes: siteRes,
+      myUserInfo,
       routeData,
       errorPageData,
       showAdultConsentModal:
-        !!site?.site_view.site.content_warning &&
+        !!siteRes?.site_view.site.content_warning &&
         !(myUserInfo || req.cookies[adultConsentCookieKey]),
     };
 
@@ -157,8 +139,7 @@ export default async (req: Request, res: Response) => {
       </StaticRouter>
     );
 
-    // Another request could have initialized a new site.
-    initializeUser(myUserInfo);
+    setupMarkdown();
     LanguageService.updateLanguages(languages);
 
     const root = renderToString(wrapper);
@@ -168,7 +149,7 @@ export default async (req: Request, res: Response) => {
         root,
         isoData,
         res.locals.cspNonce,
-        LanguageService.userLanguages,
+        LanguageService.userLanguages(myUserInfo),
       ),
     );
   } catch (err) {
@@ -181,3 +162,18 @@ export default async (req: Request, res: Response) => {
     );
   }
 };
+
+function headerLanguages(acceptLanguages?: string): string[] {
+  return (
+    acceptLanguages
+      ?.split(",")
+      .map(x => {
+        const [head, tail] = x.split(/;\s*q?\s*=?/); // at ";", remove "q="
+        const q = Number(tail ?? 1); // no q means q=1
+        return { lang: head.trim(), q: Number.isNaN(q) ? 0 : q };
+      })
+      .filter(x => x.lang)
+      .sort((a, b) => b.q - a.q)
+      .map(x => (x.lang === "*" ? "en" : x.lang)) ?? []
+  );
+}

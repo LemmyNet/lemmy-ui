@@ -800,15 +800,13 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   modOrAdminText(person?: Person): string {
     return person &&
-      this.isoData.site_res.admins.some(
-        ({ person: { id } }) => id === person.id,
-      )
+      this.isoData.siteRes.admins.some(({ person: { id } }) => id === person.id)
       ? I18NextService.i18n.t("admin")
       : I18NextService.i18n.t("mod");
   }
 
   get documentTitle(): string {
-    return `Modlog - ${this.isoData.site_res.site_view.site.name}`;
+    return `Modlog - ${this.isoData.siteRes.site_view.site.name}`;
   }
 
   render() {
@@ -908,7 +906,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             loading={loadingUserSearch}
           />
           {(this.amAdminOrMod ||
-            !this.isoData.site_res.site_view.local_site
+            !this.isoData.siteRes.site_view.local_site
               .hide_modlog_mod_names) && (
             <Filter
               filterType="mod"

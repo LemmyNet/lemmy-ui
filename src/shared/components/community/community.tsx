@@ -5,7 +5,6 @@ import {
   editComment,
   editPost,
   editWith,
-  enableDownvotes,
   enableNsfw,
   getDataTypeString,
   postToCommentSortType,
@@ -42,7 +41,6 @@ import {
   BanPersonResponse,
   BlockCommunity,
   BlockPerson,
-  CommentReplyResponse,
   CommentResponse,
   CommunityResponse,
   CreateComment,
@@ -70,7 +68,6 @@ import {
   LemmyHttp,
   LockPost,
   MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
   PaginationCursor,
   PostResponse,
   PurgeComment,
@@ -87,12 +84,8 @@ import {
   TransferCommunity,
   CommentSortType,
 } from "lemmy-js-client";
-import { fetchLimit, relTags } from "../../config";
-import {
-  CommentViewType,
-  DataType,
-  InitialFetchRequest,
-} from "../../interfaces";
+import { fetchLimit, relTags } from "@utils/config";
+import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -102,13 +95,13 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon } from "../common/icon";
-import { SortSelect } from "../common/sort-select";
+import { PostSortSelect } from "../common/post-sort-select";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { CommunityLink } from "./community-link";
@@ -119,7 +112,7 @@ import {
   PostsLoadingSkeleton,
 } from "../common/loading-skeleton";
 import { Sidebar } from "./sidebar";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
 import { LoadingEllipses } from "../common/loading-ellipses";
@@ -199,7 +192,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     communityRes: EMPTY_REQUEST,
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     isIsomorphic: false,
   };
@@ -377,7 +370,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   get documentTitle(): string {
     const cRes = this.state.communityRes;
     return cRes.state === "success"
-      ? `${cRes.data.community_view.community.title} - ${this.isoData.site_res.site_view.site.name}`
+      ? `${cRes.data.community_view.community.title} - ${this.isoData.siteRes.site_view.site.name}`
       : "";
   }
 
@@ -443,7 +436,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       return undefined;
     }
     const res = this.state.communityRes.data;
-    const siteRes = this.isoData.site_res;
+    const siteRes = this.isoData.siteRes;
     // For some reason, this returns an empty vec if it matches the site langs
     const communityLangs =
       res.discussion_languages.length === 0
@@ -478,7 +471,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   listings() {
     const { dataType } = this.props;
-    const siteRes = this.isoData.site_res;
+    const siteRes = this.isoData.siteRes;
 
     if (dataType === DataType.Post) {
       switch (this.state.postsRes.state) {
@@ -611,7 +604,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.state.communityRes.data;
     const { dataType, sort, showHidden } = this.props;
     const communityRss = res
-      ? communityRSSUrl(res.community_view.community.actor_id, sort)
+      ? communityRSSUrl(res.community_view.community.ap_id, sort)
       : undefined;
 
     return (
@@ -632,7 +625,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         )}
         <span className="me-2">
           {this.props.dataType === DataType.Post ? (
-            <SortSelect sort={sort} onChange={this.handleSortChange} />
+            <PostSortSelect sort={sort} onChange={this.handleSortChange} />
           ) : (
             <CommentSortSelect
               sort={postToCommentSortType(sort)}

@@ -34,7 +34,7 @@ export class PasswordChange extends Component<
 
   state: State = {
     passwordChangeRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     form: {
       token: this.props.match.params.token,
     },

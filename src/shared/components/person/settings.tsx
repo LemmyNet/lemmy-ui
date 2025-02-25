@@ -59,7 +59,7 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
 import { SearchableSelect } from "../common/searchable-select";
-import { SortSelect } from "../common/sort-select";
+import { PostSortSelect } from "../common/post-sort-select";
 import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
@@ -232,7 +232,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     communityBlocks: [],
     instanceBlocks: [],
     currentTab: "settings",
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     themeList: [],
     searchCommunityLoading: false,
     searchCommunityOptions: [],
@@ -916,7 +916,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               {I18NextService.i18n.t("post_sort_type")}
             </label>
             <div className="col-sm-9">
-              <SortSelect
+              <PostSortSelect
                 sort={
                   this.state.saveUserSettingsForm.default_post_sort_type ??
                   "Active"

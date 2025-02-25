@@ -8,7 +8,7 @@ import {
   Person,
   PrivateMessageView,
 } from "lemmy-js-client";
-import { relTags } from "../../config";
+import { relTags } from "@utils/config";
 import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";

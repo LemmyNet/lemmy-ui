@@ -1,13 +1,14 @@
 import { showAvatars } from "@utils/app";
 import { getStaticDir } from "@utils/env";
-import { hostname, isCakeDay } from "@utils/helpers";
+import { hostname } from "@utils/helpers";
 import classNames from "classnames";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { Person } from "lemmy-js-client";
-import { relTags } from "../../config";
+import { relTags } from "@utils/config";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
+import { isCakeDay } from "@utils/date";
 
 interface PersonListingProps {
   person: Person;
@@ -36,10 +37,10 @@ export class PersonListing extends Component<PersonListingProps, any> {
     if (local) {
       link = `/u/${person.name}`;
     } else {
-      serverStr = `@${hostname(person.actor_id)}`;
+      serverStr = `@${hostname(person.ap_id)}`;
       link = !this.props.realLink
         ? `/u/${person.name}${serverStr}`
-        : person.actor_id;
+        : person.ap_id;
     }
 
     const classes = classNames(

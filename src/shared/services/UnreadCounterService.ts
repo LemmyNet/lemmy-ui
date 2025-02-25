@@ -1,5 +1,5 @@
-import { UserService, HttpService } from "../services";
-import { updateUnreadCountsInterval } from "../config";
+import { UserService, HttpService } from "@services/index";
+import { updateUnreadCountsInterval } from "@utils/config";
 import { poll } from "@utils/helpers";
 import { myAuth } from "@utils/app";
 import { amAdmin } from "@utils/roles";

@@ -55,7 +55,7 @@ export class CreatePrivateMessage extends Component<
 > {
   private isoData = setIsoData<CreatePrivateMessageData>(this.context);
   state: CreatePrivateMessageState = {
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     recipientRes: EMPTY_REQUEST,
     recipientId: getRecipientIdFromProps(this.props),
     isIsomorphic: false,

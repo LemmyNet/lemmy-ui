@@ -2,10 +2,14 @@ import { communitySearch, personSearch } from "@utils/app";
 import { debounce, groupBy } from "@utils/helpers";
 import { CommunityTribute, PersonTribute } from "@utils/types";
 import { Picker } from "emoji-mart";
-import emojiShortName from "emoji-short-name";
 import { CustomEmojiView } from "lemmy-js-client";
 import { default as MarkdownIt } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
+import { Renderer, Token } from "markdown-it";
+import { relTags } from "./config";
+import { lazyHighlightjs } from "./lazy-highlightjs";
+import { HttpService, WrappedLemmyHttp } from "@services/HttpService";
+import emojiShortName from "emoji-short-name";
 // import markdown_it_emoji from "markdown-it-emoji/bare";
 import markdown_it_bidi from "markdown-it-bidi";
 import markdown_it_footnote from "markdown-it-footnote";
@@ -14,11 +18,6 @@ import markdown_it_ruby from "markdown-it-ruby";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import markdown_it_highlightjs from "markdown-it-highlightjs/core";
-import { Renderer, Token } from "markdown-it";
-import { relTags } from "./config";
-import { lazyHighlightjs } from "./lazy-highlightjs";
-import { HttpService } from "./services";
-import { WrappedLemmyHttp } from "./services/HttpService";
 
 let Tribute: any;
 
@@ -350,7 +349,7 @@ export async function setupTribute() {
         trigger: "@",
         selectTemplate: (item: any) => {
           const it: PersonTribute = item.original;
-          return `[${it.key}](${it.view.person.actor_id})`;
+          return `[${it.key}](${it.view.person.ap_id})`;
         },
         values: debounce(async (text: string, cb: any) => {
           cb(await personSearch(text));
@@ -367,7 +366,7 @@ export async function setupTribute() {
         trigger: "!",
         selectTemplate: (item: any) => {
           const it: CommunityTribute = item.original;
-          return `[${it.key}](${it.view.community.actor_id})`;
+          return `[${it.key}](${it.view.community.ap_id})`;
         },
         values: debounce(async (text: string, cb: any) => {
           cb(await communitySearch(text));

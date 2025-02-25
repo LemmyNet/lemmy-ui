@@ -1,5 +1,5 @@
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { RequestState } from "../../services/HttpService";
+import { RequestState } from "@services/HttpService";
 
 // Intended to allow reloading all the data of the current page by clicking the
 // navigation link of the current page.

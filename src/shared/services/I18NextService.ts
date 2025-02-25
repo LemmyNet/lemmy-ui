@@ -1,9 +1,9 @@
 import { isBrowser } from "@utils/browser";
 import i18next, { BackendModule, ReadCallback, Resource } from "i18next";
-import { ImportReport } from "../dynamic-imports";
-import { UserService } from "../services";
+import { ImportReport } from "@utils/dynamic-imports";
 import { en } from "../translations/en";
 import { setupDateFns } from "@utils/date";
+import { MyUserInfo } from "lemmy-js-client";
 
 export type TranslationDesc = {
   resource: string;
@@ -135,15 +135,16 @@ export class LanguageService {
       return this._serverLanguages;
     }
   }
+
   static updateLanguages(languages: readonly string[]) {
     this._serverLanguages = languages;
     I18NextService.i18n.changeLanguage();
     setupDateFns();
   }
-  static get userLanguages(): readonly string[] {
+
+  static userLanguages(myUserInfo?: MyUserInfo): readonly string[] {
     const myLang =
-      UserService.Instance.myUserInfo?.local_user_view.local_user
-        .interface_language ?? "browser";
+      myUserInfo?.local_user_view.local_user.interface_language ?? "browser";
     if (myLang === "browser") {
       return this.languages;
     }

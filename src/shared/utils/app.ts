@@ -41,8 +41,7 @@ import {
   WithComment,
 } from "@utils/types";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { HttpService, I18NextService, UserService } from "../../services";
-import { setupMarkdown } from "../../markdown";
+import { HttpService, I18NextService, UserService } from "@services/index";
 import { isBrowser } from "@utils/browser";
 import Toastify from "toastify-js";
 
@@ -303,8 +302,8 @@ export function voteDisplayMode(
   );
 }
 
-export function enableNsfw(siteRes: GetSiteResponse): boolean {
-  return !!siteRes.site_view.site.content_warning;
+export function enableNsfw(siteRes?: GetSiteResponse): boolean {
+  return !!siteRes?.site_view.site.content_warning;
 }
 
 export async function fetchCommunities(q: string) {
@@ -379,11 +378,6 @@ export function getRecipientIdFromProps(
     : 1;
 }
 
-export function initializeUser(myUserInfo?: MyUserInfo) {
-  UserService.Instance.myUserInfo = myUserInfo;
-  setupMarkdown();
-}
-
 export function insertCommentIntoTree(
   tree: CommentNodeI[],
   cv: CommentView,
@@ -414,10 +408,7 @@ export function isAuthPath(pathname: string) {
   );
 }
 
-export function isPostBlocked(
-  pv: PostView,
-  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo,
-): boolean {
+export function isPostBlocked(pv: PostView, myUserInfo?: MyUserInfo): boolean {
   return (
     (myUserInfo?.community_blocks.some(c => c.id === pv.community.id) ||
       myUserInfo?.person_blocks.some(p => p.id === pv.creator.id)) ??
@@ -440,10 +431,7 @@ export function newVote(voteType: VoteType, myVote?: number): number {
   }
 }
 
-export function nsfwCheck(
-  pv: PostView,
-  myUserInfo = UserService.Instance.myUserInfo,
-): boolean {
+export function nsfwCheck(pv: PostView, myUserInfo?: MyUserInfo): boolean {
   const nsfw = pv.post.nsfw || pv.community.nsfw;
   const myShowNsfw = myUserInfo?.local_user_view.local_user.show_nsfw ?? false;
   return !nsfw || (nsfw && myShowNsfw);
@@ -525,26 +513,28 @@ export function searchCommentTree(
  * Use false for both those to filter on your profile and site ones
  */
 export function selectableLanguages(
-  allLanguages: Language[],
-  siteLanguages: number[],
+  allLanguages?: Language[],
+  siteLanguages?: number[],
   showAll?: boolean,
   showSite?: boolean,
-  myUserInfo = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ): Language[] {
-  const allLangIds = allLanguages.map(l => l.id);
+  const allLangIds = allLanguages?.map(l => l.id);
   let myLangs = myUserInfo?.discussion_languages ?? allLangIds;
-  myLangs = myLangs.length === 0 ? allLangIds : myLangs;
-  const siteLangs = siteLanguages.length === 0 ? allLangIds : siteLanguages;
+  myLangs = myLangs?.length === 0 ? allLangIds : myLangs;
+  const siteLangs = siteLanguages?.length === 0 ? allLangIds : siteLanguages;
+
+  const allLangs = allLanguages ?? [];
 
   if (showAll) {
-    return allLanguages;
+    return allLangs;
   } else {
     if (showSite) {
-      return allLanguages.filter(x => siteLangs.includes(x.id));
+      return allLangs.filter(x => siteLangs?.includes(x.id));
     } else {
-      return allLanguages
-        .filter(x => siteLangs.includes(x.id))
-        .filter(x => myLangs.includes(x.id));
+      return allLangs
+        .filter((x: { id: number }) => siteLangs?.includes(x.id))
+        .filter((x: { id: number }) => myLangs?.includes(x.id));
     }
   }
 }
@@ -556,19 +546,15 @@ export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   } else return context.router.staticContext;
 }
 
-export function showAvatars(
-  myUserInfo = UserService.Instance.myUserInfo,
-): boolean {
+export function showAvatars(myUserInfo?: MyUserInfo): boolean {
   return myUserInfo?.local_user_view.local_user.show_avatars ?? true;
 }
 
 export function showLocal(isoData: IsoData): boolean {
-  return isoData.site_res.site_view.local_site.federation_enabled;
+  return isoData.siteRes?.site_view.local_site.federation_enabled ?? true;
 }
 
-export function showScores(
-  myUserInfo = UserService.Instance.myUserInfo,
-): boolean {
+export function showScores(myUserInfo?: MyUserInfo): boolean {
   const voteDisplayMode =
     myUserInfo?.local_user_view.local_user_vote_display_mode;
   return (voteDisplayMode?.score || voteDisplayMode?.upvotes) ?? true;
@@ -644,7 +630,7 @@ export function pictrsDeleteToast(filename: string, deleteUrl: string) {
 
 export function updateCommunityBlock(
   data: BlockCommunityResponse,
-  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ) {
   if (myUserInfo) {
     if (data.blocked) {
@@ -669,7 +655,7 @@ export function updateCommunityBlock(
 
 export function updatePersonBlock(
   data: BlockPersonResponse,
-  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ) {
   if (myUserInfo) {
     if (data.blocked) {
@@ -692,7 +678,7 @@ export function updateInstanceBlock(
   blocked: boolean,
   id: number,
   linkedInstances: Instance[],
-  myUserInfo: MyUserInfo | undefined = UserService.Instance.myUserInfo,
+  myUserInfo?: MyUserInfo,
 ) {
   if (myUserInfo) {
     const instance = linkedInstances.find(i => i.id === id)!;

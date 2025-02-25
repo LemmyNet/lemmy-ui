@@ -91,7 +91,7 @@ import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
-import { SortSelect } from "../common/sort-select";
+import { PostSortSelect } from "../common/post-sort-select";
 import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
@@ -204,7 +204,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     personDetailsRes: EMPTY_REQUEST,
     uploadsRes: EMPTY_REQUEST,
     personBlocked: false,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     showBanDialog: false,
     removeOrRestoreData: false,
     isIsomorphic: false,
@@ -607,7 +607,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       <div className="row align-items-center mb-3 g-3">
         <div className="col-auto">{this.viewRadios}</div>
         <div className="col-auto">
-          <SortSelect
+          <PostSortSelect
             sort={sort}
             onChange={this.handleSortChange}
             hideHot

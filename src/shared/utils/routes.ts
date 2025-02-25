@@ -3,79 +3,79 @@ import {
   Communities,
   CommunitiesFetchConfig,
   getCommunitiesQueryParams,
-} from "./components/community/communities";
+} from "@components/community/communities";
 import {
   Community,
   CommunityFetchConfig,
   getCommunityQueryParams,
-} from "./components/community/community";
-import { CreateCommunity } from "./components/community/create-community";
+} from "@components/community/community";
+import { CreateCommunity } from "@components/community/create-community";
 import {
   AdminSettings,
   AdminSettingsFetchConfig,
-} from "./components/home/admin-settings";
+} from "@components/home/admin-settings";
 import {
   Home,
   HomeFetchConfig,
   getHomeQueryParams,
-} from "./components/home/home";
-import { Instances, InstancesFetchConfig } from "./components/home/instances";
-import { Legal } from "./components/home/legal";
+} from "@components/home/home";
+import { Instances, InstancesFetchConfig } from "@components/home/instances";
+import { Legal } from "@components/home/legal";
 import {
   Login,
   LoginFetchConfig,
   getLoginQueryParams,
-} from "./components/home/login";
-import { LoginReset } from "./components/home/login-reset";
-import { Setup } from "./components/home/setup";
+} from "@components/home/login";
+import { LoginReset } from "@components/home/login-reset";
+import { Setup } from "@components/home/setup";
 import {
   Signup,
   SignupFetchConfig,
   getSignupQueryParams,
-} from "./components/home/signup";
+} from "@components/home/signup";
 import {
   Modlog,
   ModlogFetchConfig,
   getModlogQueryParams,
-} from "./components/modlog";
-import { Inbox, InboxFetchConfig } from "./components/person/inbox";
-import { PasswordChange } from "./components/person/password-change";
+} from "@components/modlog";
+import { Inbox, InboxFetchConfig } from "@components/person/inbox";
+import { PasswordChange } from "@components/person/password-change";
 import {
   Profile,
   ProfileFetchConfig,
   getProfileQueryParams,
-} from "./components/person/profile";
+} from "@components/person/profile";
 import {
   RegistrationApplications,
   RegistrationApplicationsFetchConfig,
-} from "./components/person/registration-applications";
-import { Reports, ReportsFetchConfig } from "./components/person/reports";
-import { Settings, SettingsFetchConfig } from "./components/person/settings";
-import { VerifyEmail } from "./components/person/verify-email";
+} from "@components/person/registration-applications";
+import { Reports, ReportsFetchConfig } from "@components/person/reports";
+import { Settings, SettingsFetchConfig } from "@components/person/settings";
+import { VerifyEmail } from "@components/person/verify-email";
 import {
   CreatePostFetchConfig,
   CreatePost,
   getCreatePostQueryParams,
-} from "./components/post/create-post";
+} from "@components/post/create-post";
 import {
   Post,
   PostFetchConfig,
   getPostQueryParams,
-} from "./components/post/post";
+} from "@components/post/post";
 import {
   CreatePrivateMessage,
   CreatePrivateMessageFetchConfig,
-} from "./components/private_message/create-private-message";
+} from "@components/private_message/create-private-message";
 import {
   RemoteFetch,
   RemoteFetchFetchConfig,
   getRemoteFetchQueryParams,
-} from "./components/remote-fetch";
+} from "@components/remote-fetch";
 import {
   Search,
   SearchFetchConfig,
   getSearchQueryParams,
-} from "./components/search";
+} from "@components/search";
 import { InitialFetchRequest, RouteData } from "@utils/types";
 import { GetSiteResponse } from "lemmy-js-client";
 import { Inferno } from "inferno";
@@ -83,7 +83,7 @@ import {
   OAuthCallback,
   OAuthCallbackConfig,
   getOAuthCallbackQueryParams,
-} from "./components/home/oauth/oauth-callback";
+} from "@components/home/oauth/oauth-callback";
 
 export interface IRoutePropsWithFetch<
   DataT extends RouteData,

@@ -1,5 +1,5 @@
-import { verifyTranslationImports } from "./services/I18NextService";
-import { verifyDateFnsImports } from "@utils/app/setup-date-fns";
+import { verifyTranslationImports } from "@services/I18NextService";
+import { verifyDateFnsImports } from "@utils/date";
 import { verifyHighlighjsImports } from "./lazy-highlightjs";
 
 export class ImportReport {

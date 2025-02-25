@@ -3,9 +3,10 @@ import {
   I18NextService,
   LanguageService,
   pickTranslations,
-} from "../../services/I18NextService";
+} from "@services/I18NextService";
 import { enUS } from "date-fns/locale/en-US";
-import { ImportReport } from "../../dynamic-imports";
+import { ImportReport } from "@utils/dynamic-imports";
+import { MyUserInfo } from "lemmy-js-client";
 
 type DateFnsDesc = { resource: string; code: string; bundled?: boolean };
 
@@ -188,9 +189,12 @@ export function findDateFnsChunkNames(languages: readonly string[]): string[] {
   return [`date-fns-${locale.resource}-js`];
 }
 
-export async function setupDateFns() {
+export async function setupDateFns(myUserInfo?: MyUserInfo) {
   const i18n_full_lang = I18NextService.i18n.resolvedLanguage ?? EN_US;
-  const localeDesc = bestDateFns(LanguageService.userLanguages, i18n_full_lang);
+  const localeDesc = bestDateFns(
+    LanguageService.userLanguages(myUserInfo),
+    i18n_full_lang,
+  );
   try {
     const locale = await load(localeDesc);
     if (locale) {
