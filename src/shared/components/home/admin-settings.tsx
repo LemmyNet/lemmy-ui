@@ -16,7 +16,7 @@ import {
   ListMediaResponse,
   PersonView,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../../interfaces";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -25,7 +25,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
@@ -36,7 +36,7 @@ import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { MediaUploads } from "../common/media-uploads";
 import { Paginator } from "../common/paginator";
 import { snapToTop } from "@utils/browser";
@@ -51,7 +51,6 @@ type AdminSettingsData = RouteDataResponse<{
 }>;
 
 interface AdminSettingsState {
-  siteRes: GetSiteResponse;
   banned: PersonView[];
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
@@ -79,7 +78,6 @@ export class AdminSettings extends Component<
 > {
   private isoData = setIsoData<AdminSettingsData>(this.context);
   state: AdminSettingsState = {
-    siteRes: this.isoData.siteRes,
     banned: [],
     bannedRes: EMPTY_REQUEST,
     instancesRes: EMPTY_REQUEST,
@@ -152,7 +150,7 @@ export class AdminSettings extends Component<
 
   get documentTitle(): string {
     return `${I18NextService.i18n.t("admin_settings")} - ${
-      this.state.siteRes.site_view.site.name
+      this.isoData.siteRes?.site_view.site.name
     }`;
   }
 
@@ -191,7 +189,7 @@ export class AdminSettings extends Component<
                         allowedInstances={federationData?.allowed}
                         blockedInstances={federationData?.blocked}
                         onSaveSite={this.handleEditSite}
-                        siteRes={this.state.siteRes}
+                        siteRes={this.isoData.siteRes}
                         themeList={this.state.themeList}
                         loading={this.state.loading}
                       />
@@ -229,7 +227,7 @@ export class AdminSettings extends Component<
                 >
                   <RateLimitForm
                     rateLimits={
-                      this.state.siteRes.site_view.local_site_rate_limit
+                      this.isoData.siteRes?.site_view.local_site_rate_limit
                     }
                     onSaveSite={this.handleEditSite}
                     loading={this.state.loading}
@@ -299,7 +297,7 @@ export class AdminSettings extends Component<
                 >
                   <OAuthProvidersTab
                     oauthProviders={
-                      this.state.siteRes.admin_oauth_providers ?? []
+                      this.isoData.siteRes?.admin_oauth_providers ?? []
                     }
                     onCreate={this.handleCreateOAuthProvider}
                     onDelete={this.handleDeleteOAuthProvider}
@@ -353,7 +351,7 @@ export class AdminSettings extends Component<
           {capitalizeFirstLetter(I18NextService.i18n.t("admins"))}
         </h2>
         <ul className="list-unstyled">
-          {this.state.siteRes.admins.map(admin => (
+          {this.isoData.siteRes?.admins.map(admin => (
             <li key={admin.person.id} className="list-inline-item">
               <PersonListing person={admin.person} />
             </li>
@@ -442,11 +440,6 @@ export class AdminSettings extends Component<
     const editRes = await HttpService.client.editSite(form);
 
     if (editRes.state === "success") {
-      this.setState(s => {
-        s.siteRes.site_view = editRes.data.site_view;
-        // TODO: Where to get taglines from?
-        return s;
-      });
       toast(I18NextService.i18n.t("site_saved"));
 
       // You need to reload the page, to properly update the siteRes everywhere

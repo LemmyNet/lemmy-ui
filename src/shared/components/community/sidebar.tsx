@@ -12,12 +12,13 @@ import {
   EditCommunity,
   FollowCommunity,
   Language,
+  MyUserInfo,
   PersonView,
   PurgeCommunity,
   RemoveCommunity,
 } from "lemmy-js-client";
-import { mdToHtml } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { mdToHtml } from "@utils/markdown";
+import { I18NextService } from "../../services";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
@@ -37,6 +38,7 @@ interface SidebarProps {
   enableNsfw?: boolean;
   showIcon?: boolean;
   editable?: boolean;
+  myUserInfo?: MyUserInfo;
   onDeleteCommunity(form: DeleteCommunity): void;
   onRemoveCommunity(form: RemoveCommunity): void;
   onLeaveModTeam(form: AddModToCommunity): void;
@@ -139,9 +141,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   sidebar() {
-    const myUserInfo = UserService.Instance.myUserInfo;
     const {
-      community: { name, actor_id, id, posting_restricted_to_mods, visibility },
+      community: { name, ap_id, id, posting_restricted_to_mods, visibility },
       counts,
       banned_from_community,
     } = this.props.community_view;
@@ -161,16 +162,16 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     loading={this.state.followCommunityLoading}
                   />
                   {this.canPost && this.createPost()}
-                  {myUserInfo && this.blockCommunity()}
+                  {this.props.myUserInfo && this.blockCommunity()}
                 </>
               )}
-              {!myUserInfo && (
+              {!this.props.myUserInfo && (
                 <div className="alert alert-info" role="alert">
                   <T
                     i18nKey="community_not_logged_in_alert"
                     interpolation={{
                       community: name,
-                      instance: hostname(actor_id),
+                      instance: hostname(ap_id),
                     }}
                   >
                     #<code className="user-select-all">#</code>#
@@ -600,7 +601,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleLeaveModTeam(i: Sidebar) {
-    const myId = UserService.Instance.myUserInfo?.local_user_view.person.id;
+    const myId = this.props.myUserInfo?.local_user_view.person.id;
     if (myId) {
       i.setState({ leaveModTeamLoading: true });
       i.props.onLeaveModTeam({

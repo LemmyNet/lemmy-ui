@@ -6,14 +6,13 @@ import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
   ApproveRegistrationApplication,
-  GetSiteResponse,
   LemmyHttp,
   ListRegistrationApplicationsResponse,
   RegistrationApplicationView,
 } from "lemmy-js-client";
-import { fetchLimit } from "../../config";
-import { InitialFetchRequest } from "../../interfaces";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { fetchLimit } from "@utils/config";
+import { InitialFetchRequest } from "@utils/types";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -28,7 +27,7 @@ import { RegistrationApplication } from "../common/registration-application";
 import { UnreadCounterService } from "../../services";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 
 enum RegistrationState {
@@ -43,7 +42,6 @@ type RegistrationApplicationsData = RouteDataResponse<{
 
 interface RegistrationApplicationsState {
   appsRes: RequestState<ListRegistrationApplicationsResponse>;
-  siteRes: GetSiteResponse;
   registrationState: RegistrationState;
   page: number;
   isIsomorphic: boolean;
@@ -67,7 +65,6 @@ export class RegistrationApplications extends Component<
   private isoData = setIsoData<RegistrationApplicationsData>(this.context);
   state: RegistrationApplicationsState = {
     appsRes: EMPTY_REQUEST,
-    siteRes: this.isoData.siteRes,
     registrationState: RegistrationState.Unread,
     page: 1,
     isIsomorphic: false,
@@ -100,7 +97,7 @@ export class RegistrationApplications extends Component<
   }
 
   get documentTitle(): string {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.props.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "registration_applications",

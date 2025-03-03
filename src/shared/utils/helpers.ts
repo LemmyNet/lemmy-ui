@@ -253,12 +253,6 @@ export function dedupByProperty<
   ).output;
 }
 
-export function getApubName({
-  name,
-  actor_id,
-}: {
-  name: string;
-  actor_id: string;
-}) {
-  return `${name}@${hostname(actor_id)}`;
+export function getApubName({ name, ap_id }: { name: string; ap_id: string }) {
+  return `${name}@${hostname(ap_id)}`;
 }

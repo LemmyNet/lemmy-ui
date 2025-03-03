@@ -24,7 +24,7 @@ interface RateLimitsProps {
 }
 
 interface RateLimitFormProps {
-  rateLimits: LocalSiteRateLimit;
+  rateLimits?: LocalSiteRateLimit;
   onSaveSite(form: EditSite): void;
   loading: boolean;
 }

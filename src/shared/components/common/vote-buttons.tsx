@@ -6,10 +6,11 @@ import {
   CreateCommentLike,
   CreatePostLike,
   LocalUserVoteDisplayMode,
+  MyUserInfo,
   PostAggregates,
 } from "lemmy-js-client";
-import { VoteContentType, VoteType } from "../../interfaces";
-import { I18NextService, UserService } from "../../services";
+import { VoteContentType, VoteType } from "@utils/types";
+import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import classNames from "classnames";
@@ -18,10 +19,12 @@ interface VoteButtonsProps {
   voteContentType: VoteContentType;
   id: number;
   onVote: (i: CreateCommentLike | CreatePostLike) => void;
+  enableUpvotes?: boolean;
   enableDownvotes?: boolean;
   counts: CommentAggregates | PostAggregates;
   voteDisplayMode: LocalUserVoteDisplayMode;
   myVote?: number;
+  myUserInfo?: MyUserInfo;
 }
 
 interface VoteButtonsState {
@@ -133,41 +136,43 @@ export class VoteButtonsCompact extends Component<
   render() {
     return (
       <>
-        <button
-          type="button"
-          className={`btn btn-animate btn-sm btn-link py-0 px-1 ${
-            this.props.myVote === 1 ? "text-info" : "text-muted"
-          }`}
-          data-tippy-content={tippy(
-            this.props.voteDisplayMode,
-            this.props.counts,
-          )}
-          disabled={!UserService.Instance.myUserInfo}
-          onClick={linkEvent(this, handleUpvote)}
-          aria-label={I18NextService.i18n.t("upvote")}
-          aria-pressed={this.props.myVote === 1}
-        >
-          {this.state.upvoteLoading ? (
-            <Spinner />
-          ) : (
-            <>
-              <Icon icon="arrow-up1" classes="icon-inline small" />
-              {showScores() &&
-                this.props.voteContentType === VoteContentType.Post && (
-                  <span className="ms-2">
-                    {numToSI(this.props.counts.upvotes)}
-                  </span>
-                )}
-            </>
-          )}
-        </button>
+        {this.props.enableUpvotes && (
+          <button
+            type="button"
+            className={`btn btn-animate btn-sm btn-link py-0 px-1 ${
+              this.props.myVote === 1 ? "text-info" : "text-muted"
+            }`}
+            data-tippy-content={tippy(
+              this.props.voteDisplayMode,
+              this.props.counts,
+            )}
+            disabled={!this.props.myUserInfo}
+            onClick={linkEvent(this, handleUpvote)}
+            aria-label={I18NextService.i18n.t("upvote")}
+            aria-pressed={this.props.myVote === 1}
+          >
+            {this.state.upvoteLoading ? (
+              <Spinner />
+            ) : (
+              <>
+                <Icon icon="arrow-up1" classes="icon-inline small" />
+                {showScores() &&
+                  this.props.voteContentType === VoteContentType.Post && (
+                    <span className="ms-2">
+                      {numToSI(this.props.counts.upvotes)}
+                    </span>
+                  )}
+              </>
+            )}
+          </button>
+        )}
         {this.props.enableDownvotes && (
           <button
             type="button"
             className={`ms-2 btn btn-sm btn-link btn-animate btn py-0 px-1 ${
               this.props.myVote === -1 ? "text-danger" : "text-muted"
             }`}
-            disabled={!UserService.Instance.myUserInfo}
+            disabled={!this.props.myUserInfo}
             onClick={linkEvent(this, handleDownvote)}
             data-tippy-content={tippy(
               this.props.voteDisplayMode,
@@ -225,26 +230,28 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
   render() {
     return (
       <div className="vote-bar small text-center">
-        <button
-          type="button"
-          className={`btn-animate btn btn-link p-0 ${
-            this.props.myVote === 1 ? "text-info" : "text-muted"
-          }`}
-          disabled={!UserService.Instance.myUserInfo}
-          onClick={linkEvent(this, handleUpvote)}
-          data-tippy-content={tippy(
-            this.props.voteDisplayMode,
-            this.props.counts,
-          )}
-          aria-label={I18NextService.i18n.t("upvote")}
-          aria-pressed={this.props.myVote === 1}
-        >
-          {this.state.upvoteLoading ? (
-            <Spinner />
-          ) : (
-            <Icon icon="arrow-up1" classes="upvote" />
-          )}
-        </button>
+        {this.props.enableUpvotes && (
+          <button
+            type="button"
+            className={`btn-animate btn btn-link p-0 ${
+              this.props.myVote === 1 ? "text-info" : "text-muted"
+            }`}
+            disabled={!this.props.myUserInfo}
+            onClick={linkEvent(this, handleUpvote)}
+            data-tippy-content={tippy(
+              this.props.voteDisplayMode,
+              this.props.counts,
+            )}
+            aria-label={I18NextService.i18n.t("upvote")}
+            aria-pressed={this.props.myVote === 1}
+          >
+            {this.state.upvoteLoading ? (
+              <Spinner />
+            ) : (
+              <Icon icon="arrow-up1" classes="upvote" />
+            )}
+          </button>
+        )}
         {showScores() ? (
           <div
             className="unselectable pointer text-muted post-score"
@@ -264,7 +271,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             className={`btn-animate btn btn-link p-0 ${
               this.props.myVote === -1 ? "text-danger" : "text-muted"
             }`}
-            disabled={!UserService.Instance.myUserInfo}
+            disabled={!this.props.myUserInfo}
             onClick={linkEvent(this, handleDownvote)}
             data-tippy-content={tippy(
               this.props.voteDisplayMode,

@@ -2,11 +2,11 @@ import { getQueryString, validInstanceTLD } from "@utils/helpers";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, createRef, linkEvent } from "inferno";
-import { CommunityView } from "lemmy-js-client";
-import { I18NextService, UserService } from "../../services";
+import { CommunityView, MyUserInfo } from "lemmy-js-client";
+import { I18NextService } from "../../services";
 import { VERSION } from "../../version";
 import { Icon, Spinner } from "./icon";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { modalMixin } from "../mixins/modal-mixin";
 
 interface SubscribeButtonProps {
@@ -15,12 +15,13 @@ interface SubscribeButtonProps {
   onUnFollow: MouseEventHandler;
   loading?: boolean;
   isLink?: boolean;
+  myUserInfo?: MyUserInfo;
 }
 
 export function SubscribeButton({
   communityView: {
     subscribed,
-    community: { actor_id },
+    community: { ap_id },
   },
   onFollow,
   onUnFollow,
@@ -52,7 +53,7 @@ export function SubscribeButton({
     isLink ? "btn-link d-inline-block" : "d-block mb-2 w-100",
   );
 
-  if (!UserService.Instance.myUserInfo) {
+  if (!this.props.myUserInfo) {
     return (
       <>
         <button
@@ -65,7 +66,7 @@ export function SubscribeButton({
         >
           {I18NextService.i18n.t("subscribe")}
         </button>
-        <RemoteFetchModal communityActorId={actor_id} />
+        <RemoteFetchModal communityApId={ap_id} />
       </>
     );
   }
@@ -93,7 +94,7 @@ export function SubscribeButton({
 }
 
 interface RemoteFetchModalProps {
-  communityActorId: string;
+  communityApId: string;
   show?: boolean;
 }
 
@@ -106,7 +107,7 @@ function handleInput(i: RemoteFetchModal, event: any) {
 }
 
 function submitRemoteFollow(
-  { state: { instanceText }, props: { communityActorId } }: RemoteFetchModal,
+  { state: { instanceText }, props: { communityApId } }: RemoteFetchModal,
   event: Event,
 ) {
   event.preventDefault();
@@ -133,7 +134,7 @@ function submitRemoteFollow(
   }
 
   window.location.href = `${instanceText}/activitypub/externalInteraction${getQueryString(
-    { uri: communityActorId },
+    { uri: communityApId },
   )}`;
 }
 

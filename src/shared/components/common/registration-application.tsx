@@ -4,7 +4,7 @@ import {
   ApproveRegistrationApplication,
   RegistrationApplicationView,
 } from "lemmy-js-client";
-import { mdToHtml } from "../../markdown";
+import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { PersonListing } from "../person/person-listing";
 import { Spinner } from "./icon";

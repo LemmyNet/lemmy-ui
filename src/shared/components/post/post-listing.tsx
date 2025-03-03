@@ -2,6 +2,7 @@ import { myAuth, setIsoData } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import { formatPastDate, futureDaysToUnixTime, hostname } from "@utils/helpers";
+import { formatPastDate, futureDaysToUnixTime } from "@utils/date";
 import { isImage, isVideo } from "@utils/media";
 import { canAdmin, canMod } from "@utils/roles";
 import classNames from "classnames";
@@ -34,10 +35,10 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
-import { relTags, torrentHelpUrl } from "../../config";
-import { IsoDataOptionalSite, VoteContentType } from "../../interfaces";
-import { mdToHtml, mdToHtmlInline } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { relTags, torrentHelpUrl } from "@utils/config";
+import { IsoData, VoteContentType } from "@utils/types";
+import { mdToHtml, mdToHtmlInline } from "@utils/markdown";
+import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Icon } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
@@ -52,10 +53,8 @@ import { BanUpdateForm } from "../common/modal/mod-action-form-modal";
 import PostActionDropdown from "../common/content-actions/post-action-dropdown";
 import { CrossPostParams } from "@utils/types";
 import { RequestState } from "../../services/HttpService";
-import { toast } from "../../toast";
-import isMagnetLink, {
-  extractMagnetLinkDownloadName,
-} from "@utils/media/is-magnet-link";
+import { toast } from "@utils/app";
+import { isMagnetLink, extractMagnetLinkDownloadName } from "@utils/media";
 
 type PostListingState = {
   showEdit: boolean;
@@ -106,7 +105,7 @@ interface PostListingProps {
 
 @tippyMixin
 export class PostListing extends Component<PostListingProps, PostListingState> {
-  private readonly isoData: IsoDataOptionalSite = setIsoData(this.context);
+  private readonly isoData: IsoData = setIsoData(this.context);
   state: PostListingState = {
     showEdit: false,
     imageExpanded: false,
@@ -144,12 +143,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   unlisten = () => {};
 
   componentWillMount(): void {
-    if (
-      UserService.Instance.myUserInfo &&
-      !this.isoData.showAdultConsentModal
-    ) {
+    if (this.isoData.myUserInfo && !this.isoData.showAdultConsentModal) {
       const blur_nsfw =
-        UserService.Instance.myUserInfo.local_user_view.local_user.blur_nsfw;
+        this.isoData.myUserInfo.local_user_view.local_user.blur_nsfw;
       this.setState({
         imageExpanded: !(blur_nsfw && this.postView.post.nsfw),
       });
@@ -610,7 +606,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Link to={`/post/${pv.post.id}`}>
                 {pv.community.local
                   ? pv.community.name
-                  : `${pv.community.name}@${hostname(pv.community.actor_id)}`}
+                  : `${pv.community.name}@${hostname(pv.community.ap_id)}`}
               </Link>
             </li>
           ))}
@@ -669,7 +665,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
         {showBody && body && this.viewSourceButton}
 
-        {UserService.Instance.myUserInfo && this.isInteractable && (
+        {this.isoData.myUserInfo && this.isInteractable && (
           <PostActionDropdown
             postView={this.postView}
             admins={admins}
@@ -699,7 +695,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   public get linkTarget(): string {
-    return UserService.Instance.myUserInfo?.local_user_view.local_user
+    return this.isoData.myUserInfo?.local_user_view.local_user
       .open_links_in_new_tab
       ? "_blank"
       : // _self is the default target on links when the field is not specified
@@ -1012,7 +1008,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleHidePost() {
     return this.props.onHidePost({
       hide: !this.postView.hidden,
-      post_ids: [this.postView.post.id],
+      post_id: this.postView.post.id,
     });
   }
 
@@ -1097,7 +1093,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     if (myAuth() && !i.postView.read) {
       i.props.onMarkPostAsRead({
-        post_ids: [i.postView.post.id],
+        post_id: i.postView.post.id,
         read: true,
       });
     }
