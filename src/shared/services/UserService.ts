@@ -2,10 +2,9 @@ import { isAuthPath } from "@utils/app";
 import { clearAuthCookie, isBrowser, setAuthCookie } from "@utils/browser";
 import * as cookie from "cookie";
 import { jwtDecode } from "jwt-decode";
-import { LoginResponse, MyUserInfo } from "lemmy-js-client";
+import { LoginResponse } from "lemmy-js-client";
 import { toast } from "@utils/app";
 import { I18NextService } from "./I18NextService";
-import { amAdmin } from "@utils/roles";
 import { HttpService } from ".";
 import { authCookieName } from "@utils/config";
 
@@ -87,10 +86,6 @@ export class UserService {
         this.authInfo = { auth, claims: jwtDecode(auth) };
       }
     }
-  }
-
-  public moderatesSomething(myUserInfo?: MyUserInfo): boolean {
-    return amAdmin() || (myUserInfo?.moderates?.length ?? 0) > 0;
   }
 
   public static get Instance() {

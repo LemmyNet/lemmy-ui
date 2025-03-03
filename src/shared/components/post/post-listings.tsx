@@ -14,6 +14,7 @@ import {
   FeaturePost,
   HidePost,
   Language,
+  LanguageId,
   LocalUserVoteDisplayMode,
   LockPost,
   MarkPostAsRead,
@@ -31,8 +32,8 @@ import { RequestState } from "../../services/HttpService";
 
 interface PostListingsProps {
   posts: PostView[];
-  allLanguages: Language[];
-  siteLanguages: number[];
+  allLanguages?: Language[];
+  siteLanguages: LanguageId[];
   showCommunity?: boolean;
   removeDuplicates?: boolean;
   enableDownvotes?: boolean;

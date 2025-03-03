@@ -1,10 +1,11 @@
-import { UserService, HttpService } from "@services/index";
+import { HttpService } from "@services/index";
 import { updateUnreadCountsInterval } from "@utils/config";
 import { poll } from "@utils/helpers";
 import { myAuth } from "@utils/app";
-import { amAdmin } from "@utils/roles";
+import { amAdmin, moderatesSomething } from "@utils/roles";
 import { isBrowser } from "@utils/browser";
 import { BehaviorSubject } from "rxjs";
+import { MyUserInfo } from "lemmy-js-client";
 
 /**
  * Service to poll and keep track of unread messages / notifications.
@@ -49,8 +50,8 @@ export class UnreadCounterService {
     }
   }
 
-  public async updateReports() {
-    if (this.shouldUpdate && UserService.Instance.moderatesSomething) {
+  public async updateReports(myUserInfo?: MyUserInfo) {
+    if (this.shouldUpdate && moderatesSomething(myUserInfo)) {
       const reportCountRes = await HttpService.client.getReportCount({});
       if (reportCountRes.state === "success") {
         this.unreadReportCountSubject.next(reportCountRes.data.count);

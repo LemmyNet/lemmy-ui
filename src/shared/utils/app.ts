@@ -586,7 +586,7 @@ export function toast(text: string, background: ThemeColor = "success") {
   }
 }
 
-export function pictrsDeleteToast(filename: string, deleteUrl: string) {
+export async function pictrsDeleteToast(filename: string) {
   if (isBrowser()) {
     const clickToDeleteText = I18NextService.i18n.t("click_to_delete_picture", {
       filename,
@@ -609,16 +609,14 @@ export function pictrsDeleteToast(filename: string, deleteUrl: string) {
       gravity: "top",
       position: "right",
       duration: 10000,
-      onClick: () => {
+      onClick: async () => {
         if (toast) {
-          fetch(deleteUrl).then(res => {
-            toast.hideToast();
-            if (res.ok === true) {
-              alert(deletePictureText);
-            } else {
-              alert(failedDeletePictureText);
-            }
-          });
+          const res = await HttpService.client.deleteImage({ filename });
+          if (res.state === "success") {
+            alert(deletePictureText);
+          } else {
+            alert(failedDeletePictureText);
+          }
         }
       },
       close: true,

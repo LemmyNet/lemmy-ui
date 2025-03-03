@@ -1,6 +1,5 @@
 import {
   communityToChoice,
-  enableDownvotes,
   enableNsfw,
   setIsoData,
   voteDisplayMode,
@@ -24,7 +23,6 @@ import {
   CreatePost as CreatePostI,
   GetCommunity,
   GetCommunityResponse,
-  GetSiteResponse,
   LemmyHttp,
   ListCommunitiesResponse,
 } from "lemmy-js-client";
@@ -90,7 +88,6 @@ function stringAsQueryParam(param?: string) {
 }
 
 interface CreatePostState {
-  siteRes: GetSiteResponse;
   loading: boolean;
   selectedCommunityChoice?: Choice;
   selectedCommunityIsNsfw: boolean;
@@ -115,7 +112,6 @@ export class CreatePost extends Component<
 > {
   private isoData = setIsoData<CreatePostData>(this.context);
   state: CreatePostState = {
-    siteRes: this.isoData.siteRes,
     loading: false,
     initialCommunitiesRes: EMPTY_REQUEST,
     isIsomorphic: false,
@@ -231,17 +227,13 @@ export class CreatePost extends Component<
 
   get documentTitle(): string {
     return `${I18NextService.i18n.t("create_post")} - ${
-      this.state.siteRes.site_view.site.name
+      this.isoData.siteRes?.site_view.site.name
     }`;
   }
 
   render() {
-    const {
-      selectedCommunityChoice,
-      selectedCommunityIsNsfw,
-      siteRes,
-      loading,
-    } = this.state;
+    const { selectedCommunityChoice, selectedCommunityIsNsfw, loading } =
+      this.state;
     const {
       body,
       communityId,
@@ -264,6 +256,8 @@ export class CreatePost extends Component<
       alt_text: altText,
     };
 
+    const siteRes = this.isoData.siteRes;
+
     return (
       <div className="create-post container-lg">
         <HtmlTags
@@ -280,8 +274,8 @@ export class CreatePost extends Component<
               enableDownvotes={enableDownvotes(siteRes)}
               voteDisplayMode={voteDisplayMode(siteRes)}
               enableNsfw={enableNsfw(siteRes)}
-              allLanguages={siteRes.all_languages}
-              siteLanguages={siteRes.discussion_languages}
+              allLanguages={siteRes?.all_languages}
+              siteLanguages={siteRes?.discussion_languages}
               selectedCommunityChoice={selectedCommunityChoice}
               onSelectCommunity={this.handleSelectedCommunityChange}
               initialCommunities={

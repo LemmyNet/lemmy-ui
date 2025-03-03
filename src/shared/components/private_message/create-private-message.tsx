@@ -5,10 +5,9 @@ import {
   CreatePrivateMessage as CreatePrivateMessageI,
   GetPersonDetails,
   GetPersonDetailsResponse,
-  GetSiteResponse,
   LemmyHttp,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../../interfaces";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -16,14 +15,14 @@ import {
   LOADING_REQUEST,
   RequestState,
   wrapClient,
-} from "../../services/HttpService";
-import { toast } from "../../toast";
+} from "@services/HttpService";
+import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
@@ -33,7 +32,6 @@ type CreatePrivateMessageData = RouteDataResponse<{
 }>;
 
 interface CreatePrivateMessageState {
-  siteRes: GetSiteResponse;
   recipientRes: RequestState<GetPersonDetailsResponse>;
   recipientId: number;
   isIsomorphic: boolean;
@@ -55,7 +53,6 @@ export class CreatePrivateMessage extends Component<
 > {
   private isoData = setIsoData<CreatePrivateMessageData>(this.context);
   state: CreatePrivateMessageState = {
-    siteRes: this.isoData.siteRes,
     recipientRes: EMPTY_REQUEST,
     recipientId: getRecipientIdFromProps(this.props),
     isIsomorphic: false,
@@ -97,8 +94,6 @@ export class CreatePrivateMessage extends Component<
 
     const form: GetPersonDetails = {
       person_id,
-      sort: "New",
-      saved_only: false,
     };
 
     return {
@@ -114,8 +109,6 @@ export class CreatePrivateMessage extends Component<
     this.setState({
       recipientRes: await HttpService.client.getPersonDetails({
         person_id: this.state.recipientId,
-        sort: "New",
-        saved_only: false,
       }),
     });
   }

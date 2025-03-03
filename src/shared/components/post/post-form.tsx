@@ -18,6 +18,7 @@ import {
   EditPost,
   GetSiteMetadataResponse,
   Language,
+  LanguageId,
   LocalUserVoteDisplayMode,
   PostView,
   SearchResponse,
@@ -27,39 +28,36 @@ import {
   ghostArchiveUrl,
   postMarkdownFieldCharacterLimit,
   relTags,
-  similarPostFetchLimit,
   webArchiveUrl,
-} from "../../config";
-import { PostFormParams } from "../../interfaces";
-import { I18NextService, UserService } from "../../services";
+} from "@utils/config";
+import { PostFormParams } from "@utils/types";
+import { I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
   LOADING_REQUEST,
   RequestState,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
 import { isBrowser } from "@utils/browser";
-import isMagnetLink, {
-  extractMagnetLinkDownloadName,
-} from "@utils/media/is-magnet-link";
+import { isMagnetLink, extractMagnetLinkDownloadName } from "@utils/media";
 import {
   getUnixTimeLemmy,
   getUnixTime,
   unixTimeToLocalDateStr,
-} from "@utils/helpers/get-unix-time";
+} from "@utils/date";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
 interface PostFormProps {
   post_view?: PostView; // If a post is given, that means this is an edit
   crossPosts?: PostView[];
-  allLanguages: Language[];
+  allLanguages?: Language[];
   siteLanguages: number[];
   params?: PostFormParams;
   onCancel?(): void;
@@ -89,7 +87,7 @@ interface PostFormState {
     url?: string;
     body?: string;
     nsfw?: boolean;
-    language_id?: number;
+    language_id?: LanguageId;
     community_id?: number;
     honeypot?: string;
     custom_thumbnail?: string;
@@ -100,7 +98,6 @@ interface PostFormState {
   suggestedPostsRes: RequestState<SearchResponse>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
   imageLoading: boolean;
-  imageDeleteUrl: string;
   communitySearchLoading: boolean;
   communitySearchOptions: Choice[];
   previewMode: boolean;
@@ -269,17 +266,10 @@ function handleImageUpload(i: PostForm, event: any) {
 
   HttpService.client.uploadImage({ image: file }).then(res => {
     if (res.state === "success") {
-      if (res.data.msg === "ok") {
-        i.state.form.url = res.data.url;
-        i.setState({
-          imageLoading: false,
-          imageDeleteUrl: res.data.delete_url as string,
-        });
-      } else if (res.data.msg === "too_large") {
-        toast(I18NextService.i18n.t("upload_too_large"), "danger");
-      } else {
-        toast(JSON.stringify(res), "danger");
-      }
+      i.state.form.url = res.data.image_url;
+      i.setState({
+        imageLoading: false,
+      });
     } else if (res.state === "failed") {
       console.error(res.err.message);
       toast(res.err.message, "danger");
@@ -297,29 +287,12 @@ function handlePostNameBlur(i: PostForm, event: any) {
   i.updateUrl(() => i.props.onTitleBlur?.(event.target.value));
 }
 
-function handleImageDelete(i: PostForm) {
-  const { imageDeleteUrl } = i.state;
-
-  fetch(imageDeleteUrl);
-
-  i.setState(prev => ({
-    ...prev,
-    imageDeleteUrl: "",
-    imageLoading: false,
-    form: {
-      ...prev.form,
-      url: "",
-    },
-  }));
-}
-
 export class PostForm extends Component<PostFormProps, PostFormState> {
   state: PostFormState = {
     suggestedPostsRes: EMPTY_REQUEST,
     metadataRes: EMPTY_REQUEST,
     form: {},
     imageLoading: false,
-    imageDeleteUrl: "",
     communitySearchLoading: false,
     previewMode: false,
     communitySearchOptions: [],
@@ -550,21 +523,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               accept="image/*,video/*"
               name="file"
               className="small col-sm-10 form-control"
-              disabled={!UserService.Instance.myUserInfo}
               onChange={linkEvent(this, handleImageUpload)}
             />
             {this.state.imageLoading && <Spinner />}
             {url && isImage(url) && (
               <img src={url} className="img-fluid mt-2" alt="" />
-            )}
-            {this.state.imageDeleteUrl && (
-              <button
-                className="btn btn-danger btn-sm mt-2"
-                onClick={linkEvent(this, handleImageDelete)}
-              >
-                <Icon icon="x" classes="icon-inline me-1" />
-                {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
-              </button>
             )}
           </div>
 
@@ -803,7 +766,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       case "loading":
         return <Spinner />;
       case "success": {
-        const suggestedPosts = this.state.suggestedPostsRes.data.posts;
+        const suggestedPosts = this.state.suggestedPostsRes.data.results.filter(
+          r => r.type_ === "Post",
+        );
 
         return (
           suggestedPosts &&
@@ -879,13 +844,11 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       this.setState({ suggestedPostsRes: LOADING_REQUEST });
       this.setState({
         suggestedPostsRes: await HttpService.client.search({
-          q,
+          search_term: q,
           type_: "Posts",
-          sort: "TopAll",
+          sort: "Top",
           listing_type: "All",
           community_id: this.state.form.community_id,
-          page: 1,
-          limit: similarPostFetchLimit,
         }),
       });
     }

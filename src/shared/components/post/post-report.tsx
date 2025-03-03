@@ -62,7 +62,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       creator_banned_from_community: r.creator_banned_from_community,
       counts: r.counts,
       subscribed: "NotSubscribed",
-      saved: false,
       read: false,
       creator_blocked: false,
       my_vote: r.my_vote,
@@ -71,6 +70,8 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       creator_is_admin: false,
       banned_from_community: false,
       hidden: false,
+      can_mod: false,
+      tags: { tags: [] },
     };
 
     return (

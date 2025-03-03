@@ -229,7 +229,7 @@ export class RemoteFetch extends Component<
 
   get documentTitle(): string {
     const { uri } = this.props;
-    const name = this.isoData.siteRes.site_view.site.name;
+    const name = this.isoData.siteRes?.site_view.site.name;
     return `${I18NextService.i18n.t("remote_follow")} - ${
       uri ? `${uri} - ` : ""
     }${name}`;

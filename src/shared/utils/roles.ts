@@ -54,6 +54,10 @@ export function canAdmin(
   return canMod(creatorId, undefined, admins, myUserInfo, onSelf);
 }
 
+export function moderatesSomething(myUserInfo?: MyUserInfo): boolean {
+  return amAdmin(myUserInfo) || (myUserInfo?.moderates?.length ?? 0) > 0;
+}
+
 export function canCreateCommunity(
   siteRes: GetSiteResponse,
   myUserInfo?: MyUserInfo,
