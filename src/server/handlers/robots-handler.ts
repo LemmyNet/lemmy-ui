@@ -16,5 +16,5 @@ export default async ({ res }: { res: Response }) => {
   Disallow: /password_change
   Disallow: /search/
   Disallow: /modlog
-  `);
+  Crawl-delay: 60`);
 };
