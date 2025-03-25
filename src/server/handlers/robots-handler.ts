@@ -14,7 +14,7 @@ Disallow: /inbox
 Disallow: /setup
 Disallow: /admin
 Disallow: /password_change
-Disallow: /search/
+Disallow: /search
 Disallow: /modlog
 Crawl-delay: 60`);
 };
