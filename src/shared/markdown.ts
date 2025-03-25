@@ -120,6 +120,9 @@ function localInstanceLinkParser(md: MarkdownIt) {
             let href: string;
             if (match[0].startsWith("!")) {
               href = "/c/" + match[0].substring(1);
+            } else if (match[0].startsWith("@")) {
+              href = "/u/" + match[0].substring(1);
+              linkClass = "user-link";
             } else if (match[0].startsWith("/m/")) {
               href = "/c/" + match[0].substring(3);
             } else {
