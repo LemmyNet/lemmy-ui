@@ -224,6 +224,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 isMod={creator_is_moderator}
                 isAdmin={creator_is_admin}
                 isBot={cv.creator.bot_account}
+                isBanned={cv.creator.banned}
+                isBannedFromCommunity={cv.creator_banned_from_community}
               />
 
               {this.props.showCommunity && (
