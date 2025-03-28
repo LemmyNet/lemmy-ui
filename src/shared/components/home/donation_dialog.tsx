@@ -17,7 +17,8 @@ export class DonationDialog extends Component<DonationDialogProps, any> {
 
   render() {
     const last_donation_notification = new Date(
-      this.props.site?.my_user?.local_user_view.local_user.last_donation_notification,
+      this.props.site?.my_user?.local_user_view.local_user
+        .last_donation_notification ?? 0,
     );
     var year_ago = new Date();
     year_ago.setFullYear(year_ago.getFullYear() - 1);
@@ -69,7 +70,7 @@ export class DonationDialog extends Component<DonationDialogProps, any> {
     const site = this.props.site;
     if (site?.my_user !== undefined) {
       site!.my_user!.local_user_view.local_user.last_donation_notification =
-        new Date(0);
+        new Date(0).toString();
     }
     this.forceUpdate();
   }
