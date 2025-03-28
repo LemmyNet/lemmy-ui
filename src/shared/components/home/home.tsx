@@ -107,6 +107,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser, snapToTop } from "@utils/browser";
+import { DonationDialog } from "./donation_dialog";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -403,22 +404,25 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           path={this.context.router.route.match.url}
         />
         {site_setup && (
-          <div className="row">
-            <main role="main" className="col-12 col-md-8 col-lg-9">
-              {tagline && (
-                <div
-                  id="tagline"
-                  dangerouslySetInnerHTML={mdToHtml(tagline, () =>
-                    this.forceUpdate(),
-                  )}
-                ></div>
-              )}
-              <div className="d-block d-md-none">{this.mobileView}</div>
-              {this.posts}
-            </main>
-            <aside className="d-none d-md-block col-md-4 col-lg-3">
-              {this.mySidebar}
-            </aside>
+          <div>
+            <div className="row">
+              <main role="main" className="col-12 col-md-8 col-lg-9">
+                {tagline && (
+                  <div
+                    id="tagline"
+                    dangerouslySetInnerHTML={mdToHtml(tagline, () =>
+                      this.forceUpdate(),
+                    )}
+                  ></div>
+                )}
+                <div className="d-block d-md-none">{this.mobileView}</div>
+                {this.posts}
+              </main>
+              <aside className="d-none d-md-block col-md-4 col-lg-3">
+                {this.mySidebar}
+              </aside>
+            </div>
+            <DonationDialog site={this.state.siteRes} />
           </div>
         )}
       </div>
