@@ -650,6 +650,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <Icon icon="share" inline />
           </button>
         )}
+        <Link
+          className="btn btn-link btn-animate text-muted"
+          to={`/post/${id}`}
+          title={I18NextService.i18n.t("link")}
+        >
+          <Icon icon="link" classes="icon-inline" />
+        </Link>
         <a
           className="btn btn-sm btn-link btn-animate text-muted py-0"
           title={I18NextService.i18n.t("fedilink")}
