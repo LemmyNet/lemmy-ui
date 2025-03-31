@@ -27,29 +27,31 @@ export class DonationDialog extends Component<DonationDialogProps, any> {
         <div class="position-absolute end-0 bottom-0 p-5">
           <div class="text-bg-light z-3 p-3 card border-primary">
             {I18NextService.i18n.t("donation_dialog_message")}
-            <div class="mt-2">
-              <a
-                href="https://join-lemmy.org/donate"
-                class="btn btn-primary"
-                target="_blank"
-                onClick={this.donationDialogShown}
-              >
-                {I18NextService.i18n.t("donation_dialog_button_donate")}
-              </a>
-              <button
-                class="btn btn-outline-secondary m-2"
-                onClick={this.donationDialogShown}
-              >
-                {I18NextService.i18n.t("donation_dialog_button_hide")}
-              </button>
-              <button
-                class="btn btn-outline-secondary"
-                onClick={this.donationDialogShownHidePermanently}
-              >
-                {I18NextService.i18n.t(
-                  "donation_dialog_button_hide_permanently",
-                )}
-              </button>
+            <div>
+              <div class="mt-2 grid gap-2">
+                <a
+                  href="https://join-lemmy.org/donate"
+                  class="btn btn-primary col-6"
+                  target="_blank"
+                  onClick={this.donationDialogShown}
+                >
+                  {I18NextService.i18n.t("donation_dialog_button_donate")}
+                </a>
+                <button
+                  class="btn btn-outline-secondary col-6"
+                  onClick={this.donationDialogShown}
+                >
+                  {I18NextService.i18n.t("donation_dialog_button_hide")}
+                </button>
+                <button
+                  class="btn btn-outline-dark border-0 col-12"
+                  onClick={this.donationDialogShownHidePermanently}
+                >
+                  {I18NextService.i18n.t(
+                    "donation_dialog_button_hide_permanently",
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
