@@ -24,33 +24,40 @@ export class DonationDialog extends Component<DonationDialogProps, any> {
     year_ago.setFullYear(year_ago.getFullYear() - 1);
     if (last_donation_notification < year_ago) {
       return (
-        <div class="position-absolute end-0 bottom-0 p-5">
+        <div class="position-absolute end-0 bottom-0 p-5 col-5">
           <div class="text-bg-light z-3 p-3 card border-primary">
-            {I18NextService.i18n.t("donation_dialog_message")}
-            <div>
-              <div class="mt-2 grid gap-2">
-                <a
-                  href="https://join-lemmy.org/donate"
-                  class="btn btn-primary col-6"
-                  target="_blank"
-                  onClick={this.donationDialogShown}
-                >
-                  {I18NextService.i18n.t("donation_dialog_button_donate")}
-                </a>
-                <button
-                  class="btn btn-outline-secondary col-6"
-                  onClick={this.donationDialogShown}
-                >
-                  {I18NextService.i18n.t("donation_dialog_button_hide")}
-                </button>
-                <button
-                  class="btn btn-outline-dark border-0 col-12"
-                  onClick={this.donationDialogShownHidePermanently}
-                >
-                  {I18NextService.i18n.t(
-                    "donation_dialog_button_hide_permanently",
-                  )}
-                </button>
+            <div class="card-body">
+              <h5 class="card-title">
+                {I18NextService.i18n.t("donation_dialog_title")}
+              </h5>
+              <div class="card-text">
+                {I18NextService.i18n.t("donation_dialog_message")}
+              </div>
+              <div>
+                <div class="mt-2 grid gap-2">
+                  <a
+                    href="https://join-lemmy.org/donate"
+                    class="btn btn-primary col-6"
+                    target="_blank"
+                    onClick={this.donationDialogShown}
+                  >
+                    {I18NextService.i18n.t("donation_dialog_button_donate")}
+                  </a>
+                  <button
+                    class="btn btn-outline-secondary col-6"
+                    onClick={this.donationDialogShown}
+                  >
+                    {I18NextService.i18n.t("donation_dialog_button_hide")}
+                  </button>
+                  <button
+                    class="btn btn-outline-dark border-0 col-12"
+                    onClick={this.donationDialogShownHidePermanently}
+                  >
+                    {I18NextService.i18n.t(
+                      "donation_dialog_button_hide_permanently",
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
