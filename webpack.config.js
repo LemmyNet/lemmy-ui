@@ -86,8 +86,8 @@ module.exports = (env, argv) => {
       new webpack.DefinePlugin({
         "process.env.COMMIT_HASH": `"${env.COMMIT_HASH}"`,
         "process.env.NODE_ENV": `"${mode}"`,
-        "process.env.LEMMY_UI_LEMMY_EXTERNAL_DOMAIN": JSON.stringify(
-          process.env.LEMMY_UI_LEMMY_EXTERNAL_DOMAIN,
+        "process.env.LEMMY_UI_LEMMY_HAS_EXTERNAL_DOMAIN": JSON.stringify(
+          process.env.LEMMY_UI_LEMMY_HAS_EXTERNAL_DOMAIN,
         ),
         "process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST": JSON.stringify(
           process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST,

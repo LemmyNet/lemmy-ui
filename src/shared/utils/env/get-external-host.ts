@@ -3,7 +3,7 @@ import { testHost } from "../../config";
 
 export default function getExternalHost() {
   return isBrowser()
-    ? process.env.LEMMY_UI_LEMMY_EXTERNAL_DOMAIN === "true"
+    ? process.env.LEMMY_UI_LEMMY_HAS_EXTERNAL_DOMAIN === "true"
       ? process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST || testHost
       : `${window.location.hostname}${
           ["1234", "1235"].includes(window.location.port)
