@@ -43,9 +43,10 @@ const queryPairRegex = "[a-zA-Zd_-]+=[a-zA-Zd+-_]+";
  * /c/community@server.com
  * /m/community@server.com
  * /u/username@server.com
+ * @username@server.com
  */
 export const instanceLinkRegex = new RegExp(
-  `(/[cmu]/|!)[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}(?:/?\\?${queryPairRegex}(?:&${queryPairRegex})*)?`,
+  `(/[cmu]/|!|@)[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}(?:/?\\?${queryPairRegex}(?:&${queryPairRegex})*)?`,
   "g",
 );
 
