@@ -24,7 +24,7 @@ export class DonationDialog extends Component<DonationDialogProps, any> {
     year_ago.setFullYear(year_ago.getFullYear() - 1);
     if (last_donation_notification < year_ago) {
       return (
-        <div class="position-absolute end-0 bottom-0 p-5 col-5">
+        <div class="position-absolute end-0 bottom-0 p-4 col-lg-5">
           <div class="text-bg-light z-3 p-3 card border-primary">
             <div class="card-body">
               <h5 class="card-title">
