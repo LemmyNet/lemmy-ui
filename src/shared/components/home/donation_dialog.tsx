@@ -34,28 +34,20 @@ export class DonationDialog extends Component<DonationDialogProps, any> {
                 {I18NextService.i18n.t("donation_dialog_message")}
               </div>
               <div>
-                <div class="mt-2 grid gap-2">
+                <div class="mt-3 d-flex">
                   <a
                     href="https://join-lemmy.org/donate"
-                    class="btn btn-primary col-6"
+                    class="btn btn-primary me-4 flex-fill"
                     target="_blank"
                     onClick={this.donationDialogShown}
                   >
                     {I18NextService.i18n.t("donation_dialog_button_donate")}
                   </a>
                   <button
-                    class="btn btn-outline-secondary col-6"
+                    class="btn btn-outline-secondary flex-fill"
                     onClick={this.donationDialogShown}
                   >
                     {I18NextService.i18n.t("donation_dialog_button_hide")}
-                  </button>
-                  <button
-                    class="btn btn-outline-dark border-0 col-12"
-                    onClick={this.donationDialogShownHidePermanently}
-                  >
-                    {I18NextService.i18n.t(
-                      "donation_dialog_button_hide_permanently",
-                    )}
                   </button>
                 </div>
               </div>
