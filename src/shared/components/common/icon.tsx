@@ -19,15 +19,12 @@ export class Icon extends Component<IconProps, any> {
     switch (`${this.props.icon}`) {
       case "plus-square":
         var icon_alt_text = "Show Content";
-        return icon_alt_text;
-        break;
+      /* falls through */
       case "minus-square":
         var icon_alt_text = "Show Content";
-        return icon_alt_text;
-        break;
+      /* falls through */
       default:
-        var icon_alt_text = "Show Content";
-        return icon_alt_text;
+        break;
     }
 
     return (
