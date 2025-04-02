@@ -1,5 +1,6 @@
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
+import * as sanitizeHtml from "sanitize-html";
 import { HttpService, I18NextService } from "../../services";
 
 interface DonationDialogProps {
@@ -30,9 +31,14 @@ export class DonationDialog extends Component<DonationDialogProps, any> {
               <h5 class="card-title">
                 {I18NextService.i18n.t("donation_dialog_title")}
               </h5>
-              <div class="card-text">
-                {I18NextService.i18n.t("donation_dialog_message")}
-              </div>
+              <div
+                class="card-text"
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(
+                    I18NextService.i18n.t("donation_dialog_message"),
+                  ),
+                }}
+              ></div>
               <div>
                 <div class="mt-3 d-flex">
                   <a
@@ -44,7 +50,7 @@ export class DonationDialog extends Component<DonationDialogProps, any> {
                     {I18NextService.i18n.t("donation_dialog_button_donate")}
                   </a>
                   <button
-                    class="btn btn-outline-secondary flex-fill"
+                    class="btn btn-outline-dark flex-fill"
                     onClick={this.donationDialogShown}
                   >
                     {I18NextService.i18n.t("donation_dialog_button_hide")}
