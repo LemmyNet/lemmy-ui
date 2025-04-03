@@ -407,6 +407,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           <div>
             <div className="row">
               <main role="main" className="col-12 col-md-8 col-lg-9">
+                <DonationDialog site={this.state.siteRes} />
                 {tagline && (
                   <div
                     id="tagline"
@@ -422,7 +423,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                 {this.mySidebar}
               </aside>
             </div>
-            <DonationDialog site={this.state.siteRes} />
           </div>
         )}
       </div>
