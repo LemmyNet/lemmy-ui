@@ -404,25 +404,23 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           path={this.context.router.route.match.url}
         />
         {site_setup && (
-          <div>
-            <div className="row">
-              <main role="main" className="col-12 col-md-8 col-lg-9">
-                <DonationDialog site={this.state.siteRes} />
-                {tagline && (
-                  <div
-                    id="tagline"
-                    dangerouslySetInnerHTML={mdToHtml(tagline, () =>
-                      this.forceUpdate(),
-                    )}
-                  ></div>
-                )}
-                <div className="d-block d-md-none">{this.mobileView}</div>
-                {this.posts}
-              </main>
-              <aside className="d-none d-md-block col-md-4 col-lg-3">
-                {this.mySidebar}
-              </aside>
+          <div className="row">
+            <div className="col-12 col-md-8 col-lg-9">
+              <DonationDialog site={this.state.siteRes} />
+              {tagline && (
+                <div
+                  id="tagline"
+                  dangerouslySetInnerHTML={mdToHtml(tagline, () =>
+                    this.forceUpdate(),
+                  )}
+                ></div>
+              )}
+              <div className="d-block d-md-none">{this.mobileView}</div>
+              {this.posts}
             </div>
+            <aside className="d-none d-md-block col-md-4 col-lg-3">
+              {this.mySidebar}
+            </aside>
           </div>
         )}
       </div>

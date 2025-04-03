@@ -447,7 +447,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <div className="card-body">{this.changePasswordHtmlForm()}</div>
             </div>
             <div className="card border-secondary mb-3">
-              <div className="card-body">{this.importExport()}</div>
+              <div className="card-body">{this.totpSection()}</div>
+            </div>
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.importExportForm()}</div>
+            </div>
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.deleteAccountForm()}</div>
             </div>
           </div>
         </div>
@@ -518,10 +524,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             />
           </div>
           <div className="input-group mb-3">
-            <button
-              type="submit"
-              className="btn d-block btn-secondary me-4 w-100"
-            >
+            <button type="submit" className="btn btn-secondary">
               {this.state.changePasswordRes.state === "loading" ? (
                 <Spinner />
               ) : (
@@ -667,7 +670,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
-  importExport() {
+  importExportForm() {
     return (
       <>
         <h2 className="h5">
@@ -680,7 +683,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         ) ? (
           <>
             <button
-              className="btn btn-secondary w-100 mb-4"
+              className="btn btn-secondary mb-4"
               onClick={linkEvent(this, this.handleExportSettings)}
               type="button"
             >
@@ -695,7 +698,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 onChange={linkEvent(this, this.handleImportFileChange)}
               />
               <button
-                className="btn btn-secondary w-100 mt-3"
+                className="btn btn-secondary mt-3"
                 onClick={linkEvent(this, this.handleImportSettings)}
                 type="button"
                 disabled={!this.state.settingsFile}
@@ -1132,7 +1135,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               </label>
             </div>
           </div>
-          {this.totpSection()}
           <div className="input-group mb-3">
             <button type="submit" className="btn d-block btn-secondary me-4">
               {this.state.saveRes.state === "loading" ? (
@@ -1142,82 +1144,86 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               )}
             </button>
           </div>
-          <hr />
-          <form
-            className="mb-3"
-            onSubmit={linkEvent(this, this.handleDeleteAccount)}
+        </form>
+      </>
+    );
+  }
+
+  deleteAccountForm() {
+    return (
+      <>
+        <h2 className="h5">{I18NextService.i18n.t("delete_account")}</h2>
+        <form
+          className="mb-3"
+          onSubmit={linkEvent(this, this.handleDeleteAccount)}
+        >
+          <button
+            type="button"
+            className="btn d-block btn-danger"
+            onClick={linkEvent(this, this.handleDeleteAccountShowConfirmToggle)}
           >
-            <button
-              type="button"
-              className="btn d-block btn-danger"
-              onClick={linkEvent(
-                this,
-                this.handleDeleteAccountShowConfirmToggle,
-              )}
-            >
-              {I18NextService.i18n.t("delete_account")}
-            </button>
-            {this.state.deleteAccountShowConfirm && (
-              <>
-                <label
-                  className="my-2 alert alert-danger d-block"
-                  role="alert"
-                  htmlFor="password-delete-account"
-                >
-                  {I18NextService.i18n.t("delete_account_confirm")}
-                </label>
-                <PasswordInput
-                  id="password-delete-account"
-                  value={this.state.deleteAccountForm.password}
-                  onInput={linkEvent(
-                    this,
-                    this.handleDeleteAccountPasswordChange,
-                  )}
-                  className="my-2"
-                />
-                <div className="input-group mb-3">
-                  <div className="form-check">
-                    <input
-                      id="delete-account-content"
-                      type="checkbox"
-                      className="form-check-input"
-                      onInput={linkEvent(
-                        this,
-                        this.handleDeleteAccountContentChange,
-                      )}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="delete-account-content"
-                    >
-                      {I18NextService.i18n.t("delete_account_content")}
-                    </label>
-                  </div>
+            {I18NextService.i18n.t("delete_account")}
+          </button>
+          {this.state.deleteAccountShowConfirm && (
+            <>
+              <label
+                className="my-2 alert alert-danger d-block"
+                role="alert"
+                htmlFor="password-delete-account"
+              >
+                {I18NextService.i18n.t("delete_account_confirm")}
+              </label>
+              <PasswordInput
+                id="password-delete-account"
+                value={this.state.deleteAccountForm.password}
+                onInput={linkEvent(
+                  this,
+                  this.handleDeleteAccountPasswordChange,
+                )}
+                className="my-2"
+              />
+              <div className="input-group mb-3">
+                <div className="form-check">
+                  <input
+                    id="delete-account-content"
+                    type="checkbox"
+                    className="form-check-input"
+                    onInput={linkEvent(
+                      this,
+                      this.handleDeleteAccountContentChange,
+                    )}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor="delete-account-content"
+                  >
+                    {I18NextService.i18n.t("delete_account_content")}
+                  </label>
                 </div>
-                <button
-                  type="submit"
-                  className="btn btn-danger me-4"
-                  disabled={!this.state.deleteAccountForm.password}
-                >
-                  {this.state.deleteAccountRes.state === "loading" ? (
-                    <Spinner />
-                  ) : (
-                    capitalizeFirstLetter(I18NextService.i18n.t("delete"))
-                  )}
-                </button>
-                <button
-                  className="btn btn-secondary"
-                  type="button"
-                  onClick={linkEvent(
-                    this,
-                    this.handleDeleteAccountShowConfirmToggle,
-                  )}
-                >
-                  {I18NextService.i18n.t("cancel")}
-                </button>
-              </>
-            )}
-          </form>
+              </div>
+              <button
+                type="submit"
+                className="btn btn-danger me-4"
+                disabled={!this.state.deleteAccountForm.password}
+              >
+                {this.state.deleteAccountRes.state === "loading" ? (
+                  <Spinner />
+                ) : (
+                  capitalizeFirstLetter(I18NextService.i18n.t("delete"))
+                )}
+              </button>
+              <button
+                className="btn btn-secondary"
+                type="button"
+                onClick={linkEvent(
+                  this,
+                  this.handleDeleteAccountShowConfirmToggle,
+                )}
+              >
+                {I18NextService.i18n.t("cancel")}
+              </button>
+            </>
+          )}
         </form>
       </>
     );
@@ -1228,9 +1234,11 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       !!UserService.Instance.myUserInfo?.local_user_view.local_user
         .totp_2fa_enabled;
     const { generateTotpRes } = this.state;
+    const totpActionStr = totpEnabled ? "disable_totp" : "enable_totp";
 
     return (
       <>
+        <h2 className="h5">{I18NextService.i18n.t(totpActionStr)}</h2>
         <button
           type="button"
           className="btn btn-secondary my-2"
@@ -1239,7 +1247,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             totpEnabled ? handleShowTotpModal : handleGenerateTotp,
           )}
         >
-          {I18NextService.i18n.t(totpEnabled ? "disable_totp" : "enable_totp")}
+          {I18NextService.i18n.t(totpActionStr)}
         </button>
         {totpEnabled ? (
           <TotpModal
