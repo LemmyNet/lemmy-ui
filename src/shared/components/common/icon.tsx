@@ -16,15 +16,12 @@ export class Icon extends Component<IconProps, any> {
   }
 
   render() {
-    switch (`${this.props.icon}`) {
-      case "plus-square":
-        var icon_alt_text = "Show Content";
-      /* falls through */
-      case "minus-square":
-        var icon_alt_text = "Show Content";
-      /* falls through */
-      default:
-        break;
+    let iconAltText: string;
+    if (
+      this.props.icon === "plus-square" ||
+      this.props.icon === "minus-square"
+    ) {
+      iconAltText = "Show Content";
     }
 
     return (
@@ -36,7 +33,7 @@ export class Icon extends Component<IconProps, any> {
         role="img"
         aria-describedby={`${this.props.icon}-alt`}
       >
-        <title id={`${this.props.icon}-alt`}>{icon_alt_text}</title>
+        <title id={`${this.props.icon}-alt`}>{iconAltText}</title>
         <use
           xlinkHref={`${getStaticDir()}/assets/symbols.svg#icon-${
             this.props.icon
