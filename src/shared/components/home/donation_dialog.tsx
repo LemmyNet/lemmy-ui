@@ -25,7 +25,7 @@ export class DonationDialog extends Component<Props, State> {
   initializeShow(): boolean {
     const lastNotifDate = new Date(
       this.props.site?.my_user?.local_user_view.local_user
-        .last_donation_notification ?? 0,
+        .last_donation_notification ?? Number.MAX_SAFE_INTEGER,
     );
 
     const oneYearAgo = new Date();
@@ -36,16 +36,18 @@ export class DonationDialog extends Component<Props, State> {
   render() {
     if (this.state.show) {
       return (
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-          <button
-            type="button"
-            class="btn-close"
-            onClick={this.clickHide}
-            aria-label={I18NextService.i18n.t("donation_dialog_button_hide")}
-          ></button>
-          <h4 class="alert-heading">
-            {I18NextService.i18n.t("donation_dialog_title")}
-          </h4>
+        <div class="alert alert-info fade show" role="alert">
+          <div class="d-flex">
+            <h4 class="alert-heading flex-grow-1">
+              {I18NextService.i18n.t("donation_dialog_title")}
+            </h4>
+            <button
+              type="button"
+              class="btn-close position-relative"
+              onClick={this.clickHide}
+              aria-label={I18NextService.i18n.t("donation_dialog_button_hide")}
+            ></button>
+          </div>
           <div
             class="card-text"
             dangerouslySetInnerHTML={{
@@ -65,17 +67,16 @@ export class DonationDialog extends Component<Props, State> {
   }
 
   async clickDonate() {
-    await HttpService.client.donation_dialog_shown(false);
     window.open(donateLemmyUrl, "_blank")?.focus();
-    this.hideDialog();
+    await this.hideDialog();
   }
 
   async clickHide() {
-    await HttpService.client.donation_dialog_shown(false);
-    this.hideDialog();
+    await this.hideDialog();
   }
 
-  hideDialog() {
+  async hideDialog() {
+    await HttpService.client.donation_dialog_shown();
     const site = this.props.site;
     if (site?.my_user !== undefined) {
       site!.my_user!.local_user_view.local_user.last_donation_notification =
