@@ -41,7 +41,7 @@ export default class PostHiddenSelect extends Component<
             active: showHidden === "true",
           })}
           data-tippy-content={I18NextService.i18n.t("show_hidden_posts")}
-          aria-label="Show hidden posts"
+          aria-label={I18NextService.i18n.t("show_hidden_posts")}
         >
           <Icon icon="eye" inline />
         </label>
@@ -59,7 +59,7 @@ export default class PostHiddenSelect extends Component<
             active: showHidden !== "true",
           })}
           data-tippy-content={I18NextService.i18n.t("hide_hidden_posts")}
-          aria-label="Hide hidden posts"
+          aria-label={I18NextService.i18n.t("hide_hidden_posts")}
         >
           <Icon icon="eye-slash" inline />
         </label>
