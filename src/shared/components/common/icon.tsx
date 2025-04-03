@@ -22,25 +22,45 @@ export class Icon extends Component<IconProps, any> {
       this.props.icon === "minus-square"
     ) {
       iconAltText = "Show Content";
+    } else {
+      iconAltText = "";
     }
 
-    return (
-      <svg
-        className={classNames("icon", this.props.classes, {
-          "icon-inline": this.props.inline,
-          small: this.props.small,
-        })}
-        role="img"
-        aria-describedby={`${this.props.icon}-alt`}
-      >
-        <title id={`${this.props.icon}-alt`}>{iconAltText}</title>
-        <use
-          xlinkHref={`${getStaticDir()}/assets/symbols.svg#icon-${
-            this.props.icon
-          }`}
-        ></use>
-      </svg>
-    );
+    if (iconAltText !== "") {
+      return (
+        <svg
+          className={classNames("icon", this.props.classes, {
+            "icon-inline": this.props.inline,
+            small: this.props.small,
+          })}
+          role="img"
+          aria-describedby={`${this.props.icon}-alt`}
+        >
+          <title id={`${this.props.icon}-alt`}>{iconAltText}</title>
+          <use
+            xlinkHref={`${getStaticDir()}/assets/symbols.svg#icon-${
+              this.props.icon
+            }`}
+          ></use>
+        </svg>
+      );
+    } // use aria-describedby or not
+    else {
+      return (
+        <svg
+          className={classNames("icon", this.props.classes, {
+            "icon-inline": this.props.inline,
+            small: this.props.small,
+          })}
+        >
+          <use
+            xlinkHref={`${getStaticDir()}/assets/symbols.svg#icon-${
+              this.props.icon
+            }`}
+          ></use>
+        </svg>
+      );
+    }
   }
 }
 
