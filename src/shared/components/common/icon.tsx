@@ -21,7 +21,7 @@ export class Icon extends Component<IconProps, any> {
       this.props.icon === "plus-square" ||
       this.props.icon === "minus-square"
     ) {
-      iconAltText = "Show Content";
+      iconAltText = `${I18NextService.i18n.t("show_content")}`;
     } else {
       iconAltText = "";
     }
