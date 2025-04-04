@@ -16,21 +16,33 @@ export class Icon extends Component<IconProps, any> {
   }
 
   render() {
+    let iconAltText: string;
+    if (
+      this.props.icon === "plus-square" ||
+      this.props.icon === "minus-square"
+    ) {
+      iconAltText = `${I18NextService.i18n.t("show_content")}`;
+    } else {
+      iconAltText = "";
+    }
     return (
       <svg
         className={classNames("icon", this.props.classes, {
           "icon-inline": this.props.inline,
           small: this.props.small,
         })}
+        {...(iconAltText
+          ? { role: "img", "aria-describedby": `${this.props.icon}-alt` }
+          : {})}
       >
+        {iconAltText !== "" && (
+          <title id={`${this.props.icon}-alt`}>{iconAltText}</title>
+        )}
         <use
           xlinkHref={`${getStaticDir()}/assets/symbols.svg#icon-${
             this.props.icon
           }`}
         ></use>
-        <div className="visually-hidden">
-          <title>{this.props.icon}</title>
-        </div>
       </svg>
     );
   }
