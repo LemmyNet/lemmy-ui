@@ -22,6 +22,8 @@ export class Icon extends Component<IconProps, any> {
       this.props.icon === "minus-square"
     ) {
       iconAltText = `${I18NextService.i18n.t("show_content")}`;
+    } else {
+      iconAltText = "";
     }
     return (
       <svg
@@ -33,7 +35,7 @@ export class Icon extends Component<IconProps, any> {
           ? { role: "img", "aria-describedby": `${this.props.icon}-alt` }
           : {})}
       >
-        {iconAltText && (
+        {iconAltText !== "" && (
           <title id={`${this.props.icon}-alt`}>{iconAltText}</title>
         )}
         <use
