@@ -37,7 +37,7 @@ importers:
         version: 6.0.1
       babel-loader:
         specifier: ^9.1.3
-        version: 9.1.3(@babel/core@7.25.2)(webpack@5.94.0(webpack-cli@5.1.4))
+        version: 9.1.3(@babel/core@7.25.2)(webpack@5.94.0)
       babel-plugin-inferno:
         specifier: ^6.7.1
         version: 6.7.1(@babel/core@7.25.2)
@@ -52,7 +52,7 @@ importers:
         version: 2.5.1
       clean-webpack-plugin:
         specifier: ^4.0.0
-        version: 4.0.0(webpack@5.94.0(webpack-cli@5.1.4))
+        version: 4.0.0(webpack@5.94.0)
       cookie:
         specifier: ^0.6.0
         version: 0.6.0
@@ -61,10 +61,10 @@ importers:
         version: 1.4.6
       copy-webpack-plugin:
         specifier: ^12.0.2
-        version: 12.0.2(webpack@5.94.0(webpack-cli@5.1.4))
+        version: 12.0.2(webpack@5.94.0)
       css-loader:
         specifier: ^7.1.2
-        version: 7.1.2(webpack@5.94.0(webpack-cli@5.1.4))
+        version: 7.1.2(webpack@5.94.0)
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
@@ -114,8 +114,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 0.19.6-beta.1
-        version: 0.19.6-beta.1
+        specifier: 0.19.11-donation-dialog.1
+        version: 0.19.11-donation-dialog.1
       lodash.isequal:
         specifier: ^4.5.0
         version: 4.5.0
@@ -151,7 +151,7 @@ importers:
         version: 2.0.0
       mini-css-extract-plugin:
         specifier: ^2.9.1
-        version: 2.9.1(webpack@5.94.0(webpack-cli@5.1.4))
+        version: 2.9.1(webpack@5.94.0)
       qreator:
         specifier: ^9.3.0
         version: 9.3.0
@@ -160,7 +160,7 @@ importers:
         version: 1.7.2
       run-node-webpack-plugin:
         specifier: ^1.3.0
-        version: 1.3.0(webpack@5.94.0(webpack-cli@5.1.4))
+        version: 1.3.0(webpack@5.94.0)
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
@@ -172,13 +172,13 @@ importers:
         version: 1.77.8
       sass-loader:
         specifier: ^16.0.1
-        version: 16.0.1(sass@1.77.8)(webpack@5.94.0(webpack-cli@5.1.4))
+        version: 16.0.1(sass@1.77.8)(webpack@5.94.0)
       serialize-javascript:
         specifier: ^6.0.2
         version: 6.0.2
       service-worker-webpack:
         specifier: ^1.0.0
-        version: 1.0.0(webpack@5.94.0(webpack-cli@5.1.4))
+        version: 1.0.0(webpack@5.94.0)
       sharp:
         specifier: 0.33.5
         version: 0.33.5
@@ -305,7 +305,7 @@ importers:
         version: 2.4.0
       style-loader:
         specifier: ^4.0.0
-        version: 4.0.0(webpack@5.94.0(webpack-cli@5.1.4))
+        version: 4.0.0(webpack@5.94.0)
       terser:
         specifier: ^5.31.6
         version: 5.31.6
@@ -3049,8 +3049,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  lemmy-js-client@0.19.6-beta.1:
-    resolution: {integrity: sha512-CiTbTpqKA7t1daBMdkKVLVXUrpy2wSuxkoWrnK5sVvmBrlFq1jpqC9h9SgNngiVqSgx6Tvsg3asmvne7OaEZRQ==}
+  lemmy-js-client@0.19.11-donation-dialog.1:
+    resolution: {integrity: sha512-dmny1WwteMY07EKLoOGYt46HVc7k6H+o0ZzCPcNcpaAVgK5jJ6fs2i2BfMrEtQwAdRzqyVtVX0gXHy17j/cWGw==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -6071,17 +6071,17 @@ snapshots:
       '@webassemblyjs/ast': 1.12.1
       '@xtuc/long': 4.2.2
 
-  '@webpack-cli/configtest@2.1.1(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.0.4)(webpack@5.94.0))(webpack@5.94.0(webpack-cli@5.1.4))':
+  '@webpack-cli/configtest@2.1.1(webpack-cli@5.1.4)(webpack@5.94.0)':
     dependencies:
       webpack: 5.94.0(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.0.4)(webpack@5.94.0)
 
-  '@webpack-cli/info@2.0.2(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.0.4)(webpack@5.94.0))(webpack@5.94.0(webpack-cli@5.1.4))':
+  '@webpack-cli/info@2.0.2(webpack-cli@5.1.4)(webpack@5.94.0)':
     dependencies:
       webpack: 5.94.0(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.0.4)(webpack@5.94.0)
 
-  '@webpack-cli/serve@2.0.5(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.0.4)(webpack@5.94.0))(webpack-dev-server@5.0.4(webpack-cli@5.1.4)(webpack@5.94.0))(webpack@5.94.0(webpack-cli@5.1.4))':
+  '@webpack-cli/serve@2.0.5(webpack-cli@5.1.4)(webpack-dev-server@5.0.4)(webpack@5.94.0)':
     dependencies:
       webpack: 5.94.0(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.0.4)(webpack@5.94.0)
@@ -6238,7 +6238,7 @@ snapshots:
     dependencies:
       deep-equal: 2.2.3
 
-  babel-loader@9.1.3(@babel/core@7.25.2)(webpack@5.94.0(webpack-cli@5.1.4)):
+  babel-loader@9.1.3(@babel/core@7.25.2)(webpack@5.94.0):
     dependencies:
       '@babel/core': 7.25.2
       find-cache-dir: 4.0.0
@@ -6393,7 +6393,7 @@ snapshots:
 
   classnames@2.5.1: {}
 
-  clean-webpack-plugin@4.0.0(webpack@5.94.0(webpack-cli@5.1.4)):
+  clean-webpack-plugin@4.0.0(webpack@5.94.0):
     dependencies:
       del: 4.1.1
       webpack: 5.94.0(webpack-cli@5.1.4)
@@ -6488,7 +6488,7 @@ snapshots:
 
   cookie@0.6.0: {}
 
-  copy-webpack-plugin@11.0.0(webpack@5.94.0(webpack-cli@5.1.4)):
+  copy-webpack-plugin@11.0.0(webpack@5.94.0):
     dependencies:
       fast-glob: 3.3.2
       glob-parent: 6.0.2
@@ -6498,7 +6498,7 @@ snapshots:
       serialize-javascript: 6.0.2
       webpack: 5.94.0(webpack-cli@5.1.4)
 
-  copy-webpack-plugin@12.0.2(webpack@5.94.0(webpack-cli@5.1.4)):
+  copy-webpack-plugin@12.0.2(webpack@5.94.0):
     dependencies:
       fast-glob: 3.3.2
       glob-parent: 6.0.2
@@ -6529,7 +6529,7 @@ snapshots:
 
   crypto-random-string@2.0.0: {}
 
-  css-loader@7.1.2(webpack@5.94.0(webpack-cli@5.1.4)):
+  css-loader@7.1.2(webpack@5.94.0):
     dependencies:
       icss-utils: 5.1.0(postcss@8.4.41)
       postcss: 8.4.41
@@ -7812,7 +7812,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  lemmy-js-client@0.19.6-beta.1: {}
+  lemmy-js-client@0.19.11-donation-dialog.1: {}
 
   leven@3.1.0: {}
 
@@ -7985,7 +7985,7 @@ snapshots:
     dependencies:
       mime-db: 1.53.0
 
-  mini-css-extract-plugin@2.9.1(webpack@5.94.0(webpack-cli@5.1.4)):
+  mini-css-extract-plugin@2.9.1(webpack@5.94.0):
     dependencies:
       schema-utils: 4.2.0
       tapable: 2.2.1
@@ -8491,7 +8491,7 @@ snapshots:
 
   run-applescript@7.0.0: {}
 
-  run-node-webpack-plugin@1.3.0(webpack@5.94.0(webpack-cli@5.1.4)):
+  run-node-webpack-plugin@1.3.0(webpack@5.94.0):
     dependencies:
       webpack: 5.94.0(webpack-cli@5.1.4)
 
@@ -8531,7 +8531,7 @@ snapshots:
       parse-srcset: 1.0.2
       postcss: 8.4.41
 
-  sass-loader@16.0.1(sass@1.77.8)(webpack@5.94.0(webpack-cli@5.1.4)):
+  sass-loader@16.0.1(sass@1.77.8)(webpack@5.94.0):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
@@ -8619,14 +8619,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  service-worker-webpack@1.0.0(webpack@5.94.0(webpack-cli@5.1.4)):
+  service-worker-webpack@1.0.0(webpack@5.94.0):
     dependencies:
-      copy-webpack-plugin: 11.0.0(webpack@5.94.0(webpack-cli@5.1.4))
+      copy-webpack-plugin: 11.0.0(webpack@5.94.0)
       schema-utils: 4.2.0
       webpack: 5.94.0(webpack-cli@5.1.4)
-      webpack-inject-entry-plugin: 0.0.4(webpack@5.94.0(webpack-cli@5.1.4))
+      webpack-inject-entry-plugin: 0.0.4(webpack@5.94.0)
       workbox-build: 6.6.0
-      workbox-webpack-plugin: 6.6.0(webpack@5.94.0(webpack-cli@5.1.4))
+      workbox-webpack-plugin: 6.6.0(webpack@5.94.0)
       workbox-window: 6.6.0
     transitivePeerDependencies:
       - '@types/babel__core'
@@ -8885,7 +8885,7 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  style-loader@4.0.0(webpack@5.94.0(webpack-cli@5.1.4)):
+  style-loader@4.0.0(webpack@5.94.0):
     dependencies:
       webpack: 5.94.0(webpack-cli@5.1.4)
 
@@ -8919,7 +8919,7 @@ snapshots:
       type-fest: 0.16.0
       unique-string: 2.0.0
 
-  terser-webpack-plugin@5.3.10(webpack@5.94.0(webpack-cli@5.1.4)):
+  terser-webpack-plugin@5.3.10(webpack@5.94.0):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
@@ -9139,9 +9139,9 @@ snapshots:
   webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.0.4)(webpack@5.94.0):
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
-      '@webpack-cli/configtest': 2.1.1(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.0.4)(webpack@5.94.0))(webpack@5.94.0(webpack-cli@5.1.4))
-      '@webpack-cli/info': 2.0.2(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.0.4)(webpack@5.94.0))(webpack@5.94.0(webpack-cli@5.1.4))
-      '@webpack-cli/serve': 2.0.5(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.0.4)(webpack@5.94.0))(webpack-dev-server@5.0.4(webpack-cli@5.1.4)(webpack@5.94.0))(webpack@5.94.0(webpack-cli@5.1.4))
+      '@webpack-cli/configtest': 2.1.1(webpack-cli@5.1.4)(webpack@5.94.0)
+      '@webpack-cli/info': 2.0.2(webpack-cli@5.1.4)(webpack@5.94.0)
+      '@webpack-cli/serve': 2.0.5(webpack-cli@5.1.4)(webpack-dev-server@5.0.4)(webpack@5.94.0)
       colorette: 2.0.20
       commander: 10.0.1
       cross-spawn: 7.0.3
@@ -9156,7 +9156,7 @@ snapshots:
       webpack-bundle-analyzer: 4.10.2
       webpack-dev-server: 5.0.4(webpack-cli@5.1.4)(webpack@5.94.0)
 
-  webpack-dev-middleware@7.4.2(webpack@5.94.0(webpack-cli@5.1.4)):
+  webpack-dev-middleware@7.4.2(webpack@5.94.0):
     dependencies:
       colorette: 2.0.20
       memfs: 4.11.1
@@ -9197,7 +9197,7 @@ snapshots:
       serve-index: 1.9.1
       sockjs: 0.3.24
       spdy: 4.0.2
-      webpack-dev-middleware: 7.4.2(webpack@5.94.0(webpack-cli@5.1.4))
+      webpack-dev-middleware: 7.4.2(webpack@5.94.0)
       ws: 8.18.0
     optionalDependencies:
       webpack: 5.94.0(webpack-cli@5.1.4)
@@ -9208,7 +9208,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  webpack-inject-entry-plugin@0.0.4(webpack@5.94.0(webpack-cli@5.1.4)):
+  webpack-inject-entry-plugin@0.0.4(webpack@5.94.0):
     dependencies:
       schema-utils: 4.2.0
       webpack: 5.94.0(webpack-cli@5.1.4)
@@ -9250,7 +9250,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(webpack@5.94.0(webpack-cli@5.1.4))
+      terser-webpack-plugin: 5.3.10(webpack@5.94.0)
       watchpack: 2.4.2
       webpack-sources: 3.2.3
     optionalDependencies:
@@ -9428,7 +9428,7 @@ snapshots:
 
   workbox-sw@6.6.0: {}
 
-  workbox-webpack-plugin@6.6.0(webpack@5.94.0(webpack-cli@5.1.4)):
+  workbox-webpack-plugin@6.6.0(webpack@5.94.0):
     dependencies:
       fast-json-stable-stringify: 2.1.0
       pretty-bytes: 5.6.0
