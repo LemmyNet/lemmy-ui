@@ -4,6 +4,7 @@ import {
   editWith,
   enableDownvotes,
   enableNsfw,
+  postToCommentSortType,
   setIsoData,
   updatePersonBlock,
   voteDisplayMode,
@@ -74,9 +75,17 @@ import {
   SuccessResponse,
   TransferCommunity,
   RegistrationApplicationResponse,
+  GetPosts,
+  GetComments,
+  GetPostsResponse,
+  GetCommentsResponse,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
-import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
+import {
+  InitialFetchRequest,
+  PersonDetailsFilter,
+  PersonDetailsView,
+} from "../../interfaces";
 import { mdToHtml } from "../../markdown";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import {
@@ -106,6 +115,8 @@ import DisplayModal from "../common/modal/display-modal";
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
   uploadsRes: ListMediaResponse;
+  likedPostsRes: GetPostsResponse;
+  likedCommentsRes: GetCommentsResponse;
 }>;
 
 interface ProfileState {
@@ -113,6 +124,8 @@ interface ProfileState {
   // personRes and personDetailsRes point to `===` identical data. This allows
   // to render the start of the profile while the new details are loading.
   personDetailsRes: RequestState<GetPersonDetailsResponse>;
+  likedCommentsRes: RequestState<GetCommentsResponse>;
+  likedPostsRes: RequestState<GetPostsResponse>;
   uploadsRes: RequestState<ListMediaResponse>;
   registrationRes: RequestState<RegistrationApplicationResponse>;
   personBlocked: boolean;
@@ -127,6 +140,7 @@ interface ProfileState {
 
 interface ProfileProps {
   view: PersonDetailsView;
+  filter: PersonDetailsFilter;
   sort: PostSortType;
   page: number;
 }
@@ -135,6 +149,7 @@ export function getProfileQueryParams(source?: string): ProfileProps {
   return getQueryParams<ProfileProps>(
     {
       view: getViewFromProps,
+      filter: getFilterFromProps,
       page: getPageFromString,
       sort: getSortTypeFromQuery,
     },
@@ -150,6 +165,12 @@ function getViewFromProps(view?: string): PersonDetailsView {
   return view
     ? (PersonDetailsView[view] ?? PersonDetailsView.Overview)
     : PersonDetailsView.Overview;
+}
+
+function getFilterFromProps(filter?: string): PersonDetailsFilter {
+  return filter
+    ? (PersonDetailsFilter[filter] ?? PersonDetailsFilter.Own)
+    : PersonDetailsFilter.Own;
 }
 
 const getCommunitiesListing = (
@@ -202,6 +223,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   state: ProfileState = {
     personRes: EMPTY_REQUEST,
     personDetailsRes: EMPTY_REQUEST,
+    likedCommentsRes: EMPTY_REQUEST,
+    likedPostsRes: EMPTY_REQUEST,
     uploadsRes: EMPTY_REQUEST,
     personBlocked: false,
     siteRes: this.isoData.site_res,
@@ -215,6 +238,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   loadingSettled() {
     return resourcesSettled([
       this.state.personRes,
+      this.state.likedCommentsRes,
+      this.state.likedPostsRes,
       this.props.view === PersonDetailsView.Uploads
         ? this.state.uploadsRes
         : this.state.personDetailsRes,
@@ -264,10 +289,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       const personRes = this.isoData.routeData.personRes;
+      const likedCommentsRes = this.isoData.routeData.likedCommentsRes;
+      const likedPostsRes = this.isoData.routeData.likedPostsRes;
       const uploadsRes = this.isoData.routeData.uploadsRes;
       this.state = {
         ...this.state,
         personRes,
+        likedCommentsRes,
+        likedPostsRes,
         personDetailsRes: personRes,
         uploadsRes,
         isIsomorphic: true,
@@ -298,6 +327,12 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     if (
       (nextProps.view !== this.props.view && !sharedViewTypes) ||
+      (sharedViewTypes &&
+        this.props.view !== PersonDetailsView.Overview &&
+        nextProps.view !== this.props.view &&
+        this.props.filter === PersonDetailsFilter.Upvoted) ||
+      (nextProps.filter === PersonDetailsFilter.Upvoted &&
+        nextProps.filter !== this.props.filter) ||
       nextProps.sort !== this.props.sort ||
       nextProps.page !== this.props.page ||
       newUsername ||
@@ -330,10 +365,26 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   fetchUserDataToken?: symbol;
   async fetchUserData(props: ProfileRouteProps, showBothLoading = false) {
     const token = (this.fetchUploadsToken = this.fetchUserDataToken = Symbol());
-    const { page, sort, view } = props;
+    const { page, sort, view, filter } = props;
+
+    const requestLiked =
+      filter === PersonDetailsFilter.Upvoted &&
+      view !== PersonDetailsView.Saved &&
+      view !== PersonDetailsView.Uploads;
+    const requestLikedComments =
+      requestLiked &&
+      (view === PersonDetailsView.Overview ||
+        view === PersonDetailsView.Comments);
+    const requestLikedPosts =
+      requestLiked &&
+      (view === PersonDetailsView.Overview || view === PersonDetailsView.Posts);
 
     if (view === PersonDetailsView.Uploads) {
       this.fetchUploads(props);
+      this.setState({
+        likedCommentsRes: EMPTY_REQUEST,
+        likedPostsRes: EMPTY_REQUEST,
+      });
       if (!showBothLoading) {
         return;
       }
@@ -346,17 +397,27 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         this.setState({
           personRes: LOADING_REQUEST,
           personDetailsRes: LOADING_REQUEST,
+          likedCommentsRes: requestLikedComments
+            ? LOADING_REQUEST
+            : EMPTY_REQUEST,
+          likedPostsRes: requestLikedPosts ? LOADING_REQUEST : EMPTY_REQUEST,
           uploadsRes: EMPTY_REQUEST,
         });
       } else {
         this.setState({
           personDetailsRes: LOADING_REQUEST,
+          likedCommentsRes: requestLikedComments
+            ? LOADING_REQUEST
+            : EMPTY_REQUEST,
+          likedPostsRes: requestLikedPosts ? LOADING_REQUEST : EMPTY_REQUEST,
           uploadsRes: EMPTY_REQUEST,
         });
       }
     }
 
-    const personRes = await HttpService.client.getPersonDetails({
+    const client = HttpService.client;
+
+    const personFetch = client.getPersonDetails({
       username: props.match.params.username,
       sort,
       saved_only: view === PersonDetailsView.Saved,
@@ -364,11 +425,47 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       limit: fetchLimit,
     });
 
+    let likedCommentsFetch: Promise<RequestState<GetCommentsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
+    let likedPostsFetch: Promise<RequestState<GetPostsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
+
+    if (requestLikedComments) {
+      const likedCommentsForm: GetComments = {
+        page,
+        limit: fetchLimit,
+        type_: "All",
+        sort: postToCommentSortType(sort),
+        liked_only: true,
+      };
+      likedCommentsFetch = client.getComments(likedCommentsForm);
+    }
+
+    if (requestLikedPosts) {
+      const likedPostsForm: GetPosts = {
+        page,
+        limit: fetchLimit,
+        type_: "All",
+        sort,
+        liked_only: true,
+        show_read: true,
+      };
+      likedPostsFetch = client.getPosts(likedPostsForm);
+    }
+
+    const [personRes, likedCommentsRes, likedPostsRes] = await Promise.all([
+      personFetch,
+      likedCommentsFetch,
+      likedPostsFetch,
+    ]);
+
     if (token === this.fetchUserDataToken) {
       this.setState({
         personRes,
         personDetailsRes: personRes,
         personBlocked: isPersonBlocked(personRes),
+        likedCommentsRes,
+        likedPostsRes,
       });
     }
   }
@@ -386,7 +483,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   static async fetchInitialData({
     headers,
-    query: { view, sort, page },
+    query: { view, filter, sort, page },
     match: {
       params: { username },
     },
@@ -415,10 +512,58 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       page,
       limit: fetchLimit,
     };
-    const personRes = await client.getPersonDetails(form);
+    const personFetch = client.getPersonDetails(form);
+
+    const requestLiked =
+      filter === PersonDetailsFilter.Upvoted &&
+      view !== PersonDetailsView.Saved &&
+      view !== PersonDetailsView.Uploads;
+    const requestLikedComments =
+      requestLiked &&
+      (view === PersonDetailsView.Overview ||
+        view === PersonDetailsView.Comments);
+    const requestLikedPosts =
+      requestLiked &&
+      (view === PersonDetailsView.Overview || view === PersonDetailsView.Posts);
+
+    let likedCommentsFetch: Promise<RequestState<GetCommentsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
+    let likedPostsFetch: Promise<RequestState<GetPostsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
+
+    if (requestLikedComments) {
+      const likedCommentsForm: GetComments = {
+        page,
+        limit: fetchLimit,
+        type_: "All",
+        sort: postToCommentSortType(sort),
+        liked_only: true,
+      };
+      likedCommentsFetch = client.getComments(likedCommentsForm);
+    }
+
+    if (requestLikedPosts) {
+      const likedPostsForm: GetPosts = {
+        page,
+        limit: fetchLimit,
+        type_: "All",
+        sort,
+        liked_only: true,
+        show_read: true,
+      };
+      likedPostsFetch = client.getPosts(likedPostsForm);
+    }
+
+    const [personRes, likedCommentsRes, likedPostsRes] = await Promise.all([
+      personFetch,
+      likedCommentsFetch,
+      likedPostsFetch,
+    ]);
 
     return {
       personRes,
+      likedCommentsRes,
+      likedPostsRes,
       uploadsRes,
     };
   }
@@ -461,11 +606,23 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       case "success": {
         const siteRes = this.state.siteRes;
         const personRes = this.state.personRes.data;
-        const { page, sort, view } = this.props;
+        const { page, sort, view, filter } = this.props;
 
         const personDetailsState = this.state.personDetailsRes.state;
         const personDetailsRes =
           personDetailsState === "success" && this.state.personDetailsRes.data;
+
+        const likedCommentsState = this.state.likedCommentsRes.state;
+        const likedCommentsRes =
+          likedCommentsState === "success"
+            ? this.state.likedCommentsRes.data
+            : undefined;
+
+        const likedPostsState = this.state.likedPostsRes.state;
+        const likedPostsRes =
+          likedPostsState === "success"
+            ? this.state.likedPostsRes.data
+            : undefined;
 
         return (
           <div className="row">
@@ -486,7 +643,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
               {this.renderUploadsRes()}
 
-              {personDetailsState === "loading" &&
+              {(personDetailsState === "loading" ||
+                likedCommentsState === "loading" ||
+                likedPostsState === "loading") &&
               this.props.view !== PersonDetailsView.Uploads ? (
                 <h5>
                   <Spinner large />
@@ -495,6 +654,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 personDetailsRes && (
                   <PersonDetails
                     personRes={personDetailsRes}
+                    likedCommentsRes={likedCommentsRes}
+                    likedPostsRes={likedPostsRes}
                     admins={siteRes.admins}
                     sort={sort}
                     page={page}
@@ -503,6 +664,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     voteDisplayMode={voteDisplayMode(siteRes)}
                     enableNsfw={enableNsfw(siteRes)}
                     view={view}
+                    filter={filter}
                     onPageChange={this.handlePageChange}
                     allLanguages={siteRes.all_languages}
                     siteLanguages={siteRes.discussion_languages}
@@ -570,6 +732,15 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
+  get filterRadios() {
+    return (
+      <div className="btn-group btn-group-toggle flex-wrap" role="group">
+        {this.getRadioFilter(PersonDetailsFilter.Own)}
+        {this.getRadioFilter(PersonDetailsFilter.Upvoted)}
+      </div>
+    );
+  }
+
   getRadio(view: PersonDetailsView) {
     const { view: urlView } = this.props;
     const active = view === urlView;
@@ -597,6 +768,33 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
+  getRadioFilter(filter: PersonDetailsFilter) {
+    const { filter: urlFilter } = this.props;
+    const active = filter === urlFilter;
+    const radioId = randomStr();
+
+    return (
+      <>
+        <input
+          id={radioId}
+          type="radio"
+          className="btn-check"
+          value={filter}
+          checked={active}
+          onChange={linkEvent(this, this.handleFilterChange)}
+        />
+        <label
+          htmlFor={radioId}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active,
+          })}
+        >
+          {I18NextService.i18n.t(filter.toLowerCase() as NoOptionI18nKeys)}
+        </label>
+      </>
+    );
+  }
+
   get selects() {
     const { sort, view } = this.props;
     const { username } = this.props.match.params;
@@ -617,16 +815,21 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         {/* Don't show the rss feed for the Saved and Uploads view, as that's not implemented.*/}
         {view !== PersonDetailsView.Saved &&
           view !== PersonDetailsView.Uploads && (
-            <div className="col-auto">
-              <a href={profileRss} rel={relTags} title="RSS">
-                <Icon icon="rss" classes="text-muted small ps-0" />
-              </a>
-              <link
-                rel="alternate"
-                type="application/atom+xml"
-                href={profileRss}
-              />
-            </div>
+            <>
+              <div className="col-auto">
+                <a href={profileRss} rel={relTags} title="RSS">
+                  <Icon icon="rss" classes="text-muted small ps-0" />
+                </a>
+                <link
+                  rel="alternate"
+                  type="application/atom+xml"
+                  href={profileRss}
+                />
+              </div>
+              {this.amCurrentUser && (
+                <div className="col-auto">{this.filterRadios}</div>
+              )}
+            </>
           )}
       </div>
     );
@@ -939,6 +1142,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       page,
       sort,
       view,
+      filter,
       match: {
         params: { username },
       },
@@ -948,6 +1152,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       page: page?.toString(),
       sort,
       view,
+      filter,
     };
 
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
@@ -964,6 +1169,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   handleViewChange(i: Profile, event: any) {
     i.updateUrl({
       view: PersonDetailsView[event.target.value],
+      page: 1,
+    });
+  }
+
+  handleFilterChange(i: Profile, event: any) {
+    i.updateUrl({
+      filter: PersonDetailsFilter[event.target.value],
       page: 1,
     });
   }

@@ -39,8 +39,14 @@ import {
   SavePost,
   PostSortType,
   TransferCommunity,
+  GetCommentsResponse,
+  GetPostsResponse,
 } from "lemmy-js-client";
-import { CommentViewType, PersonDetailsView } from "../../interfaces";
+import {
+  CommentViewType,
+  PersonDetailsFilter,
+  PersonDetailsView,
+} from "../../interfaces";
 import { CommentNodes } from "../comment/comment-nodes";
 import { Paginator } from "../common/paginator";
 import { PostListing } from "../post/post-listing";
@@ -48,6 +54,8 @@ import { RequestState } from "../../services/HttpService";
 
 interface PersonDetailsProps {
   personRes: GetPersonDetailsResponse;
+  likedCommentsRes?: GetCommentsResponse;
+  likedPostsRes?: GetPostsResponse;
   admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
@@ -58,6 +66,7 @@ interface PersonDetailsProps {
   voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw: boolean;
   view: PersonDetailsView;
+  filter: PersonDetailsFilter;
   onPageChange(page: number): number | any;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
@@ -222,20 +231,40 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   overview() {
     let id = 0;
-    const comments: ItemType[] = this.props.personRes.comments.map(r => ({
-      id: id++,
-      type_: ItemEnum.Comment,
-      view: r,
-      published: r.comment.published,
-      score: r.counts.score,
-    }));
-    const posts: ItemType[] = this.props.personRes.posts.map(r => ({
-      id: id++,
-      type_: ItemEnum.Post,
-      view: r,
-      published: r.post.published,
-      score: r.counts.score,
-    }));
+    const comments: ItemType[] =
+      this.props.filter === PersonDetailsFilter.Own ||
+      !this.props.likedCommentsRes
+        ? this.props.personRes.comments.map(r => ({
+            id: id++,
+            type_: ItemEnum.Comment,
+            view: r,
+            published: r.comment.published,
+            score: r.counts.score,
+          }))
+        : this.props.likedCommentsRes.comments.map(r => ({
+            id: id++,
+            type_: ItemEnum.Comment,
+            view: r,
+            published: r.comment.published,
+            score: r.counts.score,
+          }));
+
+    const posts: ItemType[] =
+      this.props.filter === PersonDetailsFilter.Own || !this.props.likedPostsRes
+        ? this.props.personRes.posts.map(r => ({
+            id: id++,
+            type_: ItemEnum.Post,
+            view: r,
+            published: r.post.published,
+            score: r.counts.score,
+          }))
+        : this.props.likedPostsRes.posts.map(r => ({
+            id: id++,
+            type_: ItemEnum.Post,
+            view: r,
+            published: r.post.published,
+            score: r.counts.score,
+          }));
 
     const combined = [...comments, ...posts];
 
@@ -257,10 +286,15 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
   }
 
   comments() {
+    const comments =
+      this.props.filter === PersonDetailsFilter.Own ||
+      !this.props.likedCommentsRes
+        ? this.props.personRes.comments
+        : this.props.likedCommentsRes.comments;
     return (
       <div>
         <CommentNodes
-          nodes={commentsToFlatNodes(this.props.personRes.comments)}
+          nodes={commentsToFlatNodes(comments)}
           viewType={CommentViewType.Flat}
           admins={this.props.admins}
           isTopLevel
@@ -295,9 +329,13 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
   }
 
   posts() {
+    const posts =
+      this.props.filter === PersonDetailsFilter.Own || !this.props.likedPostsRes
+        ? this.props.personRes.posts
+        : this.props.likedPostsRes.posts;
     return (
       <div>
-        {this.props.personRes.posts.map(post => (
+        {posts.map(post => (
           <>
             <PostListing
               post_view={post}
