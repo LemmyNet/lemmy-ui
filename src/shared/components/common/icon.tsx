@@ -16,15 +16,14 @@ export class Icon extends Component<IconProps, any> {
   }
 
   render() {
-    let iconAltText: string;
+    let iconAltText: string | undefined;
     if (
       this.props.icon === "plus-square" ||
       this.props.icon === "minus-square"
     ) {
       iconAltText = `${I18NextService.i18n.t("show_content")}`;
-    } else {
-      iconAltText = "";
     }
+
     return (
       <svg
         className={classNames("icon", this.props.classes, {
@@ -35,7 +34,7 @@ export class Icon extends Component<IconProps, any> {
           ? { role: "img", "aria-describedby": `${this.props.icon}-alt` }
           : {})}
       >
-        {iconAltText !== "" && (
+        {iconAltText && (
           <title id={`${this.props.icon}-alt`}>{iconAltText}</title>
         )}
         <use
