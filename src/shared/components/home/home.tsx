@@ -1,13 +1,13 @@
 import {
   commentsToFlatNodes,
-  commentToPostSortType,
   editComment,
   editPost,
   enableDownvotes,
   enableNsfw,
   getDataTypeString,
+  mixedToCommentSortType,
+  mixedToPostSortType,
   myAuth,
-  postToCommentSortType,
   setIsoData,
   showLocal,
   updatePersonBlock,
@@ -90,7 +90,7 @@ import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
-import { PostSortSelect } from "../common/post-sort-select";
+import { CommentSortSelect, PostSortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
@@ -104,7 +104,6 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser, snapToTop } from "@utils/browser";
-import { CommentSortSelect } from "../common/comment-sort-select";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -121,7 +120,7 @@ interface HomeState {
 interface HomeProps {
   listingType?: ListingType;
   dataType: DataType;
-  sort: PostSortType;
+  sort: PostSortType | CommentSortType;
   pageCursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
@@ -176,13 +175,13 @@ function getListingTypeFromQuery(
 
 function getSortTypeFromQuery(
   type: string | undefined,
-  fallback: PostSortType,
+  fallback: PostSortType | CommentSortType,
 ): PostSortType {
-  return type ? (type as PostSortType) : fallback;
+  return type ? (type as PostSortType | CommentSortType) : fallback;
 }
 
 type Fallbacks = {
-  sort: PostSortType;
+  sort: PostSortType | CommentSortType;
   listingType: ListingType;
 };
 
@@ -353,7 +352,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         type_: listingType,
         page_cursor: pageCursor,
         limit: fetchLimit,
-        sort,
+        sort: mixedToPostSortType(sort),
         saved_only: false,
         show_hidden: showHidden === "true",
       };
@@ -362,7 +361,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     } else {
       const getCommentsForm: GetComments = {
         limit: fetchLimit,
-        sort: postToCommentSortType(sort),
+        sort: mixedToCommentSortType(sort),
         type_: listingType,
       };
 
@@ -790,10 +789,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         </div>
         <div className="col-auto">
           {this.props.dataType === DataType.Post ? (
-            <PostSortSelect sort={sort} onChange={this.handleSortChange} />
+            <PostSortSelect
+              current={mixedToPostSortType(sort)}
+              onChange={this.handleSortChange}
+            />
           ) : (
             <CommentSortSelect
-              sort={postToCommentSortType(sort)}
+              current={mixedToCommentSortType(sort)}
               onChange={this.handleCommentSortChange}
             />
           )}
@@ -823,7 +825,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       const postsRes = await HttpService.client.getPosts({
         page_cursor: pageCursor,
         limit: fetchLimit,
-        sort,
+        sort: mixedToPostSortType(sort),
         saved_only: false,
         type_: listingType,
         show_hidden: showHidden === "true",
@@ -835,7 +837,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
       const commentsRes = await HttpService.client.getComments({
         limit: fetchLimit,
-        sort: postToCommentSortType(sort),
+        sort: mixedToCommentSortType(sort),
         type_: listingType,
       });
       if (token === this.fetchDataToken) {
@@ -873,7 +875,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   handleCommentSortChange(val: CommentSortType) {
-    this.updateUrl({ sort: commentToPostSortType(val), pageCursor: undefined });
+    this.updateUrl({ sort: val, pageCursor: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {

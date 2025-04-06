@@ -1,13 +1,13 @@
 import {
   commentsToFlatNodes,
-  commentToPostSortType,
   communityRSSUrl,
   editComment,
   editPost,
   enableDownvotes,
   enableNsfw,
   getDataTypeString,
-  postToCommentSortType,
+  mixedToCommentSortType,
+  mixedToPostSortType,
   setIsoData,
   showLocal,
   updateCommunityBlock,
@@ -103,7 +103,7 @@ import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import { PostSortSelect } from "../common/post-sort-select";
+import { PostSortSelect, CommentSortSelect } from "../common/sort-select";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { PaginatorCursor } from "../common/paginator-cursor";
@@ -116,7 +116,6 @@ import { Sidebar } from "./sidebar";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
-import { CommentSortSelect } from "../common/comment-sort-select";
 import { CommunityHeader } from "./community-header";
 
 type CommunityData = RouteDataResponse<{
@@ -137,12 +136,12 @@ interface State {
 
 interface CommunityProps {
   dataType: DataType;
-  sort: PostSortType;
+  sort: PostSortType | CommentSortType;
   pageCursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
 
-type Fallbacks = { sort: PostSortType };
+type Fallbacks = { sort: PostSortType | CommentSortType };
 
 export function getCommunityQueryParams(
   source: string | undefined,
@@ -171,10 +170,10 @@ function getDataTypeFromQuery(type?: string): DataType {
 }
 
 function getSortTypeFromQuery(
-  fallback: PostSortType,
+  fallback: PostSortType | CommentSortType,
   type?: string,
-): PostSortType {
-  return type ? (type as PostSortType) : fallback;
+): PostSortType | CommentSortType {
+  return type ? (type as PostSortType | CommentSortType) : fallback;
 }
 
 type CommunityPathProps = { name: string };
@@ -333,7 +332,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         community_name: communityName,
         page_cursor: pageCursor,
         limit: fetchLimit,
-        sort,
+        sort: mixedToPostSortType(sort),
         type_: "All",
         saved_only: false,
         show_hidden: showHidden === "true",
@@ -344,7 +343,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       const getCommentsForm: GetComments = {
         community_name: communityName,
         limit: fetchLimit,
-        sort: postToCommentSortType(sort),
+        sort: mixedToCommentSortType(sort),
         type_: "All",
       };
 
@@ -661,10 +660,13 @@ export class Community extends Component<CommunityRouteProps, State> {
         )}
         <span className="me-2">
           {this.props.dataType === DataType.Post ? (
-            <PostSortSelect sort={sort} onChange={this.handleSortChange} />
+            <PostSortSelect
+              current={mixedToPostSortType(sort)}
+              onChange={this.handleSortChange}
+            />
           ) : (
             <CommentSortSelect
-              sort={postToCommentSortType(sort)}
+              current={mixedToCommentSortType(sort)}
               onChange={this.handleCommentSortChange}
             />
           )}
@@ -694,17 +696,11 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   handleSortChange(sort: PostSortType) {
-    this.updateUrl({
-      sort: sort,
-      pageCursor: undefined,
-    });
+    this.updateUrl({ sort, pageCursor: undefined });
   }
 
   handleCommentSortChange(sort: CommentSortType) {
-    this.updateUrl({
-      sort: commentToPostSortType(sort),
-      pageCursor: undefined,
-    });
+    this.updateUrl({ sort, pageCursor: undefined });
   }
 
   handleDataTypeChange(dataType: DataType) {
@@ -759,7 +755,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       const postsRes = await HttpService.client.getPosts({
         page_cursor: pageCursor,
         limit: fetchLimit,
-        sort,
+        sort: mixedToPostSortType(sort),
         type_: "All",
         community_name: name,
         saved_only: false,
@@ -772,7 +768,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
       const commentsRes = await HttpService.client.getComments({
         limit: fetchLimit,
-        sort: postToCommentSortType(sort),
+        sort: mixedToCommentSortType(sort),
         type_: "All",
         community_name: name,
       });

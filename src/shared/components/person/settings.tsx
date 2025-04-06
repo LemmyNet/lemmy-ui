@@ -57,7 +57,7 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
 import { SearchableSelect } from "../common/searchable-select";
-import { PostSortSelect } from "../common/post-sort-select";
+import { PostSortSelect } from "../common/sort-select";
 import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
@@ -74,7 +74,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
-import { CommentSortSelect } from "../common/comment-sort-select";
+import { CommentSortSelect } from "../common/sort-select";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -903,7 +903,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </label>
             <div className="col-sm-9">
               <PostSortSelect
-                sort={
+                current={
                   this.state.saveUserSettingsForm.default_post_sort_type ??
                   "Active"
                 }
@@ -917,7 +917,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </label>
             <div className="col-sm-9">
               <CommentSortSelect
-                sort={
+                current={
                   this.state.saveUserSettingsForm.default_comment_sort_type ??
                   "Hot"
                 }

@@ -141,24 +141,6 @@ export const colorList: string[] = [
   "var(--comment-node-7-color)",
 ];
 
-function assertType<T>(_: T) {}
-
-export function commentToPostSortType(sort: CommentSortType): PostSortType {
-  switch (sort) {
-    case "Hot":
-    case "New":
-    case "Old":
-    case "Controversial":
-      return sort;
-    case "Top":
-      return "Top";
-    default: {
-      assertType<never>(sort);
-      return "Hot";
-    }
-  }
-}
-
 export function commentsToFlatNodes(
   comments: CommentNodeView[],
 ): CommentNodeI[] {
@@ -588,28 +570,46 @@ export function personToChoice(pvs: PersonView): Choice {
   };
 }
 
-// TODO get rid of this
-export function postToCommentSortType(sort: PostSortType): CommentSortType {
+function assertType<T>(_: T) {}
+
+export function mixedToCommentSortType(
+  sort: CommentSortType | PostSortType,
+): CommentSortType {
   switch (sort) {
+    case "Hot":
+    case "Top":
+    case "New":
+    case "Old":
+    case "Controversial":
+      return sort;
+    case "Active":
+    case "MostComments":
+    case "NewComments":
+    case "Scaled":
+      return "Hot";
+    default:
+      assertType<never>(sort);
+      return "Hot";
+  }
+}
+
+export function mixedToPostSortType(
+  sort: PostSortType | CommentSortType,
+): PostSortType {
+  switch (sort) {
+    case "Active":
     case "Hot":
     case "New":
     case "Old":
-    case "Controversial": {
-      return sort;
-    }
-    case "Top": {
-      return "Top";
-    }
-    case "NewComments":
+    case "Top":
     case "MostComments":
+    case "NewComments":
+    case "Controversial":
     case "Scaled":
-    case "Active": {
-      return "Hot";
-    }
-    default: {
+      return sort;
+    default:
       assertType<never>(sort);
-      return "Hot";
-    }
+      return "Active";
   }
 }
 

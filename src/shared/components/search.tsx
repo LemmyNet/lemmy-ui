@@ -70,7 +70,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "./common/paginator-cursor";
-import { SearchSortSelect } from "./common/search-sort-select";
+import { SearchSortSelect } from "./common/sort-select";
 import { SearchableSelect } from "./common/searchable-select";
 
 interface SearchProps {
@@ -108,7 +108,7 @@ interface SearchState {
 const defaultSearchType = "All";
 const defaultSortType = "Top";
 const defaultListingType = "All";
-const defaultCommunitySortType = "TopAll";
+const defaultCommunitySortType = "Hot";
 
 const searchTypes = ["All", "Comments", "Posts", "Communities", "Users", "Url"];
 
@@ -658,7 +658,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             </div>
           )}
           <div className="col">
-            <SearchSortSelect sort={sort} onChange={this.handleSortChange} />
+            <SearchSortSelect current={sort} onChange={this.handleSortChange} />
           </div>
         </div>
         <div className="row gy-2 gx-4 mb-3">

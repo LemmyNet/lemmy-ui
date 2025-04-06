@@ -94,7 +94,7 @@ import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
-import { PostSortSelect } from "../common/post-sort-select";
+import { PostSortSelect } from "../common/sort-select";
 import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
@@ -507,7 +507,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
-                canonicalPath={personRes.person_view.person.actor_id}
+                canonicalPath={personRes.person_view.person.ap_id}
                 description={personRes.person_view.person.bio}
                 image={personRes.person_view.person.avatar}
               />
@@ -701,12 +701,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       <div className="row align-items-center mb-3 g-3">
         <div className="col-auto">{this.viewRadios}</div>
         <div className="col-auto">
-          <PostSortSelect
-            sort={sort}
-            onChange={this.handleSortChange}
-            hideHot
-            hideMostComments
-          />
+          <PostSortSelect current={sort} onChange={this.handleSortChange} />
         </div>
         {/* Don't show the rss feed for the Saved view, as that's not implemented.*/}
         {!saved && (

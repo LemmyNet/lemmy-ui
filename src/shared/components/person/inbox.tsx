@@ -77,7 +77,7 @@ import {
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
-import { CommentSortSelect } from "../common/comment-sort-select";
+import { CommentSortSelect } from "../common/sort-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { PrivateMessage } from "../private_message/private-message";
@@ -451,7 +451,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
         <div className="col">{this.messageTypeRadios()}</div>
         <div className="col">
           <CommentSortSelect
-            sort={this.state.sort}
+            current={this.state.sort}
             onChange={this.handleSortChange}
           />
         </div>

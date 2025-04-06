@@ -28,7 +28,7 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
-
+import { CommunitiesSortSelect } from "../common/sort-select";
 import { CommunityLink } from "./community-link";
 
 import { communityLimit } from "@utils/config";
@@ -38,7 +38,6 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
-import { CommunitySortSelect } from "@components/common/community-sort-select";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -235,8 +234,8 @@ export class Communities extends Component<
               />
             </div>
             <div className="col-auto me-auto">
-              <CommunitySortSelect
-                sort={sort}
+              <CommunitiesSortSelect
+                current={sort}
                 onChange={this.handleSortChange}
               />
             </div>
