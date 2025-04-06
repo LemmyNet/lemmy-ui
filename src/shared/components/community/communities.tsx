@@ -15,6 +15,7 @@ import {
   ListCommunitiesResponse,
   ListingType,
   CommunitySortType,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -38,6 +39,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
+import { PaginatorCursor } from "@components/common/paginator-cursor";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -52,7 +54,7 @@ interface CommunitiesState {
 interface CommunitiesProps {
   listingType: ListingType;
   sort: CommunitySortType;
-  // TODO add pagination
+  page?: PaginationCursor;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
@@ -68,6 +70,7 @@ export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
     {
       listingType: getListingTypeFromQuery,
       sort: getSortTypeFromQuery,
+      page: (arg?: string) => arg,
     },
     source,
   );
@@ -100,6 +103,7 @@ export class Communities extends Component<
 
   constructor(props: CommunitiesRouteProps, context: any) {
     super(props, context);
+    this.handlePageChange = this.handlePageChange.bind(this);
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
 
@@ -242,10 +246,20 @@ export class Communities extends Component<
             <div className="col-auto">{this.searchForm()}</div>
           </div>
           <div className="table-responsive">{this.renderListingsTable()}</div>
-          /* TODO Add paginator here */
+          <PaginatorCursor
+            nextPage={this.nextPageCursor}
+            onNext={this.handlePageChange}
+          />
         </div>
       </div>
     );
+  }
+
+  get nextPageCursor(): PaginationCursor | undefined {
+    const { listCommunitiesResponse: res } = this.state;
+    return res.state === "success"
+      ? undefined // res.data.next_page
+      : undefined;
   }
 
   searchForm() {
@@ -286,13 +300,18 @@ export class Communities extends Component<
     this.props.history.push(`/communities${getQueryString(queryParams)}`);
   }
 
+  handlePageChange(page: PaginationCursor) {
+    this.updateUrl({ page });
+  }
+
   handleSortChange(val: CommunitySortType) {
-    this.updateUrl({ sort: val });
+    this.updateUrl({ sort: val, page: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {
     this.updateUrl({
       listingType: val,
+      page: undefined,
     });
   }
 
