@@ -33,7 +33,7 @@ interface SiteFormProps {
   onIconRemove(): void;
   onBannerUpload(banner: string): void;
   onBannerRemove(): void;
-  siteRes?: GetSiteResponse;
+  siteRes: GetSiteResponse;
   loading: boolean;
   myUserInfo: MyUserInfo | undefined;
 }

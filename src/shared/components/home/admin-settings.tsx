@@ -484,14 +484,11 @@ export class AdminSettings extends Component<
 
     if (res.state === "success") {
       const newOAuthProvider = res.data;
-      this.setState(s => {
-        s.siteRes.admin_oauth_providers = (
-          s.siteRes.admin_oauth_providers ?? []
-        ).map(p => {
+      this.isoData.siteRes.oauth_providers =
+        this.isoData.siteRes.oauth_providers?.map(p => {
           return p?.id === newOAuthProvider.id ? newOAuthProvider : p;
-        });
-        return s;
-      });
+        }) ?? [newOAuthProvider];
+      this.forceUpdate();
       toast(I18NextService.i18n.t("site_saved"));
     } else {
       toast(I18NextService.i18n.t("couldnt_edit_oauth_provider"), "danger");
@@ -506,12 +503,9 @@ export class AdminSettings extends Component<
     const res = await HttpService.client.deleteOAuthProvider(form);
 
     if (res.state === "success") {
-      this.setState(s => {
-        s.siteRes.admin_oauth_providers = (
-          s.siteRes.admin_oauth_providers ?? []
-        ).filter(p => p.id !== form.id);
-        return s;
-      });
+      this.isoData.siteRes.oauth_providers =
+        this.isoData.siteRes.oauth_providers?.filter(p => p.id !== form.id);
+      this.forceUpdate();
       toast(I18NextService.i18n.t("site_saved"));
     } else {
       toast(I18NextService.i18n.t("couldnt_delete_oauth_provider"), "danger");
@@ -525,12 +519,11 @@ export class AdminSettings extends Component<
 
     const res = await HttpService.client.createOAuthProvider(form);
     if (res.state === "success") {
-      this.setState(s => {
-        s.siteRes.admin_oauth_providers = [
-          ...(s.siteRes.admin_oauth_providers ?? []),
-          res.data,
-        ];
-      });
+      this.isoData.siteRes.oauth_providers = [
+        ...(this.isoData.siteRes.oauth_providers ?? []),
+        res.data,
+      ];
+      this.forceUpdate();
       toast(I18NextService.i18n.t("site_saved"));
     } else {
       toast(I18NextService.i18n.t("couldnt_create_oauth_provider"), "danger");

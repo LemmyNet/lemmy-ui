@@ -4,7 +4,7 @@ import { renderToString } from "inferno-server";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { favIconPngUrl, favIconUrl } from "@utils/config";
-import { IsoData } from "@utils/types";
+import { IsoDataOptionalSite } from "@utils/types";
 import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
 import { findLanguageChunkNames } from "@services/I18NextService";
@@ -15,7 +15,7 @@ let appleTouchIcon: string | undefined = undefined;
 
 export async function createSsrHtml(
   root: string,
-  isoData: IsoData,
+  isoData: IsoDataOptionalSite,
   cspNonce: string,
   languages: readonly string[],
   interfaceLanguage?: string,

@@ -19,15 +19,20 @@ import { Match } from "inferno-router/dist/Route";
 export interface IsoData<T extends RouteData = any> {
   path: string;
   routeData: T;
-  siteRes?: GetSiteResponse;
+  siteRes: GetSiteResponse;
   myUserInfo?: MyUserInfo;
   errorPageData?: ErrorPageData;
   showAdultConsentModal: boolean;
 }
 
+export type IsoDataOptionalSite<T extends RouteData = any> = Partial<
+  IsoData<T>
+> &
+  Pick<IsoData<T>, Exclude<keyof IsoData<T>, "siteRes">>;
+
 declare global {
   interface Window {
-    isoData: IsoData;
+    isoData: IsoDataOptionalSite;
     checkLazyScripts?: () => void;
   }
 }

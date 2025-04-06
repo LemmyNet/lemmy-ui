@@ -547,7 +547,7 @@ export function selectableLanguages(
 export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
-    return window.isoData;
+    return window.isoData as IsoData<T>; // This cast is wrong for things outside of <ErrorGuard />
   } else return context.router.staticContext;
 }
 

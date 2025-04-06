@@ -101,7 +101,7 @@ export class RegistrationApplications extends Component<
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "registration_applications",
-        )} - ${this.state.siteRes.site_view.site.name}`
+        )} - ${this.isoData.siteRes.site_view.site.name}`
       : "";
   }
 

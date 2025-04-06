@@ -1,6 +1,6 @@
 import { isAuthPath } from "@utils/app";
 import { getHttpBaseInternal } from "@utils/env";
-import { ErrorPageData, IsoData } from "@utils/types";
+import { ErrorPageData, IsoDataOptionalSite } from "@utils/types";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { Match } from "inferno-router/dist/Route";
@@ -113,7 +113,7 @@ export default async (req: Request, res: Response) => {
       }
     }
 
-    const isoData: IsoData = {
+    const isoData: IsoDataOptionalSite = {
       path,
       siteRes: siteRes,
       myUserInfo,

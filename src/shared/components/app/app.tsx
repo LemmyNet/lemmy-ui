@@ -2,7 +2,7 @@ import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
 import { Component, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
-import { IsoData } from "@utils/types";
+import { IsoDataOptionalSite } from "@utils/types";
 import { routes } from "@utils/routes";
 import { FirstLoadService, I18NextService } from "@services/index";
 import AuthGuard from "../common/auth-guard";
@@ -29,7 +29,7 @@ interface AppProps {
 }
 
 export default class App extends Component<AppProps, any> {
-  private isoData: IsoData = setIsoData(this.context);
+  private isoData: IsoDataOptionalSite = setIsoData(this.context);
   private readonly rootRef = createRef<HTMLDivElement>();
   readonly contentRef = createRef<HTMLDivElement>();
 
@@ -71,7 +71,7 @@ export default class App extends Component<AppProps, any> {
           let queryProps = routeProps;
           if (getQueryParams && this.isoData.siteRes) {
             // ErrorGuard will not render its children when
-            // site_res is missing, this guarantees that props
+            // siteRes is missing, this guarantees that props
             // will always contain the query params.
             queryProps = {
               ...routeProps,
