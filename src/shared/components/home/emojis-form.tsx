@@ -585,13 +585,9 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
         editable.loading = false;
       });
       if (res.state === "success") {
-        pictrsDeleteToast(file.name);
+        pictrsDeleteToast(res.data.filename);
         form.handleEmojiImageUrlChange(
-          {
-            form: form,
-            index: index,
-            overrideValue: res.data.image_url,
-          },
+          { form: form, index: index, overrideValue: res.data.image_url },
           event,
         );
       } else if (res.state === "failed") {

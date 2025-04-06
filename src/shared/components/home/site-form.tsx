@@ -23,10 +23,6 @@ interface SiteFormProps {
   showLocal?: boolean;
   themeList?: string[];
   onSaveSite(form: EditSite): void;
-  onIconUpload(icon: string): void;
-  onIconRemove(): void;
-  onBannerUpload(banner: string): void;
-  onBannerRemove(): void;
   siteRes: GetSiteResponse;
   loading: boolean;
   myUserInfo: MyUserInfo | undefined;
@@ -35,6 +31,8 @@ interface SiteFormProps {
 interface SiteFormState {
   siteForm: EditSite;
   submitted: boolean;
+  icon?: string;
+  banner?: string;
 }
 
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
@@ -86,11 +84,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.handleSiteApplicationQuestionChange =
       this.handleSiteApplicationQuestionChange.bind(this);
 
-    this.handleIconUpload = this.handleIconUpload.bind(this);
-    this.handleIconRemove = this.handleIconRemove.bind(this);
-
-    this.handleBannerUpload = this.handleBannerUpload.bind(this);
-    this.handleBannerRemove = this.handleBannerRemove.bind(this);
+    this.handleIconChange = this.handleIconChange.bind(this);
+    this.handleBannerChange = this.handleBannerChange.bind(this);
 
     this.handleDefaultPostListingTypeChange =
       this.handleDefaultPostListingTypeChange.bind(this);
@@ -101,6 +96,14 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.handleBlockedUrlsUpdate = this.handleBlockedUrlsUpdate.bind(this);
     this.handleSiteContentWarningChange =
       this.handleSiteContentWarningChange.bind(this);
+
+    const { icon, banner } = this.props.siteRes.site_view.site;
+
+    this.state = {
+      ...this.state,
+      icon,
+      banner,
+    };
   }
 
   render() {
@@ -153,9 +156,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div className="col-sm-10">
             <ImageUploadForm
               uploadTitle={I18NextService.i18n.t("upload_icon")}
+              uploadKey="uploadSiteIcon"
+              removeKey="deleteSiteIcon"
               imageSrc={this.state.icon}
-              onUpload={this.handleIconUpload}
-              onRemove={this.handleIconRemove}
+              onImageChange={this.handleIconChange}
               rounded
               disabled={!this.props.myUserInfo}
             />
@@ -168,9 +172,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div className="col-sm-10">
             <ImageUploadForm
               uploadTitle={I18NextService.i18n.t("upload_banner")}
+              uploadKey="uploadSiteBanner"
+              removeKey="deleteSiteBanner"
               imageSrc={this.state.banner}
-              onUpload={this.handleBannerUpload}
-              onRemove={this.handleBannerRemove}
+              onImageChange={this.handleBannerChange}
               disabled={!this.props.myUserInfo}
             />
           </div>
@@ -768,24 +773,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     i.setState(i.state);
   }
 
-  handleIconUpload(icon: string) {
-    this.setState({ icon });
-    this.props.onIconUpload(icon);
+  handleIconChange(url?: string) {
+    this.setState({ icon: url });
   }
 
-  handleIconRemove() {
-    this.setState({ icon: undefined });
-    this.props.onIconRemove();
-  }
-
-  handleBannerUpload(banner: string) {
-    this.setState({ banner });
-    this.props.onBannerUpload(banner);
-  }
-
-  handleBannerRemove() {
-    this.setState({ banner: undefined });
-    this.props.onBannerRemove();
+  handleBannerChange(url?: string) {
+    this.setState({ banner: url });
   }
 
   handleSiteSlurFilterRegex(i: SiteForm, event: any) {

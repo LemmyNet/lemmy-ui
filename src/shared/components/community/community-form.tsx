@@ -62,11 +62,8 @@ export class CommunityForm extends Component<
     this.handleCommunityDescriptionChange =
       this.handleCommunityDescriptionChange.bind(this);
 
-    this.handleIconUpload = this.handleIconUpload.bind(this);
-    this.handleIconRemove = this.handleIconRemove.bind(this);
-
-    this.handleBannerUpload = this.handleBannerUpload.bind(this);
-    this.handleBannerRemove = this.handleBannerRemove.bind(this);
+    this.handleIconChange = this.handleIconChange.bind(this);
+    this.handleBannerChange = this.handleBannerChange.bind(this);
 
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
@@ -172,8 +169,9 @@ export class CommunityForm extends Component<
             <ImageUploadForm
               uploadTitle={I18NextService.i18n.t("upload_icon")}
               imageSrc={this.state.form.icon}
-              onUpload={this.handleIconUpload}
-              onRemove={this.handleIconRemove}
+              uploadKey="uploadCommunityIcon"
+              removeKey="deleteCommunityIcon"
+              onImageChange={this.handleIconChange}
               rounded
               disabled={!this.props.myUserInfo}
             />
@@ -187,8 +185,9 @@ export class CommunityForm extends Component<
             <ImageUploadForm
               uploadTitle={I18NextService.i18n.t("upload_banner")}
               imageSrc={this.state.form.banner}
-              onUpload={this.handleBannerUpload}
-              onRemove={this.handleBannerRemove}
+              uploadKey="uploadCommunityBanner"
+              removeKey="deleteCommunityBanner"
+              onImageChange={this.handleBannerChange}
               disabled={!this.props.myUserInfo}
             />
           </div>
@@ -370,20 +369,12 @@ export class CommunityForm extends Component<
     i.props.onCancel?.();
   }
 
-  handleIconUpload(url: string) {
+  handleIconChange(url?: string) {
     this.setState(s => ((s.form.icon = url), s));
   }
 
-  handleIconRemove() {
-    this.setState(s => ((s.form.icon = ""), s));
-  }
-
-  handleBannerUpload(url: string) {
+  handleBannerChange(url: string) {
     this.setState(s => ((s.form.banner = url), s));
-  }
-
-  handleBannerRemove() {
-    this.setState(s => ((s.form.banner = ""), s));
   }
 
   handleDiscussionLanguageChange(val: number[]) {

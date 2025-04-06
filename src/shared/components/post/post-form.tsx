@@ -23,6 +23,7 @@ import {
   MyUserInfo,
   PostView,
   SearchResponse,
+  UploadImageResponse,
 } from "lemmy-js-client";
 import {
   archiveTodayUrl,
@@ -101,6 +102,7 @@ interface PostFormState {
   suggestedPostsRes: RequestState<SearchResponse>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
   imageLoading: boolean;
+  uploadedImage?: UploadImageResponse;
   communitySearchLoading: boolean;
   communitySearchOptions: Choice[];
   previewMode: boolean;
@@ -195,7 +197,7 @@ function handlePostUrlChange(i: PostForm, event: any) {
       ...prev.form,
       url,
     },
-    imageDeleteUrl: "",
+    uploadedImage: undefined,
   }));
 
   i.fetchPageTitle();
@@ -272,6 +274,7 @@ function handleImageUpload(i: PostForm, event: any) {
       i.state.form.url = res.data.image_url;
       i.setState({
         imageLoading: false,
+        uploadedImage: res.data,
       });
     } else if (res.state === "failed") {
       console.error(res.err.message);
@@ -290,12 +293,33 @@ function handlePostNameBlur(i: PostForm, event: any) {
   i.updateUrl(() => i.props.onTitleBlur?.(event.target.value));
 }
 
+function handleImageDelete(i: PostForm) {
+  const { uploadedImage } = i.state;
+
+  if (uploadedImage) {
+    HttpService.client.deleteImage({
+      filename: uploadedImage.filename,
+    });
+  }
+
+  i.setState(prev => ({
+    ...prev,
+    uploadedImage: undefined,
+    imageLoading: false,
+    form: {
+      ...prev.form,
+      url: "",
+    },
+  }));
+}
+
 export class PostForm extends Component<PostFormProps, PostFormState> {
   state: PostFormState = {
     suggestedPostsRes: EMPTY_REQUEST,
     metadataRes: EMPTY_REQUEST,
     form: {},
     imageLoading: false,
+    uploadedImage: undefined,
     communitySearchLoading: false,
     previewMode: false,
     communitySearchOptions: [],
@@ -532,6 +556,15 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             {this.state.imageLoading && <Spinner />}
             {url && isImage(url) && (
               <img src={url} className="img-fluid mt-2" alt="" />
+            )}
+            {this.state.uploadedImage && (
+              <button
+                className="btn btn-danger btn-sm mt-2"
+                onClick={linkEvent(this, handleImageDelete)}
+              >
+                <Icon icon="x" classes="icon-inline me-1" />
+                {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
+              </button>
             )}
           </div>
 

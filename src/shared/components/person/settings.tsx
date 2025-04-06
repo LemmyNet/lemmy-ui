@@ -140,6 +140,8 @@ interface SettingsState {
   importSettingsRes: RequestState<any>;
   exportSettingsRes: RequestState<any>;
   settingsFile?: File;
+  avatar?: string;
+  banner?: string;
 }
 
 type FilterType = "user" | "community" | "instance";
@@ -255,11 +257,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
 
-    this.handleAvatarUpload = this.handleAvatarUpload.bind(this);
-    this.handleAvatarRemove = this.handleAvatarRemove.bind(this);
+    this.handleAvatarChange = this.handleAvatarChange.bind(this);
+    this.handleBannerChange = this.handleBannerChange.bind(this);
 
-    this.handleBannerUpload = this.handleBannerUpload.bind(this);
-    this.handleBannerRemove = this.handleBannerRemove.bind(this);
     this.userSettings = this.userSettings.bind(this);
     this.blockCards = this.blockCards.bind(this);
 
@@ -320,8 +320,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           default_listing_type,
           interface_language,
           discussion_languages: mui.discussion_languages,
-          avatar,
-          banner,
           display_name,
           show_avatars,
           bot_account,
@@ -337,6 +335,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           matrix_user_id,
           open_links_in_new_tab,
         },
+        avatar,
+        banner,
       };
     }
 
@@ -409,7 +409,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
           description={this.documentTitle}
-          image={this.state.saveUserSettingsForm.avatar}
+          image={this.state.avatar}
         />
         <Tabs
           tabs={[
@@ -808,9 +808,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={I18NextService.i18n.t("upload_avatar")}
-                imageSrc={this.state.saveUserSettingsForm.avatar}
-                onUpload={this.handleAvatarUpload}
-                onRemove={this.handleAvatarRemove}
+                imageSrc={this.state.avatar}
+                uploadKey="uploadUserAvatar"
+                removeKey="deleteUserAvatar"
+                onImageChange={this.handleAvatarChange}
                 rounded
                 disabled={!this.isoData.myUserInfo}
               />
@@ -823,9 +824,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="col-sm-9">
               <ImageUploadForm
                 uploadTitle={I18NextService.i18n.t("upload_banner")}
-                imageSrc={this.state.saveUserSettingsForm.banner}
-                onUpload={this.handleBannerUpload}
-                onRemove={this.handleBannerRemove}
+                uploadKey="uploadUserBanner"
+                removeKey="deleteUserBanner"
+                onImageChange={this.handleBannerChange}
+                imageSrc={this.state.banner}
                 disabled={!this.isoData.myUserInfo}
               />
             </div>
@@ -1634,20 +1636,18 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     this.setState(s => ((s.saveUserSettingsForm.bio = val), s));
   }
 
-  handleAvatarUpload(url: string) {
-    this.setState(s => ((s.saveUserSettingsForm.avatar = url), s));
+  handleAvatarChange(url?: string) {
+    if (this.isoData.myUserInfo) {
+      this.isoData.myUserInfo.local_user_view.person.avatar = url;
+    }
+    this.setState({ avatar: url });
   }
 
-  handleAvatarRemove() {
-    this.setState(s => ((s.saveUserSettingsForm.avatar = ""), s));
-  }
-
-  handleBannerUpload(url: string) {
-    this.setState(s => ((s.saveUserSettingsForm.banner = url), s));
-  }
-
-  handleBannerRemove() {
-    this.setState(s => ((s.saveUserSettingsForm.banner = ""), s));
+  handleBannerChange(url?: string) {
+    if (this.isoData.myUserInfo) {
+      this.isoData.myUserInfo.local_user_view.person.banner = url;
+    }
+    this.setState({ banner: url });
   }
 
   handleDisplayNameChange(i: Settings, event: any) {
@@ -1821,8 +1821,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             show_bot_accounts,
             show_nsfw,
             teme: theme ?? "browser",
-            avatar,
-            banner,
             display_name,
             bio,
             matrix_user_id,
@@ -1838,6 +1836,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             send_notifications_to_email,
             show_read_posts,
           },
+          avatar,
+          banner,
         }));
       }
     } else if (res.state === "failed") {

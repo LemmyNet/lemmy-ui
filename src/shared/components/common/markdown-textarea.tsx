@@ -489,7 +489,7 @@ export class MarkdownTextArea extends Component<
         autosize.update(textarea);
       }, 10);
 
-      pictrsDeleteToast(image.name);
+      pictrsDeleteToast(res.data.filename);
     } else if (res.state === "failed") {
       i.setState({ imageUploadStatus: undefined });
       console.error(res.err.message);
