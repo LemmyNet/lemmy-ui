@@ -45,6 +45,9 @@ import {
   PersonPostMention,
   PrivateMessage,
   InboxCombinedView,
+  Community,
+  Person,
+  SearchCombinedView,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -309,7 +312,7 @@ export async function fetchCommunities(q: string) {
   const res = await fetchSearchResults(q, "Communities");
 
   return res.state === "success"
-    ? res.data.results.filter(r => r.type_ === "Community")
+    ? res.data.results.filter(s => s.type_ === "Community")
     : [];
 }
 
@@ -332,7 +335,7 @@ export async function fetchUsers(q: string) {
   const res = await fetchSearchResults(q, "Users");
 
   return res.state === "success"
-    ? res.data.results.filter(r => r.type_ === "Person")
+    ? res.data.results.filter(s => s.type_ === "Person")
     : [];
 }
 
@@ -485,6 +488,21 @@ export function getUncombinedReport(
       return report.private_message_report;
     case "Community":
       return report.community_report;
+  }
+}
+
+type SearchCombined = Post | Community | Comment | Person;
+
+export function getUncombinedSearch(view: SearchCombinedView): SearchCombined {
+  switch (view.type_) {
+    case "Post":
+      return view.post;
+    case "Community":
+      return view.community;
+    case "Comment":
+      return view.comment;
+    case "Person":
+      return view.person;
   }
 }
 
