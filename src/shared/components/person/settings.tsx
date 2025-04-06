@@ -1693,10 +1693,17 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     });
 
     if (saveRes.state === "success") {
-      const userRes = await HttpService.client.getMyUser();
+      const [siteRes, userRes] = await Promise.all([
+        HttpService.client.getSite(),
+        HttpService.client.getMyUser(),
+      ]);
 
-      if (userRes.state === "success") {
-        UserService.Instance.myUserInfo = userRes.data;
+      if (siteRes.state === "success" && userRes.state === "success") {
+        i.setState({
+          siteRes: siteRes.data,
+        });
+
+        i.isoData.myUserInfo = userRes.data;
         loadUserLanguage();
       }
 
@@ -1769,10 +1776,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       const saveRes = i.state.saveRes;
       i.setState({ saveRes: LOADING_REQUEST });
 
-      const userRes = await HttpService.client.getMyUser();
+      const [siteRes, userRes] = await Promise.all([
+        HttpService.client.getSite(),
+        HttpService.client.getMyUser(),
+      ]);
       i.setState({ saveRes });
 
-      if (userRes.state === "success") {
+      if (siteRes.state === "success" && userRes.state === "success") {
         const {
           local_user: {
             show_nsfw,
@@ -1799,7 +1809,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           },
         } = userRes.data.local_user_view;
 
-        UserService.Instance.myUserInfo = userRes.data;
+        i.isoData.myUserInfo = userRes.data;
         refreshTheme();
 
         i.setState(prev => ({

@@ -71,6 +71,7 @@ import {
   SuccessResponse,
   TransferCommunity,
   CommentSortType,
+  MyUserInfo,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -188,9 +189,10 @@ type Fallbacks = {
 export function getHomeQueryParams(
   source: string | undefined,
   siteRes: GetSiteResponse,
+  myUserInfo?: MyUserInfo,
 ): HomeProps {
-  const myUserInfo = siteRes.my_user ?? UserService.Instance.myUserInfo;
-  const local_user = myUserInfo?.local_user_view.local_user;
+  const myUser = myUserInfo ?? UserService.Instance.myUserInfo;
+  const local_user = myUser?.local_user_view.local_user;
   const local_site = siteRes.site_view.local_site;
   return getQueryParams<HomeProps, Fallbacks>(
     {
@@ -625,7 +627,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showCommunity
               removeDuplicates
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(siteRes)}
+              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               enableNsfw={enableNsfw(siteRes)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
@@ -665,7 +667,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showCommunity
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(siteRes)}
+              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               onSaveComment={this.handleSaveComment}

@@ -500,7 +500,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     page={page}
                     limit={fetchLimit}
                     enableDownvotes={enableDownvotes(siteRes)}
-                    voteDisplayMode={voteDisplayMode(siteRes)}
+                    voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                     enableNsfw={enableNsfw(siteRes)}
                     view={view}
                     onPageChange={this.handlePageChange}

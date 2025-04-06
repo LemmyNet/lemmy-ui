@@ -551,7 +551,7 @@ export function showAvatars(myUserInfo?: MyUserInfo): boolean {
 }
 
 export function showLocal(isoData: IsoData): boolean {
-  return isoData.siteRes?.site_view.local_site.federation_enabled ?? true;
+  return isoData.siteRes.site_view.local_site.federation_enabled;
 }
 
 export function showScores(myUserInfo?: MyUserInfo): boolean {

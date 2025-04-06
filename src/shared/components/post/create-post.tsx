@@ -272,7 +272,7 @@ export class CreatePost extends Component<
               onCreate={this.handlePostCreate}
               params={params}
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(siteRes)}
+              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               enableNsfw={enableNsfw(siteRes)}
               allLanguages={siteRes?.all_languages}
               siteLanguages={siteRes?.discussion_languages}

@@ -799,7 +799,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   post_view={i.data as PostView}
                   showCommunity
                   enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(siteRes)}
+                  voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                   enableNsfw={enableNsfw(siteRes)}
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
@@ -840,7 +840,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   locked
                   isTopLevel
                   enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(siteRes)}
+                  voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   // All of these are unused, since its viewonly
@@ -901,7 +901,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         locked
         isTopLevel
         enableDownvotes={enableDownvotes(siteRes)}
-        voteDisplayMode={voteDisplayMode(siteRes)}
+        voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
         // All of these are unused, since its viewonly
@@ -952,7 +952,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 post_view={pv}
                 showCommunity
                 enableDownvotes={enableDownvotes(siteRes)}
-                voteDisplayMode={voteDisplayMode(siteRes)}
+                voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                 enableNsfw={enableNsfw(siteRes)}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}

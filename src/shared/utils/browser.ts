@@ -1,6 +1,5 @@
 import * as cookie from "cookie";
 import { authCookieName } from "@utils/config";
-import { GetSiteResponse, MyUserInfo } from "lemmy-js-client";
 import { isHttps } from "@utils/env";
 
 export function canShare() {
@@ -15,17 +14,9 @@ export function clearAuthCookie() {
   });
 }
 
-export function dataBsTheme(
-  siteResOrTheme?: GetSiteResponse | string,
-  myUserInfo?: MyUserInfo,
-) {
-  const theme =
-    typeof siteResOrTheme === "string"
-      ? siteResOrTheme
-      : (myUserInfo?.local_user_view.local_user.theme ??
-        siteResOrTheme?.site_view.local_site.default_theme ??
-        "browser");
+type BsTheme = "dark" | "light";
 
+export function dataBsTheme(theme: string): BsTheme {
   return (isDark() && theme === "browser") || theme.includes("dark")
     ? "dark"
     : "light";

@@ -512,7 +512,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             showCommunity
             showContext
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(siteRes)}
+            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             onSaveComment={this.handleSaveComment}
@@ -551,7 +551,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             showCommunity
             showContext
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(siteRes)}
+            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             onSaveComment={this.handleSaveComment}
@@ -621,7 +621,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               showCommunity
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(siteRes)}
+              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               onSaveComment={this.handleSaveComment}
@@ -667,7 +667,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                 showCommunity
                 showContext
                 enableDownvotes={enableDownvotes(siteRes)}
-                voteDisplayMode={voteDisplayMode(siteRes)}
+                voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 onSaveComment={this.handleSaveComment}

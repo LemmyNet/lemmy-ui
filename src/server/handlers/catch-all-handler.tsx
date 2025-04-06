@@ -78,9 +78,11 @@ export default async (req: Request, res: Response) => {
         const { search } = parsePath(url);
         const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
           path,
-          query: activeRoute.getQueryParams?.(search, siteRes) ?? {},
+          query:
+            activeRoute.getQueryParams?.(search, siteRes, myUserInfo) ?? {},
           match,
           site: siteRes,
+          myUserInfo,
           headers,
         };
 

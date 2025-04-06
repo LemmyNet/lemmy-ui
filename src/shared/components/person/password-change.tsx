@@ -134,9 +134,12 @@ export class PasswordChange extends Component<
       if (i.state.passwordChangeRes.state === "success") {
         toast(I18NextService.i18n.t("password_changed"));
 
-        const site = await HttpService.client.getSite();
-        if (site.state === "success") {
-          UserService.Instance.myUserInfo = site.data.my_user;
+        const [site, myUser] = await Promise.all([
+          HttpService.client.getSite(),
+          HttpService.client.getMyUser(),
+        ]);
+        if (site.state === "success" && myUser.state === "success") {
+          UserService.Instance.myUserInfo = myUser.data;
         }
 
         i.props.history.replace("/");

@@ -68,6 +68,7 @@ import {
   LemmyHttp,
   LockPost,
   MarkCommentReplyAsRead,
+  MyUserInfo,
   PostResponse,
   PurgeComment,
   PurgeCommunity,
@@ -146,9 +147,10 @@ function getCommentSortTypeFromQuery(
 function getQueryStringFromCommentSortType(
   sort: CommentSortType,
   siteRes: GetSiteResponse,
+  myUserInfo?: MyUserInfo,
 ): undefined | string {
-  const myUserInfo = siteRes.my_user ?? UserService.Instance.myUserInfo;
-  const local_user = myUserInfo?.local_user_view.local_user;
+  const myUser = myUserInfo ?? UserService.Instance.myUserInfo;
+  const local_user = myUser?.local_user_view.local_user;
   const local_site = siteRes.site_view.local_site;
   const defaultSort =
     local_user?.default_comment_sort_type ??
@@ -201,9 +203,10 @@ type Fallbacks = {
 export function getPostQueryParams(
   source: string | undefined,
   siteRes: GetSiteResponse,
+  myUserInfo?: MyUserInfo,
 ): PostProps {
-  const myUserInfo = siteRes.my_user ?? UserService.Instance.myUserInfo;
-  const local_user = myUserInfo?.local_user_view.local_user;
+  const myUser = myUserInfo ?? UserService.Instance.myUserInfo;
+  const local_user = myUser?.local_user_view.local_user;
   const local_site = siteRes.site_view.local_site;
 
   return getQueryParams<PostProps, Fallbacks>(
@@ -578,7 +581,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 moderators={res.moderators}
                 admins={siteRes.admins}
                 enableDownvotes={enableDownvotes(siteRes)}
-                voteDisplayMode={voteDisplayMode(siteRes)}
+                voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                 enableNsfw={enableNsfw(siteRes)}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
@@ -798,7 +801,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             moderators={postRes.data.moderators}
             admins={siteRes.admins}
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(siteRes)}
+            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             showContext
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
@@ -909,7 +912,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             moderators={res.data.moderators}
             admins={siteRes.admins}
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(siteRes)}
+            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             onSaveComment={this.handleSaveComment}

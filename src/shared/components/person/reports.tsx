@@ -424,7 +424,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             key={i.id}
             report={i.view as CommentReportView}
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(siteRes)}
+            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             onResolveReport={this.handleResolveCommentReport}
           />
         );
@@ -434,7 +434,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             key={i.id}
             report={i.view as PostReportView}
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(siteRes)}
+            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             enableNsfw={enableNsfw(siteRes)}
             onResolveReport={this.handleResolvePostReport}
           />
@@ -499,7 +499,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   key={cr.comment_report.id}
                   report={cr}
                   enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(siteRes)}
+                  voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                   onResolveReport={this.handleResolveCommentReport}
                 />
               </>
@@ -530,7 +530,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                 <PostReport
                   key={pr.post_report.id}
                   enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(siteRes)}
+                  voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                   enableNsfw={enableNsfw(siteRes)}
                   report={pr}
                   onResolveReport={this.handleResolvePostReport}

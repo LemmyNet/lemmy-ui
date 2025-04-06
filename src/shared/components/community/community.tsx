@@ -83,6 +83,7 @@ import {
   SuccessResponse,
   TransferCommunity,
   CommentSortType,
+  MyUserInfo,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -145,9 +146,10 @@ type Fallbacks = { sort: PostSortType };
 export function getCommunityQueryParams(
   source: string | undefined,
   siteRes: GetSiteResponse,
+  myUserInfo?: MyUserInfo,
 ) {
-  const myUserInfo = siteRes.my_user ?? UserService.Instance.myUserInfo;
-  const local_user = myUserInfo?.local_user_view.local_user;
+  const myUser = myUserInfo ?? UserService.Instance.myUserInfo;
+  const local_user = myUser?.local_user_view.local_user;
   const local_site = siteRes.site_view.local_site;
   return getQueryParams<CommunityProps, Fallbacks>(
     {
@@ -482,7 +484,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             <PostListings
               posts={this.state.postsRes.data.posts}
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(siteRes)}
+              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               enableNsfw={enableNsfw(siteRes)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
@@ -522,7 +524,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               isTopLevel
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(siteRes)}
+              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               moderators={this.state.communityRes.data.moderators}
               admins={siteRes.admins}
               allLanguages={siteRes.all_languages}

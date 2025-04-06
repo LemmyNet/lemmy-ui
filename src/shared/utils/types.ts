@@ -40,6 +40,7 @@ export interface InitialFetchRequest<
   query: T;
   match: Match<P>;
   site: GetSiteResponse;
+  myUserInfo?: MyUserInfo;
   headers: { [key: string]: string };
 }
 
