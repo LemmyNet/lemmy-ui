@@ -20,6 +20,7 @@ import {
   Language,
   LanguageId,
   MyUserInfo,
+  PersonView,
   PostView,
   SearchResponse,
   UploadImageResponse,
@@ -73,6 +74,7 @@ interface PostFormProps {
   initialCommunities?: CommunityView[];
   loading: boolean;
   myUserInfo: MyUserInfo | undefined;
+  admins: PersonView[];
   onTitleBlur?: (title: string) => void;
   onUrlBlur?: (url: string) => void;
   onBodyBlur?: (body: string) => void;
@@ -580,6 +582,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
                 myUserInfo={this.props.myUserInfo}
+                admins={this.props.admins}
                 viewOnly
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}
@@ -824,6 +827,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
                 myUserInfo={this.props.myUserInfo}
+                admins={this.props.admins}
                 viewOnly
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}

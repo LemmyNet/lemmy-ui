@@ -32,7 +32,7 @@ import { RequestState } from "../../services/HttpService";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
-  admins?: PersonView[];
+  admins: PersonView[];
   maxCommentsShown?: number;
   noBorder?: boolean;
   isTopLevel?: boolean;

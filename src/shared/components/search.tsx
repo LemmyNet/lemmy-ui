@@ -716,6 +716,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   siteLanguages={siteRes.discussion_languages}
                   viewOnly
                   myUserInfo={this.isoData.myUserInfo}
+                  admins={this.isoData.siteRes.admins}
                   // All of these are unused, since its view only
                   onPostEdit={async () => EMPTY_REQUEST}
                   onPostVote={async () => EMPTY_REQUEST}
@@ -755,6 +756,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   myUserInfo={this.isoData.myUserInfo}
+                  admins={this.isoData.siteRes.admins}
                   // All of these are unused, since its viewonly
                   onSaveComment={async () => {}}
                   onBlockPerson={async () => {}}
@@ -817,6 +819,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
         myUserInfo={this.isoData.myUserInfo}
+        admins={this.isoData.siteRes.admins}
         // All of these are unused, since its viewonly
         onSaveComment={async () => {}}
         onBlockPerson={async () => {}}
@@ -873,6 +876,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 siteLanguages={siteRes.discussion_languages}
                 viewOnly
                 myUserInfo={this.isoData.myUserInfo}
+                admins={this.isoData.siteRes.admins}
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}
                 onPostVote={async () => EMPTY_REQUEST}

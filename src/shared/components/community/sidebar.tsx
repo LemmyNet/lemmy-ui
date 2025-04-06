@@ -354,7 +354,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <>
         <ul className="list-inline mb-1 text-muted fw-bold">
-          {amMod(this.props.community_view.community.id) && (
+          {amMod(this.props.community_view) && (
             <>
               <li className="list-inline-item-action">
                 <button
@@ -366,7 +366,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   <Icon icon="edit" classes="icon-inline" />
                 </button>
               </li>
-              {!amTopMod(this.props.moderators) &&
+              {!amTopMod(this.props.moderators, this.props.myUserInfo) &&
                 (!this.state.showConfirmLeaveModTeam ? (
                   <li className="list-inline-item-action">
                     <button
@@ -405,7 +405,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     </li>
                   </>
                 ))}
-              {amTopMod(this.props.moderators) && (
+              {amTopMod(this.props.moderators, this.props.myUserInfo) && (
                 <li className="list-inline-item-action">
                   <button
                     className="btn btn-link text-muted d-inline-block"
@@ -436,7 +436,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               )}
             </>
           )}
-          {amAdmin() && (
+          {amAdmin(this.props.myUserInfo) && (
             <li className="list-inline-item">
               {!this.props.community_view.community.removed ? (
                 <button
@@ -554,8 +554,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   get canPost(): boolean {
     return (
       !this.props.community_view.community.posting_restricted_to_mods ||
-      amMod(this.props.community_view.community.id) ||
-      amAdmin()
+      amMod(this.props.community_view) ||
+      amAdmin(this.props.myUserInfo)
     );
   }
 

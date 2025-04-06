@@ -769,7 +769,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 <div className="flex-grow-1 unselectable pointer mx-2"></div>
                 {!this.amCurrentUser && this.isoData.myUserInfo && (
                   <>
-                    {amAdmin() && (
+                    {amAdmin(this.isoData.myUserInfo) && (
                       <Link
                         className={
                           "d-flex align-self-start btn btn-secondary me-2"
@@ -826,7 +826,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   </>
                 )}
 
-                {canAdmin(pv.person.id, admins) &&
+                {canAdmin(pv.person.id, admins, this.isoData.myUserInfo) &&
                   !pv.is_admin &&
                   !showBanDialog &&
                   (!pv.person.banned ? (
@@ -850,7 +850,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
                     </button>
                   ))}
-                {amAdmin() && (
+                {amAdmin(this.isoData.myUserInfo) && (
                   <>
                     <button
                       className={

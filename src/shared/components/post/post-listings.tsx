@@ -18,6 +18,7 @@ import {
   LockPost,
   MarkPostAsRead,
   MyUserInfo,
+  PersonView,
   PostResponse,
   PostView,
   PurgePerson,
@@ -42,6 +43,7 @@ interface PostListingsProps {
   showAdultConsentModal: boolean;
   viewOnly?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  admins: PersonView[];
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
@@ -93,6 +95,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
                 myUserInfo={this.props.myUserInfo}
+                admins={this.props.admins}
                 onPostEdit={this.props.onPostEdit}
                 onPostVote={this.props.onPostVote}
                 onPostReport={this.props.onPostReport}

@@ -1,12 +1,18 @@
 import {
-  CommunityId,
+  CommentReplyView,
+  CommentSlimView,
+  CommentView,
   CommunityModeratorView,
+  CommunityView,
   GetSiteResponse,
   MyUserInfo,
+  PersonCommentMentionView,
+  PersonPostMentionView,
   PersonView,
+  PostView,
 } from "lemmy-js-client";
 
-export function amAdmin(myUserInfo?: MyUserInfo): boolean {
+export function amAdmin(myUserInfo: MyUserInfo | undefined): boolean {
   return myUserInfo?.local_user_view.local_user.admin ?? false;
 }
 
@@ -21,18 +27,22 @@ export function amCommunityCreator(
 }
 
 export function amMod(
-  communityId: CommunityId,
-  myUserInfo?: MyUserInfo,
+  thing:
+    | PostView
+    | PersonPostMentionView
+    | CommentReplyView
+    | PersonCommentMentionView
+    | CommentSlimView
+    | CommentView
+    | CommunityView,
 ): boolean {
-  return myUserInfo
-    ? myUserInfo.moderates.some(cmv => cmv.community.id === communityId)
-    : false;
+  return thing.can_mod;
 }
 
 export function amSiteCreator(
   creator_id: number,
-  admins?: PersonView[],
-  myUserInfo?: MyUserInfo,
+  admins: PersonView[],
+  myUserInfo: MyUserInfo | undefined,
 ): boolean {
   const myId = myUserInfo?.local_user_view.person.id;
   return myId === admins?.at(0)?.person.id && myId !== creator_id;
@@ -40,15 +50,15 @@ export function amSiteCreator(
 
 export function amTopMod(
   mods: CommunityModeratorView[],
-  myUserInfo?: MyUserInfo,
+  myUserInfo: MyUserInfo | undefined,
 ): boolean {
   return mods.at(0)?.moderator.id === myUserInfo?.local_user_view.person.id;
 }
 
 export function canAdmin(
   creatorId: number,
-  admins?: PersonView[],
-  myUserInfo?: MyUserInfo,
+  admins: PersonView[],
+  myUserInfo: MyUserInfo | undefined,
   onSelf = false,
 ): boolean {
   const myId = myUserInfo?.local_user_view.person.id;
@@ -65,45 +75,17 @@ export function canAdmin(
   return first?.person.id === myId;
 }
 
-export function moderatesSomething(myUserInfo?: MyUserInfo): boolean {
+export function moderatesSomething(
+  myUserInfo: MyUserInfo | undefined,
+): boolean {
   return amAdmin(myUserInfo) || (myUserInfo?.moderates?.length ?? 0) > 0;
 }
 
 export function canCreateCommunity(
   siteRes: GetSiteResponse,
-  myUserInfo?: MyUserInfo,
+  myUserInfo: MyUserInfo | undefined,
 ): boolean {
   const adminOnly = siteRes.site_view.local_site.community_creation_admin_only;
   // TODO: Make this check if user is logged on as well
   return !adminOnly || amAdmin(myUserInfo);
-}
-
-// TODO get rid of this, as its in the back-end now
-export function canMod(
-  creator_id: number,
-  mods?: CommunityModeratorView[],
-  admins?: PersonView[],
-  myUserInfo?: MyUserInfo,
-  onSelf = false,
-): boolean {
-  // You can do moderator actions only on the mods added after you.
-  let adminsThenMods =
-    admins
-      ?.map(a => a.person.id)
-      .concat(mods?.map(m => m.moderator.id) ?? []) ?? [];
-
-  if (myUserInfo) {
-    const myIndex = adminsThenMods.findIndex(
-      id => id === myUserInfo.local_user_view.person.id,
-    );
-    if (myIndex === -1) {
-      return false;
-    } else {
-      // onSelf +1 on mod actions not for yourself, IE ban, remove, etc
-      adminsThenMods = adminsThenMods.slice(0, myIndex + (onSelf ? 0 : 1));
-      return !adminsThenMods.includes(creator_id);
-    }
-  } else {
-    return false;
-  }
 }

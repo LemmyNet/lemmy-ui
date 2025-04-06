@@ -2,6 +2,7 @@ import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   MyUserInfo,
+  PersonView,
   PostReportView,
   PostView,
   ResolvePostReport,
@@ -19,6 +20,7 @@ interface PostReportProps {
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
+  admins: PersonView[];
   onResolveReport(form: ResolvePostReport): void;
 }
 
@@ -83,6 +85,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           siteLanguages={[]}
           hideImage
           myUserInfo={this.props.myUserInfo}
+          admins={this.props.admins}
           // All of these are unused, since its view only
           onPostEdit={async () => EMPTY_REQUEST}
           onPostVote={async () => EMPTY_REQUEST}

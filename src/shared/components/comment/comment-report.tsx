@@ -4,6 +4,7 @@ import {
   CommentReportView,
   CommentView,
   MyUserInfo,
+  PersonView,
   ResolveCommentReport,
 } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "@utils/types";
@@ -18,6 +19,7 @@ interface CommentReportProps {
   report: CommentReportView;
   enableDownvotes?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  admins: PersonView[];
   onResolveReport(form: ResolveCommentReport): void;
 }
 
@@ -79,6 +81,7 @@ export class CommentReport extends Component<
       <div className="comment-report">
         <CommentNode
           node={node}
+          admins={this.props.admins}
           viewType={CommentViewType.Flat}
           enableDownvotes={this.props.enableDownvotes}
           viewOnly={true}

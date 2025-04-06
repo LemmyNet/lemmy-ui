@@ -286,7 +286,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           {I18NextService.i18n.t("posts")}
         </label>
 
-        {amAdmin() && (
+        {amAdmin(this.isoData.myUserInfo) && (
           <>
             <input
               id={`${radioId}-messages`}
@@ -349,6 +349,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             report={i}
             enableDownvotes={enableDownvotes(siteRes)}
             myUserInfo={this.isoData.myUserInfo}
+            admins={this.isoData.siteRes.admins}
             onResolveReport={this.handleResolveCommentReport}
           />
         );
@@ -361,6 +362,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             enableNsfw={enableNsfw(siteRes)}
             showAdultConsentModal={this.isoData.showAdultConsentModal}
             myUserInfo={this.isoData.myUserInfo}
+            admins={this.isoData.siteRes.admins}
             onResolveReport={this.handleResolvePostReport}
           />
         );
@@ -427,6 +429,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   report={cr}
                   enableDownvotes={enableDownvotes(siteRes)}
                   myUserInfo={this.isoData.myUserInfo}
+                  admins={this.isoData.siteRes.admins}
                   onResolveReport={this.handleResolveCommentReport}
                 />
               </>
@@ -461,6 +464,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   showAdultConsentModal={this.isoData.showAdultConsentModal}
                   report={pr}
                   myUserInfo={this.isoData.myUserInfo}
+                  admins={this.isoData.siteRes.admins}
                   onResolveReport={this.handleResolvePostReport}
                 />
               </>

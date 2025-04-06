@@ -41,7 +41,7 @@ interface ContentActionDropdownPropsBase {
   onPurgeUser: (reason: string) => Promise<void>;
   onAppointAdmin: () => Promise<void>;
   moderators?: CommunityModeratorView[];
-  admins?: PersonView[];
+  admins: PersonView[];
   myUserInfo: MyUserInfo | undefined;
 }
 
@@ -162,7 +162,12 @@ export default class ContentActionDropdown extends Component<
     const creatorBannedFromLocal = creator.banned;
     const showToggleAdmin = !creatorBannedFromLocal && creator.local;
     const canAppointCommunityMod =
-      (amMod(community.id) || (amAdmin() && community.local)) &&
+      (amMod(
+        this.props.type === "comment"
+          ? this.props.commentView
+          : this.props.postView,
+      ) ||
+        (amAdmin(this.props.myUserInfo) && community.local)) &&
       !creator_banned_from_community;
 
     const modHistoryUserTranslation = I18NextService.i18n.t(
@@ -294,7 +299,7 @@ export default class ContentActionDropdown extends Component<
                     </li>
                   </>
                 )}
-                {amAdmin() && (
+                {amAdmin(this.props.myUserInfo) && (
                   <li>
                     <ActionButton
                       onClick={this.toggleViewVotesShow}
@@ -305,7 +310,12 @@ export default class ContentActionDropdown extends Component<
                   </li>
                 )}
 
-                {(amMod(community.id) || amAdmin()) && (
+                {(amMod(
+                  this.props.type === "comment"
+                    ? this.props.commentView
+                    : this.props.postView,
+                ) ||
+                  amAdmin(this.props.myUserInfo)) && (
                   <>
                     <li>
                       <hr className="dropdown-divider" />
@@ -336,7 +346,7 @@ export default class ContentActionDropdown extends Component<
                             }
                           />
                         </li>
-                        {amAdmin() && (
+                        {amAdmin(this.props.myUserInfo) && (
                           <li>
                             <ActionButton
                               onClick={this.props.onFeatureLocal}
@@ -467,7 +477,11 @@ export default class ContentActionDropdown extends Component<
                       )}
                     </>
                   )}
-                {(amCommunityCreator(creator.id, moderators) ||
+                {(amCommunityCreator(
+                  creator.id,
+                  moderators,
+                  this.props.myUserInfo,
+                ) ||
                   this.canAdmin) &&
                   creator_is_moderator && (
                     <li>
@@ -867,7 +881,7 @@ export default class ContentActionDropdown extends Component<
 
   get canMod() {
     const { creator } = this.contentInfo;
-    if (canAdmin(creator.id, this.props.admins)) {
+    if (canAdmin(creator.id, this.props.admins, this.props.myUserInfo)) {
       return true;
     }
     if (this.props.type === "comment") {
@@ -878,7 +892,7 @@ export default class ContentActionDropdown extends Component<
 
   get canAdmin() {
     const { creator } = this.contentInfo;
-    return canAdmin(creator.id, this.props.admins);
+    return canAdmin(creator.id, this.props.admins, this.props.myUserInfo);
   }
 
   get canModOnSelf() {

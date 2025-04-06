@@ -156,7 +156,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </NavLink>
                 </li>
               )}
-              {amAdmin() && (
+              {amAdmin(this.props.myUserInfo) && (
                 <li className="nav-item nav-item-icon">
                   <NavLink
                     to="/registration_applications"
@@ -229,18 +229,22 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {I18NextService.i18n.t("create_post")}
                 </NavLink>
               </li>
-              {this.props.siteRes && canCreateCommunity(this.props.siteRes) && (
-                <li className="nav-item">
-                  <NavLink
-                    to="/create_community"
-                    className="nav-link"
-                    title={I18NextService.i18n.t("create_community")}
-                    onMouseUp={linkEvent(this, handleCollapseClick)}
-                  >
-                    {I18NextService.i18n.t("create_community")}
-                  </NavLink>
-                </li>
-              )}
+              {this.props.siteRes &&
+                canCreateCommunity(
+                  this.props.siteRes,
+                  this.props.myUserInfo,
+                ) && (
+                  <li className="nav-item">
+                    <NavLink
+                      to="/create_community"
+                      className="nav-link"
+                      title={I18NextService.i18n.t("create_community")}
+                      onMouseUp={linkEvent(this, handleCollapseClick)}
+                    >
+                      {I18NextService.i18n.t("create_community")}
+                    </NavLink>
+                  </li>
+                )}
               <li className="nav-item">
                 <a
                   className="nav-link d-inline-flex align-items-center d-md-inline-block"
@@ -268,7 +272,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </span>
                 </NavLink>
               </li>
-              {amAdmin() && (
+              {amAdmin(this.props.myUserInfo) && (
                 <li id="navAdmin" className="nav-item">
                   <NavLink
                     to="/admin"
@@ -337,7 +341,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       </NavLink>
                     </li>
                   )}
-                  {amAdmin() && (
+                  {amAdmin(this.props.myUserInfo) && (
                     <li id="navApplications" className="nav-item">
                       <NavLink
                         to="/registration_applications"

@@ -713,8 +713,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   get amAdminOrMod(): boolean {
     const amMod_ =
       this.state.communityRes.state === "success" &&
-      amMod(this.state.communityRes.data.community_view.community.id);
-    return amAdmin() || amMod_;
+      amMod(this.state.communityRes.data.community_view);
+    return amAdmin(this.isoData.myUserInfo) || amMod_;
   }
 
   modOrAdminText(person?: Person): string {

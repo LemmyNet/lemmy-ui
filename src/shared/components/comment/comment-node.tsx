@@ -71,7 +71,7 @@ type CommentNodeState = {
 
 interface CommentNodeProps {
   node: CommentNodeI;
-  admins?: PersonView[];
+  admins: PersonView[];
   noBorder?: boolean;
   isTopLevel?: boolean;
   viewOnly?: boolean;

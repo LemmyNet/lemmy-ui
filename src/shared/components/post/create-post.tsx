@@ -285,6 +285,7 @@ export class CreatePost extends Component<
               }
               loading={loading}
               myUserInfo={this.isoData.myUserInfo}
+              admins={this.isoData.siteRes.admins}
               onBodyBlur={this.handleBodyBlur}
               onLanguageChange={this.handleLanguageChange}
               onTitleBlur={this.handleTitleBlur}

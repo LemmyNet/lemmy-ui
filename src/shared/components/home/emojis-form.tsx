@@ -10,7 +10,6 @@ import { Paginator } from "../common/paginator";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { isBrowser } from "@utils/browser";
 import classNames from "classnames";
-import { amAdmin } from "@utils/roles";
 import { Prompt } from "inferno-router";
 
 interface EditableEmoji {
@@ -599,14 +598,8 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
 
   configurePicker(): any {
     const custom = this.state.emojiMartCustom;
-    if (process.env["NODE_ENV"] === "development") {
-      // Once an emoji-mart Picker is initialized with these options, other
-      // instances also only show the custom emojis.
-      console.assert(
-        amAdmin(),
-        "EmojiMart doesn't deal well with differently configured instances.",
-      );
-    }
+    // Once an emoji-mart Picker is initialized with these options, other
+    // instances also only show the custom emojis.
     return {
       data: { categories: [], emojis: [], aliases: [] },
       maxFrequentRows: 0,

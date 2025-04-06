@@ -4,6 +4,7 @@ import {
   MarkPostAsRead,
   PersonPostMentionView,
   PostView,
+  PersonView,
 } from "lemmy-js-client";
 import { PostListing } from "./post-listing";
 import { EMPTY_REQUEST } from "../../services/HttpService";
@@ -15,6 +16,7 @@ interface PostMentionProps {
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
+  admins: PersonView[];
   onMarkPostMentionAsRead(form: MarkPostAsRead): Promise<void>;
 }
 
@@ -73,6 +75,7 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
           siteLanguages={[]}
           hideImage
           myUserInfo={this.props.myUserInfo}
+          admins={this.props.admins}
           // All of these are unused, since its view only
           onPostEdit={async () => EMPTY_REQUEST}
           onPostVote={async () => EMPTY_REQUEST}

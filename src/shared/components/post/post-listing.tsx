@@ -68,7 +68,7 @@ type PostListingState = {
 interface PostListingProps {
   post_view: PostView;
   crossPosts?: PostView[];
-  admins?: PersonView[];
+  admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
   showCommunity?: boolean;
@@ -193,6 +193,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <PostForm
             post_view={this.postView}
             crossPosts={this.props.crossPosts}
+            admins={this.props.admins}
             onEdit={this.handleEditPost}
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
@@ -1189,12 +1190,20 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get canMod(): boolean {
     return (
       this.postView.can_mod ||
-      canAdmin(this.postView.creator.id, this.props.admins)
+      canAdmin(
+        this.postView.creator.id,
+        this.props.admins,
+        this.props.myUserInfo,
+      )
     );
   }
 
   get canAdmin(): boolean {
-    return canAdmin(this.postView.creator.id, this.props.admins);
+    return canAdmin(
+      this.postView.creator.id,
+      this.props.admins,
+      this.props.myUserInfo,
+    );
   }
 
   get isInteractable() {

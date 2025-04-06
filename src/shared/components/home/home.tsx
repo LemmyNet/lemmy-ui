@@ -694,6 +694,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               myUserInfo={this.isoData.myUserInfo}
+              admins={this.isoData.siteRes.admins}
               onBlockPerson={this.handleBlockPerson}
               onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}
@@ -733,6 +734,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               myUserInfo={this.isoData.myUserInfo}
+              admins={this.isoData.siteRes.admins}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}

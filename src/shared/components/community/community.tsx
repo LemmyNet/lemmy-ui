@@ -560,6 +560,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               myUserInfo={this.isoData.myUserInfo}
+              admins={this.isoData.siteRes.admins}
               onBlockPerson={this.handleBlockPerson}
               onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}

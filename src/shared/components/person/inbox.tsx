@@ -500,6 +500,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
+            admins={this.isoData.siteRes.admins}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
@@ -539,6 +540,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
+            admins={this.isoData.siteRes.admins}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
@@ -580,6 +582,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               mention={i}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               myUserInfo={this.isoData.myUserInfo}
+              admins={this.isoData.siteRes.admins}
               onMarkPostMentionAsRead={this.handleMarkPostAsRead}
             />
           )
@@ -624,6 +627,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               myUserInfo={this.isoData.myUserInfo}
+              admins={this.isoData.siteRes.admins}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
@@ -672,6 +676,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 myUserInfo={this.isoData.myUserInfo}
+                admins={this.isoData.siteRes.admins}
                 onSaveComment={this.handleSaveComment}
                 onBlockPerson={this.handleBlockPerson}
                 onDeleteComment={this.handleDeleteComment}
@@ -715,6 +720,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                     mention={umv}
                     showAdultConsentModal={this.isoData.showAdultConsentModal}
                     myUserInfo={this.isoData.myUserInfo}
+                    admins={this.isoData.siteRes.admins}
                     onMarkPostMentionAsRead={this.handleMarkPostAsRead}
                   />
                 ),
