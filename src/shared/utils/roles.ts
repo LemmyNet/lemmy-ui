@@ -51,7 +51,18 @@ export function canAdmin(
   myUserInfo?: MyUserInfo,
   onSelf = false,
 ): boolean {
-  return canMod(creatorId, undefined, admins, myUserInfo, onSelf);
+  const myId = myUserInfo?.local_user_view.person.id;
+  if (!myId) {
+    return false;
+  }
+  if (onSelf && creatorId !== myId) {
+    return false;
+  }
+  const first =
+    admins &&
+    admins.find(x => x.person.id === creatorId || x.person.id === myId);
+  // You can do admin actions only on admins added after you.
+  return first?.person.id === myId;
 }
 
 export function moderatesSomething(myUserInfo?: MyUserInfo): boolean {

@@ -590,7 +590,6 @@ export class Community extends Component<CommunityRouteProps, State> {
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
               voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
-              moderators={this.state.communityRes.data.moderators}
               admins={siteRes.admins}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}

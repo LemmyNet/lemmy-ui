@@ -8,7 +8,6 @@ import {
   BanPerson,
   BlockPerson,
   CommentResponse,
-  CommunityModeratorView,
   CreateComment,
   CreateCommentLike,
   CreateCommentReport,
@@ -34,7 +33,6 @@ import { RequestState } from "../../services/HttpService";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
-  moderators?: CommunityModeratorView[];
   admins?: PersonView[];
   maxCommentsShown?: number;
   noBorder?: boolean;
@@ -111,7 +109,6 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               isTopLevel={this.props.isTopLevel}
               viewOnly={this.props.viewOnly}
               locked={this.props.locked}
-              moderators={this.props.moderators}
               admins={this.props.admins}
               markable={this.props.markable}
               showContext={this.props.showContext}

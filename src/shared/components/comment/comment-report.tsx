@@ -63,14 +63,15 @@ export class CommentReport extends Component<
       post: r.post,
       community: r.community,
       creator_banned_from_community: r.creator_banned_from_community,
-      creator_is_moderator: false,
-      creator_is_admin: false,
+      creator_is_moderator: r.creator_is_moderator,
+      creator_is_admin: r.creator_is_admin,
       counts: r.counts,
       subscribed: "NotSubscribed",
-      saved: false,
-      creator_blocked: false,
+      saved: r.saved,
+      creator_blocked: r.creator_blocked,
       my_vote: r.my_vote,
       banned_from_community: false,
+      can_mod: true,
     };
 
     const node: CommentNodeI = {

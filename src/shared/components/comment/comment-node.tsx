@@ -13,7 +13,6 @@ import {
   CommentId,
   CommentReplyView,
   CommentResponse,
-  CommunityModeratorView,
   CreateComment,
   CreateCommentLike,
   CreateCommentReport,
@@ -72,7 +71,6 @@ type CommentNodeState = {
 
 interface CommentNodeProps {
   node: CommentNodeI;
-  moderators?: CommunityModeratorView[];
   admins?: PersonView[];
   noBorder?: boolean;
   isTopLevel?: boolean;
@@ -366,7 +364,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         <CommentActionDropdown
                           commentView={this.commentView}
                           admins={this.props.admins}
-                          moderators={this.props.moderators}
                           myUserInfo={this.props.myUserInfo}
                           onReply={this.handleReplyClick}
                           onReport={this.handleReportComment}
@@ -433,7 +430,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           <CommentNodes
             nodes={node.children}
             locked={this.props.locked}
-            moderators={this.props.moderators}
             admins={this.props.admins}
             enableDownvotes={this.props.enableDownvotes}
             voteDisplayMode={this.props.voteDisplayMode}

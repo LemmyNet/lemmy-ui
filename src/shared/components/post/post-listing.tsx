@@ -4,7 +4,7 @@ import { getExternalHost, getHttpBase } from "@utils/env";
 import { formatPastDate, futureDaysToUnixTime, hostname } from "@utils/helpers";
 import { formatPastDate, futureDaysToUnixTime } from "@utils/date";
 import { isImage, isVideo } from "@utils/media";
-import { canAdmin, canMod } from "@utils/roles";
+import { canAdmin } from "@utils/roles";
 import classNames from "classnames";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -15,7 +15,6 @@ import {
   BanFromCommunity,
   BanPerson,
   BlockPerson,
-  CommunityModeratorView,
   CreatePostLike,
   CreatePostReport,
   DeletePost,
@@ -70,7 +69,6 @@ type PostListingState = {
 interface PostListingProps {
   post_view: PostView;
   crossPosts?: PostView[];
-  moderators?: CommunityModeratorView[];
   admins?: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
@@ -635,14 +633,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    const {
-      admins,
-      moderators,
-      showBody,
-      onPostVote,
-      enableDownvotes,
-      voteDisplayMode,
-    } = this.props;
+    const { admins, showBody, onPostVote, enableDownvotes, voteDisplayMode } =
+      this.props;
     const {
       post: { ap_id, id, body },
       my_vote,
@@ -719,7 +711,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <PostActionDropdown
             postView={this.postView}
             admins={admins}
-            moderators={moderators}
             crossPostParams={this.crossPostParams}
             myUserInfo={this.props.myUserInfo}
             onSave={this.handleSavePost}
@@ -1191,20 +1182,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get canModOnSelf(): boolean {
-    return canMod(
-      this.postView.creator.id,
-      this.props.moderators,
-      this.props.admins,
-      undefined,
-      true,
-    );
+    if (
+      this.postView.creator.id !==
+      this.props.myUserInfo?.local_user_view.person.id
+    ) {
+      return false;
+    }
+    return this.canMod;
   }
 
   get canMod(): boolean {
-    return canMod(
-      this.postView.creator.id,
-      this.props.moderators,
-      this.props.admins,
+    return (
+      this.postView.can_mod ||
+      canAdmin(this.postView.creator.id, this.props.admins)
     );
   }
 

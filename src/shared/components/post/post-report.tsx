@@ -65,6 +65,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       creator_banned_from_community: r.creator_banned_from_community,
       counts: r.counts,
       subscribed: "NotSubscribed",
+      saved: r.saved,
       read: false,
       creator_blocked: false,
       my_vote: r.my_vote,

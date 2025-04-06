@@ -19,7 +19,7 @@ import {
   bareRoutePush,
   getApubName,
 } from "@utils/helpers";
-import { amAdmin, canMod } from "@utils/roles";
+import { amAdmin, canAdmin } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
@@ -832,7 +832,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   </>
                 )}
 
-                {canMod(pv.person.id, undefined, admins) &&
+                {canAdmin(pv.person.id, admins) &&
                   !pv.is_admin &&
                   !showBanDialog &&
                   (!pv.person.banned ? (

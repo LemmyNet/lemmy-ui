@@ -572,7 +572,6 @@ export class Post extends Component<PostRouteProps, PostState> {
                 crossPosts={res.cross_posts}
                 showBody
                 showCommunity
-                moderators={res.moderators}
                 admins={siteRes.admins}
                 enableDownvotes={enableDownvotes(siteRes)}
                 voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
@@ -796,7 +795,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             maxCommentsShown={this.state.maxCommentsShown}
             isTopLevel
             locked={postRes.data.post_view.post.locked}
-            moderators={postRes.data.moderators}
             admins={siteRes.admins}
             enableDownvotes={enableDownvotes(siteRes)}
             voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
@@ -835,7 +833,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       return (
         <Sidebar
           community_view={res.data.community_view}
-          moderators={res.data.moderators}
+          moderators={[]} // TODO: fetch GetCommunityResponse?
           admins={this.state.siteRes.admins}
           enableNsfw={enableNsfw(this.state.siteRes)}
           showIcon
@@ -909,7 +907,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
             locked={res.data.post_view.post.locked}
-            moderators={res.data.moderators}
             admins={siteRes.admins}
             enableDownvotes={enableDownvotes(siteRes)}
             voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
@@ -1378,7 +1375,6 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.setState(s => {
       if (s.postRes.state === "success" && res.state === "success") {
         s.postRes.data.community_view = res.data.community_view;
-        s.postRes.data.moderators = res.data.moderators;
       }
       return s;
     });
@@ -1453,13 +1449,8 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  updateModerators(res: RequestState<AddModToCommunityResponse>) {
+  updateModerators(_: RequestState<AddModToCommunityResponse>) {
     // Update the moderators
-    this.setState(s => {
-      if (s.postRes.state === "success" && res.state === "success") {
-        s.postRes.data.moderators = res.data.moderators;
-      }
-      return s;
-    });
+    // TODO: update GetCommunityResponse?
   }
 }

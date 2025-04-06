@@ -8,13 +8,7 @@ import {
   PersonView,
   PostView,
 } from "lemmy-js-client";
-import {
-  amAdmin,
-  amCommunityCreator,
-  amMod,
-  canAdmin,
-  canMod,
-} from "@utils/roles";
+import { amAdmin, amCommunityCreator, amMod, canAdmin } from "@utils/roles";
 import ActionButton from "./action-button";
 import classNames from "classnames";
 import { Link } from "inferno-router";
@@ -865,7 +859,13 @@ export default class ContentActionDropdown extends Component<
 
   get canMod() {
     const { creator } = this.contentInfo;
-    return canMod(creator.id, this.props.moderators, this.props.admins);
+    if (canAdmin(creator.id, this.props.admins)) {
+      return true;
+    }
+    if (this.props.type === "comment") {
+      return this.props.commentView.can_mod;
+    }
+    return this.props.postView.can_mod;
   }
 
   get canAdmin() {
@@ -875,13 +875,10 @@ export default class ContentActionDropdown extends Component<
 
   get canModOnSelf() {
     const { creator } = this.contentInfo;
-    return canMod(
-      creator.id,
-      this.props.moderators,
-      this.props.admins,
-      this.props.myUserInfo,
-      true,
-    );
+    if (this.props.myUserInfo?.local_user_view.person.id !== creator.id) {
+      return false;
+    }
+    return this.canMod;
   }
 
   get canAdminOnSelf() {

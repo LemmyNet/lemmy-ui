@@ -63,6 +63,7 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
       banned_from_community: m.banned_from_community,
       hidden: m.hidden,
       tags: { tags: [] },
+      can_mod: m.can_mod,
     };
 
     return (
