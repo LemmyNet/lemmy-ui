@@ -786,6 +786,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         type="button"
         className="btn btn-sm btn-link link-dark link-opacity-75 link-opacity-100-hover py-0 align-baseline"
         onClick={linkEvent(this, this.handleShowBody)}
+        aria-pressed={!this.state.showBody ? "false" : "true"}
       >
         <Icon
           icon={!this.state.showBody ? "plus-square" : "minus-square"}
