@@ -59,7 +59,7 @@ const MAX_POST_TITLE_LENGTH = 200;
 interface PostFormProps {
   post_view?: PostView; // If a post is given, that means this is an edit
   crossPosts?: PostView[];
-  allLanguages?: Language[];
+  allLanguages: Language[];
   siteLanguages: number[];
   params?: PostFormParams;
   onCancel?(): void;

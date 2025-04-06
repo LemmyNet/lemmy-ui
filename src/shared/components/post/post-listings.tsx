@@ -33,7 +33,7 @@ import { RequestState } from "../../services/HttpService";
 
 interface PostListingsProps {
   posts: PostView[];
-  allLanguages?: Language[];
+  allLanguages: Language[];
   siteLanguages: LanguageId[];
   showCommunity?: boolean;
   removeDuplicates?: boolean;
