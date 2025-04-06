@@ -10,7 +10,6 @@ import {
 import { scrollMixin } from "../mixins/scroll-mixin";
 import {
   capitalizeFirstLetter,
-  futureDaysToUnixTime,
   getQueryParams,
   getQueryString,
   numToSI,
@@ -102,7 +101,7 @@ import { PersonListing } from "./person-listing";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { MediaUploads } from "../common/media-uploads";
-import { cakeDate } from "@utils/helpers";
+import { cakeDate, futureDaysToUnixTime } from "@utils/date";
 import { isBrowser } from "@utils/browser";
 import DisplayModal from "../common/modal/display-modal";
 import { Paginator } from "../common/paginator";

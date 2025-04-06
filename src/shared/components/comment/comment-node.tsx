@@ -1,5 +1,6 @@
 import { colorList, getCommentParentId } from "@utils/app";
-import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
+import { numToSI } from "@utils/helpers";
+import { futureDaysToUnixTime } from "@utils/date";
 import classNames from "classnames";
 import { isBefore, parseISO, subMinutes } from "date-fns";
 import { Component, InfernoNode, linkEvent } from "inferno";

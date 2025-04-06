@@ -1,4 +1,5 @@
-import { capitalizeFirstLetter, formatPastDate } from "@utils/helpers";
+import { capitalizeFirstLetter } from "@utils/helpers";
+import { formatRelativeDate } from "@utils/date";
 import { format, parseISO } from "date-fns";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
@@ -44,7 +45,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
           className="moment-time fst-italic pointer unselectable"
         >
           <Icon icon="edit-2" classes="icon-inline me-1" />
-          {formatPastDate(this.props.updated)}
+          {formatRelativeDate(this.props.updated)}
         </span>
       );
     } else {
@@ -54,7 +55,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
           className="moment-time pointer unselectable"
           data-tippy-content={formatDate(published)}
         >
-          {formatPastDate(published)}
+          {formatRelativeDate(published)}
         </span>
       );
     }

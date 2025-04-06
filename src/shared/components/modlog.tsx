@@ -6,13 +6,13 @@ import {
 } from "@utils/app";
 import {
   debounce,
-  formatPastDate,
   getIdFromString,
   getQueryParams,
   getQueryString,
   resourcesSettled,
   bareRoutePush,
 } from "@utils/helpers";
+import { formatRelativeDate } from "@utils/date";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { amAdmin, amMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
@@ -265,7 +265,7 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
           )}
           {expires && (
             <span>
-              <div>expires: {formatPastDate(expires)}</div>
+              <div>expires: {formatRelativeDate(expires)}</div>
             </span>
           )}
         </>
@@ -329,7 +329,7 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
           )}
           {expires && (
             <span>
-              <div>expires: {formatPastDate(expires)}</div>
+              <div>expires: {formatRelativeDate(expires)}</div>
             </span>
           )}
         </>

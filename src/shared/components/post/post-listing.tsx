@@ -1,8 +1,8 @@
 import { myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
-import { formatPastDate, futureDaysToUnixTime, hostname } from "@utils/helpers";
-import { formatPastDate, futureDaysToUnixTime } from "@utils/date";
+import { hostname } from "@utils/helpers";
+import { formatRelativeDate, futureDaysToUnixTime } from "@utils/date";
 import { isImage, isVideo } from "@utils/media";
 import { canAdmin } from "@utils/roles";
 import classNames from "classnames";
@@ -457,7 +457,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {pv.post.scheduled_publish_time && (
           <span className="mx-1 badge text-bg-light">
             {I18NextService.i18n.t("publish_in_time", {
-              time: formatPastDate(pv.post.scheduled_publish_time),
+              time: formatRelativeDate(pv.post.scheduled_publish_time),
             })}
           </span>
         )}{" "}
