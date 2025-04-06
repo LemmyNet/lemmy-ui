@@ -1,10 +1,9 @@
 import {
   commentsToFlatNodes,
-  editCommentReply,
-  editMention,
-  editPrivateMessage,
-  editWith,
+  editCombined,
+  editWithOne,
   enableDownvotes,
+  getUncombinedInbox,
   myAuth,
   setIsoData,
   updatePersonBlock,
@@ -18,7 +17,7 @@ import {
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -27,12 +26,12 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
-  CommentReplyResponse,
   CommentReplyView,
   CommentReportResponse,
   CommentResponse,
   CommentSortType,
   CommentView,
+  CommunityId,
   CreateComment,
   CreateCommentLike,
   CreateCommentReport,
@@ -43,19 +42,19 @@ import {
   DistinguishComment,
   EditComment,
   EditPrivateMessage,
-  GetPersonMentionsResponse,
-  GetRepliesResponse,
   GetSiteResponse,
+  InboxCombinedView,
+  InboxDataType,
   LemmyHttp,
+  ListInboxResponse,
   MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
+  MarkPersonCommentMentionAsRead,
   MarkPrivateMessageAsRead,
-  PersonMentionResponse,
-  PersonMentionView,
+  PaginationCursor,
+  PersonCommentMentionView,
   PrivateMessageReportResponse,
   PrivateMessageResponse,
   PrivateMessageView,
-  PrivateMessagesResponse,
   PurgeComment,
   PurgePerson,
   PurgePost,
@@ -64,13 +63,12 @@ import {
   SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
-import { fetchLimit, relTags } from "@utils/config";
+import { relTags } from "@utils/config";
 import { CommentViewType, InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import { UnreadCounterService } from "../../services";
 import {
   EMPTY_REQUEST,
-  EmptyRequestState,
   HttpService,
   LOADING_REQUEST,
   RequestState,
@@ -81,24 +79,18 @@ import { CommentNodes } from "../comment/comment-nodes";
 import { CommentSortSelect } from "../common/comment-sort-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import { Paginator } from "../common/paginator";
 import { PrivateMessage } from "../private_message/private-message";
 import { getHttpBaseInternal } from "../../utils/env";
 import { CommentsLoadingSkeleton } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
+import { PaginatorCursor } from "../common/paginator-cursor";
+import { PostMention } from "../post/post-mention";
 
 enum UnreadOrAll {
   Unread,
   All,
-}
-
-enum MessageType {
-  All,
-  Replies,
-  Mentions,
-  Messages,
 }
 
 enum ReplyEnum {
@@ -108,27 +100,27 @@ enum ReplyEnum {
 }
 
 type InboxData = RouteDataResponse<{
-  repliesRes: GetRepliesResponse;
-  mentionsRes: GetPersonMentionsResponse;
-  messagesRes: PrivateMessagesResponse;
+  inboxRes: ListInboxResponse;
 }>;
 
 type ReplyType = {
   id: number;
   type_: ReplyEnum;
-  view: CommentView | PrivateMessageView | PersonMentionView | CommentReplyView;
+  view:
+    | CommentView
+    | PrivateMessageView
+    | PersonCommentMentionView
+    | CommentReplyView;
   published: string;
 };
 
 interface InboxState {
   unreadOrAll: UnreadOrAll;
-  messageType: MessageType;
-  repliesRes: RequestState<GetRepliesResponse>;
-  mentionsRes: RequestState<GetPersonMentionsResponse>;
-  messagesRes: RequestState<PrivateMessagesResponse>;
-  markAllAsReadRes: RequestState<GetRepliesResponse>;
+  messageType: InboxDataType;
+  inboxRes: RequestState<ListInboxResponse>;
+  markAllAsReadRes: RequestState<SuccessResponse>;
   sort: CommentSortType;
-  page: number;
+  page?: PaginationCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
 }
@@ -141,28 +133,39 @@ export type InboxFetchConfig = IRoutePropsWithFetch<
   Record<string, never>
 >;
 
+function setRead(item: InboxCombinedView, read: boolean) {
+  switch (item.type_) {
+    case "CommentReply":
+      item.comment_reply.read = read;
+      break;
+    case "CommentMention":
+      item.person_comment_mention.read = read;
+      break;
+    case "PostMention":
+      item.person_post_mention.read = read;
+      break;
+    case "PrivateMessage":
+      item.private_message.read = read;
+      break;
+  }
+}
+
 @scrollMixin
 export class Inbox extends Component<InboxRouteProps, InboxState> {
   private isoData = setIsoData<InboxData>(this.context);
   state: InboxState = {
     unreadOrAll: UnreadOrAll.Unread,
-    messageType: MessageType.All,
+    messageType: "All",
     sort: "New",
-    page: 1,
+    page: undefined,
     siteRes: this.isoData.siteRes,
-    repliesRes: EMPTY_REQUEST,
-    mentionsRes: EMPTY_REQUEST,
-    messagesRes: EMPTY_REQUEST,
+    inboxRes: EMPTY_REQUEST,
     markAllAsReadRes: EMPTY_REQUEST,
     isIsomorphic: false,
   };
 
   loadingSettled() {
-    return resourcesSettled([
-      this.state.repliesRes,
-      this.state.mentionsRes,
-      this.state.messagesRes,
-    ]);
+    return resourcesSettled([this.state.inboxRes]);
   }
 
   constructor(props: any, context: any) {
@@ -198,13 +201,11 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const { mentionsRes, messagesRes, repliesRes } = this.isoData.routeData;
+      const { inboxRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
-        repliesRes,
-        mentionsRes,
-        messagesRes,
+        inboxRes,
         isIsomorphic: true,
       };
     }
@@ -227,20 +228,16 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
   get hasUnreads(): boolean {
     if (this.state.unreadOrAll === UnreadOrAll.Unread) {
-      const { repliesRes, mentionsRes, messagesRes } = this.state;
-      const replyCount =
-        repliesRes.state === "success" ? repliesRes.data.replies.length : 0;
-      const mentionCount =
-        mentionsRes.state === "success" ? mentionsRes.data.mentions.length : 0;
-      const messageCount =
-        messagesRes.state === "success"
-          ? messagesRes.data.private_messages.length
-          : 0;
-
-      return replyCount + mentionCount + messageCount > 0;
+      const { inboxRes } = this.state;
+      return inboxRes.state === "success" && inboxRes.data.inbox.length > 0;
     } else {
       return false;
     }
+  }
+
+  get nextPageCursor(): PaginationCursor | undefined {
+    const { inboxRes: res } = this.state;
+    return res.state === "success" ? res.data.next_page : undefined;
   }
 
   render() {
@@ -285,10 +282,9 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             )}
             {this.selects()}
             {this.section}
-            <Paginator
-              page={this.state.page}
-              onChange={this.handlePageChange}
-              nextDisabled={false}
+            <PaginatorCursor
+              nextPage={this.nextPageCursor}
+              onNext={this.handlePageChange}
             />
           </div>
         </div>
@@ -296,23 +292,18 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     );
   }
 
-  get section() {
+  get section(): InfernoNode {
     switch (this.state.messageType) {
-      case MessageType.All: {
+      case "All":
         return this.all();
-      }
-      case MessageType.Replies: {
+      case "CommentReply":
         return this.replies();
-      }
-      case MessageType.Mentions: {
-        return this.mentions();
-      }
-      case MessageType.Messages: {
+      case "CommentMention":
+        return this.commentMentions();
+      case "PostMention":
+        return this.postMentions();
+      case "PrivateMessage":
         return this.messages();
-      }
-      default: {
-        return null;
-      }
     }
   }
 
@@ -367,14 +358,14 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
           id={`${radioId}-all`}
           type="radio"
           className="btn-check"
-          value={MessageType.All}
-          checked={this.state.messageType === MessageType.All}
+          value={"All"}
+          checked={this.state.messageType === "All"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-all`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === MessageType.All,
+            active: this.state.messageType === "All",
           })}
         >
           {I18NextService.i18n.t("all")}
@@ -384,48 +375,65 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
           id={`${radioId}-replies`}
           type="radio"
           className="btn-check"
-          value={MessageType.Replies}
-          checked={this.state.messageType === MessageType.Replies}
+          value={"CommentReply"}
+          checked={this.state.messageType === "CommentReply"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-replies`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === MessageType.Replies,
+            active: this.state.messageType === "CommentReply",
           })}
         >
           {I18NextService.i18n.t("replies")}
         </label>
 
         <input
-          id={`${radioId}-mentions`}
+          id={`${radioId}-comment-mentions`}
           type="radio"
           className="btn-check"
-          value={MessageType.Mentions}
-          checked={this.state.messageType === MessageType.Mentions}
+          value={"CommentMention"}
+          checked={this.state.messageType === "CommentMention"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
-          htmlFor={`${radioId}-mentions`}
+          htmlFor={`${radioId}-comment-mentions`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === MessageType.Mentions,
+            active: this.state.messageType === "CommentMention",
           })}
         >
-          {I18NextService.i18n.t("mentions")}
+          {I18NextService.i18n.t("comments")}
+        </label>
+
+        <input
+          id={`${radioId}-post-mentions`}
+          type="radio"
+          className="btn-check"
+          value={"PostMention"}
+          checked={this.state.messageType === "PostMention"}
+          onChange={linkEvent(this, this.handleMessageTypeChange)}
+        />
+        <label
+          htmlFor={`${radioId}-post-mentions`}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active: this.state.messageType === "PostMention",
+          })}
+        >
+          {I18NextService.i18n.t("posts")}
         </label>
 
         <input
           id={`${radioId}-messages`}
           type="radio"
           className="btn-check"
-          value={MessageType.Messages}
-          checked={this.state.messageType === MessageType.Messages}
+          value={"PrivateMessage"}
+          checked={this.state.messageType === "PrivateMessage"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-messages`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === MessageType.Messages,
+            active: this.state.messageType === "PrivateMessage",
           })}
         >
           {I18NextService.i18n.t("messages")}
@@ -458,9 +466,9 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     };
   }
 
-  mentionToReplyType(r: PersonMentionView): ReplyType {
+  mentionToReplyType(r: PersonCommentMentionView): ReplyType {
     return {
-      id: r.person_mention.id,
+      id: r.person_comment_mention.id,
       type_: ReplyEnum.Mention,
       view: r,
       published: r.comment.published,
@@ -476,37 +484,14 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     };
   }
 
-  buildCombined(): ReplyType[] {
-    const replies: ReplyType[] =
-      this.state.repliesRes.state === "success"
-        ? this.state.repliesRes.data.replies.map(this.replyToReplyType)
-        : [];
-    const mentions: ReplyType[] =
-      this.state.mentionsRes.state === "success"
-        ? this.state.mentionsRes.data.mentions.map(this.mentionToReplyType)
-        : [];
-    const messages: ReplyType[] =
-      this.state.messagesRes.state === "success"
-        ? this.state.messagesRes.data.private_messages.map(
-            this.messageToReplyType,
-          )
-        : [];
-
-    return [...replies, ...mentions, ...messages].sort((a, b) =>
-      b.published.localeCompare(a.published),
-    );
-  }
-
-  renderReplyType(i: ReplyType) {
+  renderReplyType(i: InboxCombinedView) {
     const siteRes = this.state.siteRes;
     switch (i.type_) {
-      case ReplyEnum.Reply:
+      case "CommentReply":
         return (
           <CommentNodes
-            key={i.id}
-            nodes={[
-              { comment_view: i.view as CommentView, children: [], depth: 0 },
-            ]}
+            key={i.type_ + i.comment_reply.id}
+            nodes={[{ comment_view: i, children: [], depth: 0 }]}
             viewType={CommentViewType.Flat}
             markable
             showCommunity
@@ -536,13 +521,13 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             onEditComment={this.handleEditComment}
           />
         );
-      case ReplyEnum.Mention:
+      case "CommentMention":
         return (
           <CommentNodes
-            key={i.id}
+            key={i.type_ + i.person_comment_mention.id}
             nodes={[
               {
-                comment_view: i.view as PersonMentionView,
+                comment_view: i,
                 children: [],
                 depth: 0,
               },
@@ -576,11 +561,11 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             onEditComment={this.handleEditComment}
           />
         );
-      case ReplyEnum.Message:
+      case "PrivateMessage":
         return (
           <PrivateMessage
-            key={i.id}
-            private_message_view={i.view as PrivateMessageView}
+            key={i.type_ + i.private_message.id}
+            private_message_view={i}
             myUserInfo={this.isoData.myUserInfo}
             onDelete={this.handleDeleteMessage}
             onMarkRead={this.handleMarkMessageAsRead}
@@ -589,32 +574,49 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             onEdit={this.handleEditMessage}
           />
         );
-      default:
-        return <div />;
+      case "PostMention":
+        return (
+          this.isoData.myUserInfo && (
+            <PostMention
+              key={i.type_ + i.person_post_mention.id}
+              mention={i}
+              voteDisplayMode={
+                this.isoData.myUserInfo?.local_user_view
+                  .local_user_vote_display_mode
+              }
+              showAdultConsentModal={this.isoData.showAdultConsentModal}
+              myUserInfo={this.isoData.myUserInfo}
+            />
+          )
+        );
     }
   }
 
-  all() {
-    if (
-      this.state.repliesRes.state === "loading" ||
-      this.state.mentionsRes.state === "loading" ||
-      this.state.messagesRes.state === "loading"
-    ) {
+  all(): InfernoNode {
+    const { inboxRes } = this.state;
+    if (inboxRes.state === "loading") {
       return <CommentsLoadingSkeleton />;
     } else {
       return (
-        <div>{this.buildCombined().map(r => this.renderReplyType(r))}</div>
+        <div>
+          {inboxRes.state === "success" &&
+            inboxRes.data.inbox.map((r: InboxCombinedView) =>
+              this.renderReplyType(r),
+            )}
+        </div>
       );
     }
   }
 
   replies() {
     const siteRes = this.state.siteRes;
-    switch (this.state.repliesRes.state) {
+    switch (this.state.inboxRes.state) {
       case "loading":
         return <CommentsLoadingSkeleton />;
       case "success": {
-        const replies = this.state.repliesRes.data.replies;
+        const replies = this.state.inboxRes.data.inbox.filter(
+          i => i.type_ === "CommentReply",
+        );
         return (
           <div>
             <CommentNodes
@@ -653,18 +655,20 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     }
   }
 
-  mentions() {
+  commentMentions() {
     const siteRes = this.state.siteRes;
-    switch (this.state.mentionsRes.state) {
+    switch (this.state.inboxRes.state) {
       case "loading":
         return <CommentsLoadingSkeleton />;
       case "success": {
-        const mentions = this.state.mentionsRes.data.mentions;
+        const mentions = this.state.inboxRes.data.inbox.filter(
+          i => i.type_ === "CommentMention",
+        );
         return (
           <div>
             {mentions.map(umv => (
               <CommentNodes
-                key={umv.person_mention.id}
+                key={umv.person_comment_mention.id}
                 nodes={[{ comment_view: umv, children: [], depth: 0 }]}
                 viewType={CommentViewType.Flat}
                 markable
@@ -701,12 +705,44 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     }
   }
 
-  messages() {
-    switch (this.state.messagesRes.state) {
+  postMentions() {
+    switch (this.state.inboxRes.state) {
       case "loading":
         return <CommentsLoadingSkeleton />;
       case "success": {
-        const messages = this.state.messagesRes.data.private_messages;
+        const mentions = this.state.inboxRes.data.inbox.filter(
+          i => i.type_ === "PostMention",
+        );
+        return (
+          <div>
+            {mentions.map(
+              umv =>
+                this.isoData.myUserInfo && (
+                  <PostMention
+                    mention={umv}
+                    voteDisplayMode={
+                      this.isoData.myUserInfo.local_user_view
+                        .local_user_vote_display_mode
+                    }
+                    showAdultConsentModal={this.isoData.showAdultConsentModal}
+                    myUserInfo={this.isoData.myUserInfo}
+                  />
+                ),
+            )}
+          </div>
+        );
+      }
+    }
+  }
+
+  messages() {
+    switch (this.state.inboxRes.state) {
+      case "loading":
+        return <CommentsLoadingSkeleton />;
+      case "success": {
+        const messages = this.state.inboxRes.data.inbox.filter(
+          i => i.type_ === "PrivateMessage",
+        );
         return (
           <div>
             {messages.map(pmv => (
@@ -727,137 +763,94 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     }
   }
 
-  async handlePageChange(page: number) {
+  async handlePageChange(page: PaginationCursor) {
     this.setState({ page });
     await this.refetch();
   }
 
   async handleUnreadOrAllChange(i: Inbox, event: any) {
-    i.setState({ unreadOrAll: Number(event.target.value), page: 1 });
+    i.setState({ unreadOrAll: Number(event.target.value), page: undefined });
     await i.refetch();
   }
 
   async handleMessageTypeChange(i: Inbox, event: any) {
-    i.setState({ messageType: Number(event.target.value), page: 1 });
+    i.setState({
+      messageType: event.target.value as InboxDataType,
+      page: undefined,
+    });
     await i.refetch();
   }
 
   static async fetchInitialData({
     headers,
+    myUserInfo,
   }: InitialFetchRequest): Promise<InboxData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
-    const sort: CommentSortType = "New";
-    const empty: EmptyRequestState = EMPTY_REQUEST;
-    let inboxData: InboxData = {
-      mentionsRes: empty,
-      messagesRes: empty,
-      repliesRes: empty,
-    };
 
-    if (headers["Authorization"]) {
-      const [mentionsRes, messagesRes, repliesRes] = await Promise.all([
-        client.getPersonMentions({
-          sort,
+    if (myUserInfo) {
+      return {
+        inboxRes: await client.listInbox({
+          type_: "All",
           unread_only: true,
-          page: 1,
-          limit: fetchLimit,
+          page_cursor: undefined,
         }),
-        client.getPrivateMessages({
-          unread_only: true,
-          page: 1,
-          limit: fetchLimit,
-        }),
-        client.getReplies({
-          sort,
-          unread_only: true,
-          page: 1,
-          limit: fetchLimit,
-        }),
-      ]);
-
-      inboxData = { mentionsRes, messagesRes, repliesRes };
+      };
     }
 
-    return inboxData;
+    return { inboxRes: EMPTY_REQUEST };
   }
 
   refetchToken?: symbol;
   async refetch() {
     const token = (this.refetchToken = Symbol());
-    const sort = this.state.sort;
     const unread_only = this.state.unreadOrAll === UnreadOrAll.Unread;
     const page = this.state.page;
-    const limit = fetchLimit;
 
     this.setState({
-      repliesRes: LOADING_REQUEST,
-      mentionsRes: LOADING_REQUEST,
-      messagesRes: LOADING_REQUEST,
+      inboxRes: LOADING_REQUEST,
     });
-    const repliesPromise = HttpService.client
-      .getReplies({
-        sort,
+    await HttpService.client
+      .listInbox({
+        type_: this.state.messageType,
         unread_only,
-        page,
-        limit,
+        page_cursor: page,
       })
-      .then(repliesRes => {
+      .then(inboxRes => {
         if (token === this.refetchToken) {
           this.setState({
-            repliesRes,
+            inboxRes,
           });
         }
       });
-
-    const mentionsPromise = HttpService.client
-      .getPersonMentions({
-        sort,
-        unread_only,
-        page,
-        limit,
-      })
-      .then(mentionsRes => {
-        if (token === this.refetchToken) {
-          this.setState({ mentionsRes });
-        }
-      });
-
-    const messagesPromise = HttpService.client
-      .getPrivateMessages({
-        unread_only,
-        page,
-        limit,
-      })
-      .then(messagesRes => {
-        if (token === this.refetchToken) {
-          this.setState({ messagesRes });
-        }
-      });
-
-    await Promise.all([repliesPromise, mentionsPromise, messagesPromise]);
     UnreadCounterService.Instance.updateInboxCounts();
   }
 
   async handleSortChange(val: CommentSortType) {
-    this.setState({ sort: val, page: 1 });
+    this.setState({ sort: val, page: undefined });
     await this.refetch();
   }
 
   async handleMarkAllAsRead(i: Inbox) {
     i.setState({ markAllAsReadRes: LOADING_REQUEST });
 
-    i.setState({
-      markAllAsReadRes: await HttpService.client.markAllAsRead(),
-    });
+    const markAllAsReadRes =
+      await HttpService.client.markAllNotificationsAsRead();
 
-    if (i.state.markAllAsReadRes.state === "success") {
-      i.setState({
-        repliesRes: EMPTY_REQUEST,
-        mentionsRes: EMPTY_REQUEST,
-        messagesRes: EMPTY_REQUEST,
+    if (markAllAsReadRes.state === "success") {
+      this.setState(s => {
+        if (s.inboxRes.state === "success") {
+          s.inboxRes.data.inbox = s.inboxRes.data.inbox.map(e => {
+            const a = { ...e };
+            setRead(a, true);
+            return a;
+          });
+        }
+        return { inboxRes: s.inboxRes, markAllAsReadRes };
       });
+    } else {
+      i.setState({ markAllAsReadRes });
     }
   }
 
@@ -893,7 +886,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
     if (res.state === "success") {
       toast(I18NextService.i18n.t("reply_sent"));
-      this.findAndUpdateComment(res);
+      // The reply just disappears. Only replies to private messages appear in the inbox.
     }
 
     return res;
@@ -963,25 +956,25 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
     const res = await HttpService.client.markCommentReplyAsRead(form);
-    if (this.state.unreadOrAll === UnreadOrAll.All) {
-      this.findAndUpdateCommentReply(res);
-    } else {
-      await this.refetch();
+    if (res.state === "success") {
+      this.updateRead("CommentReply", form.comment_reply_id, form.read);
     }
   }
 
-  async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
-    const res = await HttpService.client.markPersonMentionAsRead(form);
-    if (this.state.unreadOrAll === UnreadOrAll.All) {
-      this.findAndUpdateMention(res);
-    } else {
-      await this.refetch();
+  async handlePersonMentionRead(form: MarkPersonCommentMentionAsRead) {
+    const res = await HttpService.client.markCommentMentionAsRead(form);
+    if (res.state === "success") {
+      this.updateRead(
+        "CommentMention",
+        form.person_comment_mention_id,
+        form.read,
+      );
     }
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBanFromCommunity(banRes);
+    this.updateBanFromCommunity(banRes, form.community_id);
   }
 
   async handleBanPerson(form: BanPerson) {
@@ -1003,12 +996,41 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     return res.state !== "failed";
   }
 
+  updateRead(type_: InboxCombinedView["type_"], id: number, read: boolean) {
+    this.setState(s => {
+      if (s.inboxRes.state === "success") {
+        s.inboxRes.data.inbox = s.inboxRes.data.inbox.map(i => {
+          let read_id: number;
+          switch (i.type_) {
+            case "CommentReply":
+              read_id = i.comment_reply.id;
+              break;
+            case "CommentMention":
+              read_id = i.person_comment_mention.id;
+              break;
+            case "PostMention":
+              read_id = i.person_post_mention.id;
+              break;
+            case "PrivateMessage":
+              read_id = i.private_message.id;
+              break;
+          }
+          if (i.type_ === type_ && read_id === id) {
+            const a = { ...i };
+            setRead(a, read);
+            return a;
+          }
+          return i;
+        });
+      }
+      return { inboxRes: s.inboxRes };
+    });
+  }
+
   async handleMarkMessageAsRead(form: MarkPrivateMessageAsRead) {
     const res = await HttpService.client.markPrivateMessageAsRead(form);
-    if (this.state.unreadOrAll === UnreadOrAll.All) {
-      this.findAndUpdateMessage(res);
-    } else {
-      await this.refetch();
+    if (res.state === "success") {
+      this.updateRead("PrivateMessage", form.private_message_id, form.read);
     }
   }
 
@@ -1020,10 +1042,11 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   async handleCreateMessage(form: CreatePrivateMessage): Promise<boolean> {
     const res = await HttpService.client.createPrivateMessage(form);
     this.setState(s => {
-      if (s.messagesRes.state === "success" && res.state === "success") {
-        s.messagesRes.data.private_messages.unshift(
-          res.data.private_message_view,
-        );
+      if (s.inboxRes.state === "success" && res.state === "success") {
+        s.inboxRes.data.inbox.unshift({
+          type_: "PrivateMessage",
+          ...res.data.private_message_view,
+        });
       }
 
       return s;
@@ -1036,35 +1059,37 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
   findAndUpdateMessage(res: RequestState<PrivateMessageResponse>) {
     this.setState(s => {
-      if (s.messagesRes.state === "success" && res.state === "success") {
-        s.messagesRes.data.private_messages = editPrivateMessage(
-          res.data.private_message_view,
-          s.messagesRes.data.private_messages,
+      if (s.inboxRes.state === "success" && res.state === "success") {
+        s.inboxRes.data.inbox = editCombined(
+          { type_: "PrivateMessage", ...res.data.private_message_view },
+          s.inboxRes.data.inbox,
+          getUncombinedInbox,
         );
       }
       return s;
     });
   }
 
-  updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
+  updateBanFromCommunity(
+    banRes: RequestState<BanFromCommunityResponse>,
+    communityId: CommunityId,
+  ) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
-        if (s.repliesRes.state === "success") {
-          s.repliesRes.data.replies
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
+        if (s.inboxRes.state === "success") {
+          s.inboxRes.data.inbox = s.inboxRes.data.inbox.map(c => {
+            if (
+              c.type_ !== "PrivateMessage" &&
+              c.community.id === communityId &&
+              c.creator.id === banRes.data.person_view.person.id
+            ) {
+              return { ...c, banned_from_community: banRes.data.banned };
+            }
+            return c;
+          });
         }
-        if (s.mentionsRes.state === "success") {
-          s.mentionsRes.data.mentions
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
-        }
-        return s;
+        return { inboxRes: s.inboxRes };
       });
     }
   }
@@ -1073,17 +1098,15 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
-        if (s.repliesRes.state === "success") {
-          s.repliesRes.data.replies
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
+        if (s.inboxRes.state === "success") {
+          s.inboxRes.data.inbox = s.inboxRes.data.inbox.map(c =>
+            c.type_ !== "PrivateMessage" &&
+            c.creator.id === banRes.data.person_view.person.id
+              ? { ...c, creator: { ...c.creator, banned: banRes.data.banned } }
+              : c,
+          );
         }
-        if (s.mentionsRes.state === "success") {
-          s.mentionsRes.data.mentions
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
-        }
-        return s;
+        return { inboxRes: s.inboxRes };
       });
     }
   }
@@ -1109,44 +1132,19 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     if (res.state === "success") {
       this.setState(s => {
-        if (s.repliesRes.state === "success") {
-          s.repliesRes.data.replies = editWith(
-            res.data.comment_view,
-            s.repliesRes.data.replies,
-          );
+        if (s.inboxRes.state === "success") {
+          s.inboxRes.data.inbox = s.inboxRes.data.inbox.map(i => {
+            if (
+              (i.type_ === "CommentReply" || i.type_ === "CommentMention") &&
+              i.comment.id === res.data.comment_view.comment.id
+            ) {
+              return editWithOne(res.data.comment_view, i);
+            }
+            return i;
+          });
         }
-        if (s.mentionsRes.state === "success") {
-          s.mentionsRes.data.mentions = editWith(
-            res.data.comment_view,
-            s.mentionsRes.data.mentions,
-          );
-        }
-        return s;
+        return { inboxRes: s.inboxRes };
       });
     }
-  }
-
-  findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
-    this.setState(s => {
-      if (s.repliesRes.state === "success" && res.state === "success") {
-        s.repliesRes.data.replies = editCommentReply(
-          res.data.comment_reply_view,
-          s.repliesRes.data.replies,
-        );
-      }
-      return s;
-    });
-  }
-
-  findAndUpdateMention(res: RequestState<PersonMentionResponse>) {
-    this.setState(s => {
-      if (s.mentionsRes.state === "success" && res.state === "success") {
-        s.mentionsRes.data.mentions = editMention(
-          res.data.person_mention_view,
-          s.mentionsRes.data.mentions,
-        );
-      }
-      return s;
-    });
   }
 }

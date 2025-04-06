@@ -45,11 +45,7 @@ export function debounce<T extends any[], R>(
 
 type ImmutableListKey =
   | "comment"
-  | "comment_reply"
-  | "person_post_mention"
-  | "person_comment_mention"
   | "community"
-  | "private_message"
   | "post"
   | "registration_application";
 

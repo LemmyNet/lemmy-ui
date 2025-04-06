@@ -1,15 +1,11 @@
 import {
-  CommentReplyView,
   CommentView,
   CommunityView,
   FederationMode,
   GetSiteResponse,
   LocalUserVoteDisplayMode,
   MyUserInfo,
-  PersonCommentMentionView,
-  PersonPostMentionView,
   PostView,
-  PrivateMessageView,
   RegistrationApplicationView,
   Search,
   Comment,
@@ -44,6 +40,11 @@ import {
   ModTransferCommunity,
   ModChangeCommunityVisibility,
   ModlogCombinedView,
+  CommentReply,
+  PersonCommentMention,
+  PersonPostMention,
+  PrivateMessage,
+  InboxCombinedView,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -211,13 +212,6 @@ export function editComment(
   return editListImmutable("comment", data, comments);
 }
 
-export function editCommentReply(
-  data: CommentReplyView,
-  replies: CommentReplyView[],
-): CommentReplyView[] {
-  return editListImmutable("comment_reply", data, replies);
-}
-
 export function editCommunity(
   data: CommunityView,
   communities: CommunityView[],
@@ -225,29 +219,8 @@ export function editCommunity(
   return editListImmutable("community", data, communities);
 }
 
-export function editPersonPostMention(
-  data: PersonPostMentionView,
-  posts: PersonPostMentionView[],
-): PersonPostMentionView[] {
-  return editListImmutable("person_post_mention", data, posts);
-}
-
-export function editPersonCommentMention(
-  data: PersonCommentMentionView,
-  comments: PersonCommentMentionView[],
-): PersonCommentMentionView[] {
-  return editListImmutable("person_comment_mention", data, comments);
-}
-
 export function editPost(data: PostView, posts: PostView[]): PostView[] {
   return editListImmutable("post", data, posts);
-}
-
-export function editPrivateMessage(
-  data: PrivateMessageView,
-  messages: PrivateMessageView[],
-): PrivateMessageView[] {
-  return editListImmutable("private_message", data, messages);
 }
 
 export function editRegistrationApplication(
@@ -257,7 +230,7 @@ export function editRegistrationApplication(
   return editListImmutable("registration_application", data, apps);
 }
 
-export function editWith<D extends WithComment, L extends WithComment>(
+export function editWithOne<D extends WithComment, T extends WithComment>(
   {
     comment,
     counts,
@@ -268,25 +241,28 @@ export function editWith<D extends WithComment, L extends WithComment>(
     creator_is_admin,
     creator_is_moderator,
   }: D,
+  one: T,
+) {
+  return {
+    ...one,
+    comment,
+    counts,
+    saved,
+    my_vote,
+    creator_banned_from_community,
+    creator_blocked,
+    creator_is_admin,
+    creator_is_moderator,
+  };
+}
+
+export function editWith<D extends WithComment, L extends WithComment>(
+  data: D,
   list: L[],
 ) {
-  return [
-    ...list.map(c =>
-      c.comment.id === comment.id
-        ? {
-            ...c,
-            comment,
-            counts,
-            saved,
-            my_vote,
-            creator_banned_from_community,
-            creator_blocked,
-            creator_is_admin,
-            creator_is_moderator,
-          }
-        : c,
-    ),
-  ];
+  return list.map(c =>
+    c.comment.id === data.comment.id ? editWithOne(data, c) : c,
+  );
 }
 
 export function commentUpvotesMode(siteRes: GetSiteResponse): FederationMode {
@@ -399,6 +375,25 @@ export function getRecipientIdFromProps(
   return props.match.params.recipient_id
     ? Number(props.match.params.recipient_id)
     : 1;
+}
+
+type InboxCombined =
+  | CommentReply
+  | PersonCommentMention
+  | PersonPostMention
+  | PrivateMessage;
+
+export function getUncombinedInbox(view: InboxCombinedView): InboxCombined {
+  switch (view.type_) {
+    case "CommentReply":
+      return view.comment_reply;
+    case "CommentMention":
+      return view.person_comment_mention;
+    case "PostMention":
+      return view.person_post_mention;
+    case "PrivateMessage":
+      return view.private_message;
+  }
 }
 
 type ModLogCombined =
