@@ -780,7 +780,7 @@ export default class ContentActionDropdown extends Component<
                 : "appoint_as_admin_are_you_sure",
               {
                 user: getApubName(creator),
-                instance: hostname(creator.actor_id),
+                instance: hostname(creator.ap_id),
               },
             )}
             loadingMessage={I18NextService.i18n.t(
