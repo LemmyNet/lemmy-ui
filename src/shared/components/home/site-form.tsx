@@ -12,6 +12,7 @@ import {
   GetSiteResponse,
   Instance,
   ListingType,
+  MyUserInfo,
 } from "lemmy-js-client";
 import deepEqual from "lodash.isequal";
 import { I18NextService } from "../../services";
@@ -34,6 +35,7 @@ interface SiteFormProps {
   onBannerRemove(): void;
   siteRes?: GetSiteResponse;
   loading: boolean;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 interface SiteFormState {
@@ -181,6 +183,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               onUpload={this.handleIconUpload}
               onRemove={this.handleIconRemove}
               rounded
+              disabled={!this.props.myUserInfo}
             />
           </div>
         </div>
@@ -194,6 +197,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               imageSrc={this.state.banner}
               onUpload={this.handleBannerUpload}
               onRemove={this.handleBannerRemove}
+              disabled={!this.props.myUserInfo}
             />
           </div>
         </div>
@@ -223,6 +227,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               hideNavigationWarnings
               allLanguages={[]}
               siteLanguages={[]}
+              myUserInfo={this.props.myUserInfo}
             />
           </div>
         </div>
@@ -237,6 +242,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               hideNavigationWarnings
               allLanguages={[]}
               siteLanguages={[]}
+              myUserInfo={this.props.myUserInfo}
             />
           </div>
         </div>
@@ -255,6 +261,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               hideNavigationWarnings
               allLanguages={[]}
               siteLanguages={[]}
+              myUserInfo={this.props.myUserInfo}
             />
           </div>
         </div>
@@ -296,6 +303,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 hideNavigationWarnings
                 allLanguages={[]}
                 siteLanguages={[]}
+                myUserInfo={this.props.myUserInfo}
               />
             </div>
           </div>
@@ -442,6 +450,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 type_={this.state.siteForm.default_post_listing_type ?? "Local"}
                 showLocal
                 showSubscribed={false}
+                myUserInfo={this.props.myUserInfo}
                 onChange={this.handleDefaultPostListingTypeChange}
               />
             </div>
@@ -511,6 +520,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           multiple={true}
           onChange={this.handleDiscussionLanguageChange}
           showAll
+          myUserInfo={this.props.myUserInfo}
         />
         <UrlListTextarea
           urls={this.state.siteForm.blocked_urls ?? []}

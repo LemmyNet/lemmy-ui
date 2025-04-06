@@ -34,12 +34,7 @@ import {
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
-import {
-  FirstLoadService,
-  HttpService,
-  I18NextService,
-  UserService,
-} from "../../services";
+import { FirstLoadService, HttpService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   LOADING_REQUEST,
@@ -168,7 +163,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   }
 
   get documentTitle(): string {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "reports",
@@ -425,6 +420,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             report={i.view as CommentReportView}
             enableDownvotes={enableDownvotes(siteRes)}
             voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
+            myUserInfo={this.isoData.myUserInfo}
             onResolveReport={this.handleResolveCommentReport}
           />
         );
@@ -436,6 +432,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             enableDownvotes={enableDownvotes(siteRes)}
             voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             enableNsfw={enableNsfw(siteRes)}
+            showAdultConsentModal={this.isoData.showAdultConsentModal}
+            myUserInfo={this.isoData.myUserInfo}
             onResolveReport={this.handleResolvePostReport}
           />
         );
@@ -500,6 +498,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   report={cr}
                   enableDownvotes={enableDownvotes(siteRes)}
                   voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
+                  myUserInfo={this.isoData.myUserInfo}
                   onResolveReport={this.handleResolveCommentReport}
                 />
               </>
@@ -532,7 +531,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   enableDownvotes={enableDownvotes(siteRes)}
                   voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                   enableNsfw={enableNsfw(siteRes)}
+                  showAdultConsentModal={this.isoData.showAdultConsentModal}
                   report={pr}
+                  myUserInfo={this.isoData.myUserInfo}
                   onResolveReport={this.handleResolvePostReport}
                 />
               </>

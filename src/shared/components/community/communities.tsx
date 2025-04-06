@@ -200,6 +200,7 @@ export class Communities extends Component<
                         this.handleFollow,
                       )}
                       isLink
+                      showRemoteFetch={!this.isoData.myUserInfo}
                     />
                   </td>
                 </tr>
@@ -229,6 +230,7 @@ export class Communities extends Component<
                 type_={listingType}
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
+                myUserInfo={this.isoData.myUserInfo}
                 onChange={this.handleListingTypeChange}
               />
             </div>

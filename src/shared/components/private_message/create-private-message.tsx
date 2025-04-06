@@ -139,6 +139,7 @@ export class CreatePrivateMessage extends Component<
                 {I18NextService.i18n.t("create_private_message")}
               </h1>
               <PrivateMessageForm
+                myUserInfo={this.isoData.myUserInfo}
                 onCreate={this.handlePrivateMessageCreate}
                 recipient={res.person_view.person}
               />

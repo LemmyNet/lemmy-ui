@@ -270,7 +270,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     this.handleEnable2fa = this.handleEnable2fa.bind(this);
     this.handleDisable2fa = this.handleDisable2fa.bind(this);
 
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.myUserInfo;
     if (mui) {
       const {
         local_user: {
@@ -762,6 +762,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 hideNavigationWarnings
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
+                myUserInfo={this.isoData.myUserInfo}
               />
             </div>
           </div>
@@ -810,6 +811,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 onUpload={this.handleAvatarUpload}
                 onRemove={this.handleAvatarRemove}
                 rounded
+                disabled={!this.isoData.myUserInfo}
               />
             </div>
           </div>
@@ -823,6 +825,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 imageSrc={this.state.saveUserSettingsForm.banner}
                 onUpload={this.handleBannerUpload}
                 onRemove={this.handleBannerRemove}
+                disabled={!this.isoData.myUserInfo}
               />
             </div>
           </div>
@@ -865,6 +868,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             showAll={true}
             showSite
             onChange={this.handleDiscussionLanguageChange}
+            myUserInfo={this.isoData.myUserInfo}
           />
           <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-theme">
@@ -906,6 +910,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 }
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
+                myUserInfo={this.isoData.myUserInfo}
                 onChange={this.handleListingTypeChange}
               />
             </div>
@@ -1249,8 +1254,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
   totpSection() {
     const totpEnabled =
-      !!UserService.Instance.myUserInfo?.local_user_view.local_user
-        .totp_2fa_enabled;
+      !!this.isoData.myUserInfo?.local_user_view.local_user.totp_2fa_enabled;
     const { generateTotpRes } = this.state;
     const totpActionStr = totpEnabled ? "disable_totp" : "enable_totp";
 
@@ -1307,7 +1311,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
       const siteRes = await HttpService.client.getSite();
 
-      UserService.Instance.myUserInfo!.local_user_view.local_user.totp_2fa_enabled =
+      this.isoData.myUserInfo!.local_user_view.local_user.totp_2fa_enabled =
         enabled;
 
       if (siteRes.state === "success") {
@@ -1477,7 +1481,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   handleShowAvatarsChange(i: Settings, event: any) {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = i.isoData.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user.show_avatars = event.target.checked;
     }
@@ -1515,7 +1519,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   handleShowScoresChange(i: Settings, event: any) {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = i.isoData.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user_vote_display_mode.score =
         event.target.checked;
@@ -1526,7 +1530,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   handleShowUpvotesChange(i: Settings, event: any) {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = i.isoData.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user_vote_display_mode.upvotes =
         event.target.checked;
@@ -1537,7 +1541,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   handleShowDownvotesChange(i: Settings, event: any) {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = i.isoData.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user_vote_display_mode.downvotes =
         event.target.checked;
@@ -1548,7 +1552,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   handleShowUpvotePercentageChange(i: Settings, event: any) {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = i.isoData.myUserInfo;
     if (mui) {
       mui.local_user_view.local_user_vote_display_mode.upvote_percentage =
         event.target.checked;
@@ -1884,7 +1888,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   personBlock(res: RequestState<BlockPersonResponse>) {
     if (res.state === "success") {
       updatePersonBlock(res.data);
-      const mui = UserService.Instance.myUserInfo;
+      const mui = this.isoData.myUserInfo;
       if (mui) {
         this.setState({ personBlocks: mui.person_blocks });
       }
@@ -1894,7 +1898,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   communityBlock(res: RequestState<BlockCommunityResponse>) {
     if (res.state === "success") {
       updateCommunityBlock(res.data);
-      const mui = UserService.Instance.myUserInfo;
+      const mui = this.isoData.myUserInfo;
       if (mui) {
         this.setState({ communityBlocks: mui.community_blocks });
       }
@@ -1913,7 +1917,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       const linkedInstances =
         this.state.instancesRes.data.federated_instances?.linked ?? [];
       updateInstanceBlock(blocked, id, linkedInstances);
-      const mui = UserService.Instance.myUserInfo;
+      const mui = this.isoData.myUserInfo;
       if (mui) {
         this.setState({ instanceBlocks: mui.instance_blocks });
       }

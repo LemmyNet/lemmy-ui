@@ -4,7 +4,6 @@ import { Component, linkEvent } from "inferno";
 import { HttpService, I18NextService } from "../../services";
 import { toast } from "@utils/app";
 import { Icon } from "./icon";
-import { MyUserInfo } from "lemmy-js-client";
 
 interface ImageUploadFormProps {
   uploadTitle: string;
@@ -12,7 +11,7 @@ interface ImageUploadFormProps {
   onUpload(url: string): any;
   onRemove(): any;
   rounded?: boolean;
-  myUserInfo?: MyUserInfo;
+  disabled: boolean;
 }
 
 interface ImageUploadFormState {
@@ -65,7 +64,7 @@ export class ImageUploadForm extends Component<
           accept="image/*,video/*"
           className="small form-control"
           name={this.id}
-          disabled={!this.props.myUserInfo}
+          disabled={this.props.disabled}
           onChange={linkEvent(this, this.handleImageUpload)}
         />
       </form>

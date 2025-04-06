@@ -1,4 +1,4 @@
-import { myAuth, setIsoData } from "@utils/app";
+import { myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import { formatPastDate, futureDaysToUnixTime, hostname } from "@utils/helpers";
@@ -26,6 +26,7 @@ import {
   LocalUserVoteDisplayMode,
   LockPost,
   MarkPostAsRead,
+  MyUserInfo,
   PersonView,
   PostResponse,
   PostView,
@@ -36,7 +37,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { relTags, torrentHelpUrl } from "@utils/config";
-import { IsoData, VoteContentType } from "@utils/types";
+import { VoteContentType } from "@utils/types";
 import { mdToHtml, mdToHtmlInline } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -82,6 +83,8 @@ interface PostListingProps {
   voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw?: boolean;
   viewOnly?: boolean;
+  showAdultConsentModal: boolean;
+  myUserInfo: MyUserInfo | undefined;
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
@@ -105,7 +108,6 @@ interface PostListingProps {
 
 @tippyMixin
 export class PostListing extends Component<PostListingProps, PostListingState> {
-  private readonly isoData: IsoData = setIsoData(this.context);
   state: PostListingState = {
     showEdit: false,
     imageExpanded: false,
@@ -143,9 +145,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   unlisten = () => {};
 
   componentWillMount(): void {
-    if (this.isoData.myUserInfo && !this.isoData.showAdultConsentModal) {
+    if (this.props.myUserInfo && !this.props.showAdultConsentModal) {
       const blur_nsfw =
-        this.isoData.myUserInfo.local_user_view.local_user.blur_nsfw;
+        this.props.myUserInfo.local_user_view.local_user.blur_nsfw;
       this.setState({
         imageExpanded: !(blur_nsfw && this.postView.post.nsfw),
       });
@@ -193,12 +195,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onEdit={this.handleEditPost}
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
+            showAdultConsentModal={this.props.showAdultConsentModal}
             enableDownvotes={this.props.enableDownvotes}
             voteDisplayMode={this.props.voteDisplayMode}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             loading={this.state.loading}
             isNsfwCommunity={this.postView.community.nsfw}
+            myUserInfo={this.props.myUserInfo}
           />
         )}
       </div>
@@ -270,7 +274,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get img() {
-    if (this.isoData.showAdultConsentModal) {
+    if (this.props.showAdultConsentModal) {
       return <></>;
     }
 
@@ -660,17 +664,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             enableDownvotes={enableDownvotes}
             voteDisplayMode={voteDisplayMode}
             myVote={my_vote}
+            disabled={!this.props.myUserInfo}
           />
         )}
 
         {showBody && body && this.viewSourceButton}
 
-        {this.isoData.myUserInfo && this.isInteractable && (
+        {this.props.myUserInfo && this.isInteractable && (
           <PostActionDropdown
             postView={this.postView}
             admins={admins}
             moderators={moderators}
             crossPostParams={this.crossPostParams}
+            myUserInfo={this.props.myUserInfo}
             onSave={this.handleSavePost}
             onReport={this.handleReport}
             onBlock={this.handleBlockPerson}
@@ -695,7 +701,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   public get linkTarget(): string {
-    return this.isoData.myUserInfo?.local_user_view.local_user
+    return this.props.myUserInfo?.local_user_view.local_user
       .open_links_in_new_tab
       ? "_blank"
       : // _self is the default target on links when the field is not specified
@@ -813,6 +819,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   voteDisplayMode={this.props.voteDisplayMode}
                   counts={this.postView.counts}
                   myVote={this.postView.my_vote}
+                  disabled={!this.props.myUserInfo}
                 />
               </div>
             )}

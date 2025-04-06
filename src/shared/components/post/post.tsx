@@ -88,7 +88,7 @@ import {
   CommentViewType,
   InitialFetchRequest,
 } from "@utils/types";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -149,8 +149,7 @@ function getQueryStringFromCommentSortType(
   siteRes: GetSiteResponse,
   myUserInfo?: MyUserInfo,
 ): undefined | string {
-  const myUser = myUserInfo ?? UserService.Instance.myUserInfo;
-  const local_user = myUser?.local_user_view.local_user;
+  const local_user = myUserInfo?.local_user_view.local_user;
   const local_site = siteRes.site_view.local_site;
   const defaultSort =
     local_user?.default_comment_sort_type ??
@@ -205,8 +204,7 @@ export function getPostQueryParams(
   siteRes: GetSiteResponse,
   myUserInfo?: MyUserInfo,
 ): PostProps {
-  const myUser = myUserInfo ?? UserService.Instance.myUserInfo;
-  const local_user = myUser?.local_user_view.local_user;
+  const local_user = myUserInfo?.local_user_view.local_user;
   const local_site = siteRes.site_view.local_site;
 
   return getQueryParams<PostProps, Fallbacks>(
@@ -583,8 +581,10 @@ export class Post extends Component<PostRouteProps, PostState> {
                 enableDownvotes={enableDownvotes(siteRes)}
                 voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                 enableNsfw={enableNsfw(siteRes)}
+                showAdultConsentModal={this.isoData.showAdultConsentModal}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
+                myUserInfo={this.isoData.myUserInfo}
                 onBlockPerson={this.handleBlockPerson}
                 onPostEdit={this.handlePostEdit}
                 onPostVote={this.handlePostVote}
@@ -623,6 +623,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   containerClass="post-comment-container"
+                  myUserInfo={this.isoData.myUserInfo}
                   onUpsertComment={this.handleCreateToplevelComment}
                 />
               )}
@@ -805,6 +806,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             showContext
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
+            myUserInfo={this.isoData.myUserInfo}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
@@ -842,6 +844,7 @@ export class Post extends Component<PostRouteProps, PostState> {
           showIcon
           allLanguages={this.state.siteRes.all_languages}
           siteLanguages={this.state.siteRes.discussion_languages}
+          myUserInfo={this.isoData.myUserInfo}
           onDeleteCommunity={this.handleDeleteCommunityClick}
           onLeaveModTeam={this.handleAddModToCommunity}
           onFollowCommunity={this.handleFollow}
@@ -915,6 +918,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
+            myUserInfo={this.isoData.myUserInfo}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
@@ -1031,7 +1035,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     // Update myUserInfo
     if (followCommunityRes.state === "success") {
       const communityId = followCommunityRes.data.community_view.community.id;
-      const mui = UserService.Instance.myUserInfo;
+      const mui = this.isoData.myUserInfo;
       if (mui) {
         mui.follows = mui.follows.filter(i => i.community.id !== communityId);
       }

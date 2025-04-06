@@ -274,6 +274,7 @@ export class CreatePost extends Component<
               enableDownvotes={enableDownvotes(siteRes)}
               voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               enableNsfw={enableNsfw(siteRes)}
+              showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes?.all_languages}
               siteLanguages={siteRes?.discussion_languages}
               selectedCommunityChoice={selectedCommunityChoice}
@@ -284,6 +285,7 @@ export class CreatePost extends Component<
                   : []
               }
               loading={loading}
+              myUserInfo={this.isoData.myUserInfo}
               onBodyBlur={this.handleBodyBlur}
               onLanguageChange={this.handleLanguageChange}
               onTitleBlur={this.handleTitleBlur}

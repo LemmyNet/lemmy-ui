@@ -87,7 +87,7 @@ import {
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -148,8 +148,7 @@ export function getCommunityQueryParams(
   siteRes: GetSiteResponse,
   myUserInfo?: MyUserInfo,
 ) {
-  const myUser = myUserInfo ?? UserService.Instance.myUserInfo;
-  const local_user = myUser?.local_user_view.local_user;
+  const local_user = myUserInfo?.local_user_view.local_user;
   const local_site = siteRes.site_view.local_site;
   return getQueryParams<CommunityProps, Fallbacks>(
     {
@@ -456,6 +455,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           allLanguages={siteRes.all_languages}
           siteLanguages={siteRes.discussion_languages}
           communityLanguages={communityLangs}
+          myUserInfo={this.isoData.myUserInfo}
           onDeleteCommunity={this.handleDeleteCommunity}
           onRemoveCommunity={this.handleRemoveCommunity}
           onLeaveModTeam={this.handleAddModToCommunity}
@@ -486,8 +486,10 @@ export class Community extends Component<CommunityRouteProps, State> {
               enableDownvotes={enableDownvotes(siteRes)}
               voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               enableNsfw={enableNsfw(siteRes)}
+              showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
+              myUserInfo={this.isoData.myUserInfo}
               onBlockPerson={this.handleBlockPerson}
               onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}
@@ -529,6 +531,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               admins={siteRes.admins}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
+              myUserInfo={this.isoData.myUserInfo}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
@@ -617,7 +620,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             onChange={this.handleDataTypeChange}
           />
         </span>
-        {dataType === DataType.Post && UserService.Instance.myUserInfo && (
+        {dataType === DataType.Post && this.isoData.myUserInfo && (
           <span className="me-3">
             <PostHiddenSelect
               showHidden={showHidden}
@@ -766,7 +769,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     // Update myUserInfo
     if (followCommunityRes.state === "success") {
       const communityId = followCommunityRes.data.community_view.community.id;
-      const mui = UserService.Instance.myUserInfo;
+      const mui = this.isoData.myUserInfo;
       if (mui) {
         mui.follows = mui.follows.filter(i => i.community.id !== communityId);
       }

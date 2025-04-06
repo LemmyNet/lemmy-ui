@@ -92,11 +92,14 @@ export default class App extends Component<AppProps, any> {
               <div tabIndex={-1} ref={this.contentRef}>
                 {RouteComponent &&
                   (isAuthPath(path ?? "") ? (
-                    <AuthGuard {...routeProps}>
+                    <AuthGuard
+                      {...routeProps}
+                      myUserInfo={this.isoData.myUserInfo}
+                    >
                       <RouteComponent key={key} {...queryProps} />
                     </AuthGuard>
                   ) : isAnonymousPath(path ?? "") ? (
-                    <AnonymousGuard>
+                    <AnonymousGuard myUserInfo={this.isoData.myUserInfo}>
                       <RouteComponent key={key} {...queryProps} />
                     </AnonymousGuard>
                   ) : (
@@ -137,9 +140,12 @@ export default class App extends Component<AppProps, any> {
               {I18NextService.i18n.t("jump_to_content", "Jump to content")}
             </button>
             {siteView && (
-              <Theme defaultTheme={siteView.local_site.default_theme} />
+              <Theme
+                defaultTheme={siteView.local_site.default_theme}
+                myUserInfo={this.isoData.myUserInfo}
+              />
             )}
-            <Navbar siteRes={siteRes} />
+            <Navbar siteRes={siteRes} myUserInfo={this.isoData.myUserInfo} />
             <main className="mt-4 p-0 fl-1">
               <Switch>
                 {this.routes}

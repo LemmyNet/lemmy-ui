@@ -4,6 +4,7 @@ import {
   CommentReportView,
   CommentView,
   LocalUserVoteDisplayMode,
+  MyUserInfo,
   ResolveCommentReport,
 } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "@utils/types";
@@ -18,6 +19,7 @@ interface CommentReportProps {
   report: CommentReportView;
   enableDownvotes?: boolean;
   voteDisplayMode: LocalUserVoteDisplayMode;
+  myUserInfo: MyUserInfo | undefined;
   onResolveReport(form: ResolveCommentReport): void;
 }
 
@@ -89,6 +91,7 @@ export class CommentReport extends Component<
           allLanguages={[]}
           siteLanguages={[]}
           hideImages
+          myUserInfo={this.props.myUserInfo}
           // All of these are unused, since its viewonly
           onSaveComment={async () => {}}
           onBlockPerson={async () => {}}

@@ -1,23 +1,21 @@
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { UserService } from "../../services";
 import { Spinner } from "./icon";
 import { getQueryString } from "@utils/helpers";
 import { isBrowser } from "@utils/browser";
+import { MyUserInfo } from "lemmy-js-client";
 
-export default class AuthGuard extends Component<
-  RouteComponentProps<Record<string, string>>,
-  any
-> {
-  constructor(
-    props: RouteComponentProps<Record<string, string>>,
-    context: any,
-  ) {
+interface AuthGuardProps extends RouteComponentProps<Record<string, string>> {
+  myUserInfo: MyUserInfo | undefined;
+}
+
+export default class AuthGuard extends Component<AuthGuardProps, any> {
+  constructor(props: AuthGuardProps, context: any) {
     super(props, context);
   }
 
   hasAuth() {
-    return UserService.Instance.myUserInfo;
+    return this.props.myUserInfo;
   }
 
   componentWillMount() {

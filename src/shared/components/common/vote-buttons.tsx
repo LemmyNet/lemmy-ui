@@ -6,7 +6,6 @@ import {
   CreateCommentLike,
   CreatePostLike,
   LocalUserVoteDisplayMode,
-  MyUserInfo,
   PostAggregates,
 } from "lemmy-js-client";
 import { VoteContentType, VoteType } from "@utils/types";
@@ -24,7 +23,7 @@ interface VoteButtonsProps {
   counts: CommentAggregates | PostAggregates;
   voteDisplayMode: LocalUserVoteDisplayMode;
   myVote?: number;
-  myUserInfo?: MyUserInfo;
+  disabled: boolean;
 }
 
 interface VoteButtonsState {
@@ -146,7 +145,7 @@ export class VoteButtonsCompact extends Component<
               this.props.voteDisplayMode,
               this.props.counts,
             )}
-            disabled={!this.props.myUserInfo}
+            disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}
             aria-label={I18NextService.i18n.t("upvote")}
             aria-pressed={this.props.myVote === 1}
@@ -172,7 +171,7 @@ export class VoteButtonsCompact extends Component<
             className={`ms-2 btn btn-sm btn-link btn-animate btn py-0 px-1 ${
               this.props.myVote === -1 ? "text-danger" : "text-muted"
             }`}
-            disabled={!this.props.myUserInfo}
+            disabled={this.props.disabled}
             onClick={linkEvent(this, handleDownvote)}
             data-tippy-content={tippy(
               this.props.voteDisplayMode,
@@ -236,7 +235,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             className={`btn-animate btn btn-link p-0 ${
               this.props.myVote === 1 ? "text-info" : "text-muted"
             }`}
-            disabled={!this.props.myUserInfo}
+            disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}
             data-tippy-content={tippy(
               this.props.voteDisplayMode,
@@ -271,7 +270,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             className={`btn-animate btn btn-link p-0 ${
               this.props.myVote === -1 ? "text-danger" : "text-muted"
             }`}
-            disabled={!this.props.myUserInfo}
+            disabled={this.props.disabled}
             onClick={linkEvent(this, handleDownvote)}
             data-tippy-content={tippy(
               this.props.voteDisplayMode,

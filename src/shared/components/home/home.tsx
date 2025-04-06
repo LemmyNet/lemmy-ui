@@ -76,7 +76,7 @@ import {
 import { fetchLimit, relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
 import { mdToHtml } from "@utils/markdown";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -191,8 +191,7 @@ export function getHomeQueryParams(
   siteRes: GetSiteResponse,
   myUserInfo?: MyUserInfo,
 ): HomeProps {
-  const myUser = myUserInfo ?? UserService.Instance.myUserInfo;
-  const local_user = myUser?.local_user_view.local_user;
+  const local_user = myUserInfo?.local_user_view.local_user;
   const local_site = siteRes.site_view.local_site;
   return getQueryParams<HomeProps, Fallbacks>(
     {
@@ -426,7 +425,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get hasFollows(): boolean {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.myUserInfo;
     return !!mui && mui.follows.length > 0;
   }
 
@@ -553,7 +552,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           >
             <div className="card-body">
               <ul className="list-inline mb-0">
-                {UserService.Instance.myUserInfo?.follows.map(cfv => (
+                {this.isoData.myUserInfo?.follows.map(cfv => (
                   <li
                     key={cfv.community.id}
                     className="list-inline-item d-inline-block"
@@ -629,8 +628,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               enableDownvotes={enableDownvotes(siteRes)}
               voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               enableNsfw={enableNsfw(siteRes)}
+              showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
+              myUserInfo={this.isoData.myUserInfo}
               onBlockPerson={this.handleBlockPerson}
               onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}
@@ -670,6 +671,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
+              myUserInfo={this.isoData.myUserInfo}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
@@ -706,7 +708,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             onChange={this.handleDataTypeChange}
           />
         </div>
-        {dataType === DataType.Post && UserService.Instance.myUserInfo && (
+        {dataType === DataType.Post && this.isoData.myUserInfo && (
           <div className="col-auto">
             <PostHiddenSelect
               showHidden={showHidden}
@@ -722,6 +724,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             }
             showLocal={showLocal(this.isoData)}
             showSubscribed
+            myUserInfo={this.isoData.myUserInfo}
             onChange={this.handleListingTypeChange}
           />
         </div>

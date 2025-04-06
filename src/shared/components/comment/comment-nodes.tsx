@@ -20,6 +20,7 @@ import {
   LocalUserVoteDisplayMode,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
+  MyUserInfo,
   PersonView,
   PurgeComment,
   PurgePerson,
@@ -51,6 +52,7 @@ interface CommentNodesProps {
   hideImages?: boolean;
   isChild?: boolean;
   depth?: number;
+  myUserInfo: MyUserInfo | undefined;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
@@ -120,6 +122,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
               hideImages={this.props.hideImages}
+              myUserInfo={this.props.myUserInfo}
               onCommentReplyRead={this.props.onCommentReplyRead}
               onPersonMentionRead={this.props.onPersonMentionRead}
               onCreateComment={this.props.onCreateComment}

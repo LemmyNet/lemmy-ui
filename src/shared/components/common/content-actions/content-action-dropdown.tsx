@@ -1,8 +1,13 @@
 import { Component } from "inferno";
-import { I18NextService, UserService } from "../../../services";
+import { I18NextService } from "../../../services";
 import { Icon } from "../icon";
 import CrossPostButton from "./cross-post-button";
-import { CommunityModeratorView, PersonView, PostView } from "lemmy-js-client";
+import {
+  CommunityModeratorView,
+  MyUserInfo,
+  PersonView,
+  PostView,
+} from "lemmy-js-client";
 import {
   amAdmin,
   amCommunityCreator,
@@ -43,6 +48,7 @@ interface ContentActionDropdownPropsBase {
   onAppointAdmin: () => Promise<void>;
   moderators?: CommunityModeratorView[];
   admins?: PersonView[];
+  myUserInfo: MyUserInfo | undefined;
 }
 
 export type ContentCommentProps = {
@@ -854,9 +860,7 @@ export default class ContentActionDropdown extends Component<
   get amCreator() {
     const { creator } = this.contentInfo;
 
-    return (
-      creator.id === UserService.Instance.myUserInfo?.local_user_view.person.id
-    );
+    return creator.id === this.props.myUserInfo?.local_user_view.person.id;
   }
 
   get canMod() {
@@ -875,19 +879,14 @@ export default class ContentActionDropdown extends Component<
       creator.id,
       this.props.moderators,
       this.props.admins,
-      UserService.Instance.myUserInfo,
+      this.props.myUserInfo,
       true,
     );
   }
 
   get canAdminOnSelf() {
     const { creator } = this.contentInfo;
-    return canAdmin(
-      creator.id,
-      this.props.admins,
-      UserService.Instance.myUserInfo,
-      true,
-    );
+    return canAdmin(creator.id, this.props.admins, this.props.myUserInfo, true);
   }
 
   wrapHandler(handler: (arg?: any) => Promise<void>) {

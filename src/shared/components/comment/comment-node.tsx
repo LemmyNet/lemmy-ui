@@ -25,6 +25,7 @@ import {
   LocalUserVoteDisplayMode,
   MarkCommentReplyAsRead,
   MarkPersonCommentMentionAsRead,
+  MyUserInfo,
   PersonCommentMentionView,
   PersonView,
   PurgeComment,
@@ -41,7 +42,7 @@ import {
   VoteContentType,
 } from "@utils/types";
 import { mdToHtml, mdToHtmlNoImages } from "@utils/markdown";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
@@ -86,6 +87,7 @@ interface CommentNodeProps {
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages?: boolean;
+  myUserInfo: MyUserInfo | undefined;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonCommentMentionAsRead): void;
@@ -271,6 +273,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
                 containerClass="comment-comment-container"
+                myUserInfo={this.props.myUserInfo}
                 onUpsertComment={this.handleEditComment}
               />
             )}
@@ -323,7 +326,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       )}
                     </button>
                   )}
-                  {UserService.Instance.myUserInfo &&
+                  {this.props.myUserInfo &&
                     !(this.props.viewOnly || banned_from_community) && (
                       <>
                         <VoteButtonsCompact
@@ -334,6 +337,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           voteDisplayMode={this.props.voteDisplayMode}
                           counts={counts}
                           myVote={my_vote}
+                          disabled={!this.props.myUserInfo}
                         />
                         <button
                           type="button"
@@ -355,6 +359,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           commentView={this.commentView}
                           admins={this.props.admins}
                           moderators={this.props.moderators}
+                          myUserInfo={this.props.myUserInfo}
                           onReply={this.handleReplyClick}
                           onReport={this.handleReportComment}
                           onBlock={this.handleBlockPerson}
@@ -412,6 +417,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             containerClass="comment-comment-container"
+            myUserInfo={this.props.myUserInfo}
             onUpsertComment={this.handleCreateComment}
           />
         )}
@@ -429,6 +435,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             hideImages={this.props.hideImages}
             isChild={!this.props.isTopLevel}
             depth={this.props.node.depth + 1}
+            myUserInfo={this.props.myUserInfo}
             onCommentReplyRead={this.props.onCommentReplyRead}
             onPersonMentionRead={this.props.onPersonMentionRead}
             onCreateComment={this.props.onCreateComment}
@@ -504,7 +511,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get myComment(): boolean {
     return (
-      UserService.Instance.myUserInfo?.local_user_view.person.id ===
+      this.props.myUserInfo?.local_user_view.person.id ===
       this.commentView.creator.id
     );
   }

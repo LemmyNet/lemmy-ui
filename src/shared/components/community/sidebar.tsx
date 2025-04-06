@@ -38,7 +38,7 @@ interface SidebarProps {
   enableNsfw?: boolean;
   showIcon?: boolean;
   editable?: boolean;
-  myUserInfo?: MyUserInfo;
+  myUserInfo: MyUserInfo | undefined;
   onDeleteCommunity(form: DeleteCommunity): void;
   onRemoveCommunity(form: RemoveCommunity): void;
   onLeaveModTeam(form: AddModToCommunity): void;
@@ -134,6 +134,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             onUpsertCommunity={this.props.onEditCommunity}
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
+            myUserInfo={this.props.myUserInfo}
           />
         )}
       </div>
@@ -160,6 +161,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     onFollow={linkEvent(this, this.handleFollowCommunity)}
                     onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
                     loading={this.state.followCommunityLoading}
+                    showRemoteFetch={!this.props.myUserInfo}
                   />
                   {this.canPost && this.createPost()}
                   {this.props.myUserInfo && this.blockCommunity()}
@@ -601,7 +603,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleLeaveModTeam(i: Sidebar) {
-    const myId = this.props.myUserInfo?.local_user_view.person.id;
+    const myId = i.props.myUserInfo?.local_user_view.person.id;
     if (myId) {
       i.setState({ leaveModTeamLoading: true });
       i.props.onLeaveModTeam({

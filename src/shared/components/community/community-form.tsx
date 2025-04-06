@@ -7,6 +7,7 @@ import {
   CreateCommunity,
   EditCommunity,
   Language,
+  MyUserInfo,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
@@ -25,6 +26,7 @@ interface CommunityFormProps {
   onUpsertCommunity(form: CreateCommunity | EditCommunity): void;
   enableNsfw?: boolean;
   loading?: boolean;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 interface CommunityFormState {
@@ -173,6 +175,7 @@ export class CommunityForm extends Component<
               onUpload={this.handleIconUpload}
               onRemove={this.handleIconRemove}
               rounded
+              disabled={!this.props.myUserInfo}
             />
           </div>
         </div>
@@ -186,6 +189,7 @@ export class CommunityForm extends Component<
               imageSrc={this.state.form.banner}
               onUpload={this.handleBannerUpload}
               onRemove={this.handleBannerRemove}
+              disabled={!this.props.myUserInfo}
             />
           </div>
         </div>
@@ -201,6 +205,7 @@ export class CommunityForm extends Component<
               hideNavigationWarnings
               allLanguages={[]}
               siteLanguages={[]}
+              myUserInfo={this.props.myUserInfo}
             />
           </div>
         </div>
@@ -267,6 +272,7 @@ export class CommunityForm extends Component<
           selectedLanguageIds={this.state.form.discussion_languages}
           multiple={true}
           onChange={this.handleDiscussionLanguageChange}
+          myUserInfo={this.props.myUserInfo}
         />
         <div className="mb-3 row">
           <div className="col-12">

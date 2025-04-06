@@ -2,7 +2,7 @@ import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
-import { HttpService, I18NextService, UserService } from "../../services";
+import { HttpService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   LOADING_REQUEST,
@@ -139,7 +139,7 @@ export class PasswordChange extends Component<
           HttpService.client.getMyUser(),
         ]);
         if (site.state === "success" && myUser.state === "success") {
-          UserService.Instance.myUserInfo = myUser.data;
+          i.isoData.myUserInfo = myUser.data;
         }
 
         i.props.history.replace("/");

@@ -83,6 +83,7 @@ export class Setup extends Component<
                 siteRes={this.isoData.siteRes}
                 themeList={this.state.themeList}
                 loading={false}
+                myUserInfo={this.isoData.myUserInfo}
               />
             )}
           </div>

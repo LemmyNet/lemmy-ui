@@ -50,6 +50,7 @@ export class CreateCommunity extends Component<
               siteLanguages={this.isoData.siteRes?.discussion_languages}
               communityLanguages={this.isoData.siteRes?.discussion_languages}
               loading={this.state.loading}
+              myUserInfo={this.isoData.myUserInfo}
             />
           </div>
         </div>
@@ -62,16 +63,15 @@ export class CreateCommunity extends Component<
 
     const res = await HttpService.client.createCommunity(form);
 
-    if (res.state === "success") {
-      const myUserInfo = window.isoData.myUserInfo!;
+    if (res.state === "success" && this.isoData.myUserInfo) {
+      const myUserInfo = this.isoData.myUserInfo;
       myUserInfo.moderates.push({
         community: res.data.community_view.community,
         moderator: myUserInfo.local_user_view.person,
       });
       const name = res.data.community_view.community.name;
       this.props.history.replace(`/c/${name}`);
-    } else {
-      this.setState({ loading: false });
     }
+    this.setState({ loading: false });
   }
 }

@@ -97,7 +97,7 @@ export class RegistrationApplications extends Component<
   }
 
   get documentTitle(): string {
-    const mui = this.props.myUserInfo;
+    const mui = this.isoData.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "registration_applications",
@@ -231,6 +231,7 @@ export class RegistrationApplications extends Component<
               key={ra.registration_application.id}
               application={ra}
               onApproveApplication={this.handleApproveApplication}
+              myUserInfo={this.isoData.myUserInfo}
             />
           </>
         ))}

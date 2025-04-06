@@ -677,6 +677,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               showLocal={showLocal(this.isoData)}
               showSubscribed
               onChange={this.handleListingTypeChange}
+              myUserInfo={this.isoData.myUserInfo}
             />
           </div>
           {(type === "All" || type === "Posts") && (
@@ -801,9 +802,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   enableDownvotes={enableDownvotes(siteRes)}
                   voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                   enableNsfw={enableNsfw(siteRes)}
+                  showAdultConsentModal={this.isoData.showAdultConsentModal}
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   viewOnly
+                  myUserInfo={this.isoData.myUserInfo}
                   // All of these are unused, since its view only
                   onPostEdit={async () => EMPTY_REQUEST}
                   onPostVote={async () => EMPTY_REQUEST}
@@ -843,6 +846,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
+                  myUserInfo={this.isoData.myUserInfo}
                   // All of these are unused, since its viewonly
                   onSaveComment={async () => {}}
                   onBlockPerson={async () => {}}
@@ -904,6 +908,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
+        myUserInfo={this.isoData.myUserInfo}
         // All of these are unused, since its viewonly
         onSaveComment={async () => {}}
         onBlockPerson={async () => {}}
@@ -954,9 +959,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 enableDownvotes={enableDownvotes(siteRes)}
                 voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                 enableNsfw={enableNsfw(siteRes)}
+                showAdultConsentModal={this.isoData.showAdultConsentModal}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 viewOnly
+                myUserInfo={this.isoData.myUserInfo}
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}
                 onPostVote={async () => EMPTY_REQUEST}

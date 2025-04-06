@@ -74,11 +74,12 @@ import {
   SuccessResponse,
   TransferCommunity,
   RegistrationApplicationResponse,
+  MyUserInfo,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
 import { mdToHtml } from "@utils/markdown";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -175,13 +176,16 @@ const getCommunitiesListing = (
 const Moderates = ({ moderates }: { moderates?: CommunityModeratorView[] }) =>
   getCommunitiesListing("moderates", moderates);
 
-const Follows = () =>
-  getCommunitiesListing("subscribed", UserService.Instance.myUserInfo?.follows);
+const Follows = ({ myUserInfo }: { myUserInfo?: MyUserInfo }) =>
+  getCommunitiesListing("subscribed", myUserInfo?.follows);
 
-function isPersonBlocked(personRes: RequestState<GetPersonDetailsResponse>) {
+function isPersonBlocked(
+  personRes: RequestState<GetPersonDetailsResponse>,
+  myUserInfo?: MyUserInfo,
+) {
   return (
     (personRes.state === "success" &&
-      UserService.Instance.myUserInfo?.person_blocks.some(
+      myUserInfo?.person_blocks.some(
         ({ id }) => id === personRes.data.person_view.person.id,
       )) ??
     false
@@ -271,7 +275,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         personDetailsRes: personRes,
         uploadsRes,
         isIsomorphic: true,
-        personBlocked: isPersonBlocked(personRes),
+        personBlocked: isPersonBlocked(personRes, this.isoData.myUserInfo),
       };
     }
   }
@@ -368,7 +372,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       this.setState({
         personRes,
         personDetailsRes: personRes,
-        personBlocked: isPersonBlocked(personRes),
+        personBlocked: isPersonBlocked(personRes, this.isoData.myUserInfo),
       });
     }
   }
@@ -376,7 +380,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   get amCurrentUser() {
     if (this.state.personRes.state === "success") {
       return (
-        UserService.Instance.myUserInfo?.local_user_view.person.id ===
+        this.isoData.myUserInfo?.local_user_view.person.id ===
         this.state.personRes.data.person_view.person.id
       );
     } else {
@@ -502,7 +506,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     enableDownvotes={enableDownvotes(siteRes)}
                     voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                     enableNsfw={enableNsfw(siteRes)}
+                    showAdultConsentModal={this.isoData.showAdultConsentModal}
                     view={view}
+                    myUserInfo={this.isoData.myUserInfo}
                     onPageChange={this.handlePageChange}
                     allLanguages={siteRes.all_languages}
                     siteLanguages={siteRes.discussion_languages}
@@ -542,7 +548,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
             <div className="col-12 col-md-4">
               <Moderates moderates={personRes.moderates} />
-              {this.amCurrentUser && <Follows />}
+              {this.amCurrentUser && (
+                <Follows myUserInfo={this.isoData.myUserInfo} />
+              )}
             </div>
           </div>
         );
@@ -679,7 +687,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 </div>
                 {this.banDialog(pv)}
                 <div className="flex-grow-1 unselectable pointer mx-2"></div>
-                {!this.amCurrentUser && UserService.Instance.myUserInfo && (
+                {!this.amCurrentUser && this.isoData.myUserInfo && (
                   <>
                     {amAdmin() && (
                       <Link
@@ -844,7 +852,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   {format(cakeDate(pv.person.published), "PPP")}
                 </span>
               </div>
-              {!UserService.Instance.myUserInfo && (
+              {!this.isoData.myUserInfo && (
                 <div className="alert alert-info" role="alert">
                   {I18NextService.i18n.t("profile_not_logged_in_alert")}
                 </div>

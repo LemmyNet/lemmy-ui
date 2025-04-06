@@ -17,7 +17,7 @@ interface LanguageSelectProps {
   iconVersion?: boolean;
   disabled?: boolean;
   showLanguageWarning?: boolean;
-  myUserInfo?: MyUserInfo;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 export class LanguageSelect extends Component<LanguageSelectProps, any> {

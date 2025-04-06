@@ -54,7 +54,7 @@ interface MarkdownTextAreaProps {
   allLanguages?: Language[];
   siteLanguages?: LanguageId[];
   renderAsDiv?: boolean;
-  myUserInfo?: MyUserInfo;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 interface ImageUploadStatus {
@@ -308,6 +308,7 @@ export class MarkdownTextArea extends Component<
                 siteLanguages={this.props.siteLanguages}
                 onChange={this.handleLanguageChange}
                 disabled={this.isDisabled}
+                myUserInfo={this.props.myUserInfo}
               />
             )}
           </div>

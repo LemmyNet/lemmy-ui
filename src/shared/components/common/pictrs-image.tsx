@@ -1,7 +1,6 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 
-import { UserService } from "../../services";
 import { setIsoData } from "@utils/app";
 import { IsoData } from "@utils/types";
 import { getStaticDir } from "@utils/env";
@@ -52,8 +51,7 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
 
     const blurImage =
       nsfw &&
-      (UserService.Instance.myUserInfo?.local_user_view.local_user.blur_nsfw ??
-        true);
+      (this.isoData.myUserInfo?.local_user_view.local_user.blur_nsfw ?? true);
 
     return (
       !this.isoData.showAdultConsentModal && (

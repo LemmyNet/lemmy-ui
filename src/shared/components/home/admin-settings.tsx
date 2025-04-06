@@ -192,6 +192,7 @@ export class AdminSettings extends Component<
                         siteRes={this.isoData.siteRes}
                         themeList={this.state.themeList}
                         loading={this.state.loading}
+                        myUserInfo={this.isoData.myUserInfo}
                       />
                     </div>
                     <div className="col-12 col-md-6">{this.admins()}</div>
@@ -247,7 +248,7 @@ export class AdminSettings extends Component<
                   id="taglines-tab-pane"
                 >
                   <div className="row">
-                    <TaglineForm />
+                    <TaglineForm myUserInfo={this.isoData.myUserInfo} />
                   </div>
                 </div>
               ),

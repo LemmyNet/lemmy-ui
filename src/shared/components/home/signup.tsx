@@ -301,6 +301,7 @@ export class Signup extends Component<SignupRouteProps, State> {
                   allLanguages={[]}
                   siteLanguages={[]}
                   renderAsDiv={true}
+                  myUserInfo={this.isoData.myUserInfo}
                 />
               </div>
             </div>
@@ -484,7 +485,7 @@ export class Signup extends Component<SignupRouteProps, State> {
 
             if (myUserRes.state === "success") {
               // TODO not sure if I can override isodata here, or if I need to reload page
-              this.isoData.myUserInfo = myUserRes.data;
+              i.isoData.myUserInfo = myUserRes.data;
             }
 
             i.props.history.replace("/communities");

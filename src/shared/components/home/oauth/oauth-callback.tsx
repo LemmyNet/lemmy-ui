@@ -42,7 +42,7 @@ interface State {
 }
 
 export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
-  private isoData = setIsoData(this.context);
+  isoData = setIsoData(this.context);
 
   state: State = {
     siteRes: this.isoData.siteRes,
@@ -162,7 +162,7 @@ async function handleOAuthLoginSuccess(
   ]);
 
   if (site.state === "success" && myUser.state === "success") {
-    UserService.Instance.myUserInfo = myUser.data;
+    i.isoData.myUserInfo = myUser.data;
     refreshTheme();
   }
 

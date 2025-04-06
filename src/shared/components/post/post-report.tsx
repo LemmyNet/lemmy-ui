@@ -2,6 +2,7 @@ import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   LocalUserVoteDisplayMode,
+  MyUserInfo,
   PostReportView,
   PostView,
   ResolvePostReport,
@@ -18,6 +19,8 @@ interface PostReportProps {
   enableDownvotes?: boolean;
   voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw?: boolean;
+  showAdultConsentModal: boolean;
+  myUserInfo: MyUserInfo | undefined;
   onResolveReport(form: ResolvePostReport): void;
 }
 
@@ -82,10 +85,12 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           enableDownvotes={this.props.enableDownvotes}
           voteDisplayMode={this.props.voteDisplayMode}
           enableNsfw={this.props.enableNsfw}
+          showAdultConsentModal={this.props.showAdultConsentModal}
           viewOnly={true}
           allLanguages={[]}
           siteLanguages={[]}
           hideImage
+          myUserInfo={this.props.myUserInfo}
           // All of these are unused, since its view only
           onPostEdit={async () => EMPTY_REQUEST}
           onPostVote={async () => EMPTY_REQUEST}

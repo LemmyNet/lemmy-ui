@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
-import { Tagline } from "lemmy-js-client";
+import { MyUserInfo, Tagline } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -22,6 +22,10 @@ function markForUpdate(editable: EditableTagline) {
   }
 }
 
+interface TaglineFormProps {
+  myUserInfo: MyUserInfo | undefined;
+}
+
 interface TaglineFormState {
   taglines: Array<EditableTagline>;
   page: number;
@@ -29,10 +33,7 @@ interface TaglineFormState {
 }
 
 @tippyMixin
-export class TaglineForm extends Component<
-  Record<never, never>,
-  TaglineFormState
-> {
+export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   state: TaglineFormState = {
     taglines: [],
     page: 1,
@@ -85,6 +86,7 @@ export class TaglineForm extends Component<
                         hideNavigationWarnings
                         allLanguages={[]}
                         siteLanguages={[]}
+                        myUserInfo={this.props.myUserInfo}
                       />
                     ) : (
                       <div>{cv.tagline.content}</div>

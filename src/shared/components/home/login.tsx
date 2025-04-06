@@ -60,8 +60,8 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
   ]);
 
   if (site.state === "success" && myUser.state === "success") {
-    UserService.Instance.myUserInfo = myUser.data;
     const isoData = setIsoData(i.context);
+    isoData.myUserInfo = myUser.data;
     isoData.siteRes.oauth_providers = site.data.oauth_providers;
     isoData.siteRes.admin_oauth_providers = site.data.admin_oauth_providers;
     refreshTheme();

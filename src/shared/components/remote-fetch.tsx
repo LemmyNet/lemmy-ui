@@ -190,6 +190,7 @@ export class RemoteFetch extends Component<
                   onFollow={linkEvent(this, handleFollow)}
                   onUnFollow={linkEvent(this, handleUnfollow)}
                   loading={this.state.followCommunityLoading}
+                  showRemoteFetch={!this.isoData.myUserInfo}
                 />
               </div>
             </div>

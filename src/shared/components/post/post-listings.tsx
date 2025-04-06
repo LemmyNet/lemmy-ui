@@ -18,6 +18,7 @@ import {
   LocalUserVoteDisplayMode,
   LockPost,
   MarkPostAsRead,
+  MyUserInfo,
   PostResponse,
   PostView,
   PurgePerson,
@@ -39,7 +40,9 @@ interface PostListingsProps {
   enableDownvotes?: boolean;
   voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw?: boolean;
+  showAdultConsentModal: boolean;
   viewOnly?: boolean;
+  myUserInfo: MyUserInfo | undefined;
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
@@ -86,9 +89,11 @@ export class PostListings extends Component<PostListingsProps, any> {
                 enableDownvotes={this.props.enableDownvotes}
                 voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
+                showAdultConsentModal={this.props.showAdultConsentModal}
                 viewOnly={this.props.viewOnly}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                myUserInfo={this.props.myUserInfo}
                 onPostEdit={this.props.onPostEdit}
                 onPostVote={this.props.onPostVote}
                 onPostReport={this.props.onPostReport}

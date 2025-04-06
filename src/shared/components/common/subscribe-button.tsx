@@ -2,7 +2,7 @@ import { getQueryString, validInstanceTLD } from "@utils/helpers";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, createRef, linkEvent } from "inferno";
-import { CommunityView, MyUserInfo } from "lemmy-js-client";
+import { CommunityView } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { VERSION } from "../../version";
 import { Icon, Spinner } from "./icon";
@@ -15,7 +15,7 @@ interface SubscribeButtonProps {
   onUnFollow: MouseEventHandler;
   loading?: boolean;
   isLink?: boolean;
-  myUserInfo?: MyUserInfo;
+  showRemoteFetch: boolean;
 }
 
 export function SubscribeButton({
@@ -27,6 +27,7 @@ export function SubscribeButton({
   onUnFollow,
   loading = false,
   isLink = false,
+  showRemoteFetch,
 }: SubscribeButtonProps) {
   let i18key: NoOptionI18nKeys;
 
@@ -53,7 +54,7 @@ export function SubscribeButton({
     isLink ? "btn-link d-inline-block" : "d-block mb-2 w-100",
   );
 
-  if (!this.props.myUserInfo) {
+  if (showRemoteFetch) {
     return (
       <>
         <button

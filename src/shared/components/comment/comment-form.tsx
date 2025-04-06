@@ -7,9 +7,10 @@ import {
   CreateComment,
   EditComment,
   Language,
+  MyUserInfo,
 } from "lemmy-js-client";
 import { CommentNodeI } from "@utils/types";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { RequestState } from "../../services/HttpService";
@@ -29,6 +30,7 @@ interface CommentFormProps {
   onUpsertComment(
     form: EditComment | CreateComment,
   ): Promise<RequestState<CommentResponse>>;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 export class CommentForm extends Component<CommentFormProps, any> {
@@ -52,7 +54,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
           " ",
         )}
       >
-        {UserService.Instance.myUserInfo ? (
+        {this.props.myUserInfo ? (
           <MarkdownTextArea
             initialContent={initialContent}
             showLanguage
@@ -65,6 +67,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
             placeholder={I18NextService.i18n.t("comment_here") ?? undefined}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            myUserInfo={this.props.myUserInfo}
           />
         ) : (
           <div className="alert alert-warning" role="alert">

@@ -66,7 +66,7 @@ import {
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { CommentViewType, InitialFetchRequest } from "@utils/types";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { FirstLoadService, I18NextService } from "../../services";
 import { UnreadCounterService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -217,7 +217,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   }
 
   get documentTitle(): string {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "inbox",
@@ -515,6 +515,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
+            myUserInfo={this.isoData.myUserInfo}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
@@ -554,6 +555,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
+            myUserInfo={this.isoData.myUserInfo}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
@@ -579,6 +581,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
           <PrivateMessage
             key={i.id}
             private_message_view={i.view as PrivateMessageView}
+            myUserInfo={this.isoData.myUserInfo}
             onDelete={this.handleDeleteMessage}
             onMarkRead={this.handleMarkMessageAsRead}
             onReport={this.handleMessageReport}
@@ -624,6 +627,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
+              myUserInfo={this.isoData.myUserInfo}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
@@ -670,6 +674,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                 voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
+                myUserInfo={this.isoData.myUserInfo}
                 onSaveComment={this.handleSaveComment}
                 onBlockPerson={this.handleBlockPerson}
                 onDeleteComment={this.handleDeleteComment}
@@ -708,6 +713,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               <PrivateMessage
                 key={pmv.private_message.id}
                 private_message_view={pmv}
+                myUserInfo={this.isoData.myUserInfo}
                 onDelete={this.handleDeleteMessage}
                 onMarkRead={this.handleMarkMessageAsRead}
                 onReport={this.handleMessageReport}

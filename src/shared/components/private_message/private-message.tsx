@@ -30,7 +30,7 @@ interface PrivateMessageState {
 
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
-  myUserInfo: MyUserInfo;
+  myUserInfo: MyUserInfo | undefined;
   onDelete(form: DeletePrivateMessage): void;
   onMarkRead(form: MarkPrivateMessageAsRead): void;
   onReport(form: CreatePrivateMessageReport): void;
@@ -64,7 +64,7 @@ export class PrivateMessage extends Component<
 
   get mine(): boolean {
     return (
-      this.props.myUserInfo.local_user_view.person.id ===
+      this.props.myUserInfo?.local_user_view.person.id ===
       this.props.private_message_view.creator.id
     );
   }
@@ -114,6 +114,7 @@ export class PrivateMessage extends Component<
             <PrivateMessageForm
               recipient={otherPerson}
               privateMessageView={message_view}
+              myUserInfo={this.props.myUserInfo}
               onEdit={this.handleEdit}
               onCancel={this.handleReplyCancel}
             />
@@ -253,6 +254,7 @@ export class PrivateMessage extends Component<
               <PrivateMessageForm
                 replyType={true}
                 recipient={otherPerson}
+                myUserInfo={this.props.myUserInfo}
                 onCreate={this.handleCreate}
                 onCancel={this.handleReplyCancel}
               />

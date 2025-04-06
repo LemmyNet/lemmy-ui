@@ -39,6 +39,7 @@ import {
   SavePost,
   PostSortType,
   TransferCommunity,
+  MyUserInfo,
 } from "lemmy-js-client";
 import { CommentViewType, PersonDetailsView } from "@utils/types";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -57,7 +58,9 @@ interface PersonDetailsProps {
   enableDownvotes: boolean;
   voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw: boolean;
+  showAdultConsentModal: boolean;
   view: PersonDetailsView;
+  myUserInfo: MyUserInfo | undefined;
   onPageChange(page: number): number | any;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
@@ -161,6 +164,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             siteLanguages={this.props.siteLanguages}
             onCommentReplyRead={this.props.onCommentReplyRead}
             onPersonMentionRead={this.props.onPersonMentionRead}
+            myUserInfo={this.props.myUserInfo}
             onCreateComment={this.props.onCreateComment}
             onEditComment={this.props.onEditComment}
             onCommentVote={this.props.onCommentVote}
@@ -192,8 +196,10 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             enableDownvotes={this.props.enableDownvotes}
             voteDisplayMode={this.props.voteDisplayMode}
             enableNsfw={this.props.enableNsfw}
+            showAdultConsentModal={this.props.showAdultConsentModal}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
+            myUserInfo={this.props.myUserInfo}
             onPostEdit={this.props.onPostEdit}
             onPostVote={this.props.onPostVote}
             onPostReport={this.props.onPostReport}
@@ -270,6 +276,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           voteDisplayMode={this.props.voteDisplayMode}
           allLanguages={this.props.allLanguages}
           siteLanguages={this.props.siteLanguages}
+          myUserInfo={this.props.myUserInfo}
           onCommentReplyRead={this.props.onCommentReplyRead}
           onPersonMentionRead={this.props.onPersonMentionRead}
           onCreateComment={this.props.onCreateComment}
@@ -306,8 +313,10 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               enableDownvotes={this.props.enableDownvotes}
               voteDisplayMode={this.props.voteDisplayMode}
               enableNsfw={this.props.enableNsfw}
+              showAdultConsentModal={this.props.showAdultConsentModal}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
+              myUserInfo={this.props.myUserInfo}
               onPostEdit={this.props.onPostEdit}
               onPostVote={this.props.onPostVote}
               onPostReport={this.props.onPostReport}

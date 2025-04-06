@@ -4,7 +4,7 @@ import { numToSI } from "@utils/helpers";
 import { amAdmin, canCreateCommunity } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
-import { GetSiteResponse } from "lemmy-js-client";
+import { GetSiteResponse, MyUserInfo } from "lemmy-js-client";
 import { donateLemmyUrl } from "@utils/config";
 import {
   I18NextService,
@@ -19,6 +19,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface NavbarProps {
   siteRes?: GetSiteResponse;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 interface NavbarState {
@@ -95,7 +96,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   // TODO class active corresponding to current pages
   render() {
     const siteView = this.props.siteRes?.site_view;
-    const person = UserService.Instance.myUserInfo?.local_user_view.person;
+    const person = this.props.myUserInfo?.local_user_view.person;
     return (
       <div className="shadow-sm">
         <nav
@@ -468,7 +469,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   requestNotificationPermission() {
-    if (UserService.Instance.myUserInfo) {
+    if (this.props.myUserInfo) {
       document.addEventListener("lemmy-hydrated", function () {
         if (!Notification) {
           toast(I18NextService.i18n.t("notifications_error"), "danger");

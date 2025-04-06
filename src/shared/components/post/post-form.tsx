@@ -20,6 +20,7 @@ import {
   Language,
   LanguageId,
   LocalUserVoteDisplayMode,
+  MyUserInfo,
   PostView,
   SearchResponse,
 } from "lemmy-js-client";
@@ -64,6 +65,7 @@ interface PostFormProps {
   onCreate?(form: CreatePost, bypassNavWarning: () => void): void;
   onEdit?(form: EditPost, bypassNavWarning: () => void): void;
   enableNsfw?: boolean;
+  showAdultConsentModal: boolean;
   enableDownvotes?: boolean;
   voteDisplayMode: LocalUserVoteDisplayMode;
   selectedCommunityChoice?: Choice;
@@ -71,6 +73,7 @@ interface PostFormProps {
   onSelectCommunity?: (choice: Choice) => void;
   initialCommunities?: CommunityView[];
   loading: boolean;
+  myUserInfo: MyUserInfo | undefined;
   onTitleBlur?: (title: string) => void;
   onUrlBlur?: (url: string) => void;
   onBodyBlur?: (body: string) => void;
@@ -523,6 +526,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               accept="image/*,video/*"
               name="file"
               className="small col-sm-10 form-control"
+              disabled={!this.props.myUserInfo}
               onChange={linkEvent(this, handleImageUpload)}
             />
             {this.state.imageLoading && <Spinner />}
@@ -542,8 +546,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 enableDownvotes={this.props.enableDownvotes}
                 voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
+                showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                myUserInfo={this.props.myUserInfo}
                 viewOnly
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}
@@ -605,6 +611,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               siteLanguages={this.props.siteLanguages}
               hideNavigationWarnings
               maxLength={postMarkdownFieldCharacterLimit}
+              myUserInfo={this.props.myUserInfo}
             />
           </div>
         </div>
@@ -614,6 +621,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           selectedLanguageIds={selectedLangs}
           multiple={false}
           onChange={this.handleLanguageChange}
+          myUserInfo={this.props.myUserInfo}
         />
         {url && isImage(url) && (
           <div className="mb-3 row">
@@ -783,8 +791,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 enableDownvotes={this.props.enableDownvotes}
                 voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
+                showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                myUserInfo={this.props.myUserInfo}
                 viewOnly
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}

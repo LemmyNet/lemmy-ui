@@ -2,6 +2,7 @@ import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   ApproveRegistrationApplication,
+  MyUserInfo,
   RegistrationApplicationView,
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
@@ -13,6 +14,7 @@ import { MomentTime } from "./moment-time";
 
 interface RegistrationApplicationProps {
   application: RegistrationApplicationView;
+  myUserInfo: MyUserInfo | undefined;
   onApproveApplication(form: ApproveRegistrationApplication): void;
 }
 
@@ -124,6 +126,7 @@ export class RegistrationApplication extends Component<
                 hideNavigationWarnings
                 allLanguages={[]}
                 siteLanguages={[]}
+                myUserInfo={this.props.myUserInfo}
               />
             </div>
           </div>
