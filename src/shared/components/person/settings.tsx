@@ -11,6 +11,7 @@ import {
   showLocal,
   updateCommunityBlock,
   updateInstanceBlock,
+  updateMyUserInfo,
   updatePersonBlock,
 } from "@utils/app";
 import { capitalizeFirstLetter, debounce } from "@utils/helpers";
@@ -1698,7 +1699,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           siteRes: siteRes.data,
         });
 
-        i.isoData.myUserInfo = userRes.data;
+        updateMyUserInfo(userRes.data);
         I18NextService.reconfigure(
           window.navigator.languages,
           userRes.data.local_user_view.local_user.interface_language,
@@ -1807,7 +1808,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           },
         } = userRes.data.local_user_view;
 
-        i.isoData.myUserInfo = userRes.data;
+        updateMyUserInfo(userRes.data);
         refreshTheme();
 
         i.setState(prev => ({

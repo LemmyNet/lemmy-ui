@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { getQueryParams, resourcesSettled, validEmail } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -484,8 +484,7 @@ export class Signup extends Component<SignupRouteProps, State> {
             const myUserRes = await HttpService.client.getMyUser();
 
             if (myUserRes.state === "success") {
-              // TODO not sure if I can override isodata here, or if I need to reload page
-              i.isoData.myUserInfo = myUserRes.data;
+              updateMyUserInfo(myUserRes.data);
             }
 
             i.props.history.replace("/communities");

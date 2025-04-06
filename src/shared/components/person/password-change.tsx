@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
@@ -139,7 +139,7 @@ export class PasswordChange extends Component<
           HttpService.client.getMyUser(),
         ]);
         if (site.state === "success" && myUser.state === "success") {
-          i.isoData.myUserInfo = myUser.data;
+          updateMyUserInfo(myUser.data);
         }
 
         i.props.history.replace("/");

@@ -546,6 +546,14 @@ export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   } else return context.router.staticContext;
 }
 
+export function updateMyUserInfo(myUserInfo: MyUserInfo | undefined) {
+  if (isBrowser()) {
+    if (window.isoData) {
+      window.isoData.myUserInfo = myUserInfo;
+    }
+  }
+}
+
 export function showAvatars(myUserInfo?: MyUserInfo): boolean {
   return myUserInfo?.local_user_view.local_user.show_avatars ?? true;
 }

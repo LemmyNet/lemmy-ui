@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { isBrowser, refreshTheme } from "@utils/browser";
 import { getQueryParams } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
@@ -61,7 +61,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
 
   if (site.state === "success" && myUser.state === "success") {
     const isoData = setIsoData(i.context);
-    isoData.myUserInfo = myUser.data;
+    updateMyUserInfo(myUser.data);
     isoData.siteRes.oauth_providers = site.data.oauth_providers;
     isoData.siteRes.admin_oauth_providers = site.data.admin_oauth_providers;
     refreshTheme();

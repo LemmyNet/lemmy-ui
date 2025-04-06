@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { Component } from "inferno";
 import { refreshTheme } from "@utils/browser";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
@@ -162,7 +162,7 @@ async function handleOAuthLoginSuccess(
   ]);
 
   if (site.state === "success" && myUser.state === "success") {
-    i.isoData.myUserInfo = myUser.data;
+    updateMyUserInfo(myUser.data);
     refreshTheme();
   }
 
