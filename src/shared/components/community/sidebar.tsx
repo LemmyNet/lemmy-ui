@@ -144,8 +144,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   sidebar() {
     const {
       community: { name, ap_id, id, posting_restricted_to_mods, visibility },
-      counts,
-      banned_from_community,
+      community_actions: { received_ban: banned_from_community } = {},
     } = this.props.community_view;
     return (
       <aside className="mb-3">
@@ -239,7 +238,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   )}
                 </p>
               </div>
-              <Badges communityId={id} counts={counts} />
+              <Badges
+                communityId={id}
+                subject={this.props.community_view.community}
+              />
               {this.mods()}
             </div>
           </section>
@@ -318,10 +320,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   blockCommunity() {
-    const { subscribed, blocked } = this.props.community_view;
+    const { community_actions: { follow_state: subscribed, blocked } = {} } =
+      this.props.community_view;
 
     return (
-      subscribed === "NotSubscribed" && (
+      subscribed === undefined && (
         <button
           className="btn btn-danger d-block mb-2 w-100"
           onClick={linkEvent(this, this.handleBlockCommunity)}
@@ -594,7 +597,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleBlockCommunity(i: Sidebar) {
-    const { community, blocked } = i.props.community_view;
+    const { community, community_actions: { blocked } = {} } =
+      i.props.community_view;
 
     i.props.onBlockCommunity({
       community_id: community.id,

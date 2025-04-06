@@ -3,7 +3,6 @@ import {
   enableDownvotes,
   enableNsfw,
   setIsoData,
-  voteDisplayMode,
 } from "@utils/app";
 import {
   bareRoutePush,
@@ -273,7 +272,6 @@ export class CreatePost extends Component<
               onCreate={this.handlePostCreate}
               params={params}
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes?.all_languages}

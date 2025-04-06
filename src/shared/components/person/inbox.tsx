@@ -1,13 +1,11 @@
 import {
   commentsToFlatNodes,
   editCombined,
-  editWithOne,
   enableDownvotes,
   getUncombinedInbox,
   myAuth,
   setIsoData,
   updatePersonBlock,
-  voteDisplayMode,
 } from "@utils/app";
 import {
   capitalizeFirstLetter,
@@ -499,7 +497,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             showCommunity
             showContext
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
@@ -539,7 +536,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             showCommunity
             showContext
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
@@ -582,10 +578,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             <PostMention
               key={i.type_ + i.person_post_mention.id}
               mention={i}
-              voteDisplayMode={
-                this.isoData.myUserInfo?.local_user_view
-                  .local_user_vote_display_mode
-              }
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               myUserInfo={this.isoData.myUserInfo}
               onMarkPostMentionAsRead={this.handleMarkPostAsRead}
@@ -629,7 +621,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               showCommunity
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               myUserInfo={this.isoData.myUserInfo}
@@ -678,7 +669,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                 showCommunity
                 showContext
                 enableDownvotes={enableDownvotes(siteRes)}
-                voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 myUserInfo={this.isoData.myUserInfo}
@@ -723,10 +713,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                 this.isoData.myUserInfo && (
                   <PostMention
                     mention={umv}
-                    voteDisplayMode={
-                      this.isoData.myUserInfo.local_user_view
-                        .local_user_vote_display_mode
-                    }
                     showAdultConsentModal={this.isoData.showAdultConsentModal}
                     myUserInfo={this.isoData.myUserInfo}
                     onMarkPostMentionAsRead={this.handleMarkPostAsRead}
@@ -1142,7 +1128,10 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               (i.type_ === "CommentReply" || i.type_ === "CommentMention") &&
               i.comment.id === res.data.comment_view.comment.id
             ) {
-              return editWithOne(res.data.comment_view, i);
+              return {
+                ...i, // Keep the reply/mention props
+                ...res.data.comment_view, // update the comment props
+              };
             }
             return i;
           });

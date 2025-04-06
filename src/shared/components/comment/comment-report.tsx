@@ -3,7 +3,6 @@ import { T } from "inferno-i18next-dess";
 import {
   CommentReportView,
   CommentView,
-  LocalUserVoteDisplayMode,
   MyUserInfo,
   ResolveCommentReport,
 } from "lemmy-js-client";
@@ -18,7 +17,6 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 interface CommentReportProps {
   report: CommentReportView;
   enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   myUserInfo: MyUserInfo | undefined;
   onResolveReport(form: ResolveCommentReport): void;
 }
@@ -62,15 +60,12 @@ export class CommentReport extends Component<
       creator: r.comment_creator,
       post: r.post,
       community: r.community,
-      creator_banned_from_community: r.creator_banned_from_community,
-      creator_is_moderator: r.creator_is_moderator,
+      community_actions: r.community_actions,
+      comment_actions: r.comment_actions,
+      person_actions: r.person_actions,
+      instance_actions: undefined, // TODO: ?
+      creator_community_actions: r.creator_community_actions,
       creator_is_admin: r.creator_is_admin,
-      counts: r.counts,
-      subscribed: "NotSubscribed",
-      saved: r.saved,
-      creator_blocked: r.creator_blocked,
-      my_vote: r.my_vote,
-      banned_from_community: false,
       can_mod: true,
     };
 
@@ -86,7 +81,6 @@ export class CommentReport extends Component<
           node={node}
           viewType={CommentViewType.Flat}
           enableDownvotes={this.props.enableDownvotes}
-          voteDisplayMode={this.props.voteDisplayMode}
           viewOnly={true}
           showCommunity={true}
           allLanguages={[]}

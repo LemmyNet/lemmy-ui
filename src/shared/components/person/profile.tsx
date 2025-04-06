@@ -5,7 +5,6 @@ import {
   getUncombinedPersonContent,
   setIsoData,
   updatePersonBlock,
-  voteDisplayMode,
 } from "@utils/app";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import {
@@ -76,6 +75,7 @@ import {
   ListPersonSavedResponse,
   PersonContentCombinedView,
   Person,
+  MarkPostAsRead,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -101,7 +101,7 @@ import { PersonListing } from "./person-listing";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { MediaUploads } from "../common/media-uploads";
-import { cakeDate, futureDaysToUnixTime } from "@utils/date";
+import { cakeDate, futureDaysToUnixTime, nowBoolean } from "@utils/date";
 import { isBrowser } from "@utils/browser";
 import DisplayModal from "../common/modal/display-modal";
 import { Paginator } from "../common/paginator";
@@ -269,6 +269,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
     this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
     this.handlePersonMentionRead = this.handlePersonMentionRead.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
     this.handlePostVote = this.handlePostVote.bind(this);
@@ -532,7 +533,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     sort={sort}
                     limit={fetchLimit}
                     enableDownvotes={enableDownvotes(siteRes)}
-                    voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                     enableNsfw={enableNsfw(siteRes)}
                     showAdultConsentModal={this.isoData.showAdultConsentModal}
                     view={view}
@@ -568,7 +568,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onSavePost={this.handleSavePost}
                     onPurgePost={this.handlePurgePost}
                     onFeaturePost={this.handleFeaturePost}
-                    onMarkPostAsRead={() => {}}
+                    onMarkPostAsRead={this.handleMarkPostAsRead}
                   />
                 ))}
             </div>
@@ -905,14 +905,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 <ul className="list-inline mb-2">
                   <li className="list-inline-item badge text-bg-light">
                     {I18NextService.i18n.t("number_of_posts", {
-                      count: Number(pv.counts.post_count),
-                      formattedCount: numToSI(pv.counts.post_count),
+                      count: Number(pv.person.post_count),
+                      formattedCount: numToSI(pv.person.post_count),
                     })}
                   </li>
                   <li className="list-inline-item badge text-bg-light">
                     {I18NextService.i18n.t("number_of_comments", {
-                      count: Number(pv.counts.comment_count),
-                      formattedCount: numToSI(pv.counts.comment_count),
+                      count: Number(pv.person.comment_count),
+                      formattedCount: numToSI(pv.person.comment_count),
                     })}
                   </li>
                 </ul>
@@ -1301,6 +1301,28 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   async handlePersonMentionRead(form: MarkPersonCommentMentionAsRead) {
     // TODO: can't find a comment from mention_id, comments don't have mention read state
     await HttpService.client.markCommentMentionAsRead(form);
+  }
+
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    if (res.state === "success") {
+      this.updateCurrentList(c => {
+        if (
+          c.type_ === "Post" &&
+          c.post.id === form.post_id &&
+          this.isoData.myUserInfo
+        ) {
+          if (!c.post_actions) {
+            c.post_actions = {
+              post_id: c.post.id,
+              person_id: this.isoData.myUserInfo.local_user_view.person.id,
+            };
+          }
+          c.post_actions.read = nowBoolean(form.read);
+        }
+        return c;
+      });
+    }
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {

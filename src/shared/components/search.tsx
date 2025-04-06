@@ -10,7 +10,6 @@ import {
   personToChoice,
   setIsoData,
   showLocal,
-  voteDisplayMode,
 } from "@utils/app";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import {
@@ -179,20 +178,17 @@ const Filter = ({
   );
 };
 
-const communityListing = ({
-  community,
-  counts: { subscribers },
-}: CommunityView) =>
+const communityListing = ({ community }: CommunityView) =>
   getListing(
     <CommunityLink community={community} />,
-    subscribers,
+    community.subscribers,
     "number_of_subscribers",
   );
 
-const personListing = ({ person, counts: { comment_count } }: PersonView) =>
+const personListing = ({ person }: PersonView) =>
   getListing(
     <PersonListing person={person} showApubName />,
-    comment_count,
+    person.comment_count,
     "number_of_comments",
   );
 
@@ -714,7 +710,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   post_view={i}
                   showCommunity
                   enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                   enableNsfw={enableNsfw(siteRes)}
                   showAdultConsentModal={this.isoData.showAdultConsentModal}
                   allLanguages={siteRes.all_languages}
@@ -757,7 +752,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   locked
                   isTopLevel
                   enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   myUserInfo={this.isoData.myUserInfo}
@@ -820,7 +814,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         locked
         isTopLevel
         enableDownvotes={enableDownvotes(siteRes)}
-        voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
         myUserInfo={this.isoData.myUserInfo}
@@ -874,7 +867,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 post_view={pv}
                 showCommunity
                 enableDownvotes={enableDownvotes(siteRes)}
-                voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}
                 allLanguages={siteRes.all_languages}
@@ -898,7 +890,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 onAddModToCommunity={async () => {}}
                 onAddAdmin={async () => {}}
                 onTransferCommunity={async () => {}}
-                onMarkPostAsRead={() => {}}
+                onMarkPostAsRead={async () => {}}
                 onHidePost={async () => {}}
               />
             </div>

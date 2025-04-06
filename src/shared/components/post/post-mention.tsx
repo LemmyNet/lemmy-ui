@@ -1,6 +1,5 @@
 import { Component, InfernoNode } from "inferno";
 import {
-  LocalUserVoteDisplayMode,
   MyUserInfo,
   MarkPostAsRead,
   PersonPostMentionView,
@@ -13,11 +12,10 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 interface PostMentionProps {
   mention: PersonPostMentionView;
   enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
-  onMarkPostMentionAsRead(form: MarkPostAsRead): void;
+  onMarkPostMentionAsRead(form: MarkPostAsRead): Promise<void>;
 }
 
 interface PostMentionState {
@@ -50,19 +48,13 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
       post,
       creator: m.creator,
       community: m.community,
-      creator_banned_from_community: m.creator_banned_from_community,
-      counts: m.counts,
-      subscribed: m.subscribed,
-      saved: m.saved,
-      read: m.person_post_mention.read, // using person_post_mention.read here
-      creator_blocked: m.creator_blocked,
-      my_vote: m.my_vote,
-      unread_comments: m.unread_comments,
-      creator_is_moderator: m.creator_is_moderator,
+      image_details: m.image_details,
+      community_actions: m.community_actions,
+      person_actions: m.person_actions,
+      post_actions: m.post_actions,
+      instance_actions: m.instance_actions,
+      creator_community_actions: m.creator_community_actions,
       creator_is_admin: m.creator_is_admin,
-      banned_from_community: m.banned_from_community,
-      hidden: m.hidden,
-      tags: { tags: [] },
       can_mod: m.can_mod,
     };
 
@@ -74,7 +66,6 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
           disableAutoMarkAsRead={true}
           showCommunity={true}
           enableDownvotes={this.props.enableDownvotes}
-          voteDisplayMode={this.props.voteDisplayMode}
           enableNsfw={this.props.enableNsfw}
           showAdultConsentModal={this.props.showAdultConsentModal}
           viewOnly={true}

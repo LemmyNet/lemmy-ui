@@ -22,7 +22,6 @@ import {
   EditComment,
   GetComments,
   Language,
-  LocalUserVoteDisplayMode,
   MarkCommentReplyAsRead,
   MarkPersonCommentMentionAsRead,
   MyUserInfo,
@@ -81,7 +80,6 @@ interface CommentNodeProps {
   showContext?: boolean;
   showCommunity?: boolean;
   enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   viewType: CommentViewType;
   allLanguages: Language[];
   siteLanguages: number[];
@@ -177,15 +175,23 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const node = this.props.node;
     const cv = this.commentView;
     const {
-      creator_is_moderator,
+      creator_community_actions: {
+        became_moderator: creator_is_moderator,
+      } = {},
+      community_actions: { received_ban: banned_from_community } = {},
+      comment_actions: { like_score: my_vote } = {},
       creator_is_admin,
-      comment: { id, language_id, published, distinguished, updated },
+      comment: {
+        id,
+        language_id,
+        published,
+        distinguished,
+        updated,
+        child_count,
+      },
       creator,
       community,
       post,
-      counts,
-      my_vote,
-      banned_from_community,
     } = this.commentView;
 
     const moreRepliesBorderColor = this.props.node.depth
@@ -196,7 +202,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       this.props.viewType === CommentViewType.Tree &&
       !this.state.collapsed &&
       node.children.length === 0 &&
-      node.comment_view.counts.child_count > 0;
+      child_count > 0;
 
     return (
       <li className="comment list-unstyled">
@@ -230,7 +236,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <UserBadges
                 classNames="ms-1"
                 isPostCreator={this.isPostCreator}
-                isMod={creator_is_moderator}
+                becameModerator={creator_is_moderator}
                 isAdmin={creator_is_admin}
                 isBot={cv.creator.bot_account}
               />
@@ -261,9 +267,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <div className="me-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
 
               <VoteDisplay
-                voteDisplayMode={this.props.voteDisplayMode}
+                myUserInfo={this.props.myUserInfo}
                 myVote={my_vote}
-                counts={counts}
+                subject={this.props.node.comment_view.comment}
               />
               <span>
                 <MomentTime published={published} updated={updated} />
@@ -341,8 +347,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           id={id}
                           onVote={this.props.onCommentVote}
                           enableDownvotes={this.props.enableDownvotes}
-                          voteDisplayMode={this.props.voteDisplayMode}
-                          counts={counts}
+                          myUserInfo={this.props.myUserInfo}
+                          subject={this.props.node.comment_view.comment}
                           myVote={my_vote}
                           disabled={!this.props.myUserInfo}
                         />
@@ -405,8 +411,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               ) : (
                 <>
                   {I18NextService.i18n.t("x_more_replies", {
-                    count: counts.child_count,
-                    formattedCount: numToSI(counts.child_count),
+                    count: child_count,
+                    formattedCount: numToSI(child_count),
                   })}{" "}
                   ➔
                 </>
@@ -433,7 +439,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             locked={this.props.locked}
             admins={this.props.admins}
             enableDownvotes={this.props.enableDownvotes}
-            voteDisplayMode={this.props.voteDisplayMode}
             viewType={this.props.viewType}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -597,7 +602,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   async handleSaveComment() {
     this.props.onSaveComment({
       comment_id: this.commentView.comment.id,
-      save: !this.commentView.saved,
+      save: !this.commentView.comment_actions?.saved,
     });
   }
 
@@ -653,7 +658,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }: BanUpdateForm) {
     const {
       creator: { id: person_id },
-      creator_banned_from_community,
+      creator_community_actions: {
+        received_ban: creator_banned_from_community,
+      } = {},
       community: { id: community_id },
     } = this.commentView;
 
@@ -711,7 +718,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.props.onAddModToCommunity({
       community_id: this.commentView.community.id,
       person_id: this.commentView.creator.id,
-      added: !this.commentView.creator_is_moderator,
+      added: !this.commentView.creator_community_actions?.became_moderator,
     });
   }
 

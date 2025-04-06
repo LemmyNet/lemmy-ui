@@ -20,7 +20,7 @@ interface SubscribeButtonProps {
 
 export function SubscribeButton({
   communityView: {
-    subscribed,
+    community_actions,
     community: { ap_id },
   },
   onFollow,
@@ -30,18 +30,21 @@ export function SubscribeButton({
   showRemoteFetch,
 }: SubscribeButtonProps) {
   let i18key: NoOptionI18nKeys;
+  const subscribed = community_actions?.follow_state;
 
   switch (subscribed) {
-    case "NotSubscribed": {
+    case undefined: {
       i18key = "subscribe";
 
       break;
     }
-    case "Subscribed": {
+    case "Accepted": {
       i18key = "joined";
 
       break;
     }
+    case "Pending":
+    case "ApprovalRequired":
     default: {
       i18key = "subscribe_pending";
 
@@ -78,13 +81,13 @@ export function SubscribeButton({
       className={classNames(buttonClass, {
         [`btn-${subscribed === "Pending" ? "warning" : "secondary"}`]: !isLink,
       })}
-      onClick={subscribed === "NotSubscribed" ? onFollow : onUnFollow}
+      onClick={!subscribed ? onFollow : onUnFollow}
     >
       {loading ? (
         <Spinner />
       ) : (
         <>
-          {subscribed === "Subscribed" && (
+          {subscribed === "Accepted" && (
             <Icon icon="check" classes="icon-inline me-1" />
           )}
           {I18NextService.i18n.t(i18key)}

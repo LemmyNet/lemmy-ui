@@ -9,10 +9,8 @@ import {
   mixedToCommentSortType,
   mixedToPostSortType,
   setIsoData,
-  showLocal,
   updateCommunityBlock,
   updatePersonBlock,
-  voteDisplayMode,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -117,6 +115,7 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
 import { CommunityHeader } from "./community-header";
+import { nowBoolean } from "@utils/date";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -449,9 +448,9 @@ export class Community extends Component<CommunityRouteProps, State> {
     const haveUnread =
       dataType === DataType.Post &&
       postsRes.state === "success" &&
-      postsRes.data.posts.some(p => !p.read);
+      postsRes.data.posts.some(p => !p.post_actions?.read);
 
-    if (!haveUnread) return undefined;
+    if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
       <div class="my-2">
         <button
@@ -471,7 +470,9 @@ export class Community extends Component<CommunityRouteProps, State> {
     const post_ids =
       dataType === DataType.Post &&
       postsRes.state === "success" &&
-      postsRes.data.posts.filter(p => !p.read).map(p => p.post.id);
+      postsRes.data.posts
+        .filter(p => !p.post_actions?.read)
+        .map(p => p.post.id);
 
     if (post_ids && post_ids.length) {
       i.setState({ markPageAsReadLoading: true });
@@ -481,9 +482,17 @@ export class Community extends Component<CommunityRouteProps, State> {
       if (res.state === "success") {
         i.setState(s => {
           if (s.postsRes.state === "success") {
-            s.postsRes.data.posts = s.postsRes.data.posts.map(p =>
-              post_ids.includes(p.post.id) ? { ...p, read: true } : p,
-            );
+            s.postsRes.data.posts.forEach(p => {
+              if (post_ids.includes(p.post.id) && i.isoData.myUserInfo) {
+                if (!p.post_actions) {
+                  p.post_actions = {
+                    post_id: p.post.id,
+                    person_id: i.isoData.myUserInfo.local_user_view.person.id,
+                  };
+                }
+                p.post_actions.read = nowBoolean(true);
+              }
+            });
           }
           return { postsRes: s.postsRes, markPageAsReadLoading: false };
         });
@@ -526,7 +535,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           onEditCommunity={this.handleEditCommunity}
         />
         {!res.community_view.community.local && res.site && (
-          <SiteSidebar site={res.site} showLocal={showLocal(this.isoData)} />
+          <SiteSidebar site={res.site} />
         )}
       </>
     );
@@ -545,7 +554,6 @@ export class Community extends Component<CommunityRouteProps, State> {
             <PostListings
               posts={this.state.postsRes.data.posts}
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               markable
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
@@ -588,7 +596,6 @@ export class Community extends Component<CommunityRouteProps, State> {
               isTopLevel
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               admins={siteRes.admins}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
@@ -827,9 +834,17 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (blockCommunityRes.state === "success") {
       updateCommunityBlock(blockCommunityRes.data);
       this.setState(s => {
-        if (s.communityRes.state === "success") {
-          s.communityRes.data.community_view.blocked =
-            blockCommunityRes.data.blocked;
+        if (s.communityRes.state === "success" && this.isoData.myUserInfo) {
+          const cv = s.communityRes.data.community_view;
+          if (!cv.community_actions) {
+            cv.community_actions = {
+              community_id: cv.community.id,
+              person_id: this.isoData.myUserInfo?.local_user_view.local_user.id,
+            };
+          }
+          cv.community_actions.blocked = nowBoolean(
+            blockCommunityRes.data.blocked,
+          );
         }
       });
     }
@@ -914,9 +929,17 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (res.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.posts = s.postsRes.data.posts.map(p =>
-            p.post.id === form.post_id ? { ...p, read: form.read } : p,
-          );
+          s.postsRes.data.posts.forEach(p => {
+            if (p.post.id === form.post_id && this.isoData.myUserInfo) {
+              if (!p.post_actions) {
+                p.post_actions = {
+                  post_id: p.post.id,
+                  person_id: this.isoData.myUserInfo.local_user_view.person.id,
+                };
+              }
+              p.post_actions.read = nowBoolean(form.read);
+            }
+          });
         }
         return { postsRes: s.postsRes };
       });
@@ -964,11 +987,17 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     if (hideRes.state === "success") {
       this.setState(prev => {
-        if (prev.postsRes.state === "success") {
+        if (prev.postsRes.state === "success" && this.isoData.myUserInfo) {
           for (const post of prev.postsRes.data.posts.filter(
             p => form.post_id === p.post.id,
           )) {
-            post.hidden = form.hide;
+            if (!post.post_actions) {
+              post.post_actions = {
+                post_id: post.post.id,
+                person_id: this.isoData.myUserInfo?.local_user_view.person.id,
+              };
+            }
+            post.post_actions.hidden = nowBoolean(form.hide);
           }
         }
 
@@ -1026,16 +1055,32 @@ export class Community extends Component<CommunityRouteProps, State> {
         if (s.postsRes.state === "success") {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
+            .forEach(c => {
+              if (!c.creator_community_actions) {
+                c.creator_community_actions = {
+                  community_id: c.community.id,
+                  person_id: c.creator.id,
+                };
+              }
+              c.creator_community_actions.received_ban = nowBoolean(
+                banRes.data.banned,
+              );
+            });
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
+            .forEach(c => {
+              if (!c.creator_community_actions) {
+                c.creator_community_actions = {
+                  community_id: c.community.id,
+                  person_id: c.creator.id,
+                };
+              }
+              c.creator_community_actions.received_ban = nowBoolean(
+                banRes.data.banned,
+              );
+            });
         }
         return s;
       });

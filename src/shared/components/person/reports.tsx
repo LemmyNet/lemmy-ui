@@ -4,7 +4,6 @@ import {
   enableNsfw,
   getUncombinedReport,
   setIsoData,
-  voteDisplayMode,
   toast,
 } from "@utils/app";
 import { randomStr, resourcesSettled } from "@utils/helpers";
@@ -349,7 +348,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             key={i.type_ + i.comment_report.id}
             report={i}
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             myUserInfo={this.isoData.myUserInfo}
             onResolveReport={this.handleResolveCommentReport}
           />
@@ -360,7 +358,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             key={i.type_ + i.post_report.id}
             report={i}
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             enableNsfw={enableNsfw(siteRes)}
             showAdultConsentModal={this.isoData.showAdultConsentModal}
             myUserInfo={this.isoData.myUserInfo}
@@ -429,7 +426,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   key={cr.comment_report.id}
                   report={cr}
                   enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                   myUserInfo={this.isoData.myUserInfo}
                   onResolveReport={this.handleResolveCommentReport}
                 />
@@ -461,7 +457,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                 <PostReport
                   key={pr.post_report.id}
                   enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                   enableNsfw={enableNsfw(siteRes)}
                   showAdultConsentModal={this.isoData.showAdultConsentModal}
                   report={pr}

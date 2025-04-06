@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { PersonView, Site, SiteAggregates } from "lemmy-js-client";
+import { LocalSite, PersonView, Site } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { Badges } from "../common/badges";
@@ -11,8 +11,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface SiteSidebarProps {
   site: Site;
-  showLocal: boolean;
-  counts?: SiteAggregates;
+  localSite?: LocalSite;
   admins?: PersonView[];
   isMobile?: boolean;
 }
@@ -93,7 +92,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
       <div>
         {site.description && <h6>{site.description}</h6>}
         {site.sidebar && this.siteSidebar(site.sidebar)}
-        {this.props.counts && <Badges counts={this.props.counts} />}
+        {this.props.localSite && <Badges subject={this.props.localSite} />}
         {this.props.admins && this.admins(this.props.admins)}
       </div>
     );

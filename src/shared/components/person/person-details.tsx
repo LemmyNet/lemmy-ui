@@ -20,7 +20,6 @@ import {
   FeaturePost,
   GetComments,
   Language,
-  LocalUserVoteDisplayMode,
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonCommentMentionAsRead,
@@ -56,7 +55,6 @@ interface PersonDetailsProps {
   limit: number;
   sort: PostSortType;
   enableDownvotes: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw: boolean;
   showAdultConsentModal: boolean;
   view: PersonContentType;
@@ -90,7 +88,7 @@ interface PersonDetailsProps {
   onSavePost(form: SavePost): Promise<void>;
   onFeaturePost(form: FeaturePost): Promise<void>;
   onPurgePost(form: PurgePost): Promise<void>;
-  onMarkPostAsRead(form: MarkPostAsRead): void;
+  onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
 }
 
 export class PersonDetails extends Component<PersonDetailsProps, any> {
@@ -140,7 +138,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             showCommunity
             showContext
             enableDownvotes={this.props.enableDownvotes}
-            voteDisplayMode={this.props.voteDisplayMode}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             onCommentReplyRead={this.props.onCommentReplyRead}
@@ -174,12 +171,12 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             admins={this.props.admins}
             showCommunity
             enableDownvotes={this.props.enableDownvotes}
-            voteDisplayMode={this.props.voteDisplayMode}
             enableNsfw={this.props.enableNsfw}
             showAdultConsentModal={this.props.showAdultConsentModal}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             myUserInfo={this.props.myUserInfo}
+            markable
             onPostEdit={this.props.onPostEdit}
             onPostVote={this.props.onPostVote}
             onPostReport={this.props.onPostReport}
@@ -229,7 +226,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           showCommunity
           showContext
           enableDownvotes={this.props.enableDownvotes}
-          voteDisplayMode={this.props.voteDisplayMode}
           allLanguages={this.props.allLanguages}
           siteLanguages={this.props.siteLanguages}
           myUserInfo={this.props.myUserInfo}
@@ -268,12 +264,12 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               admins={this.props.admins}
               showCommunity
               enableDownvotes={this.props.enableDownvotes}
-              voteDisplayMode={this.props.voteDisplayMode}
               enableNsfw={this.props.enableNsfw}
               showAdultConsentModal={this.props.showAdultConsentModal}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
               myUserInfo={this.props.myUserInfo}
+              markable
               onPostEdit={this.props.onPostEdit}
               onPostVote={this.props.onPostVote}
               onPostReport={this.props.onPostReport}

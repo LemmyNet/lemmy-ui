@@ -11,7 +11,6 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
-  voteDisplayMode,
 } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import {
@@ -66,6 +65,7 @@ import {
   LemmyHttp,
   LockPost,
   MarkCommentReplyAsRead,
+  MarkPostAsRead,
   MyUserInfo,
   PostResponse,
   PurgeComment,
@@ -105,6 +105,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { compareAsc, compareDesc } from "date-fns";
+import { nowBoolean } from "@utils/date";
 
 const commentsShownInterval = 15;
 
@@ -277,6 +278,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
     this.handleFetchChildren = this.handleFetchChildren.bind(this);
     this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
     this.handlePostEdit = this.handlePostEdit.bind(this);
@@ -574,7 +576,6 @@ export class Post extends Component<PostRouteProps, PostState> {
                 showCommunity
                 admins={siteRes.admins}
                 enableDownvotes={enableDownvotes(siteRes)}
-                voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
                 markable
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}
@@ -597,7 +598,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onAddAdmin={this.handleAddAdmin}
                 onTransferCommunity={this.handleTransferCommunity}
                 onFeaturePost={this.handleFeaturePost}
-                onMarkPostAsRead={() => {}}
+                onMarkPostAsRead={this.handleMarkPostAsRead}
                 onHidePost={this.handleHidePost}
                 onScrollIntoCommentsClick={this.handleScrollIntoCommentsClick}
               />
@@ -606,7 +607,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               {/* Only show the top level comment form if its not a context view */}
               {!(
                 getCommentIdFromProps(this.props) ||
-                res.post_view.banned_from_community
+                res.post_view.community_actions?.received_ban
               ) && (
                 <CommentForm
                   key={
@@ -797,7 +798,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             locked={postRes.data.post_view.post.locked}
             admins={siteRes.admins}
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             showContext
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
@@ -909,7 +909,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             locked={res.data.post_view.post.locked}
             admins={siteRes.admins}
             enableDownvotes={enableDownvotes(siteRes)}
-            voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
@@ -1061,9 +1060,17 @@ export class Post extends Component<PostRouteProps, PostState> {
     if (blockCommunityRes.state === "success") {
       updateCommunityBlock(blockCommunityRes.data);
       this.setState(s => {
-        if (s.postRes.state === "success") {
-          s.postRes.data.community_view.blocked =
-            blockCommunityRes.data.blocked;
+        if (s.postRes.state === "success" && this.isoData.myUserInfo) {
+          const pv = s.postRes.data.post_view;
+          if (!pv.community_actions) {
+            pv.community_actions = {
+              community_id: blockCommunityRes.data.community_view.community.id,
+              person_id: this.isoData.myUserInfo.local_user_view.person.id,
+            };
+          }
+          pv.community_actions.blocked = nowBoolean(
+            blockCommunityRes.data.blocked,
+          );
         }
       });
     }
@@ -1270,6 +1277,25 @@ export class Post extends Component<PostRouteProps, PostState> {
     await HttpService.client.markCommentReplyAsRead(form);
   }
 
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    if (res.state === "success") {
+      this.setState(s => {
+        if (s.postRes.state === "success" && this.isoData.myUserInfo) {
+          const pv = s.postRes.data.post_view;
+          if (!pv.post_actions) {
+            pv.post_actions = {
+              post_id: form.post_id,
+              person_id: this.isoData.myUserInfo.local_user_view.person.id,
+            };
+          }
+          pv.post_actions.read = nowBoolean(form.read);
+        }
+        return { postRes: s.postRes };
+      });
+    }
+  }
+
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
@@ -1306,8 +1332,15 @@ export class Post extends Component<PostRouteProps, PostState> {
 
     if (hideRes.state === "success") {
       this.setState(s => {
-        if (s.postRes.state === "success") {
-          s.postRes.data.post_view.hidden = form.hide;
+        if (s.postRes.state === "success" && this.isoData.myUserInfo) {
+          const pv = s.postRes.data.post_view;
+          if (!pv.post_actions) {
+            pv.post_actions = {
+              post_id: form.post_id,
+              person_id: this.isoData.myUserInfo.local_user_view.person.id,
+            };
+          }
+          pv.post_actions.hidden = nowBoolean(form.hide);
         }
 
         return s;
@@ -1326,15 +1359,31 @@ export class Post extends Component<PostRouteProps, PostState> {
           s.postRes.data.post_view.creator.id ===
             banRes.data.person_view.person.id
         ) {
-          s.postRes.data.post_view.creator_banned_from_community =
-            banRes.data.banned;
+          const pv = s.postRes.data.post_view;
+          if (!pv.creator_community_actions) {
+            pv.creator_community_actions = {
+              community_id: pv.community.id,
+              person_id: banRes.data.person_view.person.id,
+            };
+          }
+          pv.creator_community_actions.received_ban = nowBoolean(
+            banRes.data.banned,
+          );
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
+            .forEach(c => {
+              if (!c.creator_community_actions) {
+                c.creator_community_actions = {
+                  community_id: c.community.id,
+                  person_id: banRes.data.person_view.person.id,
+                };
+              }
+              c.creator_community_actions.received_ban = nowBoolean(
+                banRes.data.banned,
+              );
+            });
         }
         return s;
       });

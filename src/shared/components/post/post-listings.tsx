@@ -15,7 +15,6 @@ import {
   HidePost,
   Language,
   LanguageId,
-  LocalUserVoteDisplayMode,
   LockPost,
   MarkPostAsRead,
   MyUserInfo,
@@ -38,7 +37,6 @@ interface PostListingsProps {
   showCommunity?: boolean;
   removeDuplicates?: boolean;
   enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   markable?: boolean;
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
@@ -89,7 +87,6 @@ export class PostListings extends Component<PostListingsProps, any> {
                 crossPosts={this.duplicatesMap.get(post_view.post.id)}
                 showCommunity={this.props.showCommunity}
                 enableDownvotes={this.props.enableDownvotes}
-                voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 viewOnly={this.props.viewOnly}

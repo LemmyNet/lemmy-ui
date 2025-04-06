@@ -69,3 +69,7 @@ export function unixTimeToLocalDateStr(unixTime?: number): string | undefined {
 function convertUTCDateToLocalDate(date: Date): Date {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
 }
+
+export function nowBoolean(bool?: boolean): string | undefined {
+  return bool ? new Date().toISOString() : undefined;
+}

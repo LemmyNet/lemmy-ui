@@ -226,9 +226,13 @@ export default class ContentActionDropdown extends Component<
                 {type === "post" && (
                   <li>
                     <ActionButton
-                      icon={this.props.postView.hidden ? "eye" : "eye-slash"}
+                      icon={
+                        this.props.postView.post_actions?.hidden
+                          ? "eye"
+                          : "eye-slash"
+                      }
                       label={I18NextService.i18n.t(
-                        this.props.postView.hidden
+                        this.props.postView.post_actions?.hidden
                           ? "unhide_post"
                           : "hide_post",
                       )}
@@ -704,7 +708,7 @@ export default class ContentActionDropdown extends Component<
             onCancel={this.hideAllDialogs}
             isBanned={
               banType === BanType.Community
-                ? creator_banned_from_community
+                ? !!creator_banned_from_community
                 : banType === BanType.Site
                   ? creator.banned
                   : false
@@ -806,12 +810,14 @@ export default class ContentActionDropdown extends Component<
     if (this.props.type === "post") {
       const {
         post: { id, deleted, locked, removed },
-        saved,
+        post_actions: { saved } = {},
         creator,
-        creator_banned_from_community,
+        creator_community_actions: {
+          received_ban: creator_banned_from_community,
+          became_moderator: creator_is_moderator,
+        } = {},
         community,
         creator_is_admin,
-        creator_is_moderator,
       } = this.props.postView;
 
       return {
@@ -829,12 +835,14 @@ export default class ContentActionDropdown extends Component<
     } else {
       const {
         comment: { id, deleted, removed },
-        saved,
+        comment_actions: { saved } = {},
         creator,
-        creator_banned_from_community,
+        creator_community_actions: {
+          received_ban: creator_banned_from_community,
+          became_moderator: creator_is_moderator,
+        } = {},
         community,
         creator_is_admin,
-        creator_is_moderator,
       } = this.props.commentView;
 
       return {

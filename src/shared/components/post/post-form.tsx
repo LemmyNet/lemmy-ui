@@ -19,7 +19,6 @@ import {
   GetSiteMetadataResponse,
   Language,
   LanguageId,
-  LocalUserVoteDisplayMode,
   MyUserInfo,
   PostView,
   SearchResponse,
@@ -68,7 +67,6 @@ interface PostFormProps {
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
   enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   selectedCommunityChoice?: Choice;
   isNsfwCommunity: boolean;
   onSelectCommunity?: (choice: Choice) => void;
@@ -577,7 +575,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 showCommunity
                 posts={this.props.crossPosts}
                 enableDownvotes={this.props.enableDownvotes}
-                voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
@@ -822,7 +819,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 showCommunity
                 posts={suggestedPosts}
                 enableDownvotes={this.props.enableDownvotes}
-                voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}

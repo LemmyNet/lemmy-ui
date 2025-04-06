@@ -1,7 +1,6 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
-  LocalUserVoteDisplayMode,
   MyUserInfo,
   PostReportView,
   PostView,
@@ -17,7 +16,6 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 interface PostReportProps {
   report: PostReportView;
   enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
@@ -62,20 +60,14 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       post,
       creator: r.post_creator,
       community: r.community,
-      creator_banned_from_community: r.creator_banned_from_community,
-      counts: r.counts,
-      subscribed: "NotSubscribed",
-      saved: r.saved,
-      read: false,
-      creator_blocked: false,
-      my_vote: r.my_vote,
-      unread_comments: 0,
-      creator_is_moderator: false,
-      creator_is_admin: false,
-      banned_from_community: false,
-      hidden: false,
-      can_mod: false,
-      tags: { tags: [] },
+      image_details: undefined, // TODO: ?
+      community_actions: r.community_actions,
+      person_actions: r.person_actions,
+      post_actions: r.post_actions,
+      instance_actions: undefined, // TODO: ?
+      creator_community_actions: r.creator_community_actions,
+      creator_is_admin: r.creator_is_admin,
+      can_mod: true, // TODO: Reports are only shown to users that can_mod?
     };
 
     return (
@@ -84,7 +76,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           post_view={pv}
           showCommunity={true}
           enableDownvotes={this.props.enableDownvotes}
-          voteDisplayMode={this.props.voteDisplayMode}
           enableNsfw={this.props.enableNsfw}
           showAdultConsentModal={this.props.showAdultConsentModal}
           viewOnly={true}

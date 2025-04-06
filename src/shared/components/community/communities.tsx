@@ -172,16 +172,16 @@ export class Communities extends Component<
                     <CommunityLink community={cv.community} />
                   </td>
                   <td className="text-right">
-                    {numToSI(cv.counts.subscribers)}
+                    {numToSI(cv.community.subscribers)}
                   </td>
                   <td className="text-right">
-                    {numToSI(cv.counts.users_active_month)}
+                    {numToSI(cv.community.users_active_month)}
                   </td>
                   <td className="text-right d-none d-lg-table-cell">
-                    {numToSI(cv.counts.posts)}
+                    {numToSI(cv.community.posts)}
                   </td>
                   <td className="text-right d-none d-lg-table-cell">
-                    {numToSI(cv.counts.comments)}
+                    {numToSI(cv.community.comments)}
                   </td>
                   <td className="text-right">
                     <SubscribeButton

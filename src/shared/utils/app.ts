@@ -3,7 +3,6 @@ import {
   CommunityView,
   FederationMode,
   GetSiteResponse,
-  LocalUserVoteDisplayMode,
   MyUserInfo,
   PostView,
   RegistrationApplicationView,
@@ -64,7 +63,6 @@ import {
   CommunityTribute,
   PersonTribute,
   ThemeColor,
-  WithComment,
 } from "@utils/types";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -215,41 +213,6 @@ export function editRegistrationApplication(
   return editListImmutable("registration_application", data, apps);
 }
 
-export function editWithOne<D extends WithComment, T extends WithComment>(
-  {
-    comment,
-    counts,
-    saved,
-    my_vote,
-    creator_banned_from_community,
-    creator_blocked,
-    creator_is_admin,
-    creator_is_moderator,
-  }: D,
-  one: T,
-) {
-  return {
-    ...one,
-    comment,
-    counts,
-    saved,
-    my_vote,
-    creator_banned_from_community,
-    creator_blocked,
-    creator_is_admin,
-    creator_is_moderator,
-  };
-}
-
-export function editWith<D extends WithComment, L extends WithComment>(
-  data: D,
-  list: L[],
-) {
-  return list.map(c =>
-    c.comment.id === data.comment.id ? editWithOne(data, c) : c,
-  );
-}
-
 export function commentUpvotesMode(siteRes: GetSiteResponse): FederationMode {
   return siteRes.site_view.local_site.comment_upvotes;
 }
@@ -264,19 +227,6 @@ export function postUpvotesMode(siteRes: GetSiteResponse): FederationMode {
 
 export function postDownvotesMode(siteRes: GetSiteResponse): FederationMode {
   return siteRes.site_view.local_site.post_downvotes;
-}
-
-export function voteDisplayMode(
-  myUserInfo?: MyUserInfo,
-): LocalUserVoteDisplayMode {
-  return (
-    myUserInfo?.local_user_view.local_user_vote_display_mode ?? {
-      upvotes: true,
-      downvotes: true,
-      score: false,
-      upvote_percentage: false,
-    }
-  );
 }
 
 export function enableDownvotes(siteRes: GetSiteResponse): boolean {
@@ -689,12 +639,6 @@ export function showAvatars(myUserInfo?: MyUserInfo): boolean {
 
 export function showLocal(isoData: IsoData): boolean {
   return isoData.siteRes.site_view.local_site.federation_enabled;
-}
-
-export function showScores(myUserInfo?: MyUserInfo): boolean {
-  const voteDisplayMode =
-    myUserInfo?.local_user_view.local_user_vote_display_mode;
-  return (voteDisplayMode?.score || voteDisplayMode?.upvotes) ?? true;
 }
 
 export function siteBannerCss(banner: string): string {

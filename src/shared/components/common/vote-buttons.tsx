@@ -1,12 +1,13 @@
-import { calculateUpvotePct, newVote, showScores } from "@utils/app";
+import { calculateUpvotePct, newVote } from "@utils/app";
 import { numToSI } from "@utils/helpers";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
-  CommentAggregates,
+  Comment,
   CreateCommentLike,
   CreatePostLike,
-  LocalUserVoteDisplayMode,
-  PostAggregates,
+  LocalUser,
+  MyUserInfo,
+  Post,
 } from "lemmy-js-client";
 import { VoteContentType, VoteType } from "@utils/types";
 import { I18NextService } from "../../services";
@@ -20,8 +21,8 @@ interface VoteButtonsProps {
   onVote: (i: CreateCommentLike | CreatePostLike) => void;
   enableUpvotes?: boolean;
   enableDownvotes?: boolean;
-  counts: CommentAggregates | PostAggregates;
-  voteDisplayMode: LocalUserVoteDisplayMode;
+  subject: Post | Comment;
+  myUserInfo: MyUserInfo | undefined;
   myVote?: number;
   disabled: boolean;
 }
@@ -32,11 +33,11 @@ interface VoteButtonsState {
 }
 
 function tippy(
-  voteDisplayMode: LocalUserVoteDisplayMode,
-  counts: CommentAggregates | PostAggregates,
+  localUser: LocalUser | undefined,
+  counts: Comment | Post,
 ): string {
   const scoreStr =
-    voteDisplayMode.score &&
+    localUser?.show_score &&
     I18NextService.i18n.t("number_of_points", {
       count: Number(counts.score),
       formattedCount: Number(counts.score),
@@ -45,21 +46,21 @@ function tippy(
   const pct = calculateUpvotePct(counts.upvotes, counts.downvotes);
 
   const upvotePctStr =
-    voteDisplayMode.upvote_percentage &&
+    localUser?.show_upvote_percentage &&
     I18NextService.i18n.t("upvote_percentage", {
       count: Number(pct),
       formattedCount: Number(pct),
     });
 
   const upvoteStr =
-    voteDisplayMode.upvotes &&
+    localUser?.show_upvotes &&
     I18NextService.i18n.t("number_of_upvotes", {
       count: Number(counts.upvotes),
       formattedCount: Number(counts.upvotes),
     });
 
   const downvoteStr =
-    voteDisplayMode.downvotes &&
+    localUser?.show_downvotes &&
     I18NextService.i18n.t("number_of_downvotes", {
       count: Number(counts.downvotes),
       formattedCount: Number(counts.downvotes),
@@ -107,6 +108,10 @@ function handleDownvote(i: VoteButtons | VoteButtonsCompact) {
   }
 }
 
+function userShowScores(localUser: LocalUser): boolean {
+  return localUser.show_score || localUser.show_upvotes;
+}
+
 @tippyMixin
 export class VoteButtonsCompact extends Component<
   VoteButtonsProps,
@@ -132,6 +137,11 @@ export class VoteButtonsCompact extends Component<
     }
   }
 
+  showScores() {
+    const { local_user } = this.props.myUserInfo?.local_user_view ?? {};
+    return !local_user || userShowScores(local_user);
+  }
+
   render() {
     return (
       <>
@@ -142,8 +152,8 @@ export class VoteButtonsCompact extends Component<
               this.props.myVote === 1 ? "text-info" : "text-muted"
             }`}
             data-tippy-content={tippy(
-              this.props.voteDisplayMode,
-              this.props.counts,
+              this.props.myUserInfo?.local_user_view.local_user,
+              this.props.subject,
             )}
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}
@@ -155,10 +165,10 @@ export class VoteButtonsCompact extends Component<
             ) : (
               <>
                 <Icon icon="arrow-up1" classes="icon-inline small" />
-                {showScores() &&
+                {this.showScores() &&
                   this.props.voteContentType === VoteContentType.Post && (
                     <span className="ms-2">
-                      {numToSI(this.props.counts.upvotes)}
+                      {numToSI(this.props.subject.upvotes)}
                     </span>
                   )}
               </>
@@ -174,8 +184,8 @@ export class VoteButtonsCompact extends Component<
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleDownvote)}
             data-tippy-content={tippy(
-              this.props.voteDisplayMode,
-              this.props.counts,
+              this.props.myUserInfo?.local_user_view.local_user,
+              this.props.subject,
             )}
             aria-label={I18NextService.i18n.t("downvote")}
             aria-pressed={this.props.myVote === -1}
@@ -185,14 +195,14 @@ export class VoteButtonsCompact extends Component<
             ) : (
               <>
                 <Icon icon="arrow-down1" classes="icon-inline small" />
-                {showScores() &&
+                {this.showScores() &&
                   this.props.voteContentType === VoteContentType.Post && (
                     <span
                       className={classNames("ms-2", {
-                        invisible: this.props.counts.downvotes === 0,
+                        invisible: this.props.subject.downvotes === 0,
                       })}
                     >
-                      {numToSI(this.props.counts.downvotes)}
+                      {numToSI(this.props.subject.downvotes)}
                     </span>
                   )}
               </>
@@ -226,6 +236,11 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
     }
   }
 
+  showScores() {
+    const { local_user } = this.props.myUserInfo?.local_user_view ?? {};
+    return !local_user || userShowScores(local_user);
+  }
+
   render() {
     return (
       <div className="vote-bar small text-center">
@@ -238,8 +253,8 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}
             data-tippy-content={tippy(
-              this.props.voteDisplayMode,
-              this.props.counts,
+              this.props.myUserInfo?.local_user_view.local_user,
+              this.props.subject,
             )}
             aria-label={I18NextService.i18n.t("upvote")}
             aria-pressed={this.props.myVote === 1}
@@ -251,15 +266,15 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             )}
           </button>
         )}
-        {showScores() ? (
+        {this.showScores() ? (
           <div
             className="unselectable pointer text-muted post-score"
             data-tippy-content={tippy(
-              this.props.voteDisplayMode,
-              this.props.counts,
+              this.props.myUserInfo?.local_user_view.local_user,
+              this.props.subject,
             )}
           >
-            {numToSI(this.props.counts.score)}
+            {numToSI(this.props.subject.score)}
           </div>
         ) : (
           <div className="p-1"></div>
@@ -273,8 +288,8 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleDownvote)}
             data-tippy-content={tippy(
-              this.props.voteDisplayMode,
-              this.props.counts,
+              this.props.myUserInfo?.local_user_view.local_user,
+              this.props.subject,
             )}
             aria-label={I18NextService.i18n.t("downvote")}
             aria-pressed={this.props.myVote === -1}

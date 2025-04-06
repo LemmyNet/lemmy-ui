@@ -1,6 +1,4 @@
 import {
-  CommentAggregates,
-  Comment,
   CommentReply,
   CommentView,
   CommunityView,
@@ -95,11 +93,10 @@ export enum VoteContentType {
   Comment,
 }
 
-export type CommentNodeView = Omit<CommentView, "banned_from_community"> &
-  Partial<Pick<CommentView, "banned_from_community">> & {
-    person_comment_mention?: PersonCommentMention;
-    comment_reply?: CommentReply;
-  };
+export type CommentNodeView = CommentView & {
+  person_comment_mention?: PersonCommentMention;
+  comment_reply?: CommentReply;
+};
 
 export interface CommentNodeI {
   comment_view: CommentNodeView;
@@ -160,17 +157,6 @@ export type ThemeColor =
   | "white"
   | "gray"
   | "gray-dark";
-
-export interface WithComment {
-  comment: Comment;
-  counts: CommentAggregates;
-  my_vote?: number;
-  saved?: string;
-  creator_is_moderator: boolean;
-  creator_is_admin: boolean;
-  creator_blocked: boolean;
-  creator_banned_from_community: boolean;
-}
 
 export interface CrossPostParams {
   name: string;

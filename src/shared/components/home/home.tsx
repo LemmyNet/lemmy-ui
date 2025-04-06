@@ -11,7 +11,6 @@ import {
   setIsoData,
   showLocal,
   updatePersonBlock,
-  voteDisplayMode,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -104,6 +103,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser, snapToTop } from "@utils/browser";
+import { nowBoolean } from "@utils/date";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -432,7 +432,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   get mobileView() {
     const {
       siteRes: {
-        site_view: { counts, site },
+        site_view: { local_site, site },
         admins,
       },
       showSubscribedMobile,
@@ -458,8 +458,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <SiteSidebar
               site={site}
               admins={admins}
-              counts={counts}
-              showLocal={showLocal(this.isoData)}
+              localSite={local_site}
               isMobile={true}
             />
           )}
@@ -476,19 +475,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   get mySidebar() {
     const {
       siteRes: {
-        site_view: { counts, site },
+        site_view: { local_site, site },
         admins,
       },
     } = this.state;
 
     return (
       <div id="sidebarContainer">
-        <SiteSidebar
-          site={site}
-          admins={admins}
-          counts={counts}
-          showLocal={showLocal(this.isoData)}
-        />
+        <SiteSidebar site={site} admins={admins} localSite={local_site} />
         {this.hasFollows && (
           <div className="accordion">
             <section
@@ -616,9 +610,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const haveUnread =
       dataType === DataType.Post &&
       postsRes.state === "success" &&
-      postsRes.data.posts.some(p => !p.read);
+      postsRes.data.posts.some(p => !p.post_actions?.read);
 
-    if (!haveUnread) return undefined;
+    if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
       <div class="my-2">
         <button
@@ -638,7 +632,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const post_ids =
       dataType === DataType.Post &&
       postsRes.state === "success" &&
-      postsRes.data.posts.filter(p => !p.read).map(p => p.post.id);
+      postsRes.data.posts
+        .filter(p => !p.post_actions?.read)
+        .map(p => p.post.id);
 
     if (post_ids && post_ids.length) {
       i.setState({ markPageAsReadLoading: true });
@@ -648,9 +644,17 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       if (res.state === "success") {
         i.setState(s => {
           if (s.postsRes.state === "success") {
-            s.postsRes.data.posts = s.postsRes.data.posts.map(p =>
-              post_ids.includes(p.post.id) ? { ...p, read: true } : p,
-            );
+            s.postsRes.data.posts.forEach(p => {
+              if (post_ids.includes(p.post.id) && i.isoData.myUserInfo) {
+                if (!p.post_actions) {
+                  p.post_actions = {
+                    post_id: p.post.id,
+                    person_id: i.isoData.myUserInfo.local_user_view.person.id,
+                  };
+                }
+                p.post_actions.read = nowBoolean(true);
+              }
+            });
           }
           return { postsRes: s.postsRes, markPageAsReadLoading: false };
         });
@@ -684,7 +688,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showCommunity
               removeDuplicates
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               markable
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
@@ -727,7 +730,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showCommunity
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               myUserInfo={this.isoData.myUserInfo}
@@ -980,9 +982,17 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (res.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.posts = s.postsRes.data.posts.map(p =>
-            p.post.id === form.post_id ? { ...p, read: form.read } : p,
-          );
+          s.postsRes.data.posts.forEach(p => {
+            if (p.post.id === form.post_id && this.isoData.myUserInfo) {
+              if (!p.post_actions) {
+                p.post_actions = {
+                  post_id: p.post.id,
+                  person_id: this.isoData.myUserInfo.local_user_view.person.id,
+                };
+              }
+              p.post_actions.read = nowBoolean(form.read);
+            }
+          });
         }
         return { postsRes: s.postsRes };
       });
@@ -1068,11 +1078,17 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     if (hideRes.state === "success") {
       this.setState(prev => {
-        if (prev.postsRes.state === "success") {
+        if (prev.postsRes.state === "success" && this.isoData.myUserInfo) {
           for (const post of prev.postsRes.data.posts.filter(
             p => form.post_id === p.post.id,
           )) {
-            post.hidden = form.hide;
+            if (!post.post_actions) {
+              post.post_actions = {
+                post_id: post.post.id,
+                person_id: this.isoData.myUserInfo.local_user_view.person.id,
+              };
+            }
+            post.post_actions.hidden = nowBoolean(form.hide);
           }
         }
 
@@ -1090,16 +1106,32 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         if (s.postsRes.state === "success") {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
+            .forEach(c => {
+              if (!c.creator_community_actions) {
+                c.creator_community_actions = {
+                  community_id: c.community.id,
+                  person_id: c.creator.id,
+                };
+              }
+              c.creator_community_actions.received_ban = nowBoolean(
+                banRes.data.banned,
+              );
+            });
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
+            .forEach(c => {
+              if (!c.creator_community_actions) {
+                c.creator_community_actions = {
+                  community_id: c.community.id,
+                  person_id: c.creator.id,
+                };
+              }
+              c.creator_community_actions.received_ban = nowBoolean(
+                banRes.data.banned,
+              );
+            });
         }
         return s;
       });
