@@ -1,5 +1,6 @@
 import {
   communityToChoice,
+  enableDownvotes,
   enableNsfw,
   setIsoData,
   voteDisplayMode,

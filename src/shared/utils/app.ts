@@ -307,6 +307,13 @@ export function voteDisplayMode(
   );
 }
 
+export function enableDownvotes(siteRes: GetSiteResponse): boolean {
+  return (
+    siteRes.site_view.local_site.post_downvotes !== "Disable" ||
+    siteRes.site_view.local_site.comment_downvotes !== "Disable"
+  );
+}
+
 export function enableNsfw(siteRes?: GetSiteResponse): boolean {
   return !!siteRes?.site_view.site.content_warning;
 }

@@ -9,6 +9,7 @@ import { Prompt } from "inferno-router";
 import {
   CreateSite,
   EditSite,
+  FederationMode,
   GetSiteResponse,
   Instance,
   ListingType,
@@ -22,6 +23,8 @@ import { LanguageSelect } from "../common/language-select";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import UrlListTextarea from "../common/url-list-textarea";
+import { FormEvent } from "inferno";
+import { FederationModeSelect } from "./federation-mode-select";
 
 interface SiteFormProps {
   blockedInstances?: Instance[];
@@ -78,6 +81,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       registration_mode: ls?.registration_mode,
       oauth_registration: ls?.oauth_registration,
       community_creation_admin_only: ls?.community_creation_admin_only,
+      post_upvotes: ls?.post_upvotes,
+      post_downvotes: ls?.post_downvotes,
+      comment_upvotes: ls?.comment_upvotes,
+      comment_downvotes: ls?.comment_downvotes,
       require_email_verification: ls?.require_email_verification,
       application_question: ls?.application_question,
       private_instance: ls?.private_instance,
@@ -264,6 +271,33 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               myUserInfo={this.props.myUserInfo}
             />
           </div>
+        </div>
+        <div className="mb-3 row">
+          {(
+            [
+              { kind: "post_upvotes", i18nKey: "post_upvote_federation" },
+              { kind: "post_downvotes", i18nKey: "post_downvote_federation" },
+              { kind: "comment_upvotes", i18nKey: "comment_upvote_federation" },
+              {
+                kind: "comment_downvotes",
+                i18nKey: "comment_downvote_federation",
+              },
+            ] as const
+          ).map(vote => (
+            <div className="col-12">
+              <label className="form-check-label me-2" htmlFor={vote.kind}>
+                {I18NextService.i18n.t(vote.i18nKey)}
+              </label>
+              <FederationModeSelect
+                id={vote.kind}
+                current={this.state.siteForm[vote.kind] ?? "All"}
+                onChange={linkEvent(
+                  { i: this, voteKind: vote.kind },
+                  this.handleSiteVoteModeChange,
+                )}
+              />
+            </div>
+          ))}
         </div>
         <div className="mb-3 row">
           <div className="col-12">
@@ -753,6 +787,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         description: stateSiteForm.description,
         community_creation_admin_only:
           stateSiteForm.community_creation_admin_only,
+        post_upvotes: stateSiteForm.post_upvotes,
+        post_downvotes: stateSiteForm.post_downvotes,
+        comment_upvotes: stateSiteForm.comment_upvotes,
+        comment_downvotes: stateSiteForm.comment_downvotes,
         application_question: stateSiteForm.application_question,
         registration_mode: stateSiteForm.registration_mode,
         oauth_registration: stateSiteForm.oauth_registration,
@@ -869,6 +907,20 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteCommunityCreationAdminOnly(i: SiteForm, event: any) {
     i.state.siteForm.community_creation_admin_only = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleSiteVoteModeChange(
+    {
+      i,
+      voteKind,
+    }: {
+      i: SiteForm;
+      voteKind: `${"post" | "comment"}_${"upvotes" | "downvotes"}`;
+    },
+    event: FormEvent<HTMLSelectElement>,
+  ) {
+    i.state.siteForm[voteKind] = event.target.value as FederationMode;
     i.setState(i.state);
   }
 
