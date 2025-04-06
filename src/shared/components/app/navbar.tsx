@@ -1,7 +1,7 @@
 import { showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { numToSI } from "@utils/helpers";
-import { amAdmin, canCreateCommunity } from "@utils/roles";
+import { amAdmin, canCreateCommunity, moderatesSomething } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import { GetSiteResponse, MyUserInfo } from "lemmy-js-client";
@@ -69,6 +69,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (isBrowser()) {
       // On the first load, check the unreads
       this.requestNotificationPermission();
+      UnreadCounterService.Instance.configure(this.props.myUserInfo);
       this.unreadInboxCountSubscription =
         UnreadCounterService.Instance.unreadInboxCountSubject.subscribe(
           unreadInboxCount => this.setState({ unreadInboxCount }),
@@ -135,7 +136,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   )}
                 </NavLink>
               </li>
-              {UserService.Instance.moderatesSomething && (
+              {moderatesSomething(this.props.myUserInfo) && (
                 <li className="nav-item nav-item-icon">
                   <NavLink
                     to="/reports"
@@ -308,7 +309,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       )}
                     </NavLink>
                   </li>
-                  {UserService.Instance.moderatesSomething && (
+                  {moderatesSomething(this.props.myUserInfo) && (
                     <li id="navModeration" className="nav-item">
                       <NavLink
                         className="nav-link d-inline-flex align-items-center d-md-inline-block"

@@ -41,7 +41,12 @@ import {
   WithComment,
 } from "@utils/types";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { HttpService, I18NextService, UserService } from "@services/index";
+import {
+  HttpService,
+  I18NextService,
+  UnreadCounterService,
+  UserService,
+} from "@services/index";
 import { isBrowser } from "@utils/browser";
 import Toastify from "toastify-js";
 
@@ -550,6 +555,7 @@ export function updateMyUserInfo(myUserInfo: MyUserInfo | undefined) {
   if (isBrowser()) {
     if (window.isoData) {
       window.isoData.myUserInfo = myUserInfo;
+      UnreadCounterService.Instance.configure(myUserInfo);
     }
   }
 }

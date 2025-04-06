@@ -3,7 +3,6 @@ import { updateUnreadCountsInterval } from "@utils/config";
 import { poll } from "@utils/helpers";
 import { myAuth } from "@utils/app";
 import { amAdmin, moderatesSomething } from "@utils/roles";
-import { isBrowser } from "@utils/browser";
 import { BehaviorSubject } from "rxjs";
 import { MyUserInfo } from "lemmy-js-client";
 
@@ -23,13 +22,12 @@ export class UnreadCounterService {
   public unreadApplicationCountSubject: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
-  static #instance: UnreadCounterService;
+  private enableInboxCounts: boolean = false;
+  private enableReports: boolean = false;
+  private enableApplications: boolean = false;
+  private polling: boolean = false;
 
-  constructor() {
-    if (isBrowser()) {
-      poll(async () => this.updateAll(), updateUnreadCountsInterval);
-    }
-  }
+  static #instance: UnreadCounterService;
 
   private get shouldUpdate() {
     if (window.document.visibilityState === "hidden") {
@@ -41,8 +39,18 @@ export class UnreadCounterService {
     return true;
   }
 
+  public configure(myUserInfo?: MyUserInfo) {
+    this.enableInboxCounts = !!myUserInfo;
+    this.enableReports = moderatesSomething(myUserInfo);
+    this.enableApplications = amAdmin(myUserInfo);
+    if (!this.polling) {
+      this.polling = true;
+      poll(async () => this.updateAll(), updateUnreadCountsInterval);
+    }
+  }
+
   public async updateInboxCounts() {
-    if (this.shouldUpdate) {
+    if (this.shouldUpdate && this.enableInboxCounts) {
       const unreadCountRes = await HttpService.client.getUnreadCount();
       if (unreadCountRes.state === "success") {
         this.unreadInboxCountSubject.next(unreadCountRes.data.count);
@@ -50,8 +58,8 @@ export class UnreadCounterService {
     }
   }
 
-  public async updateReports(myUserInfo?: MyUserInfo) {
-    if (this.shouldUpdate && moderatesSomething(myUserInfo)) {
+  public async updateReports() {
+    if (this.shouldUpdate && this.enableReports) {
       const reportCountRes = await HttpService.client.getReportCount({});
       if (reportCountRes.state === "success") {
         this.unreadReportCountSubject.next(reportCountRes.data.count);
@@ -60,7 +68,7 @@ export class UnreadCounterService {
   }
 
   public async updateApplications() {
-    if (this.shouldUpdate && amAdmin()) {
+    if (this.shouldUpdate && this.enableApplications) {
       const unreadApplicationsRes =
         await HttpService.client.getUnreadRegistrationApplicationCount();
       if (unreadApplicationsRes.state === "success") {
