@@ -102,7 +102,7 @@ import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
-import { Icon } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import { PostSortSelect } from "../common/post-sort-select";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
@@ -132,6 +132,7 @@ interface State {
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
+  markPageAsReadLoading: boolean;
 }
 
 interface CommunityProps {
@@ -196,6 +197,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     isIsomorphic: false,
+    markPageAsReadLoading: false,
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -421,10 +423,15 @@ export class Community extends Component<CommunityRouteProps, State> {
             {this.renderCommunity()}
             {this.selects()}
             {this.listings()}
-            <PaginatorCursor
-              nextPage={this.getNextPage}
-              onNext={this.handlePageNext}
-            />
+            <div class="row">
+              <div class="col">
+                <PaginatorCursor
+                  nextPage={this.getNextPage}
+                  onNext={this.handlePageNext}
+                />
+              </div>
+              <div class="col-auto">{this.markPageAsReadButton}</div>
+            </div>
           </div>
           <aside className="d-none d-md-block col-md-4 col-lg-3">
             {this.sidebar()}
@@ -432,6 +439,59 @@ export class Community extends Component<CommunityRouteProps, State> {
         </div>
       </div>
     );
+  }
+
+  get markPageAsReadButton(): InfernoNode {
+    const { dataType } = this.props;
+    const { postsRes, markPageAsReadLoading } = this.state;
+
+    if (markPageAsReadLoading) return <Spinner />;
+
+    const haveUnread =
+      dataType === DataType.Post &&
+      postsRes.state === "success" &&
+      postsRes.data.posts.some(p => !p.read);
+
+    if (!haveUnread) return undefined;
+    return (
+      <div class="my-2">
+        <button
+          class="btn btn-secondary"
+          onClick={linkEvent(this, this.handleMarkPageAsRead)}
+        >
+          {I18NextService.i18n.t("mark_page_as_read")}
+        </button>
+      </div>
+    );
+  }
+
+  async handleMarkPageAsRead(i: Community) {
+    const { dataType } = i.props;
+    const { postsRes } = i.state;
+
+    const post_ids =
+      dataType === DataType.Post &&
+      postsRes.state === "success" &&
+      postsRes.data.posts.filter(p => !p.read).map(p => p.post.id);
+
+    if (post_ids && post_ids.length) {
+      i.setState({ markPageAsReadLoading: true });
+      const res = await HttpService.client.markManyPostAsRead({
+        post_ids,
+      });
+      if (res.state === "success") {
+        i.setState(s => {
+          if (s.postsRes.state === "success") {
+            s.postsRes.data.posts = s.postsRes.data.posts.map(p =>
+              post_ids.includes(p.post.id) ? { ...p, read: true } : p,
+            );
+          }
+          return { postsRes: s.postsRes, markPageAsReadLoading: false };
+        });
+      } else {
+        i.setState({ markPageAsReadLoading: false });
+      }
+    }
   }
 
   sidebar() {
@@ -487,6 +547,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               posts={this.state.postsRes.data.posts}
               enableDownvotes={enableDownvotes(siteRes)}
               voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
+              markable
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes.all_languages}

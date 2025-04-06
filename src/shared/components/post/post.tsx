@@ -576,6 +576,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 admins={siteRes.admins}
                 enableDownvotes={enableDownvotes(siteRes)}
                 voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
+                markable
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}
                 allLanguages={siteRes.all_languages}

@@ -39,6 +39,7 @@ interface PostListingsProps {
   removeDuplicates?: boolean;
   enableDownvotes?: boolean;
   voteDisplayMode: LocalUserVoteDisplayMode;
+  markable?: boolean;
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
   viewOnly?: boolean;
@@ -84,6 +85,7 @@ export class PostListings extends Component<PostListingsProps, any> {
             <>
               <PostListing
                 post_view={post_view}
+                markable={this.props.markable}
                 crossPosts={this.duplicatesMap.get(post_view.post.id)}
                 showCommunity={this.props.showCommunity}
                 enableDownvotes={this.props.enableDownvotes}

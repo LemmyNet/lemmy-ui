@@ -837,7 +837,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <>
         {/* The mobile view*/}
-        <div className="d-block d-sm-none">
+        <div className={classNames("d-block d-sm-none")}>
           <article className="row post-container">
             <div className="col-12">
               {this.createdLine()}
@@ -852,7 +852,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         </div>
 
         {/* The larger view*/}
-        <div className="d-none d-sm-block">
+        <div className={classNames("d-none d-sm-block")}>
           <article className="row post-container">
             {this.isInteractable && (
               <div className="col flex-grow-0">
