@@ -265,6 +265,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           open_links_in_new_tab,
           enable_private_messages,
           auto_mark_fetched_posts_as_read,
+          show_score: show_scores,
+          show_upvotes,
+          show_downvotes,
+          show_upvote_percentage,
         },
         person: {
           avatar,
@@ -273,12 +277,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           bot_account,
           bio,
           matrix_user_id,
-        },
-        local_user_vote_display_mode: {
-          score: show_scores,
-          upvotes: show_upvotes,
-          downvotes: show_downvotes,
-          upvote_percentage: show_upvote_percentage,
         },
       } = mui.local_user_view;
 
@@ -1546,8 +1544,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   handleShowScoresChange(i: Settings, event: any) {
     const mui = i.isoData.myUserInfo;
     if (mui) {
-      mui.local_user_view.local_user_vote_display_mode.score =
-        event.target.checked;
+      mui.local_user_view.local_user.show_score = event.target.checked;
     }
     i.setState(
       s => ((s.saveUserSettingsForm.show_scores = event.target.checked), s),
@@ -1557,8 +1554,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   handleShowUpvotesChange(i: Settings, event: any) {
     const mui = i.isoData.myUserInfo;
     if (mui) {
-      mui.local_user_view.local_user_vote_display_mode.upvotes =
-        event.target.checked;
+      mui.local_user_view.local_user.show_upvotes = event.target.checked;
     }
     i.setState(
       s => ((s.saveUserSettingsForm.show_upvotes = event.target.checked), s),
@@ -1568,8 +1564,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   handleShowDownvotesChange(i: Settings, event: any) {
     const mui = i.isoData.myUserInfo;
     if (mui) {
-      mui.local_user_view.local_user_vote_display_mode.downvotes =
-        event.target.checked;
+      mui.local_user_view.local_user.show_downvotes = event.target.checked;
     }
     i.setState(
       s => ((s.saveUserSettingsForm.show_downvotes = event.target.checked), s),
@@ -1579,7 +1574,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   handleShowUpvotePercentageChange(i: Settings, event: any) {
     const mui = i.isoData.myUserInfo;
     if (mui) {
-      mui.local_user_view.local_user_vote_display_mode.upvote_percentage =
+      mui.local_user_view.local_user.show_upvote_percentage =
         event.target.checked;
     }
     i.setState(
