@@ -5,6 +5,7 @@ import {
   getUncombinedReport,
   setIsoData,
   voteDisplayMode,
+  toast,
 } from "@utils/app";
 import { randomStr, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -25,6 +26,8 @@ import {
   ResolvePostReport,
   ResolvePrivateMessageReport,
   PaginationCursor,
+  ResolveCommunityReport,
+  CommunityReportResponse,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, HttpService, I18NextService } from "../../services";
@@ -45,6 +48,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "../common/paginator-cursor";
+import { CommunityReport } from "../community/community-report";
 
 enum UnreadOrAll {
   Unread,
@@ -56,6 +60,7 @@ enum MessageType {
   CommentReport,
   PostReport,
   PrivateMessageReport,
+  CommunityReport,
 }
 
 type ReportsData = RouteDataResponse<{
@@ -103,6 +108,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     this.handleResolvePostReport = this.handleResolvePostReport.bind(this);
     this.handleResolvePrivateMessageReport =
       this.handleResolvePrivateMessageReport.bind(this);
+    this.handleResolveCommunityReport =
+      this.handleResolveCommunityReport.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -171,6 +178,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       }
       case MessageType.PrivateMessageReport: {
         return this.privateMessageReports();
+      }
+      case MessageType.CommunityReport: {
+        return this.communityReports();
       }
 
       default: {
@@ -298,6 +308,23 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             >
               {I18NextService.i18n.t("messages")}
             </label>
+
+            <input
+              id={`${radioId}-messages`}
+              type="radio"
+              className="btn-check"
+              value={MessageType.CommunityReport}
+              checked={this.state.messageType === MessageType.CommunityReport}
+              onChange={linkEvent(this, this.handleMessageTypeChange)}
+            />
+            <label
+              htmlFor={`${radioId}-communities`}
+              className={classNames("btn btn-outline-secondary pointer", {
+                active: this.state.messageType === MessageType.CommunityReport,
+              })}
+            >
+              {I18NextService.i18n.t("communities")}
+            </label>
           </>
         )}
       </div>
@@ -348,8 +375,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             onResolveReport={this.handleResolvePrivateMessageReport}
           />
         );
-      default:
-        return <div />;
+      case "Community":
+        return (
+          <CommunityReport
+            key={i.type_ + i.community_report.id}
+            report={i}
+            onResolveReport={this.handleResolveCommunityReport}
+          />
+        );
     }
   }
 
@@ -474,6 +507,35 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
+  communityReports() {
+    const res = this.state.reportsRes;
+    switch (res.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success": {
+        const reports = res.data.reports.filter(r => r.type_ === "Community");
+        return (
+          <div>
+            {reports.map(cr => (
+              <>
+                <hr />
+                <CommunityReport
+                  key={cr.community_report.id}
+                  report={cr}
+                  onResolveReport={this.handleResolveCommunityReport}
+                />
+              </>
+            ))}
+          </div>
+        );
+      }
+    }
+  }
+
   async handlePageChange(page: PaginationCursor) {
     this.setState({ page });
     await this.refetch();
@@ -565,6 +627,16 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
+  async handleResolveCommunityReport(form: ResolveCommunityReport) {
+    const res = await HttpService.client.resolveCommunityReport(form);
+    toast("Not implemented");
+    this.findAndUpdateCommunityReport(res);
+    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
+      this.refetch();
+      UnreadCounterService.Instance.updateReports();
+    }
+  }
+
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
     this.setState(s => {
       if (s.reportsRes.state === "success" && res.state === "success") {
@@ -598,6 +670,19 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       if (s.reportsRes.state === "success" && res.state === "success") {
         s.reportsRes.data.reports = editCombined(
           { type_: "PrivateMessage", ...res.data.private_message_report_view },
+          s.reportsRes.data.reports,
+          getUncombinedReport,
+        );
+      }
+      return s;
+    });
+  }
+
+  findAndUpdateCommunityReport(res: RequestState<CommunityReportResponse>) {
+    this.setState(s => {
+      if (s.reportsRes.state === "success" && res.state === "success") {
+        s.reportsRes.data.reports = editCombined(
+          { type_: "Community", ...res.data.community_report_view },
           s.reportsRes.data.reports,
           getUncombinedReport,
         );

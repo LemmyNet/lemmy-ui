@@ -98,14 +98,12 @@ import {
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
-import { BannerIconHeader } from "../common/banner-icon-header";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon } from "../common/icon";
 import { PostSortSelect } from "../common/post-sort-select";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
-import { CommunityLink } from "./community-link";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
 import {
@@ -116,8 +114,8 @@ import { Sidebar } from "./sidebar";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
-import { LoadingEllipses } from "../common/loading-ellipses";
 import { CommentSortSelect } from "../common/comment-sort-select";
+import { CommunityHeader } from "./community-header";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -232,6 +230,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handleCommentVote = this.handleCommentVote.bind(this);
     this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
+    this.handlePurgeCommunity = this.handlePurgeCommunity.bind(this);
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
     this.handlePurgeComment = this.handlePurgeComment.bind(this);
     this.handleCommentReport = this.handleCommentReport.bind(this);
@@ -565,41 +564,10 @@ export class Community extends Component<CommunityRouteProps, State> {
     const urlCommunityName = this.props.match.params.name;
 
     return (
-      <div className="mb-2">
-        {community && (
-          <BannerIconHeader banner={community.banner} icon={community.icon} />
-        )}
-        <div>
-          <h1
-            className="h4 mb-0 overflow-wrap-anywhere d-inline"
-            data-tippy-content={
-              community?.posting_restricted_to_mods
-                ? I18NextService.i18n.t("community_locked")
-                : ""
-            }
-          >
-            {community?.title ?? (
-              <>
-                {urlCommunityName}
-                <LoadingEllipses />
-              </>
-            )}
-          </h1>
-          {community?.posting_restricted_to_mods && (
-            <Icon icon="lock" inline classes="text-danger fs-4 ms-2" />
-          )}
-        </div>
-        {(community && (
-          <CommunityLink
-            community={community}
-            realLink
-            useApubName
-            muted
-            hideAvatar
-          />
-        )) ??
-          urlCommunityName}
-      </div>
+      <CommunityHeader
+        community={community}
+        urlCommunityName={urlCommunityName}
+      />
     );
   }
 
