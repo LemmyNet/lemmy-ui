@@ -57,6 +57,8 @@ module.exports = (env, argv) => {
       alias: {
         "@": resolve(__dirname, "src/"),
         "@utils": resolve(__dirname, "src/shared/utils/"),
+        "@services/*": resolve(__dirname, "src/shared/services/*"),
+        "@components/*": resolve(__dirname, "src/shared/components/*"),
       },
     },
     performance: {
