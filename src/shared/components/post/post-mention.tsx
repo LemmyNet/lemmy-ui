@@ -2,6 +2,7 @@ import { Component, InfernoNode } from "inferno";
 import {
   LocalUserVoteDisplayMode,
   MyUserInfo,
+  MarkPostAsRead,
   PersonPostMentionView,
   PostView,
 } from "lemmy-js-client";
@@ -16,6 +17,7 @@ interface PostMentionProps {
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
+  onMarkPostMentionAsRead(form: MarkPostAsRead): void;
 }
 
 interface PostMentionState {
@@ -96,6 +98,7 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
           onAddModToCommunity={async () => {}}
           onAddAdmin={async () => {}}
           onTransferCommunity={async () => {}}
+          onMarkPostAsRead={this.props.onMarkPostMentionAsRead}
           onHidePost={async () => {}}
         />
       </div>

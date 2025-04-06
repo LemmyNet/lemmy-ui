@@ -6,7 +6,7 @@ import { formatPastDate, futureDaysToUnixTime } from "@utils/date";
 import { isImage, isVideo } from "@utils/media";
 import { canAdmin, canMod } from "@utils/roles";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { T } from "inferno-i18next-dess";
 import {
@@ -41,7 +41,7 @@ import { VoteContentType } from "@utils/types";
 import { mdToHtml, mdToHtmlInline } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { Icon } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
 import { UserBadges } from "../common/user-badges";
@@ -64,6 +64,7 @@ type PostListingState = {
   showAdvanced: boolean;
   showBody: boolean;
   loading: boolean;
+  readLoading: boolean;
 };
 
 interface PostListingProps {
@@ -85,6 +86,8 @@ interface PostListingProps {
   viewOnly?: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
+  markable?: boolean;
+  disableAutoMarkAsRead?: boolean;
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
@@ -115,6 +118,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showAdvanced: false,
     showBody: false,
     loading: false,
+    readLoading: false,
   };
 
   constructor(props: any, context: any) {
@@ -140,6 +144,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleHidePost = this.handleHidePost.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
   }
 
   unlisten = () => {};
@@ -163,6 +168,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentWillUnmount(): void {
     this.unlisten();
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & PostListingProps>,
+  ) {
+    if (this.props.post_view !== nextProps.post_view) {
+      this.setState({ readLoading: false });
+    }
   }
 
   get postView(): PostView {
@@ -634,6 +647,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       post: { ap_id, id, body },
       my_vote,
       counts,
+      read,
     } = this.postView;
 
     return (
@@ -655,6 +669,37 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         >
           <Icon icon="fedilink" inline />
         </a>
+        {this.props.markable && (
+          <button
+            type="button"
+            className="btn btn-link btn-animate text-muted"
+            onClick={() =>
+              this.handleMarkPostAsRead({
+                post_id: id,
+                read: !read,
+              })
+            }
+            data-tippy-content={
+              read
+                ? I18NextService.i18n.t("mark_as_unread")
+                : I18NextService.i18n.t("mark_as_read")
+            }
+            aria-label={
+              read
+                ? I18NextService.i18n.t("mark_as_unread")
+                : I18NextService.i18n.t("mark_as_read")
+            }
+          >
+            {this.state.readLoading ? (
+              <Spinner />
+            ) : (
+              <Icon
+                icon="check"
+                classes={`icon-inline ${read && "text-success"}`}
+              />
+            )}
+          </button>
+        )}
         {mobile && this.isInteractable && (
           <VoteButtonsCompact
             voteContentType={VoteContentType.Post}
@@ -1098,12 +1143,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ imageExpanded: !i.state.imageExpanded });
 
-    if (myAuth() && !i.postView.read) {
-      i.props.onMarkPostAsRead({
+    if (myAuth() && !i.postView.read && !this.props.disableAutoMarkAsRead) {
+      i.handleMarkPostAsRead({
         post_id: i.postView.post.id,
         read: true,
       });
     }
+  }
+
+  handleMarkPostAsRead(form: MarkPostAsRead) {
+    this.setState({ readLoading: true });
+    this.props.onMarkPostAsRead(form);
   }
 
   handleViewSource(i: PostListing) {
@@ -1112,6 +1162,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleShowBody(i: PostListing) {
     i.setState({ showBody: !i.state.showBody });
+
+    if (myAuth() && !i.postView.read && !i.props.disableAutoMarkAsRead) {
+      i.handleMarkPostAsRead({
+        post_id: i.postView.post.id,
+        read: true,
+      });
+    }
   }
 
   get pointsTippy(): string {

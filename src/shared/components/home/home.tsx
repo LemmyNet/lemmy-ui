@@ -70,6 +70,7 @@ import {
   TransferCommunity,
   CommentSortType,
   MyUserInfo,
+  MarkPostAsRead,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -296,6 +297,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleHidePost = this.handleHidePost.bind(this);
 
     // Only fetch the data if coming from another route
@@ -645,7 +647,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onAddAdmin={this.handleAddAdmin}
               onTransferCommunity={this.handleTransferCommunity}
               onFeaturePost={this.handleFeaturePost}
-              onMarkPostAsRead={async () => {}}
+              onMarkPostAsRead={this.handleMarkPostAsRead}
               onHidePost={this.handleHidePost}
             />
           );
@@ -908,6 +910,20 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   async handleFeaturePost(form: FeaturePost) {
     const featureRes = await HttpService.client.featurePost(form);
     this.findAndUpdatePost(featureRes);
+  }
+
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    if (res.state === "success") {
+      this.setState(s => {
+        if (s.postsRes.state === "success") {
+          s.postsRes.data.posts = s.postsRes.data.posts.map(p =>
+            p.post.id === form.post_id ? { ...p, read: form.read } : p,
+          );
+        }
+        return { postsRes: s.postsRes };
+      });
+    }
   }
 
   async handleCommentVote(form: CreateCommentLike) {

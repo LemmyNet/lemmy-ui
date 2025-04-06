@@ -49,6 +49,7 @@ import {
   ListInboxResponse,
   MarkCommentReplyAsRead,
   MarkPersonCommentMentionAsRead,
+  MarkPostAsRead,
   MarkPrivateMessageAsRead,
   PaginationCursor,
   PersonCommentMentionView,
@@ -198,6 +199,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     this.handleMessageReport = this.handleMessageReport.bind(this);
     this.handleCreateMessage = this.handleCreateMessage.bind(this);
     this.handleEditMessage = this.handleEditMessage.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -586,6 +588,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               }
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               myUserInfo={this.isoData.myUserInfo}
+              onMarkPostMentionAsRead={this.handleMarkPostAsRead}
             />
           )
         );
@@ -726,6 +729,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                     }
                     showAdultConsentModal={this.isoData.showAdultConsentModal}
                     myUserInfo={this.isoData.myUserInfo}
+                    onMarkPostMentionAsRead={this.handleMarkPostAsRead}
                   />
                 ),
             )}
@@ -1145,6 +1149,27 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
         }
         return { inboxRes: s.inboxRes };
       });
+    }
+  }
+
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    if (this.state.inboxRes.state === "success") {
+      const mention = this.state.inboxRes.data.inbox
+        .filter(i => i.type_ === "PostMention") // filter first to get the correct type
+        .find(i => i.post.id === form.post_id);
+      if (mention) {
+        const res = await HttpService.client.markPostMentionAsRead({
+          person_post_mention_id: mention.person_post_mention.id,
+          read: form.read,
+        });
+        if (res.state === "success") {
+          this.updateRead(
+            "PostMention",
+            mention.person_post_mention.id,
+            form.read,
+          );
+        }
+      }
     }
   }
 }
