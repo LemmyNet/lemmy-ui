@@ -1,6 +1,5 @@
 import {
   CommentReplyView,
-  CommentReportView,
   CommentView,
   CommunityView,
   FederationMode,
@@ -9,9 +8,7 @@ import {
   MyUserInfo,
   PersonCommentMentionView,
   PersonPostMentionView,
-  PostReportView,
   PostView,
-  PrivateMessageReportView,
   PrivateMessageView,
   RegistrationApplicationView,
   Search,
@@ -22,6 +19,11 @@ import {
   BlockCommunityResponse,
   BlockPersonResponse,
   Instance,
+  PostReport,
+  CommentReport,
+  PrivateMessageReport,
+  CommunityReport,
+  ReportCombinedView,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -172,6 +174,16 @@ export function communityToChoice(cv: CommunityView): Choice {
   };
 }
 
+export function editCombined<
+  T extends { type_: string },
+  I extends { id: number },
+>(data: T, list: T[], identFn: (item: T) => I): T[] {
+  const id = identFn(data).id;
+  return list.map(i =>
+    id === identFn(i).id && data.type_ === i.type_ ? data : i,
+  );
+}
+
 export function editComment(
   data: CommentView,
   comments: CommentView[],
@@ -184,13 +196,6 @@ export function editCommentReply(
   replies: CommentReplyView[],
 ): CommentReplyView[] {
   return editListImmutable("comment_reply", data, replies);
-}
-
-export function editCommentReport(
-  data: CommentReportView,
-  reports: CommentReportView[],
-): CommentReportView[] {
-  return editListImmutable("comment_report", data, reports);
 }
 
 export function editCommunity(
@@ -218,25 +223,11 @@ export function editPost(data: PostView, posts: PostView[]): PostView[] {
   return editListImmutable("post", data, posts);
 }
 
-export function editPostReport(
-  data: PostReportView,
-  reports: PostReportView[],
-) {
-  return editListImmutable("post_report", data, reports);
-}
-
 export function editPrivateMessage(
   data: PrivateMessageView,
   messages: PrivateMessageView[],
 ): PrivateMessageView[] {
   return editListImmutable("private_message", data, messages);
-}
-
-export function editPrivateMessageReport(
-  data: PrivateMessageReportView,
-  reports: PrivateMessageReportView[],
-): PrivateMessageReportView[] {
-  return editListImmutable("private_message_report", data, reports);
 }
 
 export function editRegistrationApplication(
@@ -388,6 +379,27 @@ export function getRecipientIdFromProps(
   return props.match.params.recipient_id
     ? Number(props.match.params.recipient_id)
     : 1;
+}
+
+type ReportCombined =
+  | PostReport
+  | CommentReport
+  | PrivateMessageReport
+  | CommunityReport;
+
+export function getUncombinedReport(
+  report: ReportCombinedView,
+): ReportCombined {
+  switch (report.type_) {
+    case "Post":
+      return report.post_report;
+    case "Comment":
+      return report.comment_report;
+    case "PrivateMessage":
+      return report.private_message_report;
+    case "Community":
+      return report.community_report;
+  }
 }
 
 export function insertCommentIntoTree(
