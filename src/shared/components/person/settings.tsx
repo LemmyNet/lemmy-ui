@@ -33,6 +33,7 @@ import {
   LoginResponse,
   Person,
   PostSortType,
+  SaveUserSettings,
   SuccessResponse,
   UpdateTotpResponse,
 } from "lemmy-js-client";
@@ -87,33 +88,7 @@ interface SettingsState {
   generateTotpRes: RequestState<GenerateTotpSecretResponse>;
   updateTotpRes: RequestState<UpdateTotpResponse>;
   // TODO redo these forms
-  saveUserSettingsForm: {
-    show_nsfw?: boolean;
-    blur_nsfw?: boolean;
-    auto_expand?: boolean;
-    theme?: string;
-    default_post_sort_type?: PostSortType;
-    default_comment_sort_type?: CommentSortType;
-    default_listing_type?: ListingType;
-    interface_language?: string;
-    avatar?: string;
-    banner?: string;
-    display_name?: string;
-    email?: string;
-    bio?: string;
-    matrix_user_id?: string;
-    show_avatars?: boolean;
-    show_scores?: boolean;
-    show_upvotes?: boolean;
-    show_downvotes?: boolean;
-    show_upvote_percentage?: boolean;
-    send_notifications_to_email?: boolean;
-    bot_account?: boolean;
-    show_bot_accounts?: boolean;
-    show_read_posts?: boolean;
-    discussion_languages?: number[];
-    open_links_in_new_tab?: boolean;
-  };
+  saveUserSettingsForm: SaveUserSettings;
   changePasswordForm: {
     new_password?: string;
     new_password_verify?: string;
@@ -288,6 +263,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           send_notifications_to_email,
           email,
           open_links_in_new_tab,
+          enable_private_messages,
+          auto_mark_fetched_posts_as_read,
         },
         person: {
           avatar,
@@ -334,6 +311,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           send_notifications_to_email,
           matrix_user_id,
           open_links_in_new_tab,
+          enable_private_messages,
+          auto_mark_fetched_posts_as_read,
         },
         avatar,
         banner,
@@ -982,20 +961,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="form-check">
               <input
                 className="form-check-input"
-                id="user-auto-expand"
-                type="checkbox"
-                checked={this.state.saveUserSettingsForm.auto_expand}
-                onChange={linkEvent(this, this.handleAutoExpandChange)}
-              />
-              <label className="form-check-label" htmlFor="user-auto-expand">
-                {I18NextService.i18n.t("auto_expand")}
-              </label>
-            </div>
-          </div>
-          <div className="input-group mb-3">
-            <div className="form-check">
-              <input
-                className="form-check-input"
                 id="user-show-scores"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_scores}
@@ -1158,6 +1123,48 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 htmlFor="user-open-links-in-new-tab"
               >
                 {I18NextService.i18n.t("open_links_in_new_tab")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-enable-private-messages"
+                type="checkbox"
+                checked={
+                  this.state.saveUserSettingsForm.enable_private_messages
+                }
+                onChange={linkEvent(this, this.handleEnablePrivateMessages)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="user-enable-private-messages"
+              >
+                {I18NextService.i18n.t("enable_private_messages")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-auto-mark-fetched-posts-as-read"
+                type="checkbox"
+                checked={
+                  this.state.saveUserSettingsForm
+                    .auto_mark_fetched_posts_as_read
+                }
+                onChange={linkEvent(
+                  this,
+                  this.handleAutoMarkFetchedPostsAsRead,
+                )}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="user-auto-mark-fetched-posts-as-read"
+              >
+                {I18NextService.i18n.t("auto_mark_fetched_posts_as_read")}
               </label>
             </div>
           </div>
@@ -1479,12 +1486,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
-  handleAutoExpandChange(i: Settings, event: any) {
-    i.setState(
-      s => ((s.saveUserSettingsForm.auto_expand = event.target.checked), s),
-    );
-  }
-
   handleShowAvatarsChange(i: Settings, event: any) {
     const mui = i.isoData.myUserInfo;
     if (mui) {
@@ -1519,6 +1520,25 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     i.setState(
       s => (
         (s.saveUserSettingsForm.open_links_in_new_tab = event.target.checked), s
+      ),
+    );
+  }
+
+  handleEnablePrivateMessages(i: Settings, event: any) {
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.enable_private_messages = event.target.checked),
+        s
+      ),
+    );
+  }
+
+  handleAutoMarkFetchedPostsAsRead(i: Settings, event: any) {
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.auto_mark_fetched_posts_as_read =
+          event.target.checked),
+        s
       ),
     );
   }
@@ -1799,6 +1819,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             send_notifications_to_email,
             email,
             open_links_in_new_tab,
+            enable_private_messages,
+            auto_mark_fetched_posts_as_read,
           },
           person: {
             avatar,
@@ -1835,6 +1857,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             open_links_in_new_tab,
             send_notifications_to_email,
             show_read_posts,
+            enable_private_messages,
+            auto_mark_fetched_posts_as_read,
           },
           avatar,
           banner,
