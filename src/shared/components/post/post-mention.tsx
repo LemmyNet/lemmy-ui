@@ -66,6 +66,7 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
           post_view={pv}
           markable={true}
           disableAutoMarkAsRead={true}
+          readOverride={this.props.mention.person_post_mention.read}
           showCommunity={true}
           enableDownvotes={this.props.enableDownvotes}
           enableNsfw={this.props.enableNsfw}

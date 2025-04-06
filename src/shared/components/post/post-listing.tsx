@@ -84,6 +84,7 @@ interface PostListingProps {
   myUserInfo: MyUserInfo | undefined;
   markable?: boolean;
   disableAutoMarkAsRead?: boolean;
+  readOverride?: boolean;
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
@@ -622,9 +623,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  get readState(): boolean {
+    return this.props.readOverride ?? !!this.props.post_view.post_actions?.read;
+  }
+
   commentsLine(mobile = false) {
     const { admins, showBody, onPostVote, enableDownvotes } = this.props;
-    const { post, post_actions } = this.postView;
+    const { post } = this.postView;
     const { ap_id, id, body } = post;
 
     return (
@@ -653,16 +658,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onClick={() =>
               this.handleMarkPostAsRead({
                 post_id: id,
-                read: !post_actions?.read,
+                read: !this.readState,
               })
             }
             data-tippy-content={
-              post_actions?.read
+              this.readState
                 ? I18NextService.i18n.t("mark_as_unread")
                 : I18NextService.i18n.t("mark_as_read")
             }
             aria-label={
-              post_actions?.read
+              this.readState
                 ? I18NextService.i18n.t("mark_as_unread")
                 : I18NextService.i18n.t("mark_as_read")
             }
@@ -672,7 +677,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               <Icon
                 icon="check"
-                classes={`icon-inline ${post_actions?.read && "text-success"}`}
+                classes={`icon-inline ${this.readState && "text-success"}`}
               />
             )}
           </button>
@@ -1121,11 +1126,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ imageExpanded: !i.state.imageExpanded });
 
-    if (
-      myAuth() &&
-      !i.postView.post_actions?.read &&
-      !this.props.disableAutoMarkAsRead
-    ) {
+    if (myAuth() && !this.readState && !this.props.disableAutoMarkAsRead) {
       i.handleMarkPostAsRead({
         post_id: i.postView.post.id,
         read: true,
@@ -1146,11 +1147,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleShowBody(i: PostListing) {
     i.setState({ showBody: !i.state.showBody });
 
-    if (
-      myAuth() &&
-      !i.postView.post_actions?.read &&
-      !i.props.disableAutoMarkAsRead
-    ) {
+    if (myAuth() && !this.readState && !i.props.disableAutoMarkAsRead) {
       i.handleMarkPostAsRead({
         post_id: i.postView.post.id,
         read: true,
