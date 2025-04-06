@@ -1437,14 +1437,15 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   async handleBlockInstance({ value }: Choice) {
-    const block = true;
     if (value !== "0") {
       const id = Number(value);
       const res = await HttpService.client.userBlockInstance({
-        block,
+        block: true,
         instance_id: id,
       });
-      this.instanceBlock(id, block, res);
+      if (res.state === "success") {
+        this.instanceBlock(id, true);
+      }
     }
   }
 
@@ -1455,12 +1456,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     ctx: Settings;
     instanceId: number;
   }) {
-    const block = false;
     const res = await HttpService.client.userBlockInstance({
-      block,
+      block: false,
       instance_id: instanceId,
     });
-    ctx.instanceBlock(instanceId, block, res);
+    if (res.state === "success") {
+      ctx.instanceBlock(instanceId, false);
+    }
   }
 
   handleShowNsfwChange(i: Settings, event: any) {
@@ -1906,22 +1908,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
   }
 
-  instanceBlock(
-    id: number,
-    blocked: boolean,
-    res: RequestState<SuccessResponse>,
-  ) {
-    if (
-      res.state === "success" &&
-      this.state.instancesRes.state === "success"
-    ) {
+  instanceBlock(id: number, blocked: boolean) {
+    const mui = this.isoData.myUserInfo;
+    if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
         this.state.instancesRes.data.federated_instances?.linked ?? [];
-      updateInstanceBlock(blocked, id, linkedInstances);
-      const mui = this.isoData.myUserInfo;
-      if (mui) {
-        this.setState({ instanceBlocks: mui.instance_blocks });
-      }
+      updateInstanceBlock(blocked, id, linkedInstances, mui);
+      this.setState({ instanceBlocks: mui.instance_blocks });
     }
   }
 }

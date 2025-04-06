@@ -697,20 +697,18 @@ export function updateInstanceBlock(
   blocked: boolean,
   id: number,
   linkedInstances: Instance[],
-  myUserInfo?: MyUserInfo,
+  myUserInfo: MyUserInfo,
 ) {
-  if (myUserInfo) {
-    const instance = linkedInstances.find(i => i.id === id)!;
+  const instance = linkedInstances.find(i => i.id === id)!;
 
-    if (blocked) {
-      myUserInfo.instance_blocks.push(instance);
-      toast(`${I18NextService.i18n.t("blocked")} ${instance.domain}`);
-    } else {
-      myUserInfo.instance_blocks = myUserInfo.instance_blocks.filter(
-        i => i.id !== id,
-      );
-      toast(`${I18NextService.i18n.t("unblocked")} ${instance.domain}`);
-    }
+  if (blocked) {
+    myUserInfo.instance_blocks.push(instance);
+    toast(`${I18NextService.i18n.t("blocked")} ${instance.domain}`);
+  } else {
+    myUserInfo.instance_blocks = myUserInfo.instance_blocks.filter(
+      i => i.id !== id,
+    );
+    toast(`${I18NextService.i18n.t("unblocked")} ${instance.domain}`);
   }
 }
 

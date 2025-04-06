@@ -43,6 +43,7 @@ import { snapToTop } from "@utils/browser";
 import { isBrowser } from "@utils/browser";
 import ConfirmationModal from "../common/modal/confirmation-modal";
 import OAuthProvidersTab from "./oauth/oauth-providers-tab";
+import { InstanceBlocks } from "./instance-blocks";
 
 type AdminSettingsData = RouteDataResponse<{
   bannedRes: BannedPersonsResponse;
@@ -186,8 +187,6 @@ export class AdminSettings extends Component<
                     <div className="col-12 col-md-6">
                       <SiteForm
                         showLocal={showLocal(this.isoData)}
-                        allowedInstances={federationData?.allowed}
-                        blockedInstances={federationData?.blocked}
                         onSaveSite={this.handleEditSite}
                         siteRes={this.isoData.siteRes}
                         themeList={this.state.themeList}
@@ -197,6 +196,28 @@ export class AdminSettings extends Component<
                     </div>
                     <div className="col-12 col-md-6">{this.admins()}</div>
                   </div>
+                </div>
+              ),
+            },
+            {
+              key: "instance_blocks",
+              label: I18NextService.i18n.t("instances"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="instance_blocks-tab-pane"
+                >
+                  {federationData ? (
+                    <InstanceBlocks
+                      blockedInstances={federationData.blocked}
+                      allowedInstances={federationData.allowed}
+                    />
+                  ) : (
+                    <Spinner />
+                  )}
                 </div>
               ),
             },
