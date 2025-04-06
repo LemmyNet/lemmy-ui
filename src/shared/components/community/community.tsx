@@ -744,7 +744,6 @@ export class Community extends Component<CommunityRouteProps, State> {
         sort: postToCommentSortType(sort),
         type_: "All",
         community_name: name,
-        saved_only: false,
       });
       if (token === this.fetchDataToken) {
         this.setState({ commentsRes });
@@ -925,8 +924,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (hideRes.state === "success") {
       this.setState(prev => {
         if (prev.postsRes.state === "success") {
-          for (const post of prev.postsRes.data.posts.filter(p =>
-            form.post_ids.some(id => id === p.post.id),
+          for (const post of prev.postsRes.data.posts.filter(
+            p => form.post_id === p.post.id,
           )) {
             post.hidden = form.hide;
           }

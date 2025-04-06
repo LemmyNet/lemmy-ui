@@ -362,7 +362,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
         type_: listingType,
-        saved_only: false,
       };
 
       commentsFetch = client.getComments(getCommentsForm);
@@ -776,7 +775,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       const commentsRes = await HttpService.client.getComments({
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
-        saved_only: false,
         type_: listingType,
       });
       if (token === this.fetchDataToken) {
@@ -994,8 +992,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (hideRes.state === "success") {
       this.setState(prev => {
         if (prev.postsRes.state === "success") {
-          for (const post of prev.postsRes.data.posts.filter(p =>
-            form.post_ids.some(id => id === p.post.id),
+          for (const post of prev.postsRes.data.posts.filter(
+            p => form.post_id === p.post.id,
           )) {
             post.hidden = form.hide;
           }

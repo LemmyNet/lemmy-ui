@@ -331,7 +331,6 @@ export class Post extends Component<PostRouteProps, PostState> {
       max_depth: commentTreeMaxDepth,
       sort,
       type_: "All",
-      saved_only: false,
     });
     if (token === this.fetchCommentsToken) {
       this.setState({ commentsRes });
@@ -399,7 +398,6 @@ export class Post extends Component<PostRouteProps, PostState> {
       max_depth: commentTreeMaxDepth,
       sort,
       type_: "All",
-      saved_only: false,
     };
 
     const [postRes, commentsRes] = await Promise.all([
