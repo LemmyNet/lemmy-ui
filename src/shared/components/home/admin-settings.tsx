@@ -14,6 +14,7 @@ import {
   GetSiteResponse,
   LemmyHttp,
   ListMediaResponse,
+  PaginationCursor,
   PersonView,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
@@ -44,6 +45,7 @@ import { isBrowser } from "@utils/browser";
 import ConfirmationModal from "../common/modal/confirmation-modal";
 import OAuthProvidersTab from "./oauth/oauth-providers-tab";
 import { InstanceBlocks } from "./instance-blocks";
+import { PaginatorCursor } from "@components/common/paginator-cursor";
 
 type AdminSettingsData = RouteDataResponse<{
   bannedRes: BannedPersonsResponse;
@@ -55,6 +57,7 @@ interface AdminSettingsState {
   banned: PersonView[];
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
+  bannedPage?: PaginationCursor;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<ListMediaResponse>;
@@ -103,6 +106,7 @@ export class AdminSettings extends Component<
     super(props, context);
 
     this.handleEditSite = this.handleEditSite.bind(this);
+    this.handleBannedPageChange = this.handleBannedPageChange.bind(this);
     this.handleUploadsPageChange = this.handleUploadsPageChange.bind(this);
     this.handleToggleShowLeaveAdminConfirmation =
       this.handleToggleShowLeaveAdminConfirmation.bind(this);
@@ -132,7 +136,7 @@ export class AdminSettings extends Component<
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
-      bannedRes: await client.getBannedPersons(),
+      bannedRes: await client.listBannedPersons(),
       instancesRes: await client.getFederatedInstances(),
       uploadsRes: await client.listAllMedia(),
     };
@@ -343,7 +347,9 @@ export class AdminSettings extends Component<
     });
 
     const [bannedRes, instancesRes, uploadsRes, themeList] = await Promise.all([
-      HttpService.client.getBannedPersons(),
+      HttpService.client.listBannedPersons({
+        page_cursor: this.state.bannedPage,
+      }),
       HttpService.client.getFederatedInstances(),
       HttpService.client.listAllMedia({
         page: this.state.uploadsPage,
@@ -406,6 +412,12 @@ export class AdminSettings extends Component<
     );
   }
 
+  get getNextPage(): PaginationCursor | undefined {
+    return this.state.bannedRes.state === "success"
+      ? this.state.bannedRes.data.next_page
+      : undefined;
+  }
+
   bannedUsers() {
     switch (this.state.bannedRes.state) {
       case "loading":
@@ -426,6 +438,10 @@ export class AdminSettings extends Component<
                 </li>
               ))}
             </ul>
+            <PaginatorCursor
+              nextPage={this.getNextPage}
+              onNext={this.handleBannedPageChange}
+            />
           </>
         );
       }
@@ -490,6 +506,11 @@ export class AdminSettings extends Component<
       this.setState({ showConfirmLeaveAdmin: false });
       this.context.router.history.replace("/");
     }
+  }
+
+  async handleBannedPageChange(cursor?: PaginationCursor) {
+    this.setState({ bannedPage: cursor });
+    await this.fetchData();
   }
 
   async handleUploadsPageChange(val: number) {
