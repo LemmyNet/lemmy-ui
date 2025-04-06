@@ -53,7 +53,8 @@ function voteViewTable(votes: VoteView[]) {
                   classNames="ms-1"
                   isBot={v.creator.bot_account}
                   isDeleted={v.creator.deleted}
-                  isBanned={v.creator.banned || v.creator_banned_from_community}
+                  isBanned={v.creator.banned}
+                  isBannedFromCommunity={v.creator_banned_from_community}
                 />
               </td>
               <td className="text-end">{scoreToIcon(v.score)}</td>

@@ -9,7 +9,7 @@ import {
   Person,
   PrivateMessageView,
 } from "lemmy-js-client";
-import { mdToHtml } from "@utils/markdown";
+import { mdToHtmlNoImages } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
@@ -134,7 +134,7 @@ export class PrivateMessage extends Component<
               ) : (
                 <div
                   className="md-div"
-                  dangerouslySetInnerHTML={mdToHtml(
+                  dangerouslySetInnerHTML={mdToHtmlNoImages(
                     this.messageUnlessRemoved,
                     () => this.forceUpdate(),
                   )}

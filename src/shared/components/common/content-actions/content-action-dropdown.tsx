@@ -299,16 +299,6 @@ export default class ContentActionDropdown extends Component<
                     </li>
                   </>
                 )}
-                {amAdmin(this.props.myUserInfo) && (
-                  <li>
-                    <ActionButton
-                      onClick={this.toggleViewVotesShow}
-                      label={I18NextService.i18n.t("view_votes")}
-                      icon={"arrow-up"}
-                      noLoading
-                    />
-                  </li>
-                )}
 
                 {(amMod(
                   this.props.type === "comment"
@@ -319,6 +309,14 @@ export default class ContentActionDropdown extends Component<
                   <>
                     <li>
                       <hr className="dropdown-divider" />
+                    </li>
+                    <li>
+                      <ActionButton
+                        onClick={this.toggleViewVotesShow}
+                        label={I18NextService.i18n.t("view_votes")}
+                        icon={"arrow-up"}
+                        noLoading
+                      />
                     </li>
                     {type === "post" && (
                       <>

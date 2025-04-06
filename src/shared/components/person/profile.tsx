@@ -691,7 +691,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   get selects() {
-    const { sort, saved } = this.props;
+    const { sort, view, saved } = this.props;
     const { username } = this.props.match.params;
 
     const profileRss = `/feeds/u/${username}.xml${getQueryString({ sort })}`;
@@ -702,8 +702,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         <div className="col-auto">
           <PostSortSelect current={sort} onChange={this.handleSortChange} />
         </div>
-        {/* Don't show the rss feed for the Saved view, as that's not implemented.*/}
-        {!saved && (
+        {/* Don't show the rss feed for the Saved and Uploads view, as that's not implemented.*/}
+        {!saved && view !== "Uploads" && (
           <div className="col-auto">
             <a href={profileRss} rel={relTags} title="RSS">
               <Icon icon="rss" classes="text-muted small ps-0" />
