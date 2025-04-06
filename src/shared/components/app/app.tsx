@@ -15,16 +15,33 @@ import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
 import AdultConsentModal from "../common/modal/adult-consent-modal";
 import { destroyTippy, setupTippy } from "@utils/tippy";
+import { Locale, setDefaultOptions } from "date-fns";
+import { i18n } from "i18next";
 
 function handleJumpToContent(app: App, event: any) {
   event.preventDefault();
   app.contentRef.current?.focus();
 }
 
-export default class App extends Component<any, any> {
+interface AppProps {
+  dateFnsLocale: Locale;
+  i18n: i18n;
+}
+
+export default class App extends Component<AppProps, any> {
   private isoData: IsoData = setIsoData(this.context);
   private readonly rootRef = createRef<HTMLDivElement>();
   readonly contentRef = createRef<HTMLDivElement>();
+
+  constructor(props: AppProps, context: any) {
+    super(props, context);
+
+    I18NextService.i18n = this.props.i18n;
+    I18NextService.forceUpdate = () => {
+      this.forceUpdate();
+    };
+    setDefaultOptions({ locale: this.props.dateFnsLocale });
+  }
 
   componentDidMount() {
     setupTippy(this.rootRef);

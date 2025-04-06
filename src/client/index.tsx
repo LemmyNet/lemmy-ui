@@ -2,7 +2,7 @@ import { hydrate } from "inferno-hydrate";
 import { BrowserRouter } from "inferno-router";
 import App from "../shared/components/app/app";
 import { lazyHighlightjs } from "@utils/lazy-highlightjs";
-import { loadUserLanguage } from "@services/I18NextService";
+import { loadLanguageInstances } from "@services/I18NextService";
 import { verifyDynamicImports } from "@utils/dynamic-imports";
 import { setupEmojiDataModel, setupMarkdown } from "@utils/markdown";
 
@@ -21,11 +21,19 @@ async function startClient() {
   setupMarkdown();
   lazyHighlightjs.enableLazyLoading();
 
-  await Promise.all([loadUserLanguage(), setupEmojiDataModel()]);
+  const fallbackLanguages = window.navigator.languages;
+  const interfaceLanguage =
+    window.isoData?.myUserInfo?.local_user_view.local_user.interface_language;
+
+  // Make sure the language is loaded before hydration.
+  const [[dateFnsLocale, i18n]] = await Promise.all([
+    loadLanguageInstances(fallbackLanguages, interfaceLanguage),
+    setupEmojiDataModel(),
+  ]);
 
   const wrapper = (
     <BrowserRouter>
-      <App />
+      <App dateFnsLocale={dateFnsLocale} i18n={i18n} />
     </BrowserRouter>
   );
 

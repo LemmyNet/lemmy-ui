@@ -7,8 +7,7 @@ import { favIconPngUrl, favIconUrl } from "@utils/config";
 import { IsoData } from "@utils/types";
 import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
-import { findTranslationChunkNames } from "../../shared/services/I18NextService";
-import { findDateFnsChunkNames } from "@utils/date";
+import { findLanguageChunkNames } from "@services/I18NextService";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
@@ -18,7 +17,8 @@ export async function createSsrHtml(
   root: string,
   isoData: IsoData,
   cspNonce: string,
-  userLanguages: readonly string[],
+  languages: readonly string[],
+  interfaceLanguage?: string,
 ) {
   const site = isoData.siteRes;
 
@@ -73,10 +73,7 @@ export async function createSsrHtml(
 
   const helmet = Helmet.renderStatic();
 
-  const lazyScripts = [
-    ...findTranslationChunkNames(userLanguages),
-    ...findDateFnsChunkNames(userLanguages),
-  ]
+  const lazyScripts = findLanguageChunkNames(languages, interfaceLanguage)
     .filter(x => x !== undefined)
     .map(x => `${getStaticDir()}/js/${x}.client.js`)
     .map(x => `<link rel="preload" as="script" href="${x}" />`)

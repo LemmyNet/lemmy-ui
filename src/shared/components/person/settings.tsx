@@ -44,11 +44,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import {
-  I18NextService,
-  languages,
-  loadUserLanguage,
-} from "../../services/I18NextService";
+import { I18NextService, languages } from "../../services/I18NextService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
@@ -373,7 +369,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
   componentWillUnmount(): void {
     // In case `interface_language` change wasn't saved.
-    loadUserLanguage();
+    I18NextService.reconfigure(
+      window.navigator.languages,
+      this.isoData.myUserInfo?.local_user_view.local_user.interface_language,
+    );
     setThemeOverride(undefined);
   }
 
@@ -1587,15 +1586,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
   handleInterfaceLangChange(i: Settings, event: any) {
     const newLang = event.target.value ?? "browser";
-    I18NextService.i18n.changeLanguage(
-      newLang === "browser" ? navigator.languages : newLang,
-      () => {
-        // Now the language is loaded, can be synchronous. Let the state update first.
-        window.requestAnimationFrame(() => {
-          i.forceUpdate();
-        });
-      },
-    );
+    I18NextService.reconfigure(navigator.languages, newLang);
 
     i.setState(
       s => (
@@ -1704,7 +1695,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         });
 
         i.isoData.myUserInfo = userRes.data;
-        loadUserLanguage();
+        I18NextService.reconfigure(
+          window.navigator.languages,
+          userRes.data.local_user_view.local_user.interface_language,
+        );
       }
 
       toast(I18NextService.i18n.t("saved"));

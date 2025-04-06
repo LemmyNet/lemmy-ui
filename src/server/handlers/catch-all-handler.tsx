@@ -17,11 +17,10 @@ import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
-import { I18NextService, LanguageService } from "../../shared/services/";
 import { parsePath } from "history";
 import { getQueryString } from "@utils/helpers";
 import { adultConsentCookieKey } from "@utils/config";
-import { setupMarkdown } from "@utils/markdown";
+import { loadLanguageInstances } from "@services/I18NextService";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -86,16 +85,6 @@ export default async (req: Request, res: Response) => {
           headers,
         };
 
-        if (process.env.NODE_ENV === "development") {
-          setTimeout(() => {
-            // Intentionally (likely) break things if fetchInitialData tries to
-            // use global state after the first await of an unresolved promise.
-            // This simulates another request entering or leaving this
-            // "success" block.
-            myUserInfo = undefined;
-            I18NextService.i18n.changeLanguage("cimode");
-          });
-        }
         routeData = await activeRoute.fetchInitialData(initialFetchReq);
       }
 
@@ -135,14 +124,19 @@ export default async (req: Request, res: Response) => {
         !(myUserInfo || req.cookies[adultConsentCookieKey]),
     };
 
-    const wrapper = (
-      <StaticRouter location={url} context={isoData}>
-        <App />
-      </StaticRouter>
+    const interfaceLanguage =
+      myUserInfo?.local_user_view.local_user.interface_language;
+
+    const [dateFnsLocale, i18n] = await loadLanguageInstances(
+      languages,
+      interfaceLanguage,
     );
 
-    setupMarkdown();
-    LanguageService.updateLanguages(languages);
+    const wrapper = (
+      <StaticRouter location={url} context={isoData}>
+        <App dateFnsLocale={dateFnsLocale} i18n={i18n} />
+      </StaticRouter>
+    );
 
     const root = renderToString(wrapper);
 
@@ -151,7 +145,8 @@ export default async (req: Request, res: Response) => {
         root,
         isoData,
         res.locals.cspNonce,
-        LanguageService.userLanguages(myUserInfo),
+        languages,
+        interfaceLanguage,
       ),
     );
   } catch (err) {

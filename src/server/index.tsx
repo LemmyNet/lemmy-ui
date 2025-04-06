@@ -1,4 +1,3 @@
-import { setupDateFns } from "@utils/date";
 import { getStaticDir } from "@utils/env";
 import { VERSION } from "../shared/version";
 import express from "express";
@@ -15,6 +14,7 @@ import { setCacheControl, setDefaultCsp } from "./middleware";
 import CodeThemeHandler from "./handlers/code-theme-handler";
 import { verifyDynamicImports } from "@utils/dynamic-imports";
 import cookieParser from "cookie-parser";
+import { setupMarkdown } from "@utils/markdown";
 
 const server = express();
 server.use(cookieParser());
@@ -59,7 +59,8 @@ server.get("/*", CatchAllHandler);
 const listener = server.listen(Number(port), hostname, () => {
   verifyDynamicImports(true);
 
-  setupDateFns();
+  setupMarkdown();
+
   console.log(
     `Lemmy-ui v${VERSION} started listening on http://${hostname}:${port}`,
   );

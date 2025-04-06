@@ -1,5 +1,7 @@
-import { verifyTranslationImports } from "@services/I18NextService";
-import { verifyDateFnsImports } from "@utils/date";
+import {
+  verifyDateFnsImports,
+  verifyTranslationImports,
+} from "@services/I18NextService";
 import { verifyHighlighjsImports } from "./lazy-highlightjs";
 
 export class ImportReport {
