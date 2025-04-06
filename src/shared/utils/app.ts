@@ -24,6 +24,8 @@ import {
   PrivateMessageReport,
   CommunityReport,
   ReportCombinedView,
+  Post,
+  PersonContentCombinedView,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -379,6 +381,19 @@ export function getRecipientIdFromProps(
   return props.match.params.recipient_id
     ? Number(props.match.params.recipient_id)
     : 1;
+}
+
+type PersonContentCombined = Post | Comment;
+
+export function getUncombinedPersonContent(
+  content: PersonContentCombinedView,
+): PersonContentCombined {
+  switch (content.type_) {
+    case "Post":
+      return content.post;
+    case "Comment":
+      return content.comment;
+  }
 }
 
 type ReportCombined =

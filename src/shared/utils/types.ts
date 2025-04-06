@@ -7,6 +7,7 @@ import {
   CreateOAuthProvider,
   GetSiteResponse,
   PersonCommentMention,
+  PersonContentType,
   PersonView,
   MyUserInfo,
 } from "lemmy-js-client";
@@ -75,13 +76,7 @@ export enum BanType {
   Site,
 }
 
-export enum PersonDetailsView {
-  Overview = "Overview",
-  Comments = "Comments",
-  Posts = "Posts",
-  Saved = "Saved",
-  Uploads = "Uploads",
-}
+export type PersonDetailsView = "Uploads" | PersonContentType;
 
 export enum PurgeType {
   Person,

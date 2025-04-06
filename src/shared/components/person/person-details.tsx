@@ -1,5 +1,5 @@
 import { commentsToFlatNodes } from "@utils/app";
-import { Component } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -7,7 +7,6 @@ import {
   BanPerson,
   BlockPerson,
   CommentResponse,
-  CommentView,
   CreateComment,
   CreateCommentLike,
   CreateCommentReport,
@@ -20,7 +19,6 @@ import {
   EditPost,
   FeaturePost,
   GetComments,
-  GetPersonDetailsResponse,
   Language,
   LocalUserVoteDisplayMode,
   LockPost,
@@ -29,7 +27,6 @@ import {
   MarkPostAsRead,
   PersonView,
   PostResponse,
-  PostView,
   PurgeComment,
   PurgePerson,
   PurgePost,
@@ -40,28 +37,31 @@ import {
   PostSortType,
   TransferCommunity,
   MyUserInfo,
+  PaginationCursor,
+  PersonContentCombinedView,
+  PersonContentType,
 } from "lemmy-js-client";
-import { CommentViewType, PersonDetailsView } from "@utils/types";
+import { CommentViewType } from "@utils/types";
 import { CommentNodes } from "../comment/comment-nodes";
-import { Paginator } from "../common/paginator";
 import { PostListing } from "../post/post-listing";
 import { RequestState } from "../../services/HttpService";
+import { PaginatorCursor } from "../common/paginator-cursor";
 
 interface PersonDetailsProps {
-  personRes: GetPersonDetailsResponse;
+  content: PersonContentCombinedView[];
+  nextPageCursor?: PaginationCursor;
   admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
-  page: number;
   limit: number;
   sort: PostSortType;
   enableDownvotes: boolean;
   voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw: boolean;
   showAdultConsentModal: boolean;
-  view: PersonDetailsView;
+  view: PersonContentType;
   myUserInfo: MyUserInfo | undefined;
-  onPageChange(page: number): number | any;
+  onPageChange(page: PaginationCursor): void;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonMentionAsRead): void;
@@ -93,22 +93,14 @@ interface PersonDetailsProps {
   onMarkPostAsRead(form: MarkPostAsRead): void;
 }
 
-enum ItemEnum {
-  Comment,
-  Post,
-}
-type ItemType = {
-  id: number;
-  type_: ItemEnum;
-  view: CommentView | PostView;
-  published: string;
-  score: number;
-};
-
 export class PersonDetails extends Component<PersonDetailsProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
     this.handlePageChange = this.handlePageChange.bind(this);
+  }
+
+  get nextPageCursor(): PaginationCursor | undefined {
+    return this.props.nextPageCursor;
   }
 
   render() {
@@ -116,43 +108,32 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
       <div className="person-details">
         {this.viewSelector(this.props.view)}
 
-        <Paginator
-          page={this.props.page}
-          onChange={this.handlePageChange}
-          nextDisabled={
-            (this.props.view === PersonDetailsView.Comments &&
-              this.props.limit > this.props.personRes.comments.length) ||
-            (this.props.view === PersonDetailsView.Posts &&
-              this.props.limit > this.props.personRes.posts.length)
-          }
+        <PaginatorCursor
+          nextPage={this.nextPageCursor}
+          onNext={this.handlePageChange}
         />
       </div>
     );
   }
 
-  viewSelector(view: PersonDetailsView) {
-    if (
-      view === PersonDetailsView.Overview ||
-      view === PersonDetailsView.Saved
-    ) {
-      return this.overview();
-    } else if (view === PersonDetailsView.Comments) {
-      return this.comments();
-    } else if (view === PersonDetailsView.Posts) {
-      return this.posts();
-    } else {
-      return null;
+  viewSelector(view: PersonContentType): InfernoNode {
+    switch (view) {
+      case "All":
+        return this.overview();
+      case "Posts":
+        return this.posts();
+      case "Comments":
+        return this.comments();
     }
   }
 
-  renderItemType(i: ItemType) {
+  renderItemType(i: PersonContentCombinedView): InfernoNode {
     switch (i.type_) {
-      case ItemEnum.Comment: {
-        const c = i.view as CommentView;
+      case "Comment": {
         return (
           <CommentNodes
-            key={i.id}
-            nodes={[{ comment_view: c, children: [], depth: 0 }]}
+            key={i.comment.id}
+            nodes={[{ comment_view: i, children: [], depth: 0 }]}
             viewType={CommentViewType.Flat}
             admins={this.props.admins}
             noBorder
@@ -185,12 +166,11 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           />
         );
       }
-      case ItemEnum.Post: {
-        const p = i.view as PostView;
+      case "Post": {
         return (
           <PostListing
-            key={i.id}
-            post_view={p}
+            key={i.post.id}
+            post_view={i}
             admins={this.props.admins}
             showCommunity
             enableDownvotes={this.props.enableDownvotes}
@@ -221,36 +201,11 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           />
         );
       }
-      default:
-        return <div />;
     }
   }
 
-  overview() {
-    let id = 0;
-    const comments: ItemType[] = this.props.personRes.comments.map(r => ({
-      id: id++,
-      type_: ItemEnum.Comment,
-      view: r,
-      published: r.comment.published,
-      score: r.counts.score,
-    }));
-    const posts: ItemType[] = this.props.personRes.posts.map(r => ({
-      id: id++,
-      type_: ItemEnum.Post,
-      view: r,
-      published: r.post.published,
-      score: r.counts.score,
-    }));
-
-    const combined = [...comments, ...posts];
-
-    // Sort it
-    if (this.props.sort === "New") {
-      combined.sort((a, b) => b.published.localeCompare(a.published));
-    } else {
-      combined.sort((a, b) => Number(b.score - a.score));
-    }
+  overview(): InfernoNode {
+    const combined: PersonContentCombinedView[] = this.props.content;
 
     return (
       <div>
@@ -262,11 +217,12 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     );
   }
 
-  comments() {
+  comments(): InfernoNode {
+    const comments = this.props.content.filter(c => c.type_ === "Comment");
     return (
       <div>
         <CommentNodes
-          nodes={commentsToFlatNodes(this.props.personRes.comments)}
+          nodes={commentsToFlatNodes(comments)}
           viewType={CommentViewType.Flat}
           admins={this.props.admins}
           isTopLevel
@@ -301,10 +257,11 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     );
   }
 
-  posts() {
+  posts(): InfernoNode {
+    const posts = this.props.content.filter(c => c.type_ === "Post");
     return (
       <div>
-        {this.props.personRes.posts.map(post => (
+        {posts.map(post => (
           <>
             <PostListing
               post_view={post}
@@ -343,7 +300,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     );
   }
 
-  handlePageChange(val: number) {
+  handlePageChange(val: PaginationCursor) {
     this.props.onPageChange(val);
   }
 }

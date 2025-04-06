@@ -1,9 +1,8 @@
 import {
-  editComment,
-  editPost,
-  editWith,
+  editCombined,
   enableDownvotes,
   enableNsfw,
+  getUncombinedPersonContent,
   setIsoData,
   updatePersonBlock,
   voteDisplayMode,
@@ -12,13 +11,13 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import {
   capitalizeFirstLetter,
   futureDaysToUnixTime,
-  getPageFromString,
   getQueryParams,
   getQueryString,
   numToSI,
   randomStr,
   resourcesSettled,
   bareRoutePush,
+  getApubName,
 } from "@utils/helpers";
 import { amAdmin, canMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
@@ -52,12 +51,11 @@ import {
   EditComment,
   EditPost,
   FeaturePost,
-  GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
   LemmyHttp,
-  ListMedia,
   ListMediaResponse,
+  ListPersonContentResponse,
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonMentionAsRead,
@@ -75,6 +73,11 @@ import {
   TransferCommunity,
   RegistrationApplicationResponse,
   MyUserInfo,
+  PaginationCursor,
+  CommunityId,
+  ListPersonSavedResponse,
+  PersonContentCombinedView,
+  Person,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -103,17 +106,19 @@ import { MediaUploads } from "../common/media-uploads";
 import { cakeDate } from "@utils/helpers";
 import { isBrowser } from "@utils/browser";
 import DisplayModal from "../common/modal/display-modal";
+import { Paginator } from "../common/paginator";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
+  personContentRes: ListPersonContentResponse;
+  personSavedRes: ListPersonSavedResponse;
   uploadsRes: ListMediaResponse;
 }>;
 
 interface ProfileState {
   personRes: RequestState<GetPersonDetailsResponse>;
-  // personRes and personDetailsRes point to `===` identical data. This allows
-  // to render the start of the profile while the new details are loading.
-  personDetailsRes: RequestState<GetPersonDetailsResponse>;
+  personContentRes: RequestState<ListPersonContentResponse>;
+  personSavedRes: RequestState<ListPersonSavedResponse>;
   uploadsRes: RequestState<ListMediaResponse>;
   registrationRes: RequestState<RegistrationApplicationResponse>;
   personBlocked: boolean;
@@ -129,15 +134,17 @@ interface ProfileState {
 interface ProfileProps {
   view: PersonDetailsView;
   sort: PostSortType;
-  page: number;
+  page: PaginationCursor | undefined;
+  saved: boolean;
 }
 
 export function getProfileQueryParams(source?: string): ProfileProps {
   return getQueryParams<ProfileProps>(
     {
       view: getViewFromProps,
-      page: getPageFromString,
+      page: (arg?: string) => arg,
       sort: getSortTypeFromQuery,
+      saved: (arg?: string) => arg === "true",
     },
     source,
   );
@@ -148,9 +155,15 @@ function getSortTypeFromQuery(sort?: string): PostSortType {
 }
 
 function getViewFromProps(view?: string): PersonDetailsView {
-  return view
-    ? (PersonDetailsView[view] ?? PersonDetailsView.Overview)
-    : PersonDetailsView.Overview;
+  switch (view) {
+    case "Uploads":
+    case "All":
+    case "Posts":
+    case "Comments":
+      return view;
+    default:
+      return "All";
+  }
 }
 
 const getCommunitiesListing = (
@@ -192,6 +205,10 @@ function isPersonBlocked(
   );
 }
 
+function usernameIsPerson(username: string, person?: Person) {
+  return person && [person.name, getApubName(person)].includes(username);
+}
+
 type ProfilePathProps = { username: string };
 type ProfileRouteProps = RouteComponentProps<ProfilePathProps> & ProfileProps;
 export type ProfileFetchConfig = IRoutePropsWithFetch<
@@ -205,7 +222,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   private isoData = setIsoData<ProfileData>(this.context);
   state: ProfileState = {
     personRes: EMPTY_REQUEST,
-    personDetailsRes: EMPTY_REQUEST,
+    personContentRes: EMPTY_REQUEST,
+    personSavedRes: EMPTY_REQUEST,
     uploadsRes: EMPTY_REQUEST,
     personBlocked: false,
     siteRes: this.isoData.siteRes,
@@ -219,9 +237,11 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   loadingSettled() {
     return resourcesSettled([
       this.state.personRes,
-      this.props.view === PersonDetailsView.Uploads
+      this.props.view === "Uploads"
         ? this.state.uploadsRes
-        : this.state.personDetailsRes,
+        : this.props.saved
+          ? this.state.personSavedRes
+          : this.state.personContentRes,
     ]);
   }
 
@@ -230,6 +250,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handlePageNumberChange = this.handlePageNumberChange.bind(this);
 
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleUnblockPerson = this.handleUnblockPerson.bind(this);
@@ -268,11 +289,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       const personRes = this.isoData.routeData.personRes;
+      const personContentRes = this.isoData.routeData.personContentRes;
+      const personSavedRes = this.isoData.routeData.personSavedRes;
       const uploadsRes = this.isoData.routeData.uploadsRes;
       this.state = {
         ...this.state,
         personRes,
-        personDetailsRes: personRes,
+        personContentRes,
+        personSavedRes,
         uploadsRes,
         isIsomorphic: true,
         personBlocked: isPersonBlocked(personRes, this.isoData.myUserInfo),
@@ -287,23 +311,16 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   componentWillReceiveProps(nextProps: ProfileRouteProps) {
-    // Overview, Posts and Comments views can use the same data.
-    const sharedViewTypes = [nextProps.view, this.props.view].every(
-      v =>
-        v === PersonDetailsView.Overview ||
-        v === PersonDetailsView.Posts ||
-        v === PersonDetailsView.Comments,
-    );
-
     const reload = bareRoutePush(this.props, nextProps);
 
     const newUsername =
       nextProps.match.params.username !== this.props.match.params.username;
 
     if (
-      (nextProps.view !== this.props.view && !sharedViewTypes) ||
+      nextProps.view !== this.props.view ||
       nextProps.sort !== this.props.sort ||
       nextProps.page !== this.props.page ||
+      nextProps.saved !== this.props.saved ||
       newUsername ||
       reload
     ) {
@@ -311,89 +328,86 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
-  fetchUploadsToken?: symbol;
-  async fetchUploads(props: ProfileRouteProps) {
-    if (!this.amCurrentUser) {
-      return;
-    }
-
-    const token = (this.fetchUploadsToken = Symbol());
-    const { page } = props;
-    this.setState({ uploadsRes: LOADING_REQUEST });
-    const form: ListMedia = {
-      // userId?
-      page,
-      limit: fetchLimit,
-    };
-    const uploadsRes = await HttpService.client.listMedia(form);
-    if (token === this.fetchUploadsToken) {
-      this.setState({ uploadsRes });
-    }
-  }
-
   fetchUserDataToken?: symbol;
   async fetchUserData(props: ProfileRouteProps, showBothLoading = false) {
-    const token = (this.fetchUploadsToken = this.fetchUserDataToken = Symbol());
-    const { page, sort, view } = props;
-
-    if (view === PersonDetailsView.Uploads) {
-      this.fetchUploads(props);
-      if (!showBothLoading) {
-        return;
-      }
-      this.setState({
-        personRes: LOADING_REQUEST,
-        personDetailsRes: LOADING_REQUEST,
-      });
-    } else {
-      if (showBothLoading) {
-        this.setState({
-          personRes: LOADING_REQUEST,
-          personDetailsRes: LOADING_REQUEST,
-          uploadsRes: EMPTY_REQUEST,
-        });
-      } else {
-        this.setState({
-          personDetailsRes: LOADING_REQUEST,
-          uploadsRes: EMPTY_REQUEST,
-        });
-      }
-    }
-
-    const personRes = await HttpService.client.getPersonDetails({
-      username: props.match.params.username,
-      sort,
-      saved_only: view === PersonDetailsView.Saved,
+    const token = (this.fetchUserDataToken = Symbol());
+    const {
       page,
-      limit: fetchLimit,
-    });
+      view,
+      saved,
+      match: {
+        params: { username },
+      },
+    } = props;
+    const isMe = usernameIsPerson(
+      username, // amCurrentUser would use the old username
+      this.isoData.myUserInfo?.local_user_view.person,
+    );
 
-    if (token === this.fetchUserDataToken) {
-      this.setState({
-        personRes,
-        personDetailsRes: personRes,
-        personBlocked: isPersonBlocked(personRes, this.isoData.myUserInfo),
-      });
-    }
+    const needPerson =
+      this.state.personRes.state !== "success" || showBothLoading;
+    const needUploads = isMe && view === "Uploads";
+    const needSaved = isMe && saved && !needUploads;
+    const needContent = !needSaved && !needUploads;
+
+    const type_ = view === "Uploads" ? undefined : view;
+
+    this.setState(s => ({
+      personRes: needPerson ? LOADING_REQUEST : s.personRes,
+      personContentRes: LOADING_REQUEST,
+      personSavedRes: LOADING_REQUEST,
+      uploadsRes: LOADING_REQUEST,
+    }));
+
+    await Promise.all([
+      needPerson &&
+        HttpService.client.getPersonDetails({
+          username: props.match.params.username,
+        }),
+      needContent &&
+        HttpService.client.listPersonContent({
+          type_,
+          username: props.match.params.username,
+          page_cursor: page,
+        }),
+      needSaved &&
+        HttpService.client.listPersonSaved({
+          type_,
+          page_cursor: page,
+        }),
+      needUploads &&
+        HttpService.client.listMedia({
+          page: parseInt(page ?? "1"),
+          limit: fetchLimit,
+        }),
+    ]).then(args => {
+      const [personRes, personContentRes, personSavedRes, uploadsRes] = args;
+      if (token === this.fetchUserDataToken) {
+        this.setState(s => ({
+          personRes: personRes || s.personRes,
+          personContentRes: personContentRes || EMPTY_REQUEST,
+          personSavedRes: personSavedRes || EMPTY_REQUEST,
+          uploadsRes: uploadsRes || EMPTY_REQUEST,
+          personBlocked: isPersonBlocked(s.personRes, this.isoData.myUserInfo),
+        }));
+      }
+    });
   }
 
   get amCurrentUser() {
-    if (this.state.personRes.state === "success") {
-      return (
-        this.isoData.myUserInfo?.local_user_view.person.id ===
-        this.state.personRes.data.person_view.person.id
-      );
-    } else {
-      return false;
-    }
+    return usernameIsPerson(
+      this.props.match.params.username,
+      this.isoData.myUserInfo?.local_user_view.person,
+    );
   }
 
   static async fetchInitialData({
     headers,
-    query: { view, sort, page },
+    query: { view, page, saved },
     match: {
       params: { username },
     },
+    myUserInfo,
   }: InitialFetchRequest<
     ProfilePathProps,
     ProfileProps
@@ -401,30 +415,30 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
+    const isMe = usernameIsPerson(username, myUserInfo?.local_user_view.person);
 
-    let uploadsRes: RequestState<ListMediaResponse> = EMPTY_REQUEST;
+    const needUploads = isMe && view === "Uploads";
+    const needSaved = isMe && saved && !needUploads;
+    const needContent = !needUploads && !needSaved;
 
-    if (view === PersonDetailsView.Uploads) {
-      const form: ListMedia = {
-        page,
-        limit: fetchLimit,
+    const type_ = view === "Uploads" ? undefined : view;
+
+    return await Promise.all([
+      client.getPersonDetails({ username }),
+      needContent &&
+        client.listPersonContent({ type_, username, page_cursor: page }),
+      needSaved && client.listPersonSaved({ type_, page_cursor: page }),
+      needUploads &&
+        client.listMedia({ page: parseInt(page ?? "1"), limit: fetchLimit }),
+    ]).then(args => {
+      const [personRes, personContentRes, personSavedRes, uploadsRes] = args;
+      return {
+        personRes: personRes || EMPTY_REQUEST,
+        personContentRes: personContentRes || EMPTY_REQUEST,
+        personSavedRes: personSavedRes || EMPTY_REQUEST,
+        uploadsRes: uploadsRes || EMPTY_REQUEST,
       };
-      uploadsRes = await client.listMedia(form);
-    }
-
-    const form: GetPersonDetails = {
-      username: username,
-      sort,
-      saved_only: view === PersonDetailsView.Saved,
-      page,
-      limit: fetchLimit,
-    };
-    const personRes = await client.getPersonDetails(form);
-
-    return {
-      personRes,
-      uploadsRes,
-    };
+    });
   }
 
   get documentTitle(): string {
@@ -448,6 +462,11 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         return (
           <div>
             <MediaUploads uploads={uploadsRes} />
+            <Paginator
+              page={parseInt(this.props.page ?? "1")}
+              onChange={this.handlePageNumberChange}
+              nextDisabled={false}
+            />
           </div>
         );
       }
@@ -465,11 +484,23 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       case "success": {
         const siteRes = this.state.siteRes;
         const personRes = this.state.personRes.data;
-        const { page, sort, view } = this.props;
+        const { sort, view, saved } = this.props;
 
-        const personDetailsState = this.state.personDetailsRes.state;
-        const personDetailsRes =
-          personDetailsState === "success" && this.state.personDetailsRes.data;
+        const savedContent =
+          (saved &&
+            this.state.personSavedRes.state === "success" &&
+            this.state.personSavedRes.data.saved) ||
+          undefined;
+        const content =
+          (!saved &&
+            this.state.personContentRes.state === "success" &&
+            this.state.personContentRes.data.content) ||
+          undefined;
+        const resState = saved
+          ? this.state.personSavedRes.state
+          : this.state.personContentRes.state;
+
+        const isUpload = view === "Uploads";
 
         return (
           <div className="row">
@@ -488,20 +519,19 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
               {this.selects}
 
-              {this.renderUploadsRes()}
+              {isUpload && this.renderUploadsRes()}
 
-              {personDetailsState === "loading" &&
-              this.props.view !== PersonDetailsView.Uploads ? (
-                <h5>
-                  <Spinner large />
-                </h5>
-              ) : (
-                personDetailsRes && (
+              {!isUpload &&
+                (resState === "loading" ? (
+                  <h5>
+                    <Spinner large />
+                  </h5>
+                ) : (
                   <PersonDetails
-                    personRes={personDetailsRes}
+                    content={savedContent ?? content ?? []}
+                    nextPageCursor={this.nextPageCursor}
                     admins={siteRes.admins}
                     sort={sort}
-                    page={page}
                     limit={fetchLimit}
                     enableDownvotes={enableDownvotes(siteRes)}
                     voteDisplayMode={voteDisplayMode(this.isoData.myUserInfo)}
@@ -542,8 +572,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onFeaturePost={this.handleFeaturePost}
                     onMarkPostAsRead={() => {}}
                   />
-                )
-              )}
+                ))}
             </div>
 
             <div className="col-12 col-md-4">
@@ -566,20 +595,35 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
+  get nextPageCursor(): PaginationCursor | undefined {
+    if (this.props.view === "Uploads") {
+      return undefined;
+    }
+    const { personSavedRes: savedRes, personContentRes: contentRes } =
+      this.state;
+    if (this.props.saved) {
+      return savedRes.state === "success" ? savedRes.data.next_page : undefined;
+    } else {
+      return contentRes.state === "success"
+        ? contentRes.data.next_page
+        : undefined;
+    }
+  }
+
   get viewRadios() {
     return (
       <div className="btn-group btn-group-toggle flex-wrap" role="group">
-        {this.getRadio(PersonDetailsView.Overview)}
-        {this.getRadio(PersonDetailsView.Comments)}
-        {this.getRadio(PersonDetailsView.Posts)}
-        {this.amCurrentUser && this.getRadio(PersonDetailsView.Saved)}
-        {this.amCurrentUser && this.getRadio(PersonDetailsView.Uploads)}
+        {this.getRadio("All")}
+        {this.getRadio("Comments")}
+        {this.getRadio("Posts")}
+        {this.amCurrentUser && this.getRadio("Uploads")}
+        {this.amCurrentUser && this.getSavedToggle()}
       </div>
     );
   }
 
   getRadio(view: PersonDetailsView) {
-    const { view: urlView } = this.props;
+    const { view: urlView, saved } = this.props;
     const active = view === urlView;
     const radioId = randomStr();
 
@@ -592,6 +636,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           value={view}
           checked={active}
           onChange={linkEvent(this, this.handleViewChange)}
+          disabled={saved && view === "Uploads"}
         />
         <label
           htmlFor={radioId}
@@ -605,8 +650,50 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
+  getSavedToggle() {
+    const checked = this.props.saved;
+
+    // This renders a button inside a button. Using only the outer button, when
+    // checked, it looks the same as the radio buttons (which do nothing when
+    // clicked again). Using only the inner button, the button looks like it's
+    // already checked when hovered or focused (except for the checkbox). The
+    // inner button is hidden for keyboards an aria.
+    return (
+      <>
+        <input
+          id="saved-checkbox-outer"
+          type="checkbox"
+          class="btn-check"
+          onClick={linkEvent(this, this.handleToggleSaved)}
+          checked={checked}
+          aria-label={I18NextService.i18n.t("saved")}
+          disabled={this.props.view === "Uploads"}
+        ></input>
+        <label htmlFor="saved-checkbox-outer" class="btn btn-outline-secondary">
+          <div class="form-check" aria-hidden="true">
+            <input
+              id="saved-checkbox-inner"
+              type="checkbox"
+              class="form-check-input pointer"
+              checked={checked}
+              onChange={linkEvent(this, this.handleToggleSaved)}
+              autoComplete="off"
+              tabIndex={-1}
+            />
+            <label
+              htmlFor="saved-checkbox-inner"
+              class="form-check-label pointer"
+            >
+              {I18NextService.i18n.t("saved")}
+            </label>
+          </div>
+        </label>
+      </>
+    );
+  }
+
   get selects() {
-    const { sort, view } = this.props;
+    const { sort, saved } = this.props;
     const { username } = this.props.match.params;
 
     const profileRss = `/feeds/u/${username}.xml${getQueryString({ sort })}`;
@@ -623,7 +710,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           />
         </div>
         {/* Don't show the rss feed for the Saved view, as that's not implemented.*/}
-        {view !== PersonDetailsView.Saved && (
+        {!saved && (
           <div className="col-auto">
             <a href={profileRss} rel={relTags} title="RSS">
               <Icon icon="rss" classes="text-muted small ps-0" />
@@ -946,32 +1033,46 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       page,
       sort,
       view,
+      saved,
       match: {
         params: { username },
       },
     } = { ...this.props, ...props };
 
     const queryParams: QueryParams<ProfileProps> = {
-      page: page?.toString(),
+      page,
       sort,
-      view,
+      view: view !== getViewFromProps(undefined) ? view : undefined,
+      saved: saved ? saved.toString() : undefined,
     };
 
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
   }
 
-  handlePageChange(page: number) {
+  handlePageChange(page: PaginationCursor) {
     this.updateUrl({ page });
   }
 
+  handlePageNumberChange(page: number) {
+    this.updateUrl({ page: page.toString() });
+  }
+
   handleSortChange(sort: PostSortType) {
-    this.updateUrl({ sort, page: 1 });
+    this.updateUrl({ sort, page: undefined });
   }
 
   handleViewChange(i: Profile, event: any) {
     i.updateUrl({
-      view: PersonDetailsView[event.target.value],
-      page: 1,
+      view: getViewFromProps(event.target.value),
+      page: undefined,
+    });
+  }
+
+  handleToggleSaved(i: Profile, event?: any) {
+    event.preventDefault(); // prevent inner button also triggering outer button
+    i.updateUrl({
+      saved: !i.props.saved,
+      page: undefined,
     });
   }
 
@@ -1002,10 +1103,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     this.setState({ showRegistrationDialog: true });
 
-    if (this.state.personDetailsRes.state === "success") {
+    if (this.state.personRes.state === "success") {
       HttpService.client
         .getRegistrationApplication({
-          person_id: this.state.personDetailsRes.data.person_view.person.id,
+          person_id: this.state.personRes.data.person_view.person.id,
         })
         .then(res => {
           this.setState({ registrationRes: res });
@@ -1105,7 +1206,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   async handleEditComment(form: EditComment) {
     const editCommentRes = await HttpService.client.editComment(form);
-    this.findAndUpdateCommentEdit(editCommentRes);
+    this.findAndUpdateComment(editCommentRes);
 
     return editCommentRes;
   }
@@ -1211,7 +1312,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBanFromCommunity(banRes);
+    this.updateBanFromCommunity(banRes, form.community_id);
   }
 
   async handleBanPerson(form: BanPerson) {
@@ -1219,43 +1320,82 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.updateBan(banRes);
   }
 
-  updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
+  updateCurrentList(
+    mapFn: (c: PersonContentCombinedView) => PersonContentCombinedView,
+  ) {
+    if (this.props.saved) {
+      this.setState(s => {
+        if (s.personSavedRes.state === "success") {
+          s.personSavedRes.data.saved = s.personSavedRes.data.saved.map(mapFn);
+        }
+        return { personSavedRes: s.personSavedRes };
+      });
+    } else {
+      this.setState(s => {
+        if (s.personContentRes.state === "success") {
+          s.personContentRes.data.content =
+            s.personContentRes.data.content.map(mapFn);
+        }
+        return { personContentRes: s.personContentRes };
+      });
+    }
+  }
+
+  editCombinedCurrent(data: PersonContentCombinedView) {
+    if (this.props.saved) {
+      this.setState(s => {
+        if (s.personSavedRes.state === "success") {
+          s.personSavedRes.data.saved = editCombined(
+            data,
+            s.personSavedRes.data.saved,
+            getUncombinedPersonContent,
+          );
+        }
+        return { personSavedRes: s.personSavedRes };
+      });
+    } else {
+      this.setState(s => {
+        if (s.personContentRes.state === "success") {
+          s.personContentRes.data.content = editCombined(
+            data,
+            s.personContentRes.data.content,
+            getUncombinedPersonContent,
+          );
+        }
+        return { personContentRes: s.personContentRes };
+      });
+    }
+  }
+
+  updateBanFromCommunity(
+    banRes: RequestState<BanFromCommunityResponse>,
+    communityId: CommunityId,
+  ) {
     // Maybe not necessary
     if (banRes.state === "success") {
-      this.setState(s => {
-        if (s.personRes.state === "success") {
-          s.personRes.data.posts
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
-
-          s.personRes.data.comments
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
-        }
-        return s;
-      });
+      this.updateCurrentList(c =>
+        c.creator.id === banRes.data.person_view.person.id &&
+        c.community.id === communityId
+          ? {
+              ...c,
+              creator_banned_from_community: banRes.data.banned,
+            }
+          : c,
+      );
     }
   }
 
   updateBan(banRes: RequestState<BanPersonResponse>) {
     // Maybe not necessary
     if (banRes.state === "success") {
-      this.setState(s => {
-        if (s.personRes.state === "success") {
-          s.personRes.data.posts
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
-          s.personRes.data.comments
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
-          s.personRes.data.person_view.person.banned = banRes.data.banned;
-        }
-        return s;
-      });
+      this.updateCurrentList(c =>
+        c.creator.id === banRes.data.person_view.person.id
+          ? {
+              ...c,
+              creator: { ...c.creator, banned: banRes.data.banned },
+            }
+          : c,
+      );
     }
   }
 
@@ -1266,34 +1406,19 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
-  findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
-    this.setState(s => {
-      if (s.personRes.state === "success" && res.state === "success") {
-        s.personRes.data.comments = editComment(
-          res.data.comment_view,
-          s.personRes.data.comments,
-        );
-      }
-      return s;
-    });
-  }
-
   findAndUpdateComment(res: RequestState<CommentResponse>) {
-    this.setState(s => {
-      if (s.personRes.state === "success" && res.state === "success") {
-        s.personRes.data.comments = editComment(
-          res.data.comment_view,
-          s.personRes.data.comments,
-        );
-      }
-      return s;
-    });
+    if (res.state === "success") {
+      this.editCombinedCurrent({ type_: "Comment", ...res.data.comment_view });
+    }
   }
 
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.personRes.state === "success" && res.state === "success") {
-        s.personRes.data.comments.unshift(res.data.comment_view);
+      if (s.personContentRes.state === "success" && res.state === "success") {
+        s.personContentRes.data.content.unshift({
+          type_: "Comment",
+          ...res.data.comment_view,
+        });
       }
       return s;
     });
@@ -1301,10 +1426,11 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
     this.setState(s => {
-      if (s.personRes.state === "success" && res.state === "success") {
-        s.personRes.data.comments = editWith(
-          res.data.comment_reply_view,
-          s.personRes.data.comments,
+      if (s.personContentRes.state === "success" && res.state === "success") {
+        s.personContentRes.data.content = editCombined(
+          { type_: "Comment", ...res.data.comment_reply_view },
+          s.personContentRes.data.content,
+          getUncombinedPersonContent,
         );
       }
       return s;
@@ -1312,14 +1438,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   findAndUpdatePost(res: RequestState<PostResponse>) {
-    this.setState(s => {
-      if (s.personRes.state === "success" && res.state === "success") {
-        s.personRes.data.posts = editPost(
-          res.data.post_view,
-          s.personRes.data.posts,
-        );
-      }
-      return s;
-    });
+    if (res.state === "success") {
+      this.editCombinedCurrent({ type_: "Post", ...res.data.post_view });
+    }
   }
 }
