@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import {
   CreatePrivateMessage,
   CreatePrivateMessageReport,
@@ -60,6 +60,14 @@ export class PrivateMessage extends Component<
     this.hideReportDialog = this.hideReportDialog.bind(this);
     this.handleCreate = this.handleCreate.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>,
+  ) {
+    if (this.props.private_message_view !== nextProps.private_message_view) {
+      this.setState({ readLoading: false });
+    }
   }
 
   get mine(): boolean {

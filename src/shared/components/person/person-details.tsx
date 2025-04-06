@@ -23,7 +23,7 @@ import {
   LocalUserVoteDisplayMode,
   LockPost,
   MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
+  MarkPersonCommentMentionAsRead,
   MarkPostAsRead,
   PersonView,
   PostResponse,
@@ -64,7 +64,7 @@ interface PersonDetailsProps {
   onPageChange(page: PaginationCursor): void;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
-  onPersonMentionRead(form: MarkPersonMentionAsRead): void;
+  onPersonMentionRead(form: MarkPersonCommentMentionAsRead): void;
   onCreateComment(form: CreateComment): Promise<RequestState<CommentResponse>>;
   onEditComment(form: EditComment): Promise<RequestState<CommentResponse>>;
   onCommentVote(form: CreateCommentLike): Promise<void>;

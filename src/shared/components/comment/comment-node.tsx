@@ -2,7 +2,7 @@ import { colorList, getCommentParentId } from "@utils/app";
 import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
 import classNames from "classnames";
 import { isBefore, parseISO, subMinutes } from "date-fns";
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
   AddAdmin,
@@ -156,6 +156,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
     this.handlePurgeComment = this.handlePurgeComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>,
+  ) {
+    if (this.props.node.comment_view !== nextProps.node.comment_view) {
+      this.setState({ readLoading: false });
+    }
   }
 
   get commentView(): CommentNodeView {

@@ -2,7 +2,6 @@ import {
   buildCommentsTree,
   commentsToFlatNodes,
   editComment,
-  editWith,
   enableDownvotes,
   enableNsfw,
   getCommentIdFromProps,
@@ -40,7 +39,6 @@ import {
   BlockCommunity,
   BlockPerson,
   CommentId,
-  CommentReplyResponse,
   CommentResponse,
   CommentSortType,
   CommunityResponse,
@@ -1271,8 +1269,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const readRes = await HttpService.client.markCommentReplyAsRead(form);
-    this.findAndUpdateCommentReply(readRes);
+    await HttpService.client.markCommentReplyAsRead(form);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
@@ -1445,21 +1442,6 @@ export class Post extends Component<PostRouteProps, PostState> {
       if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments = editComment(
           res.data.comment_view,
-          s.commentsRes.data.comments,
-        );
-      }
-      return s;
-    });
-    if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
-    }
-  }
-
-  findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
-    this.setState(s => {
-      if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editWith(
-          res.data.comment_reply_view,
           s.commentsRes.data.comments,
         );
       }

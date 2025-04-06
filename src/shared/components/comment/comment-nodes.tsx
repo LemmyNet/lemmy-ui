@@ -19,7 +19,7 @@ import {
   Language,
   LocalUserVoteDisplayMode,
   MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
+  MarkPersonCommentMentionAsRead,
   MyUserInfo,
   PersonView,
   PurgeComment,
@@ -55,7 +55,7 @@ interface CommentNodesProps {
   myUserInfo: MyUserInfo | undefined;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
-  onPersonMentionRead(form: MarkPersonMentionAsRead): void;
+  onPersonMentionRead(form: MarkPersonCommentMentionAsRead): void;
   onCreateComment(
     form: EditComment | CreateComment,
   ): Promise<RequestState<CommentResponse>>;

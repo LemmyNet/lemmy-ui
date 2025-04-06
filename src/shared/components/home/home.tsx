@@ -3,7 +3,6 @@ import {
   commentToPostSortType,
   editComment,
   editPost,
-  editWith,
   enableDownvotes,
   enableNsfw,
   getDataTypeString,
@@ -34,7 +33,6 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
-  CommentReplyResponse,
   CommentResponse,
   CreateComment,
   CreateCommentLike,
@@ -57,7 +55,7 @@ import {
   ListingType,
   LockPost,
   MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
+  MarkPersonCommentMentionAsRead,
   PaginationCursor,
   PostResponse,
   PurgeComment,
@@ -967,13 +965,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const readRes = await HttpService.client.markCommentReplyAsRead(form);
-    this.findAndUpdateCommentReply(readRes);
+    // TODO: can't find a comment from reply_id, comments don't have reply read state
+    await HttpService.client.markCommentReplyAsRead(form);
   }
 
-  async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
-    // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
-    await HttpService.client.markPersonMentionAsRead(form);
+  async handlePersonMentionRead(form: MarkPersonCommentMentionAsRead) {
+    // TODO: can't find a comment from mention_id, comments don't have mention read state
+    await HttpService.client.markCommentMentionAsRead(form);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
@@ -1083,18 +1081,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments.unshift(res.data.comment_view);
-      }
-      return s;
-    });
-  }
-
-  findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
-    this.setState(s => {
-      if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editWith(
-          res.data.comment_reply_view,
-          s.commentsRes.data.comments,
-        );
       }
       return s;
     });
