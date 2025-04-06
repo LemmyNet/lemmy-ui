@@ -35,7 +35,7 @@ import {
   SuccessResponse,
   UpdateTotpResponse,
 } from "lemmy-js-client";
-import { elementUrl, emDash, fetchLimit, relTags } from "../../config";
+import { elementUrl, emDash, fetchLimit, relTags } from "@utils/config";
 import { FirstLoadService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -50,7 +50,7 @@ import {
   loadUserLanguage,
 } from "../../services/I18NextService";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -63,7 +63,7 @@ import { PostSortSelect } from "../common/post-sort-select";
 import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
-import { InitialFetchRequest } from "../../interfaces";
+import { InitialFetchRequest } from "@utils/types";
 import TotpModal from "../common/modal/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
 import {
@@ -73,7 +73,7 @@ import {
   snapToTop,
 } from "../../utils/browser";
 import { getHttpBaseInternal } from "../../utils/env";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { CommentSortSelect } from "../common/comment-sort-select";

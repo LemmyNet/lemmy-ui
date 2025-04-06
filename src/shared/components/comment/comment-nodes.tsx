@@ -27,7 +27,7 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
-import { CommentNodeI, CommentViewType } from "../../interfaces";
+import { CommentNodeI, CommentViewType } from "@utils/types";
 import { CommentNode } from "./comment-node";
 import { RequestState } from "../../services/HttpService";
 

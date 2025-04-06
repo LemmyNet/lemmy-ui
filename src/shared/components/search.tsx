@@ -48,8 +48,8 @@ import {
   SearchType,
   PostSortType,
 } from "lemmy-js-client";
-import { fetchLimit } from "../config";
-import { CommentViewType, InitialFetchRequest } from "../interfaces";
+import { fetchLimit } from "@utils/config";
+import { CommentViewType, InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
@@ -70,7 +70,7 @@ import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 
 interface SearchProps {

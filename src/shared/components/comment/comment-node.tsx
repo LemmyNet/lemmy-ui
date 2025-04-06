@@ -33,14 +33,14 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
-import { commentTreeMaxDepth } from "../../config";
+import { commentTreeMaxDepth } from "@utils/config";
 import {
   CommentNodeI,
   CommentNodeView,
   CommentViewType,
   VoteContentType,
-} from "../../interfaces";
-import { mdToHtml, mdToHtmlNoImages } from "../../markdown";
+} from "@utils/types";
+import { mdToHtml, mdToHtmlNoImages } from "@utils/markdown";
 import { I18NextService, UserService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Icon, Spinner } from "../common/icon";

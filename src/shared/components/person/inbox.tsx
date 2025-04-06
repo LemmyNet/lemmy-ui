@@ -64,8 +64,8 @@ import {
   SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
-import { fetchLimit, relTags } from "../../config";
-import { CommentViewType, InitialFetchRequest } from "../../interfaces";
+import { fetchLimit, relTags } from "@utils/config";
+import { CommentViewType, InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import { UnreadCounterService } from "../../services";
 import {
@@ -76,7 +76,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
 import { CommentSortSelect } from "../common/comment-sort-select";
 import { HtmlTags } from "../common/html-tags";
@@ -86,7 +86,7 @@ import { PrivateMessage } from "../private_message/private-message";
 import { getHttpBaseInternal } from "../../utils/env";
 import { CommentsLoadingSkeleton } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 
 enum UnreadOrAll {

@@ -1,7 +1,7 @@
 import { randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { CommentSortType } from "lemmy-js-client";
-import { relTags, sortingHelpUrl } from "../../config";
+import { relTags, sortingHelpUrl } from "@utils/config";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
 

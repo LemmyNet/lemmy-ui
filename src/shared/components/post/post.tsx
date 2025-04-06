@@ -81,12 +81,12 @@ import {
   SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
-import { commentTreeMaxDepth } from "../../config";
+import { commentTreeMaxDepth } from "@utils/config";
 import {
   CommentNodeI,
   CommentViewType,
   InitialFetchRequest,
-} from "../../interfaces";
+} from "@utils/types";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -95,7 +95,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { CommentForm } from "../comment/comment-form";
 import { CommentNodes } from "../comment/comment-nodes";
 import { HtmlTags } from "../common/html-tags";
@@ -104,7 +104,7 @@ import { Sidebar } from "../community/sidebar";
 import { PostListing } from "./post-listing";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { compareAsc, compareDesc } from "date-fns";
 
 const commentsShownInterval = 15;

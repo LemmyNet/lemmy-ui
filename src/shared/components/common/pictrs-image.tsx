@@ -3,7 +3,7 @@ import { Component, linkEvent } from "inferno";
 
 import { UserService } from "../../services";
 import { setIsoData } from "@utils/app";
-import { IsoData } from "../../interfaces";
+import { IsoData } from "@utils/types";
 import { getStaticDir } from "@utils/env";
 
 const iconThumbnailSize = 96;

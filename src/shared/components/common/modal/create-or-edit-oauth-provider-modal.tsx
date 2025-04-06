@@ -14,7 +14,7 @@ import {
   EditOAuthProvider,
   OAuthProvider,
 } from "lemmy-js-client";
-import { ProviderToEdit } from "@utils/types/oauth";
+import { ProviderToEdit } from "@utils/types";
 
 export type CreateOrEditOAuthProviderModalData =
   | { type: "add"; provider?: ProviderToEdit }

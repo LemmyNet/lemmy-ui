@@ -75,9 +75,9 @@ import {
   TransferCommunity,
   RegistrationApplicationResponse,
 } from "lemmy-js-client";
-import { fetchLimit, relTags } from "../../config";
-import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
-import { mdToHtml } from "../../markdown";
+import { fetchLimit, relTags } from "@utils/config";
+import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
+import { mdToHtml } from "@utils/markdown";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -86,7 +86,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
@@ -97,7 +97,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
 import { getHttpBaseInternal } from "../../utils/env";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { MediaUploads } from "../common/media-uploads";
 import { cakeDate } from "@utils/helpers";
 import { isBrowser } from "@utils/browser";

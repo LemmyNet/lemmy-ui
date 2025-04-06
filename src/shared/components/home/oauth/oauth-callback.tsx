@@ -4,13 +4,13 @@ import { refreshTheme } from "@utils/browser";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { Spinner } from "../../common/icon";
 import { getQueryParams } from "@utils/helpers";
-import { IRoutePropsWithFetch } from "../../../routes";
-import { RouteData } from "../../../interfaces";
+import { IRoutePropsWithFetch } from "@utils/routes";
+import { RouteData } from "@utils/types";
 import { I18NextService, UserService } from "../../../services";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { UnreadCounterService } from "../../../services";
 import { HttpService } from "../../../services/HttpService";
-import { toast } from "../../../toast";
+import { toast } from "@utils/app";
 
 interface OAuthCallbackProps {
   code?: string;

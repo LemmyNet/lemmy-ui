@@ -6,7 +6,7 @@ import {
   LocalUserVoteDisplayMode,
   ResolveCommentReport,
 } from "lemmy-js-client";
-import { CommentNodeI, CommentViewType } from "../../interfaces";
+import { CommentNodeI, CommentViewType } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";

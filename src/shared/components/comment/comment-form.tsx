@@ -8,7 +8,7 @@ import {
   EditComment,
   Language,
 } from "lemmy-js-client";
-import { CommentNodeI } from "../../interfaces";
+import { CommentNodeI } from "@utils/types";
 import { I18NextService, UserService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";

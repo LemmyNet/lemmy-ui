@@ -40,7 +40,7 @@ import {
   PostSortType,
   TransferCommunity,
 } from "lemmy-js-client";
-import { CommentViewType, PersonDetailsView } from "../../interfaces";
+import { CommentViewType, PersonDetailsView } from "@utils/types";
 import { CommentNodes } from "../comment/comment-nodes";
 import { Paginator } from "../common/paginator";
 import { PostListing } from "../post/post-listing";

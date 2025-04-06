@@ -13,7 +13,7 @@ import ThemeHandler from "./handlers/theme-handler";
 import ThemesListHandler from "./handlers/themes-list-handler";
 import { setCacheControl, setDefaultCsp } from "./middleware";
 import CodeThemeHandler from "./handlers/code-theme-handler";
-import { verifyDynamicImports } from "../shared/dynamic-imports";
+import { verifyDynamicImports } from "@utils/dynamic-imports";
 import cookieParser from "cookie-parser";
 
 const server = express();

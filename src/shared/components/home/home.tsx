@@ -72,13 +72,9 @@ import {
   TransferCommunity,
   CommentSortType,
 } from "lemmy-js-client";
-import { fetchLimit, relTags } from "../../config";
-import {
-  CommentViewType,
-  DataType,
-  InitialFetchRequest,
-} from "../../interfaces";
-import { mdToHtml } from "../../markdown";
+import { fetchLimit, relTags } from "@utils/config";
+import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
+import { mdToHtml } from "@utils/markdown";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -88,7 +84,7 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
@@ -105,7 +101,7 @@ import {
   PostsLoadingSkeleton,
 } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser, snapToTop } from "@utils/browser";
 import { CommentSortSelect } from "../common/comment-sort-select";

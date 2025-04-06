@@ -1,7 +1,6 @@
 import { Component } from "inferno";
 import { I18NextService, UserService } from "../../../services";
 import { Icon } from "../icon";
-import { CrossPostParams } from "@utils/types";
 import CrossPostButton from "./cross-post-button";
 import { CommunityModeratorView, PersonView, PostView } from "lemmy-js-client";
 import {
@@ -19,7 +18,12 @@ import ViewVotesModal from "../modal/view-votes-modal";
 import ModActionFormModal, {
   BanUpdateForm,
 } from "../modal/mod-action-form-modal";
-import { BanType, CommentNodeView, PurgeType } from "../../../interfaces";
+import {
+  BanType,
+  CommentNodeView,
+  CrossPostParams,
+  PurgeType,
+} from "@utils/types";
 import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";
 

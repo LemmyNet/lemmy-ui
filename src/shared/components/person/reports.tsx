@@ -32,8 +32,8 @@ import {
   ResolvePostReport,
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
-import { fetchLimit } from "../../config";
-import { InitialFetchRequest } from "../../interfaces";
+import { fetchLimit } from "@utils/config";
+import { InitialFetchRequest } from "@utils/types";
 import {
   FirstLoadService,
   HttpService,
@@ -55,7 +55,7 @@ import { PrivateMessageReport } from "../private_message/private-message-report"
 import { UnreadCounterService } from "../../services";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 
 enum UnreadOrAll {

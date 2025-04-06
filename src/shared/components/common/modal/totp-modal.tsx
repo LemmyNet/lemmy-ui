@@ -7,7 +7,7 @@ import {
   linkEvent,
 } from "inferno";
 import { I18NextService } from "../../../services";
-import { toast } from "../../../toast";
+import { toast } from "@utils/app";
 import type { Modal } from "bootstrap";
 import { modalMixin } from "../../mixins/modal-mixin";
 

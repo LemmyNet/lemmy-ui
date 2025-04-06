@@ -11,7 +11,7 @@ import CreateOrEditOAuthProviderModal, {
   CreateOrEditOAuthProviderModalData,
 } from "../../common/modal/create-or-edit-oauth-provider-modal";
 import ConfirmationModal from "../../common/modal/confirmation-modal";
-import { ProviderToEdit } from "@utils/types/oauth";
+import { ProviderToEdit } from "@utils/types";
 
 type OAuthProvidersTabProps = {
   oauthProviders: OAuthProvider[];

@@ -20,7 +20,7 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "../../../services/HttpService";
-import { fetchLimit } from "../../../config";
+import { fetchLimit } from "@utils/config";
 import { PersonListing } from "../../person/person-listing";
 import { modalMixin } from "../../mixins/modal-mixin";
 import { UserBadges } from "../user-badges";

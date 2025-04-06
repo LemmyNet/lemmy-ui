@@ -43,8 +43,8 @@ import {
   ModlogActionType,
   Person,
 } from "lemmy-js-client";
-import { fetchLimit } from "../config";
-import { InitialFetchRequest } from "../interfaces";
+import { fetchLimit } from "@utils/config";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
@@ -60,8 +60,8 @@ import { Paginator } from "./common/paginator";
 import { SearchableSelect } from "./common/searchable-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
-import { getHttpBaseInternal } from "../utils/env";
-import { IRoutePropsWithFetch } from "../routes";
+import { getHttpBaseInternal } from "@utils/env";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { LoadingEllipses } from "./common/loading-ellipses";
 
