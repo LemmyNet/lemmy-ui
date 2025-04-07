@@ -1,4 +1,4 @@
 [submodule "lemmy-translations"]
 	path = lemmy-translations
 	url = https://github.com/LemmyNet/lemmy-translations
-	branch = release-v0.19
+	branch = release/v0.19
