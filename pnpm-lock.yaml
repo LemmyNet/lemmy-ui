@@ -220,7 +220,7 @@ importers:
         specifier: ^1.4.7
         version: 1.4.8(@types/express@5.0.1)
       '@types/express':
-        specifier: ^5.0.0
+        specifier: ^5.0.1
         version: 5.0.1
       '@types/html-to-text':
         specifier: ^9.0.4

@@ -11,13 +11,14 @@ export default async (req: Request, res: Response) => {
   const theme = req.params.name;
 
   if (!theme.endsWith(".css")) {
-    return res.status(400).send("Theme must be a css file");
+    res.status(400).send("Theme must be a css file");
+    return;
   }
 
   const customTheme = path.resolve(extraThemesFolder, theme);
 
   if (existsSync(customTheme)) {
-    return res.sendFile(customTheme);
+    res.sendFile(customTheme);
   } else {
     const internalTheme = path.resolve(
       `./dist/assets/css/code-themes/${theme}`,
@@ -25,9 +26,9 @@ export default async (req: Request, res: Response) => {
 
     // If the theme doesn't exist, just send atom-one-light
     if (existsSync(internalTheme)) {
-      return res.sendFile(internalTheme);
+      res.sendFile(internalTheme);
     } else {
-      return res.sendFile(
+      res.sendFile(
         path.resolve("./dist/assets/css/code-themes/atom-one-light.css"),
       );
     }
