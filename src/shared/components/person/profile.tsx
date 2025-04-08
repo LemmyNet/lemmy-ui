@@ -762,7 +762,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
                     </button>
                   ))}
-                {amAdmin() && (
+                {amAdmin() && pv.person.local && (
                   <>
                     <button
                       className={
