@@ -1,8 +1,8 @@
 import { Component } from "inferno";
 import { GetSiteResponse } from "lemmy-js-client";
-import * as sanitizeHtml from "sanitize-html";
 import { HttpService, I18NextService } from "../../services";
 import { donateLemmyUrl } from "../../config";
+import { T } from "inferno-i18next-dess";
 
 interface Props {
   site?: GetSiteResponse;
@@ -48,14 +48,11 @@ export class DonationDialog extends Component<Props, State> {
               aria-label={I18NextService.i18n.t("donation_dialog_button_hide")}
             ></button>
           </div>
-          <div
-            class="card-text"
-            dangerouslySetInnerHTML={{
-              __html: sanitizeHtml(
-                I18NextService.i18n.t("donation_dialog_message"),
-              ),
-            }}
-          ></div>
+          <div class="card-text">
+            <T i18nKey="donation_dialog_message">
+              <br />
+            </T>
+          </div>
           <div class="mt-3">
             <button class="btn btn-info" onClick={this.clickDonate}>
               {I18NextService.i18n.t("donation_dialog_button_donate")}
