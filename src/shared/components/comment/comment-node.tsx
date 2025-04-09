@@ -205,6 +205,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 onClick={linkEvent(this, this.handleCommentCollapse)}
                 aria-label={this.expandText}
                 data-tippy-content={this.expandText}
+                aria-pressed={this.state.collapsed ? "true" : "false"}
               >
                 <Icon
                   icon={`${this.state.collapsed ? "plus" : "minus"}-square`}

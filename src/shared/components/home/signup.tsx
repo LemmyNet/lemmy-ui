@@ -3,7 +3,6 @@ import { isBrowser } from "@utils/browser";
 import { getQueryParams, resourcesSettled, validEmail } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { Component, linkEvent } from "inferno";
-import { T } from "inferno-i18next-dess";
 import {
   CaptchaResponse,
   GetCaptchaResponse,
@@ -11,7 +10,7 @@ import {
   LoginResponse,
   SiteView,
 } from "lemmy-js-client";
-import { joinLemmyUrl, validActorRegexPattern } from "../../config";
+import { validActorRegexPattern } from "../../config";
 import { mdToHtml } from "../../markdown";
 import { I18NextService, UserService } from "../../services";
 import {
@@ -131,10 +130,6 @@ export class Signup extends Component<SignupRouteProps, State> {
     );
   }
 
-  get isLemmyMl(): boolean {
-    return isBrowser() && window.location.hostname === "lemmy.ml";
-  }
-
   render() {
     return (
       <div className="home-signup container-lg">
@@ -161,16 +156,6 @@ export class Signup extends Component<SignupRouteProps, State> {
         onSubmit={linkEvent(this, this.handleRegisterSubmit)}
       >
         <h1 className="h4 mb-4">{this.titleName(siteView)}</h1>
-
-        {this.isLemmyMl && (
-          <div className="mb-3 row">
-            <div className="mt-2 mb-0 alert alert-warning" role="alert">
-              <T i18nKey="lemmy_ml_registration_message">
-                #<a href={joinLemmyUrl}>#</a>
-              </T>
-            </div>
-          </div>
-        )}
 
         <div className="mb-3 row">
           <label
