@@ -6,6 +6,7 @@ export default async ({ res }: { res: Response }) => {
   res.send(`User-Agent: *
 Disallow: /login
 Disallow: /login_reset
+DIsallow: /signup
 Disallow: /settings
 Disallow: /create_community
 Disallow: /create_post
