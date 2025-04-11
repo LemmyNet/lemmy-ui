@@ -8,6 +8,7 @@ Disallow: /login
 Disallow: /login_reset
 DIsallow: /signup
 Disallow: /settings
+Disallow: /instances
 Disallow: /create_community
 Disallow: /create_post
 Disallow: /create_private_message
@@ -17,5 +18,6 @@ Disallow: /admin
 Disallow: /password_change
 Disallow: /search
 Disallow: /modlog
+Disallow: /api
 Crawl-delay: 60`);
 };
