@@ -8,7 +8,6 @@ Disallow: /login
 Disallow: /login_reset
 Disallow: /signup
 Disallow: /settings
-Disallow: /instances
 Disallow: /create_community
 Disallow: /create_post
 Disallow: /create_private_message
