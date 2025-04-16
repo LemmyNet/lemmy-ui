@@ -149,7 +149,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     messageType: MessageType.All,
     sort: "New",
     page: 1,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     repliesRes: EMPTY_REQUEST,
     mentionsRes: EMPTY_REQUEST,
     messagesRes: EMPTY_REQUEST,

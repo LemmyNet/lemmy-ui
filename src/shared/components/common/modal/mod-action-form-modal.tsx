@@ -330,7 +330,7 @@ export default class ModActionFormModal extends Component<
             user: getApubName(this.props.creator),
             community: getApubName(
               this.props.community ?? {
-                actor_id: "",
+                ap_id: "",
                 name: "",
               },
             ),

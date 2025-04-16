@@ -4,7 +4,7 @@ import {
   PrivateMessageReportView,
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
-import { mdToHtmlNoImages } from "../../markdown";
+import { mdToHtmlNoImages } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";

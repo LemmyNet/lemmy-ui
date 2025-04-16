@@ -94,7 +94,7 @@ import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
-import { SortSelect } from "../common/sort-select";
+import { PostSortSelect } from "../common/post-sort-select";
 import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
@@ -248,7 +248,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   state: HomeState = {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     showSubscribedMobile: false,
     showSidebarMobile: false,
     subscribedCollapsed: false,
@@ -729,7 +729,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         </div>
         <div className="col-auto">
           {this.props.dataType === DataType.Post ? (
-            <SortSelect sort={sort} onChange={this.handleSortChange} />
+            <PostSortSelect sort={sort} onChange={this.handleSortChange} />
           ) : (
             <CommentSortSelect
               sort={postToCommentSortType(sort)}
