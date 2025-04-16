@@ -242,9 +242,12 @@ export class CommunityForm extends Component<
           </div>
         </div>
         <div className="mb-3 row">
-          <legend className="col-form-label col-6 pt-0">
+          <label
+            className="col-form-label col-6 pt-0"
+            htmlFor="community-only-mods-can-post"
+          >
             {I18NextService.i18n.t("only_mods_can_post_in_community")}
-          </legend>
+          </label>
           <div className="col-6">
             <div className="form-check">
               <input

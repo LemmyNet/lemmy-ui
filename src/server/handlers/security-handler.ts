@@ -12,9 +12,6 @@ export default async ({ res }: { res: Response }) => {
 
   res.setHeader("content-type", "text/plain; charset=utf-8");
 
-  res.send(
-    `Contact: https://github.com/LemmyNet/lemmy-ui/security/advisories/new
-  Expires: ${yearFromNow}
-  `,
-  );
+  res.send(`Contact: https://github.com/LemmyNet/lemmy-ui/security/advisories/new
+Expires: ${yearFromNow}`);
 };

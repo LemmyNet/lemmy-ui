@@ -422,6 +422,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           isMod={pv.creator_is_moderator}
           isAdmin={pv.creator_is_admin}
           isBot={pv.creator.bot_account}
+          isBanned={pv.creator.banned}
+          isBannedFromCommunity={pv.creator_banned_from_community}
         />
         {this.props.showCommunity && (
           <>
@@ -644,6 +646,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             <Icon icon="share" inline />
           </button>
         )}
+        <Link
+          className="btn btn-link btn-animate text-muted"
+          to={`/post/${id}`}
+          title={I18NextService.i18n.t("link")}
+        >
+          <Icon icon="link" classes="icon-inline" />
+        </Link>
         <a
           className="btn btn-sm btn-link btn-animate text-muted py-0"
           title={I18NextService.i18n.t("fedilink")}
@@ -773,6 +782,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         type="button"
         className="btn btn-sm btn-link link-dark link-opacity-75 link-opacity-100-hover py-0 align-baseline"
         onClick={linkEvent(this, this.handleShowBody)}
+        aria-pressed={!this.state.showBody ? "false" : "true"}
       >
         <Icon
           icon={!this.state.showBody ? "plus-square" : "minus-square"}

@@ -614,19 +614,20 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             hideMostComments
           />
         </div>
-        {/* Don't show the rss feed for the Saved view, as that's not implemented.*/}
-        {view !== PersonDetailsView.Saved && (
-          <div className="col-auto">
-            <a href={profileRss} rel={relTags} title="RSS">
-              <Icon icon="rss" classes="text-muted small ps-0" />
-            </a>
-            <link
-              rel="alternate"
-              type="application/atom+xml"
-              href={profileRss}
-            />
-          </div>
-        )}
+        {/* Don't show the rss feed for the Saved and Uploads view, as that's not implemented.*/}
+        {view !== PersonDetailsView.Saved &&
+          view !== PersonDetailsView.Uploads && (
+            <div className="col-auto">
+              <a href={profileRss} rel={relTags} title="RSS">
+                <Icon icon="rss" classes="text-muted small ps-0" />
+              </a>
+              <link
+                rel="alternate"
+                type="application/atom+xml"
+                href={profileRss}
+              />
+            </div>
+          )}
       </div>
     );
   }
@@ -762,7 +763,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
                     </button>
                   ))}
-                {amAdmin() && (
+                {amAdmin() && pv.person.local && (
                   <>
                     <button
                       className={

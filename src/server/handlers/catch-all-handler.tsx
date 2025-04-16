@@ -60,7 +60,8 @@ export default async (req: Request, res: Response) => {
     }
 
     if (!auth && isAuthPath(path)) {
-      return res.redirect(`/login${getQueryString({ prev: url })}`);
+      res.redirect(`/login${getQueryString({ prev: url })}`);
+      return;
     }
 
     if (tryUser.state === "success") {
@@ -71,7 +72,8 @@ export default async (req: Request, res: Response) => {
       siteRes = trySite.data;
 
       if (path !== "/setup" && !siteRes.site_view.local_site.site_setup) {
-        return res.redirect("/setup");
+        res.redirect("/setup");
+        return;
       }
 
       if (siteRes && activeRoute?.fetchInitialData && match) {
@@ -115,10 +117,12 @@ export default async (req: Request, res: Response) => {
       console.error(error.err);
 
       if (error.err.message === "instance_is_private") {
-        return res.redirect(`/signup`);
+        res.redirect(`/signup`);
+        return;
       } else {
         res.status(500);
-        errorPageData = getErrorPageData(new Error(error.err.message), siteRes);
+        errorPageData = getErrorPageData(new Error(error.err.message), site);
+        return;
       }
     }
 
@@ -157,7 +161,7 @@ export default async (req: Request, res: Response) => {
     console.error(err);
     res.statusCode = 500;
 
-    return res.send(
+    res.send(
       process.env.NODE_ENV === "development" ? err.message : "Server error",
     );
   }
