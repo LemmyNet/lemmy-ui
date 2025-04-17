@@ -76,6 +76,11 @@ export enum PersonDetailsView {
   Uploads = "Uploads",
 }
 
+export enum PersonDetailsFilter {
+  Own = "Own",
+  Upvoted = "Upvoted",
+}
+
 export enum PurgeType {
   Person,
   Community,
