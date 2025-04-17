@@ -79,6 +79,9 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
         show_nsfw: local_oauth_state.show_nsfw,
         username: local_oauth_state.username,
         answer: local_oauth_state.answer,
+        ...(local_oauth_state?.pkce_code_verifier && {
+          pkce_code_verifier: local_oauth_state.pkce_code_verifier,
+        }),
       });
 
       switch (loginRes.state) {
