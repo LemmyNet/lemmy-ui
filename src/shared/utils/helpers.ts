@@ -1,5 +1,6 @@
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { RequestState } from "@services/HttpService";
+import { PaginationCursor } from "lemmy-js-client";
 
 // Intended to allow reloading all the data of the current page by clicking the
 // navigation link of the current page.
@@ -73,9 +74,10 @@ export function getBoolFromString(boolStr?: string): boolean | undefined {
   return boolStr ? boolStr.toLowerCase() === "true" : undefined;
 }
 
-// TODO get rid of this
-export function getPageFromString(page?: string): number {
-  return page && !Number.isNaN(Number(page)) ? Number(page) : 1;
+export function getPageCursorFromString(
+  pageCursor?: string,
+): PaginationCursor | undefined {
+  return pageCursor ? pageCursor : undefined;
 }
 
 type Empty = NonNullable<unknown>;

@@ -77,7 +77,7 @@ import {
   getSearchQueryParams,
 } from "@components/search";
 import { InitialFetchRequest, RouteData } from "@utils/types";
-import { GetSiteResponse } from "lemmy-js-client";
+import { GetSiteResponse, MyUserInfo } from "lemmy-js-client";
 import { Inferno } from "inferno";
 import {
   OAuthCallback,
@@ -96,6 +96,7 @@ export interface IRoutePropsWithFetch<
   getQueryParams?(
     source: string | undefined,
     siteRes: GetSiteResponse,
+    myUserInfo?: MyUserInfo,
   ): QueryPropsT;
   component: Inferno.ComponentClass<
     RouteComponentProps<PathPropsT> & QueryPropsT
@@ -212,6 +213,7 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     path: `/registration_applications`,
     component: RegistrationApplications,
     fetchInitialData: RegistrationApplications.fetchInitialData,
+    getQueryParams: getRegistrationApplicationQueryParams,
   } as RegistrationApplicationsFetchConfig,
   {
     path: `/search`,

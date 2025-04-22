@@ -5,7 +5,6 @@ import {
   CommunityView,
   FederationMode,
   GetSiteResponse,
-  LocalUserVoteDisplayMode,
   MyUserInfo,
   PersonCommentMentionView,
   PersonPostMentionView,
@@ -244,7 +243,6 @@ export function editRegistrationApplication(
 export function editWith<D extends WithComment, L extends WithComment>(
   {
     comment,
-    counts,
     saved,
     my_vote,
     creator_banned_from_community,
@@ -260,7 +258,6 @@ export function editWith<D extends WithComment, L extends WithComment>(
         ? {
             ...c,
             comment,
-            counts,
             saved,
             my_vote,
             creator_banned_from_community,
@@ -287,19 +284,6 @@ export function postUpvotesMode(siteRes: GetSiteResponse): FederationMode {
 
 export function postDownvotesMode(siteRes: GetSiteResponse): FederationMode {
   return siteRes.site_view.local_site.post_downvotes;
-}
-
-export function voteDisplayMode(
-  myUserInfo?: MyUserInfo,
-): LocalUserVoteDisplayMode {
-  return (
-    myUserInfo?.local_user_view.local_user_vote_display_mode ?? {
-      upvotes: true,
-      downvotes: true,
-      score: false,
-      upvote_percentage: false,
-    }
-  );
 }
 
 export function enableNsfw(siteRes?: GetSiteResponse): boolean {
@@ -552,12 +536,6 @@ export function showAvatars(myUserInfo?: MyUserInfo): boolean {
 
 export function showLocal(isoData: IsoData): boolean {
   return isoData.siteRes?.site_view.local_site.federation_enabled ?? true;
-}
-
-export function showScores(myUserInfo?: MyUserInfo): boolean {
-  const voteDisplayMode =
-    myUserInfo?.local_user_view.local_user_vote_display_mode;
-  return (voteDisplayMode?.score || voteDisplayMode?.upvotes) ?? true;
 }
 
 export function siteBannerCss(banner: string): string {

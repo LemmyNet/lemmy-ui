@@ -1,7 +1,6 @@
 import {
   commentsToFlatNodes,
   communityToChoice,
-  enableDownvotes,
   enableNsfw,
   fetchCommunities,
   fetchUsers,
@@ -9,7 +8,6 @@ import {
   personToChoice,
   setIsoData,
   showLocal,
-  voteDisplayMode,
 } from "@utils/app";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import {

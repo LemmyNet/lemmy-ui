@@ -19,6 +19,7 @@ import {
   getQueryString,
   resourcesSettled,
   bareRoutePush,
+  getPageCursorFromString,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import type { QueryParams, StringBoolean } from "@utils/types";
@@ -152,7 +153,7 @@ export function getCommunityQueryParams(
   return getQueryParams<CommunityProps, Fallbacks>(
     {
       dataType: getDataTypeFromQuery,
-      pageCursor: (cursor?: string) => cursor,
+      pageCursor: getPageCursorFromString,
       sort: getSortTypeFromQuery,
       showHidden: (include?: StringBoolean) => include,
     },
