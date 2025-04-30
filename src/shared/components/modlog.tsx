@@ -525,7 +525,7 @@ const Filter = ({
       value={value ?? 0}
       options={[
         {
-          label: I18NextService.i18n.t("all"),
+          label: I18NextService.i18n.t("all") as string,
           value: "0",
         },
       ].concat(options)}

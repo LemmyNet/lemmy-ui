@@ -412,9 +412,9 @@ export default class ContentActionDropdown extends Component<
                       label={
                         removed
                           ? `${I18NextService.i18n.t(
-                              "restore",
-                            )} ${I18NextService.i18n.t(
-                              type === "post" ? "post" : "comment",
+                              type === "post"
+                                ? "restore_post"
+                                : "restore_comment",
                             )}`
                           : I18NextService.i18n.t(
                               type === "post"
@@ -792,7 +792,7 @@ export default class ContentActionDropdown extends Component<
             show={showAppointAdminDialog}
             message={I18NextService.i18n.t(
               creator_is_admin
-                ? "removing_as_admin_are_you_sure"
+                ? "remove_as_admin_are_you_sure"
                 : "appoint_as_admin_are_you_sure",
               {
                 user: getApubName(creator),

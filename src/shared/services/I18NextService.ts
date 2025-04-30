@@ -320,6 +320,7 @@ export async function loadLanguageInstances(
   const options: InitOptions = {
     debug: false,
     compatibilityJSON: "v3",
+    returnEmptyString: false,
     nonExplicitSupportedLngs: true,
     load: "all",
     initImmediate: false,

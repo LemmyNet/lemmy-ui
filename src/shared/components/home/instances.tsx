@@ -2,6 +2,7 @@ import { setIsoData } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
+  FederatedInstances,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   Instance,
@@ -121,7 +122,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
               <Tabs
                 tabs={["linked", "allowed", "blocked"]
                   .filter(status => instances[status].length)
-                  .map(status => ({
+                  .map((status: keyof FederatedInstances) => ({
                     key: status,
                     label: I18NextService.i18n.t(`${status}_instances`),
                     getNode: isSelected => (

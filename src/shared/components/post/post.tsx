@@ -1255,7 +1255,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       await HttpService.client.transferCommunity(form);
     this.updateCommunityFull(transferCommunityRes);
     if (transferCommunityRes.state === "success") {
-      toast(I18NextService.i18n.t("transferred_community"));
+      toast(I18NextService.i18n.t("transfered_community"));
     }
   }
 
