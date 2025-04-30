@@ -19,7 +19,7 @@ import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
 import { parsePath } from "history";
 import { getQueryString } from "@utils/helpers";
-import { adultConsentCookieKey } from "@utils/config";
+import { adultConsentCookieKey, testHost } from "@utils/config";
 import { loadLanguageInstances } from "@services/I18NextService";
 
 export default async (req: Request, res: Response) => {
@@ -59,7 +59,8 @@ export default async (req: Request, res: Response) => {
     }
 
     if (!auth && isAuthPath(path)) {
-      return res.redirect(`/login${getQueryString({ prev: url })}`);
+      res.redirect(`/login${getQueryString({ prev: url })}`);
+      return;
     }
 
     if (tryUser.state === "success") {
@@ -70,7 +71,8 @@ export default async (req: Request, res: Response) => {
       siteRes = trySite.data;
 
       if (path !== "/setup" && !siteRes.site_view.local_site.site_setup) {
-        return res.redirect("/setup");
+        res.redirect("/setup");
+        return;
       }
 
       if (siteRes && activeRoute?.fetchInitialData && match) {
@@ -106,7 +108,8 @@ export default async (req: Request, res: Response) => {
       console.error(error.err);
 
       if (error.err.message === "instance_is_private") {
-        return res.redirect(`/signup`);
+        res.redirect(`/signup`);
+        return;
       } else {
         res.status(500);
         errorPageData = getErrorPageData(new Error(error.err.message), siteRes);
@@ -122,6 +125,7 @@ export default async (req: Request, res: Response) => {
       showAdultConsentModal:
         !!siteRes?.site_view.site.content_warning &&
         !(myUserInfo || req.cookies[adultConsentCookieKey]),
+      lemmy_external_host: process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ?? testHost,
     };
 
     const interfaceLanguage =
@@ -154,7 +158,7 @@ export default async (req: Request, res: Response) => {
     console.error(err);
     res.statusCode = 500;
 
-    return res.send(
+    res.send(
       process.env.NODE_ENV === "development" ? err.message : "Server error",
     );
   }
