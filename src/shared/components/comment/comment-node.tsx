@@ -239,7 +239,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 becameModerator={creator_is_moderator}
                 isAdmin={creator_is_admin}
                 isBot={cv.creator.bot_account}
-                isBanned={cv.creator.banned}
+                isBanned={cv.creator_banned}
                 isBannedFromCommunity={
                   !!cv.creator_community_actions?.received_ban
                 }
@@ -691,7 +691,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     shouldRemoveOrRestoreData,
   }: BanUpdateForm) {
     const {
-      creator: { id: person_id, banned },
+      creator: { id: person_id },
+      creator_banned: banned,
     } = this.commentView;
 
     const ban = !banned;

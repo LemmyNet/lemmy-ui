@@ -72,7 +72,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
     return (
       <>
         {!this.props.hideAvatar &&
-          !this.props.person.banned &&
+          /* TODO: hide avatar of banned person */
           showAvatars() && (
             <PictrsImage
               src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}

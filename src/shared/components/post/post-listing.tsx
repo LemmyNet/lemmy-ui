@@ -429,7 +429,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           becameModerator={pv.creator_community_actions?.became_moderator}
           isAdmin={pv.creator_is_admin}
           isBot={pv.creator.bot_account}
-          isBanned={pv.creator.banned}
+          isBanned={pv.creator_banned}
           isBannedFromCommunity={!!pv.creator_community_actions?.received_ban}
         />
         {this.props.showCommunity && (
@@ -1094,7 +1094,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     shouldRemoveOrRestoreData,
   }: BanUpdateForm) {
     const {
-      creator: { id: person_id, banned },
+      creator: { id: person_id },
+      creator_banned: banned,
     } = this.postView;
     const ban = !banned;
 

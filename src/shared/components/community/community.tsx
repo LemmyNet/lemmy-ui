@@ -1102,12 +1102,12 @@ export class Community extends Component<CommunityRouteProps, State> {
         if (s.postsRes.state === "success") {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banRes.data.banned));
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banRes.data.banned));
         }
         return s;
       });

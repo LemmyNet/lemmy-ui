@@ -69,6 +69,8 @@ export class CommentReport extends Component<
       creator_community_actions: r.creator_community_actions,
       creator_is_admin: r.creator_is_admin,
       can_mod: true,
+      creator_banned: !!r.creator_community_actions?.received_ban,
+      post_tags: [],
     };
 
     const node: CommentNodeI = {

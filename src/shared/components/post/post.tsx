@@ -1400,12 +1400,12 @@ export class Post extends Component<PostRouteProps, PostState> {
           s.postRes.data.post_view.creator.id ===
             banRes.data.person_view.person.id
         ) {
-          s.postRes.data.post_view.creator.banned = banRes.data.banned;
+          s.postRes.data.post_view.creator_banned = banRes.data.banned;
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banRes.data.banned));
         }
         return s;
       });

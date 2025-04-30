@@ -53,7 +53,7 @@ function voteViewTable(votes: VoteView[]) {
                   classNames="ms-1"
                   isBot={v.creator.bot_account}
                   isDeleted={v.creator.deleted}
-                  isBanned={v.creator.banned}
+                  isBanned={/* TODO: */ false}
                   isBannedFromCommunity={v.creator_banned_from_community}
                 />
               </td>

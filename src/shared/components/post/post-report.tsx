@@ -70,6 +70,8 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       creator_community_actions: r.creator_community_actions,
       creator_is_admin: r.creator_is_admin,
       can_mod: true, // TODO: Reports are only shown to users that can_mod?
+      creator_banned: !!r.creator_community_actions?.received_ban,
+      tags: [],
     };
 
     return (

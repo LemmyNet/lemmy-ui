@@ -1,13 +1,15 @@
 import {
-  CommentReply,
   CommentView,
   CommunityView,
   CreateOAuthProvider,
   GetSiteResponse,
-  PersonCommentMention,
   PersonContentType,
   PersonView,
   MyUserInfo,
+  CommentReplyView,
+  PersonCommentMentionView,
+  PersonCommentMention,
+  CommentReply,
 } from "lemmy-js-client";
 import { RequestState } from "@services/HttpService";
 import { Match } from "inferno-router/dist/Route";
@@ -96,7 +98,11 @@ export enum VoteContentType {
   Comment,
 }
 
-export type CommentNodeView = CommentView & {
+export type CommentNodeView = (
+  | CommentView
+  | PersonCommentMentionView
+  | CommentReplyView
+) & {
   person_comment_mention?: PersonCommentMention;
   comment_reply?: CommentReply;
 };

@@ -731,7 +731,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     return (
       pv && (
         <div>
-          {!pv.person.banned && (
+          {!pv.creator_banned && (
             <BannerIconHeader
               banner={pv.person.banner}
               icon={pv.person.avatar}
@@ -757,7 +757,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     <li className="list-inline-item">
                       <UserBadges
                         classNames="ms-1"
-                        isBanned={pv.person.banned}
+                        isBanned={pv.creator_banned}
                         isDeleted={pv.person.deleted}
                         isAdmin={pv.is_admin}
                         isBot={pv.person.bot_account}
@@ -829,7 +829,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 {canAdmin(pv.person.id, admins, this.isoData.myUserInfo) &&
                   !pv.is_admin &&
                   !showBanDialog &&
-                  (!pv.person.banned ? (
+                  (!pv.creator_banned ? (
                     <button
                       className={
                         "d-flex align-self-start btn btn-secondary me-2"
@@ -1123,7 +1123,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     if (personRes.state === "success") {
       const person = personRes.data.person_view.person;
-      const ban = !person.banned;
+      const ban = !personRes.data.person_view.creator_banned;
 
       // If its an unban, restore all their data
       if (!ban) {
@@ -1393,7 +1393,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         c.community.id === communityId
           ? {
               ...c,
-              creator_banned_from_community: banRes.data.banned,
+              creator_banned: banRes.data.banned,
             }
           : c,
       );

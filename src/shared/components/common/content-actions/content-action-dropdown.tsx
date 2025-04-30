@@ -154,12 +154,13 @@ export default class ContentActionDropdown extends Component<
       community,
       creator_is_admin,
       creator_is_moderator,
+      creator_banned,
     } = this.contentInfo;
     const dropdownId =
       type === "post"
         ? `post-actions-dropdown-${id}`
         : `comment-actions-dropdown-${id}`;
-    const creatorBannedFromLocal = creator.banned;
+    const creatorBannedFromLocal = creator_banned;
     const showToggleAdmin = !creatorBannedFromLocal && creator.local;
     const canAppointCommunityMod =
       (amMod(
@@ -678,6 +679,7 @@ export default class ContentActionDropdown extends Component<
       community,
       creator_is_admin,
       creator_is_moderator,
+      creator_banned,
       id,
     } = this.contentInfo;
     const {
@@ -722,7 +724,7 @@ export default class ContentActionDropdown extends Component<
               banType === BanType.Community
                 ? !!creator_banned_from_community
                 : banType === BanType.Site
-                  ? creator.banned
+                  ? creator_banned
                   : false
             }
             community={community}
@@ -830,6 +832,7 @@ export default class ContentActionDropdown extends Component<
         } = {},
         community,
         creator_is_admin,
+        creator_banned,
       } = this.props.postView;
 
       return {
@@ -843,6 +846,7 @@ export default class ContentActionDropdown extends Component<
         community,
         creator_is_admin,
         creator_is_moderator,
+        creator_banned,
       };
     } else {
       const {
@@ -855,6 +859,7 @@ export default class ContentActionDropdown extends Component<
         } = {},
         community,
         creator_is_admin,
+        creator_banned,
       } = this.props.commentView;
 
       return {
@@ -867,6 +872,7 @@ export default class ContentActionDropdown extends Component<
         community,
         creator_is_admin,
         creator_is_moderator,
+        creator_banned,
       };
     }
   }
