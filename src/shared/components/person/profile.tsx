@@ -642,7 +642,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             active,
           })}
         >
-          {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
+          {I18NextService.i18n.t(view.toLowerCase())}
         </label>
       </>
     );

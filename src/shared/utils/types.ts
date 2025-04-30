@@ -34,6 +34,9 @@ declare global {
     isoData: IsoDataOptionalSite;
     checkLazyScripts?: () => void;
   }
+  interface String {
+    toLowerCase<T extends string>(this: T): Lowercase<T>;
+  }
 }
 
 export interface InitialFetchRequest<

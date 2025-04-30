@@ -25,7 +25,6 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent, createRef } from "inferno";
 import {
   CommunityView,
@@ -621,11 +620,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               <option disabled aria-hidden="true">
                 {I18NextService.i18n.t("type")}
               </option>
-              {searchTypes.map(option => (
+              {searchTypes.map((option: SearchType) => (
                 <option value={option} key={option}>
-                  {I18NextService.i18n.t(
-                    option.toString().toLowerCase() as NoOptionI18nKeys,
-                  )}
+                  {I18NextService.i18n.t(option.toLowerCase())}
                 </option>
               ))}
             </select>
