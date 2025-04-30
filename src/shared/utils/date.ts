@@ -12,7 +12,7 @@ import {
 
 export function futureDaysToUnixTime(days?: number): number | undefined {
   return days && days > 0
-    ? addDays(constructNow(undefined), days).getTime() / 1000
+    ? Math.trunc(addDays(constructNow(undefined), days).getTime() / 1000)
     : undefined;
 }
 
