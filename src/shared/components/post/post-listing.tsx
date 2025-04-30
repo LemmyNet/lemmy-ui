@@ -148,12 +148,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   unlisten = () => {};
 
   componentWillMount(): void {
-    if (this.props.myUserInfo && !this.props.showAdultConsentModal) {
+    if (this.props.showAdultConsentModal) {
+      this.setState({ imageExpanded: false });
+    }
+
+    if (this.props.myUserInfo) {
       const blur_nsfw =
         this.props.myUserInfo.local_user_view.local_user.blur_nsfw;
-      this.setState({
-        imageExpanded: !(blur_nsfw && this.postView.post.nsfw),
-      });
+      if (blur_nsfw && this.postView.post.nsfw) {
+        this.setState({ imageExpanded: false });
+      }
     }
 
     // Leave edit mode on navigation
