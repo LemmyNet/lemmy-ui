@@ -297,7 +297,7 @@ function handleImageDelete(i: PostForm) {
   const { uploadedImage } = i.state;
 
   if (uploadedImage) {
-    HttpService.client.deleteImage({
+    HttpService.client.deleteMedia({
       filename: uploadedImage.filename,
     });
   }

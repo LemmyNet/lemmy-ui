@@ -692,7 +692,7 @@ export async function pictrsDeleteToast(filename: string) {
       duration: 10000,
       onClick: async () => {
         if (toast) {
-          const res = await HttpService.client.deleteImage({ filename });
+          const res = await HttpService.client.deleteMedia({ filename });
           if (res.state === "success") {
             alert(deletePictureText);
           } else {
