@@ -19,7 +19,12 @@ fs.readdir(translationDir, (_err, files) => {
       }
       data += "\n  },\n};";
       const target = outDir + lang + ".ts";
-      fs.writeFileSync(target, data);
+      if (
+        !fs.existsSync(target) ||
+        fs.readFileSync(target).toString() !== data
+      ) {
+        fs.writeFileSync(target, data);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -104,5 +109,8 @@ ${optionKeys.map(key => `${indent}| "${key}"`).join("\n")};
 }
 `;
 
-  fs.writeFileSync(`${outDir}i18next.d.ts`, data);
+  const target = `${outDir}i18next.d.ts`;
+  if (!fs.existsSync(target) || fs.readFileSync(target).toString() !== data) {
+    fs.writeFileSync(target, data);
+  }
 });
