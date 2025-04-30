@@ -11,6 +11,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { UnreadCounterService } from "../../../services";
 import { HttpService } from "../../../services/HttpService";
 import { toast } from "@utils/app";
+import { NoOptionI18nKeys } from "i18next";
 
 interface OAuthCallbackProps {
   code?: string;
@@ -106,7 +107,10 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
             case "registration_username_required":
             case "registration_application_answer_required":
               err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
-              toast(I18NextService.i18n.t(loginRes.err.message), "danger");
+              toast(
+                I18NextService.i18n.t(loginRes.err.message as NoOptionI18nKeys),
+                "danger",
+              );
               break;
             case "registration_application_is_pending":
               toast(

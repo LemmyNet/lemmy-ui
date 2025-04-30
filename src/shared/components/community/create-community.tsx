@@ -7,6 +7,7 @@ import { CommunityForm } from "./community-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { toast } from "@utils/app";
+import { NoOptionI18nKeys } from "i18next";
 
 interface CreateCommunityState {
   loading: boolean;
@@ -73,7 +74,10 @@ export class CreateCommunity extends Component<
       const name = res.data.community_view.community.name;
       this.props.history.replace(`/c/${name}`);
     } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
     this.setState({ loading: false });
   }

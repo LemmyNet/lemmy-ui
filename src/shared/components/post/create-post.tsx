@@ -42,6 +42,7 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { toast } from "@utils/app";
 import { isBrowser } from "@utils/browser";
+import { NoOptionI18nKeys } from "i18next";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -386,7 +387,10 @@ export class CreatePost extends Component<
       this.setState({
         loading: false,
       });
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
   }
 

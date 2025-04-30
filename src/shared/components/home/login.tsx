@@ -25,6 +25,7 @@ import { UnreadCounterService } from "../../services";
 import { RouteData } from "@utils/types";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { NoOptionI18nKeys } from "i18next";
 
 interface LoginProps {
   prev?: string;
@@ -101,7 +102,7 @@ async function handleLoginSubmit(i: Login, event: any) {
             I18NextService.i18n.t(
               loginRes.err.message === "registration_application_is_pending"
                 ? "registration_application_pending"
-                : loginRes.err.message,
+                : (loginRes.err.message as NoOptionI18nKeys),
             ),
             "danger",
           );

@@ -116,6 +116,7 @@ import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
 import { CommunityHeader } from "./community-header";
 import { nowBoolean } from "@utils/date";
+import { NoOptionI18nKeys } from "i18next";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -875,7 +876,10 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.createAndUpdateComments(createCommentRes);
 
     if (createCommentRes.state === "failed") {
-      toast(I18NextService.i18n.t(createCommentRes.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(createCommentRes.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
     return createCommentRes;
   }
@@ -885,7 +889,10 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.findAndUpdateCommentEdit(editCommentRes);
 
     if (editCommentRes.state === "failed") {
-      toast(I18NextService.i18n.t(editCommentRes.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(editCommentRes.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
     return editCommentRes;
   }

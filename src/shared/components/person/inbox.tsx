@@ -86,6 +86,7 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { PostMention } from "../post/post-mention";
+import { NoOptionI18nKeys } from "i18next";
 
 enum UnreadOrAll {
   Unread,
@@ -987,7 +988,10 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     const res = await HttpService.client.editPrivateMessage(form);
     this.findAndUpdateMessage(res);
     if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
     return res.state !== "failed";
   }
@@ -1048,7 +1052,10 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
     return res.state !== "failed";
   }
@@ -1120,7 +1127,10 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     if (res.state === "success") {
       toast(I18NextService.i18n.t("report_created"));
     } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
   }
 

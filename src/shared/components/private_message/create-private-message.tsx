@@ -26,6 +26,7 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
+import { NoOptionI18nKeys } from "i18next";
 
 type CreatePrivateMessageData = RouteDataResponse<{
   recipientDetailsResponse: GetPersonDetailsResponse;
@@ -175,7 +176,10 @@ export class CreatePrivateMessage extends Component<
       // Navigate to the front
       this.context.router.history.push("/");
     } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
 
     return res.state !== "failed";

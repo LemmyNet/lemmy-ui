@@ -54,6 +54,7 @@ import { CrossPostParams } from "@utils/types";
 import { RequestState } from "../../services/HttpService";
 import { toast } from "@utils/app";
 import { isMagnetLink, extractMagnetLinkDownloadName } from "@utils/media";
+import { NoOptionI18nKeys } from "i18next";
 
 type PostListingState = {
   showEdit: boolean;
@@ -912,7 +913,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       toast(I18NextService.i18n.t("edited_post"));
       this.setState({ loading: false, showEdit: false });
     } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
+        "danger",
+      );
       this.setState({ loading: false });
     }
   }

@@ -106,6 +106,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { compareAsc, compareDesc } from "date-fns";
 import { nowBoolean } from "@utils/date";
+import { NoOptionI18nKeys } from "i18next";
 
 const commentsShownInterval = 15;
 
@@ -1464,7 +1465,10 @@ export class Post extends Component<PostRouteProps, PostState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
   }
 
@@ -1479,7 +1483,10 @@ export class Post extends Component<PostRouteProps, PostState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
   }
 
@@ -1494,7 +1501,10 @@ export class Post extends Component<PostRouteProps, PostState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
   }
 

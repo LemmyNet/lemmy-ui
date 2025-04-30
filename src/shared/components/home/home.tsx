@@ -929,7 +929,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.createAndUpdateComments(createCommentRes);
 
     if (createCommentRes.state === "failed") {
-      toast(I18NextService.i18n.t(createCommentRes.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(createCommentRes.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
     return createCommentRes;
   }
@@ -939,7 +942,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.findAndUpdateCommentEdit(editCommentRes);
 
     if (editCommentRes.state === "failed") {
-      toast(I18NextService.i18n.t(editCommentRes.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(editCommentRes.err.message as NoOptionI18nKeys),
+        "danger",
+      );
     }
     return editCommentRes;
   }
