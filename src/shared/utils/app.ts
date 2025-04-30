@@ -659,7 +659,7 @@ export function toast(text: string, background: ThemeColor = "success") {
     const backgroundColor = `var(--bs-${background})`;
     Toastify({
       text: text,
-      backgroundColor: backgroundColor,
+      style: { background: backgroundColor },
       gravity: "bottom",
       position: "left",
       duration: 5000,

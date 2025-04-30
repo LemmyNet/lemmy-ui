@@ -3,6 +3,7 @@ import { ImportReport } from "@utils/dynamic-imports";
 import { en } from "../translations/en";
 import { Locale, setDefaultOptions } from "date-fns";
 import { isBrowser } from "@utils/browser";
+import { toast } from "@utils/app";
 
 /****************
  * Translations *
@@ -325,9 +326,13 @@ export async function loadLanguageInstances(
     fallbackLng: "en",
     resources: { en },
     interpolation: { format },
+    saveMissing: process.env["NODE_ENV"] === "development",
+    saveMissingPlurals: process.env["NODE_ENV"] === "development", // only works with v4 plurals
+    saveMissingTo: "all",
   };
   const i18n = i18next.createInstance(options);
   i18n.init();
+  i18n.on("missingKey", missingKeyHandler); // called on first use of missing key
 
   await Promise.all(
     translationDescs
@@ -372,6 +377,18 @@ export async function updateLanguageInstances(
 
 export function format(value: any, format: any): any {
   return format === "uppercase" ? value.toUpperCase() : value;
+}
+
+function missingKeyHandler(
+  _: readonly string[],
+  __: string,
+  key: string,
+): void {
+  const msg = `Missing i18n key: ${key}`;
+  toast(`${msg}`, "info");
+  let stack = new Error().stack?.split("\n") ?? [];
+  stack = stack.filter(x => !x.includes("node_modules")).slice(0, 3);
+  console.warn(msg + ` \n${stack.join("\n")}`);
 }
 
 export class I18NextService {
