@@ -19,6 +19,7 @@ import {
   GetSiteMetadataResponse,
   Language,
   LanguageId,
+  LocalSite,
   MyUserInfo,
   PersonView,
   PostView,
@@ -67,13 +68,13 @@ interface PostFormProps {
   onEdit?(form: EditPost, bypassNavWarning: () => void): void;
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
-  enableDownvotes?: boolean;
   selectedCommunityChoice?: Choice;
   isNsfwCommunity: boolean;
   onSelectCommunity?: (choice: Choice) => void;
   initialCommunities?: CommunityView[];
   loading: boolean;
   myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   admins: PersonView[];
   onTitleBlur?: (title: string) => void;
   onUrlBlur?: (url: string) => void;
@@ -576,12 +577,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <PostListings
                 showCommunity
                 posts={this.props.crossPosts}
-                enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
                 myUserInfo={this.props.myUserInfo}
+                localSite={this.props.localSite}
                 admins={this.props.admins}
                 viewOnly
                 // All of these are unused, since its view only
@@ -821,12 +822,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <PostListings
                 showCommunity
                 posts={suggestedPosts}
-                enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
                 myUserInfo={this.props.myUserInfo}
+                localSite={this.props.localSite}
                 admins={this.props.admins}
                 viewOnly
                 // All of these are unused, since its view only

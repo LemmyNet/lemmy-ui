@@ -38,6 +38,7 @@ import {
   MyUserInfo,
   PersonContentCombinedView,
   PersonContentType,
+  LocalSite,
 } from "lemmy-js-client";
 import { CommentViewType } from "@utils/types";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -51,11 +52,11 @@ interface PersonDetailsProps {
   siteLanguages: number[];
   limit: number;
   sort: PostSortType;
-  enableDownvotes: boolean;
   enableNsfw: boolean;
   showAdultConsentModal: boolean;
   view: PersonContentType;
   myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonCommentMentionAsRead): void;
@@ -121,12 +122,12 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             noBorder
             showCommunity
             showContext
-            enableDownvotes={this.props.enableDownvotes}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             onCommentReplyRead={this.props.onCommentReplyRead}
             onPersonMentionRead={this.props.onPersonMentionRead}
             myUserInfo={this.props.myUserInfo}
+            localSite={this.props.localSite}
             onCreateComment={this.props.onCreateComment}
             onEditComment={this.props.onEditComment}
             onCommentVote={this.props.onCommentVote}
@@ -154,12 +155,12 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             post_view={i}
             admins={this.props.admins}
             showCommunity
-            enableDownvotes={this.props.enableDownvotes}
             enableNsfw={this.props.enableNsfw}
             showAdultConsentModal={this.props.showAdultConsentModal}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             myUserInfo={this.props.myUserInfo}
+            localSite={this.props.localSite}
             markable
             onPostEdit={this.props.onPostEdit}
             onPostVote={this.props.onPostVote}
@@ -209,10 +210,10 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           isTopLevel
           showCommunity
           showContext
-          enableDownvotes={this.props.enableDownvotes}
           allLanguages={this.props.allLanguages}
           siteLanguages={this.props.siteLanguages}
           myUserInfo={this.props.myUserInfo}
+          localSite={this.props.localSite}
           onCommentReplyRead={this.props.onCommentReplyRead}
           onPersonMentionRead={this.props.onPersonMentionRead}
           onCreateComment={this.props.onCreateComment}
@@ -247,12 +248,12 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               post_view={post}
               admins={this.props.admins}
               showCommunity
-              enableDownvotes={this.props.enableDownvotes}
               enableNsfw={this.props.enableNsfw}
               showAdultConsentModal={this.props.showAdultConsentModal}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
               myUserInfo={this.props.myUserInfo}
+              localSite={this.props.localSite}
               markable
               onPostEdit={this.props.onPostEdit}
               onPostVote={this.props.onPostVote}

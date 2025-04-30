@@ -15,6 +15,7 @@ import {
   HidePost,
   Language,
   LanguageId,
+  LocalSite,
   LockPost,
   MarkPostAsRead,
   MyUserInfo,
@@ -37,12 +38,12 @@ interface PostListingsProps {
   siteLanguages: LanguageId[];
   showCommunity?: boolean;
   removeDuplicates?: boolean;
-  enableDownvotes?: boolean;
   markable?: boolean;
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
   viewOnly?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   admins: PersonView[];
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
@@ -88,13 +89,13 @@ export class PostListings extends Component<PostListingsProps, any> {
                 markable={this.props.markable}
                 crossPosts={this.duplicatesMap.get(post_view.post.id)}
                 showCommunity={this.props.showCommunity}
-                enableDownvotes={this.props.enableDownvotes}
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 viewOnly={this.props.viewOnly}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
                 myUserInfo={this.props.myUserInfo}
+                localSite={this.props.localSite}
                 admins={this.props.admins}
                 onPostEdit={this.props.onPostEdit}
                 onPostVote={this.props.onPostVote}

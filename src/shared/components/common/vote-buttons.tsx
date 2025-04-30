@@ -5,6 +5,7 @@ import {
   Comment,
   CreateCommentLike,
   CreatePostLike,
+  LocalSite,
   LocalUser,
   MyUserInfo,
   Post,
@@ -19,10 +20,9 @@ interface VoteButtonsProps {
   voteContentType: VoteContentType;
   id: number;
   onVote: (i: CreateCommentLike | CreatePostLike) => void;
-  enableUpvotes?: boolean;
-  enableDownvotes?: boolean;
   subject: Post | Comment;
   myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   myVote?: number;
   disabled: boolean;
 }
@@ -32,9 +32,67 @@ interface VoteButtonsState {
   downvoteLoading: boolean;
 }
 
+export function showUpvotes(
+  localUser: LocalUser | undefined,
+  localSite: LocalSite,
+  type: VoteContentType,
+): boolean {
+  return enableUpvotes(localSite, type) && (localUser?.show_upvotes ?? true);
+}
+
+export function showDownvotes(
+  localUser: LocalUser | undefined,
+  localSite: LocalSite,
+  type: VoteContentType,
+): boolean {
+  return (
+    enableDownvotes(localSite, type) && (localUser?.show_downvotes ?? true)
+  );
+}
+
+export function showScore(localUser: LocalUser | undefined): boolean {
+  return !localUser || localUser?.show_score || localUser?.show_upvotes;
+}
+
+export function showPercentage(
+  localUser: LocalUser | undefined,
+  localSite: LocalSite,
+  type: VoteContentType,
+): boolean {
+  return (
+    (localUser?.show_upvote_percentage ?? true) &&
+    enableUpvotes(localSite, type) &&
+    enableDownvotes(localSite, type)
+  );
+}
+
+export function enableDownvotes(
+  localSite: LocalSite,
+  type: VoteContentType,
+): boolean {
+  if (type === VoteContentType.Comment) {
+    return localSite.comment_downvotes !== "Disable";
+  } else {
+    return localSite.post_downvotes !== "Disable";
+  }
+}
+
+export function enableUpvotes(
+  localSite: LocalSite,
+  type: VoteContentType,
+): boolean {
+  if (type === VoteContentType.Comment) {
+    return localSite.comment_upvotes !== "Disable";
+  } else {
+    return localSite.post_upvotes !== "Disable";
+  }
+}
+
 function tippy(
   localUser: LocalUser | undefined,
+  localSite: LocalSite,
   counts: Comment | Post,
+  type: VoteContentType,
 ): string {
   const scoreStr =
     localUser?.show_score &&
@@ -46,21 +104,21 @@ function tippy(
   const pct = calculateUpvotePct(counts.upvotes, counts.downvotes);
 
   const upvotePctStr =
-    localUser?.show_upvote_percentage &&
+    showPercentage(localUser, localSite, type) &&
     I18NextService.i18n.t("upvote_percentage", {
       count: Number(pct),
       formattedCount: Number(pct),
     });
 
   const upvoteStr =
-    localUser?.show_upvotes &&
+    showUpvotes(localUser, localSite, type) &&
     I18NextService.i18n.t("number_of_upvotes", {
       count: Number(counts.upvotes),
       formattedCount: Number(counts.upvotes),
     });
 
   const downvoteStr =
-    localUser?.show_downvotes &&
+    showDownvotes(localUser, localSite, type) &&
     I18NextService.i18n.t("number_of_downvotes", {
       count: Number(counts.downvotes),
       formattedCount: Number(counts.downvotes),
@@ -108,10 +166,6 @@ function handleDownvote(i: VoteButtons | VoteButtonsCompact) {
   }
 }
 
-function userShowScores(localUser: LocalUser): boolean {
-  return localUser.show_score || localUser.show_upvotes;
-}
-
 @tippyMixin
 export class VoteButtonsCompact extends Component<
   VoteButtonsProps,
@@ -137,23 +191,22 @@ export class VoteButtonsCompact extends Component<
     }
   }
 
-  showScores() {
-    const { local_user } = this.props.myUserInfo?.local_user_view ?? {};
-    return !local_user || userShowScores(local_user);
-  }
-
   render() {
+    const localUser = this.props.myUserInfo?.local_user_view.local_user;
+    const { localSite, subject, voteContentType } = this.props;
     return (
       <>
-        {this.props.enableUpvotes && (
+        {enableUpvotes(localSite, voteContentType) && (
           <button
             type="button"
             className={`btn btn-animate btn-sm btn-link py-0 px-1 ${
               this.props.myVote === 1 ? "text-info" : "text-muted"
             }`}
             data-tippy-content={tippy(
-              this.props.myUserInfo?.local_user_view.local_user,
-              this.props.subject,
+              localUser,
+              localSite,
+              subject,
+              voteContentType,
             )}
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}
@@ -165,17 +218,16 @@ export class VoteButtonsCompact extends Component<
             ) : (
               <>
                 <Icon icon="arrow-up1" classes="icon-inline small" />
-                {this.showScores() &&
-                  this.props.voteContentType === VoteContentType.Post && (
-                    <span className="ms-2">
-                      {numToSI(this.props.subject.upvotes)}
-                    </span>
-                  )}
+                {showUpvotes(localUser, localSite, voteContentType) && (
+                  <span className="ms-2">
+                    {numToSI(this.props.subject.upvotes)}
+                  </span>
+                )}
               </>
             )}
           </button>
         )}
-        {this.props.enableDownvotes && (
+        {enableDownvotes(localSite, voteContentType) && (
           <button
             type="button"
             className={`ms-2 btn btn-sm btn-link btn-animate btn py-0 px-1 ${
@@ -184,8 +236,10 @@ export class VoteButtonsCompact extends Component<
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleDownvote)}
             data-tippy-content={tippy(
-              this.props.myUserInfo?.local_user_view.local_user,
-              this.props.subject,
+              localUser,
+              localSite,
+              subject,
+              voteContentType,
             )}
             aria-label={I18NextService.i18n.t("downvote")}
             aria-pressed={this.props.myVote === -1}
@@ -195,16 +249,15 @@ export class VoteButtonsCompact extends Component<
             ) : (
               <>
                 <Icon icon="arrow-down1" classes="icon-inline small" />
-                {this.showScores() &&
-                  this.props.voteContentType === VoteContentType.Post && (
-                    <span
-                      className={classNames("ms-2", {
-                        invisible: this.props.subject.downvotes === 0,
-                      })}
-                    >
-                      {numToSI(this.props.subject.downvotes)}
-                    </span>
-                  )}
+                {showDownvotes(localUser, localSite, voteContentType) && (
+                  <span
+                    className={classNames("ms-2", {
+                      invisible: this.props.subject.downvotes === 0,
+                    })}
+                  >
+                    {numToSI(this.props.subject.downvotes)}
+                  </span>
+                )}
               </>
             )}
           </button>
@@ -236,15 +289,12 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
     }
   }
 
-  showScores() {
-    const { local_user } = this.props.myUserInfo?.local_user_view ?? {};
-    return !local_user || userShowScores(local_user);
-  }
-
   render() {
+    const localUser = this.props.myUserInfo?.local_user_view.local_user;
+    const { localSite, subject, voteContentType } = this.props;
     return (
       <div className="vote-bar small text-center">
-        {this.props.enableUpvotes && (
+        {enableUpvotes(localSite, voteContentType) && (
           <button
             type="button"
             className={`btn-animate btn btn-link p-0 ${
@@ -253,8 +303,10 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}
             data-tippy-content={tippy(
-              this.props.myUserInfo?.local_user_view.local_user,
-              this.props.subject,
+              localUser,
+              localSite,
+              subject,
+              voteContentType,
             )}
             aria-label={I18NextService.i18n.t("upvote")}
             aria-pressed={this.props.myVote === 1}
@@ -266,12 +318,14 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             )}
           </button>
         )}
-        {this.showScores() ? (
+        {showScore(localUser) ? (
           <div
             className="unselectable pointer text-muted post-score"
             data-tippy-content={tippy(
-              this.props.myUserInfo?.local_user_view.local_user,
-              this.props.subject,
+              localUser,
+              localSite,
+              subject,
+              voteContentType,
             )}
           >
             {numToSI(this.props.subject.score)}
@@ -279,7 +333,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
         ) : (
           <div className="p-1"></div>
         )}
-        {this.props.enableDownvotes && (
+        {enableDownvotes(localSite, voteContentType) && (
           <button
             type="button"
             className={`btn-animate btn btn-link p-0 ${
@@ -288,8 +342,10 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleDownvote)}
             data-tippy-content={tippy(
-              this.props.myUserInfo?.local_user_view.local_user,
-              this.props.subject,
+              localUser,
+              localSite,
+              subject,
+              voteContentType,
             )}
             aria-label={I18NextService.i18n.t("downvote")}
             aria-pressed={this.props.myVote === -1}

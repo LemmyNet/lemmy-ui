@@ -22,6 +22,7 @@ import {
   EditComment,
   GetComments,
   Language,
+  LocalSite,
   MarkCommentReplyAsRead,
   MarkPersonCommentMentionAsRead,
   MyUserInfo,
@@ -79,12 +80,12 @@ interface CommentNodeProps {
   markable?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
-  enableDownvotes?: boolean;
   viewType: CommentViewType;
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonCommentMentionAsRead): void;
@@ -278,6 +279,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
               <VoteDisplay
                 myUserInfo={this.props.myUserInfo}
+                localSite={this.props.localSite}
                 myVote={my_vote}
                 subject={this.props.node.comment_view.comment}
               />
@@ -356,8 +358,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           voteContentType={VoteContentType.Comment}
                           id={id}
                           onVote={this.props.onCommentVote}
-                          enableDownvotes={this.props.enableDownvotes}
                           myUserInfo={this.props.myUserInfo}
+                          localSite={this.props.localSite}
                           subject={this.props.node.comment_view.comment}
                           myVote={my_vote}
                           disabled={!this.props.myUserInfo}
@@ -448,7 +450,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             nodes={node.children}
             locked={this.props.locked}
             admins={this.props.admins}
-            enableDownvotes={this.props.enableDownvotes}
             viewType={this.props.viewType}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -456,6 +457,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             isChild={!this.props.isTopLevel}
             depth={this.props.node.depth + 1}
             myUserInfo={this.props.myUserInfo}
+            localSite={this.props.localSite}
             onCommentReplyRead={this.props.onCommentReplyRead}
             onPersonMentionRead={this.props.onPersonMentionRead}
             onCreateComment={this.props.onCreateComment}

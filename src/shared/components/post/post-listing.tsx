@@ -22,6 +22,7 @@ import {
   FeaturePost,
   HidePost,
   Language,
+  LocalSite,
   LockPost,
   MarkPostAsRead,
   MyUserInfo,
@@ -78,11 +79,11 @@ interface PostListingProps {
    */
   showBody?: boolean;
   hideImage?: boolean;
-  enableDownvotes?: boolean;
   enableNsfw?: boolean;
   viewOnly?: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   markable?: boolean;
   disableAutoMarkAsRead?: boolean;
   readOverride?: boolean;
@@ -204,12 +205,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
             showAdultConsentModal={this.props.showAdultConsentModal}
-            enableDownvotes={this.props.enableDownvotes}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             loading={this.state.loading}
             isNsfwCommunity={this.postView.community.nsfw}
             myUserInfo={this.props.myUserInfo}
+            localSite={this.props.localSite}
           />
         )}
       </div>
@@ -638,7 +639,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    const { admins, showBody, onPostVote, enableDownvotes } = this.props;
+    const { admins, showBody, onPostVote } = this.props;
     const { post } = this.postView;
     const { ap_id, id, body } = post;
 
@@ -705,8 +706,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             id={id}
             onVote={onPostVote}
             subject={post}
-            enableDownvotes={enableDownvotes}
             myUserInfo={this.props.myUserInfo}
+            localSite={this.props.localSite}
             disabled={!this.props.myUserInfo}
           />
         )}
@@ -859,8 +860,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   voteContentType={VoteContentType.Post}
                   id={this.postView.post.id}
                   onVote={this.props.onPostVote}
-                  enableDownvotes={this.props.enableDownvotes}
                   myUserInfo={this.props.myUserInfo}
+                  localSite={this.props.localSite}
                   subject={this.postView.post}
                   disabled={!this.props.myUserInfo}
                 />

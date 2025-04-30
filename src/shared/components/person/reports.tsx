@@ -1,6 +1,5 @@
 import {
   editCombined,
-  enableDownvotes,
   enableNsfw,
   getUncombinedReport,
   setIsoData,
@@ -347,8 +346,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <CommentReport
             key={i.type_ + i.comment_report.id}
             report={i}
-            enableDownvotes={enableDownvotes(siteRes)}
             myUserInfo={this.isoData.myUserInfo}
+            localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
             onResolveReport={this.handleResolveCommentReport}
           />
@@ -358,10 +357,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <PostReport
             key={i.type_ + i.post_report.id}
             report={i}
-            enableDownvotes={enableDownvotes(siteRes)}
             enableNsfw={enableNsfw(siteRes)}
             showAdultConsentModal={this.isoData.showAdultConsentModal}
             myUserInfo={this.isoData.myUserInfo}
+            localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
             onResolveReport={this.handleResolvePostReport}
           />
@@ -429,8 +428,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                 <CommentReport
                   key={cr.comment_report.id}
                   report={cr}
-                  enableDownvotes={enableDownvotes(siteRes)}
                   myUserInfo={this.isoData.myUserInfo}
+                  localSite={siteRes.site_view.local_site}
                   admins={this.isoData.siteRes.admins}
                   onResolveReport={this.handleResolveCommentReport}
                 />
@@ -461,11 +460,11 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                 <hr />
                 <PostReport
                   key={pr.post_report.id}
-                  enableDownvotes={enableDownvotes(siteRes)}
                   enableNsfw={enableNsfw(siteRes)}
                   showAdultConsentModal={this.isoData.showAdultConsentModal}
                   report={pr}
                   myUserInfo={this.isoData.myUserInfo}
+                  localSite={siteRes.site_view.local_site}
                   admins={this.isoData.siteRes.admins}
                   onResolveReport={this.handleResolvePostReport}
                 />

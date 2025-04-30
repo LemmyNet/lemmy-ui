@@ -2,7 +2,6 @@ import {
   buildCommentsTree,
   commentsToFlatNodes,
   editComment,
-  enableDownvotes,
   enableNsfw,
   getCommentIdFromProps,
   getCommentParentId,
@@ -576,13 +575,13 @@ export class Post extends Component<PostRouteProps, PostState> {
                 showBody
                 showCommunity
                 admins={siteRes.admins}
-                enableDownvotes={enableDownvotes(siteRes)}
                 markable
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 myUserInfo={this.isoData.myUserInfo}
+                localSite={siteRes.site_view.local_site}
                 onBlockPerson={this.handleBlockPerson}
                 onPostEdit={this.handlePostEdit}
                 onPostVote={this.handlePostVote}
@@ -798,11 +797,11 @@ export class Post extends Component<PostRouteProps, PostState> {
             isTopLevel
             locked={postRes.data.post_view.post.locked}
             admins={siteRes.admins}
-            enableDownvotes={enableDownvotes(siteRes)}
             showContext
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
+            localSite={siteRes.site_view.local_site}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}
@@ -909,10 +908,10 @@ export class Post extends Component<PostRouteProps, PostState> {
             maxCommentsShown={this.state.maxCommentsShown}
             locked={res.data.post_view.post.locked}
             admins={siteRes.admins}
-            enableDownvotes={enableDownvotes(siteRes)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
+            localSite={siteRes.site_view.local_site}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
             onDeleteComment={this.handleDeleteComment}

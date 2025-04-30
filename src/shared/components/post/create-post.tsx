@@ -1,9 +1,4 @@
-import {
-  communityToChoice,
-  enableDownvotes,
-  enableNsfw,
-  setIsoData,
-} from "@utils/app";
+import { communityToChoice, enableNsfw, setIsoData } from "@utils/app";
 import {
   bareRoutePush,
   getIdFromString,
@@ -272,7 +267,6 @@ export class CreatePost extends Component<
               key={this.state.resetCounter}
               onCreate={this.handlePostCreate}
               params={params}
-              enableDownvotes={enableDownvotes(siteRes)}
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes?.all_languages}
@@ -286,6 +280,7 @@ export class CreatePost extends Component<
               }
               loading={loading}
               myUserInfo={this.isoData.myUserInfo}
+              localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
               onBodyBlur={this.handleBodyBlur}
               onLanguageChange={this.handleLanguageChange}

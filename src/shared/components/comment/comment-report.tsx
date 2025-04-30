@@ -3,6 +3,7 @@ import { T } from "inferno-i18next-dess";
 import {
   CommentReportView,
   CommentView,
+  LocalSite,
   MyUserInfo,
   PersonView,
   ResolveCommentReport,
@@ -17,8 +18,8 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface CommentReportProps {
   report: CommentReportView;
-  enableDownvotes?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   admins: PersonView[];
   onResolveReport(form: ResolveCommentReport): void;
 }
@@ -85,13 +86,13 @@ export class CommentReport extends Component<
           node={node}
           admins={this.props.admins}
           viewType={CommentViewType.Flat}
-          enableDownvotes={this.props.enableDownvotes}
           viewOnly={true}
           showCommunity={true}
           allLanguages={[]}
           siteLanguages={[]}
           hideImages
           myUserInfo={this.props.myUserInfo}
+          localSite={this.props.localSite}
           // All of these are unused, since its viewonly
           onSaveComment={async () => {}}
           onBlockPerson={async () => {}}

@@ -1,6 +1,5 @@
 import {
   editCombined,
-  enableDownvotes,
   enableNsfw,
   getUncombinedPersonContent,
   setIsoData,
@@ -536,11 +535,11 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     admins={siteRes.admins}
                     sort={sort}
                     limit={fetchLimit}
-                    enableDownvotes={enableDownvotes(siteRes)}
                     enableNsfw={enableNsfw(siteRes)}
                     showAdultConsentModal={this.isoData.showAdultConsentModal}
                     view={view}
                     myUserInfo={this.isoData.myUserInfo}
+                    localSite={siteRes.site_view.local_site}
                     allLanguages={siteRes.all_languages}
                     siteLanguages={siteRes.discussion_languages}
                     // TODO all the forms here

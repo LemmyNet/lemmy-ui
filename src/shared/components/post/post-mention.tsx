@@ -5,6 +5,7 @@ import {
   PersonPostMentionView,
   PostView,
   PersonView,
+  LocalSite,
 } from "lemmy-js-client";
 import { PostListing } from "./post-listing";
 import { EMPTY_REQUEST } from "../../services/HttpService";
@@ -12,10 +13,10 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface PostMentionProps {
   mention: PersonPostMentionView;
-  enableDownvotes?: boolean;
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   admins: PersonView[];
   onMarkPostMentionAsRead(form: MarkPostAsRead): Promise<void>;
 }
@@ -70,7 +71,6 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
           disableAutoMarkAsRead={true}
           readOverride={this.props.mention.person_post_mention.read}
           showCommunity={true}
-          enableDownvotes={this.props.enableDownvotes}
           enableNsfw={this.props.enableNsfw}
           showAdultConsentModal={this.props.showAdultConsentModal}
           viewOnly={true}
@@ -78,6 +78,7 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
           siteLanguages={[]}
           hideImage
           myUserInfo={this.props.myUserInfo}
+          localSite={this.props.localSite}
           admins={this.props.admins}
           // All of these are unused, since its view only
           onPostEdit={async () => EMPTY_REQUEST}

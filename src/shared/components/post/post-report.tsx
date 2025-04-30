@@ -1,6 +1,7 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
+  LocalSite,
   MyUserInfo,
   PersonView,
   PostReportView,
@@ -16,10 +17,10 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface PostReportProps {
   report: PostReportView;
-  enableDownvotes?: boolean;
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   admins: PersonView[];
   onResolveReport(form: ResolvePostReport): void;
 }
@@ -79,7 +80,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         <PostListing
           post_view={pv}
           showCommunity={true}
-          enableDownvotes={this.props.enableDownvotes}
           enableNsfw={this.props.enableNsfw}
           showAdultConsentModal={this.props.showAdultConsentModal}
           viewOnly={true}
@@ -87,6 +87,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           siteLanguages={[]}
           hideImage
           myUserInfo={this.props.myUserInfo}
+          localSite={this.props.localSite}
           admins={this.props.admins}
           // All of these are unused, since its view only
           onPostEdit={async () => EMPTY_REQUEST}

@@ -1,7 +1,6 @@
 import {
   commentsToFlatNodes,
   communityToChoice,
-  enableDownvotes,
   enableNsfw,
   fetchCommunities,
   fetchUsers,
@@ -714,13 +713,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   key={i.type_ + i.post.id}
                   post_view={i}
                   showCommunity
-                  enableDownvotes={enableDownvotes(siteRes)}
                   enableNsfw={enableNsfw(siteRes)}
                   showAdultConsentModal={this.isoData.showAdultConsentModal}
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   viewOnly
                   myUserInfo={this.isoData.myUserInfo}
+                  localSite={siteRes.site_view.local_site}
                   admins={this.isoData.siteRes.admins}
                   // All of these are unused, since its view only
                   onPostEdit={async () => EMPTY_REQUEST}
@@ -757,10 +756,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   viewOnly
                   locked
                   isTopLevel
-                  enableDownvotes={enableDownvotes(siteRes)}
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   myUserInfo={this.isoData.myUserInfo}
+                  localSite={siteRes.site_view.local_site}
                   admins={this.isoData.siteRes.admins}
                   // All of these are unused, since its viewonly
                   onSaveComment={async () => {}}
@@ -824,10 +823,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         viewOnly
         locked
         isTopLevel
-        enableDownvotes={enableDownvotes(siteRes)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
         myUserInfo={this.isoData.myUserInfo}
+        localSite={siteRes.site_view.local_site}
         admins={this.isoData.siteRes.admins}
         // All of these are unused, since its viewonly
         onSaveComment={async () => {}}
@@ -878,13 +877,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               <PostListing
                 post_view={pv}
                 showCommunity
-                enableDownvotes={enableDownvotes(siteRes)}
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 viewOnly
                 myUserInfo={this.isoData.myUserInfo}
+                localSite={siteRes.site_view.local_site}
                 admins={this.isoData.siteRes.admins}
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}

@@ -1,7 +1,6 @@
 import {
   commentsToFlatNodes,
   editCombined,
-  enableDownvotes,
   getUncombinedInbox,
   myAuth,
   setIsoData,
@@ -491,10 +490,10 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             markable
             showCommunity
             showContext
-            enableDownvotes={enableDownvotes(siteRes)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
+            localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
@@ -531,10 +530,10 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             markable
             showCommunity
             showContext
-            enableDownvotes={enableDownvotes(siteRes)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
+            localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
@@ -577,6 +576,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               mention={i}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               myUserInfo={this.isoData.myUserInfo}
+              localSite={this.isoData.siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
               onMarkPostMentionAsRead={this.handleMarkPostAsRead}
             />
@@ -618,10 +618,10 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               markable
               showCommunity
               showContext
-              enableDownvotes={enableDownvotes(siteRes)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               myUserInfo={this.isoData.myUserInfo}
+              localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
@@ -667,10 +667,10 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                 markable
                 showCommunity
                 showContext
-                enableDownvotes={enableDownvotes(siteRes)}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 myUserInfo={this.isoData.myUserInfo}
+                localSite={siteRes.site_view.local_site}
                 admins={this.isoData.siteRes.admins}
                 onSaveComment={this.handleSaveComment}
                 onBlockPerson={this.handleBlockPerson}
@@ -715,6 +715,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                     mention={umv}
                     showAdultConsentModal={this.isoData.showAdultConsentModal}
                     myUserInfo={this.isoData.myUserInfo}
+                    localSite={this.isoData.siteRes.site_view.local_site}
                     admins={this.isoData.siteRes.admins}
                     onMarkPostMentionAsRead={this.handleMarkPostAsRead}
                   />

@@ -1,14 +1,22 @@
 import { numToSI } from "@utils/helpers";
 import { Component } from "inferno";
-import { Comment, Post, MyUserInfo } from "lemmy-js-client";
+import { Comment, Post, MyUserInfo, LocalSite } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Icon } from "./icon";
 import classNames from "classnames";
 import { calculateUpvotePct } from "@utils/app";
+import { VoteContentType } from "@utils/types";
+import {
+  showDownvotes,
+  showPercentage,
+  showScore,
+  showUpvotes,
+} from "./vote-buttons";
 
 interface Props {
   myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   subject: Post | Comment;
   myVote?: number;
 }
@@ -25,9 +33,17 @@ export class VoteDisplay extends Component<Props, any> {
   render() {
     const {
       subject: { score, upvotes },
+      localSite,
     } = this.props;
-    const { show_score, show_upvotes, show_upvote_percentage } =
-      this.props.myUserInfo?.local_user_view.local_user ?? {};
+    const localUser = this.props.myUserInfo?.local_user_view.local_user;
+    const type =
+      "post_id" in this.props.subject
+        ? VoteContentType.Comment
+        : VoteContentType.Post;
+
+    const show_score = showScore(localUser);
+    const show_upvotes = showUpvotes(localUser, localSite, type);
+    const show_upvote_percentage = showPercentage(localUser, localSite, type);
 
     // If the score is the same as the upvotes,
     // and both score and upvotes are enabled,
@@ -97,8 +113,16 @@ export class VoteDisplay extends Component<Props, any> {
 
   // A special case since they are both wrapped in a badge
   upvotesAndDownvotes() {
-    const { show_upvotes, show_downvotes } =
-      this.props.myUserInfo?.local_user_view.local_user ?? {};
+    const localUser = this.props.myUserInfo?.local_user_view.local_user;
+    const type =
+      "post_id" in this.props.subject
+        ? VoteContentType.Comment
+        : VoteContentType.Post;
+    const { localSite } = this.props;
+
+    const show_upvotes = showUpvotes(localUser, localSite, type);
+    const show_downvotes = showDownvotes(localUser, localSite, type);
+
     const votesCheck = show_upvotes || show_downvotes;
     const downvotesCheck = this.props.subject.downvotes > 0;
 

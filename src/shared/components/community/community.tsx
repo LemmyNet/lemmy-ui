@@ -3,7 +3,6 @@ import {
   communityRSSUrl,
   editComment,
   editPost,
-  enableDownvotes,
   enableNsfw,
   getDataTypeString,
   mixedToCommentSortType,
@@ -559,13 +558,13 @@ export class Community extends Component<CommunityRouteProps, State> {
           return (
             <PostListings
               posts={this.state.postsRes.data.posts}
-              enableDownvotes={enableDownvotes(siteRes)}
               markable
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               myUserInfo={this.isoData.myUserInfo}
+              localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
               onBlockPerson={this.handleBlockPerson}
               onPostEdit={this.handlePostEdit}
@@ -602,11 +601,11 @@ export class Community extends Component<CommunityRouteProps, State> {
               viewType={CommentViewType.Flat}
               isTopLevel
               showContext
-              enableDownvotes={enableDownvotes(siteRes)}
               admins={siteRes.admins}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               myUserInfo={this.isoData.myUserInfo}
+              localSite={siteRes.site_view.local_site}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}

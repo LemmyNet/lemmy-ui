@@ -16,6 +16,7 @@ import {
   EditComment,
   GetComments,
   Language,
+  LocalSite,
   MarkCommentReplyAsRead,
   MarkPersonCommentMentionAsRead,
   MyUserInfo,
@@ -41,7 +42,6 @@ interface CommentNodesProps {
   markable?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
-  enableDownvotes?: boolean;
   viewType: CommentViewType;
   allLanguages: Language[];
   siteLanguages: number[];
@@ -49,6 +49,7 @@ interface CommentNodesProps {
   isChild?: boolean;
   depth?: number;
   myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonCommentMentionAsRead): void;
@@ -111,12 +112,12 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               markable={this.props.markable}
               showContext={this.props.showContext}
               showCommunity={this.props.showCommunity}
-              enableDownvotes={this.props.enableDownvotes}
               viewType={this.props.viewType}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
               hideImages={this.props.hideImages}
               myUserInfo={this.props.myUserInfo}
+              localSite={this.props.localSite}
               onCommentReplyRead={this.props.onCommentReplyRead}
               onPersonMentionRead={this.props.onPersonMentionRead}
               onCreateComment={this.props.onCreateComment}
