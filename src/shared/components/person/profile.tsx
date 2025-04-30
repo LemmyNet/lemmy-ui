@@ -167,6 +167,7 @@ function getViewFromProps(view?: string): PersonDetailsView {
 const getCommunitiesListing = (
   translationKey: NoOptionI18nKeys,
   communityViews?: { community: Community }[],
+  myUserInfo?: MyUserInfo,
 ) =>
   communityViews &&
   communityViews.length > 0 && (
@@ -176,7 +177,7 @@ const getCommunitiesListing = (
         <ul className="list-unstyled mb-0">
           {communityViews.map(({ community }) => (
             <li key={community.id}>
-              <CommunityLink community={community} />
+              <CommunityLink community={community} myUserInfo={myUserInfo} />
             </li>
           ))}
         </ul>
@@ -184,15 +185,19 @@ const getCommunitiesListing = (
     </div>
   );
 
-const Moderates = ({ moderates }: { moderates?: CommunityModeratorView[] }) =>
-  getCommunitiesListing("moderates", moderates);
+const Moderates = ({
+  moderates,
+}: {
+  moderates?: CommunityModeratorView[];
+  myUserInfo: MyUserInfo | undefined;
+}) => getCommunitiesListing("moderates", moderates);
 
-const Follows = ({ myUserInfo }: { myUserInfo?: MyUserInfo }) =>
-  getCommunitiesListing("subscribed", myUserInfo?.follows);
+const Follows = ({ myUserInfo }: { myUserInfo: MyUserInfo | undefined }) =>
+  getCommunitiesListing("subscribed", myUserInfo?.follows, myUserInfo);
 
 function isPersonBlocked(
   personRes: RequestState<GetPersonDetailsResponse>,
-  myUserInfo?: MyUserInfo,
+  myUserInfo: MyUserInfo | undefined,
 ) {
   return (
     (personRes.state === "success" &&
@@ -462,7 +467,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         const uploadsRes = this.state.uploadsRes.data;
         return (
           <div>
-            <MediaUploads uploads={uploadsRes} />
+            <MediaUploads
+              uploads={uploadsRes}
+              myUserInfo={this.isoData.myUserInfo}
+            />
           </div>
         );
       }
@@ -573,7 +581,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             </div>
 
             <div className="col-12 col-md-4">
-              <Moderates moderates={personRes.moderates} />
+              <Moderates
+                moderates={personRes.moderates}
+                myUserInfo={this.isoData.myUserInfo}
+              />
               {this.amCurrentUser && (
                 <Follows myUserInfo={this.isoData.myUserInfo} />
               )}
@@ -748,6 +759,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                         useApubName
                         muted
                         hideAvatar
+                        myUserInfo={this.isoData.myUserInfo}
                       />
                     </li>
                     <li className="list-inline-item">
@@ -1141,7 +1153,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       block,
     });
     if (res.state === "success") {
-      updatePersonBlock(res.data);
+      updatePersonBlock(res.data, this.isoData.myUserInfo);
       this.setState({ personBlocked: res.data.blocked });
     }
   }
@@ -1177,7 +1189,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   async handleBlockPersonAlt(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data);
+      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
       this.setState({ personBlocked: blockPersonRes.data.blocked });
     }
   }

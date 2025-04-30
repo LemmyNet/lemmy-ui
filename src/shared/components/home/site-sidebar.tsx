@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { LocalSite, PersonView, Site } from "lemmy-js-client";
+import { LocalSite, MyUserInfo, PersonView, Site } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { Badges } from "../common/badges";
@@ -14,6 +14,7 @@ interface SiteSidebarProps {
   localSite?: LocalSite;
   admins?: PersonView[];
   isMobile?: boolean;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 interface SiteSidebarState {
@@ -113,7 +114,10 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         <li className="list-inline-item">{I18NextService.i18n.t("admins")}:</li>
         {admins.map(av => (
           <li key={av.person.id} className="list-inline-item">
-            <PersonListing person={av.person} />
+            <PersonListing
+              person={av.person}
+              myUserInfo={this.props.myUserInfo}
+            />
           </li>
         ))}
       </ul>

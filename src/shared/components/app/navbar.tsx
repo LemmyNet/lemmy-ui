@@ -111,7 +111,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             className="d-flex align-items-center navbar-brand me-md-3"
             onMouseUp={linkEvent(this, handleCollapseClick)}
           >
-            {siteView?.site.icon && showAvatars() && (
+            {siteView?.site.icon && showAvatars(this.props.myUserInfo) && (
               <PictrsImage src={siteView.site.icon} icon />
             )}
             {siteView?.site.name}
@@ -385,9 +385,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         aria-expanded="false"
                         data-bs-toggle="dropdown"
                       >
-                        {showAvatars() && person.avatar && (
-                          <PictrsImage src={person.avatar} icon />
-                        )}
+                        {showAvatars(this.props.myUserInfo) &&
+                          person.avatar && (
+                            <PictrsImage src={person.avatar} icon />
+                          )}
                         {person.display_name ?? person.name}
                       </button>
                       <ul

@@ -18,8 +18,8 @@ export function amAdmin(myUserInfo: MyUserInfo | undefined): boolean {
 
 export function amCommunityCreator(
   creator_id: number,
-  mods?: CommunityModeratorView[],
-  myUserInfo?: MyUserInfo,
+  mods: CommunityModeratorView[] | undefined,
+  myUserInfo: MyUserInfo | undefined,
 ): boolean {
   const myId = myUserInfo?.local_user_view.person.id;
   // Don't allow mod actions on yourself

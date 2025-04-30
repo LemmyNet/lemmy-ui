@@ -372,6 +372,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             key={i.type_ + i.private_message_report.id}
             report={i}
             onResolveReport={this.handleResolvePrivateMessageReport}
+            myUserInfo={this.isoData.myUserInfo}
           />
         );
       case "Community":
@@ -380,6 +381,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             key={i.type_ + i.community_report.id}
             report={i}
             onResolveReport={this.handleResolveCommunityReport}
+            myUserInfo={this.isoData.myUserInfo}
           />
         );
     }
@@ -497,6 +499,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   key={pmr.private_message_report.id}
                   report={pmr}
                   onResolveReport={this.handleResolvePrivateMessageReport}
+                  myUserInfo={this.isoData.myUserInfo}
                 />
               </>
             ))}
@@ -526,6 +529,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   key={cr.community_report.id}
                   report={cr}
                   onResolveReport={this.handleResolveCommunityReport}
+                  myUserInfo={this.isoData.myUserInfo}
                 />
               </>
             ))}

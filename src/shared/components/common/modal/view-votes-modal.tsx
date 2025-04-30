@@ -11,6 +11,7 @@ import { Icon, Spinner } from "../icon";
 import {
   ListCommentLikesResponse,
   ListPostLikesResponse,
+  MyUserInfo,
   VoteView,
 } from "lemmy-js-client";
 import {
@@ -33,6 +34,7 @@ interface ViewVotesModalProps {
   type: "comment" | "post";
   id: number;
   show: boolean;
+  myUserInfo: MyUserInfo | undefined;
   onCancel: () => void;
 }
 
@@ -42,7 +44,7 @@ interface ViewVotesModalState {
   page?: DirectionalCursor;
 }
 
-function voteViewTable(votes: VoteView[]) {
+function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
   return (
     <div className="table-responsive">
       <table id="community_table" className="table table-sm table-hover">
@@ -50,7 +52,11 @@ function voteViewTable(votes: VoteView[]) {
           {votes.map(v => (
             <tr key={v.creator.id}>
               <td className="text-start">
-                <PersonListing person={v.creator} useApubName />
+                <PersonListing
+                  person={v.creator}
+                  useApubName
+                  myUserInfo={myUserInfo}
+                />
                 <UserBadges
                   classNames="ms-1"
                   isBot={v.creator.bot_account}
@@ -169,7 +175,7 @@ export default class ViewVotesModal extends Component<
         );
       case "success": {
         const likes = this.state.postLikesRes.data.post_likes;
-        return voteViewTable(likes);
+        return voteViewTable(likes, this.props.myUserInfo);
       }
     }
   }
@@ -184,7 +190,7 @@ export default class ViewVotesModal extends Component<
         );
       case "success": {
         const likes = this.state.commentLikesRes.data.comment_likes;
-        return voteViewTable(likes);
+        return voteViewTable(likes, this.props.myUserInfo);
       }
     }
   }

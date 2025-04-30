@@ -423,7 +423,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const pv = this.postView;
     return (
       <div className="small mb-1 mb-md-0">
-        <PersonListing person={pv.creator} />
+        <PersonListing person={pv.creator} myUserInfo={this.props.myUserInfo} />
         <UserBadges
           classNames="ms-1"
           becameModerator={pv.creator_community_actions?.became_moderator}
@@ -436,7 +436,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <>
             {" "}
             {I18NextService.i18n.t("to")}{" "}
-            <CommunityLink community={pv.community} />
+            <CommunityLink
+              community={pv.community}
+              myUserInfo={this.props.myUserInfo}
+            />
           </>
         )}
         {pv.post.language_id !== 0 && (

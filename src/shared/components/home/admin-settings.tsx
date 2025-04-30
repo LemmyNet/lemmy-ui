@@ -382,7 +382,10 @@ export class AdminSettings extends Component<
         <ul className="list-unstyled">
           {this.isoData.siteRes?.admins.map(admin => (
             <li key={admin.person.id} className="list-inline-item">
-              <PersonListing person={admin.person} />
+              <PersonListing
+                person={admin.person}
+                myUserInfo={this.isoData.myUserInfo}
+              />
             </li>
           ))}
         </ul>
@@ -429,7 +432,10 @@ export class AdminSettings extends Component<
             <ul className="list-unstyled">
               {bans.map(banned => (
                 <li key={banned.person.id} className="list-inline-item">
-                  <PersonListing person={banned.person} />
+                  <PersonListing
+                    person={banned.person}
+                    myUserInfo={this.isoData.myUserInfo}
+                  />
                 </li>
               ))}
             </ul>
@@ -455,7 +461,11 @@ export class AdminSettings extends Component<
         const uploadsRes = this.state.uploadsRes.data;
         return (
           <div>
-            <MediaUploads showUploader uploads={uploadsRes} />
+            <MediaUploads
+              showUploader
+              uploads={uploadsRes}
+              myUserInfo={this.isoData.myUserInfo}
+            />
             <PaginatorCursor
               resource={this.state.uploadsRes}
               onPageChange={this.handleUploadsPageChange}

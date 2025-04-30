@@ -94,7 +94,10 @@ export class PrivateMessage extends Component<
                 : I18NextService.i18n.t("from")}
             </li>
             <li className="list-inline-item">
-              <PersonListing person={otherPerson} />
+              <PersonListing
+                person={otherPerson}
+                myUserInfo={this.props.myUserInfo}
+              />
             </li>
             <li className="list-inline-item">
               <span>

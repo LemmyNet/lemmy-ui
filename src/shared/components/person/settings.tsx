@@ -542,7 +542,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           {this.state.personBlocks.map(p => (
             <li key={p.id}>
               <span>
-                <PersonListing person={p} />
+                <PersonListing
+                  person={p}
+                  myUserInfo={this.isoData.myUserInfo}
+                />
                 <button
                   className="btn btn-sm"
                   onClick={linkEvent(
@@ -586,7 +589,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           {this.state.communityBlocks.map(c => (
             <li key={c.id}>
               <span>
-                <CommunityLink community={c} />
+                <CommunityLink
+                  community={c}
+                  myUserInfo={this.isoData.myUserInfo}
+                />
                 <button
                   className="btn btn-sm"
                   onClick={linkEvent(
@@ -1908,7 +1914,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
   personBlock(res: RequestState<BlockPersonResponse>) {
     if (res.state === "success") {
-      updatePersonBlock(res.data);
+      updatePersonBlock(res.data, this.isoData.myUserInfo);
       const mui = this.isoData.myUserInfo;
       if (mui) {
         this.setState({ personBlocks: mui.person_blocks });
@@ -1918,7 +1924,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
   communityBlock(res: RequestState<BlockCommunityResponse>) {
     if (res.state === "success") {
-      updateCommunityBlock(res.data);
+      updateCommunityBlock(res.data, this.isoData.myUserInfo);
       const mui = this.isoData.myUserInfo;
       if (mui) {
         this.setState({ communityBlocks: mui.community_blocks });

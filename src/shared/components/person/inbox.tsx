@@ -867,7 +867,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data);
+      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
     }
   }
 

@@ -169,7 +169,10 @@ export class Communities extends Component<
               {this.state.listCommunitiesResponse.data.communities.map(cv => (
                 <tr key={cv.community.id}>
                   <td>
-                    <CommunityLink community={cv.community} />
+                    <CommunityLink
+                      community={cv.community}
+                      myUserInfo={this.isoData.myUserInfo}
+                    />
                   </td>
                   <td className="text-right">
                     {numToSI(cv.community.subscribers)}

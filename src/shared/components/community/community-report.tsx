@@ -3,6 +3,7 @@ import { T } from "inferno-i18next-dess";
 import {
   Community,
   CommunityReportView,
+  MyUserInfo,
   ResolveCommunityReport,
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
@@ -14,6 +15,7 @@ import { CommunityHeader } from "./community-header";
 
 interface Props {
   report: CommunityReportView;
+  myUserInfo: MyUserInfo | undefined;
   onResolveReport(form: ResolveCommunityReport): void;
 }
 
@@ -66,6 +68,7 @@ export class CommunityReport extends Component<Props, State> {
         <CommunityHeader
           community={mergedCommunity}
           urlCommunityName={r.community.name}
+          myUserInfo={this.props.myUserInfo}
         />
         {mergedCommunity.description && (
           <div
@@ -77,7 +80,10 @@ export class CommunityReport extends Component<Props, State> {
         )}
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}
-          <PersonListing person={r.creator} />
+          <PersonListing
+            person={r.creator}
+            myUserInfo={this.props.myUserInfo}
+          />
         </div>
         <div>
           {I18NextService.i18n.t("reason")}: {cr.reason}
@@ -87,12 +93,18 @@ export class CommunityReport extends Component<Props, State> {
             {cr.resolved ? (
               <T i18nKey="resolved_by">
                 #
-                <PersonListing person={r.resolver} />
+                <PersonListing
+                  person={r.resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             ) : (
               <T i18nKey="unresolved_by">
                 #
-                <PersonListing person={r.resolver} />
+                <PersonListing
+                  person={r.resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             )}
           </div>

@@ -63,7 +63,10 @@ export class RegistrationApplication extends Component<
       <div className="registration-application">
         <div>
           {I18NextService.i18n.t("applicant")}:{" "}
-          <PersonListing person={a.creator} />
+          <PersonListing
+            person={a.creator}
+            myUserInfo={this.props.myUserInfo}
+          />
         </div>
         <div>
           {I18NextService.i18n.t("created")}:{" "}
@@ -90,13 +93,19 @@ export class RegistrationApplication extends Component<
             {accepted ? (
               <T i18nKey="approved_by">
                 #
-                <PersonListing person={a.admin} />
+                <PersonListing
+                  person={a.admin}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             ) : (
               <div>
                 <T i18nKey="denied_by">
                   #
-                  <PersonListing person={a.admin} />
+                  <PersonListing
+                    person={a.admin}
+                    myUserInfo={this.props.myUserInfo}
+                  />
                 </T>
                 {ra.deny_reason && (
                   <div>

@@ -541,7 +541,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           onEditCommunity={this.handleEditCommunity}
         />
         {!res.community_view.community.local && res.site && (
-          <SiteSidebar site={res.site} />
+          <SiteSidebar site={res.site} myUserInfo={this.isoData.myUserInfo} />
         )}
       </>
     );
@@ -643,6 +643,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       <CommunityHeader
         community={community}
         urlCommunityName={urlCommunityName}
+        myUserInfo={this.isoData.myUserInfo}
       />
     );
   }
@@ -838,7 +839,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
     if (blockCommunityRes.state === "success") {
-      updateCommunityBlock(blockCommunityRes.data);
+      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
       this.setState(s => {
         if (s.communityRes.state === "success" && this.isoData.myUserInfo) {
           const cv = s.communityRes.data.community_view;
@@ -859,7 +860,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data);
+      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
     }
   }
 

@@ -260,7 +260,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
           <span className="me-2">
-            <CommunityLink community={community} hideAvatar />
+            <CommunityLink
+              community={community}
+              hideAvatar
+              myUserInfo={this.props.myUserInfo}
+            />
           </span>
           {community.removed && (
             <small className="me-2 text-muted fst-italic">
@@ -284,6 +288,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           useApubName
           muted
           hideAvatar
+          myUserInfo={this.props.myUserInfo}
         />
       </div>
     );
@@ -295,7 +300,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
         <li className="list-inline-item">{I18NextService.i18n.t("mods")}: </li>
         {this.props.moderators.map(mod => (
           <li key={mod.moderator.id} className="list-inline-item">
-            <PersonListing person={mod.moderator} />
+            <PersonListing
+              person={mod.moderator}
+              myUserInfo={this.props.myUserInfo}
+            />
           </li>
         ))}
       </ul>

@@ -468,7 +468,10 @@ export function isAuthPath(pathname: string) {
   );
 }
 
-export function isPostBlocked(pv: PostView, myUserInfo?: MyUserInfo): boolean {
+export function isPostBlocked(
+  pv: PostView,
+  myUserInfo: MyUserInfo | undefined,
+): boolean {
   return (
     (myUserInfo?.community_blocks.some(c => c.id === pv.community.id) ||
       myUserInfo?.person_blocks.some(p => p.id === pv.creator.id)) ??
@@ -491,7 +494,10 @@ export function newVote(voteType: VoteType, myVote?: number): number {
   }
 }
 
-export function nsfwCheck(pv: PostView, myUserInfo?: MyUserInfo): boolean {
+export function nsfwCheck(
+  pv: PostView,
+  myUserInfo: MyUserInfo | undefined,
+): boolean {
   const nsfw = pv.post.nsfw || pv.community.nsfw;
   const myShowNsfw = myUserInfo?.local_user_view.local_user.show_nsfw ?? false;
   return !nsfw || (nsfw && myShowNsfw);
@@ -591,11 +597,11 @@ export function searchCommentTree(
  * Use false for both those to filter on your profile and site ones
  */
 export function selectableLanguages(
-  allLanguages?: Language[],
-  siteLanguages?: number[],
-  showAll?: boolean,
-  showSite?: boolean,
-  myUserInfo?: MyUserInfo,
+  allLanguages: Language[] | undefined,
+  siteLanguages: number[] | undefined,
+  showAll: boolean | undefined,
+  showSite: boolean | undefined,
+  myUserInfo: MyUserInfo | undefined,
 ): Language[] {
   const allLangIds = allLanguages?.map(l => l.id);
   let myLangs = myUserInfo?.discussion_languages ?? allLangIds;
@@ -633,7 +639,7 @@ export function updateMyUserInfo(myUserInfo: MyUserInfo | undefined) {
   }
 }
 
-export function showAvatars(myUserInfo?: MyUserInfo): boolean {
+export function showAvatars(myUserInfo: MyUserInfo | undefined): boolean {
   return myUserInfo?.local_user_view.local_user.show_avatars ?? true;
 }
 
@@ -709,7 +715,7 @@ export async function pictrsDeleteToast(filename: string) {
 
 export function updateCommunityBlock(
   data: BlockCommunityResponse,
-  myUserInfo?: MyUserInfo,
+  myUserInfo: MyUserInfo | undefined,
 ) {
   if (myUserInfo) {
     if (data.blocked) {
@@ -734,7 +740,7 @@ export function updateCommunityBlock(
 
 export function updatePersonBlock(
   data: BlockPersonResponse,
-  myUserInfo?: MyUserInfo,
+  myUserInfo: MyUserInfo | undefined,
 ) {
   if (myUserInfo) {
     if (data.blocked) {

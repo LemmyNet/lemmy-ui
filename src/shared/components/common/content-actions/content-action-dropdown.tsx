@@ -814,6 +814,7 @@ export default class ContentActionDropdown extends Component<
             id={id}
             show={showViewVotesDialog}
             onCancel={this.hideAllDialogs}
+            myUserInfo={this.props.myUserInfo}
           />
         )}
       </>

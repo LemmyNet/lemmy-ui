@@ -46,6 +46,7 @@ import {
   SearchSortType,
   PaginationCursor,
   SearchCombinedView,
+  MyUserInfo,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { CommentViewType, InitialFetchRequest } from "@utils/types";
@@ -178,16 +179,22 @@ const Filter = ({
   );
 };
 
-const communityListing = ({ community }: CommunityView) =>
+const communityListing = (
+  { community }: CommunityView,
+  myUserInfo: MyUserInfo | undefined,
+) =>
   getListing(
-    <CommunityLink community={community} />,
+    <CommunityLink community={community} myUserInfo={myUserInfo} />,
     community.subscribers,
     "number_of_subscribers",
   );
 
-const personListing = ({ person }: PersonView) =>
+const personListing = (
+  { person }: PersonView,
+  myUserInfo: MyUserInfo | undefined,
+) =>
   getListing(
-    <PersonListing person={person} showApubName />,
+    <PersonListing person={person} showApubName myUserInfo={myUserInfo} />,
     person.comment_count,
     "number_of_comments",
   );
@@ -776,8 +783,12 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   onEditComment={async () => EMPTY_REQUEST}
                 />
               )}
-              {i.type_ === "Community" && <div>{communityListing(i)}</div>}
-              {i.type_ === "Person" && <div>{personListing(i)}</div>}
+              {i.type_ === "Community" && (
+                <div>{communityListing(i, this.isoData.myUserInfo)}</div>
+              )}
+              {i.type_ === "Person" && (
+                <div>{personListing(i, this.isoData.myUserInfo)}</div>
+              )}
             </div>
           </div>
         ))}
@@ -926,7 +937,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       <>
         {communities.map(cv => (
           <div key={cv.community.id} className="row">
-            <div className="col-12">{communityListing(cv)}</div>
+            <div className="col-12">
+              {communityListing(cv, this.isoData.myUserInfo)}
+            </div>
           </div>
         ))}
       </>
@@ -954,7 +967,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       <>
         {users.map(pvs => (
           <div key={pvs.person.id} className="row">
-            <div className="col-12">{personListing(pvs)}</div>
+            <div className="col-12">
+              {personListing(pvs, this.isoData.myUserInfo)}
+            </div>
           </div>
         ))}
       </>

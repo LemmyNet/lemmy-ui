@@ -114,7 +114,10 @@ export class CommentReport extends Component<
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}
-          <PersonListing person={r.creator} />
+          <PersonListing
+            person={r.creator}
+            myUserInfo={this.props.myUserInfo}
+          />
         </div>
         <div>
           {I18NextService.i18n.t("reason")}: {r.comment_report.reason}
@@ -124,12 +127,18 @@ export class CommentReport extends Component<
             {r.comment_report.resolved ? (
               <T i18nKey="resolved_by">
                 #
-                <PersonListing person={r.resolver} />
+                <PersonListing
+                  person={r.resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             ) : (
               <T i18nKey="unresolved_by">
                 #
-                <PersonListing person={r.resolver} />
+                <PersonListing
+                  person={r.resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             )}
           </div>

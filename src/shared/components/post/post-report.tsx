@@ -110,7 +110,10 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}
-          <PersonListing person={r.creator} />
+          <PersonListing
+            person={r.creator}
+            myUserInfo={this.props.myUserInfo}
+          />
         </div>
         <div>
           {I18NextService.i18n.t("reason")}: {r.post_report.reason}
@@ -120,12 +123,18 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             {r.post_report.resolved ? (
               <T i18nKey="resolved_by">
                 #
-                <PersonListing person={resolver} />
+                <PersonListing
+                  person={resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             ) : (
               <T i18nKey="unresolved_by">
                 #
-                <PersonListing person={resolver} />
+                <PersonListing
+                  person={resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             )}
           </div>

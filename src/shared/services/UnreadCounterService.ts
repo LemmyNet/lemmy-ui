@@ -39,7 +39,7 @@ export class UnreadCounterService {
     return true;
   }
 
-  public configure(myUserInfo?: MyUserInfo) {
+  public configure(myUserInfo: MyUserInfo | undefined) {
     this.enableInboxCounts = !!myUserInfo;
     this.enableReports = moderatesSomething(myUserInfo);
     this.enableApplications = amAdmin(myUserInfo);

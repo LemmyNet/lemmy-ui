@@ -1059,7 +1059,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
     if (blockCommunityRes.state === "success") {
-      updateCommunityBlock(blockCommunityRes.data);
+      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
       this.setState(s => {
         if (s.postRes.state === "success" && this.isoData.myUserInfo) {
           const pv = s.postRes.data.post_view;
@@ -1080,7 +1080,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data);
+      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
     }
   }
 

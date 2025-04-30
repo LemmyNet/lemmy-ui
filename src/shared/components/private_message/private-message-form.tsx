@@ -78,7 +78,10 @@ export class PrivateMessageForm extends Component<
             </label>
 
             <div className="col-sm-10">
-              <PersonListing person={this.props.recipient} />
+              <PersonListing
+                person={this.props.recipient}
+                myUserInfo={this.props.myUserInfo}
+              />
             </div>
           </div>
         )}

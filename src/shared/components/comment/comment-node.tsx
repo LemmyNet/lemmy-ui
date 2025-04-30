@@ -227,7 +227,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 />
               </button>
 
-              <PersonListing person={creator} />
+              <PersonListing
+                person={creator}
+                myUserInfo={this.props.myUserInfo}
+              />
 
               {cv.comment.distinguished && (
                 <Icon icon="shield" inline classes="text-danger ms-1" />
@@ -248,7 +251,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               {this.props.showCommunity && (
                 <>
                   <span className="mx-1">{I18NextService.i18n.t("to")}</span>
-                  <CommunityLink community={community} />
+                  <CommunityLink
+                    community={community}
+                    myUserInfo={this.props.myUserInfo}
+                  />
                   <span className="mx-2">•</span>
                   <Link className="me-2" to={`/post/${cv.post.id}`}>
                     {post.name}

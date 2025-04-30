@@ -462,6 +462,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               admins={admins}
               localSite={local_site}
               isMobile={true}
+              myUserInfo={this.isoData.myUserInfo}
             />
           )}
           {showSubscribedMobile && (
@@ -484,7 +485,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     return (
       <div id="sidebarContainer">
-        <SiteSidebar site={site} admins={admins} localSite={local_site} />
+        <SiteSidebar
+          site={site}
+          admins={admins}
+          localSite={local_site}
+          myUserInfo={this.isoData.myUserInfo}
+        />
         {this.hasFollows && (
           <div className="accordion">
             <section
@@ -553,7 +559,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                     key={cfv.community.id}
                     className="list-inline-item d-inline-block"
                   >
-                    <CommunityLink community={cfv.community} />
+                    <CommunityLink
+                      community={cfv.community}
+                      myUserInfo={this.isoData.myUserInfo}
+                    />
                   </li>
                 ))}
               </ul>
@@ -915,7 +924,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data);
+      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
     }
   }
 

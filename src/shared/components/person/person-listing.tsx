@@ -4,7 +4,7 @@ import { hostname } from "@utils/helpers";
 import classNames from "classnames";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
-import { Person } from "lemmy-js-client";
+import { MyUserInfo, Person } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
@@ -17,6 +17,7 @@ interface PersonListingProps {
   muted?: boolean;
   hideAvatar?: boolean;
   showApubName?: boolean;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 export class PersonListing extends Component<PersonListingProps, any> {
@@ -73,7 +74,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
       <>
         {!this.props.hideAvatar &&
           /* TODO: hide avatar of banned person */
-          showAvatars() && (
+          showAvatars(this.props.myUserInfo) && (
             <PictrsImage
               src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
               icon

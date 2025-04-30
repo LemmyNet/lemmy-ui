@@ -1,5 +1,5 @@
 import { Component } from "inferno";
-import { Community } from "lemmy-js-client";
+import { Community, MyUserInfo } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
@@ -9,6 +9,7 @@ import { LoadingEllipses } from "../common/loading-ellipses";
 type CommunityHeaderProps = {
   community?: Community;
   urlCommunityName?: string;
+  myUserInfo: MyUserInfo | undefined;
 };
 
 export class CommunityHeader extends Component<CommunityHeaderProps> {
@@ -46,6 +47,7 @@ export class CommunityHeader extends Component<CommunityHeaderProps> {
             useApubName
             muted
             hideAvatar
+            myUserInfo={this.props.myUserInfo}
           />
         )) ??
           urlCommunityName}

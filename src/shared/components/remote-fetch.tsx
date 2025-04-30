@@ -178,7 +178,10 @@ export class RemoteFetch extends Component<
               )}
               <div className="card-body">
                 <h2 className="card-title">
-                  <CommunityLink community={communityView.community} />
+                  <CommunityLink
+                    community={communityView.community}
+                    myUserInfo={this.isoData.myUserInfo}
+                  />
                 </h2>
                 {communityView.community.description && (
                   <div className="card-text mb-3 preview-lines">

@@ -32,6 +32,7 @@ import {
   LemmyHttp,
   ModlogActionType,
   ModlogCombinedView,
+  MyUserInfo,
   Person,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
@@ -127,7 +128,10 @@ function getActionFromString(action?: string): ModlogActionType {
   return action !== undefined ? (action as ModlogActionType) : "All";
 }
 
-function renderModlogType(view: ModlogCombinedView): InfernoNode {
+function renderModlogType(
+  view: ModlogCombinedView,
+  myUserInfo: MyUserInfo | undefined,
+): InfernoNode {
   // TODO: none of these use i18n
   switch (view.type_) {
     case "ModRemovePost": {
@@ -186,7 +190,7 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
               ? " in community "
               : " in Local, from community "}
           </span>
-          <CommunityLink community={community} />
+          <CommunityLink community={community} myUserInfo={myUserInfo} />
         </>
       );
     }
@@ -206,7 +210,7 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
           </span>
           <span>
             {" "}
-            by <PersonListing person={commenter} />
+            by <PersonListing person={commenter} myUserInfo={myUserInfo} />
           </span>
           {reason && (
             <span>
@@ -228,7 +232,8 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
         <>
           <span>{removed ? "Removed " : "Restored "}</span>
           <span>
-            Community <CommunityLink community={community} />
+            Community{" "}
+            <CommunityLink community={community} myUserInfo={myUserInfo} />
           </span>
           {reason && (
             <span>
@@ -251,11 +256,11 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
         <>
           <span>{banned ? "Banned " : "Unbanned "}</span>
           <span>
-            <PersonListing person={banned_person} />
+            <PersonListing person={banned_person} myUserInfo={myUserInfo} />
           </span>
           <span> from the community </span>
           <span>
-            <CommunityLink community={community} />
+            <CommunityLink community={community} myUserInfo={myUserInfo} />
           </span>
           {reason && (
             <span>
@@ -282,11 +287,11 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
         <>
           <span>{removed ? "Removed " : "Appointed "}</span>
           <span>
-            <PersonListing person={modded_person} />
+            <PersonListing person={modded_person} myUserInfo={myUserInfo} />
           </span>
           <span> as a mod to the community </span>
           <span>
-            <CommunityLink community={community} />
+            <CommunityLink community={community} myUserInfo={myUserInfo} />
           </span>
         </>
       );
@@ -299,11 +304,11 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
         <>
           <span>Transferred</span>
           <span>
-            <CommunityLink community={community} />
+            <CommunityLink community={community} myUserInfo={myUserInfo} />
           </span>
           <span> to </span>
           <span>
-            <PersonListing person={modded_person} />
+            <PersonListing person={modded_person} myUserInfo={myUserInfo} />
           </span>
         </>
       );
@@ -319,7 +324,7 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
         <>
           <span>{banned ? "Banned " : "Unbanned "}</span>
           <span>
-            <PersonListing person={banned_person} />
+            <PersonListing person={banned_person} myUserInfo={myUserInfo} />
           </span>
           {reason && (
             <span>
@@ -345,7 +350,7 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
         <>
           <span>{removed ? "Removed " : "Appointed "}</span>
           <span>
-            <PersonListing person={modded_person} />
+            <PersonListing person={modded_person} myUserInfo={myUserInfo} />
           </span>
           <span> as an admin </span>
         </>
@@ -394,7 +399,7 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
       return (
         <>
           <span>Purged a Post from </span>
-          <CommunityLink community={community} />
+          <CommunityLink community={community} myUserInfo={myUserInfo} />
           {reason && (
             <span>
               <div>reason: {reason}</div>
@@ -434,7 +439,7 @@ function renderModlogType(view: ModlogCombinedView): InfernoNode {
         <>
           <span>Changed visibility of </span>
           <span>
-            <CommunityLink community={community} />
+            <CommunityLink community={community} myUserInfo={myUserInfo} />
           </span>
           <span>to {visibility}</span>
           {reason && (
@@ -696,12 +701,15 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               </td>
               <td>
                 {this.amAdminOrMod && mod ? (
-                  <PersonListing person={mod} />
+                  <PersonListing
+                    person={mod}
+                    myUserInfo={this.isoData.myUserInfo}
+                  />
                 ) : (
                   <div>{this.modOrAdminText(mod)}</div>
                 )}
               </td>
-              <td>{renderModlogType(i)}</td>
+              <td>{renderModlogType(i, this.isoData.myUserInfo)}</td>
             </tr>
           );
         })}
