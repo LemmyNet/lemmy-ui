@@ -1,14 +1,20 @@
-import { capitalizeFirstLetter } from "@utils/helpers";
+import { capitalizeFirstLetter, cursorComponents } from "@utils/helpers";
 import { Component, InfernoMouseEvent, linkEvent } from "inferno";
-import { MyUserInfo, Tagline } from "lemmy-js-client";
+import { ListTaglinesResponse, MyUserInfo, Tagline } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { Paginator } from "../common/paginator";
 import classNames from "classnames";
 import { isBrowser } from "@utils/browser";
 import { Prompt } from "inferno-router";
+import {
+  EMPTY_REQUEST,
+  LOADING_REQUEST,
+  RequestState,
+} from "@services/HttpService";
+import { PaginatorCursor } from "@components/common/paginator-cursor";
+import { DirectionalCursor } from "@utils/types";
 
 interface EditableTagline {
   change?: "update" | "delete" | "create";
@@ -27,17 +33,16 @@ interface TaglineFormProps {
 }
 
 interface TaglineFormState {
+  taglinesRes: RequestState<ListTaglinesResponse>;
   taglines: Array<EditableTagline>;
-  page: number;
-  loading: boolean;
+  page?: DirectionalCursor;
 }
 
 @tippyMixin
 export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   state: TaglineFormState = {
+    taglinesRes: EMPTY_REQUEST,
     taglines: [],
-    page: 1,
-    loading: false,
   };
   constructor(props: any, context: any) {
     super(props, context);
@@ -46,7 +51,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
 
   componentWillMount(): void {
     if (isBrowser()) {
-      this.handlePageChange(1);
+      this.handlePageChange();
     }
   }
 
@@ -160,9 +165,12 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
               <button
                 onClick={linkEvent(this, this.handleSaveClick)}
                 className="btn btn-secondary me-2"
-                disabled={this.state.loading || !this.hasPendingChanges()}
+                disabled={
+                  this.state.taglinesRes.state === "loading" ||
+                  !this.hasPendingChanges()
+                }
               >
-                {this.state.loading ? (
+                {this.state.taglinesRes.state === "loading" ? (
                   <Spinner />
                 ) : (
                   capitalizeFirstLetter(I18NextService.i18n.t("save"))
@@ -179,11 +187,9 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
             </div>
           </div>
           <div>
-            <Paginator
-              page={this.state.page}
-              onChange={this.handlePageChange}
-              nextDisabled={false}
-              disabled={this.hasPendingChanges()}
+            <PaginatorCursor
+              resource={this.state.taglinesRes}
+              onPageChange={this.handlePageChange}
             />
           </div>
         </div>
@@ -296,17 +302,17 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     });
   }
 
-  async handlePageChange(val: number) {
-    this.setState({ loading: true });
-    const taglineRes = await HttpService.client.listTaglines({ page: val });
-    if (taglineRes.state === "success") {
-      this.setState({
-        page: val,
-        loading: false,
-        taglines: taglineRes.data.taglines.map(t => ({ tagline: t })),
-      });
-    } else {
-      this.setState({ loading: false });
-    }
+  async handlePageChange(page?: DirectionalCursor) {
+    this.setState({ taglinesRes: LOADING_REQUEST, page });
+    const taglinesRes = await HttpService.client.listTaglines({
+      ...cursorComponents(page),
+    });
+    this.setState({
+      taglinesRes,
+      taglines:
+        taglinesRes.state === "success"
+          ? taglinesRes.data.taglines.map(t => ({ tagline: t }))
+          : [],
+    });
   }
 }

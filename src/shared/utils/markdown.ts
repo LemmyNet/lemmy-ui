@@ -278,9 +278,7 @@ export function emojiMartCategories(
 export async function setupEmojiDataModel(
   client: WrappedLemmyHttp = HttpService.client,
 ): Promise<boolean> {
-  const emojisRes = await client.listCustomEmojis({
-    ignore_page_limits: true,
-  });
+  const emojisRes = await client.listCustomEmojis({});
   if (emojisRes.state !== "success") {
     return false;
   }

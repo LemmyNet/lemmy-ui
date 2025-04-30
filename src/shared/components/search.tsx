@@ -22,8 +22,9 @@ import {
   getQueryString,
   numToSI,
   resourcesSettled,
+  cursorComponents,
 } from "@utils/helpers";
-import type { QueryParams } from "@utils/types";
+import type { DirectionalCursor, QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent, createRef } from "inferno";
 import {
@@ -79,7 +80,7 @@ interface SearchProps {
   titleOnly?: boolean;
   communityId?: number;
   creatorId?: number;
-  page?: PaginationCursor;
+  page?: DirectionalCursor;
 }
 
 type SearchData = RouteDataResponse<{
@@ -240,7 +241,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
-    this.handlePageNext = this.handlePageNext.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
     this.handleCommunityFilterChange =
       this.handleCommunityFilterChange.bind(this);
     this.handleCreatorFilterChange = this.handleCreatorFilterChange.bind(this);
@@ -478,7 +479,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         sort,
         listing_type,
         title_only,
-        page_cursor: page,
+        ...cursorComponents(page),
       };
 
       searchResponse = await client.search(form);
@@ -539,8 +540,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             <span>{I18NextService.i18n.t("no_results")}</span>
           )}
         <PaginatorCursor
-          nextPage={this.getNextPage}
-          onNext={this.handlePageNext}
+          resource={this.state.searchRes}
+          onPageChange={this.handlePageChange}
         />
       </div>
     );
@@ -1002,7 +1003,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         sort,
         listing_type: listingType,
         title_only: titleOnly,
-        page_cursor: page,
+        ...cursorComponents(page),
       });
       if (token !== this.searchToken) {
         return;
@@ -1084,7 +1085,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     });
   }
 
-  handlePageNext(page: PaginationCursor) {
+  handlePageChange(page: DirectionalCursor) {
     this.updateUrl({ page });
   }
 
@@ -1143,7 +1144,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       titleOnly: titleOnly?.toString(),
       communityId: communityId?.toString(),
       creatorId: creatorId?.toString(),
-      page: page?.toString(),
+      page,
       sort: sort,
     };
 

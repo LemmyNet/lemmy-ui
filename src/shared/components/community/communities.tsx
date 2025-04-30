@@ -3,9 +3,10 @@ import {
   getQueryParams,
   getQueryString,
   numToSI,
+  cursorComponents,
   resourcesSettled,
 } from "@utils/helpers";
-import type { QueryParams } from "@utils/types";
+import type { DirectionalCursor, QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
@@ -15,7 +16,6 @@ import {
   ListCommunitiesResponse,
   ListingType,
   CommunitySortType,
-  PaginationCursor,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -54,7 +54,7 @@ interface CommunitiesState {
 interface CommunitiesProps {
   listingType: ListingType;
   sort: CommunitySortType;
-  page?: PaginationCursor;
+  page?: DirectionalCursor;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
@@ -247,19 +247,12 @@ export class Communities extends Component<
           </div>
           <div className="table-responsive">{this.renderListingsTable()}</div>
           <PaginatorCursor
-            nextPage={this.nextPageCursor}
-            onNext={this.handlePageChange}
+            resource={this.state.listCommunitiesResponse}
+            onPageChange={this.handlePageChange}
           />
         </div>
       </div>
     );
-  }
-
-  get nextPageCursor(): PaginationCursor | undefined {
-    const { listCommunitiesResponse: res } = this.state;
-    return res.state === "success"
-      ? undefined // res.data.next_page
-      : undefined;
   }
 
   searchForm() {
@@ -300,7 +293,7 @@ export class Communities extends Component<
     this.props.history.push(`/communities${getQueryString(queryParams)}`);
   }
 
-  handlePageChange(page: PaginationCursor) {
+  handlePageChange(page: DirectionalCursor) {
     this.updateUrl({ page });
   }
 
@@ -330,7 +323,7 @@ export class Communities extends Component<
 
   static async fetchInitialData({
     headers,
-    query: { listingType, sort },
+    query: { listingType, sort, page },
   }: InitialFetchRequest<
     CommunitiesPathProps,
     CommunitiesProps
@@ -343,6 +336,7 @@ export class Communities extends Component<
       type_: listingType,
       sort,
       limit: communityLimit,
+      ...cursorComponents(page),
     };
 
     return {
@@ -364,13 +358,14 @@ export class Communities extends Component<
   }
 
   fetchToken?: symbol;
-  async refetch({ listingType, sort }: CommunitiesProps) {
+  async refetch({ listingType, sort, page }: CommunitiesProps) {
     const token = (this.fetchToken = Symbol());
     this.setState({ listCommunitiesResponse: LOADING_REQUEST });
     const listCommunitiesResponse = await HttpService.client.listCommunities({
       type_: listingType,
       sort: sort,
       limit: communityLimit,
+      ...cursorComponents(page),
     });
     if (token === this.fetchToken) {
       this.setState({ listCommunitiesResponse });

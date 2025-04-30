@@ -15,10 +15,15 @@ import {
 import {
   getQueryParams,
   getQueryString,
+  cursorComponents,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type { QueryParams, StringBoolean } from "@utils/types";
+import type {
+  DirectionalCursor,
+  QueryParams,
+  StringBoolean,
+} from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, InfernoNode, MouseEventHandler, linkEvent } from "inferno";
@@ -55,7 +60,6 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonCommentMentionAsRead,
-  PaginationCursor,
   PostResponse,
   PurgeComment,
   PurgePerson,
@@ -102,7 +106,7 @@ import {
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
-import { isBrowser, snapToTop } from "@utils/browser";
+import { isBrowser } from "@utils/browser";
 import { nowBoolean } from "@utils/date";
 
 interface HomeState {
@@ -121,7 +125,7 @@ interface HomeProps {
   listingType?: ListingType;
   dataType: DataType;
   sort: PostSortType | CommentSortType;
-  pageCursor?: PaginationCursor;
+  pageCursor?: DirectionalCursor;
   showHidden?: StringBoolean;
 }
 
@@ -268,8 +272,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
-    this.handlePageNext = this.handlePageNext.bind(this);
-    this.handlePagePrev = this.handlePagePrev.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
 
     this.handleCreateComment = this.handleCreateComment.bind(this);
     this.handleEditComment = this.handleEditComment.bind(this);
@@ -350,10 +353,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
         type_: listingType,
-        page_cursor: pageCursor,
+        ...cursorComponents(pageCursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
-        saved_only: false,
         show_hidden: showHidden === "true",
       };
 
@@ -590,8 +592,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           <div class="row">
             <div class="col">
               <PaginatorCursor
-                nextPage={this.getNextPage}
-                onNext={this.handlePageNext}
+                resource={this.currentRes}
+                onPageChange={this.handlePageChange}
               />
             </div>
             <div class="col-auto">{this.markPageAsReadButton}</div>
@@ -664,10 +666,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  get getNextPage(): PaginationCursor | undefined {
-    return this.state.postsRes.state === "success"
-      ? this.state.postsRes.data.next_page
-      : undefined;
+  get currentRes() {
+    if (this.props.dataType === DataType.Post) {
+      return this.state.postsRes;
+    } else {
+      return this.state.commentsRes;
+    }
   }
 
   get listings() {
@@ -827,10 +831,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
-        page_cursor: pageCursor,
+        ...cursorComponents(pageCursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
-        saved_only: false,
         type_: listingType,
         show_hidden: showHidden === "true",
       });
@@ -862,16 +865,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     i.setState({ subscribedCollapsed: !i.state.subscribedCollapsed });
   }
 
-  handlePagePrev() {
-    this.props.history.back();
-    // A hack to scroll to top
-    setTimeout(() => {
-      snapToTop();
-    }, 50);
-  }
-
-  handlePageNext(nextPage: PaginationCursor) {
-    this.updateUrl({ pageCursor: nextPage });
+  handlePageChange(pageCursor: DirectionalCursor) {
+    this.updateUrl({ pageCursor });
   }
 
   handleSortChange(val: PostSortType) {

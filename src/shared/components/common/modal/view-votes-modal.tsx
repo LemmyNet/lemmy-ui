@@ -8,7 +8,6 @@ import {
 import { I18NextService } from "../../../services";
 import type { Modal } from "bootstrap";
 import { Icon, Spinner } from "../icon";
-import { Paginator } from "../paginator";
 import {
   ListCommentLikesResponse,
   ListPostLikesResponse,
@@ -25,6 +24,9 @@ import { PersonListing } from "../../person/person-listing";
 import { modalMixin } from "../../mixins/modal-mixin";
 import { UserBadges } from "../user-badges";
 import { isBrowser } from "@utils/browser";
+import { DirectionalCursor } from "@utils/types";
+import { cursorComponents } from "@utils/helpers";
+import { PaginatorCursor } from "../paginator-cursor";
 
 interface ViewVotesModalProps {
   children?: InfernoNode;
@@ -37,7 +39,7 @@ interface ViewVotesModalProps {
 interface ViewVotesModalState {
   postLikesRes: RequestState<ListPostLikesResponse>;
   commentLikesRes: RequestState<ListCommentLikesResponse>;
-  page: number;
+  page?: DirectionalCursor;
 }
 
 function voteViewTable(votes: VoteView[]) {
@@ -85,7 +87,6 @@ export default class ViewVotesModal extends Component<
   state: ViewVotesModalState = {
     postLikesRes: EMPTY_REQUEST,
     commentLikesRes: EMPTY_REQUEST,
-    page: 1,
   };
 
   constructor(props: ViewVotesModalProps, context: any) {
@@ -109,6 +110,14 @@ export default class ViewVotesModal extends Component<
       if (nextShow) {
         await this.refetch();
       }
+    }
+  }
+
+  get currentRes() {
+    if (this.props.type === "post") {
+      return this.state.postLikesRes;
+    } else {
+      return this.state.commentLikesRes;
     }
   }
 
@@ -139,10 +148,9 @@ export default class ViewVotesModal extends Component<
             <div className="modal-body text-center align-middle text-body">
               {this.postLikes()}
               {this.commentLikes()}
-              <Paginator
-                page={this.state.page}
-                onChange={this.handlePageChange}
-                nextDisabled={false}
+              <PaginatorCursor
+                resource={this.currentRes}
+                onPageChange={this.handlePageChange}
               />
             </div>
           </div>
@@ -190,7 +198,7 @@ export default class ViewVotesModal extends Component<
     this.modal?.hide();
   }
 
-  async handlePageChange(page: number) {
+  async handlePageChange(page: DirectionalCursor) {
     this.setState({ page });
     await this.refetch();
   }
@@ -204,7 +212,7 @@ export default class ViewVotesModal extends Component<
       this.setState({
         postLikesRes: await HttpService.client.listPostLikes({
           post_id: this.props.id,
-          page,
+          ...cursorComponents(page),
           limit,
         }),
       });
@@ -213,7 +221,7 @@ export default class ViewVotesModal extends Component<
       this.setState({
         commentLikesRes: await HttpService.client.listCommentLikes({
           comment_id: this.props.id,
-          page,
+          ...cursorComponents(page),
           limit,
         }),
       });

@@ -6,10 +6,10 @@ import {
   setIsoData,
   toast,
 } from "@utils/app";
-import { randomStr, resourcesSettled } from "@utils/helpers";
+import { cursorComponents, randomStr, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { amAdmin } from "@utils/roles";
-import { RouteDataResponse } from "@utils/types";
+import { DirectionalCursor, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -71,7 +71,7 @@ interface ReportsState {
   unreadOrAll: UnreadOrAll;
   messageType: MessageType;
   siteRes: GetSiteResponse;
-  page?: PaginationCursor;
+  page?: DirectionalCursor;
   isIsomorphic: boolean;
 }
 
@@ -155,8 +155,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             {this.selects()}
             {this.section}
             <PaginatorCursor
-              nextPage={this.nextPageCursor}
-              onNext={this.handlePageChange}
+              resource={this.state.reportsRes}
+              onPageChange={this.handlePageChange}
             />
           </div>
         </div>
@@ -535,7 +535,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  async handlePageChange(page: PaginationCursor) {
+  async handlePageChange(page: DirectionalCursor) {
     this.setState({ page });
     await this.refetch();
   }
@@ -585,7 +585,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
     const form: ListReports = {
       unresolved_only,
-      page_cursor: page,
+      ...cursorComponents(page),
     };
 
     const reportPromise = HttpService.client

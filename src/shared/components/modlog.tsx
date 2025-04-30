@@ -11,11 +11,12 @@ import {
   getQueryString,
   resourcesSettled,
   bareRoutePush,
+  cursorComponents,
 } from "@utils/helpers";
 import { formatRelativeDate } from "@utils/date";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { amAdmin, amMod } from "@utils/roles";
-import type { QueryParams } from "@utils/types";
+import type { DirectionalCursor, QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -32,7 +33,6 @@ import {
   ModlogActionType,
   ModlogCombinedView,
   Person,
-  PaginationCursor,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -115,7 +115,7 @@ interface ModlogState {
 }
 
 interface ModlogProps {
-  page?: PaginationCursor;
+  page?: DirectionalCursor;
   userId?: number;
   modId?: number;
   actionType: ModlogActionType;
@@ -841,11 +841,6 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     );
   }
 
-  get nextPageCursor(): PaginationCursor | undefined {
-    const { res } = this.state;
-    return res.state === "success" ? res.data.next_page : undefined;
-  }
-
   renderModlogTable() {
     switch (this.state.res.state) {
       case "loading":
@@ -868,8 +863,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               {this.combined}
             </table>
             <PaginatorCursor
-              nextPage={this.nextPageCursor}
-              onNext={this.handlePageChange}
+              resource={this.state.res}
+              onPageChange={this.handlePageChange}
             />
           </div>
         );
@@ -884,7 +879,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     });
   }
 
-  handlePageChange(page: PaginationCursor) {
+  handlePageChange(page: DirectionalCursor) {
     this.updateUrl({ page });
   }
 
@@ -973,7 +968,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     this.setState({ res: LOADING_REQUEST });
     const res = await HttpService.client.getModlog({
       community_id: communityId,
-      page_cursor: page,
+      ...cursorComponents(page),
       type_: actionType,
       other_person_id: userId,
       mod_person_id: modId,
@@ -1017,7 +1012,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const communityId = getIdFromString(urlCommunityId);
 
     const modlogForm: GetModlog = {
-      page_cursor: page,
+      ...cursorComponents(page),
       community_id: communityId,
       type_: actionType,
       mod_person_id: modId,

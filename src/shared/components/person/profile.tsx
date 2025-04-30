@@ -16,9 +16,10 @@ import {
   resourcesSettled,
   bareRoutePush,
   getApubName,
+  cursorComponents,
 } from "@utils/helpers";
 import { amAdmin, canAdmin } from "@utils/roles";
-import type { QueryParams } from "@utils/types";
+import type { DirectionalCursor, QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { format } from "date-fns";
@@ -70,7 +71,6 @@ import {
   TransferCommunity,
   RegistrationApplicationResponse,
   MyUserInfo,
-  PaginationCursor,
   CommunityId,
   ListPersonSavedResponse,
   PersonContentCombinedView,
@@ -104,7 +104,7 @@ import { MediaUploads } from "../common/media-uploads";
 import { cakeDate, futureDaysToUnixTime, nowBoolean } from "@utils/date";
 import { isBrowser } from "@utils/browser";
 import DisplayModal from "../common/modal/display-modal";
-import { Paginator } from "../common/paginator";
+import { PaginatorCursor } from "@components/common/paginator-cursor";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
@@ -132,7 +132,7 @@ interface ProfileState {
 interface ProfileProps {
   view: PersonDetailsView;
   sort: PostSortType;
-  page: PaginationCursor | undefined;
+  page?: DirectionalCursor;
   saved: boolean;
 }
 
@@ -248,7 +248,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
-    this.handlePageNumberChange = this.handlePageNumberChange.bind(this);
 
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleUnblockPerson = this.handleUnblockPerson.bind(this);
@@ -367,16 +366,16 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         HttpService.client.listPersonContent({
           type_,
           username: props.match.params.username,
-          page_cursor: page,
+          ...cursorComponents(page),
         }),
       needSaved &&
         HttpService.client.listPersonSaved({
           type_,
-          page_cursor: page,
+          ...cursorComponents(page),
         }),
       needUploads &&
         HttpService.client.listMedia({
-          page: parseInt(page ?? "1"),
+          ...cursorComponents(page),
           limit: fetchLimit,
         }),
     ]).then(args => {
@@ -425,10 +424,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     return await Promise.all([
       client.getPersonDetails({ username }),
       needContent &&
-        client.listPersonContent({ type_, username, page_cursor: page }),
-      needSaved && client.listPersonSaved({ type_, page_cursor: page }),
-      needUploads &&
-        client.listMedia({ page: parseInt(page ?? "1"), limit: fetchLimit }),
+        client.listPersonContent({
+          type_,
+          username,
+          ...cursorComponents(page),
+        }),
+      needSaved && client.listPersonSaved({ type_, ...cursorComponents(page) }),
+      needUploads && client.listMedia({ ...cursorComponents(page) }),
     ]).then(args => {
       const [personRes, personContentRes, personSavedRes, uploadsRes] = args;
       return {
@@ -461,11 +463,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         return (
           <div>
             <MediaUploads uploads={uploadsRes} />
-            <Paginator
-              page={parseInt(this.props.page ?? "1")}
-              onChange={this.handlePageNumberChange}
-              nextDisabled={false}
-            />
           </div>
         );
       }
@@ -528,7 +525,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 ) : (
                   <PersonDetails
                     content={savedContent ?? content ?? []}
-                    nextPageCursor={this.nextPageCursor}
                     admins={siteRes.admins}
                     sort={sort}
                     limit={fetchLimit}
@@ -537,7 +533,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     showAdultConsentModal={this.isoData.showAdultConsentModal}
                     view={view}
                     myUserInfo={this.isoData.myUserInfo}
-                    onPageChange={this.handlePageChange}
                     allLanguages={siteRes.all_languages}
                     siteLanguages={siteRes.discussion_languages}
                     // TODO all the forms here
@@ -571,6 +566,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onMarkPostAsRead={this.handleMarkPostAsRead}
                   />
                 ))}
+              <PaginatorCursor
+                resource={this.currentRes}
+                onPageChange={this.handlePageChange}
+              />
             </div>
 
             <div className="col-12 col-md-4">
@@ -593,18 +592,15 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
-  get nextPageCursor(): PaginationCursor | undefined {
+  get currentRes() {
     if (this.props.view === "Uploads") {
-      return undefined;
-    }
-    const { personSavedRes: savedRes, personContentRes: contentRes } =
-      this.state;
-    if (this.props.saved) {
-      return savedRes.state === "success" ? savedRes.data.next_page : undefined;
+      return this.state.uploadsRes;
     } else {
-      return contentRes.state === "success"
-        ? contentRes.data.next_page
-        : undefined;
+      if (this.props.saved) {
+        return this.state.personSavedRes;
+      } else {
+        return this.state.personContentRes;
+      }
     }
   }
 
@@ -1042,12 +1038,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
   }
 
-  handlePageChange(page: PaginationCursor) {
+  handlePageChange(page: DirectionalCursor) {
     this.updateUrl({ page });
-  }
-
-  handlePageNumberChange(page: number) {
-    this.updateUrl({ page: page.toString() });
   }
 
   handleSortChange(sort: PostSortType) {

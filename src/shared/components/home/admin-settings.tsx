@@ -1,7 +1,11 @@
 import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
-import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
+import {
+  capitalizeFirstLetter,
+  cursorComponents,
+  resourcesSettled,
+} from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { RouteDataResponse } from "@utils/types";
+import { DirectionalCursor, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component } from "inferno";
 import {
@@ -14,7 +18,6 @@ import {
   GetSiteResponse,
   LemmyHttp,
   ListMediaResponse,
-  PaginationCursor,
   PersonView,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
@@ -39,7 +42,6 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { MediaUploads } from "../common/media-uploads";
-import { Paginator } from "../common/paginator";
 import { snapToTop } from "@utils/browser";
 import { isBrowser } from "@utils/browser";
 import ConfirmationModal from "../common/modal/confirmation-modal";
@@ -57,11 +59,11 @@ interface AdminSettingsState {
   banned: PersonView[];
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   bannedRes: RequestState<BannedPersonsResponse>;
-  bannedPage?: PaginationCursor;
+  bannedPage?: DirectionalCursor;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<ListMediaResponse>;
-  uploadsPage: number;
+  uploadsPage?: DirectionalCursor;
   loading: boolean;
   themeList: string[];
   isIsomorphic: boolean;
@@ -88,7 +90,6 @@ export class AdminSettings extends Component<
     leaveAdminTeamRes: EMPTY_REQUEST,
     showConfirmLeaveAdmin: false,
     uploadsRes: EMPTY_REQUEST,
-    uploadsPage: 1,
     loading: false,
     themeList: [],
     isIsomorphic: false,
@@ -138,7 +139,7 @@ export class AdminSettings extends Component<
     return {
       bannedRes: await client.listBannedPersons(),
       instancesRes: await client.getFederatedInstances(),
-      uploadsRes: await client.listAllMedia(),
+      uploadsRes: await client.listMedia(),
     };
   }
 
@@ -348,11 +349,11 @@ export class AdminSettings extends Component<
 
     const [bannedRes, instancesRes, uploadsRes, themeList] = await Promise.all([
       HttpService.client.listBannedPersons({
-        page_cursor: this.state.bannedPage,
+        ...cursorComponents(this.state.bannedPage),
       }),
       HttpService.client.getFederatedInstances(),
-      HttpService.client.listAllMedia({
-        page: this.state.uploadsPage,
+      HttpService.client.listMedia({
+        ...cursorComponents(this.state.uploadsPage),
       }),
       fetchThemeList(),
     ]);
@@ -366,8 +367,8 @@ export class AdminSettings extends Component<
   }
 
   async fetchUploadsOnly() {
-    const uploadsRes = await HttpService.client.listAllMedia({
-      page: this.state.uploadsPage,
+    const uploadsRes = await HttpService.client.listMedia({
+      ...cursorComponents(this.state.uploadsPage),
     });
     this.setState({ uploadsRes });
   }
@@ -412,12 +413,6 @@ export class AdminSettings extends Component<
     );
   }
 
-  get getNextPage(): PaginationCursor | undefined {
-    return this.state.bannedRes.state === "success"
-      ? this.state.bannedRes.data.next_page
-      : undefined;
-  }
-
   bannedUsers() {
     switch (this.state.bannedRes.state) {
       case "loading":
@@ -439,8 +434,8 @@ export class AdminSettings extends Component<
               ))}
             </ul>
             <PaginatorCursor
-              nextPage={this.getNextPage}
-              onNext={this.handleBannedPageChange}
+              resource={this.state.bannedRes}
+              onPageChange={this.handleBannedPageChange}
             />
           </>
         );
@@ -461,10 +456,9 @@ export class AdminSettings extends Component<
         return (
           <div>
             <MediaUploads showUploader uploads={uploadsRes} />
-            <Paginator
-              page={this.state.uploadsPage}
-              onChange={this.handleUploadsPageChange}
-              nextDisabled={false}
+            <PaginatorCursor
+              resource={this.state.uploadsRes}
+              onPageChange={this.handleUploadsPageChange}
             />
           </div>
         );
@@ -508,13 +502,13 @@ export class AdminSettings extends Component<
     }
   }
 
-  async handleBannedPageChange(cursor?: PaginationCursor) {
-    this.setState({ bannedPage: cursor });
+  async handleBannedPageChange(bannedPage: DirectionalCursor) {
+    this.setState({ bannedPage });
     await this.fetchData();
   }
 
-  async handleUploadsPageChange(val: number) {
-    this.setState({ uploadsPage: val });
+  async handleUploadsPageChange(uploadsPage: DirectionalCursor) {
+    this.setState({ uploadsPage });
     snapToTop();
     await this.fetchUploadsOnly();
   }

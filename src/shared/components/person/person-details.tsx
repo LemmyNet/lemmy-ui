@@ -36,7 +36,6 @@ import {
   PostSortType,
   TransferCommunity,
   MyUserInfo,
-  PaginationCursor,
   PersonContentCombinedView,
   PersonContentType,
 } from "lemmy-js-client";
@@ -44,11 +43,9 @@ import { CommentViewType } from "@utils/types";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
 import { RequestState } from "../../services/HttpService";
-import { PaginatorCursor } from "../common/paginator-cursor";
 
 interface PersonDetailsProps {
   content: PersonContentCombinedView[];
-  nextPageCursor?: PaginationCursor;
   admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
@@ -59,7 +56,6 @@ interface PersonDetailsProps {
   showAdultConsentModal: boolean;
   view: PersonContentType;
   myUserInfo: MyUserInfo | undefined;
-  onPageChange(page: PaginationCursor): void;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
   onPersonMentionRead(form: MarkPersonCommentMentionAsRead): void;
@@ -94,23 +90,11 @@ interface PersonDetailsProps {
 export class PersonDetails extends Component<PersonDetailsProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
-    this.handlePageChange = this.handlePageChange.bind(this);
-  }
-
-  get nextPageCursor(): PaginationCursor | undefined {
-    return this.props.nextPageCursor;
   }
 
   render() {
     return (
-      <div className="person-details">
-        {this.viewSelector(this.props.view)}
-
-        <PaginatorCursor
-          nextPage={this.nextPageCursor}
-          onNext={this.handlePageChange}
-        />
-      </div>
+      <div className="person-details">{this.viewSelector(this.props.view)}</div>
     );
   }
 
@@ -294,9 +278,5 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
         ))}
       </div>
     );
-  }
-
-  handlePageChange(val: PaginationCursor) {
-    this.props.onPageChange(val);
   }
 }

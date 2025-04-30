@@ -10,6 +10,7 @@ import {
   PersonCommentMentionView,
   PersonCommentMention,
   CommentReply,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { RequestState } from "@services/HttpService";
 import { Match } from "inferno-router/dist/Route";
@@ -183,3 +184,10 @@ export type ProviderToEdit = Omit<
   CreateOAuthProvider,
   "client_id" | "client_secret"
 >;
+
+export type DirectionalCursor = `${PaginationCursor}` | `-${PaginationCursor}`;
+
+export type CursorComponents = {
+  page_cursor?: PaginationCursor;
+  page_back?: boolean;
+};

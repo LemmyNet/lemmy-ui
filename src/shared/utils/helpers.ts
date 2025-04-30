@@ -1,5 +1,7 @@
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { RequestState } from "@services/HttpService";
+import { PaginationCursor } from "lemmy-js-client";
+import { DirectionalCursor, CursorComponents } from "./types";
 
 // Intended to allow reloading all the data of the current page by clicking the
 // navigation link of the current page.
@@ -246,4 +248,32 @@ export function dedupByProperty<
 
 export function getApubName({ name, ap_id }: { name: string; ap_id: string }) {
   return `${name}@${hostname(ap_id)}`;
+}
+
+export function directionalCursor(
+  cursor: PaginationCursor,
+  back: boolean,
+): DirectionalCursor {
+  if (back) {
+    return `-${cursor}`;
+  }
+  return cursor;
+}
+
+export function cursorComponents(cursor?: DirectionalCursor): CursorComponents {
+  if (!cursor) {
+    return {
+      page_cursor: undefined,
+      page_back: undefined,
+    };
+  } else if (cursor.startsWith("-")) {
+    return {
+      page_cursor: cursor.substring(1),
+      page_back: true,
+    };
+  }
+  return {
+    page_cursor: cursor,
+    page_back: false,
+  };
 }

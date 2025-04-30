@@ -17,9 +17,14 @@ import {
   getQueryString,
   resourcesSettled,
   bareRoutePush,
+  cursorComponents,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type { QueryParams, StringBoolean } from "@utils/types";
+import type {
+  DirectionalCursor,
+  QueryParams,
+  StringBoolean,
+} from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import {
   Component,
@@ -67,7 +72,6 @@ import {
   LockPost,
   MarkCommentReplyAsRead,
   MarkPersonCommentMentionAsRead,
-  PaginationCursor,
   PostResponse,
   PurgeComment,
   PurgeCommunity,
@@ -137,7 +141,7 @@ interface State {
 interface CommunityProps {
   dataType: DataType;
   sort: PostSortType | CommentSortType;
-  pageCursor?: PaginationCursor;
+  pageCursor?: DirectionalCursor;
   showHidden?: StringBoolean;
 }
 
@@ -215,7 +219,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
-    this.handlePageNext = this.handlePageNext.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
     this.handlePagePrev = this.handlePagePrev.bind(this);
 
     // All of the action binds
@@ -330,11 +334,10 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
         community_name: communityName,
-        page_cursor: pageCursor,
+        ...cursorComponents(pageCursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         type_: "All",
-        saved_only: false,
         show_hidden: showHidden === "true",
       };
 
@@ -365,10 +368,12 @@ export class Community extends Component<CommunityRouteProps, State> {
     };
   }
 
-  get getNextPage(): PaginationCursor | undefined {
-    return this.state.postsRes.state === "success"
-      ? this.state.postsRes.data.next_page
-      : undefined;
+  get currentRes() {
+    if (this.props.dataType === DataType.Post) {
+      return this.state.postsRes;
+    } else {
+      return this.state.commentsRes;
+    }
   }
 
   get documentTitle(): string {
@@ -425,8 +430,8 @@ export class Community extends Component<CommunityRouteProps, State> {
             <div class="row">
               <div class="col">
                 <PaginatorCursor
-                  nextPage={this.getNextPage}
-                  onNext={this.handlePageNext}
+                  resource={this.currentRes}
+                  onPageChange={this.handlePageChange}
                 />
               </div>
               <div class="col-auto">{this.markPageAsReadButton}</div>
@@ -700,8 +705,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.props.history.back();
   }
 
-  handlePageNext(nextPage: PaginationCursor) {
-    this.updateUrl({ pageCursor: nextPage });
+  handlePageChange(pageCursor: DirectionalCursor) {
+    this.updateUrl({ pageCursor });
   }
 
   handleSortChange(sort: PostSortType) {
@@ -762,12 +767,11 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
-        page_cursor: pageCursor,
+        ...cursorComponents(pageCursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         type_: "All",
         community_name: name,
-        saved_only: false,
         show_hidden: showHidden === "true",
       });
       if (token === this.fetchDataToken) {

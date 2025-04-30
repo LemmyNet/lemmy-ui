@@ -9,11 +9,12 @@ import {
 } from "@utils/app";
 import {
   capitalizeFirstLetter,
+  cursorComponents,
   randomStr,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { RouteDataResponse } from "@utils/types";
+import { DirectionalCursor, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -49,7 +50,6 @@ import {
   MarkPersonCommentMentionAsRead,
   MarkPostAsRead,
   MarkPrivateMessageAsRead,
-  PaginationCursor,
   PersonCommentMentionView,
   PrivateMessageReportResponse,
   PrivateMessageResponse,
@@ -120,7 +120,7 @@ interface InboxState {
   inboxRes: RequestState<ListInboxResponse>;
   markAllAsReadRes: RequestState<SuccessResponse>;
   sort: CommentSortType;
-  page?: PaginationCursor;
+  page?: DirectionalCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
 }
@@ -157,7 +157,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: "All",
     sort: "New",
-    page: undefined,
     siteRes: this.isoData.siteRes,
     inboxRes: EMPTY_REQUEST,
     markAllAsReadRes: EMPTY_REQUEST,
@@ -236,11 +235,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     }
   }
 
-  get nextPageCursor(): PaginationCursor | undefined {
-    const { inboxRes: res } = this.state;
-    return res.state === "success" ? res.data.next_page : undefined;
-  }
-
   render() {
     const auth = myAuth();
     const inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
@@ -284,8 +278,8 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             {this.selects()}
             {this.section}
             <PaginatorCursor
-              nextPage={this.nextPageCursor}
-              onNext={this.handlePageChange}
+              resource={this.state.inboxRes}
+              onPageChange={this.handlePageChange}
             />
           </div>
         </div>
@@ -760,7 +754,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     }
   }
 
-  async handlePageChange(page: PaginationCursor) {
+  async handlePageChange(page: DirectionalCursor) {
     this.setState({ page });
     await this.refetch();
   }
@@ -791,7 +785,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
         inboxRes: await client.listInbox({
           type_: "All",
           unread_only: true,
-          page_cursor: undefined,
         }),
       };
     }
@@ -812,7 +805,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       .listInbox({
         type_: this.state.messageType,
         unread_only,
-        page_cursor: page,
+        ...cursorComponents(page),
       })
       .then(inboxRes => {
         if (token === this.refetchToken) {

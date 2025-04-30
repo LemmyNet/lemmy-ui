@@ -342,9 +342,7 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
     let emojiMartCustom: EmojiMartCategory[] = this.state.emojiMartCustom;
     let emojiMartKey: number = this.state.emojiMartKey;
     if (this.needsRefetch) {
-      const emojiRes = await HttpService.client.listCustomEmojis({
-        ignore_page_limits: true,
-      });
+      const emojiRes = await HttpService.client.listCustomEmojis({});
       if (emojiRes.state === "success") {
         this.needsRefetch = false;
         allEmojis = emojiRes.data.custom_emojis;
