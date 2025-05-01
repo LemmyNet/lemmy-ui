@@ -60,6 +60,7 @@ export function setCacheControl(
   }
 
   res.setHeader("Cache-Control", caching);
+  res.setHeader("Vary", "Cookie, Accept-Language");
 
   next();
 }
