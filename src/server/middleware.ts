@@ -52,6 +52,7 @@ export function setCacheControl(
     // Static content gets cached publicly for a day
     caching = "public, max-age=86400";
   } else {
+    res.setHeader("Vary", "Cookie, Accept-Language");
     if (getJwtCookie(req.headers)) {
       caching = "private";
     } else {
@@ -60,7 +61,6 @@ export function setCacheControl(
   }
 
   res.setHeader("Cache-Control", caching);
-  res.setHeader("Vary", "Cookie, Accept-Language");
 
   next();
 }
