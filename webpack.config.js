@@ -145,6 +145,7 @@ module.exports = (env, argv) => {
               handler: "NetworkFirst",
               options: {
                 cacheName: "instance-cache",
+                maxAgeSeconds: 600,
               },
             },
             {
