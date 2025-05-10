@@ -109,6 +109,7 @@ import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser, snapToTop } from "@utils/browser";
 import { CommentSortSelect } from "../common/comment-sort-select";
+import { DonationDialog } from "./donation_dialog";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -407,6 +408,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         {site_setup && (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9">
+              <DonationDialog site={this.state.siteRes} />
               {tagline && (
                 <div
                   id="tagline"
