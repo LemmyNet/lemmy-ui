@@ -248,7 +248,7 @@ importers:
         version: 5.0.4
       '@types/toastify-js':
         specifier: ^1.12.3
-        version: 1.12.3
+        version: 1.12.4
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.3.0
         version: 8.31.1(@typescript-eslint/parser@8.31.1(eslint@9.26.0)(typescript@5.8.3))(eslint@9.26.0)(typescript@5.8.3)
@@ -1499,8 +1499,8 @@ packages:
   '@types/sockjs@0.3.36':
     resolution: {integrity: sha512-MK9V6NzAS1+Ud7JV9lJLFqW85VbC9dq3LmwZCuBe4wBDgKC0Kj/jd8Xl+nSviU+Qc3+m7umHHyHg//2KSa0a0Q==}
 
-  '@types/toastify-js@1.12.3':
-    resolution: {integrity: sha512-9RjLlbAHMSaae/KZNHGv19VG4gcLIm3YjvacCXBtfMfYn26h76YP5oxXI8k26q4iKXCB9LNfv18lsoS0JnFPTg==}
+  '@types/toastify-js@1.12.4':
+    resolution: {integrity: sha512-zfZHU4tKffPCnZRe7pjv/eFKzTVHozKewFCKaCjZ4gFinKgJRz/t0bkZiMCXJxPhv/ZoeDGNOeRD09R0kQZ/nw==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -6425,7 +6425,7 @@ snapshots:
     dependencies:
       '@types/node': 22.15.3
 
-  '@types/toastify-js@1.12.3': {}
+  '@types/toastify-js@1.12.4': {}
 
   '@types/trusted-types@2.0.7': {}
 
