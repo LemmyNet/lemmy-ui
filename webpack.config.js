@@ -132,22 +132,6 @@ module.exports = (env, argv) => {
           inlineWorkboxRuntime: true,
           runtimeCaching: [
             {
-              urlPattern: ({
-                sameOrigin,
-                url: { pathname, host },
-                request: { method },
-              }) =>
-                (sameOrigin || host.includes("localhost")) &&
-                (!(
-                  pathname.includes("pictrs") || pathname.includes("static")
-                ) ||
-                  method === "POST"),
-              handler: "NetworkFirst",
-              options: {
-                cacheName: "instance-cache",
-              },
-            },
-            {
               urlPattern: ({ url: { pathname, host }, sameOrigin }) =>
                 (sameOrigin || host.includes("localhost")) &&
                 pathname.includes("static"),
