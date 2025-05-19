@@ -30,6 +30,7 @@ export const languages: TranslationDesc[] = [
   { resource: "ga", code: "ga", name: "Gaeilge" },
   { resource: "gl", code: "gl", name: "Galego" },
   { resource: "hr", code: "hr", name: "Hrvatski" },
+  { resource: "hu", code: "hu", name: "magyar nyelv" },
   { resource: "id", code: "id", name: "Bahasa Indonesia" },
   { resource: "it", code: "it", name: "Italiano" },
   { resource: "ja", code: "ja", name: "日本語" },
