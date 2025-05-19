@@ -3,12 +3,12 @@ import { Helmet } from "inferno-helmet";
 import { renderToString } from "inferno-server";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
-import { favIconPngUrl, favIconUrl } from "../../shared/config";
-import { IsoDataOptionalSite } from "../../shared/interfaces";
+import { favIconPngUrl, favIconUrl } from "@utils/config";
+import { IsoData } from "@utils/types";
 import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
 import { findTranslationChunkNames } from "../../shared/services/I18NextService";
-import { findDateFnsChunkNames } from "../../shared/utils/app/setup-date-fns";
+import { findDateFnsChunkNames } from "@utils/date";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
@@ -16,11 +16,11 @@ let appleTouchIcon: string | undefined = undefined;
 
 export async function createSsrHtml(
   root: string,
-  isoData: IsoDataOptionalSite,
+  isoData: IsoData,
   cspNonce: string,
   userLanguages: readonly string[],
 ) {
-  const site = isoData.site_res;
+  const site = isoData.siteRes;
 
   const fallbackTheme = `<link rel="stylesheet" type="text/css" href="/css/themes/${
     (await buildThemeList())[0]

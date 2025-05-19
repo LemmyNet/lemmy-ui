@@ -5,13 +5,13 @@ import { amAdmin, canCreateCommunity } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import { GetSiteResponse } from "lemmy-js-client";
-import { donateLemmyUrl } from "../../config";
+import { donateLemmyUrl } from "@utils/config";
 import {
   I18NextService,
   UserService,
   UnreadCounterService,
 } from "../../services";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 import { Subscription } from "rxjs";

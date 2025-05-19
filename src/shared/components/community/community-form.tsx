@@ -14,12 +14,12 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { validActorRegexPattern } from "../../config";
+import { validActorRegexPattern } from "@utils/config";
 
 interface CommunityFormProps {
   community_view?: CommunityView; // If a community is given, that means this is an edit
-  allLanguages: Language[];
-  siteLanguages: number[];
+  allLanguages?: Language[];
+  siteLanguages?: number[];
   communityLanguages?: number[];
   onCancel?(): any;
   onUpsertCommunity(form: CreateCommunity | EditCommunity): void;

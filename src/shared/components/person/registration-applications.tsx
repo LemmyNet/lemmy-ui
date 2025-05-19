@@ -1,19 +1,25 @@
 import { editRegistrationApplication, setIsoData } from "@utils/app";
-import { randomStr, resourcesSettled } from "@utils/helpers";
+import {
+  getBoolFromString,
+  getPageCursorFromString,
+  getQueryParams,
+  randomStr,
+  resourcesSettled,
+} from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
   ApproveRegistrationApplication,
-  GetSiteResponse,
   LemmyHttp,
   ListRegistrationApplicationsResponse,
+  PaginationCursor,
   RegistrationApplicationView,
 } from "lemmy-js-client";
-import { fetchLimit } from "../../config";
-import { InitialFetchRequest } from "../../interfaces";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { fetchLimit } from "@utils/config";
+import { InitialFetchRequest } from "@utils/types";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -23,13 +29,11 @@ import {
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
-import { Paginator } from "../common/paginator";
 import { RegistrationApplication } from "../common/registration-application";
 import { UnreadCounterService } from "../../services";
 import { getHttpBaseInternal } from "../../utils/env";
-import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
 import { isBrowser } from "@utils/browser";
+import { PaginatorCursor } from "@components/common/paginator-cursor";
 
 enum RegistrationState {
   Unread,
@@ -43,33 +47,36 @@ type RegistrationApplicationsData = RouteDataResponse<{
 
 interface RegistrationApplicationsState {
   appsRes: RequestState<ListRegistrationApplicationsResponse>;
-  siteRes: GetSiteResponse;
   registrationState: RegistrationState;
-  page: number;
   isIsomorphic: boolean;
 }
 
-type RegistrationApplicationsRouteProps = RouteComponentProps<
-  Record<string, never>
-> &
-  Record<string, never>;
-export type RegistrationApplicationsFetchConfig = IRoutePropsWithFetch<
-  RegistrationApplicationsData,
-  Record<string, never>,
-  Record<string, never>
->;
+interface RegistrationApplicationsProps {
+  unreadOnly?: boolean;
+  pageCursor?: PaginationCursor;
+}
+
+export function getRegistrationApplicationsQueryParams(
+  source?: string,
+): RegistrationApplicationsProps {
+  return getQueryParams<RegistrationApplicationsProps>(
+    {
+      unreadOnly: getBoolFromString,
+      pageCursor: getPageCursorFromString,
+    },
+    source,
+  );
+}
 
 @scrollMixin
 export class RegistrationApplications extends Component<
-  RegistrationApplicationsRouteProps,
+  RegistrationApplicationsProps,
   RegistrationApplicationsState
 > {
   private isoData = setIsoData<RegistrationApplicationsData>(this.context);
   state: RegistrationApplicationsState = {
     appsRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
     registrationState: RegistrationState.Unread,
-    page: 1,
     isIsomorphic: false,
   };
 
@@ -100,11 +107,11 @@ export class RegistrationApplications extends Component<
   }
 
   get documentTitle(): string {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "registration_applications",
-        )} - ${this.state.siteRes.site_view.site.name}`
+        )} - ${this.isoData.siteRes?.site_view.site.name}`
       : "";
   }
 
@@ -128,9 +135,9 @@ export class RegistrationApplications extends Component<
           {apps ? (
             <>
               {this.applicationList(apps)}
-              <Paginator
-                page={this.state.page}
-                onChange={this.handlePageChange}
+              <PaginatorCursor
+                nextPage={this.props.pageCursor}
+                onChange={this.handlePageNext}
                 nextDisabled={fetchLimit > apps.length}
               />
             </>
@@ -242,13 +249,16 @@ export class RegistrationApplications extends Component<
   }
 
   handleRegistrationStateChange(i: RegistrationApplications, event: any) {
-    i.setState({ registrationState: Number(event.target.value), page: 1 });
+    i.setState({ registrationState: Number(event.target.value) });
     i.refetch();
   }
 
-  handlePageChange(page: number) {
-    this.setState({ page });
-    this.refetch();
+  handlePagePrev() {
+    this.props.history.back();
+  }
+
+  handlePageNext(nextPage: PaginationCursor) {
+    this.updateUrl({ pageCursor: nextPage });
   }
 
   static async fetchInitialData({
@@ -261,7 +271,6 @@ export class RegistrationApplications extends Component<
       listRegistrationApplicationsResponse: headers["Authorization"]
         ? await client.listRegistrationApplications({
             unread_only: true,
-            page: 1,
             limit: fetchLimit,
           })
         : EMPTY_REQUEST,

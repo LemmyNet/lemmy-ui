@@ -1,7 +1,6 @@
 import {
   commentsToFlatNodes,
   communityToChoice,
-  enableDownvotes,
   enableNsfw,
   fetchCommunities,
   fetchUsers,
@@ -9,7 +8,6 @@ import {
   personToChoice,
   setIsoData,
   showLocal,
-  voteDisplayMode,
 } from "@utils/app";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import {
@@ -64,7 +62,7 @@ import { Spinner } from "./common/icon";
 import { ListingTypeSelect } from "./common/listing-type-select";
 import { Paginator } from "./common/paginator";
 import { SearchableSelect } from "./common/searchable-select";
-import { SortSelect } from "./common/sort-select";
+import { PostSortSelect } from "./common/post-sort-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
@@ -264,7 +262,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   state: SearchState = {
     resolveObjectRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     creatorSearchOptions: [],
     communitySearchOptions: [],
     searchRes: EMPTY_REQUEST,
@@ -694,7 +692,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             </div>
           )}
           <div className="col">
-            <SortSelect
+            <PostSortSelect
               sort={sort}
               onChange={this.handleSortChange}
               hideHot

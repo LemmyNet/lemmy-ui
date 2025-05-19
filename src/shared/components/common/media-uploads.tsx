@@ -6,7 +6,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { MomentTime } from "./moment-time";
 import { PictrsImage } from "./pictrs-image";
 import { getHttpBase } from "@utils/env";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 
 interface Props {
   uploads: ListMediaResponse;
@@ -78,12 +78,8 @@ export class MediaUploads extends Component<Props, any> {
   }
 
   async handleDeleteImage(image: LocalImage) {
-    const form = {
-      token: image.pictrs_delete_token,
-      filename: image.pictrs_alias,
-    };
-    const res = await HttpService.client.deleteImage(form);
     const filename = image.pictrs_alias;
+    const res = await HttpService.client.deleteImage({ filename });
     if (res.state === "success") {
       const deletePictureText = I18NextService.i18n.t("picture_deleted", {
         filename,

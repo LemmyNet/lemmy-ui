@@ -5,7 +5,7 @@ import { Spinner } from "./icon";
 import { getQueryString } from "@utils/helpers";
 import { isBrowser } from "@utils/browser";
 
-class AuthGuard extends Component<
+export default class AuthGuard extends Component<
   RouteComponentProps<Record<string, string>>,
   any
 > {
@@ -33,5 +33,3 @@ class AuthGuard extends Component<
     return this.hasAuth() ? this.props.children : <Spinner />;
   }
 }
-
-export default AuthGuard;

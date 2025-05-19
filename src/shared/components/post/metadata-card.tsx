@@ -1,7 +1,7 @@
 import { Component } from "inferno";
 import { Post } from "lemmy-js-client";
 import * as sanitizeHtml from "sanitize-html";
-import { relTags } from "../../config";
+import { relTags } from "@utils/config";
 import { Icon } from "../common/icon";
 
 interface MetadataCardProps {

@@ -241,7 +241,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   state: PostState = {
     postRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
     isIsomorphic: false,

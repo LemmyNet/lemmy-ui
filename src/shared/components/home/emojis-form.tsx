@@ -1,9 +1,9 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { CustomEmojiView } from "lemmy-js-client";
-import { emojiMartCategories, EmojiMartCategory } from "../../markdown";
+import { emojiMartCategories, EmojiMartCategory } from "@utils/markdown";
 import { HttpService, I18NextService } from "../../services";
-import { pictrsDeleteToast, toast } from "../../toast";
+import { pictrsDeleteToast, toast } from "@utils/app";
 import { EmojiMart } from "../common/emoji-mart";
 import { Icon, Spinner } from "../common/icon";
 import { Paginator } from "../common/paginator";
@@ -585,17 +585,15 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
         editable.loading = false;
       });
       if (res.state === "success") {
-        if (res.data.msg === "ok") {
-          pictrsDeleteToast(file.name, res.data.delete_url as string);
-          form.handleEmojiImageUrlChange(
-            { form: form, index: index, overrideValue: res.data.url as string },
-            event,
-          );
-        } else if (res.data.msg === "too_large") {
-          toast(I18NextService.i18n.t("upload_too_large"), "danger");
-        } else {
-          toast(JSON.stringify(res), "danger");
-        }
+        pictrsDeleteToast(file.name);
+        form.handleEmojiImageUrlChange(
+          {
+            form: form,
+            index: index,
+            overrideValue: res.data.image_url,
+          },
+          event,
+        );
       } else if (res.state === "failed") {
         console.error(res.err.message);
         toast(res.err.message, "danger");
