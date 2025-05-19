@@ -86,9 +86,6 @@ module.exports = (env, argv) => {
       new webpack.DefinePlugin({
         "process.env.COMMIT_HASH": `"${env.COMMIT_HASH}"`,
         "process.env.NODE_ENV": `"${mode}"`,
-        "process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST": JSON.stringify(
-          process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST,
-        ),
       }),
       new MiniCssExtractPlugin({
         filename: "styles/styles.css",
@@ -134,22 +131,6 @@ module.exports = (env, argv) => {
           include: [/(assets|styles|js)\/.+\..+$/g],
           inlineWorkboxRuntime: true,
           runtimeCaching: [
-            {
-              urlPattern: ({
-                sameOrigin,
-                url: { pathname, host },
-                request: { method },
-              }) =>
-                (sameOrigin || host.includes("localhost")) &&
-                (!(
-                  pathname.includes("pictrs") || pathname.includes("static")
-                ) ||
-                  method === "POST"),
-              handler: "NetworkFirst",
-              options: {
-                cacheName: "instance-cache",
-              },
-            },
             {
               urlPattern: ({ url: { pathname, host }, sameOrigin }) =>
                 (sameOrigin || host.includes("localhost")) &&

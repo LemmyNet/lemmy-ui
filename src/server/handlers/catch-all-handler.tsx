@@ -20,8 +20,7 @@ import { getJwtCookie } from "../utils/has-jwt-cookie";
 import { I18NextService, LanguageService } from "../../shared/services/";
 import { parsePath } from "history";
 import { getQueryString } from "@utils/helpers";
-import { adultConsentCookieKey } from "@utils/config";
-import { setupMarkdown } from "@utils/markdown";
+import { adultConsentCookieKey, testHost } from "@utils/config";
 
 export default async (req: Request, res: Response) => {
   try {
@@ -70,6 +69,7 @@ export default async (req: Request, res: Response) => {
 
     if (trySite.state === "success") {
       siteRes = trySite.data;
+      LanguageService.updateLanguages(languages);
 
       if (path !== "/setup" && !siteRes.site_view.local_site.site_setup) {
         res.redirect("/setup");
@@ -121,7 +121,7 @@ export default async (req: Request, res: Response) => {
         return;
       } else {
         res.status(500);
-        errorPageData = getErrorPageData(new Error(error.err.message), site);
+        errorPageData = getErrorPageData(new Error(error.err.message), siteRes);
         return;
       }
     }
@@ -132,6 +132,7 @@ export default async (req: Request, res: Response) => {
       myUserInfo,
       routeData,
       errorPageData,
+      lemmyExternalHost: process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ?? testHost,
       showAdultConsentModal:
         !!siteRes?.site_view.site.content_warning &&
         !(myUserInfo || req.cookies[adultConsentCookieKey]),
@@ -143,7 +144,6 @@ export default async (req: Request, res: Response) => {
       </StaticRouter>
     );
 
-    setupMarkdown();
     LanguageService.updateLanguages(languages);
 
     const root = renderToString(wrapper);

@@ -71,15 +71,21 @@
     "markdown-it-ruby": "^1.0.0",
     "markdown-it-sub": "^2.0.0",
     "markdown-it-sup": "^2.0.0",
+    "mini-css-extract-plugin": "^2.9.1",
     "qreator": "^9.3.0",
     "register-service-worker": "^1.7.2",
+    "run-node-webpack-plugin": "^1.3.0",
+    "rxjs": "^7.8.1",
     "sanitize-html": "^2.13.0",
     "serialize-javascript": "^6.0.2",
     "service-worker-webpack": "^1.0.0",
     "sharp": "0.34.1",
     "tippy.js": "^6.3.7",
     "toastify-js": "^1.12.0",
-    "tributejs": "^5.1.3"
+    "tributejs": "^5.1.3",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^6.0.0",
+    "webpack-node-externals": "^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -110,10 +116,8 @@
     "globals": "^16.0.0",
     "husky": "^9.1.5",
     "import-sort-style-module": "^6.0.0",
-    "lint-staged": "^15.2.9",
-    "lodash.isequal": "^4.5.0",
-    "mini-css-extract-plugin": "^2.9.1",
-    "prettier": "^3.5.2",
+    "lint-staged": "^16.0.0",
+    "prettier": "^3.4.2",
     "prettier-plugin-import-sort": "^0.0.7",
     "prettier-plugin-organize-imports": "^4.0.0",
     "prettier-plugin-packagejson": "^2.5.2",
@@ -145,7 +149,7 @@
       "sortpack"
     ]
   },
-  "packageManager": "pnpm@10.2.1+sha512.398035c7bd696d0ba0b10a688ed558285329d27ea994804a52bad9167d8e3a72bcb993f9699585d3ca25779ac64949ef422757a6c31102c12ab932e5cbe5cc92",
+  "packageManager": "pnpm@10.9.0+sha512.0486e394640d3c1fb3c9d43d49cf92879ff74f8516959c235308f5a8f62e2e19528a65cdc2a3058f587cde71eba3d5b56327c8c33a97e4c4051ca48a10ca2d5f",
   "engineStrict": true,
   "importSort": {
     ".js, .jsx, .ts, .tsx": {
