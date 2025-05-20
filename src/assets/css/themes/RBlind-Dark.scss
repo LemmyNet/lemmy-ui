@@ -1,0 +1,23 @@
+/*
+Copyright 2024, 2025 Travis Jeans
+
+This file is part of RBlind Lemmy Themes.
+
+RBlind Lemmy Themes is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+RBlind Lemmy Themes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with RBlind Lemmy Themes. If not, see <https://www.gnu.org/licenses/>. 
+
+*/
+
+@import "variables.darkly-compact";
+@import "variables.RBlind-Dark";
+
+@import "../../../../node_modules/bootstrap/scss/bootstrap";
+@import "RBlind-Theme";
+
+// make the down arrow on the dropdown select buttons white instead of gray
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
