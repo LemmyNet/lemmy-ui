@@ -1,35 +1,13 @@
 /*
-Copyright 2024, 2025 Travis Jeans
-
-This file is part of RBlind Lemmy Themes.
-
-RBlind Lemmy Themes is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-
-RBlind Lemmy Themes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with RBlind Lemmy Themes. If not, see <https://www.gnu.org/licenses/>. 
-
-*/
-
-/*
     GENERAL
 */
 
-// Desktop Breakpoint
+/* Desktop Breakpoint */
 $container-max-widths: (
   lg: 1920px,
 );
 
-/*
-// Media Query // originally 576px, 768px
-@media (min-width: 768px) {
-.d-none {
-    display: none !important;
-}
-}
-*/
-
-// Reduce hr height
+/* Reduce hr height */
 hr.my-3 {
   margin-top: 0.5rem !important;
   margin-bottom: 0.5rem !important;
@@ -105,28 +83,28 @@ small,
   color: var(--bs-gray-200) !important;
 }
 
-// reduce padding on posts
+/* reduce padding on posts */
 .post-listing {
-  padding: 0.1rem 0.25rem 0.1rem 0.25rem; // default value is 1.5rem
+  padding: 0.1rem 0.25rem 0.1rem 0.25rem; /* default value is 1.5rem */
 }
 
 .post-title + p.small {
   margin-bottom: 0.75rem !important;
 }
 
-// image margin on Image Posts
+/* image margin on Image Posts */
 .offset-sm-3 {
   margin-left: 0% !important;
   margin-right: 25% !important;
 }
 
-// the navigation bar left margin is set to auto which at some resolutions will add extra padding unless you add the below
+/* the navigation bar left margin is set to auto which at some resolutions will add extra padding unless you add the below */
 .container-lg {
   margin-right: 0 !important;
   margin-left: 0 !important;
 }
 
-// give skip-link the same focus style as .btn:focus-visible
+/* give skip-link the same focus style as .btn:focus-visible */
 .skip-link:focus,
 .skip-link:focus-visible {
   top: 0.25rem;
@@ -135,19 +113,19 @@ small,
   box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important;
 }
 
-// force the skip link out of view until focused
+/* force the skip link out of view until focused */
 .skip-link {
   top: -60px;
 }
 
-// Buttons
+/* Buttons */
 .btn {
   border-radius: 0.5rem;
 }
 
-// buttons on posts
-// --bs-secondary-color is the button colour
-// original opacity was 0.75
+/* buttons on posts */
+/* --bs-secondary-color is the button colour */
+/* original opacity was 0.75 */
 
 .btn-sm,
 .btn-group-sm > .btn,
@@ -166,8 +144,8 @@ a[title="sorting help"] .icon,
   outline: 1px solid rgba(var(--gray-200-rgb), var(--icon-outline-opacity)) !important;
 }
 
-// Fix box model of the icon in the inbox and round the outline
-// and the navbar-toggler which is also missing a btn style
+/* Fix box model of the icon in the inbox and round the outline */
+/* and the navbar-toggler which is also missing a btn style */
 .inbox
   .private-message
   ul.list-inline.mb-0.text-muted.small
@@ -177,11 +155,11 @@ a[title="sorting help"] .icon,
   box-sizing: content-box;
   border-radius: var(
     --bs-border-radius
-  ); // must refer to border-radius as --bs-border-radius
+  ); /* must refer to border-radius as --bs-border-radius */
 }
 
-// Fix colour inheritance problem with the icon on the inbox page (show/hide svg which is missing a .btn class)
-// color is determined by fill: currentColor which points to black on this particular icon for some reason
+/* Fix colour inheritance problem with the icon on the inbox page (show/hide svg which is missing a .btn class) */
+/* color is determined by fill: currentColor which points to black on this particular icon for some reason */
 .inbox
   .private-message
   ul.list-inline.mb-0.text-muted.small
@@ -190,15 +168,15 @@ a[title="sorting help"] .icon,
   color: rgba(var(--gray-200-rgb), 0.75);
 }
 
-// fix text-muted which is too light on light theme
+/* fix text-muted which is too light on light theme */
 .text-muted {
   color: var(--bs-secondary-color) !important;
 }
 
-// remove padding from the navbar toggler
-// must have !important
-// there seem like there are two navbar Messages, one for desktop and one for mobile, so need to overwrite the styling of the mobile one
-// navmessages has multiple instances of padding
+/* remove padding from the navbar toggler */
+/* must have !important */
+/* there seem like there are two navbar Messages, one for desktop and one for mobile, so need to overwrite the styling of the mobile one */
+/* navmessages has multiple instances of padding */
 .navbar-toggler,
 #navMessages a,
 #navMessages {
@@ -206,31 +184,31 @@ a[title="sorting help"] .icon,
   outline: 0rem !important;
 }
 
-// remove the outline from the navbar-toggler .icon
+/* remove the outline from the navbar-toggler .icon */
 .navbar-toggler .icon {
   outline: 0rem !important;
 }
 
-// Change visited link colour due to low contrast default is --bs-gray
+/* Change visited link colour due to low contrast default is --bs-gray */
 .post-title a:visited:not(:hover) {
   color: var(--bs-gray-500) !important;
 }
 
-// fix bug in light mode where post titles and links become invisible due to a white color
+/* fix bug in light mode where post titles and links become invisible due to a white color */
 .link-dark {
   color: var(--bs-gray-200) !important;
   text-decoration-color: RGBA(
     var(--bs-gray-200),
     var(--bs-link-underline-opacity, 1)
-  ) !important; // need to define text-underline too
+  ) !important; /* need to define text-underline too */
 }
 
-// change the link primary colour only for post titles
+/* change the link primary colour only for post titles */
 .post-title .link-primary {
   color: var(--bs-info) !important;
 }
 
-// change hover link colours
+/* change hover link colours */
 .link-dark:hover,
 .link-dark:focus,
 .link-primary:hover,
@@ -238,13 +216,13 @@ a[title="sorting help"] .icon,
   color: var(--bs-gray-200) !important;
 }
 
-// fix poor contrast on navigation tabs Site Configuration page
+/* fix poor contrast on navigation tabs Site Configuration page */
 .navbar,
 .nav-link {
-  color: rgba(var(--bs-white-rgb), 0.8); // original opacity was 0.6
+  color: rgba(var(--bs-white-rgb), 0.8); /* original opacity was 0.6 */
 }
 
-// fix low contrast on light theme nav link hover
+/* fix low contrast on light theme nav link hover */
 .nav-link:hover,
 .nav-link:focus {
   color: var(--bs-gray-200);
@@ -255,42 +233,42 @@ a[title="sorting help"] .icon,
 fieldset:disabled .btn {
   font-style: italic;
   background-color: var(--bs-gray-200);
-  color: var(--bs-black) !important; // prevent overwriting by other classes
+  color: var(--bs-black) !important; /* prevent overwriting by other classes */
 }
 
 .form-check-input[disabled] ~ .form-check-label,
 .form-check-input:disabled ~ .form-check-label {
   cursor: default;
-  opacity: 0.8; // default is 0.5
+  opacity: 0.8; /* default is 0.5 */
   font-style: italic;
 }
 
-// The Language Select select option buttons can be made larger as they are set to overflow, but others cannot be changed.
+/* The Language Select select option buttons can be made larger as they are set to overflow, but others cannot be changed. */
 select option {
   padding: 0.7rem 0.7rem !important;
 }
 
-// reduce padding next to the up and downvote container
+/* reduce padding next to the up and downvote container */
 article.post-container > .flex-grow-0 {
   padding: 0.25rem;
 }
 
-// give the svg icon links a focus indicator like other elements
-// include the navbar toggler since it has a unique focus indicator
+/* give the svg icon links a focus indicator like other elements */
+/* include the navbar toggler since it has a unique focus indicator */
 a.sort-select-icon:focus svg,
 a[title="RSS"]:focus svg,
 a[title="sorting help"]:focus svg,
 .navbar-toggler:focus {
   box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important;
 }
-// navbar toggler focus ring default is box-shadow: 0 0 0 var(--bs-navbar-toggler-focus-width);
+/* navbar toggler focus ring default is box-shadow: 0 0 0 var(--bs-navbar-toggler-focus-width); */
 
-// no outline on navigation bar buttons only
+/* no outline on navigation bar buttons only */
 nav a.nav-link .icon {
   padding: 0.7rem 0.7rem !important;
 }
 
-// when interacting with a label with a checkbox, change the cursor
+/* when interacting with a label with a checkbox, change the cursor */
 .form-check > * {
   cursor: pointer;
 }
@@ -299,29 +277,29 @@ nav a.nav-link .icon {
   cursor: default;
 }
 
-// change Browse... button
+/* change Browse... button */
 .form-control::file-selector-button {
   background-color: var(--bs-gray-800);
 }
 
-// fix the hover style for the same button
+/* fix the hover style for the same button */
 .form-control:hover:not(:disabled):not([readonly])::file-selector-button {
   background-color: var(--bs-gray-700);
 }
 
-// Remove the opacity from the mini overlay so the icons have higher contrast
+/* Remove the opacity from the mini overlay so the icons have higher contrast */
 .mini-overlay {
   background: var(--bs-gray-900);
   background-color: var(--bs-gray-900);
 }
 
-// Fix colour contrast on the .mark class
+/* Fix colour contrast on the .mark class */
 .mark {
   color: var(--bs-white);
   background-color: var(--bs-gray-800);
 }
 
-// Redefine Atom One styles
+/* Redefine Atom One styles */
 pre code.hljs {
   display: block;
   overflow-x: auto;
@@ -411,46 +389,46 @@ nav a.nav-link .icon {
   font-size: 1.2em !important;
 }
 
-// 0.5rem is a bit small but fits on a big screen
+/* 0.5rem is a bit small but fits on a big screen */
 nav ul#navbarLinks a.nav-link,
 nav ul#navbarIcons a.nav-link[title="Login"],
 nav ul#navbarIcons a.nav-link[title="Sign Up"] {
   margin-right: 0.75rem !important;
 }
 
-// The text links in the navigation bar should have enough padding to ensure their target size is large enough
-// but also the padding should align the text with the Lemmy community banner and the Support Lemmy icon button
+/* The text links in the navigation bar should have enough padding to ensure their target size is large enough */
+/* but also the padding should align the text with the Lemmy community banner and the Support Lemmy icon button */
 nav ul#navbarLinks a.nav-link,
 nav ul#navbarIcons a.nav-link {
   padding: 0.9rem 0rem 0.1rem 0rem !important;
 }
 
-// The Log in and Sign Up are slightly misaligned, this fixes it
+/* The Log in and Sign Up are slightly misaligned, this fixes it */
 nav ul#navbarIcons a.nav-link[title="Login"],
 nav ul#navbarIcons a.nav-link[title="Sign Up"] {
   padding: 0.7rem 0rem 0.3rem 0rem !important;
 }
 
-// The Support lemmy link should not have extra padding
+/* The Support lemmy link should not have extra padding */
 nav ul#navbarLinks li:last-child a.nav-link {
   padding: 0rem 0rem 0rem 0rem !important;
 }
 
-// treat the navbar icons differently
+/* treat the navbar icons differently */
 nav ul#navbarIcons a.nav-link {
   padding: 0rem 0rem 0rem 0rem !important;
   margin: 0rem 0.5rem 0rem 0rem !important;
 }
 
-// overwrite button focus
+/* overwrite button focus */
 .btn:focus-visible {
   box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important;
 }
 
-// give form controls an outline to meet 3:1 contrast requirement
+/* give form controls an outline to meet 3:1 contrast requirement */
 .form-control,
 .form-select {
-  border: var(--bs-border-width) solid var(--bs-gray-600) !important; // 100 higher than the checkbox outline - may be too low when disabled
+  border: var(--bs-border-width) solid var(--bs-gray-600) !important; /* 100 higher than the checkbox outline - may be too low when disabled */
 }
 
 .form-select:focus,
@@ -459,33 +437,33 @@ nav ul#navbarIcons a.nav-link {
   box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important;
 }
 
-// to prevent :dark or :light theme overwrite
+/* to prevent :dark or :light theme overwrite */
 a {
   color: var(--bs-info);
 }
 
 .placeholder {
-  opacity: 1; // default is 0.5
+  opacity: 1; /* default is 0.5 */
 }
 
 .form-control::placeholder {
   color: var(--bs-gray-500);
 }
 
-// margin that determines the automatic spacing
+/* margin that determines the automatic spacing */
 nav ul#navbarLinks {
   margin-right: auto !important;
 }
 
-// Align navigation links
-// specify nav or will apply to footer
+/* Align navigation links */
+/* specify nav or will apply to footer */
 nav ul#navbarLinks a.nav-link,
 nav ul#navbarIcons a.nav-link[title="Login"],
 nav ul#navbarIcons a.nav-link[title="Sign Up"] {
   font-size: 0.9rem !important;
 }
 
-// Donate to Lemmy button sticks out from the rest
+/* Donate to Lemmy button sticks out from the rest */
 nav ul#navbarLinks li:last-child a.nav-link {
   margin-top: 0.4rem;
 }
@@ -511,36 +489,36 @@ a.person-listing + .btn,
   margin-left: 0.25rem;
 }
 
-// increase bottom margin of post-title
+/* increase bottom margin of post-title */
 .post-title,
 .post-title + div,
 .post-title + p + div {
   margin-bottom: 0.5rem !important;
 }
 
-// Layout
-// remove the left margin on large layouts for Create Communities and Create Post pages
-// breakpoint is 1200px
+/* Layout */
+/* remove the left margin on large layouts for Create Communities and Create Post pages */
+/* breakpoint is 1200px */
 .offset-lg-3 {
-  margin-left: 0% !important; // default is 25%
+  margin-left: 0% !important; /* default is 25% */
 }
 
-// make navbar taller on small screens so border-box does not overlap
+/* make navbar taller on small screens so border-box does not overlap */
 @media (max-width: 1200px) {
   #navbar {
     padding-top: 0.25rem !important;
   }
 }
 
-// Make forms take up more space in the screen so labels aren't flowing onto a new line
+/* Make forms take up more space in the screen so labels aren't flowing onto a new line */
 @media (min-width: 1200px) {
   .col-lg-6 {
     flex: 0 0 auto;
-    width: 70% !important; // default value is 50%
+    width: 70% !important; /* default value is 50% */
   }
 }
 
-// make sure the navigation bar wraps properly with the larger font sizes
+/* make sure the navigation bar wraps properly with the larger font sizes */
 @media (min-width: 768px) {
   .navbar-expand-md .navbar-collapse {
     flex-wrap: wrap !important;
@@ -553,7 +531,7 @@ a.person-listing + .btn,
   }
 }
 
-// make the main content area "home container-lg" become 100% instead of stuck at 940px
+/* make the main content area "home container-lg" become 100% instead of stuck at 940px */
 
 @media (min-width: 992px) {
   .container-lg,
@@ -564,13 +542,13 @@ a.person-listing + .btn,
   }
 }
 
-// very long usernames or domains should overflow onto the next line
-// only the domain will overflow
+/* very long usernames or domains should overflow onto the next line */
+/* only the domain will overflow */
 .person-listing picture + span + small {
-  word-break: break-all; // no default value
+  word-break: break-all; /* no default value */
 }
 
-// stop community names from breaking up into letters
+/* stop community names from breaking up into letters */
 @media (max-width: 430px) {
   .community-link .overflow-wrap-anywhere {
     overflow-wrap: break-word;
@@ -581,63 +559,63 @@ a.person-listing + .btn,
     display: block;
   }
 
-  // try give more space in the table by breaking the headers instead
+/* try give more space in the table by breaking the headers instead */
   #community_table th.text-right {
     overflow-wrap: anywhere;
   }
 }
 
-// stop flex display from making overflowing letters from becoming stuck in their containers
+/* stop flex display from making overflowing letters from becoming stuck in their containers */
 .person-listing {
   display: inline !important;
 }
 
-// increase the size of the thumbnail in the home feed
+/* increase the size of the thumbnail in the home feed */
 .thumbnail {
-  width: 9rem; // default value 5rem;
-  height: 9rem; // default value is 5rem;
+  width: 9rem; /* default value 5rem; */
+  height: 9rem; /* default value is 5rem; */
   outline: 1px solid var(--bs-gray-600);
 }
 
-// add spacing above and below the vote number
+/* add spacing above and below the vote number */
 .post-score {
-  margin-top: 0.25rem; // no default value
+  margin-top: 0.25rem; /* no default value */
   margin-bottom: 0.25rem;
 }
 
-// align the vote up button with the top of the container
+/* align the vote up button with the top of the container */
 .vote-bar {
-  margin-top: 0px; // original -6.5px
+  margin-top: 0px; /* original -6.5px */
 }
 
-// add spacing above and below the post
+/* add spacing above and below the post */
 .post-container {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
 
-// change the Comments / unselected tab focus outline to be the same as the others
+/* change the Comments / unselected tab focus outline to be the same as the others */
 .btn-check:focus-visible + .btn {
-  box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important; // --bs-btn-focus-box-shadow default
+  box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important; /* --bs-btn-focus-box-shadow default */
 }
 
-// change secondary buttons (e.g. Next on home page) to have the same box-shadow focus indicator colour
+/* change secondary buttons (e.g. Next on home page) to have the same box-shadow focus indicator colour */
 .btn-secondary:focus-visible {
-  box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important; // --bs-btn-focus-box-shadow default
+  box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important; /* --bs-btn-focus-box-shadow default */
 }
 
-// Change the colour of the focus indicator on Languages select cross button on Create Community page
+/* Change the colour of the focus indicator on Languages select cross button on Create Community page */
 .btn-outline-secondary:focus {
   box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important;
 }
 
-// Ensures the currently selected tab  (Posts) focus indicator is the same as the others
+/* Ensures the currently selected tab  (Posts) focus indicator is the same as the others */
 .btn-check:checked:focus-visible + .btn {
-  box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important; //--bs-btn-focus-box-shadow default
+  box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important; /* --bs-btn-focus-box-shadow default */
 }
 
-// Added everything after .downvote:hover so the effects apply to when the button area is hovered not just the icon
-// Also made this happen on focus too
+/* Added everything after .downvote:hover so the effects apply to when the button area is hovered not just the icon */
+/* Also made this happen on focus too */
 .downvote:hover,
 .btn:hover .downvote,
 .btn:focus .downvote,
@@ -656,17 +634,17 @@ a.person-listing + .btn,
   color: var(--bs-info);
 }
 
-// add underlines to links
+/* add underlines to links */
 main a {
   text-decoration: underline;
 }
 
-// make sure links that appear as buttons don't have an underline
+/* make sure links that appear as buttons don't have an underline */
 main a.btn {
   text-decoration: none;
 }
 
-// remove underline from post title to improve legibility
+/* remove underline from post title to improve legibility */
 .post-title a,
 .post-metadata-card .card-body .card-title a {
   text-decoration: none;
@@ -677,39 +655,39 @@ main a.btn {
   text-decoration-color: rgba(
     var(--bs-link-color-rgb),
     var(--bs-link-opacity, 1)
-  ) !important; //
+  ) !important;
 }
 
-// make post title link underline and link post link underline the same as the text when visited
+/* make post title link underline and link post link underline the same as the text when visited */
 .post-title a:visited:not(:hover),
 .post-title + p a:visited:not(:hover) {
   text-decoration-color: var(
     --bs-gray
-  ) !important; // the visited underline is otherwise not the same colour as the text
+  ) !important; /* the visited underline is otherwise not the same colour as the text */
 }
 
-// Fix text decoration contrast on light mode
+/* Fix text decoration contrast on light mode */
 .link-dark:hover,
 .link-dark:focus {
   text-decoration-color: var(--bs-gray-200) !important;
 }
 
-// make sure the toggle button in the sidebar "Subscribed" does not overflow the container
+/* make sure the toggle button in the sidebar "Subscribed" does not overflow the container */
 #sidebarSubscribedHeader {
   flex-wrap: wrap;
 }
 
-// overwrite h6 value in post since without this it is larger than h5
+/* overwrite h6 value in post since without this it is larger than h5 */
 .md-div h6 {
   font-size: 1.1rem;
 }
 
-// increase the spacing between wrapping list buttons in the sidebar
+/* increase the spacing between wrapping list buttons in the sidebar */
 .community-sidebar ul li .btn {
   margin-bottom: 0.25rem;
 }
 
-// improve the contrast of the post and comment dividers
+/* improve the contrast of the post and comment dividers */
 hr {
   border-top: var(--bs-border-width) solid var(--divider);
   opacity: 1;
@@ -719,7 +697,7 @@ li.comment article.comment-node.border-top {
   border-top-color: var(--divider) !important;
 }
 
-// Change the OP colour to something different than link colours
+/* Change the OP colour to something different than link colours */
 span[aria-label="creator"] {
   color: var(--bs-white) !important;
   border-color: var(--bs-white) !important;
