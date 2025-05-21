@@ -42,6 +42,7 @@ export class UserBadges extends Component<UserBadgesProps> {
     return (
       (this.props.isBanned ||
         this.props.isBannedFromCommunity ||
+        this.props.isDeleted ||
         this.props.isPostCreator ||
         this.props.isMod ||
         this.props.isAdmin ||
@@ -77,7 +78,7 @@ export class UserBadges extends Component<UserBadgesProps> {
               {getRoleLabelPill({
                 label: I18NextService.i18n.t("deleted"),
                 tooltip: I18NextService.i18n.t("deleted"),
-                classes: "text-danger border border-danger",
+                classes: "text-info border border-info",
                 shrink: false,
               })}
             </span>
