@@ -842,7 +842,7 @@ progress {
   .container-md,
   .container-sm,
   .container {
-    max-width: 1610px;
+    max-width: 1920px;
   }
 }
 
@@ -12509,7 +12509,6 @@ fieldset:disabled .btn {
 /*
     GENERAL
 */
-/* Desktop Breakpoint */
 /* Reduce hr height */
 hr.my-3 {
   margin-top: 0.5rem !important;

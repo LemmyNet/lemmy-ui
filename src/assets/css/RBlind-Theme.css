@@ -2,9 +2,6 @@
     GENERAL
 */
 
-/* Desktop Breakpoint */
-$container-max-widths: (lg: 1920px);
-
 /* Reduce hr height */
 hr.my-3 {
   margin-top: 0.5rem !important;
