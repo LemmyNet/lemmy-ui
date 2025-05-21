@@ -3,9 +3,7 @@
 */
 
 /* Desktop Breakpoint */
-$container-max-widths: (
-  lg: 1920px,
-);
+$container-max-widths: (lg: 1920px);
 
 /* Reduce hr height */
 hr.my-3 {
@@ -559,7 +557,7 @@ a.person-listing + .btn,
     display: block;
   }
 
-/* try give more space in the table by breaking the headers instead */
+  /* try give more space in the table by breaking the headers instead */
   #community_table th.text-right {
     overflow-wrap: anywhere;
   }
