@@ -2,7 +2,7 @@
 @import "variables.RBlind-Dark";
 
 @import "../../../../node_modules/bootstrap/scss/bootstrap";
-@import "../RBlind-Theme";
+@import "./rblind/RBlind";
 
 // make the down arrow on the dropdown select buttons white instead of gray
 .form-select {
