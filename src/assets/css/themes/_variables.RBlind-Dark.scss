@@ -1,0 +1,102 @@
+@import "./variables";
+@import "./variables.darkly";
+
+/* 
+RBLIND THEME
+*/
+$font-family-sans-serif: Verdana, sans-serif;
+$font-family-monospace: "Courier New", monospace;
+$h1-font-size: 3.5rem;
+$h2-font-size: 3rem;
+$h3-font-size: 2.5rem;
+$h4-font-size: 2rem;
+$h5-font-size: 1.5rem;
+$h6-font-size: 1.25rem;
+
+$font-size-root: 120%;
+
+:root {
+  --rblind-focus-indicator: #7764d8;
+  --gray-200-rgb: 221, 221, 221;
+  --icon-outline-opacity: 0.5;
+  --divider: var(--bs-gray-700);
+  --comment-border-width: 2px;
+  --comment-node-1-color: #8f358fff;
+  --comment-node-2-color: #7263bcff;
+  --comment-node-3-color: #5b96b5ff;
+  --comment-node-4-color: #65bf93ff;
+  --comment-node-5-color: #97d278ff;
+  --comment-node-6-color: #e0d187ff;
+  --comment-node-7-color: #ffdadaff;
+}
+
+// Breakpoints
+// Override default BT variables:
+$grid-breakpoints: (
+  xs: 0,
+  sm: 768px,
+  md: 992px,
+  lg: 1200px,
+  xl: 1900px,
+  xxl: 2200px,
+);
+
+// override default BT container sizes
+$container-max-widths: (
+  sm: 960px,
+  md: 1140px,
+  lg: 1920px,
+  xl: 2200,
+  xxl: 2400,
+);
+
+// $navbar-brand-padding-y: 0.25rem;
+
+// rBlind Colours
+// Colors
+$white: #eeeeeeff; // bs-white, bs-emphasis, bs-table, border-white, text-light
+$gray-200: #ddddddff; // secondary button background
+$gray-300: #ccccccff; // bs-dark, bs-dark-emphasis and more
+$gray-500: #bbbbbbff; // bs-button-bg, and other button styles, input group text (defined in the class by hex code not variable, bs button disabled, etc
+$gray-600: #676767ff; // blockquote footer, disabled form, disabled button, dropdown header colour, bs-gray
+$gray-700: #242424ff; // card header background
+$gray-800: #131313ff; // card background, bs-light
+$gray-900: #030303ff; // Background colour
+
+$red: #ffaabbff; // bs-danger, danger red, auto converted to rgb values in custom theme
+$orange: #ee8866ff;
+$yellow: #eedd88ff; // bs-warning
+$teal: #bbcc33ff; // more green than teal
+$green: #44bb99ff; // form check input background and border
+$cyan: #6fcfffff; // bs-info
+$blue: #77aaddff; // bs-blue
+
+$primary: $green;
+$secondary: $gray-500;
+$success: $green;
+$dark: $gray-300;
+
+$body-color: $gray-300;
+$body-bg: $gray-900;
+$link-color: $cyan;
+$border-color: rgba($body-color, 0.25);
+$mark-bg: #333;
+$mark-bg-dark: #333;
+$text-muted: $gray-600;
+$yiq-contrasted-threshold: 175;
+
+// Custom RBlind Colours
+$box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important; //--bs-btn-focus-box-shadow default
+$focus-ring-color: var(--rblind-focus-indicator);
+$form-check-input-checked-color: $gray-900; // change checkbox check from white to black
+$dropdown-link-active-color: $gray-900;
+$dropdown-link-active-bg: $gray-200;
+$dropdown-link-hover-bg: $gray-200;
+$dropdown-link-hover-color: $gray-900;
+$code-color: $yellow;
+$border-color: $gray-500 !important;
+$table-color: $gray-200;
+$btn-disabled-color: $gray-200;
+$btn-disabled-opacity: 0.65; // default
+$enable-dark-mode: true; // enable data-bs-theme="dark"
+$enable-light-mode: false; // disable data-bs-theme="light"
