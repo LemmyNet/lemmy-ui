@@ -207,28 +207,17 @@ export function setupMarkdown() {
   ) {
     //Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
     const item = tokens[idx] as any;
-    let title = item.attrs.length >= 3 ? item.attrs[2][1] : "";
+    const title = item.attrs.length > 2 ? item.attrs[2][1] : "";
     const splitTitle = title.split(/ (.*)/, 2);
     const isEmoji = splitTitle[0] === "emoji";
-    if (isEmoji) {
-      title = splitTitle[1];
+    const imgElement =
+      defaultImageRenderer?.(tokens, idx, options, env, self) ?? "";
+    if (imgElement) {
+      return isEmoji
+        ? `<span class="icon icon-emoji">${imgElement}</span>`
+        : imgElement;
     }
-    const customEmoji = customEmojisLookup.get(title);
-    const isLocalEmoji = customEmoji !== undefined;
-    if (!isLocalEmoji) {
-      const imgElement =
-        defaultImageRenderer?.(tokens, idx, options, env, self) ?? "";
-      if (imgElement) {
-        return `<span class='${
-          isEmoji ? "icon icon-emoji" : ""
-        }'>${imgElement}</span>`;
-      } else return "";
-    }
-    return `<img class="icon icon-emoji" src="${
-      customEmoji!.custom_emoji.image_url
-    }" title="${customEmoji!.custom_emoji.shortcode}" alt="${
-      customEmoji!.custom_emoji.alt_text
-    }"/>`;
+    return "";
   };
   md.renderer.rules.table_open = function () {
     return '<table class="table">';
@@ -373,7 +362,7 @@ export async function setupTribute() {
           .concat(
             Array.from(customEmojisLookup.entries()).map(k => ({
               key: k[0],
-              val: `<img class="icon icon-emoji" src="${k[1].custom_emoji.image_url}" title="${k[1].custom_emoji.shortcode}" alt="${k[1].custom_emoji.alt_text}" />`,
+              val: `<img class="icon icon-emoji" src="${md.utils.escapeHtml(k[1].custom_emoji.image_url)}" title="${md.utils.escapeHtml(k[1].custom_emoji.shortcode)}" alt="${md.utils.escapeHtml(k[1].custom_emoji.alt_text)}" />`,
             })),
           ),
         allowSpaces: false,
