@@ -81,11 +81,7 @@ import {
   GetCommentsResponse,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
-import {
-  InitialFetchRequest,
-  PersonDetailsFilter,
-  PersonDetailsView,
-} from "../../interfaces";
+import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
 import { mdToHtml } from "../../markdown";
 import { FirstLoadService, I18NextService, UserService } from "../../services";
 import {
@@ -140,7 +136,6 @@ interface ProfileState {
 
 interface ProfileProps {
   view: PersonDetailsView;
-  filter: PersonDetailsFilter;
   sort: PostSortType;
   page: number;
 }
@@ -149,7 +144,6 @@ export function getProfileQueryParams(source?: string): ProfileProps {
   return getQueryParams<ProfileProps>(
     {
       view: getViewFromProps,
-      filter: getFilterFromProps,
       page: getPageFromString,
       sort: getSortTypeFromQuery,
     },
@@ -165,12 +159,6 @@ function getViewFromProps(view?: string): PersonDetailsView {
   return view
     ? (PersonDetailsView[view] ?? PersonDetailsView.Overview)
     : PersonDetailsView.Overview;
-}
-
-function getFilterFromProps(filter?: string): PersonDetailsFilter {
-  return filter
-    ? (PersonDetailsFilter[filter] ?? PersonDetailsFilter.Own)
-    : PersonDetailsFilter.Own;
 }
 
 const getCommunitiesListing = (
@@ -327,12 +315,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     if (
       (nextProps.view !== this.props.view && !sharedViewTypes) ||
-      (sharedViewTypes &&
-        this.props.view !== PersonDetailsView.Overview &&
-        nextProps.view !== this.props.view &&
-        this.props.filter === PersonDetailsFilter.Upvoted) ||
-      (nextProps.filter === PersonDetailsFilter.Upvoted &&
-        nextProps.filter !== this.props.filter) ||
       nextProps.sort !== this.props.sort ||
       nextProps.page !== this.props.page ||
       newUsername ||
@@ -365,19 +347,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   fetchUserDataToken?: symbol;
   async fetchUserData(props: ProfileRouteProps, showBothLoading = false) {
     const token = (this.fetchUploadsToken = this.fetchUserDataToken = Symbol());
-    const { page, sort, view, filter } = props;
+    const { page, sort, view } = props;
 
-    const requestLiked =
-      filter === PersonDetailsFilter.Upvoted &&
-      view !== PersonDetailsView.Saved &&
-      view !== PersonDetailsView.Uploads;
-    const requestLikedComments =
-      requestLiked &&
-      (view === PersonDetailsView.Overview ||
-        view === PersonDetailsView.Comments);
-    const requestLikedPosts =
-      requestLiked &&
-      (view === PersonDetailsView.Overview || view === PersonDetailsView.Posts);
+    const requestLiked = view === PersonDetailsView.Upvoted;
 
     if (view === PersonDetailsView.Uploads) {
       this.fetchUploads(props);
@@ -397,19 +369,15 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         this.setState({
           personRes: LOADING_REQUEST,
           personDetailsRes: LOADING_REQUEST,
-          likedCommentsRes: requestLikedComments
-            ? LOADING_REQUEST
-            : EMPTY_REQUEST,
-          likedPostsRes: requestLikedPosts ? LOADING_REQUEST : EMPTY_REQUEST,
+          likedCommentsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
+          likedPostsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
           uploadsRes: EMPTY_REQUEST,
         });
       } else {
         this.setState({
           personDetailsRes: LOADING_REQUEST,
-          likedCommentsRes: requestLikedComments
-            ? LOADING_REQUEST
-            : EMPTY_REQUEST,
-          likedPostsRes: requestLikedPosts ? LOADING_REQUEST : EMPTY_REQUEST,
+          likedCommentsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
+          likedPostsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
           uploadsRes: EMPTY_REQUEST,
         });
       }
@@ -430,7 +398,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     let likedPostsFetch: Promise<RequestState<GetPostsResponse>> =
       Promise.resolve(EMPTY_REQUEST);
 
-    if (requestLikedComments) {
+    if (requestLiked) {
       const likedCommentsForm: GetComments = {
         page,
         limit: fetchLimit,
@@ -439,9 +407,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         liked_only: true,
       };
       likedCommentsFetch = client.getComments(likedCommentsForm);
-    }
 
-    if (requestLikedPosts) {
       const likedPostsForm: GetPosts = {
         page,
         limit: fetchLimit,
@@ -483,7 +449,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   static async fetchInitialData({
     headers,
-    query: { view, filter, sort, page },
+    query: { view, sort, page },
     match: {
       params: { username },
     },
@@ -514,24 +480,12 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     };
     const personFetch = client.getPersonDetails(form);
 
-    const requestLiked =
-      filter === PersonDetailsFilter.Upvoted &&
-      view !== PersonDetailsView.Saved &&
-      view !== PersonDetailsView.Uploads;
-    const requestLikedComments =
-      requestLiked &&
-      (view === PersonDetailsView.Overview ||
-        view === PersonDetailsView.Comments);
-    const requestLikedPosts =
-      requestLiked &&
-      (view === PersonDetailsView.Overview || view === PersonDetailsView.Posts);
-
     let likedCommentsFetch: Promise<RequestState<GetCommentsResponse>> =
       Promise.resolve(EMPTY_REQUEST);
     let likedPostsFetch: Promise<RequestState<GetPostsResponse>> =
       Promise.resolve(EMPTY_REQUEST);
 
-    if (requestLikedComments) {
+    if (view === PersonDetailsView.Upvoted) {
       const likedCommentsForm: GetComments = {
         page,
         limit: fetchLimit,
@@ -540,9 +494,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         liked_only: true,
       };
       likedCommentsFetch = client.getComments(likedCommentsForm);
-    }
 
-    if (requestLikedPosts) {
       const likedPostsForm: GetPosts = {
         page,
         limit: fetchLimit,
@@ -606,7 +558,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       case "success": {
         const siteRes = this.state.siteRes;
         const personRes = this.state.personRes.data;
-        const { page, sort, view, filter } = this.props;
+        const { page, sort, view } = this.props;
 
         const personDetailsState = this.state.personDetailsRes.state;
         const personDetailsRes =
@@ -664,7 +616,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     voteDisplayMode={voteDisplayMode(siteRes)}
                     enableNsfw={enableNsfw(siteRes)}
                     view={view}
-                    filter={filter}
                     onPageChange={this.handlePageChange}
                     allLanguages={siteRes.all_languages}
                     siteLanguages={siteRes.discussion_languages}
@@ -728,15 +679,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         {this.getRadio(PersonDetailsView.Posts)}
         {this.amCurrentUser && this.getRadio(PersonDetailsView.Saved)}
         {this.amCurrentUser && this.getRadio(PersonDetailsView.Uploads)}
-      </div>
-    );
-  }
-
-  get filterRadios() {
-    return (
-      <div className="btn-group btn-group-toggle flex-wrap" role="group">
-        {this.getRadioFilter(PersonDetailsFilter.Own)}
-        {this.getRadioFilter(PersonDetailsFilter.Upvoted)}
+        {this.amCurrentUser && this.getRadio(PersonDetailsView.Upvoted)}
       </div>
     );
   }
@@ -768,33 +711,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
-  getRadioFilter(filter: PersonDetailsFilter) {
-    const { filter: urlFilter } = this.props;
-    const active = filter === urlFilter;
-    const radioId = randomStr();
-
-    return (
-      <>
-        <input
-          id={radioId}
-          type="radio"
-          className="btn-check"
-          value={filter}
-          checked={active}
-          onChange={linkEvent(this, this.handleFilterChange)}
-        />
-        <label
-          htmlFor={radioId}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active,
-          })}
-        >
-          {I18NextService.i18n.t(filter.toLowerCase() as NoOptionI18nKeys)}
-        </label>
-      </>
-    );
-  }
-
   get selects() {
     const { sort, view } = this.props;
     const { username } = this.props.match.params;
@@ -812,24 +728,20 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             hideMostComments
           />
         </div>
-        {/* Don't show the rss feed for the Saved and Uploads view, as that's not implemented.*/}
+        {/* Don't show the rss feed for the Saved, Uploads, and Upvoted view, as that's not implemented.*/}
         {view !== PersonDetailsView.Saved &&
-          view !== PersonDetailsView.Uploads && (
-            <>
-              <div className="col-auto">
-                <a href={profileRss} rel={relTags} title="RSS">
-                  <Icon icon="rss" classes="text-muted small ps-0" />
-                </a>
-                <link
-                  rel="alternate"
-                  type="application/atom+xml"
-                  href={profileRss}
-                />
-              </div>
-              {this.amCurrentUser && (
-                <div className="col-auto">{this.filterRadios}</div>
-              )}
-            </>
+          view !== PersonDetailsView.Uploads &&
+          view !== PersonDetailsView.Upvoted && (
+            <div className="col-auto">
+              <a href={profileRss} rel={relTags} title="RSS">
+                <Icon icon="rss" classes="text-muted small ps-0" />
+              </a>
+              <link
+                rel="alternate"
+                type="application/atom+xml"
+                href={profileRss}
+              />
+            </div>
           )}
       </div>
     );
@@ -1142,7 +1054,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       page,
       sort,
       view,
-      filter,
       match: {
         params: { username },
       },
@@ -1152,7 +1063,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       page: page?.toString(),
       sort,
       view,
-      filter,
     };
 
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
@@ -1169,13 +1079,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   handleViewChange(i: Profile, event: any) {
     i.updateUrl({
       view: PersonDetailsView[event.target.value],
-      page: 1,
-    });
-  }
-
-  handleFilterChange(i: Profile, event: any) {
-    i.updateUrl({
-      filter: PersonDetailsFilter[event.target.value],
       page: 1,
     });
   }

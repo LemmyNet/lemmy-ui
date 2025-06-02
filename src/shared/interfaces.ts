@@ -75,10 +75,6 @@ export enum PersonDetailsView {
   Posts = "Posts",
   Saved = "Saved",
   Uploads = "Uploads",
-}
-
-export enum PersonDetailsFilter {
-  Own = "Own",
   Upvoted = "Upvoted",
 }
 

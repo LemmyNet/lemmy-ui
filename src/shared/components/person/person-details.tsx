@@ -42,11 +42,7 @@ import {
   GetCommentsResponse,
   GetPostsResponse,
 } from "lemmy-js-client";
-import {
-  CommentViewType,
-  PersonDetailsFilter,
-  PersonDetailsView,
-} from "../../interfaces";
+import { CommentViewType, PersonDetailsView } from "../../interfaces";
 import { CommentNodes } from "../comment/comment-nodes";
 import { Paginator } from "../common/paginator";
 import { PostListing } from "../post/post-listing";
@@ -66,7 +62,6 @@ interface PersonDetailsProps {
   voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw: boolean;
   view: PersonDetailsView;
-  filter: PersonDetailsFilter;
   onPageChange(page: number): number | any;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
@@ -146,6 +141,8 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
       return this.comments();
     } else if (view === PersonDetailsView.Posts) {
       return this.posts();
+    } else if (view === PersonDetailsView.Upvoted) {
+      return this.upvoted();
     } else {
       return null;
     }
@@ -231,40 +228,20 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   overview() {
     let id = 0;
-    const comments: ItemType[] =
-      this.props.filter === PersonDetailsFilter.Own ||
-      !this.props.likedCommentsRes
-        ? this.props.personRes.comments.map(r => ({
-            id: id++,
-            type_: ItemEnum.Comment,
-            view: r,
-            published: r.comment.published,
-            score: r.counts.score,
-          }))
-        : this.props.likedCommentsRes.comments.map(r => ({
-            id: id++,
-            type_: ItemEnum.Comment,
-            view: r,
-            published: r.comment.published,
-            score: r.counts.score,
-          }));
-
-    const posts: ItemType[] =
-      this.props.filter === PersonDetailsFilter.Own || !this.props.likedPostsRes
-        ? this.props.personRes.posts.map(r => ({
-            id: id++,
-            type_: ItemEnum.Post,
-            view: r,
-            published: r.post.published,
-            score: r.counts.score,
-          }))
-        : this.props.likedPostsRes.posts.map(r => ({
-            id: id++,
-            type_: ItemEnum.Post,
-            view: r,
-            published: r.post.published,
-            score: r.counts.score,
-          }));
+    const comments: ItemType[] = this.props.personRes.comments.map(r => ({
+      id: id++,
+      type_: ItemEnum.Comment,
+      view: r,
+      published: r.comment.published,
+      score: r.counts.score,
+    }));
+    const posts: ItemType[] = this.props.personRes.posts.map(r => ({
+      id: id++,
+      type_: ItemEnum.Post,
+      view: r,
+      published: r.post.published,
+      score: r.counts.score,
+    }));
 
     const combined = [...comments, ...posts];
 
@@ -286,15 +263,10 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
   }
 
   comments() {
-    const comments =
-      this.props.filter === PersonDetailsFilter.Own ||
-      !this.props.likedCommentsRes
-        ? this.props.personRes.comments
-        : this.props.likedCommentsRes.comments;
     return (
       <div>
         <CommentNodes
-          nodes={commentsToFlatNodes(comments)}
+          nodes={commentsToFlatNodes(this.props.personRes.comments)}
           viewType={CommentViewType.Flat}
           admins={this.props.admins}
           isTopLevel
@@ -329,13 +301,9 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
   }
 
   posts() {
-    const posts =
-      this.props.filter === PersonDetailsFilter.Own || !this.props.likedPostsRes
-        ? this.props.personRes.posts
-        : this.props.likedPostsRes.posts;
     return (
       <div>
-        {posts.map(post => (
+        {this.props.personRes.posts.map(post => (
           <>
             <PostListing
               post_view={post}
@@ -368,6 +336,47 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             <hr className="my-3" />
           </>
         ))}
+      </div>
+    );
+  }
+
+  upvoted() {
+    let id = 0;
+    const comments: ItemType[] = this.props.likedCommentsRes.comments.map(
+      r => ({
+        id: id++,
+        type_: ItemEnum.Comment,
+        view: r,
+        published: r.comment.published,
+        score: r.counts.score,
+      }),
+    );
+    const posts: ItemType[] = this.props.likedPostsRes.posts.map(r => ({
+      id: id++,
+      type_: ItemEnum.Post,
+      view: r,
+      published: r.post.published,
+      score: r.counts.score,
+    }));
+
+    const combined = [...comments, ...posts];
+
+    // Sort it
+    if (this.props.sort === "New") {
+      combined.sort((a, b) => b.published.localeCompare(a.published));
+    } else if (this.props.sort === "Old") {
+      combined.sort((a, b) => b.published.localeCompare(a.published));
+      combined.reverse();
+    } else {
+      combined.sort((a, b) => Number(b.score - a.score));
+    }
+
+    return (
+      <div>
+        {combined.map(i => [
+          this.renderItemType(i),
+          <hr key={i.type_} className="my-3" />,
+        ])}
       </div>
     );
   }
