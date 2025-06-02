@@ -342,22 +342,24 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   upvoted() {
     let id = 0;
-    const comments: ItemType[] = this.props.likedCommentsRes.comments.map(
-      r => ({
-        id: id++,
-        type_: ItemEnum.Comment,
-        view: r,
-        published: r.comment.published,
-        score: r.counts.score,
-      }),
-    );
-    const posts: ItemType[] = this.props.likedPostsRes.posts.map(r => ({
-      id: id++,
-      type_: ItemEnum.Post,
-      view: r,
-      published: r.post.published,
-      score: r.counts.score,
-    }));
+    const comments: ItemType[] = this.props.likedCommentsRes
+      ? this.props.likedCommentsRes.comments.map(r => ({
+          id: id++,
+          type_: ItemEnum.Comment,
+          view: r,
+          published: r.comment.published,
+          score: r.counts.score,
+        }))
+      : [];
+    const posts: ItemType[] = this.props.likedPostsRes
+      ? this.props.likedPostsRes.posts.map(r => ({
+          id: id++,
+          type_: ItemEnum.Post,
+          view: r,
+          published: r.post.published,
+          score: r.counts.score,
+        }))
+      : [];
 
     const combined = [...comments, ...posts];
 
