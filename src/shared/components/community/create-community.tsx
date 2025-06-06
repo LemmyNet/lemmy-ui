@@ -77,7 +77,7 @@ export class CreateCommunity extends Component<
       const name = res.data.community_view.community.name;
       this.props.history.replace(`/c/${name}`);
     } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(I18NextService.i18n.t(res.err.name), "danger");
       this.setState({ loading: false });
     } else {
       this.setState({ loading: false });

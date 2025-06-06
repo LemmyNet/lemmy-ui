@@ -5,7 +5,7 @@ export function getErrorPageData(error: Error, site?: GetSiteResponse) {
   const errorPageData: ErrorPageData = {};
 
   if (site) {
-    errorPageData.error = error.message;
+    errorPageData.error = error.name;
   }
 
   const adminMatrixIds = site?.admins

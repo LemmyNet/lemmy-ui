@@ -510,8 +510,8 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
           toast(JSON.stringify(res), "danger");
         }
       } else if (res.state === "failed") {
-        console.error(res.err.message);
-        toast(res.err.message, "danger");
+        console.error(res.err.name);
+        toast(res.err.name, "danger");
       }
     });
   }
