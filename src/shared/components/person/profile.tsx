@@ -4,6 +4,7 @@ import {
   editWith,
   enableDownvotes,
   enableNsfw,
+  postToCommentSortType,
   setIsoData,
   updatePersonBlock,
   voteDisplayMode,
@@ -74,6 +75,10 @@ import {
   SuccessResponse,
   TransferCommunity,
   RegistrationApplicationResponse,
+  GetPosts,
+  GetComments,
+  GetPostsResponse,
+  GetCommentsResponse,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
@@ -106,6 +111,8 @@ import DisplayModal from "../common/modal/display-modal";
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
   uploadsRes: ListMediaResponse;
+  likedPostsRes: GetPostsResponse;
+  likedCommentsRes: GetCommentsResponse;
 }>;
 
 interface ProfileState {
@@ -113,6 +120,8 @@ interface ProfileState {
   // personRes and personDetailsRes point to `===` identical data. This allows
   // to render the start of the profile while the new details are loading.
   personDetailsRes: RequestState<GetPersonDetailsResponse>;
+  likedCommentsRes: RequestState<GetCommentsResponse>;
+  likedPostsRes: RequestState<GetPostsResponse>;
   uploadsRes: RequestState<ListMediaResponse>;
   registrationRes: RequestState<RegistrationApplicationResponse>;
   personBlocked: boolean;
@@ -202,6 +211,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   state: ProfileState = {
     personRes: EMPTY_REQUEST,
     personDetailsRes: EMPTY_REQUEST,
+    likedCommentsRes: EMPTY_REQUEST,
+    likedPostsRes: EMPTY_REQUEST,
     uploadsRes: EMPTY_REQUEST,
     personBlocked: false,
     siteRes: this.isoData.site_res,
@@ -215,6 +226,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   loadingSettled() {
     return resourcesSettled([
       this.state.personRes,
+      this.state.likedCommentsRes,
+      this.state.likedPostsRes,
       this.props.view === PersonDetailsView.Uploads
         ? this.state.uploadsRes
         : this.state.personDetailsRes,
@@ -264,10 +277,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       const personRes = this.isoData.routeData.personRes;
+      const likedCommentsRes = this.isoData.routeData.likedCommentsRes;
+      const likedPostsRes = this.isoData.routeData.likedPostsRes;
       const uploadsRes = this.isoData.routeData.uploadsRes;
       this.state = {
         ...this.state,
         personRes,
+        likedCommentsRes,
+        likedPostsRes,
         personDetailsRes: personRes,
         uploadsRes,
         isIsomorphic: true,
@@ -332,8 +349,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const token = (this.fetchUploadsToken = this.fetchUserDataToken = Symbol());
     const { page, sort, view } = props;
 
+    const requestLiked = view === PersonDetailsView.Upvoted;
+
     if (view === PersonDetailsView.Uploads) {
       this.fetchUploads(props);
+      this.setState({
+        likedCommentsRes: EMPTY_REQUEST,
+        likedPostsRes: EMPTY_REQUEST,
+      });
       if (!showBothLoading) {
         return;
       }
@@ -346,17 +369,23 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         this.setState({
           personRes: LOADING_REQUEST,
           personDetailsRes: LOADING_REQUEST,
+          likedCommentsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
+          likedPostsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
           uploadsRes: EMPTY_REQUEST,
         });
       } else {
         this.setState({
           personDetailsRes: LOADING_REQUEST,
+          likedCommentsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
+          likedPostsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
           uploadsRes: EMPTY_REQUEST,
         });
       }
     }
 
-    const personRes = await HttpService.client.getPersonDetails({
+    const client = HttpService.client;
+
+    const personFetch = client.getPersonDetails({
       username: props.match.params.username,
       sort,
       saved_only: view === PersonDetailsView.Saved,
@@ -364,11 +393,45 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       limit: fetchLimit,
     });
 
+    let likedCommentsFetch: Promise<RequestState<GetCommentsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
+    let likedPostsFetch: Promise<RequestState<GetPostsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
+
+    if (requestLiked) {
+      const likedCommentsForm: GetComments = {
+        page,
+        limit: fetchLimit,
+        type_: "All",
+        sort: postToCommentSortType(sort),
+        liked_only: true,
+      };
+      likedCommentsFetch = client.getComments(likedCommentsForm);
+
+      const likedPostsForm: GetPosts = {
+        page,
+        limit: fetchLimit,
+        type_: "All",
+        sort,
+        liked_only: true,
+        show_read: true,
+      };
+      likedPostsFetch = client.getPosts(likedPostsForm);
+    }
+
+    const [personRes, likedCommentsRes, likedPostsRes] = await Promise.all([
+      personFetch,
+      likedCommentsFetch,
+      likedPostsFetch,
+    ]);
+
     if (token === this.fetchUserDataToken) {
       this.setState({
         personRes,
         personDetailsRes: personRes,
         personBlocked: isPersonBlocked(personRes),
+        likedCommentsRes,
+        likedPostsRes,
       });
     }
   }
@@ -415,10 +478,44 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       page,
       limit: fetchLimit,
     };
-    const personRes = await client.getPersonDetails(form);
+    const personFetch = client.getPersonDetails(form);
+
+    let likedCommentsFetch: Promise<RequestState<GetCommentsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
+    let likedPostsFetch: Promise<RequestState<GetPostsResponse>> =
+      Promise.resolve(EMPTY_REQUEST);
+
+    if (view === PersonDetailsView.Upvoted) {
+      const likedCommentsForm: GetComments = {
+        page,
+        limit: fetchLimit,
+        type_: "All",
+        sort: postToCommentSortType(sort),
+        liked_only: true,
+      };
+      likedCommentsFetch = client.getComments(likedCommentsForm);
+
+      const likedPostsForm: GetPosts = {
+        page,
+        limit: fetchLimit,
+        type_: "All",
+        sort,
+        liked_only: true,
+        show_read: true,
+      };
+      likedPostsFetch = client.getPosts(likedPostsForm);
+    }
+
+    const [personRes, likedCommentsRes, likedPostsRes] = await Promise.all([
+      personFetch,
+      likedCommentsFetch,
+      likedPostsFetch,
+    ]);
 
     return {
       personRes,
+      likedCommentsRes,
+      likedPostsRes,
       uploadsRes,
     };
   }
@@ -467,6 +564,18 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         const personDetailsRes =
           personDetailsState === "success" && this.state.personDetailsRes.data;
 
+        const likedCommentsState = this.state.likedCommentsRes.state;
+        const likedCommentsRes =
+          likedCommentsState === "success"
+            ? this.state.likedCommentsRes.data
+            : undefined;
+
+        const likedPostsState = this.state.likedPostsRes.state;
+        const likedPostsRes =
+          likedPostsState === "success"
+            ? this.state.likedPostsRes.data
+            : undefined;
+
         return (
           <div className="row">
             <div className="col-12 col-md-8">
@@ -486,7 +595,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
               {this.renderUploadsRes()}
 
-              {personDetailsState === "loading" &&
+              {(personDetailsState === "loading" ||
+                likedCommentsState === "loading" ||
+                likedPostsState === "loading") &&
               this.props.view !== PersonDetailsView.Uploads ? (
                 <h5>
                   <Spinner large />
@@ -495,6 +606,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 personDetailsRes && (
                   <PersonDetails
                     personRes={personDetailsRes}
+                    likedCommentsRes={likedCommentsRes}
+                    likedPostsRes={likedPostsRes}
                     admins={siteRes.admins}
                     sort={sort}
                     page={page}
@@ -566,6 +679,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         {this.getRadio(PersonDetailsView.Posts)}
         {this.amCurrentUser && this.getRadio(PersonDetailsView.Saved)}
         {this.amCurrentUser && this.getRadio(PersonDetailsView.Uploads)}
+        {this.amCurrentUser && this.getRadio(PersonDetailsView.Upvoted)}
       </div>
     );
   }
@@ -614,9 +728,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             hideMostComments
           />
         </div>
-        {/* Don't show the rss feed for the Saved and Uploads view, as that's not implemented.*/}
+        {/* Don't show the rss feed for the Saved, Uploads, and Upvoted view, as that's not implemented.*/}
         {view !== PersonDetailsView.Saved &&
-          view !== PersonDetailsView.Uploads && (
+          view !== PersonDetailsView.Uploads &&
+          view !== PersonDetailsView.Upvoted && (
             <div className="col-auto">
               <a href={profileRss} rel={relTags} title="RSS">
                 <Icon icon="rss" classes="text-muted small ps-0" />

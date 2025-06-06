@@ -39,6 +39,8 @@ import {
   SavePost,
   PostSortType,
   TransferCommunity,
+  GetCommentsResponse,
+  GetPostsResponse,
 } from "lemmy-js-client";
 import { CommentViewType, PersonDetailsView } from "../../interfaces";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -48,6 +50,8 @@ import { RequestState } from "../../services/HttpService";
 
 interface PersonDetailsProps {
   personRes: GetPersonDetailsResponse;
+  likedCommentsRes?: GetCommentsResponse;
+  likedPostsRes?: GetPostsResponse;
   admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
@@ -137,6 +141,8 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
       return this.comments();
     } else if (view === PersonDetailsView.Posts) {
       return this.posts();
+    } else if (view === PersonDetailsView.Upvoted) {
+      return this.upvoted();
     } else {
       return null;
     }
@@ -330,6 +336,49 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             <hr className="my-3" />
           </>
         ))}
+      </div>
+    );
+  }
+
+  upvoted() {
+    let id = 0;
+    const comments: ItemType[] = this.props.likedCommentsRes
+      ? this.props.likedCommentsRes.comments.map(r => ({
+          id: id++,
+          type_: ItemEnum.Comment,
+          view: r,
+          published: r.comment.published,
+          score: r.counts.score,
+        }))
+      : [];
+    const posts: ItemType[] = this.props.likedPostsRes
+      ? this.props.likedPostsRes.posts.map(r => ({
+          id: id++,
+          type_: ItemEnum.Post,
+          view: r,
+          published: r.post.published,
+          score: r.counts.score,
+        }))
+      : [];
+
+    const combined = [...comments, ...posts];
+
+    // Sort it
+    if (this.props.sort === "New") {
+      combined.sort((a, b) => b.published.localeCompare(a.published));
+    } else if (this.props.sort === "Old") {
+      combined.sort((a, b) => b.published.localeCompare(a.published));
+      combined.reverse();
+    } else {
+      combined.sort((a, b) => Number(b.score - a.score));
+    }
+
+    return (
+      <div>
+        {combined.map(i => [
+          this.renderItemType(i),
+          <hr key={i.type_} className="my-3" />,
+        ])}
       </div>
     );
   }
