@@ -386,7 +386,7 @@ export class CreatePost extends Component<
       this.setState({
         loading: false,
       });
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(I18NextService.i18n.t(res.err.name), "danger");
     }
   }
 
