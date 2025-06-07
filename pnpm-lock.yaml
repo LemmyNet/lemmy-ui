@@ -196,7 +196,7 @@ importers:
         version: 5.99.9(webpack-cli@6.0.1)
       webpack-cli:
         specifier: ^6.0.0
-        version: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.1)(webpack@5.99.9)
+        version: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.99.9)
       webpack-node-externals:
         specifier: ^3.0.0
         version: 3.0.0
@@ -322,8 +322,8 @@ importers:
         specifier: ^4.10.2
         version: 4.10.2
       webpack-dev-server:
-        specifier: 5.2.1
-        version: 5.2.1(webpack-cli@6.0.1)(webpack@5.99.9)
+        specifier: 5.2.2
+        version: 5.2.2(webpack-cli@6.0.1)(webpack@5.99.9)
 
 packages:
 
@@ -2856,8 +2856,8 @@ packages:
   http-parser-js@0.5.8:
     resolution: {integrity: sha512-SGeBX54F94Wgu5RH3X5jsDtf4eHyRogWX1XGT3b4HuW3tQPM4AaBzoUji/4AAJNXCEOWZ5O0DgZmJw1947gD5Q==}
 
-  http-proxy-middleware@2.0.7:
-    resolution: {integrity: sha512-fgVY8AV7qU7z/MmXJ/rxwbrtQH4jBQ9m7kp3llF0liB7glmFeVZFBepQb32T3y8n8k2+AEYuMPCpinYW+/CuRA==}
+  http-proxy-middleware@2.0.9:
+    resolution: {integrity: sha512-c1IyJYLYppU574+YI7R4QyX2ystMtVXZwIdzazUIPIJsHuWNd+mho2j+bKoHftndicGj9yh+xjd+l0yj7VeT1Q==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@types/express': ^4.17.13
@@ -4909,8 +4909,8 @@ packages:
       webpack:
         optional: true
 
-  webpack-dev-server@5.2.1:
-    resolution: {integrity: sha512-ml/0HIj9NLpVKOMq+SuBPLHcmbG+TGIjXRHsYfZwocUBIqEvws8NnS/V9AFQ5FKP+tgn5adwVwRrTEpGL33QFQ==}
+  webpack-dev-server@5.2.2:
+    resolution: {integrity: sha512-QcQ72gh8a+7JO63TAx/6XZf/CWhgMzu5m0QirvPfGvptOusAxG12w2+aua1Jkjr7hzaWDnJ2n6JFeexMHI+Zjg==}
     engines: {node: '>= 18.12.0'}
     hasBin: true
     peerDependencies:
@@ -6437,7 +6437,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.33.1(typescript@5.8.3)
       '@typescript-eslint/types': 8.33.1
-      debug: 4.4.0
+      debug: 4.4.1
       typescript: 5.8.3
     transitivePeerDependencies:
       - supports-color
@@ -6575,19 +6575,19 @@ snapshots:
   '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)':
     dependencies:
       webpack: 5.99.9(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.1)(webpack@5.99.9)
+      webpack-cli: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.99.9)
 
   '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)':
     dependencies:
       webpack: 5.99.9(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.1)(webpack@5.99.9)
+      webpack-cli: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.99.9)
 
-  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.1)(webpack@5.99.9)':
+  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.2)(webpack@5.99.9)':
     dependencies:
       webpack: 5.99.9(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.1)(webpack@5.99.9)
+      webpack-cli: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.99.9)
     optionalDependencies:
-      webpack-dev-server: 5.2.1(webpack-cli@6.0.1)(webpack@5.99.9)
+      webpack-dev-server: 5.2.2(webpack-cli@6.0.1)(webpack@5.99.9)
 
   '@xtuc/ieee754@1.2.0': {}
 
@@ -7044,7 +7044,7 @@ snapshots:
       glob-parent: 6.0.2
       globby: 13.2.2
       normalize-path: 3.0.0
-      schema-utils: 4.2.0
+      schema-utils: 4.3.2
       serialize-javascript: 6.0.2
       webpack: 5.99.9(webpack-cli@6.0.1)
 
@@ -8026,7 +8026,7 @@ snapshots:
 
   http-parser-js@0.5.8: {}
 
-  http-proxy-middleware@2.0.7(@types/express@4.17.23):
+  http-proxy-middleware@2.0.9(@types/express@4.17.23):
     dependencies:
       '@types/http-proxy': 1.17.15
       http-proxy: 1.18.1
@@ -10077,12 +10077,12 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.1)(webpack@5.99.9):
+  webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.99.9):
     dependencies:
       '@discoveryjs/json-ext': 0.6.3
       '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)
       '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)
-      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.1)(webpack@5.99.9)
+      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.2)(webpack@5.99.9)
       colorette: 2.0.20
       commander: 12.1.0
       cross-spawn: 7.0.6
@@ -10095,7 +10095,7 @@ snapshots:
       webpack-merge: 6.0.1
     optionalDependencies:
       webpack-bundle-analyzer: 4.10.2
-      webpack-dev-server: 5.2.1(webpack-cli@6.0.1)(webpack@5.99.9)
+      webpack-dev-server: 5.2.2(webpack-cli@6.0.1)(webpack@5.99.9)
 
   webpack-dev-middleware@7.4.2(webpack@5.99.9):
     dependencies:
@@ -10104,11 +10104,11 @@ snapshots:
       mime-types: 2.1.35
       on-finished: 2.4.1
       range-parser: 1.2.1
-      schema-utils: 4.3.0
+      schema-utils: 4.3.2
     optionalDependencies:
       webpack: 5.99.9(webpack-cli@6.0.1)
 
-  webpack-dev-server@5.2.1(webpack-cli@6.0.1)(webpack@5.99.9):
+  webpack-dev-server@5.2.2(webpack-cli@6.0.1)(webpack@5.99.9):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -10126,12 +10126,12 @@ snapshots:
       connect-history-api-fallback: 2.0.0
       express: 4.21.2
       graceful-fs: 4.2.11
-      http-proxy-middleware: 2.0.7(@types/express@4.17.23)
+      http-proxy-middleware: 2.0.9(@types/express@4.17.23)
       ipaddr.js: 2.2.0
       launch-editor: 2.9.1
       open: 10.1.0
       p-retry: 6.2.0
-      schema-utils: 4.3.0
+      schema-utils: 4.3.2
       selfsigned: 2.4.1
       serve-index: 1.9.1
       sockjs: 0.3.24
@@ -10140,7 +10140,7 @@ snapshots:
       ws: 8.18.0
     optionalDependencies:
       webpack: 5.99.9(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.1)(webpack@5.99.9)
+      webpack-cli: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.99.9)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -10149,7 +10149,7 @@ snapshots:
 
   webpack-inject-entry-plugin@0.0.4(webpack@5.99.9):
     dependencies:
-      schema-utils: 4.2.0
+      schema-utils: 4.3.2
       webpack: 5.99.9(webpack-cli@6.0.1)
 
   webpack-merge@6.0.1:
@@ -10194,7 +10194,7 @@ snapshots:
       watchpack: 2.4.4
       webpack-sources: 3.3.0
     optionalDependencies:
-      webpack-cli: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.1)(webpack@5.99.9)
+      webpack-cli: 6.0.1(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.99.9)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
