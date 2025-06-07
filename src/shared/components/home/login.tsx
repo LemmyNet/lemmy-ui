@@ -90,18 +90,19 @@ async function handleLoginSubmit(i: Login, event: any) {
     });
     switch (loginRes.state) {
       case "failed": {
-        if (loginRes.err.message === "missing_totp_token") {
+        if (loginRes.err.name === "missing_totp_token") {
           i.setState({ show2faModal: true });
         } else {
-          // TODO: We shouldn't be passing error messages as args into i18next
-          toast(
-            I18NextService.i18n.t(
-              loginRes.err.message === "registration_application_is_pending"
-                ? "registration_application_pending"
-                : loginRes.err.message,
-            ),
-            "danger",
+          let errStr = I18NextService.i18n.t(
+            loginRes.err.name === "registration_application_is_pending"
+              ? "registration_application_pending"
+              : loginRes.err.name,
           );
+          // If there's an error message, append it
+          if (loginRes.err.message) {
+            errStr = `${errStr}: ${loginRes.err.message}`;
+          }
+          toast(errStr, "danger");
         }
 
         i.setState({ loginRes });
