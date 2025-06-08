@@ -87,6 +87,10 @@ export default function OAuthProviderListItem({
               data={boolToYesNo(provider.account_linking_enabled)}
             />
             <TextInfoField
+              i18nKey="use_pkce"
+              data={boolToYesNo(provider.use_pkce)}
+            />
+            <TextInfoField
               i18nKey="oauth_enabled"
               data={boolToYesNo(provider.enabled)}
             />

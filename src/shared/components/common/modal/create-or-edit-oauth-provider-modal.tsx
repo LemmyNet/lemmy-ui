@@ -51,6 +51,7 @@ interface ProviderTextFieldProps extends ProviderFieldProps {
 
 type ProviderBooleanProperties =
   | "enabled"
+  | "use_pkce"
   | "account_linking_enabled"
   | "auto_verify_email";
 
@@ -333,6 +334,18 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                         {
                           modal: this,
                           property: "account_linking_enabled",
+                        },
+                        handleBooleanPropertyChange,
+                      )}
+                    />
+                    <ProviderCheckboxField
+                      id="use-pkce"
+                      i18nKey="use_pkce"
+                      checked={provider?.use_pkce}
+                      onInput={linkEvent(
+                        {
+                          modal: this,
+                          property: "use_pkce",
                         },
                         handleBooleanPropertyChange,
                       )}
