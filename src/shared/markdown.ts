@@ -62,7 +62,7 @@ const spoilerConfig = {
     const m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
     if (tokens[idx].nesting === 1) {
       // opening tag
-      const summary = mdToHtmlInline(md.utils.escapeHtml(m[1])).__html;
+      const summary = mdToHtmlInline(m[1]).__html;
       return `<details><summary> ${summary} </summary>\n`;
     } else {
       // closing tag
