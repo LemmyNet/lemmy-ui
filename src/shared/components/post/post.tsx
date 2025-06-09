@@ -1416,7 +1416,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(I18NextService.i18n.t(res.err.name), "danger");
     }
   }
 
@@ -1431,7 +1431,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(I18NextService.i18n.t(res.err.name), "danger");
     }
   }
 
@@ -1446,7 +1446,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(I18NextService.i18n.t(res.err.name), "danger");
     }
   }
 
@@ -1461,7 +1461,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.message), "danger");
+      toast(I18NextService.i18n.t(res.err.name), "danger");
     }
   }
 
