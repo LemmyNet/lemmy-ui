@@ -816,7 +816,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.createAndUpdateComments(createCommentRes);
 
     if (createCommentRes.state === "failed") {
-      toast(I18NextService.i18n.t(createCommentRes.err.message), "danger");
+      toast(I18NextService.i18n.t(createCommentRes.err.name), "danger");
     }
     return createCommentRes;
   }
@@ -826,7 +826,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.findAndUpdateCommentEdit(editCommentRes);
 
     if (editCommentRes.state === "failed") {
-      toast(I18NextService.i18n.t(editCommentRes.err.message), "danger");
+      toast(I18NextService.i18n.t(editCommentRes.err.name), "danger");
     }
     return editCommentRes;
   }

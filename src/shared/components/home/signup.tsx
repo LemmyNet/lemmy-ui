@@ -406,7 +406,7 @@ export class Signup extends Component<
       });
       switch (registerRes.state) {
         case "failed": {
-          toast(registerRes.err.message, "danger");
+          toast(registerRes.err.name, "danger");
           i.setState({ registerRes: EMPTY_REQUEST });
           break;
         }
