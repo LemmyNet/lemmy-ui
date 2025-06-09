@@ -124,7 +124,16 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             (this.props.view === PersonDetailsView.Comments &&
               this.props.limit > this.props.personRes.comments.length) ||
             (this.props.view === PersonDetailsView.Posts &&
-              this.props.limit > this.props.personRes.posts.length)
+              this.props.limit > this.props.personRes.posts.length) ||
+            ((this.props.view === PersonDetailsView.Overview ||
+              this.props.view === PersonDetailsView.Saved) &&
+              this.props.limit > this.props.personRes.posts.length &&
+              this.props.limit > this.props.personRes.comments.length) ||
+            (this.props.view === PersonDetailsView.Upvoted &&
+              this.props.likedCommentsRes !== undefined &&
+              this.props.limit > this.props.likedCommentsRes.comments.length &&
+              this.props.likedPostsRes !== undefined &&
+              this.props.limit > this.props.likedPostsRes.posts.length)
           }
         />
       </div>
