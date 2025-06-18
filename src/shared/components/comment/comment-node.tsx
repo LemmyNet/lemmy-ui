@@ -170,7 +170,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const {
       creator_is_moderator,
       creator_is_admin,
-      comment: { id, language_id, published, distinguished, updated },
+      comment: { id, language_id, published, distinguished },
       creator,
       community,
       post,
@@ -260,7 +260,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 counts={counts}
               />
               <span>
-                <MomentTime published={published} updated={updated} />
+                <MomentTime
+                  published={published}
+                  updated={this.commentUpdatedTime}
+                />
               </span>
             </div>
             {/* end of user row */}
@@ -575,6 +578,24 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const now = subMinutes(new Date(), 10);
     const then = parseISO(this.commentView.comment.published);
     return isBefore(now, then);
+  }
+
+  isCommentRecentlyUpdated(): boolean {
+    const comment = this.commentView.comment;
+    if (comment.updated) {
+      const published = new Date(comment.published);
+      const updated = new Date(comment.updated);
+      const update_limit = subMinutes(updated, 5);
+      return isBefore(update_limit, published);
+    }
+    return false;
+  }
+
+  get commentUpdatedTime(): string {
+    if (this.isCommentRecentlyUpdated()) {
+      return "";
+    }
+    return this.commentView.comment.updated;
   }
 
   handleCommentCollapse(i: CommentNode) {
