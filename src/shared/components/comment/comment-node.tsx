@@ -157,7 +157,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get commentView(): CommentNodeView {
-    return this.props.node.comment_view;
+    const cv = this.props.node.comment_view;
+    if (this.isCommentRecentlyUpdated(cv)) {
+      delete cv.comment.updated;
+    }
+    return cv;
   }
 
   get commentId(): CommentId {
@@ -575,6 +579,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const now = subMinutes(new Date(), 10);
     const then = parseISO(this.commentView.comment.published);
     return isBefore(now, then);
+  }
+
+  isCommentRecentlyUpdated(cv: CommentNodeView): boolean {
+    const updated = new Date(cv.comment.updated);
+    const published = new Date(cv.comment.published);
+    let timedelta = 0;
+    if (!isNaN(updated.getTime())) {
+      timedelta = updated - published;
+    }
+    return 0 < timedelta <= 5 * 60 * 1000;
   }
 
   handleCommentCollapse(i: CommentNode) {
