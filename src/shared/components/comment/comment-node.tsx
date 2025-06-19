@@ -2,7 +2,7 @@ import { colorList, getCommentParentId } from "@utils/app";
 import { futureDaysToUnixTime, numToSI } from "@utils/helpers";
 import classNames from "classnames";
 import { isBefore, parseISO, subMinutes } from "date-fns";
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoMouseEvent, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
   AddAdmin,
@@ -199,7 +199,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           })}
         >
           <div className="ms-2">
-            <div className="d-flex flex-wrap align-items-center text-muted small">
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
+            <div
+              className="d-flex flex-wrap align-items-center text-muted small"
+              onClick={linkEvent(this, this.handleCommentCollapse)}
+              role="group"
+            >
               <button
                 className="btn btn-sm btn-link text-muted me-2"
                 onClick={linkEvent(this, this.handleCommentCollapse)}
@@ -577,7 +582,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return isBefore(now, then);
   }
 
-  handleCommentCollapse(i: CommentNode) {
+  handleCommentCollapse(i: CommentNode, event: InfernoMouseEvent<any>) {
+    event.stopPropagation();
     i.setState({ collapsed: !i.state.collapsed });
   }
 
