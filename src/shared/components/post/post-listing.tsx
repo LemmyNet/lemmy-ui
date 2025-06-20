@@ -407,6 +407,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           className="text-body"
           to={`/post/${post.id}`}
           title={I18NextService.i18n.t("comments")}
+          target={this.linkTarget}
         >
           <div className="thumbnail rounded bg-light d-flex justify-content-center">
             <Icon icon="message-square" classes="d-flex align-items-center" />
@@ -727,6 +728,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         className="btn btn-link btn-sm text-muted ps-0"
         title={title}
         to={`/post/${pv.post.id}?scrollToComments=true`}
+        target={this.linkTarget}
         data-tippy-content={title}
         onClick={this.props.onScrollIntoCommentsClick}
       >
