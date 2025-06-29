@@ -42,8 +42,9 @@ export class MomentTime extends Component<MomentTimeProps, any> {
       const updated = new Date(this.props.updated);
       const updateLimit = addMinutes(published, 5);
       return isBefore(updated, updateLimit);
+    } else {
+      return false;
     }
-    return false;
   }
 
   get updatedTime(): string | undefined {
