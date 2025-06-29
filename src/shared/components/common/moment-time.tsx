@@ -46,11 +46,12 @@ export class MomentTime extends Component<MomentTimeProps, any> {
     return false;
   }
 
-  get updatedTime(): string {
-    if (this.isRecentlyUpdated()) {
-      return "";
+  get updatedTime(): string | undefined {
+    if (!this.isRecentlyUpdated()) {
+      return this.props.updated;
+    } else {
+      return;
     }
-    return this.props.updated || "";
   }
 
   render() {
