@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter, formatPastDate } from "@utils/helpers";
-import { format, parseISO } from "date-fns";
+import { addMinutes, format, isBefore, parseISO } from "date-fns";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
@@ -24,7 +24,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
   }
 
   createdAndModifiedTimes() {
-    const updated = this.props.updated;
+    const updated = this.updatedTime;
     let line = `${capitalizeFirstLetter(
       I18NextService.i18n.t("created"),
     )}: ${formatDate(this.props.published)}`;
@@ -36,15 +36,34 @@ export class MomentTime extends Component<MomentTimeProps, any> {
     return line;
   }
 
+  isRecentlyUpdated(): boolean {
+    if (this.props.updated) {
+      const published = new Date(this.props.published);
+      const updated = new Date(this.props.updated);
+      const updateLimit = addMinutes(published, 5);
+      return isBefore(updated, updateLimit);
+    } else {
+      return false;
+    }
+  }
+
+  get updatedTime(): string | undefined {
+    if (!this.isRecentlyUpdated()) {
+      return this.props.updated;
+    } else {
+      return;
+    }
+  }
+
   render() {
-    if (!this.props.ignoreUpdated && this.props.updated) {
+    if (!this.props.ignoreUpdated && this.updatedTime) {
       return (
         <span
           data-tippy-content={this.createdAndModifiedTimes()}
           className="moment-time fst-italic pointer unselectable"
         >
           <Icon icon="edit-2" classes="icon-inline me-1" />
-          {formatPastDate(this.props.updated)}
+          {formatPastDate(this.updatedTime)}
         </span>
       );
     } else {
