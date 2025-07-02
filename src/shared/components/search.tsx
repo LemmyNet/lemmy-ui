@@ -792,10 +792,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       resolveObjectRes: resolveObjectResponse,
       searchRes: searchResponse,
     } = this.state;
-    var comments_array = [],
-      posts_array = [],
-      communities_array = [],
-      users_array = [];
+    var comments_array: CommentView[] = [],
+      posts_array: PostView[] = [],
+      communities_array: CommunityView[] = [],
+      persons_array: PersonView[] = [];
     if (resolveObjectResponse.state === "success") {
       const { comment, post, community, person } = resolveObjectResponse.data;
 
@@ -809,7 +809,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         communities_array.push(community);
       }
       if (person) {
-        users_array.push(person);
+        persons_array.push(person);
       }
     }
     if (searchResponse.state === "success") {
@@ -817,13 +817,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       comments_array.push(...(comments ?? []));
       posts_array.push(...(posts ?? []));
       communities_array.push(...(communities ?? []));
-      users_array.push(...(users ?? []));
+      persons_array.push(...(users ?? []));
     }
 
     return (
       <>
         {communityListing(communities_array)}
-        {personListing(users_array)}
+        {personListing(persons_array)}
         {postListing(posts_array, siteRes)}
         {commentListing(comments_array, siteRes)}
       </>
@@ -956,7 +956,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       <>
         {communities.map(cv => (
           <div key={cv.community.id} className="row">
-            <div className="col-12">{communityListing(cv)}</div>
+            <div className="col-12">{communityListing([cv])}</div>
           </div>
         ))}
       </>
@@ -982,7 +982,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       <>
         {users.map(pvs => (
           <div key={pvs.person.id} className="row">
-            <div className="col-12">{personListing(pvs)}</div>
+            <div className="col-12">{personListing([pvs])}</div>
           </div>
         ))}
       </>
