@@ -704,154 +704,123 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     );
   }
 
-  buildCombined(): Combined[] {
-    const combined: Combined[] = [];
+  get all() {
+    const siteRes = this.state.siteRes;
     const {
       resolveObjectRes: resolveObjectResponse,
       searchRes: searchResponse,
     } = this.state;
-
-    // Push the possible resolve / federated objects first
+    var comments_array = [],
+      posts_array = [],
+      communities_array = [],
+      users_array = [];
     if (resolveObjectResponse.state === "success") {
       const { comment, post, community, person } = resolveObjectResponse.data;
 
       if (comment) {
-        combined.push(commentViewToCombined(comment));
+        comments_array.push(commentViewToCombined(comment));
       }
       if (post) {
-        combined.push(postViewToCombined(post));
+        posts_array.push(postViewToCombined(post));
       }
       if (community) {
-        combined.push(communityViewToCombined(community));
+        communities_array.push(communityViewToCombined(community));
       }
       if (person) {
-        combined.push(personViewSafeToCombined(person));
+        users_array.push(personViewSafeToCombined(person));
       }
     }
-
-    // Push the search results
     if (searchResponse.state === "success") {
       const { comments, posts, communities, users } = searchResponse.data;
-
-      combined.push(
-        ...[
-          ...(comments?.map(commentViewToCombined) ?? []),
-          ...(posts?.map(postViewToCombined) ?? []),
-          ...(communities?.map(communityViewToCombined) ?? []),
-          ...(users?.map(personViewSafeToCombined) ?? []),
-        ],
+      comments_array.push(...(comments?.map(commentViewToCombined) ?? []));
+      posts_array.push(...(posts?.map(postViewToCombined) ?? []));
+      communities_array.push(
+        ...(communities?.map(communityViewToCombined) ?? []),
       );
+      users_array.push(...(users?.map(personViewSafeToCombined) ?? []));
     }
-
-    const { sort } = this.props;
-
-    // Sort it
-    if (sort === "New") {
-      combined.sort((a, b) => b.published.localeCompare(a.published));
-    } else {
-      combined.sort((a, b) =>
-        Number(
-          ((b.data as CommentView | PostView).counts.score |
-            (b.data as CommunityView).counts.subscribers |
-            (b.data as PersonView).counts.comment_count) -
-            ((a.data as CommentView | PostView).counts.score |
-              (a.data as CommunityView).counts.subscribers |
-              (a.data as PersonView).counts.comment_count),
-        ),
-      );
-    }
-
-    return combined;
-  }
-
-  get all() {
-    const combined = this.buildCombined();
-    const siteRes = this.state.siteRes;
 
     return (
-      <div>
-        {combined.map(i => (
-          <div key={i.published} className="row">
-            <div className="col-12">
-              {i.type_ === "posts" && (
-                <PostListing
-                  key={(i.data as PostView).post.id}
-                  post_view={i.data as PostView}
-                  showCommunity
-                  enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(siteRes)}
-                  enableNsfw={enableNsfw(siteRes)}
-                  allLanguages={siteRes.all_languages}
-                  siteLanguages={siteRes.discussion_languages}
-                  viewOnly
-                  // All of these are unused, since its view only
-                  onPostEdit={async () => EMPTY_REQUEST}
-                  onPostVote={async () => EMPTY_REQUEST}
-                  onPostReport={async () => {}}
-                  onBlockPerson={async () => {}}
-                  onLockPost={async () => {}}
-                  onDeletePost={async () => {}}
-                  onRemovePost={async () => {}}
-                  onSavePost={async () => {}}
-                  onFeaturePost={async () => {}}
-                  onPurgePerson={async () => {}}
-                  onPurgePost={async () => {}}
-                  onBanPersonFromCommunity={async () => {}}
-                  onBanPerson={async () => {}}
-                  onAddModToCommunity={async () => {}}
-                  onAddAdmin={async () => {}}
-                  onTransferCommunity={async () => {}}
-                  onMarkPostAsRead={async () => {}}
-                  onHidePost={async () => {}}
-                />
-              )}
-              {i.type_ === "comments" && (
-                <CommentNodes
-                  key={(i.data as CommentView).comment.id}
-                  nodes={[
-                    {
-                      comment_view: i.data as CommentView,
-                      children: [],
-                      depth: 0,
-                    },
-                  ]}
-                  viewType={CommentViewType.Flat}
-                  viewOnly
-                  locked
-                  isTopLevel
-                  enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(siteRes)}
-                  allLanguages={siteRes.all_languages}
-                  siteLanguages={siteRes.discussion_languages}
-                  // All of these are unused, since its viewonly
-                  onSaveComment={async () => {}}
-                  onBlockPerson={async () => {}}
-                  onDeleteComment={async () => {}}
-                  onRemoveComment={async () => {}}
-                  onCommentVote={async () => {}}
-                  onCommentReport={async () => {}}
-                  onDistinguishComment={async () => {}}
-                  onAddModToCommunity={async () => {}}
-                  onAddAdmin={async () => {}}
-                  onTransferCommunity={async () => {}}
-                  onPurgeComment={async () => {}}
-                  onPurgePerson={async () => {}}
-                  onCommentReplyRead={() => {}}
-                  onPersonMentionRead={() => {}}
-                  onBanPersonFromCommunity={async () => {}}
-                  onBanPerson={async () => {}}
-                  onCreateComment={async () => EMPTY_REQUEST}
-                  onEditComment={async () => EMPTY_REQUEST}
-                />
-              )}
-              {i.type_ === "communities" && (
-                <div>{communityListing(i.data as CommunityView)}</div>
-              )}
-              {i.type_ === "users" && (
-                <div>{personListing(i.data as PersonView)}</div>
-              )}
-            </div>
-          </div>
+      <div className="row">
+        {communities_array.map(i => (
+          <div>{communityListing(i.data as CommunityView)}</div>
+        ))}
+        {communities_array && <hr class="border m-2" />}
+        {users_array.map(i => (
+          <div>{personListing(i.data as PersonView)}</div>
+        ))}
+        {users_array && <hr class="border m-2" />}
+        {posts_array.map(i => (
+          <PostListing
+            key={(i.data as PostView).post.id}
+            post_view={i.data as PostView}
+            showCommunity
+            enableDownvotes={enableDownvotes(siteRes)}
+            voteDisplayMode={voteDisplayMode(siteRes)}
+            enableNsfw={enableNsfw(siteRes)}
+            allLanguages={siteRes.all_languages}
+            siteLanguages={siteRes.discussion_languages}
+            viewOnly
+            // All of these are unused, since its view only
+            onPostEdit={async () => EMPTY_REQUEST}
+            onPostVote={async () => EMPTY_REQUEST}
+            onPostReport={async () => {}}
+            onBlockPerson={async () => {}}
+            onLockPost={async () => {}}
+            onDeletePost={async () => {}}
+            onRemovePost={async () => {}}
+            onSavePost={async () => {}}
+            onFeaturePost={async () => {}}
+            onPurgePerson={async () => {}}
+            onPurgePost={async () => {}}
+            onBanPersonFromCommunity={async () => {}}
+            onBanPerson={async () => {}}
+            onAddModToCommunity={async () => {}}
+            onAddAdmin={async () => {}}
+            onTransferCommunity={async () => {}}
+            onMarkPostAsRead={async () => {}}
+            onHidePost={async () => {}}
+          />
+        ))}
+        {posts_array && <hr class="border m-2" />}
+        {comments_array.map(i => (
+          <CommentNodes
+            key={(i.data as CommentView).comment.id}
+            nodes={[
+              {
+                comment_view: i.data as CommentView,
+                children: [],
+                depth: 0,
+              },
+            ]}
+            viewType={CommentViewType.Flat}
+            viewOnly
+            locked
+            isTopLevel
+            enableDownvotes={enableDownvotes(siteRes)}
+            voteDisplayMode={voteDisplayMode(siteRes)}
+            allLanguages={siteRes.all_languages}
+            siteLanguages={siteRes.discussion_languages}
+            // All of these are unused, since its viewonly
+            onSaveComment={async () => {}}
+            onBlockPerson={async () => {}}
+            onDeleteComment={async () => {}}
+            onRemoveComment={async () => {}}
+            onCommentVote={async () => {}}
+            onCommentReport={async () => {}}
+            onDistinguishComment={async () => {}}
+            onAddModToCommunity={async () => {}}
+            onAddAdmin={async () => {}}
+            onTransferCommunity={async () => {}}
+            onPurgeComment={async () => {}}
+            onPurgePerson={async () => {}}
+            onCommentReplyRead={() => {}}
+            onPersonMentionRead={() => {}}
+            onBanPersonFromCommunity={async () => {}}
+            onBanPerson={async () => {}}
+            onCreateComment={async () => EMPTY_REQUEST}
+            onEditComment={async () => EMPTY_REQUEST}
+          />
         ))}
       </div>
     );
