@@ -60,7 +60,7 @@
     "inferno-router": "^8.2.3",
     "inferno-server": "^9.0.0",
     "jwt-decode": "^4.0.0",
-    "lemmy-js-client": "0.19.12-name-and-message.1",
+    "lemmy-js-client": "1.0.0-post-notifications.0",
     "lodash.isequal": "^4.5.0",
     "markdown-it": "^14.1.0",
     "markdown-it-bidi": "^0.2.0",
@@ -145,7 +145,7 @@
       "sortpack"
     ]
   },
-  "packageManager": "pnpm@10.9.0+sha512.0486e394640d3c1fb3c9d43d49cf92879ff74f8516959c235308f5a8f62e2e19528a65cdc2a3058f587cde71eba3d5b56327c8c33a97e4c4051ca48a10ca2d5f",
+  "packageManager": "pnpm@10.12.4+sha512.5ea8b0deed94ed68691c9bad4c955492705c5eeb8a87ef86bc62c74a26b037b08ff9570f108b2e4dbd1dd1a9186fea925e527f141c648e85af45631074680184",
   "engineStrict": true,
   "importSort": {
     ".js, .jsx, .ts, .tsx": {
