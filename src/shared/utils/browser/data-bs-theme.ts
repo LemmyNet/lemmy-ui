@@ -1,12 +1,19 @@
-import { GetSiteResponse } from "lemmy-js-client";
+import { GetSiteResponse, MyUserInfo } from "lemmy-js-client";
 import isDark from "./is-dark";
 
-export default function dataBsTheme(siteResOrTheme?: GetSiteResponse | string) {
+type ThemeParams =
+  | string
+  | {
+      siteRes: GetSiteResponse;
+      myUser?: MyUserInfo;
+    };
+
+export default function dataBsTheme(themeParams?: ThemeParams) {
   const theme =
-    typeof siteResOrTheme === "string"
-      ? siteResOrTheme
-      : (siteResOrTheme?.my_user?.local_user_view.local_user.theme ??
-        siteResOrTheme?.site_view.local_site.default_theme ??
+    typeof themeParams === "string"
+      ? themeParams
+      : (themeParams?.myUser?.local_user_view.local_user.theme ??
+        themeParams?.siteRes.site_view.local_site.default_theme ??
         "browser");
 
   return (isDark() && theme === "browser") || theme.includes("dark")

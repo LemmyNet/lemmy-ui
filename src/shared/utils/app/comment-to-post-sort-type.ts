@@ -10,9 +10,8 @@ export default function commentToPostSortType(
     case "New":
     case "Old":
     case "Controversial":
-      return sort;
     case "Top":
-      return "TopAll";
+      return sort;
     default: {
       assertType<never>(sort);
       return "Hot";

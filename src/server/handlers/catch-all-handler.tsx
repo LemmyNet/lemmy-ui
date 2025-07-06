@@ -5,7 +5,7 @@ import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { Match } from "inferno-router/dist/Route";
 import { renderToString } from "inferno-server";
-import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
+import { GetSiteResponse, LemmyHttp, MyUserInfo } from "lemmy-js-client";
 import App from "../../shared/components/app/app";
 import {
   InitialFetchRequest,
@@ -49,39 +49,39 @@ export default async (req: Request, res: Response) => {
       route => (match = matchPath(req.path, route)),
     );
 
-    const headers = setForwardedHeaders(req.headers);
     const auth = getJwtCookie(req.headers);
 
-    const client = wrapClient(
-      new LemmyHttp(getHttpBaseInternal(), { headers }),
-    );
-
     const { path, url } = req;
-
-    // Get site data first
-    // This bypasses errors, so that the client can hit the error on its own,
-    // in order to remove the jwt on the browser. Necessary for wrong jwts
-    let site: GetSiteResponse | undefined = undefined;
-    let routeData: RouteData = {};
-    let errorPageData: ErrorPageData | undefined = undefined;
-    let try_site = await client.getSite();
-
-    if (try_site.state === "failed" && try_site.err.name === "not_logged_in") {
-      console.error(
-        "Incorrect JWT token, skipping auth so frontend can remove jwt cookie",
-      );
-      client.setHeaders({});
-      try_site = await client.getSite();
-    }
 
     if (!auth && isAuthPath(path)) {
       res.redirect(`/login${getQueryString({ prev: url })}`);
       return;
     }
 
-    if (try_site.state === "success") {
-      site = try_site.data;
-      initializeSite(site);
+    const headers = setForwardedHeaders(req.headers);
+    const client = wrapClient(
+      new LemmyHttp(getHttpBaseInternal(), { headers }),
+    );
+
+    // Get site data first
+    // This bypasses errors, so that the client can hit the error on its own,
+    // in order to remove the jwt on the browser. Necessary for wrong jwts
+    let site: GetSiteResponse | undefined = undefined;
+    let my_user: MyUserInfo | undefined = undefined;
+    let routeData: RouteData = {};
+    let errorPageData: ErrorPageData | undefined = undefined;
+    const [site_response, my_user_response] = await Promise.all([
+      client.getSite(),
+      client.getMyUser(),
+    ]);
+
+    if (my_user_response.state === "success") {
+      my_user = my_user_response.data;
+    }
+
+    if (site_response.state === "success") {
+      site = site_response.data;
+      initializeSite(my_user);
       LanguageService.updateLanguages(languages);
 
       if (path !== "/setup" && !site.site_view.local_site.site_setup) {
@@ -115,9 +115,16 @@ export default async (req: Request, res: Response) => {
       if (!activeRoute) {
         res.status(404);
       }
-    } else if (try_site.state === "failed") {
+    } else if (site_response.state === "failed") {
       res.status(500);
-      errorPageData = getErrorPageData(new Error(try_site.err.name), site);
+      errorPageData = getErrorPageData(
+        new Error(
+          site_response.state === "failed"
+            ? site_response.err.message
+            : "Promise for fetching site rejected",
+        ),
+        site,
+      );
     }
 
     const error = Object.values(routeData).find(
@@ -141,11 +148,12 @@ export default async (req: Request, res: Response) => {
     const isoData: IsoDataOptionalSite = {
       path,
       site_res: site,
+      my_user_info: my_user,
       routeData,
       errorPageData,
       showAdultConsentModal:
         !!site?.site_view.site.content_warning &&
-        !(site.my_user || req.cookies[adultConsentCookieKey]),
+        !(my_user || req.cookies[adultConsentCookieKey]),
       lemmy_external_host: process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ?? testHost,
     };
 
@@ -156,7 +164,7 @@ export default async (req: Request, res: Response) => {
     );
 
     // Another request could have initialized a new site.
-    initializeSite(site);
+    initializeSite(my_user);
     LanguageService.updateLanguages(languages);
 
     const root = renderToString(wrapper);

@@ -38,7 +38,6 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
-  CommentReplyResponse,
   CommentResponse,
   Community,
   CommunityModeratorView,
@@ -60,8 +59,6 @@ import {
   ListMedia,
   ListMediaResponse,
   LockPost,
-  MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
   PersonView,
   PostResponse,
   PurgeComment,
@@ -71,7 +68,6 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
-  PostSortType,
   SuccessResponse,
   TransferCommunity,
   RegistrationApplicationResponse,
@@ -79,6 +75,7 @@ import {
   GetComments,
   GetPostsResponse,
   GetCommentsResponse,
+  PostSortType,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
 import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";

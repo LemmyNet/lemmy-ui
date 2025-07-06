@@ -267,9 +267,7 @@ export function emojiMartCategories(
 export async function setupEmojiDataModel(
   client: WrappedLemmyHttp = HttpService.client,
 ): Promise<boolean> {
-  const emojisRes = await client.listCustomEmojis({
-    ignore_page_limits: true,
-  });
+  const emojisRes = await client.listCustomEmojis({});
   if (emojisRes.state !== "success") {
     return false;
   }
@@ -341,7 +339,7 @@ export async function setupTribute() {
         trigger: "@",
         selectTemplate: (item: any) => {
           const it: PersonTribute = item.original;
-          return `[${it.key}](${it.view.person.actor_id})`;
+          return `[${it.key}](${it.view.person.ap_id})`;
         },
         values: debounce(async (text: string, cb: any) => {
           cb(await personSearch(text));
@@ -358,7 +356,7 @@ export async function setupTribute() {
         trigger: "!",
         selectTemplate: (item: any) => {
           const it: CommunityTribute = item.original;
-          return `[${it.key}](${it.view.community.actor_id})`;
+          return `[${it.key}](${it.view.community.ap_id})`;
         },
         values: debounce(async (text: string, cb: any) => {
           cb(await communitySearch(text));

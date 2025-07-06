@@ -3,7 +3,8 @@ import {
   CommentReply,
   CommentView,
   GetSiteResponse,
-  PersonMention,
+  MyUserInfo,
+  PersonCommentMention,
 } from "lemmy-js-client";
 import { RequestState } from "./services/HttpService";
 import { Match } from "inferno-router/dist/Route";
@@ -15,6 +16,7 @@ export interface IsoData<T extends RouteData = any> {
   path: string;
   routeData: T;
   site_res: GetSiteResponse;
+  my_user_info?: MyUserInfo;
   errorPageData?: ErrorPageData;
   showAdultConsentModal: boolean;
   lemmy_external_host: string;
@@ -95,9 +97,12 @@ export enum VoteContentType {
   Comment,
 }
 
-export type CommentNodeView = Omit<CommentView, "banned_from_community"> &
-  Partial<Pick<CommentView, "banned_from_community">> & {
-    person_mention?: PersonMention;
+export type CommentNodeView = Omit<
+  CommentView,
+  "creator_banned_from_community"
+> &
+  Partial<Pick<CommentView, "creator_banned_from_community">> & {
+    person_mention?: PersonCommentMention;
     comment_reply?: CommentReply;
   };
 
