@@ -170,7 +170,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   >
                     <input
                       name="q"
-                      type="text"
+                      type="search"
                       className="form-control flex-initial"
                       placeholder={`${I18NextService.i18n.t("search")}...`}
                       aria-label={I18NextService.i18n.t("search")}
