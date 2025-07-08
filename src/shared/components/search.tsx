@@ -181,7 +181,7 @@ const communityListing = (communities: CommunityView[]) => {
       <>
         <h3>{I18NextService.i18n.t("communities")}</h3>
         {communities.map(c => (
-          <div className="row flex-row">
+          <div>
             {getListing(
               <CommunityLink community={c.community} />,
               c.counts.subscribers,
@@ -201,7 +201,7 @@ const personListing = (persons: PersonView[]) => {
       <>
         <h3>{I18NextService.i18n.t("users")}</h3>
         {persons.map(p => (
-          <div className="row">
+          <div>
             {getListing(
               <PersonListing person={p.person} showApubName />,
               p.counts.comment_count,
@@ -221,7 +221,7 @@ const postListing = (posts: PostView[], siteRes: GetSiteResponse) => {
       <>
         <h3>{I18NextService.i18n.t("posts")}</h3>
         {posts.map(post_view => (
-          <div className="row">
+          <div>
             <PostListing
               key={post_view.post.id}
               post_view={post_view}
@@ -266,7 +266,7 @@ const commentListing = (comments: CommentView[], siteRes: GetSiteResponse) => {
       <>
         <h3>{I18NextService.i18n.t("comments")}</h3>
         {comments.map(c => (
-          <div className="row">
+          <div>
             <CommentNodes
               key={c.comment.id}
               nodes={[
