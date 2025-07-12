@@ -82,6 +82,7 @@ interface SearchProps {
   communityId?: number;
   creatorId?: number;
   page: number;
+  titleOnly: boolean;
 }
 
 type SearchData = RouteDataResponse<{
@@ -128,6 +129,7 @@ export function getSearchQueryParams(source?: string): SearchProps {
       communityId: getIdFromString,
       creatorId: getIdFromString,
       page: getPageFromString,
+      titleOnly: getTitleOnlyFromQuery,
     },
     source,
   );
@@ -146,6 +148,9 @@ function getSortTypeFromQuery(sort?: string): PostSortType {
 function getListingTypeFromQuery(listingType?: string): ListingType {
   return listingType ? (listingType as ListingType) : defaultListingType;
 }
+
+const getTitleOnlyFromQuery = (titleOnly?: string): boolean =>
+  titleOnly?.toLowerCase() === "true";
 
 function postViewToCombined(data: PostView): Combined {
   return {
@@ -477,6 +482,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       communityId: community_id,
       creatorId: creator_id,
       page,
+      titleOnly: titleOnly,
     },
   }: InitialFetchRequest<SearchPathProps, SearchProps>): Promise<SearchData> {
     const client = wrapClient(
@@ -522,6 +528,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         title_only,
         page,
         limit: fetchLimit,
+        post_title_only: titleOnly,
       };
 
       searchResponse = await client.search(form);
@@ -634,6 +641,18 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               <span>{I18NextService.i18n.t("search")}</span>
             )}
           </button>
+        </div>
+        <div className="col-auto form-check ms-2 mt-0 h-min d-flex align-items-center">
+          <input
+            type="checkbox"
+            className="form-check-input"
+            onChange={linkEvent(this, this.handleTitleOnlyChange)}
+            checked={this.props.titleOnly}
+            id="title_only"
+          />
+          <label for="title_only" className="form-check-label">
+            {I18NextService.i18n.t("post_title_only")}
+          </label>
         </div>
       </form>
     );
@@ -1086,6 +1105,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         title_only: titleOnly,
         page,
         limit: fetchLimit,
+        post_title_only: titleOnly,
       });
       if (token !== this.searchToken) {
         return;
@@ -1167,6 +1187,16 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     });
   }
 
+  handleTitleOnlyChange(i: Search, event: any) {
+    const titleOnly = event.target.checked;
+
+    i.updateUrl({
+      titleOnly,
+      page: 1,
+      q: i.getQ(),
+    });
+  }
+
   handlePageChange(page: number) {
     this.updateUrl({ page });
   }
@@ -1228,6 +1258,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       creatorId: creatorId?.toString(),
       page: page?.toString(),
       sort: sort,
+      titleOnly: titleOnly.toString(),
     };
 
     this.props.history.push(`/search${getQueryString(queryParams)}`);
