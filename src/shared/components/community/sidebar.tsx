@@ -59,6 +59,7 @@ interface SidebarState {
   leaveModTeamLoading: boolean;
   followCommunityLoading: boolean;
   purgeCommunityLoading: boolean;
+  searchText: string;
 }
 
 @tippyMixin
@@ -73,6 +74,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     leaveModTeamLoading: false,
     followCommunityLoading: false,
     purgeCommunityLoading: false,
+    searchText: "",
   };
 
   constructor(props: any, context: any) {
@@ -162,6 +164,27 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   />
                   {this.canPost && this.createPost()}
                   {myUserInfo && this.blockCommunity()}
+                  <form
+                    class="d-flex"
+                    onSubmit={linkEvent(this, this.handleSearchSubmit)}
+                  >
+                    <input
+                      name="q"
+                      type="search"
+                      className="form-control flex-initial"
+                      placeholder={`${I18NextService.i18n.t("search")}...`}
+                      aria-label={I18NextService.i18n.t("search")}
+                      onInput={linkEvent(this, this.handleSearchChange)}
+                      required
+                      minLength={1}
+                    />
+                    <button
+                      type="submit"
+                      class="btn btn-outline-secondary ms-1"
+                    >
+                      <Icon icon="search" />
+                    </button>
+                  </form>
                 </>
               )}
               {!myUserInfo && (
@@ -636,5 +659,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       community_id: i.props.community_view.community.id,
       reason: i.state.purgeReason,
     });
+  }
+
+  handleSearchChange(i: Sidebar, event: any) {
+    i.setState({ searchText: event.target.value });
+  }
+
+  handleSearchSubmit(i: Sidebar, event: any) {
+    event.preventDefault();
+    const searchParamEncoded = i.state.searchText;
+    i.context.router.history.push(
+      `/search${getQueryString({ q: searchParamEncoded, communityId: i.props.community_view.community.id.toString() })}`,
+    );
   }
 }
