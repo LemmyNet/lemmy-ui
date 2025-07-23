@@ -33,10 +33,10 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
     if (local) {
       link = `/c/${community.name}`;
     } else {
-      serverStr = `@${hostname(community.actor_id)}`;
+      serverStr = `@${hostname(community.ap_id)}`;
       link = !this.props.realLink
         ? `/c/${community.name}${serverStr}`
-        : community.actor_id;
+        : community.ap_id;
     }
     const classes = `community-link ${this.props.muted ? "text-muted" : ""}`;
 

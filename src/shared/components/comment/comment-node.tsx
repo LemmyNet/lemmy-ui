@@ -22,10 +22,9 @@ import {
   EditComment,
   GetComments,
   Language,
-  LocalUserVoteDisplayMode,
   MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
-  PersonMentionView,
+  MarkPersonCommentMentionAsRead,
+  PersonCommentMentionView,
   PersonView,
   PurgeComment,
   PurgePerson,
@@ -81,14 +80,13 @@ interface CommentNodeProps {
   showContext?: boolean;
   showCommunity?: boolean;
   enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   viewType: CommentViewType;
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages?: boolean;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
-  onPersonMentionRead(form: MarkPersonMentionAsRead): void;
+  onPersonMentionRead(form: MarkPersonCommentMentionAsRead): void;
   onCreateComment(
     form: EditComment | CreateComment,
   ): Promise<RequestState<CommentResponse>>;
@@ -170,13 +168,23 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const {
       creator_is_moderator,
       creator_is_admin,
-      comment: { id, language_id, published, distinguished, updated },
+      comment: {
+        id,
+        language_id,
+        published_at,
+        distinguished,
+        updated_at,
+        child_count,
+        score,
+        upvotes,
+        downvotes,
+      },
       creator,
       community,
       post,
-      counts,
-      my_vote,
-      banned_from_community,
+      creator_banned_from_community,
+      creator_banned,
+      comment_actions,
     } = this.commentView;
 
     const moreRepliesBorderColor = this.props.node.depth
@@ -187,7 +195,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       this.props.viewType === CommentViewType.Tree &&
       !this.state.collapsed &&
       node.children.length === 0 &&
-      node.comment_view.counts.child_count > 0;
+      child_count > 0;
 
     return (
       <li className="comment list-unstyled">
@@ -230,7 +238,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 isMod={creator_is_moderator}
                 isAdmin={creator_is_admin}
                 isBot={cv.creator.bot_account}
-                isBanned={cv.creator.banned}
+                isBanned={creator_banned}
                 isBannedFromCommunity={cv.creator_banned_from_community}
               />
 
@@ -260,12 +268,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <div className="me-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
 
               <VoteDisplay
-                voteDisplayMode={this.props.voteDisplayMode}
-                myVote={my_vote}
-                counts={counts}
+                myVote={comment_actions?.like_score}
+                score={score}
+                upvotes={upvotes}
+                downvotes={downvotes}
               />
               <span>
-                <MomentTime published={published} updated={updated} />
+                <MomentTime published={published_at} updated={updated_at} />
               </span>
             </div>
             {/* end of user row */}
@@ -332,16 +341,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     </button>
                   )}
                   {UserService.Instance.myUserInfo &&
-                    !(this.props.viewOnly || banned_from_community) && (
+                    !(this.props.viewOnly || creator_banned_from_community) && (
                       <>
                         <VoteButtonsCompact
                           voteContentType={VoteContentType.Comment}
                           id={id}
                           onVote={this.props.onCommentVote}
                           enableDownvotes={this.props.enableDownvotes}
-                          voteDisplayMode={this.props.voteDisplayMode}
-                          counts={counts}
-                          myVote={my_vote}
+                          myVote={comment_actions?.like_score}
+                          score={score}
+                          upvotes={upvotes}
+                          downvotes={downvotes}
                         />
                         <button
                           type="button"
@@ -402,8 +412,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               ) : (
                 <>
                   {I18NextService.i18n.t("x_more_replies", {
-                    count: counts.child_count,
-                    formattedCount: numToSI(counts.child_count),
+                    count: child_count,
+                    formattedCount: numToSI(child_count),
                   })}{" "}
                   ➔
                 </>
@@ -430,7 +440,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             moderators={this.props.moderators}
             admins={this.props.admins}
             enableDownvotes={this.props.enableDownvotes}
-            voteDisplayMode={this.props.voteDisplayMode}
             viewType={this.props.viewType}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -468,7 +477,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const cv = this.commentView;
 
     if (this.isPersonMentionType(cv)) {
-      return cv.person_mention.read;
+      return cv.person_comment_mention.read;
     } else if (this.isCommentReplyType(cv)) {
       return cv.comment_reply.read;
     } else {
@@ -568,17 +577,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return res;
   }
 
-  isPersonMentionType(item: CommentNodeView): item is PersonMentionView {
-    return item.person_mention?.id !== undefined;
+  isPersonMentionType(item: CommentNodeView): item is PersonCommentMentionView {
+    return "person_comment_mention" in item;
   }
 
   isCommentReplyType(item: CommentNodeView): item is CommentReplyView {
-    return item.comment_reply?.id !== undefined;
+    return "comment_reply" in item;
   }
 
   get isCommentNew(): boolean {
     const now = subMinutes(new Date(), 10);
-    const then = parseISO(this.commentView.comment.published);
+    const then = parseISO(this.commentView.comment.published_at);
     return isBefore(now, then);
   }
 
@@ -594,7 +603,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   async handleSaveComment() {
     this.props.onSaveComment({
       comment_id: this.commentView.comment.id,
-      save: !this.commentView.saved,
+      save: !this.commentView.comment_actions?.saved_at,
     });
   }
 
@@ -610,8 +619,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const cv = i.commentView;
     if (i.isPersonMentionType(cv)) {
       i.props.onPersonMentionRead({
-        person_mention_id: cv.person_mention.id,
-        read: !cv.person_mention.read,
+        person_comment_mention_id: cv.person_comment_mention.id,
+        read: !cv.person_comment_mention.read,
       });
     } else if (i.isCommentReplyType(cv)) {
       i.props.onCommentReplyRead({
@@ -667,7 +676,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       ban,
       remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
-      expires,
+      expires_at: expires,
     });
   }
 
@@ -677,10 +686,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     shouldRemoveOrRestoreData,
   }: BanUpdateForm) {
     const {
-      creator: { id: person_id, banned },
+      creator: { id: person_id },
+      creator_banned,
     } = this.commentView;
 
-    const ban = !banned;
+    const ban = !creator_banned;
 
     // If its an unban, restore all their data
     if (ban === false) {
@@ -693,7 +703,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       ban,
       remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
-      expires,
+      expires_at: expires,
     });
   }
 
@@ -747,7 +757,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       max_depth: commentTreeMaxDepth,
       limit: 999, // TODO
       type_: "All",
-      saved_only: false,
     });
   }
 }

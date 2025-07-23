@@ -50,7 +50,7 @@ export class MediaUploads extends Component<Props, any> {
                   </td>
                 )}
                 <td>
-                  <MomentTime published={i.local_image.published} />
+                  <MomentTime published={i.local_image.published_at} />
                 </td>
                 <td>
                   <PictrsImage
@@ -78,11 +78,9 @@ export class MediaUploads extends Component<Props, any> {
   }
 
   async handleDeleteImage(image: LocalImage) {
-    const form = {
-      token: image.pictrs_delete_token,
+    const res = await HttpService.client.deleteMedia({
       filename: image.pictrs_alias,
-    };
-    const res = await HttpService.client.deleteImage(form);
+    });
     const filename = image.pictrs_alias;
     if (res.state === "success") {
       const deletePictureText = I18NextService.i18n.t("picture_deleted", {

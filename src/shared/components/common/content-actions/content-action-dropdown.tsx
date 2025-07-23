@@ -141,7 +141,8 @@ export default class ContentActionDropdown extends Component<
     const { onSave, type, onDelete, onBlock, onEdit, moderators } = this.props;
     const {
       id,
-      saved,
+      post_actions,
+      comment_actions,
       deleted,
       locked,
       removed,
@@ -150,13 +151,14 @@ export default class ContentActionDropdown extends Component<
       community,
       creator_is_admin,
       creator_is_moderator,
+      creator_banned,
     } = this.contentInfo;
+    const saved = !!(post_actions?.saved_at || comment_actions?.saved_at);
     const dropdownId =
       type === "post"
         ? `post-actions-dropdown-${id}`
         : `comment-actions-dropdown-${id}`;
-    const creatorBannedFromLocal = creator.banned;
-    const showToggleAdmin = !creatorBannedFromLocal && creator.local;
+    const showToggleAdmin = !creator_banned && creator.local;
     const canAppointCommunityMod =
       (amMod(community.id) || (amAdmin() && community.local)) &&
       !creator_banned_from_community;
@@ -222,11 +224,9 @@ export default class ContentActionDropdown extends Component<
                 {type === "post" && (
                   <li>
                     <ActionButton
-                      icon={this.props.postView.hidden ? "eye" : "eye-slash"}
+                      icon={post_actions?.hidden_at ? "eye" : "eye-slash"}
                       label={I18NextService.i18n.t(
-                        this.props.postView.hidden
-                          ? "unhide_post"
-                          : "hide_post",
+                        post_actions?.hidden_at ? "unhide_post" : "hide_post",
                       )}
                       onClick={this.props.onHidePost}
                     />
@@ -480,14 +480,14 @@ export default class ContentActionDropdown extends Component<
                         <li>
                           <ActionButton
                             label={I18NextService.i18n.t(
-                              creatorBannedFromLocal
+                              creator_banned
                                 ? "unban_from_site"
                                 : "ban_from_site",
                             )}
                             onClick={this.toggleBanFromSiteShow}
-                            icon={creatorBannedFromLocal ? "unban" : "ban"}
+                            icon={creator_banned ? "unban" : "ban"}
                             iconClass={`text-${
-                              creatorBannedFromLocal ? "success" : "danger"
+                              creator_banned ? "success" : "danger"
                             }`}
                             noLoading
                           />
@@ -656,6 +656,7 @@ export default class ContentActionDropdown extends Component<
       community,
       creator_is_admin,
       creator_is_moderator,
+      creator_banned,
       id,
     } = this.contentInfo;
     const {
@@ -698,9 +699,9 @@ export default class ContentActionDropdown extends Component<
             onCancel={this.hideAllDialogs}
             isBanned={
               banType === BanType.Community
-                ? creator_banned_from_community
+                ? !!creator_banned_from_community
                 : banType === BanType.Site
-                  ? creator.banned
+                  ? creator_banned
                   : false
             }
             community={community}
@@ -774,7 +775,7 @@ export default class ContentActionDropdown extends Component<
                 : "appoint_as_admin_are_you_sure",
               {
                 user: getApubName(creator),
-                instance: hostname(creator.actor_id),
+                instance: hostname(creator.ap_id),
               },
             )}
             loadingMessage={I18NextService.i18n.t(
@@ -800,17 +801,18 @@ export default class ContentActionDropdown extends Component<
     if (this.props.type === "post") {
       const {
         post: { id, deleted, locked, removed },
-        saved,
+        post_actions,
         creator,
         creator_banned_from_community,
         community,
         creator_is_admin,
         creator_is_moderator,
+        creator_banned,
       } = this.props.postView;
 
       return {
         id,
-        saved,
+        post_actions,
         deleted,
         creator,
         locked,
@@ -819,21 +821,23 @@ export default class ContentActionDropdown extends Component<
         community,
         creator_is_admin,
         creator_is_moderator,
+        creator_banned,
       };
     } else {
       const {
         comment: { id, deleted, removed },
-        saved,
+        comment_actions,
         creator,
         creator_banned_from_community,
         community,
         creator_is_admin,
         creator_is_moderator,
+        creator_banned,
       } = this.props.commentView;
 
       return {
         id,
-        saved,
+        comment_actions,
         deleted,
         creator,
         removed,
@@ -841,6 +845,7 @@ export default class ContentActionDropdown extends Component<
         community,
         creator_is_admin,
         creator_is_moderator,
+        creator_banned,
       };
     }
   }

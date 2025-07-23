@@ -316,7 +316,7 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
 
           <Paginator
             page={this.state.page}
-            onChange={this.handlePageChange}
+            onNext={this.handlePageChange}
             nextDisabled={false}
             disabled={this.hasPendingChanges()}
           />

@@ -22,10 +22,8 @@ import {
   GetComments,
   GetPersonDetailsResponse,
   Language,
-  LocalUserVoteDisplayMode,
   LockPost,
   MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
   MarkPostAsRead,
   PersonView,
   PostResponse,
@@ -41,6 +39,8 @@ import {
   TransferCommunity,
   GetCommentsResponse,
   GetPostsResponse,
+  MarkPersonPostMentionAsRead,
+  MarkPersonCommentMentionAsRead,
 } from "lemmy-js-client";
 import { CommentViewType, PersonDetailsView } from "../../interfaces";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -59,13 +59,14 @@ interface PersonDetailsProps {
   limit: number;
   sort: PostSortType;
   enableDownvotes: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw: boolean;
   view: PersonDetailsView;
   onPageChange(page: number): number | any;
   onSaveComment(form: SaveComment): Promise<void>;
   onCommentReplyRead(form: MarkCommentReplyAsRead): void;
-  onPersonMentionRead(form: MarkPersonMentionAsRead): void;
+  onPersonMentionRead(
+    form: MarkPersonPostMentionAsRead | MarkPersonCommentMentionAsRead,
+  ): void;
   onCreateComment(form: CreateComment): Promise<RequestState<CommentResponse>>;
   onEditComment(form: EditComment): Promise<RequestState<CommentResponse>>;
   onCommentVote(form: CreateCommentLike): Promise<void>;
@@ -119,7 +120,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
         <Paginator
           page={this.props.page}
-          onChange={this.handlePageChange}
+          onNext={this.handlePageChange}
           nextDisabled={
             (this.props.view === PersonDetailsView.Comments &&
               this.props.limit > this.props.personRes.comments.length) ||

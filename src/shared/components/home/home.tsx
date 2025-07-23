@@ -3,7 +3,6 @@ import {
   commentToPostSortType,
   editComment,
   editPost,
-  editWith,
   enableDownvotes,
   enableNsfw,
   getDataTypeString,
@@ -34,7 +33,6 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
-  CommentReplyResponse,
   CommentResponse,
   CreateComment,
   CreateCommentLike,
@@ -57,7 +55,6 @@ import {
   ListingType,
   LockPost,
   MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
   PaginationCursor,
   PostResponse,
   PurgeComment,
@@ -71,6 +68,8 @@ import {
   SuccessResponse,
   TransferCommunity,
   CommentSortType,
+  MyUserInfo,
+  MarkPersonCommentMentionAsRead,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "../../config";
 import {
@@ -109,6 +108,7 @@ import { IRoutePropsWithFetch } from "../../routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser, snapToTop } from "@utils/browser";
 import { CommentSortSelect } from "../common/comment-sort-select";
+import formatCurrentDate from "@utils/helpers/format-current-date";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -192,8 +192,9 @@ type Fallbacks = {
 export function getHomeQueryParams(
   source: string | undefined,
   siteRes: GetSiteResponse,
+  myUser: MyUserInfo,
 ): HomeProps {
-  const myUserInfo = siteRes.my_user ?? UserService.Instance.myUserInfo;
+  const myUserInfo = myUser ?? UserService.Instance.myUserInfo;
   const local_user = myUserInfo?.local_user_view.local_user;
   const local_site = siteRes.site_view.local_site;
   return getQueryParams<HomeProps, Fallbacks>(
@@ -355,7 +356,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         page_cursor: pageCursor,
         limit: fetchLimit,
         sort,
-        saved_only: false,
         show_hidden: showHidden === "true",
       };
 
@@ -365,7 +365,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
         type_: listingType,
-        saved_only: false,
       };
 
       commentsFetch = client.getComments(getCommentsForm);
@@ -434,10 +433,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   get mobileView() {
     const {
-      siteRes: {
-        site_view: { counts, site },
-        admins,
-      },
+      siteRes: { site_view, admins },
       showSubscribedMobile,
       showSidebarMobile,
     } = this.state;
@@ -459,9 +455,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           />
           {showSidebarMobile && (
             <SiteSidebar
-              site={site}
+              siteView={site_view}
               admins={admins}
-              counts={counts}
               showLocal={showLocal(this.isoData)}
               isMobile={true}
             />
@@ -478,18 +473,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   get mySidebar() {
     const {
-      siteRes: {
-        site_view: { counts, site },
-        admins,
-      },
+      siteRes: { site_view, admins },
     } = this.state;
 
     return (
       <div id="sidebarContainer">
         <SiteSidebar
-          site={site}
+          siteView={site_view}
           admins={admins}
-          counts={counts}
           showLocal={showLocal(this.isoData)}
         />
         {this.hasFollows && (
@@ -669,7 +660,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showCommunity
               showContext
               enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(siteRes)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               onSaveComment={this.handleSaveComment}
@@ -729,7 +719,11 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         </div>
         <div className="col-auto">
           {this.props.dataType === DataType.Post ? (
-            <SortSelect sort={sort} onChange={this.handleSortChange} />
+            <SortSelect
+              sort={sort}
+              onChange={this.handleSortChange}
+              sortType="post"
+            />
           ) : (
             <CommentSortSelect
               sort={postToCommentSortType(sort)}
@@ -763,7 +757,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         page_cursor: pageCursor,
         limit: fetchLimit,
         sort,
-        saved_only: false,
         type_: listingType,
         show_hidden: showHidden === "true",
       });
@@ -775,7 +768,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       const commentsRes = await HttpService.client.getComments({
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
-        saved_only: false,
         type_: listingType,
       });
       if (token === this.fetchDataToken) {
@@ -968,13 +960,11 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const readRes = await HttpService.client.markCommentReplyAsRead(form);
-    this.findAndUpdateCommentReply(readRes);
+    await HttpService.client.markCommentReplyAsRead(form);
   }
 
-  async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
-    // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
-    await HttpService.client.markPersonMentionAsRead(form);
+  async handlePersonMentionRead(form: MarkPersonCommentMentionAsRead) {
+    await HttpService.client.markCommentMentionAsRead(form);
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
@@ -993,10 +983,18 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (hideRes.state === "success") {
       this.setState(prev => {
         if (prev.postsRes.state === "success") {
-          for (const post of prev.postsRes.data.posts.filter(p =>
-            form.post_ids.some(id => id === p.post.id),
+          for (const post of prev.postsRes.data.posts.filter(
+            p => form.post_id === p.post.id,
           )) {
-            post.hidden = form.hide;
+            if (post.post_actions) {
+              post.post_actions.hidden_at = form.hide
+                ? formatCurrentDate()
+                : undefined;
+            } else {
+              post.post_actions = {
+                hidden_at: form.hide ? formatCurrentDate() : undefined,
+              };
+            }
           }
         }
 
@@ -1037,12 +1035,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         if (s.postsRes.state === "success") {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banRes.data.banned));
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banRes.data.banned));
         }
         return s;
       });
@@ -1084,18 +1082,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments.unshift(res.data.comment_view);
-      }
-      return s;
-    });
-  }
-
-  findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
-    this.setState(s => {
-      if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editWith(
-          res.data.comment_reply_view,
-          s.commentsRes.data.comments,
-        );
       }
       return s;
     });

@@ -1,24 +1,36 @@
 import { randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
-import { PostSortType } from "lemmy-js-client";
+import {
+  CommunitySortType,
+  PostSortType,
+  SearchSortType,
+} from "lemmy-js-client";
 import { relTags, sortingHelpUrl } from "../../config";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
 
-interface SortSelectProps {
-  sort: PostSortType;
-  onChange(val: PostSortType): void;
+type Sort<K extends string, T> = {
+  sortType: K;
+  sort: T;
+  onChange(sort: T): void;
+};
+
+type Sorts =
+  | Sort<"community", CommunitySortType>
+  | Sort<"post", PostSortType>
+  | Sort<"search", SearchSortType>;
+
+type SortSelectProps = {
   hideHot?: boolean;
   hideMostComments?: boolean;
-}
+} & Sorts;
 
-interface SortSelectState {
-  sort: PostSortType;
-}
+type SortSelectState = Omit<Sorts, "onChange">;
 
 export class SortSelect extends Component<SortSelectProps, SortSelectState> {
   private id = `sort-select-${randomStr()}`;
   state: SortSelectState = {
+    sortType: this.props.sortType,
     sort: this.props.sort,
   };
 
@@ -28,6 +40,7 @@ export class SortSelect extends Component<SortSelectProps, SortSelectState> {
 
   static getDerivedStateFromProps(props: SortSelectProps): SortSelectState {
     return {
+      sortType: props.sortType,
       sort: props.sort,
     };
   }

@@ -949,7 +949,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             </table>
             <Paginator
               page={page}
-              onChange={this.handlePageChange}
+              onNext={this.handlePageChange}
               nextDisabled={false}
             />
           </div>

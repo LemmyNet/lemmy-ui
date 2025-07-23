@@ -19,8 +19,8 @@ interface SubscribeButtonProps {
 
 export function SubscribeButton({
   communityView: {
-    subscribed,
-    community: { actor_id },
+    community_actions,
+    community: { ap_id },
   },
   onFollow,
   onUnFollow,
@@ -29,22 +29,13 @@ export function SubscribeButton({
 }: SubscribeButtonProps) {
   let i18key: NoOptionI18nKeys;
 
-  switch (subscribed) {
-    case "NotSubscribed": {
-      i18key = "subscribe";
-
-      break;
-    }
-    case "Subscribed": {
-      i18key = "joined";
-
-      break;
-    }
-    default: {
-      i18key = "subscribe_pending";
-
-      break;
-    }
+  if (!community_actions?.followed_at) {
+    i18key = "subscribe";
+  } else {
+    i18key =
+      community_actions?.follow_state === "Accepted"
+        ? "joined"
+        : "subscribe_pending";
   }
 
   const buttonClass = classNames(
@@ -65,7 +56,7 @@ export function SubscribeButton({
         >
           {I18NextService.i18n.t("subscribe")}
         </button>
-        <RemoteFetchModal communityActorId={actor_id} />
+        <RemoteFetchModal communityActorId={ap_id} />
       </>
     );
   }
@@ -74,15 +65,16 @@ export function SubscribeButton({
     <button
       type="button"
       className={classNames(buttonClass, {
-        [`btn-${subscribed === "Pending" ? "warning" : "secondary"}`]: !isLink,
+        [`btn-${community_actions?.follow_state === "Pending" || community_actions?.follow_state === "ApprovalRequired" ? "warning" : "secondary"}`]:
+          !isLink,
       })}
-      onClick={subscribed === "NotSubscribed" ? onFollow : onUnFollow}
+      onClick={community_actions?.followed_at ? onUnFollow : onFollow}
     >
       {loading ? (
         <Spinner />
       ) : (
         <>
-          {subscribed === "Subscribed" && (
+          {community_actions?.follow_state === "Accepted" && (
             <Icon icon="check" classes="icon-inline me-1" />
           )}
           {I18NextService.i18n.t(i18key)}

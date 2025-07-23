@@ -337,7 +337,6 @@ export class Community extends Component<CommunityRouteProps, State> {
         limit: fetchLimit,
         sort,
         type_: "All",
-        saved_only: false,
         show_hidden: showHidden === "true",
       };
 
@@ -348,7 +347,6 @@ export class Community extends Component<CommunityRouteProps, State> {
         limit: fetchLimit,
         sort: postToCommentSortType(sort),
         type_: "All",
-        saved_only: false,
       };
 
       commentsFetch = client.getComments(getCommentsForm);
@@ -392,7 +390,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           <HtmlTags
             title={this.documentTitle}
             path={this.context.router.route.match.url}
-            canonicalPath={res.community_view.community.actor_id}
+            canonicalPath={res.community_view.community.ap_id}
             description={res.community_view.community.description}
             image={res.community_view.community.icon}
           />
@@ -612,7 +610,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.state.communityRes.data;
     const { dataType, sort, showHidden } = this.props;
     const communityRss = res
-      ? communityRSSUrl(res.community_view.community.actor_id, sort)
+      ? communityRSSUrl(res.community_view.community.ap_id, sort)
       : undefined;
 
     return (

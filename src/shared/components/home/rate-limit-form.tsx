@@ -30,20 +30,7 @@ interface RateLimitFormProps {
 }
 
 interface RateLimitFormState {
-  form: {
-    message?: number;
-    message_per_second?: number;
-    post?: number;
-    post_per_second?: number;
-    comment?: number;
-    comment_per_second?: number;
-    image?: number;
-    image_per_second?: number;
-    search?: number;
-    search_per_second?: number;
-    register?: number;
-    register_per_second?: number;
-  };
+  form: Partial<LocalSiteRateLimit>;
 }
 
 function RateLimits({

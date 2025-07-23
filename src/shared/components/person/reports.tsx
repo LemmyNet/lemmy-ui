@@ -190,7 +190,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             {this.section}
             <Paginator
               page={this.state.page}
-              onChange={this.handlePageChange}
+              onNext={this.handlePageChange}
               nextDisabled={
                 (this.state.messageType === MessageType.All &&
                   fetchLimit > this.buildCombined.length) ||

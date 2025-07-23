@@ -1,12 +1,11 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
+import { CommentReportView, ResolveCommentReport } from "lemmy-js-client";
 import {
-  CommentReportView,
-  CommentView,
-  LocalUserVoteDisplayMode,
-  ResolveCommentReport,
-} from "lemmy-js-client";
-import { CommentNodeI, CommentViewType } from "../../interfaces";
+  CommentNodeI,
+  CommentNodeView,
+  CommentViewType,
+} from "../../interfaces";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
@@ -17,7 +16,6 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 interface CommentReportProps {
   report: CommentReportView;
   enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   onResolveReport(form: ResolveCommentReport): void;
 }
 
@@ -55,20 +53,16 @@ export class CommentReport extends Component<
     // Set the original post data ( a troll could change it )
     comment.content = r.comment_report.original_comment_text;
 
-    const comment_view: CommentView = {
+    const comment_view: CommentNodeView = {
       comment,
       creator: r.comment_creator,
       post: r.post,
       community: r.community,
-      creator_banned_from_community: r.creator_banned_from_community,
+      creator_banned_from_community: false,
       creator_is_moderator: false,
       creator_is_admin: false,
-      counts: r.counts,
-      subscribed: "NotSubscribed",
-      saved: false,
-      creator_blocked: false,
-      my_vote: r.my_vote,
-      banned_from_community: false,
+      can_mod: false,
+      creator_banned: false,
     };
 
     const node: CommentNodeI = {
@@ -83,7 +77,6 @@ export class CommentReport extends Component<
           node={node}
           viewType={CommentViewType.Flat}
           enableDownvotes={this.props.enableDownvotes}
-          voteDisplayMode={this.props.voteDisplayMode}
           viewOnly={true}
           showCommunity={true}
           allLanguages={[]}

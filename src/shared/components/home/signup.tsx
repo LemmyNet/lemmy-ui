@@ -468,10 +468,10 @@ export class Signup extends Component<SignupRouteProps, State> {
               res: data,
             });
 
-            const site = await HttpService.client.getSite();
+            const myUser = await HttpService.client.getMyUser();
 
-            if (site.state === "success") {
-              UserService.Instance.myUserInfo = site.data.my_user;
+            if (myUser.state === "success") {
+              UserService.Instance.myUserInfo = myUser.data;
             }
 
             i.props.history.replace("/communities");

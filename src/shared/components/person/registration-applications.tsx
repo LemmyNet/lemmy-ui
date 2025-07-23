@@ -130,7 +130,7 @@ export class RegistrationApplications extends Component<
               {this.applicationList(apps)}
               <Paginator
                 page={this.state.page}
-                onChange={this.handlePageChange}
+                onNext={this.handlePageChange}
                 nextDisabled={fetchLimit > apps.length}
               />
             </>

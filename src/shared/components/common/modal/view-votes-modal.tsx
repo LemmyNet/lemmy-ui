@@ -37,7 +37,7 @@ interface ViewVotesModalProps {
 interface ViewVotesModalState {
   postLikesRes: RequestState<ListPostLikesResponse>;
   commentLikesRes: RequestState<ListCommentLikesResponse>;
-  page: number;
+  cursor?: string;
 }
 
 function voteViewTable(votes: VoteView[]) {
@@ -53,7 +53,7 @@ function voteViewTable(votes: VoteView[]) {
                   classNames="ms-1"
                   isBot={v.creator.bot_account}
                   isDeleted={v.creator.deleted}
-                  isBanned={v.creator.banned}
+                  isBanned={v.creator_banned}
                   isBannedFromCommunity={v.creator_banned_from_community}
                 />
               </td>
@@ -85,7 +85,6 @@ export default class ViewVotesModal extends Component<
   state: ViewVotesModalState = {
     postLikesRes: EMPTY_REQUEST,
     commentLikesRes: EMPTY_REQUEST,
-    page: 1,
   };
 
   constructor(props: ViewVotesModalProps, context: any) {
@@ -140,8 +139,8 @@ export default class ViewVotesModal extends Component<
               {this.postLikes()}
               {this.commentLikes()}
               <Paginator
-                page={this.state.page}
-                onChange={this.handlePageChange}
+                cursor={this.state.cursor}
+                onNext={this.handlePageChange}
                 nextDisabled={false}
               />
             </div>
@@ -190,13 +189,13 @@ export default class ViewVotesModal extends Component<
     this.modal?.hide();
   }
 
-  async handlePageChange(page: number) {
-    this.setState({ page });
+  async handlePageChange(cursor: string) {
+    this.setState({ cursor });
     await this.refetch();
   }
 
   async refetch() {
-    const page = this.state.page;
+    const page_cursor = this.state.cursor;
     const limit = fetchLimit;
 
     if (this.props.type === "post") {
@@ -204,8 +203,8 @@ export default class ViewVotesModal extends Component<
       this.setState({
         postLikesRes: await HttpService.client.listPostLikes({
           post_id: this.props.id,
-          page,
           limit,
+          page_cursor,
         }),
       });
     } else {
@@ -213,8 +212,8 @@ export default class ViewVotesModal extends Component<
       this.setState({
         commentLikesRes: await HttpService.client.listCommentLikes({
           comment_id: this.props.id,
-          page,
           limit,
+          page_cursor,
         }),
       });
     }

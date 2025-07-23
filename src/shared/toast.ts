@@ -1,7 +1,7 @@
 import { isBrowser } from "@utils/browser";
 import { ThemeColor } from "@utils/types";
 import Toastify from "toastify-js";
-import { I18NextService } from "./services";
+import { HttpService, I18NextService } from "./services";
 
 export function toast(text: string, background: ThemeColor = "success") {
   if (isBrowser()) {
@@ -16,7 +16,7 @@ export function toast(text: string, background: ThemeColor = "success") {
   }
 }
 
-export function pictrsDeleteToast(filename: string, deleteUrl: string) {
+export function pictrsDeleteToast(filename: string) {
   if (isBrowser()) {
     const clickToDeleteText = I18NextService.i18n.t("click_to_delete_picture", {
       filename,
@@ -41,9 +41,9 @@ export function pictrsDeleteToast(filename: string, deleteUrl: string) {
       duration: 10000,
       onClick: () => {
         if (toast) {
-          fetch(deleteUrl).then(res => {
+          HttpService.client.deleteMedia({ filename }).then(res => {
             toast.hideToast();
-            if (res.ok === true) {
+            if (res.state === "success" && res.data.success) {
               alert(deletePictureText);
             } else {
               alert(failedDeletePictureText);

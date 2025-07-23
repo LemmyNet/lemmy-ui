@@ -142,8 +142,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     const myUserInfo = UserService.Instance.myUserInfo;
     const {
       community: { name, actor_id, id, posting_restricted_to_mods, visibility },
-      counts,
-      banned_from_community,
+      community_actions,
     } = this.props.community_view;
     return (
       <aside className="mb-3">

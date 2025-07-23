@@ -463,39 +463,31 @@ export class MarkdownTextArea extends Component<
   async uploadSingleImage(i: MarkdownTextArea, image: File) {
     const res = await HttpService.client.uploadImage({ image });
     if (res.state === "success") {
-      if (res.data.msg === "ok") {
-        const imageMarkdown = `![](${res.data.url})`;
-        const textarea: HTMLTextAreaElement = document.getElementById(
-          i.id,
-        ) as HTMLTextAreaElement;
-        const cursorPosition = textarea.selectionStart;
+      const imageMarkdown = `![](${res.data.image_url})`;
+      const textarea: HTMLTextAreaElement = document.getElementById(
+        i.id,
+      ) as HTMLTextAreaElement;
+      const cursorPosition = textarea.selectionStart;
 
-        i.setState(({ content }) => {
-          const currentContent = content || "";
-          return {
-            content:
-              currentContent.slice(0, cursorPosition) +
-              imageMarkdown +
-              currentContent.slice(cursorPosition),
-          };
-        });
+      i.setState(({ content }) => {
+        const currentContent = content ?? "";
+        return {
+          content:
+            currentContent.slice(0, cursorPosition) +
+            imageMarkdown +
+            currentContent.slice(cursorPosition),
+        };
+      });
 
-        i.contentChange();
-        // Update cursor position to after the inserted image link
-        setTimeout(() => {
-          textarea.selectionStart = cursorPosition + imageMarkdown.length;
-          textarea.selectionEnd = cursorPosition + imageMarkdown.length;
-          autosize.update(textarea);
-        }, 10);
+      i.contentChange();
+      // Update cursor position to after the inserted image link
+      setTimeout(() => {
+        textarea.selectionStart = cursorPosition + imageMarkdown.length;
+        textarea.selectionEnd = cursorPosition + imageMarkdown.length;
+        autosize.update(textarea);
+      }, 10);
 
-        pictrsDeleteToast(image.name, res.data.delete_url as string);
-      } else if (res.data.msg === "too_large") {
-        toast(I18NextService.i18n.t("upload_too_large"), "danger");
-        i.setState({ imageUploadStatus: undefined });
-        throw JSON.stringify(res.data);
-      } else {
-        throw JSON.stringify(res.data);
-      }
+      pictrsDeleteToast(res.data.filename);
     } else if (res.state === "failed") {
       i.setState({ imageUploadStatus: undefined });
       console.error(res.err.name);

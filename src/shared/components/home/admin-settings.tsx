@@ -427,7 +427,7 @@ export class AdminSettings extends Component<
             <MediaUploads showUploader uploads={uploadsRes} />
             <Paginator
               page={this.state.uploadsPage}
-              onChange={this.handleUploadsPageChange}
+              onNext={this.handleUploadsPageChange}
               nextDisabled={false}
             />
           </div>

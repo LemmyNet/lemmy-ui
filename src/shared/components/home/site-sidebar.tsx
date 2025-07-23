@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { PersonView, Site, SiteAggregates } from "lemmy-js-client";
+import { PersonView, SiteView } from "lemmy-js-client";
 import { mdToHtml } from "../../markdown";
 import { I18NextService } from "../../services";
 import { Badges } from "../common/badges";
@@ -10,9 +10,8 @@ import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface SiteSidebarProps {
-  site: Site;
+  siteView: SiteView;
   showLocal: boolean;
-  counts?: SiteAggregates;
   admins?: PersonView[];
   isMobile?: boolean;
 }
@@ -38,7 +37,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           <header className="card-header" id="sidebarInfoHeader">
             {this.siteName()}
             {!this.state.collapsed && (
-              <BannerIconHeader banner={this.props.site.banner} />
+              <BannerIconHeader banner={this.props.siteView.site.banner} />
             )}
           </header>
 
@@ -55,7 +54,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   siteName() {
     return (
       <div className={classNames({ "mb-2": !this.state.collapsed })}>
-        <h5 className="mb-0 d-inline">{this.props.site.name}</h5>
+        <h5 className="mb-0 d-inline">{this.props.siteView.site.name}</h5>
         {!this.props.isMobile && (
           <button
             type="button"
@@ -88,12 +87,35 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   siteInfo() {
-    const site = this.props.site;
+    const {
+      site,
+      local_site: {
+        users_active_day,
+        users_active_week,
+        users_active_month,
+        users_active_half_year,
+        users,
+        comments,
+        communities,
+        posts,
+      },
+    } = this.props.siteView;
+
     return (
       <div>
         {site.description && <h6>{site.description}</h6>}
         {site.sidebar && this.siteSidebar(site.sidebar)}
-        {this.props.counts && <Badges counts={this.props.counts} />}
+        <Badges
+          type="site"
+          users_active_day={users_active_day}
+          users_active_week={users_active_week}
+          users_active_month={users_active_month}
+          users_active_half_year={users_active_half_year}
+          users={users}
+          comments={comments}
+          communities={communities}
+          posts={posts}
+        />
         {this.props.admins && this.admins(this.props.admins)}
       </div>
     );

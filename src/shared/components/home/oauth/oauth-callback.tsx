@@ -156,10 +156,10 @@ async function handleOAuthLoginSuccess(
   UserService.Instance.login({
     res: loginRes,
   });
-  const site = await HttpService.client.getSite();
+  const myUser = await HttpService.client.getMyUser();
 
-  if (site.state === "success") {
-    UserService.Instance.myUserInfo = site.data.my_user;
+  if (myUser.state === "success") {
+    UserService.Instance.myUserInfo = myUser.data;
     refreshTheme();
   }
 

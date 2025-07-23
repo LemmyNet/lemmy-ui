@@ -99,10 +99,10 @@ export enum VoteContentType {
 
 export type CommentNodeView = Omit<
   CommentView,
-  "creator_banned_from_community"
+  "creator_banned_from_community" | "post_tags"
 > &
-  Partial<Pick<CommentView, "creator_banned_from_community">> & {
-    person_mention?: PersonCommentMention;
+  Partial<Pick<CommentView, "creator_banned_from_community" | "post_tags">> & {
+    person_comment_mention?: PersonCommentMention;
     comment_reply?: CommentReply;
   };
 

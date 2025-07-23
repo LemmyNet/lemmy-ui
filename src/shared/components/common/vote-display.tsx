@@ -1,20 +1,17 @@
 import { numToSI } from "@utils/helpers";
 import { Component } from "inferno";
-import {
-  CommentAggregates,
-  LocalUserVoteDisplayMode,
-  PostAggregates,
-} from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Icon } from "./icon";
 import classNames from "classnames";
 import { calculateUpvotePct } from "@utils/app";
+import getVoteDisplayInfo from "@utils/helpers/get-vote-display-info";
 
 interface Props {
-  voteDisplayMode: LocalUserVoteDisplayMode;
-  counts: CommentAggregates | PostAggregates;
   myVote?: number;
+  score: number;
+  upvotes: number;
+  downvotes: number;
 }
 
 const BADGE_CLASSES = "unselectable";
@@ -27,31 +24,27 @@ export class VoteDisplay extends Component<Props, any> {
   }
 
   render() {
-    const {
-      voteDisplayMode,
-      counts: { score, upvotes },
-    } = this.props;
+    const { score, upvotes } = this.props;
+
+    const { show_upvotes, show_score, show_upvote_percentage } =
+      getVoteDisplayInfo();
 
     // If the score is the same as the upvotes,
     // and both score and upvotes are enabled,
     // only show the upvotes.
-    const hideScore =
-      voteDisplayMode.score && voteDisplayMode.upvotes && score === upvotes;
+    const hideScore = show_score && show_upvotes && score === upvotes;
 
     return (
       <div>
-        {voteDisplayMode.score && !hideScore && this.score()}
-        {voteDisplayMode.upvote_percentage && this.upvotePct()}
+        {show_score && !hideScore && this.score()}
+        {show_upvote_percentage && this.upvotePct()}
         {this.upvotesAndDownvotes()}
       </div>
     );
   }
 
   score() {
-    const {
-      myVote,
-      counts: { score },
-    } = this.props;
+    const { myVote, score } = this.props;
     const scoreStr = numToSI(score);
 
     const scoreTippy = I18NextService.i18n.t("number_of_points", {
@@ -73,7 +66,7 @@ export class VoteDisplay extends Component<Props, any> {
   }
 
   upvotePct() {
-    const { upvotes, downvotes } = this.props.counts;
+    const { upvotes, downvotes } = this.props;
     const pct = calculateUpvotePct(upvotes, downvotes);
     const pctStr = `${pct.toFixed(0)}%`;
 
@@ -101,19 +94,19 @@ export class VoteDisplay extends Component<Props, any> {
 
   // A special case since they are both wrapped in a badge
   upvotesAndDownvotes() {
-    const voteDisplayMode = this.props.voteDisplayMode;
-    const votesCheck = voteDisplayMode.upvotes || voteDisplayMode.downvotes;
-    const downvotesCheck = this.props.counts.downvotes > 0;
+    const { show_upvotes, show_downvotes } = getVoteDisplayInfo();
+    const votesCheck = show_upvotes || show_downvotes;
+    const downvotesCheck = this.props.downvotes > 0;
 
     return (
       votesCheck && (
         <span className={BADGE_CLASSES}>
-          {voteDisplayMode.upvotes && (
+          {show_upvotes && (
             <span className={classNames({ "me-1": downvotesCheck })}>
               {this.upvotes()}
             </span>
           )}
-          {voteDisplayMode.downvotes && downvotesCheck && this.downvotes()}
+          {show_downvotes && downvotesCheck && this.downvotes()}
           <span className="mx-2">·</span>
         </span>
       )
@@ -121,10 +114,7 @@ export class VoteDisplay extends Component<Props, any> {
   }
 
   upvotes() {
-    const {
-      myVote,
-      counts: { upvotes },
-    } = this.props;
+    const { myVote, upvotes } = this.props;
     const upvotesStr = numToSI(upvotes);
 
     const upvotesTippy = I18NextService.i18n.t("number_of_upvotes", {
@@ -147,10 +137,7 @@ export class VoteDisplay extends Component<Props, any> {
   }
 
   downvotes() {
-    const {
-      myVote,
-      counts: { downvotes },
-    } = this.props;
+    const { myVote, downvotes } = this.props;
     const downvotesStr = numToSI(downvotes);
 
     const downvotesTippy = I18NextService.i18n.t("number_of_downvotes", {

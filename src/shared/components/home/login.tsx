@@ -54,10 +54,13 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
   UserService.Instance.login({
     res: loginRes,
   });
-  const site = await HttpService.client.getSite();
+  const [site, myUser] = await Promise.all([
+    HttpService.client.getSite(),
+    HttpService.client.getMyUser(),
+  ]);
 
-  if (site.state === "success") {
-    UserService.Instance.myUserInfo = site.data.my_user;
+  if (site.state === "success" && myUser.state === "success") {
+    UserService.Instance.myUserInfo = myUser.data;
     const isoData = setIsoData(i.context);
     isoData.site_res.oauth_providers = site.data.oauth_providers;
     isoData.site_res.admin_oauth_providers = site.data.admin_oauth_providers;

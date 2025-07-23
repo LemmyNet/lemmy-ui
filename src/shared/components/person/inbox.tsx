@@ -287,7 +287,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             {this.section}
             <Paginator
               page={this.state.page}
-              onChange={this.handlePageChange}
+              onNext={this.handlePageChange}
               nextDisabled={false}
             />
           </div>

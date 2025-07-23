@@ -1,20 +1,16 @@
 import { capitalizeFirstLetter, formatPastDate } from "@utils/helpers";
-import { addMinutes, format, isBefore, parseISO } from "date-fns";
+import { addMinutes, isBefore } from "date-fns";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import formatDate from "@utils/helpers/format-date";
 
 interface MomentTimeProps {
   published: string;
   updated?: string;
   showAgo?: boolean;
   ignoreUpdated?: boolean;
-}
-
-function formatDate(input: string) {
-  const parsed = parseISO(input + "Z");
-  return format(parsed, "PPPPpppp");
 }
 
 @tippyMixin

@@ -179,7 +179,7 @@ export class TaglineForm extends Component<
           <div>
             <Paginator
               page={this.state.page}
-              onChange={this.handlePageChange}
+              onNext={this.handlePageChange}
               nextDisabled={false}
               disabled={this.hasPendingChanges()}
             />

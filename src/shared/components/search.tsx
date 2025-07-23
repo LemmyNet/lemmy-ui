@@ -578,7 +578,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           )}
         <Paginator
           page={page}
-          onChange={this.handlePageChange}
+          onNext={this.handlePageChange}
           nextDisabled={
             this.state.searchRes.state !== "success" ||
             fetchLimit > this.resultsCount
