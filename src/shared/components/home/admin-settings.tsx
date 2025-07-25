@@ -5,7 +5,7 @@ import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component } from "inferno";
 import {
-  BannedPersonsResponse,
+  AdminListUsersResponse,
   CreateOAuthProvider,
   DeleteOAuthProvider,
   EditOAuthProvider,
@@ -14,6 +14,7 @@ import {
   GetSiteResponse,
   LemmyHttp,
   ListMediaResponse,
+  PaginationCursor,
   PersonView,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "../../interfaces";
@@ -43,9 +44,10 @@ import { snapToTop } from "@utils/browser";
 import { isBrowser } from "@utils/browser";
 import ConfirmationModal from "../common/modal/confirmation-modal";
 import OAuthProvidersTab from "./oauth/oauth-providers-tab";
+import { fetchLimit } from "../../../shared/config";
 
 type AdminSettingsData = RouteDataResponse<{
-  bannedRes: BannedPersonsResponse;
+  bannedRes: AdminListUsersResponse;
   instancesRes: GetFederatedInstancesResponse;
   uploadsRes: ListMediaResponse;
 }>;
@@ -54,11 +56,16 @@ interface AdminSettingsState {
   siteRes: GetSiteResponse;
   banned: PersonView[];
   instancesRes: RequestState<GetFederatedInstancesResponse>;
-  bannedRes: RequestState<BannedPersonsResponse>;
+  bannedRes: RequestState<AdminListUsersResponse>;
+  bannedNextPageCursor?: PaginationCursor;
+  bannedPrevPageCursor?: PaginationCursor;
+  bannedPageBack: boolean;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<ListMediaResponse>;
-  uploadsPage: number;
+  uploadsNextPageCursor?: PaginationCursor;
+  uploadsPrevPageCursor?: PaginationCursor;
+  uploadsPageBack: boolean;
   loading: boolean;
   themeList: string[];
   isIsomorphic: boolean;
@@ -82,11 +89,12 @@ export class AdminSettings extends Component<
     siteRes: this.isoData.site_res,
     banned: [],
     bannedRes: EMPTY_REQUEST,
+    bannedPageBack: false,
     instancesRes: EMPTY_REQUEST,
     leaveAdminTeamRes: EMPTY_REQUEST,
     showConfirmLeaveAdmin: false,
     uploadsRes: EMPTY_REQUEST,
-    uploadsPage: 1,
+    uploadsPageBack: false,
     loading: false,
     themeList: [],
     isIsomorphic: false,
@@ -104,7 +112,10 @@ export class AdminSettings extends Component<
     super(props, context);
 
     this.handleEditSite = this.handleEditSite.bind(this);
-    this.handleUploadsPageChange = this.handleUploadsPageChange.bind(this);
+    this.handleUploadsNextPage = this.handleUploadsNextPage.bind(this);
+    this.handleUploadsPrevPage = this.handleUploadsPrevPage.bind(this);
+    this.handleBannedNextPage = this.handleBannedNextPage.bind(this);
+    this.handleBannedPrevPage = this.handleBannedPrevPage.bind(this);
     this.handleToggleShowLeaveAdminConfirmation =
       this.handleToggleShowLeaveAdminConfirmation.bind(this);
     this.handleLeaveAdminTeam = this.handleLeaveAdminTeam.bind(this);
@@ -133,9 +144,12 @@ export class AdminSettings extends Component<
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
-      bannedRes: await client.getBannedPersons(),
+      bannedRes: await client.listUsers({
+        banned_only: true,
+        limit: fetchLimit,
+      }),
       instancesRes: await client.getFederatedInstances(),
-      uploadsRes: await client.listAllMedia(),
+      uploadsRes: await client.listMediaAdmin({ limit: fetchLimit }),
     };
   }
 
@@ -323,11 +337,9 @@ export class AdminSettings extends Component<
     });
 
     const [bannedRes, instancesRes, uploadsRes, themeList] = await Promise.all([
-      HttpService.client.getBannedPersons(),
+      HttpService.client.listUsers({ banned_only: true, limit: fetchLimit }),
       HttpService.client.getFederatedInstances(),
-      HttpService.client.listAllMedia({
-        page: this.state.uploadsPage,
-      }),
+      HttpService.client.listMediaAdmin({ limit: fetchLimit }),
       fetchThemeList(),
     ]);
 
@@ -339,10 +351,43 @@ export class AdminSettings extends Component<
     });
   }
 
-  async fetchUploadsOnly() {
-    const uploadsRes = await HttpService.client.listAllMedia({
-      page: this.state.uploadsPage,
+  async fetchBannedOnly() {
+    const { bannedPageBack, bannedNextPageCursor, bannedPrevPageCursor } =
+      this.state;
+    const bannedRes = await HttpService.client.listUsers({
+      limit: fetchLimit,
+      page_back: bannedPageBack,
+      page_cursor: bannedPageBack ? bannedPrevPageCursor : bannedNextPageCursor,
     });
+
+    if (bannedRes.state === "success") {
+      this.setState({
+        bannedNextPageCursor: bannedRes.data.next_page,
+        bannedPrevPageCursor: bannedRes.data.prev_page,
+      });
+    }
+
+    this.setState({ bannedRes });
+  }
+
+  async fetchUploadsOnly() {
+    const { uploadsPageBack, uploadsNextPageCursor, uploadsPrevPageCursor } =
+      this.state;
+    const uploadsRes = await HttpService.client.listMediaAdmin({
+      limit: fetchLimit,
+      page_back: uploadsPageBack,
+      page_cursor: uploadsPageBack
+        ? uploadsPrevPageCursor
+        : uploadsNextPageCursor,
+    });
+
+    if (uploadsRes.state === "success") {
+      this.setState({
+        uploadsNextPageCursor: uploadsRes.data.next_page,
+        uploadsPrevPageCursor: uploadsRes.data.prev_page,
+      });
+    }
+
     this.setState({ uploadsRes });
   }
 
@@ -395,7 +440,7 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const bans = this.state.bannedRes.data.banned;
+        const bans = this.state.bannedRes.data.users;
         return (
           <>
             <h1 className="h4 mb-4">{I18NextService.i18n.t("banned_users")}</h1>
@@ -406,6 +451,11 @@ export class AdminSettings extends Component<
                 </li>
               ))}
             </ul>
+            <Paginator
+              onNext={this.handleBannedNextPage}
+              onPrev={this.handleBannedPrevPage}
+              nextDisabled={false}
+            />
           </>
         );
       }
@@ -426,8 +476,8 @@ export class AdminSettings extends Component<
           <div>
             <MediaUploads showUploader uploads={uploadsRes} />
             <Paginator
-              page={this.state.uploadsPage}
-              onNext={this.handleUploadsPageChange}
+              onNext={this.handleUploadsNextPage}
+              onPrev={this.handleUploadsPrevPage}
               nextDisabled={false}
             />
           </div>
@@ -477,10 +527,28 @@ export class AdminSettings extends Component<
     }
   }
 
-  async handleUploadsPageChange(val: number) {
-    this.setState({ uploadsPage: val });
+  async handleUploadsNextPage() {
+    this.setState({ uploadsPageBack: false });
     snapToTop();
     await this.fetchUploadsOnly();
+  }
+
+  async handleUploadsPrevPage() {
+    this.setState({ uploadsPageBack: true });
+    snapToTop();
+    await this.fetchUploadsOnly();
+  }
+
+  async handleBannedNextPage() {
+    this.setState({ bannedPageBack: false });
+    snapToTop();
+    await this.fetchBannedOnly();
+  }
+
+  async handleBannedPrevPage() {
+    this.setState({ bannedPageBack: true });
+    snapToTop();
+    await this.fetchBannedOnly();
   }
 
   async handleEditOAuthProvider(form: EditOAuthProvider) {
