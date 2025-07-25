@@ -20,7 +20,7 @@ interface SubscribeButtonProps {
 export function SubscribeButton({
   communityView: {
     community_actions,
-    community: { ap_id },
+    // community: { ap_id },
   },
   onFollow,
   onUnFollow,
@@ -56,7 +56,7 @@ export function SubscribeButton({
         >
           {I18NextService.i18n.t("subscribe")}
         </button>
-        <RemoteFetchModal communityActorId={ap_id} />
+        {/* <RemoteFetchModal communityActorId={ap_id} /> */}
       </>
     );
   }
