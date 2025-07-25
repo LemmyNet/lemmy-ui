@@ -1,10 +1,10 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { I18NextService } from "../../services";
 
 interface PaginatorProps {
   cursor?: string;
-  onNext(cursor?: string): void;
-  onPrev(cursor: string): void;
+  onNext(): void;
+  onPrev(): void;
   nextDisabled: boolean;
   disabled?: boolean;
 }
@@ -32,21 +32,23 @@ export class Paginator extends Component<PaginatorProps, CursorState> {
   }
 
   render() {
+    const { onNext, onPrev, disabled, nextDisabled } = this.props;
+
     return (
       <div className="paginator my-2">
         {this.state.prevCursors.length > 0 && (
           <button
             className="btn btn-secondary me-2"
-            onClick={linkEvent(this, this.handlePrev)}
-            disabled={this.props.disabled}
+            onClick={onPrev}
+            disabled={disabled}
           >
             {I18NextService.i18n.t("prev")}
           </button>
         )}
-        {!this.props.nextDisabled && (
+        {!nextDisabled && (
           <button
             className="btn btn-secondary"
-            onClick={linkEvent(this, this.handleNext)}
+            onClick={onNext}
             disabled={this.props.disabled}
           >
             {I18NextService.i18n.t("next")}
@@ -54,18 +56,5 @@ export class Paginator extends Component<PaginatorProps, CursorState> {
         )}
       </div>
     );
-  }
-
-  handlePrev(i: Paginator) {
-    const prevCursor = i.state.prevCursors[i.state.prevCursors.length - 1];
-    i.setState(state => {
-      state.prevCursors.pop();
-      return state;
-    });
-    i.props.onPrev(prevCursor);
-  }
-
-  handleNext(i: Paginator) {
-    i.props.onNext(i.props.cursor);
   }
 }

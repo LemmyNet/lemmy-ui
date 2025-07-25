@@ -37,7 +37,9 @@ interface ViewVotesModalProps {
 interface ViewVotesModalState {
   postLikesRes: RequestState<ListPostLikesResponse>;
   commentLikesRes: RequestState<ListCommentLikesResponse>;
-  cursor?: string;
+  nextPageCursor?: string;
+  prevPageCursor?: string;
+  pageBack?: boolean;
 }
 
 function voteViewTable(votes: VoteView[]) {
@@ -94,7 +96,8 @@ export default class ViewVotesModal extends Component<
     this.yesButtonRef = createRef();
 
     this.handleDismiss = this.handleDismiss.bind(this);
-    this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleNextPage = this.handleNextPage.bind(this);
+    this.handlePrevPage = this.handlePrevPage.bind(this);
   }
 
   async componentWillMount() {
@@ -139,8 +142,8 @@ export default class ViewVotesModal extends Component<
               {this.postLikes()}
               {this.commentLikes()}
               <Paginator
-                cursor={this.state.cursor}
-                onNext={this.handlePageChange}
+                onNext={this.handleNextPage}
+                onPrev={this.handlePrevPage}
                 nextDisabled={false}
               />
             </div>
@@ -189,33 +192,58 @@ export default class ViewVotesModal extends Component<
     this.modal?.hide();
   }
 
-  async handlePageChange(cursor: string) {
-    this.setState({ cursor });
+  async handleNextPage() {
+    this.setState({ pageBack: false });
+    await this.refetch();
+  }
+
+  async handlePrevPage() {
+    this.setState({ pageBack: true });
     await this.refetch();
   }
 
   async refetch() {
-    const page_cursor = this.state.cursor;
+    const { nextPageCursor, prevPageCursor, pageBack } = this.state;
     const limit = fetchLimit;
 
     if (this.props.type === "post") {
       this.setState({ postLikesRes: LOADING_REQUEST });
-      this.setState({
-        postLikesRes: await HttpService.client.listPostLikes({
-          post_id: this.props.id,
-          limit,
-          page_cursor,
-        }),
+      const postLikesRes = await HttpService.client.listPostLikes({
+        post_id: this.props.id,
+        limit,
+        page_cursor: pageBack ? prevPageCursor : nextPageCursor,
+        page_back: pageBack,
       });
+
+      if (postLikesRes.state === "success") {
+        this.setState({
+          postLikesRes,
+          nextPageCursor: postLikesRes.data.next_page,
+          prevPageCursor: postLikesRes.data.prev_page,
+        });
+      } else {
+        this.setState({ postLikesRes });
+      }
     } else {
       this.setState({ commentLikesRes: LOADING_REQUEST });
-      this.setState({
-        commentLikesRes: await HttpService.client.listCommentLikes({
-          comment_id: this.props.id,
-          limit,
-          page_cursor,
-        }),
+      const commentLikesRes = await HttpService.client.listCommentLikes({
+        comment_id: this.props.id,
+        limit,
+        page_cursor: pageBack ? prevPageCursor : nextPageCursor,
+        page_back: pageBack,
       });
+
+      if (commentLikesRes.state === "success") {
+        this.setState({
+          commentLikesRes,
+          nextPageCursor: commentLikesRes.data.next_page,
+          prevPageCursor: commentLikesRes.data.prev_page,
+        });
+      } else {
+        this.setState({ commentLikesRes });
+      }
     }
+
+    this.setState({ pageBack: false });
   }
 }
