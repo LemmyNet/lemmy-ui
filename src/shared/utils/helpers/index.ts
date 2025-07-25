@@ -6,7 +6,6 @@ import formatPastDate from "./format-past-date";
 import futureDaysToUnixTime from "./future-days-to-unix-time";
 import getIdFromString from "./get-id-from-string";
 import getBoolFromString from "./get-bool-from-string";
-import getPageFromString from "./get-page-from-string";
 import getQueryParams from "./get-query-params";
 import getQueryString from "./get-query-string";
 import getRandomCharFromAlphabet from "./get-random-char-from-alphabet";
@@ -26,6 +25,7 @@ import validTitle from "./valid-title";
 import validURL from "./valid-url";
 import dedupByProperty from "./dedup-by-property";
 import getApubName from "./apub-name";
+import isBanned from "./is-banned";
 
 export {
   bareRoutePush,
@@ -37,7 +37,6 @@ export {
   futureDaysToUnixTime,
   getIdFromString,
   getBoolFromString,
-  getPageFromString,
   getQueryParams,
   getQueryString,
   getRandomCharFromAlphabet,
@@ -45,6 +44,7 @@ export {
   groupBy,
   hostname,
   hsl,
+  isBanned,
   isCakeDay,
   numToSI,
   poll,
