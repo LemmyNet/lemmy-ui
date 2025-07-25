@@ -1,4 +1,4 @@
-import { getQueryString, hostname } from "@utils/helpers";
+import { getQueryString, hostname, isBanned } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -141,9 +141,28 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   sidebar() {
     const myUserInfo = UserService.Instance.myUserInfo;
     const {
-      community: { name, actor_id, id, posting_restricted_to_mods, visibility },
+      community: {
+        name,
+        ap_id,
+        id,
+        posting_restricted_to_mods,
+        visibility,
+        comments,
+        posts,
+        subscribers,
+        subscribers_local,
+        users_active_day,
+        users_active_half_year,
+        users_active_month,
+        users_active_week,
+      },
       community_actions,
     } = this.props.community_view;
+    const bannedFromCommunity = isBanned(
+      community_actions?.received_ban_at,
+      community_actions?.ban_expires_at,
+    );
+
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
@@ -151,7 +170,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
-              {!banned_from_community && (
+              {!bannedFromCommunity && (
                 <>
                   <SubscribeButton
                     communityView={this.props.community_view}
@@ -169,7 +188,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     i18nKey="community_not_logged_in_alert"
                     interpolation={{
                       community: name,
-                      instance: hostname(actor_id),
+                      instance: hostname(ap_id),
                     }}
                   >
                     #<code className="user-select-all">#</code>#
@@ -195,7 +214,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </T>
                 </div>
               )}
-              {banned_from_community && (
+              {bannedFromCommunity && (
                 <div
                   className="alert alert-danger text-sm-start text-xs-center"
                   role="alert"
@@ -235,7 +254,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   )}
                 </p>
               </div>
-              <Badges communityId={id} counts={counts} />
+              <Badges
+                type="community"
+                communityId={id}
+                comments={comments}
+                subscribers={subscribers}
+                subscribers_local={subscribers_local}
+                users_active_day={users_active_day}
+                users_active_week={users_active_week}
+                users_active_month={users_active_month}
+                users_active_half_year={users_active_half_year}
+                posts={posts}
+              />
               {this.mods()}
             </div>
           </section>
@@ -314,16 +344,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   blockCommunity() {
-    const { subscribed, blocked } = this.props.community_view;
+    const { community_actions } = this.props.community_view;
 
     return (
-      subscribed === "NotSubscribed" && (
+      !community_actions?.followed_at && (
         <button
           className="btn btn-danger d-block mb-2 w-100"
           onClick={linkEvent(this, this.handleBlockCommunity)}
         >
           {I18NextService.i18n.t(
-            blocked ? "unblock_community" : "block_community",
+            community_actions?.blocked_at
+              ? "unblock_community"
+              : "block_community",
           )}
         </button>
       )
@@ -590,11 +622,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleBlockCommunity(i: Sidebar) {
-    const { community, blocked } = i.props.community_view;
+    const { community, community_actions } = i.props.community_view;
 
     i.props.onBlockCommunity({
       community_id: community.id,
-      block: !blocked,
+      block: !community_actions?.blocked_at,
     });
   }
 
