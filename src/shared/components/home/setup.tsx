@@ -20,6 +20,7 @@ import { SiteForm } from "./site-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { isBrowser } from "@utils/browser";
+import { toast } from "../../../shared/toast";
 
 interface State {
   form: {
@@ -37,6 +38,7 @@ interface State {
   registerRes: RequestState<LoginResponse>;
   themeList: string[];
   siteRes: GetSiteResponse;
+  loading: boolean;
 }
 
 @simpleScrollMixin
@@ -54,12 +56,18 @@ export class Setup extends Component<
     },
     doneRegisteringUser: !!UserService.Instance.myUserInfo,
     siteRes: this.isoData.site_res,
+    loading: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
 
     this.handleCreateSite = this.handleCreateSite.bind(this);
+
+    this.handleUploadSiteIcon = this.handleUploadSiteIcon.bind(this);
+    this.handleDeleteSiteIcon = this.handleDeleteSiteIcon.bind(this);
+    this.handleUploadSiteBanner = this.handleUploadSiteBanner.bind(this);
+    this.handleDeleteSiteBanner = this.handleDeleteSiteBanner.bind(this);
   }
 
   async componentWillMount() {
@@ -73,6 +81,8 @@ export class Setup extends Component<
   }
 
   render() {
+    const { siteRes, themeList, loading } = this.state;
+
     return (
       <div className="home-setup container-lg">
         <Helmet title={this.documentTitle} />
@@ -87,9 +97,13 @@ export class Setup extends Component<
               <SiteForm
                 showLocal
                 onSaveSite={this.handleCreateSite}
-                siteRes={this.state.siteRes}
-                themeList={this.state.themeList}
-                loading={false}
+                siteRes={siteRes}
+                themeList={themeList}
+                loading={loading}
+                onUploadIcon={this.handleUploadSiteIcon}
+                onDeleteIcon={this.handleDeleteSiteIcon}
+                onUploadBanner={this.handleUploadSiteBanner}
+                onDeleteBanner={this.handleDeleteSiteBanner}
               />
             )}
           </div>
@@ -235,5 +249,95 @@ export class Setup extends Component<
   handleRegisterPasswordVerifyChange(i: Setup, event: any) {
     i.state.form.password_verify = event.target.value;
     i.setState(i.state);
+  }
+
+  async handleUploadSiteIcon(event: any) {
+    let file: any;
+    if (event.target) {
+      event.preventDefault();
+      file = event.target.files[0];
+    } else {
+      file = event;
+    }
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.uploadSiteIcon({ image: file });
+
+    // TODO: Add translations for uploading site icon and error
+    if (res.state === "success") {
+      this.setState(prevState => {
+        prevState.siteRes.site_view.site.icon = res.data.image_url;
+        return prevState;
+      });
+      toast("Uploaded site icon");
+    } else {
+      toast("Could not upload site icon");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleDeleteSiteIcon() {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.deleteSiteIcon();
+
+    // TODO: Add translations for deleting site icon and error
+    if (res.state === "success") {
+      this.setState(prevState => {
+        prevState.siteRes.site_view.site.icon = undefined;
+        return prevState;
+      });
+      toast("Deleted site icon");
+    } else {
+      toast("Could not delete site icon");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleUploadSiteBanner(event: any) {
+    let file: any;
+    if (event.target) {
+      event.preventDefault();
+      file = event.target.files[0];
+    } else {
+      file = event;
+    }
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.uploadSiteBanner({ image: file });
+
+    // TODO: Add translations for uploading site banner and error
+    if (res.state === "success") {
+      this.setState(prevState => {
+        prevState.siteRes.site_view.site.banner = res.data.image_url;
+        return prevState;
+      });
+      toast("Uploaded site banner");
+    } else {
+      toast("Could not upload site banner");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleDeleteSiteBanner() {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.deleteSiteBanner();
+
+    // TODO: Add translations for deleting site banner and error
+    if (res.state === "success") {
+      this.setState(prevState => {
+        prevState.siteRes.site_view.site.banner = undefined;
+        return prevState;
+      });
+      toast("Deleted site banner");
+    } else {
+      toast("Could not delete site banner");
+    }
+
+    this.setState({ loading: false });
   }
 }
