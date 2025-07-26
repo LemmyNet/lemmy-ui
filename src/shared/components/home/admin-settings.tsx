@@ -122,6 +122,10 @@ export class AdminSettings extends Component<
     this.handleEditOAuthProvider = this.handleEditOAuthProvider.bind(this);
     this.handleDeleteOAuthProvider = this.handleDeleteOAuthProvider.bind(this);
     this.handleCreateOAuthProvider = this.handleCreateOAuthProvider.bind(this);
+    this.handleUploadSiteIcon = this.handleUploadSiteIcon.bind(this);
+    this.handleDeleteSiteIcon = this.handleDeleteSiteIcon.bind(this);
+    this.handleUploadSiteBanner = this.handleUploadSiteBanner.bind(this);
+    this.handleDeleteSiteBanner = this.handleDeleteSiteBanner.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -205,6 +209,10 @@ export class AdminSettings extends Component<
                         allowedInstances={federationData?.allowed}
                         blockedInstances={federationData?.blocked}
                         onSaveSite={this.handleEditSite}
+                        onUploadIcon={this.handleUploadSiteIcon}
+                        onDeleteIcon={this.handleDeleteSiteIcon}
+                        onUploadBanner={this.handleUploadSiteBanner}
+                        onDeleteBanner={this.handleDeleteSiteBanner}
                         siteRes={this.state.siteRes}
                         themeList={this.state.themeList}
                         loading={this.state.loading}
@@ -494,7 +502,6 @@ export class AdminSettings extends Component<
     if (editRes.state === "success") {
       this.setState(s => {
         s.siteRes.site_view = editRes.data.site_view;
-        // TODO: Where to get taglines from?
         return s;
       });
       toast(I18NextService.i18n.t("site_saved"));
@@ -604,10 +611,101 @@ export class AdminSettings extends Component<
           ...(s.siteRes.admin_oauth_providers ?? []),
           res.data,
         ];
+        return s;
       });
       toast(I18NextService.i18n.t("site_saved"));
     } else {
       toast(I18NextService.i18n.t("couldnt_create_oauth_provider"), "danger");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleUploadSiteIcon(event: any) {
+    let file: any;
+    if (event.target) {
+      event.preventDefault();
+      file = event.target.files[0];
+    } else {
+      file = event;
+    }
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.uploadSiteIcon({ image: file });
+
+    // TODO: Add translations for uploading site icon and error
+    if (res.state === "success") {
+      this.setState(prevState => {
+        prevState.siteRes.site_view.site.icon = res.data.image_url;
+        return prevState;
+      });
+      toast("Uploaded site icon");
+    } else {
+      toast("Could not upload site icon");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleDeleteSiteIcon() {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.deleteSiteIcon();
+
+    // TODO: Add translations for deleting site icon and error
+    if (res.state === "success") {
+      this.setState(prevState => {
+        prevState.siteRes.site_view.site.icon = undefined;
+        return prevState;
+      });
+      toast("Deleted site icon");
+    } else {
+      toast("Could not delete site icon");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleUploadSiteBanner(event: any) {
+    let file: any;
+    if (event.target) {
+      event.preventDefault();
+      file = event.target.files[0];
+    } else {
+      file = event;
+    }
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.uploadSiteBanner({ image: file });
+
+    // TODO: Add translations for uploading site banner and error
+    if (res.state === "success") {
+      this.setState(prevState => {
+        prevState.siteRes.site_view.site.banner = res.data.image_url;
+        return prevState;
+      });
+      toast("Uploaded site banner");
+    } else {
+      toast("Could not upload site banner");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleDeleteSiteBanner() {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.deleteSiteBanner();
+
+    // TODO: Add translations for deleting site banner and error
+    if (res.state === "success") {
+      this.setState(prevState => {
+        prevState.siteRes.site_view.site.banner = undefined;
+        return prevState;
+      });
+      toast("Deleted site banner");
+    } else {
+      toast("Could not delete site banner");
     }
 
     this.setState({ loading: false });

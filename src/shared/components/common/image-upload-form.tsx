@@ -1,15 +1,14 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { HttpService, I18NextService, UserService } from "../../services";
-import { toast } from "../../toast";
+import { I18NextService, UserService } from "../../services";
 import { Icon } from "./icon";
 
 interface ImageUploadFormProps {
   uploadTitle: string;
   imageSrc?: string;
-  onUpload(url: string): any;
-  onRemove(): any;
+  onUpload(event: any): Promise<void>;
+  onRemove(): Promise<void>;
   rounded?: boolean;
 }
 
@@ -72,17 +71,10 @@ export class ImageUploadForm extends Component<
 
   handleImageUpload(i: ImageUploadForm, event: any) {
     event.preventDefault();
-    const image = event.target.files[0] as File;
 
     i.setState({ loading: true });
 
-    HttpService.client.uploadImage({ image }).then(res => {
-      if (res.state === "success") {
-        i.props.onUpload(res.data.image_url);
-      } else if (res.state === "failed") {
-        toast(res.err.name, "danger");
-      }
-
+    this.props.onUpload(event).then(() => {
       i.setState({ loading: false });
     });
   }
@@ -90,6 +82,9 @@ export class ImageUploadForm extends Component<
   handleRemoveImage(i: ImageUploadForm, event: any) {
     event.preventDefault();
     i.setState({ loading: true });
-    i.props.onRemove();
+
+    i.props.onRemove().then(() => {
+      i.setState({ loading: false });
+    });
   }
 }

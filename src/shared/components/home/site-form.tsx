@@ -12,6 +12,7 @@ import {
   GetSiteResponse,
   Instance,
   ListingType,
+  UploadImage,
 } from "lemmy-js-client";
 import deepEqual from "lodash.isequal";
 import { I18NextService } from "../../services";
@@ -28,6 +29,10 @@ interface SiteFormProps {
   showLocal?: boolean;
   themeList?: string[];
   onSaveSite(form: EditSite): void;
+  onUploadIcon(form: UploadImage): Promise<void>;
+  onDeleteIcon(): Promise<void>;
+  onUploadBanner(form: UploadImage): Promise<void>;
+  onDeleteBanner(): Promise<void>;
   siteRes: GetSiteResponse;
   loading: boolean;
 }
@@ -56,6 +61,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   initSiteForm(): EditSite {
     const site = this.props.siteRes.site_view.site;
     const ls = this.props.siteRes.site_view.local_site;
+    const rateLimit = this.props.siteRes.site_view.local_site_rate_limit;
 
     return {
       name: site.name,
@@ -81,6 +87,22 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       captcha_difficulty: ls.captcha_difficulty,
       blocked_urls: this.props.siteRes.blocked_urls.map(u => u.url),
       content_warning: this.props.siteRes.site_view.site.content_warning,
+      rate_limit_message_max_requests: rateLimit.message_max_requests,
+      rate_limit_message_interval_seconds: rateLimit.message_interval_seconds,
+      rate_limit_post_max_requests: rateLimit.post_max_requests,
+      rate_limit_post_interval_seconds: rateLimit.post_interval_seconds,
+      rate_limit_register_max_requests: rateLimit.register_max_requests,
+      rate_limit_register_interval_seconds: rateLimit.register_interval_seconds,
+      rate_limit_image_max_requests: rateLimit.image_max_requests,
+      rate_limit_image_interval_seconds: rateLimit.image_interval_seconds,
+      rate_limit_comment_max_requests: rateLimit.comment_max_requests,
+      rate_limit_comment_interval_seconds: rateLimit.comment_interval_seconds,
+      rate_limit_search_max_requests: rateLimit.search_max_requests,
+      rate_limit_search_interval_seconds: rateLimit.search_interval_seconds,
+      rate_limit_import_user_settings_max_requests:
+        rateLimit.import_user_settings_max_requests,
+      rate_limit_import_user_settings_interval_seconds:
+        rateLimit.import_user_settings_interval_seconds,
     };
   }
 
@@ -91,12 +113,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.handleSiteLegalInfoChange = this.handleSiteLegalInfoChange.bind(this);
     this.handleSiteApplicationQuestionChange =
       this.handleSiteApplicationQuestionChange.bind(this);
-
-    this.handleIconUpload = this.handleIconUpload.bind(this);
-    this.handleIconRemove = this.handleIconRemove.bind(this);
-
-    this.handleBannerUpload = this.handleBannerUpload.bind(this);
-    this.handleBannerRemove = this.handleBannerRemove.bind(this);
 
     this.handleDefaultPostListingTypeChange =
       this.handleDefaultPostListingTypeChange.bind(this);
@@ -117,6 +133,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   render() {
     const siteSetup = this.props.siteRes.site_view.local_site.site_setup;
+    const { onUploadIcon, onDeleteIcon, onUploadBanner, onDeleteBanner } =
+      this.props;
     return (
       <form
         className="site-form"
@@ -165,9 +183,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div className="col-sm-10">
             <ImageUploadForm
               uploadTitle={I18NextService.i18n.t("upload_icon")}
-              imageSrc={this.state.siteForm.icon}
-              onUpload={this.handleIconUpload}
-              onRemove={this.handleIconRemove}
+              imageSrc={this.props.siteRes.site_view.site.icon}
+              onUpload={onUploadIcon}
+              onRemove={onDeleteIcon}
               rounded
             />
           </div>
@@ -179,9 +197,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div className="col-sm-10">
             <ImageUploadForm
               uploadTitle={I18NextService.i18n.t("upload_banner")}
-              imageSrc={this.state.siteForm.banner}
-              onUpload={this.handleBannerUpload}
-              onRemove={this.handleBannerRemove}
+              imageSrc={this.props.siteRes.site_view.site.banner}
+              onUpload={onUploadBanner}
+              onRemove={onDeleteBanner}
             />
           </div>
         </div>
@@ -228,25 +246,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="mb-3 row">
-          <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-downvotes"
-                type="checkbox"
-                checked={this.state.siteForm.enable_downvotes}
-                onChange={linkEvent(this, this.handleSiteEnableDownvotesChange)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-downvotes"
-              >
-                {I18NextService.i18n.t("enable_downvotes")}
-              </label>
-            </div>
-          </div>
-        </div>
+        {/* TODO: Handle new way of enabling upvotes/downvotes */}
         <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
@@ -495,25 +495,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="mb-3 row">
-          <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-hide-modlog-mod-names"
-                type="checkbox"
-                checked={this.state.siteForm.hide_modlog_mod_names}
-                onChange={linkEvent(this, this.handleSiteHideModlogModNames)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-hide-modlog-mod-names"
-              >
-                {I18NextService.i18n.t("hide_modlog_mod_names")}
-              </label>
-            </div>
-          </div>
-        </div>
-        <div className="mb-3 row">
           <label
             className="col-12 col-form-label"
             htmlFor="create-site-slur-filter-regex"
@@ -586,25 +567,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <div className="mb-3 row">
               {this.federatedInstanceSelect("allowed_instances")}
               {this.federatedInstanceSelect("blocked_instances")}
-            </div>
-            <div className="mb-3 row">
-              <div className="col-12">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    id="create-site-federation-debug"
-                    type="checkbox"
-                    checked={this.state.siteForm.federation_debug}
-                    onChange={linkEvent(this, this.handleSiteFederationDebug)}
-                  />
-                  <label
-                    className="form-check-label"
-                    htmlFor="create-site-federation-debug"
-                  >
-                    {I18NextService.i18n.t("federation_debug")}
-                  </label>
-                </div>
-              </div>
             </div>
           </>
         )}
@@ -788,12 +750,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         name: stateSiteForm.name ?? "My site",
         sidebar: stateSiteForm.sidebar,
         description: stateSiteForm.description,
-        icon: stateSiteForm.icon,
-        banner: stateSiteForm.banner,
         community_creation_admin_only:
           stateSiteForm.community_creation_admin_only,
         enable_nsfw: stateSiteForm.enable_nsfw,
-        enable_downvotes: stateSiteForm.enable_downvotes,
         application_question: stateSiteForm.application_question,
         registration_mode: stateSiteForm.registration_mode,
         oauth_registration: stateSiteForm.oauth_registration,
@@ -802,32 +761,40 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         default_theme: stateSiteForm.default_theme,
         default_post_listing_type: stateSiteForm.default_post_listing_type,
         application_email_admins: stateSiteForm.application_email_admins,
-        hide_modlog_mod_names: stateSiteForm.hide_modlog_mod_names,
         legal_information: stateSiteForm.legal_information,
         slur_filter_regex: stateSiteForm.slur_filter_regex,
         actor_name_max_length: stateSiteForm.actor_name_max_length,
-        rate_limit_message: stateSiteForm.rate_limit_message,
-        rate_limit_message_per_second:
-          stateSiteForm.rate_limit_message_per_second,
-        rate_limit_comment: stateSiteForm.rate_limit_comment,
-        rate_limit_comment_per_second:
-          stateSiteForm.rate_limit_comment_per_second,
-        rate_limit_image: stateSiteForm.rate_limit_image,
-        rate_limit_image_per_second: stateSiteForm.rate_limit_image_per_second,
-        rate_limit_post: stateSiteForm.rate_limit_post,
-        rate_limit_post_per_second: stateSiteForm.rate_limit_post_per_second,
-        rate_limit_register: stateSiteForm.rate_limit_register,
-        rate_limit_register_per_second:
-          stateSiteForm.rate_limit_register_per_second,
-        rate_limit_search: stateSiteForm.rate_limit_search,
-        rate_limit_search_per_second:
-          stateSiteForm.rate_limit_search_per_second,
+        rate_limit_message_max_requests:
+          stateSiteForm.rate_limit_message_max_requests,
+        rate_limit_message_interval_seconds:
+          stateSiteForm.rate_limit_message_interval_seconds,
+        rate_limit_post_max_requests:
+          stateSiteForm.rate_limit_post_max_requests,
+        rate_limit_post_interval_seconds:
+          stateSiteForm.rate_limit_post_interval_seconds,
+        rate_limit_register_max_requests:
+          stateSiteForm.rate_limit_register_max_requests,
+        rate_limit_register_interval_seconds:
+          stateSiteForm.rate_limit_register_interval_seconds,
+        rate_limit_image_max_requests:
+          stateSiteForm.rate_limit_image_max_requests,
+        rate_limit_image_interval_seconds:
+          stateSiteForm.rate_limit_image_interval_seconds,
+        rate_limit_comment_max_requests:
+          stateSiteForm.rate_limit_comment_max_requests,
+        rate_limit_comment_interval_seconds:
+          stateSiteForm.rate_limit_comment_interval_seconds,
+        rate_limit_search_max_requests:
+          stateSiteForm.rate_limit_search_max_requests,
+        rate_limit_search_interval_seconds:
+          stateSiteForm.rate_limit_search_interval_seconds,
+        rate_limit_import_user_settings_max_requests:
+          stateSiteForm.rate_limit_import_user_settings_max_requests,
+        rate_limit_import_user_settings_interval_seconds:
+          stateSiteForm.rate_limit_import_user_settings_interval_seconds,
         federation_enabled: stateSiteForm.federation_enabled,
-        federation_debug: stateSiteForm.federation_debug,
         captcha_enabled: stateSiteForm.captcha_enabled,
         captcha_difficulty: stateSiteForm.captcha_difficulty,
-        allowed_instances: stateSiteForm.allowed_instances,
-        blocked_instances: stateSiteForm.blocked_instances,
         discussion_languages: stateSiteForm.discussion_languages,
       };
     }
@@ -924,11 +891,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     i.setState(i.state);
   }
 
-  handleSiteEnableDownvotesChange(i: SiteForm, event: any) {
-    i.state.siteForm.enable_downvotes = event.target.checked;
-    i.setState(i.state);
-  }
-
   handleSiteRequireEmailVerification(i: SiteForm, event: any) {
     i.state.siteForm.require_email_verification = event.target.checked;
     i.setState(i.state);
@@ -949,30 +911,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     i.setState(i.state);
   }
 
-  handleSiteHideModlogModNames(i: SiteForm, event: any) {
-    i.state.siteForm.hide_modlog_mod_names = event.target.checked;
-    i.setState(i.state);
-  }
-
   handleSiteDefaultTheme(i: SiteForm, event: any) {
     i.state.siteForm.default_theme = event.target.value;
     i.setState(i.state);
-  }
-
-  handleIconUpload(url: string) {
-    this.setState(s => ((s.siteForm.icon = url), s));
-  }
-
-  handleIconRemove() {
-    this.setState(s => ((s.siteForm.icon = ""), s));
-  }
-
-  handleBannerUpload(url: string) {
-    this.setState(s => ((s.siteForm.banner = url), s));
-  }
-
-  handleBannerRemove() {
-    this.setState(s => ((s.siteForm.banner = ""), s));
   }
 
   handleSiteSlurFilterRegex(i: SiteForm, event: any) {
@@ -987,11 +928,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteFederationEnabled(i: SiteForm, event: any) {
     i.state.siteForm.federation_enabled = event.target.checked;
-    i.setState(i.state);
-  }
-
-  handleSiteFederationDebug(i: SiteForm, event: any) {
-    i.state.siteForm.federation_debug = event.target.checked;
     i.setState(i.state);
   }
 
