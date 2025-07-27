@@ -29,7 +29,7 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
-import { Paginator } from "../common/paginator";
+import Paginator from "../common/paginator";
 import { SortSelect } from "../common/sort-select";
 import { CommunityLink } from "./community-link";
 import { communityLimit } from "../../config";
@@ -218,7 +218,7 @@ export class Communities extends Component<
   }
 
   render() {
-    const { listingType, sort, cursor } = this.props;
+    const { listingType, sort } = this.props;
     return (
       <div className="communities container-lg">
         <HtmlTags
@@ -250,7 +250,6 @@ export class Communities extends Component<
 
           <div className="table-responsive">{this.renderListingsTable()}</div>
           <Paginator
-            cursor={cursor}
             onNext={this.handleNextPage}
             onPrev={this.handlePrevPage}
             nextDisabled={

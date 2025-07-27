@@ -8,7 +8,7 @@ import {
 import { I18NextService } from "../../../services";
 import type { Modal } from "bootstrap";
 import { Icon, Spinner } from "../icon";
-import { Paginator } from "../paginator";
+import Paginator from "../paginator";
 import {
   ListCommentLikesResponse,
   ListPostLikesResponse,
