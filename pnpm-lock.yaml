@@ -114,8 +114,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-vote-view.0
-        version: 1.0.0-vote-view.0
+        specifier: 1.0.0-instance-user-blocking.8
+        version: 1.0.0-instance-user-blocking.8
       lodash.isequal:
         specifier: ^4.5.0
         version: 4.5.0
@@ -3514,8 +3514,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  lemmy-js-client@1.0.0-vote-view.0:
-    resolution: {integrity: sha512-cueMqWHlv+BYByRy4GDvdjzvqjYBWiby+jEdFm9qDxbVm9PQuJVOiom4Uu5HS8ZSx4Q/MAz2RS8Ipr+ZfnWFfA==}
+  lemmy-js-client@1.0.0-instance-user-blocking.8:
+    resolution: {integrity: sha512-hJhb5lJK4iDPb7K2MbodEFT0pliO5mwyL67YqE/opnkUo/LibdsbkSn3Himg6AcdnGv9lWnOUnZbwxrIvGLB1g==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8901,7 +8901,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  lemmy-js-client@1.0.0-vote-view.0:
+  lemmy-js-client@1.0.0-instance-user-blocking.8:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:

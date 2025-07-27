@@ -66,11 +66,11 @@ import {
   CreatePrivateMessage,
   CreatePrivateMessageFetchConfig,
 } from "./components/private_message/create-private-message";
-import {
-  RemoteFetch,
-  RemoteFetchFetchConfig,
-  getRemoteFetchQueryParams,
-} from "./components/remote-fetch";
+// import {
+//   RemoteFetch,
+//   RemoteFetchFetchConfig,
+//   getRemoteFetchQueryParams,
+// } from "./components/remote-fetch";
 import {
   Search,
   SearchFetchConfig,
@@ -240,10 +240,10 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     fetchInitialData: Instances.fetchInitialData,
   } as InstancesFetchConfig,
   { path: `/legal`, component: Legal },
-  {
-    path: "/activitypub/externalInteraction",
-    component: RemoteFetch,
-    fetchInitialData: RemoteFetch.fetchInitialData,
-    getQueryParams: getRemoteFetchQueryParams,
-  } as RemoteFetchFetchConfig,
+  // {
+  //   path: "/activitypub/externalInteraction",
+  //   component: RemoteFetch,
+  //   fetchInitialData: RemoteFetch.fetchInitialData,
+  //   getQueryParams: getRemoteFetchQueryParams,
+  // } as RemoteFetchFetchConfig,
 ];
