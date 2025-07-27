@@ -6,7 +6,7 @@ import { HttpService, I18NextService } from "../../services";
 import { pictrsDeleteToast, toast } from "../../toast";
 import { EmojiMart } from "../common/emoji-mart";
 import { Icon, Spinner } from "../common/icon";
-import { Paginator } from "../common/paginator";
+import Paginator from "../common/paginator";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { isBrowser } from "@utils/browser";
 import classNames from "classnames";

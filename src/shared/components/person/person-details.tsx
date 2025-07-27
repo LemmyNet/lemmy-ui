@@ -44,7 +44,7 @@ import {
 } from "lemmy-js-client";
 import { CommentViewType, PersonDetailsView } from "../../interfaces";
 import { CommentNodes } from "../comment/comment-nodes";
-import { Paginator } from "../common/paginator";
+import Paginator from "../common/paginator";
 import { PostListing } from "../post/post-listing";
 import { RequestState } from "../../services/HttpService";
 

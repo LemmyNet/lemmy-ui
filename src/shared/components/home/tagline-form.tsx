@@ -5,7 +5,7 @@ import { HttpService, I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { Paginator } from "../common/paginator";
+import Paginator from "../common/paginator";
 import classNames from "classnames";
 import { isBrowser } from "@utils/browser";
 import { Prompt } from "inferno-router";
