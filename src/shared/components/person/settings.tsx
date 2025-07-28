@@ -760,7 +760,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <MarkdownTextArea
                 initialContent={this.state.saveUserSettingsForm.bio}
                 onContentChange={this.handleBioChange}
-                maxLength={300}
+                maxLength={1000}
                 hideNavigationWarnings
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
