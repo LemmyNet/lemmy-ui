@@ -57,6 +57,8 @@ export class UserService {
 
     // TODO: Remove this in a few releases when this cache has been deleted from most users' browsers
     window.caches.delete("instance-cache");
+    window.caches.delete("static-cache");
+    window.caches.delete("image-cache");
 
     if (isAuthPath(location.pathname)) {
       location.replace("/");

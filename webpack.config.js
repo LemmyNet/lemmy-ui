@@ -130,31 +130,6 @@ module.exports = (env, argv) => {
           cacheId: "lemmy",
           include: [/(assets|styles|js)\/.+\..+$/g],
           inlineWorkboxRuntime: true,
-          runtimeCaching: [
-            {
-              urlPattern: ({ url: { pathname, host }, sameOrigin }) =>
-                (sameOrigin || host.includes("localhost")) &&
-                pathname.includes("static"),
-              handler: mode === "development" ? "NetworkFirst" : "CacheFirst",
-              options: {
-                cacheName: "static-cache",
-                expiration: {
-                  maxAgeSeconds: 60 * 60 * 24,
-                },
-              },
-            },
-            {
-              urlPattern: ({ url: { pathname }, request: { method } }) =>
-                pathname.includes("pictrs") && method === "GET",
-              handler: "StaleWhileRevalidate",
-              options: {
-                cacheName: "image-cache",
-                expiration: {
-                  maxAgeSeconds: 60 * 60 * 24,
-                },
-              },
-            },
-          ],
         },
       }),
     ],
