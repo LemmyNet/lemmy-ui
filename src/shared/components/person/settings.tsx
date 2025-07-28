@@ -36,7 +36,7 @@ import {
   SuccessResponse,
   UpdateTotpResponse,
 } from "lemmy-js-client";
-import { elementUrl, emDash, fetchLimit, relTags } from "../../config";
+import { matrixUrl, emDash, fetchLimit, relTags } from "../../config";
 import { FirstLoadService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -780,7 +780,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           </div>
           <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="matrix-user-id">
-              <a href={elementUrl} rel={relTags}>
+              <a href={matrixUrl} rel={relTags}>
                 {I18NextService.i18n.t("matrix_user_id")}
               </a>
             </label>

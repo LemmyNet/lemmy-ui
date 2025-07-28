@@ -14,7 +14,7 @@ export const sortingHelpUrl = `${joinLemmyUrl}/docs/en/users/03-votes-and-rankin
 export const archiveTodayUrl = "https://archive.today";
 export const ghostArchiveUrl = "https://ghostarchive.org";
 export const webArchiveUrl = "https://web.archive.org";
-export const elementUrl = "https://element.io";
+export const matrixUrl = "https://matrix.org/try-matrix/";
 
 export const postRefetchSeconds: number = 60 * 1000;
 export const mentionDropdownFetchLimit = 10;
