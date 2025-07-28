@@ -11,8 +11,6 @@ build
 .nyc_output
 .sass-cache
 .vscode
-.yalc
-yalc.lock
 coverage
 jsconfig.json
 Gemfile.lock
@@ -30,5 +28,4 @@ package-lock.json
 src/shared/translations
 
 stats.json
-extra_themes
 
