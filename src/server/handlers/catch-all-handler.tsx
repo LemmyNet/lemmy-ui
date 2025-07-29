@@ -89,6 +89,11 @@ export default async (req: Request, res: Response) => {
         return;
       }
 
+      if (path === "/setup" && site.admins.length > 0) {
+        res.redirect("/");
+        return;
+      }
+
       if (site && activeRoute?.fetchInitialData && match) {
         const { search } = parsePath(url);
         const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
