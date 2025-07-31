@@ -45,6 +45,9 @@ export class CommentForm extends Component<CommentFormProps, any> {
           ? this.props.node.comment_view.comment.content
           : undefined
         : undefined;
+    const placeholder = this.props.disabled
+      ? I18NextService.i18n.t("locked_post_comment_placeholder")
+      : I18NextService.i18n.t("comment_here");
 
     return (
       <div
@@ -62,7 +65,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
             disabled={this.props.disabled}
             onSubmit={this.handleCommentSubmit}
             onReplyCancel={this.props.onReplyCancel}
-            placeholder={I18NextService.i18n.t("comment_here") ?? undefined}
+            placeholder={placeholder ?? undefined}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
           />
