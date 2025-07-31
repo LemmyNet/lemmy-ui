@@ -55,9 +55,6 @@ export class UserService {
 
     HttpService.client.logout();
 
-    // TODO: Remove this in a few releases when this cache has been deleted from most users' browsers
-    window.caches.delete("instance-cache");
-
     if (isAuthPath(location.pathname)) {
       location.replace("/");
     } else {
