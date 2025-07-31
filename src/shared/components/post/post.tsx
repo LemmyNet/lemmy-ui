@@ -361,9 +361,9 @@ export class Post extends Component<PostRouteProps, PostState> {
 
     let pathname: string | undefined;
     if (comment_id && post_id) {
-      pathname = `/post/${post_id}/${comment_id}`;
+      pathname = `/post/${post_id}/${comment_id}#comment-${comment_id}`;
     } else if (comment_id) {
-      pathname = `/comment/${comment_id}`;
+      pathname = `/comment/${comment_id}#comment-${comment_id}`;
     } else {
       pathname = `/post/${post_id}`;
     }

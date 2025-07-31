@@ -487,14 +487,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       ? I18NextService.i18n.t("show_context")
       : I18NextService.i18n.t("link");
 
+    const commentId =
+      (this.props.showContext && getCommentParentId(cv.comment)) ||
+      cv.comment.id;
     return (
       <>
         <Link
           className={classnames}
-          to={`/post/${cv.post.id}/${
-            (this.props.showContext && getCommentParentId(cv.comment)) ||
-            cv.comment.id
-          }`}
+          to={`/post/${cv.post.id}/${commentId}#comment-${commentId}`}
           title={title}
         >
           <Icon icon="link" classes="icon-inline" />
