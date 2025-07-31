@@ -5,7 +5,6 @@ import {
   enableNsfw,
   fetchCommunities,
   fetchUsers,
-  myAuth,
   personToChoice,
   setIsoData,
   showLocal,
@@ -41,8 +40,6 @@ import {
   ListingType,
   PersonView,
   PostView,
-  ResolveObject,
-  ResolveObjectResponse,
   Search as SearchForm,
   SearchResponse,
   SearchType,
@@ -90,14 +87,12 @@ type SearchData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
   creatorDetailsResponse: GetPersonDetailsResponse;
   searchResponse: SearchResponse;
-  resolveObjectResponse: ResolveObjectResponse;
 }>;
 
 type FilterType = "creator" | "community";
 
 interface SearchState {
   searchRes: RequestState<SearchResponse>;
-  resolveObjectRes: RequestState<ResolveObjectResponse>;
   siteRes: GetSiteResponse;
   communitySearchOptions: Choice[];
   creatorSearchOptions: Choice[];
@@ -350,7 +345,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   searchInput = createRef<HTMLInputElement>();
 
   state: SearchState = {
-    resolveObjectRes: EMPTY_REQUEST,
     siteRes: this.isoData.site_res,
     creatorSearchOptions: [],
     communitySearchOptions: [],
@@ -381,7 +375,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         communityResponse: communityRes,
         creatorDetailsResponse: creatorDetailsRes,
         listCommunitiesResponse: communitiesRes,
-        resolveObjectResponse: resolveObjectRes,
         searchResponse: searchRes,
       } = this.isoData.routeData;
 
@@ -407,10 +400,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
       if (searchRes?.state === "success") {
         this.state.searchRes = searchRes;
-      }
-
-      if (resolveObjectRes?.state === "success") {
-        this.state.resolveObjectRes = resolveObjectRes;
       }
     }
   }
@@ -596,8 +585,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
 
     let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
-    let resolveObjectResponse: RequestState<ResolveObjectResponse> =
-      EMPTY_REQUEST;
 
     if (query) {
       const form: SearchForm = {
@@ -614,26 +601,12 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       };
 
       searchResponse = await client.search(form);
-      if (headers["Authorization"]) {
-        const resolveObjectForm: ResolveObject = {
-          q: query,
-        };
-        resolveObjectResponse =
-          await HttpService.client.resolveObject(resolveObjectForm);
-
-        // If we return this object with a state of failed, the catch-all-handler will redirect
-        // to an error page, so we ignore it by covering up the error with the empty state.
-        if (resolveObjectResponse.state === "failed") {
-          resolveObjectResponse = EMPTY_REQUEST;
-        }
-      }
     }
 
     return {
       communityResponse,
       creatorDetailsResponse,
       listCommunitiesResponse,
-      resolveObjectResponse,
       searchResponse,
     };
   }
@@ -827,30 +800,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   get all() {
     const siteRes = this.state.siteRes;
-    const {
-      resolveObjectRes: resolveObjectResponse,
-      searchRes: searchResponse,
-    } = this.state;
+    const { searchRes: searchResponse } = this.state;
     var comments_array: CommentView[] = [],
       posts_array: PostView[] = [],
       communities_array: CommunityView[] = [],
       persons_array: PersonView[] = [];
-    if (resolveObjectResponse.state === "success") {
-      const { comment, post, community, person } = resolveObjectResponse.data;
-
-      if (comment) {
-        comments_array.push(comment);
-      }
-      if (post) {
-        posts_array.push(post);
-      }
-      if (community) {
-        communities_array.push(community);
-      }
-      if (person) {
-        persons_array.push(person);
-      }
-    }
     if (searchResponse.state === "success") {
       const { comments, posts, communities, users } = searchResponse.data;
       comments_array.push(...(comments ?? []));
@@ -870,20 +824,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   get comments() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-      siteRes,
-    } = this.state;
+    const { searchRes: searchResponse, siteRes } = this.state;
     const comments =
       searchResponse.state === "success" ? searchResponse.data.comments : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.comment
-    ) {
-      comments.unshift(resolveObjectResponse.data.comment);
-    }
 
     return (
       <CommentNodes
@@ -920,20 +863,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   get posts() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-      siteRes,
-    } = this.state;
+    const { searchRes: searchResponse, siteRes } = this.state;
     const posts =
       searchResponse.state === "success" ? searchResponse.data.posts : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.post
-    ) {
-      posts.unshift(resolveObjectResponse.data.post);
-    }
 
     return (
       <>
@@ -977,19 +909,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   get communities() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-    } = this.state;
+    const { searchRes: searchResponse } = this.state;
     const communities =
       searchResponse.state === "success" ? searchResponse.data.communities : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.community
-    ) {
-      communities.unshift(resolveObjectResponse.data.community);
-    }
 
     return (
       <>
@@ -1003,19 +925,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   get users() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-    } = this.state;
+    const { searchRes: searchResponse } = this.state;
     const users =
       searchResponse.state === "success" ? searchResponse.data.users : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.person
-    ) {
-      users.unshift(resolveObjectResponse.data.person);
-    }
 
     return (
       <>
@@ -1029,27 +941,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   get resultsCount(): number {
-    const { searchRes: r, resolveObjectRes: resolveRes } = this.state;
+    const { searchRes: r } = this.state;
 
-    const searchCount =
-      r.state === "success"
-        ? r.data.posts.length +
+    return r.state === "success"
+      ? r.data.posts.length +
           r.data.comments.length +
           r.data.communities.length +
           r.data.users.length
-        : 0;
-
-    const resObjCount =
-      resolveRes.state === "success"
-        ? resolveRes.data.post ||
-          resolveRes.data.person ||
-          resolveRes.data.community ||
-          resolveRes.data.comment
-          ? 1
-          : 0
-        : 0;
-
-    return resObjCount + searchCount;
+      : 0;
   }
 
   searchToken?: symbol;
@@ -1084,16 +983,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         return;
       }
       this.setState({ searchRes });
-
-      if (myAuth()) {
-        this.setState({ resolveObjectRes: LOADING_REQUEST });
-        const resolveObjectRes = await HttpService.client.resolveObject({
-          q,
-        });
-        if (token === this.searchToken) {
-          this.setState({ resolveObjectRes });
-        }
-      }
     } else {
       this.setState({ searchRes: EMPTY_REQUEST });
     }
