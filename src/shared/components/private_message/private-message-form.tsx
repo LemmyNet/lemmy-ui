@@ -8,7 +8,7 @@ import {
   Person,
   PrivateMessageView,
 } from "lemmy-js-client";
-import { relTags } from "../../config";
+import { matrixUrl, relTags } from "../../config";
 import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -84,11 +84,7 @@ export class PrivateMessageForm extends Component<
           <Icon icon="alert-triangle" classes="icon-inline me-1" />
           <T parent="span" i18nKey="private_message_disclaimer">
             #
-            <a
-              className="alert-link"
-              rel={relTags}
-              href="https://element.io/get-started"
-            >
+            <a className="alert-link" rel={relTags} href={matrixUrl}>
               #
             </a>
           </T>
