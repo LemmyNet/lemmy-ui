@@ -195,7 +195,7 @@ export default class ContentActionDropdown extends Component<
         <ActionButton
           onClick={onSave}
           inline
-          icon="star"
+          icon="bookmark"
           label={I18NextService.i18n.t(saved ? "unsave" : "save")}
           iconClass={classNames({ "text-warning": saved })}
         />
