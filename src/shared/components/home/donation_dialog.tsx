@@ -36,7 +36,7 @@ export class DonationDialog extends Component<Props, State> {
   render() {
     if (this.state.show) {
       return (
-        <div class="alert border-info bg-light-subtle fade show" role="alert">
+        <div class="alert alert-info fade show" role="alert">
           <div class="d-flex">
             <h4 class="alert-heading flex-grow-1">
               {I18NextService.i18n.t("donation_dialog_title")}
