@@ -797,7 +797,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 placeholder="@user:example.com"
                 value={this.state.saveUserSettingsForm.matrix_user_id}
                 onInput={linkEvent(this, this.handleMatrixUserIdChange)}
-                pattern="^@[A-Za-z0-9._=-]+:[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+                pattern="^@[A-Za-z0-9\x21-\x39\x3B-\x7F]+:[A-Za-z0-9.-]+(:[0-9]{2,5})?$"
               />
             </div>
           </div>
