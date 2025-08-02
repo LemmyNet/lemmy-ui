@@ -41,11 +41,20 @@ export default class ImageUploadConfirmModalModal extends Component<
           <div className="modal-content">
             <header className="modal-header">
               <h3 className="modal-title" id="imageUploadConfirmModalTitle">
-                {I18NextService.i18n.t("upload_and_publish_image")}
+                {I18NextService.i18n.t("upload_and_publish_image_title")}
               </h3>
             </header>
             <div className="modal-body text-center align-middle text-body">
-              <img class="img-fluid" src={this.props.pendingImageURL} alt="" />
+              <div class="row">
+                {I18NextService.i18n.t("upload_and_publish_image_desc")}
+              </div>
+              <div class="row mt-2">
+                <img
+                  class="img-fluid"
+                  src={this.props.pendingImageURL}
+                  alt=""
+                />
+              </div>
             </div>
             <footer className="modal-footer">
               <button
