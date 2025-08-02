@@ -871,7 +871,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     if (createCommentRes.state === "failed") {
       toast(
-        I18NextService.i18n.t(createCommentRes.err.message as NoOptionI18nKeys),
+        I18NextService.i18n.t(createCommentRes.err.name as NoOptionI18nKeys),
         "danger",
       );
     }
@@ -884,7 +884,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     if (editCommentRes.state === "failed") {
       toast(
-        I18NextService.i18n.t(editCommentRes.err.message as NoOptionI18nKeys),
+        I18NextService.i18n.t(editCommentRes.err.name as NoOptionI18nKeys),
         "danger",
       );
     }

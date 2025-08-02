@@ -73,6 +73,7 @@ import {
   PersonContentCombinedView,
   Person,
   MarkPostAsRead,
+  ListPersonLikedResponse,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -107,6 +108,7 @@ type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
   personContentRes: ListPersonContentResponse;
   personSavedRes: ListPersonSavedResponse;
+  personLikedRes: ListPersonLikedResponse;
   uploadsRes: ListMediaResponse;
 }>;
 
@@ -114,6 +116,7 @@ interface ProfileState {
   personRes: RequestState<GetPersonDetailsResponse>;
   personContentRes: RequestState<ListPersonContentResponse>;
   personSavedRes: RequestState<ListPersonSavedResponse>;
+  personLikedRes: RequestState<ListPersonLikedResponse>;
   uploadsRes: RequestState<ListMediaResponse>;
   registrationRes: RequestState<RegistrationApplicationResponse>;
   personBlocked: boolean;
@@ -126,11 +129,13 @@ interface ProfileState {
   showRegistrationDialog: boolean;
 }
 
+type Filter = "Saved" | "Liked" | "None";
+
 interface ProfileProps {
   view: PersonDetailsView;
   sort: PostSortType;
   page?: DirectionalCursor;
-  saved: boolean;
+  filter: Filter;
 }
 
 export function getProfileQueryParams(source?: string): ProfileProps {
@@ -139,7 +144,7 @@ export function getProfileQueryParams(source?: string): ProfileProps {
       view: getViewFromProps,
       page: (arg?: string) => arg,
       sort: getSortTypeFromQuery,
-      saved: (arg?: string) => arg === "true",
+      filter: getFilterFromQuery,
     },
     source,
   );
@@ -158,6 +163,17 @@ function getViewFromProps(view?: string): PersonDetailsView {
       return view;
     default:
       return "All";
+  }
+}
+
+function getFilterFromQuery(filter?: string): Filter {
+  switch (filter) {
+    case "None":
+    case "Saved":
+    case "Liked":
+      return filter;
+    default:
+      return "None";
   }
 }
 
@@ -224,6 +240,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     personRes: EMPTY_REQUEST,
     personContentRes: EMPTY_REQUEST,
     personSavedRes: EMPTY_REQUEST,
+    personLikedRes: EMPTY_REQUEST,
     uploadsRes: EMPTY_REQUEST,
     personBlocked: false,
     siteRes: this.isoData.siteRes,
@@ -239,9 +256,11 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       this.state.personRes,
       this.props.view === "Uploads"
         ? this.state.uploadsRes
-        : this.props.saved
+        : this.props.filter === "Saved"
           ? this.state.personSavedRes
-          : this.state.personContentRes,
+          : this.props.filter === "Liked"
+            ? this.state.personLikedRes
+            : this.state.personContentRes,
     ]);
   }
 
@@ -290,12 +309,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       const personRes = this.isoData.routeData.personRes;
       const personContentRes = this.isoData.routeData.personContentRes;
       const personSavedRes = this.isoData.routeData.personSavedRes;
+      const personLikedRes = this.isoData.routeData.personLikedRes;
       const uploadsRes = this.isoData.routeData.uploadsRes;
       this.state = {
         ...this.state,
         personRes,
         personContentRes,
         personSavedRes,
+        personLikedRes,
         uploadsRes,
         isIsomorphic: true,
         personBlocked: isPersonBlocked(personRes, this.isoData.myUserInfo),
@@ -319,7 +340,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       nextProps.view !== this.props.view ||
       nextProps.sort !== this.props.sort ||
       nextProps.page !== this.props.page ||
-      nextProps.saved !== this.props.saved ||
+      nextProps.filter !== this.props.filter ||
       newUsername ||
       reload
     ) {
@@ -333,7 +354,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const {
       page,
       view,
-      saved,
+      filter,
       match: {
         params: { username },
       },
@@ -346,8 +367,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const needPerson =
       this.state.personRes.state !== "success" || showBothLoading;
     const needUploads = isMe && view === "Uploads";
-    const needSaved = isMe && saved && !needUploads;
-    const needContent = !needSaved && !needUploads;
+    const needSaved = isMe && filter === "Saved" && !needUploads;
+    const needLiked = isMe && filter === "Liked" && !needUploads;
+    const needContent = !needSaved && !needUploads && !needLiked;
 
     const type_ = view === "Uploads" ? undefined : view;
 
@@ -379,8 +401,20 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           ...cursorComponents(page),
           limit: fetchLimit,
         }),
+      needLiked &&
+        HttpService.client.listPersonLiked({
+          ...cursorComponents(page),
+          limit: fetchLimit,
+          type_,
+        }),
     ]).then(args => {
-      const [personRes, personContentRes, personSavedRes, uploadsRes] = args;
+      const [
+        personRes,
+        personContentRes,
+        personSavedRes,
+        uploadsRes,
+        personLikedRes,
+      ] = args;
       if (token === this.fetchUserDataToken) {
         this.setState(s => ({
           personRes: personRes || s.personRes,
@@ -388,6 +422,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           personSavedRes: personSavedRes || EMPTY_REQUEST,
           uploadsRes: uploadsRes || EMPTY_REQUEST,
           personBlocked: isPersonBlocked(s.personRes, this.isoData.myUserInfo),
+          personLikedRes: personLikedRes || EMPTY_REQUEST,
         }));
       }
     });
@@ -402,7 +437,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   static async fetchInitialData({
     headers,
-    query: { view, page, saved },
+    query: { view, page, filter },
     match: {
       params: { username },
     },
@@ -417,8 +452,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const isMe = usernameIsPerson(username, myUserInfo?.local_user_view.person);
 
     const needUploads = isMe && view === "Uploads";
-    const needSaved = isMe && saved && !needUploads;
-    const needContent = !needUploads && !needSaved;
+    const needSaved = isMe && filter === "Saved" && !needUploads;
+    const needLiked = isMe && filter === "Liked" && !needUploads;
+    const needContent = !needUploads && !needSaved && !needLiked;
 
     const type_ = view === "Uploads" ? undefined : view;
 
@@ -432,13 +468,25 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         }),
       needSaved && client.listPersonSaved({ type_, ...cursorComponents(page) }),
       needUploads && client.listMedia({ ...cursorComponents(page) }),
+      needLiked &&
+        client.listPersonLiked({
+          type_,
+          ...cursorComponents(page),
+        }),
     ]).then(args => {
-      const [personRes, personContentRes, personSavedRes, uploadsRes] = args;
+      const [
+        personRes,
+        personContentRes,
+        personSavedRes,
+        uploadsRes,
+        personLikedRes,
+      ] = args;
       return {
         personRes: personRes || EMPTY_REQUEST,
         personContentRes: personContentRes || EMPTY_REQUEST,
         personSavedRes: personSavedRes || EMPTY_REQUEST,
         uploadsRes: uploadsRes || EMPTY_REQUEST,
+        personLikedRes: personLikedRes || EMPTY_REQUEST,
       };
     });
   }
@@ -484,21 +532,24 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       case "success": {
         const siteRes = this.state.siteRes;
         const personRes = this.state.personRes.data;
-        const { sort, view, saved } = this.props;
+        const { sort, view, filter } = this.props;
 
         const savedContent =
-          (saved &&
+          (filter === "Saved" &&
             this.state.personSavedRes.state === "success" &&
             this.state.personSavedRes.data.saved) ||
           undefined;
         const content =
-          (!saved &&
+          (filter === "None" &&
             this.state.personContentRes.state === "success" &&
             this.state.personContentRes.data.content) ||
           undefined;
-        const resState = saved
-          ? this.state.personSavedRes.state
-          : this.state.personContentRes.state;
+        const likedContent =
+          (filter === "Liked" &&
+            this.state.personLikedRes.state === "success" &&
+            this.state.personLikedRes.data.liked) ||
+          undefined;
+        const resState = this.currentRes.state;
 
         const isUpload = view === "Uploads";
 
@@ -528,13 +579,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   </h5>
                 ) : (
                   <PersonDetails
-                    content={savedContent ?? content ?? []}
+                    content={savedContent ?? content ?? likedContent ?? []}
                     admins={siteRes.admins}
                     sort={sort}
                     limit={fetchLimit}
                     enableNsfw={enableNsfw(siteRes)}
                     showAdultConsentModal={this.isoData.showAdultConsentModal}
-                    view={view}
+                    view={view /* TODO: can probably remove this */}
                     myUserInfo={this.isoData.myUserInfo}
                     localSite={siteRes.site_view.local_site}
                     allLanguages={siteRes.all_languages}
@@ -602,28 +653,38 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (this.props.view === "Uploads") {
       return this.state.uploadsRes;
     } else {
-      if (this.props.saved) {
+      if (this.props.filter === "Saved") {
         return this.state.personSavedRes;
       } else {
-        return this.state.personContentRes;
+        if (this.props.filter === "Liked") {
+          return this.state.personLikedRes;
+        } else {
+          return this.state.personContentRes;
+        }
       }
     }
   }
 
   get viewRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap" role="group">
-        {this.getRadio("All")}
-        {this.getRadio("Comments")}
-        {this.getRadio("Posts")}
-        {this.amCurrentUser && this.getRadio("Uploads")}
-        {this.amCurrentUser && this.getSavedToggle()}
-      </div>
+      <>
+        <div className="btn-group btn-group-toggle flex-wrap" role="group">
+          {this.getRadio("All")}
+          {this.getRadio("Comments")}
+          {this.getRadio("Posts")}
+          {this.amCurrentUser && this.getRadio("Uploads")}
+        </div>
+        <div className="btn-group btn-group-toggle flex-wrap" role="group">
+          {this.amCurrentUser && this.getFilterRadio("Saved")}
+          {this.amCurrentUser && this.getFilterRadio("Liked")}
+          {this.amCurrentUser && this.getFilterRadio("None")}
+        </div>
+      </>
     );
   }
 
   getRadio(view: PersonDetailsView) {
-    const { view: urlView, saved } = this.props;
+    const { view: urlView } = this.props;
     const active = view === urlView;
     const radioId = randomStr();
 
@@ -636,7 +697,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           value={view}
           checked={active}
           onChange={linkEvent(this, this.handleViewChange)}
-          disabled={saved && view === "Uploads"}
+          disabled={view === "Uploads"}
         />
         <label
           htmlFor={radioId}
@@ -650,50 +711,36 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
-  getSavedToggle() {
-    const checked = this.props.saved;
+  getFilterRadio(filter: Filter) {
+    const { view, filter: urlFilter } = this.props;
+    const active = filter === urlFilter;
+    const radioId = randomStr();
 
-    // This renders a button inside a button. Using only the outer button, when
-    // checked, it looks the same as the radio buttons (which do nothing when
-    // clicked again). Using only the inner button, the button looks like it's
-    // already checked when hovered or focused (except for the checkbox). The
-    // inner button is hidden for keyboards an aria.
     return (
       <>
         <input
-          id="saved-checkbox-outer"
-          type="checkbox"
-          class="btn-check"
-          onClick={linkEvent(this, this.handleToggleSaved)}
-          checked={checked}
-          aria-label={I18NextService.i18n.t("saved")}
-          disabled={this.props.view === "Uploads"}
-        ></input>
-        <label htmlFor="saved-checkbox-outer" class="btn btn-outline-secondary">
-          <div class="form-check" aria-hidden="true">
-            <input
-              id="saved-checkbox-inner"
-              type="checkbox"
-              class="form-check-input pointer"
-              checked={checked}
-              onChange={linkEvent(this, this.handleToggleSaved)}
-              autoComplete="off"
-              tabIndex={-1}
-            />
-            <label
-              htmlFor="saved-checkbox-inner"
-              class="form-check-label pointer"
-            >
-              {I18NextService.i18n.t("saved")}
-            </label>
-          </div>
+          id={radioId}
+          type="radio"
+          className="btn-check"
+          value={filter}
+          checked={active}
+          onChange={linkEvent(this, this.handleFilterChange)}
+          disabled={view === "Uploads"}
+        />
+        <label
+          htmlFor={radioId}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active,
+          })}
+        >
+          {I18NextService.i18n.t(filter.toLowerCase())}
         </label>
       </>
     );
   }
 
   get selects() {
-    const { sort, view, saved } = this.props;
+    const { sort, filter } = this.props;
     const { username } = this.props.match.params;
 
     const profileRss = `/feeds/u/${username}.xml${getQueryString({ sort })}`;
@@ -704,8 +751,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         <div className="col-auto">
           <PostSortSelect current={sort} onChange={this.handleSortChange} />
         </div>
-        {/* Don't show the rss feed for the Saved and Uploads view, as that's not implemented.*/}
-        {!saved && view !== "Uploads" && (
+        {/* TODO: Rss feed for the Saved, Uploads, and Upvoted */}
+        {filter === "None" && (
           <div className="col-auto">
             <a href={profileRss} rel={relTags} title="RSS">
               <Icon icon="rss" classes="text-muted small ps-0" />
@@ -1029,7 +1076,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       page,
       sort,
       view,
-      saved,
+      filter,
       match: {
         params: { username },
       },
@@ -1039,7 +1086,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       page,
       sort,
       view: view !== getViewFromProps(undefined) ? view : undefined,
-      saved: saved ? saved.toString() : undefined,
+      filter: filter !== getFilterFromQuery(undefined) ? filter : undefined,
     };
 
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
@@ -1054,16 +1101,17 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   handleViewChange(i: Profile, event: any) {
-    i.updateUrl({
-      view: getViewFromProps(event.target.value),
-      page: undefined,
-    });
+    const view = getViewFromProps(event.target.value);
+    if (view === "Uploads") {
+      i.updateUrl({ view, page: undefined, filter: undefined });
+    } else {
+      i.updateUrl({ view, page: undefined });
+    }
   }
 
-  handleToggleSaved(i: Profile, event?: any) {
-    event.preventDefault(); // prevent inner button also triggering outer button
+  handleFilterChange(i: Profile, event?: any) {
     i.updateUrl({
-      saved: !i.props.saved,
+      filter: getFilterFromQuery(event.target.value),
       page: undefined,
     });
   }
@@ -1328,12 +1376,19 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   updateCurrentList(
     mapFn: (c: PersonContentCombinedView) => PersonContentCombinedView,
   ) {
-    if (this.props.saved) {
+    if (this.props.filter === "Saved") {
       this.setState(s => {
         if (s.personSavedRes.state === "success") {
           s.personSavedRes.data.saved = s.personSavedRes.data.saved.map(mapFn);
         }
         return { personSavedRes: s.personSavedRes };
+      });
+    } else if (this.props.filter === "Liked") {
+      this.setState(s => {
+        if (s.personLikedRes.state === "success") {
+          s.personLikedRes.data.liked = s.personLikedRes.data.liked.map(mapFn);
+        }
+        return { personLikedRes: s.personLikedRes };
       });
     } else {
       this.setState(s => {
@@ -1347,7 +1402,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   editCombinedCurrent(data: PersonContentCombinedView) {
-    if (this.props.saved) {
+    if (this.props.filter === "Saved") {
       this.setState(s => {
         if (s.personSavedRes.state === "success") {
           s.personSavedRes.data.saved = editCombined(
@@ -1357,6 +1412,17 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           );
         }
         return { personSavedRes: s.personSavedRes };
+      });
+    } else if (this.props.filter === "Liked") {
+      this.setState(s => {
+        if (s.personLikedRes.state === "success") {
+          s.personLikedRes.data.liked = editCombined(
+            data,
+            s.personLikedRes.data.liked,
+            getUncombinedPersonContent,
+          );
+        }
+        return { personLikedRes: s.personLikedRes };
       });
     } else {
       this.setState(s => {

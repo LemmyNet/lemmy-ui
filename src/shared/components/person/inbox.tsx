@@ -610,7 +610,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       toast(I18NextService.i18n.t("edit"));
       this.findAndUpdateComment(res);
     } else if (res.state === "failed") {
-      toast(res.err.message, "danger");
+      toast(res.err.name, "danger");
     }
 
     return res;
@@ -697,10 +697,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     const res = await HttpService.client.editPrivateMessage(form);
     this.findAndUpdateMessage(res);
     if (res.state === "failed") {
-      toast(
-        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
-        "danger",
-      );
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
     return res.state !== "failed";
   }
@@ -767,10 +764,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(
-        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
-        "danger",
-      );
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
     return res.state !== "failed";
   }
@@ -876,10 +870,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     if (res.state === "success") {
       toast(I18NextService.i18n.t("report_created"));
     } else if (res.state === "failed") {
-      toast(
-        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
-        "danger",
-      );
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
   }
 

@@ -492,8 +492,8 @@ export class MarkdownTextArea extends Component<
       pictrsDeleteToast(res.data.filename);
     } else if (res.state === "failed") {
       i.setState({ imageUploadStatus: undefined });
-      console.error(res.err.message);
-      toast(res.err.message, "danger");
+      console.error(res.err.name);
+      toast(res.err.name, "danger");
 
       throw res.err;
     }

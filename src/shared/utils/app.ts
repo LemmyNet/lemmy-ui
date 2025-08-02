@@ -164,7 +164,7 @@ export async function communitySearch(
 export function communitySelectName(cv: CommunityView): string {
   return cv.community.local
     ? cv.community.title
-    : `${hostname(cv.community.ap_id)}/${cv.community.title}`;
+    : `!${cv.community.title}@${hostname(cv.community.ap_id)}`;
 }
 
 export function communityToChoice(cv: CommunityView): Choice {

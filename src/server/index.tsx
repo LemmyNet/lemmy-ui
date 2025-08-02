@@ -28,11 +28,13 @@ server.use(express.urlencoded({ extended: false }));
 
 const serverPath = path.resolve("./dist");
 
+// In debug mode, don't use the maxAge and immutable, or it breaks live reload for dev
 if (
-  !process.env["LEMMY_UI_DISABLE_CSP"] &&
-  !process.env["LEMMY_UI_DEBUG"] &&
-  process.env["NODE_ENV"] !== "development"
+  process.env["LEMMY_UI_DEBUG"] ||
+  process.env["NODE_ENV"] === "development"
 ) {
+  server.use(getStaticDir(), express.static(serverPath));
+} else {
   server.use(
     getStaticDir(),
     express.static(serverPath, {
@@ -40,11 +42,16 @@ if (
       immutable: true,
     }),
   );
-  server.use(setDefaultCsp);
   server.use(setCacheControl);
-} else {
-  // In debug mode, don't use the maxAge and immutable, or it breaks live reload for dev
-  server.use(getStaticDir(), express.static(serverPath));
+}
+
+// Only set the CSP if not in debug mode
+if (
+  !process.env["LEMMY_UI_DISABLE_CSP"] &&
+  !process.env["LEMMY_UI_DEBUG"] &&
+  process.env["NODE_ENV"] !== "development"
+) {
+  server.use(setDefaultCsp);
 }
 
 server.get("/.well-known/security.txt", SecurityHandler);

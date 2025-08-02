@@ -930,10 +930,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       toast(I18NextService.i18n.t("edited_post"));
       this.setState({ loading: false, showEdit: false });
     } else if (res.state === "failed") {
-      toast(
-        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
-        "danger",
-      );
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
       this.setState({ loading: false });
     }
   }

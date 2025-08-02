@@ -382,10 +382,7 @@ export class CreatePost extends Component<
       this.setState({
         loading: false,
       });
-      toast(
-        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
-        "danger",
-      );
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
   }
 

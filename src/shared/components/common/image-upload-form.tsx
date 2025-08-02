@@ -152,7 +152,7 @@ export class ImageUploadForm extends Component<
         i.props.onImageChange(res.data.image_url);
         toast(I18NextService.i18n.t("image_uploaded"));
       } else if (res.state === "failed") {
-        toast(res.err.message, "danger");
+        toast(res.err.name, "danger");
       }
 
       i.setState({ loading: false });

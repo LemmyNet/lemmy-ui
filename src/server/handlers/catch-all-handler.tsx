@@ -50,7 +50,7 @@ export default async (req: Request, res: Response) => {
     const trySite = await client.getSite();
     let tryUser = await client.getMyUser();
 
-    if (tryUser.state === "failed" && tryUser.err.message === "not_logged_in") {
+    if (tryUser.state === "failed" && tryUser.err.name === "not_logged_in") {
       console.error(
         "Incorrect JWT token, skipping auth so frontend can remove jwt cookie",
       );
@@ -95,24 +95,23 @@ export default async (req: Request, res: Response) => {
       }
     } else if (trySite.state === "failed") {
       res.status(500);
-      errorPageData = getErrorPageData(new Error(trySite.err.message), siteRes);
+      errorPageData = getErrorPageData(new Error(trySite.err.name), siteRes);
     }
 
     const error = Object.values(routeData).find(
-      res =>
-        res.state === "failed" && res.err.message !== "couldnt_find_object", // TODO: find a better way of handling errors
+      res => res.state === "failed" && res.err.name !== "couldnt_find_object", // TODO: find a better way of handling errors
     ) as FailedRequestState | undefined;
 
     // Redirect to the 404 if there's an API error
     if (error) {
       console.error(error.err);
 
-      if (error.err.message === "instance_is_private") {
+      if (error.err.name === "instance_is_private") {
         res.redirect(`/signup`);
         return;
       } else {
         res.status(500);
-        errorPageData = getErrorPageData(new Error(error.err.message), siteRes);
+        errorPageData = getErrorPageData(new Error(error.err.name), siteRes);
       }
     }
 
@@ -159,7 +158,7 @@ export default async (req: Request, res: Response) => {
     res.statusCode = 500;
 
     res.send(
-      process.env.NODE_ENV === "development" ? err.message : "Server error",
+      process.env.NODE_ENV === "development" ? err.name : "Server error",
     );
   }
 };

@@ -176,10 +176,7 @@ export class CreatePrivateMessage extends Component<
       // Navigate to the front
       this.context.router.history.push("/");
     } else if (res.state === "failed") {
-      toast(
-        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
-        "danger",
-      );
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
 
     return res.state !== "failed";

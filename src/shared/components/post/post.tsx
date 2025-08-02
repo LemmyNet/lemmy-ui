@@ -1436,10 +1436,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(
-        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
-        "danger",
-      );
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
   }
 
@@ -1454,10 +1451,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(
-        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
-        "danger",
-      );
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
   }
 
@@ -1472,10 +1466,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       return s;
     });
     if (res.state === "failed") {
-      toast(
-        I18NextService.i18n.t(res.err.message as NoOptionI18nKeys),
-        "danger",
-      );
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
   }
 

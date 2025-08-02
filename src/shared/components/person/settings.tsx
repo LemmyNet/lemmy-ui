@@ -37,7 +37,7 @@ import {
   UpdateTotpResponse,
   VoteShow,
 } from "lemmy-js-client";
-import { elementUrl, emDash, fetchLimit, relTags } from "@utils/config";
+import { matrixUrl, emDash, fetchLimit, relTags } from "@utils/config";
 import { FirstLoadService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -161,7 +161,7 @@ async function handleGenerateTotp(i: Settings) {
   const generateTotpRes = await HttpService.client.generateTotpSecret();
 
   if (generateTotpRes.state === "failed") {
-    toast(generateTotpRes.err.message, "danger");
+    toast(generateTotpRes.err.name, "danger");
   } else {
     i.setState({ show2faModal: true });
   }
@@ -742,7 +742,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <MarkdownTextArea
                 initialContent={this.state.saveUserSettingsForm.bio}
                 onContentChange={this.handleBioChange}
-                maxLength={300}
+                maxLength={1000}
                 hideNavigationWarnings
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
@@ -768,7 +768,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           </div>
           <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="matrix-user-id">
-              <a href={elementUrl} rel={relTags}>
+              <a href={matrixUrl} rel={relTags}>
                 {I18NextService.i18n.t("matrix_user_id")}
               </a>
             </label>
@@ -1765,7 +1765,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       i.exportSettingsLink.current?.click();
     } else if (res.state === "failed") {
       toast(
-        res.err.message === "rate_limit_error"
+        res.err.name === "rate_limit_error"
           ? I18NextService.i18n.t("import_export_rate_limit_error")
           : I18NextService.i18n.t("export_error"),
         "danger",
@@ -1857,7 +1857,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       }
     } else if (res.state === "failed") {
       toast(
-        res.err.message === "rate_limit_error"
+        res.err.name === "rate_limit_error"
           ? I18NextService.i18n.t("import_export_rate_limit_error")
           : I18NextService.i18n.t("import_error"),
         "danger",

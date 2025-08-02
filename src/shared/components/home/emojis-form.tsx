@@ -588,8 +588,8 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
           event,
         );
       } else if (res.state === "failed") {
-        console.error(res.err.message);
-        toast(res.err.message, "danger");
+        console.error(res.err.name);
+        toast(res.err.name, "danger");
       }
     });
   }

@@ -51,7 +51,8 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
 
     const blurImage =
       nsfw &&
-      (this.isoData.myUserInfo?.local_user_view.local_user.blur_nsfw ?? true);
+      (this.isoData.myUserInfo?.local_user_view.local_user.blur_nsfw ??
+        !this.isoData.siteRes.site_view.site.content_warning);
 
     return (
       !this.isoData.showAdultConsentModal && (

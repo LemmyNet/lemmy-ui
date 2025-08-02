@@ -4,7 +4,6 @@ import {
   enableNsfw,
   fetchCommunities,
   fetchUsers,
-  getUncombinedSearch,
   personToChoice,
   setIsoData,
   showLocal,
@@ -22,7 +21,7 @@ import {
   resourcesSettled,
   cursorComponents,
 } from "@utils/helpers";
-import type { DirectionalCursor, QueryParams } from "@utils/types";
+import type { DirectionalCursor, IsoData, QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent, createRef } from "inferno";
 import {
@@ -41,8 +40,10 @@ import {
   SearchType,
   SearchSortType,
   PaginationCursor,
-  SearchCombinedView,
   MyUserInfo,
+  PostView,
+  CommentView,
+  MultiCommunityView,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { CommentViewType, InitialFetchRequest } from "@utils/types";
@@ -174,24 +175,153 @@ const Filter = ({
 };
 
 const communityListing = (
-  { community }: CommunityView,
+  communities: CommunityView[],
   myUserInfo: MyUserInfo | undefined,
-) =>
-  getListing(
-    <CommunityLink community={community} myUserInfo={myUserInfo} />,
-    community.subscribers,
-    "number_of_subscribers",
+) => {
+  return (
+    communities.length > 0 && (
+      <>
+        <h3>{I18NextService.i18n.t("communities")}</h3>
+        {communities.map(c => (
+          <div>
+            {getListing(
+              <CommunityLink community={c.community} myUserInfo={myUserInfo} />,
+              c.community.subscribers,
+              "number_of_subscribers",
+            )}
+          </div>
+        ))}
+        <hr class="border m-2" />
+      </>
+    )
   );
+};
 
 const personListing = (
-  { person }: PersonView,
+  persons: PersonView[],
   myUserInfo: MyUserInfo | undefined,
-) =>
-  getListing(
-    <PersonListing person={person} showApubName myUserInfo={myUserInfo} />,
-    person.comment_count,
-    "number_of_comments",
+) => {
+  return (
+    persons.length > 0 && (
+      <>
+        <h3>{I18NextService.i18n.t("users")}</h3>
+        {persons.map(p => (
+          <div>
+            {getListing(
+              <PersonListing
+                person={p.person}
+                showApubName
+                myUserInfo={myUserInfo}
+              />,
+              p.person.comment_count,
+              "number_of_comments",
+            )}
+          </div>
+        ))}
+        <hr class="border m-2" />
+      </>
+    )
   );
+};
+
+const postListing = (posts: PostView[], isoData: IsoData) => {
+  return (
+    posts.length > 0 && (
+      <>
+        <h3>{I18NextService.i18n.t("posts")}</h3>
+        {posts.map(post_view => (
+          <div>
+            <PostListing
+              key={post_view.post.id}
+              post_view={post_view}
+              showCommunity
+              myUserInfo={isoData.myUserInfo}
+              localSite={isoData.siteRes.site_view.local_site}
+              showAdultConsentModal={isoData.showAdultConsentModal}
+              enableNsfw={enableNsfw(isoData.siteRes)}
+              allLanguages={isoData.siteRes.all_languages}
+              siteLanguages={isoData.siteRes.discussion_languages}
+              admins={isoData.siteRes.admins}
+              viewOnly
+              // All of these are unused, since its view only
+              onPostEdit={async () => EMPTY_REQUEST}
+              onPostVote={async () => EMPTY_REQUEST}
+              onPostReport={async () => {}}
+              onBlockPerson={async () => {}}
+              onLockPost={async () => {}}
+              onDeletePost={async () => {}}
+              onRemovePost={async () => {}}
+              onSavePost={async () => {}}
+              onFeaturePost={async () => {}}
+              onPurgePerson={async () => {}}
+              onPurgePost={async () => {}}
+              onBanPersonFromCommunity={async () => {}}
+              onBanPerson={async () => {}}
+              onAddModToCommunity={async () => {}}
+              onAddAdmin={async () => {}}
+              onTransferCommunity={async () => {}}
+              onMarkPostAsRead={async () => {}}
+              onHidePost={async () => {}}
+            />
+          </div>
+        ))}
+        <hr class="border m-2" />
+      </>
+    )
+  );
+};
+
+const commentListing = (comments: CommentView[], isoData: IsoData) => {
+  return (
+    comments.length > 0 && (
+      <>
+        <h3>{I18NextService.i18n.t("comments")}</h3>
+        {comments.map(c => (
+          <div>
+            <CommentNodes
+              key={c.comment.id}
+              nodes={[
+                {
+                  comment_view: c,
+                  children: [],
+                  depth: 0,
+                },
+              ]}
+              viewType={CommentViewType.Flat}
+              viewOnly
+              locked
+              isTopLevel
+              myUserInfo={isoData.myUserInfo}
+              localSite={isoData.siteRes.site_view.local_site}
+              allLanguages={isoData.siteRes.all_languages}
+              siteLanguages={isoData.siteRes.discussion_languages}
+              admins={isoData.siteRes.admins}
+              // All of these are unused, since its viewonly
+              onSaveComment={async () => {}}
+              onBlockPerson={async () => {}}
+              onDeleteComment={async () => {}}
+              onRemoveComment={async () => {}}
+              onCommentVote={async () => {}}
+              onCommentReport={async () => {}}
+              onDistinguishComment={async () => {}}
+              onAddModToCommunity={async () => {}}
+              onAddAdmin={async () => {}}
+              onTransferCommunity={async () => {}}
+              onPurgeComment={async () => {}}
+              onPurgePerson={async () => {}}
+              onCommentReplyRead={() => {}}
+              onBanPersonFromCommunity={async () => {}}
+              onBanPerson={async () => {}}
+              onCreateComment={async () => EMPTY_REQUEST}
+              onEditComment={async () => EMPTY_REQUEST}
+            />
+          </div>
+        ))}
+        <hr class="border m-2" />
+      </>
+    )
+  );
+};
 
 function getListing(
   listing: JSX.ElementClass,
@@ -573,6 +703,18 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             )}
           </button>
         </div>
+        <div className="col-auto form-check ms-2 mt-0 h-min d-flex align-items-center">
+          <input
+            type="checkbox"
+            className="form-check-input"
+            onChange={linkEvent(this, this.handleTitleOnlyChange)}
+            checked={this.props.titleOnly}
+            id="title_only"
+          />
+          <label for="title_only" className="form-check-label">
+            {I18NextService.i18n.t("post_title_only")}
+          </label>
+        </div>
       </form>
     );
   }
@@ -656,106 +798,42 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     );
   }
 
-  buildCombined(): SearchCombinedView[] {
-    const combined =
-      this.state.searchRes.state === "success"
-        ? this.state.searchRes.data.results
-        : [];
-    return combined;
-  }
-
   get all() {
-    const combined = this.buildCombined();
-    const siteRes = this.state.siteRes;
+    const { searchRes: searchResponse } = this.state;
+    const comments_array: CommentView[] = [];
+    const posts_array: PostView[] = [];
+    const communities_array: CommunityView[] = [];
+    const persons_array: PersonView[] = [];
+    const multi_communities_array: MultiCommunityView[] = [];
+    if (searchResponse.state === "success") {
+      searchResponse.data.results.forEach(sr => {
+        switch (sr.type_) {
+          case "Post":
+            posts_array.push(sr);
+            break;
+          case "Comment":
+            comments_array.push(sr);
+            break;
+          case "Community":
+            communities_array.push(sr);
+            break;
+          case "Person":
+            persons_array.push(sr);
+            break;
+          case "MultiCommunity":
+            multi_communities_array.push(sr); //TODO: display these
+            break;
+        }
+      });
+    }
 
     return (
-      <div>
-        {combined.map(i => (
-          <div key={i.type_ + getUncombinedSearch(i).id} className="row">
-            <div className="col-12">
-              {i.type_ === "Post" && (
-                <PostListing
-                  key={i.type_ + i.post.id}
-                  post_view={i}
-                  showCommunity
-                  enableNsfw={enableNsfw(siteRes)}
-                  showAdultConsentModal={this.isoData.showAdultConsentModal}
-                  allLanguages={siteRes.all_languages}
-                  siteLanguages={siteRes.discussion_languages}
-                  viewOnly
-                  myUserInfo={this.isoData.myUserInfo}
-                  localSite={siteRes.site_view.local_site}
-                  admins={this.isoData.siteRes.admins}
-                  // All of these are unused, since its view only
-                  onPostEdit={async () => EMPTY_REQUEST}
-                  onPostVote={async () => EMPTY_REQUEST}
-                  onPostReport={async () => {}}
-                  onBlockPerson={async () => {}}
-                  onLockPost={async () => {}}
-                  onDeletePost={async () => {}}
-                  onRemovePost={async () => {}}
-                  onSavePost={async () => {}}
-                  onFeaturePost={async () => {}}
-                  onPurgePerson={async () => {}}
-                  onPurgePost={async () => {}}
-                  onBanPersonFromCommunity={async () => {}}
-                  onBanPerson={async () => {}}
-                  onAddModToCommunity={async () => {}}
-                  onAddAdmin={async () => {}}
-                  onTransferCommunity={async () => {}}
-                  onMarkPostAsRead={async () => {}}
-                  onHidePost={async () => {}}
-                />
-              )}
-              {i.type_ === "Comment" && (
-                <CommentNodes
-                  key={i.type_ + i.comment.id}
-                  nodes={[
-                    {
-                      comment_view: i,
-                      children: [],
-                      depth: 0,
-                    },
-                  ]}
-                  viewType={CommentViewType.Flat}
-                  viewOnly
-                  locked
-                  isTopLevel
-                  allLanguages={siteRes.all_languages}
-                  siteLanguages={siteRes.discussion_languages}
-                  myUserInfo={this.isoData.myUserInfo}
-                  localSite={siteRes.site_view.local_site}
-                  admins={this.isoData.siteRes.admins}
-                  // All of these are unused, since its viewonly
-                  onSaveComment={async () => {}}
-                  onBlockPerson={async () => {}}
-                  onDeleteComment={async () => {}}
-                  onRemoveComment={async () => {}}
-                  onCommentVote={async () => {}}
-                  onCommentReport={async () => {}}
-                  onDistinguishComment={async () => {}}
-                  onAddModToCommunity={async () => {}}
-                  onAddAdmin={async () => {}}
-                  onTransferCommunity={async () => {}}
-                  onPurgeComment={async () => {}}
-                  onPurgePerson={async () => {}}
-                  onCommentReplyRead={() => {}}
-                  onBanPersonFromCommunity={async () => {}}
-                  onBanPerson={async () => {}}
-                  onCreateComment={async () => EMPTY_REQUEST}
-                  onEditComment={async () => EMPTY_REQUEST}
-                />
-              )}
-              {i.type_ === "Community" && (
-                <div>{communityListing(i, this.isoData.myUserInfo)}</div>
-              )}
-              {i.type_ === "Person" && (
-                <div>{personListing(i, this.isoData.myUserInfo)}</div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+      <>
+        {communityListing(communities_array, this.isoData.myUserInfo)}
+        {personListing(persons_array, this.isoData.myUserInfo)}
+        {postListing(posts_array, this.isoData)}
+        {commentListing(comments_array, this.isoData)}
+      </>
     );
   }
 
@@ -859,13 +937,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     return (
       <>
-        {communities.map(cv => (
-          <div key={cv.community.id} className="row">
-            <div className="col-12">
-              {communityListing(cv, this.isoData.myUserInfo)}
-            </div>
-          </div>
-        ))}
+        <div className="col-12">
+          {communityListing(communities, this.isoData.myUserInfo)}
+        </div>
       </>
     );
   }
@@ -879,13 +953,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     return (
       <>
-        {users.map(pvs => (
-          <div key={pvs.person.id} className="row">
-            <div className="col-12">
-              {personListing(pvs, this.isoData.myUserInfo)}
-            </div>
-          </div>
-        ))}
+        <div className="col-12">
+          {personListing(users, this.isoData.myUserInfo)}
+        </div>
       </>
     );
   }
@@ -922,6 +992,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         sort,
         listing_type: listingType,
         title_only: titleOnly,
+        limit: fetchLimit,
         ...cursorComponents(page),
       });
       if (token !== this.searchToken) {
@@ -980,7 +1051,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   handleTitleOnlyChange(event: any) {
-    const titleOnly = event.target.checked;
+    const titleOnly = getBoolFromString(event.target.checked);
     this.updateUrl({ titleOnly, q: this.getQ() });
   }
 
