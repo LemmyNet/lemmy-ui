@@ -35,6 +35,7 @@ import {
   SaveUserSettings,
   SuccessResponse,
   UpdateTotpResponse,
+  VoteShow,
 } from "lemmy-js-client";
 import { elementUrl, emDash, fetchLimit, relTags } from "@utils/config";
 import { FirstLoadService, UserService } from "../../services";
@@ -56,7 +57,7 @@ import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
 import { SearchableSelect } from "../common/searchable-select";
-import { PostSortSelect } from "../common/sort-select";
+import { PostSortSelect, VoteShowSelect } from "../common/sort-select";
 import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
@@ -989,23 +990,19 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </div>
           </div>
           {enableDownvotes(siteRes) && (
-            <div className="input-group mb-3">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="user-show-downvotes"
-                  type="checkbox"
-                  checked={this.state.saveUserSettingsForm.show_downvotes}
-                  onChange={linkEvent(this, this.handleShowDownvotesChange)}
+            <form className="mb-3 row">
+              <label className="col-sm-3 col-form-label">
+                {I18NextService.i18n.t("show_downvotes")}
+              </label>
+              <div className="col-sm-9">
+                <VoteShowSelect
+                  current={
+                    this.state.saveUserSettingsForm.show_downvotes ?? "Show"
+                  }
+                  onChange={this.handleShowDownvotesChange}
                 />
-                <label
-                  className="form-check-label"
-                  htmlFor="user-show-downvotes"
-                >
-                  {I18NextService.i18n.t("show_downvotes")}
-                </label>
               </div>
-            </div>
+            </form>
           )}
           <div className="input-group mb-3">
             <div className="form-check">
@@ -1566,14 +1563,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
-  handleShowDownvotesChange(i: Settings, event: any) {
-    const mui = i.isoData.myUserInfo;
-    if (mui) {
-      mui.local_user_view.local_user.show_downvotes = event.target.checked;
-    }
-    i.setState(
-      s => ((s.saveUserSettingsForm.show_downvotes = event.target.checked), s),
-    );
+  handleShowDownvotesChange(val: VoteShow) {
+    this.setState(s => ((s.saveUserSettingsForm.show_downvotes = val), s));
   }
 
   handleShowUpvotePercentageChange(i: Settings, event: any) {

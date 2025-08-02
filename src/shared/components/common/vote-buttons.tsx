@@ -8,6 +8,7 @@ import {
   LocalSite,
   LocalUser,
   MyUserInfo,
+  PersonId,
   Post,
 } from "lemmy-js-client";
 import { VoteContentType, VoteType } from "@utils/types";
@@ -44,10 +45,13 @@ export function showDownvotes(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
   type: VoteContentType,
+  creatorId: PersonId,
 ): boolean {
-  return (
-    enableDownvotes(localSite, type) && (localUser?.show_downvotes ?? true)
-  );
+  const show =
+    localUser?.show_downvotes === "Show" ||
+    (localUser?.show_downvotes === "ShowForOthers" &&
+      localUser?.person_id !== creatorId);
+  return enableDownvotes(localSite, type) && show;
 }
 
 export function showScore(localUser: LocalUser | undefined): boolean {
@@ -93,6 +97,7 @@ function tippy(
   localSite: LocalSite,
   counts: Comment | Post,
   type: VoteContentType,
+  creatorId: PersonId,
 ): string {
   const scoreStr =
     localUser?.show_score &&
@@ -118,7 +123,7 @@ function tippy(
     });
 
   const downvoteStr =
-    showDownvotes(localUser, localSite, type) &&
+    showDownvotes(localUser, localSite, type, creatorId) &&
     I18NextService.i18n.t("number_of_downvotes", {
       count: Number(counts.downvotes),
       formattedCount: Number(counts.downvotes),
@@ -193,7 +198,12 @@ export class VoteButtonsCompact extends Component<
 
   render() {
     const localUser = this.props.myUserInfo?.local_user_view.local_user;
-    const { localSite, subject, voteContentType } = this.props;
+    const {
+      localSite,
+      subject,
+      voteContentType,
+      subject: { creator_id },
+    } = this.props;
     return (
       <>
         {enableUpvotes(localSite, voteContentType) && (
@@ -207,6 +217,7 @@ export class VoteButtonsCompact extends Component<
               localSite,
               subject,
               voteContentType,
+              creator_id,
             )}
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}
@@ -240,6 +251,7 @@ export class VoteButtonsCompact extends Component<
               localSite,
               subject,
               voteContentType,
+              creator_id,
             )}
             aria-label={I18NextService.i18n.t("downvote")}
             aria-pressed={this.props.myVote === -1}
@@ -249,7 +261,12 @@ export class VoteButtonsCompact extends Component<
             ) : (
               <>
                 <Icon icon="arrow-down1" classes="icon-inline small" />
-                {showDownvotes(localUser, localSite, voteContentType) && (
+                {showDownvotes(
+                  localUser,
+                  localSite,
+                  voteContentType,
+                  creator_id,
+                ) && (
                   <span
                     className={classNames("ms-2", {
                       invisible: this.props.subject.downvotes === 0,
@@ -291,7 +308,12 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
 
   render() {
     const localUser = this.props.myUserInfo?.local_user_view.local_user;
-    const { localSite, subject, voteContentType } = this.props;
+    const {
+      localSite,
+      subject,
+      voteContentType,
+      subject: { creator_id },
+    } = this.props;
     return (
       <div className="vote-bar small text-center">
         {enableUpvotes(localSite, voteContentType) && (
@@ -307,6 +329,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
               localSite,
               subject,
               voteContentType,
+              creator_id,
             )}
             aria-label={I18NextService.i18n.t("upvote")}
             aria-pressed={this.props.myVote === 1}
@@ -326,6 +349,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
               localSite,
               subject,
               voteContentType,
+              creator_id,
             )}
           >
             {numToSI(this.props.subject.score)}
@@ -346,6 +370,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
               localSite,
               subject,
               voteContentType,
+              creator_id,
             )}
             aria-label={I18NextService.i18n.t("downvote")}
             aria-pressed={this.props.myVote === -1}

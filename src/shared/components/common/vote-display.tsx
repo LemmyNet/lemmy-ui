@@ -118,10 +118,18 @@ export class VoteDisplay extends Component<Props, any> {
       "post_id" in this.props.subject
         ? VoteContentType.Comment
         : VoteContentType.Post;
-    const { localSite } = this.props;
+    const {
+      localSite,
+      subject: { creator_id },
+    } = this.props;
 
     const show_upvotes = showUpvotes(localUser, localSite, type);
-    const show_downvotes = showDownvotes(localUser, localSite, type);
+    const show_downvotes = showDownvotes(
+      localUser,
+      localSite,
+      type,
+      creator_id,
+    );
 
     const votesCheck = show_upvotes || show_downvotes;
     const downvotesCheck = this.props.subject.downvotes > 0;

@@ -9,6 +9,7 @@ import {
   CommunitySortType,
   PostSortType,
   SearchSortType,
+  VoteShow,
 } from "lemmy-js-client";
 
 interface CommonSortSelectProps<SortT extends string> {
@@ -186,6 +187,25 @@ export class SearchSortSelect extends Component<
         title="sort_type"
         onChange={this.props.onChange}
         choices={searchSortChoices}
+        current={this.props.current}
+      />
+    );
+  }
+}
+
+const voteShowChoices: SortChoice<VoteShow>[] = [
+  { key: "vote_show", value: "Show" },
+  { key: "vote_show_for_others", value: "ShowForOthers" },
+  { key: "vote_hide", value: "Hide" },
+];
+
+export class VoteShowSelect extends Component<CommonSortSelectProps<VoteShow>> {
+  render() {
+    return (
+      <SortSelect<VoteShow>
+        title="sort_type"
+        onChange={this.props.onChange}
+        choices={voteShowChoices}
         current={this.props.current}
       />
     );
