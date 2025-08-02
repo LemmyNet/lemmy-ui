@@ -59,6 +59,12 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     post.name = r.post_report.original_post_name;
     post.url = r.post_report.original_post_url;
     post.body = r.post_report.original_post_body;
+
+    const can_mod =
+      (this.props.myUserInfo &&
+        this.props.myUserInfo.local_user_view.person.id !== r.creator.id) ??
+      false;
+
     const pv: PostView = {
       post,
       creator: r.post_creator,
@@ -70,7 +76,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       instance_actions: undefined, // TODO: ?
       creator_community_actions: r.creator_community_actions,
       creator_is_admin: r.creator_is_admin,
-      can_mod: true, // TODO: Reports are only shown to users that can_mod?
+      can_mod,
       creator_banned: !!r.creator_community_actions?.received_ban,
       tags: [],
     };
