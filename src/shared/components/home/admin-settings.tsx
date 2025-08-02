@@ -9,7 +9,7 @@ import { DirectionalCursor, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component } from "inferno";
 import {
-  BannedPersonsResponse,
+  AdminListUsersResponse,
   CreateOAuthProvider,
   DeleteOAuthProvider,
   EditOAuthProvider,
@@ -18,7 +18,6 @@ import {
   GetSiteResponse,
   LemmyHttp,
   ListMediaResponse,
-  PersonView,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -50,16 +49,15 @@ import { InstanceBlocks } from "./instance-blocks";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 
 type AdminSettingsData = RouteDataResponse<{
-  bannedRes: BannedPersonsResponse;
+  usersRes: AdminListUsersResponse;
   instancesRes: GetFederatedInstancesResponse;
   uploadsRes: ListMediaResponse;
 }>;
 
 interface AdminSettingsState {
-  banned: PersonView[];
   instancesRes: RequestState<GetFederatedInstancesResponse>;
-  bannedRes: RequestState<BannedPersonsResponse>;
-  bannedPage?: DirectionalCursor;
+  usersRes: RequestState<AdminListUsersResponse>;
+  usersPage?: DirectionalCursor;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<ListMediaResponse>;
@@ -84,8 +82,7 @@ export class AdminSettings extends Component<
 > {
   private isoData = setIsoData<AdminSettingsData>(this.context);
   state: AdminSettingsState = {
-    banned: [],
-    bannedRes: EMPTY_REQUEST,
+    usersRes: EMPTY_REQUEST,
     instancesRes: EMPTY_REQUEST,
     leaveAdminTeamRes: EMPTY_REQUEST,
     showConfirmLeaveAdmin: false,
@@ -97,7 +94,7 @@ export class AdminSettings extends Component<
 
   loadingSettled() {
     return resourcesSettled([
-      this.state.bannedRes,
+      this.state.usersRes,
       this.state.instancesRes,
       this.state.uploadsRes,
     ]);
@@ -107,7 +104,7 @@ export class AdminSettings extends Component<
     super(props, context);
 
     this.handleEditSite = this.handleEditSite.bind(this);
-    this.handleBannedPageChange = this.handleBannedPageChange.bind(this);
+    this.handleUsersPageChange = this.handleUsersPageChange.bind(this);
     this.handleUploadsPageChange = this.handleUploadsPageChange.bind(this);
     this.handleToggleShowLeaveAdminConfirmation =
       this.handleToggleShowLeaveAdminConfirmation.bind(this);
@@ -118,11 +115,11 @@ export class AdminSettings extends Component<
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const { bannedRes, instancesRes, uploadsRes } = this.isoData.routeData;
+      const { usersRes, instancesRes, uploadsRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
-        bannedRes,
+        usersRes,
         instancesRes,
         uploadsRes,
         isIsomorphic: true,
@@ -137,7 +134,7 @@ export class AdminSettings extends Component<
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
-      bannedRes: await client.listBannedPersons(),
+      usersRes: await client.listUsers({ banned_only: true }),
       instancesRes: await client.getFederatedInstances(),
       uploadsRes: await client.listMedia(),
     };
@@ -341,15 +338,16 @@ export class AdminSettings extends Component<
 
   async fetchData() {
     this.setState({
-      bannedRes: LOADING_REQUEST,
+      usersRes: LOADING_REQUEST,
       instancesRes: LOADING_REQUEST,
       uploadsRes: LOADING_REQUEST,
       themeList: [],
     });
 
-    const [bannedRes, instancesRes, uploadsRes, themeList] = await Promise.all([
-      HttpService.client.listBannedPersons({
-        ...cursorComponents(this.state.bannedPage),
+    const [usersRes, instancesRes, uploadsRes, themeList] = await Promise.all([
+      HttpService.client.listUsers({
+        banned_only: true,
+        ...cursorComponents(this.state.usersPage),
       }),
       HttpService.client.getFederatedInstances(),
       HttpService.client.listMedia({
@@ -359,7 +357,7 @@ export class AdminSettings extends Component<
     ]);
 
     this.setState({
-      bannedRes,
+      usersRes,
       instancesRes,
       uploadsRes,
       themeList,
@@ -417,7 +415,7 @@ export class AdminSettings extends Component<
   }
 
   bannedUsers() {
-    switch (this.state.bannedRes.state) {
+    switch (this.state.usersRes.state) {
       case "loading":
         return (
           <h5>
@@ -425,7 +423,7 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const bans = this.state.bannedRes.data.banned;
+        const bans = this.state.usersRes.data.users;
         return (
           <>
             <h1 className="h4 mb-4">{I18NextService.i18n.t("banned_users")}</h1>
@@ -440,8 +438,8 @@ export class AdminSettings extends Component<
               ))}
             </ul>
             <PaginatorCursor
-              resource={this.state.bannedRes}
-              onPageChange={this.handleBannedPageChange}
+              resource={this.state.usersRes}
+              onPageChange={this.handleUsersPageChange}
             />
           </>
         );
@@ -512,8 +510,8 @@ export class AdminSettings extends Component<
     }
   }
 
-  async handleBannedPageChange(bannedPage: DirectionalCursor) {
-    this.setState({ bannedPage });
+  async handleUsersPageChange(usersPage: DirectionalCursor) {
+    this.setState({ usersPage });
     await this.fetchData();
   }
 
