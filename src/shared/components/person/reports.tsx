@@ -26,6 +26,7 @@ import {
   PaginationCursor,
   ResolveCommunityReport,
   CommunityReportResponse,
+  ReportType,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, HttpService, I18NextService } from "../../services";
@@ -53,14 +54,6 @@ enum UnreadOrAll {
   All,
 }
 
-enum MessageType {
-  All,
-  CommentReport,
-  PostReport,
-  PrivateMessageReport,
-  CommunityReport,
-}
-
 type ReportsData = RouteDataResponse<{
   reportsRes: ListReportsResponse;
 }>;
@@ -68,7 +61,7 @@ type ReportsData = RouteDataResponse<{
 interface ReportsState {
   reportsRes: RequestState<ListReportsResponse>;
   unreadOrAll: UnreadOrAll;
-  messageType: MessageType;
+  messageType: ReportType;
   siteRes: GetSiteResponse;
   page?: DirectionalCursor;
   isIsomorphic: boolean;
@@ -88,7 +81,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   state: ReportsState = {
     reportsRes: EMPTY_REQUEST,
     unreadOrAll: UnreadOrAll.Unread,
-    messageType: MessageType.All,
+    messageType: "All",
     siteRes: this.isoData.siteRes,
     isIsomorphic: false,
   };
@@ -165,19 +158,19 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
   get section() {
     switch (this.state.messageType) {
-      case MessageType.All: {
+      case "All": {
         return this.all();
       }
-      case MessageType.CommentReport: {
+      case "Comments": {
         return this.commentReports();
       }
-      case MessageType.PostReport: {
+      case "Posts": {
         return this.postReports();
       }
-      case MessageType.PrivateMessageReport: {
+      case "PrivateMessages": {
         return this.privateMessageReports();
       }
-      case MessageType.CommunityReport: {
+      case "Communities": {
         return this.communityReports();
       }
 
@@ -238,14 +231,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           id={`${radioId}-all`}
           type="radio"
           className="btn-check"
-          value={MessageType.All}
-          checked={this.state.messageType === MessageType.All}
+          value={"All"}
+          checked={this.state.messageType === "All"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-all`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === MessageType.All,
+            active: this.state.messageType === "All",
           })}
         >
           {I18NextService.i18n.t("all")}
@@ -255,14 +248,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           id={`${radioId}-comments`}
           type="radio"
           className="btn-check"
-          value={MessageType.CommentReport}
-          checked={this.state.messageType === MessageType.CommentReport}
+          value={"Comments"}
+          checked={this.state.messageType === "Comments"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-comments`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === MessageType.CommentReport,
+            active: this.state.messageType === "Comments",
           })}
         >
           {I18NextService.i18n.t("comments")}
@@ -272,14 +265,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           id={`${radioId}-posts`}
           type="radio"
           className="btn-check"
-          value={MessageType.PostReport}
-          checked={this.state.messageType === MessageType.PostReport}
+          value={"Posts"}
+          checked={this.state.messageType === "Posts"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-posts`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === MessageType.PostReport,
+            active: this.state.messageType === "Posts",
           })}
         >
           {I18NextService.i18n.t("posts")}
@@ -291,34 +284,31 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
               id={`${radioId}-messages`}
               type="radio"
               className="btn-check"
-              value={MessageType.PrivateMessageReport}
-              checked={
-                this.state.messageType === MessageType.PrivateMessageReport
-              }
+              value={"PrivateMessages"}
+              checked={this.state.messageType === "PrivateMessages"}
               onChange={linkEvent(this, this.handleMessageTypeChange)}
             />
             <label
               htmlFor={`${radioId}-messages`}
               className={classNames("btn btn-outline-secondary pointer", {
-                active:
-                  this.state.messageType === MessageType.PrivateMessageReport,
+                active: this.state.messageType === "PrivateMessages",
               })}
             >
               {I18NextService.i18n.t("messages")}
             </label>
 
             <input
-              id={`${radioId}-messages`}
+              id={`${radioId}-communities`}
               type="radio"
               className="btn-check"
-              value={MessageType.CommunityReport}
-              checked={this.state.messageType === MessageType.CommunityReport}
+              value={"Communities"}
+              checked={this.state.messageType === "Communities"}
               onChange={linkEvent(this, this.handleMessageTypeChange)}
             />
             <label
               htmlFor={`${radioId}-communities`}
               className={classNames("btn btn-outline-secondary pointer", {
-                active: this.state.messageType === MessageType.CommunityReport,
+                active: this.state.messageType === "Communities",
               })}
             >
               {I18NextService.i18n.t("communities")}
@@ -552,11 +542,20 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   }
 
   async handleMessageTypeChange(i: Reports, event: any) {
-    i.setState({
-      messageType: Number(event.target.value),
-      page: undefined,
-    });
-    await i.refetch();
+    console.log(event.target.value);
+    switch (event.target.value) {
+      case "All":
+      case "Comments":
+      case "Posts":
+      case "PrivateMessages":
+      case "Communities": {
+        i.setState({
+          messageType: event.target.value,
+          page: undefined,
+        });
+        await i.refetch();
+      }
+    }
   }
 
   static async fetchInitialData({
@@ -588,6 +587,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
     const form: ListReports = {
       unresolved_only,
+      type_: this.state.messageType,
       ...cursorComponents(page),
     };
 

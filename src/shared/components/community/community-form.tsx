@@ -171,6 +171,7 @@ export class CommunityForm extends Component<
               imageSrc={this.state.form.icon}
               uploadKey="uploadCommunityIcon"
               removeKey="deleteCommunityIcon"
+              communityId={this.props.community_view?.community.id ?? -1}
               onImageChange={this.handleIconChange}
               rounded
               disabled={!this.props.myUserInfo}
@@ -187,6 +188,7 @@ export class CommunityForm extends Component<
               imageSrc={this.state.form.banner}
               uploadKey="uploadCommunityBanner"
               removeKey="deleteCommunityBanner"
+              communityId={this.props.community_view?.community.id ?? -1}
               onImageChange={this.handleBannerChange}
               disabled={!this.props.myUserInfo}
             />

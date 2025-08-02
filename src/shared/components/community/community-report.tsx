@@ -27,7 +27,7 @@ const reportElements = [
   "name",
   "title",
   "description",
-  "sidebar", // lemmy-ui only uses "description"
+  "sidebar",
   "icon",
   "banner",
 ] as const;
@@ -71,9 +71,12 @@ export class CommunityReport extends Component<Props, State> {
           myUserInfo={this.props.myUserInfo}
         />
         {mergedCommunity.description && (
+          <div>{mergedCommunity.description}</div>
+        )}
+        {mergedCommunity.sidebar && (
           <div
             className="md-div"
-            dangerouslySetInnerHTML={mdToHtml(mergedCommunity.description, () =>
+            dangerouslySetInnerHTML={mdToHtml(mergedCommunity.sidebar, () =>
               this.forceUpdate(),
             )}
           />

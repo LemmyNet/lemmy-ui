@@ -5,37 +5,54 @@ import { HttpService, I18NextService } from "../../services";
 import { toast } from "@utils/app";
 import { Icon, Spinner } from "./icon";
 import { RequestState, WrappedLemmyHttp } from "../../services/HttpService";
-import { UploadImageResponse } from "lemmy-js-client";
+import {
+  CommunityId,
+  SuccessResponse,
+  UploadImageResponse,
+} from "lemmy-js-client";
 import ImageUploadConfirmModalModal from "./modal/image-upload-confirm-modal";
 
-interface ImageUploadFormProps {
+type BaseProps = {
   uploadTitle: string;
   imageSrc?: string;
   rounded?: boolean;
   disabled: boolean;
-  uploadKey: UploadKeys;
-  removeKey?: RemoveKeys;
   onImageChange: (imageSrc?: string) => void;
-}
+};
 
-type UploadKeys = keyof Pick<
+type SimpleUploadKeys = keyof Pick<
   WrappedLemmyHttp,
   | "uploadUserAvatar"
   | "uploadUserBanner"
-  | "uploadCommunityIcon"
-  | "uploadCommunityBanner"
   | "uploadSiteIcon"
   | "uploadSiteBanner"
 >;
-type RemoveKeys = keyof Pick<
+type SimpleRemoveKeys = keyof Pick<
   WrappedLemmyHttp,
   | "deleteUserAvatar"
   | "deleteUserBanner"
-  | "deleteCommunityIcon"
-  | "deleteCommunityBanner"
   | "deleteSiteIcon"
   | "deleteSiteBanner"
 >;
+
+type UploadKeyProps =
+  | {
+      uploadKey: SimpleUploadKeys;
+      removeKey?: SimpleRemoveKeys;
+    }
+  | {
+      uploadKey: keyof Pick<
+        WrappedLemmyHttp,
+        "uploadCommunityIcon" | "uploadCommunityBanner"
+      >;
+      removeKey?: keyof Pick<
+        WrappedLemmyHttp,
+        "deleteCommunityIcon" | "deleteCommunityBanner"
+      >;
+      communityId: CommunityId;
+    };
+
+type ImageUploadFormProps = BaseProps & UploadKeyProps;
 
 interface ImageUploadFormState {
   loading: boolean;
@@ -117,18 +134,29 @@ export class ImageUploadForm extends Component<
 
     i.setState({ loading: true, pendingUpload: undefined });
 
-    HttpService.client[i.props.uploadKey]({ image }).then(
-      (res: RequestState<UploadImageResponse>) => {
-        if (res.state === "success") {
-          i.props.onImageChange(res.data.image_url);
-          toast(I18NextService.i18n.t("image_uploaded"));
-        } else if (res.state === "failed") {
-          toast(res.err.message, "danger");
-        }
+    let uploadPromise: Promise<RequestState<UploadImageResponse>>;
+    if (
+      i.props.uploadKey === "uploadCommunityIcon" ||
+      i.props.uploadKey === "uploadCommunityBanner"
+    ) {
+      uploadPromise = HttpService.client[i.props.uploadKey](
+        { id: i.props.communityId },
+        { image },
+      );
+    } else {
+      uploadPromise = HttpService.client[i.props.uploadKey]({ image });
+    }
 
-        i.setState({ loading: false });
-      },
-    );
+    uploadPromise.then((res: RequestState<UploadImageResponse>) => {
+      if (res.state === "success") {
+        i.props.onImageChange(res.data.image_url);
+        toast(I18NextService.i18n.t("image_uploaded"));
+      } else if (res.state === "failed") {
+        toast(res.err.message, "danger");
+      }
+
+      i.setState({ loading: false });
+    });
   }
 
   async handleRemoveImage(i: ImageUploadForm) {
@@ -139,7 +167,17 @@ export class ImageUploadForm extends Component<
 
     if (i.props.removeKey) {
       i.setState({ loading: true });
-      const res = await HttpService.client[i.props.removeKey]();
+      let res: RequestState<SuccessResponse>;
+      if (
+        i.props.removeKey === "deleteCommunityIcon" ||
+        i.props.removeKey === "deleteCommunityBanner"
+      ) {
+        res = await HttpService.client[i.props.removeKey]({
+          id: i.props.communityId,
+        });
+      } else {
+        res = await HttpService.client[i.props.removeKey]();
+      }
       if (res.state === "success") {
         i.props.onImageChange(undefined);
         toast(I18NextService.i18n.t("image_deleted"));

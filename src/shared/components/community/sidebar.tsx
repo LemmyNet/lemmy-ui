@@ -18,7 +18,7 @@ import {
   RemoveCommunity,
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
-import { I18NextService } from "../../services";
+import { HttpService, I18NextService } from "../../services";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
@@ -27,6 +27,7 @@ import { CommunityForm } from "../community/community-form";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import CommunityReportModal from "@components/common/modal/community-report-modal";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -61,6 +62,8 @@ interface SidebarState {
   leaveModTeamLoading: boolean;
   followCommunityLoading: boolean;
   purgeCommunityLoading: boolean;
+  showCommunityReportModal: boolean;
+  renderCommunityReportModal: boolean;
 }
 
 @tippyMixin
@@ -75,11 +78,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     leaveModTeamLoading: false,
     followCommunityLoading: false,
     purgeCommunityLoading: false,
+    showCommunityReportModal: false,
+    renderCommunityReportModal: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
     this.handleEditCancel = this.handleEditCancel.bind(this);
+    this.handleSubmitCommunityReport =
+      this.handleSubmitCommunityReport.bind(this);
+    this.handleHideCommunityReportModal =
+      this.handleHideCommunityReportModal.bind(this);
   }
 
   unlisten = () => {};
@@ -213,7 +222,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </T>
                 </div>
               )}
-              {this.description()}
+              {this.sidebarMarkdown()}
               <div>
                 <div className="fw-semibold mb-1">
                   <span className="align-middle">
@@ -349,13 +358,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  description() {
-    const desc = this.props.community_view.community.description;
+  sidebarMarkdown() {
+    const { sidebar } = this.props.community_view.community;
     return (
-      desc && (
+      sidebar && (
         <div
           className="md-div"
-          dangerouslySetInnerHTML={mdToHtml(desc, () => this.forceUpdate())}
+          dangerouslySetInnerHTML={mdToHtml(sidebar, () => this.forceUpdate())}
         />
       )
     );
@@ -478,6 +487,21 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               </button>
             </li>
           )}
+          <li className="list-inline-item-action">
+            <button
+              className="btn btn-link text-muted d-inline-block"
+              onClick={linkEvent(this, this.handleShowCommunityReportModal)}
+            >
+              {I18NextService.i18n.t("create_report")}
+            </button>
+            {this.state.renderCommunityReportModal && (
+              <CommunityReportModal
+                onSubmit={this.handleSubmitCommunityReport}
+                onCancel={this.handleHideCommunityReportModal}
+                show={this.state.showCommunityReportModal}
+              />
+            )}
+          </li>
         </ul>
         {this.state.showRemoveDialog && (
           <form onSubmit={linkEvent(this, this.handleRemoveCommunity)}>
@@ -561,6 +585,27 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handleCancelLeaveModTeamClick(i: Sidebar) {
     i.setState({ showConfirmLeaveModTeam: false });
+  }
+
+  handleShowCommunityReportModal(i: Sidebar) {
+    i.setState({
+      showCommunityReportModal: true,
+      renderCommunityReportModal: true,
+    });
+  }
+
+  async handleSubmitCommunityReport(reason: string) {
+    const res = await HttpService.client.createCommunityReport({
+      community_id: this.props.community_view.community.id,
+      reason,
+    });
+    if (res.state === "success") {
+      this.setState({ showCommunityReportModal: false });
+    }
+  }
+
+  handleHideCommunityReportModal() {
+    this.setState({ showCommunityReportModal: false });
   }
 
   get canPost(): boolean {
