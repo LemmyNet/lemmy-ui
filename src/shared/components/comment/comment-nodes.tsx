@@ -17,8 +17,6 @@ import {
   GetComments,
   Language,
   LocalSite,
-  MarkCommentReplyAsRead,
-  MarkPersonCommentMentionAsRead,
   MyUserInfo,
   PersonView,
   PurgeComment,
@@ -51,8 +49,10 @@ interface CommentNodesProps {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   onSaveComment(form: SaveComment): Promise<void>;
-  onCommentReplyRead(form: MarkCommentReplyAsRead): void;
-  onPersonMentionRead(form: MarkPersonCommentMentionAsRead): void;
+  onCommentReplyRead(form: {
+    comment_id: number;
+    read: boolean /* FIXME: */;
+  }): void;
   onCreateComment(
     form: EditComment | CreateComment,
   ): Promise<RequestState<CommentResponse>>;
@@ -119,7 +119,6 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               myUserInfo={this.props.myUserInfo}
               localSite={this.props.localSite}
               onCommentReplyRead={this.props.onCommentReplyRead}
-              onPersonMentionRead={this.props.onPersonMentionRead}
               onCreateComment={this.props.onCreateComment}
               onEditComment={this.props.onEditComment}
               onCommentVote={this.props.onCommentVote}

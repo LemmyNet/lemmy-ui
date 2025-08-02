@@ -638,7 +638,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get readState(): boolean {
+  get postOrOverrideRead(): boolean {
     return (
       this.props.readOverride ?? !!this.props.post_view.post_actions?.read_at
     );
@@ -682,16 +682,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onClick={() =>
               this.handleMarkPostAsRead({
                 post_id: id,
-                read: !this.readState,
+                read: !this.postOrOverrideRead,
               })
             }
             data-tippy-content={
-              this.readState
+              this.postOrOverrideRead
                 ? I18NextService.i18n.t("mark_as_unread")
                 : I18NextService.i18n.t("mark_as_read")
             }
             aria-label={
-              this.readState
+              this.postOrOverrideRead
                 ? I18NextService.i18n.t("mark_as_unread")
                 : I18NextService.i18n.t("mark_as_read")
             }
@@ -701,7 +701,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               <Icon
                 icon="check"
-                classes={`icon-inline ${this.readState && "text-success"}`}
+                classes={`icon-inline ${this.postOrOverrideRead && "text-success"}`}
               />
             )}
           </button>
@@ -1155,7 +1155,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ imageExpanded: !i.state.imageExpanded });
 
-    if (myAuth() && !this.readState && !this.props.disableAutoMarkAsRead) {
+    if (myAuth() && !i.postOrOverrideRead && !i.props.disableAutoMarkAsRead) {
       i.handleMarkPostAsRead({
         post_id: i.postView.post.id,
         read: true,
@@ -1176,7 +1176,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleShowBody(i: PostListing) {
     i.setState({ showBody: !i.state.showBody });
 
-    if (myAuth() && !this.readState && !i.props.disableAutoMarkAsRead) {
+    if (myAuth() && !i.postOrOverrideRead && !i.props.disableAutoMarkAsRead) {
       i.handleMarkPostAsRead({
         post_id: i.postView.post.id,
         read: true,

@@ -63,7 +63,6 @@ import {
   HidePost,
   LemmyHttp,
   LockPost,
-  MarkCommentReplyAsRead,
   MarkPostAsRead,
   MyUserInfo,
   PostResponse,
@@ -816,7 +815,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             onPurgeComment={this.handlePurgeComment}
             onPurgePerson={this.handlePurgePerson}
             onCommentReplyRead={this.handleCommentReplyRead}
-            onPersonMentionRead={() => {}}
             onBanPersonFromCommunity={this.handleBanFromCommunity}
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
@@ -926,7 +924,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             onPurgeComment={this.handlePurgeComment}
             onPurgePerson={this.handlePurgePerson}
             onCommentReplyRead={this.handleCommentReplyRead}
-            onPersonMentionRead={() => {}}
             onBanPersonFromCommunity={this.handleBanFromCommunity}
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
@@ -1270,8 +1267,8 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    await HttpService.client.markCommentReplyAsRead(form);
+  async handleCommentReplyRead(_form: { comment_id: number; read: boolean }) {
+    // TODO:
   }
 
   async handleMarkPostAsRead(form: MarkPostAsRead) {

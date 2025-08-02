@@ -54,8 +54,6 @@ import {
   ListMediaResponse,
   ListPersonContentResponse,
   LockPost,
-  MarkCommentReplyAsRead,
-  MarkPersonCommentMentionAsRead,
   PersonView,
   PostResponse,
   PurgeComment,
@@ -271,7 +269,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
     this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
-    this.handlePersonMentionRead = this.handlePersonMentionRead.bind(this);
     this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
@@ -556,7 +553,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onPurgeComment={this.handlePurgeComment}
                     onPurgePerson={this.handlePurgePerson}
                     onCommentReplyRead={this.handleCommentReplyRead}
-                    onPersonMentionRead={this.handlePersonMentionRead}
                     onBanPersonFromCommunity={this.handleBanFromCommunity}
                     onBanPerson={this.handleBanPerson}
                     onCreateComment={this.handleCreateComment}
@@ -1296,14 +1292,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     toast(I18NextService.i18n.t("transfer_community"));
   }
 
-  async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    // TODO: can't find a comment from reply_id, comments don't have reply read state
-    await HttpService.client.markCommentReplyAsRead(form);
-  }
-
-  async handlePersonMentionRead(form: MarkPersonCommentMentionAsRead) {
-    // TODO: can't find a comment from mention_id, comments don't have mention read state
-    await HttpService.client.markCommentMentionAsRead(form);
+  async handleCommentReplyRead(_form: { comment_id: number; read: boolean }) {
+    // TODO:
   }
 
   async handleMarkPostAsRead(form: MarkPostAsRead) {

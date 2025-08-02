@@ -30,6 +30,7 @@ interface PrivateMessageState {
 
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
+  readOverride?: boolean;
   myUserInfo: MyUserInfo | undefined;
   onDelete(form: DeletePrivateMessage): void;
   onMarkRead(form: MarkPrivateMessageAsRead): void;
@@ -146,35 +147,36 @@ export class PrivateMessage extends Component<
               <ul className="list-inline mb-0 text-muted fw-bold">
                 {!this.mine && (
                   <>
-                    <li className="list-inline-item">
-                      <button
-                        type="button"
-                        className="btn btn-link btn-animate text-muted"
-                        onClick={linkEvent(this, this.handleMarkRead)}
-                        data-tippy-content={
-                          message_view.private_message.read
-                            ? I18NextService.i18n.t("mark_as_unread")
-                            : I18NextService.i18n.t("mark_as_read")
-                        }
-                        aria-label={
-                          message_view.private_message.read
-                            ? I18NextService.i18n.t("mark_as_unread")
-                            : I18NextService.i18n.t("mark_as_read")
-                        }
-                      >
-                        {this.state.readLoading ? (
-                          <Spinner />
-                        ) : (
-                          <Icon
-                            icon="check"
-                            classes={`icon-inline ${
-                              message_view.private_message.read &&
-                              "text-success"
-                            }`}
-                          />
-                        )}
-                      </button>
-                    </li>
+                    {
+                      <li className="list-inline-item">
+                        <button
+                          type="button"
+                          className="btn btn-link btn-animate text-muted"
+                          onClick={linkEvent(this, this.handleMarkRead)}
+                          data-tippy-content={
+                            this.messageOrOverrideRead
+                              ? I18NextService.i18n.t("mark_as_unread")
+                              : I18NextService.i18n.t("mark_as_read")
+                          }
+                          aria-label={
+                            this.messageOrOverrideRead
+                              ? I18NextService.i18n.t("mark_as_unread")
+                              : I18NextService.i18n.t("mark_as_read")
+                          }
+                        >
+                          {this.state.readLoading ? (
+                            <Spinner />
+                          ) : (
+                            <Icon
+                              icon="check"
+                              classes={`icon-inline ${
+                                this.messageOrOverrideRead && "text-success"
+                              }`}
+                            />
+                          )}
+                        </button>
+                      </li>
+                    }
                     <li className="list-inline-item">{this.reportButton}</li>
                     <li className="list-inline-item">
                       <button
@@ -278,6 +280,14 @@ export class PrivateMessage extends Component<
     );
   }
 
+  get messageOrOverrideRead(): boolean {
+    // FIXME: read_at
+    return (
+      this.props.readOverride ??
+      !!this.props.private_message_view.private_message?.updated_at
+    );
+  }
+
   get reportButton() {
     return (
       <button
@@ -339,7 +349,7 @@ export class PrivateMessage extends Component<
     i.setState({ readLoading: true });
     i.props.onMarkRead({
       private_message_id: i.props.private_message_view.private_message.id,
-      read: !i.props.private_message_view.private_message.read,
+      read: !i.messageOrOverrideRead,
     });
   }
 

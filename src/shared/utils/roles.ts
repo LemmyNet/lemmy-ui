@@ -1,13 +1,10 @@
 import {
-  CommentReplyView,
   CommentSlimView,
   CommentView,
   CommunityModeratorView,
   CommunityView,
   GetSiteResponse,
   MyUserInfo,
-  PersonCommentMentionView,
-  PersonPostMentionView,
   PersonView,
   PostView,
 } from "lemmy-js-client";
@@ -27,14 +24,7 @@ export function amCommunityCreator(
 }
 
 export function amMod(
-  thing:
-    | PostView
-    | PersonPostMentionView
-    | CommentReplyView
-    | PersonCommentMentionView
-    | CommentSlimView
-    | CommentView
-    | CommunityView,
+  thing: PostView | CommentSlimView | CommentView | CommunityView,
 ): boolean {
   return thing.can_mod;
 }

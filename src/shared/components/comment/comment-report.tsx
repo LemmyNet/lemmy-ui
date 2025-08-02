@@ -66,7 +66,6 @@ export class CommentReport extends Component<
       community_actions: r.community_actions,
       comment_actions: r.comment_actions,
       person_actions: r.person_actions,
-      instance_actions: undefined, // TODO: ?
       creator_is_admin: r.creator_is_admin,
       creator_is_moderator: false, // TODO: ?
       can_mod: true,
@@ -108,7 +107,6 @@ export class CommentReport extends Component<
           onPurgeComment={async () => {}}
           onPurgePerson={async () => {}}
           onCommentReplyRead={() => {}}
-          onPersonMentionRead={() => {}}
           onBanPersonFromCommunity={async () => {}}
           onBanPerson={async () => {}}
           onCreateComment={async () => Promise.resolve(EMPTY_REQUEST)}

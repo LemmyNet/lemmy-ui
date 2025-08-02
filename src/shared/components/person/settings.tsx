@@ -284,7 +284,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         ...this.state,
         personBlocks: mui.person_blocks,
         communityBlocks: mui.community_blocks,
-        instanceBlocks: mui.instance_blocks,
+        instanceBlocks: mui.instance_communities_blocks,
         saveUserSettingsForm: {
           ...this.state.saveUserSettingsForm,
           show_nsfw,
@@ -1448,7 +1448,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   async handleBlockInstance({ value }: Choice) {
     if (value !== "0") {
       const id = Number(value);
-      const res = await HttpService.client.userBlockInstance({
+      const res = await HttpService.client.userBlockInstanceCommunities({
         block: true,
         instance_id: id,
       });
@@ -1465,7 +1465,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     ctx: Settings;
     instanceId: number;
   }) {
-    const res = await HttpService.client.userBlockInstance({
+    const res = await HttpService.client.userBlockInstanceCommunities({
       block: false,
       instance_id: instanceId,
     });
@@ -1929,7 +1929,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       const linkedInstances =
         this.state.instancesRes.data.federated_instances?.linked ?? [];
       updateInstanceBlock(blocked, id, linkedInstances, mui);
-      this.setState({ instanceBlocks: mui.instance_blocks });
+      this.setState({ instanceBlocks: mui.instance_communities_blocks });
     }
   }
 }

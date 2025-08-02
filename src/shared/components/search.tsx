@@ -740,7 +740,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   onPurgeComment={async () => {}}
                   onPurgePerson={async () => {}}
                   onCommentReplyRead={() => {}}
-                  onPersonMentionRead={() => {}}
                   onBanPersonFromCommunity={async () => {}}
                   onBanPerson={async () => {}}
                   onCreateComment={async () => EMPTY_REQUEST}
@@ -793,7 +792,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onPurgeComment={async () => {}}
         onPurgePerson={async () => {}}
         onCommentReplyRead={() => {}}
-        onPersonMentionRead={() => {}}
         onBanPersonFromCommunity={async () => {}}
         onBanPerson={async () => {}}
         onCreateComment={async () => EMPTY_REQUEST}

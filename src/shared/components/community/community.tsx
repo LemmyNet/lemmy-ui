@@ -69,8 +69,6 @@ import {
   HidePost,
   LemmyHttp,
   LockPost,
-  MarkCommentReplyAsRead,
-  MarkPersonCommentMentionAsRead,
   PostResponse,
   PurgeComment,
   PurgeCommunity,
@@ -243,7 +241,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
     this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
-    this.handlePersonMentionRead = this.handlePersonMentionRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
     this.handlePostVote = this.handlePostVote.bind(this);
@@ -616,7 +613,6 @@ export class Community extends Component<CommunityRouteProps, State> {
               onPurgeComment={this.handlePurgeComment}
               onPurgePerson={this.handlePurgePerson}
               onCommentReplyRead={this.handleCommentReplyRead}
-              onPersonMentionRead={this.handlePersonMentionRead}
               onBanPersonFromCommunity={this.handleBanFromCommunity}
               onBanPerson={this.handleBanPerson}
               onCreateComment={this.handleCreateComment}
@@ -1028,14 +1024,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.updateCommunityFull(transferCommunityRes);
   }
 
-  async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    // TODO: can't find a comment from reply_id, comments don't have reply read state
-    await HttpService.client.markCommentReplyAsRead(form);
-  }
-
-  async handlePersonMentionRead(form: MarkPersonCommentMentionAsRead) {
-    // TODO: can't find a comment from mention_id, comments don't have mention read state
-    await HttpService.client.markCommentMentionAsRead(form);
+  async handleCommentReplyRead(_form: { comment_id: number; read: boolean }) {
+    // TODO:
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {

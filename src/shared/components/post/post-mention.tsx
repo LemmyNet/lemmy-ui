@@ -2,7 +2,6 @@ import { Component, InfernoNode } from "inferno";
 import {
   MyUserInfo,
   MarkPostAsRead,
-  PersonPostMentionView,
   PostView,
   PersonView,
   LocalSite,
@@ -12,8 +11,9 @@ import { EMPTY_REQUEST } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface PostMentionProps {
-  mention: PersonPostMentionView;
+  post: PostView;
   enableNsfw?: boolean;
+  readOverride?: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
@@ -44,7 +44,7 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
   }
 
   render() {
-    const m = this.props.mention;
+    const m = this.props.post;
     const post = m.post;
 
     const pv: PostView = {
@@ -55,13 +55,12 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
       community_actions: m.community_actions,
       person_actions: m.person_actions,
       post_actions: m.post_actions,
-      instance_actions: m.instance_actions,
       creator_is_admin: m.creator_is_admin,
       creator_is_moderator: m.creator_is_moderator,
       can_mod: m.can_mod,
       creator_banned: m.creator_banned,
       creator_banned_from_community: m.creator_banned_from_community,
-      tags: m.post_tags,
+      tags: m.tags,
     };
 
     return (
@@ -69,8 +68,8 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
         <PostListing
           post_view={pv}
           markable={true}
+          readOverride={this.props.readOverride}
           disableAutoMarkAsRead={true}
-          readOverride={this.props.mention.person_post_mention.read}
           showCommunity={true}
           enableNsfw={this.props.enableNsfw}
           showAdultConsentModal={this.props.showAdultConsentModal}

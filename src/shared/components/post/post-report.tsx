@@ -73,7 +73,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       community_actions: r.community_actions,
       person_actions: r.person_actions,
       post_actions: r.post_actions,
-      instance_actions: undefined, // TODO: ?
       creator_is_admin: r.creator_is_admin,
       creator_is_moderator: false, // TODO: ?
       can_mod,

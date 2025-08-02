@@ -39,11 +39,6 @@ import {
   ModTransferCommunity,
   ModChangeCommunityVisibility,
   ModlogCombinedView,
-  CommentReply,
-  PersonCommentMention,
-  PersonPostMention,
-  PrivateMessage,
-  InboxCombinedView,
   Community,
   Person,
   SearchCombinedView,
@@ -311,25 +306,6 @@ export function getRecipientIdFromProps(
   return props.match.params.recipient_id
     ? Number(props.match.params.recipient_id)
     : 1;
-}
-
-type InboxCombined =
-  | CommentReply
-  | PersonCommentMention
-  | PersonPostMention
-  | PrivateMessage;
-
-export function getUncombinedInbox(view: InboxCombinedView): InboxCombined {
-  switch (view.type_) {
-    case "CommentReply":
-      return view.comment_reply;
-    case "CommentMention":
-      return view.person_comment_mention;
-    case "PostMention":
-      return view.person_post_mention;
-    case "PrivateMessage":
-      return view.private_message;
-  }
 }
 
 type ModLogCombined =
@@ -771,12 +747,11 @@ export function updateInstanceBlock(
   const instance = linkedInstances.find(i => i.id === id)!;
 
   if (blocked) {
-    myUserInfo.instance_blocks.push(instance);
+    myUserInfo.instance_communities_blocks.push(instance);
     toast(`${I18NextService.i18n.t("blocked")} ${instance.domain}`);
   } else {
-    myUserInfo.instance_blocks = myUserInfo.instance_blocks.filter(
-      i => i.id !== id,
-    );
+    myUserInfo.instance_communities_blocks =
+      myUserInfo.instance_communities_blocks.filter(i => i.id !== id);
     toast(`${I18NextService.i18n.t("unblocked")} ${instance.domain}`);
   }
 }

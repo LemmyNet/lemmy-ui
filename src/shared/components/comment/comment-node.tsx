@@ -12,8 +12,8 @@ import {
   BanPerson,
   BlockPerson,
   CommentId,
-  CommentReplyView,
   CommentResponse,
+  CommentView,
   CreateComment,
   CreateCommentLike,
   CreateCommentReport,
@@ -23,10 +23,7 @@ import {
   GetComments,
   Language,
   LocalSite,
-  MarkCommentReplyAsRead,
-  MarkPersonCommentMentionAsRead,
   MyUserInfo,
-  PersonCommentMentionView,
   PersonView,
   PurgeComment,
   PurgePerson,
@@ -35,12 +32,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "@utils/config";
-import {
-  CommentNodeI,
-  CommentNodeView,
-  CommentViewType,
-  VoteContentType,
-} from "@utils/types";
+import { CommentNodeI, CommentViewType, VoteContentType } from "@utils/types";
 import { mdToHtml, mdToHtmlNoImages } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -78,6 +70,7 @@ interface CommentNodeProps {
   viewOnly?: boolean;
   locked?: boolean;
   markable?: boolean;
+  readOverride?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
   viewType: CommentViewType;
@@ -87,8 +80,10 @@ interface CommentNodeProps {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   onSaveComment(form: SaveComment): Promise<void>;
-  onCommentReplyRead(form: MarkCommentReplyAsRead): void;
-  onPersonMentionRead(form: MarkPersonCommentMentionAsRead): void;
+  onCommentReplyRead(form: {
+    comment_id: number;
+    read: boolean /* FIXME: */;
+  }): void;
   onCreateComment(
     form: EditComment | CreateComment,
   ): Promise<RequestState<CommentResponse>>;
@@ -164,8 +159,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     }
   }
 
-  get commentView(): CommentNodeView {
-    return this.props.node.comment_view;
+  get commentView(): CommentView {
+    // FIXME: types
+    return this.props.node.comment_view as CommentView;
   }
 
   get commentId(): CommentId {
@@ -326,12 +322,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       className="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(this, this.handleMarkAsRead)}
                       data-tippy-content={
-                        this.commentReplyOrMentionRead
+                        this.commentOrOverrideRead
                           ? I18NextService.i18n.t("mark_as_unread")
                           : I18NextService.i18n.t("mark_as_read")
                       }
                       aria-label={
-                        this.commentReplyOrMentionRead
+                        this.commentOrOverrideRead
                           ? I18NextService.i18n.t("mark_as_unread")
                           : I18NextService.i18n.t("mark_as_read")
                       }
@@ -342,7 +338,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         <Icon
                           icon="check"
                           classes={`icon-inline ${
-                            this.commentReplyOrMentionRead && "text-success"
+                            this.commentOrOverrideRead && "text-success"
                           }`}
                         />
                       )}
@@ -456,7 +452,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             myUserInfo={this.props.myUserInfo}
             localSite={this.props.localSite}
             onCommentReplyRead={this.props.onCommentReplyRead}
-            onPersonMentionRead={this.props.onPersonMentionRead}
             onCreateComment={this.props.onCreateComment}
             onEditComment={this.props.onEditComment}
             onCommentVote={this.props.onCommentVote}
@@ -482,16 +477,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     );
   }
 
-  get commentReplyOrMentionRead(): boolean {
-    const cv = this.commentView;
-
-    if (this.isPersonMentionType(cv)) {
-      return cv.person_comment_mention.read;
-    } else if (this.isCommentReplyType(cv)) {
-      return cv.comment_reply.read;
-    } else {
-      return false;
-    }
+  get commentOrOverrideRead(): boolean {
+    // FIXME: read_at
+    return (
+      this.props.readOverride ?? !!this.commentView.comment_actions?.saved_at
+    );
   }
 
   getLinkButton(small = false) {
@@ -586,14 +576,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return res;
   }
 
-  isPersonMentionType(item: CommentNodeView): item is PersonCommentMentionView {
-    return item.person_comment_mention?.id !== undefined;
-  }
-
-  isCommentReplyType(item: CommentNodeView): item is CommentReplyView {
-    return item.comment_reply?.id !== undefined;
-  }
-
   get isCommentNew(): boolean {
     const now = subMinutes(new Date(), 10);
     const then = parseISO(this.commentView.comment.published_at);
@@ -625,17 +607,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleMarkAsRead(i: CommentNode) {
     i.setState({ readLoading: true });
     const cv = i.commentView;
-    if (i.isPersonMentionType(cv)) {
-      i.props.onPersonMentionRead({
-        person_comment_mention_id: cv.person_comment_mention.id,
-        read: !cv.person_comment_mention.read,
-      });
-    } else if (i.isCommentReplyType(cv)) {
-      i.props.onCommentReplyRead({
-        comment_reply_id: cv.comment_reply.id,
-        read: !cv.comment_reply.read,
-      });
-    }
+    i.props.onCommentReplyRead({
+      comment_id: cv.comment.id,
+      read: !i.commentOrOverrideRead,
+    });
   }
 
   async handleDeleteComment() {
