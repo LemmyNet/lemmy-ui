@@ -176,9 +176,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const node = this.props.node;
     const cv = this.commentView;
     const {
-      creator_community_actions: {
-        became_moderator_at: creator_is_moderator,
-      } = {},
+      creator_is_moderator,
       community_actions: { received_ban_at: banned_from_community } = {},
       comment_actions: { like_score: my_vote } = {},
       creator_is_admin,
@@ -241,13 +239,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <UserBadges
                 classNames="ms-1"
                 isPostCreator={this.isPostCreator}
-                becameModerator={creator_is_moderator}
+                isModerator={creator_is_moderator}
                 isAdmin={creator_is_admin}
                 isBot={cv.creator.bot_account}
                 isBanned={cv.creator_banned}
-                isBannedFromCommunity={
-                  !!cv.creator_community_actions?.received_ban_at
-                }
+                isBannedFromCommunity={cv.creator_banned_from_community}
               />
 
               {this.props.showCommunity && (
@@ -671,9 +667,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }: BanUpdateForm) {
     const {
       creator: { id: person_id },
-      creator_community_actions: {
-        received_ban_at: creator_banned_from_community,
-      } = {},
+      creator_banned_from_community,
       community: { id: community_id },
     } = this.commentView;
 
@@ -732,7 +726,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.props.onAddModToCommunity({
       community_id: this.commentView.community.id,
       person_id: this.commentView.creator.id,
-      added: !this.commentView.creator_community_actions?.became_moderator_at,
+      added: !this.commentView.creator_is_moderator,
     });
   }
 

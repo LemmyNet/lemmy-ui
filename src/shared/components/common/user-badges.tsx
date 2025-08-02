@@ -8,7 +8,7 @@ interface UserBadgesProps {
   isBannedFromCommunity?: boolean;
   isDeleted?: boolean;
   isPostCreator?: boolean;
-  becameModerator?: string;
+  isModerator?: boolean;
   isAdmin?: boolean;
   isBot?: boolean;
   classNames?: string;
@@ -43,7 +43,7 @@ export class UserBadges extends Component<UserBadgesProps> {
       (this.props.isBanned ||
         this.props.isBannedFromCommunity ||
         this.props.isPostCreator ||
-        this.props.becameModerator ||
+        this.props.isModerator ||
         this.props.isAdmin ||
         this.props.isBot) && (
         <span
@@ -93,7 +93,7 @@ export class UserBadges extends Component<UserBadgesProps> {
               })}
             </span>
           )}
-          {this.props.becameModerator && (
+          {this.props.isModerator && (
             <span className="col">
               {getRoleLabelPill({
                 label: I18NextService.i18n.t("mod"),

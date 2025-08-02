@@ -1056,24 +1056,14 @@ export class Community extends Component<CommunityRouteProps, State> {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
-              if (!c.creator_community_actions) {
-                c.creator_community_actions = {};
-              }
-              c.creator_community_actions.received_ban_at = nowBoolean(
-                banRes.data.banned,
-              );
+              c.creator_banned_from_community = banRes.data.banned;
             });
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
-              if (!c.creator_community_actions) {
-                c.creator_community_actions = {};
-              }
-              c.creator_community_actions.received_ban_at = nowBoolean(
-                banRes.data.banned,
-              );
+              c.creator_banned_from_community = banRes.data.banned;
             });
         }
         return s;

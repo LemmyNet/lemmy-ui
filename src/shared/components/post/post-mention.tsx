@@ -56,10 +56,11 @@ export class PostMention extends Component<PostMentionProps, PostMentionState> {
       person_actions: m.person_actions,
       post_actions: m.post_actions,
       instance_actions: m.instance_actions,
-      creator_community_actions: m.creator_community_actions,
       creator_is_admin: m.creator_is_admin,
+      creator_is_moderator: m.creator_is_moderator,
       can_mod: m.can_mod,
       creator_banned: m.creator_banned,
+      creator_banned_from_community: m.creator_banned_from_community,
       tags: m.post_tags,
     };
 

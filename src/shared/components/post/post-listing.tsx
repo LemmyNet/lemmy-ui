@@ -431,13 +431,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <PersonListing person={pv.creator} myUserInfo={this.props.myUserInfo} />
         <UserBadges
           classNames="ms-1"
-          becameModerator={pv.creator_community_actions?.became_moderator_at}
+          isModerator={pv.creator_is_moderator}
           isAdmin={pv.creator_is_admin}
           isBot={pv.creator.bot_account}
           isBanned={pv.creator_banned}
-          isBannedFromCommunity={
-            !!pv.creator_community_actions?.received_ban_at
-          }
+          isBannedFromCommunity={pv.creator_banned_from_community}
         />
         {this.props.showCommunity && (
           <>
@@ -1084,9 +1082,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }: BanUpdateForm) {
     const {
       creator: { id: person_id },
-      creator_community_actions: {
-        received_ban_at: creator_banned_from_community,
-      } = {},
+      creator_banned_from_community,
       community: { id: community_id },
     } = this.postView;
     const ban = !creator_banned_from_community;
@@ -1137,7 +1133,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return this.props.onAddModToCommunity({
       community_id: this.postView.community.id,
       person_id: this.postView.creator.id,
-      added: !this.postView.creator_community_actions?.became_moderator_at,
+      added: !this.postView.creator_is_moderator,
     });
   }
 

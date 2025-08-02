@@ -1351,23 +1351,13 @@ export class Post extends Component<PostRouteProps, PostState> {
             banRes.data.person_view.person.id
         ) {
           const pv = s.postRes.data.post_view;
-          if (!pv.creator_community_actions) {
-            pv.creator_community_actions = {};
-          }
-          pv.creator_community_actions.received_ban_at = nowBoolean(
-            banRes.data.banned,
-          );
+          pv.creator_banned_from_community = banRes.data.banned;
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
-              if (!c.creator_community_actions) {
-                c.creator_community_actions = {};
-              }
-              c.creator_community_actions.received_ban_at = nowBoolean(
-                banRes.data.banned,
-              );
+              c.creator_banned_from_community = banRes.data.banned;
             });
         }
         return s;
