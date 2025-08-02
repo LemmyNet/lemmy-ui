@@ -431,7 +431,7 @@ function renderModlogType(
 
     case "ModChangeCommunityVisibility": {
       const {
-        mod_change_community_visibility: { reason, visibility },
+        mod_change_community_visibility: { visibility },
         community,
       } = view;
 
@@ -442,11 +442,6 @@ function renderModlogType(
             <CommunityLink community={community} myUserInfo={myUserInfo} />
           </span>
           <span>to {visibility}</span>
-          {reason && (
-            <span>
-              <div>reason: {reason}</div>
-            </span>
-          )}
         </>
       );
     }
@@ -831,18 +826,14 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             options={userSearchOptions}
             loading={loadingUserSearch}
           />
-          {(this.amAdminOrMod ||
-            !this.isoData.siteRes.site_view.local_site
-              .hide_modlog_mod_names) && (
-            <Filter
-              filterType="mod"
-              onChange={this.handleModChange}
-              onSearch={this.handleSearchMods}
-              value={modId}
-              options={modSearchOptions}
-              loading={loadingModSearch}
-            />
-          )}
+          <Filter
+            filterType="mod"
+            onChange={this.handleModChange}
+            onSearch={this.handleSearchMods}
+            value={modId}
+            options={modSearchOptions}
+            loading={loadingModSearch}
+          />
         </div>
         {this.renderModlogTable()}
       </div>

@@ -64,7 +64,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       legal_information: ls?.legal_information,
       application_email_admins: ls?.application_email_admins,
       reports_email_admins: ls?.reports_email_admins,
-      hide_modlog_mod_names: ls?.hide_modlog_mod_names,
       discussion_languages: this.props.siteRes?.discussion_languages,
       slur_filter_regex: ls?.slur_filter_regex,
       actor_name_max_length: ls?.actor_name_max_length,
@@ -501,25 +500,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="mb-3 row">
-          <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-hide-modlog-mod-names"
-                type="checkbox"
-                checked={this.state.siteForm.hide_modlog_mod_names}
-                onChange={linkEvent(this, this.handleSiteHideModlogModNames)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-hide-modlog-mod-names"
-              >
-                {I18NextService.i18n.t("hide_modlog_mod_names")}
-              </label>
-            </div>
-          </div>
-        </div>
-        <div className="mb-3 row">
           <label
             className="col-12 col-form-label"
             htmlFor="create-site-slur-filter-regex"
@@ -681,7 +661,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         default_theme: stateSiteForm.default_theme,
         default_post_listing_type: stateSiteForm.default_post_listing_type,
         application_email_admins: stateSiteForm.application_email_admins,
-        hide_modlog_mod_names: stateSiteForm.hide_modlog_mod_names,
         legal_information: stateSiteForm.legal_information,
         slur_filter_regex: stateSiteForm.slur_filter_regex,
         actor_name_max_length: stateSiteForm.actor_name_max_length,
@@ -779,11 +758,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSitePrivateInstance(i: SiteForm, event: any) {
     i.state.siteForm.private_instance = event.target.checked;
-    i.setState(i.state);
-  }
-
-  handleSiteHideModlogModNames(i: SiteForm, event: any) {
-    i.state.siteForm.hide_modlog_mod_names = event.target.checked;
     i.setState(i.state);
   }
 
