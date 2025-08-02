@@ -664,22 +664,34 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         legal_information: stateSiteForm.legal_information,
         slur_filter_regex: stateSiteForm.slur_filter_regex,
         actor_name_max_length: stateSiteForm.actor_name_max_length,
-        rate_limit_message: stateSiteForm.rate_limit_message,
-        rate_limit_message_per_second:
-          stateSiteForm.rate_limit_message_per_second,
-        rate_limit_comment: stateSiteForm.rate_limit_comment,
-        rate_limit_comment_per_second:
-          stateSiteForm.rate_limit_comment_per_second,
-        rate_limit_image: stateSiteForm.rate_limit_image,
-        rate_limit_image_per_second: stateSiteForm.rate_limit_image_per_second,
-        rate_limit_post: stateSiteForm.rate_limit_post,
-        rate_limit_post_per_second: stateSiteForm.rate_limit_post_per_second,
-        rate_limit_register: stateSiteForm.rate_limit_register,
-        rate_limit_register_per_second:
-          stateSiteForm.rate_limit_register_per_second,
-        rate_limit_search: stateSiteForm.rate_limit_search,
-        rate_limit_search_per_second:
-          stateSiteForm.rate_limit_search_per_second,
+        rate_limit_message_max_requests:
+          stateSiteForm.rate_limit_message_max_requests,
+        rate_limit_message_interval_seconds:
+          stateSiteForm.rate_limit_message_interval_seconds,
+        rate_limit_comment_max_requests:
+          stateSiteForm.rate_limit_comment_max_requests,
+        rate_limit_comment_interval_seconds:
+          stateSiteForm.rate_limit_comment_interval_seconds,
+        rate_limit_image_max_requests:
+          stateSiteForm.rate_limit_image_max_requests,
+        rate_limit_image_interval_seconds:
+          stateSiteForm.rate_limit_image_interval_seconds,
+        rate_limit_post_max_requests:
+          stateSiteForm.rate_limit_post_max_requests,
+        rate_limit_post_interval_seconds:
+          stateSiteForm.rate_limit_post_interval_seconds,
+        rate_limit_register_max_requests:
+          stateSiteForm.rate_limit_register_max_requests,
+        rate_limit_register_interval_seconds:
+          stateSiteForm.rate_limit_register_interval_seconds,
+        rate_limit_search_max_requests:
+          stateSiteForm.rate_limit_search_max_requests,
+        rate_limit_search_interval_seconds:
+          stateSiteForm.rate_limit_search_interval_seconds,
+        rate_limit_import_user_settings_max_requests:
+          stateSiteForm.rate_limit_import_user_settings_max_requests,
+        rate_limit_import_user_settings_interval_seconds:
+          stateSiteForm.rate_limit_import_user_settings_interval_seconds,
         federation_enabled: stateSiteForm.federation_enabled,
         captcha_enabled: stateSiteForm.captcha_enabled,
         captcha_difficulty: stateSiteForm.captcha_difficulty,
