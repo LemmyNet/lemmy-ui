@@ -247,7 +247,7 @@ function renderModlogType(
     case "ModBanFromCommunity": {
       const mbfc = view;
       const {
-        mod_ban_from_community: { reason, expires, banned },
+        mod_ban_from_community: { reason, expires_at, banned },
         other_person: banned_person,
         community,
       } = mbfc;
@@ -267,9 +267,9 @@ function renderModlogType(
               <div>reason: {reason}</div>
             </span>
           )}
-          {expires && (
+          {expires_at && (
             <span>
-              <div>expires: {formatRelativeDate(expires)}</div>
+              <div>expires: {formatRelativeDate(expires_at)}</div>
             </span>
           )}
         </>
@@ -316,7 +316,7 @@ function renderModlogType(
 
     case "ModBan": {
       const {
-        mod_ban: { reason, expires, banned },
+        mod_ban: { reason, expires_at, banned },
         other_person: banned_person,
       } = view;
 
@@ -331,9 +331,9 @@ function renderModlogType(
               <div>reason: {reason}</div>
             </span>
           )}
-          {expires && (
+          {expires_at && (
             <span>
-              <div>expires: {formatRelativeDate(expires)}</div>
+              <div>expires: {formatRelativeDate(expires_at)}</div>
             </span>
           )}
         </>
@@ -697,7 +697,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           return (
             <tr key={i.type_ + view.id}>
               <td>
-                <MomentTime published={view.published} />
+                <MomentTime published={view.published_at} />
               </td>
               <td>
                 {this.amAdminOrMod && mod ? (

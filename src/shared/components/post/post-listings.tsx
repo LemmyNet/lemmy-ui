@@ -164,7 +164,9 @@ export class PostListings extends Component<PostListingsProps, any> {
       if (e[1].length === 1) {
         urlMap.delete(e[0]);
       } else {
-        e[1].sort((a, b) => a.post.published.localeCompare(b.post.published));
+        e[1].sort((a, b) =>
+          a.post.published_at.localeCompare(b.post.published_at),
+        );
       }
     }
 

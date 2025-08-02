@@ -607,7 +607,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               {/* Only show the top level comment form if its not a context view */}
               {!(
                 getCommentIdFromProps(this.props) ||
-                res.post_view.community_actions?.received_ban
+                res.post_view.community_actions?.received_ban_at
               ) && (
                 <CommentForm
                   key={
@@ -857,7 +857,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       return [];
     }
     const nodeToDate = (node: CommentNodeI) =>
-      node.comment_view.comment.published;
+      node.comment_view.comment.published_at;
     const nodes = commentsToFlatNodes(this.state.commentsRes.data.comments);
     if (this.props.sort === "New") {
       return nodes.sort((a, b) => compareDesc(nodeToDate(a), nodeToDate(b)));
@@ -1063,12 +1063,9 @@ export class Post extends Component<PostRouteProps, PostState> {
         if (s.postRes.state === "success" && this.isoData.myUserInfo) {
           const pv = s.postRes.data.post_view;
           if (!pv.community_actions) {
-            pv.community_actions = {
-              community_id: blockCommunityRes.data.community_view.community.id,
-              person_id: this.isoData.myUserInfo.local_user_view.person.id,
-            };
+            pv.community_actions = {};
           }
-          pv.community_actions.blocked = nowBoolean(
+          pv.community_actions.blocked_at = nowBoolean(
             blockCommunityRes.data.blocked,
           );
         }
@@ -1284,12 +1281,9 @@ export class Post extends Component<PostRouteProps, PostState> {
         if (s.postRes.state === "success" && this.isoData.myUserInfo) {
           const pv = s.postRes.data.post_view;
           if (!pv.post_actions) {
-            pv.post_actions = {
-              post_id: form.post_id,
-              person_id: this.isoData.myUserInfo.local_user_view.person.id,
-            };
+            pv.post_actions = {};
           }
-          pv.post_actions.read = nowBoolean(form.read);
+          pv.post_actions.read_at = nowBoolean(form.read);
         }
         return { postRes: s.postRes };
       });
@@ -1335,12 +1329,9 @@ export class Post extends Component<PostRouteProps, PostState> {
         if (s.postRes.state === "success" && this.isoData.myUserInfo) {
           const pv = s.postRes.data.post_view;
           if (!pv.post_actions) {
-            pv.post_actions = {
-              post_id: form.post_id,
-              person_id: this.isoData.myUserInfo.local_user_view.person.id,
-            };
+            pv.post_actions = {};
           }
-          pv.post_actions.hidden = nowBoolean(form.hide);
+          pv.post_actions.hidden_at = nowBoolean(form.hide);
         }
 
         return s;
@@ -1361,12 +1352,9 @@ export class Post extends Component<PostRouteProps, PostState> {
         ) {
           const pv = s.postRes.data.post_view;
           if (!pv.creator_community_actions) {
-            pv.creator_community_actions = {
-              community_id: pv.community.id,
-              person_id: banRes.data.person_view.person.id,
-            };
+            pv.creator_community_actions = {};
           }
-          pv.creator_community_actions.received_ban = nowBoolean(
+          pv.creator_community_actions.received_ban_at = nowBoolean(
             banRes.data.banned,
           );
         }
@@ -1375,12 +1363,9 @@ export class Post extends Component<PostRouteProps, PostState> {
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               if (!c.creator_community_actions) {
-                c.creator_community_actions = {
-                  community_id: c.community.id,
-                  person_id: banRes.data.person_view.person.id,
-                };
+                c.creator_community_actions = {};
               }
-              c.creator_community_actions.received_ban = nowBoolean(
+              c.creator_community_actions.received_ban_at = nowBoolean(
                 banRes.data.banned,
               );
             });

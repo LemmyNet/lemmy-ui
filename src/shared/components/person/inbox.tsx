@@ -110,7 +110,7 @@ type ReplyType = {
     | PrivateMessageView
     | PersonCommentMentionView
     | CommentReplyView;
-  published: string;
+  published_at: string;
 };
 
 interface InboxState {
@@ -456,7 +456,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       id: r.comment_reply.id,
       type_: ReplyEnum.Reply,
       view: r,
-      published: r.comment.published,
+      published_at: r.comment.published_at,
     };
   }
 
@@ -465,7 +465,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       id: r.person_comment_mention.id,
       type_: ReplyEnum.Mention,
       view: r,
-      published: r.comment.published,
+      published_at: r.comment.published_at,
     };
   }
 
@@ -474,7 +474,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       id: r.private_message.id,
       type_: ReplyEnum.Message,
       view: r,
-      published: r.private_message.published,
+      published_at: r.private_message.published_at,
     };
   }
 

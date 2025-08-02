@@ -547,7 +547,7 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
         emoji: {
           custom_emoji: {
             id: -1,
-            published: "",
+            published_at: "",
             category: "",
             shortcode: "",
             image_url: "",

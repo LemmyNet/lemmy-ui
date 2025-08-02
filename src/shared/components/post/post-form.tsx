@@ -98,7 +98,7 @@ interface PostFormState {
     custom_thumbnail?: string;
     alt_text?: string;
     // Javascript treats this field as a string, that can't have timezone info.
-    scheduled_publish_time?: string;
+    scheduled_publish_time_at?: string;
   };
   suggestedPostsRes: RequestState<SearchResponse>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
@@ -123,7 +123,9 @@ function handlePostSubmit(i: PostForm, event: any) {
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
-  const scheduled_publish_time = getUnixTimeLemmy(pForm.scheduled_publish_time);
+  const scheduled_publish_time_at = getUnixTimeLemmy(
+    pForm.scheduled_publish_time_at,
+  );
 
   if (pv) {
     i.props.onEdit?.(
@@ -136,7 +138,7 @@ function handlePostSubmit(i: PostForm, event: any) {
         language_id: pForm.language_id,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
-        scheduled_publish_time,
+        scheduled_publish_time_at,
       },
       () => {
         i.setState({ bypassNavWarning: true });
@@ -154,7 +156,7 @@ function handlePostSubmit(i: PostForm, event: any) {
         honeypot: pForm.honeypot,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
-        scheduled_publish_time,
+        scheduled_publish_time_at,
       },
       () => {
         i.setState({ bypassNavWarning: true });
@@ -343,8 +345,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     const { post_view, selectedCommunityChoice, params } = this.props;
     // Means its an edit
     if (post_view) {
-      const unix = getUnixTime(post_view.post.scheduled_publish_time);
-      var scheduled_publish_time = unixTimeToLocalDateStr(unix);
+      const unix = getUnixTime(post_view.post.scheduled_publish_time_at);
+      var scheduled_publish_time_at = unixTimeToLocalDateStr(unix);
       this.state = {
         ...this.state,
         form: {
@@ -356,7 +358,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           language_id: post_view.post.language_id,
           custom_thumbnail: post_view.post.thumbnail_url,
           alt_text: post_view.post.alt_text,
-          scheduled_publish_time,
+          scheduled_publish_time_at,
         },
       };
     } else if (selectedCommunityChoice) {
@@ -722,7 +724,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           <div className="col-sm-10">
             <input
               type="datetime-local"
-              value={this.state.form.scheduled_publish_time}
+              value={this.state.form.scheduled_publish_time_at}
               min={unixTimeToLocalDateStr(Date.now())}
               id="post-schedule"
               className="form-control mb-3"

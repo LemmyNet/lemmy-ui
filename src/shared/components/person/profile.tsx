@@ -927,7 +927,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
               <div className="text-muted">
                 {I18NextService.i18n.t("joined")}{" "}
                 <MomentTime
-                  published={pv.person.published}
+                  published={pv.person.published_at}
                   showAgo
                   ignoreUpdated
                 />
@@ -936,7 +936,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 <Icon icon="cake" />
                 <span className="ms-2">
                   {I18NextService.i18n.t("cake_day_title")}{" "}
-                  {format(cakeDate(pv.person.published), "PPP")}
+                  {format(cakeDate(pv.person.published_at), "PPP")}
                 </span>
               </div>
               {!this.isoData.myUserInfo && (
@@ -1138,7 +1138,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         ban,
         remove_or_restore_data: i.state.removeOrRestoreData,
         reason: banReason,
-        expires: futureDaysToUnixTime(banExpireDays),
+        expires_at: futureDaysToUnixTime(banExpireDays),
       });
       // TODO
       this.updateBan(res);
@@ -1316,12 +1316,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           this.isoData.myUserInfo
         ) {
           if (!c.post_actions) {
-            c.post_actions = {
-              post_id: c.post.id,
-              person_id: this.isoData.myUserInfo.local_user_view.person.id,
-            };
+            c.post_actions = {};
           }
-          c.post_actions.read = nowBoolean(form.read);
+          c.post_actions.read_at = nowBoolean(form.read);
         }
         return c;
       });

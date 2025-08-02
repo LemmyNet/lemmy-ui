@@ -70,7 +70,7 @@ export class RegistrationApplication extends Component<
         </div>
         <div>
           {I18NextService.i18n.t("created")}:{" "}
-          <MomentTime showAgo published={ra.published} />
+          <MomentTime showAgo published={ra.published_at} />
         </div>
         <div>{I18NextService.i18n.t("answer")}:</div>
         <div

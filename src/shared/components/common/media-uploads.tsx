@@ -54,7 +54,7 @@ export class MediaUploads extends Component<Props, any> {
                   </td>
                 )}
                 <td>
-                  <MomentTime published={i.local_image.published} />
+                  <MomentTime published={i.local_image.published_at} />
                 </td>
                 <td>
                   <PictrsImage

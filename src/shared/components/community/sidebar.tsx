@@ -153,7 +153,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   sidebar() {
     const {
       community: { name, ap_id, id, posting_restricted_to_mods, visibility },
-      community_actions: { received_ban: banned_from_community } = {},
+      community_actions: { received_ban_at: banned_from_community } = {},
     } = this.props.community_view;
     return (
       <aside className="mb-3">
@@ -341,7 +341,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   blockCommunity() {
-    const { community_actions: { follow_state: subscribed, blocked } = {} } =
+    const { community_actions: { follow_state: subscribed, blocked_at } = {} } =
       this.props.community_view;
 
     return (
@@ -351,7 +351,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           onClick={linkEvent(this, this.handleBlockCommunity)}
         >
           {I18NextService.i18n.t(
-            blocked ? "unblock_community" : "block_community",
+            blocked_at ? "unblock_community" : "block_community",
           )}
         </button>
       )
@@ -654,12 +654,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleBlockCommunity(i: Sidebar) {
-    const { community, community_actions: { blocked } = {} } =
+    const { community, community_actions: { blocked_at } = {} } =
       i.props.community_view;
 
     i.props.onBlockCommunity({
       community_id: community.id,
-      block: !blocked,
+      block: !blocked_at,
     });
   }
 

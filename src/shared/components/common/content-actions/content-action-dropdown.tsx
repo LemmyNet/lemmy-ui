@@ -145,7 +145,7 @@ export default class ContentActionDropdown extends Component<
     const { onSave, type, onDelete, onBlock, onEdit, moderators } = this.props;
     const {
       id,
-      saved,
+      saved_at,
       deleted,
       locked,
       removed,
@@ -206,8 +206,8 @@ export default class ContentActionDropdown extends Component<
           onClick={onSave}
           inline
           icon="star"
-          label={I18NextService.i18n.t(saved ? "unsave" : "save")}
-          iconClass={classNames({ "text-warning": saved })}
+          label={I18NextService.i18n.t(saved_at ? "unsave" : "save")}
+          iconClass={classNames({ "text-warning": saved_at })}
         />
         {type === "post" && (
           <CrossPostButton {...this.props.crossPostParams!} />
@@ -233,12 +233,12 @@ export default class ContentActionDropdown extends Component<
                   <li>
                     <ActionButton
                       icon={
-                        this.props.postView.post_actions?.hidden
+                        this.props.postView.post_actions?.hidden_at
                           ? "eye"
                           : "eye-slash"
                       }
                       label={I18NextService.i18n.t(
-                        this.props.postView.post_actions?.hidden
+                        this.props.postView.post_actions?.hidden_at
                           ? "unhide_post"
                           : "hide_post",
                       )}
@@ -825,11 +825,11 @@ export default class ContentActionDropdown extends Component<
     if (this.props.type === "post") {
       const {
         post: { id, deleted, locked, removed },
-        post_actions: { saved } = {},
+        post_actions: { saved_at } = {},
         creator,
         creator_community_actions: {
-          received_ban: creator_banned_from_community,
-          became_moderator: creator_is_moderator,
+          received_ban_at: creator_banned_from_community,
+          became_moderator_at: creator_is_moderator,
         } = {},
         community,
         creator_is_admin,
@@ -838,7 +838,7 @@ export default class ContentActionDropdown extends Component<
 
       return {
         id,
-        saved,
+        saved_at,
         deleted,
         creator,
         locked,
@@ -852,11 +852,11 @@ export default class ContentActionDropdown extends Component<
     } else {
       const {
         comment: { id, deleted, removed },
-        comment_actions: { saved } = {},
+        comment_actions: { saved_at } = {},
         creator,
         creator_community_actions: {
-          received_ban: creator_banned_from_community,
-          became_moderator: creator_is_moderator,
+          received_ban_at: creator_banned_from_community,
+          became_moderator_at: creator_is_moderator,
         } = {},
         community,
         creator_is_admin,
@@ -865,7 +865,7 @@ export default class ContentActionDropdown extends Component<
 
       return {
         id,
-        saved,
+        saved_at,
         deleted,
         creator,
         removed,

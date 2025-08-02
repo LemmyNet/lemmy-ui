@@ -102,8 +102,8 @@ export class PrivateMessage extends Component<
             <li className="list-inline-item">
               <span>
                 <MomentTime
-                  published={message_view.private_message.published}
-                  updated={message_view.private_message.updated}
+                  published={message_view.private_message.published_at}
+                  updated={message_view.private_message.updated_at}
                 />
               </span>
             </li>

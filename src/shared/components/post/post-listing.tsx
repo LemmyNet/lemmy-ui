@@ -431,11 +431,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <PersonListing person={pv.creator} myUserInfo={this.props.myUserInfo} />
         <UserBadges
           classNames="ms-1"
-          becameModerator={pv.creator_community_actions?.became_moderator}
+          becameModerator={pv.creator_community_actions?.became_moderator_at}
           isAdmin={pv.creator_is_admin}
           isBot={pv.creator.bot_account}
           isBanned={pv.creator_banned}
-          isBannedFromCommunity={!!pv.creator_community_actions?.received_ban}
+          isBannedFromCommunity={
+            !!pv.creator_community_actions?.received_ban_at
+          }
         />
         {this.props.showCommunity && (
           <>
@@ -456,14 +458,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             }
           </span>
         )}{" "}
-        {pv.post.scheduled_publish_time && (
+        {pv.post.scheduled_publish_time_at && (
           <span className="mx-1 badge text-bg-light">
             {I18NextService.i18n.t("publish_in_time", {
-              time: formatRelativeDate(pv.post.scheduled_publish_time),
+              time: formatRelativeDate(pv.post.scheduled_publish_time_at),
             })}
           </span>
         )}{" "}
-        · <MomentTime published={pv.post.published} updated={pv.post.updated} />
+        ·{" "}
+        <MomentTime
+          published={pv.post.published_at}
+          updated={pv.post.updated_at}
+        />
       </div>
     );
   }
@@ -635,7 +641,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get readState(): boolean {
-    return this.props.readOverride ?? !!this.props.post_view.post_actions?.read;
+    return (
+      this.props.readOverride ?? !!this.props.post_view.post_actions?.read_at
+    );
   }
 
   commentsLine(mobile = false) {
@@ -963,7 +971,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleSavePost() {
     return this.props.onSavePost({
       post_id: this.postView.post.id,
-      save: !this.postView.post_actions?.saved,
+      save: !this.postView.post_actions?.saved_at,
     });
   }
 
@@ -1062,7 +1070,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleHidePost() {
     return this.props.onHidePost({
-      hide: !this.postView.post_actions?.hidden,
+      hide: !this.postView.post_actions?.hidden_at,
       post_id: this.postView.post.id,
     });
   }
@@ -1075,7 +1083,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const {
       creator: { id: person_id },
       creator_community_actions: {
-        received_ban: creator_banned_from_community,
+        received_ban_at: creator_banned_from_community,
       } = {},
       community: { id: community_id },
     } = this.postView;
@@ -1085,7 +1093,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (ban === false) {
       shouldRemoveOrRestoreData = true;
     }
-    const expires = futureDaysToUnixTime(daysUntilExpires);
+    const expires_at = futureDaysToUnixTime(daysUntilExpires);
 
     return this.props.onBanPersonFromCommunity({
       community_id,
@@ -1093,7 +1101,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       ban,
       remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
-      expires,
+      expires_at,
     });
   }
 
@@ -1112,14 +1120,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (ban === false) {
       shouldRemoveOrRestoreData = true;
     }
-    const expires = futureDaysToUnixTime(daysUntilExpires);
+    const expires_at = futureDaysToUnixTime(daysUntilExpires);
 
     return this.props.onBanPerson({
       person_id,
       ban,
       remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
-      expires,
+      expires_at,
     });
   }
 
@@ -1127,7 +1135,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return this.props.onAddModToCommunity({
       community_id: this.postView.community.id,
       person_id: this.postView.creator.id,
-      added: !this.postView.creator_community_actions?.became_moderator,
+      added: !this.postView.creator_community_actions?.became_moderator_at,
     });
   }
 
@@ -1230,7 +1238,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const {
       viewOnly,
       post_view: {
-        community_actions: { received_ban: banned_from_community } = {},
+        community_actions: { received_ban_at: banned_from_community } = {},
       },
     } = this.props;
 

@@ -620,7 +620,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const haveUnread =
       dataType === DataType.Post &&
       postsRes.state === "success" &&
-      postsRes.data.posts.some(p => !p.post_actions?.read);
+      postsRes.data.posts.some(p => !p.post_actions?.read_at);
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
@@ -643,7 +643,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       dataType === DataType.Post &&
       postsRes.state === "success" &&
       postsRes.data.posts
-        .filter(p => !p.post_actions?.read)
+        .filter(p => !p.post_actions?.read_at)
         .map(p => p.post.id);
 
     if (post_ids && post_ids.length) {
@@ -657,12 +657,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             s.postsRes.data.posts.forEach(p => {
               if (post_ids.includes(p.post.id) && i.isoData.myUserInfo) {
                 if (!p.post_actions) {
-                  p.post_actions = {
-                    post_id: p.post.id,
-                    person_id: i.isoData.myUserInfo.local_user_view.person.id,
-                  };
+                  p.post_actions = {};
                 }
-                p.post_actions.read = nowBoolean(true);
+                p.post_actions.read_at = nowBoolean(true);
               }
             });
           }
@@ -996,12 +993,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           s.postsRes.data.posts.forEach(p => {
             if (p.post.id === form.post_id && this.isoData.myUserInfo) {
               if (!p.post_actions) {
-                p.post_actions = {
-                  post_id: p.post.id,
-                  person_id: this.isoData.myUserInfo.local_user_view.person.id,
-                };
+                p.post_actions = {};
               }
-              p.post_actions.read = nowBoolean(form.read);
+              p.post_actions.read_at = nowBoolean(form.read);
             }
           });
         }
@@ -1094,12 +1088,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             p => form.post_id === p.post.id,
           )) {
             if (!post.post_actions) {
-              post.post_actions = {
-                post_id: post.post.id,
-                person_id: this.isoData.myUserInfo.local_user_view.person.id,
-              };
+              post.post_actions = {};
             }
-            post.post_actions.hidden = nowBoolean(form.hide);
+            post.post_actions.hidden_at = nowBoolean(form.hide);
           }
         }
 
@@ -1119,12 +1110,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               if (!c.creator_community_actions) {
-                c.creator_community_actions = {
-                  community_id: c.community.id,
-                  person_id: c.creator.id,
-                };
+                c.creator_community_actions = {};
               }
-              c.creator_community_actions.received_ban = nowBoolean(
+              c.creator_community_actions.received_ban_at = nowBoolean(
                 banRes.data.banned,
               );
             });
@@ -1134,12 +1122,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               if (!c.creator_community_actions) {
-                c.creator_community_actions = {
-                  community_id: c.community.id,
-                  person_id: c.creator.id,
-                };
+                c.creator_community_actions = {};
               }
-              c.creator_community_actions.received_ban = nowBoolean(
+              c.creator_community_actions.received_ban_at = nowBoolean(
                 banRes.data.banned,
               );
             });

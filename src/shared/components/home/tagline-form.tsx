@@ -295,7 +295,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
         x.editMode = false;
       });
       prev.taglines.push({
-        tagline: { id: -1, content: "", published: "" },
+        tagline: { id: -1, content: "", published_at: "" },
         change: "create",
         editMode: true,
       });

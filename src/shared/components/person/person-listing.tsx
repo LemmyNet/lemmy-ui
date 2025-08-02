@@ -63,7 +63,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
           </a>
         )}
 
-        {isCakeDay(person.published) && <CakeDay creatorName={name} />}
+        {isCakeDay(person.published_at) && <CakeDay creatorName={name} />}
       </>
     );
   }

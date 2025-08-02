@@ -177,17 +177,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const cv = this.commentView;
     const {
       creator_community_actions: {
-        became_moderator: creator_is_moderator,
+        became_moderator_at: creator_is_moderator,
       } = {},
-      community_actions: { received_ban: banned_from_community } = {},
+      community_actions: { received_ban_at: banned_from_community } = {},
       comment_actions: { like_score: my_vote } = {},
       creator_is_admin,
       comment: {
         id,
         language_id,
-        published,
+        published_at,
         distinguished,
-        updated,
+        updated_at,
         child_count,
       },
       creator,
@@ -246,7 +246,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 isBot={cv.creator.bot_account}
                 isBanned={cv.creator_banned}
                 isBannedFromCommunity={
-                  !!cv.creator_community_actions?.received_ban
+                  !!cv.creator_community_actions?.received_ban_at
                 }
               />
 
@@ -285,7 +285,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 subject={this.props.node.comment_view.comment}
               />
               <span>
-                <MomentTime published={published} updated={updated} />
+                <MomentTime published={published_at} updated={updated_at} />
               </span>
             </div>
             {/* end of user row */}
@@ -600,7 +600,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get isCommentNew(): boolean {
     const now = subMinutes(new Date(), 10);
-    const then = parseISO(this.commentView.comment.published);
+    const then = parseISO(this.commentView.comment.published_at);
     return isBefore(now, then);
   }
 
@@ -615,7 +615,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   async handleSaveComment() {
     this.props.onSaveComment({
       comment_id: this.commentView.comment.id,
-      save: !this.commentView.comment_actions?.saved,
+      save: !this.commentView.comment_actions?.saved_at,
     });
   }
 
@@ -672,7 +672,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const {
       creator: { id: person_id },
       creator_community_actions: {
-        received_ban: creator_banned_from_community,
+        received_ban_at: creator_banned_from_community,
       } = {},
       community: { id: community_id },
     } = this.commentView;
@@ -682,7 +682,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     if (ban === false) {
       shouldRemoveOrRestoreData = true;
     }
-    const expires = futureDaysToUnixTime(daysUntilExpires);
+    const expires_at = futureDaysToUnixTime(daysUntilExpires);
 
     this.props.onBanPersonFromCommunity({
       community_id,
@@ -690,7 +690,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       ban,
       remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
-      expires,
+      expires_at,
     });
   }
 
@@ -710,14 +710,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     if (ban === false) {
       shouldRemoveOrRestoreData = true;
     }
-    const expires = futureDaysToUnixTime(daysUntilExpires);
+    const expires_at = futureDaysToUnixTime(daysUntilExpires);
 
     this.props.onBanPerson({
       person_id,
       ban,
       remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
-      expires,
+      expires_at,
     });
   }
 
@@ -732,7 +732,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.props.onAddModToCommunity({
       community_id: this.commentView.community.id,
       person_id: this.commentView.creator.id,
-      added: !this.commentView.creator_community_actions?.became_moderator,
+      added: !this.commentView.creator_community_actions?.became_moderator_at,
     });
   }
 
