@@ -295,6 +295,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   mods() {
+    if (!this.props.moderators.length) {
+      return;
+    }
+
     return (
       <ul className="list-inline small">
         <li className="list-inline-item">{I18NextService.i18n.t("mods")}: </li>
