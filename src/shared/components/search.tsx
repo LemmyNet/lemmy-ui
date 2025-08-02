@@ -465,7 +465,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     if (query) {
       const form: SearchForm = {
-        search_term: query,
+        q: query,
         community_id,
         creator_id,
         type_: searchType,
@@ -917,7 +917,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     if (q) {
       this.setState({ searchRes: LOADING_REQUEST });
       const searchRes = await HttpService.client.search({
-        search_term: q,
+        q,
         community_id: communityId ?? undefined,
         creator_id: creatorId ?? undefined,
         type_: type,

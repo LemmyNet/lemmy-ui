@@ -47,6 +47,7 @@ import {
   Community,
   Person,
   SearchCombinedView,
+  MultiCommunity,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -248,9 +249,9 @@ export async function fetchCommunities(q: string) {
     : [];
 }
 
-export function fetchSearchResults(search_term: string, type_: SearchType) {
+export function fetchSearchResults(q: string, type_: SearchType) {
   const form: Search = {
-    search_term,
+    q,
     type_,
     sort: "Top",
     listing_type: "All",
@@ -423,7 +424,7 @@ export function getUncombinedReport(
   }
 }
 
-type SearchCombined = Post | Community | Comment | Person;
+type SearchCombined = Post | Community | Comment | Person | MultiCommunity;
 
 export function getUncombinedSearch(view: SearchCombinedView): SearchCombined {
   switch (view.type_) {
@@ -435,6 +436,8 @@ export function getUncombinedSearch(view: SearchCombinedView): SearchCombined {
       return view.comment;
     case "Person":
       return view.person;
+    case "MultiCommunity":
+      return view.multi;
   }
 }
 

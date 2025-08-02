@@ -890,7 +890,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       this.setState({ suggestedPostsRes: LOADING_REQUEST });
       this.setState({
         suggestedPostsRes: await HttpService.client.search({
-          search_term: q,
+          q,
           type_: "Posts",
           sort: "Top",
           listing_type: "All",
