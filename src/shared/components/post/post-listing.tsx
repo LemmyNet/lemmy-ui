@@ -714,6 +714,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             id={id}
             onVote={onPostVote}
             subject={post}
+            myVote={this.postView.post_actions?.like_score}
             myUserInfo={this.props.myUserInfo}
             localSite={this.props.localSite}
             disabled={!this.props.myUserInfo}
@@ -872,6 +873,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   myUserInfo={this.props.myUserInfo}
                   localSite={this.props.localSite}
                   subject={this.postView.post}
+                  myVote={this.postView.post_actions?.like_score}
                   disabled={!this.props.myUserInfo}
                 />
               </div>
