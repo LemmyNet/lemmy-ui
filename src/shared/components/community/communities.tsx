@@ -1,5 +1,6 @@
 import { editCommunity, setIsoData, showLocal } from "@utils/app";
 import {
+  getBoolFromString,
   getQueryParams,
   getQueryString,
   numToSI,
@@ -49,13 +50,13 @@ interface CommunitiesState {
   siteRes: GetSiteResponse;
   searchText: string;
   isIsomorphic: boolean;
-  pageBack?: boolean;
 }
 
 interface CommunitiesProps {
   listingType: ListingType;
   sort: CommunitySortType;
   cursor?: string;
+  pageBack?: boolean;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
@@ -72,6 +73,7 @@ export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
       listingType: getListingTypeFromQuery,
       sort: getSortTypeFromQuery,
       cursor: (cursor?: string) => cursor,
+      pageBack: getBoolFromString,
     },
     source,
   );
@@ -302,13 +304,28 @@ export class Communities extends Component<
     this.props.history.push(`/communities${getQueryString(queryParams)}`);
   }
 
-  handleNextPage(cursor?: string) {
-    this.updateUrl({ cursor });
+  handleNextPage() {
+    const { listCommunitiesResponse } = this.state;
+    const { cursor } = this.props;
+
+    if (listCommunitiesResponse.state === "success") {
+      this.updateUrl({
+        cursor: listCommunitiesResponse.data.next_page ?? cursor,
+        pageBack: false,
+      });
+    }
   }
 
-  handlePrevPage(cursor?: string) {
-    this.setState({ pageBack: true });
-    this.updateUrl({ cursor });
+  handlePrevPage() {
+    const { listCommunitiesResponse } = this.state;
+    const { cursor } = this.props;
+
+    if (listCommunitiesResponse.state === "success") {
+      this.updateUrl({
+        cursor: listCommunitiesResponse.data.prev_page ?? cursor,
+        pageBack: true,
+      });
+    }
   }
 
   handleSortChange(val: CommunitySortType) {
@@ -371,7 +388,7 @@ export class Communities extends Component<
   }
 
   fetchToken?: symbol;
-  async refetch({ listingType, sort, cursor }: CommunitiesProps) {
+  async refetch({ listingType, sort, cursor, pageBack }: CommunitiesProps) {
     const token = (this.fetchToken = Symbol());
     this.setState({ listCommunitiesResponse: LOADING_REQUEST });
     const listCommunitiesResponse = await HttpService.client.listCommunities({
@@ -379,10 +396,10 @@ export class Communities extends Component<
       sort: sort,
       limit: communityLimit,
       page_cursor: cursor,
-      page_back: this.state.pageBack,
+      page_back: pageBack,
     });
     if (token === this.fetchToken) {
-      this.setState({ listCommunitiesResponse, pageBack: undefined });
+      this.setState({ listCommunitiesResponse });
     }
   }
 
