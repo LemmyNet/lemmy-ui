@@ -7,6 +7,7 @@ import {
   getQueryString,
   resourcesSettled,
   bareRoutePush,
+  getBoolFromString,
 } from "@utils/helpers";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { amAdmin, amMod } from "@utils/roles";
@@ -87,6 +88,7 @@ export function getModlogQueryParams(source?: string): ModlogProps {
       commentId: getIdFromString,
       postId: getIdFromString,
       cursor: (cursor?: string) => cursor,
+      pageBack: getBoolFromString,
     },
     source,
   );
@@ -100,7 +102,6 @@ interface ModlogState {
   modSearchOptions: Choice[];
   userSearchOptions: Choice[];
   isIsomorphic: boolean;
-  pageBack?: boolean;
 }
 
 interface ModlogProps {
@@ -110,6 +111,7 @@ interface ModlogProps {
   actionType: ModlogActionType;
   postId?: number;
   commentId?: number;
+  pageBack?: boolean;
 }
 
 function getActionFromString(action?: string): ModlogActionType {
@@ -966,15 +968,23 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               {this.combined}
             </table>
             <Paginator
-              cursor={this.props.cursor}
               onNext={this.handleNextPage}
               onPrev={this.handlePrevPage}
-              nextDisabled={false}
+              nextDisabled={
+                this.state.res.state !== "success" ||
+                fetchLimit > this.modlogItemsCount
+              }
             />
           </div>
         );
       }
     }
+  }
+
+  get modlogItemsCount(): number {
+    const { res } = this.state;
+
+    return res.state === "success" ? res.data.modlog.length : 0;
   }
 
   handleFilterActionChange(i: Modlog, event: any) {
@@ -984,13 +994,22 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     });
   }
 
-  handleNextPage(cursor: string) {
-    this.updateUrl({ cursor });
+  handleNextPage() {
+    const { res } = this.state;
+    const { cursor } = this.props;
+
+    if (res.state === "success") {
+      this.updateUrl({ cursor: res.data.next_page ?? cursor, pageBack: false });
+    }
   }
 
-  handlePrevPage(cursor: string) {
-    this.setState({ pageBack: true });
-    this.updateUrl({ cursor });
+  handlePrevPage() {
+    const { res } = this.state;
+    const { cursor } = this.props;
+
+    if (res.state === "success") {
+      this.updateUrl({ cursor: res.data.prev_page ?? cursor, pageBack: true });
+    }
   }
 
   handleUserChange(option: Choice) {
@@ -1051,6 +1070,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       actionType,
       modId,
       cursor,
+      pageBack,
       userId,
       match: {
         params: { communityId },
@@ -1060,6 +1080,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const queryParams: QueryParams<ModlogProps> = {
       cursor,
       actionType,
+      pageBack: pageBack?.toString(),
       modId: modId?.toString(),
       userId: userId?.toString(),
     };
@@ -1074,10 +1095,10 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   fetchModlogToken?: symbol;
   async fetchModlog(props: ModlogRouteProps) {
     const token = (this.fetchModlogToken = Symbol());
-    const { actionType, cursor, modId, userId, postId, commentId } = props;
+    const { actionType, cursor, pageBack, modId, userId, postId, commentId } =
+      props;
     const { communityId: urlCommunityId } = props.match.params;
     const communityId = getIdFromString(urlCommunityId);
-    const { pageBack } = this.state;
 
     this.setState({ res: LOADING_REQUEST });
     const res = await HttpService.client.getModlog({
@@ -1091,11 +1112,10 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       post_id: postId,
       page_back: pageBack,
     });
+
     if (token === this.fetchModlogToken) {
       this.setState({ res });
     }
-
-    this.setState({ pageBack: false });
   }
 
   fetchCommunityToken?: symbol;
