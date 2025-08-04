@@ -82,7 +82,7 @@
     "sass-loader": "^16.0.1",
     "serialize-javascript": "^6.0.2",
     "service-worker-webpack": "^1.0.0",
-    "sharp": "0.34.1",
+    "sharp": "0.34.2",
     "tippy.js": "^6.3.7",
     "toastify-js": "^1.12.0",
     "tributejs": "^5.1.3",
@@ -117,7 +117,7 @@
     "globals": "^16.0.0",
     "husky": "^9.1.5",
     "import-sort-style-module": "^6.0.0",
-    "lint-staged": "^15.2.9",
+    "lint-staged": "^16.0.0",
     "prettier": "^3.4.2",
     "prettier-plugin-import-sort": "^0.0.7",
     "prettier-plugin-organize-imports": "^4.0.0",
@@ -131,7 +131,7 @@
     "typescript-eslint": "^8.3.0",
     "typescript-language-server": "^4.3.3",
     "webpack-bundle-analyzer": "^4.10.2",
-    "webpack-dev-server": "5.2.1"
+    "webpack-dev-server": "5.2.2"
   },
   "lint-staged": {
     "*.{css, scss}": [
@@ -145,7 +145,7 @@
       "sortpack"
     ]
   },
-  "packageManager": "pnpm@10.2.1+sha512.398035c7bd696d0ba0b10a688ed558285329d27ea994804a52bad9167d8e3a72bcb993f9699585d3ca25779ac64949ef422757a6c31102c12ab932e5cbe5cc92",
+  "packageManager": "pnpm@10.9.0+sha512.0486e394640d3c1fb3c9d43d49cf92879ff74f8516959c235308f5a8f62e2e19528a65cdc2a3058f587cde71eba3d5b56327c8c33a97e4c4051ca48a10ca2d5f",
   "engineStrict": true,
   "importSort": {
     ".js, .jsx, .ts, .tsx": {
