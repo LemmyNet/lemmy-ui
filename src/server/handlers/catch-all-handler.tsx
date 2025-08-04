@@ -121,10 +121,10 @@ export default async (req: Request, res: Response) => {
       myUserInfo,
       routeData,
       errorPageData,
+      lemmyExternalHost: process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ?? testHost,
       showAdultConsentModal:
         !!siteRes?.site_view.site.content_warning &&
         !(myUserInfo || req.cookies[adultConsentCookieKey]),
-      lemmy_external_host: process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ?? testHost,
     };
 
     const interfaceLanguage =

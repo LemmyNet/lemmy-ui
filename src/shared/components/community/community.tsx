@@ -154,7 +154,7 @@ export function getCommunityQueryParams(
   return getQueryParams<CommunityProps, Fallbacks>(
     {
       dataType: getDataTypeFromQuery,
-      pageCursor: (cursor?: string) => cursor,
+      pageCursor: (page?: string) => page,
       sort: getSortTypeFromQuery,
       showHidden: (include?: StringBoolean) => include,
     },

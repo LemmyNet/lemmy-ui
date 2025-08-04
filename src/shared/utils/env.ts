@@ -7,7 +7,7 @@ export function getBaseLocal(s = "") {
 
 export function getExternalHost() {
   return isBrowser()
-    ? window.isoData.lemmy_external_host
+    ? window.isoData.lemmyExternalHost
     : (process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ?? testHost);
 }
 

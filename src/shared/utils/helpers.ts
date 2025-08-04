@@ -66,9 +66,10 @@ export function getBoolFromString(boolStr?: string): boolean | undefined {
   return boolStr ? boolStr.toLowerCase() === "true" : undefined;
 }
 
-// TODO get rid of this
-export function getPageFromString(page?: string): number {
-  return page && !Number.isNaN(Number(page)) ? Number(page) : 1;
+export function getPageCursorFromString(
+  pageCursor?: string,
+): PaginationCursor | undefined {
+  return pageCursor ? pageCursor : undefined;
 }
 
 type Empty = NonNullable<unknown>;

@@ -46,6 +46,7 @@ import {
   getProfileQueryParams,
 } from "@components/person/profile";
 import {
+  getRegistrationApplicationQueryParams,
   RegistrationApplications,
   RegistrationApplicationsFetchConfig,
 } from "@components/person/registration-applications";
@@ -213,6 +214,7 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     path: `/registration_applications`,
     component: RegistrationApplications,
     fetchInitialData: RegistrationApplications.fetchInitialData,
+    getQueryParams: getRegistrationApplicationQueryParams,
   } as RegistrationApplicationsFetchConfig,
   {
     path: `/search`,
