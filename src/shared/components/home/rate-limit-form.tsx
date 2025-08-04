@@ -13,7 +13,6 @@ const rateLimitTypes = [
   "image",
   "comment",
   "search",
-  "register",
   "import_user_settings",
 ] as const;
 
@@ -99,7 +98,7 @@ function handleIntervalSecondsChange(
     ...prev,
     form: {
       ...prev.form,
-      [`${rateLimitType}_per_second`]: Number(event.target.value),
+      [`${rateLimitType}_interval_seconds`]: Number(event.target.value),
     },
   }));
 }
@@ -158,9 +157,11 @@ export default class RateLimitsForm extends Component<
                   { rateLimitType, ctx: this },
                   handleIntervalSecondsChange,
                 )}
-                rateLimitValue={this.state.form[rateLimitType]}
+                rateLimitValue={
+                  this.state.form[`${rateLimitType}_max_requests`]
+                }
                 rateLimitIntervalSeconds={
-                  this.state.form[`${rateLimitType}_per_second`]
+                  this.state.form[`${rateLimitType}_interval_seconds`]
                 }
               />
             ),
