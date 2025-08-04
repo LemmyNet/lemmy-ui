@@ -524,7 +524,7 @@ export class MarkdownTextArea extends Component<
           break;
         }
         case "Enter": {
-          if (!this.isDisabled) {
+          if (!i.isDisabled) {
             i.handleSubmit(i, event);
           }
 

@@ -259,7 +259,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
               i.setState(() => {
                 editable.change = undefined;
                 return {
-                  taglines: this.state.taglines.filter(x => x !== editable),
+                  taglines: i.state.taglines.filter(x => x !== editable),
                 };
               });
             }

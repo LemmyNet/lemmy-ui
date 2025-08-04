@@ -245,6 +245,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     this.handleToggle2fa = this.handleToggle2fa.bind(this);
     this.handleEnable2fa = this.handleEnable2fa.bind(this);
     this.handleDisable2fa = this.handleDisable2fa.bind(this);
+    this.handleShowDownvotesChange = this.handleShowDownvotesChange.bind(this);
 
     const mui = this.isoData.myUserInfo;
     if (mui) {
@@ -1892,7 +1893,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       });
       if (deleteAccountRes.state === "success") {
         UserService.Instance.logout();
-        this.context.router.history.replace("/");
+        i.context.router.history.replace("/");
       }
 
       i.setState({ deleteAccountRes });

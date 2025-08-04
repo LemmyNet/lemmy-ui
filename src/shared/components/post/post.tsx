@@ -258,6 +258,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleEditCommunity = this.handleEditCommunity.bind(this);
     this.handleFollow = this.handleFollow.bind(this);
     this.handleModRemoveCommunity = this.handleModRemoveCommunity.bind(this);
+    this.handlePurgeCommunity = this.handlePurgeCommunity.bind(this);
     this.handleCreateComment = this.handleCreateComment.bind(this);
     this.handleCreateToplevelComment =
       this.handleCreateToplevelComment.bind(this);
