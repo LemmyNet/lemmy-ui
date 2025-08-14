@@ -79,7 +79,7 @@ import {
 } from "@components/search";
 import { InitialFetchRequest, RouteData } from "@utils/types";
 import { GetSiteResponse, MyUserInfo } from "lemmy-js-client";
-import { Inferno } from "inferno";
+import { Component } from "inferno";
 import {
   OAuthCallback,
   OAuthCallbackConfig,
@@ -99,10 +99,11 @@ export interface IRoutePropsWithFetch<
     siteRes: GetSiteResponse,
     myUserInfo?: MyUserInfo,
   ): QueryPropsT;
-  component: Inferno.ComponentClass<
-    RouteComponentProps<PathPropsT> & QueryPropsT
-  >;
   mountedSameRouteNavKey?: string;
+  component: typeof Component<
+    RouteComponentProps<PathPropsT> & QueryPropsT,
+    any
+  >;
 }
 
 export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [

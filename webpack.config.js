@@ -118,6 +118,7 @@ module.exports = (env, argv) => {
   const clientConfig = {
     ...base,
     entry: "./src/client/index.tsx",
+    target: "browserslist", // looks up package.json
     output: {
       ...base.output,
       filename: "js/client.js",
