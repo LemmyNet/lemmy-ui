@@ -35,7 +35,7 @@ interface TaglineFormProps {
 interface TaglineFormState {
   taglinesRes: RequestState<ListTaglinesResponse>;
   taglines: Array<EditableTagline>;
-  page?: DirectionalCursor;
+  cursor?: DirectionalCursor;
 }
 
 @tippyMixin
@@ -188,6 +188,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
           </div>
           <div>
             <PaginatorCursor
+              current={this.state.cursor}
               resource={this.state.taglinesRes}
               onPageChange={this.handlePageChange}
             />
@@ -282,7 +283,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   }
 
   async handleCancelClick(i: TaglineForm) {
-    i.handlePageChange(i.state.page);
+    i.handlePageChange(i.state.cursor);
   }
 
   async handleAddTaglineClick(
@@ -302,10 +303,10 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     });
   }
 
-  async handlePageChange(page?: DirectionalCursor) {
-    this.setState({ taglinesRes: LOADING_REQUEST, page });
+  async handlePageChange(cursor?: DirectionalCursor) {
+    this.setState({ taglinesRes: LOADING_REQUEST, cursor });
     const taglinesRes = await HttpService.client.listTaglines({
-      ...cursorComponents(page),
+      ...cursorComponents(cursor),
     });
     this.setState({
       taglinesRes,

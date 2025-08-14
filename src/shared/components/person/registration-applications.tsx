@@ -53,7 +53,7 @@ interface RegistrationApplicationsState {
 
 interface RegistrationApplicationsProps {
   view: RegistrationState;
-  page?: DirectionalCursor;
+  cursor?: DirectionalCursor;
 }
 
 function registrationStateFromQuery(view?: string): RegistrationState {
@@ -73,7 +73,7 @@ export function getRegistrationApplicationQueryParams(
   return getQueryParams<RegistrationApplicationsProps>(
     {
       view: registrationStateFromQuery,
-      page: (page?: string) => page,
+      cursor: (cursor?: string) => cursor,
     },
     source,
   );
@@ -132,7 +132,7 @@ export class RegistrationApplications extends Component<
   ): void {
     if (
       nextProps.view !== this.props.view ||
-      nextProps.page !== this.props.page
+      nextProps.cursor !== this.props.cursor
     ) {
       this.refetch(nextProps);
     }
@@ -168,6 +168,7 @@ export class RegistrationApplications extends Component<
             <>
               {this.applicationList(apps)}
               <PaginatorCursor
+                current={this.props.cursor}
                 resource={this.state.appsRes}
                 onPageChange={this.handlePageChange}
               />
@@ -281,17 +282,17 @@ export class RegistrationApplications extends Component<
   }
 
   handleRegistrationStateChange(i: RegistrationApplications, event: any) {
-    i.updateUrl({ view: event.target.value, page: undefined });
+    i.updateUrl({ view: event.target.value, cursor: undefined });
   }
 
-  handlePageChange(page: DirectionalCursor) {
-    this.updateUrl({ page });
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
   static async fetchInitialData({
     headers,
     match: {
-      params: { view, page },
+      params: { view, cursor },
     },
   }: InitialFetchRequest<
     Record<string, never>,
@@ -304,7 +305,7 @@ export class RegistrationApplications extends Component<
       listRegistrationApplicationsResponse: headers["Authorization"]
         ? await client.listRegistrationApplications({
             unread_only: view === "Unread",
-            ...cursorComponents(page),
+            ...cursorComponents(cursor),
             limit: fetchLimit,
           })
         : EMPTY_REQUEST,
@@ -314,13 +315,13 @@ export class RegistrationApplications extends Component<
   refetchToken?: symbol;
   async refetch(props: RegistrationApplicationsProps) {
     const token = (this.refetchToken = Symbol());
-    const { view: state, page } = props;
+    const { view: state, cursor } = props;
     this.setState({
       appsRes: LOADING_REQUEST,
     });
     const appsRes = await HttpService.client.listRegistrationApplications({
       unread_only: state === "Unread",
-      ...cursorComponents(page),
+      ...cursorComponents(cursor),
       limit: fetchLimit,
     });
     if (token === this.refetchToken) {
@@ -329,10 +330,10 @@ export class RegistrationApplications extends Component<
   }
 
   async updateUrl(props: Partial<RegistrationApplicationsProps>) {
-    const { page, view: state } = { ...this.props, ...props };
+    const { cursor, view: state } = { ...this.props, ...props };
 
     const queryParams: QueryParams<RegistrationApplicationsProps> = {
-      page,
+      cursor,
       view: state,
     };
 

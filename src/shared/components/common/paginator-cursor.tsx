@@ -11,8 +11,9 @@ interface PaginatedResource {
 }
 
 interface PaginatorCursorProps {
+  current: DirectionalCursor | undefined;
   resource: RequestState<PaginatedResource>;
-  onPageChange(cursor: DirectionalCursor): void;
+  onPageChange(cursor?: DirectionalCursor): void;
 }
 
 function handleNext(i: PaginatorCursor) {
@@ -25,6 +26,10 @@ function handlePrev(i: PaginatorCursor) {
   if (i.prevPage) {
     i.props.onPageChange(directionalCursor(i.prevPage, true));
   }
+}
+
+function handleFirstPage(i: PaginatorCursor) {
+  i.props.onPageChange(undefined);
 }
 
 export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
@@ -40,7 +45,9 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
 
   get prevPage(): PaginationCursor | undefined {
     return this.props.resource.state === "success"
-      ? this.props.resource.data.prev_page
+      ? this.props.current
+        ? this.props.resource.data.prev_page
+        : undefined
       : undefined;
   }
 
@@ -61,6 +68,14 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
         >
           {I18NextService.i18n.t("next")}
         </button>
+        {!this.prevPage && !this.nextPage && (
+          <button
+            className="btn btn-secondary"
+            onClick={linkEvent(this, handleFirstPage)}
+          >
+            {I18NextService.i18n.t("back_to_first_page")}
+          </button>
+        )}
       </div>
     );
   }

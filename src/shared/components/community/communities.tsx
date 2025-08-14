@@ -54,7 +54,7 @@ interface CommunitiesState {
 interface CommunitiesProps {
   listingType: ListingType;
   sort: CommunitySortType;
-  page?: DirectionalCursor;
+  cursor?: DirectionalCursor;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
@@ -70,7 +70,7 @@ export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
     {
       listingType: getListingTypeFromQuery,
       sort: getSortTypeFromQuery,
-      page: (arg?: string) => arg,
+      cursor: (cursor?: string) => cursor,
     },
     source,
   );
@@ -250,6 +250,7 @@ export class Communities extends Component<
           </div>
           <div className="table-responsive">{this.renderListingsTable()}</div>
           <PaginatorCursor
+            current={this.props.cursor}
             resource={this.state.listCommunitiesResponse}
             onPageChange={this.handlePageChange}
           />
@@ -296,18 +297,18 @@ export class Communities extends Component<
     this.props.history.push(`/communities${getQueryString(queryParams)}`);
   }
 
-  handlePageChange(page: DirectionalCursor) {
-    this.updateUrl({ page });
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
   handleSortChange(val: CommunitySortType) {
-    this.updateUrl({ sort: val, page: undefined });
+    this.updateUrl({ sort: val, cursor: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {
     this.updateUrl({
       listingType: val,
-      page: undefined,
+      cursor: undefined,
     });
   }
 
@@ -326,7 +327,7 @@ export class Communities extends Component<
 
   static async fetchInitialData({
     headers,
-    query: { listingType, sort, page },
+    query: { listingType, sort, cursor },
   }: InitialFetchRequest<
     CommunitiesPathProps,
     CommunitiesProps
@@ -339,7 +340,7 @@ export class Communities extends Component<
       type_: listingType,
       sort,
       limit: communityLimit,
-      ...cursorComponents(page),
+      ...cursorComponents(cursor),
     };
 
     return {
@@ -361,14 +362,14 @@ export class Communities extends Component<
   }
 
   fetchToken?: symbol;
-  async refetch({ listingType, sort, page }: CommunitiesProps) {
+  async refetch({ listingType, sort, cursor }: CommunitiesProps) {
     const token = (this.fetchToken = Symbol());
     this.setState({ listCommunitiesResponse: LOADING_REQUEST });
     const listCommunitiesResponse = await HttpService.client.listCommunities({
       type_: listingType,
       sort: sort,
       limit: communityLimit,
-      ...cursorComponents(page),
+      ...cursorComponents(cursor),
     });
     if (token === this.fetchToken) {
       this.setState({ listCommunitiesResponse });

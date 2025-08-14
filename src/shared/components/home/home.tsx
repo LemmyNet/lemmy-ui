@@ -122,7 +122,7 @@ interface HomeProps {
   listingType?: ListingType;
   dataType: DataType;
   sort: PostSortType | CommentSortType;
-  pageCursor?: DirectionalCursor;
+  cursor?: DirectionalCursor;
   showHidden?: StringBoolean;
 }
 
@@ -197,7 +197,7 @@ export function getHomeQueryParams(
     {
       sort: getSortTypeFromQuery,
       listingType: getListingTypeFromQuery,
-      pageCursor: (cursor?: string) => cursor,
+      cursor: (cursor?: string) => cursor,
       dataType: getDataTypeFromQuery,
       showHidden: (include?: StringBoolean) => include,
     },
@@ -334,7 +334,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   static async fetchInitialData({
-    query: { listingType, dataType, sort, pageCursor, showHidden },
+    query: { listingType, dataType, sort, cursor, showHidden },
     headers,
   }: InitialFetchRequest<HomePathProps, HomeProps>): Promise<HomeData> {
     const client = wrapClient(
@@ -349,7 +349,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
         type_: listingType,
-        ...cursorComponents(pageCursor),
+        ...cursorComponents(cursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         show_hidden: showHidden === "true",
@@ -570,14 +570,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async updateUrl(props: Partial<HomeProps>) {
-    const { dataType, listingType, pageCursor, sort, showHidden } = {
+    const { dataType, listingType, cursor, sort, showHidden } = {
       ...this.props,
       ...props,
     };
     const queryParams: QueryParams<HomeProps> = {
       dataType: getDataTypeString(dataType ?? DataType.Post),
       listingType: listingType,
-      pageCursor: pageCursor,
+      cursor,
       sort: sort,
       showHidden: showHidden,
     };
@@ -597,6 +597,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           <div class="row">
             <div class="col">
               <PaginatorCursor
+                current={this.props.cursor}
                 resource={this.currentRes}
                 onPageChange={this.handlePageChange}
               />
@@ -823,7 +824,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   fetchDataToken?: symbol;
   async fetchData({
     dataType,
-    pageCursor,
+    cursor,
     listingType,
     sort,
     showHidden,
@@ -832,7 +833,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
-        ...cursorComponents(pageCursor),
+        ...cursorComponents(cursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         type_: listingType,
@@ -866,30 +867,30 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     i.setState({ subscribedCollapsed: !i.state.subscribedCollapsed });
   }
 
-  handlePageChange(pageCursor: DirectionalCursor) {
-    this.updateUrl({ pageCursor });
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
   handleSortChange(val: PostSortType) {
-    this.updateUrl({ sort: val, pageCursor: undefined });
+    this.updateUrl({ sort: val, cursor: undefined });
   }
 
   handleCommentSortChange(val: CommentSortType) {
-    this.updateUrl({ sort: val, pageCursor: undefined });
+    this.updateUrl({ sort: val, cursor: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {
-    this.updateUrl({ listingType: val, pageCursor: undefined });
+    this.updateUrl({ listingType: val, cursor: undefined });
   }
 
   handleDataTypeChange(val: DataType) {
-    this.updateUrl({ dataType: val, pageCursor: undefined });
+    this.updateUrl({ dataType: val, cursor: undefined });
   }
 
   handleShowHiddenChange(show?: StringBoolean) {
     this.updateUrl({
       showHidden: show,
-      pageCursor: undefined,
+      cursor: undefined,
     });
   }
 

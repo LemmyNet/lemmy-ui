@@ -134,7 +134,7 @@ type Filter = "Saved" | "Liked" | "None";
 interface ProfileProps {
   view: PersonDetailsView;
   sort: PostSortType;
-  page?: DirectionalCursor;
+  cursor?: DirectionalCursor;
   filter: Filter;
 }
 
@@ -142,7 +142,7 @@ export function getProfileQueryParams(source?: string): ProfileProps {
   return getQueryParams<ProfileProps>(
     {
       view: getViewFromProps,
-      page: (arg?: string) => arg,
+      cursor: (arg?: string) => arg,
       sort: getSortTypeFromQuery,
       filter: getFilterFromQuery,
     },
@@ -339,7 +339,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (
       nextProps.view !== this.props.view ||
       nextProps.sort !== this.props.sort ||
-      nextProps.page !== this.props.page ||
+      nextProps.cursor !== this.props.cursor ||
       nextProps.filter !== this.props.filter ||
       newUsername ||
       reload
@@ -352,7 +352,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   async fetchUserData(props: ProfileRouteProps, showBothLoading = false) {
     const token = (this.fetchUserDataToken = Symbol());
     const {
-      page,
+      cursor,
       view,
       filter,
       match: {
@@ -389,21 +389,21 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         HttpService.client.listPersonContent({
           type_,
           username: props.match.params.username,
-          ...cursorComponents(page),
+          ...cursorComponents(cursor),
         }),
       needSaved &&
         HttpService.client.listPersonSaved({
           type_,
-          ...cursorComponents(page),
+          ...cursorComponents(cursor),
         }),
       needUploads &&
         HttpService.client.listMedia({
-          ...cursorComponents(page),
+          ...cursorComponents(cursor),
           limit: fetchLimit,
         }),
       needLiked &&
         HttpService.client.listPersonLiked({
-          ...cursorComponents(page),
+          ...cursorComponents(cursor),
           limit: fetchLimit,
           type_,
         }),
@@ -437,7 +437,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   static async fetchInitialData({
     headers,
-    query: { view, page, filter },
+    query: { view, cursor, filter },
     match: {
       params: { username },
     },
@@ -464,14 +464,15 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         client.listPersonContent({
           type_,
           username,
-          ...cursorComponents(page),
+          ...cursorComponents(cursor),
         }),
-      needSaved && client.listPersonSaved({ type_, ...cursorComponents(page) }),
-      needUploads && client.listMedia({ ...cursorComponents(page) }),
+      needSaved &&
+        client.listPersonSaved({ type_, ...cursorComponents(cursor) }),
+      needUploads && client.listMedia({ ...cursorComponents(cursor) }),
       needLiked &&
         client.listPersonLiked({
           type_,
-          ...cursorComponents(page),
+          ...cursorComponents(cursor),
         }),
     ]).then(args => {
       const [
@@ -621,6 +622,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   />
                 ))}
               <PaginatorCursor
+                current={this.props.cursor}
                 resource={this.currentRes}
                 onPageChange={this.handlePageChange}
               />
@@ -1073,7 +1075,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   async updateUrl(props: Partial<ProfileRouteProps>) {
     const {
-      page,
+      cursor,
       sort,
       view,
       filter,
@@ -1083,7 +1085,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     } = { ...this.props, ...props };
 
     const queryParams: QueryParams<ProfileProps> = {
-      page,
+      cursor,
       sort,
       view: view !== getViewFromProps(undefined) ? view : undefined,
       filter: filter !== getFilterFromQuery(undefined) ? filter : undefined,
@@ -1092,27 +1094,27 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
   }
 
-  handlePageChange(page: DirectionalCursor) {
-    this.updateUrl({ page });
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
   handleSortChange(sort: PostSortType) {
-    this.updateUrl({ sort, page: undefined });
+    this.updateUrl({ sort, cursor: undefined });
   }
 
   handleViewChange(i: Profile, event: any) {
     const view = getViewFromProps(event.target.value);
     if (view === "Uploads") {
-      i.updateUrl({ view, page: undefined, filter: undefined });
+      i.updateUrl({ view, cursor: undefined, filter: undefined });
     } else {
-      i.updateUrl({ view, page: undefined });
+      i.updateUrl({ view, cursor: undefined });
     }
   }
 
   handleFilterChange(i: Profile, event?: any) {
     i.updateUrl({
       filter: getFilterFromQuery(event.target.value),
-      page: undefined,
+      cursor: undefined,
     });
   }
 

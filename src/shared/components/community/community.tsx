@@ -138,7 +138,7 @@ interface State {
 interface CommunityProps {
   dataType: DataType;
   sort: PostSortType | CommentSortType;
-  pageCursor?: DirectionalCursor;
+  cursor?: DirectionalCursor;
   showHidden?: StringBoolean;
 }
 
@@ -154,7 +154,7 @@ export function getCommunityQueryParams(
   return getQueryParams<CommunityProps, Fallbacks>(
     {
       dataType: getDataTypeFromQuery,
-      pageCursor: (page?: string) => page,
+      cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
       showHidden: (include?: StringBoolean) => include,
     },
@@ -306,7 +306,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   static async fetchInitialData({
     headers,
-    query: { dataType, pageCursor, sort, showHidden },
+    query: { dataType, cursor, sort, showHidden },
     match: {
       params: { name: communityName },
     },
@@ -330,7 +330,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
         community_name: communityName,
-        ...cursorComponents(pageCursor),
+        ...cursorComponents(cursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         type_: "All",
@@ -426,6 +426,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             <div class="row">
               <div class="col">
                 <PaginatorCursor
+                  current={this.props.cursor}
                   resource={this.currentRes}
                   onPageChange={this.handlePageChange}
                 />
@@ -698,26 +699,26 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.props.history.back();
   }
 
-  handlePageChange(pageCursor: DirectionalCursor) {
-    this.updateUrl({ pageCursor });
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
   handleSortChange(sort: PostSortType) {
-    this.updateUrl({ sort, pageCursor: undefined });
+    this.updateUrl({ sort, cursor: undefined });
   }
 
   handleCommentSortChange(sort: CommentSortType) {
-    this.updateUrl({ sort, pageCursor: undefined });
+    this.updateUrl({ sort, cursor: undefined });
   }
 
   handleDataTypeChange(dataType: DataType) {
-    this.updateUrl({ dataType, pageCursor: undefined });
+    this.updateUrl({ dataType, cursor: undefined });
   }
 
   handleShowHiddenChange(show?: StringBoolean) {
     this.updateUrl({
       showHidden: show,
-      pageCursor: undefined,
+      cursor: undefined,
     });
   }
 
@@ -730,7 +731,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   async updateUrl(props: Partial<CommunityProps>) {
     const {
       dataType,
-      pageCursor,
+      cursor,
       sort,
       showHidden,
       match: {
@@ -743,7 +744,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     const queryParams: QueryParams<CommunityProps> = {
       dataType: getDataTypeString(dataType ?? DataType.Post),
-      pageCursor: pageCursor,
+      cursor,
       sort: sort,
       showHidden: showHidden,
     };
@@ -754,13 +755,13 @@ export class Community extends Component<CommunityRouteProps, State> {
   fetchDataToken?: symbol;
   async fetchData(props: CommunityRouteProps) {
     const token = (this.fetchDataToken = Symbol());
-    const { dataType, pageCursor, sort, showHidden } = props;
+    const { dataType, cursor, sort, showHidden } = props;
     const { name } = props.match.params;
 
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
-        ...cursorComponents(pageCursor),
+        ...cursorComponents(cursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         type_: "All",

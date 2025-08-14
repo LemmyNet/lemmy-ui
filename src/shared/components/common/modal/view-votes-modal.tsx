@@ -41,7 +41,7 @@ interface ViewVotesModalProps {
 interface ViewVotesModalState {
   postLikesRes: RequestState<ListPostLikesResponse>;
   commentLikesRes: RequestState<ListCommentLikesResponse>;
-  page?: DirectionalCursor;
+  cursor?: DirectionalCursor;
 }
 
 function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
@@ -156,6 +156,7 @@ export default class ViewVotesModal extends Component<
               {this.commentLikes()}
               <PaginatorCursor
                 resource={this.currentRes}
+                current={this.state.cursor}
                 onPageChange={this.handlePageChange}
               />
             </div>
@@ -204,13 +205,13 @@ export default class ViewVotesModal extends Component<
     this.modal?.hide();
   }
 
-  async handlePageChange(page: DirectionalCursor) {
-    this.setState({ page });
+  async handlePageChange(cursor?: DirectionalCursor) {
+    this.setState({ cursor });
     await this.refetch();
   }
 
   async refetch() {
-    const page = this.state.page;
+    const cursor = this.state.cursor;
     const limit = fetchLimit;
 
     if (this.props.type === "post") {
@@ -218,7 +219,7 @@ export default class ViewVotesModal extends Component<
       this.setState({
         postLikesRes: await HttpService.client.listPostLikes({
           post_id: this.props.id,
-          ...cursorComponents(page),
+          ...cursorComponents(cursor),
           limit,
         }),
       });
@@ -227,7 +228,7 @@ export default class ViewVotesModal extends Component<
       this.setState({
         commentLikesRes: await HttpService.client.listCommentLikes({
           comment_id: this.props.id,
-          ...cursorComponents(page),
+          ...cursorComponents(cursor),
           limit,
         }),
       });

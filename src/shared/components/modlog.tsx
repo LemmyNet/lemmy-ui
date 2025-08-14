@@ -97,7 +97,7 @@ export function getModlogQueryParams(source?: string): ModlogProps {
       actionType: getActionFromString,
       modId: getIdFromString,
       userId: getIdFromString,
-      page: (arg?: string) => arg,
+      cursor: (cursor?: string) => cursor,
       commentId: getIdFromString,
       postId: getIdFromString,
     },
@@ -116,7 +116,7 @@ interface ModlogState {
 }
 
 interface ModlogProps {
-  page?: DirectionalCursor;
+  cursor?: DirectionalCursor;
   userId?: number;
   modId?: number;
   actionType: ModlogActionType;
@@ -862,6 +862,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               {this.combined}
             </table>
             <PaginatorCursor
+              current={this.props.cursor}
               resource={this.state.res}
               onPageChange={this.handlePageChange}
             />
@@ -874,20 +875,23 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   handleFilterActionChange(i: Modlog, event: any) {
     i.updateUrl({
       actionType: event.target.value as ModlogActionType,
-      page: undefined,
+      cursor: undefined,
     });
   }
 
-  handlePageChange(page: DirectionalCursor) {
-    this.updateUrl({ page });
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
   handleUserChange(option: Choice) {
-    this.updateUrl({ userId: getIdFromString(option.value), page: undefined });
+    this.updateUrl({
+      userId: getIdFromString(option.value),
+      cursor: undefined,
+    });
   }
 
   handleModChange(option: Choice) {
-    this.updateUrl({ modId: getIdFromString(option.value), page: undefined });
+    this.updateUrl({ modId: getIdFromString(option.value), cursor: undefined });
   }
 
   handleSearchUsers = debounce(async (text: string) => {
@@ -936,7 +940,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const {
       actionType,
       modId,
-      page,
+      cursor,
       userId,
       match: {
         params: { communityId },
@@ -944,7 +948,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     } = { ...this.props, ...props };
 
     const queryParams: QueryParams<ModlogProps> = {
-      page,
+      cursor,
       actionType: actionType,
       modId: modId?.toString(),
       userId: userId?.toString(),
@@ -960,14 +964,14 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   fetchModlogToken?: symbol;
   async fetchModlog(props: ModlogRouteProps) {
     const token = (this.fetchModlogToken = Symbol());
-    const { actionType, page, modId, userId, postId, commentId } = props;
+    const { actionType, cursor, modId, userId, postId, commentId } = props;
     const { communityId: urlCommunityId } = props.match.params;
     const communityId = getIdFromString(urlCommunityId);
 
     this.setState({ res: LOADING_REQUEST });
     const res = await HttpService.client.getModlog({
       community_id: communityId,
-      ...cursorComponents(page),
+      ...cursorComponents(cursor),
       type_: actionType,
       other_person_id: userId,
       mod_person_id: modId,
@@ -1000,7 +1004,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   static async fetchInitialData({
     headers,
-    query: { page, userId, modId, actionType, commentId, postId },
+    query: { cursor, userId, modId, actionType, commentId, postId },
     match: {
       params: { communityId: urlCommunityId },
     },
@@ -1011,7 +1015,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const communityId = getIdFromString(urlCommunityId);
 
     const modlogForm: GetModlog = {
-      ...cursorComponents(page),
+      ...cursorComponents(cursor),
       community_id: communityId,
       type_: actionType,
       mod_person_id: modId,

@@ -63,7 +63,7 @@ interface ReportsState {
   unreadOrAll: UnreadOrAll;
   messageType: ReportType;
   siteRes: GetSiteResponse;
-  page?: DirectionalCursor;
+  cursor?: DirectionalCursor;
   isIsomorphic: boolean;
 }
 
@@ -147,6 +147,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             {this.selects()}
             {this.section}
             <PaginatorCursor
+              current={this.state.cursor}
               resource={this.state.reportsRes}
               onPageChange={this.handlePageChange}
             />
@@ -528,15 +529,15 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  async handlePageChange(page: DirectionalCursor) {
-    this.setState({ page });
+  async handlePageChange(cursor?: DirectionalCursor) {
+    this.setState({ cursor });
     await this.refetch();
   }
 
   async handleUnreadOrAllChange(i: Reports, event: any) {
     i.setState({
       unreadOrAll: Number(event.target.value),
-      page: undefined,
+      cursor: undefined,
     });
     await i.refetch();
   }
@@ -551,7 +552,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       case "Communities": {
         i.setState({
           messageType: event.target.value,
-          page: undefined,
+          cursor: undefined,
         });
         await i.refetch();
       }
@@ -579,7 +580,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   async refetch() {
     const token = (this.refetchToken = Symbol());
     const unresolved_only = this.state.unreadOrAll === UnreadOrAll.Unread;
-    const page = this.state.page;
+    const cursor = this.state.cursor;
 
     this.setState({
       reportsRes: LOADING_REQUEST,
@@ -588,7 +589,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     const form: ListReports = {
       unresolved_only,
       type_: this.state.messageType,
-      ...cursorComponents(page),
+      ...cursorComponents(cursor),
     };
 
     const reportPromise = HttpService.client

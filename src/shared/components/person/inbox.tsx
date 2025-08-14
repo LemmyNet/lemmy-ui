@@ -97,7 +97,7 @@ interface InboxState {
   inboxRes: RequestState<ListNotificationsResponse>;
   markAllAsReadRes: RequestState<SuccessResponse>;
   sort: PostSortType | CommentSortType;
-  page?: DirectionalCursor;
+  cursor?: DirectionalCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
 }
@@ -243,6 +243,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             {this.selects()}
             {this.all()}
             <PaginatorCursor
+              current={this.state.cursor}
               resource={this.state.inboxRes}
               onPageChange={this.handlePageChange}
             />
@@ -470,20 +471,20 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     }
   }
 
-  async handlePageChange(page: DirectionalCursor) {
-    this.setState({ page });
+  async handlePageChange(cursor?: DirectionalCursor) {
+    this.setState({ cursor });
     await this.refetch();
   }
 
   async handleUnreadOrAllChange(i: Inbox, event: any) {
-    i.setState({ unreadOrAll: Number(event.target.value), page: undefined });
+    i.setState({ unreadOrAll: Number(event.target.value), cursor: undefined });
     await i.refetch();
   }
 
   async handleMessageTypeChange(i: Inbox, event: any) {
     i.setState({
       messageType: event.target.value as NotificationDataType,
-      page: undefined,
+      cursor: undefined,
     });
     await i.refetch();
   }
@@ -512,7 +513,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   async refetch() {
     const token = (this.refetchToken = Symbol());
     const unread_only = this.state.unreadOrAll === UnreadOrAll.Unread;
-    const page = this.state.page;
+    const cursor = this.state.cursor;
 
     this.setState({
       inboxRes: LOADING_REQUEST,
@@ -521,7 +522,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       .listNotifications({
         type_: this.state.messageType,
         unread_only,
-        ...cursorComponents(page),
+        ...cursorComponents(cursor),
       })
       .then(inboxRes => {
         if (token === this.refetchToken) {
@@ -534,7 +535,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   }
 
   async handleSortChange(val: CommentSortType) {
-    this.setState({ sort: val, page: undefined });
+    this.setState({ sort: val, cursor: undefined });
     await this.refetch();
   }
 

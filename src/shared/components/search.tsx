@@ -78,7 +78,7 @@ interface SearchProps {
   titleOnly?: boolean;
   communityId?: number;
   creatorId?: number;
-  page?: DirectionalCursor;
+  cursor?: DirectionalCursor;
 }
 
 type SearchData = RouteDataResponse<{
@@ -117,7 +117,7 @@ export function getSearchQueryParams(source?: string): SearchProps {
       titleOnly: getBoolFromString,
       communityId: getIdFromString,
       creatorId: getIdFromString,
-      page: (arg?: string) => arg,
+      cursor: (cursor?: string) => cursor,
     },
     source,
   );
@@ -560,7 +560,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       titleOnly: title_only,
       communityId: community_id,
       creatorId: creator_id,
-      page,
+      cursor,
     },
   }: InitialFetchRequest<SearchPathProps, SearchProps>): Promise<SearchData> {
     const client = wrapClient(
@@ -602,7 +602,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         sort,
         listing_type,
         title_only,
-        ...cursorComponents(page),
+        ...cursorComponents(cursor),
       };
 
       searchResponse = await client.search(form);
@@ -649,6 +649,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             <span>{I18NextService.i18n.t("no_results")}</span>
           )}
         <PaginatorCursor
+          current={this.props.cursor}
           resource={this.state.searchRes}
           onPageChange={this.handlePageChange}
         />
@@ -979,7 +980,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       sort,
       listingType,
       titleOnly,
-      page,
+      cursor,
     } = props;
 
     if (q) {
@@ -993,7 +994,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         listing_type: listingType,
         title_only: titleOnly,
         limit: fetchLimit,
-        ...cursorComponents(page),
+        ...cursorComponents(cursor),
       });
       if (token !== this.searchToken) {
         return;
@@ -1047,7 +1048,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   handleSortChange(sort: SearchSortType) {
-    this.updateUrl({ sort, page: undefined, q: this.getQ() });
+    this.updateUrl({ sort, cursor: undefined, q: this.getQ() });
   }
 
   handleTitleOnlyChange(event: any) {
@@ -1060,19 +1061,19 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     i.updateUrl({
       type,
-      page: undefined,
+      cursor: undefined,
       q: i.getQ(),
     });
   }
 
-  handlePageChange(page: DirectionalCursor) {
-    this.updateUrl({ page });
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
   handleListingTypeChange(listingType: ListingType) {
     this.updateUrl({
       listingType,
-      page: undefined,
+      cursor: undefined,
       q: this.getQ(),
     });
   }
@@ -1080,7 +1081,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   handleCommunityFilterChange({ value }: Choice) {
     this.updateUrl({
       communityId: getIdFromString(value),
-      page: undefined,
+      cursor: undefined,
       q: this.getQ(),
     });
   }
@@ -1088,7 +1089,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   handleCreatorFilterChange({ value }: Choice) {
     this.updateUrl({
       creatorId: getIdFromString(value),
-      page: undefined,
+      cursor: undefined,
       q: this.getQ(),
     });
   }
@@ -1098,7 +1099,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     i.updateUrl({
       q: i.getQ(),
-      page: undefined,
+      cursor: undefined,
     });
   }
 
@@ -1111,7 +1112,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       sort,
       communityId,
       creatorId,
-      page,
+      cursor,
     } = {
       ...this.props,
       ...props,
@@ -1124,7 +1125,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       titleOnly: titleOnly?.toString(),
       communityId: communityId?.toString(),
       creatorId: creatorId?.toString(),
-      page,
+      cursor,
       sort: sort,
     };
 

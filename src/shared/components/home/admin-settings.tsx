@@ -57,11 +57,11 @@ type AdminSettingsData = RouteDataResponse<{
 interface AdminSettingsState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   usersRes: RequestState<AdminListUsersResponse>;
-  usersPage?: DirectionalCursor;
+  usersCursor?: DirectionalCursor;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<ListMediaResponse>;
-  uploadsPage?: DirectionalCursor;
+  uploadsCursor?: DirectionalCursor;
   loading: boolean;
   themeList: string[];
   isIsomorphic: boolean;
@@ -347,11 +347,11 @@ export class AdminSettings extends Component<
     const [usersRes, instancesRes, uploadsRes, themeList] = await Promise.all([
       HttpService.client.listUsers({
         banned_only: true,
-        ...cursorComponents(this.state.usersPage),
+        ...cursorComponents(this.state.usersCursor),
       }),
       HttpService.client.getFederatedInstances(),
       HttpService.client.listMedia({
-        ...cursorComponents(this.state.uploadsPage),
+        ...cursorComponents(this.state.uploadsCursor),
       }),
       fetchThemeList(),
     ]);
@@ -366,7 +366,7 @@ export class AdminSettings extends Component<
 
   async fetchUploadsOnly() {
     const uploadsRes = await HttpService.client.listMedia({
-      ...cursorComponents(this.state.uploadsPage),
+      ...cursorComponents(this.state.uploadsCursor),
     });
     this.setState({ uploadsRes });
   }
@@ -438,6 +438,7 @@ export class AdminSettings extends Component<
               ))}
             </ul>
             <PaginatorCursor
+              current={this.state.usersCursor}
               resource={this.state.usersRes}
               onPageChange={this.handleUsersPageChange}
             />
@@ -465,6 +466,7 @@ export class AdminSettings extends Component<
               myUserInfo={this.isoData.myUserInfo}
             />
             <PaginatorCursor
+              current={this.state.uploadsCursor}
               resource={this.state.uploadsRes}
               onPageChange={this.handleUploadsPageChange}
             />
@@ -510,13 +512,13 @@ export class AdminSettings extends Component<
     }
   }
 
-  async handleUsersPageChange(usersPage: DirectionalCursor) {
-    this.setState({ usersPage });
+  async handleUsersPageChange(cursor: DirectionalCursor) {
+    this.setState({ usersCursor: cursor });
     await this.fetchData();
   }
 
-  async handleUploadsPageChange(uploadsPage: DirectionalCursor) {
-    this.setState({ uploadsPage });
+  async handleUploadsPageChange(cursor: DirectionalCursor) {
+    this.setState({ uploadsCursor: cursor });
     snapToTop();
     await this.fetchUploadsOnly();
   }
