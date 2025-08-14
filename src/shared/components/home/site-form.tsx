@@ -225,25 +225,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="mb-3 row">
-          <div className="alert small alert-info" role="alert">
-            <Icon icon="info" classes="icon-inline me-2" />
-            {I18NextService.i18n.t("content_warning_setting_blurb")}
-          </div>
-          <label className="col-12 col-form-label">
-            {I18NextService.i18n.t("content_warning")}
-          </label>
-          <div className="col-12">
-            <MarkdownTextArea
-              initialContent={this.state.siteForm.content_warning}
-              onContentChange={this.handleSiteContentWarningChange}
-              hideNavigationWarnings
-              allLanguages={[]}
-              siteLanguages={[]}
-              myUserInfo={this.props.myUserInfo}
-            />
-          </div>
-        </div>
-        <div className="mb-3 row">
           {(
             [
               { kind: "post_upvotes", i18nKey: "post_upvote_federation" },
@@ -269,25 +250,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               />
             </div>
           ))}
-        </div>
-        <div className="mb-3 row">
-          <div className="alert small alert-info" role="alert">
-            <Icon icon="info" classes="icon-inline me-2" />
-            {I18NextService.i18n.t("content_warning_setting_blurb")}
-          </div>
-          <label className="col-12 col-form-label">
-            {I18NextService.i18n.t("content_warning")}
-          </label>
-          <div className="col-12">
-            <MarkdownTextArea
-              initialContent={this.state.siteForm.content_warning}
-              onContentChange={this.handleSiteContentWarningChange}
-              hideNavigationWarnings
-              allLanguages={[]}
-              siteLanguages={[]}
-              myUserInfo={this.props.myUserInfo}
-            />
-          </div>
         </div>
         <div className="mb-3 row">
           <div className="col-12">

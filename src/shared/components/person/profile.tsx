@@ -392,11 +392,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           type_,
           username: props.match.params.username,
           ...cursorComponents(cursor),
+          limit: fetchLimit,
         }),
       needSaved &&
         HttpService.client.listPersonSaved({
           type_,
           ...cursorComponents(cursor),
+          limit: fetchLimit,
         }),
       needUploads &&
         HttpService.client.listMedia({
@@ -469,12 +471,18 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           ...cursorComponents(cursor),
         }),
       needSaved &&
-        client.listPersonSaved({ type_, ...cursorComponents(cursor) }),
-      needUploads && client.listMedia({ ...cursorComponents(cursor) }),
+        client.listPersonSaved({
+          type_,
+          ...cursorComponents(cursor),
+          limit: fetchLimit,
+        }),
+      needUploads &&
+        client.listMedia({ ...cursorComponents(cursor), limit: fetchLimit }),
       needLiked &&
         client.listPersonLiked({
           type_,
           ...cursorComponents(cursor),
+          limit: fetchLimit,
         }),
     ]).then(args => {
       const [
@@ -701,7 +709,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           value={view}
           checked={active}
           onChange={linkEvent(this, this.handleViewChange)}
-          disabled={view === "Uploads"}
         />
         <label
           htmlFor={radioId}
@@ -1376,6 +1383,27 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.updateBan(banRes);
   }
 
+  maybeUpdatePerson(c: PersonView) {
+    if (
+      this.state.personRes.state !== "success" ||
+      this.state.personRes.data.person_view.person.id !== c.person.id
+    ) {
+      return;
+    }
+    this.setState(s => {
+      if (s.personRes.state !== "success") return { personRes: s.personRes };
+      return {
+        personRes: {
+          ...s.personRes,
+          data: {
+            ...s.personRes.data,
+            person_view: { ...c },
+          },
+        },
+      };
+    });
+  }
+
   updateCurrentList(
     mapFn: (c: PersonContentCombinedView) => PersonContentCombinedView,
   ) {
@@ -1456,6 +1484,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             }
           : c,
       );
+      this.maybeUpdatePerson(banRes.data.person_view);
     }
   }
 
@@ -1466,10 +1495,11 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         c.creator.id === banRes.data.person_view.person.id
           ? {
               ...c,
-              creator: { ...c.creator, banned: banRes.data.banned },
+              creator_banned: banRes.data.banned,
             }
           : c,
       );
+      this.maybeUpdatePerson(banRes.data.person_view);
     }
   }
 

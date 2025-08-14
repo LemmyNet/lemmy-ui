@@ -102,5 +102,5 @@ export class MediaUploads extends Component<Props, any> {
 }
 
 function buildImageUrl(pictrsAlias: string): string {
-  return `${getHttpBase()}/pictrs/image/${pictrsAlias}`;
+  return `${getHttpBase()}/api/v4/image/${pictrsAlias}`;
 }

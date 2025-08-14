@@ -8,7 +8,7 @@ import {
   bareRoutePush,
   cursorComponents,
 } from "@utils/helpers";
-import { formatRelativeDate } from "@utils/date";
+import { formatRelativeDate, nowBoolean } from "@utils/date";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { amAdmin, amMod } from "@utils/roles";
 import type { DirectionalCursor, QueryParams } from "@utils/types";
@@ -133,6 +133,20 @@ function processModlogEntry(
   myUserInfo: MyUserInfo | undefined,
 ): ModlogEntry {
   switch (view.type_) {
+    default:
+      // FIXME: placeholder for version mismatch between js-client and backend
+      // Without a default case typescript is able to report missing types
+      return {
+        id: 0,
+        publishedAt: nowBoolean(true)!,
+        data: (
+          <>
+            <span>Placeholder for:</span>{" "}
+            <span>{(view as { type_: string }).type_}</span>
+          </>
+        ),
+      };
+
     case "AdminAllowInstance": {
       const {
         admin_allow_instance: { id, published_at },

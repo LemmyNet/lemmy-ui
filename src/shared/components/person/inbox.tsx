@@ -55,7 +55,7 @@ import {
   SuccessResponse,
   TransferCommunity,
 } from "lemmy-js-client";
-import { relTags } from "@utils/config";
+import { fetchLimit, relTags } from "@utils/config";
 import { CommentViewType, InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import { UnreadCounterService } from "../../services";
@@ -343,7 +343,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
-          htmlFor={`${radioId}-post-mentions`}
+          htmlFor={`${radioId}-mentions`}
           className={classNames("btn btn-outline-secondary pointer", {
             active: this.state.messageType === "Mention",
           })}
@@ -502,6 +502,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
         inboxRes: await client.listNotifications({
           type_: "All",
           unread_only: true,
+          limit: fetchLimit,
         }),
       };
     }
@@ -521,8 +522,10 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     await HttpService.client
       .listNotifications({
         type_: this.state.messageType,
+        // TODO: sort: this.state.sort,
         unread_only,
         ...cursorComponents(cursor),
+        limit: fetchLimit,
       })
       .then(inboxRes => {
         if (token === this.refetchToken) {

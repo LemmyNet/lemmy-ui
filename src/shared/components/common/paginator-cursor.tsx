@@ -68,7 +68,7 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
         >
           {I18NextService.i18n.t("next")}
         </button>
-        {!this.prevPage && !this.nextPage && (
+        {!this.prevPage && !this.nextPage && this.props.current && (
           <button
             className="btn btn-secondary"
             onClick={linkEvent(this, handleFirstPage)}

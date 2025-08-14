@@ -171,8 +171,8 @@ function getDataTypeFromQuery(type?: string): DataType {
 }
 
 function getSortTypeFromQuery(
+  type: string | undefined,
   fallback: PostSortType | CommentSortType,
-  type?: string,
 ): PostSortType | CommentSortType {
   return type ? (type as PostSortType | CommentSortType) : fallback;
 }
@@ -217,7 +217,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
-    this.handlePagePrev = this.handlePagePrev.bind(this);
 
     // All of the action binds
     this.handleDeleteCommunity = this.handleDeleteCommunity.bind(this);
@@ -695,10 +694,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     );
   }
 
-  handlePagePrev() {
-    this.props.history.back();
-  }
-
   handlePageChange(cursor?: DirectionalCursor) {
     this.updateUrl({ cursor });
   }
@@ -745,7 +740,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     const queryParams: QueryParams<CommunityProps> = {
       dataType: getDataTypeString(dataType ?? DataType.Post),
       cursor,
-      sort: sort,
+      sort,
       showHidden: showHidden,
     };
 

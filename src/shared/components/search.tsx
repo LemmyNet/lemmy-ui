@@ -375,7 +375,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.handleCommunityFilterChange =
       this.handleCommunityFilterChange.bind(this);
     this.handleCreatorFilterChange = this.handleCreatorFilterChange.bind(this);
-    this.handleTitleOnlyChange = this.handleTitleOnlyChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -704,18 +703,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             )}
           </button>
         </div>
-        <div className="col-auto form-check ms-2 mt-0 h-min d-flex align-items-center">
-          <input
-            type="checkbox"
-            className="form-check-input"
-            onChange={linkEvent(this, this.handleTitleOnlyChange)}
-            checked={this.props.titleOnly}
-            id="title_only"
-          />
-          <label for="title_only" className="form-check-label">
-            {I18NextService.i18n.t("post_title_only")}
-          </label>
-        </div>
       </form>
     );
   }
@@ -766,7 +753,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 id="title-only"
                 type="checkbox"
                 checked={titleOnly}
-                onChange={this.handleTitleOnlyChange}
+                onChange={linkEvent(this, this.handleTitleOnlyChange)}
               />
               <label className="btn btn-outline-secondary" htmlFor="title-only">
                 {I18NextService.i18n.t("post_title_only")}
@@ -1051,9 +1038,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.updateUrl({ sort, cursor: undefined, q: this.getQ() });
   }
 
-  handleTitleOnlyChange(event: any) {
-    const titleOnly = getBoolFromString(event.target.checked);
-    this.updateUrl({ titleOnly, q: this.getQ() });
+  handleTitleOnlyChange(i: Search, event: any) {
+    const titleOnly = event.target.checked;
+    i.updateUrl({ titleOnly, q: i.getQ() });
   }
 
   handleTypeChange(i: Search, event: any) {
