@@ -21,28 +21,6 @@ import {
   ReportCombinedView,
   Post,
   PersonContentCombinedView,
-  AdminAllowInstance,
-  AdminBlockInstance,
-  AdminPurgeComment,
-  AdminPurgeCommunity,
-  AdminPurgePerson,
-  AdminPurgePost,
-  ModAdd,
-  ModAddCommunity,
-  ModBan,
-  ModBanFromCommunity,
-  ModFeaturePost,
-  ModLockPost,
-  ModRemoveComment,
-  ModRemoveCommunity,
-  ModRemovePost,
-  ModTransferCommunity,
-  ModChangeCommunityVisibility,
-  ModlogCombinedView,
-  Community,
-  Person,
-  SearchCombinedView,
-  MultiCommunity,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -308,64 +286,6 @@ export function getRecipientIdFromProps(
     : 1;
 }
 
-type ModLogCombined =
-  | AdminAllowInstance
-  | AdminBlockInstance
-  | AdminPurgeComment
-  | AdminPurgeCommunity
-  | AdminPurgePerson
-  | AdminPurgePost
-  | ModAdd
-  | ModAddCommunity
-  | ModBan
-  | ModBanFromCommunity
-  | ModFeaturePost
-  | ModLockPost
-  | ModRemoveComment
-  | ModRemoveCommunity
-  | ModRemovePost
-  | ModTransferCommunity
-  | ModChangeCommunityVisibility;
-
-export function getUncombinedModlog(view: ModlogCombinedView): ModLogCombined {
-  switch (view.type_) {
-    case "AdminAllowInstance":
-      return view.admin_allow_instance;
-    case "AdminBlockInstance":
-      return view.admin_block_instance;
-    case "AdminPurgeComment":
-      return view.admin_purge_comment;
-    case "AdminPurgeCommunity":
-      return view.admin_purge_community;
-    case "AdminPurgePerson":
-      return view.admin_purge_person;
-    case "AdminPurgePost":
-      return view.admin_purge_post;
-    case "ModAdd":
-      return view.mod_add;
-    case "ModAddCommunity":
-      return view.mod_add_community;
-    case "ModBan":
-      return view.mod_ban;
-    case "ModBanFromCommunity":
-      return view.mod_ban_from_community;
-    case "ModFeaturePost":
-      return view.mod_feature_post;
-    case "ModLockPost":
-      return view.mod_lock_post;
-    case "ModRemoveComment":
-      return view.mod_remove_comment;
-    case "ModRemoveCommunity":
-      return view.mod_remove_community;
-    case "ModRemovePost":
-      return view.mod_remove_post;
-    case "ModTransferCommunity":
-      return view.mod_transfer_community;
-    case "ModChangeCommunityVisibility":
-      return view.mod_change_community_visibility;
-  }
-}
-
 type PersonContentCombined = Post | Comment;
 
 export function getUncombinedPersonContent(
@@ -397,23 +317,6 @@ export function getUncombinedReport(
       return report.private_message_report;
     case "Community":
       return report.community_report;
-  }
-}
-
-type SearchCombined = Post | Community | Comment | Person | MultiCommunity;
-
-export function getUncombinedSearch(view: SearchCombinedView): SearchCombined {
-  switch (view.type_) {
-    case "Post":
-      return view.post;
-    case "Community":
-      return view.community;
-    case "Comment":
-      return view.comment;
-    case "Person":
-      return view.person;
-    case "MultiCommunity":
-      return view.multi;
   }
 }
 

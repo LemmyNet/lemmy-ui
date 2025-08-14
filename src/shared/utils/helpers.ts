@@ -66,12 +66,6 @@ export function getBoolFromString(boolStr?: string): boolean | undefined {
   return boolStr ? boolStr.toLowerCase() === "true" : undefined;
 }
 
-export function getPageCursorFromString(
-  pageCursor?: string,
-): PaginationCursor | undefined {
-  return pageCursor ? pageCursor : undefined;
-}
-
 type Empty = NonNullable<unknown>;
 
 type QueryMapping<PropsT, FallbacksT extends Empty> = {
