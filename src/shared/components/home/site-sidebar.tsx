@@ -88,7 +88,8 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   siteInfo() {
-    const site = this.props.site;
+    const { site } = this.props;
+
     return (
       <div>
         {site.description && <h6>{site.description}</h6>}

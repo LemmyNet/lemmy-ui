@@ -291,6 +291,48 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         </div>
         <div className="mb-3 row">
           <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="create-site-enable-nsfw"
+                type="checkbox"
+                checked={this.state.siteForm.disallow_nsfw_content}
+                onChange={linkEvent(this, this.handleSiteEnableNsfwChange)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="create-site-enable-nsfw"
+              >
+                {/* TODO: Add translation for this */}
+                Disallow NSFW content
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {!this.state.siteForm.disallow_nsfw_content && (
+          <div className="mb-3 row">
+            <div className="alert small alert-info" role="alert">
+              <Icon icon="info" classes="icon-inline me-2" />
+              {I18NextService.i18n.t("content_warning_setting_blurb")}
+            </div>
+            <label className="col-12 col-form-label">
+              {I18NextService.i18n.t("content_warning")}
+            </label>
+            <div className="col-12">
+              <MarkdownTextArea
+                initialContent={this.state.siteForm.content_warning}
+                onContentChange={this.handleSiteContentWarningChange}
+                hideNavigationWarnings
+                allLanguages={[]}
+                siteLanguages={[]}
+                myUserInfo={this.props.myUserInfo}
+              />
+            </div>
+          </div>
+        )}
+        <div className="mb-3 row">
+          <div className="col-12">
             <label
               className="form-check-label me-2"
               htmlFor="create-site-registration-mode"
@@ -653,6 +695,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         post_downvotes: stateSiteForm.post_downvotes,
         comment_upvotes: stateSiteForm.comment_upvotes,
         comment_downvotes: stateSiteForm.comment_downvotes,
+        disallow_nsfw_content: stateSiteForm.disallow_nsfw_content,
         application_question: stateSiteForm.application_question,
         registration_mode: stateSiteForm.registration_mode,
         oauth_registration: stateSiteForm.oauth_registration,
@@ -668,14 +711,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           stateSiteForm.rate_limit_message_max_requests,
         rate_limit_message_interval_seconds:
           stateSiteForm.rate_limit_message_interval_seconds,
-        rate_limit_comment_max_requests:
-          stateSiteForm.rate_limit_comment_max_requests,
-        rate_limit_comment_interval_seconds:
-          stateSiteForm.rate_limit_comment_interval_seconds,
-        rate_limit_image_max_requests:
-          stateSiteForm.rate_limit_image_max_requests,
-        rate_limit_image_interval_seconds:
-          stateSiteForm.rate_limit_image_interval_seconds,
         rate_limit_post_max_requests:
           stateSiteForm.rate_limit_post_max_requests,
         rate_limit_post_interval_seconds:
@@ -684,6 +719,14 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           stateSiteForm.rate_limit_register_max_requests,
         rate_limit_register_interval_seconds:
           stateSiteForm.rate_limit_register_interval_seconds,
+        rate_limit_image_max_requests:
+          stateSiteForm.rate_limit_image_max_requests,
+        rate_limit_image_interval_seconds:
+          stateSiteForm.rate_limit_image_interval_seconds,
+        rate_limit_comment_max_requests:
+          stateSiteForm.rate_limit_comment_max_requests,
+        rate_limit_comment_interval_seconds:
+          stateSiteForm.rate_limit_comment_interval_seconds,
         rate_limit_search_max_requests:
           stateSiteForm.rate_limit_search_max_requests,
         rate_limit_search_interval_seconds:
@@ -721,6 +764,14 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteDescChange(i: SiteForm, event: any) {
     i.state.siteForm.description = event.target.value;
+    i.setState(i.state);
+  }
+
+  handleSiteEnableNsfwChange(i: SiteForm, event: any) {
+    i.state.siteForm.disallow_nsfw_content = event.target.checked;
+    if (event.target.checked) {
+      i.state.siteForm.content_warning = "";
+    }
     i.setState(i.state);
   }
 

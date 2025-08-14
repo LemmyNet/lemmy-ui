@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { formatRelativeDate } from "@utils/date";
-import { addMinutes, format, isBefore, parseISO } from "date-fns";
+import { addMinutes, isBefore } from "date-fns";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
@@ -13,11 +13,6 @@ interface MomentTimeProps {
   ignoreUpdated?: boolean;
 }
 
-function formatDate(input: string) {
-  const parsed = parseISO(input + "Z");
-  return format(parsed, "PPPPpppp");
-}
-
 @tippyMixin
 export class MomentTime extends Component<MomentTimeProps, any> {
   constructor(props: any, context: any) {
@@ -28,11 +23,11 @@ export class MomentTime extends Component<MomentTimeProps, any> {
     const updated = this.updatedTime;
     let line = `${capitalizeFirstLetter(
       I18NextService.i18n.t("created"),
-    )}: ${formatDate(this.props.published)}`;
+    )}: ${formatRelativeDate(this.props.published)}`;
     if (updated) {
       line += `\n\n\n${capitalizeFirstLetter(
         I18NextService.i18n.t("modified"),
-      )} ${formatDate(updated)}`;
+      )} ${formatRelativeDate(updated)}`;
     }
     return line;
   }
@@ -72,7 +67,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
       return (
         <span
           className="moment-time pointer unselectable"
-          data-tippy-content={formatDate(published)}
+          data-tippy-content={formatRelativeDate(published)}
         >
           {formatRelativeDate(published)}
         </span>

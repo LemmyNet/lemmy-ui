@@ -146,6 +146,7 @@ export default class ContentActionDropdown extends Component<
     const {
       id,
       saved_at,
+      hidden_at,
       deleted,
       locked,
       removed,
@@ -160,8 +161,7 @@ export default class ContentActionDropdown extends Component<
       type === "post"
         ? `post-actions-dropdown-${id}`
         : `comment-actions-dropdown-${id}`;
-    const creatorBannedFromLocal = creator_banned;
-    const showToggleAdmin = !creatorBannedFromLocal && creator.local;
+    const showToggleAdmin = !creator_banned && creator.local;
     const canAppointCommunityMod =
       (amMod(
         this.props.type === "comment"
@@ -232,15 +232,9 @@ export default class ContentActionDropdown extends Component<
                 {type === "post" && (
                   <li>
                     <ActionButton
-                      icon={
-                        this.props.postView.post_actions?.hidden_at
-                          ? "eye"
-                          : "eye-slash"
-                      }
+                      icon={hidden_at ? "eye" : "eye-slash"}
                       label={I18NextService.i18n.t(
-                        this.props.postView.post_actions?.hidden_at
-                          ? "unhide_post"
-                          : "hide_post",
+                        hidden_at ? "unhide_post" : "hide_post",
                       )}
                       onClick={this.props.onHidePost}
                     />
@@ -503,14 +497,14 @@ export default class ContentActionDropdown extends Component<
                         <li>
                           <ActionButton
                             label={I18NextService.i18n.t(
-                              creatorBannedFromLocal
+                              creator_banned
                                 ? "unban_from_site"
                                 : "ban_from_site",
                             )}
                             onClick={this.toggleBanFromSiteShow}
-                            icon={creatorBannedFromLocal ? "unban" : "ban"}
+                            icon={creator_banned ? "unban" : "ban"}
                             iconClass={`text-${
-                              creatorBannedFromLocal ? "success" : "danger"
+                              creator_banned ? "success" : "danger"
                             }`}
                             noLoading
                           />
@@ -825,7 +819,7 @@ export default class ContentActionDropdown extends Component<
     if (this.props.type === "post") {
       const {
         post: { id, deleted, locked, removed },
-        post_actions: { saved_at } = {},
+        post_actions: { saved_at, hidden_at } = {},
         creator,
         creator_banned_from_community,
         creator_is_moderator,
@@ -837,6 +831,7 @@ export default class ContentActionDropdown extends Component<
       return {
         id,
         saved_at,
+        hidden_at,
         deleted,
         creator,
         locked,

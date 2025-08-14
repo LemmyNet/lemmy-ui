@@ -63,7 +63,6 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
-  PostSortType,
   SuccessResponse,
   TransferCommunity,
   RegistrationApplicationResponse,
@@ -74,6 +73,7 @@ import {
   Person,
   MarkPostAsRead,
   ListPersonLikedResponse,
+  SearchSortType,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -127,13 +127,14 @@ interface ProfileState {
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
   showRegistrationDialog: boolean;
+  pageBack?: boolean;
 }
 
 type Filter = "Saved" | "Liked" | "None";
 
 interface ProfileProps {
   view: PersonDetailsView;
-  sort: PostSortType;
+  sort: SearchSortType;
   cursor?: DirectionalCursor;
   filter: Filter;
 }
@@ -142,7 +143,7 @@ export function getProfileQueryParams(source?: string): ProfileProps {
   return getQueryParams<ProfileProps>(
     {
       view: getViewFromProps,
-      cursor: (arg?: string) => arg,
+      cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
       filter: getFilterFromQuery,
     },
@@ -150,8 +151,8 @@ export function getProfileQueryParams(source?: string): ProfileProps {
   );
 }
 
-function getSortTypeFromQuery(sort?: string): PostSortType {
-  return sort ? (sort as PostSortType) : "New";
+function getSortTypeFromQuery(sort?: string): SearchSortType {
+  return sort ? (sort as SearchSortType) : "New";
 }
 
 function getViewFromProps(view?: string): PersonDetailsView {
@@ -311,6 +312,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       const personSavedRes = this.isoData.routeData.personSavedRes;
       const personLikedRes = this.isoData.routeData.personLikedRes;
       const uploadsRes = this.isoData.routeData.uploadsRes;
+
       this.state = {
         ...this.state,
         personRes,
@@ -1098,7 +1100,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.updateUrl({ cursor });
   }
 
-  handleSortChange(sort: PostSortType) {
+  handleSortChange(sort: SearchSortType) {
     this.updateUrl({ sort, cursor: undefined });
   }
 
@@ -1186,7 +1188,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         reason: banReason,
         expires_at: futureDaysToUnixTime(banExpireDays),
       });
-      // TODO
       this.updateBan(res);
       i.setState({ showBanDialog: false });
     }
@@ -1451,7 +1452,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         c.community.id === communityId
           ? {
               ...c,
-              creator_banned: banRes.data.banned,
+              creator_banned_from_community: banRes.data.banned,
             }
           : c,
       );

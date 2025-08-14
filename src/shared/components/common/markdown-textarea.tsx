@@ -472,7 +472,7 @@ export class MarkdownTextArea extends Component<
       const cursorPosition = textarea.selectionStart;
 
       i.setState(({ content }) => {
-        const currentContent = content || "";
+        const currentContent = content ?? "";
         return {
           content:
             currentContent.slice(0, cursorPosition) +

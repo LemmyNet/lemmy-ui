@@ -11,11 +11,11 @@ import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
 import {
   CommunityResponse,
+  CommunitySortType,
   LemmyHttp,
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
-  CommunitySortType,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -31,7 +31,6 @@ import { Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
 import { CommunitiesSortSelect } from "../common/sort-select";
 import { CommunityLink } from "./community-link";
-
 import { communityLimit } from "@utils/config";
 import { SubscribeButton } from "../common/subscribe-button";
 import { getHttpBaseInternal } from "../../utils/env";
@@ -62,7 +61,7 @@ function getListingTypeFromQuery(listingType?: string): ListingType {
 }
 
 function getSortTypeFromQuery(type?: string): CommunitySortType {
-  return type ? (type as CommunitySortType) : "ActiveMonthly";
+  return type ? (type as CommunitySortType) : "Hot";
 }
 
 export function getCommunitiesQueryParams(source?: string): CommunitiesProps {

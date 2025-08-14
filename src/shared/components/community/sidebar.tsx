@@ -155,8 +155,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   sidebar() {
     const {
       community: { name, ap_id, id, posting_restricted_to_mods, visibility },
-      community_actions: { received_ban_at: banned_from_community } = {},
+      community_actions: { received_ban_at: bannedFromCommunity } = {},
     } = this.props.community_view;
+
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
@@ -164,7 +165,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
-              {!banned_from_community && (
+              {!bannedFromCommunity && (
                 <>
                   <SubscribeButton
                     communityView={this.props.community_view}
@@ -230,7 +231,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </T>
                 </div>
               )}
-              {banned_from_community && (
+              {bannedFromCommunity && (
                 <div
                   className="alert alert-danger text-sm-start text-xs-center"
                   role="alert"
@@ -368,7 +369,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       this.props.community_view;
 
     return (
-      subscribed === undefined && (
+      !subscribed && (
         <button
           className="btn btn-danger d-block mb-2 w-100"
           onClick={linkEvent(this, this.handleBlockCommunity)}

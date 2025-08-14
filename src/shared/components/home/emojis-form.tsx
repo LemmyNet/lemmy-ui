@@ -6,7 +6,7 @@ import { HttpService, I18NextService } from "../../services";
 import { pictrsDeleteToast, toast } from "@utils/app";
 import { EmojiMart } from "../common/emoji-mart";
 import { Icon, Spinner } from "../common/icon";
-import { Paginator } from "../common/paginator";
+import Paginator from "../common/paginator";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { isBrowser } from "@utils/browser";
 import classNames from "classnames";
@@ -50,6 +50,8 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
     super(props, context);
 
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleNextPage = this.handleNextPage.bind(this);
+    this.handlePrevPage = this.handlePrevPage.bind(this);
     this.handleEmojiClick = this.handleEmojiClick.bind(this);
   }
 
@@ -314,8 +316,8 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
           </button>
 
           <Paginator
-            page={this.state.page}
-            onChange={this.handlePageChange}
+            onNext={this.handleNextPage}
+            onPrev={this.handlePrevPage}
             nextDisabled={false}
             disabled={this.hasPendingChanges()}
           />
@@ -336,7 +338,7 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
     else return I18NextService.i18n.t("custom_emoji_save_validation");
   }
 
-  async handlePageChange(page: number) {
+  async handlePageChange(pageIncrement: 1 | -1) {
     this.setState({ loading: true });
     let allEmojis: CustomEmojiView[] = this.state.allEmojis;
     let emojiMartCustom: EmojiMartCategory[] = this.state.emojiMartCustom;
@@ -362,21 +364,34 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
       emojiMartKey++;
     }
     if (allEmojis) {
-      const startIndex = (page - 1) * this.itemsPerPage;
+      const startIndex = (this.state.page - 1) * this.itemsPerPage;
       const emojis = allEmojis
         .slice(startIndex, startIndex + this.itemsPerPage)
         .map(x => ({ emoji: structuredClone(x) })); // clone for restore after cancel
-      this.setState({
+      this.setState(prevState => ({
+        ...prevState,
         loading: false,
         allEmojis,
         emojiMartCustom,
         emojiMartKey,
         emojis,
-        page,
-      });
+        page: prevState.page + pageIncrement,
+      }));
     } else {
-      this.setState({ loading: false, page });
+      this.setState(prevState => ({
+        ...prevState,
+        loading: false,
+        page: prevState.page + pageIncrement,
+      }));
     }
+  }
+
+  async handleNextPage() {
+    await this.handlePageChange(1);
+  }
+
+  async handlePrevPage() {
+    await this.handlePageChange(-1);
   }
 
   async handleEmojiClick(e: any) {
@@ -393,7 +408,8 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
         ) {
           return;
         }
-        await this.handlePageChange(page);
+
+        await this.handlePageChange((page - this.state.page) as 1 | -1);
         await new Promise(r => setTimeout(r));
       }
       if (shortcode) {
@@ -584,11 +600,14 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
       if (res.state === "success") {
         pictrsDeleteToast(res.data.filename);
         form.handleEmojiImageUrlChange(
-          { form: form, index: index, overrideValue: res.data.image_url },
+          {
+            form: form,
+            index: index,
+            overrideValue: res.data.image_url,
+          },
           event,
         );
       } else if (res.state === "failed") {
-        console.error(res.err.name);
         toast(res.err.name, "danger");
       }
     });

@@ -101,7 +101,7 @@ interface SearchState {
 }
 
 const defaultSearchType = "All";
-const defaultSortType = "Top";
+const defaultSearchSortType = "Top";
 const defaultListingType = "All";
 const defaultCommunitySortType = "Hot";
 
@@ -130,7 +130,7 @@ function getSearchTypeFromQuery(type_?: string): SearchType {
 }
 
 function getSortTypeFromQuery(sort?: string): SearchSortType {
-  return sort ? (sort as SearchSortType) : defaultSortType;
+  return sort ? (sort as SearchSortType) : defaultSearchSortType;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
@@ -592,7 +592,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
 
     let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
-
     if (query) {
       const form: SearchForm = {
         q: query,
@@ -603,6 +602,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         listing_type,
         title_only,
         ...cursorComponents(cursor),
+        limit: fetchLimit,
       };
 
       searchResponse = await client.search(form);
@@ -1120,13 +1120,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     const queryParams: QueryParams<SearchProps> = {
       q,
-      type: type,
-      listingType: listingType,
+      type,
+      listingType,
       titleOnly: titleOnly?.toString(),
       communityId: communityId?.toString(),
       creatorId: creatorId?.toString(),
       cursor,
-      sort: sort,
+      sort,
     };
 
     this.props.history.push(`/search${getQueryString(queryParams)}`);

@@ -47,6 +47,7 @@ import ConfirmationModal from "../common/modal/confirmation-modal";
 import OAuthProvidersTab from "./oauth/oauth-providers-tab";
 import { InstanceBlocks } from "./instance-blocks";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
+import { fetchLimit } from "@utils/config";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: AdminListUsersResponse;
@@ -136,7 +137,7 @@ export class AdminSettings extends Component<
     return {
       usersRes: await client.listUsers({ banned_only: true }),
       instancesRes: await client.getFederatedInstances(),
-      uploadsRes: await client.listMedia(),
+      uploadsRes: await client.listMediaAdmin({ limit: fetchLimit }),
     };
   }
 
@@ -348,10 +349,12 @@ export class AdminSettings extends Component<
       HttpService.client.listUsers({
         banned_only: true,
         ...cursorComponents(this.state.usersCursor),
+        limit: fetchLimit,
       }),
       HttpService.client.getFederatedInstances(),
-      HttpService.client.listMedia({
+      HttpService.client.listMediaAdmin({
         ...cursorComponents(this.state.uploadsCursor),
+        limit: fetchLimit,
       }),
       fetchThemeList(),
     ]);
@@ -364,10 +367,22 @@ export class AdminSettings extends Component<
     });
   }
 
-  async fetchUploadsOnly() {
-    const uploadsRes = await HttpService.client.listMedia({
+  async fetchUsersOnly() {
+    const usersRes = await HttpService.client.listUsers({
       ...cursorComponents(this.state.uploadsCursor),
+      banned_only: true,
+      limit: fetchLimit,
     });
+
+    this.setState({ usersRes });
+  }
+
+  async fetchUploadsOnly() {
+    const uploadsRes = await HttpService.client.listMediaAdmin({
+      ...cursorComponents(this.state.uploadsCursor),
+      limit: fetchLimit,
+    });
+
     this.setState({ uploadsRes });
   }
 
@@ -482,6 +497,7 @@ export class AdminSettings extends Component<
     const editRes = await HttpService.client.editSite(form);
 
     if (editRes.state === "success") {
+      this.forceUpdate();
       toast(I18NextService.i18n.t("site_saved"));
 
       // You need to reload the page, to properly update the siteRes everywhere

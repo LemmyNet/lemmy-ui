@@ -676,10 +676,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }: BanUpdateForm) {
     const {
       creator: { id: person_id },
-      creator_banned: banned,
+      creator_banned,
     } = this.commentView;
 
-    const ban = !banned;
+    const ban = !creator_banned;
 
     // If its an unban, restore all their data
     if (ban === false) {
