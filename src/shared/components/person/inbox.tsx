@@ -1,4 +1,5 @@
 import {
+  enableNsfw,
   mixedToCommentSortType,
   myAuth,
   setIsoData,
@@ -78,10 +79,10 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "../common/paginator-cursor";
-import { PostMention } from "../post/post-mention";
 import { NoOptionI18nKeys } from "i18next";
 import { nowBoolean } from "@utils/date";
 import { CommentNode } from "@components/comment/comment-node";
+import { PostListing } from "@components/post/post-listing";
 
 enum UnreadOrAll {
   Unread,
@@ -442,16 +443,39 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       case "Post":
         return (
           this.isoData.myUserInfo && (
-            // Somebody else's post, no need to hook edit things to PostListing
-            <PostMention
-              key={item.notification.id}
-              post={i}
-              readOverride={item.notification.read}
+            <PostListing
+              post_view={i}
+              showCommunity={true}
+              enableNsfw={enableNsfw(this.isoData.siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
+              allLanguages={[]}
+              siteLanguages={[]}
+              hideImage
               myUserInfo={this.isoData.myUserInfo}
               localSite={this.isoData.siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
-              onMarkPostMentionAsRead={this.handleMarkPostAsRead}
+              viewOnly={true} // TODO: comments do allow edits and moderation
+              onPostEdit={async () => EMPTY_REQUEST}
+              onPostVote={async () => EMPTY_REQUEST}
+              onPostReport={async () => {}}
+              onBlockPerson={async () => {}}
+              onLockPost={async () => {}}
+              onDeletePost={async () => {}}
+              onRemovePost={async () => {}}
+              onSavePost={async () => {}}
+              onFeaturePost={async () => {}}
+              onPurgePerson={async () => {}}
+              onPurgePost={async () => {}}
+              onBanPersonFromCommunity={async () => {}}
+              onBanPerson={async () => {}}
+              onAddModToCommunity={async () => {}}
+              onAddAdmin={async () => {}}
+              onTransferCommunity={async () => {}}
+              onHidePost={async () => {}}
+              markable={true}
+              disableAutoMarkAsRead={true}
+              read={item.notification.read}
+              onMarkPostAsRead={this.handleMarkPostAsRead}
             />
           )
         );

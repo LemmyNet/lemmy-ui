@@ -86,7 +86,6 @@ export class PostListings extends Component<PostListingsProps, any> {
             <>
               <PostListing
                 post_view={post_view}
-                markable={this.props.markable}
                 crossPosts={this.duplicatesMap.get(post_view.post.id)}
                 showCommunity={this.props.showCommunity}
                 enableNsfw={this.props.enableNsfw}
@@ -113,8 +112,10 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onAddModToCommunity={this.props.onAddModToCommunity}
                 onAddAdmin={this.props.onAddAdmin}
                 onTransferCommunity={this.props.onTransferCommunity}
-                onMarkPostAsRead={this.props.onMarkPostAsRead}
                 onHidePost={this.props.onHidePost}
+                markable={this.props.markable}
+                read={!!post_view.post_actions?.read_at}
+                onMarkPostAsRead={this.props.onMarkPostAsRead}
               />
               {idx + 1 !== this.posts.length && <hr className="my-3" />}
             </>

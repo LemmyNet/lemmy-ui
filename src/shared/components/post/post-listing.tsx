@@ -67,7 +67,7 @@ type PostListingState = {
   readLoading: boolean;
 };
 
-interface PostListingProps {
+type PostListingProps = {
   post_view: PostView;
   crossPosts?: PostView[];
   admins: PersonView[];
@@ -84,9 +84,6 @@ interface PostListingProps {
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
-  markable?: boolean;
-  disableAutoMarkAsRead?: boolean;
-  readOverride?: boolean;
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
@@ -103,10 +100,17 @@ interface PostListingProps {
   onAddModToCommunity(form: AddModToCommunity): Promise<void>;
   onAddAdmin(form: AddAdmin): Promise<void>;
   onTransferCommunity(form: TransferCommunity): Promise<void>;
-  onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
   onHidePost(form: HidePost): Promise<void>;
   onScrollIntoCommentsClick?(e: MouseEvent): void;
-}
+} & (
+  | { markable?: false }
+  | {
+      markable: true;
+      disableAutoMarkAsRead?: boolean;
+      read: boolean;
+      onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
+    }
+);
 
 @tippyMixin
 export class PostListing extends Component<PostListingProps, PostListingState> {
@@ -638,12 +642,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
-  get postOrOverrideRead(): boolean {
-    return (
-      this.props.readOverride ?? !!this.props.post_view.post_actions?.read_at
-    );
-  }
-
   commentsLine(mobile = false) {
     const { admins, showBody, onPostVote } = this.props;
     const { post } = this.postView;
@@ -679,19 +677,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <button
             type="button"
             className="btn btn-link btn-animate text-muted"
-            onClick={() =>
-              this.handleMarkPostAsRead({
-                post_id: id,
-                read: !this.postOrOverrideRead,
-              })
-            }
+            onClick={this.handleMarkPostAsRead}
             data-tippy-content={
-              this.postOrOverrideRead
+              this.props.read
                 ? I18NextService.i18n.t("mark_as_unread")
                 : I18NextService.i18n.t("mark_as_read")
             }
             aria-label={
-              this.postOrOverrideRead
+              this.props.read
                 ? I18NextService.i18n.t("mark_as_unread")
                 : I18NextService.i18n.t("mark_as_read")
             }
@@ -701,7 +694,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             ) : (
               <Icon
                 icon="check"
-                classes={`icon-inline ${this.postOrOverrideRead && "text-success"}`}
+                classes={`icon-inline ${this.props.read && "text-success"}`}
               />
             )}
           </button>
@@ -1152,17 +1145,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ imageExpanded: !i.state.imageExpanded });
 
-    if (myAuth() && !i.postOrOverrideRead && !i.props.disableAutoMarkAsRead) {
-      i.handleMarkPostAsRead({
-        post_id: i.postView.post.id,
-        read: true,
-      });
+    if (myAuth() && i.props.markable && !i.props.disableAutoMarkAsRead) {
+      i.handleMarkPostAsRead();
     }
   }
 
-  async handleMarkPostAsRead(form: MarkPostAsRead) {
+  async handleMarkPostAsRead() {
+    if (!this.props.markable) return;
     this.setState({ readLoading: true });
-    await this.props.onMarkPostAsRead(form);
+    await this.props.onMarkPostAsRead?.({
+      post_id: this.props.post_view.post.id,
+      read: !this.props.read,
+    });
     this.setState({ readLoading: false });
   }
 
@@ -1173,11 +1167,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleShowBody(i: PostListing) {
     i.setState({ showBody: !i.state.showBody });
 
-    if (myAuth() && !i.postOrOverrideRead && !i.props.disableAutoMarkAsRead) {
-      i.handleMarkPostAsRead({
-        post_id: i.postView.post.id,
-        read: true,
-      });
+    if (myAuth() && i.props.markable && !i.props.disableAutoMarkAsRead) {
+      i.handleMarkPostAsRead();
     }
   }
 

@@ -155,7 +155,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             siteLanguages={this.props.siteLanguages}
             myUserInfo={this.props.myUserInfo}
             localSite={this.props.localSite}
-            markable
             onPostEdit={this.props.onPostEdit}
             onPostVote={this.props.onPostVote}
             onPostReport={this.props.onPostReport}
@@ -172,8 +171,10 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onAddModToCommunity={this.props.onAddModToCommunity}
             onAddAdmin={this.props.onAddAdmin}
             onTransferCommunity={this.props.onTransferCommunity}
-            onMarkPostAsRead={this.props.onMarkPostAsRead}
             onHidePost={async () => {}}
+            markable
+            read={!!i.post_actions?.read_at}
+            onMarkPostAsRead={this.props.onMarkPostAsRead}
           />
         );
       }
@@ -246,7 +247,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               siteLanguages={this.props.siteLanguages}
               myUserInfo={this.props.myUserInfo}
               localSite={this.props.localSite}
-              markable
               onPostEdit={this.props.onPostEdit}
               onPostVote={this.props.onPostVote}
               onPostReport={this.props.onPostReport}
@@ -263,8 +263,10 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
               onAddModToCommunity={this.props.onAddModToCommunity}
               onAddAdmin={this.props.onAddAdmin}
               onTransferCommunity={this.props.onTransferCommunity}
-              onMarkPostAsRead={this.props.onMarkPostAsRead}
               onHidePost={async () => {}}
+              markable
+              read={!!post.post_actions?.read_at}
+              onMarkPostAsRead={this.props.onMarkPostAsRead}
             />
             <hr className="my-3" />
           </>

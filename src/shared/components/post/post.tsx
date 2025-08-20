@@ -574,7 +574,6 @@ export class Post extends Component<PostRouteProps, PostState> {
                 showBody
                 showCommunity
                 admins={siteRes.admins}
-                markable
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}
                 allLanguages={siteRes.all_languages}
@@ -597,9 +596,11 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onAddAdmin={this.handleAddAdmin}
                 onTransferCommunity={this.handleTransferCommunity}
                 onFeaturePost={this.handleFeaturePost}
-                onMarkPostAsRead={this.handleMarkPostAsRead}
                 onHidePost={this.handleHidePost}
                 onScrollIntoCommentsClick={this.handleScrollIntoCommentsClick}
+                markable
+                read={!!res.post_view.post_actions?.read_at}
+                onMarkPostAsRead={this.handleMarkPostAsRead}
               />
               <div ref={this.commentSectionRef} className="mb-2" />
 
