@@ -166,16 +166,30 @@ export class CommunityForm extends Component<
             {I18NextService.i18n.t("icon")}
           </label>
           <div className="col-12 col-sm-10">
-            <ImageUploadForm
-              uploadTitle={I18NextService.i18n.t("upload_icon")}
-              imageSrc={this.state.form.icon}
-              uploadKey="uploadCommunityIcon"
-              removeKey="deleteCommunityIcon"
-              communityId={this.props.community_view?.community.id ?? -1}
-              onImageChange={this.handleIconChange}
-              rounded
-              disabled={!this.props.myUserInfo}
-            />
+            {this.props.community_view && (
+              <ImageUploadForm
+                uploadTitle={I18NextService.i18n.t("upload_icon")}
+                imageSrc={this.state.form.icon}
+                uploadKey="uploadCommunityIcon"
+                removeKey="deleteCommunityIcon"
+                communityId={this.props.community_view.community.id}
+                onImageChange={this.handleIconChange}
+                rounded
+                disabled={!this.props.myUserInfo}
+              />
+            )}
+            {!this.props.community_view && (
+              <ImageUploadForm
+                uploadTitle={I18NextService.i18n.t("upload_icon")}
+                imageSrc={this.state.form.icon}
+                uploadKey="uploadImage"
+                removeKey="deleteMedia"
+                onImageChange={this.handleIconChange}
+                rounded
+                disabled={!this.props.myUserInfo}
+                noConfirmation={true}
+              />
+            )}
           </div>
         </div>
         <div className="mb-3 row">
@@ -183,15 +197,28 @@ export class CommunityForm extends Component<
             {I18NextService.i18n.t("banner")}
           </label>
           <div className="col-12 col-sm-10">
-            <ImageUploadForm
-              uploadTitle={I18NextService.i18n.t("upload_banner")}
-              imageSrc={this.state.form.banner}
-              uploadKey="uploadCommunityBanner"
-              removeKey="deleteCommunityBanner"
-              communityId={this.props.community_view?.community.id ?? -1}
-              onImageChange={this.handleBannerChange}
-              disabled={!this.props.myUserInfo}
-            />
+            {this.props.community_view && (
+              <ImageUploadForm
+                uploadTitle={I18NextService.i18n.t("upload_banner")}
+                imageSrc={this.state.form.banner}
+                uploadKey="uploadCommunityBanner"
+                removeKey="deleteCommunityBanner"
+                communityId={this.props.community_view.community.id}
+                onImageChange={this.handleBannerChange}
+                disabled={!this.props.myUserInfo}
+              />
+            )}
+            {!this.props.community_view && (
+              <ImageUploadForm
+                uploadTitle={I18NextService.i18n.t("upload_banner")}
+                imageSrc={this.state.form.banner}
+                uploadKey="uploadImage"
+                removeKey="deleteMedia"
+                onImageChange={this.handleBannerChange}
+                disabled={!this.props.myUserInfo}
+                noConfirmation={true}
+              />
+            )}
           </div>
         </div>
         <div className="mb-3 row">

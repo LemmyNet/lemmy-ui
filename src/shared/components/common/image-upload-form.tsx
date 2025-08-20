@@ -11,6 +11,7 @@ import {
   UploadImageResponse,
 } from "lemmy-js-client";
 import ImageUploadConfirmModalModal from "./modal/image-upload-confirm-modal";
+import { NoOptionI18nKeys } from "i18next";
 
 type BaseProps = {
   uploadTitle: string;
@@ -18,6 +19,7 @@ type BaseProps = {
   rounded?: boolean;
   disabled: boolean;
   onImageChange: (imageSrc?: string) => void;
+  noConfirmation?: boolean;
 };
 
 type SimpleUploadKeys = keyof Pick<
@@ -26,6 +28,7 @@ type SimpleUploadKeys = keyof Pick<
   | "uploadUserBanner"
   | "uploadSiteIcon"
   | "uploadSiteBanner"
+  | "uploadImage"
 >;
 type SimpleRemoveKeys = keyof Pick<
   WrappedLemmyHttp,
@@ -33,6 +36,7 @@ type SimpleRemoveKeys = keyof Pick<
   | "deleteUserBanner"
   | "deleteSiteIcon"
   | "deleteSiteBanner"
+  | "deleteMedia"
 >;
 
 type UploadKeyProps =
@@ -100,7 +104,7 @@ export class ImageUploadForm extends Component<
             </button>
           </span>
         )}
-        {this.state?.pendingUpload && (
+        {this.state?.pendingUpload && !this.props.noConfirmation && (
           <ImageUploadConfirmModalModal
             onConfirm={() => this.performImageUpload(this)}
             onCancel={() => this.handleRemoveImage(this)}
@@ -124,6 +128,9 @@ export class ImageUploadForm extends Component<
   async guardedImageUpload(i: ImageUploadForm, event: any) {
     const image = event.target.files[0] as File;
     i.setState({ pendingUpload: image });
+    if (i.props.noConfirmation) {
+      i.performImageUpload(i);
+    }
   }
 
   performImageUpload(i: ImageUploadForm) {
@@ -175,6 +182,12 @@ export class ImageUploadForm extends Component<
         res = await HttpService.client[i.props.removeKey]({
           id: i.props.communityId,
         });
+      } else if (i.props.removeKey === "deleteMedia") {
+        // FIXME: API should support full urls
+        const filename = (i.props.imageSrc ?? "").split("/").at(-1);
+        res = await HttpService.client[i.props.removeKey]({
+          filename: filename ?? "",
+        });
       } else {
         res = await HttpService.client[i.props.removeKey]();
       }
@@ -182,7 +195,10 @@ export class ImageUploadForm extends Component<
         i.props.onImageChange(undefined);
         toast(I18NextService.i18n.t("image_deleted"));
       } else if (res.state === "failed") {
-        toast(res.err.message, "danger");
+        toast(
+          I18NextService.i18n.t(res.err.name as NoOptionI18nKeys),
+          "danger",
+        );
       }
     }
     i.setState({ loading: false });
