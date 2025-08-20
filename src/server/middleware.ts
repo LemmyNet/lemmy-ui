@@ -45,22 +45,25 @@ export function setCacheControl(
 
   let caching: string;
 
-  if (
-    req.path.match(/\.(js|css|txt|manifest\.webmanifest)\/?$/) ||
-    req.path.includes("/css/themelist")
-  ) {
-    // Static content gets cached publicly for a day
-    caching = "public, max-age=86400";
-  } else {
-    res.setHeader("Vary", "Cookie, Accept, Accept-Language");
-    if (getJwtCookie(req.headers)) {
-      caching = "private";
+  // Only allow caching for success responses
+  if (res.statusCode >= 200 && res.statusCode < 400) {
+    if (
+      req.path.match(/\.(js|css|txt|manifest\.webmanifest)\/?$/) ||
+      req.path.includes("/css/themelist")
+    ) {
+      // Static content gets cached publicly for a day
+      caching = "public, max-age=86400";
     } else {
-      caching = "public, max-age=60";
+      res.setHeader("Vary", "Cookie, Accept, Accept-Language");
+      if (getJwtCookie(req.headers)) {
+        caching = "private";
+      } else {
+        caching = "public, max-age=60";
+      }
     }
-  }
 
-  res.setHeader("Cache-Control", caching);
+    res.setHeader("Cache-Control", caching);
+  }
 
   next();
 }

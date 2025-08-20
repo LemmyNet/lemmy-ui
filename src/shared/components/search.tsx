@@ -35,13 +35,13 @@ import {
   ListCommunitiesResponse,
   ListingType,
   PersonView,
+  PostView,
   Search as SearchForm,
   SearchResponse,
   SearchType,
   SearchSortType,
   PaginationCursor,
   MyUserInfo,
-  PostView,
   CommentView,
   MultiCommunityView,
 } from "lemmy-js-client";
@@ -590,6 +590,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
 
     let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
+
     if (query) {
       const form: SearchForm = {
         q: query,
