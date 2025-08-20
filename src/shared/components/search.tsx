@@ -309,7 +309,6 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
               onTransferCommunity={async () => {}}
               onPurgeComment={async () => {}}
               onPurgePerson={async () => {}}
-              onCommentReplyRead={() => {}}
               onBanPersonFromCommunity={async () => {}}
               onBanPerson={async () => {}}
               onCreateComment={async () => EMPTY_REQUEST}
@@ -857,7 +856,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onTransferCommunity={async () => {}}
         onPurgeComment={async () => {}}
         onPurgePerson={async () => {}}
-        onCommentReplyRead={() => {}}
         onBanPersonFromCommunity={async () => {}}
         onBanPerson={async () => {}}
         onCreateComment={async () => EMPTY_REQUEST}

@@ -22,6 +22,7 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
+  CommentId,
   CommentReportResponse,
   CommentResponse,
   CommentSortType,
@@ -396,8 +397,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             key={item.notification.id}
             node={{ comment_view: i, children: [], depth: 0 }}
             viewType={CommentViewType.Flat}
-            markable
-            readOverride={item.notification.read}
             showCommunity
             showContext
             allLanguages={siteRes.all_languages}
@@ -417,11 +416,13 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             onTransferCommunity={this.handleTransferCommunity}
             onPurgeComment={this.handlePurgeComment}
             onPurgePerson={this.handlePurgePerson}
-            onCommentReplyRead={this.handleCommentMarkAsRead}
             onBanPersonFromCommunity={this.handleBanFromCommunity}
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
             onEditComment={this.handleEditComment}
+            markable
+            read={item.notification.read}
+            onMarkRead={this.handleCommentMarkAsRead}
           />
         );
       case "PrivateMessage":
@@ -669,15 +670,15 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     toast(I18NextService.i18n.t("transfer_community"));
   }
 
-  async handleCommentMarkAsRead(form: { comment_id: number; read: boolean }) {
+  async handleCommentMarkAsRead(comment_id: CommentId, read: boolean) {
     if (this.state.inboxRes.state !== "success") return;
     const notification = this.state.inboxRes.data.notifications.find(
-      n => n.data.type_ === "Comment" && n.data.comment.id === form.comment_id,
+      n => n.data.type_ === "Comment" && n.data.comment.id === comment_id,
     );
     if (notification) {
       await this.handleMarkNotificationAsRead({
         notification_id: notification.notification.id,
-        read: form.read,
+        read,
       });
     }
   }

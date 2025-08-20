@@ -37,7 +37,6 @@ interface CommentNodesProps {
   isTopLevel?: boolean;
   viewOnly?: boolean;
   locked?: boolean;
-  markable?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
   viewType: CommentViewType;
@@ -49,10 +48,6 @@ interface CommentNodesProps {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   onSaveComment(form: SaveComment): Promise<void>;
-  onCommentReplyRead(form: {
-    comment_id: number;
-    read: boolean /* FIXME: */;
-  }): void;
   onCreateComment(
     form: EditComment | CreateComment,
   ): Promise<RequestState<CommentResponse>>;
@@ -109,7 +104,6 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               viewOnly={this.props.viewOnly}
               locked={this.props.locked}
               admins={this.props.admins}
-              markable={this.props.markable}
               showContext={this.props.showContext}
               showCommunity={this.props.showCommunity}
               viewType={this.props.viewType}
@@ -118,7 +112,6 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               hideImages={this.props.hideImages}
               myUserInfo={this.props.myUserInfo}
               localSite={this.props.localSite}
-              onCommentReplyRead={this.props.onCommentReplyRead}
               onCreateComment={this.props.onCreateComment}
               onEditComment={this.props.onEditComment}
               onCommentVote={this.props.onCommentVote}

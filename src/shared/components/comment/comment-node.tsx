@@ -58,19 +58,17 @@ type CommentNodeState = {
   createOrEditCommentLoading: boolean;
   upvoteLoading: boolean;
   downvoteLoading: boolean;
-  readLoading: boolean;
+  markLoading: boolean;
   fetchChildrenLoading: boolean;
 };
 
-interface CommentNodeProps {
+type CommentNodeProps = {
   node: CommentNodeI;
   admins: PersonView[];
   noBorder?: boolean;
   isTopLevel?: boolean;
   viewOnly?: boolean;
   locked?: boolean;
-  markable?: boolean;
-  readOverride?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
   viewType: CommentViewType;
@@ -80,10 +78,6 @@ interface CommentNodeProps {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   onSaveComment(form: SaveComment): Promise<void>;
-  onCommentReplyRead(form: {
-    comment_id: number;
-    read: boolean /* FIXME: */;
-  }): void;
   onCreateComment(
     form: EditComment | CreateComment,
   ): Promise<RequestState<CommentResponse>>;
@@ -104,7 +98,14 @@ interface CommentNodeProps {
   onCommentReport(form: CreateCommentReport): Promise<void>;
   onPurgePerson(form: PurgePerson): Promise<void>;
   onPurgeComment(form: PurgeComment): Promise<void>;
-}
+} & (
+  | { markable?: false }
+  | {
+      markable: true;
+      read: boolean;
+      onMarkRead(comment_id: number, read: boolean): void;
+    }
+);
 
 function handleToggleViewSource(i: CommentNode) {
   i.setState(({ viewSource, ...restPrev }) => ({
@@ -124,7 +125,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     createOrEditCommentLoading: false,
     upvoteLoading: false,
     downvoteLoading: false,
-    readLoading: false,
+    markLoading: false,
     fetchChildrenLoading: false,
   };
 
@@ -155,7 +156,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>,
   ) {
     if (this.props.node.comment_view !== nextProps.node.comment_view) {
-      this.setState({ readLoading: false });
+      this.setState({ markLoading: false });
     }
   }
 
@@ -326,23 +327,23 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       className="btn btn-link btn-animate text-muted"
                       onClick={linkEvent(this, this.handleMarkAsRead)}
                       data-tippy-content={
-                        this.commentOrOverrideRead
+                        this.props.read
                           ? I18NextService.i18n.t("mark_as_unread")
                           : I18NextService.i18n.t("mark_as_read")
                       }
                       aria-label={
-                        this.commentOrOverrideRead
+                        this.props.read
                           ? I18NextService.i18n.t("mark_as_unread")
                           : I18NextService.i18n.t("mark_as_read")
                       }
                     >
-                      {this.state.readLoading ? (
+                      {this.state.markLoading ? (
                         <Spinner />
                       ) : (
                         <Icon
                           icon="check"
                           classes={`icon-inline ${
-                            this.commentOrOverrideRead && "text-success"
+                            this.props.read && "text-success"
                           }`}
                         />
                       )}
@@ -455,7 +456,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             depth={this.props.node.depth + 1}
             myUserInfo={this.props.myUserInfo}
             localSite={this.props.localSite}
-            onCommentReplyRead={this.props.onCommentReplyRead}
             onCreateComment={this.props.onCreateComment}
             onEditComment={this.props.onEditComment}
             onCommentVote={this.props.onCommentVote}
@@ -478,13 +478,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {/* A collapsed clearfix */}
         {this.state.collapsed && <div className="row col-12" />}
       </li>
-    );
-  }
-
-  get commentOrOverrideRead(): boolean {
-    // FIXME: read_at
-    return (
-      this.props.readOverride ?? !!this.commentView.comment_actions?.saved_at
     );
   }
 
@@ -610,12 +603,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   handleMarkAsRead(i: CommentNode) {
-    i.setState({ readLoading: true });
-    const cv = i.commentView;
-    i.props.onCommentReplyRead({
-      comment_id: cv.comment.id,
-      read: !i.commentOrOverrideRead,
-    });
+    if (i.props.markable) {
+      i.setState({ markLoading: true });
+      const cv = i.commentView;
+      i.props.onMarkRead(cv.comment.id, !i.props.read);
+    }
   }
 
   async handleDeleteComment() {

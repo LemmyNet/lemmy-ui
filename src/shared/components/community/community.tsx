@@ -239,7 +239,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handleCommentReport = this.handleCommentReport.bind(this);
     this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
-    this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
     this.handlePostVote = this.handlePostVote.bind(this);
@@ -612,7 +611,6 @@ export class Community extends Component<CommunityRouteProps, State> {
               onTransferCommunity={this.handleTransferCommunity}
               onPurgeComment={this.handlePurgeComment}
               onPurgePerson={this.handlePurgePerson}
-              onCommentReplyRead={this.handleCommentReplyRead}
               onBanPersonFromCommunity={this.handleBanFromCommunity}
               onBanPerson={this.handleBanPerson}
               onCreateComment={this.handleCreateComment}
@@ -1018,10 +1016,6 @@ export class Community extends Component<CommunityRouteProps, State> {
       await HttpService.client.transferCommunity(form);
     toast(I18NextService.i18n.t("transfer_community"));
     this.updateCommunityFull(transferCommunityRes);
-  }
-
-  async handleCommentReplyRead(_form: { comment_id: number; read: boolean }) {
-    // TODO:
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {

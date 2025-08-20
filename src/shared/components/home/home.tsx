@@ -285,7 +285,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleCommentReport = this.handleCommentReport.bind(this);
     this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
-    this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
     this.handlePostEdit = this.handlePostEdit.bind(this);
@@ -754,7 +753,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onTransferCommunity={this.handleTransferCommunity}
               onPurgeComment={this.handlePurgeComment}
               onPurgePerson={this.handlePurgePerson}
-              onCommentReplyRead={this.handleCommentReplyRead}
               onBanPersonFromCommunity={this.handleBanFromCommunity}
               onBanPerson={this.handleBanPerson}
               onCreateComment={this.handleCreateComment}
@@ -1053,10 +1051,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   async handleTransferCommunity(form: TransferCommunity) {
     await HttpService.client.transferCommunity(form);
     toast(I18NextService.i18n.t("transfer_community"));
-  }
-
-  async handleCommentReplyRead(_form: { comment_id: number; read: boolean }) {
-    // TODO:
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {

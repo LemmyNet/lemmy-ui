@@ -56,10 +56,6 @@ interface PersonDetailsProps {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   onSaveComment(form: SaveComment): Promise<void>;
-  onCommentReplyRead(form: {
-    comment_id: number;
-    read: boolean /* FIXME: */;
-  }): void;
   onCreateComment(form: CreateComment): Promise<RequestState<CommentResponse>>;
   onEditComment(form: EditComment): Promise<RequestState<CommentResponse>>;
   onCommentVote(form: CreateCommentLike): Promise<void>;
@@ -124,7 +120,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             showContext
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
-            onCommentReplyRead={this.props.onCommentReplyRead}
             myUserInfo={this.props.myUserInfo}
             localSite={this.props.localSite}
             onCreateComment={this.props.onCreateComment}
@@ -213,7 +208,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           siteLanguages={this.props.siteLanguages}
           myUserInfo={this.props.myUserInfo}
           localSite={this.props.localSite}
-          onCommentReplyRead={this.props.onCommentReplyRead}
           onCreateComment={this.props.onCreateComment}
           onEditComment={this.props.onEditComment}
           onCommentVote={this.props.onCommentVote}

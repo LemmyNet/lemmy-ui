@@ -277,7 +277,6 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
     this.handleFetchChildren = this.handleFetchChildren.bind(this);
-    this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
     this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
@@ -815,7 +814,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             onFetchChildren={this.handleFetchChildren}
             onPurgeComment={this.handlePurgeComment}
             onPurgePerson={this.handlePurgePerson}
-            onCommentReplyRead={this.handleCommentReplyRead}
             onBanPersonFromCommunity={this.handleBanFromCommunity}
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
@@ -924,7 +922,6 @@ export class Post extends Component<PostRouteProps, PostState> {
             onFetchChildren={this.handleFetchChildren}
             onPurgeComment={this.handlePurgeComment}
             onPurgePerson={this.handlePurgePerson}
-            onCommentReplyRead={this.handleCommentReplyRead}
             onBanPersonFromCommunity={this.handleBanFromCommunity}
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
@@ -1266,10 +1263,6 @@ export class Post extends Component<PostRouteProps, PostState> {
       newRes.data.comments.push(...newComments);
       this.setState({ commentsRes: newRes });
     }
-  }
-
-  async handleCommentReplyRead(_form: { comment_id: number; read: boolean }) {
-    // TODO:
   }
 
   async handleMarkPostAsRead(form: MarkPostAsRead) {

@@ -106,7 +106,6 @@ export class CommentReport extends Component<
           onTransferCommunity={async () => {}}
           onPurgeComment={async () => {}}
           onPurgePerson={async () => {}}
-          onCommentReplyRead={() => {}}
           onBanPersonFromCommunity={async () => {}}
           onBanPerson={async () => {}}
           onCreateComment={async () => Promise.resolve(EMPTY_REQUEST)}
