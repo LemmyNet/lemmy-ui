@@ -30,13 +30,13 @@ interface PrivateMessageState {
 
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
-  readOverride?: boolean;
   myUserInfo: MyUserInfo | undefined;
   onDelete(form: DeletePrivateMessage): void;
-  onMarkRead(form: MarkPrivateMessageAsRead): void;
   onReport(form: CreatePrivateMessageReport): void;
   onCreate(form: CreatePrivateMessage): Promise<boolean>;
   onEdit(form: EditPrivateMessage): Promise<boolean>;
+  read: boolean;
+  onMarkRead(form: MarkPrivateMessageAsRead): void;
 }
 
 @tippyMixin
@@ -154,12 +154,12 @@ export class PrivateMessage extends Component<
                           className="btn btn-link btn-animate text-muted"
                           onClick={linkEvent(this, this.handleMarkRead)}
                           data-tippy-content={
-                            this.messageOrOverrideRead
+                            this.props.read
                               ? I18NextService.i18n.t("mark_as_unread")
                               : I18NextService.i18n.t("mark_as_read")
                           }
                           aria-label={
-                            this.messageOrOverrideRead
+                            this.props.read
                               ? I18NextService.i18n.t("mark_as_unread")
                               : I18NextService.i18n.t("mark_as_read")
                           }
@@ -170,7 +170,7 @@ export class PrivateMessage extends Component<
                             <Icon
                               icon="check"
                               classes={`icon-inline ${
-                                this.messageOrOverrideRead && "text-success"
+                                this.props.read && "text-success"
                               }`}
                             />
                           )}
@@ -280,14 +280,6 @@ export class PrivateMessage extends Component<
     );
   }
 
-  get messageOrOverrideRead(): boolean {
-    // FIXME: read_at
-    return (
-      this.props.readOverride ??
-      !!this.props.private_message_view.private_message?.updated_at
-    );
-  }
-
   get reportButton() {
     return (
       <button
@@ -349,7 +341,7 @@ export class PrivateMessage extends Component<
     i.setState({ readLoading: true });
     i.props.onMarkRead({
       private_message_id: i.props.private_message_view.private_message.id,
-      read: !i.messageOrOverrideRead,
+      read: !i.props.read,
     });
   }
 

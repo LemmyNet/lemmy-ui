@@ -431,13 +431,13 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
           <PrivateMessage
             key={item.notification.id}
             private_message_view={i}
-            readOverride={item.notification.read}
             myUserInfo={this.isoData.myUserInfo}
             onDelete={this.handleDeleteMessage}
-            onMarkRead={this.handleMarkMessageAsRead}
             onReport={this.handleMessageReport}
             onCreate={this.handleCreateMessage}
             onEdit={this.handleEditMessage}
+            read={item.notification.read}
+            onMarkRead={this.handleMarkMessageAsRead}
           />
         );
       case "Post":
