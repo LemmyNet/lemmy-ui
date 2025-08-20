@@ -595,7 +595,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     limit={fetchLimit}
                     enableNsfw={enableNsfw(siteRes)}
                     showAdultConsentModal={this.isoData.showAdultConsentModal}
-                    view={view /* TODO: can probably remove this */}
                     myUserInfo={this.isoData.myUserInfo}
                     localSite={siteRes.site_view.local_site}
                     allLanguages={siteRes.all_languages}

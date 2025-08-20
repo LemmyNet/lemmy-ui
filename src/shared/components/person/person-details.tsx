@@ -1,4 +1,3 @@
-import { commentsToFlatNodes } from "@utils/app";
 import { Component, InfernoNode } from "inferno";
 import {
   AddAdmin,
@@ -35,7 +34,6 @@ import {
   TransferCommunity,
   MyUserInfo,
   PersonContentCombinedView,
-  PersonContentType,
   LocalSite,
 } from "lemmy-js-client";
 import { CommentViewType } from "@utils/types";
@@ -52,7 +50,6 @@ interface PersonDetailsProps {
   sort: PostSortType;
   enableNsfw: boolean;
   showAdultConsentModal: boolean;
-  view: PersonContentType;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   onSaveComment(form: SaveComment): Promise<void>;
@@ -87,23 +84,6 @@ interface PersonDetailsProps {
 export class PersonDetails extends Component<PersonDetailsProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
-  }
-
-  render() {
-    return (
-      <div className="person-details">{this.viewSelector(this.props.view)}</div>
-    );
-  }
-
-  viewSelector(view: PersonContentType): InfernoNode {
-    switch (view) {
-      case "All":
-        return this.overview();
-      case "Posts":
-        return this.posts();
-      case "Comments":
-        return this.comments();
-    }
   }
 
   renderItemType(i: PersonContentCombinedView): InfernoNode {
@@ -181,7 +161,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     }
   }
 
-  overview(): InfernoNode {
+  render(): InfernoNode {
     const combined: PersonContentCombinedView[] = this.props.content;
 
     return (
@@ -190,87 +170,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           this.renderItemType(i),
           <hr key={i.type_} className="my-3" />,
         ])}
-      </div>
-    );
-  }
-
-  comments(): InfernoNode {
-    const comments = this.props.content.filter(c => c.type_ === "Comment");
-    return (
-      <div>
-        <CommentNodes
-          nodes={commentsToFlatNodes(comments)}
-          viewType={CommentViewType.Flat}
-          admins={this.props.admins}
-          isTopLevel
-          showCommunity
-          showContext
-          allLanguages={this.props.allLanguages}
-          siteLanguages={this.props.siteLanguages}
-          myUserInfo={this.props.myUserInfo}
-          localSite={this.props.localSite}
-          onCreateComment={this.props.onCreateComment}
-          onEditComment={this.props.onEditComment}
-          onCommentVote={this.props.onCommentVote}
-          onBlockPerson={this.props.onBlockPerson}
-          onSaveComment={this.props.onSaveComment}
-          onDeleteComment={this.props.onDeleteComment}
-          onRemoveComment={this.props.onRemoveComment}
-          onDistinguishComment={this.props.onDistinguishComment}
-          onAddModToCommunity={this.props.onAddModToCommunity}
-          onAddAdmin={this.props.onAddAdmin}
-          onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
-          onBanPerson={this.props.onBanPerson}
-          onTransferCommunity={this.props.onTransferCommunity}
-          onFetchChildren={this.props.onFetchChildren}
-          onCommentReport={this.props.onCommentReport}
-          onPurgePerson={this.props.onPurgePerson}
-          onPurgeComment={this.props.onPurgeComment}
-        />
-      </div>
-    );
-  }
-
-  posts(): InfernoNode {
-    const posts = this.props.content.filter(c => c.type_ === "Post");
-    return (
-      <div>
-        {posts.map(post => (
-          <>
-            <PostListing
-              post_view={post}
-              admins={this.props.admins}
-              showCommunity
-              enableNsfw={this.props.enableNsfw}
-              showAdultConsentModal={this.props.showAdultConsentModal}
-              allLanguages={this.props.allLanguages}
-              siteLanguages={this.props.siteLanguages}
-              myUserInfo={this.props.myUserInfo}
-              localSite={this.props.localSite}
-              onPostEdit={this.props.onPostEdit}
-              onPostVote={this.props.onPostVote}
-              onPostReport={this.props.onPostReport}
-              onBlockPerson={this.props.onBlockPerson}
-              onLockPost={this.props.onLockPost}
-              onDeletePost={this.props.onDeletePost}
-              onRemovePost={this.props.onRemovePost}
-              onSavePost={this.props.onSavePost}
-              onFeaturePost={this.props.onFeaturePost}
-              onPurgePerson={this.props.onPurgePerson}
-              onPurgePost={this.props.onPurgePost}
-              onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
-              onBanPerson={this.props.onBanPerson}
-              onAddModToCommunity={this.props.onAddModToCommunity}
-              onAddAdmin={this.props.onAddAdmin}
-              onTransferCommunity={this.props.onTransferCommunity}
-              onHidePost={async () => {}}
-              markable
-              read={!!post.post_actions?.read_at}
-              onMarkPostAsRead={this.props.onMarkPostAsRead}
-            />
-            <hr className="my-3" />
-          </>
-        ))}
       </div>
     );
   }
