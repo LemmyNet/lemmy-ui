@@ -1,16 +1,17 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
-import { ListMediaResponse, LocalImage } from "lemmy-js-client";
+import { ListMediaResponse, LocalImage, MyUserInfo } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { MomentTime } from "./moment-time";
 import { PictrsImage } from "./pictrs-image";
 import { getHttpBase } from "@utils/env";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 
 interface Props {
   uploads: ListMediaResponse;
   showUploader?: boolean;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 @tippyMixin
@@ -46,11 +47,14 @@ export class MediaUploads extends Component<Props, any> {
               <tr key={i.local_image.pictrs_alias}>
                 {this.props.showUploader && (
                   <td>
-                    <PersonListing person={i.person} />
+                    <PersonListing
+                      person={i.person}
+                      myUserInfo={this.props.myUserInfo}
+                    />
                   </td>
                 )}
                 <td>
-                  <MomentTime published={i.local_image.published} />
+                  <MomentTime published={i.local_image.published_at} />
                 </td>
                 <td>
                   <PictrsImage
@@ -78,12 +82,8 @@ export class MediaUploads extends Component<Props, any> {
   }
 
   async handleDeleteImage(image: LocalImage) {
-    const form = {
-      token: image.pictrs_delete_token,
-      filename: image.pictrs_alias,
-    };
-    const res = await HttpService.client.deleteImage(form);
     const filename = image.pictrs_alias;
+    const res = await HttpService.client.deleteMedia({ filename });
     if (res.state === "success") {
       const deletePictureText = I18NextService.i18n.t("picture_deleted", {
         filename,
@@ -102,5 +102,5 @@ export class MediaUploads extends Component<Props, any> {
 }
 
 function buildImageUrl(pictrsAlias: string): string {
-  return `${getHttpBase()}/pictrs/image/${pictrsAlias}`;
+  return `${getHttpBase()}/api/v4/image/${pictrsAlias}`;
 }

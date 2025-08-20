@@ -1,13 +1,14 @@
 import { showAvatars } from "@utils/app";
 import { getStaticDir } from "@utils/env";
-import { hostname, isCakeDay } from "@utils/helpers";
+import { hostname } from "@utils/helpers";
 import classNames from "classnames";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
-import { Person } from "lemmy-js-client";
-import { relTags } from "../../config";
+import { MyUserInfo, Person } from "lemmy-js-client";
+import { relTags } from "@utils/config";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
+import { isCakeDay } from "@utils/date";
 
 interface PersonListingProps {
   person: Person;
@@ -16,6 +17,7 @@ interface PersonListingProps {
   muted?: boolean;
   hideAvatar?: boolean;
   showApubName?: boolean;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 export class PersonListing extends Component<PersonListingProps, any> {
@@ -36,10 +38,10 @@ export class PersonListing extends Component<PersonListingProps, any> {
     if (local) {
       link = `/u/${person.name}`;
     } else {
-      serverStr = `@${hostname(person.actor_id)}`;
+      serverStr = `@${hostname(person.ap_id)}`;
       link = !this.props.realLink
         ? `/u/${person.name}${serverStr}`
-        : person.actor_id;
+        : person.ap_id;
     }
 
     const classes = classNames(
@@ -61,7 +63,7 @@ export class PersonListing extends Component<PersonListingProps, any> {
           </a>
         )}
 
-        {isCakeDay(person.published) && <CakeDay creatorName={name} />}
+        {isCakeDay(person.published_at) && <CakeDay creatorName={name} />}
       </>
     );
   }
@@ -71,8 +73,8 @@ export class PersonListing extends Component<PersonListingProps, any> {
     return (
       <>
         {!this.props.hideAvatar &&
-          !this.props.person.banned &&
-          showAvatars() && (
+          /* TODO: hide avatar of banned person */
+          showAvatars(this.props.myUserInfo) && (
             <PictrsImage
               src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
               icon

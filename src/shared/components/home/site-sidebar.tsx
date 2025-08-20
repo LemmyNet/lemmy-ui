@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { PersonView, Site, SiteAggregates } from "lemmy-js-client";
-import { mdToHtml } from "../../markdown";
+import { LocalSite, MyUserInfo, PersonView, Site } from "lemmy-js-client";
+import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
@@ -11,10 +11,10 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface SiteSidebarProps {
   site: Site;
-  showLocal: boolean;
-  counts?: SiteAggregates;
+  localSite?: LocalSite;
   admins?: PersonView[];
   isMobile?: boolean;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 interface SiteSidebarState {
@@ -88,12 +88,13 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   siteInfo() {
-    const site = this.props.site;
+    const { site } = this.props;
+
     return (
       <div>
         {site.description && <h6>{site.description}</h6>}
         {site.sidebar && this.siteSidebar(site.sidebar)}
-        {this.props.counts && <Badges counts={this.props.counts} />}
+        {this.props.localSite && <Badges subject={this.props.localSite} />}
         {this.props.admins && this.admins(this.props.admins)}
       </div>
     );
@@ -114,7 +115,10 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         <li className="list-inline-item">{I18NextService.i18n.t("admins")}:</li>
         {admins.map(av => (
           <li key={av.person.id} className="list-inline-item">
-            <PersonListing person={av.person} />
+            <PersonListing
+              person={av.person}
+              myUserInfo={this.props.myUserInfo}
+            />
           </li>
         ))}
       </ul>

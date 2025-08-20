@@ -37,6 +37,7 @@
     "babel-loader": "^10.0.0",
     "babel-plugin-inferno": "^6.7.1",
     "bootstrap": "^5.3.3",
+    "caniuse-lite": "^1.0.30001735",
     "check-password-strength": "^3.0.0",
     "classnames": "^2.5.1",
     "clean-webpack-plugin": "^4.0.0",
@@ -52,15 +53,15 @@
     "history": "^5.3.0",
     "html-to-text": "^9.0.5",
     "i18next": "^23.14.0",
-    "inferno": "^8.2.3",
-    "inferno-create-element": "^9.0.0",
+    "inferno": "^9.0.3",
+    "inferno-create-element": "^9.0.3",
     "inferno-helmet": "^5.2.1",
-    "inferno-hydrate": "^9.0.0",
+    "inferno-hydrate": "^9.0.3",
     "inferno-i18next-dess": "0.0.2",
-    "inferno-router": "^8.2.3",
-    "inferno-server": "^9.0.0",
+    "inferno-router": "^9.0.3",
+    "inferno-server": "^9.0.3",
     "jwt-decode": "^4.0.0",
-    "lemmy-js-client": "1.0.0-alpha.1",
+    "lemmy-js-client": "1.0.0-instance-user-blocking.8",
     "lodash.isequal": "^4.5.0",
     "markdown-it": "^14.1.0",
     "markdown-it-bidi": "^0.2.0",
@@ -133,6 +134,7 @@
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-dev-server": "5.2.2"
   },
+  "browserslist": "fully supports es6",
   "lint-staged": {
     "*.{css, scss}": [
       "prettier --write"
@@ -145,7 +147,7 @@
       "sortpack"
     ]
   },
-  "packageManager": "pnpm@10.9.0+sha512.0486e394640d3c1fb3c9d43d49cf92879ff74f8516959c235308f5a8f62e2e19528a65cdc2a3058f587cde71eba3d5b56327c8c33a97e4c4051ca48a10ca2d5f",
+  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
   "engineStrict": true,
   "importSort": {
     ".js, .jsx, .ts, .tsx": {

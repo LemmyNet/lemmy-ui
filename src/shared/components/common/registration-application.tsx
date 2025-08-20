@@ -2,9 +2,10 @@ import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   ApproveRegistrationApplication,
+  MyUserInfo,
   RegistrationApplicationView,
 } from "lemmy-js-client";
-import { mdToHtml } from "../../markdown";
+import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { PersonListing } from "../person/person-listing";
 import { Spinner } from "./icon";
@@ -13,6 +14,7 @@ import { MomentTime } from "./moment-time";
 
 interface RegistrationApplicationProps {
   application: RegistrationApplicationView;
+  myUserInfo: MyUserInfo | undefined;
   onApproveApplication(form: ApproveRegistrationApplication): void;
 }
 
@@ -61,11 +63,14 @@ export class RegistrationApplication extends Component<
       <div className="registration-application">
         <div>
           {I18NextService.i18n.t("applicant")}:{" "}
-          <PersonListing person={a.creator} />
+          <PersonListing
+            person={a.creator}
+            myUserInfo={this.props.myUserInfo}
+          />
         </div>
         <div>
           {I18NextService.i18n.t("created")}:{" "}
-          <MomentTime showAgo published={ra.published} />
+          <MomentTime showAgo published={ra.published_at} />
         </div>
         <div>{I18NextService.i18n.t("answer")}:</div>
         <div
@@ -88,13 +93,19 @@ export class RegistrationApplication extends Component<
             {accepted ? (
               <T i18nKey="approved_by">
                 #
-                <PersonListing person={a.admin} />
+                <PersonListing
+                  person={a.admin}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             ) : (
               <div>
                 <T i18nKey="denied_by">
                   #
-                  <PersonListing person={a.admin} />
+                  <PersonListing
+                    person={a.admin}
+                    myUserInfo={this.props.myUserInfo}
+                  />
                 </T>
                 {ra.deny_reason && (
                   <div>
@@ -124,6 +135,7 @@ export class RegistrationApplication extends Component<
                 hideNavigationWarnings
                 allLanguages={[]}
                 siteLanguages={[]}
+                myUserInfo={this.props.myUserInfo}
               />
             </div>
           </div>

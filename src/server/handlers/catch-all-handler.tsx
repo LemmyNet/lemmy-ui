@@ -1,18 +1,14 @@
-import { initializeSite, isAuthPath } from "@utils/app";
+import { isAuthPath } from "@utils/app";
 import { getHttpBaseInternal } from "@utils/env";
-import { ErrorPageData } from "@utils/types";
+import { ErrorPageData, IsoDataOptionalSite } from "@utils/types";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { Match } from "inferno-router/dist/Route";
 import { renderToString } from "inferno-server";
-import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
+import { GetSiteResponse, LemmyHttp, MyUserInfo } from "lemmy-js-client";
 import App from "../../shared/components/app/app";
-import {
-  InitialFetchRequest,
-  IsoDataOptionalSite,
-  RouteData,
-} from "../../shared/interfaces";
-import { routes } from "../../shared/routes";
+import { InitialFetchRequest, RouteData } from "@utils/types";
+import { routes } from "@utils/routes";
 import {
   FailedRequestState,
   wrapClient,
@@ -21,28 +17,14 @@ import { createSsrHtml } from "../utils/create-ssr-html";
 import { getErrorPageData } from "../utils/get-error-page-data";
 import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
-import {
-  I18NextService,
-  LanguageService,
-  UserService,
-} from "../../shared/services/";
 import { parsePath } from "history";
 import { getQueryString } from "@utils/helpers";
-import { adultConsentCookieKey, testHost } from "../../shared/config";
+import { adultConsentCookieKey, testHost } from "@utils/config";
+import { loadLanguageInstances } from "@services/I18NextService";
 
 export default async (req: Request, res: Response) => {
   try {
-    const languages: string[] =
-      req.headers["accept-language"]
-        ?.split(",")
-        .map(x => {
-          const [head, tail] = x.split(/;\s*q?\s*=?/); // at ";", remove "q="
-          const q = Number(tail ?? 1); // no q means q=1
-          return { lang: head.trim(), q: Number.isNaN(q) ? 0 : q };
-        })
-        .filter(x => x.lang)
-        .sort((a, b) => b.q - a.q)
-        .map(x => (x.lang === "*" ? "en" : x.lang)) ?? [];
+    const languages = headerLanguages(req.headers["accept-language"]);
 
     let match: Match<any> | null | undefined;
     const activeRoute = routes.find(
@@ -61,17 +43,19 @@ export default async (req: Request, res: Response) => {
     // Get site data first
     // This bypasses errors, so that the client can hit the error on its own,
     // in order to remove the jwt on the browser. Necessary for wrong jwts
-    let site: GetSiteResponse | undefined = undefined;
+    let siteRes: GetSiteResponse | undefined = undefined;
+    let myUserInfo: MyUserInfo | undefined = undefined;
     let routeData: RouteData = {};
     let errorPageData: ErrorPageData | undefined = undefined;
-    let try_site = await client.getSite();
+    const trySite = await client.getSite();
+    let tryUser = await client.getMyUser();
 
-    if (try_site.state === "failed" && try_site.err.name === "not_logged_in") {
+    if (tryUser.state === "failed" && tryUser.err.name === "not_logged_in") {
       console.error(
         "Incorrect JWT token, skipping auth so frontend can remove jwt cookie",
       );
       client.setHeaders({});
-      try_site = await client.getSite();
+      tryUser = await client.getMyUser();
     }
 
     if (!auth && isAuthPath(path)) {
@@ -79,50 +63,44 @@ export default async (req: Request, res: Response) => {
       return;
     }
 
-    if (try_site.state === "success") {
-      site = try_site.data;
-      initializeSite(site);
-      LanguageService.updateLanguages(languages);
+    if (tryUser.state === "success") {
+      myUserInfo = tryUser.data;
+    }
 
-      if (path !== "/setup" && !site.site_view.local_site.site_setup) {
+    if (trySite.state === "success") {
+      siteRes = trySite.data;
+
+      if (path !== "/setup" && !siteRes.site_view.local_site.site_setup) {
         res.redirect("/setup");
         return;
       }
 
-      if (path === "/setup" && site.admins.length > 0) {
+      if (path === "/setup" && siteRes.admins.length > 0) {
         res.redirect("/");
         return;
       }
 
-      if (site && activeRoute?.fetchInitialData && match) {
+      if (siteRes && activeRoute?.fetchInitialData && match) {
         const { search } = parsePath(url);
         const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
           path,
-          query: activeRoute.getQueryParams?.(search, site) ?? {},
+          query:
+            activeRoute.getQueryParams?.(search, siteRes, myUserInfo) ?? {},
           match,
-          site,
+          site: siteRes,
+          myUserInfo,
           headers,
         };
 
-        if (process.env.NODE_ENV === "development") {
-          setTimeout(() => {
-            // Intentionally (likely) break things if fetchInitialData tries to
-            // use global state after the first await of an unresolved promise.
-            // This simulates another request entering or leaving this
-            // "success" block.
-            UserService.Instance.myUserInfo = undefined;
-            I18NextService.i18n.changeLanguage("cimode");
-          });
-        }
         routeData = await activeRoute.fetchInitialData(initialFetchReq);
       }
 
       if (!activeRoute) {
         res.status(404);
       }
-    } else if (try_site.state === "failed") {
+    } else if (trySite.state === "failed") {
       res.status(500);
-      errorPageData = getErrorPageData(new Error(try_site.err.name), site);
+      errorPageData = getErrorPageData(new Error(trySite.err.name), siteRes);
     }
 
     const error = Object.values(routeData).find(
@@ -138,31 +116,35 @@ export default async (req: Request, res: Response) => {
         return;
       } else {
         res.status(500);
-        errorPageData = getErrorPageData(new Error(error.err.name), site);
-        return;
+        errorPageData = getErrorPageData(new Error(error.err.name), siteRes);
       }
     }
 
     const isoData: IsoDataOptionalSite = {
       path,
-      site_res: site,
+      siteRes: siteRes,
+      myUserInfo,
       routeData,
       errorPageData,
+      lemmyExternalHost: process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ?? testHost,
       showAdultConsentModal:
-        !!site?.site_view.site.content_warning &&
-        !(site.my_user || req.cookies[adultConsentCookieKey]),
-      lemmy_external_host: process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ?? testHost,
+        !!siteRes?.site_view.site.content_warning &&
+        !(myUserInfo || req.cookies[adultConsentCookieKey]),
     };
+
+    const interfaceLanguage =
+      myUserInfo?.local_user_view.local_user.interface_language;
+
+    const [dateFnsLocale, i18n] = await loadLanguageInstances(
+      languages,
+      interfaceLanguage,
+    );
 
     const wrapper = (
       <StaticRouter location={url} context={isoData}>
-        <App />
+        <App dateFnsLocale={dateFnsLocale} i18n={i18n} />
       </StaticRouter>
     );
-
-    // Another request could have initialized a new site.
-    initializeSite(site);
-    LanguageService.updateLanguages(languages);
 
     const root = renderToString(wrapper);
 
@@ -171,7 +153,8 @@ export default async (req: Request, res: Response) => {
         root,
         isoData,
         res.locals.cspNonce,
-        LanguageService.userLanguages,
+        languages,
+        interfaceLanguage,
       ),
     );
   } catch (err) {
@@ -184,3 +167,18 @@ export default async (req: Request, res: Response) => {
     );
   }
 };
+
+function headerLanguages(acceptLanguages?: string): string[] {
+  return (
+    acceptLanguages
+      ?.split(",")
+      .map(x => {
+        const [head, tail] = x.split(/;\s*q?\s*=?/); // at ";", remove "q="
+        const q = Number(tail ?? 1); // no q means q=1
+        return { lang: head.trim(), q: Number.isNaN(q) ? 0 : q };
+      })
+      .filter(x => x.lang)
+      .sort((a, b) => b.q - a.q)
+      .map(x => (x.lang === "*" ? "en" : x.lang)) ?? []
+  );
+}

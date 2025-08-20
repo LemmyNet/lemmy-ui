@@ -2,9 +2,9 @@ import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
 import { Component, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
-import { IsoDataOptionalSite } from "../../interfaces";
-import { routes } from "../../routes";
-import { FirstLoadService, I18NextService } from "../../services";
+import { IsoDataOptionalSite } from "@utils/types";
+import { routes } from "@utils/routes";
+import { FirstLoadService, I18NextService } from "@services/index";
 import AuthGuard from "../common/auth-guard";
 import ErrorGuard from "../common/error-guard";
 import { ErrorPage } from "./error-page";
@@ -14,17 +14,34 @@ import "./styles.scss";
 import { Theme } from "./theme";
 import AnonymousGuard from "../common/anonymous-guard";
 import AdultConsentModal from "../common/modal/adult-consent-modal";
-import { destroyTippy, setupTippy } from "../../tippy";
+import { destroyTippy, setupTippy } from "@utils/tippy";
+import { Locale, setDefaultOptions } from "date-fns";
+import { i18n } from "i18next";
 
 function handleJumpToContent(app: App, event: any) {
   event.preventDefault();
   app.contentRef.current?.focus();
 }
 
-export default class App extends Component<any, any> {
+interface AppProps {
+  dateFnsLocale: Locale;
+  i18n: i18n;
+}
+
+export default class App extends Component<AppProps, any> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
   private readonly rootRef = createRef<HTMLDivElement>();
   readonly contentRef = createRef<HTMLDivElement>();
+
+  constructor(props: AppProps, context: any) {
+    super(props, context);
+
+    I18NextService.i18n = this.props.i18n;
+    I18NextService.forceUpdate = () => {
+      this.forceUpdate();
+    };
+    setDefaultOptions({ locale: this.props.dateFnsLocale });
+  }
 
   componentDidMount() {
     setupTippy(this.rootRef);
@@ -52,15 +69,16 @@ export default class App extends Component<any, any> {
           }
 
           let queryProps = routeProps;
-          if (getQueryParams && this.isoData.site_res) {
+          if (getQueryParams && this.isoData.siteRes) {
             // ErrorGuard will not render its children when
-            // site_res is missing, this guarantees that props
+            // siteRes is missing, this guarantees that props
             // will always contain the query params.
             queryProps = {
               ...routeProps,
               ...getQueryParams(
                 routeProps.location.search,
-                this.isoData.site_res,
+                this.isoData.siteRes,
+                this.isoData.myUserInfo,
               ),
             };
           }
@@ -74,11 +92,14 @@ export default class App extends Component<any, any> {
               <div tabIndex={-1} ref={this.contentRef}>
                 {RouteComponent &&
                   (isAuthPath(path ?? "") ? (
-                    <AuthGuard {...routeProps}>
+                    <AuthGuard
+                      {...routeProps}
+                      myUserInfo={this.isoData.myUserInfo}
+                    >
                       <RouteComponent key={key} {...queryProps} />
                     </AuthGuard>
                   ) : isAnonymousPath(path ?? "") ? (
-                    <AnonymousGuard>
+                    <AnonymousGuard myUserInfo={this.isoData.myUserInfo}>
                       <RouteComponent key={key} {...queryProps} />
                     </AnonymousGuard>
                   ) : (
@@ -93,7 +114,7 @@ export default class App extends Component<any, any> {
   );
 
   render() {
-    const siteRes = this.isoData.site_res;
+    const siteRes = this.isoData.siteRes;
     const siteView = siteRes?.site_view;
 
     return (
@@ -119,9 +140,12 @@ export default class App extends Component<any, any> {
               {I18NextService.i18n.t("jump_to_content", "Jump to content")}
             </button>
             {siteView && (
-              <Theme defaultTheme={siteView.local_site.default_theme} />
+              <Theme
+                defaultTheme={siteView.local_site.default_theme}
+                myUserInfo={this.isoData.myUserInfo}
+              />
             )}
-            <Navbar siteRes={siteRes} />
+            <Navbar siteRes={siteRes} myUserInfo={this.isoData.myUserInfo} />
             <main className="mt-4 p-0 fl-1">
               <Switch>
                 {this.routes}

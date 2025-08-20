@@ -1,7 +1,9 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
-  LocalUserVoteDisplayMode,
+  LocalSite,
+  MyUserInfo,
+  PersonView,
   PostReportView,
   PostView,
   ResolvePostReport,
@@ -15,9 +17,11 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface PostReportProps {
   report: PostReportView;
-  enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw?: boolean;
+  showAdultConsentModal: boolean;
+  myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
+  admins: PersonView[];
   onResolveReport(form: ResolvePostReport): void;
 }
 
@@ -55,22 +59,21 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     post.name = r.post_report.original_post_name;
     post.url = r.post_report.original_post_url;
     post.body = r.post_report.original_post_body;
+
     const pv: PostView = {
       post,
       creator: r.post_creator,
       community: r.community,
+      image_details: undefined, // TODO: ?
+      community_actions: r.community_actions,
+      person_actions: r.person_actions,
+      post_actions: r.post_actions,
+      creator_is_admin: r.creator_is_admin,
+      creator_is_moderator: r.creator_is_moderator,
+      can_mod: true, // TODO: ?
+      creator_banned: r.creator_banned,
       creator_banned_from_community: r.creator_banned_from_community,
-      counts: r.counts,
-      subscribed: "NotSubscribed",
-      saved: false,
-      read: false,
-      creator_blocked: false,
-      my_vote: r.my_vote,
-      unread_comments: 0,
-      creator_is_moderator: false,
-      creator_is_admin: false,
-      banned_from_community: false,
-      hidden: false,
+      tags: [],
     };
 
     return (
@@ -78,13 +81,15 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         <PostListing
           post_view={pv}
           showCommunity={true}
-          enableDownvotes={this.props.enableDownvotes}
-          voteDisplayMode={this.props.voteDisplayMode}
           enableNsfw={this.props.enableNsfw}
+          showAdultConsentModal={this.props.showAdultConsentModal}
           viewOnly={true}
           allLanguages={[]}
           siteLanguages={[]}
           hideImage
+          myUserInfo={this.props.myUserInfo}
+          localSite={this.props.localSite}
+          admins={this.props.admins}
           // All of these are unused, since its view only
           onPostEdit={async () => EMPTY_REQUEST}
           onPostVote={async () => EMPTY_REQUEST}
@@ -107,7 +112,10 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}
-          <PersonListing person={r.creator} />
+          <PersonListing
+            person={r.creator}
+            myUserInfo={this.props.myUserInfo}
+          />
         </div>
         <div>
           {I18NextService.i18n.t("reason")}: {r.post_report.reason}
@@ -117,12 +125,18 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             {r.post_report.resolved ? (
               <T i18nKey="resolved_by">
                 #
-                <PersonListing person={resolver} />
+                <PersonListing
+                  person={resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             ) : (
               <T i18nKey="unresolved_by">
                 #
-                <PersonListing person={resolver} />
+                <PersonListing
+                  person={resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             )}
           </div>

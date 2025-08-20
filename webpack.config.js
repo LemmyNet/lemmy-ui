@@ -57,6 +57,8 @@ module.exports = (env, argv) => {
       alias: {
         "@": resolve(__dirname, "src/"),
         "@utils": resolve(__dirname, "src/shared/utils/"),
+        "@services/*": resolve(__dirname, "src/shared/services/*"),
+        "@components/*": resolve(__dirname, "src/shared/components/*"),
       },
     },
     performance: {
@@ -116,6 +118,7 @@ module.exports = (env, argv) => {
   const clientConfig = {
     ...base,
     entry: "./src/client/index.tsx",
+    target: "browserslist", // looks up package.json
     output: {
       ...base.output,
       filename: "js/client.js",

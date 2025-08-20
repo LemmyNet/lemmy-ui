@@ -1,16 +1,17 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { Component } from "inferno";
 import { refreshTheme } from "@utils/browser";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { Spinner } from "../../common/icon";
 import { getQueryParams } from "@utils/helpers";
-import { IRoutePropsWithFetch } from "../../../routes";
-import { RouteData } from "../../../interfaces";
+import { IRoutePropsWithFetch } from "@utils/routes";
+import { RouteData } from "@utils/types";
 import { I18NextService, UserService } from "../../../services";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { UnreadCounterService } from "../../../services";
 import { HttpService } from "../../../services/HttpService";
-import { toast } from "../../../toast";
+import { toast } from "@utils/app";
+import { NoOptionI18nKeys } from "i18next";
 
 interface OAuthCallbackProps {
   code?: string;
@@ -42,10 +43,10 @@ interface State {
 }
 
 export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
-  private isoData = setIsoData(this.context);
+  isoData = setIsoData(this.context);
 
   state: State = {
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
   };
 
   constructor(props: any, context: any) {
@@ -106,7 +107,10 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
             case "registration_username_required":
             case "registration_application_answer_required":
               err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
-              toast(I18NextService.i18n.t(loginRes.err.message), "danger");
+              toast(
+                I18NextService.i18n.t(loginRes.err.message as NoOptionI18nKeys),
+                "danger",
+              );
               break;
             case "registration_application_is_pending":
               toast(
@@ -156,10 +160,13 @@ async function handleOAuthLoginSuccess(
   UserService.Instance.login({
     res: loginRes,
   });
-  const site = await HttpService.client.getSite();
+  const [site, myUser] = await Promise.all([
+    HttpService.client.getSite(),
+    HttpService.client.getMyUser(),
+  ]);
 
-  if (site.state === "success") {
-    UserService.Instance.myUserInfo = site.data.my_user;
+  if (site.state === "success" && myUser.state === "success") {
+    updateMyUserInfo(myUser.data);
     refreshTheme();
   }
 

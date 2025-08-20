@@ -1,15 +1,16 @@
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import {
   CreatePrivateMessage,
   CreatePrivateMessageReport,
   DeletePrivateMessage,
   EditPrivateMessage,
   MarkPrivateMessageAsRead,
+  MyUserInfo,
   Person,
   PrivateMessageView,
 } from "lemmy-js-client";
-import { mdToHtmlNoImages } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { mdToHtmlNoImages } from "@utils/markdown";
+import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PersonListing } from "../person/person-listing";
@@ -29,11 +30,13 @@ interface PrivateMessageState {
 
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
+  myUserInfo: MyUserInfo | undefined;
   onDelete(form: DeletePrivateMessage): void;
-  onMarkRead(form: MarkPrivateMessageAsRead): void;
   onReport(form: CreatePrivateMessageReport): void;
   onCreate(form: CreatePrivateMessage): Promise<boolean>;
   onEdit(form: EditPrivateMessage): Promise<boolean>;
+  read: boolean;
+  onMarkRead(form: MarkPrivateMessageAsRead): void;
 }
 
 @tippyMixin
@@ -60,9 +63,17 @@ export class PrivateMessage extends Component<
     this.handleEdit = this.handleEdit.bind(this);
   }
 
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>,
+  ) {
+    if (this.props.private_message_view !== nextProps.private_message_view) {
+      this.setState({ readLoading: false });
+    }
+  }
+
   get mine(): boolean {
     return (
-      UserService.Instance.myUserInfo?.local_user_view.person.id ===
+      this.props.myUserInfo?.local_user_view.person.id ===
       this.props.private_message_view.creator.id
     );
   }
@@ -84,13 +95,16 @@ export class PrivateMessage extends Component<
                 : I18NextService.i18n.t("from")}
             </li>
             <li className="list-inline-item">
-              <PersonListing person={otherPerson} />
+              <PersonListing
+                person={otherPerson}
+                myUserInfo={this.props.myUserInfo}
+              />
             </li>
             <li className="list-inline-item">
               <span>
                 <MomentTime
-                  published={message_view.private_message.published}
-                  updated={message_view.private_message.updated}
+                  published={message_view.private_message.published_at}
+                  updated={message_view.private_message.updated_at}
                 />
               </span>
             </li>
@@ -112,6 +126,7 @@ export class PrivateMessage extends Component<
             <PrivateMessageForm
               recipient={otherPerson}
               privateMessageView={message_view}
+              myUserInfo={this.props.myUserInfo}
               onEdit={this.handleEdit}
               onCancel={this.handleReplyCancel}
             />
@@ -132,35 +147,36 @@ export class PrivateMessage extends Component<
               <ul className="list-inline mb-0 text-muted fw-bold">
                 {!this.mine && (
                   <>
-                    <li className="list-inline-item">
-                      <button
-                        type="button"
-                        className="btn btn-link btn-animate text-muted"
-                        onClick={linkEvent(this, this.handleMarkRead)}
-                        data-tippy-content={
-                          message_view.private_message.read
-                            ? I18NextService.i18n.t("mark_as_unread")
-                            : I18NextService.i18n.t("mark_as_read")
-                        }
-                        aria-label={
-                          message_view.private_message.read
-                            ? I18NextService.i18n.t("mark_as_unread")
-                            : I18NextService.i18n.t("mark_as_read")
-                        }
-                      >
-                        {this.state.readLoading ? (
-                          <Spinner />
-                        ) : (
-                          <Icon
-                            icon="check"
-                            classes={`icon-inline ${
-                              message_view.private_message.read &&
-                              "text-success"
-                            }`}
-                          />
-                        )}
-                      </button>
-                    </li>
+                    {
+                      <li className="list-inline-item">
+                        <button
+                          type="button"
+                          className="btn btn-link btn-animate text-muted"
+                          onClick={linkEvent(this, this.handleMarkRead)}
+                          data-tippy-content={
+                            this.props.read
+                              ? I18NextService.i18n.t("mark_as_unread")
+                              : I18NextService.i18n.t("mark_as_read")
+                          }
+                          aria-label={
+                            this.props.read
+                              ? I18NextService.i18n.t("mark_as_unread")
+                              : I18NextService.i18n.t("mark_as_read")
+                          }
+                        >
+                          {this.state.readLoading ? (
+                            <Spinner />
+                          ) : (
+                            <Icon
+                              icon="check"
+                              classes={`icon-inline ${
+                                this.props.read && "text-success"
+                              }`}
+                            />
+                          )}
+                        </button>
+                      </li>
+                    }
                     <li className="list-inline-item">{this.reportButton}</li>
                     <li className="list-inline-item">
                       <button
@@ -251,6 +267,7 @@ export class PrivateMessage extends Component<
               <PrivateMessageForm
                 replyType={true}
                 recipient={otherPerson}
+                myUserInfo={this.props.myUserInfo}
                 onCreate={this.handleCreate}
                 onCancel={this.handleReplyCancel}
               />
@@ -324,7 +341,7 @@ export class PrivateMessage extends Component<
     i.setState({ readLoading: true });
     i.props.onMarkRead({
       private_message_id: i.props.private_message_view.private_message.id,
-      read: !i.props.private_message_view.private_message.read,
+      read: !i.props.read,
     });
   }
 

@@ -14,9 +14,12 @@ import {
   FeaturePost,
   HidePost,
   Language,
-  LocalUserVoteDisplayMode,
+  LanguageId,
+  LocalSite,
   LockPost,
   MarkPostAsRead,
+  MyUserInfo,
+  PersonView,
   PostResponse,
   PostView,
   PurgePerson,
@@ -32,13 +35,16 @@ import { RequestState } from "../../services/HttpService";
 interface PostListingsProps {
   posts: PostView[];
   allLanguages: Language[];
-  siteLanguages: number[];
+  siteLanguages: LanguageId[];
   showCommunity?: boolean;
   removeDuplicates?: boolean;
-  enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
+  markable?: boolean;
   enableNsfw?: boolean;
+  showAdultConsentModal: boolean;
   viewOnly?: boolean;
+  myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
+  admins: PersonView[];
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
@@ -82,12 +88,14 @@ export class PostListings extends Component<PostListingsProps, any> {
                 post_view={post_view}
                 crossPosts={this.duplicatesMap.get(post_view.post.id)}
                 showCommunity={this.props.showCommunity}
-                enableDownvotes={this.props.enableDownvotes}
-                voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
+                showAdultConsentModal={this.props.showAdultConsentModal}
                 viewOnly={this.props.viewOnly}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                myUserInfo={this.props.myUserInfo}
+                localSite={this.props.localSite}
+                admins={this.props.admins}
                 onPostEdit={this.props.onPostEdit}
                 onPostVote={this.props.onPostVote}
                 onPostReport={this.props.onPostReport}
@@ -104,8 +112,10 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onAddModToCommunity={this.props.onAddModToCommunity}
                 onAddAdmin={this.props.onAddAdmin}
                 onTransferCommunity={this.props.onTransferCommunity}
-                onMarkPostAsRead={this.props.onMarkPostAsRead}
                 onHidePost={this.props.onHidePost}
+                markable={this.props.markable}
+                read={!!post_view.post_actions?.read_at}
+                onMarkPostAsRead={this.props.onMarkPostAsRead}
               />
               {idx + 1 !== this.posts.length && <hr className="my-3" />}
             </>
@@ -155,7 +165,9 @@ export class PostListings extends Component<PostListingsProps, any> {
       if (e[1].length === 1) {
         urlMap.delete(e[0]);
       } else {
-        e[1].sort((a, b) => a.post.published.localeCompare(b.post.published));
+        e[1].sort((a, b) =>
+          a.post.published_at.localeCompare(b.post.published_at),
+        );
       }
     }
 

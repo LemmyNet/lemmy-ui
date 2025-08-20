@@ -1,11 +1,12 @@
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
-import { UserService } from "../../services";
 import { dataBsTheme, isBrowser } from "@utils/browser";
 import { CodeTheme } from "./code-theme";
+import { MyUserInfo } from "lemmy-js-client";
 
 interface Props {
   defaultTheme: string;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 interface State {
@@ -15,7 +16,7 @@ interface State {
 
 export class Theme extends Component<Props, State> {
   private lightQuery?: MediaQueryList;
-  constructor(props, context) {
+  constructor(props: any, context: any) {
     super(props, context);
     if (isBrowser()) {
       window.addEventListener("refresh-theme", this.eventListener);
@@ -54,7 +55,7 @@ export class Theme extends Component<Props, State> {
   }
 
   currentTheme(): string {
-    const user = UserService.Instance.myUserInfo;
+    const user = this.props.myUserInfo;
     const userTheme = user?.local_user_view.local_user.theme;
     return userTheme ?? "browser";
   }

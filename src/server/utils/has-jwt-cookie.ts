@@ -1,5 +1,5 @@
 import * as cookie from "cookie";
-import { authCookieName } from "../../shared/config";
+import { authCookieName } from "@utils/config";
 import { IncomingHttpHeaders } from "http";
 
 export function getJwtCookie(headers: IncomingHttpHeaders): string | undefined {

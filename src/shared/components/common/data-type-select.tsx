@@ -1,7 +1,7 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { DataType } from "../../interfaces";
+import { DataType } from "@utils/types";
 import { I18NextService } from "../../services";
 
 interface DataTypeSelectProps {

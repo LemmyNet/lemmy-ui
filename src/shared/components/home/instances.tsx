@@ -2,14 +2,15 @@ import { setIsoData } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
+  FederatedInstances,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   Instance,
   LemmyHttp,
 } from "lemmy-js-client";
 import classNames from "classnames";
-import { relTags } from "../../config";
-import { InitialFetchRequest } from "../../interfaces";
+import { relTags } from "@utils/config";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -23,7 +24,7 @@ import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
@@ -51,7 +52,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   private isoData = setIsoData<InstancesData>(this.context);
   state: InstancesState = {
     instancesRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     isIsomorphic: false,
   };
 
@@ -121,7 +122,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
               <Tabs
                 tabs={["linked", "allowed", "blocked"]
                   .filter(status => instances[status].length)
-                  .map(status => ({
+                  .map((status: keyof FederatedInstances) => ({
                     key: status,
                     label: I18NextService.i18n.t(`${status}_instances`),
                     getNode: isSelected => (

@@ -1,30 +1,22 @@
 import { numToSI } from "@utils/helpers";
 import { Link } from "inferno-router";
-import {
-  CommunityAggregates,
-  CommunityId,
-  SiteAggregates,
-} from "lemmy-js-client";
+import { Community, CommunityId, LocalSite } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 
 interface BadgesProps {
-  counts: CommunityAggregates | SiteAggregates;
+  subject: Community | LocalSite;
   communityId?: CommunityId;
 }
 
-const isCommunityAggregates = (
-  counts: CommunityAggregates | SiteAggregates,
-): counts is CommunityAggregates => {
-  return "subscribers" in counts;
+const isCommunity = (subject: Community | LocalSite): subject is Community => {
+  return "subscribers" in subject;
 };
 
-const isSiteAggregates = (
-  counts: CommunityAggregates | SiteAggregates,
-): counts is SiteAggregates => {
-  return "communities" in counts;
+const isLocalSite = (subject: Community | LocalSite): subject is LocalSite => {
+  return "communities" in subject;
 };
 
-export const Badges = ({ counts, communityId }: BadgesProps) => {
+export const Badges = ({ subject, communityId }: BadgesProps) => {
   return (
     <ul className="badges my-1 list-inline">
       <li
@@ -32,14 +24,14 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
         data-tippy-content={I18NextService.i18n.t(
           "active_users_in_the_last_day",
           {
-            count: Number(counts.users_active_day),
-            formattedCount: numToSI(counts.users_active_day),
+            count: Number(subject.users_active_day),
+            formattedCount: numToSI(subject.users_active_day),
           },
         )}
       >
         {I18NextService.i18n.t("number_of_users", {
-          count: Number(counts.users_active_day),
-          formattedCount: numToSI(counts.users_active_day),
+          count: Number(subject.users_active_day),
+          formattedCount: numToSI(subject.users_active_day),
         })}{" "}
         / {I18NextService.i18n.t("day")}
       </li>
@@ -48,14 +40,14 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
         data-tippy-content={I18NextService.i18n.t(
           "active_users_in_the_last_week",
           {
-            count: Number(counts.users_active_week),
-            formattedCount: numToSI(counts.users_active_week),
+            count: Number(subject.users_active_week),
+            formattedCount: numToSI(subject.users_active_week),
           },
         )}
       >
         {I18NextService.i18n.t("number_of_users", {
-          count: Number(counts.users_active_week),
-          formattedCount: numToSI(counts.users_active_week),
+          count: Number(subject.users_active_week),
+          formattedCount: numToSI(subject.users_active_week),
         })}{" "}
         / {I18NextService.i18n.t("week")}
       </li>
@@ -64,14 +56,14 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
         data-tippy-content={I18NextService.i18n.t(
           "active_users_in_the_last_month",
           {
-            count: Number(counts.users_active_month),
-            formattedCount: numToSI(counts.users_active_month),
+            count: Number(subject.users_active_month),
+            formattedCount: numToSI(subject.users_active_month),
           },
         )}
       >
         {I18NextService.i18n.t("number_of_users", {
-          count: Number(counts.users_active_month),
-          formattedCount: numToSI(counts.users_active_month),
+          count: Number(subject.users_active_month),
+          formattedCount: numToSI(subject.users_active_month),
         })}{" "}
         / {I18NextService.i18n.t("month")}
       </li>
@@ -80,14 +72,14 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
         data-tippy-content={I18NextService.i18n.t(
           "active_users_in_the_last_six_months",
           {
-            count: Number(counts.users_active_half_year),
-            formattedCount: numToSI(counts.users_active_half_year),
+            count: Number(subject.users_active_half_year),
+            formattedCount: numToSI(subject.users_active_half_year),
           },
         )}
       >
         {I18NextService.i18n.t("number_of_users", {
-          count: Number(counts.users_active_half_year),
-          formattedCount: numToSI(counts.users_active_half_year),
+          count: Number(subject.users_active_half_year),
+          formattedCount: numToSI(subject.users_active_half_year),
         })}{" "}
         /{" "}
         {I18NextService.i18n.t("number_of_months", {
@@ -95,48 +87,48 @@ export const Badges = ({ counts, communityId }: BadgesProps) => {
           formattedCount: 6,
         })}
       </li>
-      {isSiteAggregates(counts) && (
+      {isLocalSite(subject) && (
         <>
           <li className="list-inline-item badge text-bg-secondary">
             {I18NextService.i18n.t("number_of_users", {
-              count: Number(counts.users),
-              formattedCount: numToSI(counts.users),
+              count: Number(subject.users),
+              formattedCount: numToSI(subject.users),
             })}
           </li>
           <li className="list-inline-item badge text-bg-secondary">
             {I18NextService.i18n.t("number_of_communities", {
-              count: Number(counts.communities),
-              formattedCount: numToSI(counts.communities),
+              count: Number(subject.communities),
+              formattedCount: numToSI(subject.communities),
             })}
           </li>
         </>
       )}
-      {isCommunityAggregates(counts) && (
+      {isCommunity(subject) && (
         <>
           <li className="list-inline-item badge text-bg-secondary">
             {I18NextService.i18n.t("number_of_local_subscribers", {
-              count: Number(counts.subscribers_local),
-              formattedCount: numToSI(counts.subscribers_local),
+              count: Number(subject.subscribers_local),
+              formattedCount: numToSI(subject.subscribers_local),
             })}
           </li>
           <li className="list-inline-item badge text-bg-secondary">
             {I18NextService.i18n.t("number_of_subscribers", {
-              count: Number(counts.subscribers),
-              formattedCount: numToSI(counts.subscribers),
+              count: Number(subject.subscribers),
+              formattedCount: numToSI(subject.subscribers),
             })}
           </li>
         </>
       )}
       <li className="list-inline-item badge text-bg-secondary">
         {I18NextService.i18n.t("number_of_posts", {
-          count: Number(counts.posts),
-          formattedCount: numToSI(counts.posts),
+          count: Number(subject.posts),
+          formattedCount: numToSI(subject.posts),
         })}
       </li>
       <li className="list-inline-item badge text-bg-secondary">
         {I18NextService.i18n.t("number_of_comments", {
-          count: Number(counts.comments),
-          formattedCount: numToSI(counts.comments),
+          count: Number(subject.comments),
+          formattedCount: numToSI(subject.comments),
         })}
       </li>
       <li className="list-inline-item">

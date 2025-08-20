@@ -9,17 +9,18 @@ import Tabs from "../common/tabs";
 const rateLimitTypes = [
   "message",
   "post",
+  "register",
   "image",
   "comment",
   "search",
-  "register",
+  "import_user_settings",
 ] as const;
 
 interface RateLimitsProps {
   handleRateLimit: FormEventHandler<HTMLInputElement>;
-  handleRateLimitPerSecond: FormEventHandler<HTMLInputElement>;
+  handleRateLimitIntervalSeconds: FormEventHandler<HTMLInputElement>;
   rateLimitValue?: number;
-  rateLimitPerSecondValue?: number;
+  rateLimitIntervalSeconds?: number;
   className?: string;
 }
 
@@ -30,27 +31,14 @@ interface RateLimitFormProps {
 }
 
 interface RateLimitFormState {
-  form: {
-    message?: number;
-    message_per_second?: number;
-    post?: number;
-    post_per_second?: number;
-    comment?: number;
-    comment_per_second?: number;
-    image?: number;
-    image_per_second?: number;
-    search?: number;
-    search_per_second?: number;
-    register?: number;
-    register_per_second?: number;
-  };
+  form: Partial<Omit<LocalSiteRateLimit, "updated_at" | "published_at">>;
 }
 
 function RateLimits({
   handleRateLimit,
-  handleRateLimitPerSecond,
-  rateLimitPerSecondValue,
-  rateLimitValue,
+  handleRateLimitIntervalSeconds: handleRateLimitIntervalSeconds,
+  rateLimitIntervalSeconds: rateLimitIntervalSeconds,
+  rateLimitValue: rateLimitMaxRequests,
   className,
 }: RateLimitsProps) {
   return (
@@ -64,7 +52,7 @@ function RateLimits({
           id="rate-limit"
           className="form-control"
           min={0}
-          value={rateLimitValue}
+          value={rateLimitMaxRequests}
           onInput={handleRateLimit}
         />
       </div>
@@ -77,28 +65,32 @@ function RateLimits({
           id="rate-limit-per-second"
           className="form-control"
           min={0}
-          value={rateLimitPerSecondValue}
-          onInput={handleRateLimitPerSecond}
+          value={rateLimitIntervalSeconds}
+          onInput={handleRateLimitIntervalSeconds}
         />
       </div>
     </div>
   );
 }
 
-function handleRateLimitChange(
-  { rateLimitType, ctx }: { rateLimitType: string; ctx: RateLimitsForm },
+function handleMaxRequestsChange(
+  {
+    rateLimitType,
+    ctx,
+  }: { rateLimitType: (typeof rateLimitTypes)[any]; ctx: RateLimitsForm },
   event: any,
 ) {
+  const limit: keyof RateLimitFormState["form"] = `${rateLimitType}_max_requests`;
   ctx.setState(prev => ({
     ...prev,
     form: {
       ...prev.form,
-      [rateLimitType]: Number(event.target.value),
+      [limit]: Number(event.target.value),
     },
   }));
 }
 
-function handlePerSecondChange(
+function handleIntervalSecondsChange(
   { rateLimitType, ctx }: { rateLimitType: string; ctx: RateLimitsForm },
   event: any,
 ) {
@@ -106,7 +98,7 @@ function handlePerSecondChange(
     ...prev,
     form: {
       ...prev.form,
-      [`${rateLimitType}_per_second`]: Number(event.target.value),
+      [`${rateLimitType}_interval_seconds`]: Number(event.target.value),
     },
   }));
 }
@@ -159,15 +151,17 @@ export default class RateLimitsForm extends Component<
                 })}
                 handleRateLimit={linkEvent(
                   { rateLimitType, ctx: this },
-                  handleRateLimitChange,
+                  handleMaxRequestsChange,
                 )}
-                handleRateLimitPerSecond={linkEvent(
+                handleRateLimitIntervalSeconds={linkEvent(
                   { rateLimitType, ctx: this },
-                  handlePerSecondChange,
+                  handleIntervalSecondsChange,
                 )}
-                rateLimitValue={this.state.form[rateLimitType]}
-                rateLimitPerSecondValue={
-                  this.state.form[`${rateLimitType}_per_second`]
+                rateLimitValue={
+                  this.state.form[`${rateLimitType}_max_requests`]
+                }
+                rateLimitIntervalSeconds={
+                  this.state.form[`${rateLimitType}_interval_seconds`]
                 }
               />
             ),

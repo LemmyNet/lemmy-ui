@@ -1,8 +1,8 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
-import { HttpService, I18NextService, UserService } from "../../services";
+import { HttpService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   LOADING_REQUEST,
@@ -11,7 +11,7 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 
@@ -34,7 +34,7 @@ export class PasswordChange extends Component<
 
   state: State = {
     passwordChangeRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     form: {
       token: this.props.match.params.token,
     },
@@ -134,9 +134,12 @@ export class PasswordChange extends Component<
       if (i.state.passwordChangeRes.state === "success") {
         toast(I18NextService.i18n.t("password_changed"));
 
-        const site = await HttpService.client.getSite();
-        if (site.state === "success") {
-          UserService.Instance.myUserInfo = site.data.my_user;
+        const [site, myUser] = await Promise.all([
+          HttpService.client.getSite(),
+          HttpService.client.getMyUser(),
+        ]);
+        if (site.state === "success" && myUser.state === "success") {
+          updateMyUserInfo(myUser.data);
         }
 
         i.props.history.replace("/");

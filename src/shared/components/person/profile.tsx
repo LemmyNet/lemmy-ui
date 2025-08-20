@@ -1,28 +1,24 @@
 import {
-  editComment,
-  editPost,
-  editWith,
-  enableDownvotes,
+  editCombined,
   enableNsfw,
-  postToCommentSortType,
+  getUncombinedPersonContent,
   setIsoData,
   updatePersonBlock,
-  voteDisplayMode,
 } from "@utils/app";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import {
   capitalizeFirstLetter,
-  futureDaysToUnixTime,
-  getPageFromString,
   getQueryParams,
   getQueryString,
   numToSI,
   randomStr,
   resourcesSettled,
   bareRoutePush,
+  getApubName,
+  cursorComponents,
 } from "@utils/helpers";
-import { amAdmin, canMod } from "@utils/roles";
-import type { QueryParams } from "@utils/types";
+import { amAdmin, canAdmin } from "@utils/roles";
+import type { DirectionalCursor, QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { format } from "date-fns";
@@ -38,7 +34,6 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
-  CommentReplyResponse,
   CommentResponse,
   Community,
   CommunityModeratorView,
@@ -53,15 +48,12 @@ import {
   EditComment,
   EditPost,
   FeaturePost,
-  GetPersonDetails,
   GetPersonDetailsResponse,
   GetSiteResponse,
   LemmyHttp,
-  ListMedia,
   ListMediaResponse,
+  ListPersonContentResponse,
   LockPost,
-  MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
   PersonView,
   PostResponse,
   PurgeComment,
@@ -71,19 +63,22 @@ import {
   RemovePost,
   SaveComment,
   SavePost,
-  PostSortType,
   SuccessResponse,
   TransferCommunity,
   RegistrationApplicationResponse,
-  GetPosts,
-  GetComments,
-  GetPostsResponse,
-  GetCommentsResponse,
+  MyUserInfo,
+  CommunityId,
+  ListPersonSavedResponse,
+  PersonContentCombinedView,
+  Person,
+  MarkPostAsRead,
+  ListPersonLikedResponse,
+  SearchSortType,
 } from "lemmy-js-client";
-import { fetchLimit, relTags } from "../../config";
-import { InitialFetchRequest, PersonDetailsView } from "../../interfaces";
-import { mdToHtml } from "../../markdown";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { fetchLimit, relTags } from "@utils/config";
+import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
+import { mdToHtml } from "@utils/markdown";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -91,37 +86,37 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
-import { SortSelect } from "../common/sort-select";
+import { PostSortSelect } from "../common/sort-select";
 import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
 import { getHttpBaseInternal } from "../../utils/env";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { MediaUploads } from "../common/media-uploads";
-import { cakeDate } from "@utils/helpers";
+import { cakeDate, futureDaysToUnixTime, nowBoolean } from "@utils/date";
 import { isBrowser } from "@utils/browser";
 import DisplayModal from "../common/modal/display-modal";
+import { PaginatorCursor } from "@components/common/paginator-cursor";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
+  personContentRes: ListPersonContentResponse;
+  personSavedRes: ListPersonSavedResponse;
+  personLikedRes: ListPersonLikedResponse;
   uploadsRes: ListMediaResponse;
-  likedPostsRes: GetPostsResponse;
-  likedCommentsRes: GetCommentsResponse;
 }>;
 
 interface ProfileState {
   personRes: RequestState<GetPersonDetailsResponse>;
-  // personRes and personDetailsRes point to `===` identical data. This allows
-  // to render the start of the profile while the new details are loading.
-  personDetailsRes: RequestState<GetPersonDetailsResponse>;
-  likedCommentsRes: RequestState<GetCommentsResponse>;
-  likedPostsRes: RequestState<GetPostsResponse>;
+  personContentRes: RequestState<ListPersonContentResponse>;
+  personSavedRes: RequestState<ListPersonSavedResponse>;
+  personLikedRes: RequestState<ListPersonLikedResponse>;
   uploadsRes: RequestState<ListMediaResponse>;
   registrationRes: RequestState<RegistrationApplicationResponse>;
   personBlocked: boolean;
@@ -132,38 +127,61 @@ interface ProfileState {
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
   showRegistrationDialog: boolean;
+  pageBack?: boolean;
 }
+
+type Filter = "Saved" | "Liked" | "None";
 
 interface ProfileProps {
   view: PersonDetailsView;
-  sort: PostSortType;
-  page: number;
+  sort: SearchSortType;
+  cursor?: DirectionalCursor;
+  filter: Filter;
 }
 
 export function getProfileQueryParams(source?: string): ProfileProps {
   return getQueryParams<ProfileProps>(
     {
       view: getViewFromProps,
-      page: getPageFromString,
+      cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
+      filter: getFilterFromQuery,
     },
     source,
   );
 }
 
-function getSortTypeFromQuery(sort?: string): PostSortType {
-  return sort ? (sort as PostSortType) : "New";
+function getSortTypeFromQuery(sort?: string): SearchSortType {
+  return sort ? (sort as SearchSortType) : "New";
 }
 
 function getViewFromProps(view?: string): PersonDetailsView {
-  return view
-    ? (PersonDetailsView[view] ?? PersonDetailsView.Overview)
-    : PersonDetailsView.Overview;
+  switch (view) {
+    case "Uploads":
+    case "All":
+    case "Posts":
+    case "Comments":
+      return view;
+    default:
+      return "All";
+  }
+}
+
+function getFilterFromQuery(filter?: string): Filter {
+  switch (filter) {
+    case "None":
+    case "Saved":
+    case "Liked":
+      return filter;
+    default:
+      return "None";
+  }
 }
 
 const getCommunitiesListing = (
   translationKey: NoOptionI18nKeys,
   communityViews?: { community: Community }[],
+  myUserInfo?: MyUserInfo,
 ) =>
   communityViews &&
   communityViews.length > 0 && (
@@ -173,7 +191,7 @@ const getCommunitiesListing = (
         <ul className="list-unstyled mb-0">
           {communityViews.map(({ community }) => (
             <li key={community.id}>
-              <CommunityLink community={community} />
+              <CommunityLink community={community} myUserInfo={myUserInfo} />
             </li>
           ))}
         </ul>
@@ -181,20 +199,31 @@ const getCommunitiesListing = (
     </div>
   );
 
-const Moderates = ({ moderates }: { moderates?: CommunityModeratorView[] }) =>
-  getCommunitiesListing("moderates", moderates);
+const Moderates = ({
+  moderates,
+}: {
+  moderates?: CommunityModeratorView[];
+  myUserInfo: MyUserInfo | undefined;
+}) => getCommunitiesListing("moderates", moderates);
 
-const Follows = () =>
-  getCommunitiesListing("subscribed", UserService.Instance.myUserInfo?.follows);
+const Follows = ({ myUserInfo }: { myUserInfo: MyUserInfo | undefined }) =>
+  getCommunitiesListing("subscribed", myUserInfo?.follows, myUserInfo);
 
-function isPersonBlocked(personRes: RequestState<GetPersonDetailsResponse>) {
+function isPersonBlocked(
+  personRes: RequestState<GetPersonDetailsResponse>,
+  myUserInfo: MyUserInfo | undefined,
+) {
   return (
     (personRes.state === "success" &&
-      UserService.Instance.myUserInfo?.person_blocks.some(
+      myUserInfo?.person_blocks.some(
         ({ id }) => id === personRes.data.person_view.person.id,
       )) ??
     false
   );
+}
+
+function usernameIsPerson(username: string, person?: Person) {
+  return person && [person.name, getApubName(person)].includes(username);
 }
 
 type ProfilePathProps = { username: string };
@@ -210,12 +239,12 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   private isoData = setIsoData<ProfileData>(this.context);
   state: ProfileState = {
     personRes: EMPTY_REQUEST,
-    personDetailsRes: EMPTY_REQUEST,
-    likedCommentsRes: EMPTY_REQUEST,
-    likedPostsRes: EMPTY_REQUEST,
+    personContentRes: EMPTY_REQUEST,
+    personSavedRes: EMPTY_REQUEST,
+    personLikedRes: EMPTY_REQUEST,
     uploadsRes: EMPTY_REQUEST,
     personBlocked: false,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     showBanDialog: false,
     removeOrRestoreData: false,
     isIsomorphic: false,
@@ -226,11 +255,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   loadingSettled() {
     return resourcesSettled([
       this.state.personRes,
-      this.state.likedCommentsRes,
-      this.state.likedPostsRes,
-      this.props.view === PersonDetailsView.Uploads
+      this.props.view === "Uploads"
         ? this.state.uploadsRes
-        : this.state.personDetailsRes,
+        : this.props.filter === "Saved"
+          ? this.state.personSavedRes
+          : this.props.filter === "Liked"
+            ? this.state.personLikedRes
+            : this.state.personContentRes,
     ]);
   }
 
@@ -257,8 +288,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.handleCommentReport = this.handleCommentReport.bind(this);
     this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
-    this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
-    this.handlePersonMentionRead = this.handlePersonMentionRead.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
     this.handlePostVote = this.handlePostVote.bind(this);
@@ -277,18 +307,20 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       const personRes = this.isoData.routeData.personRes;
-      const likedCommentsRes = this.isoData.routeData.likedCommentsRes;
-      const likedPostsRes = this.isoData.routeData.likedPostsRes;
+      const personContentRes = this.isoData.routeData.personContentRes;
+      const personSavedRes = this.isoData.routeData.personSavedRes;
+      const personLikedRes = this.isoData.routeData.personLikedRes;
       const uploadsRes = this.isoData.routeData.uploadsRes;
+
       this.state = {
         ...this.state,
         personRes,
-        likedCommentsRes,
-        likedPostsRes,
-        personDetailsRes: personRes,
+        personContentRes,
+        personSavedRes,
+        personLikedRes,
         uploadsRes,
         isIsomorphic: true,
-        personBlocked: isPersonBlocked(personRes),
+        personBlocked: isPersonBlocked(personRes, this.isoData.myUserInfo),
       };
     }
   }
@@ -300,23 +332,16 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   componentWillReceiveProps(nextProps: ProfileRouteProps) {
-    // Overview, Posts and Comments views can use the same data.
-    const sharedViewTypes = [nextProps.view, this.props.view].every(
-      v =>
-        v === PersonDetailsView.Overview ||
-        v === PersonDetailsView.Posts ||
-        v === PersonDetailsView.Comments,
-    );
-
     const reload = bareRoutePush(this.props, nextProps);
 
     const newUsername =
       nextProps.match.params.username !== this.props.match.params.username;
 
     if (
-      (nextProps.view !== this.props.view && !sharedViewTypes) ||
+      nextProps.view !== this.props.view ||
       nextProps.sort !== this.props.sort ||
-      nextProps.page !== this.props.page ||
+      nextProps.cursor !== this.props.cursor ||
+      nextProps.filter !== this.props.filter ||
       newUsername ||
       reload
     ) {
@@ -324,135 +349,102 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
-  fetchUploadsToken?: symbol;
-  async fetchUploads(props: ProfileRouteProps) {
-    if (!this.amCurrentUser) {
-      return;
-    }
-
-    const token = (this.fetchUploadsToken = Symbol());
-    const { page } = props;
-    this.setState({ uploadsRes: LOADING_REQUEST });
-    const form: ListMedia = {
-      // userId?
-      page,
-      limit: fetchLimit,
-    };
-    const uploadsRes = await HttpService.client.listMedia(form);
-    if (token === this.fetchUploadsToken) {
-      this.setState({ uploadsRes });
-    }
-  }
-
   fetchUserDataToken?: symbol;
   async fetchUserData(props: ProfileRouteProps, showBothLoading = false) {
-    const token = (this.fetchUploadsToken = this.fetchUserDataToken = Symbol());
-    const { page, sort, view } = props;
+    const token = (this.fetchUserDataToken = Symbol());
+    const {
+      cursor,
+      view,
+      filter,
+      match: {
+        params: { username },
+      },
+    } = props;
+    const isMe = usernameIsPerson(
+      username, // amCurrentUser would use the old username
+      this.isoData.myUserInfo?.local_user_view.person,
+    );
 
-    const requestLiked = view === PersonDetailsView.Upvoted;
+    const needPerson =
+      this.state.personRes.state !== "success" || showBothLoading;
+    const needUploads = isMe && view === "Uploads";
+    const needSaved = isMe && filter === "Saved" && !needUploads;
+    const needLiked = isMe && filter === "Liked" && !needUploads;
+    const needContent = !needSaved && !needUploads && !needLiked;
 
-    if (view === PersonDetailsView.Uploads) {
-      this.fetchUploads(props);
-      this.setState({
-        likedCommentsRes: EMPTY_REQUEST,
-        likedPostsRes: EMPTY_REQUEST,
-      });
-      if (!showBothLoading) {
-        return;
-      }
-      this.setState({
-        personRes: LOADING_REQUEST,
-        personDetailsRes: LOADING_REQUEST,
-      });
-    } else {
-      if (showBothLoading) {
-        this.setState({
-          personRes: LOADING_REQUEST,
-          personDetailsRes: LOADING_REQUEST,
-          likedCommentsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
-          likedPostsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
-          uploadsRes: EMPTY_REQUEST,
-        });
-      } else {
-        this.setState({
-          personDetailsRes: LOADING_REQUEST,
-          likedCommentsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
-          likedPostsRes: requestLiked ? LOADING_REQUEST : EMPTY_REQUEST,
-          uploadsRes: EMPTY_REQUEST,
-        });
-      }
-    }
+    const type_ = view === "Uploads" ? undefined : view;
 
-    const client = HttpService.client;
+    this.setState(s => ({
+      personRes: needPerson ? LOADING_REQUEST : s.personRes,
+      personContentRes: LOADING_REQUEST,
+      personSavedRes: LOADING_REQUEST,
+      uploadsRes: LOADING_REQUEST,
+    }));
 
-    const personFetch = client.getPersonDetails({
-      username: props.match.params.username,
-      sort,
-      saved_only: view === PersonDetailsView.Saved,
-      page,
-      limit: fetchLimit,
-    });
-
-    let likedCommentsFetch: Promise<RequestState<GetCommentsResponse>> =
-      Promise.resolve(EMPTY_REQUEST);
-    let likedPostsFetch: Promise<RequestState<GetPostsResponse>> =
-      Promise.resolve(EMPTY_REQUEST);
-
-    if (requestLiked) {
-      const likedCommentsForm: GetComments = {
-        page,
-        limit: fetchLimit,
-        type_: "All",
-        sort: postToCommentSortType(sort),
-        liked_only: true,
-      };
-      likedCommentsFetch = client.getComments(likedCommentsForm);
-
-      const likedPostsForm: GetPosts = {
-        page,
-        limit: fetchLimit,
-        type_: "All",
-        sort,
-        liked_only: true,
-        show_read: true,
-      };
-      likedPostsFetch = client.getPosts(likedPostsForm);
-    }
-
-    const [personRes, likedCommentsRes, likedPostsRes] = await Promise.all([
-      personFetch,
-      likedCommentsFetch,
-      likedPostsFetch,
-    ]);
-
-    if (token === this.fetchUserDataToken) {
-      this.setState({
+    await Promise.all([
+      needPerson &&
+        HttpService.client.getPersonDetails({
+          username: props.match.params.username,
+        }),
+      needContent &&
+        HttpService.client.listPersonContent({
+          type_,
+          username: props.match.params.username,
+          ...cursorComponents(cursor),
+          limit: fetchLimit,
+        }),
+      needSaved &&
+        HttpService.client.listPersonSaved({
+          type_,
+          ...cursorComponents(cursor),
+          limit: fetchLimit,
+        }),
+      needUploads &&
+        HttpService.client.listMedia({
+          ...cursorComponents(cursor),
+          limit: fetchLimit,
+        }),
+      needLiked &&
+        HttpService.client.listPersonLiked({
+          ...cursorComponents(cursor),
+          limit: fetchLimit,
+          type_,
+        }),
+    ]).then(args => {
+      const [
         personRes,
-        personDetailsRes: personRes,
-        personBlocked: isPersonBlocked(personRes),
-        likedCommentsRes,
-        likedPostsRes,
-      });
-    }
+        personContentRes,
+        personSavedRes,
+        uploadsRes,
+        personLikedRes,
+      ] = args;
+      if (token === this.fetchUserDataToken) {
+        this.setState(s => ({
+          personRes: personRes || s.personRes,
+          personContentRes: personContentRes || EMPTY_REQUEST,
+          personSavedRes: personSavedRes || EMPTY_REQUEST,
+          uploadsRes: uploadsRes || EMPTY_REQUEST,
+          personBlocked: isPersonBlocked(s.personRes, this.isoData.myUserInfo),
+          personLikedRes: personLikedRes || EMPTY_REQUEST,
+        }));
+      }
+    });
   }
 
   get amCurrentUser() {
-    if (this.state.personRes.state === "success") {
-      return (
-        UserService.Instance.myUserInfo?.local_user_view.person.id ===
-        this.state.personRes.data.person_view.person.id
-      );
-    } else {
-      return false;
-    }
+    return usernameIsPerson(
+      this.props.match.params.username,
+      this.isoData.myUserInfo?.local_user_view.person,
+    );
   }
 
   static async fetchInitialData({
     headers,
-    query: { view, sort, page },
+    query: { view, cursor, filter },
     match: {
       params: { username },
     },
+    myUserInfo,
   }: InitialFetchRequest<
     ProfilePathProps,
     ProfileProps
@@ -460,64 +452,53 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
+    const isMe = usernameIsPerson(username, myUserInfo?.local_user_view.person);
 
-    let uploadsRes: RequestState<ListMediaResponse> = EMPTY_REQUEST;
+    const needUploads = isMe && view === "Uploads";
+    const needSaved = isMe && filter === "Saved" && !needUploads;
+    const needLiked = isMe && filter === "Liked" && !needUploads;
+    const needContent = !needUploads && !needSaved && !needLiked;
 
-    if (view === PersonDetailsView.Uploads) {
-      const form: ListMedia = {
-        page,
-        limit: fetchLimit,
+    const type_ = view === "Uploads" ? undefined : view;
+
+    return await Promise.all([
+      client.getPersonDetails({ username }),
+      needContent &&
+        client.listPersonContent({
+          type_,
+          username,
+          ...cursorComponents(cursor),
+        }),
+      needSaved &&
+        client.listPersonSaved({
+          type_,
+          ...cursorComponents(cursor),
+          limit: fetchLimit,
+        }),
+      needUploads &&
+        client.listMedia({ ...cursorComponents(cursor), limit: fetchLimit }),
+      needLiked &&
+        client.listPersonLiked({
+          type_,
+          ...cursorComponents(cursor),
+          limit: fetchLimit,
+        }),
+    ]).then(args => {
+      const [
+        personRes,
+        personContentRes,
+        personSavedRes,
+        uploadsRes,
+        personLikedRes,
+      ] = args;
+      return {
+        personRes: personRes || EMPTY_REQUEST,
+        personContentRes: personContentRes || EMPTY_REQUEST,
+        personSavedRes: personSavedRes || EMPTY_REQUEST,
+        uploadsRes: uploadsRes || EMPTY_REQUEST,
+        personLikedRes: personLikedRes || EMPTY_REQUEST,
       };
-      uploadsRes = await client.listMedia(form);
-    }
-
-    const form: GetPersonDetails = {
-      username: username,
-      sort,
-      saved_only: view === PersonDetailsView.Saved,
-      page,
-      limit: fetchLimit,
-    };
-    const personFetch = client.getPersonDetails(form);
-
-    let likedCommentsFetch: Promise<RequestState<GetCommentsResponse>> =
-      Promise.resolve(EMPTY_REQUEST);
-    let likedPostsFetch: Promise<RequestState<GetPostsResponse>> =
-      Promise.resolve(EMPTY_REQUEST);
-
-    if (view === PersonDetailsView.Upvoted) {
-      const likedCommentsForm: GetComments = {
-        page,
-        limit: fetchLimit,
-        type_: "All",
-        sort: postToCommentSortType(sort),
-        liked_only: true,
-      };
-      likedCommentsFetch = client.getComments(likedCommentsForm);
-
-      const likedPostsForm: GetPosts = {
-        page,
-        limit: fetchLimit,
-        type_: "All",
-        sort,
-        liked_only: true,
-        show_read: true,
-      };
-      likedPostsFetch = client.getPosts(likedPostsForm);
-    }
-
-    const [personRes, likedCommentsRes, likedPostsRes] = await Promise.all([
-      personFetch,
-      likedCommentsFetch,
-      likedPostsFetch,
-    ]);
-
-    return {
-      personRes,
-      likedCommentsRes,
-      likedPostsRes,
-      uploadsRes,
-    };
+    });
   }
 
   get documentTitle(): string {
@@ -540,7 +521,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         const uploadsRes = this.state.uploadsRes.data;
         return (
           <div>
-            <MediaUploads uploads={uploadsRes} />
+            <MediaUploads
+              uploads={uploadsRes}
+              myUserInfo={this.isoData.myUserInfo}
+            />
           </div>
         );
       }
@@ -558,23 +542,26 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       case "success": {
         const siteRes = this.state.siteRes;
         const personRes = this.state.personRes.data;
-        const { page, sort, view } = this.props;
+        const { sort, view, filter } = this.props;
 
-        const personDetailsState = this.state.personDetailsRes.state;
-        const personDetailsRes =
-          personDetailsState === "success" && this.state.personDetailsRes.data;
+        const savedContent =
+          (filter === "Saved" &&
+            this.state.personSavedRes.state === "success" &&
+            this.state.personSavedRes.data.saved) ||
+          undefined;
+        const content =
+          (filter === "None" &&
+            this.state.personContentRes.state === "success" &&
+            this.state.personContentRes.data.content) ||
+          undefined;
+        const likedContent =
+          (filter === "Liked" &&
+            this.state.personLikedRes.state === "success" &&
+            this.state.personLikedRes.data.liked) ||
+          undefined;
+        const resState = this.currentRes.state;
 
-        const likedCommentsState = this.state.likedCommentsRes.state;
-        const likedCommentsRes =
-          likedCommentsState === "success"
-            ? this.state.likedCommentsRes.data
-            : undefined;
-
-        const likedPostsState = this.state.likedPostsRes.state;
-        const likedPostsRes =
-          likedPostsState === "success"
-            ? this.state.likedPostsRes.data
-            : undefined;
+        const isUpload = view === "Uploads";
 
         return (
           <div className="row">
@@ -582,7 +569,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
               <HtmlTags
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
-                canonicalPath={personRes.person_view.person.actor_id}
+                canonicalPath={personRes.person_view.person.ap_id}
                 description={personRes.person_view.person.bio}
                 image={personRes.person_view.person.avatar}
               />
@@ -593,30 +580,23 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
               {this.selects}
 
-              {this.renderUploadsRes()}
+              {isUpload && this.renderUploadsRes()}
 
-              {(personDetailsState === "loading" ||
-                likedCommentsState === "loading" ||
-                likedPostsState === "loading") &&
-              this.props.view !== PersonDetailsView.Uploads ? (
-                <h5>
-                  <Spinner large />
-                </h5>
-              ) : (
-                personDetailsRes && (
+              {!isUpload &&
+                (resState === "loading" ? (
+                  <h5>
+                    <Spinner large />
+                  </h5>
+                ) : (
                   <PersonDetails
-                    personRes={personDetailsRes}
-                    likedCommentsRes={likedCommentsRes}
-                    likedPostsRes={likedPostsRes}
+                    content={savedContent ?? content ?? likedContent ?? []}
                     admins={siteRes.admins}
                     sort={sort}
-                    page={page}
                     limit={fetchLimit}
-                    enableDownvotes={enableDownvotes(siteRes)}
-                    voteDisplayMode={voteDisplayMode(siteRes)}
                     enableNsfw={enableNsfw(siteRes)}
-                    view={view}
-                    onPageChange={this.handlePageChange}
+                    showAdultConsentModal={this.isoData.showAdultConsentModal}
+                    myUserInfo={this.isoData.myUserInfo}
+                    localSite={siteRes.site_view.local_site}
                     allLanguages={siteRes.all_languages}
                     siteLanguages={siteRes.discussion_languages}
                     // TODO all the forms here
@@ -632,8 +612,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onTransferCommunity={this.handleTransferCommunity}
                     onPurgeComment={this.handlePurgeComment}
                     onPurgePerson={this.handlePurgePerson}
-                    onCommentReplyRead={this.handleCommentReplyRead}
-                    onPersonMentionRead={this.handlePersonMentionRead}
                     onBanPersonFromCommunity={this.handleBanFromCommunity}
                     onBanPerson={this.handleBanPerson}
                     onCreateComment={this.handleCreateComment}
@@ -647,15 +625,24 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onSavePost={this.handleSavePost}
                     onPurgePost={this.handlePurgePost}
                     onFeaturePost={this.handleFeaturePost}
-                    onMarkPostAsRead={() => {}}
+                    onMarkPostAsRead={this.handleMarkPostAsRead}
                   />
-                )
-              )}
+                ))}
+              <PaginatorCursor
+                current={this.props.cursor}
+                resource={this.currentRes}
+                onPageChange={this.handlePageChange}
+              />
             </div>
 
             <div className="col-12 col-md-4">
-              <Moderates moderates={personRes.moderates} />
-              {this.amCurrentUser && <Follows />}
+              <Moderates
+                moderates={personRes.moderates}
+                myUserInfo={this.isoData.myUserInfo}
+              />
+              {this.amCurrentUser && (
+                <Follows myUserInfo={this.isoData.myUserInfo} />
+              )}
             </div>
           </div>
         );
@@ -671,16 +658,37 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
+  get currentRes() {
+    if (this.props.view === "Uploads") {
+      return this.state.uploadsRes;
+    } else {
+      if (this.props.filter === "Saved") {
+        return this.state.personSavedRes;
+      } else {
+        if (this.props.filter === "Liked") {
+          return this.state.personLikedRes;
+        } else {
+          return this.state.personContentRes;
+        }
+      }
+    }
+  }
+
   get viewRadios() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap" role="group">
-        {this.getRadio(PersonDetailsView.Overview)}
-        {this.getRadio(PersonDetailsView.Comments)}
-        {this.getRadio(PersonDetailsView.Posts)}
-        {this.amCurrentUser && this.getRadio(PersonDetailsView.Saved)}
-        {this.amCurrentUser && this.getRadio(PersonDetailsView.Uploads)}
-        {this.amCurrentUser && this.getRadio(PersonDetailsView.Upvoted)}
-      </div>
+      <>
+        <div className="btn-group btn-group-toggle flex-wrap" role="group">
+          {this.getRadio("All")}
+          {this.getRadio("Comments")}
+          {this.getRadio("Posts")}
+          {this.amCurrentUser && this.getRadio("Uploads")}
+        </div>
+        <div className="btn-group btn-group-toggle flex-wrap" role="group">
+          {this.amCurrentUser && this.getFilterRadio("Saved")}
+          {this.amCurrentUser && this.getFilterRadio("Liked")}
+          {this.amCurrentUser && this.getFilterRadio("None")}
+        </div>
+      </>
     );
   }
 
@@ -705,14 +713,42 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             active,
           })}
         >
-          {I18NextService.i18n.t(view.toLowerCase() as NoOptionI18nKeys)}
+          {I18NextService.i18n.t(view.toLowerCase())}
+        </label>
+      </>
+    );
+  }
+
+  getFilterRadio(filter: Filter) {
+    const { view, filter: urlFilter } = this.props;
+    const active = filter === urlFilter;
+    const radioId = randomStr();
+
+    return (
+      <>
+        <input
+          id={radioId}
+          type="radio"
+          className="btn-check"
+          value={filter}
+          checked={active}
+          onChange={linkEvent(this, this.handleFilterChange)}
+          disabled={view === "Uploads"}
+        />
+        <label
+          htmlFor={radioId}
+          className={classNames("btn btn-outline-secondary pointer", {
+            active,
+          })}
+        >
+          {I18NextService.i18n.t(filter.toLowerCase())}
         </label>
       </>
     );
   }
 
   get selects() {
-    const { sort, view } = this.props;
+    const { sort, filter } = this.props;
     const { username } = this.props.match.params;
 
     const profileRss = `/feeds/u/${username}.xml${getQueryString({ sort })}`;
@@ -721,28 +757,21 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       <div className="row align-items-center mb-3 g-3">
         <div className="col-auto">{this.viewRadios}</div>
         <div className="col-auto">
-          <SortSelect
-            sort={sort}
-            onChange={this.handleSortChange}
-            hideHot
-            hideMostComments
-          />
+          <PostSortSelect current={sort} onChange={this.handleSortChange} />
         </div>
-        {/* Don't show the rss feed for the Saved, Uploads, and Upvoted view, as that's not implemented.*/}
-        {view !== PersonDetailsView.Saved &&
-          view !== PersonDetailsView.Uploads &&
-          view !== PersonDetailsView.Upvoted && (
-            <div className="col-auto">
-              <a href={profileRss} rel={relTags} title="RSS">
-                <Icon icon="rss" classes="text-muted small ps-0" />
-              </a>
-              <link
-                rel="alternate"
-                type="application/atom+xml"
-                href={profileRss}
-              />
-            </div>
-          )}
+        {/* TODO: Rss feed for the Saved, Uploads, and Upvoted */}
+        {filter === "None" && (
+          <div className="col-auto">
+            <a href={profileRss} rel={relTags} title="RSS">
+              <Icon icon="rss" classes="text-muted small ps-0" />
+            </a>
+            <link
+              rel="alternate"
+              type="application/atom+xml"
+              href={profileRss}
+            />
+          </div>
+        )}
       </div>
     );
   }
@@ -759,7 +788,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     return (
       pv && (
         <div>
-          {!pv.person.banned && (
+          {!pv.creator_banned && (
             <BannerIconHeader
               banner={pv.person.banner}
               icon={pv.person.avatar}
@@ -780,12 +809,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                         useApubName
                         muted
                         hideAvatar
+                        myUserInfo={this.isoData.myUserInfo}
                       />
                     </li>
                     <li className="list-inline-item">
                       <UserBadges
                         classNames="ms-1"
-                        isBanned={pv.person.banned}
+                        isBanned={pv.creator_banned}
                         isDeleted={pv.person.deleted}
                         isAdmin={pv.is_admin}
                         isBot={pv.person.bot_account}
@@ -795,9 +825,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 </div>
                 {this.banDialog(pv)}
                 <div className="flex-grow-1 unselectable pointer mx-2"></div>
-                {!this.amCurrentUser && UserService.Instance.myUserInfo && (
+                {!this.amCurrentUser && this.isoData.myUserInfo && (
                   <>
-                    {amAdmin() && (
+                    {amAdmin(this.isoData.myUserInfo) && (
                       <Link
                         className={
                           "d-flex align-self-start btn btn-secondary me-2"
@@ -854,10 +884,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   </>
                 )}
 
-                {canMod(pv.person.id, undefined, admins) &&
+                {canAdmin(pv.person.id, admins, this.isoData.myUserInfo) &&
                   !pv.is_admin &&
                   !showBanDialog &&
-                  (!pv.person.banned ? (
+                  (!pv.creator_banned ? (
                     <button
                       className={
                         "d-flex align-self-start btn btn-secondary me-2"
@@ -878,7 +908,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
                     </button>
                   ))}
-                {amAdmin() && pv.person.local && (
+                {amAdmin(this.isoData.myUserInfo) && pv.person.local && (
                   <>
                     <button
                       className={
@@ -933,14 +963,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 <ul className="list-inline mb-2">
                   <li className="list-inline-item badge text-bg-light">
                     {I18NextService.i18n.t("number_of_posts", {
-                      count: Number(pv.counts.post_count),
-                      formattedCount: numToSI(pv.counts.post_count),
+                      count: Number(pv.person.post_count),
+                      formattedCount: numToSI(pv.person.post_count),
                     })}
                   </li>
                   <li className="list-inline-item badge text-bg-light">
                     {I18NextService.i18n.t("number_of_comments", {
-                      count: Number(pv.counts.comment_count),
-                      formattedCount: numToSI(pv.counts.comment_count),
+                      count: Number(pv.person.comment_count),
+                      formattedCount: numToSI(pv.person.comment_count),
                     })}
                   </li>
                 </ul>
@@ -948,7 +978,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
               <div className="text-muted">
                 {I18NextService.i18n.t("joined")}{" "}
                 <MomentTime
-                  published={pv.person.published}
+                  published={pv.person.published_at}
                   showAgo
                   ignoreUpdated
                 />
@@ -957,10 +987,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 <Icon icon="cake" />
                 <span className="ms-2">
                   {I18NextService.i18n.t("cake_day_title")}{" "}
-                  {format(cakeDate(pv.person.published), "PPP")}
+                  {format(cakeDate(pv.person.published_at), "PPP")}
                 </span>
               </div>
-              {!UserService.Instance.myUserInfo && (
+              {!this.isoData.myUserInfo && (
                 <div className="alert alert-info" role="alert">
                   {I18NextService.i18n.t("profile_not_logged_in_alert")}
                 </div>
@@ -1051,35 +1081,46 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   async updateUrl(props: Partial<ProfileRouteProps>) {
     const {
-      page,
+      cursor,
       sort,
       view,
+      filter,
       match: {
         params: { username },
       },
     } = { ...this.props, ...props };
 
     const queryParams: QueryParams<ProfileProps> = {
-      page: page?.toString(),
+      cursor,
       sort,
-      view,
+      view: view !== getViewFromProps(undefined) ? view : undefined,
+      filter: filter !== getFilterFromQuery(undefined) ? filter : undefined,
     };
 
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
   }
 
-  handlePageChange(page: number) {
-    this.updateUrl({ page });
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
-  handleSortChange(sort: PostSortType) {
-    this.updateUrl({ sort, page: 1 });
+  handleSortChange(sort: SearchSortType) {
+    this.updateUrl({ sort, cursor: undefined });
   }
 
   handleViewChange(i: Profile, event: any) {
+    const view = getViewFromProps(event.target.value);
+    if (view === "Uploads") {
+      i.updateUrl({ view, cursor: undefined, filter: undefined });
+    } else {
+      i.updateUrl({ view, cursor: undefined });
+    }
+  }
+
+  handleFilterChange(i: Profile, event?: any) {
     i.updateUrl({
-      view: PersonDetailsView[event.target.value],
-      page: 1,
+      filter: getFilterFromQuery(event.target.value),
+      cursor: undefined,
     });
   }
 
@@ -1110,10 +1151,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     this.setState({ showRegistrationDialog: true });
 
-    if (this.state.personDetailsRes.state === "success") {
+    if (this.state.personRes.state === "success") {
       HttpService.client
         .getRegistrationApplication({
-          person_id: this.state.personDetailsRes.data.person_view.person.id,
+          person_id: this.state.personRes.data.person_view.person.id,
         })
         .then(res => {
           this.setState({ registrationRes: res });
@@ -1137,7 +1178,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     if (personRes.state === "success") {
       const person = personRes.data.person_view.person;
-      const ban = !person.banned;
+      const ban = !personRes.data.person_view.creator_banned;
 
       // If its an unban, restore all their data
       if (!ban) {
@@ -1149,9 +1190,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         ban,
         remove_or_restore_data: i.state.removeOrRestoreData,
         reason: banReason,
-        expires: futureDaysToUnixTime(banExpireDays),
+        expires_at: futureDaysToUnixTime(banExpireDays),
       });
-      // TODO
       this.updateBan(res);
       i.setState({ showBanDialog: false });
     }
@@ -1163,7 +1203,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       block,
     });
     if (res.state === "success") {
-      updatePersonBlock(res.data);
+      updatePersonBlock(res.data, this.isoData.myUserInfo);
       this.setState({ personBlocked: res.data.blocked });
     }
   }
@@ -1199,7 +1239,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   async handleBlockPersonAlt(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data);
+      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
       this.setState({ personBlocked: blockPersonRes.data.blocked });
     }
   }
@@ -1213,7 +1253,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   async handleEditComment(form: EditComment) {
     const editCommentRes = await HttpService.client.editComment(form);
-    this.findAndUpdateCommentEdit(editCommentRes);
+    this.findAndUpdateComment(editCommentRes);
 
     return editCommentRes;
   }
@@ -1307,19 +1347,28 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     toast(I18NextService.i18n.t("transfer_community"));
   }
 
-  async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const readRes = await HttpService.client.markCommentReplyAsRead(form);
-    this.findAndUpdateCommentReply(readRes);
-  }
-
-  async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
-    // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
-    await HttpService.client.markPersonMentionAsRead(form);
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    if (res.state === "success") {
+      this.updateCurrentList(c => {
+        if (
+          c.type_ === "Post" &&
+          c.post.id === form.post_id &&
+          this.isoData.myUserInfo
+        ) {
+          if (!c.post_actions) {
+            c.post_actions = {};
+          }
+          c.post_actions.read_at = nowBoolean(form.read);
+        }
+        return c;
+      });
+    }
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBanFromCommunity(banRes);
+    this.updateBanFromCommunity(banRes, form.community_id);
   }
 
   async handleBanPerson(form: BanPerson) {
@@ -1327,43 +1376,123 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.updateBan(banRes);
   }
 
-  updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
+  maybeUpdatePerson(c: PersonView) {
+    if (
+      this.state.personRes.state !== "success" ||
+      this.state.personRes.data.person_view.person.id !== c.person.id
+    ) {
+      return;
+    }
+    this.setState(s => {
+      if (s.personRes.state !== "success") return { personRes: s.personRes };
+      return {
+        personRes: {
+          ...s.personRes,
+          data: {
+            ...s.personRes.data,
+            person_view: { ...c },
+          },
+        },
+      };
+    });
+  }
+
+  updateCurrentList(
+    mapFn: (c: PersonContentCombinedView) => PersonContentCombinedView,
+  ) {
+    if (this.props.filter === "Saved") {
+      this.setState(s => {
+        if (s.personSavedRes.state === "success") {
+          s.personSavedRes.data.saved = s.personSavedRes.data.saved.map(mapFn);
+        }
+        return { personSavedRes: s.personSavedRes };
+      });
+    } else if (this.props.filter === "Liked") {
+      this.setState(s => {
+        if (s.personLikedRes.state === "success") {
+          s.personLikedRes.data.liked = s.personLikedRes.data.liked.map(mapFn);
+        }
+        return { personLikedRes: s.personLikedRes };
+      });
+    } else {
+      this.setState(s => {
+        if (s.personContentRes.state === "success") {
+          s.personContentRes.data.content =
+            s.personContentRes.data.content.map(mapFn);
+        }
+        return { personContentRes: s.personContentRes };
+      });
+    }
+  }
+
+  editCombinedCurrent(data: PersonContentCombinedView) {
+    if (this.props.filter === "Saved") {
+      this.setState(s => {
+        if (s.personSavedRes.state === "success") {
+          s.personSavedRes.data.saved = editCombined(
+            data,
+            s.personSavedRes.data.saved,
+            getUncombinedPersonContent,
+          );
+        }
+        return { personSavedRes: s.personSavedRes };
+      });
+    } else if (this.props.filter === "Liked") {
+      this.setState(s => {
+        if (s.personLikedRes.state === "success") {
+          s.personLikedRes.data.liked = editCombined(
+            data,
+            s.personLikedRes.data.liked,
+            getUncombinedPersonContent,
+          );
+        }
+        return { personLikedRes: s.personLikedRes };
+      });
+    } else {
+      this.setState(s => {
+        if (s.personContentRes.state === "success") {
+          s.personContentRes.data.content = editCombined(
+            data,
+            s.personContentRes.data.content,
+            getUncombinedPersonContent,
+          );
+        }
+        return { personContentRes: s.personContentRes };
+      });
+    }
+  }
+
+  updateBanFromCommunity(
+    banRes: RequestState<BanFromCommunityResponse>,
+    communityId: CommunityId,
+  ) {
     // Maybe not necessary
     if (banRes.state === "success") {
-      this.setState(s => {
-        if (s.personRes.state === "success") {
-          s.personRes.data.posts
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
-
-          s.personRes.data.comments
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
-        }
-        return s;
-      });
+      this.updateCurrentList(c =>
+        c.creator.id === banRes.data.person_view.person.id &&
+        c.community.id === communityId
+          ? {
+              ...c,
+              creator_banned_from_community: banRes.data.banned,
+            }
+          : c,
+      );
+      this.maybeUpdatePerson(banRes.data.person_view);
     }
   }
 
   updateBan(banRes: RequestState<BanPersonResponse>) {
     // Maybe not necessary
     if (banRes.state === "success") {
-      this.setState(s => {
-        if (s.personRes.state === "success") {
-          s.personRes.data.posts
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
-          s.personRes.data.comments
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
-          s.personRes.data.person_view.person.banned = banRes.data.banned;
-        }
-        return s;
-      });
+      this.updateCurrentList(c =>
+        c.creator.id === banRes.data.person_view.person.id
+          ? {
+              ...c,
+              creator_banned: banRes.data.banned,
+            }
+          : c,
+      );
+      this.maybeUpdatePerson(banRes.data.person_view);
     }
   }
 
@@ -1374,60 +1503,27 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
-  findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
-    this.setState(s => {
-      if (s.personRes.state === "success" && res.state === "success") {
-        s.personRes.data.comments = editComment(
-          res.data.comment_view,
-          s.personRes.data.comments,
-        );
-      }
-      return s;
-    });
-  }
-
   findAndUpdateComment(res: RequestState<CommentResponse>) {
-    this.setState(s => {
-      if (s.personRes.state === "success" && res.state === "success") {
-        s.personRes.data.comments = editComment(
-          res.data.comment_view,
-          s.personRes.data.comments,
-        );
-      }
-      return s;
-    });
+    if (res.state === "success") {
+      this.editCombinedCurrent({ type_: "Comment", ...res.data.comment_view });
+    }
   }
 
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.personRes.state === "success" && res.state === "success") {
-        s.personRes.data.comments.unshift(res.data.comment_view);
-      }
-      return s;
-    });
-  }
-
-  findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
-    this.setState(s => {
-      if (s.personRes.state === "success" && res.state === "success") {
-        s.personRes.data.comments = editWith(
-          res.data.comment_reply_view,
-          s.personRes.data.comments,
-        );
+      if (s.personContentRes.state === "success" && res.state === "success") {
+        s.personContentRes.data.content.unshift({
+          type_: "Comment",
+          ...res.data.comment_view,
+        });
       }
       return s;
     });
   }
 
   findAndUpdatePost(res: RequestState<PostResponse>) {
-    this.setState(s => {
-      if (s.personRes.state === "success" && res.state === "success") {
-        s.personRes.data.posts = editPost(
-          res.data.post_view,
-          s.personRes.data.posts,
-        );
-      }
-      return s;
-    });
+    if (res.state === "success") {
+      this.editCombinedCurrent({ type_: "Post", ...res.data.post_view });
+    }
   }
 }

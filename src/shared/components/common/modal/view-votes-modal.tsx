@@ -8,10 +8,10 @@ import {
 import { I18NextService } from "../../../services";
 import type { Modal } from "bootstrap";
 import { Icon, Spinner } from "../icon";
-import { Paginator } from "../paginator";
 import {
   ListCommentLikesResponse,
   ListPostLikesResponse,
+  MyUserInfo,
   VoteView,
 } from "lemmy-js-client";
 import {
@@ -20,27 +20,31 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "../../../services/HttpService";
-import { fetchLimit } from "../../../config";
+import { fetchLimit } from "@utils/config";
 import { PersonListing } from "../../person/person-listing";
 import { modalMixin } from "../../mixins/modal-mixin";
 import { UserBadges } from "../user-badges";
 import { isBrowser } from "@utils/browser";
+import { DirectionalCursor } from "@utils/types";
+import { cursorComponents } from "@utils/helpers";
+import { PaginatorCursor } from "../paginator-cursor";
 
 interface ViewVotesModalProps {
   children?: InfernoNode;
   type: "comment" | "post";
   id: number;
   show: boolean;
+  myUserInfo: MyUserInfo | undefined;
   onCancel: () => void;
 }
 
 interface ViewVotesModalState {
   postLikesRes: RequestState<ListPostLikesResponse>;
   commentLikesRes: RequestState<ListCommentLikesResponse>;
-  page: number;
+  cursor?: DirectionalCursor;
 }
 
-function voteViewTable(votes: VoteView[]) {
+function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
   return (
     <div className="table-responsive">
       <table id="community_table" className="table table-sm table-hover">
@@ -48,12 +52,16 @@ function voteViewTable(votes: VoteView[]) {
           {votes.map(v => (
             <tr key={v.creator.id}>
               <td className="text-start">
-                <PersonListing person={v.creator} useApubName />
+                <PersonListing
+                  person={v.creator}
+                  useApubName
+                  myUserInfo={myUserInfo}
+                />
                 <UserBadges
                   classNames="ms-1"
                   isBot={v.creator.bot_account}
                   isDeleted={v.creator.deleted}
-                  isBanned={v.creator.banned}
+                  isBanned={v.creator_banned}
                   isBannedFromCommunity={v.creator_banned_from_community}
                 />
               </td>
@@ -85,7 +93,6 @@ export default class ViewVotesModal extends Component<
   state: ViewVotesModalState = {
     postLikesRes: EMPTY_REQUEST,
     commentLikesRes: EMPTY_REQUEST,
-    page: 1,
   };
 
   constructor(props: ViewVotesModalProps, context: any) {
@@ -109,6 +116,14 @@ export default class ViewVotesModal extends Component<
       if (nextShow) {
         await this.refetch();
       }
+    }
+  }
+
+  get currentRes() {
+    if (this.props.type === "post") {
+      return this.state.postLikesRes;
+    } else {
+      return this.state.commentLikesRes;
     }
   }
 
@@ -139,10 +154,10 @@ export default class ViewVotesModal extends Component<
             <div className="modal-body text-center align-middle text-body">
               {this.postLikes()}
               {this.commentLikes()}
-              <Paginator
-                page={this.state.page}
-                onChange={this.handlePageChange}
-                nextDisabled={false}
+              <PaginatorCursor
+                resource={this.currentRes}
+                current={this.state.cursor}
+                onPageChange={this.handlePageChange}
               />
             </div>
           </div>
@@ -161,7 +176,7 @@ export default class ViewVotesModal extends Component<
         );
       case "success": {
         const likes = this.state.postLikesRes.data.post_likes;
-        return voteViewTable(likes);
+        return voteViewTable(likes, this.props.myUserInfo);
       }
     }
   }
@@ -176,7 +191,7 @@ export default class ViewVotesModal extends Component<
         );
       case "success": {
         const likes = this.state.commentLikesRes.data.comment_likes;
-        return voteViewTable(likes);
+        return voteViewTable(likes, this.props.myUserInfo);
       }
     }
   }
@@ -190,13 +205,13 @@ export default class ViewVotesModal extends Component<
     this.modal?.hide();
   }
 
-  async handlePageChange(page: number) {
-    this.setState({ page });
+  async handlePageChange(cursor?: DirectionalCursor) {
+    this.setState({ cursor });
     await this.refetch();
   }
 
   async refetch() {
-    const page = this.state.page;
+    const cursor = this.state.cursor;
     const limit = fetchLimit;
 
     if (this.props.type === "post") {
@@ -204,7 +219,7 @@ export default class ViewVotesModal extends Component<
       this.setState({
         postLikesRes: await HttpService.client.listPostLikes({
           post_id: this.props.id,
-          page,
+          ...cursorComponents(cursor),
           limit,
         }),
       });
@@ -213,7 +228,7 @@ export default class ViewVotesModal extends Component<
       this.setState({
         commentLikesRes: await HttpService.client.listCommentLikes({
           comment_id: this.props.id,
-          page,
+          ...cursorComponents(cursor),
           limit,
         }),
       });

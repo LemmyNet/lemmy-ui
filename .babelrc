@@ -5,9 +5,7 @@
       "@babel/preset-env",
       {
         "loose": true,
-        "targets": {
-          "browsers": ["ie >= 11", "safari > 10"]
-        }
+        "browserslistEnv": "package.json"
       }
     ],
     ["@babel/typescript", { "isTSX": true, "allExtensions": true }]

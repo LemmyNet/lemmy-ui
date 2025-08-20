@@ -3,12 +3,11 @@ import { Helmet } from "inferno-helmet";
 import { renderToString } from "inferno-server";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
-import { favIconPngUrl, favIconUrl } from "../../shared/config";
-import { IsoDataOptionalSite } from "../../shared/interfaces";
+import { favIconPngUrl, favIconUrl } from "@utils/config";
+import { IsoDataOptionalSite } from "@utils/types";
 import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
-import { findTranslationChunkNames } from "../../shared/services/I18NextService";
-import { findDateFnsChunkNames } from "../../shared/utils/app/setup-date-fns";
+import { findLanguageChunkNames } from "@services/I18NextService";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
@@ -18,9 +17,10 @@ export async function createSsrHtml(
   root: string,
   isoData: IsoDataOptionalSite,
   cspNonce: string,
-  userLanguages: readonly string[],
+  languages: readonly string[],
+  interfaceLanguage?: string,
 ) {
-  const site = isoData.site_res;
+  const site = isoData.siteRes;
 
   const fallbackTheme = `<link rel="stylesheet" type="text/css" href="/css/themes/${
     (await buildThemeList())[0]
@@ -73,10 +73,7 @@ export async function createSsrHtml(
 
   const helmet = Helmet.renderStatic();
 
-  const lazyScripts = [
-    ...findTranslationChunkNames(userLanguages),
-    ...findDateFnsChunkNames(userLanguages),
-  ]
+  const lazyScripts = findLanguageChunkNames(languages, interfaceLanguage)
     .filter(x => x !== undefined)
     .map(x => `${getStaticDir()}/js/${x}.client.js`)
     .map(x => `<link rel="preload" as="script" href="${x}" />`)

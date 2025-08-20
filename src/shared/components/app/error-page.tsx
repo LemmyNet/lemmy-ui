@@ -2,11 +2,11 @@ import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { IsoDataOptionalSite } from "../../interfaces";
+import { IsoData } from "@utils/types";
 import { I18NextService } from "../../services";
 
 export class ErrorPage extends Component<any, any> {
-  private isoData: IsoDataOptionalSite = setIsoData(this.context);
+  private isoData: IsoData = setIsoData(this.context);
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -41,7 +41,7 @@ export class ErrorPage extends Component<any, any> {
               <div>
                 {I18NextService.i18n.t("error_page_admin_matrix", {
                   instance:
-                    this.isoData.site_res?.site_view.site.name ??
+                    this.isoData.siteRes?.site_view.site.name ??
                     "this instance",
                 })}
               </div>

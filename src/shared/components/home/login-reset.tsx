@@ -1,9 +1,8 @@
 import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter, validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
-import { GetSiteResponse } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
@@ -14,7 +13,6 @@ interface State {
     email: string;
     loading: boolean;
   };
-  siteRes: GetSiteResponse;
 }
 
 @simpleScrollMixin
@@ -29,7 +27,6 @@ export class LoginReset extends Component<
       email: "",
       loading: false,
     },
-    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
@@ -39,7 +36,7 @@ export class LoginReset extends Component<
   get documentTitle(): string {
     return `${capitalizeFirstLetter(
       I18NextService.i18n.t("forgot_password"),
-    )} - ${this.state.siteRes.site_view.site.name}`;
+    )} - ${this.isoData.siteRes?.site_view.site.name}`;
   }
 
   render() {

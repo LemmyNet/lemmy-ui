@@ -1,28 +1,24 @@
 import { fetchUsers, personToChoice, setIsoData } from "@utils/app";
 import {
   debounce,
-  formatPastDate,
   getIdFromString,
-  getPageFromString,
   getQueryParams,
   getQueryString,
   resourcesSettled,
   bareRoutePush,
+  cursorComponents,
 } from "@utils/helpers";
+import { formatRelativeDate, nowBoolean } from "@utils/date";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { amAdmin, amMod } from "@utils/roles";
-import type { QueryParams } from "@utils/types";
+import type { DirectionalCursor, QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import { NoOptionI18nKeys } from "i18next";
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
-  AdminPurgeCommentView,
-  AdminPurgeCommunityView,
-  AdminPurgePersonView,
-  AdminPurgePostView,
+  CommunityVisibility,
   GetCommunity,
   GetCommunityResponse,
   GetModlog,
@@ -30,21 +26,13 @@ import {
   GetPersonDetails,
   GetPersonDetailsResponse,
   LemmyHttp,
-  ModAddCommunityView,
-  ModAddView,
-  ModBanFromCommunityView,
-  ModBanView,
-  ModFeaturePostView,
-  ModLockPostView,
-  ModRemoveCommentView,
-  ModRemoveCommunityView,
-  ModRemovePostView,
-  ModTransferCommunityView,
   ModlogActionType,
+  ModlogCombinedView,
+  MyUserInfo,
   Person,
 } from "lemmy-js-client";
-import { fetchLimit } from "../config";
-import { InitialFetchRequest } from "../interfaces";
+import { fetchLimit } from "@utils/config";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
@@ -56,32 +44,16 @@ import {
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";
-import { Paginator } from "./common/paginator";
 import { SearchableSelect } from "./common/searchable-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { getHttpBaseInternal } from "../utils/env";
-import { IRoutePropsWithFetch } from "../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { LoadingEllipses } from "./common/loading-ellipses";
+import { PaginatorCursor } from "./common/paginator-cursor";
 
 type FilterType = "mod" | "user";
-
-type View =
-  | ModRemovePostView
-  | ModLockPostView
-  | ModFeaturePostView
-  | ModRemoveCommentView
-  | ModRemoveCommunityView
-  | ModBanFromCommunityView
-  | ModBanView
-  | ModAddCommunityView
-  | ModTransferCommunityView
-  | ModAddView
-  | AdminPurgePersonView
-  | AdminPurgeCommunityView
-  | AdminPurgePostView
-  | AdminPurgeCommentView;
 
 type ModlogData = RouteDataResponse<{
   res: GetModlogResponse;
@@ -90,23 +62,15 @@ type ModlogData = RouteDataResponse<{
   userResponse: GetPersonDetailsResponse;
 }>;
 
-interface ModlogType {
-  id: number;
-  type_: ModlogActionType;
-  moderator?: Person;
-  view: View;
-  when_: string;
-}
-
 export function getModlogQueryParams(source?: string): ModlogProps {
   return getQueryParams<ModlogProps>(
     {
       actionType: getActionFromString,
       modId: getIdFromString,
       userId: getIdFromString,
-      page: getPageFromString,
       commentId: getIdFromString,
       postId: getIdFromString,
+      cursor: (cursor?: string) => cursor,
     },
     source,
   );
@@ -123,7 +87,7 @@ interface ModlogState {
 }
 
 interface ModlogProps {
-  page: number;
+  cursor?: DirectionalCursor;
   userId?: number;
   modId?: number;
   actionType: ModlogActionType;
@@ -135,454 +99,505 @@ function getActionFromString(action?: string): ModlogActionType {
   return action !== undefined ? (action as ModlogActionType) : "All";
 }
 
-const getModlogActionMapper =
-  (
-    actionType: ModlogActionType,
-    getAction: (view: View) => { id: number; when_: string },
-  ) =>
-  (view: View & { moderator?: Person; admin?: Person }): ModlogType => {
-    const { id, when_ } = getAction(view);
-
-    return {
-      id,
-      type_: actionType,
-      view,
-      when_,
-      moderator: view.moderator ?? view.admin,
-    };
-  };
-
-function buildCombined({
-  removed_comments,
-  locked_posts,
-  featured_posts,
-  removed_communities,
-  removed_posts,
-  added,
-  added_to_community,
-  admin_purged_comments,
-  admin_purged_communities,
-  admin_purged_persons,
-  admin_purged_posts,
-  banned,
-  banned_from_community,
-  transferred_to_community,
-}: GetModlogResponse): ModlogType[] {
-  const combined = removed_posts
-    .map(
-      getModlogActionMapper(
-        "ModRemovePost",
-        ({ mod_remove_post }: ModRemovePostView) => mod_remove_post,
-      ),
-    )
-    .concat(
-      locked_posts.map(
-        getModlogActionMapper(
-          "ModLockPost",
-          ({ mod_lock_post }: ModLockPostView) => mod_lock_post,
-        ),
-      ),
-    )
-    .concat(
-      featured_posts.map(
-        getModlogActionMapper(
-          "ModFeaturePost",
-          ({ mod_feature_post }: ModFeaturePostView) => mod_feature_post,
-        ),
-      ),
-    )
-    .concat(
-      removed_comments.map(
-        getModlogActionMapper(
-          "ModRemoveComment",
-          ({ mod_remove_comment }: ModRemoveCommentView) => mod_remove_comment,
-        ),
-      ),
-    )
-    .concat(
-      removed_communities.map(
-        getModlogActionMapper(
-          "ModRemoveCommunity",
-          ({ mod_remove_community }: ModRemoveCommunityView) =>
-            mod_remove_community,
-        ),
-      ),
-    )
-    .concat(
-      banned_from_community.map(
-        getModlogActionMapper(
-          "ModBanFromCommunity",
-          ({ mod_ban_from_community }: ModBanFromCommunityView) =>
-            mod_ban_from_community,
-        ),
-      ),
-    )
-    .concat(
-      added_to_community.map(
-        getModlogActionMapper(
-          "ModAddCommunity",
-          ({ mod_add_community }: ModAddCommunityView) => mod_add_community,
-        ),
-      ),
-    )
-    .concat(
-      transferred_to_community.map(
-        getModlogActionMapper(
-          "ModTransferCommunity",
-          ({ mod_transfer_community }: ModTransferCommunityView) =>
-            mod_transfer_community,
-        ),
-      ),
-    )
-    .concat(
-      added.map(
-        getModlogActionMapper("ModAdd", ({ mod_add }: ModAddView) => mod_add),
-      ),
-    )
-    .concat(
-      banned.map(
-        getModlogActionMapper("ModBan", ({ mod_ban }: ModBanView) => mod_ban),
-      ),
-    )
-    .concat(
-      admin_purged_persons.map(
-        getModlogActionMapper(
-          "AdminPurgePerson",
-          ({ admin_purge_person }: AdminPurgePersonView) => admin_purge_person,
-        ),
-      ),
-    )
-    .concat(
-      admin_purged_communities.map(
-        getModlogActionMapper(
-          "AdminPurgeCommunity",
-          ({ admin_purge_community }: AdminPurgeCommunityView) =>
-            admin_purge_community,
-        ),
-      ),
-    )
-    .concat(
-      admin_purged_posts.map(
-        getModlogActionMapper(
-          "AdminPurgePost",
-          ({ admin_purge_post }: AdminPurgePostView) => admin_purge_post,
-        ),
-      ),
-    )
-    .concat(
-      admin_purged_comments.map(
-        getModlogActionMapper(
-          "AdminPurgeComment",
-          ({ admin_purge_comment }: AdminPurgeCommentView) =>
-            admin_purge_comment,
-        ),
-      ),
-    );
-
-  // Sort them by time
-  combined.sort((a, b) => b.when_.localeCompare(a.when_));
-
-  return combined;
+interface ModlogEntry {
+  id: number;
+  moderator?: Person;
+  publishedAt: string;
+  data: InfernoNode;
 }
 
-function renderModlogType({ type_, view }: ModlogType) {
-  switch (type_) {
-    case "ModRemovePost": {
-      const mrpv = view as ModRemovePostView;
-      const {
-        mod_remove_post: { reason, removed },
-        post: { name, id },
-      } = mrpv;
-
-      return (
-        <>
-          <span>{removed ? "Removed " : "Restored "}</span>
-          <span>
-            Post <Link to={`/post/${id}`}>{name}</Link>
-          </span>
-          {reason && (
-            <span>
-              <div>reason: {reason}</div>
-            </span>
-          )}
-        </>
-      );
+function mapCommunityVisibility(visibility: CommunityVisibility): string {
+  switch (visibility) {
+    case "LocalOnlyPrivate": {
+      return "Private (Local Only)";
     }
 
-    case "ModLockPost": {
-      const {
-        mod_lock_post: { locked },
-        post: { id, name },
-      } = view as ModLockPostView;
-
-      return (
-        <>
-          <span>{locked ? "Locked " : "Unlocked "}</span>
-          <span>
-            Post <Link to={`/post/${id}`}>{name}</Link>
-          </span>
-        </>
-      );
+    case "LocalOnlyPublic": {
+      return "Public (Local Only)";
     }
 
-    case "ModFeaturePost": {
-      const {
-        mod_feature_post: { featured, is_featured_community },
-        post: { id, name },
-        community,
-      } = view as ModFeaturePostView;
-
-      return (
-        <>
-          <span>{featured ? "Featured " : "Unfeatured "}</span>
-          <span>
-            Post <Link to={`/post/${id}`}>{name}</Link>
-          </span>
-          <span>
-            {is_featured_community
-              ? " in community "
-              : " in Local, from community "}
-          </span>
-          <CommunityLink community={community} />
-        </>
-      );
-    }
-    case "ModRemoveComment": {
-      const mrc = view as ModRemoveCommentView;
-      const {
-        mod_remove_comment: { reason, removed },
-        comment: { id, content },
-        commenter,
-      } = mrc;
-
-      return (
-        <>
-          <span>{removed ? "Removed " : "Restored "}</span>
-          <span>
-            Comment <Link to={`/comment/${id}`}>{content}</Link>
-          </span>
-          <span>
-            {" "}
-            by <PersonListing person={commenter} />
-          </span>
-          {reason && (
-            <span>
-              <div>reason: {reason}</div>
-            </span>
-          )}
-        </>
-      );
+    case "Private":
+    case "Public":
+    case "Unlisted": {
+      return visibility;
     }
 
-    case "ModRemoveCommunity": {
-      const mrco = view as ModRemoveCommunityView;
-      const {
-        mod_remove_community: { reason, removed },
-        community,
-      } = mrco;
+    default: {
+      return "";
+    }
+  }
+}
 
-      return (
-        <>
-          <span>{removed ? "Removed " : "Restored "}</span>
-          <span>
-            Community <CommunityLink community={community} />
-          </span>
-          {reason && (
-            <span>
-              <div>reason: {reason}</div>
-            </span>
-          )}
-        </>
-      );
+function processModlogEntry(
+  view: ModlogCombinedView,
+  myUserInfo: MyUserInfo | undefined,
+): ModlogEntry {
+  switch (view.type_) {
+    default:
+      // FIXME: placeholder for version mismatch between js-client and backend
+      // Without a default case typescript is able to report missing types
+      return {
+        id: 0,
+        publishedAt: nowBoolean(true)!,
+        data: (
+          <>
+            <span>Placeholder for:</span>{" "}
+            <span>{(view as { type_: string }).type_}</span>
+          </>
+        ),
+      };
+
+    case "AdminAllowInstance": {
+      const {
+        admin_allow_instance: { id, published_at },
+        admin,
+        instance: { domain },
+      } = view;
+
+      return {
+        id,
+        moderator: admin,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>Allowed instance</span>
+            <span>{domain}</span>
+          </>
+        ),
+      };
     }
 
-    case "ModBanFromCommunity": {
-      const mbfc = view as ModBanFromCommunityView;
+    case "AdminBlockInstance": {
       const {
-        mod_ban_from_community: { reason, expires, banned },
-        banned_person,
-        community,
-      } = mbfc;
+        admin_block_instance: { id, published_at },
+        admin,
+        instance: { domain },
+      } = view;
 
-      return (
-        <>
-          <span>{banned ? "Banned " : "Unbanned "}</span>
-          <span>
-            <PersonListing person={banned_person} />
-          </span>
-          <span> from the community </span>
-          <span>
-            <CommunityLink community={community} />
-          </span>
-          {reason && (
-            <span>
-              <div>reason: {reason}</div>
-            </span>
-          )}
-          {expires && (
-            <span>
-              <div>expires: {formatPastDate(expires)}</div>
-            </span>
-          )}
-        </>
-      );
-    }
-
-    case "ModAddCommunity": {
-      const {
-        mod_add_community: { removed },
-        modded_person,
-        community,
-      } = view as ModAddCommunityView;
-
-      return (
-        <>
-          <span>{removed ? "Removed " : "Appointed "}</span>
-          <span>
-            <PersonListing person={modded_person} />
-          </span>
-          <span> as a mod to the community </span>
-          <span>
-            <CommunityLink community={community} />
-          </span>
-        </>
-      );
-    }
-
-    case "ModTransferCommunity": {
-      const { community, modded_person } = view as ModTransferCommunityView;
-
-      return (
-        <>
-          <span>Transferred</span>
-          <span>
-            <CommunityLink community={community} />
-          </span>
-          <span> to </span>
-          <span>
-            <PersonListing person={modded_person} />
-          </span>
-        </>
-      );
-    }
-
-    case "ModBan": {
-      const {
-        mod_ban: { reason, expires, banned },
-        banned_person,
-      } = view as ModBanView;
-
-      return (
-        <>
-          <span>{banned ? "Banned " : "Unbanned "}</span>
-          <span>
-            <PersonListing person={banned_person} />
-          </span>
-          {reason && (
-            <span>
-              <div>reason: {reason}</div>
-            </span>
-          )}
-          {expires && (
-            <span>
-              <div>expires: {formatPastDate(expires)}</div>
-            </span>
-          )}
-        </>
-      );
-    }
-
-    case "ModAdd": {
-      const {
-        mod_add: { removed },
-        modded_person,
-      } = view as ModAddView;
-
-      return (
-        <>
-          <span>{removed ? "Removed " : "Appointed "}</span>
-          <span>
-            <PersonListing person={modded_person} />
-          </span>
-          <span> as an admin </span>
-        </>
-      );
-    }
-    case "AdminPurgePerson": {
-      const {
-        admin_purge_person: { reason },
-      } = view as AdminPurgePersonView;
-
-      return (
-        <>
-          <span>Purged a Person</span>
-          {reason && (
-            <span>
-              <div>reason: {reason}</div>
-            </span>
-          )}
-        </>
-      );
-    }
-
-    case "AdminPurgeCommunity": {
-      const {
-        admin_purge_community: { reason },
-      } = view as AdminPurgeCommunityView;
-
-      return (
-        <>
-          <span>Purged a Community</span>
-          {reason && (
-            <span>
-              <div>reason: {reason}</div>
-            </span>
-          )}
-        </>
-      );
-    }
-
-    case "AdminPurgePost": {
-      const {
-        admin_purge_post: { reason },
-        community,
-      } = view as AdminPurgePostView;
-
-      return (
-        <>
-          <span>Purged a Post from </span>
-          <CommunityLink community={community} />
-          {reason && (
-            <span>
-              <div>reason: {reason}</div>
-            </span>
-          )}
-        </>
-      );
+      return {
+        id,
+        moderator: admin,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>Blocked Instance</span>
+            <span>{domain}</span>
+          </>
+        ),
+      };
     }
 
     case "AdminPurgeComment": {
       const {
-        admin_purge_comment: { reason },
-        post: { id, name },
-      } = view as AdminPurgeCommentView;
+        admin_purge_comment: { id, reason, published_at },
+        post: { name },
+        admin,
+      } = view;
 
-      return (
-        <>
-          <span>
-            Purged a Comment from <Link to={`/post/${id}`}>{name}</Link>
-          </span>
-          {reason && (
+      return {
+        id,
+        moderator: admin,
+        publishedAt: published_at,
+        data: (
+          <>
             <span>
-              <div>reason: {reason}</div>
+              Purged a Comment from <Link to={`/post/${id}`}>{name}</Link>
             </span>
-          )}
-        </>
-      );
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+          </>
+        ),
+      };
     }
 
-    default:
-      return <></>;
+    case "AdminPurgeCommunity": {
+      const {
+        admin_purge_community: { id, reason, published_at },
+        admin,
+      } = view;
+
+      return {
+        id,
+        moderator: admin,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>Purged a Community</span>
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+          </>
+        ),
+      };
+    }
+
+    case "AdminPurgePerson": {
+      const {
+        admin_purge_person: { id, reason, published_at },
+        admin,
+      } = view;
+
+      return {
+        id,
+        moderator: admin,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>Purged a Person</span>
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+          </>
+        ),
+      };
+    }
+
+    case "AdminPurgePost": {
+      const {
+        admin_purge_post: { id, reason, published_at },
+        admin,
+        community,
+      } = view;
+
+      return {
+        id,
+        moderator: admin,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>Purged Post From</span>
+            <CommunityLink community={community} myUserInfo={myUserInfo} />
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+          </>
+        ),
+      };
+    }
+
+    case "ModAdd": {
+      const {
+        mod_add: { id, removed, published_at },
+        moderator,
+        other_person,
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>{removed ? "Removed " : "Appointed "}</span>
+            <span>
+              <PersonListing person={other_person} myUserInfo={myUserInfo} />
+            </span>
+            <span> as an admin </span>
+          </>
+        ),
+      };
+    }
+
+    case "ModAddCommunity": {
+      const {
+        mod_add_community: { id, removed, published_at },
+        moderator,
+        community,
+        other_person,
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>{removed ? "Removed " : "Appointed "}</span>
+            <span>
+              <PersonListing person={other_person} myUserInfo={myUserInfo} />
+            </span>
+            <span> as a mod to the community </span>
+            <span>
+              <CommunityLink community={community} myUserInfo={myUserInfo} />
+            </span>
+          </>
+        ),
+      };
+    }
+
+    case "ModBan": {
+      const {
+        mod_ban: { id, reason, expires_at, banned, published_at },
+        moderator,
+        other_person,
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>{banned ? "Banned " : "Unbanned "}</span>
+            <span>
+              <PersonListing person={other_person} myUserInfo={myUserInfo} />
+            </span>
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+            {expires_at && (
+              <span>
+                <div>expires: {formatRelativeDate(expires_at)}</div>
+              </span>
+            )}
+          </>
+        ),
+      };
+    }
+
+    case "ModBanFromCommunity": {
+      const {
+        mod_ban_from_community: {
+          id,
+          reason,
+          expires_at,
+          banned,
+          published_at,
+        },
+        moderator,
+        community,
+        other_person,
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>{banned ? "Banned " : "Unbanned "}</span>
+            <span>
+              <PersonListing person={other_person} myUserInfo={myUserInfo} />
+            </span>
+            <span> from the community </span>
+            <span>
+              <CommunityLink community={community} myUserInfo={myUserInfo} />
+            </span>
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+            {expires_at && (
+              <span>
+                <div>expires: {formatRelativeDate(expires_at)}</div>
+              </span>
+            )}
+          </>
+        ),
+      };
+    }
+
+    case "ModChangeCommunityVisibility": {
+      const {
+        mod_change_community_visibility: { id, visibility, published_at },
+        moderator,
+        community,
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>Set visibility of</span>
+            <span>
+              <CommunityLink community={community} myUserInfo={myUserInfo} />
+            </span>
+            <span>
+              <div>to: {mapCommunityVisibility(visibility)}</div>
+            </span>
+          </>
+        ),
+      };
+    }
+
+    case "ModFeaturePost": {
+      const {
+        mod_feature_post: { id, featured, is_featured_community, published_at },
+        post: { id: postId, name },
+        moderator,
+        community,
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>{featured ? "Featured " : "Unfeatured "}</span>
+            <span>
+              Post <Link to={`/post/${postId}`}>{name}</Link>
+            </span>
+            <span>
+              {is_featured_community
+                ? " in community "
+                : " in Local, from community "}
+            </span>
+            <CommunityLink community={community} myUserInfo={myUserInfo} />
+          </>
+        ),
+      };
+    }
+
+    case "ModLockPost": {
+      const {
+        mod_lock_post: { id, locked, published_at },
+        moderator,
+        post: { id: postId, name },
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>{locked ? "Locked " : "Unlocked "}</span>
+            <span>
+              Post <Link to={`/post/${postId}`}>{name}</Link>
+            </span>
+          </>
+        ),
+      };
+    }
+
+    case "ModRemoveComment": {
+      const {
+        mod_remove_comment: { id, reason, removed, published_at },
+        moderator,
+        comment: { id: commentId, content },
+        other_person,
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>{removed ? "Removed " : "Restored "}</span>
+            <span>
+              Comment <Link to={`/comment/${commentId}`}>{content}</Link>
+            </span>
+            <span>
+              {" "}
+              by <PersonListing person={other_person} myUserInfo={myUserInfo} />
+            </span>
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+          </>
+        ),
+      };
+    }
+
+    case "ModRemoveCommunity": {
+      const {
+        mod_remove_community: { id, reason, removed, published_at },
+        moderator,
+        community,
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>{removed ? "Removed " : "Restored "}</span>
+            <span>
+              Community{" "}
+              <CommunityLink community={community} myUserInfo={myUserInfo} />
+            </span>
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+          </>
+        ),
+      };
+    }
+
+    case "ModRemovePost": {
+      const {
+        mod_remove_post: { id, reason, removed, published_at },
+        moderator,
+        post: { name, id: postId },
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>{removed ? "Removed " : "Restored "}</span>
+            <span>
+              Post <Link to={`/post/${postId}`}>{name}</Link>
+            </span>
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+          </>
+        ),
+      };
+    }
+
+    case "ModTransferCommunity": {
+      const {
+        mod_transfer_community: { id, published_at },
+        moderator,
+        community,
+        other_person,
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>Transferred</span>
+            <span>
+              <CommunityLink community={community} myUserInfo={myUserInfo} />
+            </span>
+            <span> to </span>
+            <span>
+              <PersonListing person={other_person} myUserInfo={myUserInfo} />
+            </span>
+          </>
+        ),
+      };
+    }
   }
 }
 
@@ -603,14 +618,14 @@ const Filter = ({
 }) => (
   <div className="col-sm-6 mb-3">
     <label className="mb-2" htmlFor={`filter-${filterType}`}>
-      {I18NextService.i18n.t(`filter_by_${filterType}` as NoOptionI18nKeys)}
+      {I18NextService.i18n.t(`filter_by_${filterType}`)}
     </label>
     <SearchableSelect
       id={`filter-${filterType}`}
       value={value ?? 0}
       options={[
         {
-          label: I18NextService.i18n.t("all"),
+          label: I18NextService.i18n.t("all") as string,
           value: "0",
         },
       ].concat(options)}
@@ -768,25 +783,33 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   get combined() {
     const res = this.state.res;
-    const combined = res.state === "success" ? buildCombined(res.data) : [];
+    const combined = res.state === "success" ? res.data.modlog : [];
+    const { myUserInfo } = this.isoData;
 
     return (
       <tbody>
-        {combined.map(i => (
-          <tr key={i.id}>
-            <td>
-              <MomentTime published={i.when_} />
-            </td>
-            <td>
-              {this.amAdminOrMod && i.moderator ? (
-                <PersonListing person={i.moderator} />
-              ) : (
-                <div>{this.modOrAdminText(i.moderator)}</div>
-              )}
-            </td>
-            <td>{renderModlogType(i)}</td>
-          </tr>
-        ))}
+        {combined.map(i => {
+          const { id, moderator, publishedAt, data } = processModlogEntry(
+            i,
+            myUserInfo,
+          );
+
+          return (
+            <tr key={id}>
+              <td>
+                <MomentTime published={publishedAt} />
+              </td>
+              <td>
+                {this.amAdminOrMod && moderator ? (
+                  <PersonListing person={moderator} myUserInfo={myUserInfo} />
+                ) : (
+                  <div>{this.modOrAdminText(moderator)}</div>
+                )}
+              </td>
+              <td>{data}</td>
+            </tr>
+          );
+        })}
       </tbody>
     );
   }
@@ -794,21 +817,19 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   get amAdminOrMod(): boolean {
     const amMod_ =
       this.state.communityRes.state === "success" &&
-      amMod(this.state.communityRes.data.community_view.community.id);
-    return amAdmin() || amMod_;
+      amMod(this.state.communityRes.data.community_view);
+    return amAdmin(this.isoData.myUserInfo) || amMod_;
   }
 
   modOrAdminText(person?: Person): string {
     return person &&
-      this.isoData.site_res.admins.some(
-        ({ person: { id } }) => id === person.id,
-      )
+      this.isoData.siteRes.admins.some(({ person: { id } }) => id === person.id)
       ? I18NextService.i18n.t("admin")
       : I18NextService.i18n.t("mod");
   }
 
   get documentTitle(): string {
-    return `Modlog - ${this.isoData.site_res.site_view.site.name}`;
+    return `Modlog - ${this.isoData.siteRes.site_view.site.name}`;
   }
 
   render() {
@@ -907,9 +928,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             options={userSearchOptions}
             loading={loadingUserSearch}
           />
-          {(this.amAdminOrMod ||
-            !this.isoData.site_res.site_view.local_site
-              .hide_modlog_mod_names) && (
+          {this.amAdminOrMod && (
             <Filter
               filterType="mod"
               onChange={this.handleModChange}
@@ -934,7 +953,6 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           </h5>
         );
       case "success": {
-        const page = this.props.page;
         return (
           <div className="table-responsive">
             <table id="modlog_table" className="table table-sm table-hover">
@@ -947,10 +965,10 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               </thead>
               {this.combined}
             </table>
-            <Paginator
-              page={page}
-              onChange={this.handlePageChange}
-              nextDisabled={false}
+            <PaginatorCursor
+              current={this.props.cursor}
+              resource={this.state.res}
+              onPageChange={this.handlePageChange}
             />
           </div>
         );
@@ -958,23 +976,32 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     }
   }
 
+  get modlogItemsCount(): number {
+    const { res } = this.state;
+
+    return res.state === "success" ? res.data.modlog.length : 0;
+  }
+
   handleFilterActionChange(i: Modlog, event: any) {
     i.updateUrl({
       actionType: event.target.value as ModlogActionType,
-      page: 1,
+      cursor: undefined,
     });
   }
 
-  handlePageChange(page: number) {
-    this.updateUrl({ page });
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
   handleUserChange(option: Choice) {
-    this.updateUrl({ userId: getIdFromString(option.value), page: 1 });
+    this.updateUrl({
+      userId: getIdFromString(option.value),
+      cursor: undefined,
+    });
   }
 
   handleModChange(option: Choice) {
-    this.updateUrl({ modId: getIdFromString(option.value), page: 1 });
+    this.updateUrl({ modId: getIdFromString(option.value), cursor: undefined });
   }
 
   handleSearchUsers = debounce(async (text: string) => {
@@ -1023,7 +1050,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const {
       actionType,
       modId,
-      page,
+      cursor,
       userId,
       match: {
         params: { communityId },
@@ -1031,8 +1058,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     } = { ...this.props, ...props };
 
     const queryParams: QueryParams<ModlogProps> = {
-      page: page.toString(),
-      actionType: actionType,
+      cursor,
+      actionType,
       modId: modId?.toString(),
       userId: userId?.toString(),
     };
@@ -1047,21 +1074,22 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   fetchModlogToken?: symbol;
   async fetchModlog(props: ModlogRouteProps) {
     const token = (this.fetchModlogToken = Symbol());
-    const { actionType, page, modId, userId, postId, commentId } = props;
+    const { actionType, cursor, modId, userId, postId, commentId } = props;
     const { communityId: urlCommunityId } = props.match.params;
     const communityId = getIdFromString(urlCommunityId);
 
     this.setState({ res: LOADING_REQUEST });
     const res = await HttpService.client.getModlog({
       community_id: communityId,
-      page,
       limit: fetchLimit,
       type_: actionType,
       other_person_id: userId,
       mod_person_id: modId,
       comment_id: commentId,
       post_id: postId,
+      ...cursorComponents(cursor),
     });
+
     if (token === this.fetchModlogToken) {
       this.setState({ res });
     }
@@ -1088,7 +1116,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   static async fetchInitialData({
     headers,
-    query: { page, userId, modId, actionType, commentId, postId },
+    query: { cursor, userId, modId, actionType, commentId, postId },
     match: {
       params: { communityId: urlCommunityId },
     },
@@ -1099,7 +1127,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const communityId = getIdFromString(urlCommunityId);
 
     const modlogForm: GetModlog = {
-      page,
+      ...cursorComponents(cursor),
       limit: fetchLimit,
       community_id: communityId,
       type_: actionType,

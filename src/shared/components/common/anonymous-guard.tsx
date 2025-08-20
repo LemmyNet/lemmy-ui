@@ -1,15 +1,19 @@
 import { Component } from "inferno";
-import { UserService } from "../../services";
 import { Spinner } from "./icon";
 import { isBrowser } from "@utils/browser";
+import { MyUserInfo } from "lemmy-js-client";
 
-class AnonymousGuard extends Component<any, any> {
+interface AnonymousGuardProps {
+  myUserInfo: MyUserInfo | undefined;
+}
+
+class AnonymousGuard extends Component<AnonymousGuardProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
   }
 
   hasAuth() {
-    return UserService.Instance.myUserInfo;
+    return this.props.myUserInfo;
   }
 
   componentWillMount() {

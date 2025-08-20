@@ -1,6 +1,5 @@
 import { Options, passwordStrength } from "check-password-strength";
 import classNames from "classnames";
-import { NoOptionI18nKeys } from "i18next";
 import { Component, FormEventHandler, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import { I18NextService } from "../../services";
@@ -23,7 +22,9 @@ interface PasswordInputState {
   show: boolean;
 }
 
-const passwordStrengthOptions: Options<string> = [
+type PasswordStrength = "very_weak" | "weak" | "medium" | "strong";
+
+const passwordStrengthOptions: Options<PasswordStrength> = [
   {
     id: 0,
     value: "very_weak",
@@ -123,9 +124,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
             </div>
             {showStrength && value && (
               <div className={this.passwordColorClass}>
-                {I18NextService.i18n.t(
-                  this.passwordStrength as NoOptionI18nKeys,
-                )}
+                {I18NextService.i18n.t(this.passwordStrength ?? "very_weak")}
               </div>
             )}
             {showForgotLink && (
@@ -142,7 +141,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
     );
   }
 
-  get passwordStrength(): string | undefined {
+  get passwordStrength(): PasswordStrength | undefined {
     const password = this.props.value;
     return password
       ? passwordStrength(password, passwordStrengthOptions).value

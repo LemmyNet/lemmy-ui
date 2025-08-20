@@ -1,16 +1,15 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { CustomEmojiView } from "lemmy-js-client";
-import { emojiMartCategories, EmojiMartCategory } from "../../markdown";
+import { emojiMartCategories, EmojiMartCategory } from "@utils/markdown";
 import { HttpService, I18NextService } from "../../services";
-import { pictrsDeleteToast, toast } from "../../toast";
+import { pictrsDeleteToast, toast } from "@utils/app";
 import { EmojiMart } from "../common/emoji-mart";
 import { Icon, Spinner } from "../common/icon";
-import { Paginator } from "../common/paginator";
+import Paginator from "../common/paginator";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { isBrowser } from "@utils/browser";
 import classNames from "classnames";
-import { amAdmin } from "@utils/roles";
 import { Prompt } from "inferno-router";
 
 interface EditableEmoji {
@@ -51,6 +50,8 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
     super(props, context);
 
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleNextPage = this.handleNextPage.bind(this);
+    this.handlePrevPage = this.handlePrevPage.bind(this);
     this.handleEmojiClick = this.handleEmojiClick.bind(this);
   }
 
@@ -315,8 +316,8 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
           </button>
 
           <Paginator
-            page={this.state.page}
-            onChange={this.handlePageChange}
+            onNext={this.handleNextPage}
+            onPrev={this.handlePrevPage}
             nextDisabled={false}
             disabled={this.hasPendingChanges()}
           />
@@ -337,15 +338,13 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
     else return I18NextService.i18n.t("custom_emoji_save_validation");
   }
 
-  async handlePageChange(page: number) {
+  async handlePageChange(pageIncrement: 1 | -1) {
     this.setState({ loading: true });
     let allEmojis: CustomEmojiView[] = this.state.allEmojis;
     let emojiMartCustom: EmojiMartCategory[] = this.state.emojiMartCustom;
     let emojiMartKey: number = this.state.emojiMartKey;
     if (this.needsRefetch) {
-      const emojiRes = await HttpService.client.listCustomEmojis({
-        ignore_page_limits: true,
-      });
+      const emojiRes = await HttpService.client.listCustomEmojis({});
       if (emojiRes.state === "success") {
         this.needsRefetch = false;
         allEmojis = emojiRes.data.custom_emojis;
@@ -365,21 +364,34 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
       emojiMartKey++;
     }
     if (allEmojis) {
-      const startIndex = (page - 1) * this.itemsPerPage;
+      const startIndex = (this.state.page - 1) * this.itemsPerPage;
       const emojis = allEmojis
         .slice(startIndex, startIndex + this.itemsPerPage)
         .map(x => ({ emoji: structuredClone(x) })); // clone for restore after cancel
-      this.setState({
+      this.setState(prevState => ({
+        ...prevState,
         loading: false,
         allEmojis,
         emojiMartCustom,
         emojiMartKey,
         emojis,
-        page,
-      });
+        page: prevState.page + pageIncrement,
+      }));
     } else {
-      this.setState({ loading: false, page });
+      this.setState(prevState => ({
+        ...prevState,
+        loading: false,
+        page: prevState.page + pageIncrement,
+      }));
     }
+  }
+
+  async handleNextPage() {
+    await this.handlePageChange(1);
+  }
+
+  async handlePrevPage() {
+    await this.handlePageChange(-1);
   }
 
   async handleEmojiClick(e: any) {
@@ -396,7 +408,8 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
         ) {
           return;
         }
-        await this.handlePageChange(page);
+
+        await this.handlePageChange((page - this.state.page) as 1 | -1);
         await new Promise(r => setTimeout(r));
       }
       if (shortcode) {
@@ -550,7 +563,7 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
         emoji: {
           custom_emoji: {
             id: -1,
-            published: "",
+            published_at: "",
             category: "",
             shortcode: "",
             image_url: "",
@@ -585,19 +598,16 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
         editable.loading = false;
       });
       if (res.state === "success") {
-        if (res.data.msg === "ok") {
-          pictrsDeleteToast(file.name, res.data.delete_url as string);
-          form.handleEmojiImageUrlChange(
-            { form: form, index: index, overrideValue: res.data.url as string },
-            event,
-          );
-        } else if (res.data.msg === "too_large") {
-          toast(I18NextService.i18n.t("upload_too_large"), "danger");
-        } else {
-          toast(JSON.stringify(res), "danger");
-        }
+        pictrsDeleteToast(res.data.filename);
+        form.handleEmojiImageUrlChange(
+          {
+            form: form,
+            index: index,
+            overrideValue: res.data.image_url,
+          },
+          event,
+        );
       } else if (res.state === "failed") {
-        console.error(res.err.name);
         toast(res.err.name, "danger");
       }
     });
@@ -605,14 +615,8 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
 
   configurePicker(): any {
     const custom = this.state.emojiMartCustom;
-    if (process.env["NODE_ENV"] === "development") {
-      // Once an emoji-mart Picker is initialized with these options, other
-      // instances also only show the custom emojis.
-      console.assert(
-        amAdmin(),
-        "EmojiMart doesn't deal well with differently configured instances.",
-      );
-    }
+    // Once an emoji-mart Picker is initialized with these options, other
+    // instances also only show the custom emojis.
     return {
       data: { categories: [], emojis: [], aliases: [] },
       maxFrequentRows: 0,

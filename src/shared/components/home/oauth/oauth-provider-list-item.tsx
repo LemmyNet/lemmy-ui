@@ -2,6 +2,7 @@ import { OAuthProvider } from "lemmy-js-client";
 import { I18NextService } from "../../../services/I18NextService";
 import { Icon } from "../../common/icon";
 import { MouseEventHandler } from "inferno";
+import { NoOptionI18nKeys } from "i18next";
 
 type OAuthProviderListItemProps = {
   provider: OAuthProvider;
@@ -10,7 +11,7 @@ type OAuthProviderListItemProps = {
 };
 
 type TextInfoFieldProps = {
-  i18nKey: string;
+  i18nKey: NoOptionI18nKeys;
   data: string;
 };
 

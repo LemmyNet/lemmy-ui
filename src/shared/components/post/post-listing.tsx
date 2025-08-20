@@ -1,9 +1,10 @@
-import { myAuth, setIsoData } from "@utils/app";
+import { myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
-import { formatPastDate, futureDaysToUnixTime, hostname } from "@utils/helpers";
+import { hostname } from "@utils/helpers";
+import { formatRelativeDate, futureDaysToUnixTime } from "@utils/date";
 import { isImage, isVideo } from "@utils/media";
-import { canAdmin, canMod } from "@utils/roles";
+import { canAdmin } from "@utils/roles";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
@@ -14,7 +15,6 @@ import {
   BanFromCommunity,
   BanPerson,
   BlockPerson,
-  CommunityModeratorView,
   CreatePostLike,
   CreatePostReport,
   DeletePost,
@@ -22,9 +22,10 @@ import {
   FeaturePost,
   HidePost,
   Language,
-  LocalUserVoteDisplayMode,
+  LocalSite,
   LockPost,
   MarkPostAsRead,
+  MyUserInfo,
   PersonView,
   PostResponse,
   PostView,
@@ -34,12 +35,12 @@ import {
   SavePost,
   TransferCommunity,
 } from "lemmy-js-client";
-import { relTags, torrentHelpUrl } from "../../config";
-import { IsoDataOptionalSite, VoteContentType } from "../../interfaces";
-import { mdToHtml, mdToHtmlInline } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { relTags, torrentHelpUrl } from "@utils/config";
+import { VoteContentType } from "@utils/types";
+import { mdToHtml, mdToHtmlInline } from "@utils/markdown";
+import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { Icon } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { PictrsImage } from "../common/pictrs-image";
 import { UserBadges } from "../common/user-badges";
@@ -52,10 +53,9 @@ import { BanUpdateForm } from "../common/modal/mod-action-form-modal";
 import PostActionDropdown from "../common/content-actions/post-action-dropdown";
 import { CrossPostParams } from "@utils/types";
 import { RequestState } from "../../services/HttpService";
-import { toast } from "../../toast";
-import isMagnetLink, {
-  extractMagnetLinkDownloadName,
-} from "@utils/media/is-magnet-link";
+import { toast } from "@utils/app";
+import { isMagnetLink, extractMagnetLinkDownloadName } from "@utils/media";
+import { NoOptionI18nKeys } from "i18next";
 
 type PostListingState = {
   showEdit: boolean;
@@ -64,13 +64,13 @@ type PostListingState = {
   showAdvanced: boolean;
   showBody: boolean;
   loading: boolean;
+  readLoading: boolean;
 };
 
-interface PostListingProps {
+type PostListingProps = {
   post_view: PostView;
   crossPosts?: PostView[];
-  moderators?: CommunityModeratorView[];
-  admins?: PersonView[];
+  admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
   showCommunity?: boolean;
@@ -79,10 +79,11 @@ interface PostListingProps {
    */
   showBody?: boolean;
   hideImage?: boolean;
-  enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   enableNsfw?: boolean;
   viewOnly?: boolean;
+  showAdultConsentModal: boolean;
+  myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
@@ -99,14 +100,20 @@ interface PostListingProps {
   onAddModToCommunity(form: AddModToCommunity): Promise<void>;
   onAddAdmin(form: AddAdmin): Promise<void>;
   onTransferCommunity(form: TransferCommunity): Promise<void>;
-  onMarkPostAsRead(form: MarkPostAsRead): void;
   onHidePost(form: HidePost): Promise<void>;
   onScrollIntoCommentsClick?(e: MouseEvent): void;
-}
+} & (
+  | { markable?: false }
+  | {
+      markable: true;
+      disableAutoMarkAsRead?: boolean;
+      read: boolean;
+      onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
+    }
+);
 
 @tippyMixin
 export class PostListing extends Component<PostListingProps, PostListingState> {
-  private readonly isoData: IsoDataOptionalSite = setIsoData(this.context);
   state: PostListingState = {
     showEdit: false,
     imageExpanded: false,
@@ -114,6 +121,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showAdvanced: false,
     showBody: false,
     loading: false,
+    readLoading: false,
   };
 
   constructor(props: any, context: any) {
@@ -139,20 +147,22 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleHidePost = this.handleHidePost.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
   }
 
   unlisten = () => {};
 
   componentWillMount(): void {
-    if (
-      UserService.Instance.myUserInfo &&
-      !this.isoData.showAdultConsentModal
-    ) {
+    if (this.props.showAdultConsentModal) {
+      this.setState({ imageExpanded: false });
+    }
+
+    if (this.props.myUserInfo) {
       const blur_nsfw =
-        UserService.Instance.myUserInfo.local_user_view.local_user.blur_nsfw;
-      this.setState({
-        imageExpanded: !(blur_nsfw && this.postView.post.nsfw),
-      });
+        this.props.myUserInfo.local_user_view.local_user.blur_nsfw;
+      if (blur_nsfw && this.postView.post.nsfw) {
+        this.setState({ imageExpanded: false });
+      }
     }
 
     // Leave edit mode on navigation
@@ -194,15 +204,17 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <PostForm
             post_view={this.postView}
             crossPosts={this.props.crossPosts}
+            admins={this.props.admins}
             onEdit={this.handleEditPost}
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
-            enableDownvotes={this.props.enableDownvotes}
-            voteDisplayMode={this.props.voteDisplayMode}
+            showAdultConsentModal={this.props.showAdultConsentModal}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             loading={this.state.loading}
             isNsfwCommunity={this.postView.community.nsfw}
+            myUserInfo={this.props.myUserInfo}
+            localSite={this.props.localSite}
           />
         )}
       </div>
@@ -274,7 +286,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get img() {
-    if (this.isoData.showAdultConsentModal) {
+    if (this.props.showAdultConsentModal) {
       return <></>;
     }
 
@@ -420,20 +432,23 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const pv = this.postView;
     return (
       <div className="small mb-1 mb-md-0">
-        <PersonListing person={pv.creator} />
+        <PersonListing person={pv.creator} myUserInfo={this.props.myUserInfo} />
         <UserBadges
           classNames="ms-1"
-          isMod={pv.creator_is_moderator}
+          isModerator={pv.creator_is_moderator}
           isAdmin={pv.creator_is_admin}
           isBot={pv.creator.bot_account}
-          isBanned={pv.creator.banned}
+          isBanned={pv.creator_banned}
           isBannedFromCommunity={pv.creator_banned_from_community}
         />
         {this.props.showCommunity && (
           <>
             {" "}
             {I18NextService.i18n.t("to")}{" "}
-            <CommunityLink community={pv.community} />
+            <CommunityLink
+              community={pv.community}
+              myUserInfo={this.props.myUserInfo}
+            />
           </>
         )}
         {pv.post.language_id !== 0 && (
@@ -445,14 +460,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             }
           </span>
         )}{" "}
-        {pv.post.scheduled_publish_time && (
+        {pv.post.scheduled_publish_time_at && (
           <span className="mx-1 badge text-bg-light">
             {I18NextService.i18n.t("publish_in_time", {
-              time: formatPastDate(pv.post.scheduled_publish_time),
+              time: formatRelativeDate(pv.post.scheduled_publish_time_at),
             })}
           </span>
         )}{" "}
-        · <MomentTime published={pv.post.published} updated={pv.post.updated} />
+        ·{" "}
+        <MomentTime
+          published={pv.post.published_at}
+          updated={pv.post.updated_at}
+        />
       </div>
     );
   }
@@ -612,7 +631,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <Link to={`/post/${pv.post.id}`}>
                 {pv.community.local
                   ? pv.community.name
-                  : `${pv.community.name}@${hostname(pv.community.actor_id)}`}
+                  : `${pv.community.name}@${hostname(pv.community.ap_id)}`}
               </Link>
             </li>
           ))}
@@ -624,19 +643,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   commentsLine(mobile = false) {
-    const {
-      admins,
-      moderators,
-      showBody,
-      onPostVote,
-      enableDownvotes,
-      voteDisplayMode,
-    } = this.props;
-    const {
-      post: { ap_id, id, body },
-      my_vote,
-      counts,
-    } = this.postView;
+    const { admins, showBody, onPostVote } = this.props;
+    const { post } = this.postView;
+    const { ap_id, id, body } = post;
 
     return (
       <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
@@ -664,26 +673,53 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         >
           <Icon icon="fedilink" inline />
         </a>
+        {this.props.markable && this.props.myUserInfo && (
+          <button
+            type="button"
+            className="btn btn-link btn-animate text-muted"
+            onClick={this.handleMarkPostAsRead}
+            data-tippy-content={
+              this.props.read
+                ? I18NextService.i18n.t("mark_as_unread")
+                : I18NextService.i18n.t("mark_as_read")
+            }
+            aria-label={
+              this.props.read
+                ? I18NextService.i18n.t("mark_as_unread")
+                : I18NextService.i18n.t("mark_as_read")
+            }
+          >
+            {this.state.readLoading ? (
+              <Spinner />
+            ) : (
+              <Icon
+                icon="check"
+                classes={`icon-inline ${this.props.read && "text-success"}`}
+              />
+            )}
+          </button>
+        )}
         {mobile && this.isInteractable && (
           <VoteButtonsCompact
             voteContentType={VoteContentType.Post}
             id={id}
             onVote={onPostVote}
-            counts={counts}
-            enableDownvotes={enableDownvotes}
-            voteDisplayMode={voteDisplayMode}
-            myVote={my_vote}
+            subject={post}
+            myVote={this.postView.post_actions?.like_score}
+            myUserInfo={this.props.myUserInfo}
+            localSite={this.props.localSite}
+            disabled={!this.props.myUserInfo}
           />
         )}
 
         {showBody && body && this.viewSourceButton}
 
-        {UserService.Instance.myUserInfo && this.isInteractable && (
+        {this.props.myUserInfo && this.isInteractable && (
           <PostActionDropdown
             postView={this.postView}
             admins={admins}
-            moderators={moderators}
             crossPostParams={this.crossPostParams}
+            myUserInfo={this.props.myUserInfo}
             onSave={this.handleSavePost}
             onReport={this.handleReport}
             onBlock={this.handleBlockPerson}
@@ -708,7 +744,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   public get linkTarget(): string {
-    return UserService.Instance.myUserInfo?.local_user_view.local_user
+    return this.props.myUserInfo?.local_user_view.local_user
       .open_links_in_new_tab
       ? "_blank"
       : // _self is the default target on links when the field is not specified
@@ -718,8 +754,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get commentsButton() {
     const pv = this.postView;
     const title = I18NextService.i18n.t("number_of_comments", {
-      count: Number(pv.counts.comments),
-      formattedCount: Number(pv.counts.comments),
+      count: Number(pv.post.comments),
+      formattedCount: Number(pv.post.comments),
     });
 
     return (
@@ -731,7 +767,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         onClick={this.props.onScrollIntoCommentsClick}
       >
         <Icon icon="message-square" classes="me-1" inline />
-        {pv.counts.comments}
+        {pv.post.comments}
         {this.unreadCount && (
           <>
             {" "}
@@ -746,9 +782,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   get unreadCount(): number | undefined {
     const pv = this.postView;
-    return pv.unread_comments === pv.counts.comments || pv.unread_comments === 0
+    const unread_comments =
+      pv.post.comments - (pv.post_actions?.read_comments_amount ?? 0);
+    return unread_comments === pv.post.comments || unread_comments === 0
       ? undefined
-      : pv.unread_comments;
+      : unread_comments;
   }
 
   get viewSourceButton() {
@@ -800,7 +838,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <>
         {/* The mobile view*/}
-        <div className="d-block d-sm-none">
+        <div className={classNames("d-block d-sm-none")}>
           <article className="row post-container">
             <div className="col-12">
               {this.createdLine()}
@@ -815,7 +853,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         </div>
 
         {/* The larger view*/}
-        <div className="d-none d-sm-block">
+        <div className={classNames("d-none d-sm-block")}>
           <article className="row post-container">
             {this.isInteractable && (
               <div className="col flex-grow-0">
@@ -823,10 +861,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   voteContentType={VoteContentType.Post}
                   id={this.postView.post.id}
                   onVote={this.props.onPostVote}
-                  enableDownvotes={this.props.enableDownvotes}
-                  voteDisplayMode={this.props.voteDisplayMode}
-                  counts={this.postView.counts}
-                  myVote={this.postView.my_vote}
+                  myUserInfo={this.props.myUserInfo}
+                  localSite={this.props.localSite}
+                  subject={this.postView.post}
+                  myVote={this.postView.post_actions?.like_score}
+                  disabled={!this.props.myUserInfo}
                 />
               </div>
             )}
@@ -884,7 +923,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       toast(I18NextService.i18n.t("edited_post"));
       this.setState({ loading: false, showEdit: false });
     } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.name), "danger");
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
       this.setState({ loading: false });
     }
   }
@@ -922,7 +961,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleSavePost() {
     return this.props.onSavePost({
       post_id: this.postView.post.id,
-      save: !this.postView.saved,
+      save: !this.postView.post_actions?.saved_at,
     });
   }
 
@@ -1021,8 +1060,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleHidePost() {
     return this.props.onHidePost({
-      hide: !this.postView.hidden,
-      post_ids: [this.postView.post.id],
+      hide: !this.postView.post_actions?.hidden_at,
+      post_id: this.postView.post.id,
     });
   }
 
@@ -1042,7 +1081,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (ban === false) {
       shouldRemoveOrRestoreData = true;
     }
-    const expires = futureDaysToUnixTime(daysUntilExpires);
+    const expires_at = futureDaysToUnixTime(daysUntilExpires);
 
     return this.props.onBanPersonFromCommunity({
       community_id,
@@ -1050,7 +1089,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       ban,
       remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
-      expires,
+      expires_at,
     });
   }
 
@@ -1060,7 +1099,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     shouldRemoveOrRestoreData,
   }: BanUpdateForm) {
     const {
-      creator: { id: person_id, banned },
+      creator: { id: person_id },
+      creator_banned: banned,
     } = this.postView;
     const ban = !banned;
 
@@ -1068,14 +1108,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (ban === false) {
       shouldRemoveOrRestoreData = true;
     }
-    const expires = futureDaysToUnixTime(daysUntilExpires);
+    const expires_at = futureDaysToUnixTime(daysUntilExpires);
 
     return this.props.onBanPerson({
       person_id,
       ban,
       remove_or_restore_data: shouldRemoveOrRestoreData,
       reason,
-      expires,
+      expires_at,
     });
   }
 
@@ -1105,12 +1145,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     event.preventDefault();
     i.setState({ imageExpanded: !i.state.imageExpanded });
 
-    if (myAuth() && !i.postView.read) {
-      i.props.onMarkPostAsRead({
-        post_ids: [i.postView.post.id],
-        read: true,
-      });
+    if (myAuth() && i.props.markable && !i.props.disableAutoMarkAsRead) {
+      i.handleMarkPostAsRead();
     }
+  }
+
+  async handleMarkPostAsRead() {
+    if (!this.props.markable) return;
+    this.setState({ readLoading: true });
+    await this.props.onMarkPostAsRead?.({
+      post_id: this.props.post_view.post.id,
+      read: !this.props.read,
+    });
+    this.setState({ readLoading: false });
   }
 
   handleViewSource(i: PostListing) {
@@ -1119,53 +1166,66 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleShowBody(i: PostListing) {
     i.setState({ showBody: !i.state.showBody });
+
+    if (myAuth() && i.props.markable && !i.props.disableAutoMarkAsRead) {
+      i.handleMarkPostAsRead();
+    }
   }
 
   get pointsTippy(): string {
     const points = I18NextService.i18n.t("number_of_points", {
-      count: Number(this.postView.counts.score),
-      formattedCount: Number(this.postView.counts.score),
+      count: Number(this.postView.post.score),
+      formattedCount: Number(this.postView.post.score),
     });
 
     const upvotes = I18NextService.i18n.t("number_of_upvotes", {
-      count: Number(this.postView.counts.upvotes),
-      formattedCount: Number(this.postView.counts.upvotes),
+      count: Number(this.postView.post.upvotes),
+      formattedCount: Number(this.postView.post.upvotes),
     });
 
     const downvotes = I18NextService.i18n.t("number_of_downvotes", {
-      count: Number(this.postView.counts.downvotes),
-      formattedCount: Number(this.postView.counts.downvotes),
+      count: Number(this.postView.post.downvotes),
+      formattedCount: Number(this.postView.post.downvotes),
     });
 
     return `${points} • ${upvotes} • ${downvotes}`;
   }
 
   get canModOnSelf(): boolean {
-    return canMod(
-      this.postView.creator.id,
-      this.props.moderators,
-      this.props.admins,
-      undefined,
-      true,
-    );
+    if (
+      this.postView.creator.id !==
+      this.props.myUserInfo?.local_user_view.person.id
+    ) {
+      return false;
+    }
+    return this.canMod;
   }
 
   get canMod(): boolean {
-    return canMod(
-      this.postView.creator.id,
-      this.props.moderators,
-      this.props.admins,
+    return (
+      this.postView.can_mod ||
+      canAdmin(
+        this.postView.creator.id,
+        this.props.admins,
+        this.props.myUserInfo,
+      )
     );
   }
 
   get canAdmin(): boolean {
-    return canAdmin(this.postView.creator.id, this.props.admins);
+    return canAdmin(
+      this.postView.creator.id,
+      this.props.admins,
+      this.props.myUserInfo,
+    );
   }
 
   get isInteractable() {
     const {
       viewOnly,
-      post_view: { banned_from_community },
+      post_view: {
+        community_actions: { received_ban_at: banned_from_community } = {},
+      },
     } = this.props;
 
     return !(viewOnly || banned_from_community);
