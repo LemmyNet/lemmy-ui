@@ -76,6 +76,6 @@ export function canCreateCommunity(
   myUserInfo: MyUserInfo | undefined,
 ): boolean {
   const adminOnly = siteRes.site_view.local_site.community_creation_admin_only;
-  // TODO: Make this check if user is logged on as well
-  return !adminOnly || amAdmin(myUserInfo);
+  const loggedIn = !!myUserInfo;
+  return (!adminOnly && loggedIn) || amAdmin(myUserInfo);
 }

@@ -265,8 +265,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 className="form-check-label"
                 htmlFor="create-site-enable-nsfw"
               >
-                {/* TODO: Add translation for this */}
-                Disallow NSFW content
+                {I18NextService.i18n.t("disallow_nsfw_content")}
               </label>
             </div>
           </div>

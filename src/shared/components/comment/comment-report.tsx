@@ -67,10 +67,10 @@ export class CommentReport extends Component<
       comment_actions: r.comment_actions,
       person_actions: r.person_actions,
       creator_is_admin: r.creator_is_admin,
-      creator_is_moderator: false, // TODO: ?
-      can_mod: true,
-      creator_banned: false, // TODO: ?
-      creator_banned_from_community: false, // TODO: ?
+      creator_is_moderator: r.creator_is_moderator,
+      can_mod: true, // TODO: ?
+      creator_banned: r.creator_banned,
+      creator_banned_from_community: r.creator_banned_from_community,
       post_tags: [],
     };
 

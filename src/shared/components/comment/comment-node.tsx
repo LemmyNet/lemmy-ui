@@ -160,8 +160,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get commentView(): CommentView {
-    // FIXME: types
-    return this.props.node.comment_view as CommentView;
+    return this.props.node.comment_view;
   }
 
   get commentId(): CommentId {
