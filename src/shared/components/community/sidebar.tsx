@@ -12,12 +12,13 @@ import {
   EditCommunity,
   FollowCommunity,
   Language,
+  MyUserInfo,
   PersonView,
   PurgeCommunity,
   RemoveCommunity,
 } from "lemmy-js-client";
-import { mdToHtml } from "../../markdown";
-import { I18NextService, UserService } from "../../services";
+import { mdToHtml } from "@utils/markdown";
+import { HttpService, I18NextService } from "../../services";
 import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
@@ -26,6 +27,7 @@ import { CommunityForm } from "../community/community-form";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import CommunityReportModal from "@components/common/modal/community-report-modal";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -37,6 +39,7 @@ interface SidebarProps {
   enableNsfw?: boolean;
   showIcon?: boolean;
   editable?: boolean;
+  myUserInfo: MyUserInfo | undefined;
   onDeleteCommunity(form: DeleteCommunity): void;
   onRemoveCommunity(form: RemoveCommunity): void;
   onLeaveModTeam(form: AddModToCommunity): void;
@@ -59,6 +62,8 @@ interface SidebarState {
   leaveModTeamLoading: boolean;
   followCommunityLoading: boolean;
   purgeCommunityLoading: boolean;
+  showCommunityReportModal: boolean;
+  renderCommunityReportModal: boolean;
   searchText: string;
 }
 
@@ -74,12 +79,18 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     leaveModTeamLoading: false,
     followCommunityLoading: false,
     purgeCommunityLoading: false,
+    showCommunityReportModal: false,
+    renderCommunityReportModal: false,
     searchText: "",
   };
 
   constructor(props: any, context: any) {
     super(props, context);
     this.handleEditCancel = this.handleEditCancel.bind(this);
+    this.handleSubmitCommunityReport =
+      this.handleSubmitCommunityReport.bind(this);
+    this.handleHideCommunityReportModal =
+      this.handleHideCommunityReportModal.bind(this);
   }
 
   unlisten = () => {};
@@ -134,6 +145,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             onUpsertCommunity={this.props.onEditCommunity}
             onCancel={this.handleEditCancel}
             enableNsfw={this.props.enableNsfw}
+            myUserInfo={this.props.myUserInfo}
           />
         )}
       </div>
@@ -141,12 +153,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   sidebar() {
-    const myUserInfo = UserService.Instance.myUserInfo;
     const {
-      community: { name, actor_id, id, posting_restricted_to_mods, visibility },
-      counts,
-      banned_from_community,
+      community: { name, ap_id, id, posting_restricted_to_mods, visibility },
+      community_actions: { received_ban_at: bannedFromCommunity } = {},
     } = this.props.community_view;
+
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
@@ -154,16 +165,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
-              {!banned_from_community && (
+              {!bannedFromCommunity && (
                 <>
                   <SubscribeButton
                     communityView={this.props.community_view}
                     onFollow={linkEvent(this, this.handleFollowCommunity)}
                     onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
                     loading={this.state.followCommunityLoading}
+                    showRemoteFetch={!this.props.myUserInfo}
                   />
                   {this.canPost && this.createPost()}
-                  {myUserInfo && this.blockCommunity()}
+                  {this.props.myUserInfo && this.blockCommunity()}
                   <form
                     class="d-flex"
                     onSubmit={linkEvent(this, this.handleSearchSubmit)}
@@ -187,13 +199,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </form>
                 </>
               )}
-              {!myUserInfo && (
+              {!this.props.myUserInfo && (
                 <div className="alert alert-info" role="alert">
                   <T
                     i18nKey="community_not_logged_in_alert"
                     interpolation={{
                       community: name,
-                      instance: hostname(actor_id),
+                      instance: hostname(ap_id),
                     }}
                   >
                     #<code className="user-select-all">#</code>#
@@ -219,7 +231,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </T>
                 </div>
               )}
-              {banned_from_community && (
+              {bannedFromCommunity && (
                 <div
                   className="alert alert-danger text-sm-start text-xs-center"
                   role="alert"
@@ -234,7 +246,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </T>
                 </div>
               )}
-              {this.description()}
+              {this.sidebarMarkdown()}
               <div>
                 <div className="fw-semibold mb-1">
                   <span className="align-middle">
@@ -259,7 +271,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   )}
                 </p>
               </div>
-              <Badges communityId={id} counts={counts} />
+              <Badges
+                communityId={id}
+                subject={this.props.community_view.community}
+              />
               {this.mods()}
             </div>
           </section>
@@ -278,7 +293,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <BannerIconHeader icon={community.icon} banner={community.banner} />
           )}
           <span className="me-2">
-            <CommunityLink community={community} hideAvatar />
+            <CommunityLink
+              community={community}
+              hideAvatar
+              myUserInfo={this.props.myUserInfo}
+            />
           </span>
           {community.removed && (
             <small className="me-2 text-muted fst-italic">
@@ -302,18 +321,26 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           useApubName
           muted
           hideAvatar
+          myUserInfo={this.props.myUserInfo}
         />
       </div>
     );
   }
 
   mods() {
+    if (!this.props.moderators.length) {
+      return;
+    }
+
     return (
       <ul className="list-inline small">
         <li className="list-inline-item">{I18NextService.i18n.t("mods")}: </li>
         {this.props.moderators.map(mod => (
           <li key={mod.moderator.id} className="list-inline-item">
-            <PersonListing person={mod.moderator} />
+            <PersonListing
+              person={mod.moderator}
+              myUserInfo={this.props.myUserInfo}
+            />
           </li>
         ))}
       </ul>
@@ -338,29 +365,30 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   blockCommunity() {
-    const { subscribed, blocked } = this.props.community_view;
+    const { community_actions: { follow_state: subscribed, blocked_at } = {} } =
+      this.props.community_view;
 
     return (
-      subscribed === "NotSubscribed" && (
+      !subscribed && (
         <button
           className="btn btn-danger d-block mb-2 w-100"
           onClick={linkEvent(this, this.handleBlockCommunity)}
         >
           {I18NextService.i18n.t(
-            blocked ? "unblock_community" : "block_community",
+            blocked_at ? "unblock_community" : "block_community",
           )}
         </button>
       )
     );
   }
 
-  description() {
-    const desc = this.props.community_view.community.description;
+  sidebarMarkdown() {
+    const { sidebar } = this.props.community_view.community;
     return (
-      desc && (
+      sidebar && (
         <div
           className="md-div"
-          dangerouslySetInnerHTML={mdToHtml(desc, () => this.forceUpdate())}
+          dangerouslySetInnerHTML={mdToHtml(sidebar, () => this.forceUpdate())}
         />
       )
     );
@@ -371,7 +399,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <>
         <ul className="list-inline mb-1 text-muted fw-bold">
-          {amMod(this.props.community_view.community.id) && (
+          {amMod(this.props.community_view) && (
             <>
               <li className="list-inline-item-action">
                 <button
@@ -383,7 +411,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   <Icon icon="edit" classes="icon-inline" />
                 </button>
               </li>
-              {!amTopMod(this.props.moderators) &&
+              {!amTopMod(this.props.moderators, this.props.myUserInfo) &&
                 (!this.state.showConfirmLeaveModTeam ? (
                   <li className="list-inline-item-action">
                     <button
@@ -422,7 +450,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     </li>
                   </>
                 ))}
-              {amTopMod(this.props.moderators) && (
+              {amTopMod(this.props.moderators, this.props.myUserInfo) && (
                 <li className="list-inline-item-action">
                   <button
                     className="btn btn-link text-muted d-inline-block"
@@ -453,7 +481,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               )}
             </>
           )}
-          {amAdmin() && (
+          {amAdmin(this.props.myUserInfo) && (
             <li className="list-inline-item">
               {!this.props.community_view.community.removed ? (
                 <button
@@ -483,6 +511,21 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               </button>
             </li>
           )}
+          <li className="list-inline-item-action">
+            <button
+              className="btn btn-link text-muted d-inline-block"
+              onClick={linkEvent(this, this.handleShowCommunityReportModal)}
+            >
+              {I18NextService.i18n.t("create_report")}
+            </button>
+            {this.state.renderCommunityReportModal && (
+              <CommunityReportModal
+                onSubmit={this.handleSubmitCommunityReport}
+                onCancel={this.handleHideCommunityReportModal}
+                show={this.state.showCommunityReportModal}
+              />
+            )}
+          </li>
         </ul>
         {this.state.showRemoveDialog && (
           <form onSubmit={linkEvent(this, this.handleRemoveCommunity)}>
@@ -568,11 +611,32 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.setState({ showConfirmLeaveModTeam: false });
   }
 
+  handleShowCommunityReportModal(i: Sidebar) {
+    i.setState({
+      showCommunityReportModal: true,
+      renderCommunityReportModal: true,
+    });
+  }
+
+  async handleSubmitCommunityReport(reason: string) {
+    const res = await HttpService.client.createCommunityReport({
+      community_id: this.props.community_view.community.id,
+      reason,
+    });
+    if (res.state === "success") {
+      this.setState({ showCommunityReportModal: false });
+    }
+  }
+
+  handleHideCommunityReportModal() {
+    this.setState({ showCommunityReportModal: false });
+  }
+
   get canPost(): boolean {
     return (
       !this.props.community_view.community.posting_restricted_to_mods ||
-      amMod(this.props.community_view.community.id) ||
-      amAdmin()
+      amMod(this.props.community_view) ||
+      amAdmin(this.props.myUserInfo)
     );
   }
 
@@ -614,16 +678,17 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   handleBlockCommunity(i: Sidebar) {
-    const { community, blocked } = i.props.community_view;
+    const { community, community_actions: { blocked_at } = {} } =
+      i.props.community_view;
 
     i.props.onBlockCommunity({
       community_id: community.id,
-      block: !blocked,
+      block: !blocked_at,
     });
   }
 
   handleLeaveModTeam(i: Sidebar) {
-    const myId = UserService.Instance.myUserInfo?.local_user_view.person.id;
+    const myId = i.props.myUserInfo?.local_user_view.person.id;
     if (myId) {
       i.setState({ leaveModTeamLoading: true });
       i.props.onLeaveModTeam({

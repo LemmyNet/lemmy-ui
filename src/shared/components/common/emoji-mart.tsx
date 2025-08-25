@@ -1,5 +1,5 @@
 import { Component, RefObject, createRef } from "inferno";
-import { getEmojiMart } from "../../markdown";
+import { getEmojiMart } from "@utils/markdown";
 
 interface EmojiMartProps {
   onEmojiClick?(val: any): any;

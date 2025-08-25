@@ -3,10 +3,12 @@ import { T } from "inferno-i18next-dess";
 import {
   CommentReportView,
   CommentView,
-  LocalUserVoteDisplayMode,
+  LocalSite,
+  MyUserInfo,
+  PersonView,
   ResolveCommentReport,
 } from "lemmy-js-client";
-import { CommentNodeI, CommentViewType } from "../../interfaces";
+import { CommentNodeI, CommentViewType } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
@@ -16,8 +18,9 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface CommentReportProps {
   report: CommentReportView;
-  enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
+  myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
+  admins: PersonView[];
   onResolveReport(form: ResolveCommentReport): void;
 }
 
@@ -60,15 +63,15 @@ export class CommentReport extends Component<
       creator: r.comment_creator,
       post: r.post,
       community: r.community,
+      community_actions: r.community_actions,
+      comment_actions: r.comment_actions,
+      person_actions: r.person_actions,
+      creator_is_admin: r.creator_is_admin,
+      creator_is_moderator: r.creator_is_moderator,
+      can_mod: true, // TODO: ?
+      creator_banned: r.creator_banned,
       creator_banned_from_community: r.creator_banned_from_community,
-      creator_is_moderator: false,
-      creator_is_admin: false,
-      counts: r.counts,
-      subscribed: "NotSubscribed",
-      saved: false,
-      creator_blocked: false,
-      my_vote: r.my_vote,
-      banned_from_community: false,
+      post_tags: [],
     };
 
     const node: CommentNodeI = {
@@ -81,14 +84,15 @@ export class CommentReport extends Component<
       <div className="comment-report">
         <CommentNode
           node={node}
+          admins={this.props.admins}
           viewType={CommentViewType.Flat}
-          enableDownvotes={this.props.enableDownvotes}
-          voteDisplayMode={this.props.voteDisplayMode}
           viewOnly={true}
           showCommunity={true}
           allLanguages={[]}
           siteLanguages={[]}
           hideImages
+          myUserInfo={this.props.myUserInfo}
+          localSite={this.props.localSite}
           // All of these are unused, since its viewonly
           onSaveComment={async () => {}}
           onBlockPerson={async () => {}}
@@ -102,8 +106,6 @@ export class CommentReport extends Component<
           onTransferCommunity={async () => {}}
           onPurgeComment={async () => {}}
           onPurgePerson={async () => {}}
-          onCommentReplyRead={() => {}}
-          onPersonMentionRead={() => {}}
           onBanPersonFromCommunity={async () => {}}
           onBanPerson={async () => {}}
           onCreateComment={async () => Promise.resolve(EMPTY_REQUEST)}
@@ -111,7 +113,10 @@ export class CommentReport extends Component<
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}
-          <PersonListing person={r.creator} />
+          <PersonListing
+            person={r.creator}
+            myUserInfo={this.props.myUserInfo}
+          />
         </div>
         <div>
           {I18NextService.i18n.t("reason")}: {r.comment_report.reason}
@@ -121,12 +126,18 @@ export class CommentReport extends Component<
             {r.comment_report.resolved ? (
               <T i18nKey="resolved_by">
                 #
-                <PersonListing person={r.resolver} />
+                <PersonListing
+                  person={r.resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             ) : (
               <T i18nKey="unresolved_by">
                 #
-                <PersonListing person={r.resolver} />
+                <PersonListing
+                  person={r.resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             )}
           </div>

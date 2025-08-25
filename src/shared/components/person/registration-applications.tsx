@@ -1,19 +1,28 @@
 import { editRegistrationApplication, setIsoData } from "@utils/app";
-import { randomStr, resourcesSettled } from "@utils/helpers";
+import {
+  cursorComponents,
+  getQueryParams,
+  getQueryString,
+  randomStr,
+  resourcesSettled,
+} from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { RouteDataResponse } from "@utils/types";
+import {
+  DirectionalCursor,
+  QueryParams,
+  RouteDataResponse,
+} from "@utils/types";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
   ApproveRegistrationApplication,
-  GetSiteResponse,
   LemmyHttp,
   ListRegistrationApplicationsResponse,
   RegistrationApplicationView,
 } from "lemmy-js-client";
-import { fetchLimit } from "../../config";
-import { InitialFetchRequest } from "../../interfaces";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { fetchLimit } from "@utils/config";
+import { InitialFetchRequest } from "@utils/types";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -23,19 +32,15 @@ import {
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
-import { Paginator } from "../common/paginator";
 import { RegistrationApplication } from "../common/registration-application";
-import { UnreadCounterService } from "../../services";
 import { getHttpBaseInternal } from "../../utils/env";
-import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
 import { isBrowser } from "@utils/browser";
+import { PaginatorCursor } from "@components/common/paginator-cursor";
+import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "@utils/routes";
+import { InfernoNode } from "inferno";
 
-enum RegistrationState {
-  Unread,
-  All,
-  Denied,
-}
+type RegistrationState = "Unread" | "All" | "Denied";
 
 type RegistrationApplicationsData = RouteDataResponse<{
   listRegistrationApplicationsResponse: ListRegistrationApplicationsResponse;
@@ -43,21 +48,47 @@ type RegistrationApplicationsData = RouteDataResponse<{
 
 interface RegistrationApplicationsState {
   appsRes: RequestState<ListRegistrationApplicationsResponse>;
-  siteRes: GetSiteResponse;
-  registrationState: RegistrationState;
-  page: number;
   isIsomorphic: boolean;
 }
+
+interface RegistrationApplicationsProps {
+  view: RegistrationState;
+  cursor?: DirectionalCursor;
+}
+
+function registrationStateFromQuery(view?: string): RegistrationState {
+  switch (view) {
+    case "Unread":
+    case "All":
+    case "Denied":
+      return view;
+    default:
+      return "Unread";
+  }
+}
+
+export function getRegistrationApplicationQueryParams(
+  source?: string,
+): RegistrationApplicationsProps {
+  return getQueryParams<RegistrationApplicationsProps>(
+    {
+      view: registrationStateFromQuery,
+      cursor: (cursor?: string) => cursor,
+    },
+    source,
+  );
+}
+
+export type RegistrationApplicationsFetchConfig = IRoutePropsWithFetch<
+  RegistrationApplicationsData,
+  Record<string, never>,
+  RegistrationApplicationsProps
+>;
 
 type RegistrationApplicationsRouteProps = RouteComponentProps<
   Record<string, never>
 > &
-  Record<string, never>;
-export type RegistrationApplicationsFetchConfig = IRoutePropsWithFetch<
-  RegistrationApplicationsData,
-  Record<string, never>,
-  Record<string, never>
->;
+  RegistrationApplicationsProps;
 
 @scrollMixin
 export class RegistrationApplications extends Component<
@@ -67,9 +98,6 @@ export class RegistrationApplications extends Component<
   private isoData = setIsoData<RegistrationApplicationsData>(this.context);
   state: RegistrationApplicationsState = {
     appsRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
-    registrationState: RegistrationState.Unread,
-    page: 1,
     isIsomorphic: false,
   };
 
@@ -95,16 +123,27 @@ export class RegistrationApplications extends Component<
 
   async componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.refetch();
+      await this.refetch(this.props);
+    }
+  }
+
+  componentWillReceiveProps(
+    nextProps: RegistrationApplicationsRouteProps & { children?: InfernoNode },
+  ): void {
+    if (
+      nextProps.view !== this.props.view ||
+      nextProps.cursor !== this.props.cursor
+    ) {
+      this.refetch(nextProps);
     }
   }
 
   get documentTitle(): string {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
           "registration_applications",
-        )} - ${this.state.siteRes.site_view.site.name}`
+        )} - ${this.isoData.siteRes.site_view.site.name}`
       : "";
   }
 
@@ -128,10 +167,10 @@ export class RegistrationApplications extends Component<
           {apps ? (
             <>
               {this.applicationList(apps)}
-              <Paginator
-                page={this.state.page}
-                onChange={this.handlePageChange}
-                nextDisabled={fetchLimit > apps.length}
+              <PaginatorCursor
+                current={this.props.cursor}
+                resource={this.state.appsRes}
+                onPageChange={this.handlePageChange}
               />
             </>
           ) : (
@@ -163,14 +202,14 @@ export class RegistrationApplications extends Component<
           id={`${radioId}-unread`}
           type="radio"
           className="btn-check"
-          value={RegistrationState.Unread}
-          checked={this.state.registrationState === RegistrationState.Unread}
+          value={"Unread"}
+          checked={this.props.view === "Unread"}
           onChange={linkEvent(this, this.handleRegistrationStateChange)}
         />
         <label
           htmlFor={`${radioId}-unread`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.registrationState === RegistrationState.Unread,
+            active: this.props.view === "Unread",
           })}
         >
           {I18NextService.i18n.t("unread")}
@@ -180,14 +219,14 @@ export class RegistrationApplications extends Component<
           id={`${radioId}-all`}
           type="radio"
           className="btn-check"
-          value={RegistrationState.All}
-          checked={this.state.registrationState === RegistrationState.All}
+          value={"All"}
+          checked={this.props.view === "All"}
           onChange={linkEvent(this, this.handleRegistrationStateChange)}
         />
         <label
           htmlFor={`${radioId}-all`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.registrationState === RegistrationState.All,
+            active: this.props.view === "All",
           })}
         >
           {I18NextService.i18n.t("all")}
@@ -197,14 +236,14 @@ export class RegistrationApplications extends Component<
           id={`${radioId}-denied`}
           type="radio"
           className="btn-check"
-          value={RegistrationState.Denied}
-          checked={this.state.registrationState === RegistrationState.Denied}
+          value={"Denied"}
+          checked={this.props.view === "Denied"}
           onChange={linkEvent(this, this.handleRegistrationStateChange)}
         />
         <label
           htmlFor={`${radioId}-denied`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.registrationState === RegistrationState.Denied,
+            active: this.props.view === "Denied",
           })}
         >
           {I18NextService.i18n.t("denied")}
@@ -222,7 +261,7 @@ export class RegistrationApplications extends Component<
   }
 
   applicationList(apps: RegistrationApplicationView[]) {
-    if (this.state.registrationState === RegistrationState.Denied) {
+    if (this.props.view === "Denied") {
       apps = apps.filter(ra => !ra.creator_local_user.accepted_application);
     }
     return (
@@ -234,6 +273,7 @@ export class RegistrationApplications extends Component<
               key={ra.registration_application.id}
               application={ra}
               onApproveApplication={this.handleApproveApplication}
+              myUserInfo={this.isoData.myUserInfo}
             />
           </>
         ))}
@@ -242,26 +282,30 @@ export class RegistrationApplications extends Component<
   }
 
   handleRegistrationStateChange(i: RegistrationApplications, event: any) {
-    i.setState({ registrationState: Number(event.target.value), page: 1 });
-    i.refetch();
+    i.updateUrl({ view: event.target.value, cursor: undefined });
   }
 
-  handlePageChange(page: number) {
-    this.setState({ page });
-    this.refetch();
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
   static async fetchInitialData({
     headers,
-  }: InitialFetchRequest): Promise<RegistrationApplicationsData> {
+    match: {
+      params: { view, cursor },
+    },
+  }: InitialFetchRequest<
+    Record<string, never>,
+    RegistrationApplicationsProps
+  >): Promise<RegistrationApplicationsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
       listRegistrationApplicationsResponse: headers["Authorization"]
         ? await client.listRegistrationApplications({
-            unread_only: true,
-            page: 1,
+            unread_only: view === "Unread",
+            ...cursorComponents(cursor),
             limit: fetchLimit,
           })
         : EMPTY_REQUEST,
@@ -269,21 +313,33 @@ export class RegistrationApplications extends Component<
   }
 
   refetchToken?: symbol;
-  async refetch() {
+  async refetch(props: RegistrationApplicationsProps) {
     const token = (this.refetchToken = Symbol());
-    const unread_only =
-      this.state.registrationState === RegistrationState.Unread;
+    const { view: state, cursor } = props;
     this.setState({
       appsRes: LOADING_REQUEST,
     });
     const appsRes = await HttpService.client.listRegistrationApplications({
-      unread_only: unread_only,
-      page: this.state.page,
+      unread_only: state === "Unread",
+      ...cursorComponents(cursor),
       limit: fetchLimit,
     });
     if (token === this.refetchToken) {
       this.setState({ appsRes });
     }
+  }
+
+  async updateUrl(props: Partial<RegistrationApplicationsProps>) {
+    const { cursor, view: state } = { ...this.props, ...props };
+
+    const queryParams: QueryParams<RegistrationApplicationsProps> = {
+      cursor,
+      view: state,
+    };
+
+    this.props.history.push(
+      `/registration_applications${getQueryString(queryParams)}`,
+    );
   }
 
   async handleApproveApplication(form: ApproveRegistrationApplication) {
@@ -295,10 +351,6 @@ export class RegistrationApplications extends Component<
           approveRes.data.registration_application,
           s.appsRes.data.registration_applications,
         );
-        if (this.state.registrationState === RegistrationState.Unread) {
-          this.refetch();
-          UnreadCounterService.Instance.updateApplications();
-        }
       }
       return s;
     });

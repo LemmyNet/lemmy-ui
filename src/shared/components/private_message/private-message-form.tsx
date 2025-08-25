@@ -5,10 +5,11 @@ import { Prompt } from "inferno-router";
 import {
   CreatePrivateMessage,
   EditPrivateMessage,
+  MyUserInfo,
   Person,
   PrivateMessageView,
 } from "lemmy-js-client";
-import { matrixUrl, relTags } from "../../config";
+import { matrixUrl, relTags } from "@utils/config";
 import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -18,6 +19,7 @@ interface PrivateMessageFormProps {
   recipient: Person;
   privateMessageView?: PrivateMessageView; // If a pm is given, that means this is an edit
   replyType?: boolean;
+  myUserInfo: MyUserInfo | undefined;
   onCancel?(): any;
   onCreate?(
     form: CreatePrivateMessage,
@@ -76,7 +78,10 @@ export class PrivateMessageForm extends Component<
             </label>
 
             <div className="col-sm-10">
-              <PersonListing person={this.props.recipient} />
+              <PersonListing
+                person={this.props.recipient}
+                myUserInfo={this.props.myUserInfo}
+              />
             </div>
           </div>
         )}
@@ -130,6 +135,7 @@ export class PrivateMessageForm extends Component<
                   ? capitalizeFirstLetter(I18NextService.i18n.t("save"))
                   : capitalizeFirstLetter(I18NextService.i18n.t("send_message"))
               }
+              myUserInfo={this.props.myUserInfo}
             />
           </div>
         </div>

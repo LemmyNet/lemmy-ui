@@ -18,41 +18,42 @@ import {
   EditPost,
   GetSiteMetadataResponse,
   Language,
-  LocalUserVoteDisplayMode,
+  LanguageId,
+  LocalSite,
+  MyUserInfo,
+  PersonView,
   PostView,
   SearchResponse,
+  UploadImageResponse,
 } from "lemmy-js-client";
 import {
   archiveTodayUrl,
   ghostArchiveUrl,
   postMarkdownFieldCharacterLimit,
   relTags,
-  similarPostFetchLimit,
   webArchiveUrl,
-} from "../../config";
-import { PostFormParams } from "../../interfaces";
-import { I18NextService, UserService } from "../../services";
+} from "@utils/config";
+import { PostFormParams } from "@utils/types";
+import { I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
   LOADING_REQUEST,
   RequestState,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
 import { isBrowser } from "@utils/browser";
-import isMagnetLink, {
-  extractMagnetLinkDownloadName,
-} from "@utils/media/is-magnet-link";
+import { isMagnetLink, extractMagnetLinkDownloadName } from "@utils/media";
 import {
   getUnixTimeLemmy,
   getUnixTime,
   unixTimeToLocalDateStr,
-} from "@utils/helpers/get-unix-time";
+} from "@utils/date";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -66,13 +67,15 @@ interface PostFormProps {
   onCreate?(form: CreatePost, bypassNavWarning: () => void): void;
   onEdit?(form: EditPost, bypassNavWarning: () => void): void;
   enableNsfw?: boolean;
-  enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
+  showAdultConsentModal: boolean;
   selectedCommunityChoice?: Choice;
   isNsfwCommunity: boolean;
   onSelectCommunity?: (choice: Choice) => void;
   initialCommunities?: CommunityView[];
   loading: boolean;
+  myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
+  admins: PersonView[];
   onTitleBlur?: (title: string) => void;
   onUrlBlur?: (url: string) => void;
   onBodyBlur?: (body: string) => void;
@@ -89,18 +92,18 @@ interface PostFormState {
     url?: string;
     body?: string;
     nsfw?: boolean;
-    language_id?: number;
+    language_id?: LanguageId;
     community_id?: number;
     honeypot?: string;
     custom_thumbnail?: string;
     alt_text?: string;
     // Javascript treats this field as a string, that can't have timezone info.
-    scheduled_publish_time?: string;
+    scheduled_publish_time_at?: string;
   };
   suggestedPostsRes: RequestState<SearchResponse>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
   imageLoading: boolean;
-  imageDeleteUrl: string;
+  uploadedImage?: UploadImageResponse;
   communitySearchLoading: boolean;
   communitySearchOptions: Choice[];
   previewMode: boolean;
@@ -120,7 +123,9 @@ function handlePostSubmit(i: PostForm, event: any) {
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
-  const scheduled_publish_time = getUnixTimeLemmy(pForm.scheduled_publish_time);
+  const scheduled_publish_time_at = getUnixTimeLemmy(
+    pForm.scheduled_publish_time_at,
+  );
 
   if (pv) {
     i.props.onEdit?.(
@@ -133,7 +138,7 @@ function handlePostSubmit(i: PostForm, event: any) {
         language_id: pForm.language_id,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
-        scheduled_publish_time,
+        scheduled_publish_time_at,
       },
       () => {
         i.setState({ bypassNavWarning: true });
@@ -151,7 +156,7 @@ function handlePostSubmit(i: PostForm, event: any) {
         honeypot: pForm.honeypot,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
-        scheduled_publish_time,
+        scheduled_publish_time_at,
       },
       () => {
         i.setState({ bypassNavWarning: true });
@@ -195,7 +200,7 @@ function handlePostUrlChange(i: PostForm, event: any) {
       ...prev.form,
       url,
     },
-    imageDeleteUrl: "",
+    uploadedImage: undefined,
   }));
 
   i.fetchPageTitle();
@@ -269,17 +274,11 @@ function handleImageUpload(i: PostForm, event: any) {
 
   HttpService.client.uploadImage({ image: file }).then(res => {
     if (res.state === "success") {
-      if (res.data.msg === "ok") {
-        i.state.form.url = res.data.url;
-        i.setState({
-          imageLoading: false,
-          imageDeleteUrl: res.data.delete_url as string,
-        });
-      } else if (res.data.msg === "too_large") {
-        toast(I18NextService.i18n.t("upload_too_large"), "danger");
-      } else {
-        toast(JSON.stringify(res), "danger");
-      }
+      i.state.form.url = res.data.image_url;
+      i.setState({
+        imageLoading: false,
+        uploadedImage: res.data,
+      });
     } else if (res.state === "failed") {
       console.error(res.err.name);
       toast(res.err.name, "danger");
@@ -298,13 +297,17 @@ function handlePostNameBlur(i: PostForm, event: any) {
 }
 
 function handleImageDelete(i: PostForm) {
-  const { imageDeleteUrl } = i.state;
+  const { uploadedImage } = i.state;
 
-  fetch(imageDeleteUrl);
+  if (uploadedImage) {
+    HttpService.client.deleteMedia({
+      filename: uploadedImage.filename,
+    });
+  }
 
   i.setState(prev => ({
     ...prev,
-    imageDeleteUrl: "",
+    uploadedImage: undefined,
     imageLoading: false,
     form: {
       ...prev.form,
@@ -319,7 +322,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     metadataRes: EMPTY_REQUEST,
     form: {},
     imageLoading: false,
-    imageDeleteUrl: "",
+    uploadedImage: undefined,
     communitySearchLoading: false,
     previewMode: false,
     communitySearchOptions: [],
@@ -342,8 +345,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     const { post_view, selectedCommunityChoice, params } = this.props;
     // Means its an edit
     if (post_view) {
-      const unix = getUnixTime(post_view.post.scheduled_publish_time);
-      var scheduled_publish_time = unixTimeToLocalDateStr(unix);
+      const unix = getUnixTime(post_view.post.scheduled_publish_time_at);
+      var scheduled_publish_time_at = unixTimeToLocalDateStr(unix);
       this.state = {
         ...this.state,
         form: {
@@ -355,7 +358,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           language_id: post_view.post.language_id,
           custom_thumbnail: post_view.post.thumbnail_url,
           alt_text: post_view.post.alt_text,
-          scheduled_publish_time,
+          scheduled_publish_time_at,
         },
       };
     } else if (selectedCommunityChoice) {
@@ -550,14 +553,14 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               accept="image/*,video/*"
               name="file"
               className="small col-sm-10 form-control"
-              disabled={!UserService.Instance.myUserInfo}
+              disabled={!this.props.myUserInfo}
               onChange={linkEvent(this, handleImageUpload)}
             />
             {this.state.imageLoading && <Spinner />}
             {url && isImage(url) && (
               <img src={url} className="img-fluid mt-2" alt="" />
             )}
-            {this.state.imageDeleteUrl && (
+            {this.state.uploadedImage && (
               <button
                 className="btn btn-danger btn-sm mt-2"
                 onClick={linkEvent(this, handleImageDelete)}
@@ -576,11 +579,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <PostListings
                 showCommunity
                 posts={this.props.crossPosts}
-                enableDownvotes={this.props.enableDownvotes}
-                voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
+                showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                myUserInfo={this.props.myUserInfo}
+                localSite={this.props.localSite}
+                admins={this.props.admins}
                 viewOnly
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}
@@ -642,6 +647,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               siteLanguages={this.props.siteLanguages}
               hideNavigationWarnings
               maxLength={postMarkdownFieldCharacterLimit}
+              myUserInfo={this.props.myUserInfo}
             />
           </div>
         </div>
@@ -651,6 +657,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           selectedLanguageIds={selectedLangs}
           multiple={false}
           onChange={this.handleLanguageChange}
+          myUserInfo={this.props.myUserInfo}
         />
         {url && isImage(url) && (
           <div className="mb-3 row">
@@ -717,7 +724,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           <div className="col-sm-10">
             <input
               type="datetime-local"
-              value={this.state.form.scheduled_publish_time}
+              value={this.state.form.scheduled_publish_time_at}
               min={unixTimeToLocalDateStr(Date.now())}
               id="post-schedule"
               className="form-control mb-3"
@@ -803,7 +810,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       case "loading":
         return <Spinner />;
       case "success": {
-        const suggestedPosts = this.state.suggestedPostsRes.data.posts;
+        const suggestedPosts = this.state.suggestedPostsRes.data.results.filter(
+          r => r.type_ === "Post",
+        );
 
         return (
           suggestedPosts &&
@@ -815,11 +824,13 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <PostListings
                 showCommunity
                 posts={suggestedPosts}
-                enableDownvotes={this.props.enableDownvotes}
-                voteDisplayMode={this.props.voteDisplayMode}
                 enableNsfw={this.props.enableNsfw}
+                showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
+                myUserInfo={this.props.myUserInfo}
+                localSite={this.props.localSite}
+                admins={this.props.admins}
                 viewOnly
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}
@@ -881,11 +892,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         suggestedPostsRes: await HttpService.client.search({
           q,
           type_: "Posts",
-          sort: "TopAll",
+          sort: "Top",
           listing_type: "All",
           community_id: this.state.form.community_id,
-          page: 1,
-          limit: similarPostFetchLimit,
         }),
       });
     }

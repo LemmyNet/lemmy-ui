@@ -17,9 +17,14 @@ fs.readdir(translationDir, (_err, files) => {
           data += `\n    ${key}: "${value}",`;
         }
       }
-      data += "\n  },\n};";
+      data += "\n  },\n} as const;";
       const target = outDir + lang + ".ts";
-      fs.writeFileSync(target, data);
+      if (
+        !fs.existsSync(target) ||
+        fs.readFileSync(target).toString() !== data
+      ) {
+        fs.writeFileSync(target, data);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -55,9 +60,17 @@ fs.readFile(`${translationDir}${baseLanguage}.json`, "utf8", (_, fileStr) => {
 
   const indent = "    ";
 
-  const data = `import { i18n } from "i18next";
+  const data = `import "i18next";
+import { en } from "./en";
 
 declare module "i18next" {
+  interface CustomTypeOptions {
+    jsonFormat: "v3"; // no longer supported in ^24.0, (can just be removed after converting v4)
+    // strictKeyChecks: true; would also check that options are provided, needs ^24.2
+    resources: {
+      translation: typeof en.translation
+    };
+  }
   export type NoOptionI18nKeys = 
 ${noOptionKeys.map(key => `${indent}| "${key}"`).join("\n")};
 
@@ -65,44 +78,11 @@ ${noOptionKeys.map(key => `${indent}| "${key}"`).join("\n")};
 ${optionKeys.map(key => `${indent}| "${key}"`).join("\n")};
 
   export type I18nKeys = NoOptionI18nKeys | OptionI18nKeys;
-
-  export type TTypedOptions<TKey extends OptionI18nKeys> =${Array.from(
-    optionMap.entries(),
-  ).reduce(
-    (acc, [key, options]) =>
-      `${acc} TKey extends \"${key}\" ? ${
-        options.reduce((acc, cur) => acc + `${cur}: string | number; `, "{ ") +
-        "}"
-      } :\n${indent}`,
-    "",
-  )} (Record<string, unknown> | string);
-
-  export interface TFunctionTyped {
-    // Translation requires options
-    <
-      TKey extends OptionI18nKeys | OptionI18nKeys[],
-      TResult extends TFunctionResult = string,
-      TInterpolationMap extends TTypedOptions<TKey> = StringMap
-    > (
-      key: TKey,
-      options: TOptions<TInterpolationMap> | string
-    ): TResult;
-
-    // Translation does not require options
-    <
-      TResult extends TFunctionResult = string,
-      TInterpolationMap extends Record<string, unknown> = StringMap
-    > (
-      key: NoOptionI18nKeys | NoOptionI18nKeys[],
-      options?: TOptions<TInterpolationMap> | string
-    ): TResult;
-  }
-
-  export interface i18nTyped extends i18n {
-    t: TFunctionTyped;
-  }
 }
 `;
 
-  fs.writeFileSync(`${outDir}i18next.d.ts`, data);
+  const target = `${outDir}i18next.d.ts`;
+  if (!fs.existsSync(target) || fs.readFileSync(target).toString() !== data) {
+    fs.writeFileSync(target, data);
+  }
 });

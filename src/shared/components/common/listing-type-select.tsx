@@ -1,13 +1,14 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { ListingType } from "lemmy-js-client";
-import { I18NextService, UserService } from "../../services";
+import { ListingType, MyUserInfo } from "lemmy-js-client";
+import { I18NextService } from "../../services";
 
 interface ListingTypeSelectProps {
   type_: ListingType;
   showLocal: boolean;
   showSubscribed: boolean;
+  myUserInfo: MyUserInfo | undefined;
   onChange(val: ListingType): void;
 }
 
@@ -52,15 +53,15 @@ export class ListingTypeSelect extends Component<
               value={"Subscribed"}
               checked={this.state.type_ === "Subscribed"}
               onChange={linkEvent(this, this.handleTypeChange)}
-              disabled={!UserService.Instance.myUserInfo}
+              disabled={!this.props.myUserInfo}
             />
             <label
               htmlFor={`${this.id}-subscribed`}
               title={I18NextService.i18n.t("subscribed_description")}
               className={classNames("btn btn-outline-secondary", {
                 active: this.state.type_ === "Subscribed",
-                disabled: !UserService.Instance.myUserInfo,
-                pointer: UserService.Instance.myUserInfo,
+                disabled: !this.props.myUserInfo,
+                pointer: this.props.myUserInfo,
               })}
             >
               {I18NextService.i18n.t("subscribed")}
@@ -107,7 +108,7 @@ export class ListingTypeSelect extends Component<
         >
           {I18NextService.i18n.t("all")}
         </label>
-        {(UserService.Instance.myUserInfo?.moderates.length ?? 0) > 0 && (
+        {(this.props.myUserInfo?.moderates.length ?? 0) > 0 && (
           <>
             <input
               id={`${this.id}-moderator-view`}

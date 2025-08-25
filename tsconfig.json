@@ -7,8 +7,13 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "moduleResolution": "node",
-    "lib": ["es2017", "dom"],
-    "types": ["inferno"],
+    "lib": [
+      "es2017",
+      "dom"
+    ],
+    "types": [
+      "inferno"
+    ],
     "jsx": "preserve",
     "noUnusedLocals": true,
     "baseUrl": "./src",
@@ -20,8 +25,18 @@
     "strictNullChecks": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@/*": ["/*"],
-      "@utils/*": ["shared/utils/*"]
+      "@/*": [
+        "/*"
+      ],
+      "@utils/*": [
+        "shared/utils/*"
+      ],
+      "@services/*": [
+        "shared/services/*"
+      ],
+      "@components/*": [
+        "shared/components/*"
+      ]
     }
   },
   "include": [

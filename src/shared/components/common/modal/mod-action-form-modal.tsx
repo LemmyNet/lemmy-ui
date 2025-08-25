@@ -13,6 +13,7 @@ import classNames from "classnames";
 import { Community, Person } from "lemmy-js-client";
 import { LoadingEllipses } from "../loading-ellipses";
 import { modalMixin } from "../../mixins/modal-mixin";
+import { NoOptionI18nKeys } from "i18next";
 
 export interface BanUpdateForm {
   reason?: string;
@@ -330,7 +331,7 @@ export default class ModActionFormModal extends Component<
             user: getApubName(this.props.creator),
             community: getApubName(
               this.props.community ?? {
-                actor_id: "",
+                ap_id: "",
                 name: "",
               },
             ),
@@ -407,13 +408,17 @@ export default class ModActionFormModal extends Component<
   }
 
   get loadingText() {
-    let translation: string;
+    let translation: NoOptionI18nKeys;
 
     switch (this.props.modActionType) {
       case "site-ban":
       case "community-ban": {
-        translation = this.props.isBanned ? "unbanning" : "banning";
-        break;
+        return I18NextService.i18n.t(
+          this.props.isBanned ? "unbanning" : "banning",
+          {
+            user: getApubName(this.props.creator),
+          },
+        );
       }
 
       case "purge-post":

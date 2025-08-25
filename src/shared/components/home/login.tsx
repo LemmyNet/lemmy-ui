@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { isBrowser, refreshTheme } from "@utils/browser";
 import { getQueryParams } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
@@ -16,15 +16,16 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import TotpModal from "../common/modal/totp-modal";
 import { UnreadCounterService } from "../../services";
-import { RouteData } from "../../interfaces";
-import { IRoutePropsWithFetch } from "../../routes";
+import { RouteData } from "@utils/types";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { NoOptionI18nKeys } from "i18next";
 
 interface LoginProps {
   prev?: string;
@@ -54,13 +55,16 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
   UserService.Instance.login({
     res: loginRes,
   });
-  const site = await HttpService.client.getSite();
+  const [site, myUser] = await Promise.all([
+    HttpService.client.getSite(),
+    HttpService.client.getMyUser(),
+  ]);
 
-  if (site.state === "success") {
-    UserService.Instance.myUserInfo = site.data.my_user;
+  if (site.state === "success" && myUser.state === "success") {
     const isoData = setIsoData(i.context);
-    isoData.site_res.oauth_providers = site.data.oauth_providers;
-    isoData.site_res.admin_oauth_providers = site.data.admin_oauth_providers;
+    updateMyUserInfo(myUser.data);
+    isoData.siteRes.oauth_providers = site.data.oauth_providers;
+    isoData.siteRes.admin_oauth_providers = site.data.admin_oauth_providers;
     refreshTheme();
   }
 
@@ -93,10 +97,10 @@ async function handleLoginSubmit(i: Login, event: any) {
         if (loginRes.err.name === "missing_totp_token") {
           i.setState({ show2faModal: true });
         } else {
-          let errStr = I18NextService.i18n.t(
+          let errStr: string = I18NextService.i18n.t(
             loginRes.err.name === "registration_application_is_pending"
               ? "registration_application_pending"
-              : loginRes.err.name,
+              : (loginRes.err.name as NoOptionI18nKeys),
           );
           // If there's an error message, append it
           if (loginRes.err.message) {
@@ -187,7 +191,7 @@ export class Login extends Component<LoginRouteProps, State> {
       username_or_email: "",
       password: "",
     },
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     show2faModal: false,
     showOAuthModal: false,
   };

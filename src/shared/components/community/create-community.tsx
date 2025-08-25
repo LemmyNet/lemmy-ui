@@ -1,18 +1,15 @@
 import { enableNsfw, setIsoData } from "@utils/app";
 import { Component } from "inferno";
-import {
-  CreateCommunity as CreateCommunityI,
-  GetSiteResponse,
-} from "lemmy-js-client";
-import { HttpService, I18NextService, UserService } from "../../services";
+import { CreateCommunity as CreateCommunityI } from "lemmy-js-client";
+import { HttpService, I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
+import { NoOptionI18nKeys } from "i18next";
 
 interface CreateCommunityState {
-  siteRes: GetSiteResponse;
   loading: boolean;
 }
 
@@ -23,7 +20,6 @@ export class CreateCommunity extends Component<
 > {
   private isoData = setIsoData(this.context);
   state: CreateCommunityState = {
-    siteRes: this.isoData.site_res,
     loading: false,
   };
   constructor(props: any, context: any) {
@@ -33,7 +29,7 @@ export class CreateCommunity extends Component<
 
   get documentTitle(): string {
     return `${I18NextService.i18n.t("create_community")} - ${
-      this.state.siteRes.site_view.site.name
+      this.isoData.siteRes?.site_view.site.name
     }`;
   }
 
@@ -51,11 +47,12 @@ export class CreateCommunity extends Component<
             </h1>
             <CommunityForm
               onUpsertCommunity={this.handleCommunityCreate}
-              enableNsfw={enableNsfw(this.state.siteRes)}
-              allLanguages={this.state.siteRes.all_languages}
-              siteLanguages={this.state.siteRes.discussion_languages}
-              communityLanguages={this.state.siteRes.discussion_languages}
+              enableNsfw={enableNsfw(this.isoData.siteRes)}
+              allLanguages={this.isoData.siteRes?.all_languages}
+              siteLanguages={this.isoData.siteRes?.discussion_languages}
+              communityLanguages={this.isoData.siteRes?.discussion_languages}
               loading={this.state.loading}
+              myUserInfo={this.isoData.myUserInfo}
             />
           </div>
         </div>
@@ -68,19 +65,17 @@ export class CreateCommunity extends Component<
 
     const res = await HttpService.client.createCommunity(form);
 
-    if (res.state === "success") {
-      const myUser = UserService.Instance.myUserInfo!;
-      UserService.Instance.myUserInfo?.moderates.push({
+    if (res.state === "success" && this.isoData.myUserInfo) {
+      const myUserInfo = this.isoData.myUserInfo;
+      myUserInfo.moderates.push({
         community: res.data.community_view.community,
-        moderator: myUser.local_user_view.person,
+        moderator: myUserInfo.local_user_view.person,
       });
       const name = res.data.community_view.community.name;
       this.props.history.replace(`/c/${name}`);
     } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.name), "danger");
-      this.setState({ loading: false });
-    } else {
-      this.setState({ loading: false });
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
+    this.setState({ loading: false });
   }
 }

@@ -1,10 +1,4 @@
-import {
-  communityToChoice,
-  enableDownvotes,
-  enableNsfw,
-  setIsoData,
-  voteDisplayMode,
-} from "@utils/app";
+import { communityToChoice, enableNsfw, setIsoData } from "@utils/app";
 import {
   bareRoutePush,
   getIdFromString,
@@ -24,12 +18,11 @@ import {
   CreatePost as CreatePostI,
   GetCommunity,
   GetCommunityResponse,
-  GetSiteResponse,
   LemmyHttp,
   ListCommunitiesResponse,
 } from "lemmy-js-client";
-import { InitialFetchRequest, PostFormParams } from "../../interfaces";
-import { FirstLoadService, I18NextService } from "../../services";
+import { InitialFetchRequest, PostFormParams } from "@utils/types";
+import { FirstLoadService, I18NextService } from "@services/index";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -40,10 +33,11 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { isBrowser } from "@utils/browser";
+import { NoOptionI18nKeys } from "i18next";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -78,7 +72,11 @@ export function getCreatePostQueryParams(source?: string): CreatePostProps {
 }
 
 function fetchCommunitiesForOptions(client: WrappedLemmyHttp) {
-  return client.listCommunities({ limit: 30, sort: "TopMonth", type_: "All" });
+  return client.listCommunities({
+    limit: 30,
+    sort: "ActiveMonthly",
+    type_: "All",
+  });
 }
 
 function stringAsQueryParam(param?: string) {
@@ -86,7 +84,6 @@ function stringAsQueryParam(param?: string) {
 }
 
 interface CreatePostState {
-  siteRes: GetSiteResponse;
   loading: boolean;
   selectedCommunityChoice?: Choice;
   selectedCommunityIsNsfw: boolean;
@@ -111,7 +108,6 @@ export class CreatePost extends Component<
 > {
   private isoData = setIsoData<CreatePostData>(this.context);
   state: CreatePostState = {
-    siteRes: this.isoData.site_res,
     loading: false,
     initialCommunitiesRes: EMPTY_REQUEST,
     isIsomorphic: false,
@@ -227,17 +223,13 @@ export class CreatePost extends Component<
 
   get documentTitle(): string {
     return `${I18NextService.i18n.t("create_post")} - ${
-      this.state.siteRes.site_view.site.name
+      this.isoData.siteRes?.site_view.site.name
     }`;
   }
 
   render() {
-    const {
-      selectedCommunityChoice,
-      selectedCommunityIsNsfw,
-      siteRes,
-      loading,
-    } = this.state;
+    const { selectedCommunityChoice, selectedCommunityIsNsfw, loading } =
+      this.state;
     const {
       body,
       communityId,
@@ -260,6 +252,8 @@ export class CreatePost extends Component<
       alt_text: altText,
     };
 
+    const siteRes = this.isoData.siteRes;
+
     return (
       <div className="create-post container-lg">
         <HtmlTags
@@ -273,11 +267,10 @@ export class CreatePost extends Component<
               key={this.state.resetCounter}
               onCreate={this.handlePostCreate}
               params={params}
-              enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(siteRes)}
               enableNsfw={enableNsfw(siteRes)}
-              allLanguages={siteRes.all_languages}
-              siteLanguages={siteRes.discussion_languages}
+              showAdultConsentModal={this.isoData.showAdultConsentModal}
+              allLanguages={siteRes?.all_languages}
+              siteLanguages={siteRes?.discussion_languages}
               selectedCommunityChoice={selectedCommunityChoice}
               onSelectCommunity={this.handleSelectedCommunityChange}
               initialCommunities={
@@ -286,6 +279,9 @@ export class CreatePost extends Component<
                   : []
               }
               loading={loading}
+              myUserInfo={this.isoData.myUserInfo}
+              localSite={siteRes.site_view.local_site}
+              admins={this.isoData.siteRes.admins}
               onBodyBlur={this.handleBodyBlur}
               onLanguageChange={this.handleLanguageChange}
               onTitleBlur={this.handleTitleBlur}
@@ -386,7 +382,7 @@ export class CreatePost extends Component<
       this.setState({
         loading: false,
       });
-      toast(I18NextService.i18n.t(res.err.name), "danger");
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
   }
 

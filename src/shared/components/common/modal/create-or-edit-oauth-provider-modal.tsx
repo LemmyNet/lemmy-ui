@@ -14,7 +14,8 @@ import {
   EditOAuthProvider,
   OAuthProvider,
 } from "lemmy-js-client";
-import { ProviderToEdit } from "@utils/types/oauth";
+import { ProviderToEdit } from "@utils/types";
+import { NoOptionI18nKeys } from "i18next";
 
 export type CreateOrEditOAuthProviderModalData =
   | { type: "add"; provider?: ProviderToEdit }
@@ -37,7 +38,7 @@ interface CreateOrEditOAuthProviderModalState {
 
 interface ProviderFieldProps {
   id: string;
-  i18nKey: string;
+  i18nKey: NoOptionI18nKeys;
   onInput: FormEventHandler<HTMLInputElement>;
 }
 

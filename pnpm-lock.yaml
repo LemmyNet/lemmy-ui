@@ -44,6 +44,9 @@ importers:
       bootstrap:
         specifier: ^5.3.3
         version: 5.3.6(@popperjs/core@2.11.8)
+      caniuse-lite:
+        specifier: ^1.0.30001735
+        version: 1.0.30001735
       check-password-strength:
         specifier: ^3.0.0
         version: 3.0.0
@@ -90,32 +93,32 @@ importers:
         specifier: ^23.14.0
         version: 23.16.8
       inferno:
-        specifier: ^8.2.3
-        version: 8.2.3
+        specifier: ^9.0.3
+        version: 9.0.3
       inferno-create-element:
-        specifier: ^9.0.0
+        specifier: ^9.0.3
         version: 9.0.3
       inferno-helmet:
         specifier: ^5.2.1
-        version: 5.2.1(inferno@8.2.3)
+        version: 5.2.1(inferno@9.0.3)
       inferno-hydrate:
-        specifier: ^9.0.0
+        specifier: ^9.0.3
         version: 9.0.3
       inferno-i18next-dess:
         specifier: 0.0.2
         version: 0.0.2
       inferno-router:
-        specifier: ^8.2.3
-        version: 8.2.3(history@5.3.0)(path-to-regexp-es6@1.7.0)
+        specifier: ^9.0.3
+        version: 9.0.3(history@5.3.0)
       inferno-server:
-        specifier: ^9.0.0
+        specifier: ^9.0.3
         version: 9.0.3
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-alpha.1
-        version: 1.0.0-alpha.1
+        specifier: 1.0.0-instance-user-blocking.8
+        version: 1.0.0-instance-user-blocking.8
       lodash.isequal:
         specifier: ^4.5.0
         version: 4.5.0
@@ -2045,11 +2048,8 @@ packages:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
 
-  caniuse-lite@1.0.30001718:
-    resolution: {integrity: sha512-AflseV1ahcSunK53NfEs9gFWgOEmzr0f+kaMFA4xiLZlr9Hzt7HxcSpIFcnNCUkz6R6dWKa54rUz3HUmI3nVcw==}
-
-  caniuse-lite@1.0.30001720:
-    resolution: {integrity: sha512-Ec/2yV2nNPwb4DnTANEV99ZWwm3ZWfdlfkQbWSDDt+PsXEVYwlhPH8tdMaPunYTKKmz7AnHi2oNEi1GcmKCD8g==}
+  caniuse-lite@1.0.30001735:
+    resolution: {integrity: sha512-EV/laoX7Wq2J9TQlyIXRxTJqIw4sxfXS4OYgudGxBYRuTv0q7AM6yMEpU/Vo1I94thg9U6EZ2NfZx9GJq83u7w==}
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -2942,9 +2942,6 @@ packages:
   history@5.3.0:
     resolution: {integrity: sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==}
 
-  hoist-non-inferno-statics@1.1.3:
-    resolution: {integrity: sha512-mPrAYwL0lUL2jbJyqsg64gKbk3e4x9ESPsiejFVdhQP3IO4Ykuu8ZssIh1aKshAekk3aSVqxFVEkhzf1LpkzYg==}
-
   hpack.js@2.1.6:
     resolution: {integrity: sha512-zJxVehUdMGIKsRaNt7apO2Gqp0BdqW5yaiGHXXmbpvxgBYVZnAql+BJb4RO5ad2MgpbZKn5G6nMnegrH1FcNYQ==}
 
@@ -3084,11 +3081,10 @@ packages:
   inferno-i18next-dess@0.0.2:
     resolution: {integrity: sha512-TkpBTZzfqgK7O8gIJ7gLB9CvP1bEOfO8OA7vUfJpd2kgGom9eoj6xbAMUPk5BNH6nBN5Y+mCaG/dInQjW5Jkug==}
 
-  inferno-router@8.2.3:
-    resolution: {integrity: sha512-1AWsV8k/XKttlGFJkCAkVdMLe69zAbH12rMhl6uxVy8W2rD8okYsM/M7KUzbYqO1KnDfnXE5zV5XqanTotp6Cg==}
+  inferno-router@9.0.3:
+    resolution: {integrity: sha512-FBpOcqzgq4PCqjaFqfNqTGpAI9RtV3zMEcP6g4RAgggNH+/kjRuvWxDV/ziM/fcSlgCOqVT129/8voyXsT6zEQ==}
     peerDependencies:
       history: ^5.3.0
-      path-to-regexp-es6: 1.7.0
 
   inferno-server@9.0.3:
     resolution: {integrity: sha512-gLdNcOfqfio5CTW1Ssyn2uvw46IDhKlvkMxtK7dyW5ek3iIpQibtuqG8fKqh01VmhsJaQUkccQvRZ1CGgBdswg==}
@@ -3514,8 +3510,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  lemmy-js-client@1.0.0-alpha.1:
-    resolution: {integrity: sha512-PT7gCQW7xJQeo/lmx7LzQLKH++ptNTRb3SeFsg0R2NTGQyBv9uOcoQOb2y9MsU7t7WTQNo3eAzH2J7FWgS4jkw==}
+  lemmy-js-client@1.0.0-instance-user-blocking.8:
+    resolution: {integrity: sha512-hJhb5lJK4iDPb7K2MbodEFT0pliO5mwyL67YqE/opnkUo/LibdsbkSn3Himg6AcdnGv9lWnOUnZbwxrIvGLB1g==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -4046,14 +4042,11 @@ packages:
     resolution: {integrity: sha512-ypGJsmGtdXUOeM5u93TyeIEfEhM6s+ljAhrk5vAvSx8uyY/02OvrZnA0YNGUrPXfpJMgI1ODd3nwz8Npx4O4cg==}
     engines: {node: 20 || >=22}
 
-  path-to-regexp-es6@1.7.0:
-    resolution: {integrity: sha512-QdT7okCAMGv7FR7w6KWFH9OSMivOgtXAGKodD6MDZBNR/XNL16W+hHoj6qBmV6cy/7eR1fr0Qujrg9OhBf5QPw==}
-
   path-to-regexp@0.1.12:
     resolution: {integrity: sha512-RA1GjUVMnvYFxuqovrEqZoxxW5NUZqbwKtYz/Tt7nXerk0LbLblQmrsgdeOxV5SFHf0UDggjS/bSeOZwt1pmEQ==}
 
-  path-to-regexp@1.7.0:
-    resolution: {integrity: sha512-nifX1uj4S9IrK/w3Xe7kKvNEepXivANs9ng60Iq7PU/BlouV3yL/VUhFqTuTq33ykwUqoNcTeGo5vdOBP4jS/Q==}
+  path-to-regexp@1.9.0:
+    resolution: {integrity: sha512-xIp7/apCFJuUHdDLWe8O1HIkb0kQrOMb/0u6FXQjemHn/ii5LrIzU6bdECnsiTF/GjZkMEKg1xdiZwNqDYlZ6g==}
 
   path-to-regexp@8.2.0:
     resolution: {integrity: sha512-TdrF7fW9Rphjq4RjrW0Kp2AW0Ahwu9sRGTkS6bvDi0SCwZlEZYmcfDbEsTz8RVk0EHIS/Vd1bv3JhG+1xZuAyQ==}
@@ -7184,14 +7177,14 @@ snapshots:
 
   browserslist@4.24.5:
     dependencies:
-      caniuse-lite: 1.0.30001718
+      caniuse-lite: 1.0.30001735
       electron-to-chromium: 1.5.157
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.24.5)
 
   browserslist@4.25.0:
     dependencies:
-      caniuse-lite: 1.0.30001720
+      caniuse-lite: 1.0.30001735
       electron-to-chromium: 1.5.161
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.25.0)
@@ -7245,9 +7238,7 @@ snapshots:
 
   callsites@3.1.0: {}
 
-  caniuse-lite@1.0.30001718: {}
-
-  caniuse-lite@1.0.30001720: {}
+  caniuse-lite@1.0.30001735: {}
 
   chalk@4.1.2:
     dependencies:
@@ -8314,8 +8305,6 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.27.6
 
-  hoist-non-inferno-statics@1.1.3: {}
-
   hpack.js@2.1.6:
     dependencies:
       inherits: 2.0.4
@@ -8475,10 +8464,10 @@ snapshots:
     dependencies:
       inferno: 9.0.3
 
-  inferno-helmet@5.2.1(inferno@8.2.3):
+  inferno-helmet@5.2.1(inferno@9.0.3):
     dependencies:
       deep-equal: 1.1.2
-      inferno-side-effect: 1.1.5(inferno@8.2.3)
+      inferno-side-effect: 1.1.5(inferno@9.0.3)
       object-assign: 4.1.1
     transitivePeerDependencies:
       - inferno
@@ -8496,12 +8485,11 @@ snapshots:
       inferno-shared: 8.2.3
       inferno-vnode-flags: 8.2.3
 
-  inferno-router@8.2.3(history@5.3.0)(path-to-regexp-es6@1.7.0):
+  inferno-router@9.0.3(history@5.3.0):
     dependencies:
       history: 5.3.0
-      hoist-non-inferno-statics: 1.1.3
-      inferno: 8.2.3
-      path-to-regexp-es6: 1.7.0
+      inferno: 9.0.3
+      path-to-regexp: 1.9.0
 
   inferno-server@9.0.3:
     dependencies:
@@ -8509,10 +8497,10 @@ snapshots:
 
   inferno-shared@8.2.3: {}
 
-  inferno-side-effect@1.1.5(inferno@8.2.3):
+  inferno-side-effect@1.1.5(inferno@9.0.3):
     dependencies:
       exenv: 1.2.2
-      inferno: 8.2.3
+      inferno: 9.0.3
       npm: 5.10.0
       shallowequal: 1.1.0
 
@@ -8901,7 +8889,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  lemmy-js-client@1.0.0-alpha.1:
+  lemmy-js-client@1.0.0-instance-user-blocking.8:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:
@@ -9288,13 +9276,9 @@ snapshots:
       lru-cache: 11.1.0
       minipass: 7.1.2
 
-  path-to-regexp-es6@1.7.0:
-    dependencies:
-      path-to-regexp: 1.7.0
-
   path-to-regexp@0.1.12: {}
 
-  path-to-regexp@1.7.0:
+  path-to-regexp@1.9.0:
     dependencies:
       isarray: 0.0.1
 

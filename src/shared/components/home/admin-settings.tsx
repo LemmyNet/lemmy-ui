@@ -1,11 +1,15 @@
 import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
-import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
+import {
+  capitalizeFirstLetter,
+  cursorComponents,
+  resourcesSettled,
+} from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { RouteDataResponse } from "@utils/types";
+import { DirectionalCursor, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component } from "inferno";
 import {
-  BannedPersonsResponse,
+  AdminListUsersResponse,
   CreateOAuthProvider,
   DeleteOAuthProvider,
   EditOAuthProvider,
@@ -14,9 +18,8 @@ import {
   GetSiteResponse,
   LemmyHttp,
   ListMediaResponse,
-  PersonView,
 } from "lemmy-js-client";
-import { InitialFetchRequest } from "../../interfaces";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -25,7 +28,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
@@ -36,29 +39,30 @@ import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { MediaUploads } from "../common/media-uploads";
-import { Paginator } from "../common/paginator";
 import { snapToTop } from "@utils/browser";
 import { isBrowser } from "@utils/browser";
 import ConfirmationModal from "../common/modal/confirmation-modal";
 import OAuthProvidersTab from "./oauth/oauth-providers-tab";
+import { InstanceBlocks } from "./instance-blocks";
+import { PaginatorCursor } from "@components/common/paginator-cursor";
+import { fetchLimit } from "@utils/config";
 
 type AdminSettingsData = RouteDataResponse<{
-  bannedRes: BannedPersonsResponse;
+  usersRes: AdminListUsersResponse;
   instancesRes: GetFederatedInstancesResponse;
   uploadsRes: ListMediaResponse;
 }>;
 
 interface AdminSettingsState {
-  siteRes: GetSiteResponse;
-  banned: PersonView[];
   instancesRes: RequestState<GetFederatedInstancesResponse>;
-  bannedRes: RequestState<BannedPersonsResponse>;
+  usersRes: RequestState<AdminListUsersResponse>;
+  usersCursor?: DirectionalCursor;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<ListMediaResponse>;
-  uploadsPage: number;
+  uploadsCursor?: DirectionalCursor;
   loading: boolean;
   themeList: string[];
   isIsomorphic: boolean;
@@ -79,14 +83,11 @@ export class AdminSettings extends Component<
 > {
   private isoData = setIsoData<AdminSettingsData>(this.context);
   state: AdminSettingsState = {
-    siteRes: this.isoData.site_res,
-    banned: [],
-    bannedRes: EMPTY_REQUEST,
+    usersRes: EMPTY_REQUEST,
     instancesRes: EMPTY_REQUEST,
     leaveAdminTeamRes: EMPTY_REQUEST,
     showConfirmLeaveAdmin: false,
     uploadsRes: EMPTY_REQUEST,
-    uploadsPage: 1,
     loading: false,
     themeList: [],
     isIsomorphic: false,
@@ -94,7 +95,7 @@ export class AdminSettings extends Component<
 
   loadingSettled() {
     return resourcesSettled([
-      this.state.bannedRes,
+      this.state.usersRes,
       this.state.instancesRes,
       this.state.uploadsRes,
     ]);
@@ -104,6 +105,7 @@ export class AdminSettings extends Component<
     super(props, context);
 
     this.handleEditSite = this.handleEditSite.bind(this);
+    this.handleUsersPageChange = this.handleUsersPageChange.bind(this);
     this.handleUploadsPageChange = this.handleUploadsPageChange.bind(this);
     this.handleToggleShowLeaveAdminConfirmation =
       this.handleToggleShowLeaveAdminConfirmation.bind(this);
@@ -114,11 +116,11 @@ export class AdminSettings extends Component<
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const { bannedRes, instancesRes, uploadsRes } = this.isoData.routeData;
+      const { usersRes, instancesRes, uploadsRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
-        bannedRes,
+        usersRes,
         instancesRes,
         uploadsRes,
         isIsomorphic: true,
@@ -133,9 +135,9 @@ export class AdminSettings extends Component<
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
-      bannedRes: await client.getBannedPersons(),
+      usersRes: await client.listUsers({ banned_only: true }),
       instancesRes: await client.getFederatedInstances(),
-      uploadsRes: await client.listAllMedia(),
+      uploadsRes: await client.listMediaAdmin({ limit: fetchLimit }),
     };
   }
 
@@ -152,7 +154,7 @@ export class AdminSettings extends Component<
 
   get documentTitle(): string {
     return `${I18NextService.i18n.t("admin_settings")} - ${
-      this.state.siteRes.site_view.site.name
+      this.isoData.siteRes?.site_view.site.name
     }`;
   }
 
@@ -188,16 +190,37 @@ export class AdminSettings extends Component<
                     <div className="col-12 col-md-6">
                       <SiteForm
                         showLocal={showLocal(this.isoData)}
-                        allowedInstances={federationData?.allowed}
-                        blockedInstances={federationData?.blocked}
                         onSaveSite={this.handleEditSite}
-                        siteRes={this.state.siteRes}
+                        siteRes={this.isoData.siteRes}
                         themeList={this.state.themeList}
                         loading={this.state.loading}
+                        myUserInfo={this.isoData.myUserInfo}
                       />
                     </div>
                     <div className="col-12 col-md-6">{this.admins()}</div>
                   </div>
+                </div>
+              ),
+            },
+            {
+              key: "instance_blocks",
+              label: I18NextService.i18n.t("instances"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="instance_blocks-tab-pane"
+                >
+                  {federationData ? (
+                    <InstanceBlocks
+                      blockedInstances={federationData.blocked}
+                      allowedInstances={federationData.allowed}
+                    />
+                  ) : (
+                    <Spinner />
+                  )}
                 </div>
               ),
             },
@@ -229,7 +252,7 @@ export class AdminSettings extends Component<
                 >
                   <RateLimitForm
                     rateLimits={
-                      this.state.siteRes.site_view.local_site_rate_limit
+                      this.isoData.siteRes?.site_view.local_site_rate_limit
                     }
                     onSaveSite={this.handleEditSite}
                     loading={this.state.loading}
@@ -249,7 +272,7 @@ export class AdminSettings extends Component<
                   id="taglines-tab-pane"
                 >
                   <div className="row">
-                    <TaglineForm />
+                    <TaglineForm myUserInfo={this.isoData.myUserInfo} />
                   </div>
                 </div>
               ),
@@ -299,7 +322,7 @@ export class AdminSettings extends Component<
                 >
                   <OAuthProvidersTab
                     oauthProviders={
-                      this.state.siteRes.admin_oauth_providers ?? []
+                      this.isoData.siteRes?.admin_oauth_providers ?? []
                     }
                     onCreate={this.handleCreateOAuthProvider}
                     onDelete={this.handleDeleteOAuthProvider}
@@ -316,33 +339,50 @@ export class AdminSettings extends Component<
 
   async fetchData() {
     this.setState({
-      bannedRes: LOADING_REQUEST,
+      usersRes: LOADING_REQUEST,
       instancesRes: LOADING_REQUEST,
       uploadsRes: LOADING_REQUEST,
       themeList: [],
     });
 
-    const [bannedRes, instancesRes, uploadsRes, themeList] = await Promise.all([
-      HttpService.client.getBannedPersons(),
+    const [usersRes, instancesRes, uploadsRes, themeList] = await Promise.all([
+      HttpService.client.listUsers({
+        banned_only: true,
+        ...cursorComponents(this.state.usersCursor),
+        limit: fetchLimit,
+      }),
       HttpService.client.getFederatedInstances(),
-      HttpService.client.listAllMedia({
-        page: this.state.uploadsPage,
+      HttpService.client.listMediaAdmin({
+        ...cursorComponents(this.state.uploadsCursor),
+        limit: fetchLimit,
       }),
       fetchThemeList(),
     ]);
 
     this.setState({
-      bannedRes,
+      usersRes,
       instancesRes,
       uploadsRes,
       themeList,
     });
   }
 
-  async fetchUploadsOnly() {
-    const uploadsRes = await HttpService.client.listAllMedia({
-      page: this.state.uploadsPage,
+  async fetchUsersOnly() {
+    const usersRes = await HttpService.client.listUsers({
+      ...cursorComponents(this.state.uploadsCursor),
+      banned_only: true,
+      limit: fetchLimit,
     });
+
+    this.setState({ usersRes });
+  }
+
+  async fetchUploadsOnly() {
+    const uploadsRes = await HttpService.client.listMediaAdmin({
+      ...cursorComponents(this.state.uploadsCursor),
+      limit: fetchLimit,
+    });
+
     this.setState({ uploadsRes });
   }
 
@@ -353,9 +393,12 @@ export class AdminSettings extends Component<
           {capitalizeFirstLetter(I18NextService.i18n.t("admins"))}
         </h2>
         <ul className="list-unstyled">
-          {this.state.siteRes.admins.map(admin => (
+          {this.isoData.siteRes?.admins.map(admin => (
             <li key={admin.person.id} className="list-inline-item">
-              <PersonListing person={admin.person} />
+              <PersonListing
+                person={admin.person}
+                myUserInfo={this.isoData.myUserInfo}
+              />
             </li>
           ))}
         </ul>
@@ -387,7 +430,7 @@ export class AdminSettings extends Component<
   }
 
   bannedUsers() {
-    switch (this.state.bannedRes.state) {
+    switch (this.state.usersRes.state) {
       case "loading":
         return (
           <h5>
@@ -395,17 +438,25 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const bans = this.state.bannedRes.data.banned;
+        const bans = this.state.usersRes.data.users;
         return (
           <>
             <h1 className="h4 mb-4">{I18NextService.i18n.t("banned_users")}</h1>
             <ul className="list-unstyled">
               {bans.map(banned => (
                 <li key={banned.person.id} className="list-inline-item">
-                  <PersonListing person={banned.person} />
+                  <PersonListing
+                    person={banned.person}
+                    myUserInfo={this.isoData.myUserInfo}
+                  />
                 </li>
               ))}
             </ul>
+            <PaginatorCursor
+              current={this.state.usersCursor}
+              resource={this.state.usersRes}
+              onPageChange={this.handleUsersPageChange}
+            />
           </>
         );
       }
@@ -424,11 +475,15 @@ export class AdminSettings extends Component<
         const uploadsRes = this.state.uploadsRes.data;
         return (
           <div>
-            <MediaUploads showUploader uploads={uploadsRes} />
-            <Paginator
-              page={this.state.uploadsPage}
-              onChange={this.handleUploadsPageChange}
-              nextDisabled={false}
+            <MediaUploads
+              showUploader
+              uploads={uploadsRes}
+              myUserInfo={this.isoData.myUserInfo}
+            />
+            <PaginatorCursor
+              current={this.state.uploadsCursor}
+              resource={this.state.uploadsRes}
+              onPageChange={this.handleUploadsPageChange}
             />
           </div>
         );
@@ -442,11 +497,7 @@ export class AdminSettings extends Component<
     const editRes = await HttpService.client.editSite(form);
 
     if (editRes.state === "success") {
-      this.setState(s => {
-        s.siteRes.site_view = editRes.data.site_view;
-        // TODO: Where to get taglines from?
-        return s;
-      });
+      this.forceUpdate();
       toast(I18NextService.i18n.t("site_saved"));
 
       // You need to reload the page, to properly update the siteRes everywhere
@@ -477,8 +528,13 @@ export class AdminSettings extends Component<
     }
   }
 
-  async handleUploadsPageChange(val: number) {
-    this.setState({ uploadsPage: val });
+  async handleUsersPageChange(cursor: DirectionalCursor) {
+    this.setState({ usersCursor: cursor });
+    await this.fetchData();
+  }
+
+  async handleUploadsPageChange(cursor: DirectionalCursor) {
+    this.setState({ uploadsCursor: cursor });
     snapToTop();
     await this.fetchUploadsOnly();
   }
@@ -490,14 +546,11 @@ export class AdminSettings extends Component<
 
     if (res.state === "success") {
       const newOAuthProvider = res.data;
-      this.setState(s => {
-        s.siteRes.admin_oauth_providers = (
-          s.siteRes.admin_oauth_providers ?? []
-        ).map(p => {
+      this.isoData.siteRes.oauth_providers =
+        this.isoData.siteRes.oauth_providers?.map(p => {
           return p?.id === newOAuthProvider.id ? newOAuthProvider : p;
-        });
-        return s;
-      });
+        }) ?? [newOAuthProvider];
+      this.forceUpdate();
       toast(I18NextService.i18n.t("site_saved"));
     } else {
       toast(I18NextService.i18n.t("couldnt_edit_oauth_provider"), "danger");
@@ -512,12 +565,9 @@ export class AdminSettings extends Component<
     const res = await HttpService.client.deleteOAuthProvider(form);
 
     if (res.state === "success") {
-      this.setState(s => {
-        s.siteRes.admin_oauth_providers = (
-          s.siteRes.admin_oauth_providers ?? []
-        ).filter(p => p.id !== form.id);
-        return s;
-      });
+      this.isoData.siteRes.oauth_providers =
+        this.isoData.siteRes.oauth_providers?.filter(p => p.id !== form.id);
+      this.forceUpdate();
       toast(I18NextService.i18n.t("site_saved"));
     } else {
       toast(I18NextService.i18n.t("couldnt_delete_oauth_provider"), "danger");
@@ -531,12 +581,11 @@ export class AdminSettings extends Component<
 
     const res = await HttpService.client.createOAuthProvider(form);
     if (res.state === "success") {
-      this.setState(s => {
-        s.siteRes.admin_oauth_providers = [
-          ...(s.siteRes.admin_oauth_providers ?? []),
-          res.data,
-        ];
-      });
+      this.isoData.siteRes.oauth_providers = [
+        ...(this.isoData.siteRes.oauth_providers ?? []),
+        res.data,
+      ];
+      this.forceUpdate();
       toast(I18NextService.i18n.t("site_saved"));
     } else {
       toast(I18NextService.i18n.t("couldnt_create_oauth_provider"), "danger");

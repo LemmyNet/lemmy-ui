@@ -1,10 +1,11 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
+  MyUserInfo,
   PrivateMessageReportView,
   ResolvePrivateMessageReport,
 } from "lemmy-js-client";
-import { mdToHtmlNoImages } from "../../markdown";
+import { mdToHtmlNoImages } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
@@ -12,6 +13,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface Props {
   report: PrivateMessageReportView;
+  myUserInfo: MyUserInfo | undefined;
   onResolveReport(form: ResolvePrivateMessageReport): void;
 }
 
@@ -48,7 +50,10 @@ export class PrivateMessageReport extends Component<Props, State> {
       <div className="private-message-report">
         <div>
           {I18NextService.i18n.t("creator")}:{" "}
-          <PersonListing person={r.private_message_creator} />
+          <PersonListing
+            person={r.private_message_creator}
+            myUserInfo={this.props.myUserInfo}
+          />
         </div>
         <div>
           {I18NextService.i18n.t("message")}:
@@ -62,7 +67,10 @@ export class PrivateMessageReport extends Component<Props, State> {
         </div>
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}
-          <PersonListing person={r.creator} />
+          <PersonListing
+            person={r.creator}
+            myUserInfo={this.props.myUserInfo}
+          />
         </div>
         <div>
           {I18NextService.i18n.t("reason")}: {pmr.reason}
@@ -72,12 +80,18 @@ export class PrivateMessageReport extends Component<Props, State> {
             {pmr.resolved ? (
               <T i18nKey="resolved_by">
                 #
-                <PersonListing person={r.resolver} />
+                <PersonListing
+                  person={r.resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             ) : (
               <T i18nKey="unresolved_by">
                 #
-                <PersonListing person={r.resolver} />
+                <PersonListing
+                  person={r.resolver}
+                  myUserInfo={this.props.myUserInfo}
+                />
               </T>
             )}
           </div>

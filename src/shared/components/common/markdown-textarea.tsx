@@ -6,23 +6,23 @@ import { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent } from "inferno";
 import { createElement } from "inferno-create-element";
 import { Prompt } from "inferno-router";
-import { Language } from "lemmy-js-client";
+import { Language, LanguageId, MyUserInfo } from "lemmy-js-client";
 import {
   concurrentImageUpload,
   markdownFieldCharacterLimit,
   markdownHelpUrl,
   maxUploadImages,
   relTags,
-} from "../../config";
-import { customEmojisLookup, mdToHtml, setupTribute } from "../../markdown";
-import { HttpService, I18NextService, UserService } from "../../services";
+} from "@utils/config";
+import { customEmojisLookup, mdToHtml, setupTribute } from "@utils/markdown";
+import { HttpService, I18NextService } from "@services/index";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { pictrsDeleteToast, toast } from "../../toast";
+import { pictrsDeleteToast, toast } from "@utils/app";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 import ProgressBar from "./progress-bar";
-import validUrl from "@utils/helpers/valid-url";
+import { validURL } from "@utils/helpers";
 interface MarkdownTextAreaProps {
   /**
    * Initial content inside the textarea
@@ -51,9 +51,10 @@ interface MarkdownTextAreaProps {
   onContentBlur?(val: string): void;
   onReplyCancel?(): void;
   onSubmit?(content: string, languageId?: number): Promise<boolean>;
-  allLanguages: Language[]; // TODO should probably be nullable
-  siteLanguages: number[]; // TODO same
+  allLanguages?: Language[];
+  siteLanguages?: LanguageId[];
   renderAsDiv?: boolean;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 interface ImageUploadStatus {
@@ -150,7 +151,7 @@ export class MarkdownTextArea extends Component<
                   <label
                     htmlFor={`file-upload-${this.id}`}
                     className={classNames("mb-0", {
-                      pointer: UserService.Instance.myUserInfo,
+                      pointer: this.props.myUserInfo,
                     })}
                     data-tippy-content={I18NextService.i18n.t("upload_image")}
                   >
@@ -177,7 +178,7 @@ export class MarkdownTextArea extends Component<
                     name="file"
                     className="d-none"
                     multiple
-                    disabled={!UserService.Instance.myUserInfo}
+                    disabled={!this.props.myUserInfo}
                     onChange={linkEvent(this, this.handleImageUpload)}
                   />
                   {this.getFormatButton("header", this.handleInsertHeader)}
@@ -307,6 +308,7 @@ export class MarkdownTextArea extends Component<
                 siteLanguages={this.props.siteLanguages}
                 onChange={this.handleLanguageChange}
                 disabled={this.isDisabled}
+                myUserInfo={this.props.myUserInfo}
               />
             )}
           </div>
@@ -375,7 +377,7 @@ export class MarkdownTextArea extends Component<
 
     // check clipboard url
     const url = event.clipboardData.getData("text");
-    if (validUrl(url)) {
+    if (validURL(url)) {
       i.handleUrlPaste(url, i, event);
     }
   }
@@ -463,39 +465,31 @@ export class MarkdownTextArea extends Component<
   async uploadSingleImage(i: MarkdownTextArea, image: File) {
     const res = await HttpService.client.uploadImage({ image });
     if (res.state === "success") {
-      if (res.data.msg === "ok") {
-        const imageMarkdown = `![](${res.data.url})`;
-        const textarea: HTMLTextAreaElement = document.getElementById(
-          i.id,
-        ) as HTMLTextAreaElement;
-        const cursorPosition = textarea.selectionStart;
+      const imageMarkdown = `![](${res.data.image_url})`;
+      const textarea: HTMLTextAreaElement = document.getElementById(
+        i.id,
+      ) as HTMLTextAreaElement;
+      const cursorPosition = textarea.selectionStart;
 
-        i.setState(({ content }) => {
-          const currentContent = content || "";
-          return {
-            content:
-              currentContent.slice(0, cursorPosition) +
-              imageMarkdown +
-              currentContent.slice(cursorPosition),
-          };
-        });
+      i.setState(({ content }) => {
+        const currentContent = content ?? "";
+        return {
+          content:
+            currentContent.slice(0, cursorPosition) +
+            imageMarkdown +
+            currentContent.slice(cursorPosition),
+        };
+      });
 
-        i.contentChange();
-        // Update cursor position to after the inserted image link
-        setTimeout(() => {
-          textarea.selectionStart = cursorPosition + imageMarkdown.length;
-          textarea.selectionEnd = cursorPosition + imageMarkdown.length;
-          autosize.update(textarea);
-        }, 10);
+      i.contentChange();
+      // Update cursor position to after the inserted image link
+      setTimeout(() => {
+        textarea.selectionStart = cursorPosition + imageMarkdown.length;
+        textarea.selectionEnd = cursorPosition + imageMarkdown.length;
+        autosize.update(textarea);
+      }, 10);
 
-        pictrsDeleteToast(image.name, res.data.delete_url as string);
-      } else if (res.data.msg === "too_large") {
-        toast(I18NextService.i18n.t("upload_too_large"), "danger");
-        i.setState({ imageUploadStatus: undefined });
-        throw JSON.stringify(res.data);
-      } else {
-        throw JSON.stringify(res.data);
-      }
+      pictrsDeleteToast(res.data.filename);
     } else if (res.state === "failed") {
       i.setState({ imageUploadStatus: undefined });
       console.error(res.err.name);
@@ -530,7 +524,7 @@ export class MarkdownTextArea extends Component<
           break;
         }
         case "Enter": {
-          if (!this.isDisabled) {
+          if (!i.isDisabled) {
             i.handleSubmit(i, event);
           }
 
