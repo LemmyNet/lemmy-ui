@@ -320,7 +320,7 @@ importers:
         version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
       typescript-language-server:
         specifier: ^4.3.3
-        version: 4.3.4
+        version: 4.4.0
       webpack-bundle-analyzer:
         specifier: ^4.10.2
         version: 4.10.2
@@ -4877,8 +4877,8 @@ packages:
       eslint: ^8.57.0 || ^9.0.0
       typescript: '>=4.8.4 <5.9.0'
 
-  typescript-language-server@4.3.4:
-    resolution: {integrity: sha512-0pQ4ffAarsf10VwFhyyyqNJhuDd4r6f4dSsQN38WdbQ3WVxqi08p/bI//v1VnOV5CSVd4AeOUY/jfJYheHTQPQ==}
+  typescript-language-server@4.4.0:
+    resolution: {integrity: sha512-enWhplhHX7PA0q+IcKHBMpTQh9I2Bmb3L45rwnkATHMsZ7YLduyyCdOmVUWJSYZfkWaBMiKwi/e2FQo4xsKeWw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -10301,7 +10301,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  typescript-language-server@4.3.4:
+  typescript-language-server@4.4.0:
     dependencies:
       vscode-jsonrpc: 5.0.1
       vscode-languageserver-protocol: 3.17.5
