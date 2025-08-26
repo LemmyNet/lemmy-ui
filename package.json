@@ -52,7 +52,7 @@
     "highlight.js": "^11.10.0",
     "history": "^5.3.0",
     "html-to-text": "^9.0.5",
-    "i18next": "^23.14.0",
+    "i18next": "^25.0.0",
     "inferno": "^9.0.3",
     "inferno-create-element": "^9.0.3",
     "inferno-helmet": "^5.2.1",
