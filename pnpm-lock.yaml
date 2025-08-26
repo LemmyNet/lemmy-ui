@@ -154,7 +154,7 @@ importers:
         version: 2.0.0
       mini-css-extract-plugin:
         specifier: ^2.9.1
-        version: 2.9.2(webpack@5.99.9)
+        version: 2.9.4(webpack@5.99.9)
       qreator:
         specifier: ^9.3.0
         version: 9.7.1
@@ -2667,8 +2667,8 @@ packages:
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
-  fast-uri@3.0.6:
-    resolution: {integrity: sha512-Atfo14OibSv5wAp4VWNsFYE1AchQRTv9cBGWET4pZWHzYshFSS9NQI6I57rdKn9croWVMbYFbLhJ+yJvmZIIHw==}
+  fast-uri@3.1.0:
+    resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
 
   fastest-levenshtein@1.0.16:
     resolution: {integrity: sha512-eRnCtTTtGZFpQCwhJiUOuxPQWRXVKYDn0b2PeHfXL6/Zi53SLAzAHfVhVWK2AryC/WH05kGfxhFIPvTF0SXQzg==}
@@ -3693,8 +3693,8 @@ packages:
   mimoza@1.0.0:
     resolution: {integrity: sha512-+j7SSye/hablu66K/jjeyPmk6WL8RoXfeZ+MMn37vSNDGuaWY/5wm10LpSpxAHX4kNoEwkTWYHba8ePVip+Hqg==}
 
-  mini-css-extract-plugin@2.9.2:
-    resolution: {integrity: sha512-GJuACcS//jtq4kCtd5ii/M0SZf7OZRH+BxdqXZHaJfb8TJiVl+NgQRPwiYt2EuqeSkNydn/7vP+bcE27C5mb9w==}
+  mini-css-extract-plugin@2.9.4:
+    resolution: {integrity: sha512-ZWYT7ln73Hptxqxk2DxPU9MmapXRhxkJD6tkSR04dnQxm8BGu2hzgKLugK5yySD97u/8yy7Ma7E76k9ZdvtjkQ==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
@@ -4731,12 +4731,12 @@ packages:
     resolution: {integrity: sha512-+XZ+r1XGIJGeQk3VvXhT6xx/VpbHsRzsTkGgF6E5RX9TTXD0118l87puaEBZ566FhqblC6U0d4XnubznJDm30A==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  tapable@2.2.1:
-    resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
-    engines: {node: '>=6'}
-
   tapable@2.2.2:
     resolution: {integrity: sha512-Re10+NauLTMCudc7T5WLFLAwDhQ0JWdrMK+9B2M8zR5hRExKmsRDCBA7/aV/pNJFltmBFO5BAMlQFi/vq3nKOg==}
+    engines: {node: '>=6'}
+
+  tapable@2.2.3:
+    resolution: {integrity: sha512-ZL6DDuAlRlLGghwcfmSn9sK3Hr6ArtyudlSAiCqQ6IfE+b+HHbydbYDIG15IfS5do+7XQQBdBiubF/cV2dnDzg==}
     engines: {node: '>=6'}
 
   temp-dir@2.0.0:
@@ -6967,7 +6967,7 @@ snapshots:
   ajv@8.17.1:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.0.6
+      fast-uri: 3.1.0
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -7373,7 +7373,7 @@ snapshots:
       glob-parent: 6.0.2
       globby: 13.2.2
       normalize-path: 3.0.0
-      schema-utils: 4.3.2
+      schema-utils: 4.2.0
       serialize-javascript: 6.0.2
       webpack: 5.99.9(webpack-cli@6.0.1)
 
@@ -8024,7 +8024,7 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fast-uri@3.0.6: {}
+  fast-uri@3.1.0: {}
 
   fastest-levenshtein@1.0.16: {}
 
@@ -9069,10 +9069,10 @@ snapshots:
     dependencies:
       mime-db: 1.53.0
 
-  mini-css-extract-plugin@2.9.2(webpack@5.99.9):
+  mini-css-extract-plugin@2.9.4(webpack@5.99.9):
     dependencies:
-      schema-utils: 4.2.0
-      tapable: 2.2.1
+      schema-utils: 4.3.2
+      tapable: 2.2.3
       webpack: 5.99.9(webpack-cli@6.0.1)
 
   minimalistic-assert@1.0.1: {}
@@ -10120,9 +10120,9 @@ snapshots:
     dependencies:
       '@pkgr/core': 0.2.4
 
-  tapable@2.2.1: {}
-
   tapable@2.2.2: {}
+
+  tapable@2.2.3: {}
 
   temp-dir@2.0.0: {}
 
@@ -10479,7 +10479,7 @@ snapshots:
 
   webpack-inject-entry-plugin@0.0.4(webpack@5.99.9):
     dependencies:
-      schema-utils: 4.3.2
+      schema-utils: 4.2.0
       webpack: 5.99.9(webpack-cli@6.0.1)
 
   webpack-merge@6.0.1:
