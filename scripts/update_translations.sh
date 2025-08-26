@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+CWD="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+cd "$CWD/../"
+
 pushd ../lemmy-translations
 git fetch weblate
 git merge weblate/main
@@ -9,10 +12,10 @@ popd
 
 # look for unused translations
 for langfile in lemmy-translations/translations/*.json; do
-    lang=$(basename $langfile .json)
-    if ! grep -q "\"./translations/$lang\"" src/shared/services/I18NextService.ts; then
-      echo "Unused language $lang"
-    fi
+  lang=$(basename $langfile .json)
+  if ! grep -q "\"./translations/$lang\"" src/shared/services/I18NextService.ts; then
+    echo "Unused language $lang"
+  fi
 done
 
 git submodule update --remote

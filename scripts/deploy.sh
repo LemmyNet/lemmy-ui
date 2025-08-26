@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+CWD="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+cd "$CWD/../"
+
 new_tag="$1"
 
 # Old deploy
