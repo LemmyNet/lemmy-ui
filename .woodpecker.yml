@@ -19,6 +19,13 @@ steps:
     when:
       - event: pull_request
 
+  prettier_check:
+    image: tmknom/prettier:3.6.2
+    commands:
+      - prettier -c .
+    when:
+      - event: pull_request
+
   lint:
     image: node:22-alpine
     commands:
