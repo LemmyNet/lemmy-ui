@@ -205,7 +205,7 @@ export default class TotpModal extends Component<
 
       this.setState({
         qrCode: URL.createObjectURL(
-          new Blob([(await getSVG(this.props.secretUrl!)).buffer], {
+          new Blob([(await getSVG(this.props.secretUrl!).buffer) as BlobPart], {
             type: "image/svg+xml",
           }),
         ),
