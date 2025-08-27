@@ -3,5 +3,5 @@
   "extends": ["config:recommended"],
   "schedule": ["every weekend"],
   "automerge": true,
-  "ignoreDeps": ["lemmy-js-client"]
+  "ignoreDeps": ["lemmy-js-client", "i18next"]
 }

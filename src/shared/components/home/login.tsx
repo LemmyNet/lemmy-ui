@@ -96,6 +96,8 @@ async function handleLoginSubmit(i: Login, event: any) {
       case "failed": {
         if (loginRes.err.name === "missing_totp_token") {
           i.setState({ show2faModal: true });
+        } else if (loginRes.err.name === "not_found") {
+          toast(I18NextService.i18n.t("incorrect_login"), "danger");
         } else {
           let errStr: string = I18NextService.i18n.t(
             loginRes.err.name === "registration_application_is_pending"
