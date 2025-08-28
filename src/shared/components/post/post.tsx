@@ -1,7 +1,7 @@
 import {
   buildCommentsTree,
   commentsToFlatNodes,
-  editComment,
+  editCommentSlim,
   enableNsfw,
   getCommentIdFromProps,
   getCommentParentId,
@@ -56,6 +56,7 @@ import {
   FollowCommunity,
   GetComments,
   GetCommentsResponse,
+  GetCommentsSlimResponse,
   GetCommunityResponse,
   GetPost,
   GetPostResponse,
@@ -115,7 +116,7 @@ type PostData = RouteDataResponse<{
 
 interface PostState {
   postRes: RequestState<GetPostResponse>;
-  commentsRes: RequestState<GetCommentsResponse>;
+  commentsRes: RequestState<GetCommentsSlimResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   maxCommentsShown: number;
@@ -324,7 +325,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     const token = (this.fetchCommentsToken = Symbol());
     const { sort } = props;
     this.setState({ commentsRes: LOADING_REQUEST });
-    const commentsRes = await HttpService.client.getComments({
+    const commentsRes = await HttpService.client.getCommentsSlim({
       post_id: getIdFromProps(props),
       parent_id: getCommentIdFromProps(props),
       max_depth: commentTreeMaxDepth,
@@ -792,6 +793,8 @@ export class Post extends Component<PostRouteProps, PostState> {
         <div>
           <CommentNodes
             nodes={this.sortedFlatNodes()}
+            postCreatorId={postRes.data.post_view.post.creator_id}
+            community={postRes.data.community_view.community}
             viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
             isTopLevel
@@ -873,14 +876,14 @@ export class Post extends Component<PostRouteProps, PostState> {
       );
     }
 
-    const res = this.state.postRes;
+    const postRes = this.state.postRes;
     const firstComment = this.commentTree().at(0)?.comment_view.comment;
     const depth = getDepthFromComment(firstComment);
     const showContextButton = depth ? depth > 0 : false;
     const siteRes = this.state.siteRes;
 
     return (
-      res.state === "success" && (
+      postRes.state === "success" && (
         <div>
           {!!getCommentIdFromProps(this.props) && (
             <>
@@ -902,9 +905,11 @@ export class Post extends Component<PostRouteProps, PostState> {
           )}
           <CommentNodes
             nodes={this.commentTree()}
+            postCreatorId={postRes.data.post_view.post.creator_id}
+            community={postRes.data.community_view.community}
             viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
-            locked={res.data.post_view.post.locked}
+            locked={postRes.data.post_view.post.locked}
             admins={siteRes.admins}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
@@ -987,7 +992,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       );
 
       const parentId = getCommentParentId(commentView?.comment);
-      const postId = commentView?.post.id;
+      const postId = commentView?.comment.post_id;
 
       if (parentId && postId) {
         i.updateUrl({
@@ -1252,7 +1257,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async handleFetchChildren(form: GetComments) {
-    const moreCommentsRes = await HttpService.client.getComments(form);
+    const moreCommentsRes = await HttpService.client.getCommentsSlim(form);
     if (
       this.state.commentsRes.state === "success" &&
       moreCommentsRes.state === "success"
@@ -1438,7 +1443,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editComment(
+        s.commentsRes.data.comments = editCommentSlim(
           res.data.comment_view,
           s.commentsRes.data.comments,
         );
@@ -1453,7 +1458,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editComment(
+        s.commentsRes.data.comments = editCommentSlim(
           res.data.comment_view,
           s.commentsRes.data.comments,
         );
