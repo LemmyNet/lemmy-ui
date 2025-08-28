@@ -1,18 +1,19 @@
 {
   "name": "lemmy-ui",
-  "description": "An isomorphic UI for lemmy",
   "version": "0.19.6-beta.14",
-  "author": "Dessalines <tyhou13@gmx.com>",
+  "description": "An isomorphic UI for lemmy",
+  "repository": "https://github.com/LemmyNet/lemmy-ui",
   "license": "AGPL-3.0",
+  "author": "Dessalines <tyhou13@gmx.com>",
   "scripts": {
     "analyze": "webpack --mode=none",
+    "prebuild:dev": "pnpm clean && node generate_translations.js",
     "build:dev": "webpack --env COMMIT_HASH=$(git rev-parse --short HEAD) --mode=development",
+    "prebuild:prod": "pnpm clean && node generate_translations.js",
     "build:prod": "webpack --env COMMIT_HASH=$(git rev-parse --short HEAD) --mode=production",
     "clean": "pnpm rimraf dist",
     "dev": "node generate_translations.js && pnpm build:dev --watch",
     "lint": "pnpm translations:generate && tsc --noEmit && pnpm eslint --report-unused-disable-directives && pnpm prettier --check \"src/**/*.{ts,tsx,js,mjs,css,scss}\"",
-    "prebuild:dev": "pnpm clean && node generate_translations.js",
-    "prebuild:prod": "pnpm clean && node generate_translations.js",
     "prepare": "husky",
     "themes:build": "sass src/assets/css/themes/:src/assets/css/themes",
     "themes:watch": "sass --watch src/assets/css/themes/:src/assets/css/themes",
@@ -20,10 +21,19 @@
     "translations:init": "git submodule init && pnpm translations:update",
     "translations:update": "git submodule update --remote --recursive"
   },
-  "repository": "https://github.com/LemmyNet/lemmy-ui",
-  "engines": {
-    "node": ">=8.9.0"
+  "lint-staged": {
+    "*.{css, scss}": [
+      "prettier --write"
+    ],
+    "*.{ts,tsx,js}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
   },
+  "browserslist": "fully supports es6",
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.24.7",
     "@babel/plugin-transform-class-properties": "^7.25.4",
@@ -122,7 +132,7 @@
     "prettier-plugin-packagejson": "^2.5.19",
     "qs": "^6.13.0",
     "rimraf": "^6.0.1",
-    "sortpack": "^2.4.0",
+    "sort-package-json": "^3.4.0",
     "style-loader": "^4.0.0",
     "terser": "^5.31.6",
     "typescript": "^5.5.4",
@@ -131,20 +141,10 @@
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-dev-server": "5.2.2"
   },
-  "browserslist": "fully supports es6",
-  "lint-staged": {
-    "*.{css, scss}": [
-      "prettier --write"
-    ],
-    "*.{ts,tsx,js}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "package.json": [
-      "sortpack"
-    ]
-  },
   "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
+  "engines": {
+    "node": ">=8.9.0"
+  },
   "engineStrict": true,
   "importSort": {
     ".js, .jsx, .ts, .tsx": {
