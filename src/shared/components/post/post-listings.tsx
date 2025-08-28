@@ -19,6 +19,7 @@ import {
   LockPost,
   MarkPostAsRead,
   MyUserInfo,
+  NotePerson,
   PersonView,
   PostResponse,
   PostView,
@@ -63,6 +64,7 @@ interface PostListingsProps {
   onTransferCommunity(form: TransferCommunity): Promise<void>;
   onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
   onHidePost(form: HidePost): Promise<void>;
+  onPersonNote(form: NotePerson): Promise<void>;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
@@ -116,6 +118,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 markable={this.props.markable}
                 read={!!post_view.post_actions?.read_at}
                 onMarkPostAsRead={this.props.onMarkPostAsRead}
+                onPersonNote={this.props.onPersonNote}
               />
               {idx + 1 !== this.posts.length && <hr className="my-3" />}
             </>

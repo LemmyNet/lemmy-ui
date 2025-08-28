@@ -74,6 +74,7 @@ import {
   MarkPostAsRead,
   ListPersonLikedResponse,
   SearchSortType,
+  NotePerson,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -285,6 +286,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
     this.handlePurgeComment = this.handlePurgeComment.bind(this);
+    this.handlePersonNote = this.handlePersonNote.bind(this);
     this.handleCommentReport = this.handleCommentReport.bind(this);
     this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
@@ -626,6 +628,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onPurgePost={this.handlePurgePost}
                     onFeaturePost={this.handleFeaturePost}
                     onMarkPostAsRead={this.handleMarkPostAsRead}
+                    onPersonNote={this.handlePersonNote}
                   />
                 ))}
               <PaginatorCursor
@@ -819,6 +822,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                         isDeleted={pv.person.deleted}
                         isAdmin={pv.is_admin}
                         isBot={pv.person.bot_account}
+                        myUserInfo={this.isoData.myUserInfo}
+                        targetPersonId={pv.person.id}
+                        personActions={pv.person_actions}
                       />
                     </li>
                   </ul>
@@ -1345,6 +1351,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   async handleTransferCommunity(form: TransferCommunity) {
     await HttpService.client.transferCommunity(form);
     toast(I18NextService.i18n.t("transfer_community"));
+  }
+
+  async handlePersonNote(form: NotePerson) {
+    const res = await HttpService.client.notePerson(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"));
+    }
   }
 
   async handleMarkPostAsRead(form: MarkPostAsRead) {
