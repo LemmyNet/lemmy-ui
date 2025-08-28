@@ -110,6 +110,7 @@ export class CommentReport extends Component<
           onBanPerson={async () => {}}
           onCreateComment={async () => Promise.resolve(EMPTY_REQUEST)}
           onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
+          onPersonNote={async () => {}}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}

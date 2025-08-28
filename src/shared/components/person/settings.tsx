@@ -270,6 +270,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           show_upvotes,
           show_downvotes,
           show_upvote_percentage,
+          show_person_votes,
         },
         person: {
           avatar,
@@ -304,6 +305,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           show_upvotes,
           show_downvotes,
           show_upvote_percentage,
+          show_person_votes,
           show_read_posts,
           email,
           bio,
@@ -1029,6 +1031,23 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="form-check">
               <input
                 className="form-check-input"
+                id="user-show-person-votes"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.show_person_votes}
+                onChange={linkEvent(this, this.handleShowPersonVotesChange)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="user-show-person-votes"
+              >
+                {I18NextService.i18n.t("show_user_vote_totals")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
                 id="user-show-avatars"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_avatars}
@@ -1579,6 +1598,15 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     i.setState(
       s => (
         (s.saveUserSettingsForm.show_upvote_percentage = event.target.checked),
+        s
+      ),
+    );
+  }
+
+  handleShowPersonVotesChange(i: Settings, event: any) {
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.show_person_votes = event.target.checked),
         s
       ),
     );

@@ -5,3 +5,4 @@ src/assets/css/code-themes/*.css
 stats.json
 dist
 pnpm-lock.yaml
+pnpm-workspace.yaml

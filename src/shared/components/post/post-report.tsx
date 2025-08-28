@@ -109,6 +109,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           onTransferCommunity={async () => {}}
           onMarkPostAsRead={async () => {}}
           onHidePost={async () => {}}
+          onPersonNote={async () => {}}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}

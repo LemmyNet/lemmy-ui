@@ -85,6 +85,7 @@ import {
   CommentSortType,
   MyUserInfo,
   MarkPostAsRead,
+  NotePerson,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -253,6 +254,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleHidePost = this.handleHidePost.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
+    this.handlePersonNote = this.handlePersonNote.bind(this);
 
     this.mainContentRef = createRef();
     // Only fetch the data if coming from another route
@@ -577,6 +579,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onFeaturePost={this.handleFeaturePost}
               onMarkPostAsRead={this.handleMarkPostAsRead}
               onHidePost={this.handleHidePost}
+              onPersonNote={this.handlePersonNote}
             />
           );
       }
@@ -615,6 +618,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onBanPerson={this.handleBanPerson}
               onCreateComment={this.handleCreateComment}
               onEditComment={this.handleEditComment}
+              onPersonNote={this.handlePersonNote}
             />
           );
       }
@@ -995,6 +999,14 @@ export class Community extends Component<CommunityRouteProps, State> {
       });
 
       toast(I18NextService.i18n.t(form.hide ? "post_hidden" : "post_unhidden"));
+    }
+  }
+
+  async handlePersonNote(form: NotePerson) {
+    const res = await HttpService.client.notePerson(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"));
     }
   }
 

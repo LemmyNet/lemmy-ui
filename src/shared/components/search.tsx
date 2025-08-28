@@ -262,6 +262,7 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
               onTransferCommunity={async () => {}}
               onMarkPostAsRead={async () => {}}
               onHidePost={async () => {}}
+              onPersonNote={async () => {}}
             />
           </div>
         ))}
@@ -313,6 +314,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
               onBanPerson={async () => {}}
               onCreateComment={async () => EMPTY_REQUEST}
               onEditComment={async () => EMPTY_REQUEST}
+              onPersonNote={async () => {}}
             />
           </div>
         ))}
@@ -861,6 +863,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onBanPerson={async () => {}}
         onCreateComment={async () => EMPTY_REQUEST}
         onEditComment={async () => EMPTY_REQUEST}
+        onPersonNote={async () => {}}
       />
     );
   }
@@ -907,6 +910,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 onTransferCommunity={async () => {}}
                 onMarkPostAsRead={async () => {}}
                 onHidePost={async () => {}}
+                onPersonNote={async () => {}}
               />
             </div>
           </div>

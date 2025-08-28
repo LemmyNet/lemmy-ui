@@ -5,6 +5,7 @@ import CrossPostButton from "./cross-post-button";
 import {
   CommunityModeratorView,
   MyUserInfo,
+  NotePerson,
   PersonView,
   PostView,
 } from "lemmy-js-client";
@@ -25,6 +26,7 @@ import {
 } from "@utils/types";
 import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";
+import PersonNoteModal from "../modal/person-note-modal";
 
 interface ContentActionDropdownPropsBase {
   onSave: () => Promise<void>;
@@ -40,6 +42,7 @@ interface ContentActionDropdownPropsBase {
   onPurgeContent: (reason: string) => Promise<void>;
   onPurgeUser: (reason: string) => Promise<void>;
   onAppointAdmin: () => Promise<void>;
+  onPersonNote: (form: NotePerson) => Promise<void>;
   moderators?: CommunityModeratorView[];
   admins: PersonView[];
   myUserInfo: MyUserInfo | undefined;
@@ -72,7 +75,8 @@ type DialogType =
   | "TransferCommunityDialog"
   | "AppointModDialog"
   | "AppointAdminDialog"
-  | "ViewVotesDialog";
+  | "ViewVotesDialog"
+  | "PersonNoteDialog";
 
 type ActionTypeState = {
   banType?: BanType;
@@ -108,6 +112,7 @@ export default class ContentActionDropdown extends Component<
     showReportDialog: false,
     showTransferCommunityDialog: false,
     showViewVotesDialog: false,
+    showPersonNoteDialog: false,
     renderAppointAdminDialog: false,
     renderAppointModDialog: false,
     renderBanDialog: false,
@@ -116,13 +121,14 @@ export default class ContentActionDropdown extends Component<
     renderReportDialog: false,
     renderTransferCommunityDialog: false,
     renderViewVotesDialog: false,
+    renderPersonNoteDialog: false,
     dropdownOpenedOnce: false,
   };
 
   constructor(props: ContentActionDropdownProps, context: any) {
     super(props, context);
 
-    this.toggleModDialogShow = this.toggleModDialogShow.bind(this);
+    this.toggleDialogShow = this.toggleDialogShow.bind(this);
     this.hideAllDialogs = this.hideAllDialogs.bind(this);
     this.toggleReportDialogShow = this.toggleReportDialogShow.bind(this);
     this.toggleRemoveShow = this.toggleRemoveShow.bind(this);
@@ -136,6 +142,7 @@ export default class ContentActionDropdown extends Component<
     this.toggleAppointModShow = this.toggleAppointModShow.bind(this);
     this.toggleAppointAdminShow = this.toggleAppointAdminShow.bind(this);
     this.toggleViewVotesShow = this.toggleViewVotesShow.bind(this);
+    this.togglePersonNoteShow = this.togglePersonNoteShow.bind(this);
     this.wrapHandler = this.wrapHandler.bind(this);
     this.handleDropdownToggleClick = this.handleDropdownToggleClick.bind(this);
   }
@@ -282,6 +289,14 @@ export default class ContentActionDropdown extends Component<
                         icon="flag"
                         label={I18NextService.i18n.t("create_report")}
                         onClick={this.toggleReportDialogShow}
+                        noLoading
+                      />
+                    </li>
+                    <li>
+                      <ActionButton
+                        icon="edit"
+                        label={I18NextService.i18n.t("create_user_note")}
+                        onClick={this.togglePersonNoteShow}
                         noLoading
                       />
                     </li>
@@ -552,7 +567,7 @@ export default class ContentActionDropdown extends Component<
             )}
           </ul>
         </div>
-        {this.moderationDialogs}
+        {this.allDialogs}
       </>
     );
   }
@@ -562,7 +577,7 @@ export default class ContentActionDropdown extends Component<
     this.setState({ dropdownOpenedOnce: true });
   }
 
-  toggleModDialogShow(
+  toggleDialogShow(
     dialogType: DialogType,
     stateOverride: Partial<ActionTypeState> = {},
   ) {
@@ -577,6 +592,7 @@ export default class ContentActionDropdown extends Component<
       showAppointModDialog: false,
       showAppointAdminDialog: false,
       showViewVotesDialog: false,
+      showPersonNoteDialog: false,
       [showKey]: !this.state[showKey],
       [renderKey]: true, // for fade out just keep rendering after show becomes false
       ...stateOverride,
@@ -593,59 +609,64 @@ export default class ContentActionDropdown extends Component<
       showAppointModDialog: false,
       showTransferCommunityDialog: false,
       showViewVotesDialog: false,
+      showPersonNoteDialog: false,
     });
   }
 
   toggleReportDialogShow() {
-    this.toggleModDialogShow("ReportDialog");
+    this.toggleDialogShow("ReportDialog");
   }
 
   toggleRemoveShow() {
-    this.toggleModDialogShow("RemoveDialog");
+    this.toggleDialogShow("RemoveDialog");
   }
 
   toggleBanFromCommunityShow() {
-    this.toggleModDialogShow("BanDialog", {
+    this.toggleDialogShow("BanDialog", {
       banType: BanType.Community,
     });
   }
 
   toggleBanFromSiteShow() {
-    this.toggleModDialogShow("BanDialog", {
+    this.toggleDialogShow("BanDialog", {
       banType: BanType.Site,
     });
   }
 
   togglePurgePersonShow() {
-    this.toggleModDialogShow("PurgeDialog", {
+    this.toggleDialogShow("PurgeDialog", {
       purgeType: PurgeType.Person,
     });
   }
 
   togglePurgeContentShow() {
-    this.toggleModDialogShow("PurgeDialog", {
+    this.toggleDialogShow("PurgeDialog", {
       purgeType:
         this.props.type === "post" ? PurgeType.Post : PurgeType.Comment,
     });
   }
 
   toggleTransferCommunityShow() {
-    this.toggleModDialogShow("TransferCommunityDialog");
+    this.toggleDialogShow("TransferCommunityDialog");
   }
 
   toggleAppointModShow() {
-    this.toggleModDialogShow("AppointModDialog");
+    this.toggleDialogShow("AppointModDialog");
   }
 
   toggleAppointAdminShow() {
-    this.toggleModDialogShow("AppointAdminDialog");
+    this.toggleDialogShow("AppointAdminDialog");
   }
 
   toggleViewVotesShow() {
-    this.toggleModDialogShow("ViewVotesDialog");
+    this.toggleDialogShow("ViewVotesDialog");
   }
 
-  get moderationDialogs() {
+  togglePersonNoteShow() {
+    this.toggleDialogShow("PersonNoteDialog");
+  }
+
+  get allDialogs() {
     const {
       showBanDialog,
       showPurgeDialog,
@@ -657,6 +678,7 @@ export default class ContentActionDropdown extends Component<
       showAppointModDialog,
       showAppointAdminDialog,
       showViewVotesDialog,
+      showPersonNoteDialog,
       renderBanDialog,
       renderPurgeDialog,
       renderRemoveDialog,
@@ -665,6 +687,7 @@ export default class ContentActionDropdown extends Component<
       renderAppointModDialog,
       renderAppointAdminDialog,
       renderViewVotesDialog,
+      renderPersonNoteDialog,
     } = this.state;
     const {
       removed,
@@ -675,6 +698,7 @@ export default class ContentActionDropdown extends Component<
       creator_is_moderator,
       creator_banned,
       id,
+      person_actions,
     } = this.contentInfo;
     const {
       onReport,
@@ -686,6 +710,7 @@ export default class ContentActionDropdown extends Component<
       onTransferCommunity,
       onAppointCommunityMod,
       onAppointAdmin,
+      onPersonNote,
       type,
     } = this.props;
 
@@ -811,6 +836,15 @@ export default class ContentActionDropdown extends Component<
             myUserInfo={this.props.myUserInfo}
           />
         )}
+        {renderPersonNoteDialog && (
+          <PersonNoteModal
+            note={person_actions?.note}
+            personId={creator.id}
+            show={showPersonNoteDialog}
+            onSubmit={this.wrapHandler(onPersonNote)}
+            onCancel={this.hideAllDialogs}
+          />
+        )}
       </>
     );
   }
@@ -826,6 +860,7 @@ export default class ContentActionDropdown extends Component<
         community,
         creator_is_admin,
         creator_banned,
+        person_actions,
       } = this.props.postView;
 
       return {
@@ -841,6 +876,7 @@ export default class ContentActionDropdown extends Component<
         creator_is_admin,
         creator_is_moderator,
         creator_banned,
+        person_actions,
       };
     } else {
       const {
@@ -852,6 +888,7 @@ export default class ContentActionDropdown extends Component<
         community,
         creator_is_admin,
         creator_banned,
+        person_actions,
       } = this.props.commentView;
 
       return {
@@ -865,6 +902,7 @@ export default class ContentActionDropdown extends Component<
         creator_is_admin,
         creator_is_moderator,
         creator_banned,
+        person_actions,
       };
     }
   }

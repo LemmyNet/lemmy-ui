@@ -65,6 +65,7 @@ import {
   LockPost,
   MarkPostAsRead,
   MyUserInfo,
+  NotePerson,
   PostResponse,
   PurgeComment,
   PurgeCommunity,
@@ -292,6 +293,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleHidePost = this.handleHidePost.bind(this);
     this.handleScrollIntoCommentsClick =
       this.handleScrollIntoCommentsClick.bind(this);
+    this.handlePersonNote = this.handlePersonNote.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -601,6 +603,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 markable
                 read={!!res.post_view.post_actions?.read_at}
                 onMarkPostAsRead={this.handleMarkPostAsRead}
+                onPersonNote={this.handlePersonNote}
               />
               <div ref={this.commentSectionRef} className="mb-2" />
 
@@ -819,6 +822,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
             onEditComment={this.handleEditComment}
+            onPersonNote={this.handlePersonNote}
           />
         </div>
       );
@@ -927,6 +931,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
             onEditComment={this.handleEditComment}
+            onPersonNote={this.handlePersonNote}
           />
         </div>
       )
@@ -1108,6 +1113,14 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.findAndUpdateCommentEdit(editCommentRes);
 
     return editCommentRes;
+  }
+
+  async handlePersonNote(form: NotePerson) {
+    const res = await HttpService.client.notePerson(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"));
+    }
   }
 
   async handleDeleteComment(form: DeleteComment) {
