@@ -1,6 +1,6 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { isBrowser, refreshTheme } from "@utils/browser";
-import { getQueryParams } from "@utils/helpers";
+import { getQueryParams, validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -49,6 +49,7 @@ interface State {
   siteRes: GetSiteResponse;
   show2faModal: boolean;
   showOAuthModal: boolean;
+  showResendVerificationEmailBtn: boolean;
 }
 
 async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
@@ -98,6 +99,11 @@ async function handleLoginSubmit(i: Login, event: any) {
           i.setState({ show2faModal: true });
         } else if (loginRes.err.name === "not_found") {
           toast(I18NextService.i18n.t("incorrect_login"), "danger");
+        } else if (loginRes.err.name === "email_not_verified") {
+          toast(I18NextService.i18n.t(loginRes.err.name), "danger");
+
+          // Show the resend verification email button
+          i.setState({ showResendVerificationEmailBtn: true });
         } else {
           let errStr: string = I18NextService.i18n.t(
             loginRes.err.name === "registration_application_is_pending"
@@ -176,6 +182,23 @@ function handleClose2faModal(i: Login) {
   i.setState({ show2faModal: false });
 }
 
+async function handleResendVerificationEmail(i: Login) {
+  const res = await HttpService.client.resendVerificationEmail({
+    email: i.state.form.username_or_email,
+  });
+
+  const successful = res.state === "success";
+  if (successful) {
+    toast(I18NextService.i18n.t("verify_email_sent"));
+  } else {
+    toast(I18NextService.i18n.t("incorrect_login"), "danger");
+  }
+
+  i.setState({ showResendVerificationEmailBtn: false });
+
+  return successful;
+}
+
 type LoginRouteProps = RouteComponentProps<Record<string, never>> & LoginProps;
 export type LoginFetchConfig = IRoutePropsWithFetch<
   RouteData,
@@ -196,6 +219,7 @@ export class Login extends Component<LoginRouteProps, State> {
     siteRes: this.isoData.siteRes,
     show2faModal: false,
     showOAuthModal: false,
+    showResendVerificationEmailBtn: false,
   };
 
   constructor(props: any, context: any) {
@@ -312,6 +336,15 @@ export class Login extends Component<LoginRouteProps, State> {
                 required
                 minLength={3}
               />
+              {this.state.showResendVerificationEmailBtn &&
+                validEmail(this.state.form.username_or_email) && (
+                  <button
+                    className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
+                    onClick={linkEvent(this, handleResendVerificationEmail)}
+                  >
+                    {I18NextService.i18n.t("resend_verification_email")}
+                  </button>
+                )}
             </div>
           </div>
           <div className="mb-3">
