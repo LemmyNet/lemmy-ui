@@ -7,6 +7,7 @@ import {
   PersonView,
   MyUserInfo,
   PaginationCursor,
+  CommentSlimView,
 } from "lemmy-js-client";
 import { RequestState } from "@services/HttpService";
 import { Match } from "inferno-router/dist/Route";
@@ -96,7 +97,14 @@ export enum VoteContentType {
   Comment,
 }
 
-export type CommentNodeView = CommentView;
+export type CommentNodeView = CommentView | CommentSlimView;
+
+/**
+ * Differentiate between CommentView and CommentSlimView
+ **/
+export function isCommentView(cnv: CommentNodeView): cnv is CommentView {
+  return (cnv as CommentView).post !== undefined;
+}
 
 export interface CommentNodeI {
   comment_view: CommentNodeView;

@@ -8,6 +8,7 @@ import {
   BanPerson,
   BlockPerson,
   CommentResponse,
+  Community,
   CreateComment,
   CreateCommentLike,
   CreateCommentReport,
@@ -18,6 +19,7 @@ import {
   Language,
   LocalSite,
   MyUserInfo,
+  PersonId,
   PersonView,
   PurgeComment,
   PurgePerson,
@@ -31,6 +33,14 @@ import { RequestState } from "../../services/HttpService";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
+  /**
+   * Only use this for the CommentSlim variant.
+   **/
+  postCreatorId?: PersonId;
+  /**
+   * Only use this for the CommentSlim variant.
+   **/
+  community?: Community;
   admins: PersonView[];
   maxCommentsShown?: number;
   noBorder?: boolean;
@@ -99,6 +109,8 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
             <CommentNode
               key={node.comment_view.comment.id}
               node={node}
+              postCreatorId={this.props.postCreatorId}
+              community={this.props.community}
               noBorder={this.props.noBorder}
               isTopLevel={this.props.isTopLevel}
               viewOnly={this.props.viewOnly}

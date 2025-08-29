@@ -13,7 +13,7 @@ import {
   BlockPerson,
   CommentId,
   CommentResponse,
-  CommentView,
+  Community,
   CreateComment,
   CreateCommentLike,
   CreateCommentReport,
@@ -24,6 +24,7 @@ import {
   Language,
   LocalSite,
   MyUserInfo,
+  PersonId,
   PersonView,
   PurgeComment,
   PurgePerson,
@@ -32,7 +33,13 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "@utils/config";
-import { CommentNodeI, CommentViewType, VoteContentType } from "@utils/types";
+import {
+  CommentNodeI,
+  CommentNodeView,
+  CommentViewType,
+  isCommentView,
+  VoteContentType,
+} from "@utils/types";
 import { mdToHtml, mdToHtmlNoImages } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -64,6 +71,14 @@ type CommentNodeState = {
 
 type CommentNodeProps = {
   node: CommentNodeI;
+  /**
+   * Only use this for the CommentSlim variant.
+   **/
+  postCreatorId?: PersonId;
+  /**
+   * Only use this for the CommentSlim variant.
+   **/
+  community?: Community;
   admins: PersonView[];
   noBorder?: boolean;
   isTopLevel?: boolean;
@@ -160,7 +175,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     }
   }
 
-  get commentView(): CommentView {
+  get commentView(): CommentNodeView {
     return this.props.node.comment_view;
   }
 
@@ -168,12 +183,34 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return this.commentView.comment.id;
   }
 
+  /**
+   * Gets the community correctly if its the commentSlim variant
+   **/
+  get community(): Community {
+    if (isCommentView(this.commentView)) {
+      return this.commentView.community;
+    } else {
+      return this.props.community!;
+    }
+  }
+
+  /**
+   * Gets the postCreatorId correctly if its the commentSlim variant
+   **/
+  get postCreatorId(): PersonId {
+    if (isCommentView(this.commentView)) {
+      return this.commentView.post.creator_id;
+    } else {
+      return this.props.postCreatorId!;
+    }
+  }
+
   render() {
     const node = this.props.node;
     const cv = this.commentView;
     const {
       creator_is_moderator,
-      community_actions: { received_ban_at: banned_from_community } = {},
+      creator_banned_from_community,
       comment_actions: { like_score: my_vote } = {},
       creator_is_admin,
       comment: {
@@ -185,8 +222,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         child_count,
       },
       creator,
-      community,
-      post,
     } = this.commentView;
 
     const moreRepliesBorderColor = this.props.node.depth
@@ -247,16 +282,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 isBannedFromCommunity={cv.creator_banned_from_community}
               />
 
-              {this.props.showCommunity && (
+              {this.props.showCommunity && isCommentView(this.commentView) && (
                 <>
                   <span className="mx-1">{I18NextService.i18n.t("to")}</span>
                   <CommunityLink
-                    community={community}
+                    community={this.commentView.community}
                     myUserInfo={this.props.myUserInfo}
                   />
                   <span className="mx-2">•</span>
-                  <Link className="me-2" to={`/post/${cv.post.id}`}>
-                    {post.name}
+                  <Link className="me-2" to={`/post/${cv.comment.post_id}`}>
+                    {this.commentView.post.name}
                   </Link>
                 </>
               )}
@@ -350,7 +385,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     </button>
                   )}
                   {this.props.myUserInfo &&
-                    !(this.props.viewOnly || banned_from_community) && (
+                    !(this.props.viewOnly || creator_banned_from_community) && (
                       <>
                         <VoteButtonsCompact
                           voteContentType={VoteContentType.Comment}
@@ -380,6 +415,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         </button>
                         <CommentActionDropdown
                           commentView={this.commentView}
+                          community={this.community}
                           admins={this.props.admins}
                           myUserInfo={this.props.myUserInfo}
                           onReply={this.handleReplyClick}
@@ -446,6 +482,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {!this.state.collapsed && node.children.length > 0 && (
           <CommentNodes
             nodes={node.children}
+            postCreatorId={this.postCreatorId}
+            community={this.community}
             locked={this.props.locked}
             admins={this.props.admins}
             viewType={this.props.viewType}
@@ -499,7 +537,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       <>
         <Link
           className={classnames}
-          to={`/post/${cv.post.id}/${commentId}#comment-${commentId}`}
+          to={`/post/${cv.comment.post_id}/${commentId}#comment-${commentId}`}
           title={title}
         >
           <Icon icon="link" classes="icon-inline" />
@@ -523,7 +561,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   get isPostCreator(): boolean {
-    return this.commentView.creator.id === this.commentView.post.creator_id;
+    return this.commentView.creator.id === this.postCreatorId;
   }
 
   get expandText(): string {
@@ -640,8 +678,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const {
       creator: { id: person_id },
       creator_banned_from_community,
-      community: { id: community_id },
     } = this.commentView;
+    const community_id = this.community.id;
 
     const ban = !creator_banned_from_community;
     // If its an unban, restore all their data
@@ -696,7 +734,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   async handleAppointCommunityMod() {
     this.props.onAddModToCommunity({
-      community_id: this.commentView.community.id,
+      community_id: this.community.id,
       person_id: this.commentView.creator.id,
       added: !this.commentView.creator_is_moderator,
     });
@@ -725,7 +763,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   async handleTransferCommunity() {
     this.props.onTransferCommunity({
-      community_id: this.commentView.community.id,
+      community_id: this.community.id,
       person_id: this.commentView.creator.id,
     });
   }
