@@ -2,6 +2,7 @@ import {
   commentsToFlatNodes,
   communityRSSUrl,
   editComment,
+  editPersonNotes,
   editPost,
   enableNsfw,
   getDataTypeString,
@@ -1006,7 +1007,26 @@ export class Community extends Component<CommunityRouteProps, State> {
     const res = await HttpService.client.notePerson(form);
 
     if (res.state === "success") {
-      toast(I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"));
+      this.setState(s => {
+        if (s.commentsRes.state === "success") {
+          s.commentsRes.data.comments = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.commentsRes.data.comments,
+          );
+        }
+        if (s.postsRes.state === "success") {
+          s.postsRes.data.posts = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.postsRes.data.posts,
+          );
+        }
+        toast(
+          I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"),
+        );
+        return s;
+      });
     }
   }
 

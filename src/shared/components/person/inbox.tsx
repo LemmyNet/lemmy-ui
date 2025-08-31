@@ -947,7 +947,34 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     const res = await HttpService.client.notePerson(form);
 
     if (res.state === "success") {
-      toast(I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"));
+      // Update the content lists
+      this.setState(s => {
+        if (s.inboxRes.state === "success") {
+          s.inboxRes.data.notifications = s.inboxRes.data.notifications.map(
+            c => {
+              const notif: NotificationView = {
+                notification: { ...c.notification },
+                data: { ...c.data },
+              };
+              switch (notif.data.type_) {
+                case "Post":
+                case "Comment":
+                  if (
+                    notif.data.creator.id === form.person_id &&
+                    notif.data.person_actions
+                  ) {
+                    notif.data.person_actions.note = form.note;
+                  }
+                  break;
+              }
+              return notif;
+            },
+          );
+        }
+        toast(
+          I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"),
+        );
+      });
     }
   }
 }

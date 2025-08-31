@@ -154,7 +154,7 @@ export class UserBadges extends Component<UserBadgesProps> {
               {getRoleLabelPill({
                 label: personNote,
                 tooltip: I18NextService.i18n.t("note_for_user"),
-                classes: "text-danger border border-danger",
+                classes: "text-info border border-info",
                 shrink: false,
               })}
             </span>

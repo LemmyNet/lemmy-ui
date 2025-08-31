@@ -2,6 +2,7 @@ import {
   buildCommentsTree,
   commentsToFlatNodes,
   editComment,
+  editPersonNotes,
   enableNsfw,
   getCommentIdFromProps,
   getCommentParentId,
@@ -1119,7 +1120,26 @@ export class Post extends Component<PostRouteProps, PostState> {
     const res = await HttpService.client.notePerson(form);
 
     if (res.state === "success") {
-      toast(I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"));
+      this.setState(s => {
+        if (s.commentsRes.state === "success") {
+          s.commentsRes.data.comments = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.commentsRes.data.comments,
+          );
+        }
+        if (s.postRes.state === "success") {
+          s.postRes.data.post_view = editPersonNotes(
+            form.note,
+            form.person_id,
+            [s.postRes.data.post_view],
+          )[0];
+        }
+        toast(
+          I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"),
+        );
+        return s;
+      });
     }
   }
 
