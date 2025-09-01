@@ -559,22 +559,17 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <ul className="list-unstyled mb-0">
           {this.state.personBlocks.map(p => (
             <li key={p.id}>
-              <span>
-                <PersonListing
-                  person={p}
-                  myUserInfo={this.isoData.myUserInfo}
-                />
-                <button
-                  className="btn btn-sm"
-                  onClick={linkEvent(
-                    { ctx: this, recipientId: p.id },
-                    this.handleUnblockPerson,
-                  )}
-                  data-tippy-content={I18NextService.i18n.t("unblock_user")}
-                >
-                  <Icon icon="x" classes="icon-inline" />
-                </button>
-              </span>
+              <PersonListing person={p} myUserInfo={this.isoData.myUserInfo} />
+              <button
+                className="btn btn-sm"
+                onClick={linkEvent(
+                  { ctx: this, recipientId: p.id },
+                  this.handleUnblockPerson,
+                )}
+                data-tippy-content={I18NextService.i18n.t("unblock_user")}
+              >
+                <Icon icon="x" classes="icon-inline" />
+              </button>
             </li>
           ))}
         </ul>
@@ -606,24 +601,20 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <ul className="list-unstyled mb-0">
           {this.state.communityBlocks.map(c => (
             <li key={c.id}>
-              <span>
-                <CommunityLink
-                  community={c}
-                  myUserInfo={this.isoData.myUserInfo}
-                />
-                <button
-                  className="btn btn-sm"
-                  onClick={linkEvent(
-                    { ctx: this, communityId: c.id },
-                    this.handleUnblockCommunity,
-                  )}
-                  data-tippy-content={I18NextService.i18n.t(
-                    "unblock_community",
-                  )}
-                >
-                  <Icon icon="x" classes="icon-inline" />
-                </button>
-              </span>
+              <CommunityLink
+                community={c}
+                myUserInfo={this.isoData.myUserInfo}
+              />
+              <button
+                className="btn btn-sm"
+                onClick={linkEvent(
+                  { ctx: this, communityId: c.id },
+                  this.handleUnblockCommunity,
+                )}
+                data-tippy-content={I18NextService.i18n.t("unblock_community")}
+              >
+                <Icon icon="x" classes="icon-inline" />
+              </button>
             </li>
           ))}
         </ul>
@@ -674,19 +665,17 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <ul className="list-unstyled mb-0">
           {this.state.instanceCommunitiesBlocks.map(i => (
             <li key={i.id}>
-              <span>
-                {i.domain}
-                <button
-                  className="btn btn-sm"
-                  onClick={linkEvent(
-                    { ctx: this, instanceId: i.id },
-                    this.handleUnblockInstanceCommunities,
-                  )}
-                  data-tippy-content={I18NextService.i18n.t("unblock_instance")}
-                >
-                  <Icon icon="x" classes="icon-inline" />
-                </button>
-              </span>
+              {i.domain}
+              <button
+                className="btn btn-sm"
+                onClick={linkEvent(
+                  { ctx: this, instanceId: i.id },
+                  this.handleUnblockInstanceCommunities,
+                )}
+                data-tippy-content={I18NextService.i18n.t("unblock_instance")}
+              >
+                <Icon icon="x" classes="icon-inline" />
+              </button>
             </li>
           ))}
         </ul>
@@ -703,19 +692,17 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <ul className="list-unstyled mb-0">
           {this.state.instancePersonsBlocks.map(i => (
             <li key={i.id}>
-              <span>
-                {i.domain}
-                <button
-                  className="btn btn-sm"
-                  onClick={linkEvent(
-                    { ctx: this, instanceId: i.id },
-                    this.handleUnblockInstancePersons,
-                  )}
-                  data-tippy-content={I18NextService.i18n.t("unblock_instance")}
-                >
-                  <Icon icon="x" classes="icon-inline" />
-                </button>
-              </span>
+              {i.domain}
+              <button
+                className="btn btn-sm"
+                onClick={linkEvent(
+                  { ctx: this, instanceId: i.id },
+                  this.handleUnblockInstancePersons,
+                )}
+                data-tippy-content={I18NextService.i18n.t("unblock_instance")}
+              >
+                <Icon icon="x" classes="icon-inline" />
+              </button>
             </li>
           ))}
         </ul>
