@@ -24,6 +24,7 @@ import {
   PersonId,
   PersonActions,
   Person,
+  CommentSlimView,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -52,7 +53,7 @@ import { isBrowser } from "@utils/browser";
 import Toastify from "toastify-js";
 
 export function buildCommentsTree(
-  comments: CommentView[],
+  comments: CommentSlimView[],
   parentComment: boolean,
 ): CommentNodeI[] {
   const map = new Map<number, CommentNodeI>();
@@ -169,6 +170,13 @@ export function editComment(
   data: CommentView,
   comments: CommentView[],
 ): CommentView[] {
+  return editListImmutable("comment", data, comments);
+}
+
+export function editCommentSlim(
+  data: CommentSlimView,
+  comments: CommentSlimView[],
+): CommentSlimView[] {
   return editListImmutable("comment", data, comments);
 }
 
