@@ -607,6 +607,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onTransferCommunity={async () => {}}
                 onMarkPostAsRead={async () => {}}
                 onHidePost={async () => {}}
+                onPersonNote={async () => {}}
               />
             </>
           )}
@@ -852,6 +853,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onTransferCommunity={async () => {}}
                 onMarkPostAsRead={async () => {}}
                 onHidePost={async () => {}}
+                onPersonNote={async () => {}}
               />
             </>
           )

@@ -1,5 +1,7 @@
 import {
   editCombined,
+  editPersonNotes,
+  editPersonViewPersonNote,
   enableNsfw,
   getUncombinedPersonContent,
   setIsoData,
@@ -74,6 +76,7 @@ import {
   MarkPostAsRead,
   ListPersonLikedResponse,
   SearchSortType,
+  NotePerson,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -285,6 +288,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
     this.handlePurgeComment = this.handlePurgeComment.bind(this);
+    this.handlePersonNote = this.handlePersonNote.bind(this);
     this.handleCommentReport = this.handleCommentReport.bind(this);
     this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
@@ -626,6 +630,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onPurgePost={this.handlePurgePost}
                     onFeaturePost={this.handleFeaturePost}
                     onMarkPostAsRead={this.handleMarkPostAsRead}
+                    onPersonNote={this.handlePersonNote}
                   />
                 ))}
               <PaginatorCursor
@@ -819,6 +824,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                         isDeleted={pv.person.deleted}
                         isAdmin={pv.is_admin}
                         isBot={pv.person.bot_account}
+                        myUserInfo={this.isoData.myUserInfo}
+                        targetPersonId={pv.person.id}
+                        personActions={pv.person_actions}
                       />
                     </li>
                   </ul>
@@ -1345,6 +1353,46 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   async handleTransferCommunity(form: TransferCommunity) {
     await HttpService.client.transferCommunity(form);
     toast(I18NextService.i18n.t("transfer_community"));
+  }
+
+  async handlePersonNote(form: NotePerson) {
+    const res = await HttpService.client.notePerson(form);
+
+    this.setState(s => {
+      if (s.personRes.state === "success" && res.state === "success") {
+        s.personRes.data.person_view = editPersonViewPersonNote(
+          form.note,
+          form.person_id,
+          s.personRes.data.person_view,
+        );
+
+        // Update the content lists
+        if (s.personContentRes.state === "success") {
+          s.personContentRes.data.content = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.personContentRes.data.content,
+          );
+        }
+        if (s.personLikedRes.state === "success") {
+          s.personLikedRes.data.liked = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.personLikedRes.data.liked,
+          );
+        }
+        if (s.personSavedRes.state === "success") {
+          s.personSavedRes.data.saved = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.personSavedRes.data.saved,
+          );
+        }
+      }
+
+      toast(I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"));
+      return s;
+    });
   }
 
   async handleMarkPostAsRead(form: MarkPostAsRead) {

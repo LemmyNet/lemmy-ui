@@ -44,6 +44,7 @@ import {
   MarkNotificationAsRead,
   MarkPostAsRead,
   MarkPrivateMessageAsRead,
+  NotePerson,
   NotificationDataType,
   NotificationView,
   PostSortType,
@@ -163,6 +164,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     this.handleCreateMessage = this.handleCreateMessage.bind(this);
     this.handleEditMessage = this.handleEditMessage.bind(this);
     this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
+    this.handlePersonNote = this.handlePersonNote.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -424,6 +426,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             markable
             read={item.notification.read}
             onMarkRead={this.handleCommentMarkAsRead}
+            onPersonNote={this.handlePersonNote}
           />
         );
       case "PrivateMessage":
@@ -476,6 +479,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               disableAutoMarkAsRead={true}
               read={item.notification.read}
               onMarkPostAsRead={this.handleMarkPostAsRead}
+              onPersonNote={this.handlePersonNote}
             />
           )
         );
@@ -935,6 +939,41 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       await this.handleMarkNotificationAsRead({
         notification_id: notification.notification.id,
         read: form.read,
+      });
+    }
+  }
+
+  async handlePersonNote(form: NotePerson) {
+    const res = await HttpService.client.notePerson(form);
+
+    if (res.state === "success") {
+      // Update the content lists
+      this.setState(s => {
+        if (s.inboxRes.state === "success") {
+          s.inboxRes.data.notifications = s.inboxRes.data.notifications.map(
+            c => {
+              const notif: NotificationView = {
+                notification: { ...c.notification },
+                data: { ...c.data },
+              };
+              switch (notif.data.type_) {
+                case "Post":
+                case "Comment":
+                  if (
+                    notif.data.creator.id === form.person_id &&
+                    notif.data.person_actions
+                  ) {
+                    notif.data.person_actions.note = form.note;
+                  }
+                  break;
+              }
+              return notif;
+            },
+          );
+        }
+        toast(
+          I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"),
+        );
       });
     }
   }
