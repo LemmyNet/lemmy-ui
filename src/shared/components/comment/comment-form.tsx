@@ -120,7 +120,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
         language_id,
       });
     } else {
-      const post_id = node.comment_view.post.id;
+      const post_id = node.comment_view.comment.post_id;
       const parent_id = node.comment_view.comment.id;
       response = await onUpsertComment({
         content,

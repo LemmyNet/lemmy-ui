@@ -3,6 +3,7 @@ import { I18NextService } from "../../../services";
 import { Icon } from "../icon";
 import CrossPostButton from "./cross-post-button";
 import {
+  Community,
   CommunityModeratorView,
   MyUserInfo,
   PersonView,
@@ -42,6 +43,7 @@ interface ContentActionDropdownPropsBase {
   onAppointAdmin: () => Promise<void>;
   moderators?: CommunityModeratorView[];
   admins: PersonView[];
+  community: Community;
   myUserInfo: MyUserInfo | undefined;
 }
 
@@ -152,7 +154,6 @@ export default class ContentActionDropdown extends Component<
       removed,
       creator_banned_from_community,
       creator,
-      community,
       creator_is_admin,
       creator_is_moderator,
       creator_banned,
@@ -168,7 +169,7 @@ export default class ContentActionDropdown extends Component<
           ? this.props.commentView
           : this.props.postView,
       ) ||
-        (amAdmin(this.props.myUserInfo) && community.local)) &&
+        (amAdmin(this.props.myUserInfo) && this.props.community.local)) &&
       !creator_banned_from_community;
 
     const modHistoryUserTranslation = I18NextService.i18n.t(
@@ -670,7 +671,6 @@ export default class ContentActionDropdown extends Component<
       removed,
       creator,
       creator_banned_from_community,
-      community,
       creator_is_admin,
       creator_is_moderator,
       creator_banned,
@@ -687,6 +687,7 @@ export default class ContentActionDropdown extends Component<
       onAppointCommunityMod,
       onAppointAdmin,
       type,
+      community,
     } = this.props;
 
     return (
@@ -849,7 +850,6 @@ export default class ContentActionDropdown extends Component<
         creator,
         creator_banned_from_community,
         creator_is_moderator,
-        community,
         creator_is_admin,
         creator_banned,
       } = this.props.commentView;
@@ -861,7 +861,6 @@ export default class ContentActionDropdown extends Component<
         creator,
         removed,
         creator_banned_from_community,
-        community,
         creator_is_admin,
         creator_is_moderator,
         creator_banned,

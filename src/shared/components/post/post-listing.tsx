@@ -717,6 +717,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.props.myUserInfo && this.isInteractable && (
           <PostActionDropdown
             postView={this.postView}
+            community={this.postView.community}
             admins={admins}
             crossPostParams={this.crossPostParams}
             myUserInfo={this.props.myUserInfo}
