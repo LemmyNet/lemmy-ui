@@ -4,7 +4,18 @@ The official web app for [Lemmy](https://github.com/LemmyNet/lemmy), written in 
 
 Based off of MrFoxPro's [inferno-isomorphic-template](https://github.com/MrFoxPro/inferno-isomorphic-template).
 
-[Development Instructions](https://join-lemmy.org/docs/contributors/01-overview.html)
+## Development
+
+You need to have [pnpm](https://pnpm.io/installation) installed. Then run the following:
+
+```bash
+git clone https://github.com/LemmyNet/lemmy-ui.git
+cd lemmy-ui
+pnpm install
+LEMMY_UI_LEMMY_INTERNAL_HOST=voyager.lemmy.ml pnpm dev
+```
+
+Finally open `http://0.0.0.0:1234` in your browser. This uses the public test instance `https://voyager.lemmy.ml/` as backend. For more details such as developing with a locally compiled Lemmy backend, read the [documentation](https://join-lemmy.org/docs/contributors/01-overview.html).
 
 ## Configuration
 
