@@ -715,3 +715,12 @@ export function postViewToPersonContentCombinedView(
     ...pv,
   };
 }
+
+export function commentViewToPersonContentCombinedView(
+  cv: CommentView,
+): PersonContentCombinedView {
+  return {
+    type_: "Comment",
+    ...cv,
+  };
+}

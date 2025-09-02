@@ -1,4 +1,5 @@
 import {
+  commentViewToPersonContentCombinedView,
   editCombined,
   editPersonNotes,
   editPersonViewPersonNote,
@@ -1671,17 +1672,18 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     if (res.state === "success") {
-      this.editCombinedCurrent({ type_: "Comment", ...res.data.comment_view });
+      this.editCombinedCurrent(
+        commentViewToPersonContentCombinedView(res.data.comment_view),
+      );
     }
   }
 
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.personContentRes.state === "success" && res.state === "success") {
-        s.personContentRes.data.content.unshift({
-          type_: "Comment",
-          ...res.data.comment_view,
-        });
+        s.personContentRes.data.content.unshift(
+          commentViewToPersonContentCombinedView(res.data.comment_view),
+        );
       }
       return s;
     });
@@ -1689,7 +1691,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   findAndUpdatePost(res: RequestState<PostResponse>) {
     if (res.state === "success") {
-      this.editCombinedCurrent({ type_: "Post", ...res.data.post_view });
+      this.editCombinedCurrent(
+        postViewToPersonContentCombinedView(res.data.post_view),
+      );
     }
   }
 }
