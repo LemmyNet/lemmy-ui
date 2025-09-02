@@ -24,6 +24,7 @@ import {
   Language,
   LocalSite,
   MyUserInfo,
+  NotePerson,
   PersonId,
   PersonView,
   PurgeComment,
@@ -113,6 +114,7 @@ type CommentNodeProps = {
   onCommentReport(form: CreateCommentReport): Promise<void>;
   onPurgePerson(form: PurgePerson): Promise<void>;
   onPurgeComment(form: PurgeComment): Promise<void>;
+  onPersonNote(form: NotePerson): Promise<void>;
 } & (
   | { markable?: false }
   | {
@@ -165,6 +167,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.handlePurgePerson = this.handlePurgePerson.bind(this);
     this.handlePurgeComment = this.handlePurgeComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
+    this.handlePersonNote = this.handlePersonNote.bind(this);
   }
 
   componentWillReceiveProps(
@@ -280,6 +283,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 isBot={cv.creator.bot_account}
                 isBanned={cv.creator_banned}
                 isBannedFromCommunity={cv.creator_banned_from_community}
+                myUserInfo={this.props.myUserInfo}
+                targetPersonId={cv.creator.id}
+                personActions={cv.person_actions}
               />
 
               {this.props.showCommunity && isCommentView(this.commentView) && (
@@ -433,6 +439,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           onPurgeContent={this.handlePurgeComment}
                           onBanFromSite={this.handleBanFromSite}
                           onAppointAdmin={this.handleAppointAdmin}
+                          onPersonNote={this.handlePersonNote}
                         />
                       </>
                     )}
@@ -511,6 +518,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onCommentReport={this.props.onCommentReport}
             onPurgePerson={this.props.onPurgePerson}
             onPurgeComment={this.props.onPurgeComment}
+            onPersonNote={this.props.onPersonNote}
           />
         )}
         {/* A collapsed clearfix */}
@@ -745,6 +753,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       person_id: this.commentView.creator.id,
       added: !this.commentView.creator_is_admin,
     });
+  }
+
+  async handlePersonNote(form: NotePerson) {
+    this.props.onPersonNote(form);
   }
 
   async handlePurgePerson(reason: string) {

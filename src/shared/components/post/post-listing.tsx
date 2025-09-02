@@ -26,6 +26,7 @@ import {
   LockPost,
   MarkPostAsRead,
   MyUserInfo,
+  NotePerson,
   PersonView,
   PostResponse,
   PostView,
@@ -101,6 +102,7 @@ type PostListingProps = {
   onAddAdmin(form: AddAdmin): Promise<void>;
   onTransferCommunity(form: TransferCommunity): Promise<void>;
   onHidePost(form: HidePost): Promise<void>;
+  onPersonNote(form: NotePerson): Promise<void>;
   onScrollIntoCommentsClick?(e: MouseEvent): void;
 } & (
   | { markable?: false }
@@ -148,6 +150,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleHidePost = this.handleHidePost.bind(this);
     this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
+    this.handlePersonNote = this.handlePersonNote.bind(this);
   }
 
   unlisten = () => {};
@@ -440,6 +443,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           isBot={pv.creator.bot_account}
           isBanned={pv.creator_banned}
           isBannedFromCommunity={pv.creator_banned_from_community}
+          myUserInfo={this.props.myUserInfo}
+          targetPersonId={pv.creator.id}
+          personActions={pv.person_actions}
         />
         {this.props.showCommunity && (
           <>
@@ -738,6 +744,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onPurgeContent={this.handlePurgePost}
             onAppointAdmin={this.handleAppointAdmin}
             onHidePost={this.handleHidePost}
+            onPersonNote={this.handlePersonNote}
           />
         )}
       </div>
@@ -1064,6 +1071,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       hide: !this.postView.post_actions?.hidden_at,
       post_id: this.postView.post.id,
     });
+  }
+
+  handlePersonNote(form: NotePerson) {
+    return this.props.onPersonNote(form);
   }
 
   handleModBanFromCommunity({

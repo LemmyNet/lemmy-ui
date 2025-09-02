@@ -21,6 +21,9 @@ import {
   ReportCombinedView,
   Post,
   PersonContentCombinedView,
+  PersonId,
+  PersonActions,
+  Person,
   CommentSlimView,
 } from "lemmy-js-client";
 import {
@@ -193,6 +196,26 @@ export function editRegistrationApplication(
   apps: RegistrationApplicationView[],
 ): RegistrationApplicationView[] {
   return editListImmutable("registration_application", data, apps);
+}
+
+export function editPersonNotes<
+  T extends { creator: Person; person_actions?: PersonActions },
+>(note: string, personId: PersonId, views: T[]): T[] {
+  return views.map(pv =>
+    pv.creator.id === personId
+      ? { ...pv, person_actions: { ...pv.person_actions, note } }
+      : pv,
+  );
+}
+
+export function editPersonViewPersonNote(
+  note: string,
+  personId: PersonId,
+  view: PersonView,
+): PersonView {
+  return view.person.id === personId
+    ? { ...view, person_actions: { ...view.person_actions, note } }
+    : view;
 }
 
 export function commentUpvotesMode(siteRes: GetSiteResponse): FederationMode {
