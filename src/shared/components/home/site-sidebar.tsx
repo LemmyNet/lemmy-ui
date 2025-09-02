@@ -1,6 +1,12 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { LocalSite, MyUserInfo, PersonView, Site } from "lemmy-js-client";
+import {
+  Language,
+  LocalSite,
+  MyUserInfo,
+  PersonView,
+  Site,
+} from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { Badges } from "../common/badges";
@@ -15,6 +21,8 @@ interface SiteSidebarProps {
   admins?: PersonView[];
   isMobile?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  allLanguages?: Language[];
+  siteLanguages?: number[];
 }
 
 interface SiteSidebarState {
@@ -89,13 +97,36 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   siteInfo() {
     const { site } = this.props;
+    const langs = this.props.allLanguages?.filter(x =>
+      this.props.siteLanguages?.includes(x.id),
+    );
+    const showLanguages =
+      langs &&
+      this.props.allLanguages &&
+      langs.length < this.props.allLanguages.length;
 
     return (
       <div>
         {site.description && <h6>{site.description}</h6>}
         {site.sidebar && this.siteSidebar(site.sidebar)}
+        {showLanguages && this.languages(langs)}
+        <hr className="m-2" />
         {this.props.localSite && <Badges subject={this.props.localSite} />}
         {this.props.admins && this.admins(this.props.admins)}
+      </div>
+    );
+  }
+
+  languages(langs: Language[]) {
+    return (
+      <div>
+        <ul class="badges my-1 list-inline">
+          {langs.map(l => (
+            <li class="badge list-inline-item text-secondary border border-secondary">
+              {l.name}
+            </li>
+          ))}
+        </ul>
       </div>
     );
   }
