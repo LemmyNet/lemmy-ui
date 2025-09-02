@@ -10,8 +10,8 @@ import { MyUserInfo } from "lemmy-js-client";
  * Service to poll and keep track of unread messages / notifications.
  */
 export class UnreadCounterService {
-  // fetched by HttpService.getUnreadCount, appear in inbox
-  public unreadInboxCountSubject: BehaviorSubject<number> =
+  // fetched by HttpService.getUnreadCount, appear in notifications
+  public unreadCountSubject: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
   // fetched by HttpService.getReportCount, appear in report page
@@ -22,7 +22,7 @@ export class UnreadCounterService {
   public unreadApplicationCountSubject: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
-  private enableInboxCounts: boolean = false;
+  private enableUnreadCounts: boolean = false;
   private enableReports: boolean = false;
   private enableApplications: boolean = false;
   private polling: boolean = false;
@@ -40,7 +40,7 @@ export class UnreadCounterService {
   }
 
   public configure(myUserInfo: MyUserInfo | undefined) {
-    this.enableInboxCounts = !!myUserInfo;
+    this.enableUnreadCounts = !!myUserInfo;
     this.enableReports = moderatesSomething(myUserInfo);
     this.enableApplications = amAdmin(myUserInfo);
     if (!this.polling) {
@@ -49,11 +49,11 @@ export class UnreadCounterService {
     }
   }
 
-  public async updateInboxCounts() {
-    if (this.shouldUpdate && this.enableInboxCounts) {
+  public async updateUnreadCounts() {
+    if (this.shouldUpdate && this.enableUnreadCounts) {
       const unreadCountRes = await HttpService.client.getUnreadCount();
       if (unreadCountRes.state === "success") {
-        this.unreadInboxCountSubject.next(unreadCountRes.data.count);
+        this.unreadCountSubject.next(unreadCountRes.data.count);
       }
     }
   }
@@ -80,7 +80,7 @@ export class UnreadCounterService {
   }
 
   public async updateAll() {
-    this.updateInboxCounts();
+    this.updateUnreadCounts();
     this.updateReports();
     this.updateApplications();
   }
