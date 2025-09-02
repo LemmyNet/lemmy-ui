@@ -816,9 +816,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       <UserBadges
                         classNames="ms-1"
                         isBanned={pv.creator_banned}
-                        isDeleted={pv.person.deleted}
                         isAdmin={pv.is_admin}
-                        isBot={pv.person.bot_account}
+                        person={pv.person}
                       />
                     </li>
                   </ul>
