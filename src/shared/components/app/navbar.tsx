@@ -98,6 +98,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   render() {
     const siteView = this.props.siteRes?.site_view;
     const person = this.props.myUserInfo?.local_user_view.person;
+    const registrationClosed =
+      siteView?.local_site.registration_mode === "Closed";
     return (
       <div className="shadow-sm">
         <nav
@@ -448,8 +450,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <li className="nav-item">
                     <NavLink
                       to="/signup"
-                      className="nav-link"
-                      title={I18NextService.i18n.t("sign_up")}
+                      className={
+                        registrationClosed ? "nav-link pe-none" : "nav-link"
+                      }
+                      aria-disabled={registrationClosed}
+                      title={I18NextService.i18n.t(
+                        registrationClosed ? "registration_closed" : "sign_up",
+                      )}
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       {I18NextService.i18n.t("sign_up")}

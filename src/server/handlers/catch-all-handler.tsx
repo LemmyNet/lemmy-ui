@@ -80,6 +80,14 @@ export default async (req: Request, res: Response) => {
         return;
       }
 
+      if (
+        path === "/signup" &&
+        siteRes.site_view.local_site.registration_mode === "Closed"
+      ) {
+        res.redirect("/");
+        return;
+      }
+
       if (siteRes && activeRoute?.fetchInitialData && match) {
         const { search } = parsePath(url);
         const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
