@@ -19,6 +19,7 @@ import {
   Language,
   LocalSite,
   MyUserInfo,
+  NotePerson,
   PersonId,
   PersonView,
   PurgeComment,
@@ -78,6 +79,7 @@ interface CommentNodesProps {
   onCommentReport(form: CreateCommentReport): Promise<void>;
   onPurgePerson(form: PurgePerson): Promise<void>;
   onPurgeComment(form: PurgeComment): Promise<void>;
+  onPersonNote(form: NotePerson): Promise<void>;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -141,6 +143,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               onCommentReport={this.props.onCommentReport}
               onPurgePerson={this.props.onPurgePerson}
               onPurgeComment={this.props.onPurgeComment}
+              onPersonNote={this.props.onPersonNote}
             />
           ))}
         </ul>

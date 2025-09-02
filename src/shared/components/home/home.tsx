@@ -1,6 +1,7 @@
 import {
   commentsToFlatNodes,
   editComment,
+  editPersonNotes,
   editPost,
   enableNsfw,
   getDataTypeString,
@@ -71,6 +72,7 @@ import {
   CommentSortType,
   MyUserInfo,
   MarkPostAsRead,
+  NotePerson,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -298,6 +300,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
     this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleHidePost = this.handleHidePost.bind(this);
+    this.handlePersonNote = this.handlePersonNote.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -719,6 +722,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onFeaturePost={this.handleFeaturePost}
               onMarkPostAsRead={this.handleMarkPostAsRead}
               onHidePost={this.handleHidePost}
+              onPersonNote={this.handlePersonNote}
             />
           );
         }
@@ -757,6 +761,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onBanPerson={this.handleBanPerson}
               onCreateComment={this.handleCreateComment}
               onEditComment={this.handleEditComment}
+              onPersonNote={this.handlePersonNote}
             />
           );
         }
@@ -943,6 +948,33 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       );
     }
     return editCommentRes;
+  }
+
+  async handlePersonNote(form: NotePerson) {
+    const res = await HttpService.client.notePerson(form);
+
+    if (res.state === "success") {
+      this.setState(s => {
+        if (s.commentsRes.state === "success") {
+          s.commentsRes.data.comments = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.commentsRes.data.comments,
+          );
+        }
+        if (s.postsRes.state === "success") {
+          s.postsRes.data.posts = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.postsRes.data.posts,
+          );
+        }
+        toast(
+          I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"),
+        );
+        return s;
+      });
+    }
   }
 
   async handleDeleteComment(form: DeleteComment) {

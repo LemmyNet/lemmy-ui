@@ -62,6 +62,8 @@ function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
                   person={v.creator}
                   isBanned={v.creator_banned}
                   isBannedFromCommunity={v.creator_banned_from_community}
+                  myUserInfo={myUserInfo}
+                  targetPersonId={v.creator.id}
                 />
               </td>
               <td className="text-end">{scoreToIcon(v.score)}</td>
