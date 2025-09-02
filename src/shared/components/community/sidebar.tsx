@@ -157,6 +157,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       community: { name, ap_id, id, posting_restricted_to_mods, visibility },
       community_actions: { received_ban_at: bannedFromCommunity } = {},
     } = this.props.community_view;
+    const langs = this.props.allLanguages.filter(x =>
+      this.props.communityLanguages?.includes(x.id),
+    );
 
     return (
       <aside className="mb-3">
@@ -271,6 +274,14 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   )}
                 </p>
               </div>
+              <ul class="badges my-1 list-inline">
+                {langs.map(l => (
+                  <li class="badge list-inline-item text-secondary border border-secondary">
+                    {l.name}
+                  </li>
+                ))}
+              </ul>
+              <hr className="m-2" />
               <Badges
                 communityId={id}
                 subject={this.props.community_view.community}
