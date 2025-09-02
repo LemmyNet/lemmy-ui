@@ -8,7 +8,7 @@ function getBaseLocal(s = "") {
 export function getExternalHost() {
   return isBrowser()
     ? window.isoData.lemmyExternalHost
-    : (process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ?? testHost);
+    : (process.env.LEMMY_UI_BACKEND_EXTERNAL ?? testHost);
 }
 
 function getHost() {
@@ -29,7 +29,7 @@ export function getHttpBaseInternal() {
 
 function getInternalHost() {
   return !isBrowser()
-    ? (process.env.LEMMY_UI_LEMMY_INTERNAL_HOST ?? testHost)
+    ? (process.env.LEMMY_UI_BACKEND_INTERNAL ?? testHost)
     : testHost; // used for local dev
 }
 
