@@ -8,7 +8,9 @@ function getBaseLocal(s = "") {
 export function getExternalHost() {
   return isBrowser()
     ? window.isoData.lemmyExternalHost
-    : (process.env.LEMMY_UI_BACKEND_EXTERNAL ?? testHost);
+    : (process.env.LEMMY_UI_BACKEND_REMOTE ??
+        process.env.LEMMY_UI_BACKEND_EXTERNAL ??
+        testHost);
 }
 
 function getHost() {
@@ -29,21 +31,21 @@ export function getHttpBaseInternal() {
 
 function getInternalHost() {
   return !isBrowser()
-    ? (process.env.LEMMY_UI_BACKEND_INTERNAL ?? testHost)
+    ? (process.env.LEMMY_UI_BACKEND_REMOTE ??
+        process.env.LEMMY_UI_BACKEND_INTERNAL ??
+        testHost)
     : testHost; // used for local dev
 }
 
 function getSecure() {
-  /*
   return (
     isBrowser()
-      ? window.location.protocol.includes("https")
-      : process.env.LEMMY_UI_HTTPS === "true"
+      ? window.location.protocol.includes("https") || window.isoData.forceHttps
+      : process.env.LEMMY_UI_HTTPS === "true" ||
+        process.env.LEMMY_UI_BACKEND_REMOTE !== undefined
   )
     ? "s"
     : "";
-    */
-  return "s";
 }
 
 /**
