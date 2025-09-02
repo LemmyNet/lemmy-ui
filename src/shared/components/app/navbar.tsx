@@ -381,7 +381,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <li id="dropdownUser" className="dropdown">
                       <button
                         type="button"
-                        className="btn btn-outline-secondary dropdown-toggle"
+                        className="btn dropdown-toggle"
                         aria-expanded="false"
                         data-bs-toggle="dropdown"
                       >
