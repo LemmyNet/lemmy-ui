@@ -1,10 +1,4 @@
-import {
-  enableNsfw,
-  mixedToCommentSortType,
-  myAuth,
-  setIsoData,
-  updatePersonBlock,
-} from "@utils/app";
+import { enableNsfw, myAuth, setIsoData, updatePersonBlock } from "@utils/app";
 import {
   capitalizeFirstLetter,
   cursorComponents,
@@ -26,7 +20,6 @@ import {
   CommentId,
   CommentReportResponse,
   CommentResponse,
-  CommentSortType,
   CommunityId,
   CreateComment,
   CreateCommentLike,
@@ -47,7 +40,6 @@ import {
   NotePerson,
   NotificationDataType,
   NotificationView,
-  PostSortType,
   PrivateMessageReportResponse,
   PrivateMessageResponse,
   PurgeComment,
@@ -70,7 +62,6 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { CommentSortSelect } from "../common/sort-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { PrivateMessage } from "../private_message/private-message";
@@ -99,7 +90,6 @@ interface InboxState {
   messageType: NotificationDataType;
   inboxRes: RequestState<ListNotificationsResponse>;
   markAllAsReadRes: RequestState<SuccessResponse>;
-  sort: PostSortType | CommentSortType;
   cursor?: DirectionalCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
@@ -123,7 +113,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   state: InboxState = {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: "All",
-    sort: "New",
     siteRes: this.isoData.siteRes,
     inboxRes: EMPTY_REQUEST,
     markAllAsReadRes: EMPTY_REQUEST,
@@ -137,7 +126,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.handleSortChange = this.handleSortChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
 
     this.handleCreateComment = this.handleCreateComment.bind(this);
@@ -380,12 +368,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       <div className="row row-cols-auto g-2 g-sm-3 mb-2 mb-sm-3">
         <div className="col">{this.unreadOrAllRadios()}</div>
         <div className="col">{this.messageTypeRadios()}</div>
-        <div className="col">
-          <CommentSortSelect
-            current={mixedToCommentSortType(this.state.sort)}
-            onChange={this.handleSortChange}
-          />
-        </div>
       </div>
     );
   }
@@ -551,7 +533,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     await HttpService.client
       .listNotifications({
         type_: this.state.messageType,
-        // TODO: sort: this.state.sort,
         unread_only,
         ...cursorComponents(cursor),
         limit: fetchLimit,
@@ -564,11 +545,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
         }
       });
     UnreadCounterService.Instance.updateInboxCounts();
-  }
-
-  async handleSortChange(val: CommentSortType) {
-    this.setState({ sort: val, cursor: undefined });
-    await this.refetch();
   }
 
   async handleMarkAllAsRead(i: Inbox) {
