@@ -688,12 +688,17 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           {this.getRadio("Posts")}
           {this.amCurrentUser && this.getRadio("Uploads")}
         </div>
-        <div className="btn-group btn-group-toggle flex-wrap" role="group">
-          {this.amCurrentUser && this.getFilterRadio("Saved")}
-          {this.amCurrentUser && this.getFilterRadio("Liked")}
-          {this.amCurrentUser && this.getFilterRadio("None")}
-        </div>
       </>
+    );
+  }
+
+  get filterRadios() {
+    return (
+      <div className="btn-group btn-group-toggle flex-wrap" role="group">
+        {this.amCurrentUser && this.getFilterRadio("Saved")}
+        {this.amCurrentUser && this.getFilterRadio("Liked")}
+        {this.amCurrentUser && this.getFilterRadio("None")}
+      </div>
     );
   }
 
@@ -761,6 +766,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     return (
       <div className="row align-items-center mb-3 g-3">
         <div className="col-auto">{this.viewRadios}</div>
+        <div className="col-auto">{this.filterRadios}</div>
         <div className="col-auto">
           <PostSortSelect current={sort} onChange={this.handleSortChange} />
         </div>
