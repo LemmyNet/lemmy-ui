@@ -634,18 +634,18 @@ export function updateCommunityBlock(
     if (data.blocked) {
       myUserInfo.community_blocks.push(data.community_view.community);
       toast(
-        `${I18NextService.i18n.t("blocked")} ${
-          data.community_view.community.name
-        }`,
+        I18NextService.i18n.t("blocked_x", {
+          item: data.community_view.community.name,
+        }),
       );
     } else {
       myUserInfo.community_blocks = myUserInfo.community_blocks.filter(
         c => c.id !== data.community_view.community.id,
       );
       toast(
-        `${I18NextService.i18n.t("unblocked")} ${
-          data.community_view.community.name
-        }`,
+        I18NextService.i18n.t("unblocked_x", {
+          item: data.community_view.community.name,
+        }),
       );
     }
   }
@@ -659,20 +659,24 @@ export function updatePersonBlock(
     if (data.blocked) {
       myUserInfo.person_blocks.push(data.person_view.person);
       toast(
-        `${I18NextService.i18n.t("blocked")} ${data.person_view.person.name}`,
+        I18NextService.i18n.t("blocked_x", {
+          item: data.person_view.person.name,
+        }),
       );
     } else {
       myUserInfo.person_blocks = myUserInfo.person_blocks.filter(
         p => p.id !== data.person_view.person.id,
       );
       toast(
-        `${I18NextService.i18n.t("unblocked")} ${data.person_view.person.name}`,
+        I18NextService.i18n.t("unblocked_x", {
+          item: data.person_view.person.name,
+        }),
       );
     }
   }
 }
 
-export function updateInstanceBlock(
+export function updateInstanceCommunitiesBlock(
   blocked: boolean,
   id: number,
   linkedInstances: Instance[],
@@ -682,11 +686,37 @@ export function updateInstanceBlock(
 
   if (blocked) {
     myUserInfo.instance_communities_blocks.push(instance);
-    toast(`${I18NextService.i18n.t("blocked")} ${instance.domain}`);
+    toast(
+      I18NextService.i18n.t("blocked_all_communities_from", {
+        instance: instance.domain,
+      }),
+    );
   } else {
     myUserInfo.instance_communities_blocks =
       myUserInfo.instance_communities_blocks.filter(i => i.id !== id);
-    toast(`${I18NextService.i18n.t("unblocked")} ${instance.domain}`);
+    toast(I18NextService.i18n.t("unblocked_x", { item: instance.domain }));
+  }
+}
+
+export function updateInstancePersonsBlock(
+  blocked: boolean,
+  id: number,
+  linkedInstances: Instance[],
+  myUserInfo: MyUserInfo,
+) {
+  const instance = linkedInstances.find(i => i.id === id)!;
+
+  if (blocked) {
+    myUserInfo.instance_persons_blocks.push(instance);
+    toast(
+      I18NextService.i18n.t("blocked_all_users_from", {
+        instance: instance.domain,
+      }),
+    );
+  } else {
+    myUserInfo.instance_persons_blocks =
+      myUserInfo.instance_persons_blocks.filter(i => i.id !== id);
+    toast(I18NextService.i18n.t("unblocked_x", { item: instance.domain }));
   }
 }
 
