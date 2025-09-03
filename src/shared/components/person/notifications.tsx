@@ -197,7 +197,7 @@ export class Notifications extends Component<
 
   render() {
     const auth = myAuth();
-    const inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
+    const notifsRss = auth ? `/feeds/notifications/${auth}.xml` : undefined;
     return (
       <div className="notifications container-lg">
         <div className="row">
@@ -208,15 +208,15 @@ export class Notifications extends Component<
             />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("notifications")}
-              {inboxRss && (
+              {notifsRss && (
                 <small>
-                  <a href={inboxRss} title="RSS" rel={relTags}>
+                  <a href={notifsRss} title="RSS" rel={relTags}>
                     <Icon icon="rss" classes="ms-2 text-muted small" />
                   </a>
                   <link
                     rel="alternate"
                     type="application/atom+xml"
-                    href={inboxRss}
+                    href={notifsRss}
                   />
                 </small>
               )}
