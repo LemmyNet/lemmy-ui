@@ -10,7 +10,8 @@ import {
   setIsoData,
   showLocal,
   updateCommunityBlock,
-  updateInstanceBlock,
+  updateInstanceCommunitiesBlock,
+  updateInstancePersonsBlock,
   updateMyUserInfo,
   updatePersonBlock,
 } from "@utils/app";
@@ -100,7 +101,8 @@ interface SettingsState {
   };
   personBlocks: Person[];
   communityBlocks: Community[];
-  instanceBlocks: Instance[];
+  instanceCommunitiesBlocks: Instance[];
+  instancePersonsBlocks: Instance[];
   currentTab: string;
   themeList: string[];
   deleteAccountShowConfirm: boolean;
@@ -204,7 +206,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     deleteAccountForm: {},
     personBlocks: [],
     communityBlocks: [],
-    instanceBlocks: [],
+    instanceCommunitiesBlocks: [],
+    instancePersonsBlocks: [],
     currentTab: "settings",
     siteRes: this.isoData.siteRes,
     themeList: [],
@@ -240,7 +243,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
-    this.handleBlockInstance = this.handleBlockInstance.bind(this);
+    this.handleBlockInstanceCommunities =
+      this.handleBlockInstanceCommunities.bind(this);
+    this.handleBlockInstancePersons =
+      this.handleBlockInstancePersons.bind(this);
 
     this.handleToggle2fa = this.handleToggle2fa.bind(this);
     this.handleEnable2fa = this.handleEnable2fa.bind(this);
@@ -286,7 +292,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         ...this.state,
         personBlocks: mui.person_blocks,
         communityBlocks: mui.community_blocks,
-        instanceBlocks: mui.instance_communities_blocks,
+        instanceCommunitiesBlocks: mui.instance_communities_blocks,
+        instancePersonsBlocks: mui.instance_persons_blocks,
         saveUserSettingsForm: {
           ...this.state.saveUserSettingsForm,
           show_nsfw,
@@ -466,7 +473,14 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           </div>
           <div className="col-12 col-md-6">
             <div className="card border-secondary mb-3">
-              <div className="card-body">{this.blockInstanceCard()}</div>
+              <div className="card-body">
+                {this.blockInstanceCommunitiesCard()}
+              </div>
+            </div>
+          </div>
+          <div className="col-12 col-md-6">
+            <div className="card border-secondary mb-3">
+              <div className="card-body">{this.blockInstancePersonsCard()}</div>
             </div>
           </div>
         </div>
@@ -545,22 +559,17 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <ul className="list-unstyled mb-0">
           {this.state.personBlocks.map(p => (
             <li key={p.id}>
-              <span>
-                <PersonListing
-                  person={p}
-                  myUserInfo={this.isoData.myUserInfo}
-                />
-                <button
-                  className="btn btn-sm"
-                  onClick={linkEvent(
-                    { ctx: this, recipientId: p.id },
-                    this.handleUnblockPerson,
-                  )}
-                  data-tippy-content={I18NextService.i18n.t("unblock_user")}
-                >
-                  <Icon icon="x" classes="icon-inline" />
-                </button>
-              </span>
+              <PersonListing person={p} myUserInfo={this.isoData.myUserInfo} />
+              <button
+                className="btn btn-sm"
+                onClick={linkEvent(
+                  { ctx: this, recipientId: p.id },
+                  this.handleUnblockPerson,
+                )}
+                data-tippy-content={I18NextService.i18n.t("unblock_user")}
+              >
+                <Icon icon="x" classes="icon-inline" />
+              </button>
             </li>
           ))}
         </ul>
@@ -592,24 +601,20 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <ul className="list-unstyled mb-0">
           {this.state.communityBlocks.map(c => (
             <li key={c.id}>
-              <span>
-                <CommunityLink
-                  community={c}
-                  myUserInfo={this.isoData.myUserInfo}
-                />
-                <button
-                  className="btn btn-sm"
-                  onClick={linkEvent(
-                    { ctx: this, communityId: c.id },
-                    this.handleUnblockCommunity,
-                  )}
-                  data-tippy-content={I18NextService.i18n.t(
-                    "unblock_community",
-                  )}
-                >
-                  <Icon icon="x" classes="icon-inline" />
-                </button>
-              </span>
+              <CommunityLink
+                community={c}
+                myUserInfo={this.isoData.myUserInfo}
+              />
+              <button
+                className="btn btn-sm"
+                onClick={linkEvent(
+                  { ctx: this, communityId: c.id },
+                  this.handleUnblockCommunity,
+                )}
+                data-tippy-content={I18NextService.i18n.t("unblock_community")}
+              >
+                <Icon icon="x" classes="icon-inline" />
+              </button>
             </li>
           ))}
         </ul>
@@ -617,42 +622,87 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
-  blockInstanceCard() {
+  blockInstanceCommunitiesCard() {
     const { searchInstanceOptions } = this.state;
 
     return (
       <div>
         <Filter
           filterType="instance"
-          onChange={this.handleBlockInstance}
+          onChange={this.handleBlockInstanceCommunities}
           onSearch={this.handleInstanceSearch}
           options={searchInstanceOptions}
         />
-        {this.blockedInstancesList()}
+        {this.blockedInstanceCommunitiesList()}
       </div>
     );
   }
 
-  blockedInstancesList() {
+  blockInstancePersonsCard() {
+    const { searchInstanceOptions } = this.state;
+
+    return (
+      <div>
+        <Filter
+          filterType="instance"
+          onChange={this.handleBlockInstancePersons}
+          onSearch={this.handleInstanceSearch}
+          options={searchInstanceOptions}
+        />
+        {this.blockedInstancePersonsList()}
+      </div>
+    );
+  }
+
+  blockedInstanceCommunitiesList() {
     return (
       <>
-        <h2 className="h5">{I18NextService.i18n.t("blocked_instances")}</h2>
+        <h2 className="h5">
+          {I18NextService.i18n.t(
+            "blocked_all_communities_from_these_instances",
+          )}
+        </h2>
         <ul className="list-unstyled mb-0">
-          {this.state.instanceBlocks.map(i => (
+          {this.state.instanceCommunitiesBlocks.map(i => (
             <li key={i.id}>
-              <span>
-                {i.domain}
-                <button
-                  className="btn btn-sm"
-                  onClick={linkEvent(
-                    { ctx: this, instanceId: i.id },
-                    this.handleUnblockInstance,
-                  )}
-                  data-tippy-content={I18NextService.i18n.t("unblock_instance")}
-                >
-                  <Icon icon="x" classes="icon-inline" />
-                </button>
-              </span>
+              {i.domain}
+              <button
+                className="btn btn-sm"
+                onClick={linkEvent(
+                  { ctx: this, instanceId: i.id },
+                  this.handleUnblockInstanceCommunities,
+                )}
+                data-tippy-content={I18NextService.i18n.t("unblock_instance")}
+              >
+                <Icon icon="x" classes="icon-inline" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </>
+    );
+  }
+
+  blockedInstancePersonsList() {
+    return (
+      <>
+        <h2 className="h5">
+          {I18NextService.i18n.t("blocked_all_users_from_these_instances")}
+        </h2>
+        <ul className="list-unstyled mb-0">
+          {this.state.instancePersonsBlocks.map(i => (
+            <li key={i.id}>
+              {i.domain}
+              <button
+                className="btn btn-sm"
+                onClick={linkEvent(
+                  { ctx: this, instanceId: i.id },
+                  this.handleUnblockInstancePersons,
+                )}
+                data-tippy-content={I18NextService.i18n.t("unblock_instance")}
+              >
+                <Icon icon="x" classes="icon-inline" />
+              </button>
             </li>
           ))}
         </ul>
@@ -1407,10 +1457,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       searchInstanceOptions =
         this.state.instancesRes.data.federated_instances?.linked.filter(
           instance =>
-            instance.domain.toLowerCase().includes(text.toLowerCase()) &&
-            !this.state.instanceBlocks.some(
-              blockedInstance => blockedInstance.id === instance.id,
-            ),
+            instance.domain.toLowerCase().includes(text.toLowerCase()),
         ) ?? [];
     }
 
@@ -1465,7 +1512,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
   }
 
-  async handleBlockInstance({ value }: Choice) {
+  async handleBlockInstanceCommunities({ value }: Choice) {
     if (value !== "0") {
       const id = Number(value);
       const res = await HttpService.client.userBlockInstanceCommunities({
@@ -1473,12 +1520,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         instance_id: id,
       });
       if (res.state === "success") {
-        this.instanceBlock(id, true);
+        this.instanceCommunitiesBlock(id, true);
       }
     }
   }
 
-  async handleUnblockInstance({
+  async handleUnblockInstanceCommunities({
     ctx,
     instanceId,
   }: {
@@ -1490,7 +1537,36 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       instance_id: instanceId,
     });
     if (res.state === "success") {
-      ctx.instanceBlock(instanceId, false);
+      ctx.instanceCommunitiesBlock(instanceId, false);
+    }
+  }
+
+  async handleBlockInstancePersons({ value }: Choice) {
+    if (value !== "0") {
+      const id = Number(value);
+      const res = await HttpService.client.userBlockInstancePersons({
+        block: true,
+        instance_id: id,
+      });
+      if (res.state === "success") {
+        this.instancePersonsBlock(id, true);
+      }
+    }
+  }
+
+  async handleUnblockInstancePersons({
+    ctx,
+    instanceId,
+  }: {
+    ctx: Settings;
+    instanceId: number;
+  }) {
+    const res = await HttpService.client.userBlockInstancePersons({
+      block: false,
+      instance_id: instanceId,
+    });
+    if (res.state === "success") {
+      ctx.instancePersonsBlock(instanceId, false);
     }
   }
 
@@ -1955,13 +2031,27 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
   }
 
-  instanceBlock(id: number, blocked: boolean) {
+  instanceCommunitiesBlock(id: number, blocked: boolean) {
     const mui = this.isoData.myUserInfo;
     if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
         this.state.instancesRes.data.federated_instances?.linked ?? [];
-      updateInstanceBlock(blocked, id, linkedInstances, mui);
-      this.setState({ instanceBlocks: mui.instance_communities_blocks });
+      updateInstanceCommunitiesBlock(blocked, id, linkedInstances, mui);
+      this.setState({
+        instanceCommunitiesBlocks: mui.instance_communities_blocks,
+      });
+    }
+  }
+
+  instancePersonsBlock(id: number, blocked: boolean) {
+    const mui = this.isoData.myUserInfo;
+    if (mui && this.state.instancesRes.state === "success") {
+      const linkedInstances =
+        this.state.instancesRes.data.federated_instances?.linked ?? [];
+      updateInstancePersonsBlock(blocked, id, linkedInstances, mui);
+      this.setState({
+        instancePersonsBlocks: mui.instance_persons_blocks,
+      });
     }
   }
 }
