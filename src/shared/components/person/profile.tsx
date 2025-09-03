@@ -822,9 +822,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                         classNames="ms-1"
                         isBanned={pv.creator_banned}
                         isAdmin={pv.is_admin}
-                        person={pv.person}
+                        creator={pv.person}
                         myUserInfo={this.isoData.myUserInfo}
-                        targetPersonId={pv.person.id}
                         personActions={pv.person_actions}
                       />
                     </li>

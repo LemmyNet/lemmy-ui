@@ -2,7 +2,8 @@ import classNames from "classnames";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { MyUserInfo, Person, PersonActions, PersonId } from "lemmy-js-client";
+import { MyUserInfo, Person, PersonActions } from "lemmy-js-client";
+import { isWeekOld } from "@utils/date";
 
 interface UserBadgesProps {
   isBanned?: boolean;
@@ -10,9 +11,8 @@ interface UserBadgesProps {
   isPostCreator?: boolean;
   isModerator?: boolean;
   isAdmin?: boolean;
-  person?: Person;
+  creator: Person;
   myUserInfo?: MyUserInfo;
-  targetPersonId: PersonId;
   personActions?: PersonActions;
   classNames?: string;
 }
@@ -42,24 +42,17 @@ function getRoleLabelPill({
 @tippyMixin
 export class UserBadges extends Component<UserBadgesProps> {
   render() {
-    const isBot = this.props.person?.bot_account;
-    const isDeleted = this.props.person?.deleted;
-    var isNewAccount = false;
-    if (this.props.person !== undefined) {
-      // 7 days ago
-      // https://stackoverflow.com/a/563442
-      var date = new Date();
-      date.setDate(date.getDate() - 7);
-      isNewAccount = new Date(this.props.person?.published_at) > date;
-    }
+    const isBot = this.props.creator?.bot_account;
+    const isDeleted = this.props.creator?.deleted;
+    const isNewAccount = !isWeekOld(new Date(this.props.creator.published_at));
 
-    const local_user_view = this.props.myUserInfo?.local_user_view;
+    const localUserView = this.props.myUserInfo?.local_user_view;
     // Only show the person votes if:
     const showPersonVotes =
       // the setting is turned on,
-      local_user_view?.local_user.show_person_votes &&
+      localUserView?.local_user.show_person_votes &&
       // for other users,
-      local_user_view.person?.id !== this.props.targetPersonId &&
+      localUserView.person?.id !== this.props.creator?.id &&
       // and theres at least one up or downvote
       (this.props.personActions?.upvotes ||
         this.props.personActions?.downvotes);
