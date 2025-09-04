@@ -106,7 +106,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
-import { DonationDialog } from "./donation_dialog";
+import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
 
 interface HomeState {
