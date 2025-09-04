@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
-import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
+import { SuccessResponse } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -8,7 +8,7 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
@@ -17,7 +17,6 @@ import { isBrowser } from "@utils/browser";
 
 interface State {
   verifyRes: RequestState<SuccessResponse>;
-  siteRes: GetSiteResponse;
 }
 
 @simpleScrollMixin
@@ -29,7 +28,6 @@ export class VerifyEmail extends Component<
 
   state: State = {
     verifyRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
   };
 
   constructor(props: any, context: any) {
@@ -61,7 +59,7 @@ export class VerifyEmail extends Component<
 
   get documentTitle(): string {
     return `${I18NextService.i18n.t("verify_email")} - ${
-      this.state.siteRes.site_view.site.name
+      this.isoData.siteRes?.site_view.site.name
     }`;
   }
 

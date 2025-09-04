@@ -2,8 +2,8 @@ import { showAvatars } from "@utils/app";
 import { hostname } from "@utils/helpers";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
-import { Community } from "lemmy-js-client";
-import { relTags } from "../../config";
+import { Community, MyUserInfo } from "lemmy-js-client";
+import { relTags } from "@utils/config";
 import { PictrsImage } from "../common/pictrs-image";
 
 interface CommunityLinkProps {
@@ -12,6 +12,7 @@ interface CommunityLinkProps {
   useApubName?: boolean;
   muted?: boolean;
   hideAvatar?: boolean;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 export class CommunityLink extends Component<CommunityLinkProps, any> {
@@ -33,10 +34,10 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
     if (local) {
       link = `/c/${community.name}`;
     } else {
-      serverStr = `@${hostname(community.actor_id)}`;
+      serverStr = `@${hostname(community.ap_id)}`;
       link = !this.props.realLink
         ? `/c/${community.name}${serverStr}`
-        : community.actor_id;
+        : community.ap_id;
     }
     const classes = `community-link ${this.props.muted ? "text-muted" : ""}`;
 
@@ -59,7 +60,7 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
       <>
         {!this.props.hideAvatar &&
           !this.props.community.removed &&
-          showAvatars() &&
+          showAvatars(this.props.myUserInfo) &&
           icon && <PictrsImage src={icon} icon nsfw={nsfw} />}
         <span className="overflow-wrap-anywhere">
           {title}

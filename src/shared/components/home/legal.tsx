@@ -1,19 +1,11 @@
 import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
-import { GetSiteResponse } from "lemmy-js-client";
-import { mdToHtml } from "../../markdown";
+import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 
-interface LegalState {
-  siteRes: GetSiteResponse;
-}
-
-export class Legal extends Component<any, LegalState> {
+export class Legal extends Component<any, any> {
   private isoData = setIsoData(this.context);
-  state: LegalState = {
-    siteRes: this.isoData.site_res,
-  };
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -24,7 +16,7 @@ export class Legal extends Component<any, LegalState> {
   }
 
   render() {
-    const legal = this.state.siteRes.site_view.local_site.legal_information;
+    const legal = this.isoData.siteRes?.site_view.local_site.legal_information;
     return (
       <div className="legal container-lg">
         <HtmlTags

@@ -3,12 +3,8 @@ import { getQueryParams, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import { Component, linkEvent } from "inferno";
-import {
-  CommunityView,
-  LemmyHttp,
-  ResolveObjectResponse,
-} from "lemmy-js-client";
-import { InitialFetchRequest } from "../interfaces";
+import { CommunityView, LemmyHttp, SearchResponse } from "lemmy-js-client";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, HttpService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
@@ -24,7 +20,7 @@ import { SubscribeButton } from "./common/subscribe-button";
 import { CommunityLink } from "./community/community-link";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 
 interface RemoteFetchProps {
@@ -32,11 +28,11 @@ interface RemoteFetchProps {
 }
 
 type RemoteFetchData = RouteDataResponse<{
-  resolveObjectRes: ResolveObjectResponse;
+  resolveObjectRes: SearchResponse;
 }>;
 
 interface RemoteFetchState {
-  resolveObjectRes: RequestState<ResolveObjectResponse>;
+  resolveObjectRes: RequestState<SearchResponse>;
   isIsomorphic: boolean;
   followCommunityLoading: boolean;
 }
@@ -59,24 +55,21 @@ function uriToQuery(uri: string) {
 }
 
 async function handleToggleFollow(i: RemoteFetch, follow: boolean) {
-  const { resolveObjectRes } = i.state;
-  if (resolveObjectRes.state === "success" && resolveObjectRes.data.community) {
+  const { community } = i;
+  if (community) {
     i.setState({
       followCommunityLoading: true,
     });
 
     const communityRes = await HttpService.client.followCommunity({
-      community_id: resolveObjectRes.data.community.community.id,
+      community_id: community.community.id,
       follow,
     });
 
     i.setState(prev => {
-      if (
-        communityRes.state === "success" &&
-        prev.resolveObjectRes.state === "success" &&
-        prev.resolveObjectRes.data.community
-      ) {
-        prev.resolveObjectRes.data.community = communityRes.data.community_view;
+      if (communityRes.state === "success") {
+        community.community_actions =
+          communityRes.data.community_view.community_actions;
       }
 
       return {
@@ -160,6 +153,13 @@ export class RemoteFetch extends Component<
     );
   }
 
+  get community(): CommunityView | undefined {
+    const { resolveObjectRes: res } = this.state;
+    return res.state === "success"
+      ? res.data.results.find(x => x.type_ === "Community")
+      : undefined;
+  }
+
   get content() {
     const res = this.state.resolveObjectRes;
 
@@ -168,7 +168,20 @@ export class RemoteFetch extends Component<
 
     switch (res.state) {
       case "success": {
-        const communityView = res.data.community as CommunityView;
+        const communityView = this.community;
+        if (!communityView) {
+          return (
+            <>
+              <div className="card mt-5">
+                <div className="card-body">
+                  <h2 className="card-title">
+                    {I18NextService.i18n.t("could_not_fetch_community")}
+                  </h2>
+                </div>
+              </div>
+            </>
+          );
+        }
         return (
           <>
             <h1>{I18NextService.i18n.t("community_federated")}</h1>
@@ -178,7 +191,10 @@ export class RemoteFetch extends Component<
               )}
               <div className="card-body">
                 <h2 className="card-title">
-                  <CommunityLink community={communityView.community} />
+                  <CommunityLink
+                    community={communityView.community}
+                    myUserInfo={this.isoData.myUserInfo}
+                  />
                 </h2>
                 {communityView.community.description && (
                   <div className="card-text mb-3 preview-lines">
@@ -190,6 +206,7 @@ export class RemoteFetch extends Component<
                   onFollow={linkEvent(this, handleFollow)}
                   onUnFollow={linkEvent(this, handleUnfollow)}
                   loading={this.state.followCommunityLoading}
+                  showRemoteFetch={!this.isoData.myUserInfo}
                 />
               </div>
             </div>
@@ -229,7 +246,7 @@ export class RemoteFetch extends Component<
 
   get documentTitle(): string {
     const { uri } = this.props;
-    const name = this.isoData.site_res.site_view.site.name;
+    const name = this.isoData.siteRes?.site_view.site.name;
     return `${I18NextService.i18n.t("remote_follow")} - ${
       uri ? `${uri} - ` : ""
     }${name}`;

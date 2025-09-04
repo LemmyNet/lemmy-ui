@@ -1,17 +1,17 @@
 import { showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { numToSI } from "@utils/helpers";
-import { amAdmin, canCreateCommunity } from "@utils/roles";
+import { amAdmin, canCreateCommunity, moderatesSomething } from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
-import { GetSiteResponse } from "lemmy-js-client";
-import { donateLemmyUrl } from "../../config";
+import { GetSiteResponse, MyUserInfo } from "lemmy-js-client";
+import { donateLemmyUrl } from "@utils/config";
 import {
   I18NextService,
   UserService,
   UnreadCounterService,
 } from "../../services";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 import { Subscription } from "rxjs";
@@ -19,6 +19,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface NavbarProps {
   siteRes?: GetSiteResponse;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 interface NavbarState {
@@ -68,6 +69,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     if (isBrowser()) {
       // On the first load, check the unreads
       this.requestNotificationPermission();
+      UnreadCounterService.Instance.configure(this.props.myUserInfo);
       this.unreadInboxCountSubscription =
         UnreadCounterService.Instance.unreadInboxCountSubject.subscribe(
           unreadInboxCount => this.setState({ unreadInboxCount }),
@@ -95,7 +97,10 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   // TODO class active corresponding to current pages
   render() {
     const siteView = this.props.siteRes?.site_view;
-    const person = UserService.Instance.myUserInfo?.local_user_view.person;
+    const person = this.props.myUserInfo?.local_user_view.person;
+    const registrationClosed =
+      siteView?.local_site.registration_mode === "Closed";
+
     return (
       <div className="shadow-sm">
         <nav
@@ -109,7 +114,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             className="d-flex align-items-center navbar-brand me-md-3"
             onMouseUp={linkEvent(this, handleCollapseClick)}
           >
-            {siteView?.site.icon && showAvatars() && (
+            {siteView?.site.icon && showAvatars(this.props.myUserInfo) && (
               <PictrsImage src={siteView.site.icon} icon />
             )}
             {siteView?.site.name}
@@ -134,7 +139,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   )}
                 </NavLink>
               </li>
-              {UserService.Instance.moderatesSomething && (
+              {moderatesSomething(this.props.myUserInfo) && (
                 <li className="nav-item nav-item-icon">
                   <NavLink
                     to="/reports"
@@ -154,7 +159,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </NavLink>
                 </li>
               )}
-              {amAdmin() && (
+              {amAdmin(this.props.myUserInfo) && (
                 <li className="nav-item nav-item-icon">
                   <NavLink
                     to="/registration_applications"
@@ -227,18 +232,22 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {I18NextService.i18n.t("create_post")}
                 </NavLink>
               </li>
-              {this.props.siteRes && canCreateCommunity(this.props.siteRes) && (
-                <li className="nav-item">
-                  <NavLink
-                    to="/create_community"
-                    className="nav-link"
-                    title={I18NextService.i18n.t("create_community")}
-                    onMouseUp={linkEvent(this, handleCollapseClick)}
-                  >
-                    {I18NextService.i18n.t("create_community")}
-                  </NavLink>
-                </li>
-              )}
+              {this.props.siteRes &&
+                canCreateCommunity(
+                  this.props.siteRes,
+                  this.props.myUserInfo,
+                ) && (
+                  <li className="nav-item">
+                    <NavLink
+                      to="/create_community"
+                      className="nav-link"
+                      title={I18NextService.i18n.t("create_community")}
+                      onMouseUp={linkEvent(this, handleCollapseClick)}
+                    >
+                      {I18NextService.i18n.t("create_community")}
+                    </NavLink>
+                  </li>
+                )}
               <li className="nav-item">
                 <a
                   className="nav-link d-inline-flex align-items-center d-md-inline-block"
@@ -266,7 +275,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </span>
                 </NavLink>
               </li>
-              {amAdmin() && (
+              {amAdmin(this.props.myUserInfo) && (
                 <li id="navAdmin" className="nav-item">
                   <NavLink
                     to="/admin"
@@ -307,7 +316,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       )}
                     </NavLink>
                   </li>
-                  {UserService.Instance.moderatesSomething && (
+                  {moderatesSomething(this.props.myUserInfo) && (
                     <li id="navModeration" className="nav-item">
                       <NavLink
                         className="nav-link d-inline-flex align-items-center d-md-inline-block"
@@ -335,7 +344,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       </NavLink>
                     </li>
                   )}
-                  {amAdmin() && (
+                  {amAdmin(this.props.myUserInfo) && (
                     <li id="navApplications" className="nav-item">
                       <NavLink
                         to="/registration_applications"
@@ -375,13 +384,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <li id="dropdownUser" className="dropdown">
                       <button
                         type="button"
-                        className="btn btn-outline-secondary dropdown-toggle"
+                        className="btn dropdown-toggle"
                         aria-expanded="false"
                         data-bs-toggle="dropdown"
                       >
-                        {showAvatars() && person.avatar && (
-                          <PictrsImage src={person.avatar} icon />
-                        )}
+                        {showAvatars(this.props.myUserInfo) &&
+                          person.avatar && (
+                            <PictrsImage src={person.avatar} icon />
+                          )}
                         {person.display_name ?? person.name}
                       </button>
                       <ul
@@ -438,16 +448,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       {I18NextService.i18n.t("login")}
                     </NavLink>
                   </li>
-                  <li className="nav-item">
-                    <NavLink
-                      to="/signup"
-                      className="nav-link"
-                      title={I18NextService.i18n.t("sign_up")}
-                      onMouseUp={linkEvent(this, handleCollapseClick)}
-                    >
-                      {I18NextService.i18n.t("sign_up")}
-                    </NavLink>
-                  </li>
+                  {!registrationClosed && (
+                    <li className="nav-item">
+                      <NavLink
+                        to="/signup"
+                        className="nav-link"
+                        title={I18NextService.i18n.t("sign_up")}
+                        onMouseUp={linkEvent(this, handleCollapseClick)}
+                      >
+                        {I18NextService.i18n.t("sign_up")}
+                      </NavLink>
+                    </li>
+                  )}
                 </>
               )}
             </ul>
@@ -468,7 +480,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   requestNotificationPermission() {
-    if (UserService.Instance.myUserInfo) {
+    if (this.props.myUserInfo) {
       document.addEventListener("lemmy-hydrated", function () {
         if (!Notification) {
           toast(I18NextService.i18n.t("notifications_error"), "danger");

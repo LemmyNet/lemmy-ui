@@ -1,26 +1,29 @@
 import {
   commentsToFlatNodes,
-  commentToPostSortType,
   editComment,
+  editPersonNotes,
   editPost,
-  editWith,
-  enableDownvotes,
   enableNsfw,
   getDataTypeString,
+  mixedToCommentSortType,
+  mixedToPostSortType,
   myAuth,
-  postToCommentSortType,
   setIsoData,
   showLocal,
   updatePersonBlock,
-  voteDisplayMode,
 } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
+  cursorComponents,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type { QueryParams, StringBoolean } from "@utils/types";
+import type {
+  DirectionalCursor,
+  QueryParams,
+  StringBoolean,
+} from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, InfernoNode, MouseEventHandler, linkEvent } from "inferno";
@@ -34,7 +37,6 @@ import {
   BanPerson,
   BanPersonResponse,
   BlockPerson,
-  CommentReplyResponse,
   CommentResponse,
   CreateComment,
   CreateCommentLike,
@@ -56,9 +58,6 @@ import {
   LemmyHttp,
   ListingType,
   LockPost,
-  MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
-  PaginationCursor,
   PostResponse,
   PurgeComment,
   PurgePerson,
@@ -71,15 +70,14 @@ import {
   SuccessResponse,
   TransferCommunity,
   CommentSortType,
+  MyUserInfo,
+  MarkPostAsRead,
+  NotePerson,
 } from "lemmy-js-client";
-import { fetchLimit, relTags } from "../../config";
-import {
-  CommentViewType,
-  DataType,
-  InitialFetchRequest,
-} from "../../interfaces";
-import { mdToHtml } from "../../markdown";
-import { FirstLoadService, I18NextService, UserService } from "../../services";
+import { fetchLimit, relTags } from "@utils/config";
+import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
+import { mdToHtml } from "@utils/markdown";
+import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -88,13 +86,13 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
 import { DataTypeSelect } from "../common/data-type-select";
 import { HtmlTags } from "../common/html-tags";
-import { Icon } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
-import { SortSelect } from "../common/sort-select";
+import { CommentSortSelect, PostSortSelect } from "../common/sort-select";
 import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
@@ -105,11 +103,11 @@ import {
   PostsLoadingSkeleton,
 } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
-import { isBrowser, snapToTop } from "@utils/browser";
-import { CommentSortSelect } from "../common/comment-sort-select";
+import { isBrowser } from "@utils/browser";
 import { DonationDialog } from "./donation_dialog";
+import { nowBoolean } from "@utils/date";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -120,13 +118,14 @@ interface HomeState {
   tagline?: string;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
+  markPageAsReadLoading: boolean;
 }
 
 interface HomeProps {
   listingType?: ListingType;
   dataType: DataType;
-  sort: PostSortType;
-  pageCursor?: PaginationCursor;
+  sort: PostSortType | CommentSortType;
+  cursor?: DirectionalCursor;
   showHidden?: StringBoolean;
 }
 
@@ -180,28 +179,28 @@ function getListingTypeFromQuery(
 
 function getSortTypeFromQuery(
   type: string | undefined,
-  fallback: PostSortType,
+  fallback: PostSortType | CommentSortType,
 ): PostSortType {
-  return type ? (type as PostSortType) : fallback;
+  return type ? (type as PostSortType | CommentSortType) : fallback;
 }
 
 type Fallbacks = {
-  sort: PostSortType;
+  sort: PostSortType | CommentSortType;
   listingType: ListingType;
 };
 
 export function getHomeQueryParams(
   source: string | undefined,
   siteRes: GetSiteResponse,
+  myUserInfo?: MyUserInfo,
 ): HomeProps {
-  const myUserInfo = siteRes.my_user ?? UserService.Instance.myUserInfo;
   const local_user = myUserInfo?.local_user_view.local_user;
   const local_site = siteRes.site_view.local_site;
   return getQueryParams<HomeProps, Fallbacks>(
     {
       sort: getSortTypeFromQuery,
       listingType: getListingTypeFromQuery,
-      pageCursor: (cursor?: string) => cursor,
+      cursor: (cursor?: string) => cursor,
       dataType: getDataTypeFromQuery,
       showHidden: (include?: StringBoolean) => include,
     },
@@ -249,11 +248,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   state: HomeState = {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     showSubscribedMobile: false,
     showSidebarMobile: false,
     subscribedCollapsed: false,
     isIsomorphic: false,
+    markPageAsReadLoading: false,
   };
 
   loadingSettled(): boolean {
@@ -272,8 +272,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
-    this.handlePageNext = this.handlePageNext.bind(this);
-    this.handlePagePrev = this.handlePagePrev.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
 
     this.handleCreateComment = this.handleCreateComment.bind(this);
     this.handleEditComment = this.handleEditComment.bind(this);
@@ -289,8 +288,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleCommentReport = this.handleCommentReport.bind(this);
     this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
-    this.handleCommentReplyRead = this.handleCommentReplyRead.bind(this);
-    this.handlePersonMentionRead = this.handlePersonMentionRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
     this.handlePostEdit = this.handlePostEdit.bind(this);
@@ -302,7 +299,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handlePurgePost = this.handlePurgePost.bind(this);
     this.handleFeaturePost = this.handleFeaturePost.bind(this);
+    this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleHidePost = this.handleHidePost.bind(this);
+    this.handlePersonNote = this.handlePersonNote.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -338,7 +337,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   static async fetchInitialData({
-    query: { listingType, dataType, sort, pageCursor, showHidden },
+    query: { listingType, dataType, sort, cursor, showHidden },
     headers,
   }: InitialFetchRequest<HomePathProps, HomeProps>): Promise<HomeData> {
     const client = wrapClient(
@@ -353,10 +352,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
         type_: listingType,
-        page_cursor: pageCursor,
+        ...cursorComponents(cursor),
         limit: fetchLimit,
-        sort,
-        saved_only: false,
+        sort: mixedToPostSortType(sort),
         show_hidden: showHidden === "true",
       };
 
@@ -364,9 +362,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     } else {
       const getCommentsForm: GetComments = {
         limit: fetchLimit,
-        sort: postToCommentSortType(sort),
+        sort: mixedToCommentSortType(sort),
         type_: listingType,
-        saved_only: false,
       };
 
       commentsFetch = client.getComments(getCommentsForm);
@@ -408,7 +405,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         {site_setup && (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9">
-              <DonationDialog site={this.state.siteRes} />
+              <DonationDialog myUserInfo={this.isoData.myUserInfo} />
               {tagline && (
                 <div
                   id="tagline"
@@ -430,14 +427,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get hasFollows(): boolean {
-    const mui = UserService.Instance.myUserInfo;
+    const mui = this.isoData.myUserInfo;
     return !!mui && mui.follows.length > 0;
   }
 
   get mobileView() {
     const {
       siteRes: {
-        site_view: { counts, site },
+        site_view: { local_site, site },
         admins,
       },
       showSubscribedMobile,
@@ -463,9 +460,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <SiteSidebar
               site={site}
               admins={admins}
-              counts={counts}
-              showLocal={showLocal(this.isoData)}
+              localSite={local_site}
               isMobile={true}
+              myUserInfo={this.isoData.myUserInfo}
             />
           )}
           {showSubscribedMobile && (
@@ -481,7 +478,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   get mySidebar() {
     const {
       siteRes: {
-        site_view: { counts, site },
+        site_view: { local_site, site },
         admins,
       },
     } = this.state;
@@ -491,8 +488,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         <SiteSidebar
           site={site}
           admins={admins}
-          counts={counts}
-          showLocal={showLocal(this.isoData)}
+          localSite={local_site}
+          myUserInfo={this.isoData.myUserInfo}
         />
         {this.hasFollows && (
           <div className="accordion">
@@ -557,12 +554,15 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           >
             <div className="card-body">
               <ul className="list-inline mb-0">
-                {UserService.Instance.myUserInfo?.follows.map(cfv => (
+                {this.isoData.myUserInfo?.follows.map(cfv => (
                   <li
                     key={cfv.community.id}
                     className="list-inline-item d-inline-block"
                   >
-                    <CommunityLink community={cfv.community} />
+                    <CommunityLink
+                      community={cfv.community}
+                      myUserInfo={this.isoData.myUserInfo}
+                    />
                   </li>
                 ))}
               </ul>
@@ -574,14 +574,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async updateUrl(props: Partial<HomeProps>) {
-    const { dataType, listingType, pageCursor, sort, showHidden } = {
+    const { dataType, listingType, cursor, sort, showHidden } = {
       ...this.props,
       ...props,
     };
     const queryParams: QueryParams<HomeProps> = {
       dataType: getDataTypeString(dataType ?? DataType.Post),
       listingType: listingType,
-      pageCursor: pageCursor,
+      cursor,
       sort: sort,
       showHidden: showHidden,
     };
@@ -598,19 +598,87 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         <div>
           {this.selects}
           {this.listings}
-          <PaginatorCursor
-            nextPage={this.getNextPage}
-            onNext={this.handlePageNext}
-          />
+          <div class="row">
+            <div class="col">
+              <PaginatorCursor
+                current={this.props.cursor}
+                resource={this.currentRes}
+                onPageChange={this.handlePageChange}
+              />
+            </div>
+            <div class="col-auto">{this.markPageAsReadButton}</div>
+          </div>
         </div>
       </div>
     );
   }
 
-  get getNextPage(): PaginationCursor | undefined {
-    return this.state.postsRes.state === "success"
-      ? this.state.postsRes.data.next_page
-      : undefined;
+  get markPageAsReadButton(): InfernoNode {
+    const { dataType } = this.props;
+    const { postsRes, markPageAsReadLoading } = this.state;
+
+    if (markPageAsReadLoading) return <Spinner />;
+
+    const haveUnread =
+      dataType === DataType.Post &&
+      postsRes.state === "success" &&
+      postsRes.data.posts.some(p => !p.post_actions?.read_at);
+
+    if (!haveUnread || !this.isoData.myUserInfo) return undefined;
+    return (
+      <div class="my-2">
+        <button
+          class="btn btn-secondary"
+          onClick={linkEvent(this, this.handleMarkPageAsRead)}
+        >
+          {I18NextService.i18n.t("mark_page_as_read")}
+        </button>
+      </div>
+    );
+  }
+
+  async handleMarkPageAsRead(i: Home) {
+    const { dataType } = i.props;
+    const { postsRes } = i.state;
+
+    const post_ids =
+      dataType === DataType.Post &&
+      postsRes.state === "success" &&
+      postsRes.data.posts
+        .filter(p => !p.post_actions?.read_at)
+        .map(p => p.post.id);
+
+    if (post_ids && post_ids.length) {
+      i.setState({ markPageAsReadLoading: true });
+      const res = await HttpService.client.markManyPostAsRead({
+        post_ids,
+      });
+      if (res.state === "success") {
+        i.setState(s => {
+          if (s.postsRes.state === "success") {
+            s.postsRes.data.posts.forEach(p => {
+              if (post_ids.includes(p.post.id) && i.isoData.myUserInfo) {
+                if (!p.post_actions) {
+                  p.post_actions = {};
+                }
+                p.post_actions.read_at = nowBoolean(true);
+              }
+            });
+          }
+          return { postsRes: s.postsRes, markPageAsReadLoading: false };
+        });
+      } else {
+        i.setState({ markPageAsReadLoading: false });
+      }
+    }
+  }
+
+  get currentRes() {
+    if (this.props.dataType === DataType.Post) {
+      return this.state.postsRes;
+    } else {
+      return this.state.commentsRes;
+    }
   }
 
   get listings() {
@@ -630,11 +698,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               posts={posts}
               showCommunity
               removeDuplicates
-              enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(siteRes)}
+              markable
               enableNsfw={enableNsfw(siteRes)}
+              showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
+              myUserInfo={this.isoData.myUserInfo}
+              localSite={siteRes.site_view.local_site}
+              admins={this.isoData.siteRes.admins}
               onBlockPerson={this.handleBlockPerson}
               onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}
@@ -651,8 +722,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onAddAdmin={this.handleAddAdmin}
               onTransferCommunity={this.handleTransferCommunity}
               onFeaturePost={this.handleFeaturePost}
-              onMarkPostAsRead={async () => {}}
+              onMarkPostAsRead={this.handleMarkPostAsRead}
               onHidePost={this.handleHidePost}
+              onPersonNote={this.handlePersonNote}
             />
           );
         }
@@ -670,10 +742,11 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               isTopLevel
               showCommunity
               showContext
-              enableDownvotes={enableDownvotes(siteRes)}
-              voteDisplayMode={voteDisplayMode(siteRes)}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
+              myUserInfo={this.isoData.myUserInfo}
+              localSite={siteRes.site_view.local_site}
+              admins={this.isoData.siteRes.admins}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
               onDeleteComment={this.handleDeleteComment}
@@ -686,12 +759,11 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onTransferCommunity={this.handleTransferCommunity}
               onPurgeComment={this.handlePurgeComment}
               onPurgePerson={this.handlePurgePerson}
-              onCommentReplyRead={this.handleCommentReplyRead}
-              onPersonMentionRead={this.handlePersonMentionRead}
               onBanPersonFromCommunity={this.handleBanFromCommunity}
               onBanPerson={this.handleBanPerson}
               onCreateComment={this.handleCreateComment}
               onEditComment={this.handleEditComment}
+              onPersonNote={this.handlePersonNote}
             />
           );
         }
@@ -710,7 +782,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             onChange={this.handleDataTypeChange}
           />
         </div>
-        {dataType === DataType.Post && UserService.Instance.myUserInfo && (
+        {dataType === DataType.Post && this.isoData.myUserInfo && (
           <div className="col-auto">
             <PostHiddenSelect
               showHidden={showHidden}
@@ -726,15 +798,19 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             }
             showLocal={showLocal(this.isoData)}
             showSubscribed
+            myUserInfo={this.isoData.myUserInfo}
             onChange={this.handleListingTypeChange}
           />
         </div>
         <div className="col-auto">
           {this.props.dataType === DataType.Post ? (
-            <SortSelect sort={sort} onChange={this.handleSortChange} />
+            <PostSortSelect
+              current={mixedToPostSortType(sort)}
+              onChange={this.handleSortChange}
+            />
           ) : (
             <CommentSortSelect
-              sort={postToCommentSortType(sort)}
+              current={mixedToCommentSortType(sort)}
               onChange={this.handleCommentSortChange}
             />
           )}
@@ -753,7 +829,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   fetchDataToken?: symbol;
   async fetchData({
     dataType,
-    pageCursor,
+    cursor,
     listingType,
     sort,
     showHidden,
@@ -762,10 +838,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
-        page_cursor: pageCursor,
+        ...cursorComponents(cursor),
         limit: fetchLimit,
-        sort,
-        saved_only: false,
+        sort: mixedToPostSortType(sort),
         type_: listingType,
         show_hidden: showHidden === "true",
       });
@@ -776,8 +851,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
       const commentsRes = await HttpService.client.getComments({
         limit: fetchLimit,
-        sort: postToCommentSortType(sort),
-        saved_only: false,
+        sort: mixedToCommentSortType(sort),
         type_: listingType,
       });
       if (token === this.fetchDataToken) {
@@ -798,38 +872,30 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     i.setState({ subscribedCollapsed: !i.state.subscribedCollapsed });
   }
 
-  handlePagePrev() {
-    this.props.history.back();
-    // A hack to scroll to top
-    setTimeout(() => {
-      snapToTop();
-    }, 50);
-  }
-
-  handlePageNext(nextPage: PaginationCursor) {
-    this.updateUrl({ pageCursor: nextPage });
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
   handleSortChange(val: PostSortType) {
-    this.updateUrl({ sort: val, pageCursor: undefined });
+    this.updateUrl({ sort: val, cursor: undefined });
   }
 
   handleCommentSortChange(val: CommentSortType) {
-    this.updateUrl({ sort: commentToPostSortType(val), pageCursor: undefined });
+    this.updateUrl({ sort: val, cursor: undefined });
   }
 
   handleListingTypeChange(val: ListingType) {
-    this.updateUrl({ listingType: val, pageCursor: undefined });
+    this.updateUrl({ listingType: val, cursor: undefined });
   }
 
   handleDataTypeChange(val: DataType) {
-    this.updateUrl({ dataType: val, pageCursor: undefined });
+    this.updateUrl({ dataType: val, cursor: undefined });
   }
 
   handleShowHiddenChange(show?: StringBoolean) {
     this.updateUrl({
       showHidden: show,
-      pageCursor: undefined,
+      cursor: undefined,
     });
   }
 
@@ -856,7 +922,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data);
+      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
     }
   }
 
@@ -865,7 +931,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.createAndUpdateComments(createCommentRes);
 
     if (createCommentRes.state === "failed") {
-      toast(I18NextService.i18n.t(createCommentRes.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(createCommentRes.err.name as NoOptionI18nKeys),
+        "danger",
+      );
     }
     return createCommentRes;
   }
@@ -875,9 +944,39 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.findAndUpdateCommentEdit(editCommentRes);
 
     if (editCommentRes.state === "failed") {
-      toast(I18NextService.i18n.t(editCommentRes.err.message), "danger");
+      toast(
+        I18NextService.i18n.t(editCommentRes.err.name as NoOptionI18nKeys),
+        "danger",
+      );
     }
     return editCommentRes;
+  }
+
+  async handlePersonNote(form: NotePerson) {
+    const res = await HttpService.client.notePerson(form);
+
+    if (res.state === "success") {
+      this.setState(s => {
+        if (s.commentsRes.state === "success") {
+          s.commentsRes.data.comments = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.commentsRes.data.comments,
+          );
+        }
+        if (s.postsRes.state === "success") {
+          s.postsRes.data.posts = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.postsRes.data.posts,
+          );
+        }
+        toast(
+          I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"),
+        );
+        return s;
+      });
+    }
   }
 
   async handleDeleteComment(form: DeleteComment) {
@@ -913,6 +1012,25 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   async handleFeaturePost(form: FeaturePost) {
     const featureRes = await HttpService.client.featurePost(form);
     this.findAndUpdatePost(featureRes);
+  }
+
+  async handleMarkPostAsRead(form: MarkPostAsRead) {
+    const res = await HttpService.client.markPostAsRead(form);
+    if (res.state === "success") {
+      this.setState(s => {
+        if (s.postsRes.state === "success") {
+          s.postsRes.data.posts.forEach(p => {
+            if (p.post.id === form.post_id && this.isoData.myUserInfo) {
+              if (!p.post_actions) {
+                p.post_actions = {};
+              }
+              p.post_actions.read_at = nowBoolean(form.read);
+            }
+          });
+        }
+        return { postsRes: s.postsRes };
+      });
+    }
   }
 
   async handleCommentVote(form: CreateCommentLike) {
@@ -969,16 +1087,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     toast(I18NextService.i18n.t("transfer_community"));
   }
 
-  async handleCommentReplyRead(form: MarkCommentReplyAsRead) {
-    const readRes = await HttpService.client.markCommentReplyAsRead(form);
-    this.findAndUpdateCommentReply(readRes);
-  }
-
-  async handlePersonMentionRead(form: MarkPersonMentionAsRead) {
-    // TODO not sure what to do here. Maybe it is actually optional, because post doesn't need it.
-    await HttpService.client.markPersonMentionAsRead(form);
-  }
-
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes);
@@ -994,11 +1102,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     if (hideRes.state === "success") {
       this.setState(prev => {
-        if (prev.postsRes.state === "success") {
-          for (const post of prev.postsRes.data.posts.filter(p =>
-            form.post_ids.some(id => id === p.post.id),
+        if (prev.postsRes.state === "success" && this.isoData.myUserInfo) {
+          for (const post of prev.postsRes.data.posts.filter(
+            p => form.post_id === p.post.id,
           )) {
-            post.hidden = form.hide;
+            if (!post.post_actions) {
+              post.post_actions = {};
+            }
+            post.post_actions.hidden_at = nowBoolean(form.hide);
           }
         }
 
@@ -1016,16 +1127,16 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         if (s.postsRes.state === "success") {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
+            .forEach(c => {
+              c.creator_banned_from_community = banRes.data.banned;
+            });
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(
-              c => (c.creator_banned_from_community = banRes.data.banned),
-            );
+            .forEach(c => {
+              c.creator_banned_from_community = banRes.data.banned;
+            });
         }
         return s;
       });
@@ -1039,12 +1150,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         if (s.postsRes.state === "success") {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banRes.data.banned));
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator.banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banRes.data.banned));
         }
         return s;
       });
@@ -1086,18 +1197,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
         s.commentsRes.data.comments.unshift(res.data.comment_view);
-      }
-      return s;
-    });
-  }
-
-  findAndUpdateCommentReply(res: RequestState<CommentReplyResponse>) {
-    this.setState(s => {
-      if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editWith(
-          res.data.comment_reply_view,
-          s.commentsRes.data.comments,
-        );
       }
       return s;
     });

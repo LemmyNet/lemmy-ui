@@ -1,15 +1,12 @@
 import {
   commentsToFlatNodes,
   communityToChoice,
-  enableDownvotes,
   enableNsfw,
   fetchCommunities,
   fetchUsers,
-  myAuth,
   personToChoice,
   setIsoData,
   showLocal,
-  voteDisplayMode,
 } from "@utils/app";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import {
@@ -17,19 +14,17 @@ import {
   debounce,
   dedupByProperty,
   getIdFromString,
-  getPageFromString,
   getBoolFromString,
   getQueryParams,
   getQueryString,
   numToSI,
   resourcesSettled,
+  cursorComponents,
 } from "@utils/helpers";
-import type { QueryParams } from "@utils/types";
+import type { DirectionalCursor, IsoData, QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import type { NoOptionI18nKeys } from "i18next";
 import { Component, linkEvent, createRef } from "inferno";
 import {
-  CommentView,
   CommunityView,
   GetCommunity,
   GetCommunityResponse,
@@ -41,15 +36,17 @@ import {
   ListingType,
   PersonView,
   PostView,
-  ResolveObject,
-  ResolveObjectResponse,
   Search as SearchForm,
   SearchResponse,
   SearchType,
-  PostSortType,
+  SearchSortType,
+  PaginationCursor,
+  MyUserInfo,
+  CommentView,
+  MultiCommunityView,
 } from "lemmy-js-client";
-import { fetchLimit } from "../config";
-import { CommentViewType, InitialFetchRequest } from "../interfaces";
+import { fetchLimit } from "@utils/config";
+import { CommentViewType, InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
@@ -62,26 +59,26 @@ import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
 import { ListingTypeSelect } from "./common/listing-type-select";
-import { Paginator } from "./common/paginator";
-import { SearchableSelect } from "./common/searchable-select";
-import { SortSelect } from "./common/sort-select";
 import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "../routes";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
+import { PaginatorCursor } from "./common/paginator-cursor";
+import { SearchSortSelect } from "./common/sort-select";
+import { SearchableSelect } from "./common/searchable-select";
 
 interface SearchProps {
   q?: string;
   type: SearchType;
-  sort: PostSortType;
+  sort: SearchSortType;
   listingType: ListingType;
   titleOnly?: boolean;
   communityId?: number;
   creatorId?: number;
-  page: number;
+  cursor?: DirectionalCursor;
 }
 
 type SearchData = RouteDataResponse<{
@@ -89,14 +86,12 @@ type SearchData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
   creatorDetailsResponse: GetPersonDetailsResponse;
   searchResponse: SearchResponse;
-  resolveObjectResponse: ResolveObjectResponse;
 }>;
 
 type FilterType = "creator" | "community";
 
 interface SearchState {
   searchRes: RequestState<SearchResponse>;
-  resolveObjectRes: RequestState<ResolveObjectResponse>;
   siteRes: GetSiteResponse;
   communitySearchOptions: Choice[];
   creatorSearchOptions: Choice[];
@@ -105,15 +100,10 @@ interface SearchState {
   isIsomorphic: boolean;
 }
 
-interface Combined {
-  type_: string;
-  data: CommentView | PostView | CommunityView | PersonView;
-  published: string;
-}
-
 const defaultSearchType = "All";
-const defaultSortType = "TopAll";
+const defaultSearchSortType = "Top";
 const defaultListingType = "All";
+const defaultCommunitySortType = "Hot";
 
 const searchTypes = ["All", "Comments", "Posts", "Communities", "Users", "Url"];
 
@@ -127,7 +117,7 @@ export function getSearchQueryParams(source?: string): SearchProps {
       titleOnly: getBoolFromString,
       communityId: getIdFromString,
       creatorId: getIdFromString,
-      page: getPageFromString,
+      cursor: (cursor?: string) => cursor,
     },
     source,
   );
@@ -139,44 +129,12 @@ function getSearchTypeFromQuery(type_?: string): SearchType {
   return type_ ? (type_ as SearchType) : defaultSearchType;
 }
 
-function getSortTypeFromQuery(sort?: string): PostSortType {
-  return sort ? (sort as PostSortType) : defaultSortType;
+function getSortTypeFromQuery(sort?: string): SearchSortType {
+  return sort ? (sort as SearchSortType) : defaultSearchSortType;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
   return listingType ? (listingType as ListingType) : defaultListingType;
-}
-
-function postViewToCombined(data: PostView): Combined {
-  return {
-    type_: "posts",
-    data,
-    published: data.post.published,
-  };
-}
-
-function commentViewToCombined(data: CommentView): Combined {
-  return {
-    type_: "comments",
-    data,
-    published: data.comment.published,
-  };
-}
-
-function communityViewToCombined(data: CommunityView): Combined {
-  return {
-    type_: "communities",
-    data,
-    published: data.community.published,
-  };
-}
-
-function personViewSafeToCombined(data: PersonView): Combined {
-  return {
-    type_: "users",
-    data,
-    published: data.person.published,
-  };
 }
 
 const Filter = ({
@@ -203,7 +161,7 @@ const Filter = ({
         id={`${filterType}-filter`}
         options={[
           {
-            label: I18NextService.i18n.t("all"),
+            label: I18NextService.i18n.t("all") as string,
             value: "0",
           },
         ].concat(dedupByProperty(options, option => option.value))}
@@ -216,22 +174,155 @@ const Filter = ({
   );
 };
 
-const communityListing = ({
-  community,
-  counts: { subscribers },
-}: CommunityView) =>
-  getListing(
-    <CommunityLink community={community} />,
-    subscribers,
-    "number_of_subscribers",
+const communityListing = (
+  communities: CommunityView[],
+  myUserInfo: MyUserInfo | undefined,
+) => {
+  return (
+    communities.length > 0 && (
+      <>
+        <h3>{I18NextService.i18n.t("communities")}</h3>
+        {communities.map(c => (
+          <div>
+            {getListing(
+              <CommunityLink community={c.community} myUserInfo={myUserInfo} />,
+              c.community.subscribers,
+              "number_of_subscribers",
+            )}
+          </div>
+        ))}
+        <hr class="border m-2" />
+      </>
+    )
   );
+};
 
-const personListing = ({ person, counts: { comment_count } }: PersonView) =>
-  getListing(
-    <PersonListing person={person} showApubName />,
-    comment_count,
-    "number_of_comments",
+const personListing = (
+  persons: PersonView[],
+  myUserInfo: MyUserInfo | undefined,
+) => {
+  return (
+    persons.length > 0 && (
+      <>
+        <h3>{I18NextService.i18n.t("users")}</h3>
+        {persons.map(p => (
+          <div>
+            {getListing(
+              <PersonListing
+                person={p.person}
+                showApubName
+                myUserInfo={myUserInfo}
+              />,
+              p.person.comment_count,
+              "number_of_comments",
+            )}
+          </div>
+        ))}
+        <hr class="border m-2" />
+      </>
+    )
   );
+};
+
+const postListing = (posts: PostView[], isoData: IsoData) => {
+  return (
+    posts.length > 0 && (
+      <>
+        <h3>{I18NextService.i18n.t("posts")}</h3>
+        {posts.map(post_view => (
+          <div>
+            <PostListing
+              key={post_view.post.id}
+              post_view={post_view}
+              showCommunity
+              myUserInfo={isoData.myUserInfo}
+              localSite={isoData.siteRes.site_view.local_site}
+              showAdultConsentModal={isoData.showAdultConsentModal}
+              enableNsfw={enableNsfw(isoData.siteRes)}
+              allLanguages={isoData.siteRes.all_languages}
+              siteLanguages={isoData.siteRes.discussion_languages}
+              admins={isoData.siteRes.admins}
+              viewOnly
+              // All of these are unused, since its view only
+              onPostEdit={async () => EMPTY_REQUEST}
+              onPostVote={async () => EMPTY_REQUEST}
+              onPostReport={async () => {}}
+              onBlockPerson={async () => {}}
+              onLockPost={async () => {}}
+              onDeletePost={async () => {}}
+              onRemovePost={async () => {}}
+              onSavePost={async () => {}}
+              onFeaturePost={async () => {}}
+              onPurgePerson={async () => {}}
+              onPurgePost={async () => {}}
+              onBanPersonFromCommunity={async () => {}}
+              onBanPerson={async () => {}}
+              onAddModToCommunity={async () => {}}
+              onAddAdmin={async () => {}}
+              onTransferCommunity={async () => {}}
+              onMarkPostAsRead={async () => {}}
+              onHidePost={async () => {}}
+              onPersonNote={async () => {}}
+            />
+          </div>
+        ))}
+        <hr class="border m-2" />
+      </>
+    )
+  );
+};
+
+const commentListing = (comments: CommentView[], isoData: IsoData) => {
+  return (
+    comments.length > 0 && (
+      <>
+        <h3>{I18NextService.i18n.t("comments")}</h3>
+        {comments.map(c => (
+          <div>
+            <CommentNodes
+              key={c.comment.id}
+              nodes={[
+                {
+                  comment_view: c,
+                  children: [],
+                  depth: 0,
+                },
+              ]}
+              viewType={CommentViewType.Flat}
+              viewOnly
+              locked
+              isTopLevel
+              myUserInfo={isoData.myUserInfo}
+              localSite={isoData.siteRes.site_view.local_site}
+              allLanguages={isoData.siteRes.all_languages}
+              siteLanguages={isoData.siteRes.discussion_languages}
+              admins={isoData.siteRes.admins}
+              // All of these are unused, since its viewonly
+              onSaveComment={async () => {}}
+              onBlockPerson={async () => {}}
+              onDeleteComment={async () => {}}
+              onRemoveComment={async () => {}}
+              onCommentVote={async () => {}}
+              onCommentReport={async () => {}}
+              onDistinguishComment={async () => {}}
+              onAddModToCommunity={async () => {}}
+              onAddAdmin={async () => {}}
+              onTransferCommunity={async () => {}}
+              onPurgeComment={async () => {}}
+              onPurgePerson={async () => {}}
+              onBanPersonFromCommunity={async () => {}}
+              onBanPerson={async () => {}}
+              onCreateComment={async () => EMPTY_REQUEST}
+              onEditComment={async () => EMPTY_REQUEST}
+              onPersonNote={async () => {}}
+            />
+          </div>
+        ))}
+        <hr class="border m-2" />
+      </>
+    )
+  );
+};
 
 function getListing(
   listing: JSX.ElementClass,
@@ -263,8 +354,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   searchInput = createRef<HTMLInputElement>();
 
   state: SearchState = {
-    resolveObjectRes: EMPTY_REQUEST,
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     creatorSearchOptions: [],
     communitySearchOptions: [],
     searchRes: EMPTY_REQUEST,
@@ -286,7 +376,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.handleCommunityFilterChange =
       this.handleCommunityFilterChange.bind(this);
     this.handleCreatorFilterChange = this.handleCreatorFilterChange.bind(this);
-    this.handleTitleOnlyChange = this.handleTitleOnlyChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -294,7 +383,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         communityResponse: communityRes,
         creatorDetailsResponse: creatorDetailsRes,
         listCommunitiesResponse: communitiesRes,
-        resolveObjectResponse: resolveObjectRes,
         searchResponse: searchRes,
       } = this.isoData.routeData;
 
@@ -320,10 +408,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
       if (searchRes?.state === "success") {
         this.state.searchRes = searchRes;
-      }
-
-      if (resolveObjectRes?.state === "success") {
-        this.state.resolveObjectRes = resolveObjectRes;
       }
     }
   }
@@ -369,7 +453,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     const res = await HttpService.client.listCommunities({
       type_: defaultListingType,
-      sort: defaultSortType,
+      sort: defaultCommunitySortType,
       limit: fetchLimit,
     });
 
@@ -476,7 +560,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       titleOnly: title_only,
       communityId: community_id,
       creatorId: creator_id,
-      page,
+      cursor,
     },
   }: InitialFetchRequest<SearchPathProps, SearchProps>): Promise<SearchData> {
     const client = wrapClient(
@@ -493,7 +577,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     const listCommunitiesResponse = await client.listCommunities({
       type_: defaultListingType,
-      sort: defaultSortType,
+      sort: defaultCommunitySortType,
       limit: fetchLimit,
     });
 
@@ -508,8 +592,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
 
     let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
-    let resolveObjectResponse: RequestState<ResolveObjectResponse> =
-      EMPTY_REQUEST;
 
     if (query) {
       const form: SearchForm = {
@@ -520,33 +602,24 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         sort,
         listing_type,
         title_only,
-        page,
+        ...cursorComponents(cursor),
         limit: fetchLimit,
       };
 
       searchResponse = await client.search(form);
-      if (headers["Authorization"]) {
-        const resolveObjectForm: ResolveObject = {
-          q: query,
-        };
-        resolveObjectResponse =
-          await HttpService.client.resolveObject(resolveObjectForm);
-
-        // If we return this object with a state of failed, the catch-all-handler will redirect
-        // to an error page, so we ignore it by covering up the error with the empty state.
-        if (resolveObjectResponse.state === "failed") {
-          resolveObjectResponse = EMPTY_REQUEST;
-        }
-      }
     }
 
     return {
       communityResponse,
       creatorDetailsResponse,
       listCommunitiesResponse,
-      resolveObjectResponse,
       searchResponse,
     };
+  }
+
+  get getNextPage(): PaginationCursor | undefined {
+    const { searchRes: res } = this.state;
+    return res.state === "success" ? res.data.next_page : undefined;
   }
 
   get documentTitle(): string {
@@ -556,7 +629,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   render() {
-    const { type, page } = this.props;
+    const { type } = this.props;
 
     return (
       <div className="search container-lg">
@@ -576,13 +649,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           this.state.searchRes.state === "success" && (
             <span>{I18NextService.i18n.t("no_results")}</span>
           )}
-        <Paginator
-          page={page}
-          onChange={this.handlePageChange}
-          nextDisabled={
-            this.state.searchRes.state !== "success" ||
-            fetchLimit > this.resultsCount
-          }
+        <PaginatorCursor
+          current={this.props.cursor}
+          resource={this.state.searchRes}
+          onPageChange={this.handlePageChange}
         />
       </div>
     );
@@ -662,11 +732,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               <option disabled aria-hidden="true">
                 {I18NextService.i18n.t("type")}
               </option>
-              {searchTypes.map(option => (
+              {searchTypes.map((option: SearchType) => (
                 <option value={option} key={option}>
-                  {I18NextService.i18n.t(
-                    option.toString().toLowerCase() as NoOptionI18nKeys,
-                  )}
+                  {I18NextService.i18n.t(option.toLowerCase())}
                 </option>
               ))}
             </select>
@@ -677,6 +745,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               showLocal={showLocal(this.isoData)}
               showSubscribed
               onChange={this.handleListingTypeChange}
+              myUserInfo={this.isoData.myUserInfo}
             />
           </div>
           {(type === "All" || type === "Posts") && (
@@ -686,7 +755,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 id="title-only"
                 type="checkbox"
                 checked={titleOnly}
-                onChange={this.handleTitleOnlyChange}
+                onChange={linkEvent(this, this.handleTitleOnlyChange)}
               />
               <label className="btn btn-outline-secondary" htmlFor="title-only">
                 {I18NextService.i18n.t("post_title_only")}
@@ -694,12 +763,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             </div>
           )}
           <div className="col">
-            <SortSelect
-              sort={sort}
-              onChange={this.handleSortChange}
-              hideHot
-              hideMostComments
-            />
+            <SearchSortSelect current={sort} onChange={this.handleSortChange} />
           </div>
         </div>
         <div className="row gy-2 gx-4 mb-3">
@@ -724,174 +788,51 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     );
   }
 
-  buildCombined(): Combined[] {
-    const combined: Combined[] = [];
-    const {
-      resolveObjectRes: resolveObjectResponse,
-      searchRes: searchResponse,
-    } = this.state;
-
-    // Push the possible resolve / federated objects first
-    if (resolveObjectResponse.state === "success") {
-      const { comment, post, community, person } = resolveObjectResponse.data;
-
-      if (comment) {
-        combined.push(commentViewToCombined(comment));
-      }
-      if (post) {
-        combined.push(postViewToCombined(post));
-      }
-      if (community) {
-        combined.push(communityViewToCombined(community));
-      }
-      if (person) {
-        combined.push(personViewSafeToCombined(person));
-      }
-    }
-
-    // Push the search results
-    if (searchResponse.state === "success") {
-      const { comments, posts, communities, users } = searchResponse.data;
-
-      combined.push(
-        ...[
-          ...(comments?.map(commentViewToCombined) ?? []),
-          ...(posts?.map(postViewToCombined) ?? []),
-          ...(communities?.map(communityViewToCombined) ?? []),
-          ...(users?.map(personViewSafeToCombined) ?? []),
-        ],
-      );
-    }
-
-    const { sort } = this.props;
-
-    // Sort it
-    if (sort === "New") {
-      combined.sort((a, b) => b.published.localeCompare(a.published));
-    } else {
-      combined.sort((a, b) =>
-        Number(
-          ((b.data as CommentView | PostView).counts.score |
-            (b.data as CommunityView).counts.subscribers |
-            (b.data as PersonView).counts.comment_count) -
-            ((a.data as CommentView | PostView).counts.score |
-              (a.data as CommunityView).counts.subscribers |
-              (a.data as PersonView).counts.comment_count),
-        ),
-      );
-    }
-
-    return combined;
-  }
-
   get all() {
-    const combined = this.buildCombined();
-    const siteRes = this.state.siteRes;
+    const { searchRes: searchResponse } = this.state;
+    const comments_array: CommentView[] = [];
+    const posts_array: PostView[] = [];
+    const communities_array: CommunityView[] = [];
+    const persons_array: PersonView[] = [];
+    const multi_communities_array: MultiCommunityView[] = [];
+    if (searchResponse.state === "success") {
+      searchResponse.data.results.forEach(sr => {
+        switch (sr.type_) {
+          case "Post":
+            posts_array.push(sr);
+            break;
+          case "Comment":
+            comments_array.push(sr);
+            break;
+          case "Community":
+            communities_array.push(sr);
+            break;
+          case "Person":
+            persons_array.push(sr);
+            break;
+          case "MultiCommunity":
+            multi_communities_array.push(sr); //TODO: display these
+            break;
+        }
+      });
+    }
 
     return (
-      <div>
-        {combined.map(i => (
-          <div key={i.published} className="row">
-            <div className="col-12">
-              {i.type_ === "posts" && (
-                <PostListing
-                  key={(i.data as PostView).post.id}
-                  post_view={i.data as PostView}
-                  showCommunity
-                  enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(siteRes)}
-                  enableNsfw={enableNsfw(siteRes)}
-                  allLanguages={siteRes.all_languages}
-                  siteLanguages={siteRes.discussion_languages}
-                  viewOnly
-                  // All of these are unused, since its view only
-                  onPostEdit={async () => EMPTY_REQUEST}
-                  onPostVote={async () => EMPTY_REQUEST}
-                  onPostReport={async () => {}}
-                  onBlockPerson={async () => {}}
-                  onLockPost={async () => {}}
-                  onDeletePost={async () => {}}
-                  onRemovePost={async () => {}}
-                  onSavePost={async () => {}}
-                  onFeaturePost={async () => {}}
-                  onPurgePerson={async () => {}}
-                  onPurgePost={async () => {}}
-                  onBanPersonFromCommunity={async () => {}}
-                  onBanPerson={async () => {}}
-                  onAddModToCommunity={async () => {}}
-                  onAddAdmin={async () => {}}
-                  onTransferCommunity={async () => {}}
-                  onMarkPostAsRead={async () => {}}
-                  onHidePost={async () => {}}
-                />
-              )}
-              {i.type_ === "comments" && (
-                <CommentNodes
-                  key={(i.data as CommentView).comment.id}
-                  nodes={[
-                    {
-                      comment_view: i.data as CommentView,
-                      children: [],
-                      depth: 0,
-                    },
-                  ]}
-                  viewType={CommentViewType.Flat}
-                  viewOnly
-                  locked
-                  isTopLevel
-                  enableDownvotes={enableDownvotes(siteRes)}
-                  voteDisplayMode={voteDisplayMode(siteRes)}
-                  allLanguages={siteRes.all_languages}
-                  siteLanguages={siteRes.discussion_languages}
-                  // All of these are unused, since its viewonly
-                  onSaveComment={async () => {}}
-                  onBlockPerson={async () => {}}
-                  onDeleteComment={async () => {}}
-                  onRemoveComment={async () => {}}
-                  onCommentVote={async () => {}}
-                  onCommentReport={async () => {}}
-                  onDistinguishComment={async () => {}}
-                  onAddModToCommunity={async () => {}}
-                  onAddAdmin={async () => {}}
-                  onTransferCommunity={async () => {}}
-                  onPurgeComment={async () => {}}
-                  onPurgePerson={async () => {}}
-                  onCommentReplyRead={() => {}}
-                  onPersonMentionRead={() => {}}
-                  onBanPersonFromCommunity={async () => {}}
-                  onBanPerson={async () => {}}
-                  onCreateComment={async () => EMPTY_REQUEST}
-                  onEditComment={async () => EMPTY_REQUEST}
-                />
-              )}
-              {i.type_ === "communities" && (
-                <div>{communityListing(i.data as CommunityView)}</div>
-              )}
-              {i.type_ === "users" && (
-                <div>{personListing(i.data as PersonView)}</div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+      <>
+        {communityListing(communities_array, this.isoData.myUserInfo)}
+        {personListing(persons_array, this.isoData.myUserInfo)}
+        {postListing(posts_array, this.isoData)}
+        {commentListing(comments_array, this.isoData)}
+      </>
     );
   }
 
   get comments() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-      siteRes,
-    } = this.state;
+    const { searchRes: searchResponse, siteRes } = this.state;
     const comments =
-      searchResponse.state === "success" ? searchResponse.data.comments : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.comment
-    ) {
-      comments.unshift(resolveObjectResponse.data.comment);
-    }
+      searchResponse.state === "success"
+        ? searchResponse.data.results.filter(s => s.type_ === "Comment")
+        : [];
 
     return (
       <CommentNodes
@@ -900,10 +841,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         viewOnly
         locked
         isTopLevel
-        enableDownvotes={enableDownvotes(siteRes)}
-        voteDisplayMode={voteDisplayMode(siteRes)}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
+        myUserInfo={this.isoData.myUserInfo}
+        localSite={siteRes.site_view.local_site}
+        admins={this.isoData.siteRes.admins}
         // All of these are unused, since its viewonly
         onSaveComment={async () => {}}
         onBlockPerson={async () => {}}
@@ -917,31 +859,21 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onTransferCommunity={async () => {}}
         onPurgeComment={async () => {}}
         onPurgePerson={async () => {}}
-        onCommentReplyRead={() => {}}
-        onPersonMentionRead={() => {}}
         onBanPersonFromCommunity={async () => {}}
         onBanPerson={async () => {}}
         onCreateComment={async () => EMPTY_REQUEST}
         onEditComment={async () => EMPTY_REQUEST}
+        onPersonNote={async () => {}}
       />
     );
   }
 
   get posts() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-      siteRes,
-    } = this.state;
+    const { searchRes: searchResponse, siteRes } = this.state;
     const posts =
-      searchResponse.state === "success" ? searchResponse.data.posts : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.post
-    ) {
-      posts.unshift(resolveObjectResponse.data.post);
-    }
+      searchResponse.state === "success"
+        ? searchResponse.data.results.filter(s => s.type_ === "Post")
+        : [];
 
     return (
       <>
@@ -951,12 +883,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               <PostListing
                 post_view={pv}
                 showCommunity
-                enableDownvotes={enableDownvotes(siteRes)}
-                voteDisplayMode={voteDisplayMode(siteRes)}
                 enableNsfw={enableNsfw(siteRes)}
+                showAdultConsentModal={this.isoData.showAdultConsentModal}
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 viewOnly
+                myUserInfo={this.isoData.myUserInfo}
+                localSite={siteRes.site_view.local_site}
+                admins={this.isoData.siteRes.admins}
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}
                 onPostVote={async () => EMPTY_REQUEST}
@@ -974,8 +908,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 onAddModToCommunity={async () => {}}
                 onAddAdmin={async () => {}}
                 onTransferCommunity={async () => {}}
-                onMarkPostAsRead={() => {}}
+                onMarkPostAsRead={async () => {}}
                 onHidePost={async () => {}}
+                onPersonNote={async () => {}}
               />
             </div>
           </div>
@@ -985,79 +920,43 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   get communities() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-    } = this.state;
+    const { searchRes: searchResponse } = this.state;
     const communities =
-      searchResponse.state === "success" ? searchResponse.data.communities : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.community
-    ) {
-      communities.unshift(resolveObjectResponse.data.community);
-    }
+      searchResponse.state === "success"
+        ? searchResponse.data.results.filter(s => s.type_ === "Community")
+        : [];
 
     return (
       <>
-        {communities.map(cv => (
-          <div key={cv.community.id} className="row">
-            <div className="col-12">{communityListing(cv)}</div>
-          </div>
-        ))}
+        <div className="col-12">
+          {communityListing(communities, this.isoData.myUserInfo)}
+        </div>
       </>
     );
   }
 
   get users() {
-    const {
-      searchRes: searchResponse,
-      resolveObjectRes: resolveObjectResponse,
-    } = this.state;
+    const { searchRes: searchResponse } = this.state;
     const users =
-      searchResponse.state === "success" ? searchResponse.data.users : [];
-
-    if (
-      resolveObjectResponse.state === "success" &&
-      resolveObjectResponse.data.person
-    ) {
-      users.unshift(resolveObjectResponse.data.person);
-    }
+      searchResponse.state === "success"
+        ? searchResponse.data.results.filter(s => s.type_ === "Person")
+        : [];
 
     return (
       <>
-        {users.map(pvs => (
-          <div key={pvs.person.id} className="row">
-            <div className="col-12">{personListing(pvs)}</div>
-          </div>
-        ))}
+        <div className="col-12">
+          {personListing(users, this.isoData.myUserInfo)}
+        </div>
       </>
     );
   }
 
   get resultsCount(): number {
-    const { searchRes: r, resolveObjectRes: resolveRes } = this.state;
+    const { searchRes: r } = this.state;
 
-    const searchCount =
-      r.state === "success"
-        ? r.data.posts.length +
-          r.data.comments.length +
-          r.data.communities.length +
-          r.data.users.length
-        : 0;
+    const searchCount = r.state === "success" ? r.data.results.length : 0;
 
-    const resObjCount =
-      resolveRes.state === "success"
-        ? resolveRes.data.post ||
-          resolveRes.data.person ||
-          resolveRes.data.community ||
-          resolveRes.data.comment
-          ? 1
-          : 0
-        : 0;
-
-    return resObjCount + searchCount;
+    return searchCount;
   }
 
   searchToken?: symbol;
@@ -1071,7 +970,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       sort,
       listingType,
       titleOnly,
-      page,
+      cursor,
     } = props;
 
     if (q) {
@@ -1084,23 +983,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         sort,
         listing_type: listingType,
         title_only: titleOnly,
-        page,
         limit: fetchLimit,
+        ...cursorComponents(cursor),
       });
       if (token !== this.searchToken) {
         return;
       }
       this.setState({ searchRes });
-
-      if (myAuth()) {
-        this.setState({ resolveObjectRes: LOADING_REQUEST });
-        const resolveObjectRes = await HttpService.client.resolveObject({
-          q,
-        });
-        if (token === this.searchToken) {
-          this.setState({ resolveObjectRes });
-        }
-      }
     } else {
       this.setState({ searchRes: EMPTY_REQUEST });
     }
@@ -1148,13 +1037,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     return this.searchInput.current?.value ?? this.props.q;
   }
 
-  handleSortChange(sort: PostSortType) {
-    this.updateUrl({ sort, page: 1, q: this.getQ() });
+  handleSortChange(sort: SearchSortType) {
+    this.updateUrl({ sort, cursor: undefined, q: this.getQ() });
   }
 
-  handleTitleOnlyChange(event: any) {
+  handleTitleOnlyChange(i: Search, event: any) {
     const titleOnly = event.target.checked;
-    this.updateUrl({ titleOnly, q: this.getQ() });
+    i.updateUrl({ titleOnly, q: i.getQ() });
   }
 
   handleTypeChange(i: Search, event: any) {
@@ -1162,19 +1051,19 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     i.updateUrl({
       type,
-      page: 1,
+      cursor: undefined,
       q: i.getQ(),
     });
   }
 
-  handlePageChange(page: number) {
-    this.updateUrl({ page });
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
   }
 
   handleListingTypeChange(listingType: ListingType) {
     this.updateUrl({
       listingType,
-      page: 1,
+      cursor: undefined,
       q: this.getQ(),
     });
   }
@@ -1182,7 +1071,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   handleCommunityFilterChange({ value }: Choice) {
     this.updateUrl({
       communityId: getIdFromString(value),
-      page: 1,
+      cursor: undefined,
       q: this.getQ(),
     });
   }
@@ -1190,7 +1079,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   handleCreatorFilterChange({ value }: Choice) {
     this.updateUrl({
       creatorId: getIdFromString(value),
-      page: 1,
+      cursor: undefined,
       q: this.getQ(),
     });
   }
@@ -1200,7 +1089,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     i.updateUrl({
       q: i.getQ(),
-      page: 1,
+      cursor: undefined,
     });
   }
 
@@ -1213,7 +1102,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       sort,
       communityId,
       creatorId,
-      page,
+      cursor,
     } = {
       ...this.props,
       ...props,
@@ -1221,13 +1110,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     const queryParams: QueryParams<SearchProps> = {
       q,
-      type: type,
-      listingType: listingType,
+      type,
+      listingType,
       titleOnly: titleOnly?.toString(),
       communityId: communityId?.toString(),
       creatorId: creatorId?.toString(),
-      page: page?.toString(),
-      sort: sort,
+      cursor,
+      sort,
     };
 
     this.props.history.push(`/search${getQueryString(queryParams)}`);

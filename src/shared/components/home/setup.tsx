@@ -1,12 +1,7 @@
 import { fetchThemeList, setIsoData } from "@utils/app";
 import { Component, linkEvent } from "inferno";
 import { Helmet } from "inferno-helmet";
-import {
-  CreateSite,
-  GetSiteResponse,
-  LoginResponse,
-  Register,
-} from "lemmy-js-client";
+import { CreateSite, LoginResponse, Register } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -36,7 +31,6 @@ interface State {
   doneRegisteringUser: boolean;
   registerRes: RequestState<LoginResponse>;
   themeList: string[];
-  siteRes: GetSiteResponse;
 }
 
 @simpleScrollMixin
@@ -52,8 +46,7 @@ export class Setup extends Component<
     form: {
       show_nsfw: true,
     },
-    doneRegisteringUser: !!UserService.Instance.myUserInfo,
-    siteRes: this.isoData.site_res,
+    doneRegisteringUser: !!this.isoData.myUserInfo,
   };
 
   constructor(props: any, context: any) {
@@ -87,9 +80,10 @@ export class Setup extends Component<
               <SiteForm
                 showLocal
                 onSaveSite={this.handleCreateSite}
-                siteRes={this.state.siteRes}
+                siteRes={this.isoData.siteRes}
                 themeList={this.state.themeList}
                 loading={false}
+                myUserInfo={this.isoData.myUserInfo}
               />
             )}
           </div>

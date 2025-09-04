@@ -1,19 +1,23 @@
 import { numToSI } from "@utils/helpers";
 import { Component } from "inferno";
-import {
-  CommentAggregates,
-  LocalUserVoteDisplayMode,
-  PostAggregates,
-} from "lemmy-js-client";
+import { Comment, Post, MyUserInfo, LocalSite } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Icon } from "./icon";
 import classNames from "classnames";
 import { calculateUpvotePct } from "@utils/app";
+import { VoteContentType } from "@utils/types";
+import {
+  showDownvotes,
+  showPercentage,
+  showScore,
+  showUpvotes,
+} from "./vote-buttons";
 
 interface Props {
-  voteDisplayMode: LocalUserVoteDisplayMode;
-  counts: CommentAggregates | PostAggregates;
+  myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
+  subject: Post | Comment;
   myVote?: number;
 }
 
@@ -28,20 +32,28 @@ export class VoteDisplay extends Component<Props, any> {
 
   render() {
     const {
-      voteDisplayMode,
-      counts: { score, upvotes },
+      subject: { score, upvotes },
+      localSite,
     } = this.props;
+    const localUser = this.props.myUserInfo?.local_user_view.local_user;
+    const type =
+      "post_id" in this.props.subject
+        ? VoteContentType.Comment
+        : VoteContentType.Post;
+
+    const show_score = showScore(localUser);
+    const show_upvotes = showUpvotes(localUser, localSite, type);
+    const show_upvote_percentage = showPercentage(localUser, localSite, type);
 
     // If the score is the same as the upvotes,
     // and both score and upvotes are enabled,
     // only show the upvotes.
-    const hideScore =
-      voteDisplayMode.score && voteDisplayMode.upvotes && score === upvotes;
+    const hideScore = show_score && show_upvotes && score === upvotes;
 
     return (
       <div>
-        {voteDisplayMode.score && !hideScore && this.score()}
-        {voteDisplayMode.upvote_percentage && this.upvotePct()}
+        {show_score && !hideScore && this.score()}
+        {show_upvote_percentage && this.upvotePct()}
         {this.upvotesAndDownvotes()}
       </div>
     );
@@ -50,7 +62,7 @@ export class VoteDisplay extends Component<Props, any> {
   score() {
     const {
       myVote,
-      counts: { score },
+      subject: { score },
     } = this.props;
     const scoreStr = numToSI(score);
 
@@ -73,7 +85,7 @@ export class VoteDisplay extends Component<Props, any> {
   }
 
   upvotePct() {
-    const { upvotes, downvotes } = this.props.counts;
+    const { upvotes, downvotes } = this.props.subject;
     const pct = calculateUpvotePct(upvotes, downvotes);
     const pctStr = `${pct.toFixed(0)}%`;
 
@@ -101,19 +113,36 @@ export class VoteDisplay extends Component<Props, any> {
 
   // A special case since they are both wrapped in a badge
   upvotesAndDownvotes() {
-    const voteDisplayMode = this.props.voteDisplayMode;
-    const votesCheck = voteDisplayMode.upvotes || voteDisplayMode.downvotes;
-    const downvotesCheck = this.props.counts.downvotes > 0;
+    const localUser = this.props.myUserInfo?.local_user_view.local_user;
+    const type =
+      "post_id" in this.props.subject
+        ? VoteContentType.Comment
+        : VoteContentType.Post;
+    const {
+      localSite,
+      subject: { creator_id },
+    } = this.props;
+
+    const show_upvotes = showUpvotes(localUser, localSite, type);
+    const show_downvotes = showDownvotes(
+      localUser,
+      localSite,
+      type,
+      creator_id,
+    );
+
+    const votesCheck = show_upvotes || show_downvotes;
+    const downvotesCheck = this.props.subject.downvotes > 0;
 
     return (
       votesCheck && (
         <span className={BADGE_CLASSES}>
-          {voteDisplayMode.upvotes && (
+          {show_upvotes && (
             <span className={classNames({ "me-1": downvotesCheck })}>
               {this.upvotes()}
             </span>
           )}
-          {voteDisplayMode.downvotes && downvotesCheck && this.downvotes()}
+          {show_downvotes && downvotesCheck && this.downvotes()}
           <span className="mx-2">·</span>
         </span>
       )
@@ -123,7 +152,7 @@ export class VoteDisplay extends Component<Props, any> {
   upvotes() {
     const {
       myVote,
-      counts: { upvotes },
+      subject: { upvotes },
     } = this.props;
     const upvotesStr = numToSI(upvotes);
 
@@ -149,7 +178,7 @@ export class VoteDisplay extends Component<Props, any> {
   downvotes() {
     const {
       myVote,
-      counts: { downvotes },
+      subject: { downvotes },
     } = this.props;
     const downvotesStr = numToSI(downvotes);
 

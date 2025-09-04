@@ -1,4 +1,3 @@
-import { setupDateFns } from "@utils/app";
 import { getStaticDir } from "@utils/env";
 import { VERSION } from "../shared/version";
 import express from "express";
@@ -13,26 +12,43 @@ import ThemeHandler from "./handlers/theme-handler";
 import ThemesListHandler from "./handlers/themes-list-handler";
 import { setCacheControl, setDefaultCsp } from "./middleware";
 import CodeThemeHandler from "./handlers/code-theme-handler";
-import { verifyDynamicImports } from "../shared/dynamic-imports";
+import { verifyDynamicImports } from "@utils/dynamic-imports";
 import cookieParser from "cookie-parser";
+import { setupMarkdown } from "@utils/markdown";
 
 const server = express();
 server.use(cookieParser());
 
-const [hostname, port] = process.env["LEMMY_UI_HOST"]
-  ? process.env["LEMMY_UI_HOST"].split(":")
-  : ["0.0.0.0", "1234"];
+// Split given host into hostname and port on the last `:` character, so that it
+// also works for IPv6.
+const [hostname, port] = (() => {
+  const host = process.env["LEMMY_UI_HOST"];
+  if (!host) {
+    return ["0.0.0.0", "1234"];
+  }
+
+  const lastIndex = host.lastIndexOf(":");
+  if (lastIndex === -1) {
+    throw "LEMMY_UI_HOST must contain hostname and port (e.g. `0.0.0.0:1234`)";
+  } else {
+    const hostname = host.slice(0, lastIndex);
+    const port = host.slice(lastIndex + 1);
+    return [hostname, port];
+  }
+})();
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 
 const serverPath = path.resolve("./dist");
 
+// In debug mode, don't use the maxAge and immutable, or it breaks live reload for dev
 if (
-  !process.env["LEMMY_UI_DISABLE_CSP"] &&
-  !process.env["LEMMY_UI_DEBUG"] &&
-  process.env["NODE_ENV"] !== "development"
+  process.env["LEMMY_UI_DEBUG"] ||
+  process.env["NODE_ENV"] === "development"
 ) {
+  server.use(getStaticDir(), express.static(serverPath));
+} else {
   server.use(
     getStaticDir(),
     express.static(serverPath, {
@@ -40,11 +56,16 @@ if (
       immutable: true,
     }),
   );
-  server.use(setDefaultCsp);
   server.use(setCacheControl);
-} else {
-  // In debug mode, don't use the maxAge and immutable, or it breaks live reload for dev
-  server.use(getStaticDir(), express.static(serverPath));
+}
+
+// Only set the CSP if not in debug mode
+if (
+  !process.env["LEMMY_UI_DISABLE_CSP"] &&
+  !process.env["LEMMY_UI_DEBUG"] &&
+  process.env["NODE_ENV"] !== "development"
+) {
+  server.use(setDefaultCsp);
 }
 
 server.get("/.well-known/security.txt", SecurityHandler);
@@ -54,12 +75,13 @@ server.get("/manifest.webmanifest", ManifestHandler);
 server.get("/css/themes/:name", ThemeHandler);
 server.get("/css/code-themes/:name", CodeThemeHandler);
 server.get("/css/themelist", ThemesListHandler);
-server.get("/*", CatchAllHandler);
+server.get("/{*splat}", CatchAllHandler);
 
 const listener = server.listen(Number(port), hostname, () => {
   verifyDynamicImports(true);
 
-  setupDateFns();
+  setupMarkdown();
+
   console.log(
     `Lemmy-ui v${VERSION} started listening on http://${hostname}:${port}`,
   );

@@ -8,7 +8,7 @@ import {
   BanPerson,
   BlockPerson,
   CommentResponse,
-  CommunityModeratorView,
+  Community,
   CreateComment,
   CreateCommentLike,
   CreateCommentReport,
@@ -17,9 +17,10 @@ import {
   EditComment,
   GetComments,
   Language,
-  LocalUserVoteDisplayMode,
-  MarkCommentReplyAsRead,
-  MarkPersonMentionAsRead,
+  LocalSite,
+  MyUserInfo,
+  NotePerson,
+  PersonId,
   PersonView,
   PurgeComment,
   PurgePerson,
@@ -27,33 +28,37 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
-import { CommentNodeI, CommentViewType } from "../../interfaces";
+import { CommentNodeI, CommentViewType } from "@utils/types";
 import { CommentNode } from "./comment-node";
 import { RequestState } from "../../services/HttpService";
 
 interface CommentNodesProps {
   nodes: CommentNodeI[];
-  moderators?: CommunityModeratorView[];
-  admins?: PersonView[];
+  /**
+   * Only use this for the CommentSlim variant.
+   **/
+  postCreatorId?: PersonId;
+  /**
+   * Only use this for the CommentSlim variant.
+   **/
+  community?: Community;
+  admins: PersonView[];
   maxCommentsShown?: number;
   noBorder?: boolean;
   isTopLevel?: boolean;
   viewOnly?: boolean;
   locked?: boolean;
-  markable?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
-  enableDownvotes?: boolean;
-  voteDisplayMode: LocalUserVoteDisplayMode;
   viewType: CommentViewType;
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages?: boolean;
   isChild?: boolean;
   depth?: number;
+  myUserInfo: MyUserInfo | undefined;
+  localSite: LocalSite;
   onSaveComment(form: SaveComment): Promise<void>;
-  onCommentReplyRead(form: MarkCommentReplyAsRead): void;
-  onPersonMentionRead(form: MarkPersonMentionAsRead): void;
   onCreateComment(
     form: EditComment | CreateComment,
   ): Promise<RequestState<CommentResponse>>;
@@ -74,6 +79,7 @@ interface CommentNodesProps {
   onCommentReport(form: CreateCommentReport): Promise<void>;
   onPurgePerson(form: PurgePerson): Promise<void>;
   onPurgeComment(form: PurgeComment): Promise<void>;
+  onPersonNote(form: NotePerson): Promise<void>;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -105,23 +111,21 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
             <CommentNode
               key={node.comment_view.comment.id}
               node={node}
+              postCreatorId={this.props.postCreatorId}
+              community={this.props.community}
               noBorder={this.props.noBorder}
               isTopLevel={this.props.isTopLevel}
               viewOnly={this.props.viewOnly}
               locked={this.props.locked}
-              moderators={this.props.moderators}
               admins={this.props.admins}
-              markable={this.props.markable}
               showContext={this.props.showContext}
               showCommunity={this.props.showCommunity}
-              enableDownvotes={this.props.enableDownvotes}
-              voteDisplayMode={this.props.voteDisplayMode}
               viewType={this.props.viewType}
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
               hideImages={this.props.hideImages}
-              onCommentReplyRead={this.props.onCommentReplyRead}
-              onPersonMentionRead={this.props.onPersonMentionRead}
+              myUserInfo={this.props.myUserInfo}
+              localSite={this.props.localSite}
               onCreateComment={this.props.onCreateComment}
               onEditComment={this.props.onEditComment}
               onCommentVote={this.props.onCommentVote}
@@ -139,6 +143,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               onCommentReport={this.props.onCommentReport}
               onPurgePerson={this.props.onPurgePerson}
               onPurgeComment={this.props.onPurgeComment}
+              onPersonNote={this.props.onPersonNote}
             />
           ))}
         </ul>

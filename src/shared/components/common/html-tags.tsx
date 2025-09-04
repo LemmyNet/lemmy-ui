@@ -2,7 +2,7 @@ import { httpExternalPath } from "@utils/env";
 import { htmlToText } from "html-to-text";
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
-import { md } from "../../markdown";
+import { md } from "@utils/markdown";
 import { I18NextService } from "../../services";
 
 interface HtmlTagsProps {

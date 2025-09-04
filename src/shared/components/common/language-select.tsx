@@ -2,13 +2,13 @@ import { selectableLanguages } from "@utils/app";
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { Language } from "lemmy-js-client";
-import { I18NextService, UserService } from "../../services";
+import { Language, MyUserInfo } from "lemmy-js-client";
+import { I18NextService } from "../../services";
 import { Icon } from "./icon";
 
 interface LanguageSelectProps {
-  allLanguages: Language[];
-  siteLanguages: number[];
+  allLanguages?: Language[];
+  siteLanguages?: number[];
   selectedLanguageIds?: number[];
   multiple?: boolean;
   onChange(val: number[]): any;
@@ -17,6 +17,7 @@ interface LanguageSelectProps {
   iconVersion?: boolean;
   disabled?: boolean;
   showLanguageWarning?: boolean;
+  myUserInfo: MyUserInfo | undefined;
 }
 
 export class LanguageSelect extends Component<LanguageSelectProps, any> {
@@ -97,7 +98,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
       this.props.siteLanguages,
       this.props.showAll,
       this.props.showSite,
-      UserService.Instance.myUserInfo,
+      this.props.myUserInfo,
     );
 
     return (

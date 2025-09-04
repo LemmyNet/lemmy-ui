@@ -1,6 +1,6 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { isBrowser, refreshTheme } from "@utils/browser";
-import { getQueryParams } from "@utils/helpers";
+import { getQueryParams, validEmail } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -16,15 +16,16 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "../../services/HttpService";
-import { toast } from "../../toast";
+import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import TotpModal from "../common/modal/totp-modal";
 import { UnreadCounterService } from "../../services";
-import { RouteData } from "../../interfaces";
-import { IRoutePropsWithFetch } from "../../routes";
+import { RouteData } from "@utils/types";
+import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { NoOptionI18nKeys } from "i18next";
 
 interface LoginProps {
   prev?: string;
@@ -48,19 +49,23 @@ interface State {
   siteRes: GetSiteResponse;
   show2faModal: boolean;
   showOAuthModal: boolean;
+  showResendVerificationEmailBtn: boolean;
 }
 
 async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
   UserService.Instance.login({
     res: loginRes,
   });
-  const site = await HttpService.client.getSite();
+  const [site, myUser] = await Promise.all([
+    HttpService.client.getSite(),
+    HttpService.client.getMyUser(),
+  ]);
 
-  if (site.state === "success") {
-    UserService.Instance.myUserInfo = site.data.my_user;
+  if (site.state === "success" && myUser.state === "success") {
     const isoData = setIsoData(i.context);
-    isoData.site_res.oauth_providers = site.data.oauth_providers;
-    isoData.site_res.admin_oauth_providers = site.data.admin_oauth_providers;
+    updateMyUserInfo(myUser.data);
+    isoData.siteRes.oauth_providers = site.data.oauth_providers;
+    isoData.siteRes.admin_oauth_providers = site.data.admin_oauth_providers;
     refreshTheme();
   }
 
@@ -90,18 +95,26 @@ async function handleLoginSubmit(i: Login, event: any) {
     });
     switch (loginRes.state) {
       case "failed": {
-        if (loginRes.err.message === "missing_totp_token") {
+        if (loginRes.err.name === "missing_totp_token") {
           i.setState({ show2faModal: true });
+        } else if (loginRes.err.name === "not_found") {
+          toast(I18NextService.i18n.t("incorrect_login"), "danger");
+        } else if (loginRes.err.name === "email_not_verified") {
+          toast(I18NextService.i18n.t(loginRes.err.name), "danger");
+
+          // Show the resend verification email button
+          i.setState({ showResendVerificationEmailBtn: true });
         } else {
-          // TODO: We shouldn't be passing error messages as args into i18next
-          toast(
-            I18NextService.i18n.t(
-              loginRes.err.message === "registration_application_is_pending"
-                ? "registration_application_pending"
-                : loginRes.err.message,
-            ),
-            "danger",
+          let errStr: string = I18NextService.i18n.t(
+            loginRes.err.name === "registration_application_is_pending"
+              ? "registration_application_pending"
+              : (loginRes.err.name as NoOptionI18nKeys),
           );
+          // If there's an error message, append it
+          if (loginRes.err.message) {
+            errStr = `${errStr}: ${loginRes.err.message}`;
+          }
+          toast(errStr, "danger");
         }
 
         i.setState({ loginRes });
@@ -169,6 +182,23 @@ function handleClose2faModal(i: Login) {
   i.setState({ show2faModal: false });
 }
 
+async function handleResendVerificationEmail(i: Login) {
+  const res = await HttpService.client.resendVerificationEmail({
+    email: i.state.form.username_or_email,
+  });
+
+  const successful = res.state === "success";
+  if (successful) {
+    toast(I18NextService.i18n.t("verify_email_sent"));
+  } else {
+    toast(I18NextService.i18n.t("incorrect_login"), "danger");
+  }
+
+  i.setState({ showResendVerificationEmailBtn: false });
+
+  return successful;
+}
+
 type LoginRouteProps = RouteComponentProps<Record<string, never>> & LoginProps;
 export type LoginFetchConfig = IRoutePropsWithFetch<
   RouteData,
@@ -186,9 +216,10 @@ export class Login extends Component<LoginRouteProps, State> {
       username_or_email: "",
       password: "",
     },
-    siteRes: this.isoData.site_res,
+    siteRes: this.isoData.siteRes,
     show2faModal: false,
     showOAuthModal: false,
+    showResendVerificationEmailBtn: false,
   };
 
   constructor(props: any, context: any) {
@@ -305,6 +336,15 @@ export class Login extends Component<LoginRouteProps, State> {
                 required
                 minLength={3}
               />
+              {this.state.showResendVerificationEmailBtn &&
+                validEmail(this.state.form.username_or_email) && (
+                  <button
+                    className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
+                    onClick={linkEvent(this, handleResendVerificationEmail)}
+                  >
+                    {I18NextService.i18n.t("resend_verification_email")}
+                  </button>
+                )}
             </div>
           </div>
           <div className="mb-3">

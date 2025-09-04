@@ -1,18 +1,19 @@
 {
   "name": "lemmy-ui",
+  "version": "1.0.0-alpha.7",
   "description": "An isomorphic UI for lemmy",
-  "version": "0.19.6-beta.14",
-  "author": "Dessalines <tyhou13@gmx.com>",
+  "repository": "https://github.com/LemmyNet/lemmy-ui",
   "license": "AGPL-3.0",
+  "author": "Dessalines <tyhou13@gmx.com>",
   "scripts": {
     "analyze": "webpack --mode=none",
+    "prebuild:dev": "pnpm clean && node generate_translations.js",
     "build:dev": "webpack --env COMMIT_HASH=$(git rev-parse --short HEAD) --mode=development",
+    "prebuild:prod": "pnpm clean && node generate_translations.js",
     "build:prod": "webpack --env COMMIT_HASH=$(git rev-parse --short HEAD) --mode=production",
     "clean": "pnpm rimraf dist",
     "dev": "node generate_translations.js && pnpm build:dev --watch",
     "lint": "pnpm translations:generate && tsc --noEmit && pnpm eslint --report-unused-disable-directives && pnpm prettier --check \"src/**/*.{ts,tsx,js,mjs,css,scss}\"",
-    "prebuild:dev": "pnpm clean && node generate_translations.js",
-    "prebuild:prod": "pnpm clean && node generate_translations.js",
     "prepare": "husky",
     "themes:build": "sass src/assets/css/themes/:src/assets/css/themes",
     "themes:watch": "sass --watch src/assets/css/themes/:src/assets/css/themes",
@@ -20,10 +21,19 @@
     "translations:init": "git submodule init && pnpm translations:update",
     "translations:update": "git submodule update --remote --recursive"
   },
-  "repository": "https://github.com/LemmyNet/lemmy-ui",
-  "engines": {
-    "node": ">=8.9.0"
+  "lint-staged": {
+    "*.{css, scss}": [
+      "prettier --write"
+    ],
+    "*.{ts,tsx,js}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
   },
+  "browserslist": "fully supports es6",
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.24.7",
     "@babel/plugin-transform-class-properties": "^7.25.4",
@@ -37,6 +47,7 @@
     "babel-loader": "^10.0.0",
     "babel-plugin-inferno": "^6.7.1",
     "bootstrap": "^5.3.3",
+    "caniuse-lite": "^1.0.30001735",
     "check-password-strength": "^3.0.0",
     "classnames": "^2.5.1",
     "clean-webpack-plugin": "^4.0.0",
@@ -52,16 +63,15 @@
     "history": "^5.3.0",
     "html-to-text": "^9.0.5",
     "i18next": "^23.14.0",
-    "inferno": "^8.2.3",
-    "inferno-create-element": "^9.0.0",
+    "inferno": "^9.0.3",
+    "inferno-create-element": "^9.0.3",
     "inferno-helmet": "^5.2.1",
-    "inferno-hydrate": "^9.0.0",
+    "inferno-hydrate": "^9.0.3",
     "inferno-i18next-dess": "0.0.2",
-    "inferno-router": "^8.2.3",
-    "inferno-server": "^9.0.0",
+    "inferno-router": "^9.0.3",
+    "inferno-server": "^9.0.3",
     "jwt-decode": "^4.0.0",
-    "lemmy-js-client": "1.0.0-alpha.0",
-    "lodash.isequal": "^4.5.0",
+    "lemmy-js-client": "1.0.0-instance-user-blocking.8",
     "markdown-it": "^14.1.0",
     "markdown-it-bidi": "^0.2.0",
     "markdown-it-container": "^4.0.0",
@@ -82,7 +92,7 @@
     "sass-loader": "^16.0.1",
     "serialize-javascript": "^6.0.2",
     "service-worker-webpack": "^1.0.0",
-    "sharp": "0.34.0",
+    "sharp": "0.34.3",
     "tippy.js": "^6.3.7",
     "toastify-js": "^1.12.0",
     "tributejs": "^5.1.3",
@@ -95,11 +105,9 @@
     "@eslint/js": "^9.9.1",
     "@types/autosize": "^4.0.3",
     "@types/bootstrap": "^5.2.10",
-    "@types/cookie": "^1.0.0",
     "@types/cookie-parser": "^1.4.7",
     "@types/express": "^5.0.1",
     "@types/html-to-text": "^9.0.4",
-    "@types/lodash.isequal": "^4.5.8",
     "@types/markdown-it": "^14.1.2",
     "@types/markdown-it-container": "^2.0.10",
     "@types/node": "^22.5.0",
@@ -110,42 +118,33 @@
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
     "eslint": "^9.9.1",
-    "eslint-config-prettier": "^10.0.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-inferno": "^7.34.0",
     "eslint-plugin-jsx-a11y": "^6.9.0",
-    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.0.0",
     "husky": "^9.1.5",
     "import-sort-style-module": "^6.0.0",
-    "lint-staged": "^15.2.9",
-    "prettier": "^3.4.2",
+    "lint-staged": "^16.0.0",
+    "prettier": "^3.6.2",
     "prettier-plugin-import-sort": "^0.0.7",
-    "prettier-plugin-organize-imports": "^4.0.0",
-    "prettier-plugin-packagejson": "^2.5.2",
+    "prettier-plugin-organize-imports": "^4.2.0",
+    "prettier-plugin-packagejson": "^2.5.19",
     "qs": "^6.13.0",
     "rimraf": "^6.0.1",
-    "sortpack": "^2.4.0",
+    "sort-package-json": "^3.4.0",
     "style-loader": "^4.0.0",
     "terser": "^5.31.6",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.3.0",
     "typescript-language-server": "^4.3.3",
     "webpack-bundle-analyzer": "^4.10.2",
-    "webpack-dev-server": "5.2.1"
+    "webpack-dev-server": "5.2.2"
   },
-  "lint-staged": {
-    "*.{css, scss}": [
-      "prettier --write"
-    ],
-    "*.{ts,tsx,js}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "package.json": [
-      "sortpack"
-    ]
+  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
+  "engines": {
+    "node": ">=8.9.0"
   },
-  "packageManager": "pnpm@10.2.1+sha512.398035c7bd696d0ba0b10a688ed558285329d27ea994804a52bad9167d8e3a72bcb993f9699585d3ca25779ac64949ef422757a6c31102c12ab932e5cbe5cc92",
   "engineStrict": true,
   "importSort": {
     ".js, .jsx, .ts, .tsx": {

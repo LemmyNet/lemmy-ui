@@ -11,6 +11,22 @@ steps:
     when:
       - event: [pull_request, tag]
 
+  prettier_check:
+    image: tmknom/prettier:3.6.2
+    commands:
+      - prettier -c .
+    when:
+      - event: pull_request
+
+  bash_fmt:
+    image: alpine:3
+    commands:
+      - apk add shfmt
+      - shfmt -i 2 -d */**.bash
+      - shfmt -i 2 -d */**.sh
+    when:
+      - event: pull_request
+
   install:
     image: node:22-alpine
     commands:
@@ -64,19 +80,28 @@ steps:
     when:
       - event: cron
 
-  notify_on_failure:
+  notify_success:
     image: alpine:3
     commands:
       - apk add curl
-      - "curl -d'Lemmy-UI CI build failed: ${CI_PIPELINE_URL}' ntfy.sh/lemmy_drone_ci"
+      - "curl -H'Title: ✔️ ${CI_REPO_NAME}/${CI_COMMIT_SOURCE_BRANCH}' -d'${CI_PIPELINE_URL}' ntfy.sh/lemmy_drone_ci"
     when:
-      - event: [pull_request, tag]
-        status: failure
+      - event: pull_request
+        status: [success]
+
+  notify_failure:
+    image: alpine:3
+    commands:
+      - apk add curl
+      - "curl -H'Title: ❌ ${CI_REPO_NAME}/${CI_COMMIT_SOURCE_BRANCH}' -d'${CI_PIPELINE_URL}' ntfy.sh/lemmy_drone_ci"
+    when:
+      - event: pull_request
+        status: [failure]
 
   notify_on_tag_deploy:
     image: alpine:3
     commands:
       - apk add curl
-      - "curl -d'lemmy-ui:${CI_COMMIT_TAG} deployed' ntfy.sh/lemmy_drone_ci"
+      - "curl -H'Title: ${CI_REPO_NAME}:${CI_COMMIT_TAG} deployed' -d'${CI_PIPELINE_URL}' ntfy.sh/lemmy_drone_ci"
     when:
       event: tag

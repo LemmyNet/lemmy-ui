@@ -1,11 +1,11 @@
 import { Component } from "inferno";
-import { GetSiteResponse } from "lemmy-js-client";
+import { MyUserInfo } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
-import { donateLemmyUrl } from "../../config";
 import { T } from "inferno-i18next-dess";
+import { donateLemmyUrl } from "@utils/config";
 
 interface Props {
-  site?: GetSiteResponse;
+  myUserInfo?: MyUserInfo;
 }
 
 interface State {
@@ -24,8 +24,8 @@ export class DonationDialog extends Component<Props, State> {
 
   initializeShow(): boolean {
     const lastNotifDate = new Date(
-      this.props.site?.my_user?.local_user_view.local_user
-        .last_donation_notification ?? Number.MAX_SAFE_INTEGER,
+      this.props.myUserInfo?.local_user_view.local_user
+        .last_donation_notification_at ?? Number.MAX_SAFE_INTEGER,
     );
 
     const oneYearAgo = new Date();
@@ -73,10 +73,10 @@ export class DonationDialog extends Component<Props, State> {
   }
 
   async hideDialog() {
-    await HttpService.client.donation_dialog_shown();
-    const site = this.props.site;
-    if (site?.my_user !== undefined) {
-      site!.my_user!.local_user_view.local_user.last_donation_notification =
+    await HttpService.client.donationDialogShown();
+    const my_user = this.props.myUserInfo;
+    if (my_user !== undefined) {
+      my_user!.local_user_view.local_user.last_donation_notification_at =
         new Date(0).toString();
     }
     this.setState({ show: false });
