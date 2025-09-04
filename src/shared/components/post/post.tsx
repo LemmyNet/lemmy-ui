@@ -68,6 +68,7 @@ import {
   MarkPostAsRead,
   MyUserInfo,
   NotePerson,
+  PostNotificationsMode,
   PostResponse,
   PurgeComment,
   PurgeCommunity,
@@ -124,7 +125,23 @@ interface PostState {
   maxCommentsShown: number;
   isIsomorphic: boolean;
   lastCreatedCommentId?: CommentId;
+  notifications: PostNotificationsMode;
 }
+
+const notificationModes: {
+  value: PostNotificationsMode;
+  i18nKey: NoOptionI18nKeys;
+}[] = [
+  {
+    value: "AllComments",
+    i18nKey: "notification_mode_all_comments",
+  },
+  {
+    value: "RepliesAndMentions",
+    i18nKey: "notification_mode_replies_and_mentions",
+  },
+  { value: "Mute", i18nKey: "notification_mode_mute" },
+];
 
 function getCommentSortTypeFromQuery(
   source: string | undefined,
@@ -247,6 +264,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
     isIsomorphic: false,
+    notifications: "RepliesAndMentions",
   };
 
   loadingSettled() {
@@ -296,6 +314,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleScrollIntoCommentsClick =
       this.handleScrollIntoCommentsClick.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
+    this.handleNotificationChange = this.handleNotificationChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -319,7 +338,11 @@ export class Post extends Component<PostRouteProps, PostState> {
       comment_id: getCommentIdFromProps(props),
     });
     if (token === this.fetchPostToken) {
-      this.setState({ postRes });
+      console.log(postRes);
+      this.setState({
+        postRes,
+        notifications: postRes.data.post_view.post_actions.notifications,
+      });
     }
   }
 
@@ -647,6 +670,22 @@ export class Post extends Component<PostRouteProps, PostState> {
                 {this.state.showSidebarMobile && this.sidebar()}
               </div>
               {this.sortRadios()}
+              <div className="btn-group flex-wrap mb-2" role="group">
+                <select
+                  value={this.state.notifications}
+                  onChange={linkEvent(
+                    res.post_view.post.id,
+                    this.handleNotificationChange,
+                  )}
+                  className="form-select"
+                >
+                  {notificationModes.map(mode => (
+                    <option value={mode.value}>
+                      {I18NextService.i18n.t(mode.i18nKey)}
+                    </option>
+                  ))}
+                </select>
+              </div>
               {this.props.view === CommentViewType.Tree && this.commentsTree()}
               {this.props.view === CommentViewType.Flat && this.commentsFlat()}
             </div>
@@ -756,7 +795,10 @@ export class Post extends Component<PostRouteProps, PostState> {
             {I18NextService.i18n.t("old")}
           </label>
         </div>
-        <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
+        <div
+          className="btn-group btn-group-toggle flex-wrap mb-2 me-3"
+          role="group"
+        >
           <input
             id={`${radioId}-chat`}
             type="radio"
@@ -1369,6 +1411,12 @@ export class Post extends Component<PostRouteProps, PostState> {
 
       toast(I18NextService.i18n.t(form.hide ? "post_hidden" : "post_unhidden"));
     }
+  }
+
+  async handleNotificationChange(post_id: number, event: any) {
+    const form = { post_id, mode: event.target.value };
+    this.setState({ notifications: form.mode });
+    await HttpService.client.updatePostNotifications(form);
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
