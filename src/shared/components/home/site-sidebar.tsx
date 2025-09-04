@@ -14,6 +14,7 @@ import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import { renderLanguageList } from "@components/community/sidebar";
 
 interface SiteSidebarProps {
   site: Site;
@@ -97,36 +98,14 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
   siteInfo() {
     const { site } = this.props;
-    const langs = this.props.allLanguages?.filter(x =>
-      this.props.siteLanguages?.includes(x.id),
-    );
-    const showLanguages =
-      langs &&
-      this.props.allLanguages &&
-      langs.length < this.props.allLanguages.length;
 
     return (
       <div>
         {site.description && <h6>{site.description}</h6>}
         {site.sidebar && this.siteSidebar(site.sidebar)}
-        {showLanguages && this.languages(langs)}
-        <hr className="m-2" />
+        {renderLanguageList(this.props.allLanguages, this.props.siteLanguages)}
         {this.props.localSite && <Badges subject={this.props.localSite} />}
         {this.props.admins && this.admins(this.props.admins)}
-      </div>
-    );
-  }
-
-  languages(langs: Language[]) {
-    return (
-      <div>
-        <ul class="badges my-1 list-inline">
-          {langs.map(l => (
-            <li class="badge list-inline-item text-secondary border border-secondary">
-              {l.name}
-            </li>
-          ))}
-        </ul>
       </div>
     );
   }

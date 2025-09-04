@@ -157,9 +157,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       community: { name, ap_id, id, posting_restricted_to_mods, visibility },
       community_actions: { received_ban_at: bannedFromCommunity } = {},
     } = this.props.community_view;
-    const langs = this.props.allLanguages.filter(x =>
-      this.props.communityLanguages?.includes(x.id),
-    );
 
     return (
       <aside className="mb-3">
@@ -274,14 +271,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   )}
                 </p>
               </div>
-              <ul class="badges my-1 list-inline">
-                {langs.map(l => (
-                  <li class="badge list-inline-item text-secondary border border-secondary">
-                    {l.name}
-                  </li>
-                ))}
-              </ul>
-              <hr className="m-2" />
+              {renderLanguageList(
+                this.props.allLanguages,
+                this.props.siteLanguages,
+              )}
               <Badges
                 communityId={id}
                 subject={this.props.community_view.community}
@@ -748,4 +741,29 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       `/search${getQueryString({ q: searchParamEncoded, communityId: i.props.community_view.community.id.toString() })}`,
     );
   }
+}
+
+export function renderLanguageList(
+  allLanguages?: Language[],
+  languageIds?: number[],
+) {
+  const langs = allLanguages
+    ?.filter(x => languageIds?.includes(x.id))
+    .map(x => x.name);
+  const showLanguages =
+    allLanguages && langs && langs.length < allLanguages.length;
+
+  return (
+    showLanguages && (
+      <div>
+        <ul class="badges my-1 list-inline">
+          {langs.map(l => (
+            <li class="badge list-inline-item text-secondary border border-secondary">
+              {l}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  );
 }
