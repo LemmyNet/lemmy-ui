@@ -59,12 +59,10 @@ function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
                 />
                 <UserBadges
                   classNames="ms-1"
-                  isBot={v.creator.bot_account}
-                  isDeleted={v.creator.deleted}
+                  creator={v.creator}
                   isBanned={v.creator_banned}
                   isBannedFromCommunity={v.creator_banned_from_community}
                   myUserInfo={myUserInfo}
-                  targetPersonId={v.creator.id}
                 />
               </td>
               <td className="text-end">{scoreToIcon(v.score)}</td>
