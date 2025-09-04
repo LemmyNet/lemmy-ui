@@ -98,6 +98,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   render() {
     const siteView = this.props.siteRes?.site_view;
     const person = this.props.myUserInfo?.local_user_view.person;
+    const registrationClosed =
+      siteView?.local_site.registration_mode === "Closed";
+
     return (
       <div className="shadow-sm">
         <nav
@@ -445,16 +448,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       {I18NextService.i18n.t("login")}
                     </NavLink>
                   </li>
-                  <li className="nav-item">
-                    <NavLink
-                      to="/signup"
-                      className="nav-link"
-                      title={I18NextService.i18n.t("sign_up")}
-                      onMouseUp={linkEvent(this, handleCollapseClick)}
-                    >
-                      {I18NextService.i18n.t("sign_up")}
-                    </NavLink>
-                  </li>
+                  {!registrationClosed && (
+                    <li className="nav-item">
+                      <NavLink
+                        to="/signup"
+                        className="nav-link"
+                        title={I18NextService.i18n.t("sign_up")}
+                        onMouseUp={linkEvent(this, handleCollapseClick)}
+                      >
+                        {I18NextService.i18n.t("sign_up")}
+                      </NavLink>
+                    </li>
+                  )}
                 </>
               )}
             </ul>
