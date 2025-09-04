@@ -567,7 +567,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
         const isUpload = view === "Uploads";
 
-        var bio = !personRes.person_view.creator_banned
+        const bio = !personRes.person_view.creator_banned
           ? personRes.person_view.person.bio
           : "";
 
