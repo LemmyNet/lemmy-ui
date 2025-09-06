@@ -1,7 +1,7 @@
 import { myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
-import { hostname } from "@utils/helpers";
+import { hostname, unreadCommentsCount } from "@utils/helpers";
 import { formatRelativeDate, futureDaysToUnixTime } from "@utils/date";
 import { isImage, isVideo } from "@utils/media";
 import { canAdmin } from "@utils/roles";
@@ -471,8 +471,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               time: formatRelativeDate(pv.post.scheduled_publish_time_at),
             })}
           </span>
-        )}{" "}
-        ·{" "}
+        )}
+        {" · "}
         <MomentTime
           published={pv.post.published_at}
           updated={pv.post.updated_at}
@@ -623,30 +623,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
-  duplicatesLine() {
-    const dupes = this.props.crossPosts;
-    return dupes && dupes.length > 0 ? (
-      <ul className="list-inline mb-1 small text-muted">
-        <>
-          <li className="list-inline-item me-2">
-            {I18NextService.i18n.t("cross_posted_to")}
-          </li>
-          {dupes.map(pv => (
-            <li key={pv.post.id} className="list-inline-item me-2">
-              <Link to={`/post/${pv.post.id}`}>
-                {pv.community.local
-                  ? pv.community.name
-                  : `${pv.community.name}@${hostname(pv.community.ap_id)}`}
-              </Link>
-            </li>
-          ))}
-        </>
-      </ul>
-    ) : (
-      <></>
-    );
-  }
-
   commentsLine(mobile = false) {
     const { admins, showBody, onPostVote } = this.props;
     const { post } = this.postView;
@@ -775,25 +751,16 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       >
         <Icon icon="message-square" classes="me-1" inline />
         {pv.post.comments}
-        {this.unreadCount && (
+        {unreadCommentsCount(pv) && (
           <>
             {" "}
             <span className="fst-italic">
-              ({this.unreadCount} {I18NextService.i18n.t("new")})
+              ({unreadCommentsCount(pv)} {I18NextService.i18n.t("new")})
             </span>
           </>
         )}
       </Link>
     );
-  }
-
-  get unreadCount(): number | undefined {
-    const pv = this.postView;
-    const unread_comments =
-      pv.post.comments - (pv.post_actions?.read_comments_amount ?? 0);
-    return unread_comments === pv.post.comments || unread_comments === 0
-      ? undefined
-      : unread_comments;
   }
 
   get viewSourceButton() {
@@ -854,7 +821,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {this.mobileThumbnail()}
 
               {this.commentsLine(true)}
-              {this.duplicatesLine()}
             </div>
           </article>
         </div>
@@ -885,7 +851,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   {this.postTitleLine()}
                   {this.createdLine()}
                   {this.commentsLine()}
-                  {this.duplicatesLine()}
                 </div>
               </div>
             </div>
