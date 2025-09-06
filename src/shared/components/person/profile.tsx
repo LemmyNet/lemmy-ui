@@ -567,6 +567,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
         const isUpload = view === "Uploads";
 
+        const bio = !personRes.person_view.creator_banned
+          ? personRes.person_view.person.bio
+          : "";
+
         return (
           <div className="row">
             <div className="col-12 col-md-8">
@@ -574,7 +578,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
                 canonicalPath={personRes.person_view.person.ap_id}
-                description={personRes.person_view.person.bio}
+                description={bio}
                 image={personRes.person_view.person.avatar}
               />
 
