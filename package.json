@@ -71,7 +71,7 @@
     "inferno-router": "^9.0.3",
     "inferno-server": "^9.0.3",
     "jwt-decode": "^4.0.0",
-    "lemmy-js-client": "1.0.0-instance-user-blocking.8",
+    "lemmy-js-client": "1.0.0-community-post-notifs.0",
     "markdown-it": "^14.1.0",
     "markdown-it-bidi": "^0.2.0",
     "markdown-it-container": "^4.0.0",
