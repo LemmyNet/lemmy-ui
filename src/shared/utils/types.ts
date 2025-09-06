@@ -23,6 +23,7 @@ export interface IsoData<T extends RouteData = any> {
   errorPageData?: ErrorPageData;
   showAdultConsentModal: boolean;
   lemmyExternalHost: string;
+  forceHttps: boolean;
 }
 
 export type IsoDataOptionalSite<T extends RouteData = any> = Partial<
