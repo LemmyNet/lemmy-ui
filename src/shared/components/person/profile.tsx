@@ -623,6 +623,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
         const isUpload = view === "Uploads";
 
+        const bio = !personRes.person_view.creator_banned
+          ? personRes.person_view.person.bio
+          : "";
+
         return (
           <div className="row">
             <div className="col-12 col-md-8">
@@ -630,7 +634,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
                 canonicalPath={personRes.person_view.person.ap_id}
-                description={personRes.person_view.person.bio}
+                description={bio}
                 image={personRes.person_view.person.avatar}
               />
 
@@ -747,21 +751,24 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   get viewRadios() {
     return (
-      <>
-        <div className="btn-group btn-group-toggle flex-wrap" role="group">
-          {this.getRadio("All")}
-          {this.getRadio("Comments")}
-          {this.getRadio("Posts")}
-          {this.amCurrentUser && this.getRadio("Uploads")}
-        </div>
-        <div className="btn-group btn-group-toggle flex-wrap" role="group">
-          {this.amCurrentUser && this.getFilterRadio("Saved")}
-          {this.amCurrentUser && this.getFilterRadio("Liked")}
-          {this.amCurrentUser && this.getFilterRadio("Read")}
-          {this.amCurrentUser && this.getFilterRadio("Hidden")}
-          {this.amCurrentUser && this.getFilterRadio("None")}
-        </div>
-      </>
+      <div className="btn-group btn-group-toggle flex-wrap" role="group">
+        {this.getRadio("All")}
+        {this.getRadio("Comments")}
+        {this.getRadio("Posts")}
+        {this.amCurrentUser && this.getRadio("Uploads")}
+      </div>
+    );
+  }
+
+  get filterRadios() {
+    return (
+      <div className="btn-group btn-group-toggle flex-wrap" role="group">
+        {this.amCurrentUser && this.getFilterRadio("Saved")}
+        {this.amCurrentUser && this.getFilterRadio("Liked")}
+        {this.amCurrentUser && this.getFilterRadio("Read")}
+        {this.amCurrentUser && this.getFilterRadio("Hidden")}
+        {this.amCurrentUser && this.getFilterRadio("None")}
+      </div>
     );
   }
 
@@ -829,6 +836,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     return (
       <div className="row align-items-center mb-3 g-3">
         <div className="col-auto">{this.viewRadios}</div>
+        <div className="col-auto">{this.filterRadios}</div>
         <div className="col-auto">
           <PostSortSelect current={sort} onChange={this.handleSortChange} />
         </div>
@@ -889,11 +897,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       <UserBadges
                         classNames="ms-1"
                         isBanned={pv.creator_banned}
-                        isDeleted={pv.person.deleted}
                         isAdmin={pv.is_admin}
-                        isBot={pv.person.bot_account}
+                        creator={pv.person}
                         myUserInfo={this.isoData.myUserInfo}
-                        targetPersonId={pv.person.id}
                         personActions={pv.person_actions}
                       />
                     </li>

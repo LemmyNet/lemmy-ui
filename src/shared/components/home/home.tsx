@@ -106,6 +106,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
+import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
 
 interface HomeState {
@@ -404,6 +405,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         {site_setup && (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9">
+              <DonationDialog myUserInfo={this.isoData.myUserInfo} />
               {tagline && (
                 <div
                   id="tagline"
