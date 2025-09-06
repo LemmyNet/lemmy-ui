@@ -736,3 +736,21 @@ export function isAnonymousPath(pathname: string) {
 export function calculateUpvotePct(upvotes: number, downvotes: number): number {
   return (upvotes / (upvotes + downvotes)) * 100;
 }
+
+export function postViewToPersonContentCombinedView(
+  pv: PostView,
+): PersonContentCombinedView {
+  return {
+    type_: "Post",
+    ...pv,
+  };
+}
+
+export function commentViewToPersonContentCombinedView(
+  cv: CommentView,
+): PersonContentCombinedView {
+  return {
+    type_: "Comment",
+    ...cv,
+  };
+}
