@@ -1,10 +1,12 @@
 import { I18NextService } from "@services/index";
 import { Language } from "lemmy-js-client";
 
-export function renderLanguageList(
-  allLanguages?: Language[],
-  languageIds?: number[],
-) {
+interface LanguageListProps {
+  allLanguages?: Language[];
+  languageIds?: number[];
+}
+
+export function LanguageList({ allLanguages, languageIds }: LanguageListProps) {
   const langs = allLanguages?.filter(x => languageIds?.includes(x.id));
 
   const showLanguages =

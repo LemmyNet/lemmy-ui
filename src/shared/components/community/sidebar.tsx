@@ -28,7 +28,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
-import { renderLanguageList } from "@components/common/language-list";
+import { LanguageList } from "@components/common/language-list";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -272,10 +272,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   )}
                 </p>
               </div>
-              {renderLanguageList(
-                this.props.allLanguages,
-                this.props.siteLanguages,
-              )}
+              <LanguageList
+                allLanguages={this.props.allLanguages}
+                languageIds={this.props.siteLanguages}
+              />
               <Badges
                 communityId={id}
                 subject={this.props.community_view.community}
