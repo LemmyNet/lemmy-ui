@@ -37,10 +37,14 @@ export class LanguageSelect extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
+    this.handleCheckboxLanguageChange =
+      this.handleCheckboxLanguageChange.bind(this);
   }
 
   componentDidMount() {
-    !this.props.multiple && this.setSelectedValues();
+    if (!this.props.multiple) {
+      this.setSelectedValues();
+    }
   }
 
   // Necessary because there is no HTML way to set selected for multiple in value=
@@ -144,7 +148,6 @@ export class LanguageSelect extends Component<
 
   get multiSelectBtn() {
     const selectedLangs = this.props.selectedLanguageIds ?? [];
-    console.log(selectedLangs);
     const filteredLangs = selectableLanguages(
       this.props.allLanguages,
       this.props.siteLanguages,
@@ -166,11 +169,11 @@ export class LanguageSelect extends Component<
       });
 
     return (
-      <>
+      <div className="border rounded w-100 bg-body">
         <input
           name="q"
           type="search"
-          className="form-control flex-initial"
+          className="form-control flex-initial  border border-0"
           placeholder={`${I18NextService.i18n.t("search")}...`}
           aria-label={I18NextService.i18n.t("search")}
           onInput={linkEvent(this, this.handleSearchChange)}
@@ -178,7 +181,12 @@ export class LanguageSelect extends Component<
           value={this.state.filter}
           autoComplete="off"
         />
-        <ul class="list-group overflow-scroll w-100" style="max-height: 200px;">
+        <hr className="border-dark border-2 m-0" />
+        <ul
+          class="list-group overflow-scroll"
+          style="max-height: 200px;"
+          tabIndex={-1}
+        >
           {!this.props.multiple && (
             <option selected disabled hidden>
               {I18NextService.i18n.t("language_select_placeholder")}
@@ -186,27 +194,32 @@ export class LanguageSelect extends Component<
           )}
           {filteredLangs.map(l => (
             <li
-              className="list-group-item p-1"
+              className="list-group-item m-1 p-0 focus-ring border border-0 rounded-0"
               id={l.id.toString()}
+              tabIndex={0}
               onClick={linkEvent(this, this.handleCheckboxLanguageChange)}
+              onKeyPress={linkEvent(this, this.handleCheckboxLanguageChange)}
+              role="checkbox"
+              aria-checked={selectedLangs?.includes(l.id)}
             >
               <input
-                class="form-check-input me-1"
+                class="form-check-input me-1 pe-none"
                 type="checkbox"
+                tabIndex={-1}
                 checked={selectedLangs?.includes(l.id)}
               />
-              <label class="form-check-label" for={l.id.toString()}>
+              <label class="form-check-label pe-none" for={l.id.toString()}>
                 {l.name}
               </label>
             </li>
           ))}
         </ul>
-      </>
+      </div>
     );
   }
 
   handleCheckboxLanguageChange(i: LanguageSelect, event: any) {
-    let id = Number(event.target.id);
+    const id = Number(event.target.id);
     if (!i.state.selected.includes(id)) {
       i.state.selected.push(id);
     } else {
@@ -216,6 +229,7 @@ export class LanguageSelect extends Component<
         i.state.selected.splice(index, 1);
       }
     }
+    this.setState({ selected: i.state.selected });
     i.props.onChange(i.state.selected);
   }
 
