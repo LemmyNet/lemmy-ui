@@ -11,7 +11,7 @@ Disallow: /settings
 Disallow: /create_community
 Disallow: /create_post
 Disallow: /create_private_message
-Disallow: /inbox
+Disallow: /notifications
 Disallow: /setup
 Disallow: /admin
 Disallow: /password_change

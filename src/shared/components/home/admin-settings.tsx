@@ -48,6 +48,7 @@ import OAuthProvidersTab from "./oauth/oauth-providers-tab";
 import { InstanceBlocks } from "./instance-blocks";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { fetchLimit } from "@utils/config";
+import { linkEvent } from "inferno";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: AdminListUsersResponse;
@@ -59,6 +60,7 @@ interface AdminSettingsState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   usersRes: RequestState<AdminListUsersResponse>;
   usersCursor?: DirectionalCursor;
+  usersBannedOnly: boolean;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<ListMediaResponse>;
@@ -84,6 +86,7 @@ export class AdminSettings extends Component<
   private isoData = setIsoData<AdminSettingsData>(this.context);
   state: AdminSettingsState = {
     usersRes: EMPTY_REQUEST,
+    usersBannedOnly: true,
     instancesRes: EMPTY_REQUEST,
     leaveAdminTeamRes: EMPTY_REQUEST,
     showConfirmLeaveAdmin: false,
@@ -225,17 +228,18 @@ export class AdminSettings extends Component<
               ),
             },
             {
-              key: "banned_users",
-              label: I18NextService.i18n.t("banned_users"),
+              key: "users",
+              label: I18NextService.i18n.t("users"),
               getNode: isSelected => (
                 <div
                   className={classNames("tab-pane", {
                     active: isSelected,
                   })}
                   role="tabpanel"
-                  id="banned_users-tab-pane"
+                  id="users-tab-pane"
                 >
-                  {this.bannedUsers()}
+                  {this.userListTitleAndSelects()}
+                  {this.userList()}
                 </div>
               ),
             },
@@ -347,7 +351,7 @@ export class AdminSettings extends Component<
 
     const [usersRes, instancesRes, uploadsRes, themeList] = await Promise.all([
       HttpService.client.listUsers({
-        banned_only: true,
+        banned_only: this.state.usersBannedOnly,
         ...cursorComponents(this.state.usersCursor),
         limit: fetchLimit,
       }),
@@ -370,7 +374,7 @@ export class AdminSettings extends Component<
   async fetchUsersOnly() {
     const usersRes = await HttpService.client.listUsers({
       ...cursorComponents(this.state.uploadsCursor),
-      banned_only: true,
+      banned_only: this.state.usersBannedOnly,
       limit: fetchLimit,
     });
 
@@ -429,7 +433,56 @@ export class AdminSettings extends Component<
     );
   }
 
-  bannedUsers() {
+  userListTitleAndSelects() {
+    return (
+      <>
+        <h1 className="h4 mb-4">{I18NextService.i18n.t("users")}</h1>
+        <div className="row align-items-center mb-3 g-3">
+          <div className="col-auto">
+            <div
+              className="data-type-select btn-group btn-group-toggle flex-wrap"
+              role="group"
+            >
+              <input
+                id={`users-banned-only`}
+                type="radio"
+                className="btn-check"
+                value="true"
+                checked={this.state.usersBannedOnly}
+                onChange={linkEvent(this, handleUsersBannedOnlyChange)}
+              />
+              <label
+                htmlFor={`users-banned-only`}
+                className={classNames("pointer btn btn-outline-secondary", {
+                  active: this.state.usersBannedOnly,
+                })}
+              >
+                {I18NextService.i18n.t("banned")}
+              </label>
+              <input
+                id={`users-all`}
+                type="radio"
+                className="btn-check"
+                value="false"
+                checked={!this.state.usersBannedOnly}
+                onChange={linkEvent(this, handleUsersBannedOnlyChange)}
+              />
+              <label
+                htmlFor={`users-all`}
+                className={classNames("pointer btn btn-outline-secondary", {
+                  active: !this.state.usersBannedOnly,
+                })}
+              >
+                {I18NextService.i18n.t("all")}
+              </label>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  userList() {
     switch (this.state.usersRes.state) {
       case "loading":
         return (
@@ -441,7 +494,6 @@ export class AdminSettings extends Component<
         const bans = this.state.usersRes.data.users;
         return (
           <>
-            <h1 className="h4 mb-4">{I18NextService.i18n.t("banned_users")}</h1>
             <ul className="list-unstyled">
               {bans.map(banned => (
                 <li key={banned.person.id} className="list-inline-item">
@@ -593,4 +645,10 @@ export class AdminSettings extends Component<
 
     this.setState({ loading: false });
   }
+}
+
+async function handleUsersBannedOnlyChange(i: AdminSettings, event: any) {
+  const checked = event.target.value === "true";
+  i.setState({ usersBannedOnly: checked });
+  await i.fetchData();
 }
