@@ -440,11 +440,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           classNames="ms-1"
           isModerator={pv.creator_is_moderator}
           isAdmin={pv.creator_is_admin}
-          isBot={pv.creator.bot_account}
+          creator={pv.creator}
           isBanned={pv.creator_banned}
           isBannedFromCommunity={pv.creator_banned_from_community}
           myUserInfo={this.props.myUserInfo}
-          targetPersonId={pv.creator.id}
           personActions={pv.person_actions}
         />
         {this.props.showCommunity && (

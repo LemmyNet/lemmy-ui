@@ -8,6 +8,7 @@ import {
   getYear,
   setYear,
   formatDistanceToNowStrict,
+  subDays,
 } from "date-fns";
 
 export function futureDaysToUnixTime(days?: number): number | undefined {
@@ -72,4 +73,11 @@ function convertUTCDateToLocalDate(date: Date): Date {
 
 export function nowBoolean(bool?: boolean): string | undefined {
   return bool ? new Date().toISOString() : undefined;
+}
+
+// Returns true if the date is more than 7 days ago.
+// https://stackoverflow.com/a/563442
+export function isWeekOld(date: Date): boolean {
+  const weekAgo = subDays(new Date(), 7);
+  return date < weekAgo;
 }

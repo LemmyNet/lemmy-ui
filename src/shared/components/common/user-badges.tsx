@@ -2,18 +2,17 @@ import classNames from "classnames";
 import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { MyUserInfo, PersonActions, PersonId } from "lemmy-js-client";
+import { MyUserInfo, Person, PersonActions } from "lemmy-js-client";
+import { isWeekOld } from "@utils/date";
 
 interface UserBadgesProps {
   isBanned?: boolean;
   isBannedFromCommunity?: boolean;
-  isDeleted?: boolean;
   isPostCreator?: boolean;
   isModerator?: boolean;
   isAdmin?: boolean;
-  isBot?: boolean;
+  creator: Person;
   myUserInfo?: MyUserInfo;
-  targetPersonId: PersonId;
   personActions?: PersonActions;
   classNames?: string;
 }
@@ -43,13 +42,17 @@ function getRoleLabelPill({
 @tippyMixin
 export class UserBadges extends Component<UserBadgesProps> {
   render() {
+    const isBot = this.props.creator?.bot_account;
+    const isDeleted = this.props.creator?.deleted;
+    const isNewAccount = !isWeekOld(new Date(this.props.creator.published_at));
+
+    const localUserView = this.props.myUserInfo?.local_user_view;
     // Only show the person votes if:
     const showPersonVotes =
       // the setting is turned on,
-      this.props.myUserInfo?.local_user_view.local_user.show_person_votes &&
+      localUserView?.local_user.show_person_votes &&
       // for other users,
-      this.props.myUserInfo.local_user_view.person.id !==
-        this.props.targetPersonId &&
+      localUserView.person?.id !== this.props.creator?.id &&
       // and theres at least one up or downvote
       (this.props.personActions?.upvotes ||
         this.props.personActions?.downvotes);
@@ -59,11 +62,12 @@ export class UserBadges extends Component<UserBadgesProps> {
     return (
       (this.props.isBanned ||
         this.props.isBannedFromCommunity ||
-        this.props.isDeleted ||
+        isDeleted ||
         this.props.isPostCreator ||
         this.props.isModerator ||
         this.props.isAdmin ||
-        this.props.isBot ||
+        isBot ||
+        isNewAccount ||
         showPersonVotes ||
         personNote) && (
         <span
@@ -92,7 +96,7 @@ export class UserBadges extends Component<UserBadgesProps> {
               })}
             </span>
           )}
-          {this.props.isDeleted && (
+          {isDeleted && (
             <span className="col">
               {getRoleLabelPill({
                 label: I18NextService.i18n.t("deleted"),
@@ -131,7 +135,7 @@ export class UserBadges extends Component<UserBadgesProps> {
               })}
             </span>
           )}
-          {this.props.isBot && (
+          {isBot && (
             <span className="col">
               {getRoleLabelPill({
                 label: I18NextService.i18n.t("bot_account").toLowerCase(),
@@ -157,6 +161,15 @@ export class UserBadges extends Component<UserBadgesProps> {
                 classes: "text-info border border-info",
                 shrink: false,
               })}
+            </span>
+          )}
+          {isNewAccount && (
+            <span
+              className="col"
+              aria-label={I18NextService.i18n.t("new_account_label")}
+              data-tippy-content={I18NextService.i18n.t("new_account_label")}
+            >
+              🌱
             </span>
           )}
         </span>

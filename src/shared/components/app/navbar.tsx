@@ -24,7 +24,7 @@ interface NavbarProps {
 
 interface NavbarState {
   onSiteBanner?(url: string): any;
-  unreadInboxCount: number;
+  unreadNotifsCount: number;
   unreadReportCount: number;
   unreadApplicationCount: number;
 }
@@ -48,12 +48,12 @@ function handleLogOut(i: Navbar) {
 export class Navbar extends Component<NavbarProps, NavbarState> {
   collapseButtonRef = createRef<HTMLButtonElement>();
   mobileMenuRef = createRef<HTMLDivElement>();
-  unreadInboxCountSubscription: Subscription;
+  unreadNotifsCountSubscription: Subscription;
   unreadReportCountSubscription: Subscription;
   unreadApplicationCountSubscription: Subscription;
 
   state: NavbarState = {
-    unreadInboxCount: 0,
+    unreadNotifsCount: 0,
     unreadReportCount: 0,
     unreadApplicationCount: 0,
   };
@@ -70,9 +70,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       // On the first load, check the unreads
       this.requestNotificationPermission();
       UnreadCounterService.Instance.configure(this.props.myUserInfo);
-      this.unreadInboxCountSubscription =
-        UnreadCounterService.Instance.unreadInboxCountSubject.subscribe(
-          unreadInboxCount => this.setState({ unreadInboxCount }),
+      this.unreadNotifsCountSubscription =
+        UnreadCounterService.Instance.unreadCountSubject.subscribe(
+          unreadNotifsCount => this.setState({ unreadNotifsCount }),
         );
       this.unreadReportCountSubscription =
         UnreadCounterService.Instance.unreadReportCountSubject.subscribe(
@@ -89,7 +89,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   componentWillUnmount() {
     document.removeEventListener("mouseup", this.handleOutsideMenuClick);
-    this.unreadInboxCountSubscription.unsubscribe();
+    this.unreadNotifsCountSubscription.unsubscribe();
     this.unreadReportCountSubscription.unsubscribe();
     this.unreadApplicationCountSubscription.unsubscribe();
   }
@@ -98,6 +98,9 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   render() {
     const siteView = this.props.siteRes?.site_view;
     const person = this.props.myUserInfo?.local_user_view.person;
+    const registrationClosed =
+      siteView?.local_site.registration_mode === "Closed";
+
     return (
       <div className="shadow-sm">
         <nav
@@ -120,18 +123,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             <ul className="navbar-nav d-flex flex-row ms-auto d-md-none">
               <li id="navMessages" className="nav-item nav-item-icon">
                 <NavLink
-                  to="/inbox"
+                  to="/notifications"
                   className="p-1 nav-link border-0 nav-messages"
                   title={I18NextService.i18n.t("unread_messages", {
-                    count: Number(this.state.unreadInboxCount),
-                    formattedCount: numToSI(this.state.unreadInboxCount),
+                    count: Number(this.state.unreadNotifsCount),
+                    formattedCount: numToSI(this.state.unreadNotifsCount),
                   })}
                   onMouseUp={linkEvent(this, handleCollapseClick)}
                 >
                   <Icon icon="bell" />
-                  {this.state.unreadInboxCount > 0 && (
+                  {this.state.unreadNotifsCount > 0 && (
                     <span className="mx-1 badge text-bg-light">
-                      {numToSI(this.state.unreadInboxCount)}
+                      {numToSI(this.state.unreadNotifsCount)}
                     </span>
                   )}
                 </NavLink>
@@ -292,23 +295,23 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <li id="navMessages" className="nav-item">
                     <NavLink
                       className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                      to="/inbox"
+                      to="/notifications"
                       title={I18NextService.i18n.t("unread_messages", {
-                        count: Number(this.state.unreadInboxCount),
-                        formattedCount: numToSI(this.state.unreadInboxCount),
+                        count: Number(this.state.unreadNotifsCount),
+                        formattedCount: numToSI(this.state.unreadNotifsCount),
                       })}
                       onMouseUp={linkEvent(this, handleCollapseClick)}
                     >
                       <Icon icon="bell" />
                       <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
                         {I18NextService.i18n.t("unread_messages", {
-                          count: Number(this.state.unreadInboxCount),
-                          formattedCount: numToSI(this.state.unreadInboxCount),
+                          count: Number(this.state.unreadNotifsCount),
+                          formattedCount: numToSI(this.state.unreadNotifsCount),
                         })}
                       </span>
-                      {this.state.unreadInboxCount > 0 && (
+                      {this.state.unreadNotifsCount > 0 && (
                         <span className="mx-1 badge text-bg-light">
-                          {numToSI(this.state.unreadInboxCount)}
+                          {numToSI(this.state.unreadNotifsCount)}
                         </span>
                       )}
                     </NavLink>
@@ -381,7 +384,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <li id="dropdownUser" className="dropdown">
                       <button
                         type="button"
-                        className="btn btn-outline-secondary dropdown-toggle"
+                        className="btn dropdown-toggle"
                         aria-expanded="false"
                         data-bs-toggle="dropdown"
                       >
@@ -445,16 +448,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       {I18NextService.i18n.t("login")}
                     </NavLink>
                   </li>
-                  <li className="nav-item">
-                    <NavLink
-                      to="/signup"
-                      className="nav-link"
-                      title={I18NextService.i18n.t("sign_up")}
-                      onMouseUp={linkEvent(this, handleCollapseClick)}
-                    >
-                      {I18NextService.i18n.t("sign_up")}
-                    </NavLink>
-                  </li>
+                  {!registrationClosed && (
+                    <li className="nav-item">
+                      <NavLink
+                        to="/signup"
+                        className="nav-link"
+                        title={I18NextService.i18n.t("sign_up")}
+                        onMouseUp={linkEvent(this, handleCollapseClick)}
+                      >
+                        {I18NextService.i18n.t("sign_up")}
+                      </NavLink>
+                    </li>
+                  )}
                 </>
               )}
             </ul>

@@ -62,7 +62,7 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
           {I18NextService.i18n.t("prev")}
         </button>
         <button
-          className="btn btn-secondary"
+          className="btn btn-secondary ms-2"
           onClick={linkEvent(this, handleNext)}
           disabled={!this.nextPage}
         >
@@ -70,7 +70,7 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
         </button>
         {!this.prevPage && !this.nextPage && this.props.current && (
           <button
-            className="btn btn-secondary"
+            className="btn btn-secondary ms-2"
             onClick={linkEvent(this, handleFirstPage)}
           >
             {I18NextService.i18n.t("back_to_first_page")}
