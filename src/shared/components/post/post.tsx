@@ -132,7 +132,6 @@ interface PostState {
   maxCommentsShown: number;
   isIsomorphic: boolean;
   lastCreatedCommentId?: CommentId;
-  myUserInfoRes: RequestState<MyUserInfo>;
 }
 
 function getCommentSortTypeFromQuery(
@@ -256,15 +255,10 @@ export class Post extends Component<PostRouteProps, PostState> {
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
     isIsomorphic: false,
-    myUserInfoRes: EMPTY_REQUEST,
   };
 
   loadingSettled() {
-    return resourcesSettled([
-      this.state.postRes,
-      this.state.commentsRes,
-      this.state.myUserInfoRes,
-    ]);
+    return resourcesSettled([this.state.postRes, this.state.commentsRes]);
   }
 
   constructor(props: any, context: any) {
@@ -1528,10 +1522,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       const dupes = this.state.postRes.data.cross_posts;
 
       if (dupes && dupes.length > 0) {
-        const myUserInfo =
-          this.state.myUserInfoRes.state === "success"
-            ? this.state.myUserInfoRes.data
-            : undefined;
+        const myUserInfo = this.isoData.myUserInfo;
         return (
           <div className="d-flex flex-wrap">
             {dupes.map(pv => {
