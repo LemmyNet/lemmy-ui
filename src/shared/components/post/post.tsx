@@ -1524,94 +1524,98 @@ export class Post extends Component<PostRouteProps, PostState> {
       if (dupes && dupes.length > 0) {
         const myUserInfo = this.isoData.myUserInfo;
         return (
-          <div className="d-flex flex-wrap">
-            {dupes.map(pv => {
-              const title = I18NextService.i18n.t("number_of_comments", {
-                count: Number(pv.post.comments),
-                formattedCount: Number(pv.post.comments),
-              });
-              const unreadCount = unreadCommentsCount(pv);
+          <div className="container">
+            <div className="row row-cols-2">
+              {dupes.map(pv => {
+                const title = I18NextService.i18n.t("number_of_comments", {
+                  count: Number(pv.post.comments),
+                  formattedCount: Number(pv.post.comments),
+                });
+                const unreadCount = unreadCommentsCount(pv);
 
-              return (
-                <div className="d-flex flex-grow-1">
-                  <VoteButtons
-                    voteContentType={VoteContentType.Post}
-                    id={pv.post.id}
-                    subject={pv.post}
-                    myVote={pv.post_actions?.like_score}
-                    myUserInfo={myUserInfo}
-                    localSite={this.state.siteRes.site_view.local_site}
-                    disabled
-                    onVote={() => null}
-                  />
-                  <div className="col">
-                    <div className="post-title">
-                      <h1 className="h5 d-inline text-break">
+                return (
+                  <div className="d-flex col-sm-12 col-md-6 col-lg-4">
+                    <VoteButtons
+                      voteContentType={VoteContentType.Post}
+                      id={pv.post.id}
+                      subject={pv.post}
+                      myVote={pv.post_actions?.like_score}
+                      myUserInfo={myUserInfo}
+                      localSite={this.state.siteRes.site_view.local_site}
+                      disabled
+                      onVote={() => null}
+                    />
+                    <div className="col">
+                      <div className="post-title">
+                        <h1 className="h5 d-inline text-break">
+                          <Link
+                            className="d-inline link-dark"
+                            to={`/post/${pv.post.id}`}
+                            title={I18NextService.i18n.t("comments")}
+                          >
+                            <span
+                              className="d-inline"
+                              dangerouslySetInnerHTML={mdToHtmlInline(
+                                pv.post.name,
+                              )}
+                            />
+                          </Link>
+                        </h1>
+                      </div>
+
+                      <div className="small mb-1 mb-md-0">
                         <Link
-                          className="d-inline link-dark"
-                          to={`/post/${pv.post.id}`}
-                          title={I18NextService.i18n.t("comments")}
+                          className="btn btn-link btn-sm text-muted ps-0"
+                          title={title}
+                          to={`/post/${pv.post.id}?scrollToComments=true`}
+                          data-tippy-content={title}
                         >
-                          <span
-                            className="d-inline"
-                            dangerouslySetInnerHTML={mdToHtmlInline(
-                              pv.post.name,
-                            )}
-                          />
+                          <Icon icon="message-square" classes="me-1" inline />
+                          {pv.post.comments}
+                          {unreadCount && (
+                            <>
+                              {" "}
+                              <span className="fst-italic">
+                                ({unreadCount} {I18NextService.i18n.t("new")})
+                              </span>
+                            </>
+                          )}
                         </Link>
-                      </h1>
-                    </div>
-
-                    <div className="small mb-1 mb-md-0">
-                      <Link
-                        className="btn btn-link btn-sm text-muted ps-0"
-                        title={title}
-                        to={`/post/${pv.post.id}?scrollToComments=true`}
-                        data-tippy-content={title}
-                      >
-                        <Icon icon="message-square" classes="me-1" inline />
-                        {pv.post.comments}
-                        {unreadCount && (
-                          <>
-                            {" "}
-                            <span className="fst-italic">
-                              ({unreadCount} {I18NextService.i18n.t("new")})
-                            </span>
-                          </>
-                        )}
-                      </Link>
-                      <PersonListing
-                        person={pv.creator}
-                        myUserInfo={myUserInfo}
-                      />
-                      <UserBadges
-                        classNames="ms-1"
-                        isModerator={pv.creator_is_moderator}
-                        isAdmin={pv.creator_is_admin}
-                        creator={pv.creator}
-                        isBanned={pv.creator_banned}
-                        isBannedFromCommunity={pv.creator_banned_from_community}
-                        myUserInfo={myUserInfo}
-                        personActions={pv.person_actions}
-                      />
-                      <>
-                        {" "}
-                        {I18NextService.i18n.t("to")}{" "}
-                        <CommunityLink
-                          community={pv.community}
+                        <PersonListing
+                          person={pv.creator}
                           myUserInfo={myUserInfo}
                         />
-                      </>
-                      {" · "}
-                      <MomentTime
-                        published={pv.post.published_at}
-                        updated={pv.post.updated_at}
-                      />
+                        <UserBadges
+                          classNames="ms-1"
+                          isModerator={pv.creator_is_moderator}
+                          isAdmin={pv.creator_is_admin}
+                          creator={pv.creator}
+                          isBanned={pv.creator_banned}
+                          isBannedFromCommunity={
+                            pv.creator_banned_from_community
+                          }
+                          myUserInfo={myUserInfo}
+                          personActions={pv.person_actions}
+                        />
+                        <>
+                          {" "}
+                          {I18NextService.i18n.t("to")}{" "}
+                          <CommunityLink
+                            community={pv.community}
+                            myUserInfo={myUserInfo}
+                          />
+                        </>
+                        {" · "}
+                        <MomentTime
+                          published={pv.post.published_at}
+                          updated={pv.post.updated_at}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         );
       }
