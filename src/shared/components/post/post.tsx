@@ -81,6 +81,7 @@ import {
   SavePost,
   SuccessResponse,
   TransferCommunity,
+  UpdateCommunityNotifications,
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "@utils/config";
 import {
@@ -325,6 +326,9 @@ export class Post extends Component<PostRouteProps, PostState> {
         postRes,
         commentsRes,
         isIsomorphic: true,
+        notifications:
+          postRes.data.post_view.post_actions.notifications ??
+          "RepliesAndMentions",
       };
     }
   }
@@ -338,10 +342,11 @@ export class Post extends Component<PostRouteProps, PostState> {
       comment_id: getCommentIdFromProps(props),
     });
     if (token === this.fetchPostToken) {
-      console.log(postRes);
       this.setState({
         postRes,
-        notifications: postRes.data.post_view.post_actions.notifications,
+        notifications:
+          postRes.data.post_view.post_actions.notifications ??
+          "RepliesAndMentions",
       });
     }
   }
@@ -673,10 +678,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               <div className="btn-group flex-wrap mb-2" role="group">
                 <select
                   value={this.state.notifications}
-                  onChange={linkEvent(
-                    res.post_view.post.id,
-                    this.handleNotificationChange,
-                  )}
+                  onChange={this.handleNotificationChange}
                   className="form-select"
                 >
                   {notificationModes.map(mode => (
@@ -895,6 +897,7 @@ export class Post extends Component<PostRouteProps, PostState> {
           onPurgeCommunity={this.handlePurgeCommunity}
           onBlockCommunity={this.handleBlockCommunity}
           onEditCommunity={this.handleEditCommunity}
+          onUpdateCommunityNotifs={this.handleUpdateCommunityNotifs}
         />
       );
     }
@@ -1139,6 +1142,10 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.updateCommunity(res);
 
     return res;
+  }
+
+  async handleUpdateCommunityNotifs(form: UpdateCommunityNotifications) {
+    await HttpService.client.updateCommunityNotifications(form);
   }
 
   async handleCreateToplevelComment(form: CreateComment) {
@@ -1413,8 +1420,11 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  async handleNotificationChange(post_id: number, event: any) {
-    const form = { post_id, mode: event.target.value };
+  async handleNotificationChange(event: any) {
+    const form = {
+      post_id: this.state.postRes.data.post_view.post.id,
+      mode: event.target.value,
+    };
     this.setState({ notifications: form.mode });
     await HttpService.client.updatePostNotifications(form);
   }

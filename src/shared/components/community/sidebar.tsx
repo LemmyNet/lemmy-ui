@@ -17,6 +17,7 @@ import {
   PersonView,
   PurgeCommunity,
   RemoveCommunity,
+  UpdateCommunityNotifications,
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { HttpService, I18NextService } from "../../services";
@@ -49,6 +50,7 @@ interface SidebarProps {
   onBlockCommunity(form: BlockCommunity): void;
   onPurgeCommunity(form: PurgeCommunity): void;
   onEditCommunity(form: EditCommunity): void;
+  onUpdateCommunityNotifs(form: UpdateCommunityNotifications): void;
 }
 
 interface SidebarState {
@@ -702,7 +704,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       community_id: i.props.community_view.community.id,
       mode: i.state.notifications,
     };
-    await HttpService.client.updateCommunityNotifications(form);
+    await i.props.onUpdateCommunityNotifs(form);
   }
 
   // TODO Do we need two of these?

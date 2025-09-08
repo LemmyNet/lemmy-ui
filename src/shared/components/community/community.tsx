@@ -87,6 +87,7 @@ import {
   MyUserInfo,
   MarkPostAsRead,
   NotePerson,
+  UpdateCommunityNotifications,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -534,6 +535,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           onBlockCommunity={this.handleBlockCommunity}
           onPurgeCommunity={this.handlePurgeCommunity}
           onEditCommunity={this.handleEditCommunity}
+          onUpdateCommunityNotifs={this.handleUpdateCommunityNotifs}
         />
         {!res.community_view.community.local && res.site && (
           <SiteSidebar site={res.site} myUserInfo={this.isoData.myUserInfo} />
@@ -862,6 +864,10 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.updateCommunity(res);
 
     return res;
+  }
+
+  async handleUpdateCommunityNotifs(form: UpdateCommunityNotifications) {
+    await HttpService.client.updateCommunityNotifications(form);
   }
 
   async handleCreateComment(form: CreateComment) {
