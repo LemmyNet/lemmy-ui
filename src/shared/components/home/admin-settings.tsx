@@ -49,6 +49,7 @@ import { InstanceBlocks } from "./instance-blocks";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { fetchLimit } from "@utils/config";
 import { linkEvent } from "inferno";
+import { formatRelativeDate } from "@utils/date";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: AdminListUsersResponse;
@@ -86,7 +87,7 @@ export class AdminSettings extends Component<
   private isoData = setIsoData<AdminSettingsData>(this.context);
   state: AdminSettingsState = {
     usersRes: EMPTY_REQUEST,
-    usersBannedOnly: true,
+    usersBannedOnly: false,
     instancesRes: EMPTY_REQUEST,
     leaveAdminTeamRes: EMPTY_REQUEST,
     showConfirmLeaveAdmin: false,
@@ -444,26 +445,10 @@ export class AdminSettings extends Component<
               role="group"
             >
               <input
-                id={`users-banned-only`}
-                type="radio"
-                className="btn-check"
-                value="true"
-                checked={this.state.usersBannedOnly}
-                onChange={linkEvent(this, handleUsersBannedOnlyChange)}
-              />
-              <label
-                htmlFor={`users-banned-only`}
-                className={classNames("pointer btn btn-outline-secondary", {
-                  active: this.state.usersBannedOnly,
-                })}
-              >
-                {I18NextService.i18n.t("banned")}
-              </label>
-              <input
                 id={`users-all`}
                 type="radio"
                 className="btn-check"
-                value="false"
+                value="true"
                 checked={!this.state.usersBannedOnly}
                 onChange={linkEvent(this, handleUsersBannedOnlyChange)}
               />
@@ -474,6 +459,22 @@ export class AdminSettings extends Component<
                 })}
               >
                 {I18NextService.i18n.t("all")}
+              </label>
+              <input
+                id={`users-banned-only`}
+                type="radio"
+                className="btn-check"
+                value="false"
+                checked={this.state.usersBannedOnly}
+                onChange={linkEvent(this, handleUsersBannedOnlyChange)}
+              />
+              <label
+                htmlFor={`users-banned-only`}
+                className={classNames("pointer btn btn-outline-secondary", {
+                  active: this.state.usersBannedOnly,
+                })}
+              >
+                {I18NextService.i18n.t("banned")}
               </label>
             </div>
           </div>
@@ -491,19 +492,34 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const bans = this.state.usersRes.data.users;
+        const local_users = this.state.usersRes.data.users;
         return (
           <>
-            <ul className="list-unstyled">
-              {bans.map(banned => (
-                <li key={banned.person.id} className="list-inline-item">
-                  <PersonListing
-                    person={banned.person}
-                    myUserInfo={this.isoData.myUserInfo}
-                  />
-                </li>
-              ))}
-            </ul>
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">I18NextService.i18n.t("username")</th>
+                  <th scope="col">I18NextService.i18n.t("email")</th>
+                  <th scope="col">Registered</th>
+                </tr>
+              </thead>
+              <tbody>
+                {local_users.map(local_user => (
+                  <tr key={local_user.person.id}>
+                    <td>
+                      <PersonListing
+                        person={local_user.person}
+                        myUserInfo={this.isoData.myUserInfo}
+                      />
+                    </td>
+                    <td>{local_user.local_user.email}</td>
+                    <td>
+                      {formatRelativeDate(local_user.person.published_at)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             <PaginatorCursor
               current={this.state.usersCursor}
               resource={this.state.usersRes}
@@ -648,7 +664,7 @@ export class AdminSettings extends Component<
 }
 
 async function handleUsersBannedOnlyChange(i: AdminSettings, event: any) {
-  const checked = event.target.value === "true";
+  const checked = event.target.value === "false";
   i.setState({ usersBannedOnly: checked });
   await i.fetchData();
 }
