@@ -376,7 +376,7 @@ export function insertCommentIntoTree(
 }
 
 export function isAuthPath(pathname: string) {
-  return /^\/(create_.*?|inbox|settings|admin|reports|registration_applications|activitypub.*?)\b/g.test(
+  return /^\/(create_.*?|notifications|settings|admin|reports|registration_applications|activitypub.*?)\b/g.test(
     pathname,
   );
 }
@@ -735,4 +735,22 @@ export function isAnonymousPath(pathname: string) {
 
 export function calculateUpvotePct(upvotes: number, downvotes: number): number {
   return (upvotes / (upvotes + downvotes)) * 100;
+}
+
+export function postViewToPersonContentCombinedView(
+  pv: PostView,
+): PersonContentCombinedView {
+  return {
+    type_: "Post",
+    ...pv,
+  };
+}
+
+export function commentViewToPersonContentCombinedView(
+  cv: CommentView,
+): PersonContentCombinedView {
+  return {
+    type_: "Comment",
+    ...cv,
+  };
 }
