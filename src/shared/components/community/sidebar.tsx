@@ -202,7 +202,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   />
                   {this.canPost && this.createPost()}
                   {this.props.myUserInfo && this.blockCommunity()}
-                  <div className="mb-2">
+                  <div className="mb-2 d-flex">
+                    <Icon icon="bell" classes="m-1" />
                     <select
                       value={this.state.notifications}
                       onChange={linkEvent(this, this.handleNotificationChange)}
