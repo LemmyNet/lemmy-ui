@@ -14,7 +14,7 @@ import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { renderLanguageList } from "@components/community/sidebar";
+import { renderLanguageList } from "@components/common/language-list";
 
 interface SiteSidebarProps {
   site: Site;

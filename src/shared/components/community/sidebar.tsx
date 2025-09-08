@@ -28,6 +28,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
+import { renderLanguageList } from "@components/common/language-list";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -741,29 +742,4 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       `/search${getQueryString({ q: searchParamEncoded, communityId: i.props.community_view.community.id.toString() })}`,
     );
   }
-}
-
-export function renderLanguageList(
-  allLanguages?: Language[],
-  languageIds?: number[],
-) {
-  const langs = allLanguages
-    ?.filter(x => languageIds?.includes(x.id))
-    .map(x => x.name);
-  const showLanguages =
-    allLanguages && langs && langs.length < allLanguages.length;
-
-  return (
-    showLanguages && (
-      <div>
-        <ul class="badges my-1 list-inline">
-          {langs.map(l => (
-            <li class="badge list-inline-item text-secondary border border-secondary">
-              {l}
-            </li>
-          ))}
-        </ul>
-      </div>
-    )
-  );
 }
