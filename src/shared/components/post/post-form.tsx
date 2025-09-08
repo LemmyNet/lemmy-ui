@@ -580,6 +580,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <PostListings
                 showCommunity
                 posts={this.props.crossPosts}
+                showDupes="DontRemove"
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
@@ -826,6 +827,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <PostListings
                 showCommunity
                 posts={suggestedPosts}
+                showDupes="DontRemove"
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}

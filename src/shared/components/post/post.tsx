@@ -21,11 +21,10 @@ import {
   randomStr,
   resourcesSettled,
   bareRoutePush,
-  unreadCommentsCount,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isImage } from "@utils/media";
-import { QueryParams, RouteDataResponse, VoteContentType } from "@utils/types";
+import { QueryParams, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, createRef, linkEvent } from "inferno";
 import {
@@ -109,13 +108,6 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { compareAsc, compareDesc } from "date-fns";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
-import { CommunityLink } from "@components/community/community-link";
-import { PersonListing } from "@components/person/person-listing";
-import { UserBadges } from "@components/common/user-badges";
-import { MomentTime } from "@components/common/moment-time";
-import { Link } from "inferno-router";
-import { mdToHtmlInline } from "@utils/markdown";
-import { VoteButtons } from "@components/common/vote-buttons";
 
 const commentsShownInterval = 15;
 
@@ -583,6 +575,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               <PostListing
                 post_view={res.post_view}
                 crossPosts={res.cross_posts}
+                showDupes="Expanded"
                 showBody
                 showCommunity
                 admins={siteRes.admins}
@@ -615,7 +608,6 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onMarkPostAsRead={this.handleMarkPostAsRead}
                 onPersonNote={this.handlePersonNote}
               />
-              {this.duplicatesLine()}
               <div ref={this.commentSectionRef} className="mb-2" />
 
               {/* Only show the top level comment form if its not a context view */}
@@ -1515,111 +1507,5 @@ export class Post extends Component<PostRouteProps, PostState> {
   updateModerators(_: RequestState<AddModToCommunityResponse>) {
     // Update the moderators
     // TODO: update GetCommunityResponse?
-  }
-
-  duplicatesLine() {
-    if (this.state.postRes.state === "success") {
-      const dupes = this.state.postRes.data.cross_posts;
-
-      if (dupes && dupes.length > 0) {
-        const myUserInfo = this.isoData.myUserInfo;
-        return (
-          <div className="container">
-            <div className="row row-cols-2">
-              {dupes.map(pv => {
-                const title = I18NextService.i18n.t("number_of_comments", {
-                  count: Number(pv.post.comments),
-                  formattedCount: Number(pv.post.comments),
-                });
-                const unreadCount = unreadCommentsCount(pv);
-
-                return (
-                  <div className="d-flex col-sm-12 col-md-6 col-lg-4">
-                    <VoteButtons
-                      voteContentType={VoteContentType.Post}
-                      id={pv.post.id}
-                      subject={pv.post}
-                      myVote={pv.post_actions?.like_score}
-                      myUserInfo={myUserInfo}
-                      localSite={this.state.siteRes.site_view.local_site}
-                      disabled
-                      onVote={() => null}
-                    />
-                    <div className="col">
-                      <div className="post-title">
-                        <h1 className="h5 d-inline text-break">
-                          <Link
-                            className="d-inline link-dark"
-                            to={`/post/${pv.post.id}`}
-                            title={I18NextService.i18n.t("comments")}
-                          >
-                            <span
-                              className="d-inline"
-                              dangerouslySetInnerHTML={mdToHtmlInline(
-                                pv.post.name,
-                              )}
-                            />
-                          </Link>
-                        </h1>
-                      </div>
-
-                      <div className="small mb-1 mb-md-0">
-                        <Link
-                          className="btn btn-link btn-sm text-muted ps-0"
-                          title={title}
-                          to={`/post/${pv.post.id}?scrollToComments=true`}
-                          data-tippy-content={title}
-                        >
-                          <Icon icon="message-square" classes="me-1" inline />
-                          {pv.post.comments}
-                          {unreadCount && (
-                            <>
-                              {" "}
-                              <span className="fst-italic">
-                                ({unreadCount} {I18NextService.i18n.t("new")})
-                              </span>
-                            </>
-                          )}
-                        </Link>
-                        <PersonListing
-                          person={pv.creator}
-                          myUserInfo={myUserInfo}
-                        />
-                        <UserBadges
-                          classNames="ms-1"
-                          isModerator={pv.creator_is_moderator}
-                          isAdmin={pv.creator_is_admin}
-                          creator={pv.creator}
-                          isBanned={pv.creator_banned}
-                          isBannedFromCommunity={
-                            pv.creator_banned_from_community
-                          }
-                          myUserInfo={myUserInfo}
-                          personActions={pv.person_actions}
-                        />
-                        <>
-                          {" "}
-                          {I18NextService.i18n.t("to")}{" "}
-                          <CommunityLink
-                            community={pv.community}
-                            myUserInfo={myUserInfo}
-                          />
-                        </>
-                        {" · "}
-                        <MomentTime
-                          published={pv.post.published_at}
-                          updated={pv.post.updated_at}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      }
-    }
-    return <></>;
   }
 }

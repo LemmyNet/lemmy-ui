@@ -37,7 +37,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { relTags, torrentHelpUrl } from "@utils/config";
-import { VoteContentType } from "@utils/types";
+import { ShowDupesType, VoteContentType } from "@utils/types";
 import { mdToHtml, mdToHtmlInline } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -85,6 +85,7 @@ type PostListingProps = {
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
+  showDupes: ShowDupesType;
   onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
@@ -623,6 +624,141 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
+  duplicatesInfo() {
+    switch (this.props.showDupes) {
+      case "Small":
+        return this.smallDuplicates();
+      case "Expanded":
+        return this.expandedDuplicates();
+      case "DontRemove":
+        return <></>;
+    }
+  }
+
+  smallDuplicates() {
+    const dupes = this.props.crossPosts;
+    return dupes && dupes.length > 0 ? (
+      <ul className="list-inline mb-1 small text-muted">
+        <>
+          <li className="list-inline-item me-2">
+            {I18NextService.i18n.t("cross_posted_to")}
+          </li>
+          {dupes.map(pv => (
+            <li key={pv.post.id} className="list-inline-item me-2">
+              <Link to={`/post/${pv.post.id}`}>
+                {pv.community.local
+                  ? pv.community.name
+                  : `${pv.community.name}@${hostname(pv.community.ap_id)}`}
+              </Link>
+            </li>
+          ))}
+        </>
+      </ul>
+    ) : (
+      <></>
+    );
+  }
+
+  expandedDuplicates() {
+    const dupes = this.props.crossPosts;
+    return dupes && dupes.length > 0 ? (
+      <div>
+        <div className="row mb-3">
+          <div className="col">{I18NextService.i18n.t("cross_posts")}</div>
+        </div>
+        <div className="row">
+          {dupes.map(pv => {
+            const title = I18NextService.i18n.t("number_of_comments", {
+              count: Number(pv.post.comments),
+              formattedCount: Number(pv.post.comments),
+            });
+            const unreadCount = unreadCommentsCount(pv);
+
+            return (
+              <div className="d-flex col-sm-12 col-md-6 col-lg-4 mb-3">
+                <VoteButtons
+                  voteContentType={VoteContentType.Post}
+                  id={pv.post.id}
+                  subject={pv.post}
+                  myVote={pv.post_actions?.like_score}
+                  myUserInfo={this.props.myUserInfo}
+                  localSite={this.props.localSite}
+                  disabled
+                  onVote={() => null}
+                />
+                <div className="col">
+                  <div className="post-title">
+                    <h1 className="h5 d-inline text-break">
+                      <Link
+                        className="d-inline link-dark"
+                        to={`/post/${pv.post.id}`}
+                        title={I18NextService.i18n.t("comments")}
+                      >
+                        <span
+                          className="d-inline"
+                          dangerouslySetInnerHTML={mdToHtmlInline(pv.post.name)}
+                        />
+                      </Link>
+                    </h1>
+                  </div>
+
+                  <div className="small mb-1 mb-md-0">
+                    <Link
+                      className="btn btn-link btn-sm text-muted ps-0"
+                      title={title}
+                      to={`/post/${pv.post.id}?scrollToComments=true`}
+                      data-tippy-content={title}
+                    >
+                      <Icon icon="message-square" classes="me-1" inline />
+                      {pv.post.comments}
+                      {unreadCount && (
+                        <>
+                          {" "}
+                          <span className="fst-italic">
+                            ({unreadCount} {I18NextService.i18n.t("new")})
+                          </span>
+                        </>
+                      )}
+                    </Link>
+                    <PersonListing
+                      person={pv.creator}
+                      myUserInfo={this.props.myUserInfo}
+                    />
+                    <UserBadges
+                      classNames="ms-1"
+                      isModerator={pv.creator_is_moderator}
+                      isAdmin={pv.creator_is_admin}
+                      creator={pv.creator}
+                      isBanned={pv.creator_banned}
+                      isBannedFromCommunity={pv.creator_banned_from_community}
+                      myUserInfo={this.props.myUserInfo}
+                      personActions={pv.person_actions}
+                    />
+                    <>
+                      {" "}
+                      {I18NextService.i18n.t("to")}{" "}
+                      <CommunityLink
+                        community={pv.community}
+                        myUserInfo={this.props.myUserInfo}
+                      />
+                    </>
+                    {" · "}
+                    <MomentTime
+                      published={pv.post.published_at}
+                      updated={pv.post.updated_at}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ) : (
+      <></>
+    );
+  }
+
   commentsLine(mobile = false) {
     const { admins, showBody, onPostVote } = this.props;
     const { post } = this.postView;
@@ -763,6 +899,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  get unreadCount(): number | undefined {
+    const pv = this.postView;
+    const unread_comments =
+      pv.post.comments - (pv.post_actions?.read_comments_amount ?? 0);
+    return unread_comments === pv.post.comments || unread_comments === 0
+      ? undefined
+      : unread_comments;
+  }
+
   get viewSourceButton() {
     return (
       <button
@@ -823,6 +968,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               {this.commentsLine(true)}
             </div>
           </article>
+          {this.duplicatesInfo()}
         </div>
 
         {/* The larger view*/}
@@ -855,6 +1001,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               </div>
             </div>
           </article>
+          {this.duplicatesInfo()}
         </div>
       </>
     );
