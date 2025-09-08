@@ -1,12 +1,12 @@
+import { I18NextService } from "@services/index";
 import { Language } from "lemmy-js-client";
 
 export function renderLanguageList(
   allLanguages?: Language[],
   languageIds?: number[],
 ) {
-  const langs = allLanguages
-    ?.filter(x => languageIds?.includes(x.id))
-    .map(x => x.name);
+  const langs = allLanguages?.filter(x => languageIds?.includes(x.id));
+
   const showLanguages =
     allLanguages && langs && langs.length < allLanguages.length;
 
@@ -16,11 +16,19 @@ export function renderLanguageList(
         <ul class="badges my-1 list-inline">
           {langs.map(l => (
             <li class="badge list-inline-item text-secondary border border-secondary">
-              {l}
+              {languageName(l)}
             </li>
           ))}
         </ul>
       </div>
     )
   );
+}
+
+export function languageName(l: Language): string {
+  if (l.id === 0) {
+    return I18NextService.i18n.t("unknown_language");
+  } else {
+    return l.name;
+  }
 }

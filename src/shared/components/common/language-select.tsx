@@ -5,6 +5,7 @@ import { Component, linkEvent } from "inferno";
 import { Language, MyUserInfo } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
+import { languageName } from "./language-list";
 
 interface LanguageSelectProps {
   allLanguages?: Language[];
@@ -128,7 +129,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
             value={l.id}
             selected={selectedLangs?.includes(l.id)}
           >
-            {l.name}
+            {languageName(l)}
           </option>
         ))}
       </select>
