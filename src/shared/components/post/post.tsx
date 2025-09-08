@@ -1427,6 +1427,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     };
     this.setState({ notifications: form.mode });
     await HttpService.client.updatePostNotifications(form);
+    toast(I18NextService.i18n.t("notifications_updated"));
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {

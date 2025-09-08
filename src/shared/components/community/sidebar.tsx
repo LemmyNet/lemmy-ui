@@ -31,6 +31,7 @@ import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
 import { NoOptionI18nKeys } from "i18next";
+import { toast } from "@utils/app";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -705,6 +706,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       mode: i.state.notifications,
     };
     await i.props.onUpdateCommunityNotifs(form);
+    toast(I18NextService.i18n.t("notifications_updated"));
   }
 
   // TODO Do we need two of these?

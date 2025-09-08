@@ -868,6 +868,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   async handleUpdateCommunityNotifs(form: UpdateCommunityNotifications) {
     await HttpService.client.updateCommunityNotifications(form);
+    toast(I18NextService.i18n.t("notifications_updated"));
   }
 
   async handleCreateComment(form: CreateComment) {
