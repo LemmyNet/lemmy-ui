@@ -674,19 +674,23 @@ export class Post extends Component<PostRouteProps, PostState> {
                 </button>
                 {this.state.showSidebarMobile && this.sidebar()}
               </div>
-              {this.sortRadios()}
-              <div className="btn-group flex-wrap mb-2" role="group">
-                <select
-                  value={this.state.notifications}
-                  onChange={this.handleNotificationChange}
-                  className="form-select"
-                >
-                  {notificationModes.map(mode => (
-                    <option value={mode.value}>
-                      {I18NextService.i18n.t(mode.i18nKey)}
-                    </option>
-                  ))}
-                </select>
+              <div className="col-12 d-flex flex-wrap">
+                {this.sortRadios()}
+                <div class="flex-grow-1"></div>
+                <div className="btn-group w-auto mb-2" role="group">
+                  <Icon icon="bell" classes="m-2" />
+                  <select
+                    value={this.state.notifications}
+                    onChange={this.handleNotificationChange}
+                    className="form-select w-auto"
+                  >
+                    {notificationModes.map(mode => (
+                      <option value={mode.value}>
+                        {I18NextService.i18n.t(mode.i18nKey)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               {this.props.view === CommentViewType.Tree && this.commentsTree()}
               {this.props.view === CommentViewType.Flat && this.commentsFlat()}
@@ -1426,8 +1430,10 @@ export class Post extends Component<PostRouteProps, PostState> {
       mode: event.target.value,
     };
     this.setState({ notifications: form.mode });
-    await HttpService.client.updatePostNotifications(form);
-    toast(I18NextService.i18n.t("notifications_updated"));
+    const success = await HttpService.client.updatePostNotifications(form);
+    if (success) {
+      toast(I18NextService.i18n.t("notifications_updated"));
+    }
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
