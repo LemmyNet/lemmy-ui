@@ -9,6 +9,11 @@ import { setupEmojiDataModel, setupMarkdown } from "@utils/markdown";
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
 import "bootstrap/js/dist/modal";
+import { getJwtCookie } from "server/utils/has-jwt-cookie";
+import { authCookieName } from "@utils/config";
+import { HttpService } from "@services/HttpService";
+import { setIsoData, updateMyUserInfo } from "@utils/app";
+import { refreshTheme } from "@utils/browser";
 
 async function startClient() {
   // Allows to test imports from the browser console.
@@ -42,7 +47,22 @@ async function startClient() {
   if (root) {
     hydrate(wrapper, root);
 
+    // manually login
+      const [site, myUser] = await Promise.all([
+        HttpService.client.getSite(),
+        HttpService.client.getMyUser(),
+      ]);
+    
+      if (site.state === "success" && myUser.state === "success") {
+        const isoData = setIsoData(null);
+        updateMyUserInfo(myUser.data);
+        isoData.siteRes.oauth_providers = site.data.oauth_providers;
+        isoData.siteRes.admin_oauth_providers = site.data.admin_oauth_providers;
+        refreshTheme();
+      }
+      
     root.dispatchEvent(new CustomEvent("lemmy-hydrated", { bubbles: true }));
+    
   }
 }
 
