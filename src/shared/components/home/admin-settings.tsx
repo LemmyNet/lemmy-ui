@@ -501,6 +501,8 @@ export class AdminSettings extends Component<
                   <th scope="col">I18NextService.i18n.t("username")</th>
                   <th scope="col">I18NextService.i18n.t("email")</th>
                   <th scope="col">Registered</th>
+                  <th scope="col">Posts</th>
+                  <th scope="col">Comments</th>
                 </tr>
               </thead>
               <tbody>
@@ -516,6 +518,8 @@ export class AdminSettings extends Component<
                     <td>
                       {formatRelativeDate(local_user.person.published_at)}
                     </td>
+                    <td>{local_user.person.post_count}</td>
+                    <td>{local_user.person.comment_count}</td>
                   </tr>
                 ))}
               </tbody>
