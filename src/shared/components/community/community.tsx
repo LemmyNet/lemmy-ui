@@ -867,8 +867,8 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   async handleUpdateCommunityNotifs(form: UpdateCommunityNotifications) {
-    const success = await HttpService.client.updateCommunityNotifications(form);
-    if (success) {
+    const res = await HttpService.client.updateCommunityNotifications(form);
+    if (res.state === "success") {
       toast(I18NextService.i18n.t("notifications_updated"));
     }
   }
