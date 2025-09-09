@@ -34,7 +34,6 @@ import { Spinner } from "@components/common/icon";
 import { ListingTypeSelect } from "@components/common/listing-type-select";
 import { CommunitiesSortSelect } from "@components/common/sort-select";
 import { SubscribeButton } from "@components/common/subscribe-button";
-import { Icon } from "@components/common/icon";
 import { communityLink, CommunityLink } from "./community-link";
 import { communityLimit } from "@utils/config";
 import { getHttpBaseInternal } from "@utils/env";
@@ -234,16 +233,6 @@ export class Communities extends Component<
         <div>
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("list_of_communities")}
-            <button
-              className="btn btn-link"
-              onClick={this.handleVisitRandomCommunity}
-              aria-label={I18NextService.i18n.t("visit_random_community")}
-              data-tippy-content={I18NextService.i18n.t(
-                "visit_random_community",
-              )}
-            >
-              <Icon icon="shuffle" classes="text-muted small" />
-            </button>
           </h1>
           <div className="row g-3 align-items-center mb-2">
             <div className="col-auto">
@@ -255,11 +244,19 @@ export class Communities extends Component<
                 onChange={this.handleListingTypeChange}
               />
             </div>
-            <div className="col-auto me-auto">
+            <div className="col-auto">
               <CommunitiesSortSelect
                 current={sort}
                 onChange={this.handleSortChange}
               />
+            </div>
+            <div className="col-auto me-auto">
+              <button
+                className="btn btn-secondary"
+                onClick={this.handleVisitRandomCommunity}
+              >
+                {I18NextService.i18n.t("visit_random_community")}
+              </button>
             </div>
             <div className="col-auto">{this.searchForm()}</div>
           </div>
@@ -276,8 +273,8 @@ export class Communities extends Component<
 
   searchForm() {
     return (
-      <form className="row" onSubmit={linkEvent(this, this.handleSearchSubmit)}>
-        <div className="col-auto">
+      <form onSubmit={linkEvent(this, this.handleSearchSubmit)}>
+        <div className="input-group">
           <input
             type="text"
             id="communities-search"
@@ -288,13 +285,11 @@ export class Communities extends Component<
             required
             minLength={3}
           />
-        </div>
-        <div className="col-auto">
           <label className="visually-hidden" htmlFor="communities-search">
             {I18NextService.i18n.t("search")}
           </label>
           <button type="submit" className="btn btn-secondary">
-            <span>{I18NextService.i18n.t("search")}</span>
+            {I18NextService.i18n.t("search")}
           </button>
         </div>
       </form>
