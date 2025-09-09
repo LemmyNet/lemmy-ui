@@ -234,7 +234,7 @@ export class LanguageSelect extends Component<
   }
 
   handleSearchChange(i: LanguageSelect, event: any) {
-    i.state.filter = event.target.value;
+    this.setState({ filter: event.target.value });
     i.forceUpdate();
   }
 }
