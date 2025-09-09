@@ -76,7 +76,7 @@ export class PostListings extends Component<PostListingsProps, any> {
   }
 
   get posts() {
-    return this.props.showDupes !== "DontRemove"
+    return this.props.showDupes !== "ShowSeparately"
       ? this.removeDuplicates()
       : this.props.posts;
   }

@@ -234,7 +234,7 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
             <PostListing
               key={post_view.post.id}
               post_view={post_view}
-              showDupes="DontRemove"
+              showDupes="ShowSeparately"
               showCommunity
               myUserInfo={isoData.myUserInfo}
               localSite={isoData.siteRes.site_view.local_site}
@@ -883,7 +883,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             <div className="col-12">
               <PostListing
                 post_view={pv}
-                showDupes="DontRemove"
+                showDupes="ShowSeparately"
                 showCommunity
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}

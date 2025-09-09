@@ -195,4 +195,4 @@ export type CursorComponents = {
  *
  * Don't Remove also means **keep** duplicate posts in list views.
  **/
-export type ShowDupesType = "Small" | "Expanded" | "DontRemove";
+export type ShowDupesType = "Small" | "Expanded" | "ShowSeparately";

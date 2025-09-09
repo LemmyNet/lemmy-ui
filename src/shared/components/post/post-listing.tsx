@@ -630,7 +630,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         return this.smallDuplicates();
       case "Expanded":
         return this.expandedDuplicates();
-      case "DontRemove":
+      case "ShowSeparately":
         return <></>;
     }
   }
