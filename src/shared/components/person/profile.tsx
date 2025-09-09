@@ -1,9 +1,12 @@
 import {
+  commentViewToPersonContentCombinedView,
   editCombined,
   editPersonNotes,
   editPersonViewPersonNote,
+  editPost,
   enableNsfw,
   getUncombinedPersonContent,
+  postViewToPersonContentCombinedView,
   setIsoData,
   updatePersonBlock,
 } from "@utils/app";
@@ -77,6 +80,8 @@ import {
   ListPersonLikedResponse,
   SearchSortType,
   NotePerson,
+  ListPersonHiddenResponse,
+  ListPersonReadResponse,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -112,6 +117,8 @@ type ProfileData = RouteDataResponse<{
   personContentRes: ListPersonContentResponse;
   personSavedRes: ListPersonSavedResponse;
   personLikedRes: ListPersonLikedResponse;
+  personReadRes: ListPersonReadResponse;
+  personHiddenRes: ListPersonHiddenResponse;
   uploadsRes: ListMediaResponse;
 }>;
 
@@ -120,6 +127,8 @@ interface ProfileState {
   personContentRes: RequestState<ListPersonContentResponse>;
   personSavedRes: RequestState<ListPersonSavedResponse>;
   personLikedRes: RequestState<ListPersonLikedResponse>;
+  personReadRes: RequestState<ListPersonReadResponse>;
+  personHiddenRes: RequestState<ListPersonHiddenResponse>;
   uploadsRes: RequestState<ListMediaResponse>;
   registrationRes: RequestState<RegistrationApplicationResponse>;
   personBlocked: boolean;
@@ -133,7 +142,7 @@ interface ProfileState {
   pageBack?: boolean;
 }
 
-type Filter = "Saved" | "Liked" | "None";
+type Filter = "Saved" | "Liked" | "Read" | "Hidden" | "None";
 
 interface ProfileProps {
   view: PersonDetailsView;
@@ -174,6 +183,8 @@ function getFilterFromQuery(filter?: string): Filter {
   switch (filter) {
     case "None":
     case "Saved":
+    case "Read":
+    case "Hidden":
     case "Liked":
       return filter;
     default:
@@ -245,6 +256,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     personContentRes: EMPTY_REQUEST,
     personSavedRes: EMPTY_REQUEST,
     personLikedRes: EMPTY_REQUEST,
+    personReadRes: EMPTY_REQUEST,
+    personHiddenRes: EMPTY_REQUEST,
     uploadsRes: EMPTY_REQUEST,
     personBlocked: false,
     siteRes: this.isoData.siteRes,
@@ -256,16 +269,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   };
 
   loadingSettled() {
-    return resourcesSettled([
-      this.state.personRes,
-      this.props.view === "Uploads"
-        ? this.state.uploadsRes
-        : this.props.filter === "Saved"
-          ? this.state.personSavedRes
-          : this.props.filter === "Liked"
-            ? this.state.personLikedRes
-            : this.state.personContentRes,
-    ]);
+    return resourcesSettled([this.state.personRes, this.currentRes]);
   }
 
   constructor(props: ProfileRouteProps, context: any) {
@@ -314,6 +318,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       const personContentRes = this.isoData.routeData.personContentRes;
       const personSavedRes = this.isoData.routeData.personSavedRes;
       const personLikedRes = this.isoData.routeData.personLikedRes;
+      const personReadRes = this.isoData.routeData.personReadRes;
+      const personHiddenRes = this.isoData.routeData.personHiddenRes;
       const uploadsRes = this.isoData.routeData.uploadsRes;
 
       this.state = {
@@ -322,6 +328,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         personContentRes,
         personSavedRes,
         personLikedRes,
+        personReadRes,
+        personHiddenRes,
         uploadsRes,
         isIsomorphic: true,
         personBlocked: isPersonBlocked(personRes, this.isoData.myUserInfo),
@@ -374,7 +382,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const needUploads = isMe && view === "Uploads";
     const needSaved = isMe && filter === "Saved" && !needUploads;
     const needLiked = isMe && filter === "Liked" && !needUploads;
-    const needContent = !needSaved && !needUploads && !needLiked;
+    const needRead = isMe && filter === "Read" && !needUploads;
+    const needHidden = isMe && filter === "Hidden" && !needUploads;
+    const needContent =
+      !needSaved && !needUploads && !needLiked && !needRead && !needHidden;
 
     const type_ = view === "Uploads" ? undefined : view;
 
@@ -414,6 +425,16 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           limit: fetchLimit,
           type_,
         }),
+      needRead &&
+        HttpService.client.listPersonRead({
+          ...cursorComponents(cursor),
+          limit: fetchLimit,
+        }),
+      needHidden &&
+        HttpService.client.listPersonHidden({
+          ...cursorComponents(cursor),
+          limit: fetchLimit,
+        }),
     ]).then(args => {
       const [
         personRes,
@@ -421,6 +442,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         personSavedRes,
         uploadsRes,
         personLikedRes,
+        personReadRes,
+        personHiddenRes,
       ] = args;
       if (token === this.fetchUserDataToken) {
         this.setState(s => ({
@@ -430,6 +453,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           uploadsRes: uploadsRes || EMPTY_REQUEST,
           personBlocked: isPersonBlocked(s.personRes, this.isoData.myUserInfo),
           personLikedRes: personLikedRes || EMPTY_REQUEST,
+          personReadRes: personReadRes || EMPTY_REQUEST,
+          personHiddenRes: personHiddenRes || EMPTY_REQUEST,
         }));
       }
     });
@@ -461,7 +486,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const needUploads = isMe && view === "Uploads";
     const needSaved = isMe && filter === "Saved" && !needUploads;
     const needLiked = isMe && filter === "Liked" && !needUploads;
-    const needContent = !needUploads && !needSaved && !needLiked;
+    const needRead = isMe && filter === "Read" && !needUploads;
+    const needHidden = isMe && filter === "Hidden" && !needUploads;
+    const needContent =
+      !needUploads && !needSaved && !needLiked && !needRead && !needHidden;
 
     const type_ = view === "Uploads" ? undefined : view;
 
@@ -487,6 +515,16 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           ...cursorComponents(cursor),
           limit: fetchLimit,
         }),
+      needRead &&
+        client.listPersonRead({
+          ...cursorComponents(cursor),
+          limit: fetchLimit,
+        }),
+      needHidden &&
+        client.listPersonHidden({
+          ...cursorComponents(cursor),
+          limit: fetchLimit,
+        }),
     ]).then(args => {
       const [
         personRes,
@@ -494,6 +532,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         personSavedRes,
         uploadsRes,
         personLikedRes,
+        personReadRes,
+        personHiddenRes,
       ] = args;
       return {
         personRes: personRes || EMPTY_REQUEST,
@@ -501,6 +541,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         personSavedRes: personSavedRes || EMPTY_REQUEST,
         uploadsRes: uploadsRes || EMPTY_REQUEST,
         personLikedRes: personLikedRes || EMPTY_REQUEST,
+        personReadRes: personReadRes || EMPTY_REQUEST,
+        personHiddenRes: personHiddenRes || EMPTY_REQUEST,
       };
     });
   }
@@ -563,9 +605,27 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             this.state.personLikedRes.state === "success" &&
             this.state.personLikedRes.data.liked) ||
           undefined;
+        const readContent: PersonContentCombinedView[] | undefined =
+          (filter === "Read" &&
+            this.state.personReadRes.state === "success" &&
+            this.state.personReadRes.data.read.map(
+              postViewToPersonContentCombinedView,
+            )) ||
+          undefined;
+        const hiddenContent: PersonContentCombinedView[] | undefined =
+          (filter === "Hidden" &&
+            this.state.personHiddenRes.state === "success" &&
+            this.state.personHiddenRes.data.hidden.map(
+              postViewToPersonContentCombinedView,
+            )) ||
+          undefined;
         const resState = this.currentRes.state;
 
         const isUpload = view === "Uploads";
+
+        const bio = !personRes.person_view.creator_banned
+          ? personRes.person_view.person.bio
+          : "";
 
         return (
           <div className="row">
@@ -574,7 +634,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 title={this.documentTitle}
                 path={this.context.router.route.match.url}
                 canonicalPath={personRes.person_view.person.ap_id}
-                description={personRes.person_view.person.bio}
+                description={bio}
                 image={personRes.person_view.person.avatar}
               />
 
@@ -593,7 +653,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   </h5>
                 ) : (
                   <PersonDetails
-                    content={savedContent ?? content ?? likedContent ?? []}
+                    content={
+                      savedContent ??
+                      content ??
+                      likedContent ??
+                      readContent ??
+                      hiddenContent ??
+                      []
+                    }
                     admins={siteRes.admins}
                     sort={sort}
                     limit={fetchLimit}
@@ -667,28 +734,29 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (this.props.view === "Uploads") {
       return this.state.uploadsRes;
     } else {
-      if (this.props.filter === "Saved") {
-        return this.state.personSavedRes;
-      } else {
-        if (this.props.filter === "Liked") {
+      switch (this.props.filter) {
+        case "Saved":
+          return this.state.personSavedRes;
+        case "Liked":
           return this.state.personLikedRes;
-        } else {
+        case "Read":
+          return this.state.personReadRes;
+        case "Hidden":
+          return this.state.personHiddenRes;
+        case "None":
           return this.state.personContentRes;
-        }
       }
     }
   }
 
   get viewRadios() {
     return (
-      <>
-        <div className="btn-group btn-group-toggle flex-wrap" role="group">
-          {this.getRadio("All")}
-          {this.getRadio("Comments")}
-          {this.getRadio("Posts")}
-          {this.amCurrentUser && this.getRadio("Uploads")}
-        </div>
-      </>
+      <div className="btn-group btn-group-toggle flex-wrap" role="group">
+        {this.getRadio("All")}
+        {this.getRadio("Comments")}
+        {this.getRadio("Posts")}
+        {this.amCurrentUser && this.getRadio("Uploads")}
+      </div>
     );
   }
 
@@ -697,6 +765,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       <div className="btn-group btn-group-toggle flex-wrap" role="group">
         {this.amCurrentUser && this.getFilterRadio("Saved")}
         {this.amCurrentUser && this.getFilterRadio("Liked")}
+        {this.amCurrentUser && this.getFilterRadio("Read")}
+        {this.amCurrentUser && this.getFilterRadio("Hidden")}
         {this.amCurrentUser && this.getFilterRadio("None")}
       </div>
     );
@@ -1385,6 +1455,20 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             s.personLikedRes.data.liked,
           );
         }
+        if (s.personReadRes.state === "success") {
+          s.personReadRes.data.read = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.personReadRes.data.read,
+          );
+        }
+        if (s.personHiddenRes.state === "success") {
+          s.personHiddenRes.data.hidden = editPersonNotes(
+            form.note,
+            form.person_id,
+            s.personHiddenRes.data.hidden,
+          );
+        }
         if (s.personSavedRes.state === "success") {
           s.personSavedRes.data.saved = editPersonNotes(
             form.note,
@@ -1466,6 +1550,26 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         }
         return { personLikedRes: s.personLikedRes };
       });
+    } else if (this.props.filter === "Read") {
+      this.setState(s => {
+        if (s.personReadRes.state === "success") {
+          s.personReadRes.data.read = s.personReadRes.data.read
+            .map(postViewToPersonContentCombinedView)
+            .map(mapFn)
+            .filter(c => c.type_ === "Post");
+        }
+        return { personReadRes: s.personReadRes };
+      });
+    } else if (this.props.filter === "Hidden") {
+      this.setState(s => {
+        if (s.personHiddenRes.state === "success") {
+          s.personHiddenRes.data.hidden = s.personHiddenRes.data.hidden
+            .map(postViewToPersonContentCombinedView)
+            .map(mapFn)
+            .filter(c => c.type_ === "Post");
+        }
+        return { personHiddenRes: s.personHiddenRes };
+      });
     } else {
       this.setState(s => {
         if (s.personContentRes.state === "success") {
@@ -1499,6 +1603,23 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           );
         }
         return { personLikedRes: s.personLikedRes };
+      });
+    } else if (this.props.filter === "Read") {
+      this.setState(s => {
+        if (s.personReadRes.state === "success" && data.type_ === "Post") {
+          s.personReadRes.data.read = editPost(data, s.personReadRes.data.read);
+        }
+        return { personReadRes: s.personReadRes };
+      });
+    } else if (this.props.filter === "Hidden") {
+      this.setState(s => {
+        if (s.personHiddenRes.state === "success" && data.type_ === "Post") {
+          s.personHiddenRes.data.hidden = editPost(
+            data,
+            s.personHiddenRes.data.hidden,
+          );
+        }
+        return { personHiddenRes: s.personHiddenRes };
       });
     } else {
       this.setState(s => {
@@ -1557,17 +1678,18 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     if (res.state === "success") {
-      this.editCombinedCurrent({ type_: "Comment", ...res.data.comment_view });
+      this.editCombinedCurrent(
+        commentViewToPersonContentCombinedView(res.data.comment_view),
+      );
     }
   }
 
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.personContentRes.state === "success" && res.state === "success") {
-        s.personContentRes.data.content.unshift({
-          type_: "Comment",
-          ...res.data.comment_view,
-        });
+        s.personContentRes.data.content.unshift(
+          commentViewToPersonContentCombinedView(res.data.comment_view),
+        );
       }
       return s;
     });
@@ -1575,7 +1697,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   findAndUpdatePost(res: RequestState<PostResponse>) {
     if (res.state === "success") {
-      this.editCombinedCurrent({ type_: "Post", ...res.data.post_view });
+      this.editCombinedCurrent(
+        postViewToPersonContentCombinedView(res.data.post_view),
+      );
     }
   }
 }

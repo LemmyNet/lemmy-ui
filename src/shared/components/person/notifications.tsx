@@ -1,10 +1,4 @@
-import {
-  enableNsfw,
-  mixedToCommentSortType,
-  myAuth,
-  setIsoData,
-  updatePersonBlock,
-} from "@utils/app";
+import { enableNsfw, myAuth, setIsoData, updatePersonBlock } from "@utils/app";
 import {
   capitalizeFirstLetter,
   cursorComponents,
@@ -26,7 +20,6 @@ import {
   CommentId,
   CommentReportResponse,
   CommentResponse,
-  CommentSortType,
   CommunityId,
   CreateComment,
   CreateCommentLike,
@@ -47,7 +40,6 @@ import {
   NotePerson,
   NotificationDataType,
   NotificationView,
-  PostSortType,
   PrivateMessageReportResponse,
   PrivateMessageResponse,
   PurgeComment,
@@ -70,7 +62,6 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { CommentSortSelect } from "../common/sort-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { PrivateMessage } from "../private_message/private-message";
@@ -90,25 +81,24 @@ enum UnreadOrAll {
   All,
 }
 
-type InboxData = RouteDataResponse<{
-  inboxRes: ListNotificationsResponse;
+type NotificationsData = RouteDataResponse<{
+  notifsRes: ListNotificationsResponse;
 }>;
 
-interface InboxState {
+interface NotificationsState {
   unreadOrAll: UnreadOrAll;
   messageType: NotificationDataType;
-  inboxRes: RequestState<ListNotificationsResponse>;
+  notifsRes: RequestState<ListNotificationsResponse>;
   markAllAsReadRes: RequestState<SuccessResponse>;
-  sort: PostSortType | CommentSortType;
   cursor?: DirectionalCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
 }
 
-type InboxRouteProps = RouteComponentProps<Record<string, never>> &
+type NotificationsRouteProps = RouteComponentProps<Record<string, never>> &
   Record<string, never>;
-export type InboxFetchConfig = IRoutePropsWithFetch<
-  InboxData,
+export type NotificationsFetchConfig = IRoutePropsWithFetch<
+  NotificationsData,
   Record<string, never>,
   Record<string, never>
 >;
@@ -118,26 +108,27 @@ function setRead(item: NotificationView, read: boolean) {
 }
 
 @scrollMixin
-export class Inbox extends Component<InboxRouteProps, InboxState> {
-  private isoData = setIsoData<InboxData>(this.context);
-  state: InboxState = {
+export class Notifications extends Component<
+  NotificationsRouteProps,
+  NotificationsState
+> {
+  private isoData = setIsoData<NotificationsData>(this.context);
+  state: NotificationsState = {
     unreadOrAll: UnreadOrAll.Unread,
     messageType: "All",
-    sort: "New",
     siteRes: this.isoData.siteRes,
-    inboxRes: EMPTY_REQUEST,
+    notifsRes: EMPTY_REQUEST,
     markAllAsReadRes: EMPTY_REQUEST,
     isIsomorphic: false,
   };
 
   loadingSettled() {
-    return resourcesSettled([this.state.inboxRes]);
+    return resourcesSettled([this.state.notifsRes]);
   }
 
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.handleSortChange = this.handleSortChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
 
     this.handleCreateComment = this.handleCreateComment.bind(this);
@@ -168,11 +159,11 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const { inboxRes } = this.isoData.routeData;
+      const { notifsRes } = this.isoData.routeData;
 
       this.state = {
         ...this.state,
-        inboxRes,
+        notifsRes,
         isIsomorphic: true,
       };
     }
@@ -188,16 +179,16 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     const mui = this.isoData.myUserInfo;
     return mui
       ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
-          "inbox",
+          "notifications",
         )} - ${this.state.siteRes.site_view.site.name}`
       : "";
   }
 
   get hasUnreads(): boolean {
     if (this.state.unreadOrAll === UnreadOrAll.Unread) {
-      const { inboxRes } = this.state;
+      const { notifsRes } = this.state;
       return (
-        inboxRes.state === "success" && inboxRes.data.notifications.length > 0
+        notifsRes.state === "success" && notifsRes.data.notifications.length > 0
       );
     } else {
       return false;
@@ -206,9 +197,9 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
   render() {
     const auth = myAuth();
-    const inboxRss = auth ? `/feeds/inbox/${auth}.xml` : undefined;
+    const notifsRss = auth ? `/feeds/notifications/${auth}.xml` : undefined;
     return (
-      <div className="inbox container-lg">
+      <div className="notifications container-lg">
         <div className="row">
           <div className="col-12">
             <HtmlTags
@@ -216,16 +207,16 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
               path={this.context.router.route.match.url}
             />
             <h1 className="h4 mb-4">
-              {I18NextService.i18n.t("inbox")}
-              {inboxRss && (
+              {I18NextService.i18n.t("notifications")}
+              {notifsRss && (
                 <small>
-                  <a href={inboxRss} title="RSS" rel={relTags}>
+                  <a href={notifsRss} title="RSS" rel={relTags}>
                     <Icon icon="rss" classes="ms-2 text-muted small" />
                   </a>
                   <link
                     rel="alternate"
                     type="application/atom+xml"
-                    href={inboxRss}
+                    href={notifsRss}
                   />
                 </small>
               )}
@@ -248,7 +239,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             {this.all()}
             <PaginatorCursor
               current={this.state.cursor}
-              resource={this.state.inboxRes}
+              resource={this.state.notifsRes}
               onPageChange={this.handlePageChange}
             />
           </div>
@@ -380,12 +371,6 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
       <div className="row row-cols-auto g-2 g-sm-3 mb-2 mb-sm-3">
         <div className="col">{this.unreadOrAllRadios()}</div>
         <div className="col">{this.messageTypeRadios()}</div>
-        <div className="col">
-          <CommentSortSelect
-            current={mixedToCommentSortType(this.state.sort)}
-            onChange={this.handleSortChange}
-          />
-        </div>
       </div>
     );
   }
@@ -487,14 +472,14 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   }
 
   all(): InfernoNode {
-    const { inboxRes } = this.state;
-    if (inboxRes.state === "loading") {
+    const { notifsRes } = this.state;
+    if (notifsRes.state === "loading") {
       return <CommentsLoadingSkeleton />;
     } else {
       return (
         <div>
-          {inboxRes.state === "success" &&
-            inboxRes.data.notifications.map(r => this.renderItemType(r))}
+          {notifsRes.state === "success" &&
+            notifsRes.data.notifications.map(r => this.renderItemType(r))}
         </div>
       );
     }
@@ -505,12 +490,12 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     await this.refetch();
   }
 
-  async handleUnreadOrAllChange(i: Inbox, event: any) {
+  async handleUnreadOrAllChange(i: Notifications, event: any) {
     i.setState({ unreadOrAll: Number(event.target.value), cursor: undefined });
     await i.refetch();
   }
 
-  async handleMessageTypeChange(i: Inbox, event: any) {
+  async handleMessageTypeChange(i: Notifications, event: any) {
     i.setState({
       messageType: event.target.value as NotificationDataType,
       cursor: undefined,
@@ -521,22 +506,22 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   static async fetchInitialData({
     headers,
     myUserInfo,
-  }: InitialFetchRequest): Promise<InboxData> {
+  }: InitialFetchRequest): Promise<NotificationsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
 
     if (myUserInfo) {
       return {
-        inboxRes: await client.listNotifications({
+        notifsRes: await client.listNotifications({
           type_: "All",
           unread_only: true,
           limit: fetchLimit,
         }),
       };
+    } else {
+      return { notifsRes: EMPTY_REQUEST };
     }
-
-    return { inboxRes: EMPTY_REQUEST };
   }
 
   refetchToken?: symbol;
@@ -546,32 +531,26 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     const cursor = this.state.cursor;
 
     this.setState({
-      inboxRes: LOADING_REQUEST,
+      notifsRes: LOADING_REQUEST,
     });
     await HttpService.client
       .listNotifications({
         type_: this.state.messageType,
-        // TODO: sort: this.state.sort,
         unread_only,
         ...cursorComponents(cursor),
         limit: fetchLimit,
       })
-      .then(inboxRes => {
+      .then(notifsRes => {
         if (token === this.refetchToken) {
           this.setState({
-            inboxRes,
+            notifsRes,
           });
         }
       });
-    UnreadCounterService.Instance.updateInboxCounts();
+    UnreadCounterService.Instance.updateUnreadCounts();
   }
 
-  async handleSortChange(val: CommentSortType) {
-    this.setState({ sort: val, cursor: undefined });
-    await this.refetch();
-  }
-
-  async handleMarkAllAsRead(i: Inbox) {
+  async handleMarkAllAsRead(i: Notifications) {
     i.setState({ markAllAsReadRes: LOADING_REQUEST });
 
     const markAllAsReadRes =
@@ -579,8 +558,8 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
     if (markAllAsReadRes.state === "success") {
       i.setState(s => {
-        if (s.inboxRes.state === "success") {
-          s.inboxRes.data.notifications = s.inboxRes.data.notifications.map(
+        if (s.notifsRes.state === "success") {
+          s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
             nv => {
               const a = {
                 notification: { ...nv.notification },
@@ -591,7 +570,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             },
           );
         }
-        return { inboxRes: s.inboxRes, markAllAsReadRes };
+        return { notifsRes: s.notifsRes, markAllAsReadRes };
       });
     } else {
       i.setState({ markAllAsReadRes });
@@ -630,7 +609,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
     if (res.state === "success") {
       toast(I18NextService.i18n.t("reply_sent"));
-      // The reply just disappears. Only replies to private messages appear in the inbox.
+      // The reply just disappears. Only replies to private messages appear in the notifs.
     }
 
     return res;
@@ -699,8 +678,8 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   }
 
   async handleCommentMarkAsRead(comment_id: CommentId, read: boolean) {
-    if (this.state.inboxRes.state !== "success") return;
-    const notification = this.state.inboxRes.data.notifications.find(
+    if (this.state.notifsRes.state !== "success") return;
+    const notification = this.state.notifsRes.data.notifications.find(
       n => n.data.type_ === "Comment" && n.data.comment.id === comment_id,
     );
     if (notification) {
@@ -738,26 +717,28 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   async handleMarkNotificationAsRead(form: MarkNotificationAsRead) {
     const res = await HttpService.client.markNotificationAsRead(form);
     this.setState(s => {
-      if (res.state === "success" && s.inboxRes.state === "success") {
-        s.inboxRes.data.notifications = s.inboxRes.data.notifications.map(n => {
-          if (n.notification.id !== form.notification_id) {
-            return n;
-          }
-          const updated: NotificationView = {
-            notification: { ...n.notification },
-            data: { ...n.data },
-          };
-          setRead(updated, form.read);
-          return updated;
-        });
+      if (res.state === "success" && s.notifsRes.state === "success") {
+        s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
+          n => {
+            if (n.notification.id !== form.notification_id) {
+              return n;
+            }
+            const updated: NotificationView = {
+              notification: { ...n.notification },
+              data: { ...n.data },
+            };
+            setRead(updated, form.read);
+            return updated;
+          },
+        );
       }
-      return { inboxRes: s.inboxRes };
+      return { notifsRes: s.notifsRes };
     });
   }
 
   async handleMarkMessageAsRead(form: MarkPrivateMessageAsRead) {
-    if (this.state.inboxRes.state !== "success") return;
-    const notification = this.state.inboxRes.data.notifications.find(
+    if (this.state.notifsRes.state !== "success") return;
+    const notification = this.state.notifsRes.data.notifications.find(
       n =>
         n.data.type_ === "PrivateMessage" &&
         n.data.private_message.id === form.private_message_id,
@@ -778,9 +759,9 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   async handleCreateMessage(form: CreatePrivateMessage): Promise<boolean> {
     const res = await HttpService.client.createPrivateMessage(form);
     this.setState(s => {
-      if (s.inboxRes.state === "success" && res.state === "success") {
-        s.inboxRes.data.notifications.unshift({
-          // FIXME: maybe just let it disappear, comments do too (own comments don't show in inbox)
+      if (s.notifsRes.state === "success" && res.state === "success") {
+        s.notifsRes.data.notifications.unshift({
+          // FIXME: maybe just let it disappear, comments do too (own comments don't show in notifs)
           notification: {
             id: 0,
             recipient_id: 0,
@@ -804,22 +785,27 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
   findAndUpdateMessage(res: RequestState<PrivateMessageResponse>) {
     this.setState(s => {
-      if (s.inboxRes.state === "success" && res.state === "success") {
-        const notif = s.inboxRes.data.notifications.find(
+      if (s.notifsRes.state === "success" && res.state === "success") {
+        const notif = s.notifsRes.data.notifications.find(
           n =>
             n.data.type_ === "PrivateMessage" &&
             n.data.private_message.id ===
               res.data.private_message_view.private_message.id,
         );
-        s.inboxRes.data.notifications = s.inboxRes.data.notifications.map(n => {
-          if (n !== notif) {
-            return n;
-          }
-          return {
-            notification: { ...n.notification },
-            data: { type_: "PrivateMessage", ...res.data.private_message_view },
-          };
-        });
+        s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
+          n => {
+            if (n !== notif) {
+              return n;
+            }
+            return {
+              notification: { ...n.notification },
+              data: {
+                type_: "PrivateMessage",
+                ...res.data.private_message_view,
+              },
+            };
+          },
+        );
       }
       return s;
     });
@@ -832,8 +818,8 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
-        if (s.inboxRes.state === "success") {
-          s.inboxRes.data.notifications = s.inboxRes.data.notifications.map(
+        if (s.notifsRes.state === "success") {
+          s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
             c => {
               if (
                 c.data.type_ !== "PrivateMessage" &&
@@ -858,7 +844,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             },
           );
         }
-        return { inboxRes: s.inboxRes };
+        return { notifsRes: s.notifsRes };
       });
     }
   }
@@ -867,8 +853,8 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
-        if (s.inboxRes.state === "success") {
-          s.inboxRes.data.notifications = s.inboxRes.data.notifications.map(
+        if (s.notifsRes.state === "success") {
+          s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
             c => {
               const notif: NotificationView = {
                 notification: { ...c.notification },
@@ -885,7 +871,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             },
           );
         }
-        return { inboxRes: s.inboxRes };
+        return { notifsRes: s.notifsRes };
       });
     }
   }
@@ -910,29 +896,31 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   // A weird case, since you have only replies and mentions, not comment responses
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
-      if (s.inboxRes.state === "success" && res.state === "success") {
-        const notif = s.inboxRes.data.notifications.find(
+      if (s.notifsRes.state === "success" && res.state === "success") {
+        const notif = s.notifsRes.data.notifications.find(
           n =>
             n.data.type_ === "Comment" &&
             n.data.comment.id === res.data.comment_view.comment.id,
         );
-        s.inboxRes.data.notifications = s.inboxRes.data.notifications.map(n => {
-          if (n !== notif) {
-            return n;
-          }
-          return {
-            notification: { ...n.notification },
-            data: { type_: "Comment", ...res.data.comment_view },
-          };
-        });
+        s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
+          n => {
+            if (n !== notif) {
+              return n;
+            }
+            return {
+              notification: { ...n.notification },
+              data: { type_: "Comment", ...res.data.comment_view },
+            };
+          },
+        );
       }
       return s;
     });
   }
 
   async handleMarkPostAsRead(form: MarkPostAsRead) {
-    if (this.state.inboxRes.state !== "success") return;
-    const notification = this.state.inboxRes.data.notifications.find(
+    if (this.state.notifsRes.state !== "success") return;
+    const notification = this.state.notifsRes.data.notifications.find(
       n => n.data.type_ === "Post" && n.data.post.id === form.post_id,
     );
     if (notification) {
@@ -949,8 +937,8 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     if (res.state === "success") {
       // Update the content lists
       this.setState(s => {
-        if (s.inboxRes.state === "success") {
-          s.inboxRes.data.notifications = s.inboxRes.data.notifications.map(
+        if (s.notifsRes.state === "success") {
+          s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
             c => {
               const notif: NotificationView = {
                 notification: { ...c.notification },

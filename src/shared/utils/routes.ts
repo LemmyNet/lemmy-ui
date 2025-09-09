@@ -38,7 +38,10 @@ import {
   ModlogFetchConfig,
   getModlogQueryParams,
 } from "@components/modlog";
-import { Inbox, InboxFetchConfig } from "@components/person/inbox";
+import {
+  Notifications,
+  NotificationsFetchConfig,
+} from "@components/person/notifications";
 import { PasswordChange } from "@components/person/password-change";
 import {
   Profile,
@@ -184,10 +187,10 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     mountedSameRouteNavKey: "profile",
   } as ProfileFetchConfig,
   {
-    path: `/inbox`,
-    component: Inbox,
-    fetchInitialData: Inbox.fetchInitialData,
-  } as InboxFetchConfig,
+    path: `/notifications`,
+    component: Notifications,
+    fetchInitialData: Notifications.fetchInitialData,
+  } as NotificationsFetchConfig,
   {
     path: `/settings`,
     component: Settings,
