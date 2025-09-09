@@ -49,7 +49,8 @@ import { InstanceBlocks } from "./instance-blocks";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { fetchLimit } from "@utils/config";
 import { linkEvent } from "inferno";
-import { formatRelativeDate } from "@utils/date";
+import { UserBadges } from "@components/common/user-badges";
+import { MomentTime } from "@components/common/moment-time";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: AdminListUsersResponse;
@@ -139,7 +140,7 @@ export class AdminSettings extends Component<
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
-      usersRes: await client.listUsers({ banned_only: true }),
+      usersRes: await client.listUsers({ banned_only: false }),
       instancesRes: await client.getFederatedInstances(),
       uploadsRes: await client.listMediaAdmin({ limit: fetchLimit }),
     };
@@ -498,11 +499,13 @@ export class AdminSettings extends Component<
             <table class="table table-striped table-hover">
               <thead>
                 <tr>
-                  <th scope="col">I18NextService.i18n.t("username")</th>
-                  <th scope="col">I18NextService.i18n.t("email")</th>
-                  <th scope="col">Registered</th>
-                  <th scope="col">Posts</th>
-                  <th scope="col">Comments</th>
+                  <th scope="col">{I18NextService.i18n.t("username")}</th>
+                  <th scope="col">{I18NextService.i18n.t("email")}</th>
+                  <th scope="col">
+                    {I18NextService.i18n.t("registered_date_title")}
+                  </th>
+                  <th scope="col">{I18NextService.i18n.t("posts")}</th>
+                  <th scope="col">{I18NextService.i18n.t("comments")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -513,10 +516,17 @@ export class AdminSettings extends Component<
                         person={local_user.person}
                         myUserInfo={this.isoData.myUserInfo}
                       />
+                      <UserBadges
+                        classNames="ms-1"
+                        isAdmin={local_user.local_user.admin}
+                        isBanned={local_user.banned}
+                        myUserInfo={this.isoData.myUserInfo}
+                        creator={local_user.person}
+                      />
                     </td>
                     <td>{local_user.local_user.email}</td>
                     <td>
-                      {formatRelativeDate(local_user.person.published_at)}
+                      <MomentTime published={local_user.person.published_at} />
                     </td>
                     <td>{local_user.person.post_count}</td>
                     <td>{local_user.person.comment_count}</td>
