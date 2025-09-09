@@ -79,7 +79,9 @@ export class UserService {
 
   #setAuthInfo() {
     if (isBrowser()) {
-      const auth = cookie.parse(document.cookie)[authCookieName];
+      const auth =
+        cookie.parse(document.cookie)[authCookieName] ??
+        window.localStorage.getItem(authCookieName);
 
       if (auth) {
         HttpService.client.setHeaders({ Authorization: `Bearer ${auth}` });
