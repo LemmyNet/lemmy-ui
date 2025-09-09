@@ -31,6 +31,7 @@ import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
 import { NoOptionI18nKeys } from "i18next";
+import { NotificationSelect } from "@components/common/notification-select";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -113,6 +114,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       this.handleSubmitCommunityReport.bind(this);
     this.handleHideCommunityReportModal =
       this.handleHideCommunityReportModal.bind(this);
+    this.handleNotificationChange = this.handleNotificationChange.bind(this);
     this.state.notifications =
       this.props.community_view.community_actions?.notifications ??
       "RepliesAndMentions";
@@ -202,18 +204,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   {this.canPost && this.createPost()}
                   {this.props.myUserInfo && this.blockCommunity()}
                   <div className="mb-2 d-flex">
-                    <Icon icon="bell" classes="m-2" />
-                    <select
+                    <NotificationSelect
                       value={this.state.notifications}
-                      onChange={linkEvent(this, this.handleNotificationChange)}
-                      className="form-select"
-                    >
-                      {notificationModes.map(mode => (
-                        <option value={mode.value}>
-                          {I18NextService.i18n.t(mode.i18nKey)}
-                        </option>
-                      ))}
-                    </select>
+                      modes={notificationModes}
+                      onChange={this.handleNotificationChange}
+                    />
                   </div>
                   <form
                     class="d-flex"
@@ -699,13 +694,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.setState({ purgeReason: event.target.value });
   }
 
-  async handleNotificationChange(i: Sidebar, event: any) {
-    i.setState({ notifications: event.target.value });
+  async handleNotificationChange(event: any) {
+    this.setState({ notifications: event.target.value });
     const form = {
-      community_id: i.props.community_view.community.id,
-      mode: i.state.notifications,
+      community_id: this.props.community_view.community.id,
+      mode: this.state.notifications,
     };
-    await i.props.onUpdateCommunityNotifs(form);
+    this.props.onUpdateCommunityNotifs(form);
   }
 
   // TODO Do we need two of these?

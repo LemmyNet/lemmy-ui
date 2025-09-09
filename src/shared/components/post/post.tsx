@@ -110,6 +110,7 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { compareAsc, compareDesc } from "date-fns";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
+import { NotificationSelect } from "../common/notification-select";
 
 const commentsShownInterval = 15;
 
@@ -678,18 +679,11 @@ export class Post extends Component<PostRouteProps, PostState> {
                 {this.sortRadios()}
                 <div class="flex-grow-1"></div>
                 <div className="btn-group w-auto mb-2" role="group">
-                  <Icon icon="bell" classes="m-2" />
-                  <select
+                  <NotificationSelect
                     value={this.state.notifications}
+                    modes={notificationModes}
                     onChange={this.handleNotificationChange}
-                    className="form-select w-auto"
-                  >
-                    {notificationModes.map(mode => (
-                      <option value={mode.value}>
-                        {I18NextService.i18n.t(mode.i18nKey)}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
               {this.props.view === CommentViewType.Tree && this.commentsTree()}
