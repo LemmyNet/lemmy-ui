@@ -12,30 +12,34 @@ import { Component, linkEvent } from "inferno";
 import {
   CommunityResponse,
   CommunitySortType,
+  GetRandomCommunity,
   LemmyHttp,
   ListCommunities,
   ListCommunitiesResponse,
   ListingType,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
-import { FirstLoadService, I18NextService } from "../../services";
+import { FirstLoadService } from "@services/FirstLoadService";
+import { I18NextService } from "@services/I18NextService";
+
 import {
   EMPTY_REQUEST,
   HttpService,
   LOADING_REQUEST,
   RequestState,
   wrapClient,
-} from "../../services/HttpService";
-import { HtmlTags } from "../common/html-tags";
-import { Spinner } from "../common/icon";
-import { ListingTypeSelect } from "../common/listing-type-select";
-import { CommunitiesSortSelect } from "../common/sort-select";
-import { CommunityLink } from "./community-link";
+} from "@services/HttpService";
+import { HtmlTags } from "@components/common/html-tags";
+import { Spinner } from "@components/common/icon";
+import { ListingTypeSelect } from "@components/common/listing-type-select";
+import { CommunitiesSortSelect } from "@components/common/sort-select";
+import { SubscribeButton } from "@components/common/subscribe-button";
+import { Icon } from "@components/common/icon";
+import { communityLink, CommunityLink } from "./community-link";
 import { communityLimit } from "@utils/config";
-import { SubscribeButton } from "../common/subscribe-button";
-import { getHttpBaseInternal } from "../../utils/env";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { getHttpBaseInternal } from "@utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
@@ -105,6 +109,8 @@ export class Communities extends Component<
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
+    this.handleVisitRandomCommunity =
+      this.handleVisitRandomCommunity.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -228,6 +234,16 @@ export class Communities extends Component<
         <div>
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("list_of_communities")}
+            <button
+              className="btn btn-link"
+              onClick={this.handleVisitRandomCommunity}
+              aria-label={I18NextService.i18n.t("visit_random_community")}
+              data-tippy-content={I18NextService.i18n.t(
+                "visit_random_community",
+              )}
+            >
+              <Icon icon="shuffle" classes="text-muted small" />
+            </button>
           </h1>
           <div className="row g-3 align-items-center mb-2">
             <div className="col-auto">
@@ -322,6 +338,19 @@ export class Communities extends Component<
     i.context.router.history.push(
       `/search${getQueryString({ q: searchParamEncoded, type: "Communities", listingType })}`,
     );
+  }
+
+  async handleVisitRandomCommunity() {
+    const form: GetRandomCommunity = {
+      type_: this.props.listingType,
+    };
+
+    const res = await HttpService.client.getRandomCommunity(form);
+
+    if (res.state === "success") {
+      const link = communityLink(res.data.community_view.community).link;
+      this.context.router.history.push(link);
+    }
   }
 
   static async fetchInitialData({
