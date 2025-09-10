@@ -13,7 +13,7 @@ interface MomentTimeProps {
   ignoreUpdated?: boolean;
 }
 
-function formatDate(input: string) {
+export function formatDate(input: string) {
   const parsed = parseISO(input + "Z");
   return format(parsed, "PPPPpppp");
 }
@@ -26,13 +26,15 @@ export class MomentTime extends Component<MomentTimeProps, any> {
 
   createdAndModifiedTimes() {
     const updated = this.updatedTime;
-    let line = `${capitalizeFirstLetter(
-      I18NextService.i18n.t("created"),
-    )}: ${formatDate(this.props.published)}`;
+    let line = capitalizeFirstLetter(
+      I18NextService.i18n.t("created_at", {
+        time: formatDate(this.props.published),
+      }),
+    );
     if (updated) {
       line += `\n\n\n${capitalizeFirstLetter(
-        I18NextService.i18n.t("modified"),
-      )} ${formatDate(updated)}`;
+        I18NextService.i18n.t("modified_at", { time: formatDate(updated) }),
+      )}`;
     }
     return line;
   }
