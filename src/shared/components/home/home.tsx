@@ -463,6 +463,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               localSite={local_site}
               isMobile={true}
               myUserInfo={this.isoData.myUserInfo}
+              allLanguages={this.state.siteRes.all_languages}
+              siteLanguages={this.state.siteRes.discussion_languages}
             />
           )}
           {showSubscribedMobile && (
@@ -490,6 +492,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           admins={admins}
           localSite={local_site}
           myUserInfo={this.isoData.myUserInfo}
+          allLanguages={this.state.siteRes.all_languages}
+          siteLanguages={this.state.siteRes.discussion_languages}
         />
         {this.hasFollows && (
           <div className="accordion">
