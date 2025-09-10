@@ -804,6 +804,9 @@ export class Post extends Component<PostRouteProps, PostState> {
             isTopLevel
             locked={postRes.data.post_view.post.locked}
             admins={siteRes.admins}
+            readCommentsAt={
+              postRes.data.post_view.post_actions?.read_comments_at
+            }
             showContext
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
@@ -916,6 +919,9 @@ export class Post extends Component<PostRouteProps, PostState> {
             maxCommentsShown={this.state.maxCommentsShown}
             locked={postRes.data.post_view.post.locked}
             admins={siteRes.admins}
+            readCommentsAt={
+              postRes.data.post_view.post_actions?.read_comments_at
+            }
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
