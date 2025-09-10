@@ -114,7 +114,7 @@ const conversions: Interval[] = [
   { num: 60 * 60 * 24 * 365, unit: "years" },
 ];
 
-// Taken from https://stackoverflow.com/questions/70805666/how-to-convert-seconds-to-biggest-significative-time-unitt
+// Taken from https://stackoverflow.com/questions/70805666/how-to-convert-seconds-to-biggest-significative-time-unit
 function secondsToLargestInterval(seconds: number): Interval {
   let bestInterval = conversions[0];
   for (const interval of conversions) {
