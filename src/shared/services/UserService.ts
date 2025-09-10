@@ -24,7 +24,7 @@ export class UserService {
   public authInfo?: AuthInfo;
 
   private constructor() {
-    this.#setAuthInfo();
+    this.setAuthInfo();
   }
 
   public login({
@@ -39,7 +39,7 @@ export class UserService {
         toast(I18NextService.i18n.t("logged_in"));
       }
       setAuthCookie(res.jwt);
-      this.#setAuthInfo();
+      this.setAuthInfo();
     }
   }
 
@@ -77,7 +77,7 @@ export class UserService {
     }
   }
 
-  #setAuthInfo() {
+  public setAuthInfo() {
     if (isBrowser()) {
       const auth =
         cookie.parse(document.cookie)[authCookieName] ??
