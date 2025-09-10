@@ -626,11 +626,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
    * For everything else, use 10 minutes.
    **/
   get isCommentNew(): boolean {
-    const now = this.props.readCommentsAt
+    const checkTime = this.props.readCommentsAt
       ? parseISO(this.props.readCommentsAt)
       : subMinutes(new Date(), 10);
-    const then = parseISO(this.commentView.comment.published_at);
-    return isBefore(now, then);
+    const commentTime = parseISO(this.commentView.comment.published_at);
+    return isBefore(checkTime, commentTime);
   }
 
   handleCommentCollapse(i: CommentNode, event: InfernoMouseEvent<any>) {
