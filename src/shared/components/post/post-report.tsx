@@ -80,6 +80,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       <div className="post-report">
         <PostListing
           post_view={pv}
+          showDupes="ShowSeparately"
           showCommunity={true}
           enableNsfw={this.props.enableNsfw}
           showAdultConsentModal={this.props.showAdultConsentModal}

@@ -189,3 +189,10 @@ export type CursorComponents = {
   page_cursor?: PaginationCursor;
   page_back?: boolean;
 };
+
+/**
+ * Determines whether to simplify / remove duplicates, and how to display them.
+ *
+ * Don't Remove also means **keep** duplicate posts in list views.
+ **/
+export type ShowDupesType = "Small" | "Expanded" | "ShowSeparately";
