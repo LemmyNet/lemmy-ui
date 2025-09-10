@@ -1,8 +1,8 @@
 import { isBrowser } from "@utils/browser";
 import { testHost } from "@utils/config";
 
-function getBaseLocal(s = "") {
-  return `http${s}://${getHost()}`;
+function getBaseLocal() {
+  return `http${getSecure()}://${getHost()}`;
 }
 
 export function getExternalHost() {
@@ -18,7 +18,7 @@ function getHost() {
 }
 
 export function getHttpBase() {
-  return getBaseLocal(getSecure());
+  return getBaseLocal();
 }
 
 export function getHttpBaseExternal() {
