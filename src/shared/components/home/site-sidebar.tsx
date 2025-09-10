@@ -1,6 +1,12 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { LocalSite, MyUserInfo, PersonView, Site } from "lemmy-js-client";
+import {
+  Language,
+  LocalSite,
+  MyUserInfo,
+  PersonView,
+  Site,
+} from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { Badges } from "../common/badges";
@@ -8,6 +14,7 @@ import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import { LanguageList } from "@components/common/language-list";
 
 interface SiteSidebarProps {
   site: Site;
@@ -15,6 +22,8 @@ interface SiteSidebarProps {
   admins?: PersonView[];
   isMobile?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  allLanguages?: Language[];
+  siteLanguages?: number[];
 }
 
 interface SiteSidebarState {
@@ -94,6 +103,10 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
       <div>
         {site.description && <h6>{site.description}</h6>}
         {site.sidebar && this.siteSidebar(site.sidebar)}
+        <LanguageList
+          allLanguages={this.props.allLanguages}
+          languageIds={this.props.siteLanguages}
+        />
         {this.props.localSite && <Badges subject={this.props.localSite} />}
         {this.props.admins && this.admins(this.props.admins)}
       </div>
