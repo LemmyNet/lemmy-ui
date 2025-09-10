@@ -89,28 +89,29 @@ import {
   CommentViewType,
   InitialFetchRequest,
 } from "@utils/types";
-import { FirstLoadService, I18NextService } from "../../services";
+import { FirstLoadService } from "@services/FirstLoadService";
+import { I18NextService } from "@services/I18NextService";
 import {
   EMPTY_REQUEST,
   HttpService,
   LOADING_REQUEST,
   RequestState,
   wrapClient,
-} from "../../services/HttpService";
+} from "@services/HttpService";
 import { toast } from "@utils/app";
-import { CommentForm } from "../comment/comment-form";
-import { CommentNodes } from "../comment/comment-nodes";
-import { HtmlTags } from "../common/html-tags";
-import { Icon, Spinner } from "../common/icon";
-import { Sidebar } from "../community/sidebar";
+import { CommentForm } from "@components/comment/comment-form";
+import { CommentNodes } from "@components/comment/comment-nodes";
+import { HtmlTags } from "@components/common/html-tags";
+import { Icon, Spinner } from "@components/common/icon";
+import { Sidebar } from "@components/community/sidebar";
 import { PostListing } from "./post-listing";
-import { getHttpBaseInternal } from "../../utils/env";
+import { getHttpBaseInternal } from "@utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { compareAsc, compareDesc } from "date-fns";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
-import { NotificationSelect } from "../common/notification-select";
+import { PostNotificationSelect } from "@components/common/notification-select";
 
 const commentsShownInterval = 15;
 
@@ -129,21 +130,6 @@ interface PostState {
   lastCreatedCommentId?: CommentId;
   notifications: PostNotificationsMode;
 }
-
-const notificationModes: {
-  value: PostNotificationsMode;
-  i18nKey: NoOptionI18nKeys;
-}[] = [
-  {
-    value: "AllComments",
-    i18nKey: "notification_mode_all_comments",
-  },
-  {
-    value: "RepliesAndMentions",
-    i18nKey: "notification_mode_replies_and_mentions",
-  },
-  { value: "Mute", i18nKey: "notification_mode_mute" },
-];
 
 function getCommentSortTypeFromQuery(
   source: string | undefined,
@@ -327,8 +313,14 @@ export class Post extends Component<PostRouteProps, PostState> {
         postRes,
         commentsRes,
         isIsomorphic: true,
+      };
+    }
+
+    if (this.state.postRes.state === "success") {
+      this.state = {
+        ...this.state,
         notifications:
-          postRes.data.post_view.post_actions.notifications ??
+          this.state.postRes.data.post_view.post_actions?.notifications ??
           "RepliesAndMentions",
       };
     }
@@ -343,12 +335,15 @@ export class Post extends Component<PostRouteProps, PostState> {
       comment_id: getCommentIdFromProps(props),
     });
     if (token === this.fetchPostToken) {
-      this.setState({
-        postRes,
-        notifications:
-          postRes.data.post_view.post_actions.notifications ??
-          "RepliesAndMentions",
-      });
+      this.setState({ postRes });
+
+      if (this.state.postRes.state === "success") {
+        this.setState({
+          notifications:
+            this.state.postRes.data.post_view.post_actions?.notifications ??
+            "RepliesAndMentions",
+        });
+      }
     }
   }
 
@@ -679,9 +674,8 @@ export class Post extends Component<PostRouteProps, PostState> {
                 {this.sortRadios()}
                 <div class="flex-grow-1"></div>
                 <div className="btn-group w-auto mb-2" role="group">
-                  <NotificationSelect
-                    value={this.state.notifications}
-                    modes={notificationModes}
+                  <PostNotificationSelect
+                    current={this.state.notifications}
                     onChange={this.handleNotificationChange}
                   />
                 </div>
@@ -1143,7 +1137,10 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async handleUpdateCommunityNotifs(form: UpdateCommunityNotifications) {
-    await HttpService.client.updateCommunityNotifications(form);
+    const res = await HttpService.client.updateCommunityNotifications(form);
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("notifications_updated"));
+    }
   }
 
   async handleCreateToplevelComment(form: CreateComment) {
@@ -1418,15 +1415,17 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  async handleNotificationChange(event: any) {
-    const form = {
-      post_id: this.state.postRes.data.post_view.post.id,
-      mode: event.target.value,
-    };
-    this.setState({ notifications: form.mode });
-    const success = await HttpService.client.updatePostNotifications(form);
-    if (success) {
-      toast(I18NextService.i18n.t("notifications_updated"));
+  async handleNotificationChange(val: PostNotificationsMode) {
+    if (this.state.postRes.state === "success") {
+      const form = {
+        post_id: this.state.postRes.data.post_view.post.id,
+        mode: val,
+      };
+      this.setState({ notifications: form.mode });
+      const res = await HttpService.client.updatePostNotifications(form);
+      if (res.state === "success") {
+        toast(I18NextService.i18n.t("notifications_updated"));
+      }
     }
   }
 

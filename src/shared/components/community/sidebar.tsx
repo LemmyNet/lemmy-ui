@@ -30,8 +30,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
-import { NoOptionI18nKeys } from "i18next";
-import { NotificationSelect } from "@components/common/notification-select";
+import { CommunityNotificationSelect } from "@components/common/notification-select";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -72,22 +71,6 @@ interface SidebarState {
   searchText: string;
   notifications: CommunityNotificationsMode;
 }
-
-const notificationModes: {
-  value: CommunityNotificationsMode;
-  i18nKey: NoOptionI18nKeys;
-}[] = [
-  {
-    value: "AllPostsAndComments",
-    i18nKey: "notification_mode_all_posts_and_comments",
-  },
-  { value: "AllPosts", i18nKey: "notification_mode_all_posts" },
-  {
-    value: "RepliesAndMentions",
-    i18nKey: "notification_mode_replies_and_mentions",
-  },
-  { value: "Mute", i18nKey: "notification_mode_mute" },
-];
 
 @tippyMixin
 export class Sidebar extends Component<SidebarProps, SidebarState> {
@@ -204,9 +187,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   {this.canPost && this.createPost()}
                   {this.props.myUserInfo && this.blockCommunity()}
                   <div className="mb-2 d-flex">
-                    <NotificationSelect
-                      value={this.state.notifications}
-                      modes={notificationModes}
+                    <CommunityNotificationSelect
+                      current={this.state.notifications}
                       onChange={this.handleNotificationChange}
                     />
                   </div>
@@ -694,8 +676,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.setState({ purgeReason: event.target.value });
   }
 
-  async handleNotificationChange(event: any) {
-    this.setState({ notifications: event.target.value });
+  async handleNotificationChange(val: CommunityNotificationsMode) {
+    this.setState({ notifications: val });
     const form = {
       community_id: this.props.community_view.community.id,
       mode: this.state.notifications,
