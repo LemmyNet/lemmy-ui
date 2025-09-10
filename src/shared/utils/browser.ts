@@ -12,7 +12,6 @@ export function clearAuthCookie() {
     sameSite: "lax",
     path: "/",
   });
-  window.localStorage.removeItem(authCookieName);
 }
 
 type BsTheme = "dark" | "light";
@@ -103,7 +102,6 @@ export function setAuthCookie(jwt: string) {
     sameSite: "lax",
     path: "/",
   });
-  window.localStorage.setItem(authCookieName, jwt);
 }
 
 export async function setThemeOverride(theme?: string) {
