@@ -184,7 +184,7 @@ export class LanguageSelect extends Component<
         />
         <hr className="border-dark border-2 m-0" />
         <ul
-          class="list-group overflow-scroll"
+          class="list-group overflow-scroll rounded-0 rounded-bottom"
           style="max-height: 200px;"
           tabIndex={-1}
         >
@@ -194,24 +194,23 @@ export class LanguageSelect extends Component<
             </option>
           )}
           {filteredLangs.map(l => (
-            <li
-              className="list-group-item m-1 p-0 focus-ring border border-0 rounded-0"
-              id={l.id.toString()}
-              tabIndex={0}
-              onClick={linkEvent(this, this.handleCheckboxLanguageChange)}
-              onKeyPress={linkEvent(this, this.handleCheckboxLanguageChange)}
-              role="checkbox"
-              aria-checked={selectedLangs?.includes(l.id)}
-            >
-              <input
-                class="form-check-input me-1 pe-none"
-                type="checkbox"
-                tabIndex={-1}
-                checked={selectedLangs?.includes(l.id)}
-              />
-              <label class="form-check-label pe-none" for={l.id.toString()}>
-                {l.name}
-              </label>
+            <li className="list-group-item p-0 border-0">
+              <button
+                type="button"
+                className="btn text-start w-100 rounded-0 language-item"
+                onClick={linkEvent(this, this.handleCheckboxLanguageChange)}
+                id={l.id.toString()}
+              >
+                <input
+                  class="form-check-input me-1 pe-none"
+                  type="checkbox"
+                  tabIndex={-1}
+                  checked={selectedLangs?.includes(l.id)}
+                />
+                <label class="form-check-label pe-none" for={l.id.toString()}>
+                  {l.name}
+                </label>
+              </button>
             </li>
           ))}
         </ul>
