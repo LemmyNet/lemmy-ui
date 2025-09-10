@@ -222,13 +222,9 @@ function handlePostNsfwChange(i: PostForm, event: any) {
 function handlePostScheduleChange(i: PostForm, event: any) {
   const scheduled_publish_time = event.target.value;
 
-  i.setState(prev => ({
-    ...prev,
-    form: {
-      ...prev.form,
-      scheduled_publish_time,
-    },
-  }));
+  i.setState(
+    s => ((s.form.scheduled_publish_time_at = scheduled_publish_time), s),
+  );
 }
 
 function handleHoneyPotChange(i: PostForm, event: any) {
