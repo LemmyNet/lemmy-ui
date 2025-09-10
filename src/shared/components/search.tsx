@@ -184,11 +184,21 @@ const communityListing = (
         <h3>{I18NextService.i18n.t("communities")}</h3>
         {communities.map(c => (
           <div>
-            {getListing(
-              <CommunityLink community={c.community} myUserInfo={myUserInfo} />,
-              c.community.subscribers,
-              "number_of_subscribers",
-            )}
+            <span>
+              <CommunityLink community={c.community} myUserInfo={myUserInfo} />
+            </span>
+            <span>{` - ${I18NextService.i18n.t("number_of_subscribers", {
+              count: Number(c.community.subscribers),
+              formattedCount: numToSI(c.community.subscribers),
+            })}`}</span>
+            <span>{` - ${I18NextService.i18n.t("number_of_posts", {
+              count: Number(c.community.posts),
+              formattedCount: numToSI(c.community.posts),
+            })}`}</span>
+            <span>{` - ${I18NextService.i18n.t("number_of_comments", {
+              count: Number(c.community.comments),
+              formattedCount: numToSI(c.community.comments),
+            })}`}</span>
           </div>
         ))}
         <hr class="border m-2" />
@@ -207,15 +217,21 @@ const personListing = (
         <h3>{I18NextService.i18n.t("users")}</h3>
         {persons.map(p => (
           <div>
-            {getListing(
+            <span>
               <PersonListing
                 person={p.person}
                 showApubName
                 myUserInfo={myUserInfo}
-              />,
-              p.person.comment_count,
-              "number_of_comments",
-            )}
+              />
+            </span>
+            <span>{` - ${I18NextService.i18n.t("number_of_posts", {
+              count: Number(p.person.post_count),
+              formattedCount: numToSI(p.person.post_count),
+            })}`}</span>
+            <span>{` - ${I18NextService.i18n.t("number_of_comments", {
+              count: Number(p.person.comment_count),
+              formattedCount: numToSI(p.person.comment_count),
+            })}`}</span>
           </div>
         ))}
         <hr class="border m-2" />
@@ -323,22 +339,6 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
     )
   );
 };
-
-function getListing(
-  listing: JSX.ElementClass,
-  count: number,
-  translationKey: "number_of_comments" | "number_of_subscribers",
-) {
-  return (
-    <>
-      <span>{listing}</span>
-      <span>{` - ${I18NextService.i18n.t(translationKey, {
-        count: Number(count),
-        formattedCount: numToSI(count),
-      })}`}</span>
-    </>
-  );
-}
 
 type SearchPathProps = Record<string, never>;
 type SearchRouteProps = RouteComponentProps<SearchPathProps> & SearchProps;
