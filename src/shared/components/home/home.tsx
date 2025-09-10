@@ -830,7 +830,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                 onChange={this.handleSortChange}
               />
             </div>
-            <div className="col-6 col-md-3 col-lg-2">
+            <div className="col-6 col-md-3">
               <TimeIntervalSelect
                 currentSeconds={postTimeRange}
                 onChange={this.handlePostTimeRangeChange}

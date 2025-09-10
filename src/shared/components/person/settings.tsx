@@ -988,12 +988,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           </form>
           <form className="mb-3 row">
             <label
-              className="col-sm-9 col-form-label"
+              className="col-sm-8 col-form-label"
               htmlFor="post-time-range"
             >
               {I18NextService.i18n.t("post_time_range")}
             </label>
-            <div className="col-sm-3">
+            <div className="col-sm-4">
               <TimeIntervalSelect
                 currentSeconds={
                   this.state.saveUserSettingsForm
