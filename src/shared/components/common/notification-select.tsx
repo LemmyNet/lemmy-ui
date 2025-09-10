@@ -38,7 +38,7 @@ class NotificationSelect<T extends string> extends Component<
         <select
           value={this.props.current}
           onChange={linkEvent(this, handleNotificationChange)}
-          className="form-select w-auto"
+          className="form-select w-100 text-truncate"
         >
           <option disabled aria-hidden="true">
             {I18NextService.i18n.t("notifications")}
