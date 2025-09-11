@@ -69,6 +69,8 @@ import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "./common/paginator-cursor";
 import { SearchSortSelect } from "./common/sort-select";
 import { SearchableSelect } from "./common/searchable-select";
+import { UserBadges } from "./common/user-badges";
+import { Badges } from "./common/badges";
 
 interface SearchProps {
   q?: string;
@@ -183,22 +185,11 @@ const communityListing = (
       <>
         <h3>{I18NextService.i18n.t("communities")}</h3>
         {communities.map(c => (
-          <div>
-            <span>
+          <div className="d-flex text-center">
+            <span className="p-1">
               <CommunityLink community={c.community} myUserInfo={myUserInfo} />
             </span>
-            <span>{` - ${I18NextService.i18n.t("number_of_subscribers", {
-              count: Number(c.community.subscribers),
-              formattedCount: numToSI(c.community.subscribers),
-            })}`}</span>
-            <span>{` - ${I18NextService.i18n.t("number_of_posts", {
-              count: Number(c.community.posts),
-              formattedCount: numToSI(c.community.posts),
-            })}`}</span>
-            <span>{` - ${I18NextService.i18n.t("number_of_comments", {
-              count: Number(c.community.comments),
-              formattedCount: numToSI(c.community.comments),
-            })}`}</span>
+            <Badges communityId={c.community.id} subject={c.community} />
           </div>
         ))}
         <hr class="border m-2" />
@@ -224,6 +215,14 @@ const personListing = (
                 myUserInfo={myUserInfo}
               />
             </span>
+            <UserBadges
+              classNames="ms-1"
+              isAdmin={p.is_admin}
+              isBanned={p.creator_banned}
+              myUserInfo={myUserInfo}
+              personActions={p.person_actions}
+              creator={p.person}
+            />
             <span>{` - ${I18NextService.i18n.t("number_of_posts", {
               count: Number(p.person.post_count),
               formattedCount: numToSI(p.person.post_count),
