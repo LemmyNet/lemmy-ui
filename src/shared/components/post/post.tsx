@@ -68,6 +68,7 @@ import {
   MarkPostAsRead,
   MyUserInfo,
   NotePerson,
+  PostNotificationsMode,
   PostResponse,
   PurgeComment,
   PurgeCommunity,
@@ -80,6 +81,7 @@ import {
   SavePost,
   SuccessResponse,
   TransferCommunity,
+  UpdateCommunityNotifications,
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "@utils/config";
 import {
@@ -87,27 +89,29 @@ import {
   CommentViewType,
   InitialFetchRequest,
 } from "@utils/types";
-import { FirstLoadService, I18NextService } from "../../services";
+import { FirstLoadService } from "@services/FirstLoadService";
+import { I18NextService } from "@services/I18NextService";
 import {
   EMPTY_REQUEST,
   HttpService,
   LOADING_REQUEST,
   RequestState,
   wrapClient,
-} from "../../services/HttpService";
+} from "@services/HttpService";
 import { toast } from "@utils/app";
-import { CommentForm } from "../comment/comment-form";
-import { CommentNodes } from "../comment/comment-nodes";
-import { HtmlTags } from "../common/html-tags";
-import { Icon, Spinner } from "../common/icon";
-import { Sidebar } from "../community/sidebar";
+import { CommentForm } from "@components/comment/comment-form";
+import { CommentNodes } from "@components/comment/comment-nodes";
+import { HtmlTags } from "@components/common/html-tags";
+import { Icon, Spinner } from "@components/common/icon";
+import { Sidebar } from "@components/community/sidebar";
 import { PostListing } from "./post-listing";
-import { getHttpBaseInternal } from "../../utils/env";
+import { getHttpBaseInternal } from "@utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { compareAsc, compareDesc } from "date-fns";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
+import { PostNotificationSelect } from "@components/common/notification-select";
 
 const commentsShownInterval = 15;
 
@@ -124,6 +128,7 @@ interface PostState {
   maxCommentsShown: number;
   isIsomorphic: boolean;
   lastCreatedCommentId?: CommentId;
+  notifications: PostNotificationsMode;
 }
 
 function getCommentSortTypeFromQuery(
@@ -247,6 +252,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
     isIsomorphic: false,
+    notifications: "RepliesAndMentions",
   };
 
   loadingSettled() {
@@ -296,6 +302,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleScrollIntoCommentsClick =
       this.handleScrollIntoCommentsClick.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
+    this.handleNotificationChange = this.handleNotificationChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -306,6 +313,15 @@ export class Post extends Component<PostRouteProps, PostState> {
         postRes,
         commentsRes,
         isIsomorphic: true,
+      };
+    }
+
+    if (this.state.postRes.state === "success") {
+      this.state = {
+        ...this.state,
+        notifications:
+          this.state.postRes.data.post_view.post_actions?.notifications ??
+          "RepliesAndMentions",
       };
     }
   }
@@ -320,6 +336,14 @@ export class Post extends Component<PostRouteProps, PostState> {
     });
     if (token === this.fetchPostToken) {
       this.setState({ postRes });
+
+      if (this.state.postRes.state === "success") {
+        this.setState({
+          notifications:
+            this.state.postRes.data.post_view.post_actions?.notifications ??
+            "RepliesAndMentions",
+        });
+      }
     }
   }
 
@@ -647,7 +671,16 @@ export class Post extends Component<PostRouteProps, PostState> {
                 </button>
                 {this.state.showSidebarMobile && this.sidebar()}
               </div>
-              {this.sortRadios()}
+              <div className="col-12 d-flex flex-wrap">
+                {this.sortRadios()}
+                <div class="flex-grow-1"></div>
+                <div className="btn-group w-auto mb-2" role="group">
+                  <PostNotificationSelect
+                    current={this.state.notifications}
+                    onChange={this.handleNotificationChange}
+                  />
+                </div>
+              </div>
               {this.props.view === CommentViewType.Tree && this.commentsTree()}
               {this.props.view === CommentViewType.Flat && this.commentsFlat()}
             </div>
@@ -757,7 +790,10 @@ export class Post extends Component<PostRouteProps, PostState> {
             {I18NextService.i18n.t("old")}
           </label>
         </div>
-        <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
+        <div
+          className="btn-group btn-group-toggle flex-wrap mb-2 me-3"
+          role="group"
+        >
           <input
             id={`${radioId}-chat`}
             type="radio"
@@ -857,6 +893,7 @@ export class Post extends Component<PostRouteProps, PostState> {
           onPurgeCommunity={this.handlePurgeCommunity}
           onBlockCommunity={this.handleBlockCommunity}
           onEditCommunity={this.handleEditCommunity}
+          onUpdateCommunityNotifs={this.handleUpdateCommunityNotifs}
         />
       );
     }
@@ -1104,6 +1141,13 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.updateCommunity(res);
 
     return res;
+  }
+
+  async handleUpdateCommunityNotifs(form: UpdateCommunityNotifications) {
+    const res = await HttpService.client.updateCommunityNotifications(form);
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("notifications_updated"));
+    }
   }
 
   async handleCreateToplevelComment(form: CreateComment) {
@@ -1375,6 +1419,20 @@ export class Post extends Component<PostRouteProps, PostState> {
       });
 
       toast(I18NextService.i18n.t(form.hide ? "post_hidden" : "post_unhidden"));
+    }
+  }
+
+  async handleNotificationChange(val: PostNotificationsMode) {
+    if (this.state.postRes.state === "success") {
+      const form = {
+        post_id: this.state.postRes.data.post_view.post.id,
+        mode: val,
+      };
+      this.setState({ notifications: form.mode });
+      const res = await HttpService.client.updatePostNotifications(form);
+      if (res.state === "success") {
+        toast(I18NextService.i18n.t("notifications_updated"));
+      }
     }
   }
 

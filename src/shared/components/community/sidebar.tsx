@@ -7,6 +7,7 @@ import {
   AddModToCommunity,
   BlockCommunity,
   CommunityModeratorView,
+  CommunityNotificationsMode,
   CommunityView,
   DeleteCommunity,
   EditCommunity,
@@ -16,6 +17,7 @@ import {
   PersonView,
   PurgeCommunity,
   RemoveCommunity,
+  UpdateCommunityNotifications,
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { HttpService, I18NextService } from "../../services";
@@ -28,6 +30,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
+import { CommunityNotificationSelect } from "@components/common/notification-select";
 import { LanguageList } from "@components/common/language-list";
 
 interface SidebarProps {
@@ -48,6 +51,7 @@ interface SidebarProps {
   onBlockCommunity(form: BlockCommunity): void;
   onPurgeCommunity(form: PurgeCommunity): void;
   onEditCommunity(form: EditCommunity): void;
+  onUpdateCommunityNotifs(form: UpdateCommunityNotifications): void;
 }
 
 interface SidebarState {
@@ -66,6 +70,7 @@ interface SidebarState {
   showCommunityReportModal: boolean;
   renderCommunityReportModal: boolean;
   searchText: string;
+  notifications: CommunityNotificationsMode;
 }
 
 @tippyMixin
@@ -83,6 +88,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     showCommunityReportModal: false,
     renderCommunityReportModal: false,
     searchText: "",
+    notifications: "RepliesAndMentions",
   };
 
   constructor(props: any, context: any) {
@@ -92,6 +98,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       this.handleSubmitCommunityReport.bind(this);
     this.handleHideCommunityReportModal =
       this.handleHideCommunityReportModal.bind(this);
+    this.handleNotificationChange = this.handleNotificationChange.bind(this);
+    this.state.notifications =
+      this.props.community_view.community_actions?.notifications ??
+      "RepliesAndMentions";
   }
 
   unlisten = () => {};
@@ -156,7 +166,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   sidebar() {
     const {
       community: { name, ap_id, id, posting_restricted_to_mods, visibility },
-      community_actions: { received_ban_at: bannedFromCommunity } = {},
+      community_actions: { received_ban_at } = {},
     } = this.props.community_view;
 
     return (
@@ -166,7 +176,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
-              {bannedFromCommunity && (
+              {received_ban_at && (
                 <div
                   className="alert alert-danger text-sm-start text-xs-center mt-2"
                   role="alert"
@@ -181,7 +191,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </T>
                 </div>
               )}
-              {!bannedFromCommunity && (
+              {!received_ban_at && (
                 <>
                   <SubscribeButton
                     communityView={this.props.community_view}
@@ -195,6 +205,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               )}
               <>
                 {this.props.myUserInfo && this.blockCommunity()}
+                <div className="mb-2 d-flex">
+                  <CommunityNotificationSelect
+                    current={this.state.notifications}
+                    onChange={this.handleNotificationChange}
+                  />
+                </div>
                 <form
                   class="d-flex"
                   onSubmit={linkEvent(this, this.handleSearchSubmit)}
@@ -662,6 +678,15 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   handlePurgeReasonChange(i: Sidebar, event: any) {
     i.setState({ purgeReason: event.target.value });
+  }
+
+  async handleNotificationChange(val: CommunityNotificationsMode) {
+    this.setState({ notifications: val });
+    const form = {
+      community_id: this.props.community_view.community.id,
+      mode: this.state.notifications,
+    };
+    this.props.onUpdateCommunityNotifs(form);
   }
 
   // TODO Do we need two of these?
