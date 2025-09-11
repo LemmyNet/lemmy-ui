@@ -24,11 +24,11 @@ The following environment variables can be used to configure lemmy-ui:
 | `ENV_VAR`                      | type     | default          | description                                                                         |
 | ------------------------------ | -------- | ---------------- | ----------------------------------------------------------------------------------- |
 | `LEMMY_UI_HOST`                | `string` | `0.0.0.0:1234`   | The IP / port that the lemmy-ui isomorphic node server is hosted at.                |
-| `LEMMY_UI_BACKEND_REMOTE`      | `string` |                  | Domain of a remote Lemmy instance to connect using HTTPS and port 403               |
 | `LEMMY_UI_BACKEND_INTERNAL`    | `string` | `0.0.0.0:8536`   | The internal IP / port that lemmy is hosted at. Often `lemmy:8536` if using docker. |
 | `LEMMY_UI_BACKEND_EXTERNAL`    | `string` | `0.0.0.0:8536`   | The external IP / port that lemmy is hosted at. Often `DOMAIN.TLD`.                 |
+| `LEMMY_UI_BACKEND_REMOTE`      | `string` | `undefined`      | Domain of a remote Lemmy instance to connect for debugging purposes                 |
 | `LEMMY_UI_HTTPS`               | `bool`   | `false`          | Whether to use https.                                                               |
 | `LEMMY_UI_EXTRA_THEMES_FOLDER` | `string` | `./extra_themes` | A location for additional lemmy css themes.                                         |
 | `LEMMY_UI_DEBUG`               | `bool`   | `false`          | Loads the [Eruda](https://github.com/liriliri/eruda) debugging utility.             |
 | `LEMMY_UI_DISABLE_CSP`         | `bool`   | `false`          | Disables CSP security headers                                                       |
-| `LEMMY_UI_CUSTOM_HTML_HEADER`  | `string` |                  | Injects a custom script into `<head>`.                                              |
+| `LEMMY_UI_CUSTOM_HTML_HEADER`  | `string` | `undefined`      | Injects a custom script into `<head>`.                                              |
