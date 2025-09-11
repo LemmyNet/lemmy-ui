@@ -32,13 +32,14 @@ import {
 import { I18NextService } from "../../services";
 import { PostListing } from "./post-listing";
 import { RequestState } from "../../services/HttpService";
+import { ShowDupesType } from "@utils/types";
 
 interface PostListingsProps {
   posts: PostView[];
   allLanguages: Language[];
   siteLanguages: LanguageId[];
   showCommunity?: boolean;
-  removeDuplicates?: boolean;
+  showDupes: ShowDupesType;
   markable?: boolean;
   enableNsfw?: boolean;
   showAdultConsentModal: boolean;
@@ -75,7 +76,7 @@ export class PostListings extends Component<PostListingsProps, any> {
   }
 
   get posts() {
-    return this.props.removeDuplicates
+    return this.props.showDupes !== "ShowSeparately"
       ? this.removeDuplicates()
       : this.props.posts;
   }
@@ -89,6 +90,7 @@ export class PostListings extends Component<PostListingsProps, any> {
               <PostListing
                 post_view={post_view}
                 crossPosts={this.duplicatesMap.get(post_view.post.id)}
+                showDupes={this.props.showDupes}
                 showCommunity={this.props.showCommunity}
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}

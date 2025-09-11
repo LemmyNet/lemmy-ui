@@ -434,6 +434,7 @@ export class Notifications extends Component<
             <PostListing
               post_view={i}
               showCommunity={true}
+              showDupes="ShowSeparately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={[]}

@@ -15,14 +15,6 @@ interface CommunityLinkProps {
   myUserInfo: MyUserInfo | undefined;
 }
 
-export function buildCommunityLink(community: Community): string {
-  if (community.local) {
-    return `/c/${community.name}`;
-  } else {
-    return `/c/${community.name}@${hostname(community.ap_id)}`;
-  }
-}
-
 export class CommunityLink extends Component<CommunityLinkProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
@@ -35,14 +27,9 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
       ? community.name
       : (community.title ?? community.name);
 
-    const link = !this.props.realLink
-      ? buildCommunityLink(community)
-      : community.ap_id;
-    let serverStr: string | undefined = undefined;
-    if (!community.local) {
-      serverStr = `@${hostname(community.ap_id)}`;
-    }
-    const classes = `text-nowrap community-link ${this.props.muted ? "text-muted" : ""}`;
+    const { link, serverStr } = communityLink(community, this.props.realLink);
+
+    const classes = `community-link ${this.props.muted ? "text-muted" : ""}`;
 
     return !this.props.realLink ? (
       <Link title={title} className={classes} to={link}>
@@ -71,5 +58,28 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
         </span>
       </>
     );
+  }
+}
+
+export type CommunityLinkAndServerStr = {
+  link: string;
+  serverStr?: string;
+};
+
+export function communityLink(
+  community: Community,
+  realLink: boolean = false,
+): CommunityLinkAndServerStr {
+  const local = community.local === null ? true : community.local;
+
+  if (local) {
+    return { link: `/c/${community.name}` };
+  } else {
+    const serverStr = `@${hostname(community.ap_id)}`;
+    const link = !realLink
+      ? `/c/${community.name}${serverStr}`
+      : community.ap_id;
+
+    return { link, serverStr };
   }
 }

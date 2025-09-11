@@ -58,7 +58,6 @@ import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
 import { ListingTypeSelect } from "./common/listing-type-select";
-import { buildCommunityLink, CommunityLink } from "./community/community-link";
 import { buildPersonLink, PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
@@ -70,6 +69,7 @@ import { SearchSortSelect } from "./common/sort-select";
 import { SearchableSelect } from "./common/searchable-select";
 import { UserBadges } from "./common/user-badges";
 import { Badges } from "./common/badges";
+import { CommunityLink, communityLink } from "./community/community-link";
 
 interface SearchProps {
   q?: string;
@@ -186,7 +186,7 @@ const communityListing = (
         {communities.map(c => (
           <a
             className="d-flex align-items-center"
-            href={buildCommunityLink(c.community)}
+            href={communityLink(c.community, false).link}
           >
             <span className="p-1 h-100">
               <CommunityLink community={c.community} myUserInfo={myUserInfo} />
@@ -246,6 +246,7 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
             <PostListing
               key={post_view.post.id}
               post_view={post_view}
+              showDupes="ShowSeparately"
               showCommunity
               myUserInfo={isoData.myUserInfo}
               localSite={isoData.siteRes.site_view.local_site}
@@ -878,6 +879,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             <div className="col-12">
               <PostListing
                 post_view={pv}
+                showDupes="ShowSeparately"
                 showCommunity
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}

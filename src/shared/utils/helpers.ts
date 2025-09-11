@@ -1,6 +1,6 @@
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { RequestState } from "@services/HttpService";
-import { PaginationCursor } from "lemmy-js-client";
+import { PaginationCursor, PostView } from "lemmy-js-client";
 import { DirectionalCursor, CursorComponents } from "./types";
 
 // Intended to allow reloading all the data of the current page by clicking the
@@ -271,4 +271,12 @@ export function cursorComponents(cursor?: DirectionalCursor): CursorComponents {
     page_cursor: cursor,
     page_back: false,
   };
+}
+
+export function unreadCommentsCount(pv: PostView): number | undefined {
+  const unread_comments =
+    pv.post.comments - (pv.post_actions?.read_comments_amount ?? 0);
+  return unread_comments === pv.post.comments || unread_comments === 0
+    ? undefined
+    : unread_comments;
 }
