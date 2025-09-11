@@ -10,7 +10,7 @@ import { I18NextService } from "../../services";
 import { PersonListing } from "../person/person-listing";
 import { Spinner } from "./icon";
 import { MarkdownTextArea } from "./markdown-textarea";
-import { formatDate } from "./moment-time";
+import { MomentTime } from "./moment-time";
 
 interface RegistrationApplicationProps {
   application: RegistrationApplicationView;
@@ -69,9 +69,8 @@ export class RegistrationApplication extends Component<
           />
         </div>
         <div>
-          {I18NextService.i18n.t("created_at", {
-            time: formatDate(ra.published_at),
-          })}
+          {I18NextService.i18n.t("created")}:{" "}
+          <MomentTime showAgo published={ra.published_at} />
         </div>
         <div>{I18NextService.i18n.t("answer")}:</div>
         <div
