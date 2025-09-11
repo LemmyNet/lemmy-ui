@@ -81,6 +81,7 @@ type CommentNodeProps = {
    **/
   community?: Community;
   admins: PersonView[];
+  readCommentsAt?: string;
   noBorder?: boolean;
   isTopLevel?: boolean;
   viewOnly?: boolean;
@@ -492,6 +493,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             community={this.community}
             locked={this.props.locked}
             admins={this.props.admins}
+            readCommentsAt={this.props.readCommentsAt}
             viewType={this.props.viewType}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -618,10 +620,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     return res;
   }
 
+  /**
+   * From the post screen, use the last readCommentsAt time.
+   *
+   * For everything else, use 10 minutes.
+   **/
   get isCommentNew(): boolean {
-    const now = subMinutes(new Date(), 10);
-    const then = parseISO(this.commentView.comment.published_at);
-    return isBefore(now, then);
+    const checkTime = this.props.readCommentsAt
+      ? parseISO(this.props.readCommentsAt)
+      : subMinutes(new Date(), 10);
+    const commentTime = parseISO(this.commentView.comment.published_at);
+    return isBefore(checkTime, commentTime);
   }
 
   handleCommentCollapse(i: CommentNode, event: InfernoMouseEvent<any>) {

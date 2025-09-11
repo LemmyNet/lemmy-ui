@@ -222,13 +222,9 @@ function handlePostNsfwChange(i: PostForm, event: any) {
 function handlePostScheduleChange(i: PostForm, event: any) {
   const scheduled_publish_time = event.target.value;
 
-  i.setState(prev => ({
-    ...prev,
-    form: {
-      ...prev.form,
-      scheduled_publish_time,
-    },
-  }));
+  i.setState(
+    s => ((s.form.scheduled_publish_time_at = scheduled_publish_time), s),
+  );
 }
 
 function handleHoneyPotChange(i: PostForm, event: any) {
@@ -580,6 +576,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <PostListings
                 showCommunity
                 posts={this.props.crossPosts}
+                showDupes="ShowSeparately"
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
@@ -719,21 +716,23 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         )}
 
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="post-schedule">
-            {I18NextService.i18n.t("scheduled_publish_time")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="datetime-local"
-              value={this.state.form.scheduled_publish_time_at}
-              min={unixTimeToLocalDateStr(Date.now())}
-              id="post-schedule"
-              className="form-control mb-3"
-              onInput={linkEvent(this, handlePostScheduleChange)}
-            />
+        {!this.props.post_view && (
+          <div className="mb-3 row">
+            <label className="col-sm-2 col-form-label" htmlFor="post-schedule">
+              {I18NextService.i18n.t("scheduled_publish_time")}
+            </label>
+            <div className="col-sm-10">
+              <input
+                type="datetime-local"
+                value={this.state.form.scheduled_publish_time_at}
+                min={unixTimeToLocalDateStr(Date.now())}
+                id="post-schedule"
+                className="form-control mb-3"
+                onInput={linkEvent(this, handlePostScheduleChange)}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <input
           tabIndex={-1}
@@ -826,6 +825,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <PostListings
                 showCommunity
                 posts={suggestedPosts}
+                showDupes="ShowSeparately"
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
