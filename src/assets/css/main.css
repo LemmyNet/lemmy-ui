@@ -497,3 +497,7 @@ br.big {
 em-emoji-picker {
   width: 100%;
 }
+
+.language-item:focus {
+  background-color: var(--bs-info-bg-subtle) !important;
+}
