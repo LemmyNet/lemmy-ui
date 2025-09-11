@@ -291,7 +291,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
               ]}
               viewType={CommentViewType.Flat}
               viewOnly
-              locked
+              postLocked
               isTopLevel
               myUserInfo={isoData.myUserInfo}
               localSite={isoData.siteRes.site_view.local_site}
@@ -316,6 +316,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
               onCreateComment={async () => EMPTY_REQUEST}
               onEditComment={async () => EMPTY_REQUEST}
               onPersonNote={async () => {}}
+              onLockComment={async () => {}}
             />
           </div>
         ))}
@@ -840,7 +841,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         nodes={commentsToFlatNodes(comments)}
         viewType={CommentViewType.Flat}
         viewOnly
-        locked
+        postLocked
         isTopLevel
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
@@ -865,6 +866,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onCreateComment={async () => EMPTY_REQUEST}
         onEditComment={async () => EMPTY_REQUEST}
         onPersonNote={async () => {}}
+        onLockComment={async () => {}}
       />
     );
   }
