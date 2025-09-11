@@ -613,6 +613,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 href={url}
                 title={url}
                 rel={relTags}
+                target={this.linkTarget}
               >
                 {linkName}
               </a>
