@@ -226,7 +226,7 @@ const personListing = (
               myUserInfo={myUserInfo}
               personActions={p.person_actions}
               creator={p.person}
-              showCounts={true}
+              showCounts
             />
           </a>
         ))}
