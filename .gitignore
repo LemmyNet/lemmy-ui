@@ -21,6 +21,8 @@ node_modules
 *.swp
 *~
 test/data/result.json
+.yalc
+yalc.lock
 
 package-lock.json
 *.orig
