@@ -20,6 +20,14 @@ interface PersonListingProps {
   myUserInfo: MyUserInfo | undefined;
 }
 
+export function buildPersonLink(person: Person): string {
+  if (person.local) {
+    return `/u/${person.name}`;
+  } else {
+    return `/u/${person.name}@${hostname(person.ap_id)}`;
+  }
+}
+
 export class PersonListing extends Component<PersonListingProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
@@ -27,22 +35,16 @@ export class PersonListing extends Component<PersonListingProps, any> {
 
   render() {
     const { person, useApubName } = this.props;
-    const local = person.local;
-    let link: string;
     let serverStr: string | undefined = undefined;
 
     const name = useApubName
       ? person.name
       : (person.display_name ?? person.name);
 
-    if (local) {
-      link = `/u/${person.name}`;
-    } else {
+    if (!person.local) {
       serverStr = `@${hostname(person.ap_id)}`;
-      link = !this.props.realLink
-        ? `/u/${person.name}${serverStr}`
-        : person.ap_id;
     }
+    const link = !this.props.realLink ? buildPersonLink(person) : person.ap_id;
 
     const classes = classNames(
       "person-listing d-inline-flex align-items-baseline",

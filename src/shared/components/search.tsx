@@ -17,7 +17,6 @@ import {
   getBoolFromString,
   getQueryParams,
   getQueryString,
-  numToSI,
   resourcesSettled,
   cursorComponents,
 } from "@utils/helpers";
@@ -59,8 +58,8 @@ import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
 import { ListingTypeSelect } from "./common/listing-type-select";
-import { CommunityLink } from "./community/community-link";
-import { PersonListing } from "./person/person-listing";
+import { buildCommunityLink, CommunityLink } from "./community/community-link";
+import { buildPersonLink, PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -185,12 +184,15 @@ const communityListing = (
       <>
         <h3>{I18NextService.i18n.t("communities")}</h3>
         {communities.map(c => (
-          <div className="d-flex text-center">
-            <span className="p-1">
+          <a
+            className="d-flex align-items-center"
+            href={buildCommunityLink(c.community)}
+          >
+            <span className="p-1 h-100">
               <CommunityLink community={c.community} myUserInfo={myUserInfo} />
             </span>
             <Badges communityId={c.community.id} subject={c.community} />
-          </div>
+          </a>
         ))}
         <hr class="border m-2" />
       </>
@@ -207,14 +209,12 @@ const personListing = (
       <>
         <h3>{I18NextService.i18n.t("users")}</h3>
         {persons.map(p => (
-          <div>
-            <span>
-              <PersonListing
-                person={p.person}
-                showApubName
-                myUserInfo={myUserInfo}
-              />
-            </span>
+          <a href={buildPersonLink(p.person)} className="d-flex">
+            <PersonListing
+              person={p.person}
+              showApubName
+              myUserInfo={myUserInfo}
+            />
             <UserBadges
               classNames="ms-1"
               isAdmin={p.is_admin}
@@ -222,16 +222,9 @@ const personListing = (
               myUserInfo={myUserInfo}
               personActions={p.person_actions}
               creator={p.person}
+              showCounts={true}
             />
-            <span>{` - ${I18NextService.i18n.t("number_of_posts", {
-              count: Number(p.person.post_count),
-              formattedCount: numToSI(p.person.post_count),
-            })}`}</span>
-            <span>{` - ${I18NextService.i18n.t("number_of_comments", {
-              count: Number(p.person.comment_count),
-              formattedCount: numToSI(p.person.comment_count),
-            })}`}</span>
-          </div>
+          </a>
         ))}
         <hr class="border m-2" />
       </>

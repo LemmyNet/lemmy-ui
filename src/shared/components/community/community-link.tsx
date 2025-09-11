@@ -15,6 +15,14 @@ interface CommunityLinkProps {
   myUserInfo: MyUserInfo | undefined;
 }
 
+export function buildCommunityLink(community: Community): string {
+  if (community.local) {
+    return `/c/${community.name}`;
+  } else {
+    return `/c/${community.name}@${hostname(community.ap_id)}`;
+  }
+}
+
 export class CommunityLink extends Component<CommunityLinkProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
@@ -22,22 +30,17 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
 
   render() {
     const { community, useApubName } = this.props;
-    const local = community.local === null ? true : community.local;
-
-    let link: string;
-    let serverStr: string | undefined = undefined;
 
     const title = useApubName
       ? community.name
       : (community.title ?? community.name);
 
-    if (local) {
-      link = `/c/${community.name}`;
-    } else {
+    const link = !this.props.realLink
+      ? buildCommunityLink(community)
+      : community.ap_id;
+    let serverStr: string | undefined = undefined;
+    if (!community.local) {
       serverStr = `@${hostname(community.ap_id)}`;
-      link = !this.props.realLink
-        ? `/c/${community.name}${serverStr}`
-        : community.ap_id;
     }
     const classes = `text-nowrap community-link ${this.props.muted ? "text-muted" : ""}`;
 
