@@ -701,7 +701,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <PostListings
               posts={posts}
               showCommunity
-              removeDuplicates
+              showDupes="Small"
               markable
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
