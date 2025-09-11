@@ -575,6 +575,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               <PostListing
                 post_view={res.post_view}
                 crossPosts={res.cross_posts}
+                showDupes="Expanded"
                 showBody
                 showCommunity
                 admins={siteRes.admins}
