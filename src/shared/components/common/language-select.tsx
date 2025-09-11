@@ -21,15 +21,31 @@ interface LanguageSelectProps {
   myUserInfo: MyUserInfo | undefined;
 }
 
-export class LanguageSelect extends Component<LanguageSelectProps, any> {
+interface LanguageSelectState {
+  filter: string;
+  selected: number[];
+}
+
+export class LanguageSelect extends Component<
+  LanguageSelectProps,
+  LanguageSelectState
+> {
   private id = `language-select-${randomStr()}`;
+  state: LanguageSelectState = {
+    filter: "",
+    selected: this.props.selectedLanguageIds ?? [],
+  };
 
   constructor(props: any, context: any) {
     super(props, context);
+    this.handleCheckboxLanguageChange =
+      this.handleCheckboxLanguageChange.bind(this);
   }
 
   componentDidMount() {
-    this.setSelectedValues();
+    if (!this.props.multiple) {
+      this.setSelectedValues();
+    }
   }
 
   // Necessary because there is no HTML way to set selected for multiple in value=
@@ -73,21 +89,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
             {I18NextService.i18n.t("undetermined_language_warning")}
           </div>
         )}
-        <div
-          className={classNames(`col-sm-${this.props.multiple ? 9 : 10}`, {
-            "input-group": this.props.multiple,
-          })}
-        >
-          {this.selectBtn}
-          {this.props.multiple && (
-            <button
-              className="btn btn-outline-secondary"
-              onClick={linkEvent(this, this.handleDeselectAll)}
-            >
-              <Icon icon="x" />
-            </button>
-          )}
-        </div>
+        <div>{this.props.multiple ? this.multiSelectBtn : this.selectBtn}</div>
       </div>
     );
   }
@@ -108,7 +110,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
           "d-inline-block": !this.props.iconVersion,
         })}
         id={this.id}
-        onChange={linkEvent(this, this.handleLanguageChange)}
+        onChange={linkEvent(this, this.handleSelectLanguageChange)}
         aria-label={I18NextService.i18n.t("language_select_placeholder")}
         aria-describedby={
           this.props.multiple && this.props.showLanguageWarning
@@ -136,7 +138,7 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
     );
   }
 
-  handleLanguageChange(i: LanguageSelect, event: any) {
+  handleSelectLanguageChange(i: LanguageSelect, event: any) {
     const options: HTMLOptionElement[] = Array.from(event.target.options);
     const selected: number[] = options
       .filter(o => o.selected)
@@ -145,8 +147,94 @@ export class LanguageSelect extends Component<LanguageSelectProps, any> {
     i.props.onChange(selected);
   }
 
-  handleDeselectAll(i: LanguageSelect, event: any) {
-    event.preventDefault();
-    i.props.onChange([]);
+  get multiSelectBtn() {
+    const selectedLangs = this.props.selectedLanguageIds ?? [];
+    const filteredLangs = selectableLanguages(
+      this.props.allLanguages,
+      this.props.siteLanguages,
+      this.props.showAll,
+      this.props.showSite,
+      this.props.myUserInfo,
+    )
+      // Apply the filter
+      .filter(a =>
+        a.name.toLowerCase().includes(this.state.filter.toLowerCase()),
+      )
+      // Show selected items first
+      .sort((_, b) => {
+        if (selectedLangs.includes(b.id)) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+    return (
+      <div className="border rounded w-100 bg-body">
+        <input
+          name="q"
+          type="search"
+          className="form-control flex-initial  border border-0"
+          placeholder={`${I18NextService.i18n.t("search")}...`}
+          aria-label={I18NextService.i18n.t("search")}
+          onInput={linkEvent(this, this.handleSearchChange)}
+          minLength={1}
+          value={this.state.filter}
+          autoComplete="off"
+        />
+        <hr className="border-dark border-2 m-0" />
+        <ul
+          class="list-group overflow-scroll rounded-0 rounded-bottom"
+          style="max-height: 200px;"
+          tabIndex={-1}
+        >
+          {!this.props.multiple && (
+            <option selected disabled hidden>
+              {I18NextService.i18n.t("language_select_placeholder")}
+            </option>
+          )}
+          {filteredLangs.map(l => (
+            <li className="list-group-item p-0 border-0">
+              <button
+                type="button"
+                className="btn text-start w-100 rounded-0 language-item"
+                onClick={linkEvent(this, this.handleCheckboxLanguageChange)}
+                id={l.id.toString()}
+              >
+                <input
+                  class="form-check-input me-1 pe-none"
+                  type="checkbox"
+                  tabIndex={-1}
+                  checked={selectedLangs?.includes(l.id)}
+                />
+                <label class="form-check-label pe-none" for={l.id.toString()}>
+                  {l.name}
+                </label>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  handleCheckboxLanguageChange(i: LanguageSelect, event: any) {
+    const id = Number(event.target.id);
+    if (!i.state.selected.includes(id)) {
+      i.state.selected.push(id);
+    } else {
+      // remove the item
+      const index = i.state.selected.indexOf(id);
+      if (index > -1) {
+        i.state.selected.splice(index, 1);
+      }
+    }
+    this.setState({ selected: i.state.selected });
+    i.props.onChange(i.state.selected);
+  }
+
+  handleSearchChange(i: LanguageSelect, event: any) {
+    this.setState({ filter: event.target.value });
+    i.forceUpdate();
   }
 }

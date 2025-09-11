@@ -556,6 +556,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           return (
             <PostListings
               posts={this.state.postsRes.data.posts}
+              showDupes="ShowSeparately"
               markable
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
