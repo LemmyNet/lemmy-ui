@@ -253,14 +253,14 @@ export class Communities extends Component<
             </div>
             <div className="col">
               <button
-                className="btn btn-link"
+                className="btn btn-secondary"
                 onClick={this.handleVisitRandomCommunity}
                 aria-label={I18NextService.i18n.t("visit_random_community")}
                 data-tippy-content={I18NextService.i18n.t(
                   "visit_random_community",
                 )}
               >
-                <Icon icon="shuffle" classes="text-muted small" />
+                <Icon icon="shuffle" />
               </button>
             </div>
             <div className="col-auto">{this.searchForm()}</div>
