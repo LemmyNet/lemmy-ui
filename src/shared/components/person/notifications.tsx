@@ -36,10 +36,10 @@ import {
   ListNotificationsResponse,
   MarkNotificationAsRead,
   MarkPostAsRead,
-  MarkPrivateMessageAsRead,
   NotePerson,
   NotificationDataType,
   NotificationView,
+  PrivateMessageId,
   PrivateMessageReportResponse,
   PrivateMessageResponse,
   PurgeComment,
@@ -150,7 +150,7 @@ export class Notifications extends Component<
     this.handleBanPerson = this.handleBanPerson.bind(this);
 
     this.handleDeleteMessage = this.handleDeleteMessage.bind(this);
-    this.handleMarkMessageAsRead = this.handleMarkMessageAsRead.bind(this);
+    this.handleMessageMarkAsRead = this.handleMessageMarkAsRead.bind(this);
     this.handleMessageReport = this.handleMessageReport.bind(this);
     this.handleCreateMessage = this.handleCreateMessage.bind(this);
     this.handleEditMessage = this.handleEditMessage.bind(this);
@@ -425,7 +425,7 @@ export class Notifications extends Component<
             onCreate={this.handleCreateMessage}
             onEdit={this.handleEditMessage}
             read={item.notification.read}
-            onMarkRead={this.handleMarkMessageAsRead}
+            onMarkRead={this.handleMessageMarkAsRead}
           />
         );
       case "Post":
@@ -691,6 +691,24 @@ export class Notifications extends Component<
     }
   }
 
+  async handleMessageMarkAsRead(
+    privateMessageId: PrivateMessageId,
+    read: boolean,
+  ) {
+    if (this.state.notifsRes.state !== "success") return;
+    const notification = this.state.notifsRes.data.notifications.find(
+      n =>
+        n.data.type_ === "PrivateMessage" &&
+        n.data.private_message.id === privateMessageId,
+    );
+    if (notification) {
+      await this.handleMarkNotificationAsRead({
+        notification_id: notification.notification.id,
+        read,
+      });
+    }
+  }
+
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
     this.updateBanFromCommunity(banRes, form.community_id);
@@ -735,21 +753,6 @@ export class Notifications extends Component<
       }
       return { notifsRes: s.notifsRes };
     });
-  }
-
-  async handleMarkMessageAsRead(form: MarkPrivateMessageAsRead) {
-    if (this.state.notifsRes.state !== "success") return;
-    const notification = this.state.notifsRes.data.notifications.find(
-      n =>
-        n.data.type_ === "PrivateMessage" &&
-        n.data.private_message.id === form.private_message_id,
-    );
-    if (notification) {
-      await this.handleMarkNotificationAsRead({
-        notification_id: notification.notification.id,
-        read: form.read,
-      });
-    }
   }
 
   async handleMessageReport(form: CreatePrivateMessageReport) {

@@ -117,8 +117,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-community-post-notifs.0
-        version: 1.0.0-community-post-notifs.0
+        specifier: 1.0.0-comment-lock.1
+        version: 1.0.0-comment-lock.1
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -3356,8 +3356,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  lemmy-js-client@1.0.0-community-post-notifs.0:
-    resolution: {integrity: sha512-XonbwhSgPprZ/XcifhKgjoXRMtXJWK+HJ+qdD/tNJSTMiMbEB5YaAztHAR5E/dFn7b0a9NQq3Z7Yz1BApi3SpA==}
+  lemmy-js-client@1.0.0-comment-lock.1:
+    resolution: {integrity: sha512-OVTBBvAyFWfMUJk5FytIuGKENhYn/8wFfoMdpI0tleAumGnj3tOoBipgJ6El8E7uJRCWlhL7xwP93wubBEJlUw==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8632,7 +8632,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  lemmy-js-client@1.0.0-community-post-notifs.0:
+  lemmy-js-client@1.0.0-comment-lock.1:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:
