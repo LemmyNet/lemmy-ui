@@ -22,23 +22,13 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
 
   render() {
     const { community, useApubName } = this.props;
-    const local = community.local === null ? true : community.local;
-
-    let link: string;
-    let serverStr: string | undefined = undefined;
 
     const title = useApubName
       ? community.name
       : (community.title ?? community.name);
 
-    if (local) {
-      link = `/c/${community.name}`;
-    } else {
-      serverStr = `@${hostname(community.ap_id)}`;
-      link = !this.props.realLink
-        ? `/c/${community.name}${serverStr}`
-        : community.ap_id;
-    }
+    const { link, serverStr } = communityLink(community, this.props.realLink);
+
     const classes = `community-link ${this.props.muted ? "text-muted" : ""}`;
 
     return !this.props.realLink ? (
@@ -68,5 +58,28 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
         </span>
       </>
     );
+  }
+}
+
+export type CommunityLinkAndServerStr = {
+  link: string;
+  serverStr?: string;
+};
+
+export function communityLink(
+  community: Community,
+  realLink: boolean = false,
+): CommunityLinkAndServerStr {
+  const local = community.local === null ? true : community.local;
+
+  if (local) {
+    return { link: `/c/${community.name}` };
+  } else {
+    const serverStr = `@${hostname(community.ap_id)}`;
+    const link = !realLink
+      ? `/c/${community.name}${serverStr}`
+      : community.ap_id;
+
+    return { link, serverStr };
   }
 }
