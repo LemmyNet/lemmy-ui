@@ -191,7 +191,11 @@ const communityListing = (
             <span className="p-1 h-100">
               <CommunityLink community={c.community} myUserInfo={myUserInfo} />
             </span>
-            <Badges communityId={c.community.id} subject={c.community} />
+            <Badges
+              communityId={c.community.id}
+              subject={c.community}
+              lessBadges
+            />
           </a>
         ))}
         <hr class="border m-2" />
