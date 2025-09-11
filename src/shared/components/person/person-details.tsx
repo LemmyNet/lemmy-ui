@@ -130,6 +130,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           <PostListing
             key={i.post.id}
             post_view={i}
+            showDupes="ShowSeparately"
             admins={this.props.admins}
             showCommunity
             enableNsfw={this.props.enableNsfw}

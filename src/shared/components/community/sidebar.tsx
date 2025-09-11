@@ -166,6 +166,21 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
             <div className="card-body">
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
+              {bannedFromCommunity && (
+                <div
+                  className="alert alert-danger text-sm-start text-xs-center mt-2"
+                  role="alert"
+                >
+                  <Icon
+                    icon="ban"
+                    inline
+                    classes="me-sm-2 mx-auto d-sm-inline d-block"
+                  />
+                  <T i18nKey="banned_from_community_blurb" className="d-inline">
+                    #<strong className="fw-bold">#</strong>#
+                  </T>
+                </div>
+              )}
               {!bannedFromCommunity && (
                 <>
                   <SubscribeButton
@@ -176,30 +191,29 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     showRemoteFetch={!this.props.myUserInfo}
                   />
                   {this.canPost && this.createPost()}
-                  {this.props.myUserInfo && this.blockCommunity()}
-                  <form
-                    class="d-flex"
-                    onSubmit={linkEvent(this, this.handleSearchSubmit)}
-                  >
-                    <input
-                      name="q"
-                      type="search"
-                      className="form-control flex-initial"
-                      placeholder={`${I18NextService.i18n.t("search")}...`}
-                      aria-label={I18NextService.i18n.t("search")}
-                      onInput={linkEvent(this, this.handleSearchChange)}
-                      required
-                      minLength={1}
-                    />
-                    <button
-                      type="submit"
-                      class="btn btn-outline-secondary ms-1"
-                    >
-                      <Icon icon="search" />
-                    </button>
-                  </form>
                 </>
               )}
+              <>
+                {this.props.myUserInfo && this.blockCommunity()}
+                <form
+                  class="d-flex"
+                  onSubmit={linkEvent(this, this.handleSearchSubmit)}
+                >
+                  <input
+                    name="q"
+                    type="search"
+                    className="form-control flex-initial"
+                    placeholder={`${I18NextService.i18n.t("search")}...`}
+                    aria-label={I18NextService.i18n.t("search")}
+                    onInput={linkEvent(this, this.handleSearchChange)}
+                    required
+                    minLength={1}
+                  />
+                  <button type="submit" class="btn btn-outline-secondary ms-1">
+                    <Icon icon="search" />
+                  </button>
+                </form>
+              </>
               {!this.props.myUserInfo && (
                 <div className="alert alert-info" role="alert">
                   <T
@@ -228,21 +242,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     classes="me-sm-2 mx-auto d-sm-inline d-block"
                   />
                   <T i18nKey="community_locked_message" className="d-inline">
-                    #<strong className="fw-bold">#</strong>#
-                  </T>
-                </div>
-              )}
-              {bannedFromCommunity && (
-                <div
-                  className="alert alert-danger text-sm-start text-xs-center"
-                  role="alert"
-                >
-                  <Icon
-                    icon="ban"
-                    inline
-                    classes="me-sm-2 mx-auto d-sm-inline d-block"
-                  />
-                  <T i18nKey="banned_from_community_blurb" className="d-inline">
                     #<strong className="fw-bold">#</strong>#
                   </T>
                 </div>
