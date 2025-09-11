@@ -1153,7 +1153,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
               className="btn btn-secondary"
               aria-label={I18NextService.i18n.t("ban")}
             >
-              {I18NextService.i18n.t("ban")} {pv.person.name}
+              {I18NextService.i18n.t("ban", { name: pv.person.name })}
             </button>
           </div>
         </form>

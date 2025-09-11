@@ -1123,9 +1123,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const body = post.body;
 
     return body
-      ? `${I18NextService.i18n.t("cross_posted_from")} ${
-          post.ap_id
-        }\n\n${body.replace(/^/gm, "> ")}`
+      ? `${I18NextService.i18n.t("cross_posted_from_url", { ap_id: post.ap_id })}
+      \n\n${body.replace(/^/gm, "> ")}`
       : undefined;
   }
 
