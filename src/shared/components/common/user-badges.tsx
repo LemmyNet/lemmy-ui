@@ -167,6 +167,15 @@ export class UserBadges extends Component<UserBadgesProps> {
               })}
             </span>
           )}
+          {isNewAccount && (
+            <span
+              className="col"
+              aria-label={I18NextService.i18n.t("new_account_label")}
+              data-tippy-content={I18NextService.i18n.t("new_account_label")}
+            >
+              🌱
+            </span>
+          )}
           {showCounts && (
             <>
               <span className="col">
@@ -175,7 +184,7 @@ export class UserBadges extends Component<UserBadgesProps> {
                     count: Number(this.props.creator.post_count),
                     formattedCount: numToSI(this.props.creator.post_count),
                   }),
-                  classes: "text-info border border-info",
+                  classes: "tlist-inline-item badge text-bg-secondary",
                   shrink: false,
                 })}
               </span>
@@ -185,20 +194,11 @@ export class UserBadges extends Component<UserBadgesProps> {
                     count: Number(this.props.creator.comment_count),
                     formattedCount: numToSI(this.props.creator.comment_count),
                   }),
-                  classes: "text-info border border-info",
+                  classes: "list-inline-item badge text-bg-secondary",
                   shrink: false,
                 })}
               </span>
             </>
-          )}
-          {isNewAccount && (
-            <span
-              className="col"
-              aria-label={I18NextService.i18n.t("new_account_label")}
-              data-tippy-content={I18NextService.i18n.t("new_account_label")}
-            >
-              🌱
-            </span>
           )}
         </span>
       )
