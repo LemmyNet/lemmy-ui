@@ -91,17 +91,16 @@ export class TimeIntervalSelect extends Component<
               {I18NextService.i18n.t("custom_time")}
             </button>
           </li>
-          {conversions
-            .map(({ unit }) => (
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => handleTimeIntervalUnitChange(this, unit)}
-                >
-                  {I18NextService.i18n.t(unit)}
-                </button>
-              </li>
-            ))}
+          {conversions.map(({ unit }) => (
+            <li>
+              <button
+                className="dropdown-item"
+                onClick={() => handleTimeIntervalUnitChange(this, unit)}
+              >
+                {I18NextService.i18n.t(unit)}
+              </button>
+            </li>
+          ))}
         </ul>
       </div>
     );
