@@ -108,6 +108,7 @@ import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
 import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
+import { TimeIntervalSelect } from "@components/common/time-interval-select";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -125,6 +126,7 @@ interface HomeProps {
   listingType?: ListingType;
   dataType: DataType;
   sort: PostSortType | CommentSortType;
+  postTimeRange: number;
   cursor?: DirectionalCursor;
   showHidden?: StringBoolean;
 }
@@ -184,8 +186,16 @@ function getSortTypeFromQuery(
   return type ? (type as PostSortType | CommentSortType) : fallback;
 }
 
+function getPostTimeRangeFromQuery(
+  type: string | undefined,
+  fallback: number,
+): number {
+  return type ? Number(type) : fallback;
+}
+
 type Fallbacks = {
   sort: PostSortType | CommentSortType;
+  postTimeRange: number;
   listingType: ListingType;
 };
 
@@ -199,6 +209,7 @@ export function getHomeQueryParams(
   return getQueryParams<HomeProps, Fallbacks>(
     {
       sort: getSortTypeFromQuery,
+      postTimeRange: getPostTimeRangeFromQuery,
       listingType: getListingTypeFromQuery,
       cursor: (cursor?: string) => cursor,
       dataType: getDataTypeFromQuery,
@@ -211,6 +222,7 @@ export function getHomeQueryParams(
       listingType:
         local_user?.default_listing_type ??
         local_site.default_post_listing_type,
+      postTimeRange: local_user?.default_post_time_range_seconds ?? 0,
     },
   );
 }
@@ -269,6 +281,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
+    this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
@@ -337,7 +350,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   static async fetchInitialData({
-    query: { listingType, dataType, sort, cursor, showHidden },
+    query: { listingType, dataType, sort, postTimeRange, cursor, showHidden },
     headers,
   }: InitialFetchRequest<HomePathProps, HomeProps>): Promise<HomeData> {
     const client = wrapClient(
@@ -355,6 +368,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         ...cursorComponents(cursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
+        time_range_seconds: postTimeRange,
         show_hidden: showHidden === "true",
       };
 
@@ -578,16 +592,17 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async updateUrl(props: Partial<HomeProps>) {
-    const { dataType, listingType, cursor, sort, showHidden } = {
+    const { dataType, listingType, cursor, sort, postTimeRange, showHidden } = {
       ...this.props,
       ...props,
     };
     const queryParams: QueryParams<HomeProps> = {
       dataType: getDataTypeString(dataType ?? DataType.Post),
-      listingType: listingType,
+      listingType,
       cursor,
-      sort: sort,
-      showHidden: showHidden,
+      sort,
+      postTimeRange: postTimeRange.toString(),
+      showHidden,
     };
 
     this.props.history.push({
@@ -776,7 +791,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get selects() {
-    const { listingType, dataType, sort, showHidden } = this.props;
+    const { listingType, dataType, sort, postTimeRange, showHidden } =
+      this.props;
 
     return (
       <div className="row align-items-center mb-3 g-3">
@@ -806,19 +822,29 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             onChange={this.handleListingTypeChange}
           />
         </div>
-        <div className="col-auto">
-          {this.props.dataType === DataType.Post ? (
-            <PostSortSelect
-              current={mixedToPostSortType(sort)}
-              onChange={this.handleSortChange}
-            />
-          ) : (
+        {this.props.dataType === DataType.Post ? (
+          <>
+            <div className="col-auto">
+              <PostSortSelect
+                current={mixedToPostSortType(sort)}
+                onChange={this.handleSortChange}
+              />
+            </div>
+            <div className="col-6 col-md-3">
+              <TimeIntervalSelect
+                currentSeconds={postTimeRange}
+                onChange={this.handlePostTimeRangeChange}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="col-auto">
             <CommentSortSelect
               current={mixedToCommentSortType(sort)}
               onChange={this.handleCommentSortChange}
             />
-          )}
-        </div>
+          </div>
+        )}
         <div className="col-auto ps-0">
           {getRss(
             listingType ??
@@ -836,6 +862,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     cursor,
     listingType,
     sort,
+    postTimeRange,
     showHidden,
   }: HomeProps) {
     const token = (this.fetchDataToken = Symbol());
@@ -845,6 +872,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         ...cursorComponents(cursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
+        time_range_seconds: postTimeRange,
         type_: listingType,
         show_hidden: showHidden === "true",
       });
@@ -882,6 +910,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   handleSortChange(val: PostSortType) {
     this.updateUrl({ sort: val, cursor: undefined });
+  }
+
+  handlePostTimeRangeChange(val: number) {
+    this.updateUrl({ postTimeRange: val, cursor: undefined });
   }
 
   handleCommentSortChange(val: CommentSortType) {
