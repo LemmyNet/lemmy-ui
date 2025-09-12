@@ -14,7 +14,6 @@ import {
   debounce,
   dedupByProperty,
   getIdFromString,
-  getBoolFromString,
   getQueryParams,
   getQueryString,
   numToSI,
@@ -75,7 +74,7 @@ interface SearchProps {
   type: SearchType;
   sort: SearchSortType;
   listingType: ListingType;
-  titleOnly?: boolean;
+  titleOnly: boolean;
   communityId?: number;
   creatorId?: number;
   cursor?: DirectionalCursor;
@@ -114,7 +113,7 @@ export function getSearchQueryParams(source?: string): SearchProps {
       type: getSearchTypeFromQuery,
       sort: getSortTypeFromQuery,
       listingType: getListingTypeFromQuery,
-      titleOnly: getBoolFromString,
+      titleOnly: getTitleOnlyFromQuery,
       communityId: getIdFromString,
       creatorId: getIdFromString,
       cursor: (cursor?: string) => cursor,
@@ -136,6 +135,9 @@ function getSortTypeFromQuery(sort?: string): SearchSortType {
 function getListingTypeFromQuery(listingType?: string): ListingType {
   return listingType ? (listingType as ListingType) : defaultListingType;
 }
+
+const getTitleOnlyFromQuery = (titleOnly?: string): boolean =>
+  titleOnly?.toLowerCase() === "true";
 
 const Filter = ({
   filterType,
@@ -602,9 +604,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         type_: searchType,
         sort,
         listing_type,
-        title_only,
         ...cursorComponents(cursor),
         limit: fetchLimit,
+        title_only,
       };
 
       searchResponse = await client.search(form);
@@ -705,6 +707,18 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               <span>{I18NextService.i18n.t("search")}</span>
             )}
           </button>
+        </div>
+        <div className="col-auto form-check ms-2 h-min d-flex align-items-center">
+          <input
+            type="checkbox"
+            className="form-check-input mt-0"
+            onChange={linkEvent(this, this.handleTitleOnlyChange)}
+            checked={this.props.titleOnly}
+            id="title_only"
+          />
+          <label for="title_only" className="m-1 form-check-label">
+            {I18NextService.i18n.t("post_title_only")}
+          </label>
         </div>
       </form>
     );
