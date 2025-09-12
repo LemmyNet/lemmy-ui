@@ -353,7 +353,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       const getPostsForm: GetPosts = {
         type_: listingType,
         ...cursorComponents(cursor),
-        limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         show_hidden: showHidden === "true",
       };
@@ -843,7 +842,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
         ...cursorComponents(cursor),
-        limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         type_: listingType,
         show_hidden: showHidden === "true",

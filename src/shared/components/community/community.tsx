@@ -333,7 +333,6 @@ export class Community extends Component<CommunityRouteProps, State> {
       const getPostsForm: GetPosts = {
         community_name: communityName,
         ...cursorComponents(cursor),
-        limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         type_: "All",
         show_hidden: showHidden === "true",
@@ -763,7 +762,6 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
         ...cursorComponents(cursor),
-        limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         type_: "All",
         community_name: name,
