@@ -10,6 +10,22 @@ type Interval = {
   unit: IntervalUnit;
 };
 
+type Preset = { key: NoOptionI18nKeys; interval: Interval };
+
+const presets: Preset[] = [
+  { key: "all_time", interval: { num: 0, unit: "days" } },
+  { key: "one_hour", interval: { num: 1, unit: "hours" } },
+  { key: "six_hours", interval: { num: 6, unit: "hours" } },
+  { key: "twelve_hours", interval: { num: 12, unit: "hours" } },
+  { key: "one_day", interval: { num: 1, unit: "days" } },
+  { key: "one_week", interval: { num: 1, unit: "weeks" } },
+  { key: "one_month", interval: { num: 1, unit: "months" } },
+  { key: "three_months", interval: { num: 3, unit: "months" } },
+  { key: "six_months", interval: { num: 6, unit: "months" } },
+  { key: "nine_months", interval: { num: 9, unit: "months" } },
+  { key: "one_year", interval: { num: 1, unit: "years" } },
+];
+
 interface TimeIntervalSelectProps {
   onChange(seconds: number): void;
   currentSeconds: number | undefined;
@@ -36,7 +52,7 @@ export class TimeIntervalSelect extends Component<
     const { num, unit } = this.state.interval;
 
     return (
-      <div class="input-group">
+      <div className="input-group">
         <input
           type="number"
           className="form-control"
@@ -55,15 +71,32 @@ export class TimeIntervalSelect extends Component<
           {I18NextService.i18n.t(unit)}
         </button>
         <ul
-          class="dropdown-menu dropdown-menu-end"
+          className="dropdown-menu dropdown-menu-end"
           id="time-interval-unit-dropdown"
         >
+          {/* Presets first, then the custom ones */}
+          {presets.map(p => (
+            <li>
+              <button
+                className="dropdown-item"
+                onClick={() => handlePresetSelect(this, p)}
+              >
+                {I18NextService.i18n.t(p.key)}
+              </button>
+            </li>
+          ))}
+          <hr className="dropdown-divider" />
+          <li>
+            <button className="dropdown-item disabled" aria-disabled="true">
+              {I18NextService.i18n.t("custom_time")}
+            </button>
+          </li>
           {conversions
             .map(c => c.unit)
             .map(cUnit => (
               <li>
                 <button
-                  class="dropdown-item"
+                  className="dropdown-item"
                   onClick={() => handleTimeIntervalUnitChange(this, cUnit)}
                 >
                   {I18NextService.i18n.t(cUnit)}
@@ -77,9 +110,10 @@ export class TimeIntervalSelect extends Component<
 }
 
 function handleTimeIntervalNumChange(i: TimeIntervalSelect, event: any) {
-  const num = Number(event.target.value);
-  const unit = i.state.interval.unit;
-  const interval = { num, unit };
+  const interval = {
+    num: Number(event.target.value),
+    unit: i.state.interval.unit,
+  };
 
   handleTimeIntervalChange(i, interval);
 }
@@ -88,8 +122,13 @@ function handleTimeIntervalUnitChange(
   i: TimeIntervalSelect,
   unit: IntervalUnit,
 ) {
-  const num = i.state.interval.num;
-  const interval = { num, unit };
+  const interval = { num: i.state.interval.num, unit };
+
+  handleTimeIntervalChange(i, interval);
+}
+
+function handlePresetSelect(i: TimeIntervalSelect, preset: Preset) {
+  const interval = preset.interval;
 
   handleTimeIntervalChange(i, interval);
 }
