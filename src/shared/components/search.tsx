@@ -16,7 +16,6 @@ import {
   getIdFromString,
   getQueryParams,
   getQueryString,
-  numToSI,
   resourcesSettled,
   cursorComponents,
 } from "@utils/helpers";
@@ -58,7 +57,6 @@ import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
 import { ListingTypeSelect } from "./common/listing-type-select";
-import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
@@ -68,6 +66,9 @@ import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "./common/paginator-cursor";
 import { SearchSortSelect } from "./common/sort-select";
 import { SearchableSelect } from "./common/searchable-select";
+import { UserBadges } from "./common/user-badges";
+import { Badges } from "./common/badges";
+import { CommunityLink } from "./community/community-link";
 
 interface SearchProps {
   q?: string;
@@ -186,11 +187,13 @@ const communityListing = (
         <h3>{I18NextService.i18n.t("communities")}</h3>
         {communities.map(c => (
           <div>
-            {getListing(
-              <CommunityLink community={c.community} myUserInfo={myUserInfo} />,
-              c.community.subscribers,
-              "number_of_subscribers",
-            )}
+            <CommunityLink community={c.community} myUserInfo={myUserInfo} />
+            <Badges
+              className="ms-1 d-inline-flex"
+              communityId={c.community.id}
+              subject={c.community}
+              lessBadges
+            />
           </div>
         ))}
         <hr class="border m-2" />
@@ -209,15 +212,20 @@ const personListing = (
         <h3>{I18NextService.i18n.t("users")}</h3>
         {persons.map(p => (
           <div>
-            {getListing(
-              <PersonListing
-                person={p.person}
-                showApubName
-                myUserInfo={myUserInfo}
-              />,
-              p.person.comment_count,
-              "number_of_comments",
-            )}
+            <PersonListing
+              person={p.person}
+              showApubName
+              myUserInfo={myUserInfo}
+            />
+            <UserBadges
+              classNames="ms-1"
+              isAdmin={p.is_admin}
+              isBanned={p.creator_banned}
+              myUserInfo={myUserInfo}
+              personActions={p.person_actions}
+              creator={p.person}
+              showCounts
+            />
           </div>
         ))}
         <hr class="border m-2" />
@@ -326,22 +334,6 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
     )
   );
 };
-
-function getListing(
-  listing: JSX.ElementClass,
-  count: number,
-  translationKey: "number_of_comments" | "number_of_subscribers",
-) {
-  return (
-    <>
-      <span>{listing}</span>
-      <span>{` - ${I18NextService.i18n.t(translationKey, {
-        count: Number(count),
-        formattedCount: numToSI(count),
-      })}`}</span>
-    </>
-  );
-}
 
 type SearchPathProps = Record<string, never>;
 type SearchRouteProps = RouteComponentProps<SearchPathProps> & SearchProps;
