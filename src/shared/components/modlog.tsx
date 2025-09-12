@@ -284,9 +284,9 @@ function processModlogEntry(
       };
     }
 
-    case "ModAdd": {
+    case "AdminAdd": {
       const {
-        mod_add: { id, removed, published_at },
+        admin_add: { id, removed, published_at },
         moderator,
         other_person,
       } = view;
@@ -307,9 +307,9 @@ function processModlogEntry(
       };
     }
 
-    case "ModAddCommunity": {
+    case "ModAddToCommunity": {
       const {
-        mod_add_community: { id, removed, published_at },
+        mod_add_to_community: { id, removed, published_at },
         moderator,
         community,
         other_person,
@@ -334,9 +334,9 @@ function processModlogEntry(
       };
     }
 
-    case "ModBan": {
+    case "AdminBan": {
       const {
-        mod_ban: { id, reason, expires_at, banned, published_at },
+        admin_ban: { id, reason, expires_at, banned, published_at },
         moderator,
         other_person,
       } = view;
@@ -517,9 +517,9 @@ function processModlogEntry(
       };
     }
 
-    case "ModRemoveCommunity": {
+    case "AdminRemoveCommunity": {
       const {
-        mod_remove_community: { id, reason, removed, published_at },
+        admin_remove_community: { id, reason, removed, published_at },
         moderator,
         community,
       } = view;

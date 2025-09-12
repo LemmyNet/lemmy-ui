@@ -4,9 +4,9 @@ import {
   CreatePrivateMessageReport,
   DeletePrivateMessage,
   EditPrivateMessage,
-  MarkPrivateMessageAsRead,
   MyUserInfo,
   Person,
+  PrivateMessageId,
   PrivateMessageView,
 } from "lemmy-js-client";
 import { mdToHtmlNoImages } from "@utils/markdown";
@@ -36,7 +36,7 @@ interface PrivateMessageProps {
   onCreate(form: CreatePrivateMessage): Promise<boolean>;
   onEdit(form: EditPrivateMessage): Promise<boolean>;
   read: boolean;
-  onMarkRead(form: MarkPrivateMessageAsRead): void;
+  onMarkRead(privateMessageId: PrivateMessageId, read: boolean): void;
 }
 
 @tippyMixin
@@ -339,10 +339,10 @@ export class PrivateMessage extends Component<
 
   handleMarkRead(i: PrivateMessage) {
     i.setState({ readLoading: true });
-    i.props.onMarkRead({
-      private_message_id: i.props.private_message_view.private_message.id,
-      read: !i.props.read,
-    });
+    i.props.onMarkRead(
+      i.props.private_message_view.private_message.id,
+      !i.props.read,
+    );
   }
 
   handleMessageCollapse(i: PrivateMessage) {
