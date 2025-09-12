@@ -2,10 +2,12 @@ import { numToSI } from "@utils/helpers";
 import { Link } from "inferno-router";
 import { Community, CommunityId, LocalSite } from "lemmy-js-client";
 import { I18NextService } from "../../services";
+import classNames from "classnames";
 
 interface BadgesProps {
   subject: Community | LocalSite;
   communityId?: CommunityId;
+  className?: string;
   lessBadges?: boolean;
 }
 
@@ -17,9 +19,14 @@ const isLocalSite = (subject: Community | LocalSite): subject is LocalSite => {
   return "communities" in subject;
 };
 
-export const Badges = ({ subject, communityId, lessBadges }: BadgesProps) => {
+export const Badges = ({
+  subject,
+  communityId,
+  lessBadges,
+  className,
+}: BadgesProps) => {
   return (
-    <ul className="badges my-1 list-inline">
+    <ul className={classNames("badges my-1 list-inline", className)}>
       {!lessBadges && (
         <>
           <li

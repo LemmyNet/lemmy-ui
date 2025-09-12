@@ -58,7 +58,7 @@ import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
 import { ListingTypeSelect } from "./common/listing-type-select";
-import { buildPersonLink, PersonListing } from "./person/person-listing";
+import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -69,7 +69,7 @@ import { SearchSortSelect } from "./common/sort-select";
 import { SearchableSelect } from "./common/searchable-select";
 import { UserBadges } from "./common/user-badges";
 import { Badges } from "./common/badges";
-import { CommunityLink, communityLink } from "./community/community-link";
+import { CommunityLink } from "./community/community-link";
 
 interface SearchProps {
   q?: string;
@@ -184,19 +184,15 @@ const communityListing = (
       <>
         <h3>{I18NextService.i18n.t("communities")}</h3>
         {communities.map(c => (
-          <a
-            className="d-flex align-items-center"
-            href={communityLink(c.community, false).link}
-          >
-            <span className="p-1 h-100">
-              <CommunityLink community={c.community} myUserInfo={myUserInfo} />
-            </span>
+          <div>
+            <CommunityLink community={c.community} myUserInfo={myUserInfo} />
             <Badges
+              className="ms-1 d-inline-flex"
               communityId={c.community.id}
               subject={c.community}
               lessBadges
             />
-          </a>
+          </div>
         ))}
         <hr class="border m-2" />
       </>
@@ -213,7 +209,7 @@ const personListing = (
       <>
         <h3>{I18NextService.i18n.t("users")}</h3>
         {persons.map(p => (
-          <a href={buildPersonLink(p.person)} className="d-flex">
+          <div>
             <PersonListing
               person={p.person}
               showApubName
@@ -228,7 +224,7 @@ const personListing = (
               creator={p.person}
               showCounts
             />
-          </a>
+          </div>
         ))}
         <hr class="border m-2" />
       </>
