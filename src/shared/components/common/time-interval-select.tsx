@@ -13,7 +13,7 @@ type Interval = {
 type Preset = { key: NoOptionI18nKeys; interval: Interval };
 
 const presets: Preset[] = [
-  { key: "all_time", interval: { num: 0, unit: "days" } },
+  { key: "all_time", interval: { num: undefined, unit: "days" } },
   { key: "one_hour", interval: { num: 1, unit: "hours" } },
   { key: "six_hours", interval: { num: 6, unit: "hours" } },
   { key: "twelve_hours", interval: { num: 12, unit: "hours" } },
