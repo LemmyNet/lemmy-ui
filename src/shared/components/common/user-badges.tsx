@@ -4,6 +4,7 @@ import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { MyUserInfo, Person, PersonActions } from "lemmy-js-client";
 import { isWeekOld } from "@utils/date";
+import { numToSI } from "@utils/helpers";
 
 interface UserBadgesProps {
   isBanned?: boolean;
@@ -15,6 +16,7 @@ interface UserBadgesProps {
   myUserInfo?: MyUserInfo;
   personActions?: PersonActions;
   classNames?: string;
+  showCounts?: boolean;
 }
 
 function getRoleLabelPill({
@@ -24,7 +26,7 @@ function getRoleLabelPill({
   shrink = true,
 }: {
   label: string;
-  tooltip: string;
+  tooltip?: string;
   classes?: string;
   shrink?: boolean;
 }) {
@@ -45,6 +47,7 @@ export class UserBadges extends Component<UserBadgesProps> {
     const isBot = this.props.creator?.bot_account;
     const isDeleted = this.props.creator?.deleted;
     const isNewAccount = !isWeekOld(new Date(this.props.creator.published_at));
+    const showCounts = this.props.showCounts ?? false;
 
     const localUserView = this.props.myUserInfo?.local_user_view;
     // Only show the person votes if:
@@ -68,6 +71,7 @@ export class UserBadges extends Component<UserBadgesProps> {
         this.props.isAdmin ||
         isBot ||
         isNewAccount ||
+        showCounts ||
         showPersonVotes ||
         personNote) && (
         <span
@@ -171,6 +175,30 @@ export class UserBadges extends Component<UserBadgesProps> {
             >
               🌱
             </span>
+          )}
+          {showCounts && (
+            <>
+              <span className="col">
+                {getRoleLabelPill({
+                  label: I18NextService.i18n.t("number_of_posts", {
+                    count: Number(this.props.creator.post_count),
+                    formattedCount: numToSI(this.props.creator.post_count),
+                  }),
+                  classes: "tlist-inline-item badge text-bg-secondary",
+                  shrink: false,
+                })}
+              </span>
+              <span className="col">
+                {getRoleLabelPill({
+                  label: I18NextService.i18n.t("number_of_comments", {
+                    count: Number(this.props.creator.comment_count),
+                    formattedCount: numToSI(this.props.creator.comment_count),
+                  }),
+                  classes: "list-inline-item badge text-bg-secondary",
+                  shrink: false,
+                })}
+              </span>
+            </>
           )}
         </span>
       )

@@ -30,7 +30,7 @@ export default async function (site: Site) {
         icons = await Promise.all(
           iconSizes.map(async size => {
             const sharp = (await import("sharp")).default;
-            const src = `data:image/png:base64,${await sharp(icon)
+            const src = `data:image/png;base64,${await sharp(icon)
               .resize(size, size)
               .png()
               .toBuffer()

@@ -28,6 +28,7 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
+import { formatRelativeDate, isWeekOld } from "@utils/date";
 
 type InstancesData = RouteDataResponse<{
   federatedInstancesResponse: GetFederatedInstancesResponse;
@@ -169,6 +170,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
               <th>{I18NextService.i18n.t("name")}</th>
               <th>{I18NextService.i18n.t("software")}</th>
               <th>{I18NextService.i18n.t("version")}</th>
+              <th>{I18NextService.i18n.t("last_updated")}</th>
             </tr>
           </thead>
           <tbody>
@@ -185,6 +187,10 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
                 </td>
                 <td>{i.software}</td>
                 <td>{i.version}</td>
+                <td>
+                  {formatRelativeDate(i.updated_at ?? i.published_at)}
+                  {isWeekOld(new Date(i.updated_at ?? i.published_at)) && " 💀"}
+                </td>
               </tr>
             ))}
           </tbody>

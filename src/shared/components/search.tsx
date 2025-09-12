@@ -14,10 +14,8 @@ import {
   debounce,
   dedupByProperty,
   getIdFromString,
-  getBoolFromString,
   getQueryParams,
   getQueryString,
-  numToSI,
   resourcesSettled,
   cursorComponents,
 } from "@utils/helpers";
@@ -59,7 +57,6 @@ import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
 import { ListingTypeSelect } from "./common/listing-type-select";
-import { CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
@@ -69,13 +66,16 @@ import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "./common/paginator-cursor";
 import { SearchSortSelect } from "./common/sort-select";
 import { SearchableSelect } from "./common/searchable-select";
+import { UserBadges } from "./common/user-badges";
+import { Badges } from "./common/badges";
+import { CommunityLink } from "./community/community-link";
 
 interface SearchProps {
   q?: string;
   type: SearchType;
   sort: SearchSortType;
   listingType: ListingType;
-  titleOnly?: boolean;
+  titleOnly: boolean;
   communityId?: number;
   creatorId?: number;
   cursor?: DirectionalCursor;
@@ -114,7 +114,7 @@ export function getSearchQueryParams(source?: string): SearchProps {
       type: getSearchTypeFromQuery,
       sort: getSortTypeFromQuery,
       listingType: getListingTypeFromQuery,
-      titleOnly: getBoolFromString,
+      titleOnly: getTitleOnlyFromQuery,
       communityId: getIdFromString,
       creatorId: getIdFromString,
       cursor: (cursor?: string) => cursor,
@@ -136,6 +136,9 @@ function getSortTypeFromQuery(sort?: string): SearchSortType {
 function getListingTypeFromQuery(listingType?: string): ListingType {
   return listingType ? (listingType as ListingType) : defaultListingType;
 }
+
+const getTitleOnlyFromQuery = (titleOnly?: string): boolean =>
+  titleOnly?.toLowerCase() === "true";
 
 const Filter = ({
   filterType,
@@ -184,11 +187,13 @@ const communityListing = (
         <h3>{I18NextService.i18n.t("communities")}</h3>
         {communities.map(c => (
           <div>
-            {getListing(
-              <CommunityLink community={c.community} myUserInfo={myUserInfo} />,
-              c.community.subscribers,
-              "number_of_subscribers",
-            )}
+            <CommunityLink community={c.community} myUserInfo={myUserInfo} />
+            <Badges
+              className="ms-1 d-inline-flex"
+              communityId={c.community.id}
+              subject={c.community}
+              lessBadges
+            />
           </div>
         ))}
         <hr class="border m-2" />
@@ -207,15 +212,20 @@ const personListing = (
         <h3>{I18NextService.i18n.t("users")}</h3>
         {persons.map(p => (
           <div>
-            {getListing(
-              <PersonListing
-                person={p.person}
-                showApubName
-                myUserInfo={myUserInfo}
-              />,
-              p.person.comment_count,
-              "number_of_comments",
-            )}
+            <PersonListing
+              person={p.person}
+              showApubName
+              myUserInfo={myUserInfo}
+            />
+            <UserBadges
+              classNames="ms-1"
+              isAdmin={p.is_admin}
+              isBanned={p.creator_banned}
+              myUserInfo={myUserInfo}
+              personActions={p.person_actions}
+              creator={p.person}
+              showCounts
+            />
           </div>
         ))}
         <hr class="border m-2" />
@@ -234,6 +244,7 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
             <PostListing
               key={post_view.post.id}
               post_view={post_view}
+              showDupes="ShowSeparately"
               showCommunity
               myUserInfo={isoData.myUserInfo}
               localSite={isoData.siteRes.site_view.local_site}
@@ -323,22 +334,6 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
     )
   );
 };
-
-function getListing(
-  listing: JSX.ElementClass,
-  count: number,
-  translationKey: "number_of_comments" | "number_of_subscribers",
-) {
-  return (
-    <>
-      <span>{listing}</span>
-      <span>{` - ${I18NextService.i18n.t(translationKey, {
-        count: Number(count),
-        formattedCount: numToSI(count),
-      })}`}</span>
-    </>
-  );
-}
 
 type SearchPathProps = Record<string, never>;
 type SearchRouteProps = RouteComponentProps<SearchPathProps> & SearchProps;
@@ -601,9 +596,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         type_: searchType,
         sort,
         listing_type,
-        title_only,
         ...cursorComponents(cursor),
         limit: fetchLimit,
+        title_only,
       };
 
       searchResponse = await client.search(form);
@@ -704,6 +699,18 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               <span>{I18NextService.i18n.t("search")}</span>
             )}
           </button>
+        </div>
+        <div className="col-auto form-check ms-2 h-min d-flex align-items-center">
+          <input
+            type="checkbox"
+            className="form-check-input mt-0"
+            onChange={linkEvent(this, this.handleTitleOnlyChange)}
+            checked={this.props.titleOnly}
+            id="title_only"
+          />
+          <label for="title_only" className="m-1 form-check-label">
+            {I18NextService.i18n.t("post_title_only")}
+          </label>
         </div>
       </form>
     );
@@ -882,6 +889,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             <div className="col-12">
               <PostListing
                 post_view={pv}
+                showDupes="ShowSeparately"
                 showCommunity
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}

@@ -43,6 +43,7 @@ interface CommentNodesProps {
    **/
   community?: Community;
   admins: PersonView[];
+  readCommentsAt?: string;
   maxCommentsShown?: number;
   noBorder?: boolean;
   isTopLevel?: boolean;
@@ -118,6 +119,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               viewOnly={this.props.viewOnly}
               locked={this.props.locked}
               admins={this.props.admins}
+              readCommentsAt={this.props.readCommentsAt}
               showContext={this.props.showContext}
               showCommunity={this.props.showCommunity}
               viewType={this.props.viewType}
