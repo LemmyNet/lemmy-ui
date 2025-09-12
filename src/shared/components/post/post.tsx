@@ -11,6 +11,7 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
+  editCommentsSlimLocked,
 } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import {
@@ -1250,10 +1251,17 @@ export class Post extends Component<PostRouteProps, PostState> {
   async handleLockComment(form: LockComment) {
     const res = await HttpService.client.lockComment(form);
 
-    this.findAndUpdateComment(res);
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t(form.locked ? "locked" : "unlocked"));
-    }
+    this.setState(s => {
+      if (res.state === "success" && s.commentsRes.state === "success") {
+        s.commentsRes.data.comments = editCommentsSlimLocked(
+          res.data.comment_view.comment.path,
+          form.locked,
+          s.commentsRes.data.comments,
+        );
+        toast(I18NextService.i18n.t(form.locked ? "locked" : "unlocked"));
+      }
+      return s;
+    });
   }
 
   async handleSaveComment(form: SaveComment) {
