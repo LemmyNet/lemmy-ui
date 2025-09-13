@@ -995,6 +995,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 className="form-control"
                 value={this.state.saveUserSettingsForm.default_items_per_page}
                 onInput={linkEvent(this, this.handleItemsPerPageChange)}
+                min={1}
+                max={50}
               />
             </div>
           </form>
