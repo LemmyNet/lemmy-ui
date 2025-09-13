@@ -94,13 +94,13 @@ importers:
         version: 23.16.8
       inferno:
         specifier: ^9.0.3
-        version: 9.0.3
+        version: 9.0.4
       inferno-create-element:
         specifier: ^9.0.3
         version: 9.0.4
       inferno-helmet:
         specifier: ^5.2.1
-        version: 5.2.1(inferno@9.0.3)
+        version: 5.2.1(inferno@9.0.4)
       inferno-hydrate:
         specifier: ^9.0.3
         version: 9.0.4
@@ -8230,10 +8230,10 @@ snapshots:
     dependencies:
       inferno: 9.0.4
 
-  inferno-helmet@5.2.1(inferno@9.0.3):
+  inferno-helmet@5.2.1(inferno@9.0.4):
     dependencies:
       deep-equal: 1.1.2
-      inferno-side-effect: 1.1.5(inferno@9.0.3)
+      inferno-side-effect: 1.1.5(inferno@9.0.4)
       object-assign: 4.1.1
     transitivePeerDependencies:
       - inferno
@@ -8263,10 +8263,10 @@ snapshots:
 
   inferno-shared@8.2.3: {}
 
-  inferno-side-effect@1.1.5(inferno@9.0.3):
+  inferno-side-effect@1.1.5(inferno@9.0.4):
     dependencies:
       exenv: 1.2.2
-      inferno: 9.0.3
+      inferno: 9.0.4
       npm: 5.10.0
       shallowequal: 1.1.0
 
