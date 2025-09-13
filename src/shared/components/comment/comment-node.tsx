@@ -137,7 +137,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   state: CommentNodeState = {
     showReply: false,
     showEdit: false,
-    collapsed: false,
+    // Collapse comments that have no children and are removed by default
+    collapsed:
+      !this.commentView.comment.child_count && this.commentView.comment.removed,
     viewSource: false,
     showAdvanced: false,
     createOrEditCommentLoading: false,
