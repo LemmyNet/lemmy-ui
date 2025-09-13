@@ -82,6 +82,7 @@ import {
   NotePerson,
   ListPersonHiddenResponse,
   ListPersonReadResponse,
+  LockComment,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -698,6 +699,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onFeaturePost={this.handleFeaturePost}
                     onMarkPostAsRead={this.handleMarkPostAsRead}
                     onPersonNote={this.handlePersonNote}
+                    onLockComment={this.handleLockComment}
                   />
                 ))}
               <PaginatorCursor
@@ -1358,6 +1360,11 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   async handleRemoveComment(form: RemoveComment) {
     const removeCommentRes = await HttpService.client.removeComment(form);
     this.findAndUpdateComment(removeCommentRes);
+  }
+
+  async handleLockComment(form: LockComment) {
+    const res = await HttpService.client.lockComment(form);
+    this.findAndUpdateComment(res);
   }
 
   async handleSaveComment(form: SaveComment) {

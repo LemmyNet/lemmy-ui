@@ -48,6 +48,12 @@ interface ModActionFormModalPropsRemove {
   isRemoved: boolean;
 }
 
+interface ModActionFormModalPropsLock {
+  modActionType: "lock-post" | "lock-comment";
+  onSubmit: (reason: string) => Promise<void>;
+  isLocked: boolean;
+}
+
 interface ModActionFormModalPropsRest {
   modActionType:
     | "report-post"
@@ -64,6 +70,7 @@ type ModActionFormModalProps = (
   | ModActionFormModalPropsRest
   | ModActionFormModalPropsPurgePerson
   | ModActionFormModalPropsRemove
+  | ModActionFormModalPropsLock
 ) & { onCancel: () => void; show: boolean; children?: InfernoNode };
 
 interface ModActionFormFormState {
@@ -376,6 +383,16 @@ export default class ModActionFormModal extends Component<
       case "report-message": {
         return I18NextService.i18n.t("report_message");
       }
+      case "lock-post": {
+        return I18NextService.i18n.t(
+          this.props.isLocked ? "unlock_post" : "lock_post",
+        );
+      }
+      case "lock-comment": {
+        return I18NextService.i18n.t(
+          this.props.isLocked ? "unlock_comment" : "lock_comment",
+        );
+      }
     }
   }
 
@@ -403,6 +420,16 @@ export default class ModActionFormModal extends Component<
       case "report-comment":
       case "report-message": {
         return I18NextService.i18n.t("create_report");
+      }
+      case "lock-post": {
+        return I18NextService.i18n.t(
+          this.props.isLocked ? "unlock_post" : "lock_post",
+        );
+      }
+      case "lock-comment": {
+        return I18NextService.i18n.t(
+          this.props.isLocked ? "unlock_comment" : "lock_comment",
+        );
       }
     }
   }
@@ -438,6 +465,12 @@ export default class ModActionFormModal extends Component<
       case "report-comment":
       case "report-message": {
         translation = "creating_report";
+        break;
+      }
+
+      case "lock-post":
+      case "lock-comment": {
+        translation = this.props.isLocked ? "unlocking" : "locking";
         break;
       }
     }

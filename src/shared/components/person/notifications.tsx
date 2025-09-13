@@ -34,6 +34,7 @@ import {
   GetSiteResponse,
   LemmyHttp,
   ListNotificationsResponse,
+  LockComment,
   MarkNotificationAsRead,
   MarkPostAsRead,
   NotePerson,
@@ -137,6 +138,7 @@ export class Notifications extends Component<
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
+    this.handleLockComment = this.handleLockComment.bind(this);
     this.handleCommentVote = this.handleCommentVote.bind(this);
     this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
@@ -412,6 +414,7 @@ export class Notifications extends Component<
             read={item.notification.read}
             onMarkRead={this.handleCommentMarkAsRead}
             onPersonNote={this.handlePersonNote}
+            onLockComment={this.handleLockComment}
           />
         );
       case "PrivateMessage":
@@ -640,7 +643,19 @@ export class Notifications extends Component<
   async handleRemoveComment(form: RemoveComment) {
     const res = await HttpService.client.removeComment(form);
     if (res.state === "success") {
-      toast(I18NextService.i18n.t("remove_comment"));
+      toast(
+        I18NextService.i18n.t(
+          form.removed ? "removed_comment" : "restored_comment",
+        ),
+      );
+      this.findAndUpdateComment(res);
+    }
+  }
+
+  async handleLockComment(form: LockComment) {
+    const res = await HttpService.client.lockComment(form);
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t(form.locked ? "locked" : "unlocked"));
       this.findAndUpdateComment(res);
     }
   }

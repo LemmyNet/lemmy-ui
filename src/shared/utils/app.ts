@@ -218,6 +218,21 @@ export function editPersonViewPersonNote(
     : view;
 }
 
+/**
+ * Updates a given comment and all its children with the current locked
+ **/
+export function editCommentsSlimLocked(
+  path: string,
+  locked: boolean,
+  list: CommentSlimView[],
+): CommentSlimView[] {
+  return list.map(c =>
+    c.comment.path.startsWith(path)
+      ? { ...c, comment: { ...c.comment, locked } }
+      : c,
+  );
+}
+
 export function commentUpvotesMode(siteRes: GetSiteResponse): FederationMode {
   return siteRes.site_view.local_site.comment_upvotes;
 }
