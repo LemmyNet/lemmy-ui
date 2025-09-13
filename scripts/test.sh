@@ -5,8 +5,8 @@ CWD="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$CWD/../"
 
 export LEMMY_UI_BACKEND_INTERNAL=0.0.0.0:8536
-export LEMMY_UI_BACKEND_EXTERNAL=voyager.lemmy.ml:8536
-export LEMMY_UI_HTTPS=true
+export LEMMY_UI_BACKEND_EXTERNAL=192.168.1.156:8536
+export LEMMY_UI_HTTPS=false
 export LEMMY_UI_DEBUG=true
 pnpm i
 pnpm dev
