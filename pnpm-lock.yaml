@@ -76,7 +76,7 @@ importers:
         version: 5.6.0
       emoji-short-name:
         specifier: ^2.0.0
-        version: 2.0.0
+        version: 2.1.0
       express:
         specifier: ~5.1.0
         version: 5.1.0
@@ -2307,8 +2307,8 @@ packages:
   emoji-regex@9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
 
-  emoji-short-name@2.0.0:
-    resolution: {integrity: sha512-5M8cb34AgSAKd1kD2lAK4keISXdm6sG83q/6XBVGNgzIAB9ykPmxrcIhyYi1WwzhaF0vg5MVIIqOQ4D9FqXX/A==}
+  emoji-short-name@2.1.0:
+    resolution: {integrity: sha512-xCQjwTHgvDNjwPsqFkdNDcV33St/w/IqY0bBRKx/0fZiFCuPcFOWhTIxHnNcvsQ2W5HhxeS7BnsHeNb2PDpgjw==}
 
   encodeurl@1.0.2:
     resolution: {integrity: sha512-TPJXq8JqFaVYm2CWmPvnP2Iyo4ZSM7/QKcSmuMLDObfpH5fi7RUGmd/rTDf+rut/saiDiQEeVTNgAmJEdAOx0w==}
@@ -7373,7 +7373,7 @@ snapshots:
 
   emoji-regex@9.2.2: {}
 
-  emoji-short-name@2.0.0: {}
+  emoji-short-name@2.1.0: {}
 
   encodeurl@1.0.2: {}
 
