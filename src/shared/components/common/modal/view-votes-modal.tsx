@@ -44,33 +44,30 @@ interface ViewVotesModalState {
   cursor?: DirectionalCursor;
 }
 
-function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
+function voteViewList(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
   return (
-    <div className="table-responsive">
-      <table id="community_table" className="table table-sm table-hover">
-        <tbody>
-          {votes.map(v => (
-            <tr key={v.creator.id}>
-              <td className="text-start">
-                <PersonListing
-                  person={v.creator}
-                  useApubName
-                  myUserInfo={myUserInfo}
-                />
-                <UserBadges
-                  classNames="ms-1"
-                  creator={v.creator}
-                  isBanned={v.creator_banned}
-                  isBannedFromCommunity={v.creator_banned_from_community}
-                  myUserInfo={myUserInfo}
-                  showCounts
-                />
-              </td>
-              <td className="text-end">{scoreToIcon(v.score)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      {votes.map(v => (
+        <ul className="list-inline">
+          <li className="list-inline-item">
+            <PersonListing
+              person={v.creator}
+              useApubName
+              myUserInfo={myUserInfo}
+            />
+          </li>
+          <li className="list-inline-item">
+            <UserBadges
+              creator={v.creator}
+              isBanned={v.creator_banned}
+              isBannedFromCommunity={v.creator_banned_from_community}
+              myUserInfo={myUserInfo}
+              showCounts
+            />
+          </li>
+          <li className="list-inline-item">{scoreToIcon(v.score)}</li>
+        </ul>
+      ))}
     </div>
   );
 }
@@ -177,7 +174,7 @@ export default class ViewVotesModal extends Component<
         );
       case "success": {
         const likes = this.state.postLikesRes.data.post_likes;
-        return voteViewTable(likes, this.props.myUserInfo);
+        return voteViewList(likes, this.props.myUserInfo);
       }
     }
   }
@@ -192,7 +189,7 @@ export default class ViewVotesModal extends Component<
         );
       case "success": {
         const likes = this.state.commentLikesRes.data.comment_likes;
-        return voteViewTable(likes, this.props.myUserInfo);
+        return voteViewList(likes, this.props.myUserInfo);
       }
     }
   }
