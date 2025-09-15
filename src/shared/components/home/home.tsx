@@ -74,7 +74,7 @@ import {
   MarkPostAsRead,
   NotePerson,
 } from "lemmy-js-client";
-import { fetchLimit, relTags } from "@utils/config";
+import { relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
 import { mdToHtml } from "@utils/markdown";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -374,7 +374,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       postsFetch = client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
-        limit: fetchLimit,
         sort: mixedToCommentSortType(sort),
         type_: listingType,
       };
@@ -880,7 +879,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     } else {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
       const commentsRes = await HttpService.client.getComments({
-        limit: fetchLimit,
         sort: mixedToCommentSortType(sort),
         type_: listingType,
       });
