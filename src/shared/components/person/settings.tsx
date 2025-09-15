@@ -989,22 +989,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </div>
           </form>
           <form className="mb-3 row">
-            <label className="col-sm-3 col-form-label" htmlFor="items-per-page">
-              {I18NextService.i18n.t("posts_per_page")}
-            </label>
-            <div className="col-sm-9">
-              <input
-                id="items-per-page"
-                type="number"
-                className="form-control"
-                value={this.state.saveUserSettingsForm.default_items_per_page}
-                onInput={linkEvent(this, this.handleItemsPerPageChange)}
-                min={1}
-                max={50}
-              />
-            </div>
-          </form>
-          <form className="mb-3 row">
             <label
               className="col-sm-8 col-form-label"
               htmlFor="post-time-range"
@@ -1018,6 +1002,22 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                     .default_post_time_range_seconds
                 }
                 onChange={this.handlePostTimeRangeChange}
+              />
+            </div>
+          </form>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label" htmlFor="items-per-page">
+              {I18NextService.i18n.t("posts_per_page")}
+            </label>
+            <div className="col-sm-9">
+              <input
+                id="items-per-page"
+                type="number"
+                className="form-control"
+                value={this.state.saveUserSettingsForm.default_items_per_page}
+                onInput={linkEvent(this, this.handleItemsPerPageChange)}
+                min={1}
+                max={50}
               />
             </div>
           </form>
