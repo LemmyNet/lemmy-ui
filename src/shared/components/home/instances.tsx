@@ -176,14 +176,14 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
               )}
             </li>
             <li
-              className="list-inline-item unselectable pointer badge text-bg-secondary"
+              className="list-inline-item unselectable pointer badge text-bg-light"
               data-tippy-content={I18NextService.i18n.t("software")}
             >
               {i.software}
               {i.version ? `/${i.version}` : ""}
             </li>
             <li
-              className="list-inline-item unselectable pointer badge text-bg-secondary"
+              className="list-inline-item unselectable pointer badge text-bg-light"
               data-tippy-content={I18NextService.i18n.t("last_updated")}
             >
               {formatRelativeDate(i.updated_at ?? i.published_at)}

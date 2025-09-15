@@ -43,7 +43,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   render() {
     return (
       <div className="site-sidebar accordion">
-        <section id="sidebarInfo" className="card border-secondary mb-3">
+        <section id="sidebarInfo" className="card mb-3">
           <header className="card-header" id="sidebarInfoHeader">
             {this.siteName()}
             {!this.state.collapsed && (

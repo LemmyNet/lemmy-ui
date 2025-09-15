@@ -432,21 +432,21 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       >
         <div className="row">
           <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.saveUserSettingsHtmlForm()}</div>
             </div>
           </div>
           <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.changePasswordHtmlForm()}</div>
             </div>
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.totpSection()}</div>
             </div>
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.importExportForm()}</div>
             </div>
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.deleteAccountForm()}</div>
             </div>
           </div>
@@ -466,24 +466,24 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       >
         <div className="row">
           <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.blockUserCard()}</div>
             </div>
           </div>
           <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.blockCommunityCard()}</div>
             </div>
           </div>
           <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">
                 {this.blockInstanceCommunitiesCard()}
               </div>
             </div>
           </div>
           <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.blockInstancePersonsCard()}</div>
             </div>
           </div>
@@ -733,7 +733,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             >
               {I18NextService.i18n.t("export")}
             </button>
-            <fieldset className="border border-secondary rounded p-3 bg-dark bg-opacity-25">
+            <fieldset className="border rounded p-3 bg-dark bg-opacity-25">
               <input
                 type="file"
                 accept="application/json"

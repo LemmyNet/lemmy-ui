@@ -172,7 +172,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
-          <section id="sidebarMain" className="card border-secondary mb-3">
+          <section id="sidebarMain" className="card mb-3">
             <div className="card-body">
               {this.communityTitle()}
               {this.props.editable && this.adminButtons()}
@@ -245,7 +245,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               )}
             </div>
           </section>
-          <section id="sidebarInfo" className="card border-secondary mb-3">
+          <section id="sidebarInfo" className="card mb-3">
             <div className="card-body">
               {posting_restricted_to_mods && (
                 <div

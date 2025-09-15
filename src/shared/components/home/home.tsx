@@ -484,9 +484,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             />
           )}
           {showSubscribedMobile && (
-            <div className="card border-secondary mb-3">
-              {this.subscribedCommunities(true)}
-            </div>
+            <div className="card mb-3">{this.subscribedCommunities(true)}</div>
           )}
         </div>
       </div>
@@ -513,10 +511,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         />
         {this.hasFollows && (
           <div className="accordion">
-            <section
-              id="sidebarSubscribed"
-              className="card border-secondary mb-3"
-            >
+            <section id="sidebarSubscribed" className="card mb-3">
               {this.subscribedCommunities(false)}
             </section>
           </div>

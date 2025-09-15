@@ -200,7 +200,7 @@ const getCommunitiesListing = (
 ) =>
   communityViews &&
   communityViews.length > 0 && (
-    <div className="card border-secondary mb-3">
+    <div className="card mb-3">
       <div className="card-body">
         <h2 className="h5">{I18NextService.i18n.t(translationKey)}</h2>
         <ul className="list-unstyled mb-0">

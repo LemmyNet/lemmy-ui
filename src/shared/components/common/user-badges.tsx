@@ -184,7 +184,7 @@ export class UserBadges extends Component<UserBadgesProps> {
                     count: Number(this.props.creator.post_count),
                     formattedCount: numToSI(this.props.creator.post_count),
                   }),
-                  classes: "tlist-inline-item badge text-bg-secondary",
+                  classes: "list-inline-item badge text-bg-light",
                   shrink: false,
                 })}
               </span>
@@ -194,7 +194,7 @@ export class UserBadges extends Component<UserBadgesProps> {
                     count: Number(this.props.creator.comment_count),
                     formattedCount: numToSI(this.props.creator.comment_count),
                   }),
-                  classes: "list-inline-item badge text-bg-secondary",
+                  classes: "list-inline-item badge text-bg-light",
                   shrink: false,
                 })}
               </span>
