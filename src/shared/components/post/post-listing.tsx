@@ -1140,10 +1140,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  handleModLock() {
+  handleModLock(reason: string) {
     return this.props.onLockPost({
       post_id: this.postView.post.id,
       locked: !this.postView.post.locked,
+      reason,
     });
   }
 

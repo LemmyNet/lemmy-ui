@@ -11,6 +11,7 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
+  editCommentsSlimLocked,
 } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import {
@@ -64,6 +65,7 @@ import {
   GetSiteResponse,
   HidePost,
   LemmyHttp,
+  LockComment,
   LockPost,
   MarkPostAsRead,
   MyUserInfo,
@@ -277,6 +279,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
+    this.handleLockComment = this.handleLockComment.bind(this);
     this.handleCommentVote = this.handleCommentVote.bind(this);
     this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
@@ -839,7 +842,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
             isTopLevel
-            locked={postRes.data.post_view.post.locked}
+            postLocked={postRes.data.post_view.post.locked}
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
@@ -867,6 +870,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onCreateComment={this.handleCreateComment}
             onEditComment={this.handleEditComment}
             onPersonNote={this.handlePersonNote}
+            onLockComment={this.handleLockComment}
           />
         </div>
       );
@@ -955,7 +959,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             community={postRes.data.community_view.community}
             viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
-            locked={postRes.data.post_view.post.locked}
+            postLocked={postRes.data.post_view.post.locked}
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
@@ -982,6 +986,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onCreateComment={this.handleCreateComment}
             onEditComment={this.handleEditComment}
             onPersonNote={this.handlePersonNote}
+            onLockComment={this.handleLockComment}
           />
         </div>
       )
@@ -1241,6 +1246,22 @@ export class Post extends Component<PostRouteProps, PostState> {
         ),
       );
     }
+  }
+
+  async handleLockComment(form: LockComment) {
+    const res = await HttpService.client.lockComment(form);
+
+    this.setState(s => {
+      if (res.state === "success" && s.commentsRes.state === "success") {
+        s.commentsRes.data.comments = editCommentsSlimLocked(
+          res.data.comment_view.comment.path,
+          form.locked,
+          s.commentsRes.data.comments,
+        );
+        toast(I18NextService.i18n.t(form.locked ? "locked" : "unlocked"));
+      }
+      return s;
+    });
   }
 
   async handleSaveComment(form: SaveComment) {

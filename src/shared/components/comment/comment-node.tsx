@@ -23,6 +23,7 @@ import {
   GetComments,
   Language,
   LocalSite,
+  LockComment,
   MyUserInfo,
   NotePerson,
   PersonId,
@@ -56,6 +57,7 @@ import { BanUpdateForm } from "../common/modal/mod-action-form-modal";
 import CommentActionDropdown from "../common/content-actions/comment-action-dropdown";
 import { RequestState } from "../../services/HttpService";
 import { VoteDisplay } from "../common/vote-display";
+import { canAdmin } from "@utils/roles";
 
 type CommentNodeState = {
   showReply: boolean;
@@ -85,7 +87,7 @@ type CommentNodeProps = {
   noBorder?: boolean;
   isTopLevel?: boolean;
   viewOnly?: boolean;
-  locked?: boolean;
+  postLocked?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
   viewType: CommentViewType;
@@ -116,6 +118,7 @@ type CommentNodeProps = {
   onPurgePerson(form: PurgePerson): Promise<void>;
   onPurgeComment(form: PurgeComment): Promise<void>;
   onPersonNote(form: NotePerson): Promise<void>;
+  onLockComment(form: LockComment): Promise<void>;
 } & (
   | { markable?: false }
   | {
@@ -171,6 +174,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.handlePurgeComment = this.handlePurgeComment.bind(this);
     this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
+    this.handleModLock = this.handleModLock.bind(this);
   }
 
   componentWillReceiveProps(
@@ -226,6 +230,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         distinguished,
         updated_at,
         child_count,
+        locked,
       },
       creator,
     } = this.commentView;
@@ -315,6 +320,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   }
                 </span>
               )}
+              {locked && (
+                <span
+                  className="unselectable pointer mx-1"
+                  data-tippy-content={I18NextService.i18n.t("locked")}
+                >
+                  <Icon icon="lock" classes="icon-inline text-danger" />
+                </span>
+              )}
               {/* This is an expanding spacer for mobile */}
               <div className="me-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
 
@@ -334,7 +347,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 node={node}
                 edit
                 onReplyCancel={this.handleReplyCancel}
-                disabled={this.props.locked}
+                disabled={!this.enableCommentForm}
                 focus
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
@@ -442,6 +455,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           onBanFromSite={this.handleBanFromSite}
                           onAppointAdmin={this.handleAppointAdmin}
                           onPersonNote={this.handlePersonNote}
+                          onLock={this.handleModLock}
                         />
                       </>
                     )}
@@ -479,7 +493,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           <CommentForm
             node={node}
             onReplyCancel={this.handleReplyCancel}
-            disabled={this.props.locked}
+            disabled={!this.enableCommentForm}
             focus
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -493,7 +507,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             nodes={node.children}
             postCreatorId={this.postCreatorId}
             community={this.community}
-            locked={this.props.locked}
+            postLocked={this.props.postLocked}
             admins={this.props.admins}
             readCommentsAt={this.props.readCommentsAt}
             viewType={this.props.viewType}
@@ -522,6 +536,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onPurgePerson={this.props.onPurgePerson}
             onPurgeComment={this.props.onPurgeComment}
             onPersonNote={this.props.onPersonNote}
+            onLockComment={this.props.onLockComment}
           />
         )}
         {/* A collapsed clearfix */}
@@ -588,6 +603,24 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       : comment.deleted
         ? `*${I18NextService.i18n.t("deleted")}*`
         : comment.content;
+  }
+
+  /**
+   * Only enable the comment form if its not locked, or you're a mod / admin
+   **/
+  get enableCommentForm(): boolean {
+    const canModOrAdmin =
+      this.commentView.can_mod ||
+      canAdmin(
+        this.commentView.creator.id,
+        this.props.admins,
+        this.props.myUserInfo,
+      );
+
+    return (
+      canModOrAdmin ||
+      (!this.props.postLocked && !this.commentView.comment.locked)
+    );
   }
 
   handleReplyClick() {
@@ -767,6 +800,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   async handlePersonNote(form: NotePerson) {
     this.props.onPersonNote(form);
+  }
+
+  async handleModLock(reason: string) {
+    return this.props.onLockComment({
+      comment_id: this.commentId,
+      locked: !this.commentView.comment.locked,
+      reason,
+    });
   }
 
   async handlePurgePerson(reason: string) {
