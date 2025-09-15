@@ -1,22 +1,24 @@
 import { isBrowser } from "@utils/browser";
 import { testHost } from "@utils/config";
 
-export function getBaseLocal(s = "") {
-  return `http${s}://${getHost()}`;
+function getBaseLocal() {
+  return `http${getSecure()}://${getHost()}`;
 }
 
 export function getExternalHost() {
   return isBrowser()
     ? window.isoData.lemmyExternalHost
-    : (process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ?? testHost);
+    : (process.env.LEMMY_UI_BACKEND_REMOTE ??
+        process.env.LEMMY_UI_BACKEND_EXTERNAL ??
+        testHost);
 }
 
-export function getHost() {
+function getHost() {
   return isBrowser() ? getExternalHost() : getInternalHost();
 }
 
 export function getHttpBase() {
-  return getBaseLocal(getSecure());
+  return getBaseLocal();
 }
 
 export function getHttpBaseExternal() {
@@ -27,17 +29,20 @@ export function getHttpBaseInternal() {
   return getBaseLocal(); // Don't use secure here
 }
 
-export function getInternalHost() {
+function getInternalHost() {
   return !isBrowser()
-    ? (process.env.LEMMY_UI_LEMMY_INTERNAL_HOST ?? testHost)
+    ? (process.env.LEMMY_UI_BACKEND_REMOTE ??
+        process.env.LEMMY_UI_BACKEND_INTERNAL ??
+        testHost)
     : testHost; // used for local dev
 }
 
-export function getSecure() {
+function getSecure() {
   return (
     isBrowser()
-      ? window.location.protocol.includes("https")
-      : process.env.LEMMY_UI_HTTPS === "true"
+      ? window.location.protocol.includes("https") || window.isoData.forceHttps
+      : process.env.LEMMY_UI_HTTPS === "true" ||
+        process.env.LEMMY_UI_BACKEND_REMOTE !== undefined
   )
     ? "s"
     : "";

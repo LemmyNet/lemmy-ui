@@ -122,6 +122,7 @@ import { isBrowser } from "@utils/browser";
 import { CommunityHeader } from "./community-header";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
+import { TimeIntervalSelect } from "@components/common/time-interval-select";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -142,11 +143,15 @@ interface State {
 interface CommunityProps {
   dataType: DataType;
   sort: PostSortType | CommentSortType;
+  postTimeRange: number;
   cursor?: DirectionalCursor;
   showHidden?: StringBoolean;
 }
 
-type Fallbacks = { sort: PostSortType | CommentSortType };
+type Fallbacks = {
+  sort: PostSortType | CommentSortType;
+  postTimeRange: number;
+};
 
 export function getCommunityQueryParams(
   source: string | undefined,
@@ -160,12 +165,14 @@ export function getCommunityQueryParams(
       dataType: getDataTypeFromQuery,
       cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
+      postTimeRange: getPostTimeRangeFromQuery,
       showHidden: (include?: StringBoolean) => include,
     },
     source,
     {
       sort:
         local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
+      postTimeRange: local_user?.default_post_time_range_seconds ?? 0,
     },
   );
 }
@@ -179,6 +186,13 @@ function getSortTypeFromQuery(
   fallback: PostSortType | CommentSortType,
 ): PostSortType | CommentSortType {
   return type ? (type as PostSortType | CommentSortType) : fallback;
+}
+
+function getPostTimeRangeFromQuery(
+  type: string | undefined,
+  fallback: number,
+): number {
+  return type ? Number(type) : fallback;
 }
 
 type CommunityPathProps = { name: string };
@@ -219,6 +233,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
+    this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
 
@@ -310,7 +325,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   static async fetchInitialData({
     headers,
-    query: { dataType, cursor, sort, showHidden },
+    query: { dataType, cursor, sort, postTimeRange, showHidden },
     match: {
       params: { name: communityName },
     },
@@ -334,11 +349,12 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
         community_name: communityName,
-        ...cursorComponents(cursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
+        time_range_seconds: postTimeRange,
         type_: "All",
         show_hidden: showHidden === "true",
+        ...cursorComponents(cursor),
       };
 
       postsFetch = client.getPosts(getPostsForm);
@@ -653,40 +669,50 @@ export class Community extends Component<CommunityRouteProps, State> {
     const res =
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
-    const { dataType, sort, showHidden } = this.props;
+    const { dataType, sort, postTimeRange, showHidden } = this.props;
     const communityRss = res
       ? communityRSSUrl(res.community_view.community.ap_id, sort)
       : undefined;
 
     return (
-      <div className="mb-3">
-        <span className="me-3">
+      <div className="row align-items-center mb-3 g-3">
+        <div className="col-auto">
           <DataTypeSelect
             type_={dataType}
             onChange={this.handleDataTypeChange}
           />
-        </span>
+        </div>
         {dataType === DataType.Post && this.isoData.myUserInfo && (
-          <span className="me-3">
+          <div className="col-auto">
             <PostHiddenSelect
               showHidden={showHidden}
               onShowHiddenChange={this.handleShowHiddenChange}
             />
-          </span>
+          </div>
         )}
-        <span className="me-2">
-          {this.props.dataType === DataType.Post ? (
-            <PostSortSelect
-              current={mixedToPostSortType(sort)}
-              onChange={this.handleSortChange}
-            />
-          ) : (
+        {this.props.dataType === DataType.Post ? (
+          <>
+            <div className="col-auto">
+              <PostSortSelect
+                current={mixedToPostSortType(sort)}
+                onChange={this.handleSortChange}
+              />
+            </div>
+            <div className="col-6 col-md-3">
+              <TimeIntervalSelect
+                currentSeconds={postTimeRange}
+                onChange={this.handlePostTimeRangeChange}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="col-auto">
             <CommentSortSelect
               current={mixedToCommentSortType(sort)}
               onChange={this.handleCommentSortChange}
             />
-          )}
-        </span>
+          </div>
+        )}
         {communityRss && (
           <>
             <a href={communityRss} title="RSS" rel={relTags}>
@@ -709,6 +735,10 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   handleSortChange(sort: PostSortType) {
     this.updateUrl({ sort, cursor: undefined });
+  }
+
+  handlePostTimeRangeChange(val: number) {
+    this.updateUrl({ postTimeRange: val, cursor: undefined });
   }
 
   handleCommentSortChange(sort: CommentSortType) {
@@ -759,7 +789,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   fetchDataToken?: symbol;
   async fetchData(props: CommunityRouteProps) {
     const token = (this.fetchDataToken = Symbol());
-    const { dataType, cursor, sort, showHidden } = props;
+    const { dataType, cursor, sort, postTimeRange, showHidden } = props;
     const { name } = props.match.params;
 
     if (dataType === DataType.Post) {
@@ -768,6 +798,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         ...cursorComponents(cursor),
         limit: fetchLimit,
         sort: mixedToPostSortType(sort),
+        time_range_seconds: postTimeRange,
         type_: "All",
         community_name: name,
         show_hidden: showHidden === "true",
