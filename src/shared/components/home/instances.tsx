@@ -165,7 +165,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     return items.length > 0 ? (
       <div id="instances_list">
         {items.map(i => (
-          <ul id={i.domain} className="list-inline">
+          <ul className="list-inline">
             <li className="list-inline-item">
               {link ? (
                 <a href={`https://${i.domain}`} rel={relTags}>
