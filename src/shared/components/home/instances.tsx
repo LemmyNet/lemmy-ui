@@ -163,38 +163,34 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
 
   itemList(items: Instance[], link = true) {
     return items.length > 0 ? (
-      <div className="table-responsive">
-        <table id="instances_table" className="table table-sm table-hover">
-          <thead className="pointer">
-            <tr>
-              <th>{I18NextService.i18n.t("name")}</th>
-              <th>{I18NextService.i18n.t("software")}</th>
-              <th>{I18NextService.i18n.t("version")}</th>
-              <th>{I18NextService.i18n.t("last_updated")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map(i => (
-              <tr key={i.domain}>
-                <td>
-                  {link ? (
-                    <a href={`https://${i.domain}`} rel={relTags}>
-                      {i.domain}{" "}
-                    </a>
-                  ) : (
-                    <span>{i.domain}</span>
-                  )}
-                </td>
-                <td>{i.software}</td>
-                <td>{i.version}</td>
-                <td>
-                  {formatRelativeDate(i.updated_at ?? i.published_at)}
-                  {isWeekOld(new Date(i.updated_at ?? i.published_at)) && " 💀"}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div id="instances_list">
+        {items.map(i => (
+          <ul id={i.domain} className="list-inline">
+            <li className="list-inline-item">
+              {link ? (
+                <a href={`https://${i.domain}`} rel={relTags}>
+                  {i.domain}{" "}
+                </a>
+              ) : (
+                <span>{i.domain}</span>
+              )}
+            </li>
+            <li
+              className="list-inline-item unselectable pointer badge text-bg-secondary"
+              data-tippy-content={I18NextService.i18n.t("software")}
+            >
+              {i.software}
+              {i.version ? `/${i.version}` : ""}
+            </li>
+            <li
+              className="list-inline-item unselectable pointer badge text-bg-secondary"
+              data-tippy-content={I18NextService.i18n.t("last_updated")}
+            >
+              {formatRelativeDate(i.updated_at ?? i.published_at)}
+              {isWeekOld(new Date(i.updated_at ?? i.published_at)) && " 💀"}
+            </li>
+          </ul>
+        ))}
       </div>
     ) : (
       <div>{I18NextService.i18n.t("none_found")}</div>
