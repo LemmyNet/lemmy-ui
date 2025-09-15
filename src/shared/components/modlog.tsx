@@ -906,16 +906,39 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               <option value={"ModLockPost"}>Locking Posts</option>
               <option value={"ModFeaturePost"}>Featuring Posts</option>
               <option value={"ModRemoveComment"}>Removing Comments</option>
-              <option value={"ModRemoveCommunity"}>Removing Communities</option>
+              <option value={"ModLockComment"}>Locking Comments</option>
+              <option value={"AdminRemoveCommunity"}>
+                Removing Communities
+              </option>
               <option value={"ModBanFromCommunity"}>
                 Banning From Communities
               </option>
-              <option value={"ModAddCommunity"}>Adding Mod to Community</option>
+              <option value={"ModAddToCommunity"}>
+                Adding Mod to Community
+              </option>
               <option value={"ModTransferCommunity"}>
                 Transferring Communities
               </option>
-              <option value={"ModAdd"}>Adding Mod to Site</option>
-              <option value={"ModBan"}>Banning From Site</option>
+              <option value={"ModChangeCommunityVisibility"}>
+                Changing Community visibility
+              </option>
+              <option value={"AdminAdd"}>Adding Admin to Site</option>
+              <option value={"AdminBlockInstance"}>
+                Block a federated Instance
+              </option>
+              <option value={"AdminAllowInstance"}>
+                Allow a federated instance
+              </option>
+              {this.isoData.myUserInfo?.local_user_view.local_user.admin && (
+                <>
+                  <option value={"AdminPurgePerson"}>Purge a Person</option>
+                  <option value={"AdminPurgeCommunity"}>
+                    Purge a Community
+                  </option>
+                  <option value={"AdminPurgePost"}>Purge a Post</option>
+                  <option value={"AdminPurgeComment"}>Purge a Comment</option>
+                </>
+              )}
             </select>
           </div>
         </div>
