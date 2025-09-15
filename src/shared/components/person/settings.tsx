@@ -76,6 +76,7 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { CommentSortSelect } from "../common/sort-select";
+import { TimeIntervalSelect } from "@components/common/time-interval-select";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -230,6 +231,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     this.handlePostSortTypeChange = this.handlePostSortTypeChange.bind(this);
     this.handleCommentSortTypeChange =
       this.handleCommentSortTypeChange.bind(this);
+    this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
     this.handleBioChange = this.handleBioChange.bind(this);
     this.handleDiscussionLanguageChange =
@@ -262,6 +264,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           theme,
           default_post_sort_type,
           default_comment_sort_type,
+          default_post_time_range_seconds,
           default_listing_type,
           default_items_per_page,
           interface_language,
@@ -302,6 +305,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           theme: theme ?? "browser",
           default_post_sort_type,
           default_comment_sort_type,
+          default_post_time_range_seconds,
           default_listing_type,
           default_items_per_page,
           interface_language,
@@ -997,6 +1001,23 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 onInput={linkEvent(this, this.handleItemsPerPageChange)}
                 min={1}
                 max={50}
+              />
+            </div>
+          </form>
+          <form className="mb-3 row">
+            <label
+              className="col-sm-8 col-form-label"
+              htmlFor="post-time-range"
+            >
+              {I18NextService.i18n.t("post_time_range")}
+            </label>
+            <div className="col-sm-4">
+              <TimeIntervalSelect
+                currentSeconds={
+                  this.state.saveUserSettingsForm
+                    .default_post_time_range_seconds
+                }
+                onChange={this.handlePostTimeRangeChange}
               />
             </div>
           </form>
@@ -1756,6 +1777,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   handleCommentSortTypeChange(val: CommentSortType) {
     this.setState(
       s => ((s.saveUserSettingsForm.default_comment_sort_type = val), s),
+    );
+  }
+
+  handlePostTimeRangeChange(val: number) {
+    this.setState(
+      s => ((s.saveUserSettingsForm.default_post_time_range_seconds = val), s),
     );
   }
 
