@@ -36,6 +36,7 @@ import {
   PersonContentCombinedView,
   LocalSite,
   NotePerson,
+  LockComment,
 } from "lemmy-js-client";
 import { CommentViewType } from "@utils/types";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -81,6 +82,7 @@ interface PersonDetailsProps {
   onPurgePost(form: PurgePost): Promise<void>;
   onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
   onPersonNote(form: NotePerson): Promise<void>;
+  onLockComment(form: LockComment): Promise<void>;
 }
 
 export class PersonDetails extends Component<PersonDetailsProps, any> {
@@ -122,6 +124,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onPurgePerson={this.props.onPurgePerson}
             onPurgeComment={this.props.onPurgeComment}
             onPersonNote={this.props.onPersonNote}
+            onLockComment={this.props.onLockComment}
           />
         );
       }

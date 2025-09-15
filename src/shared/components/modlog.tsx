@@ -465,7 +465,7 @@ function processModlogEntry(
 
     case "ModLockPost": {
       const {
-        mod_lock_post: { id, locked, published_at },
+        mod_lock_post: { id, locked, published_at, reason },
         moderator,
         post: { id: postId, name },
       } = view;
@@ -480,6 +480,11 @@ function processModlogEntry(
             <span>
               Post <Link to={`/post/${postId}`}>{name}</Link>
             </span>
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
           </>
         ),
       };
@@ -500,6 +505,38 @@ function processModlogEntry(
         data: (
           <>
             <span>{removed ? "Removed " : "Restored "}</span>
+            <span>
+              Comment <Link to={`/comment/${commentId}`}>{content}</Link>
+            </span>
+            <span>
+              {" "}
+              by <PersonListing person={other_person} myUserInfo={myUserInfo} />
+            </span>
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+          </>
+        ),
+      };
+    }
+
+    case "ModLockComment": {
+      const {
+        mod_lock_comment: { id, reason, locked, published_at },
+        moderator,
+        comment: { id: commentId, content },
+        other_person,
+      } = view;
+
+      return {
+        id,
+        moderator,
+        publishedAt: published_at,
+        data: (
+          <>
+            <span>{locked ? "Locked " : "Unlocked "}</span>
             <span>
               Comment <Link to={`/comment/${commentId}`}>{content}</Link>
             </span>
@@ -904,6 +941,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               <option value={"All"}>{I18NextService.i18n.t("all")}</option>
               <option value={"ModRemovePost"}>Removing Posts</option>
               <option value={"ModLockPost"}>Locking Posts</option>
+              <option value={"ModLockComment"}>Locking Comments</option>
               <option value={"ModFeaturePost"}>Featuring Posts</option>
               <option value={"ModRemoveComment"}>Removing Comments</option>
               <option value={"ModRemoveCommunity"}>Removing Communities</option>

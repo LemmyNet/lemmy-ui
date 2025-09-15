@@ -73,6 +73,7 @@ import {
   MyUserInfo,
   MarkPostAsRead,
   NotePerson,
+  LockComment,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -293,6 +294,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
+    this.handleLockComment = this.handleLockComment.bind(this);
     this.handleCommentVote = this.handleCommentVote.bind(this);
     this.handleAddModToCommunity = this.handleAddModToCommunity.bind(this);
     this.handleAddAdmin = this.handleAddAdmin.bind(this);
@@ -783,6 +785,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onCreateComment={this.handleCreateComment}
               onEditComment={this.handleEditComment}
               onPersonNote={this.handlePersonNote}
+              onLockComment={this.handleLockComment}
             />
           );
         }
@@ -1033,6 +1036,11 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   async handleRemoveComment(form: RemoveComment) {
     const removeCommentRes = await HttpService.client.removeComment(form);
     this.findAndUpdateComment(removeCommentRes);
+  }
+
+  async handleLockComment(form: LockComment) {
+    const res = await HttpService.client.lockComment(form);
+    this.findAndUpdateComment(res);
   }
 
   async handleSaveComment(form: SaveComment) {

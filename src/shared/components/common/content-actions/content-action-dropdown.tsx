@@ -44,6 +44,7 @@ interface ContentActionDropdownPropsBase {
   onPurgeUser: (reason: string) => Promise<void>;
   onAppointAdmin: () => Promise<void>;
   onPersonNote: (form: NotePerson) => Promise<void>;
+  onLock: (reason: string) => Promise<void>;
   moderators?: CommunityModeratorView[];
   admins: PersonView[];
   community: Community;
@@ -61,7 +62,6 @@ export type ContentPostProps = {
   type: "post";
   postView: PostView;
   crossPostParams: CrossPostParams;
-  onLock: () => Promise<void>;
   onFeatureLocal: () => Promise<void>;
   onFeatureCommunity: () => Promise<void>;
   onHidePost: () => Promise<void>;
@@ -78,7 +78,8 @@ type DialogType =
   | "AppointModDialog"
   | "AppointAdminDialog"
   | "ViewVotesDialog"
-  | "PersonNoteDialog";
+  | "PersonNoteDialog"
+  | "LockDialog";
 
 type ActionTypeState = {
   banType?: BanType;
@@ -115,6 +116,7 @@ export default class ContentActionDropdown extends Component<
     showTransferCommunityDialog: false,
     showViewVotesDialog: false,
     showPersonNoteDialog: false,
+    showLockDialog: false,
     renderAppointAdminDialog: false,
     renderAppointModDialog: false,
     renderBanDialog: false,
@@ -124,6 +126,7 @@ export default class ContentActionDropdown extends Component<
     renderTransferCommunityDialog: false,
     renderViewVotesDialog: false,
     renderPersonNoteDialog: false,
+    renderLockDialog: false,
     dropdownOpenedOnce: false,
   };
 
@@ -145,6 +148,7 @@ export default class ContentActionDropdown extends Component<
     this.toggleAppointAdminShow = this.toggleAppointAdminShow.bind(this);
     this.toggleViewVotesShow = this.toggleViewVotesShow.bind(this);
     this.togglePersonNoteShow = this.togglePersonNoteShow.bind(this);
+    this.toggleLockShow = this.toggleLockShow.bind(this);
     this.wrapHandler = this.wrapHandler.bind(this);
     this.handleDropdownToggleClick = this.handleDropdownToggleClick.bind(this);
   }
@@ -333,15 +337,6 @@ export default class ContentActionDropdown extends Component<
                       <>
                         <li>
                           <ActionButton
-                            onClick={this.props.onLock}
-                            label={I18NextService.i18n.t(
-                              locked ? "unlock" : "lock",
-                            )}
-                            icon={locked ? "unlock" : "lock"}
-                          />
-                        </li>
-                        <li>
-                          <ActionButton
                             onClick={this.props.onFeatureCommunity}
                             label={I18NextService.i18n.t(
                               this.props.postView.post.featured_community
@@ -418,27 +413,45 @@ export default class ContentActionDropdown extends Component<
                   </Link>
                 </li>
                 {(this.canMod || this.canAdmin) && (
-                  <li>
-                    <ActionButton
-                      label={
-                        removed
-                          ? `${I18NextService.i18n.t(
-                              type === "post"
-                                ? "restore_post"
-                                : "restore_comment",
-                            )}`
-                          : I18NextService.i18n.t(
-                              type === "post"
-                                ? "remove_post"
-                                : "remove_comment",
-                            )
-                      }
-                      icon={removed ? "restore" : "x"}
-                      noLoading
-                      onClick={this.toggleRemoveShow}
-                      iconClass={`text-${removed ? "success" : "danger"}`}
-                    />
-                  </li>
+                  <>
+                    <li>
+                      <ActionButton
+                        label={
+                          removed
+                            ? `${I18NextService.i18n.t(
+                                type === "post"
+                                  ? "restore_post"
+                                  : "restore_comment",
+                              )}`
+                            : I18NextService.i18n.t(
+                                type === "post"
+                                  ? "remove_post"
+                                  : "remove_comment",
+                              )
+                        }
+                        icon={removed ? "restore" : "x"}
+                        noLoading
+                        onClick={this.toggleRemoveShow}
+                        iconClass={`text-${removed ? "success" : "danger"}`}
+                      />
+                    </li>
+                    <li>
+                      <ActionButton
+                        noLoading
+                        onClick={this.toggleLockShow}
+                        label={I18NextService.i18n.t(
+                          locked
+                            ? type === "post"
+                              ? "unlock_post"
+                              : "unlock_comment"
+                            : type === "post"
+                              ? "lock_post"
+                              : "lock_comment",
+                        )}
+                        icon={locked ? "unlock" : "lock"}
+                      />
+                    </li>
+                  </>
                 )}
                 {this.canMod &&
                   (!creator_is_moderator || canAppointCommunityMod) && (
@@ -594,6 +607,7 @@ export default class ContentActionDropdown extends Component<
       showAppointAdminDialog: false,
       showViewVotesDialog: false,
       showPersonNoteDialog: false,
+      showLockDialog: false,
       [showKey]: !this.state[showKey],
       [renderKey]: true, // for fade out just keep rendering after show becomes false
       ...stateOverride,
@@ -611,6 +625,7 @@ export default class ContentActionDropdown extends Component<
       showTransferCommunityDialog: false,
       showViewVotesDialog: false,
       showPersonNoteDialog: false,
+      showLockDialog: false,
     });
   }
 
@@ -667,6 +682,10 @@ export default class ContentActionDropdown extends Component<
     this.toggleDialogShow("PersonNoteDialog");
   }
 
+  toggleLockShow() {
+    this.toggleDialogShow("LockDialog");
+  }
+
   get allDialogs() {
     const {
       showBanDialog,
@@ -680,6 +699,7 @@ export default class ContentActionDropdown extends Component<
       showAppointAdminDialog,
       showViewVotesDialog,
       showPersonNoteDialog,
+      showLockDialog,
       renderBanDialog,
       renderPurgeDialog,
       renderRemoveDialog,
@@ -689,9 +709,11 @@ export default class ContentActionDropdown extends Component<
       renderAppointAdminDialog,
       renderViewVotesDialog,
       renderPersonNoteDialog,
+      renderLockDialog,
     } = this.state;
     const {
       removed,
+      locked,
       creator,
       creator_banned_from_community,
       creator_is_admin,
@@ -711,6 +733,7 @@ export default class ContentActionDropdown extends Component<
       onAppointCommunityMod,
       onAppointAdmin,
       onPersonNote,
+      onLock,
       type,
       community,
     } = this.props;
@@ -846,6 +869,15 @@ export default class ContentActionDropdown extends Component<
             onCancel={this.hideAllDialogs}
           />
         )}
+        {renderLockDialog && (
+          <ModActionFormModal
+            onSubmit={this.wrapHandler(onLock)}
+            modActionType={type === "post" ? "lock-post" : "lock-comment"}
+            onCancel={this.hideAllDialogs}
+            show={showLockDialog}
+            isLocked={locked}
+          />
+        )}
       </>
     );
   }
@@ -881,7 +913,7 @@ export default class ContentActionDropdown extends Component<
       };
     } else {
       const {
-        comment: { id, deleted, removed },
+        comment: { id, deleted, removed, locked },
         comment_actions: { saved_at } = {},
         creator,
         creator_banned_from_community,
@@ -896,6 +928,7 @@ export default class ContentActionDropdown extends Component<
         saved_at,
         deleted,
         creator,
+        locked,
         removed,
         creator_banned_from_community,
         creator_is_admin,

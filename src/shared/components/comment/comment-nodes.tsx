@@ -18,6 +18,7 @@ import {
   GetComments,
   Language,
   LocalSite,
+  LockComment,
   MyUserInfo,
   NotePerson,
   PersonId,
@@ -48,7 +49,7 @@ interface CommentNodesProps {
   noBorder?: boolean;
   isTopLevel?: boolean;
   viewOnly?: boolean;
-  locked?: boolean;
+  postLocked?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
   viewType: CommentViewType;
@@ -81,6 +82,7 @@ interface CommentNodesProps {
   onPurgePerson(form: PurgePerson): Promise<void>;
   onPurgeComment(form: PurgeComment): Promise<void>;
   onPersonNote(form: NotePerson): Promise<void>;
+  onLockComment(form: LockComment): Promise<void>;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -117,7 +119,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               noBorder={this.props.noBorder}
               isTopLevel={this.props.isTopLevel}
               viewOnly={this.props.viewOnly}
-              locked={this.props.locked}
+              postLocked={this.props.postLocked}
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
               showContext={this.props.showContext}
@@ -146,6 +148,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               onPurgePerson={this.props.onPurgePerson}
               onPurgeComment={this.props.onPurgeComment}
               onPersonNote={this.props.onPersonNote}
+              onLockComment={this.props.onLockComment}
             />
           ))}
         </ul>
