@@ -25,6 +25,7 @@ import {
   PersonActions,
   Person,
   CommentSlimView,
+  Community,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -127,9 +128,13 @@ export function commentsToFlatNodes(
   return nodes;
 }
 
-export function communityRSSUrl(actorId: string, sort: string): string {
-  const url = new URL(actorId);
-  return `${url.origin}/feeds${url.pathname}.xml${getQueryString({ sort })}`;
+export function communityRSSUrl(community: Community, sort: string): string {
+  var domain = "";
+  if (!community.local) {
+    const url = new URL(community.ap_id);
+    domain = `@${url.host}`;
+  }
+  return `/feeds/c/${community.name}${domain}.xml${getQueryString({ sort })}`;
 }
 
 export async function communitySearch(
