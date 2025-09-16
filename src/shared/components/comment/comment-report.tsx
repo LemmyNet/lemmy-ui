@@ -6,6 +6,7 @@ import {
   LocalSite,
   MyUserInfo,
   PersonView,
+  RemoveComment,
   ResolveCommentReport,
 } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "@utils/types";
@@ -15,6 +16,7 @@ import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
 import { EMPTY_REQUEST } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import ActionButton from "@components/common/content-actions/action-button";
 
 interface CommentReportProps {
   report: CommentReportView;
@@ -22,6 +24,7 @@ interface CommentReportProps {
   localSite: LocalSite;
   admins: PersonView[];
   onResolveReport(form: ResolveCommentReport): void;
+  onRemoveComment(form: RemoveComment): void;
 }
 
 interface CommentReportState {
@@ -38,6 +41,7 @@ export class CommentReport extends Component<
   };
   constructor(props: any, context: any) {
     super(props, context);
+    this.handleRemoveComment = this.handleRemoveComment.bind(this);
   }
 
   componentWillReceiveProps(
@@ -161,6 +165,16 @@ export class CommentReport extends Component<
             />
           )}
         </button>
+        <ActionButton
+          label={I18NextService.i18n.t(
+            comment_view.comment.removed ? "restore_comment" : "remove_comment",
+          )}
+          inline
+          icon={comment_view.comment.removed ? "restore" : "x"}
+          noLoading
+          onClick={this.handleRemoveComment}
+          iconClass={`text-${comment_view.comment.removed ? "success" : "danger"}`}
+        />
       </div>
     );
   }
@@ -170,6 +184,14 @@ export class CommentReport extends Component<
     i.props.onResolveReport({
       report_id: i.props.report.comment_report.id,
       resolved: !i.props.report.comment_report.resolved,
+    });
+  }
+
+  handleRemoveComment() {
+    this.setState({ loading: true });
+    this.props.onRemoveComment({
+      comment_id: this.props.report.comment_report.comment_id,
+      removed: !this.props.report.comment.removed,
     });
   }
 }

@@ -6,6 +6,7 @@ import {
   PersonView,
   PostReportView,
   PostView,
+  RemovePost,
   ResolvePostReport,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
@@ -14,6 +15,7 @@ import { PersonListing } from "../person/person-listing";
 import { PostListing } from "./post-listing";
 import { EMPTY_REQUEST } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import ActionButton from "@components/common/content-actions/action-button";
 
 interface PostReportProps {
   report: PostReportView;
@@ -23,6 +25,7 @@ interface PostReportProps {
   localSite: LocalSite;
   admins: PersonView[];
   onResolveReport(form: ResolvePostReport): void;
+  onRemovePost(form: RemovePost): void;
 }
 
 interface PostReportState {
@@ -37,6 +40,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
 
   constructor(props: any, context: any) {
     super(props, context);
+    this.handleRemovePost = this.handleRemovePost.bind(this);
   }
 
   componentWillReceiveProps(
@@ -160,6 +164,16 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             />
           )}
         </button>
+        <ActionButton
+          label={I18NextService.i18n.t(
+            pv.post.removed ? "restore_post" : "remove_post",
+          )}
+          inline
+          icon={pv.post.removed ? "restore" : "x"}
+          noLoading
+          onClick={this.handleRemovePost}
+          iconClass={`text-${pv.post.removed ? "success" : "danger"}`}
+        />
       </div>
     );
   }
@@ -169,6 +183,14 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     i.props.onResolveReport({
       report_id: i.props.report.post_report.id,
       resolved: !i.props.report.post_report.resolved,
+    });
+  }
+
+  handleRemovePost() {
+    this.setState({ loading: true });
+    this.props.onRemovePost({
+      post_id: this.props.report.post_report.post_id,
+      removed: !this.props.report.post.removed,
     });
   }
 }

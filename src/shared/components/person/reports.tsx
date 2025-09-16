@@ -27,6 +27,8 @@ import {
   ResolveCommunityReport,
   CommunityReportResponse,
   ReportType,
+  RemovePost,
+  RemoveComment,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, HttpService, I18NextService } from "../../services";
@@ -48,6 +50,7 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { CommunityReport } from "../community/community-report";
+import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
 
 enum UnreadOrAll {
   Unread,
@@ -65,6 +68,8 @@ interface ReportsState {
   siteRes: GetSiteResponse;
   cursor?: DirectionalCursor;
   isIsomorphic: boolean;
+  removePostForm: RemovePost | null;
+  removeCommentForm: RemoveComment | null;
 }
 
 type ReportsRouteProps = RouteComponentProps<Record<string, never>> &
@@ -84,6 +89,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     messageType: "All",
     siteRes: this.isoData.siteRes,
     isIsomorphic: false,
+    removePostForm: null,
+    removeCommentForm: null,
   };
 
   loadingSettled() {
@@ -101,6 +108,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       this.handleResolvePrivateMessageReport.bind(this);
     this.handleResolveCommunityReport =
       this.handleResolveCommunityReport.bind(this);
+    this.handleRemovePost = this.handleRemovePost.bind(this);
+    this.handleRemoveComment = this.handleRemoveComment.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -135,8 +144,38 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   }
 
   render() {
+    const removePostForm = this.state.removePostForm;
+    const removeCommentForm = this.state.removeCommentForm;
     return (
       <div className="person-reports container-lg">
+        {removePostForm && (
+          <ModActionFormModal
+            onSubmit={async (reason: string) => {
+              removePostForm.reason = reason;
+              await HttpService.client.removePost(removePostForm);
+              this.setState({ removePostForm: null });
+              this.update();
+            }}
+            modActionType="remove-post"
+            isRemoved={!removePostForm.removed}
+            onCancel={() => this.setState({ removePostForm: null })}
+            show={true}
+          />
+        )}
+        {removeCommentForm && (
+          <ModActionFormModal
+            onSubmit={async (reason: string) => {
+              removeCommentForm.reason = reason;
+              await HttpService.client.removeComment(removeCommentForm);
+              this.setState({ removeCommentForm: null });
+              this.update();
+            }}
+            modActionType="remove-comment"
+            isRemoved={!removeCommentForm.removed}
+            onCancel={() => this.setState({ removeCommentForm: null })}
+            show={true}
+          />
+        )}
         <div className="row">
           <div className="col-12">
             <HtmlTags
@@ -341,20 +380,24 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
             onResolveReport={this.handleResolveCommentReport}
+            onRemoveComment={this.handleRemoveComment}
           />
         );
       case "Post":
         return (
-          <PostReport
-            key={i.type_ + i.post_report.id}
-            report={i}
-            enableNsfw={enableNsfw(siteRes)}
-            showAdultConsentModal={this.isoData.showAdultConsentModal}
-            myUserInfo={this.isoData.myUserInfo}
-            localSite={siteRes.site_view.local_site}
-            admins={this.isoData.siteRes.admins}
-            onResolveReport={this.handleResolvePostReport}
-          />
+          <>
+            <PostReport
+              key={i.type_ + i.post_report.id}
+              report={i}
+              enableNsfw={enableNsfw(siteRes)}
+              showAdultConsentModal={this.isoData.showAdultConsentModal}
+              myUserInfo={this.isoData.myUserInfo}
+              localSite={siteRes.site_view.local_site}
+              admins={this.isoData.siteRes.admins}
+              onResolveReport={this.handleResolvePostReport}
+              onRemovePost={this.handleRemovePost}
+            />
+          </>
         );
       case "PrivateMessage":
         return (
@@ -423,6 +466,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   localSite={siteRes.site_view.local_site}
                   admins={this.isoData.siteRes.admins}
                   onResolveReport={this.handleResolveCommentReport}
+                  onRemoveComment={this.handleRemoveComment}
                 />
               </>
             ))}
@@ -458,6 +502,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   localSite={siteRes.site_view.local_site}
                   admins={this.isoData.siteRes.admins}
                   onResolveReport={this.handleResolvePostReport}
+                  onRemovePost={this.handleRemovePost}
                 />
               </>
             ))}
@@ -606,38 +651,35 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   async handleResolveCommentReport(form: ResolveCommentReport) {
     const res = await HttpService.client.resolveCommentReport(form);
     this.findAndUpdateCommentReport(res);
-    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
-      this.refetch();
-      UnreadCounterService.Instance.updateReports();
-    }
+    this.update();
   }
 
   async handleResolvePostReport(form: ResolvePostReport) {
     const res = await HttpService.client.resolvePostReport(form);
     this.findAndUpdatePostReport(res);
-    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
-      this.refetch();
-      UnreadCounterService.Instance.updateReports();
-    }
+    this.update();
+  }
+
+  async handleRemovePost(form: RemovePost) {
+    this.setState({ removePostForm: form });
+  }
+
+  async handleRemoveComment(form: RemoveComment) {
+    this.setState({ removeCommentForm: form });
   }
 
   async handleResolvePrivateMessageReport(form: ResolvePrivateMessageReport) {
     const res = await HttpService.client.resolvePrivateMessageReport(form);
     this.findAndUpdatePrivateMessageReport(res);
-    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
-      this.refetch();
-      UnreadCounterService.Instance.updateReports();
-    }
+
+    this.update();
   }
 
   async handleResolveCommunityReport(form: ResolveCommunityReport) {
     const res = await HttpService.client.resolveCommunityReport(form);
     toast("Not implemented");
     this.findAndUpdateCommunityReport(res);
-    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
-      this.refetch();
-      UnreadCounterService.Instance.updateReports();
-    }
+    this.update();
   }
 
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
@@ -692,5 +734,12 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       }
       return s;
     });
+  }
+
+  update() {
+    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
+      this.refetch();
+      UnreadCounterService.Instance.updateReports();
+    }
   }
 }
