@@ -1,4 +1,4 @@
-import { myAuth } from "@utils/app";
+import { disableInput, myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import { hostname, unreadCommentsCount } from "@utils/helpers";
@@ -826,7 +826,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             myVote={this.postView.post_actions?.like_score}
             myUserInfo={this.props.myUserInfo}
             localSite={this.props.localSite}
-            disabled={!this.props.myUserInfo}
+            disabled={disableInput(this.props.myUserInfo)}
           />
         )}
 
@@ -985,7 +985,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   localSite={this.props.localSite}
                   subject={this.postView.post}
                   myVote={this.postView.post_actions?.like_score}
-                  disabled={!this.props.myUserInfo}
+                  disabled={disableInput(this.props.myUserInfo)}
                 />
               </div>
             )}

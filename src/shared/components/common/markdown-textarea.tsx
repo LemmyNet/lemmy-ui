@@ -17,7 +17,7 @@ import {
 import { customEmojisLookup, mdToHtml, setupTribute } from "@utils/markdown";
 import { HttpService, I18NextService } from "@services/index";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { pictrsDeleteToast, toast } from "@utils/app";
+import { disableInput, pictrsDeleteToast, toast } from "@utils/app";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
@@ -178,7 +178,7 @@ export class MarkdownTextArea extends Component<
                     name="file"
                     className="d-none"
                     multiple
-                    disabled={!this.props.myUserInfo}
+                    disabled={disableInput(this.props.myUserInfo)}
                     onChange={linkEvent(this, this.handleImageUpload)}
                   />
                   {this.getFormatButton("header", this.handleInsertHeader)}

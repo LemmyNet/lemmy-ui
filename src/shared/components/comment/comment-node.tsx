@@ -1,4 +1,4 @@
-import { colorList, getCommentParentId } from "@utils/app";
+import { colorList, disableInput, getCommentParentId } from "@utils/app";
 import { numToSI } from "@utils/helpers";
 import { futureDaysToUnixTime } from "@utils/date";
 import classNames from "classnames";
@@ -416,7 +416,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           localSite={this.props.localSite}
                           subject={this.props.node.comment_view.comment}
                           myVote={my_vote}
-                          disabled={!this.props.myUserInfo}
+                          disabled={disableInput(this.props.myUserInfo)}
                         />
                         <button
                           type="button"

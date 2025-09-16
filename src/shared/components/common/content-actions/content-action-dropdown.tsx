@@ -252,7 +252,8 @@ export default class ContentActionDropdown extends Component<
                     />
                   </li>
                 )}
-                {this.amCreator ? (
+                {this.amCreator &&
+                !this.props.myUserInfo?.local_user_view.banned ? (
                   <>
                     <li>
                       <ActionButton

@@ -64,7 +64,10 @@ export class CommentForm extends Component<CommentFormProps, any> {
             buttonTitle={this.buttonTitle}
             replyType={typeof this.props.node !== "number"}
             focus={this.props.focus}
-            disabled={this.props.disabled}
+            disabled={
+              this.props.disabled ||
+              this.props.myUserInfo.local_user_view.banned
+            }
             onSubmit={this.handleCommentSubmit}
             onReplyCancel={this.props.onReplyCancel}
             placeholder={placeholder ?? undefined}

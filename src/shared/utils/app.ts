@@ -769,3 +769,7 @@ export function commentViewToPersonContentCombinedView(
     ...cv,
   };
 }
+
+export function disableInput(user: MyUserInfo | undefined): boolean {
+  return !(user && !user.local_user_view.banned);
+}

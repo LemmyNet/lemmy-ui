@@ -120,6 +120,7 @@ interface SettingsState {
   settingsFile?: File;
   avatar?: string;
   banner?: string;
+  userBanned: boolean;
 }
 
 type FilterType = "user" | "community" | "instance";
@@ -223,6 +224,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     show2faModal: false,
     importSettingsRes: EMPTY_REQUEST,
     exportSettingsRes: EMPTY_REQUEST,
+    userBanned: this.isoData.myUserInfo?.local_user_view.banned ?? false,
   };
 
   constructor(props: any, context: any) {
@@ -433,18 +435,28 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         id="settings-tab-pane"
       >
         <div className="row">
+          {!this.state.userBanned && (
+            <div className="col-12 col-md-6">
+              <div className="card border-secondary mb-3">
+                <div className="card-body">
+                  {this.saveUserSettingsHtmlForm()}
+                </div>
+              </div>
+            </div>
+          )}
           <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
-              <div className="card-body">{this.saveUserSettingsHtmlForm()}</div>
-            </div>
-          </div>
-          <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
-              <div className="card-body">{this.changePasswordHtmlForm()}</div>
-            </div>
-            <div className="card border-secondary mb-3">
-              <div className="card-body">{this.totpSection()}</div>
-            </div>
+            {!this.state.userBanned && (
+              <>
+                <div className="card border-secondary mb-3">
+                  <div className="card-body">
+                    {this.changePasswordHtmlForm()}
+                  </div>
+                </div>
+                <div className="card border-secondary mb-3">
+                  <div className="card-body">{this.totpSection()}</div>
+                </div>
+              </>
+            )}
             <div className="card border-secondary mb-3">
               <div className="card-body">{this.importExportForm()}</div>
             </div>
@@ -459,38 +471,42 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
   blockCards(isSelected: boolean) {
     return (
-      <div
-        className={classNames("tab-pane", {
-          active: isSelected,
-        })}
-        role="tabpanel"
-        id="blocks-tab-pane"
-      >
-        <div className="row">
-          <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
-              <div className="card-body">{this.blockUserCard()}</div>
+      !this.state.userBanned && (
+        <div
+          className={classNames("tab-pane", {
+            active: isSelected,
+          })}
+          role="tabpanel"
+          id="blocks-tab-pane"
+        >
+          <div className="row">
+            <div className="col-12 col-md-6">
+              <div className="card border-secondary mb-3">
+                <div className="card-body">{this.blockUserCard()}</div>
+              </div>
             </div>
-          </div>
-          <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
-              <div className="card-body">{this.blockCommunityCard()}</div>
+            <div className="col-12 col-md-6">
+              <div className="card border-secondary mb-3">
+                <div className="card-body">{this.blockCommunityCard()}</div>
+              </div>
             </div>
-          </div>
-          <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
-              <div className="card-body">
-                {this.blockInstanceCommunitiesCard()}
+            <div className="col-12 col-md-6">
+              <div className="card border-secondary mb-3">
+                <div className="card-body">
+                  {this.blockInstanceCommunitiesCard()}
+                </div>
+              </div>
+            </div>
+            <div className="col-12 col-md-6">
+              <div className="card border-secondary mb-3">
+                <div className="card-body">
+                  {this.blockInstancePersonsCard()}
+                </div>
               </div>
             </div>
           </div>
-          <div className="col-12 col-md-6">
-            <div className="card border-secondary mb-3">
-              <div className="card-body">{this.blockInstancePersonsCard()}</div>
-            </div>
-          </div>
         </div>
-      </div>
+      )
     );
   }
 
