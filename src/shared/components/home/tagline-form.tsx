@@ -40,6 +40,9 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
       this.props.tagline ? "save" : "create",
     );
 
+    const isChanged =
+      !this.props.tagline || this.props.tagline.content !== this.state.content;
+
     return (
       <div className="tagline-form">
         <Prompt
@@ -70,13 +73,15 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                 {I18NextService.i18n.t("delete")}
               </button>
             )}
-            <button
-              className="btn btn-secondary"
-              type="submit"
-              onClick={linkEvent(this, this.handleSubmitTagline)}
-            >
-              {submitTitle}
-            </button>
+            {isChanged && (
+              <button
+                className="btn btn-secondary"
+                type="submit"
+                onClick={linkEvent(this, this.handleSubmitTagline)}
+              >
+                {submitTitle}
+              </button>
+            )}
           </div>
         </form>
       </div>
