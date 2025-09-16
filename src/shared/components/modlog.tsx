@@ -931,12 +931,12 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               </option>
               {this.isoData.myUserInfo?.local_user_view.local_user.admin && (
                 <>
-                  <option value={"AdminPurgePerson"}>Purge a Person</option>
+                  <option value={"AdminPurgePerson"}>Purging a Person</option>
                   <option value={"AdminPurgeCommunity"}>
-                    Purge a Community
+                    Purging a Community
                   </option>
-                  <option value={"AdminPurgePost"}>Purge a Post</option>
-                  <option value={"AdminPurgeComment"}>Purge a Comment</option>
+                  <option value={"AdminPurgePost"}>Purging a Post</option>
+                  <option value={"AdminPurgeComment"}>Purging a Comment</option>
                 </>
               )}
             </select>
