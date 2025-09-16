@@ -150,7 +150,7 @@ export const Badges = ({
       {!lessBadges && (
         <li className="list-inline-item">
           <Link
-            className="badge text-bg-primary"
+            className="badge text-bg-secondary"
             to={`/modlog${communityId ? `/${communityId}` : ""}`}
           >
             {I18NextService.i18n.t("modlog")}
