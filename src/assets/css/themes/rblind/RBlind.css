@@ -1,7 +1,6 @@
 /*
     GENERAL
 */
-
 /* Reduce hr height */
 hr.my-3 {
   margin-top: 0.5rem !important;
@@ -11,27 +10,21 @@ hr.my-3 {
 /*
     POST-LISTING
 */
-
 .post-listing {
   line-height: 1.25;
-
   .post-title h5 {
     margin: 0;
   }
-
   .post-title + p {
     padding-top: 0.125rem !important;
     padding-bottom: 0.125rem !important;
   }
-
   .community-link {
     padding-left: 0.125rem;
   }
-
   .person-listing {
     padding-right: 0.125rem;
   }
-
   ul.list-inline {
     &.mt-2 {
       margin-top: 0.125rem !important;
@@ -40,7 +33,6 @@ hr.my-3 {
       margin-bottom: 0.125rem !important;
     }
   }
-
   .btn-sm {
     --bs-btn-padding-y: 0;
   }
@@ -52,7 +44,6 @@ hr.my-3 {
 /*
     RBLIND THEME
 */
-
 small,
 .small {
   font-size: 1.25rem !important;
@@ -121,7 +112,6 @@ small,
 /* buttons on posts */
 /* --bs-secondary-color is the button colour */
 /* original opacity was 0.75 */
-
 .btn-sm,
 .btn-group-sm > .btn,
 .btn,
@@ -256,8 +246,8 @@ a[title="sorting help"]:focus svg,
 .navbar-toggler:focus {
   box-shadow: 0 0 0 0.25rem var(--rblind-focus-indicator) !important;
 }
-/* navbar toggler focus ring default is box-shadow: 0 0 0 var(--bs-navbar-toggler-focus-width); */
 
+/* navbar toggler focus ring default is box-shadow: 0 0 0 var(--bs-navbar-toggler-focus-width); */
 /* no outline on navigation bar buttons only */
 nav a.nav-link .icon {
   padding: 0.7rem 0.7rem !important;
@@ -300,23 +290,28 @@ pre code.hljs {
   overflow-x: auto;
   padding: 1em;
 }
+
 code.hljs {
   padding: 3px 5px;
 }
+
 .hljs {
   color: var(--bs-gray-200) !important;
   background: var(--bs-black) !important;
 }
+
 .hljs-comment,
 .hljs-quote {
   color: var(--bs-black) !important;
   font-style: italic;
 }
+
 .hljs-doctag,
 .hljs-formula,
 .hljs-keyword {
   color: var(--bs-teal) !important;
 }
+
 .hljs-deletion,
 .hljs-name,
 .hljs-section,
@@ -324,9 +319,11 @@ code.hljs {
 .hljs-subst {
   color: var(--bs-red) !important;
 }
+
 .hljs-literal {
   color: var(--bs-cyan) !important;
 }
+
 .hljs-addition,
 .hljs-attribute,
 .hljs-meta .hljs-string,
@@ -334,6 +331,7 @@ code.hljs {
 .hljs-string {
   color: var(--bs-green) !important;
 }
+
 .hljs-attr,
 .hljs-number,
 .hljs-selector-attr,
@@ -344,6 +342,7 @@ code.hljs {
 .hljs-variable {
   color: var(--bs-orange) !important;
 }
+
 .hljs-bullet,
 .hljs-link,
 .hljs-meta,
@@ -352,14 +351,17 @@ code.hljs {
 .hljs-title {
   color: var(--bs-blue) !important;
 }
+
 .hljs-built_in,
 .hljs-class .hljs-title,
 .hljs-title.class_ {
   color: var(--bs-yellow) !important;
 }
+
 .hljs-emphasis {
   font-style: italic;
 }
+
 .hljs-strong {
   font-weight: 700;
 }
@@ -504,7 +506,6 @@ a.person-listing + .btn,
     padding-top: 0.25rem !important;
   }
 }
-
 /* Make forms take up more space in the screen so labels aren't flowing onto a new line */
 @media (min-width: 1200px) {
   .col-lg-6 {
@@ -512,22 +513,18 @@ a.person-listing + .btn,
     width: 70% !important; /* default value is 50% */
   }
 }
-
 /* make sure the navigation bar wraps properly with the larger font sizes */
 @media (min-width: 768px) {
   .navbar-expand-md .navbar-collapse {
     flex-wrap: wrap !important;
   }
 }
-
 @media (min-width: 768px) {
   .navbar-expand-md .navbar-nav {
     flex-wrap: wrap !important;
   }
 }
-
 /* make the main content area "home container-lg" become 100% instead of stuck at 940px */
-
 @media (min-width: 992px) {
   .container-lg,
   .container-md,
@@ -536,7 +533,6 @@ a.person-listing + .btn,
     max-width: 100% !important;
   }
 }
-
 /* very long usernames or domains should overflow onto the next line */
 /* only the domain will overflow */
 .person-listing picture + span + small {
@@ -548,18 +544,15 @@ a.person-listing + .btn,
   .community-link .overflow-wrap-anywhere {
     overflow-wrap: break-word;
   }
-
   .community-link picture,
   .community-link small.text-muted {
     display: block;
   }
-
   /* try give more space in the table by breaking the headers instead */
   #community_table th.text-right {
     overflow-wrap: anywhere;
   }
 }
-
 /* stop flex display from making overflowing letters from becoming stuck in their containers */
 .person-listing {
   display: inline !important;
@@ -697,3 +690,5 @@ span[aria-label="creator"] {
   color: var(--bs-white) !important;
   border-color: var(--bs-white) !important;
 }
+
+/*# sourceMappingURL=RBlind.css.map */
