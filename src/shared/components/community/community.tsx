@@ -138,6 +138,7 @@ interface State {
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
+  expandAllImages: boolean;
 }
 
 interface CommunityProps {
@@ -216,6 +217,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     showSidebarMobile: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
+    expandAllImages: false,
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -601,6 +603,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onMarkPostAsRead={this.handleMarkPostAsRead}
               onHidePost={this.handleHidePost}
               onPersonNote={this.handlePersonNote}
+              expandAllImages={this.state.expandAllImages}
             />
           );
       }
@@ -712,6 +715,16 @@ export class Community extends Component<CommunityRouteProps, State> {
             />
           </div>
         )}
+        <div className="col-auto ps-0">
+          <button
+            class="btn btn-secondary"
+            onClick={() => {
+              this.setState({ expandAllImages: !this.state.expandAllImages });
+            }}
+          >
+            <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
+          </button>
+        </div>
         {communityRss && (
           <>
             <a href={communityRss} title="RSS" rel={relTags}>
