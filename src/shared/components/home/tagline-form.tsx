@@ -49,7 +49,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
           message={I18NextService.i18n.t("block_leaving")}
           when={!!this.state.content}
         />
-        <form className="row row-cols-lg-auto g-3 mb-3 align-items-center">
+        <form className="row row-cols-md-auto g-3 mb-3 align-items-center">
           <div className="col-12">
             {!this.state.clearMarkdown && (
               <MarkdownTextArea
