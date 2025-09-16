@@ -141,8 +141,10 @@ function processModlogEntry(
         publishedAt: nowBoolean(true)!,
         data: (
           <>
-            <span>Placeholder for:</span>{" "}
-            <span>{(view as { type_: string }).type_}</span>
+            <li className="list-inline-item">Placeholder for:</li>{" "}
+            <li className="list-inline-item">
+              {(view as { type_: string }).type_}
+            </li>
           </>
         ),
       };
@@ -160,8 +162,8 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>Allowed instance</span>
-            <span>{domain}</span>
+            <li className="list-inline-item">Allowed instance</li>
+            <li className="list-inline-item">{domain}</li>
           </>
         ),
       };
@@ -180,8 +182,8 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>Blocked Instance</span>
-            <span>{domain}</span>
+            <li className="list-inline-item">Blocked Instance</li>
+            <li className="list-inline-item">{domain}</li>
           </>
         ),
       };
@@ -200,14 +202,10 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>
+            <li className="list-inline-item">
               Purged a Comment from <Link to={`/post/${id}`}>{name}</Link>
-            </span>
-            {reason && (
-              <span>
-                <div>reason: {reason}</div>
-              </span>
-            )}
+            </li>
+            {reason && <li className="list-inline-item">reason: {reason}</li>}
           </>
         ),
       };
@@ -225,12 +223,8 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>Purged a Community</span>
-            {reason && (
-              <span>
-                <div>reason: {reason}</div>
-              </span>
-            )}
+            <li className="list-inline-item">Purged a Community</li>
+            {reason && <li className="list-inline-item">reason: {reason}</li>}
           </>
         ),
       };
@@ -248,12 +242,8 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>Purged a Person</span>
-            {reason && (
-              <span>
-                <div>reason: {reason}</div>
-              </span>
-            )}
+            <li className="list-inline-item">Purged a Person</li>
+            {reason && <li className="list-inline-item">reason: {reason}</li>}
           </>
         ),
       };
@@ -272,13 +262,9 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>Purged Post From</span>
+            <li className="list-inline-item">Purged Post From</li>
             <CommunityLink community={community} myUserInfo={myUserInfo} />
-            {reason && (
-              <span>
-                <div>reason: {reason}</div>
-              </span>
-            )}
+            {reason && <li className="list-inline-item">reason: {reason}</li>}
           </>
         ),
       };
@@ -297,11 +283,13 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>{removed ? "Removed " : "Appointed "}</span>
-            <span>
+            <li className="list-inline-item">
+              {removed ? "Removed " : "Appointed "}
+            </li>
+            <li className="list-inline-item">
               <PersonListing person={other_person} myUserInfo={myUserInfo} />
-            </span>
-            <span> as an admin </span>
+            </li>
+            <li className="list-inline-item"> as an admin </li>
           </>
         ),
       };
@@ -321,14 +309,16 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>{removed ? "Removed " : "Appointed "}</span>
-            <span>
+            <li className="list-inline-item">
+              {removed ? "Removed " : "Appointed "}
+            </li>
+            <li className="list-inline-item">
               <PersonListing person={other_person} myUserInfo={myUserInfo} />
-            </span>
-            <span> as a mod to the community </span>
-            <span>
+            </li>
+            <li className="list-inline-item"> as a mod to the community </li>
+            <li className="list-inline-item">
               <CommunityLink community={community} myUserInfo={myUserInfo} />
-            </span>
+            </li>
           </>
         ),
       };
@@ -347,19 +337,17 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>{banned ? "Banned " : "Unbanned "}</span>
-            <span>
+            <li className="list-inline-item">
+              {banned ? "Banned " : "Unbanned "}
+            </li>
+            <li className="list-inline-item">
               <PersonListing person={other_person} myUserInfo={myUserInfo} />
-            </span>
-            {reason && (
-              <span>
-                <div>reason: {reason}</div>
-              </span>
-            )}
+            </li>
+            {reason && <li className="list-inline-item">reason: {reason}</li>}
             {expires_at && (
-              <span>
-                <div>expires: {formatRelativeDate(expires_at)}</div>
-              </span>
+              <li className="list-inline-item">
+                expires: {formatRelativeDate(expires_at)}
+              </li>
             )}
           </>
         ),
@@ -386,23 +374,21 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>{banned ? "Banned " : "Unbanned "}</span>
-            <span>
+            <li className="list-inline-item">
+              {banned ? "Banned " : "Unbanned "}
+            </li>
+            <li className="list-inline-item">
               <PersonListing person={other_person} myUserInfo={myUserInfo} />
-            </span>
-            <span> from the community </span>
-            <span>
+            </li>
+            <li className="list-inline-item"> from the community </li>
+            <li className="list-inline-item">
               <CommunityLink community={community} myUserInfo={myUserInfo} />
-            </span>
-            {reason && (
-              <span>
-                <div>reason: {reason}</div>
-              </span>
-            )}
+            </li>
+            {reason && <li className="list-inline-item">reason: {reason}</li>}
             {expires_at && (
-              <span>
-                <div>expires: {formatRelativeDate(expires_at)}</div>
-              </span>
+              <li className="list-inline-item">
+                expires: {formatRelativeDate(expires_at)}
+              </li>
             )}
           </>
         ),
@@ -422,13 +408,13 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>Set visibility of</span>
-            <span>
+            <li className="list-inline-item">Set visibility of</li>
+            <li className="list-inline-item">
               <CommunityLink community={community} myUserInfo={myUserInfo} />
-            </span>
-            <span>
-              <div>to: {mapCommunityVisibility(visibility)}</div>
-            </span>
+            </li>
+            <li className="list-inline-item">
+              to: {mapCommunityVisibility(visibility)}
+            </li>
           </>
         ),
       };
@@ -448,16 +434,20 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>{featured ? "Featured " : "Unfeatured "}</span>
-            <span>
+            <li className="list-inline-item">
+              {featured ? "Featured " : "Unfeatured "}
+            </li>
+            <li className="list-inline-item">
               Post <Link to={`/post/${postId}`}>{name}</Link>
-            </span>
-            <span>
+            </li>
+            <li className="list-inline-item">
               {is_featured_community
                 ? " in community "
                 : " in Local, from community "}
-            </span>
-            <CommunityLink community={community} myUserInfo={myUserInfo} />
+            </li>
+            <li className="list-inline-item">
+              <CommunityLink community={community} myUserInfo={myUserInfo} />
+            </li>
           </>
         ),
       };
@@ -476,15 +466,13 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>{locked ? "Locked " : "Unlocked "}</span>
-            <span>
+            <li className="list-inline-item">
+              {locked ? "Locked " : "Unlocked "}
+            </li>
+            <li className="list-inline-item">
               Post <Link to={`/post/${postId}`}>{name}</Link>
-            </span>
-            {reason && (
-              <span>
-                <div>reason: {reason}</div>
-              </span>
-            )}
+            </li>
+            {reason && <li className="list-inline-item">reason: {reason}</li>}
           </>
         ),
       };
@@ -504,19 +492,17 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>{removed ? "Removed " : "Restored "}</span>
-            <span>
+            <li className="list-inline-item">
+              {removed ? "Removed " : "Restored "}
+            </li>
+            <li className="list-inline-item">
               Comment <Link to={`/comment/${commentId}`}>{content}</Link>
-            </span>
-            <span>
+            </li>
+            <li className="list-inline-item">
               {" "}
               by <PersonListing person={other_person} myUserInfo={myUserInfo} />
-            </span>
-            {reason && (
-              <span>
-                <div>reason: {reason}</div>
-              </span>
-            )}
+            </li>
+            {reason && <li className="list-inline-item">reason: {reason}</li>}
           </>
         ),
       };
@@ -536,19 +522,17 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>{locked ? "Locked " : "Unlocked "}</span>
-            <span>
+            <li className="list-inline-item">
+              {locked ? "Locked " : "Unlocked "}
+            </li>
+            <li className="list-inline-item">
               Comment <Link to={`/comment/${commentId}`}>{content}</Link>
-            </span>
-            <span>
+            </li>
+            <li className="list-inline-item">
               {" "}
               by <PersonListing person={other_person} myUserInfo={myUserInfo} />
-            </span>
-            {reason && (
-              <span>
-                <div>reason: {reason}</div>
-              </span>
-            )}
+            </li>
+            {reason && <li className="list-inline-item">reason: {reason}</li>}
           </>
         ),
       };
@@ -567,16 +551,14 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>{removed ? "Removed " : "Restored "}</span>
-            <span>
+            <li className="list-inline-item">
+              {removed ? "Removed " : "Restored "}
+            </li>
+            <li className="list-inline-item">
               Community{" "}
               <CommunityLink community={community} myUserInfo={myUserInfo} />
-            </span>
-            {reason && (
-              <span>
-                <div>reason: {reason}</div>
-              </span>
-            )}
+            </li>
+            {reason && <li className="list-inline-item">reason: {reason}</li>}
           </>
         ),
       };
@@ -595,15 +577,13 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>{removed ? "Removed " : "Restored "}</span>
-            <span>
+            <li className="list-inline-item">
+              {removed ? "Removed " : "Restored "}
+            </li>
+            <li className="list-inline-item">
               Post <Link to={`/post/${postId}`}>{name}</Link>
-            </span>
-            {reason && (
-              <span>
-                <div>reason: {reason}</div>
-              </span>
-            )}
+            </li>
+            {reason && <li className="list-inline-item">reason: {reason}</li>}
           </>
         ),
       };
@@ -623,14 +603,14 @@ function processModlogEntry(
         publishedAt: published_at,
         data: (
           <>
-            <span>Transferred</span>
-            <span>
+            <li className="list-inline-item">Transferred</li>
+            <li className="list-inline-item">
               <CommunityLink community={community} myUserInfo={myUserInfo} />
-            </span>
-            <span> to </span>
-            <span>
+            </li>
+            <li className="list-inline-item"> to </li>
+            <li className="list-inline-item">
               <PersonListing person={other_person} myUserInfo={myUserInfo} />
-            </span>
+            </li>
           </>
         ),
       };
@@ -826,25 +806,25 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     return (
       <tbody>
         {combined.map(i => {
-          const { id, moderator, publishedAt, data } = processModlogEntry(
+          const { moderator, publishedAt, data } = processModlogEntry(
             i,
             myUserInfo,
           );
 
           return (
-            <tr key={id}>
-              <td>
+            <ul className="list-inline">
+              <li className="list-inline-item">
                 <MomentTime published={publishedAt} />
-              </td>
-              <td>
+              </li>
+              <li className="list-inline-item">
                 {this.amAdminOrMod && moderator ? (
                   <PersonListing person={moderator} myUserInfo={myUserInfo} />
                 ) : (
                   <div>{this.modOrAdminText(moderator)}</div>
                 )}
-              </td>
-              <td>{data}</td>
-            </tr>
+              </li>
+              {data}
+            </ul>
           );
         })}
       </tbody>
@@ -977,12 +957,12 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             />
           )}
         </div>
-        {this.renderModlogTable()}
+        {this.renderModlogList()}
       </div>
     );
   }
 
-  renderModlogTable() {
+  renderModlogList() {
     switch (this.state.res.state) {
       case "loading":
         return (
@@ -992,27 +972,25 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
         );
       case "success": {
         return (
-          <div className="table-responsive">
-            <table id="modlog_table" className="table table-sm table-hover">
-              <thead className="pointer">
-                <tr>
-                  <th> {I18NextService.i18n.t("time")}</th>
-                  <th>{I18NextService.i18n.t("mod")}</th>
-                  <th>{I18NextService.i18n.t("action")}</th>
-                </tr>
-              </thead>
-              {this.combined}
-            </table>
+          <>
+            <div id="modlog_table">{this.combined}</div>
             <PaginatorCursor
               current={this.props.cursor}
               resource={this.state.res}
               onPageChange={this.handlePageChange}
             />
-          </div>
+          </>
         );
       }
     }
   }
+  // <thead className="pointer">
+  //   <tr>
+  //     <th> {I18NextService.i18n.t("time")}</th>
+  //     <th>{I18NextService.i18n.t("mod")}</th>
+  //     <th>{I18NextService.i18n.t("action")}</th>
+  //   </tr>
+  // </thead>
 
   get modlogItemsCount(): number {
     const { res } = this.state;
