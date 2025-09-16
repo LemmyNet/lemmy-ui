@@ -924,7 +924,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               </option>
               <option value={"AdminAdd"}>Adding Admin to Site</option>
               <option value={"AdminBlockInstance"}>
-                Block a federated Instance
+                Blocking a federated instance
               </option>
               <option value={"AdminAllowInstance"}>
                 Allow a federated instance
