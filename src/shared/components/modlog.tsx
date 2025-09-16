@@ -927,7 +927,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
                 Blocking a federated instance
               </option>
               <option value={"AdminAllowInstance"}>
-                Allow a federated instance
+                Allowing a federated instance
               </option>
               {this.isoData.myUserInfo?.local_user_view.local_user.admin && (
                 <>
