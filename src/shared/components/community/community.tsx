@@ -90,7 +90,7 @@ import {
   UpdateCommunityNotifications,
   LockComment,
 } from "lemmy-js-client";
-import { fetchLimit, relTags } from "@utils/config";
+import { relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
@@ -349,7 +349,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (dataType === DataType.Post) {
       const getPostsForm: GetPosts = {
         community_name: communityName,
-        limit: fetchLimit,
+        ...cursorComponents(cursor),
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         type_: "All",
@@ -361,7 +361,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     } else {
       const getCommentsForm: GetComments = {
         community_name: communityName,
-        limit: fetchLimit,
         sort: mixedToCommentSortType(sort),
         type_: "All",
       };
@@ -796,7 +795,6 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
         ...cursorComponents(cursor),
-        limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         type_: "All",
@@ -809,7 +807,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     } else {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
       const commentsRes = await HttpService.client.getComments({
-        limit: fetchLimit,
         sort: mixedToCommentSortType(sort),
         type_: "All",
         community_name: name,

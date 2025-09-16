@@ -75,7 +75,7 @@ import {
   NotePerson,
   LockComment,
 } from "lemmy-js-client";
-import { fetchLimit, relTags } from "@utils/config";
+import { relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
 import { mdToHtml } from "@utils/markdown";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -368,7 +368,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       const getPostsForm: GetPosts = {
         type_: listingType,
         ...cursorComponents(cursor),
-        limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         show_hidden: showHidden === "true",
@@ -377,7 +376,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       postsFetch = client.getPosts(getPostsForm);
     } else {
       const getCommentsForm: GetComments = {
-        limit: fetchLimit,
         sort: mixedToCommentSortType(sort),
         type_: listingType,
       };
@@ -873,7 +871,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
         ...cursorComponents(cursor),
-        limit: fetchLimit,
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         type_: listingType,
@@ -885,7 +882,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     } else {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
       const commentsRes = await HttpService.client.getComments({
-        limit: fetchLimit,
         sort: mixedToCommentSortType(sort),
         type_: listingType,
       });
