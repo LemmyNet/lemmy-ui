@@ -11,13 +11,17 @@ import { Component } from "inferno";
 import {
   AdminListUsersResponse,
   CreateOAuthProvider,
+  CreateTagline,
   DeleteOAuthProvider,
+  DeleteTagline,
   EditOAuthProvider,
   EditSite,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   LemmyHttp,
   ListMediaResponse,
+  ListTaglinesResponse,
+  UpdateTagline,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -56,6 +60,7 @@ type AdminSettingsData = RouteDataResponse<{
   usersRes: AdminListUsersResponse;
   instancesRes: GetFederatedInstancesResponse;
   uploadsRes: ListMediaResponse;
+  taglinesRes: ListTaglinesResponse;
 }>;
 
 interface AdminSettingsState {
@@ -67,6 +72,8 @@ interface AdminSettingsState {
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<ListMediaResponse>;
   uploadsCursor?: DirectionalCursor;
+  taglinesRes: RequestState<ListTaglinesResponse>;
+  taglinesCursor?: DirectionalCursor;
   loading: boolean;
   themeList: string[];
   isIsomorphic: boolean;
@@ -93,6 +100,7 @@ export class AdminSettings extends Component<
     leaveAdminTeamRes: EMPTY_REQUEST,
     showConfirmLeaveAdmin: false,
     uploadsRes: EMPTY_REQUEST,
+    taglinesRes: EMPTY_REQUEST,
     loading: false,
     themeList: [],
     isIsomorphic: false,
@@ -103,6 +111,7 @@ export class AdminSettings extends Component<
       this.state.usersRes,
       this.state.instancesRes,
       this.state.uploadsRes,
+      this.state.taglinesRes,
     ]);
   }
 
@@ -112,22 +121,28 @@ export class AdminSettings extends Component<
     this.handleEditSite = this.handleEditSite.bind(this);
     this.handleUsersPageChange = this.handleUsersPageChange.bind(this);
     this.handleUploadsPageChange = this.handleUploadsPageChange.bind(this);
+    this.handleTaglinesPageChange = this.handleTaglinesPageChange.bind(this);
     this.handleToggleShowLeaveAdminConfirmation =
       this.handleToggleShowLeaveAdminConfirmation.bind(this);
     this.handleLeaveAdminTeam = this.handleLeaveAdminTeam.bind(this);
     this.handleEditOAuthProvider = this.handleEditOAuthProvider.bind(this);
     this.handleDeleteOAuthProvider = this.handleDeleteOAuthProvider.bind(this);
     this.handleCreateOAuthProvider = this.handleCreateOAuthProvider.bind(this);
+    this.handleEditTagline = this.handleEditTagline.bind(this);
+    this.handleDeleteTagline = this.handleDeleteTagline.bind(this);
+    this.handleCreateTagline = this.handleCreateTagline.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const { usersRes, instancesRes, uploadsRes } = this.isoData.routeData;
+      const { usersRes, instancesRes, uploadsRes, taglinesRes } =
+        this.isoData.routeData;
 
       this.state = {
         ...this.state,
         usersRes,
         instancesRes,
         uploadsRes,
+        taglinesRes,
         isIsomorphic: true,
       };
     }
@@ -143,6 +158,7 @@ export class AdminSettings extends Component<
       usersRes: await client.listUsers({ banned_only: false }),
       instancesRes: await client.getFederatedInstances(),
       uploadsRes: await client.listMediaAdmin({ limit: fetchLimit }),
+      taglinesRes: await client.listTaglines({ limit: fetchLimit }),
     };
   }
 
@@ -277,9 +293,7 @@ export class AdminSettings extends Component<
                   role="tabpanel"
                   id="taglines-tab-pane"
                 >
-                  <div className="row">
-                    <TaglineForm myUserInfo={this.isoData.myUserInfo} />
-                  </div>
+                  {this.taglinesTab()}
                 </div>
               ),
             },
@@ -348,27 +362,34 @@ export class AdminSettings extends Component<
       usersRes: LOADING_REQUEST,
       instancesRes: LOADING_REQUEST,
       uploadsRes: LOADING_REQUEST,
+      taglinesRes: LOADING_REQUEST,
       themeList: [],
     });
 
-    const [usersRes, instancesRes, uploadsRes, themeList] = await Promise.all([
-      HttpService.client.listUsers({
-        banned_only: this.state.usersBannedOnly,
-        ...cursorComponents(this.state.usersCursor),
-        limit: fetchLimit,
-      }),
-      HttpService.client.getFederatedInstances(),
-      HttpService.client.listMediaAdmin({
-        ...cursorComponents(this.state.uploadsCursor),
-        limit: fetchLimit,
-      }),
-      fetchThemeList(),
-    ]);
+    const [usersRes, instancesRes, uploadsRes, taglinesRes, themeList] =
+      await Promise.all([
+        HttpService.client.listUsers({
+          banned_only: this.state.usersBannedOnly,
+          ...cursorComponents(this.state.usersCursor),
+          limit: fetchLimit,
+        }),
+        HttpService.client.getFederatedInstances(),
+        HttpService.client.listMediaAdmin({
+          ...cursorComponents(this.state.uploadsCursor),
+          limit: fetchLimit,
+        }),
+        HttpService.client.listTaglines({
+          ...cursorComponents(this.state.taglinesCursor),
+          limit: fetchLimit,
+        }),
+        fetchThemeList(),
+      ]);
 
     this.setState({
       usersRes,
       instancesRes,
       uploadsRes,
+      taglinesRes,
       themeList,
     });
   }
@@ -390,6 +411,15 @@ export class AdminSettings extends Component<
     });
 
     this.setState({ uploadsRes });
+  }
+
+  async fetchTaglinesOnly() {
+    const taglinesRes = await HttpService.client.listTaglines({
+      ...cursorComponents(this.state.taglinesCursor),
+      limit: fetchLimit,
+    });
+
+    this.setState({ taglinesRes });
   }
 
   admins() {
@@ -573,6 +603,52 @@ export class AdminSettings extends Component<
     }
   }
 
+  taglinesTab() {
+    switch (this.state.taglinesRes.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success": {
+        const taglines = this.state.taglinesRes.data.taglines;
+
+        return (
+          <>
+            <h1 className="h4 mb-4">{I18NextService.i18n.t("taglines")}</h1>
+            {taglines.map(t => (
+              <TaglineForm
+                key={`tagline-form-${t.id}`}
+                tagline={t}
+                myUserInfo={this.isoData.myUserInfo}
+                onEdit={this.handleEditTagline}
+                onDelete={this.handleDeleteTagline}
+              />
+            ))}
+            {this.emptyTagline()}
+            {taglines.length > 0 && (
+              <PaginatorCursor
+                current={this.state.taglinesCursor}
+                resource={this.state.taglinesRes}
+                onPageChange={this.handleTaglinesPageChange}
+              />
+            )}
+          </>
+        );
+      }
+    }
+  }
+
+  emptyTagline() {
+    return (
+      <TaglineForm
+        myUserInfo={this.isoData.myUserInfo}
+        onCreate={this.handleCreateTagline}
+      />
+    );
+  }
+
   async handleEditSite(form: EditSite) {
     this.setState({ loading: true });
 
@@ -612,13 +688,19 @@ export class AdminSettings extends Component<
 
   async handleUsersPageChange(cursor: DirectionalCursor) {
     this.setState({ usersCursor: cursor });
-    await this.fetchData();
+    await this.fetchUsersOnly();
   }
 
   async handleUploadsPageChange(cursor: DirectionalCursor) {
     this.setState({ uploadsCursor: cursor });
     snapToTop();
     await this.fetchUploadsOnly();
+  }
+
+  async handleTaglinesPageChange(cursor: DirectionalCursor) {
+    this.setState({ taglinesCursor: cursor });
+    snapToTop();
+    await this.fetchTaglinesOnly();
   }
 
   async handleEditOAuthProvider(form: EditOAuthProvider) {
@@ -675,10 +757,44 @@ export class AdminSettings extends Component<
 
     this.setState({ loading: false });
   }
+
+  async handleCreateTagline(form: CreateTagline) {
+    this.setState({ loading: true });
+    const res = await HttpService.client.createTagline(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("tagline_created"));
+      await this.fetchTaglinesOnly();
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleDeleteTagline(form: DeleteTagline) {
+    this.setState({ loading: true });
+    const res = await HttpService.client.deleteTagline(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("tagline_deleted"));
+      await this.fetchTaglinesOnly();
+    }
+    this.setState({ loading: false });
+  }
+
+  async handleEditTagline(form: UpdateTagline) {
+    this.setState({ loading: true });
+    const res = await HttpService.client.editTagline(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("tagline_updated"));
+      await this.fetchTaglinesOnly();
+    }
+    this.setState({ loading: false });
+  }
 }
 
 async function handleUsersBannedOnlyChange(i: AdminSettings, event: any) {
   const checked = event.target.value === "false";
   i.setState({ usersBannedOnly: checked });
-  await i.fetchData();
+  await i.fetchUsersOnly();
 }
