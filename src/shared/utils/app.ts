@@ -131,8 +131,7 @@ export function commentsToFlatNodes(
 export function communityRSSUrl(community: Community, sort: string): string {
   var domain = "";
   if (!community.local) {
-    const url = new URL(community.ap_id);
-    domain = `@${url.host}`;
+    domain = `@${hostname(community.ap_id)}`;
   }
   return `/feeds/c/${community.name}${domain}.xml${getQueryString({ sort })}`;
 }
