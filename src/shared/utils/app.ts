@@ -770,6 +770,6 @@ export function commentViewToPersonContentCombinedView(
   };
 }
 
-export function disableInput(user: MyUserInfo | undefined): boolean {
-  return !(user && !user.local_user_view.banned);
+export function userNotLoggedInOrBanned(user: MyUserInfo | undefined): boolean {
+  return user?.local_user_view?.banned ?? false;
 }

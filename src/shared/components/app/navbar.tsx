@@ -1,4 +1,4 @@
-import { disableInput, showAvatars } from "@utils/app";
+import { userNotLoggedInOrBanned, showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { numToSI } from "@utils/helpers";
 import { amAdmin, canCreateCommunity, moderatesSomething } from "@utils/roles";
@@ -215,7 +215,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {I18NextService.i18n.t("communities")}
                 </NavLink>
               </li>
-              {!disableInput(this.props.myUserInfo) && (
+              {!userNotLoggedInOrBanned(this.props.myUserInfo) && (
                 <li className="nav-item">
                   {/* TODO make sure this works: https://github.com/infernojs/inferno/issues/1608 */}
                   <NavLink

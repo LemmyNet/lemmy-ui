@@ -28,6 +28,7 @@ import {
 import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";
 import PersonNoteModal from "../modal/person-note-modal";
+import { userNotLoggedInOrBanned } from "@utils/app";
 
 interface ContentActionDropdownPropsBase {
   onSave: () => Promise<void>;
@@ -253,7 +254,7 @@ export default class ContentActionDropdown extends Component<
                   </li>
                 )}
                 {this.amCreator &&
-                !this.props.myUserInfo?.local_user_view.banned ? (
+                !userNotLoggedInOrBanned(this.props.myUserInfo) ? (
                   <>
                     <li>
                       <ActionButton

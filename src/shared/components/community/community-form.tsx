@@ -16,7 +16,7 @@ import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { validActorRegexPattern } from "@utils/config";
-import { disableInput } from "@utils/app";
+import { userNotLoggedInOrBanned } from "@utils/app";
 
 interface CommunityFormProps {
   community_view?: CommunityView; // If a community is given, that means this is an edit
@@ -176,7 +176,7 @@ export class CommunityForm extends Component<
                 communityId={this.props.community_view.community.id}
                 onImageChange={this.handleIconChange}
                 rounded
-                disabled={disableInput(this.props.myUserInfo)}
+                disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
               />
             )}
             {!this.props.community_view && (
@@ -187,7 +187,7 @@ export class CommunityForm extends Component<
                 removeKey="deleteMedia"
                 onImageChange={this.handleIconChange}
                 rounded
-                disabled={disableInput(this.props.myUserInfo)}
+                disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
                 noConfirmation={true}
               />
             )}
@@ -206,7 +206,7 @@ export class CommunityForm extends Component<
                 removeKey="deleteCommunityBanner"
                 communityId={this.props.community_view.community.id}
                 onImageChange={this.handleBannerChange}
-                disabled={disableInput(this.props.myUserInfo)}
+                disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
               />
             )}
             {!this.props.community_view && (
@@ -216,7 +216,7 @@ export class CommunityForm extends Component<
                 uploadKey="uploadImage"
                 removeKey="deleteMedia"
                 onImageChange={this.handleBannerChange}
-                disabled={disableInput(this.props.myUserInfo)}
+                disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
                 noConfirmation={true}
               />
             )}

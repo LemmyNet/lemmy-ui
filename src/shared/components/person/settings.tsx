@@ -14,6 +14,7 @@ import {
   updateInstancePersonsBlock,
   updateMyUserInfo,
   updatePersonBlock,
+  userNotLoggedInOrBanned,
 } from "@utils/app";
 import { capitalizeFirstLetter, debounce } from "@utils/helpers";
 import { Choice, RouteDataResponse } from "@utils/types";
@@ -120,7 +121,6 @@ interface SettingsState {
   settingsFile?: File;
   avatar?: string;
   banner?: string;
-  userBanned: boolean;
 }
 
 type FilterType = "user" | "community" | "instance";
@@ -224,7 +224,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     show2faModal: false,
     importSettingsRes: EMPTY_REQUEST,
     exportSettingsRes: EMPTY_REQUEST,
-    userBanned: this.isoData.myUserInfo?.local_user_view.banned ?? false,
   };
 
   constructor(props: any, context: any) {
@@ -435,7 +434,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         id="settings-tab-pane"
       >
         <div className="row">
-          {!this.state.userBanned && (
+          {!userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
             <div className="col-12 col-md-6">
               <div className="card border-secondary mb-3">
                 <div className="card-body">
@@ -445,7 +444,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </div>
           )}
           <div className="col-12 col-md-6">
-            {!this.state.userBanned && (
+            {!userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
               <>
                 <div className="card border-secondary mb-3">
                   <div className="card-body">
@@ -471,7 +470,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
   blockCards(isSelected: boolean) {
     return (
-      !this.state.userBanned && (
+      !userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
         <div
           className={classNames("tab-pane", {
             active: isSelected,

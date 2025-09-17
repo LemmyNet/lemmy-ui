@@ -12,11 +12,11 @@ export function BannedDialog({ expires }: BannedDialogProps) {
       })
     : I18NextService.i18n.t("banned_dialog_title_permanent");
   return (
-    <div class="alert alert-danger" role="alert">
-      <div class="d-flex">
-        <h4 class="alert-heading flex-grow-1">{title}</h4>
+    <div className="alert alert-danger text-bg-danger" role="alert">
+      <h4 className="alert-heading">{title}</h4>
+      <div className="card-text">
+        {I18NextService.i18n.t("banned_dialog_body")}
       </div>
-      <div class="card-text">{I18NextService.i18n.t("banned_dialog_body")}</div>
     </div>
   );
 }
