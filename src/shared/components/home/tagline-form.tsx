@@ -22,6 +22,7 @@ interface TaglineFormProps {
 interface TaglineFormState {
   content?: string;
   clearMarkdown: boolean;
+  bypassNavWarning: boolean;
 }
 
 @tippyMixin
@@ -29,6 +30,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   state: TaglineFormState = {
     content: this.props.tagline ? this.props.tagline.content : undefined,
     clearMarkdown: false,
+    bypassNavWarning: true,
   };
 
   constructor(props: any, context: any) {
@@ -47,7 +49,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
       <div className="tagline-form">
         <Prompt
           message={I18NextService.i18n.t("block_leaving")}
-          when={!!this.state.content}
+          when={!!this.state.content && !this.state.bypassNavWarning}
         />
         <form className="row row-cols-md-auto g-3 mb-3 align-items-center">
           <div className="col-12">
@@ -89,13 +91,14 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   }
 
   handleTaglineChange(i: TaglineForm, content: string) {
-    i.setState({ content });
+    i.setState({ content, bypassNavWarning: false });
   }
 
   handleDeleteTagline(i: TaglineForm, event: any) {
     event.preventDefault();
     const id = i.props.tagline?.id;
     if (id) {
+      i.setState({ bypassNavWarning: true });
       i.props.onDelete?.({ id });
     }
   }
@@ -106,6 +109,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     const content = i.state.content ?? "";
 
     if (i.props.tagline) {
+      i.setState({ bypassNavWarning: true });
       i.props.onEdit?.({
         id: i.props.tagline.id,
         content,
