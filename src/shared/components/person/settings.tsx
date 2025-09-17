@@ -266,6 +266,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           default_comment_sort_type,
           default_post_time_range_seconds,
           default_listing_type,
+          default_items_per_page,
           interface_language,
           show_avatars,
           show_bot_accounts,
@@ -306,6 +307,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           default_comment_sort_type,
           default_post_time_range_seconds,
           default_listing_type,
+          default_items_per_page,
           interface_language,
           discussion_languages: mui.discussion_languages,
           display_name,
@@ -1000,6 +1002,22 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                     .default_post_time_range_seconds
                 }
                 onChange={this.handlePostTimeRangeChange}
+              />
+            </div>
+          </form>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label" htmlFor="items-per-page">
+              {I18NextService.i18n.t("posts_per_page")}
+            </label>
+            <div className="col-sm-9">
+              <input
+                id="items-per-page"
+                type="number"
+                className="form-control"
+                value={this.state.saveUserSettingsForm.default_items_per_page}
+                onInput={linkEvent(this, this.handleItemsPerPageChange)}
+                min={1}
+                max={50}
               />
             </div>
           </form>
@@ -1774,6 +1792,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
+  handleItemsPerPageChange(i: Settings, event: any) {
+    const items = event.target.value ? Number(event.target.value) : undefined;
+    i.setState(
+      s => ((s.saveUserSettingsForm.default_items_per_page = items), s),
+    );
+  }
+
   handleEmailChange(i: Settings, event: any) {
     i.setState(s => ((s.saveUserSettingsForm.email = event.target.value), s));
   }
@@ -1858,6 +1883,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
       // You need to reload the page, to properly update the siteRes everywhere
       setTimeout(() => location.reload(), 500);
+    } else if (saveRes.state === "failed") {
+      toast(saveRes.err.name, "danger");
     }
 
     setThemeOverride(undefined);
@@ -1938,6 +1965,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             default_post_sort_type,
             default_comment_sort_type,
             default_listing_type,
+            default_items_per_page,
             interface_language,
             show_avatars,
             show_bot_accounts,
@@ -1975,6 +2003,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             blur_nsfw,
             bot_account,
             default_listing_type,
+            default_items_per_page,
             default_post_sort_type,
             default_comment_sort_type,
             discussion_languages: userRes.data.discussion_languages,
