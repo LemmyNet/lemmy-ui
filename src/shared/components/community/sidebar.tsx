@@ -9,6 +9,7 @@ import {
   CommunityModeratorView,
   CommunityNotificationsMode,
   CommunityView,
+  CommunityVisibility,
   DeleteCommunity,
   EditCommunity,
   FollowCommunity,
@@ -166,9 +167,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   sidebar() {
     const {
       community: { name, ap_id, id, posting_restricted_to_mods, visibility },
-      community_actions: { received_ban_at } = {},
+      community_actions: { received_ban_at, follow_state } = {},
     } = this.props.community_view;
 
+    const visibility_label = community_visibility_label(visibility);
+    const visibility_description = visibility_label + "_desc";
+    const can_view_community =
+      visibility !== "Private" || follow_state === "Accepted";
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
@@ -200,35 +205,42 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     loading={this.state.followCommunityLoading}
                     showRemoteFetch={!this.props.myUserInfo}
                   />
-                  {this.canPost && this.createPost()}
+                  {this.canPost && can_view_community && this.createPost()}
                 </>
               )}
               <>
                 {this.props.myUserInfo && this.blockCommunity()}
-                <div className="mb-2 d-flex">
-                  <CommunityNotificationSelect
-                    current={this.state.notifications}
-                    onChange={this.handleNotificationChange}
-                  />
-                </div>
-                <form
-                  class="d-flex"
-                  onSubmit={linkEvent(this, this.handleSearchSubmit)}
-                >
-                  <input
-                    name="q"
-                    type="search"
-                    className="form-control flex-initial"
-                    placeholder={`${I18NextService.i18n.t("search")}...`}
-                    aria-label={I18NextService.i18n.t("search")}
-                    onInput={linkEvent(this, this.handleSearchChange)}
-                    required
-                    minLength={1}
-                  />
-                  <button type="submit" class="btn btn-outline-secondary ms-1">
-                    <Icon icon="search" />
-                  </button>
-                </form>
+                {can_view_community && (
+                  <>
+                    <div className="mb-2 d-flex">
+                      <CommunityNotificationSelect
+                        current={this.state.notifications}
+                        onChange={this.handleNotificationChange}
+                      />
+                    </div>
+                    <form
+                      class="d-flex"
+                      onSubmit={linkEvent(this, this.handleSearchSubmit)}
+                    >
+                      <input
+                        name="q"
+                        type="search"
+                        className="form-control flex-initial"
+                        placeholder={`${I18NextService.i18n.t("search")}...`}
+                        aria-label={I18NextService.i18n.t("search")}
+                        onInput={linkEvent(this, this.handleSearchChange)}
+                        required
+                        minLength={1}
+                      />
+                      <button
+                        type="submit"
+                        class="btn btn-outline-secondary ms-1"
+                      >
+                        <Icon icon="search" />
+                      </button>
+                    </form>
+                  </>
+                )}
               </>
               {!this.props.myUserInfo && (
                 <div className="alert alert-info" role="alert">
@@ -269,23 +281,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     {I18NextService.i18n.t("community_visibility")}:&nbsp;
                   </span>
                   <span className="fs-5 fw-medium align-middle">
-                    {I18NextService.i18n.t(
-                      visibility === "Public" ? "public" : "local_only",
-                    )}
-                    <Icon
-                      icon={visibility === "Public" ? "globe" : "house"}
-                      inline
-                      classes="ms-1 text-secondary"
-                    />
+                    {I18NextService.i18n.t(visibility_label)}
                   </span>
                 </div>
-                <p>
-                  {I18NextService.i18n.t(
-                    visibility === "Public"
-                      ? "public_blurb"
-                      : "local_only_blurb",
-                  )}
-                </p>
+                <p>{I18NextService.i18n.t(visibility_description)}</p>
               </div>
               <LanguageList
                 allLanguages={this.props.allLanguages}
@@ -766,4 +765,29 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       `/search${getQueryString({ q: searchParamEncoded, communityId: i.props.community_view.community.id.toString() })}`,
     );
   }
+}
+
+export function community_visibility_label(
+  visibility: CommunityVisibility,
+): string {
+  var visibility_label = "community_visibility_";
+  // TODO: might be easier with a library that converts camel case to snake case
+  switch (visibility) {
+    case "Public":
+      visibility_label += "public";
+      break;
+    case "Unlisted":
+      visibility_label += "unlisted";
+      break;
+    case "LocalOnlyPublic":
+      visibility_label += "local_only_public";
+      break;
+    case "LocalOnlyPrivate":
+      visibility_label += "local_only_private";
+      break;
+    case "Private":
+      visibility_label += "private";
+      break;
+  }
+  return visibility_label;
 }

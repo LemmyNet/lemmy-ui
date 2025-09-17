@@ -435,23 +435,45 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   render() {
+    const res =
+      this.state.communityRes.state === "success" &&
+      this.state.communityRes.data;
+    const can_view_community =
+      res &&
+      (res.community_view.community.visibility !== "Private" ||
+        res.community_view.community_actions?.follow_state === "Accepted");
+
     return (
       <div className="community container-lg">
         <div className="row">
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
-            {this.renderCommunity()}
-            {this.selects()}
-            {this.listings()}
-            <div class="row">
-              <div class="col">
-                <PaginatorCursor
-                  current={this.props.cursor}
-                  resource={this.currentRes}
-                  onPageChange={this.handlePageChange}
-                />
+            {can_view_community && (
+              <>
+                {this.renderCommunity()}
+                {this.selects()}
+                {this.listings()}
+                <div class="row">
+                  <div class="col">
+                    <PaginatorCursor
+                      current={this.props.cursor}
+                      resource={this.currentRes}
+                      onPageChange={this.handlePageChange}
+                    />
+                  </div>
+                  <div class="col-auto">{this.markPageAsReadButton}</div>
+                </div>
+              </>
+            )}
+            {!can_view_community && (
+              <div className="alert alert-danger text-bg-danger" role="alert">
+                <h4 className="alert-heading">
+                  {I18NextService.i18n.t("community_visibility_private")}
+                </h4>
+                <div className="card-text">
+                  {I18NextService.i18n.t("cant_view_private_community_message")}
+                </div>
               </div>
-              <div class="col-auto">{this.markPageAsReadButton}</div>
-            </div>
+            )}
           </div>
           <aside className="d-none d-md-block col-md-4 col-lg-3">
             {this.sidebar()}
