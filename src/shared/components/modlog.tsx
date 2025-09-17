@@ -924,21 +924,15 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               </option>
               <option value={"AdminAdd"}>Adding Admin to Site</option>
               <option value={"AdminBlockInstance"}>
-                Blocking a federated instance
+                Blocking a federated Instance
               </option>
               <option value={"AdminAllowInstance"}>
-                Allowing a federated instance
+                Allowing a federated Instance
               </option>
-              {this.isoData.myUserInfo?.local_user_view.local_user.admin && (
-                <>
-                  <option value={"AdminPurgePerson"}>Purging a Person</option>
-                  <option value={"AdminPurgeCommunity"}>
-                    Purging a Community
-                  </option>
-                  <option value={"AdminPurgePost"}>Purging a Post</option>
-                  <option value={"AdminPurgeComment"}>Purging a Comment</option>
-                </>
-              )}
+              <option value={"AdminPurgePerson"}>Purging a Person</option>
+              <option value={"AdminPurgeCommunity"}>Purging a Community</option>
+              <option value={"AdminPurgePost"}>Purging a Post</option>
+              <option value={"AdminPurgeComment"}>Purging a Comment</option>
             </select>
           </div>
         </div>
