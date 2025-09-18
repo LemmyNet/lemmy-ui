@@ -14,9 +14,7 @@ export function BannedDialog({ expires }: BannedDialogProps) {
   return (
     <div className="alert alert-danger text-bg-danger" role="alert">
       <h4 className="alert-heading">{title}</h4>
-      <div className="card-text">
-        {I18NextService.i18n.t("banned_dialog_body")}
-      </div>
+      <div>{I18NextService.i18n.t("banned_dialog_body")}</div>
     </div>
   );
 }
