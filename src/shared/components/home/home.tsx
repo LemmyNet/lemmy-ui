@@ -243,11 +243,7 @@ const MobileButton = ({
     onClick={onClick}
   >
     {I18NextService.i18n.t(textKey)}{" "}
-    <Icon
-      icon={show ? `minus-square` : `plus-square`}
-      classes="icon-inline"
-      altText="show_content"
-    />
+    <Icon icon={show ? `minus-square` : `plus-square`} classes="icon-inline" />
   </button>
 );
 

@@ -8,7 +8,6 @@ interface IconProps {
   classes?: string;
   inline?: boolean;
   small?: boolean;
-  altText?: string;
 }
 
 export class Icon extends Component<IconProps, any> {
@@ -17,18 +16,26 @@ export class Icon extends Component<IconProps, any> {
   }
 
   render() {
+    let iconAltText: string | undefined;
+    if (
+      this.props.icon === "plus-square" ||
+      this.props.icon === "minus-square"
+    ) {
+      iconAltText = `${I18NextService.i18n.t("show_content")}`;
+    }
+
     return (
       <svg
         className={classNames("icon", this.props.classes, {
           "icon-inline": this.props.inline,
           small: this.props.small,
         })}
-        {...(this.props.altText
+        {...(iconAltText
           ? { role: "img", "aria-describedby": `${this.props.icon}-alt` }
           : {})}
       >
-        {this.props.altText && (
-          <title id={`${this.props.icon}-alt`}>{this.props.altText}</title>
+        {iconAltText && (
+          <title id={`${this.props.icon}-alt`}>{iconAltText}</title>
         )}
         <use
           xlinkHref={`${getStaticDir()}/assets/symbols.svg#icon-${

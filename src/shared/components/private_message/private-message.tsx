@@ -114,10 +114,11 @@ export class PrivateMessage extends Component<
                 className="pointer text-monospace p-0 bg-transparent border-0 d-block"
                 onClick={linkEvent(this, this.handleMessageCollapse)}
               >
-                <Icon
-                  icon={this.state.collapsed ? "plus-square" : "minus-square"}
-                  altText="show_content"
-                />
+                {this.state.collapsed ? (
+                  <Icon icon="plus-square" />
+                ) : (
+                  <Icon icon="minus-square" />
+                )}
               </button>
             </li>
           </ul>

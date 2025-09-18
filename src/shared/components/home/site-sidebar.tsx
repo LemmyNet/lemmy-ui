@@ -85,11 +85,11 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
             aria-expanded="true"
             aria-controls="sidebarInfoBody"
           >
-            <Icon
-              icon={this.state.collapsed ? "plus-square" : "minus-square"}
-              classes="icon-inline"
-              altText="show_content"
-            />
+            {this.state.collapsed ? (
+              <Icon icon="plus-square" classes="icon-inline" />
+            ) : (
+              <Icon icon="minus-square" classes="icon-inline" />
+            )}
           </button>
         )}
       </div>

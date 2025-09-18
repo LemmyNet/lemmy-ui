@@ -670,7 +670,6 @@ export class Post extends Component<PostRouteProps, PostState> {
                         : `plus-square`
                     }
                     classes="icon-inline"
-                    altText="show_content"
                   />
                 </button>
                 {this.state.showSidebarMobile && this.sidebar()}

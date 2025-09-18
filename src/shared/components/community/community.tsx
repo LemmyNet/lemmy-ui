@@ -429,7 +429,6 @@ export class Community extends Component<CommunityRouteProps, State> {
                 this.state.showSidebarMobile ? `minus-square` : `plus-square`
               }
               classes="icon-inline"
-              altText="expand_all_images"
             />
           </button>
           {this.state.showSidebarMobile && this.sidebar()}
