@@ -139,6 +139,9 @@ export class AdminSettings extends Component<
     this.handleEditTagline = this.handleEditTagline.bind(this);
     this.handleDeleteTagline = this.handleDeleteTagline.bind(this);
     this.handleCreateTagline = this.handleCreateTagline.bind(this);
+    this.handleEditEmoji = this.handleEditEmoji.bind(this);
+    this.handleDeleteEmoji = this.handleDeleteEmoji.bind(this);
+    this.handleCreateEmoji = this.handleCreateEmoji.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
