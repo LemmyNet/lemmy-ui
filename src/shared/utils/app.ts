@@ -771,5 +771,5 @@ export function commentViewToPersonContentCombinedView(
 }
 
 export function userNotLoggedInOrBanned(user: MyUserInfo | undefined): boolean {
-  return user?.local_user_view?.banned ?? false;
+  return user === undefined || user.local_user_view.banned;
 }

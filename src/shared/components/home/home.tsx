@@ -11,7 +11,6 @@ import {
   setIsoData,
   showLocal,
   updatePersonBlock,
-  userNotLoggedInOrBanned,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -422,7 +421,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9">
               <DonationDialog myUserInfo={this.isoData.myUserInfo} />
-              {userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
+              {this.isoData.myUserInfo?.local_user_view.banned && (
                 <BannedDialog
                   expires={
                     this.isoData.myUserInfo?.local_user_view.ban_expires_at
