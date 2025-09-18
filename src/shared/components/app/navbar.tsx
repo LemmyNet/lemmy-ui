@@ -1,7 +1,12 @@
 import { showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { numToSI } from "@utils/helpers";
-import { amAdmin, canCreateCommunity, moderatesSomething } from "@utils/roles";
+import {
+  amAdmin,
+  canCreateCommunity,
+  moderatesPrivateCommunity,
+  moderatesSomething,
+} from "@utils/roles";
 import { Component, createRef, linkEvent } from "inferno";
 import { NavLink } from "inferno-router";
 import { GetSiteResponse, MyUserInfo } from "lemmy-js-client";
@@ -27,6 +32,7 @@ interface NavbarState {
   unreadNotifsCount: number;
   unreadReportCount: number;
   unreadApplicationCount: number;
+  unreadPendingApplicationsCount: number;
 }
 
 function handleCollapseClick(i: Navbar) {
@@ -51,11 +57,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   unreadNotifsCountSubscription: Subscription;
   unreadReportCountSubscription: Subscription;
   unreadApplicationCountSubscription: Subscription;
+  unreadPendingApplicationsSubscription: Subscription;
 
   state: NavbarState = {
     unreadNotifsCount: 0,
     unreadReportCount: 0,
     unreadApplicationCount: 0,
+    unreadPendingApplicationsCount: 0,
   };
 
   constructor(props: any, context: any) {
@@ -78,10 +86,21 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         UnreadCounterService.Instance.unreadReportCountSubject.subscribe(
           unreadReportCount => this.setState({ unreadReportCount }),
         );
-      this.unreadApplicationCountSubscription =
-        UnreadCounterService.Instance.unreadApplicationCountSubject.subscribe(
-          unreadApplicationCount => this.setState({ unreadApplicationCount }),
-        );
+      if (moderatesSomething(this.props.myUserInfo)) {
+        this.unreadApplicationCountSubscription =
+          UnreadCounterService.Instance.unreadApplicationCountSubject.subscribe(
+            unreadApplicationCount => this.setState({ unreadApplicationCount }),
+          );
+      }
+      if (moderatesPrivateCommunity(this.props.myUserInfo)) {
+        this.unreadPendingApplicationsSubscription =
+          UnreadCounterService.Instance.pendingFollowCountSubject.subscribe(
+            unreadPendingApplications =>
+              this.setState({
+                unreadPendingApplicationsCount: unreadPendingApplications,
+              }),
+          );
+      }
 
       document.addEventListener("mouseup", this.handleOutsideMenuClick);
     }
@@ -91,7 +110,12 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     document.removeEventListener("mouseup", this.handleOutsideMenuClick);
     this.unreadNotifsCountSubscription.unsubscribe();
     this.unreadReportCountSubscription.unsubscribe();
-    this.unreadApplicationCountSubscription.unsubscribe();
+    if (moderatesSomething(this.props.myUserInfo)) {
+      this.unreadApplicationCountSubscription.unsubscribe();
+    }
+    if (moderatesPrivateCommunity(this.props.myUserInfo)) {
+      this.unreadPendingApplicationsSubscription.unsubscribe();
+    }
   }
 
   // TODO class active corresponding to current pages
@@ -375,6 +399,46 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         {this.state.unreadApplicationCount > 0 && (
                           <span className="mx-1 badge text-bg-light">
                             {numToSI(this.state.unreadApplicationCount)}
+                          </span>
+                        )}
+                      </NavLink>
+                    </li>
+                  )}
+                  {moderatesPrivateCommunity(this.props.myUserInfo) && (
+                    <li id="navApplications" className="nav-item">
+                      <NavLink
+                        to="/registration_applications"
+                        className="nav-link d-inline-flex align-items-center d-md-inline-block"
+                        title={I18NextService.i18n.t(
+                          "unread_registration_applications",
+                          {
+                            count: Number(
+                              this.state.unreadPendingApplicationsCount,
+                            ),
+                            formattedCount: numToSI(
+                              this.state.unreadPendingApplicationsCount,
+                            ),
+                          },
+                        )}
+                        onMouseUp={linkEvent(this, handleCollapseClick)}
+                      >
+                        <Icon icon="clipboard" />
+                        <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
+                          {I18NextService.i18n.t(
+                            "unread_registration_applications",
+                            {
+                              count: Number(
+                                this.state.unreadPendingApplicationsCount,
+                              ),
+                              formattedCount: numToSI(
+                                this.state.unreadPendingApplicationsCount,
+                              ),
+                            },
+                          )}
+                        </span>
+                        {this.state.unreadPendingApplicationsCount > 0 && (
+                          <span className="mx-1 badge text-bg-light">
+                            {numToSI(this.state.unreadPendingApplicationsCount)}
                           </span>
                         )}
                       </NavLink>
