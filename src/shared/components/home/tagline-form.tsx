@@ -21,6 +21,7 @@ interface TaglineFormProps {
 
 interface TaglineFormState {
   content?: string;
+  // Necessary since markdown doesn't clear after a create submit
   clearMarkdown: boolean;
   bypassNavWarning: boolean;
 }
