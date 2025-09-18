@@ -57,7 +57,7 @@ import { InstanceBlocks } from "./instance-blocks";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { fetchLimit } from "@utils/config";
 import { linkEvent } from "inferno";
-import { UserBadges } from "@components/common/user-badges";
+import { RoleLabelPill, UserBadges } from "@components/common/user-badges";
 import { MomentTime } from "@components/common/moment-time";
 
 type AdminSettingsData = RouteDataResponse<{
@@ -564,44 +564,39 @@ export class AdminSettings extends Component<
         const local_users = this.state.usersRes.data.users;
         return (
           <>
-            <table class="table table-striped table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">{I18NextService.i18n.t("username")}</th>
-                  <th scope="col">{I18NextService.i18n.t("email")}</th>
-                  <th scope="col">
-                    {I18NextService.i18n.t("registered_date_title")}
-                  </th>
-                  <th scope="col">{I18NextService.i18n.t("posts")}</th>
-                  <th scope="col">{I18NextService.i18n.t("comments")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {local_users.map(local_user => (
-                  <tr key={local_user.person.id}>
-                    <td>
-                      <PersonListing
-                        person={local_user.person}
-                        myUserInfo={this.isoData.myUserInfo}
-                      />
-                      <UserBadges
-                        classNames="ms-1"
-                        isAdmin={local_user.local_user.admin}
-                        isBanned={local_user.banned}
-                        myUserInfo={this.isoData.myUserInfo}
-                        creator={local_user.person}
-                      />
-                    </td>
-                    <td>{local_user.local_user.email}</td>
-                    <td>
-                      <MomentTime published={local_user.person.published_at} />
-                    </td>
-                    <td>{local_user.person.post_count}</td>
-                    <td>{local_user.person.comment_count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {local_users.map(local_user => (
+              <ul className="list-inline" key={local_user.person.id}>
+                <li className="list-inline-item">
+                  <PersonListing
+                    person={local_user.person}
+                    myUserInfo={this.isoData.myUserInfo}
+                  />
+                </li>
+                <li className="list-inline-item">
+                  <UserBadges
+                    classNames="ms-1"
+                    isAdmin={local_user.local_user.admin}
+                    isBanned={local_user.banned}
+                    myUserInfo={this.isoData.myUserInfo}
+                    creator={local_user.person}
+                    showCounts
+                  />
+                </li>
+                {local_user.local_user.email && (
+                  <li className="list-inline-item">
+                    <RoleLabelPill
+                      label={local_user.local_user.email}
+                      tooltip={I18NextService.i18n.t("email")}
+                    />
+                  </li>
+                )}
+                <li className="list-inline-item">
+                  <span className="badge text-bg-light">
+                    <MomentTime published={local_user.person.published_at} />
+                  </span>
+                </li>
+              </ul>
+            ))}
             <PaginatorCursor
               current={this.state.usersCursor}
               resource={this.state.usersRes}
