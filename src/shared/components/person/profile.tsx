@@ -1103,6 +1103,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
               placeholder={I18NextService.i18n.t("reason")}
               value={this.state.banReason}
               onInput={linkEvent(this, this.handleModBanReasonChange)}
+              required
             />
             <label className="col-form-label" htmlFor="mod-ban-expires">
               {I18NextService.i18n.t("expires")}
@@ -1273,7 +1274,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         person_id: person.id,
         ban,
         remove_or_restore_data: i.state.removeOrRestoreData,
-        reason: banReason,
+        reason: banReason ?? "",
         expires_at: futureDaysToUnixTime(banExpireDays),
       });
       this.updateBan(res);

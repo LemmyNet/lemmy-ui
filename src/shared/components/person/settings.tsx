@@ -276,7 +276,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           open_links_in_new_tab,
           enable_private_messages,
           auto_mark_fetched_posts_as_read,
-          show_score: show_scores,
+          show_score,
           show_upvotes,
           show_downvotes,
           show_upvote_percentage,
@@ -314,7 +314,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           show_avatars,
           bot_account,
           show_bot_accounts,
-          show_scores,
+          show_score,
           show_upvotes,
           show_downvotes,
           show_upvote_percentage,
@@ -1059,7 +1059,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 className="form-check-input"
                 id="user-show-scores"
                 type="checkbox"
-                checked={this.state.saveUserSettingsForm.show_scores}
+                checked={this.state.saveUserSettingsForm.show_score}
                 onChange={linkEvent(this, this.handleShowScoresChange)}
               />
               <label className="form-check-label" htmlFor="user-show-scores">
@@ -1686,7 +1686,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       mui.local_user_view.local_user.show_score = event.target.checked;
     }
     i.setState(
-      s => ((s.saveUserSettingsForm.show_scores = event.target.checked), s),
+      s => ((s.saveUserSettingsForm.show_score = event.target.checked), s),
     );
   }
 

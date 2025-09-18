@@ -200,11 +200,13 @@ export class InstanceBlocks extends Component<
         res = await HttpService.client.adminBlockInstance({
           instance: instance,
           block: true,
+          reason: "TODO",
         });
       } else {
         res = await HttpService.client.adminAllowInstance({
           instance: instance,
           allow: true,
+          reason: "TODO",
         });
       }
       if (res.state === "success") {
@@ -240,11 +242,13 @@ export class InstanceBlocks extends Component<
       res = await HttpService.client.adminBlockInstance({
         instance: instance,
         block: false,
+        reason: "TODO",
       });
     } else {
       res = await HttpService.client.adminAllowInstance({
         instance: instance,
         allow: false,
+        reason: "TODO",
       });
     }
     if (res.state === "success") {
