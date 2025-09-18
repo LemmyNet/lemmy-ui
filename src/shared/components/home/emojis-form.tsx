@@ -2,7 +2,9 @@ import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import {
   CreateCustomEmoji,
+  CustomEmojiId,
   CustomEmojiView,
+  DbUrl,
   DeleteCustomEmoji,
   EditCustomEmoji,
 } from "lemmy-js-client";
@@ -12,6 +14,15 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { Prompt } from "inferno-router";
 import { Spinner } from "@components/common/icon";
 
+type EmojiGenericForm = {
+  id?: CustomEmojiId;
+  category?: string;
+  shortcode?: string;
+  image_url?: DbUrl;
+  alt_text?: string;
+  keywords?: Array<string>;
+};
+
 interface EmojiFormProps {
   emoji?: CustomEmojiView; // If an emoji is given, this means its an edit.
   onCreate?(form: CreateCustomEmoji): void;
@@ -19,18 +30,18 @@ interface EmojiFormProps {
   onDelete?(form: DeleteCustomEmoji): void;
 }
 
-// TODO test keywords
-
 interface EmojiFormState {
-  form: EditCustomEmoji | CreateCustomEmoji;
+  form: EmojiGenericForm;
   bypassNavWarning: boolean;
   loadingImage: boolean;
 }
 
-function isEditForm(
-  form: EditCustomEmoji | CreateCustomEmoji,
-): form is EditCustomEmoji {
-  return (form as EditCustomEmoji).id !== undefined;
+function isEditForm(form: EmojiGenericForm): form is EditCustomEmoji {
+  return form.id !== undefined;
+}
+
+function isCreateForm(form: EmojiGenericForm): form is CreateCustomEmoji {
+  return form.id === undefined;
 }
 
 @tippyMixin
@@ -41,7 +52,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     loadingImage: false,
   };
 
-  createFormFromProps(): EditCustomEmoji {
+  createFormFromProps(): EmojiGenericForm {
     if (this.props.emoji) {
       const { custom_emoji, keywords } = this.props.emoji;
 
@@ -52,10 +63,9 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
         alt_text: custom_emoji.alt_text,
         keywords: keywords.map(k => k.keyword),
       };
-    } else
-      return {
-        id: 0,
-      };
+    } else {
+      return {};
+    }
   }
 
   constructor(props: any, context: any) {
@@ -240,9 +250,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
   }
 
   handleKeywordsChange(i: EmojiForm, event: any) {
-    const keywords: string[] = event.target.value
-      .split(" ")
-      .map((x: string) => ({ id: -1, keyword: x }));
+    const keywords: string[] = event.target.value.split(" ");
 
     i.setState({
       form: { ...i.state.form, keywords },
@@ -267,7 +275,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     const form = i.state.form;
     if (isEditForm(form)) {
       i.props.onEdit?.(form);
-    } else {
+    } else if (isCreateForm(form)) {
       i.props.onCreate?.(form);
     }
   }
@@ -295,17 +303,4 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
       i.setState({ loadingImage: false });
     });
   }
-
-  // TODO
-  // configurePicker(): any {
-  //   const custom = this.state.emojiMartCustom;
-  //   // Once an emoji-mart Picker is initialized with these options, other
-  //   // instances also only show the custom emojis.
-  //   return {
-  //     data: { categories: [], emojis: [], aliases: [] },
-  //     maxFrequentRows: 0,
-  //     dynamicWidth: true,
-  //     custom,
-  //   };
-  // }
 }

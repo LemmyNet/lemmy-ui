@@ -322,9 +322,6 @@ export class AdminSettings extends Component<
                   id="emojis-tab-pane"
                 >
                   {this.emojisTab()}
-                  <div className="row">
-                    <EmojiForm />
-                  </div>
                 </div>
               ),
             },
@@ -418,6 +415,9 @@ export class AdminSettings extends Component<
   }
 
   async fetchUsersOnly() {
+    this.setState({
+      usersRes: LOADING_REQUEST,
+    });
     const usersRes = await HttpService.client.listUsers({
       ...cursorComponents(this.state.uploadsCursor),
       banned_only: this.state.usersBannedOnly,
@@ -428,6 +428,9 @@ export class AdminSettings extends Component<
   }
 
   async fetchUploadsOnly() {
+    this.setState({
+      uploadsRes: LOADING_REQUEST,
+    });
     const uploadsRes = await HttpService.client.listMediaAdmin({
       ...cursorComponents(this.state.uploadsCursor),
       limit: fetchLimit,
@@ -437,6 +440,9 @@ export class AdminSettings extends Component<
   }
 
   async fetchTaglinesOnly() {
+    this.setState({
+      taglinesRes: LOADING_REQUEST,
+    });
     const taglinesRes = await HttpService.client.listTaglines({
       ...cursorComponents(this.state.taglinesCursor),
       limit: fetchLimit,
@@ -446,6 +452,9 @@ export class AdminSettings extends Component<
   }
 
   async fetchEmojisOnly() {
+    this.setState({
+      emojisRes: LOADING_REQUEST,
+    });
     const emojisRes = await HttpService.client.listCustomEmojis({});
 
     this.setState({ emojisRes });
@@ -669,14 +678,6 @@ export class AdminSettings extends Component<
     }
   }
 
-  // TODO
-  // <div>
-  //   <EmojiMart
-  //     key={this.state.emojiMartKey}
-  //     onEmojiClick={this.handleEmojiClick}
-  //     pickerOptions={this.configurePicker()}
-  //   ></EmojiMart>
-  // </div>
   emojisTab() {
     switch (this.state.emojisRes.state) {
       case "loading":
@@ -866,13 +867,11 @@ export class AdminSettings extends Component<
 
     if (res.state === "success") {
       toast(I18NextService.i18n.t("tagline_updated"));
-      await this.fetchTaglinesOnly();
     }
     this.setState({ loading: false });
   }
 
   async handleCreateEmoji(form: CreateCustomEmoji) {
-    this.setState({ loading: true });
     const res = await HttpService.client.createCustomEmoji(form);
 
     if (res.state === "success") {
@@ -900,7 +899,6 @@ export class AdminSettings extends Component<
 
     if (res.state === "success") {
       toast(I18NextService.i18n.t("custom_emoji_updated"));
-      await this.fetchEmojisOnly();
     }
     this.setState({ loading: false });
   }
