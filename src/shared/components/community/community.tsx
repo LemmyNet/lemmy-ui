@@ -720,6 +720,8 @@ export class Community extends Component<CommunityRouteProps, State> {
           <button
             class="btn btn-secondary"
             onClick={this.handleExpandImageClick}
+            aria-label={I18NextService.i18n.t("expand_all_images")}
+            data-tippy-content={I18NextService.i18n.t("expand_all_images")}
           >
             <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
           </button>

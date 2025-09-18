@@ -319,6 +319,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleHidePost = this.handleHidePost.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
+    this.handleExpandAllImages = this.handleExpandAllImages.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -859,9 +860,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         <div className="col-auto ps-0">
           <button
             class="btn btn-secondary"
-            onClick={() => {
-              this.setState({ expandAllImages: !this.state.expandAllImages });
-            }}
+            onClick={this.handleExpandAllImages}
+            aria-label={I18NextService.i18n.t("expand_all_images")}
+            data-tippy-content={I18NextService.i18n.t("expand_all_images")}
           >
             <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
           </button>
@@ -1171,6 +1172,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
       toast(I18NextService.i18n.t(form.hide ? "post_hidden" : "post_unhidden"));
     }
+  }
+
+  handleExpandAllImages() {
+    this.setState({ expandAllImages: !this.state.expandAllImages });
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
