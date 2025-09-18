@@ -1,8 +1,6 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
-  BanFromCommunity,
-  BanPerson,
   LocalSite,
   MyUserInfo,
   PersonView,
@@ -18,6 +16,10 @@ import { PostListing } from "./post-listing";
 import { EMPTY_REQUEST } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import ActionButton from "@components/common/content-actions/action-button";
+import {
+  BanFromCommunityData,
+  BanFromSiteData,
+} from "@components/person/reports";
 
 interface PostReportProps {
   report: PostReportView;
@@ -28,8 +30,8 @@ interface PostReportProps {
   admins: PersonView[];
   onResolveReport(form: ResolvePostReport): void;
   onRemovePost(form: RemovePost): void;
-  onModBanFromCommunity(form: BanFromCommunity): void;
-  onAdminBan(form: BanPerson): void;
+  onModBanFromCommunity(form: BanFromCommunityData): void;
+  onAdminBan(form: BanFromSiteData): void;
 }
 
 interface PostReportState {
@@ -221,11 +223,10 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
   }
 
   handleModBanFromCommunity() {
-    console.log(1);
     this.setState({ loading: true });
     this.props.onModBanFromCommunity({
-      person_id: this.props.report.post.creator_id,
-      community_id: this.props.report.community.id,
+      person: this.props.report.post_creator,
+      community: this.props.report.community,
       ban: !this.props.report.creator_banned,
     });
   }
@@ -233,7 +234,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
   handleAdminBan() {
     this.setState({ loading: true });
     this.props.onAdminBan({
-      person_id: this.props.report.post.creator_id,
+      person: this.props.report.post_creator,
       ban: !this.props.report.creator_banned,
     });
   }

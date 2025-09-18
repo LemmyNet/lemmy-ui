@@ -4,12 +4,10 @@ import {
   CommentReportView,
   CommentView,
   LocalSite,
-  BanFromCommunity,
   MyUserInfo,
   PersonView,
   RemoveComment,
   ResolveCommentReport,
-  BanPerson,
 } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "@utils/types";
 import { I18NextService } from "../../services";
@@ -19,6 +17,10 @@ import { CommentNode } from "./comment-node";
 import { EMPTY_REQUEST } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import ActionButton from "@components/common/content-actions/action-button";
+import {
+  BanFromCommunityData,
+  BanFromSiteData,
+} from "@components/person/reports";
 
 interface CommentReportProps {
   report: CommentReportView;
@@ -27,8 +29,8 @@ interface CommentReportProps {
   admins: PersonView[];
   onResolveReport(form: ResolveCommentReport): void;
   onRemoveComment(form: RemoveComment): void;
-  onModBanFromCommunity(form: BanFromCommunity): void;
-  onAdminBan(form: BanPerson): void;
+  onModBanFromCommunity(form: BanFromCommunityData): void;
+  onAdminBan(form: BanFromSiteData): void;
 }
 
 interface CommentReportState {
@@ -228,8 +230,8 @@ export class CommentReport extends Component<
   handleModBanFromCommunity() {
     this.setState({ loading: true });
     this.props.onModBanFromCommunity({
-      person_id: this.props.report.comment.creator_id,
-      community_id: this.props.report.community.id,
+      person: this.props.report.comment_creator,
+      community: this.props.report.community,
       ban: !this.props.report.creator_banned,
     });
   }
@@ -237,7 +239,7 @@ export class CommentReport extends Component<
   handleAdminBan() {
     this.setState({ loading: true });
     this.props.onAdminBan({
-      person_id: this.props.report.comment.creator_id,
+      person: this.props.report.comment_creator,
       ban: !this.props.report.creator_banned,
     });
   }
