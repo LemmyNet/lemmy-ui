@@ -156,7 +156,7 @@ export class Communities extends Component<
               myUserInfo={this.isoData.myUserInfo}
             />
             <Badges
-              className="ms-2 d-inline-flex"
+              className="ms-2 d-inline"
               communityId={c.community.id}
               subject={c.community}
               lessBadges
