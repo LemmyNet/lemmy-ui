@@ -129,10 +129,7 @@ export function commentsToFlatNodes(
 }
 
 export function communityRSSUrl(community: Community, sort: string): string {
-  var domain = "";
-  if (!community.local) {
-    domain = `@${hostname(community.ap_id)}`;
-  }
+  const domain = `@${hostname(community.ap_id)}`;
   return `/feeds/c/${community.name}${domain}.xml${getQueryString({ sort })}`;
 }
 
