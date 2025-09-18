@@ -42,11 +42,8 @@ server.use(express.urlencoded({ extended: false }));
 
 const serverPath = path.resolve("./dist");
 
-// In debug mode, don't use the maxAge and immutable, or it breaks live reload for dev
-if (
-  process.env["LEMMY_UI_DEBUG"] ||
-  process.env["NODE_ENV"] === "development"
-) {
+// In dev mode, don't use the maxAge and immutable, or it breaks live reload for dev
+if (process.env["NODE_ENV"] === "development") {
   server.use(getStaticDir(), express.static(serverPath));
 } else {
   server.use(
@@ -62,7 +59,6 @@ if (
 // Only set the CSP if not in debug mode
 if (
   !process.env["LEMMY_UI_DISABLE_CSP"] &&
-  !process.env["LEMMY_UI_DEBUG"] &&
   process.env["NODE_ENV"] !== "development"
 ) {
   server.use(setDefaultCsp);
