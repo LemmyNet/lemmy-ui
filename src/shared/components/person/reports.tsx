@@ -77,6 +77,7 @@ interface ReportsState {
   removeCommentForm?: RemoveComment;
   banFromCommunityForm?: BanFromCommunityData;
   adminBanForm?: BanFromSiteData;
+  showCommunityRuleViolations: boolean;
 }
 
 type ReportsRouteProps = RouteComponentProps<Record<string, never>> &
@@ -109,6 +110,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     messageType: "All",
     siteRes: this.isoData.siteRes,
     isIsomorphic: false,
+    showCommunityRuleViolations: false,
   };
 
   loadingSettled() {
@@ -137,6 +139,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     this.handleSubmitAdminBan = this.handleSubmitAdminBan.bind(this);
     this.handleCloseModActionModals =
       this.handleCloseModActionModals.bind(this);
+    this.handleClickshowCommunityReports =
+      this.handleClickshowCommunityReports.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -404,6 +408,25 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       <div className="mb-2">
         <span className="me-3">{this.unreadOrAllRadios()}</span>
         <span className="me-3">{this.messageTypeRadios()}</span>
+        {this.isoData.myUserInfo?.local_user_view.local_user.admin && (
+          <span className="me-3">
+            <div
+              className="btn-group btn-group-toggle flex-wrap mb-2"
+              role="group"
+            >
+              <button
+                class="btn btn-secondary"
+                onClick={this.handleClickshowCommunityReports}
+              >
+                {I18NextService.i18n.t(
+                  this.state.showCommunityRuleViolations
+                    ? "hide_community_reports"
+                    : "show_community_reports",
+                )}
+              </button>
+            </div>
+          </span>
+        )}
       </div>
     );
   }
@@ -660,7 +683,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
     const reportsForm: ListReports = {
       unresolved_only,
-      show_community_rule_violations: true,
+      show_community_rule_violations: false,
     };
 
     return {
@@ -681,7 +704,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     const form: ListReports = {
       unresolved_only,
       type_: this.state.messageType,
-      show_community_rule_violations: true,
+      show_community_rule_violations: this.state.showCommunityRuleViolations,
       ...cursorComponents(cursor),
     };
 
@@ -794,6 +817,13 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       adminBanForm: undefined,
       banFromCommunityForm: undefined,
     });
+  }
+
+  handleClickshowCommunityReports() {
+    this.setState({
+      showCommunityRuleViolations: !this.state.showCommunityRuleViolations,
+    });
+    this.update();
   }
 
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {

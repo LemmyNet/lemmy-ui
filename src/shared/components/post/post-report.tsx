@@ -227,7 +227,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     this.props.onModBanFromCommunity({
       person: this.props.report.post_creator,
       community: this.props.report.community,
-      ban: !this.props.report.creator_banned,
+      ban: !this.props.report.creator_banned_from_community,
     });
   }
 
