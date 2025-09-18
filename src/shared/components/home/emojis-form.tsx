@@ -27,6 +27,12 @@ interface EmojiFormState {
   loadingImage: boolean;
 }
 
+function isEditForm(
+  form: EditCustomEmoji | CreateCustomEmoji,
+): form is EditCustomEmoji {
+  return (form as EditCustomEmoji).id !== undefined;
+}
+
 @tippyMixin
 export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
   state: EmojiFormState = {
@@ -256,13 +262,12 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
   handleSubmitEmoji(i: EmojiForm, event: any) {
     event.preventDefault();
 
-    if (i.props.emoji) {
-      const form = i.state.form as EditCustomEmoji;
-      i.setState({ bypassNavWarning: true });
+    i.setState({ bypassNavWarning: true });
+
+    const form = i.state.form;
+    if (isEditForm(form)) {
       i.props.onEdit?.(form);
     } else {
-      const form = i.state.form as CreateCustomEmoji;
-      i.setState({ form: { id: 0 }, bypassNavWarning: true });
       i.props.onCreate?.(form);
     }
   }
