@@ -29,6 +29,8 @@ import {
   ReportType,
   RemovePost,
   RemoveComment,
+  BanFromCommunity,
+  BanPerson,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, HttpService, I18NextService } from "../../services";
@@ -50,7 +52,10 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { CommunityReport } from "../community/community-report";
-import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
+import ModActionFormModal, {
+  BanUpdateForm,
+} from "@components/common/modal/mod-action-form-modal";
+import { futureDaysToUnixTime } from "@utils/date";
 
 enum UnreadOrAll {
   Unread,
@@ -70,6 +75,8 @@ interface ReportsState {
   isIsomorphic: boolean;
   removePostForm?: RemovePost;
   removeCommentForm?: RemoveComment;
+  banFromCommunityForm?: BanFromCommunity;
+  adminBanForm?: BanPerson;
 }
 
 type ReportsRouteProps = RouteComponentProps<Record<string, never>> &
@@ -110,6 +117,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
     this.handleSubmitRemovePost = this.handleSubmitRemovePost.bind(this);
     this.handleSubmitRemoveComment = this.handleSubmitRemoveComment.bind(this);
+    this.handleAdminBan = this.handleAdminBan.bind(this);
+    this.handleModBanFromCommunity = this.handleModBanFromCommunity.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -146,6 +155,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   render() {
     const removePostForm = this.state.removePostForm;
     const removeCommentForm = this.state.removeCommentForm;
+    const banFromCommunityForm = this.state.banFromCommunityForm;
+    const adminBanForm = this.state.adminBanForm;
     return (
       <div className="person-reports container-lg">
         {removePostForm && (
@@ -162,6 +173,27 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             onSubmit={this.handleSubmitRemoveComment}
             modActionType="remove-comment"
             isRemoved={!removeCommentForm.removed}
+            onCancel={this.handleCloseModActionModals}
+            show={true}
+          />
+        )}
+        {banFromCommunityForm && (
+          <ModActionFormModal
+            onSubmit={this.handleSubmitBanFromCommunity}
+            modActionType="community-ban"
+            creator={banFromCommunityForm.person_id}
+            community={banFromCommunityForm.community_id}
+            isBanned={!banFromCommunityForm.ban}
+            onCancel={this.handleCloseModActionModals}
+            show={true}
+          />
+        )}
+        {adminBanForm && (
+          <ModActionFormModal
+            onSubmit={this.handleSubmitBanFromCommunity}
+            modActionType="site-ban"
+            creator={adminBanForm.person_id}
+            isBanned={!adminBanForm.ban}
             onCancel={this.handleCloseModActionModals}
             show={true}
           />
@@ -371,6 +403,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             admins={this.isoData.siteRes.admins}
             onResolveReport={this.handleResolveCommentReport}
             onRemoveComment={this.handleRemoveComment}
+            onAdminBan={this.handleAdminBan}
+            onModBanFromCommunity={this.handleModBanFromCommunity}
           />
         );
       case "Post":
@@ -385,6 +419,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             admins={this.isoData.siteRes.admins}
             onResolveReport={this.handleResolvePostReport}
             onRemovePost={this.handleRemovePost}
+            onAdminBan={this.handleAdminBan}
+            onModBanFromCommunity={this.handleModBanFromCommunity}
           />
         );
       case "PrivateMessage":
@@ -455,6 +491,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   admins={this.isoData.siteRes.admins}
                   onResolveReport={this.handleResolveCommentReport}
                   onRemoveComment={this.handleRemoveComment}
+                  onAdminBan={this.handleAdminBan}
+                  onModBanFromCommunity={this.handleModBanFromCommunity}
                 />
               </>
             ))}
@@ -491,6 +529,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   admins={this.isoData.siteRes.admins}
                   onResolveReport={this.handleResolvePostReport}
                   onRemovePost={this.handleRemovePost}
+                  onAdminBan={this.handleAdminBan}
+                  onModBanFromCommunity={this.handleModBanFromCommunity}
                 />
               </>
             ))}
@@ -648,12 +688,20 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     this.update();
   }
 
-  async handleRemovePost(form: RemovePost) {
+  handleRemovePost(form: RemovePost) {
     this.setState({ removePostForm: form });
   }
 
-  async handleRemoveComment(form: RemoveComment) {
+  handleRemoveComment(form: RemoveComment) {
     this.setState({ removeCommentForm: form });
+  }
+
+  handleModBanFromCommunity(form: BanFromCommunity) {
+    this.setState({ banFromCommunityForm: form });
+  }
+
+  handleAdminBan(form: BanPerson) {
+    this.setState({ adminBanForm: form });
   }
 
   async handleResolvePrivateMessageReport(form: ResolvePrivateMessageReport) {
@@ -690,8 +738,37 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
+  async handleSubmitBanFromCommunity(form: BanUpdateForm) {
+    const banFromCommunityForm = this.state.banFromCommunityForm;
+    if (banFromCommunityForm) {
+      banFromCommunityForm.expires_at = futureDaysToUnixTime(
+        form.daysUntilExpires,
+      );
+      banFromCommunityForm.reason = form.reason;
+      await HttpService.client.banFromCommunity(banFromCommunityForm);
+      this.setState({ removeCommentForm: undefined });
+      this.update();
+    }
+  }
+
+  async handleSubmitAdminBan(form: BanUpdateForm) {
+    const adminBanForm = this.state.adminBanForm;
+    if (adminBanForm) {
+      adminBanForm.expires_at = futureDaysToUnixTime(form.daysUntilExpires);
+      adminBanForm.reason = form.reason;
+      await HttpService.client.banPerson(adminBanForm);
+      this.setState({ removeCommentForm: undefined });
+      this.update();
+    }
+  }
+
   handleCloseModActionModals() {
-    this.setState({ removePostForm: undefined, removeCommentForm: undefined });
+    this.setState({
+      removePostForm: undefined,
+      removeCommentForm: undefined,
+      adminBanForm: undefined,
+      banFromCommunityForm: undefined,
+    });
   }
 
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {

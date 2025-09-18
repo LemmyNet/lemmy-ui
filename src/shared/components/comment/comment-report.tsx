@@ -4,10 +4,12 @@ import {
   CommentReportView,
   CommentView,
   LocalSite,
+  BanFromCommunity,
   MyUserInfo,
   PersonView,
   RemoveComment,
   ResolveCommentReport,
+  BanPerson,
 } from "lemmy-js-client";
 import { CommentNodeI, CommentViewType } from "@utils/types";
 import { I18NextService } from "../../services";
@@ -25,6 +27,8 @@ interface CommentReportProps {
   admins: PersonView[];
   onResolveReport(form: ResolveCommentReport): void;
   onRemoveComment(form: RemoveComment): void;
+  onModBanFromCommunity(form: BanFromCommunity): void;
+  onAdminBan(form: BanPerson): void;
 }
 
 interface CommentReportState {
@@ -42,6 +46,8 @@ export class CommentReport extends Component<
   constructor(props: any, context: any) {
     super(props, context);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
+    this.handleModBanFromCommunity = this.handleModBanFromCommunity.bind(this);
+    this.handleAdminBan = this.handleAdminBan.bind(this);
   }
 
   componentWillReceiveProps(
@@ -175,6 +181,30 @@ export class CommentReport extends Component<
           onClick={this.handleRemoveComment}
           iconClass={`text-${comment_view.comment.removed ? "success" : "danger"}`}
         />
+        <ActionButton
+          label={I18NextService.i18n.t(
+            comment_view.creator_banned
+              ? "unban_from_community"
+              : "ban_from_community",
+          )}
+          inline
+          icon={comment_view.creator_banned ? "unban" : "ban"}
+          noLoading
+          onClick={this.handleModBanFromCommunity}
+          iconClass={`text-${comment_view.creator_banned ? "success" : "danger"}`}
+        />
+        {this.props.myUserInfo?.local_user_view.local_user.admin && (
+          <ActionButton
+            label={I18NextService.i18n.t(
+              comment_view.creator_banned ? "unban" : "ban",
+            )}
+            inline
+            icon={comment_view.creator_banned ? "unban" : "ban"}
+            noLoading
+            onClick={this.handleAdminBan}
+            iconClass={`text-${comment_view.creator_banned ? "success" : "danger"}`}
+          />
+        )}
       </div>
     );
   }
@@ -192,6 +222,23 @@ export class CommentReport extends Component<
     this.props.onRemoveComment({
       comment_id: this.props.report.comment_report.comment_id,
       removed: !this.props.report.comment.removed,
+    });
+  }
+
+  handleModBanFromCommunity() {
+    this.setState({ loading: true });
+    this.props.onModBanFromCommunity({
+      person_id: this.props.report.comment.creator_id,
+      community_id: this.props.report.community.id,
+      ban: !this.props.report.creator_banned,
+    });
+  }
+
+  handleAdminBan() {
+    this.setState({ loading: true });
+    this.props.onAdminBan({
+      person_id: this.props.report.comment.creator_id,
+      ban: !this.props.report.creator_banned,
     });
   }
 }
