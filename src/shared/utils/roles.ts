@@ -71,6 +71,15 @@ export function moderatesSomething(
   return amAdmin(myUserInfo) || (myUserInfo?.moderates?.length ?? 0) > 0;
 }
 
+export function moderatesPrivateCommunity(
+  myUserInfo: MyUserInfo | undefined,
+): boolean {
+  return (
+    (myUserInfo?.moderates?.filter(c => c.community.visibility === "Private")
+      ?.length ?? 0) > 0
+  );
+}
+
 export function canCreateCommunity(
   siteRes: GetSiteResponse,
   myUserInfo: MyUserInfo | undefined,
