@@ -68,8 +68,8 @@ interface ReportsState {
   siteRes: GetSiteResponse;
   cursor?: DirectionalCursor;
   isIsomorphic: boolean;
-  removePostForm: RemovePost | null;
-  removeCommentForm: RemoveComment | null;
+  removePostForm?: RemovePost;
+  removeCommentForm?: RemoveComment;
 }
 
 type ReportsRouteProps = RouteComponentProps<Record<string, never>> &
@@ -89,8 +89,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     messageType: "All",
     siteRes: this.isoData.siteRes,
     isIsomorphic: false,
-    removePostForm: null,
-    removeCommentForm: null,
   };
 
   loadingSettled() {
@@ -110,6 +108,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       this.handleResolveCommunityReport.bind(this);
     this.handleRemovePost = this.handleRemovePost.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
+    this.handleSubmitRemovePost = this.handleSubmitRemovePost.bind(this);
+    this.handleSubmitRemoveComment = this.handleSubmitRemoveComment.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -150,29 +150,19 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       <div className="person-reports container-lg">
         {removePostForm && (
           <ModActionFormModal
-            onSubmit={async (reason: string) => {
-              removePostForm.reason = reason;
-              await HttpService.client.removePost(removePostForm);
-              this.setState({ removePostForm: null });
-              this.update();
-            }}
+            onSubmit={this.handleSubmitRemovePost}
             modActionType="remove-post"
             isRemoved={!removePostForm.removed}
-            onCancel={() => this.setState({ removePostForm: null })}
+            onCancel={this.handleCloseModActionModals}
             show={true}
           />
         )}
         {removeCommentForm && (
           <ModActionFormModal
-            onSubmit={async (reason: string) => {
-              removeCommentForm.reason = reason;
-              await HttpService.client.removeComment(removeCommentForm);
-              this.setState({ removeCommentForm: null });
-              this.update();
-            }}
+            onSubmit={this.handleSubmitRemoveComment}
             modActionType="remove-comment"
             isRemoved={!removeCommentForm.removed}
-            onCancel={() => this.setState({ removeCommentForm: null })}
+            onCancel={this.handleCloseModActionModals}
             show={true}
           />
         )}
@@ -385,19 +375,17 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         );
       case "Post":
         return (
-          <>
-            <PostReport
-              key={i.type_ + i.post_report.id}
-              report={i}
-              enableNsfw={enableNsfw(siteRes)}
-              showAdultConsentModal={this.isoData.showAdultConsentModal}
-              myUserInfo={this.isoData.myUserInfo}
-              localSite={siteRes.site_view.local_site}
-              admins={this.isoData.siteRes.admins}
-              onResolveReport={this.handleResolvePostReport}
-              onRemovePost={this.handleRemovePost}
-            />
-          </>
+          <PostReport
+            key={i.type_ + i.post_report.id}
+            report={i}
+            enableNsfw={enableNsfw(siteRes)}
+            showAdultConsentModal={this.isoData.showAdultConsentModal}
+            myUserInfo={this.isoData.myUserInfo}
+            localSite={siteRes.site_view.local_site}
+            admins={this.isoData.siteRes.admins}
+            onResolveReport={this.handleResolvePostReport}
+            onRemovePost={this.handleRemovePost}
+          />
         );
       case "PrivateMessage":
         return (
@@ -680,6 +668,30 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     toast("Not implemented");
     this.findAndUpdateCommunityReport(res);
     this.update();
+  }
+
+  async handleSubmitRemovePost(reason: string) {
+    const removePostForm = this.state.removePostForm;
+    if (removePostForm) {
+      removePostForm.reason = reason;
+      await HttpService.client.removePost(removePostForm);
+      this.setState({ removePostForm: undefined });
+      this.update();
+    }
+  }
+
+  async handleSubmitRemoveComment(reason: string) {
+    const removeCommentForm = this.state.removeCommentForm;
+    if (removeCommentForm) {
+      removeCommentForm.reason = reason;
+      await HttpService.client.removeComment(removeCommentForm);
+      this.setState({ removeCommentForm: undefined });
+      this.update();
+    }
+  }
+
+  handleCloseModActionModals() {
+    this.setState({ removePostForm: undefined, removeCommentForm: undefined });
   }
 
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
