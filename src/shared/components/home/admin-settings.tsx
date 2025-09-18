@@ -10,15 +10,19 @@ import classNames from "classnames";
 import { Component } from "inferno";
 import {
   AdminListUsersResponse,
+  CreateCustomEmoji,
   CreateOAuthProvider,
   CreateTagline,
+  DeleteCustomEmoji,
   DeleteOAuthProvider,
   DeleteTagline,
+  EditCustomEmoji,
   EditOAuthProvider,
   EditSite,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   LemmyHttp,
+  ListCustomEmojisResponse,
   ListMediaResponse,
   ListTaglinesResponse,
   UpdateTagline,
@@ -61,6 +65,7 @@ type AdminSettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
   uploadsRes: ListMediaResponse;
   taglinesRes: ListTaglinesResponse;
+  emojisRes: ListCustomEmojisResponse;
 }>;
 
 interface AdminSettingsState {
@@ -74,6 +79,7 @@ interface AdminSettingsState {
   uploadsCursor?: DirectionalCursor;
   taglinesRes: RequestState<ListTaglinesResponse>;
   taglinesCursor?: DirectionalCursor;
+  emojisRes: RequestState<ListCustomEmojisResponse>;
   loading: boolean;
   themeList: string[];
   isIsomorphic: boolean;
@@ -101,6 +107,7 @@ export class AdminSettings extends Component<
     showConfirmLeaveAdmin: false,
     uploadsRes: EMPTY_REQUEST,
     taglinesRes: EMPTY_REQUEST,
+    emojisRes: EMPTY_REQUEST,
     loading: false,
     themeList: [],
     isIsomorphic: false,
@@ -112,6 +119,7 @@ export class AdminSettings extends Component<
       this.state.instancesRes,
       this.state.uploadsRes,
       this.state.taglinesRes,
+      this.state.emojisRes,
     ]);
   }
 
@@ -134,7 +142,7 @@ export class AdminSettings extends Component<
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const { usersRes, instancesRes, uploadsRes, taglinesRes } =
+      const { usersRes, instancesRes, uploadsRes, taglinesRes, emojisRes } =
         this.isoData.routeData;
 
       this.state = {
@@ -143,6 +151,7 @@ export class AdminSettings extends Component<
         instancesRes,
         uploadsRes,
         taglinesRes,
+        emojisRes,
         isIsomorphic: true,
       };
     }
@@ -159,6 +168,7 @@ export class AdminSettings extends Component<
       instancesRes: await client.getFederatedInstances(),
       uploadsRes: await client.listMediaAdmin({ limit: fetchLimit }),
       taglinesRes: await client.listTaglines({ limit: fetchLimit }),
+      emojisRes: await client.listCustomEmojis({}),
     };
   }
 
@@ -308,6 +318,7 @@ export class AdminSettings extends Component<
                   role="tabpanel"
                   id="emojis-tab-pane"
                 >
+                  {this.emojisTab()}
                   <div className="row">
                     <EmojiForm />
                   </div>
@@ -363,33 +374,42 @@ export class AdminSettings extends Component<
       instancesRes: LOADING_REQUEST,
       uploadsRes: LOADING_REQUEST,
       taglinesRes: LOADING_REQUEST,
+      emojisRes: LOADING_REQUEST,
       themeList: [],
     });
 
-    const [usersRes, instancesRes, uploadsRes, taglinesRes, themeList] =
-      await Promise.all([
-        HttpService.client.listUsers({
-          banned_only: this.state.usersBannedOnly,
-          ...cursorComponents(this.state.usersCursor),
-          limit: fetchLimit,
-        }),
-        HttpService.client.getFederatedInstances(),
-        HttpService.client.listMediaAdmin({
-          ...cursorComponents(this.state.uploadsCursor),
-          limit: fetchLimit,
-        }),
-        HttpService.client.listTaglines({
-          ...cursorComponents(this.state.taglinesCursor),
-          limit: fetchLimit,
-        }),
-        fetchThemeList(),
-      ]);
+    const [
+      usersRes,
+      instancesRes,
+      uploadsRes,
+      taglinesRes,
+      emojisRes,
+      themeList,
+    ] = await Promise.all([
+      HttpService.client.listUsers({
+        banned_only: this.state.usersBannedOnly,
+        ...cursorComponents(this.state.usersCursor),
+        limit: fetchLimit,
+      }),
+      HttpService.client.getFederatedInstances(),
+      HttpService.client.listMediaAdmin({
+        ...cursorComponents(this.state.uploadsCursor),
+        limit: fetchLimit,
+      }),
+      HttpService.client.listTaglines({
+        ...cursorComponents(this.state.taglinesCursor),
+        limit: fetchLimit,
+      }),
+      HttpService.client.listCustomEmojis({}),
+      fetchThemeList(),
+    ]);
 
     this.setState({
       usersRes,
       instancesRes,
       uploadsRes,
       taglinesRes,
+      emojisRes,
       themeList,
     });
   }
@@ -420,6 +440,12 @@ export class AdminSettings extends Component<
     });
 
     this.setState({ taglinesRes });
+  }
+
+  async fetchEmojisOnly() {
+    const emojisRes = await HttpService.client.listCustomEmojis({});
+
+    this.setState({ emojisRes });
   }
 
   admins() {
@@ -481,7 +507,7 @@ export class AdminSettings extends Component<
                 className="btn-check"
                 value="true"
                 checked={!this.state.usersBannedOnly}
-                onChange={linkEvent(this, handleUsersBannedOnlyChange)}
+                onChange={linkEvent(this, this.handleUsersBannedOnlyChange)}
               />
               <label
                 htmlFor={`users-all`}
@@ -497,7 +523,7 @@ export class AdminSettings extends Component<
                 className="btn-check"
                 value="false"
                 checked={this.state.usersBannedOnly}
-                onChange={linkEvent(this, handleUsersBannedOnlyChange)}
+                onChange={linkEvent(this, this.handleUsersBannedOnlyChange)}
               />
               <label
                 htmlFor={`users-banned-only`}
@@ -626,7 +652,7 @@ export class AdminSettings extends Component<
                 onDelete={this.handleDeleteTagline}
               />
             ))}
-            {this.emptyTagline()}
+            {this.emptyTaglineForm()}
             {taglines.length > 0 && (
               <PaginatorCursor
                 current={this.state.taglinesCursor}
@@ -640,13 +666,57 @@ export class AdminSettings extends Component<
     }
   }
 
-  emptyTagline() {
+  // TODO
+  // <div>
+  //   <EmojiMart
+  //     key={this.state.emojiMartKey}
+  //     onEmojiClick={this.handleEmojiClick}
+  //     pickerOptions={this.configurePicker()}
+  //   ></EmojiMart>
+  // </div>
+  emojisTab() {
+    switch (this.state.emojisRes.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success": {
+        const emojis = this.state.emojisRes.data.custom_emojis;
+
+        return (
+          <>
+            <h1 className="h4 mb-4">
+              {I18NextService.i18n.t("custom_emojis")}
+            </h1>
+            {emojis.map(e => (
+              <EmojiForm
+                key={`emoji-form-${e.custom_emoji.id}`}
+                emoji={e}
+                onEdit={this.handleEditEmoji}
+                onDelete={this.handleDeleteEmoji}
+              />
+            ))}
+            {this.emptyEmojiForm()}
+            {/* TODO Pagination is completely missing for emojis */}
+          </>
+        );
+      }
+    }
+  }
+
+  emptyTaglineForm() {
     return (
       <TaglineForm
         myUserInfo={this.isoData.myUserInfo}
         onCreate={this.handleCreateTagline}
       />
     );
+  }
+
+  emptyEmojiForm() {
+    return <EmojiForm onCreate={this.handleCreateEmoji} />;
   }
 
   async handleEditSite(form: EditSite) {
@@ -684,6 +754,12 @@ export class AdminSettings extends Component<
       this.setState({ showConfirmLeaveAdmin: false });
       this.context.router.history.replace("/");
     }
+  }
+
+  async handleUsersBannedOnlyChange(i: AdminSettings, event: any) {
+    const checked = event.target.value === "false";
+    i.setState({ usersBannedOnly: checked });
+    await i.fetchUsersOnly();
   }
 
   async handleUsersPageChange(cursor: DirectionalCursor) {
@@ -791,10 +867,38 @@ export class AdminSettings extends Component<
     }
     this.setState({ loading: false });
   }
-}
 
-async function handleUsersBannedOnlyChange(i: AdminSettings, event: any) {
-  const checked = event.target.value === "false";
-  i.setState({ usersBannedOnly: checked });
-  await i.fetchUsersOnly();
+  async handleCreateEmoji(form: CreateCustomEmoji) {
+    this.setState({ loading: true });
+    const res = await HttpService.client.createCustomEmoji(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("custom_emoji_created"));
+      await this.fetchEmojisOnly();
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleDeleteEmoji(form: DeleteCustomEmoji) {
+    this.setState({ loading: true });
+    const res = await HttpService.client.deleteCustomEmoji(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("custom_emoji_deleted"));
+      await this.fetchEmojisOnly();
+    }
+    this.setState({ loading: false });
+  }
+
+  async handleEditEmoji(form: EditCustomEmoji) {
+    this.setState({ loading: true });
+    const res = await HttpService.client.editCustomEmoji(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("custom_emoji_updated"));
+      await this.fetchEmojisOnly();
+    }
+    this.setState({ loading: false });
+  }
 }
