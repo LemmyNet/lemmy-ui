@@ -77,7 +77,6 @@ The following environment variables can be used to configure lemmy-ui:
 | `LEMMY_UI_BACKEND_REMOTE`      | `string` | `undefined`      | Domain of a remote Lemmy instance to connect for debugging purposes                 |
 | `LEMMY_UI_HTTPS`               | `bool`   | `false`          | Whether to use https.                                                               |
 | `LEMMY_UI_EXTRA_THEMES_FOLDER` | `string` | `./extra_themes` | A location for additional lemmy css themes.                                         |
-| `LEMMY_UI_DEBUG`               | `bool`   | `false`          | Loads the [Eruda](https://github.com/liriliri/eruda) debugging utility.             |
 | `LEMMY_UI_DISABLE_CSP`         | `bool`   | `false`          | Disables CSP security headers                                                       |
 | `LEMMY_UI_CUSTOM_HTML_HEADER`  | `string` | `undefined`      | Injects a custom script into `<head>`.                                              |
 

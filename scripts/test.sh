@@ -4,8 +4,6 @@ set -e
 CWD="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$CWD/../"
 
-export LEMMY_UI_DEBUG=true
-
 # Use this to develop on voyager.lemmy.ml
 export LEMMY_UI_BACKEND_REMOTE=voyager.lemmy.ml
 
