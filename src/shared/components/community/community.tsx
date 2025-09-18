@@ -276,6 +276,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handleHidePost = this.handleHidePost.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
+    this.handleExpandImageClick = this.handleExpandImageClick.bind(this);
 
     this.mainContentRef = createRef();
     // Only fetch the data if coming from another route
@@ -719,9 +720,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         <div className="col-auto ps-0">
           <button
             class="btn btn-secondary"
-            onClick={() => {
-              this.setState({ expandAllImages: !this.state.expandAllImages });
-            }}
+            onClick={this.handleExpandImageClick}
           >
             <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
           </button>
@@ -773,6 +772,10 @@ export class Community extends Component<CommunityRouteProps, State> {
     i.setState(({ showSidebarMobile }) => ({
       showSidebarMobile: !showSidebarMobile,
     }));
+  }
+
+  handleExpandImageClick() {
+    this.setState({ expandAllImages: !this.state.expandAllImages });
   }
 
   async updateUrl(props: Partial<CommunityProps>) {
