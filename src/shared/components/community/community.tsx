@@ -674,7 +674,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.state.communityRes.data;
     const { dataType, sort, postTimeRange, showHidden } = this.props;
     const communityRss = res
-      ? communityRSSUrl(res.community_view.community.ap_id, sort)
+      ? communityRSSUrl(res.community_view.community, sort)
       : undefined;
 
     return (
