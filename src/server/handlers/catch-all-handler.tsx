@@ -117,13 +117,13 @@ export default async (req: Request, res: Response) => {
 
     // Redirect to the 404 if there's an API error
     if (error) {
+      res.status(error.err.status);
       console.error(error.err);
 
       if (error.err.name === "instance_is_private") {
         res.redirect(`/signup`);
         return;
       } else {
-        res.status(500);
         errorPageData = getErrorPageData(new Error(error.err.name), siteRes);
       }
     }
