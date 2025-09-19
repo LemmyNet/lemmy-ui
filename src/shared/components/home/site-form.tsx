@@ -24,6 +24,7 @@ import {
   CommentSortSelect,
   PostSortSelect,
 } from "@components/common/sort-select";
+import { TimeIntervalSelect } from "@components/common/time-interval-select";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -81,6 +82,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       default_items_per_page: ls?.default_items_per_page,
       default_comment_sort_type: ls?.default_comment_sort_type,
       default_post_sort_type: ls?.default_post_sort_type,
+      default_post_time_range_seconds: ls?.default_post_time_range_seconds,
     };
   }
 
@@ -102,6 +104,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       this.handleCommentSortTypeChange.bind(this);
 
     this.handlePostSortTypeChange = this.handlePostSortTypeChange.bind(this);
+
+    this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
 
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
@@ -560,6 +564,19 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </form>
+        <form className="mb-3 row">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("post_time_range")}
+          </label>
+          <div className="col-sm-9">
+            <TimeIntervalSelect
+              currentSeconds={
+                this.state.siteForm.default_post_time_range_seconds
+              }
+              onChange={this.handlePostTimeRangeChange}
+            />
+          </div>
+        </form>
         <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
@@ -916,6 +933,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handlePostSortTypeChange(val: PostSortType) {
     this.setState(s => ((s.siteForm.default_post_sort_type = val), s));
+  }
+
+  handlePostTimeRangeChange(val: number) {
+    this.setState(s => ((s.siteForm.default_post_time_range_seconds = val), s));
   }
 
   handleBlockedUrlsUpdate(newBlockedUrls: string[]) {
