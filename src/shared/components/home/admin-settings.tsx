@@ -840,6 +840,8 @@ export class AdminSettings extends Component<
     if (res.state === "success") {
       toast(I18NextService.i18n.t("tagline_created"));
       await this.fetchTaglinesOnly();
+    } else {
+      toast(I18NextService.i18n.t("couldnt_create_tagline"), "danger");
     }
 
     this.setState({ loading: false });
@@ -852,6 +854,8 @@ export class AdminSettings extends Component<
     if (res.state === "success") {
       toast(I18NextService.i18n.t("tagline_deleted"));
       await this.fetchTaglinesOnly();
+    } else {
+      toast(I18NextService.i18n.t("couldnt_delete_tagline"), "danger");
     }
     this.setState({ loading: false });
   }
@@ -862,6 +866,8 @@ export class AdminSettings extends Component<
 
     if (res.state === "success") {
       toast(I18NextService.i18n.t("tagline_updated"));
+    } else {
+      toast(I18NextService.i18n.t("couldnt_update_tagline"), "danger");
     }
     this.setState({ loading: false });
   }
@@ -872,6 +878,8 @@ export class AdminSettings extends Component<
     if (res.state === "success") {
       toast(I18NextService.i18n.t("custom_emoji_created"));
       await this.fetchEmojisOnly();
+    } else {
+      toast(I18NextService.i18n.t("couldnt_create_custom_emoji"), "danger");
     }
 
     this.setState({ loading: false });
@@ -884,6 +892,8 @@ export class AdminSettings extends Component<
     if (res.state === "success") {
       toast(I18NextService.i18n.t("custom_emoji_deleted"));
       await this.fetchEmojisOnly();
+    } else {
+      toast(I18NextService.i18n.t("couldnt_delete_custom_emoji"), "danger");
     }
     this.setState({ loading: false });
   }
@@ -894,6 +904,8 @@ export class AdminSettings extends Component<
 
     if (res.state === "success") {
       toast(I18NextService.i18n.t("custom_emoji_updated"));
+    } else {
+      toast(I18NextService.i18n.t("couldnt_update_custom_emoji"), "danger");
     }
     this.setState({ loading: false });
   }
