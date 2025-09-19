@@ -2,6 +2,7 @@ import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
+  CommentSortType,
   CreateSite,
   EditSite,
   FederationMode,
@@ -18,6 +19,7 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 import UrlListTextarea from "../common/url-list-textarea";
 import { FormEvent } from "inferno";
 import { FederationModeSelect } from "./federation-mode-select";
+import { CommentSortSelect } from "@components/common/sort-select";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -73,6 +75,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       content_warning: this.props.siteRes?.site_view.site.content_warning,
       disable_email_notifications: ls?.disable_email_notifications,
       default_items_per_page: ls?.default_items_per_page,
+      default_comment_sort_type: ls?.default_comment_sort_type,
     };
   }
 
@@ -89,6 +92,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.handleDefaultPostListingTypeChange =
       this.handleDefaultPostListingTypeChange.bind(this);
+
+    this.handleCommentSortTypeChange =
+      this.handleCommentSortTypeChange.bind(this);
 
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
@@ -525,6 +531,17 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </form>
         )}
+        <form className="mb-3 row">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("comment_sort_type")}
+          </label>
+          <div className="col-sm-9">
+            <CommentSortSelect
+              current={this.state.siteForm.default_comment_sort_type ?? "Hot"}
+              onChange={this.handleCommentSortTypeChange}
+            />
+          </div>
+        </form>
         <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
@@ -873,6 +890,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleDefaultPostListingTypeChange(val: ListingType) {
     this.setState(s => ((s.siteForm.default_post_listing_type = val), s));
+  }
+
+  handleCommentSortTypeChange(val: CommentSortType) {
+    this.setState(s => ((s.siteForm.default_comment_sort_type = val), s));
   }
 
   handleBlockedUrlsUpdate(newBlockedUrls: string[]) {
