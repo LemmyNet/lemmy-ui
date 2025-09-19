@@ -363,16 +363,15 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   fetchUserDataToken?: symbol;
-  async fetchUserData(props: ProfileRouteProps, showBothLoading = false) {
+  async fetchUserData(props_: ProfileRouteProps, showBothLoading = false) {
     const token = (this.fetchUserDataToken = Symbol());
     const {
       cursor,
       view,
       filter,
-      match: {
-        params: { username },
-      },
-    } = props;
+      match: { params: props },
+    } = props_;
+    const username = decodeURIComponent(props.username);
     const isMe = usernameIsPerson(
       username, // amCurrentUser would use the old username
       this.isoData.myUserInfo?.local_user_view.person,
@@ -400,12 +399,12 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     await Promise.all([
       needPerson &&
         HttpService.client.getPersonDetails({
-          username: props.match.params.username,
+          username,
         }),
       needContent &&
         HttpService.client.listPersonContent({
           type_,
-          username: props.match.params.username,
+          username,
           ...cursorComponents(cursor),
           limit: fetchLimit,
         }),
@@ -471,9 +470,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   static async fetchInitialData({
     headers,
     query: { view, cursor, filter },
-    match: {
-      params: { username },
-    },
+    match: { params: props },
     myUserInfo,
   }: InitialFetchRequest<
     ProfilePathProps,
@@ -482,6 +479,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
+    const username = decodeURIComponent(props.username);
     const isMe = usernameIsPerson(username, myUserInfo?.local_user_view.person);
 
     const needUploads = isMe && view === "Uploads";
