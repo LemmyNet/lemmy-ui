@@ -695,8 +695,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleSiteNameChange(i: SiteForm, event: any) {
-    i.state.siteForm.name = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.name = event.target.value), s));
   }
 
   handleSiteSidebarChange(val: string) {
@@ -712,31 +711,35 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleSiteDescChange(i: SiteForm, event: any) {
-    i.state.siteForm.description = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.description = event.target.value), s));
   }
 
   handleSiteEnableNsfwChange(i: SiteForm, event: any) {
-    i.state.siteForm.disallow_nsfw_content = event.target.checked;
+    const newState = i.state;
+    newState.siteForm.disallow_nsfw_content = event.target.checked;
     if (event.target.checked) {
-      i.state.siteForm.content_warning = "";
+      newState.siteForm.content_warning = "";
     }
-    i.setState(i.state);
+    i.setState(newState);
   }
 
   handleSiteRegistrationModeChange(i: SiteForm, event: any) {
-    i.state.siteForm.registration_mode = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.registration_mode = event.target.value), s));
   }
 
   handleSiteOauthRegistration(i: SiteForm, event: any) {
-    i.state.siteForm.oauth_registration = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.siteForm.oauth_registration = event.target.checked), s),
+    );
   }
 
   handleSiteCommunityCreationAdminOnly(i: SiteForm, event: any) {
-    i.state.siteForm.community_creation_admin_only = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => (
+        (s.siteForm.community_creation_admin_only = event.target.checked),
+        s
+      ),
+    );
   }
 
   handleSiteVoteModeChange(
@@ -749,33 +752,35 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     },
     event: FormEvent<HTMLSelectElement>,
   ) {
-    i.state.siteForm[voteKind] = event.target.value as FederationMode;
-    i.setState(i.state);
+    const newState = i.state;
+    newState.siteForm[voteKind] = event.target.value as FederationMode;
+    i.setState(newState);
   }
 
   handleSiteRequireEmailVerification(i: SiteForm, event: any) {
-    i.state.siteForm.require_email_verification = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.siteForm.require_email_verification = event.target.checked), s),
+    );
   }
 
   handleSiteApplicationEmailAdmins(i: SiteForm, event: any) {
-    i.state.siteForm.application_email_admins = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.siteForm.application_email_admins = event.target.checked), s),
+    );
   }
 
   handleSiteReportsEmailAdmins(i: SiteForm, event: any) {
-    i.state.siteForm.reports_email_admins = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.siteForm.reports_email_admins = event.target.checked), s),
+    );
   }
 
   handleSitePrivateInstance(i: SiteForm, event: any) {
-    i.state.siteForm.private_instance = event.target.checked;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.private_instance = event.target.checked), s));
   }
 
   handleSiteDefaultTheme(i: SiteForm, event: any) {
-    i.state.siteForm.default_theme = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.default_theme = event.target.value), s));
   }
 
   handleIconChange(url?: string) {
@@ -791,13 +796,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleSiteFederationEnabled(i: SiteForm, event: any) {
-    i.state.siteForm.federation_enabled = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.siteForm.federation_enabled = event.target.checked), s),
+    );
   }
 
   handleSiteCaptchaEnabled(i: SiteForm, event: any) {
-    i.state.siteForm.captcha_enabled = event.target.checked;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.captcha_enabled = event.target.checked), s));
   }
 
   handleSiteCaptchaDifficulty(i: SiteForm, event: any) {
@@ -813,13 +818,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleBlockedUrlsUpdate(newBlockedUrls: string[]) {
-    this.setState(prev => ({
-      ...prev,
-      siteForm: {
-        ...prev.siteForm,
-        blocked_urls: newBlockedUrls,
-      },
-    }));
+    this.setState(s => ((s.siteForm.blocked_urls = newBlockedUrls), s));
   }
 
   handleSiteContentWarningChange(val: string) {
