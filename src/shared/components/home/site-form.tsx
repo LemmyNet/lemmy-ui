@@ -380,6 +380,28 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <div className="form-check">
               <input
                 className="form-check-input"
+                id="disable-email-notifications"
+                type="checkbox"
+                checked={this.state.siteForm.disable_email_notifications}
+                onChange={linkEvent(
+                  this,
+                  this.handleSiteDisableEmailNotifications,
+                )}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="disable-email-notifications"
+              >
+                {I18NextService.i18n.t("disable_email_notifications")}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
                 id="create-site-require-email-verification"
                 type="checkbox"
                 checked={this.state.siteForm.require_email_verification}
@@ -766,6 +788,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   handleSiteApplicationEmailAdmins(i: SiteForm, event: any) {
     i.setState(
       s => ((s.siteForm.application_email_admins = event.target.checked), s),
+    );
+  }
+
+  handleSiteDisableEmailNotifications(i: SiteForm, event: any) {
+    i.setState(
+      s => ((s.siteForm.disable_email_notifications = event.target.checked), s),
     );
   }
 
