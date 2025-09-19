@@ -71,6 +71,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       captcha_difficulty: ls?.captcha_difficulty,
       blocked_urls: this.props.siteRes?.blocked_urls.map(u => u.url),
       content_warning: this.props.siteRes?.site_view.site.content_warning,
+      disable_email_notifications: ls?.disable_email_notifications,
+      default_items_per_page: ls?.default_items_per_page,
     };
   }
 
@@ -220,6 +222,25 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               allLanguages={[]}
               siteLanguages={[]}
               myUserInfo={this.props.myUserInfo}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="default-items-per-page"
+          >
+            {I18NextService.i18n.t("default_items_per_page")}
+          </label>
+          <div className="col-12">
+            <input
+              id="items-per-page"
+              type="number"
+              className="form-control"
+              value={this.state.siteForm.default_items_per_page}
+              onInput={linkEvent(this, this.handleDefaultItemsPerPageChange)}
+              min={1}
+              max={50}
             />
           </div>
         </div>
@@ -726,6 +747,15 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteLegalInfoChange(val: string) {
     this.setState(s => ((s.siteForm.legal_information = val), s));
+  }
+
+  handleDefaultItemsPerPageChange(i: SiteForm, event: any) {
+    i.setState(
+      s => (
+        (s.siteForm.default_items_per_page = Number(event.target.value)),
+        s
+      ),
+    );
   }
 
   handleSiteApplicationQuestionChange(val: string) {
