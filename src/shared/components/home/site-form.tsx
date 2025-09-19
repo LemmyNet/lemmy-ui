@@ -9,6 +9,7 @@ import {
   GetSiteResponse,
   ListingType,
   MyUserInfo,
+  PostSortType,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
@@ -19,7 +20,10 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 import UrlListTextarea from "../common/url-list-textarea";
 import { FormEvent } from "inferno";
 import { FederationModeSelect } from "./federation-mode-select";
-import { CommentSortSelect } from "@components/common/sort-select";
+import {
+  CommentSortSelect,
+  PostSortSelect,
+} from "@components/common/sort-select";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -76,6 +80,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       disable_email_notifications: ls?.disable_email_notifications,
       default_items_per_page: ls?.default_items_per_page,
       default_comment_sort_type: ls?.default_comment_sort_type,
+      default_post_sort_type: ls?.default_post_sort_type,
     };
   }
 
@@ -95,6 +100,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.handleCommentSortTypeChange =
       this.handleCommentSortTypeChange.bind(this);
+
+    this.handlePostSortTypeChange = this.handlePostSortTypeChange.bind(this);
 
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
@@ -533,6 +540,17 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         )}
         <form className="mb-3 row">
           <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("post_sort_type")}
+          </label>
+          <div className="col-sm-9">
+            <PostSortSelect
+              current={this.state.siteForm.default_post_sort_type ?? "Active"}
+              onChange={this.handlePostSortTypeChange}
+            />
+          </div>
+        </form>
+        <form className="mb-3 row">
+          <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("comment_sort_type")}
           </label>
           <div className="col-sm-9">
@@ -894,6 +912,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleCommentSortTypeChange(val: CommentSortType) {
     this.setState(s => ((s.siteForm.default_comment_sort_type = val), s));
+  }
+
+  handlePostSortTypeChange(val: PostSortType) {
+    this.setState(s => ((s.siteForm.default_post_sort_type = val), s));
   }
 
   handleBlockedUrlsUpdate(newBlockedUrls: string[]) {
