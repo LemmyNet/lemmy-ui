@@ -111,7 +111,7 @@ export class RegistrationApplication extends Component<
                   <div>
                     {I18NextService.i18n.t("deny_reason")}:{" "}
                     <div
-                      className="md-div d-inline-flex"
+                      className="md-div"
                       dangerouslySetInnerHTML={mdToHtml(ra.deny_reason, () =>
                         this.forceUpdate(),
                       )}
