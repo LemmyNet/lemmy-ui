@@ -1,4 +1,8 @@
-import { communityToChoice, fetchCommunities } from "@utils/app";
+import {
+  communityToChoice,
+  userNotLoggedInOrBanned,
+  fetchCommunities,
+} from "@utils/app";
 import {
   capitalizeFirstLetter,
   debounce,
@@ -179,6 +183,7 @@ function copySuggestedTitle({
         s
       ),
     );
+    i.fetchSimilarPosts();
     i.setState({ suggestedPostsRes: EMPTY_REQUEST });
     setTimeout(() => {
       if (i.postTitleRef.current) {
@@ -550,7 +555,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               accept="image/*,video/*"
               name="file"
               className="small col-sm-10 form-control"
-              disabled={!this.props.myUserInfo}
+              disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
               onChange={linkEvent(this, handleImageUpload)}
             />
             {this.state.imageLoading && <Spinner />}

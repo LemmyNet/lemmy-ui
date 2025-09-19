@@ -3,6 +3,7 @@ import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import { ListingType, MyUserInfo } from "lemmy-js-client";
 import { I18NextService } from "../../services";
+import { userNotLoggedInOrBanned } from "@utils/app";
 
 interface ListingTypeSelectProps {
   type_: ListingType;
@@ -53,7 +54,7 @@ export class ListingTypeSelect extends Component<
               value={"Subscribed"}
               checked={this.state.type_ === "Subscribed"}
               onChange={linkEvent(this, this.handleTypeChange)}
-              disabled={!this.props.myUserInfo}
+              disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
             />
             <label
               htmlFor={`${this.id}-subscribed`}
