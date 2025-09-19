@@ -183,6 +183,7 @@ function copySuggestedTitle({
         s
       ),
     );
+    i.fetchSimilarPosts();
     i.setState({ suggestedPostsRes: EMPTY_REQUEST });
     setTimeout(() => {
       if (i.postTitleRef.current) {
