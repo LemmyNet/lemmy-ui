@@ -18,7 +18,7 @@ export class MetadataCard extends Component<MetadataCardProps> {
 
     if (post.embed_title && post.url) {
       return (
-        <div className="post-metadata-card card border-secondary mt-3 mb-2">
+        <div className="post-metadata-card card mt-3 mb-2">
           <div className="row">
             <div className="col-12">
               <div className="card-body">
