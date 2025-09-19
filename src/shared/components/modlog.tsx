@@ -45,7 +45,7 @@ import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";
 import { SearchableSelect } from "./common/searchable-select";
-import { CommunityLink } from "./community/community-link";
+import { communityLink, CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
@@ -911,9 +911,11 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               <>
                 <Link
                   className="text-body"
-                  to={`/c/${communityResp.community_view.community.name}`}
+                  to={
+                    communityLink(communityResp.community_view.community).link
+                  }
                 >
-                  /c/{communityResp.community_view.community.name}
+                  {communityLink(communityResp.community_view.community).link}
                 </Link>{" "}
                 <span>{I18NextService.i18n.t("modlog")}</span>
               </>
