@@ -110,6 +110,7 @@ import { isBrowser } from "@utils/browser";
 import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
+import { BannedDialog } from "./banned-dialog";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -423,6 +424,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9">
               <DonationDialog myUserInfo={this.isoData.myUserInfo} />
+              {this.isoData.myUserInfo?.local_user_view.banned && (
+                <BannedDialog
+                  expires={
+                    this.isoData.myUserInfo?.local_user_view.ban_expires_at
+                  }
+                />
+              )}
               {tagline && (
                 <div
                   id="tagline"

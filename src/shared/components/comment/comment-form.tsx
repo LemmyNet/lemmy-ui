@@ -14,6 +14,7 @@ import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { RequestState } from "../../services/HttpService";
+import { userNotLoggedInOrBanned } from "@utils/app";
 
 interface CommentFormProps {
   /**
@@ -50,6 +51,8 @@ export class CommentForm extends Component<CommentFormProps, any> {
     const placeholder = this.props.disabled
       ? I18NextService.i18n.t("locked_post_comment_placeholder")
       : I18NextService.i18n.t("comment_here");
+    const disabled =
+      this.props.disabled || userNotLoggedInOrBanned(this.props.myUserInfo);
 
     return (
       <div
@@ -64,7 +67,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
             buttonTitle={this.buttonTitle}
             replyType={typeof this.props.node !== "number"}
             focus={this.props.focus}
-            disabled={this.props.disabled}
+            disabled={disabled}
             onSubmit={this.handleCommentSubmit}
             onReplyCancel={this.props.onReplyCancel}
             placeholder={placeholder ?? undefined}
