@@ -453,11 +453,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               onChange={linkEvent(this, this.handleSiteDefaultTheme)}
               className="form-select d-inline-block w-auto"
             >
-              <option value="browser">
-                {I18NextService.i18n.t("browser_default")}
+              <option value="instance">
+                {I18NextService.i18n.t("theme_instance_default")}
               </option>
-              <option value="browser-compact">
-                {I18NextService.i18n.t("browser_default_compact")}
+              <option value="instance-compact">
+                {I18NextService.i18n.t("theme_instance_default_compact")}
               </option>
               {this.props.themeList?.map(theme => (
                 <option key={theme} value={theme}>

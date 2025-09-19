@@ -57,7 +57,7 @@ export class Theme extends Component<Props, State> {
   currentTheme(): string {
     const user = this.props.myUserInfo;
     const userTheme = user?.local_user_view.local_user.theme;
-    return userTheme ?? "browser";
+    return userTheme ?? "instance";
   }
 
   render() {
@@ -76,7 +76,7 @@ export class Theme extends Component<Props, State> {
   }
 
   renderTheme(theme: string) {
-    const hasTheme = theme !== "browser" && theme !== "browser-compact";
+    const hasTheme = theme !== "instance" && theme !== "instance-compact";
 
     const detectedBsTheme = {};
     if (this.lightQuery) {
@@ -99,8 +99,8 @@ export class Theme extends Component<Props, State> {
         </>
       );
     } else if (
-      this.props.defaultTheme !== "browser" &&
-      this.props.defaultTheme !== "browser-compact"
+      this.props.defaultTheme !== "instance" &&
+      this.props.defaultTheme !== "instance-compact"
     ) {
       return (
         <>
@@ -119,8 +119,8 @@ export class Theme extends Component<Props, State> {
         </>
       );
     } else if (
-      this.props.defaultTheme === "browser-compact" ||
-      theme === "browser-compact"
+      this.props.defaultTheme === "instance-compact" ||
+      theme === "instance-compact"
     ) {
       return (
         <>
@@ -140,7 +140,7 @@ export class Theme extends Component<Props, State> {
               media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
             />
           </Helmet>
-          <CodeTheme theme="browser-compact" />
+          <CodeTheme theme="instance-compact" />
         </>
       );
     } else {
@@ -162,7 +162,7 @@ export class Theme extends Component<Props, State> {
               media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
             />
           </Helmet>
-          <CodeTheme theme="browser" />
+          <CodeTheme theme="instance" />
         </>
       );
     }
