@@ -1,4 +1,4 @@
-import { showAvatars } from "@utils/app";
+import { userNotLoggedInOrBanned, showAvatars } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { numToSI } from "@utils/helpers";
 import { amAdmin, canCreateCommunity, moderatesSomething } from "@utils/roles";
@@ -215,23 +215,25 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {I18NextService.i18n.t("communities")}
                 </NavLink>
               </li>
-              <li className="nav-item">
-                {/* TODO make sure this works: https://github.com/infernojs/inferno/issues/1608 */}
-                <NavLink
-                  to={{
-                    pathname: "/create_post",
-                    search: "",
-                    hash: "",
-                    key: "",
-                    state: { prevPath: this.currentLocation },
-                  }}
-                  className="nav-link"
-                  title={I18NextService.i18n.t("create_post")}
-                  onMouseUp={linkEvent(this, handleCollapseClick)}
-                >
-                  {I18NextService.i18n.t("create_post")}
-                </NavLink>
-              </li>
+              {!userNotLoggedInOrBanned(this.props.myUserInfo) && (
+                <li className="nav-item">
+                  {/* TODO make sure this works: https://github.com/infernojs/inferno/issues/1608 */}
+                  <NavLink
+                    to={{
+                      pathname: "/create_post",
+                      search: "",
+                      hash: "",
+                      key: "",
+                      state: { prevPath: this.currentLocation },
+                    }}
+                    className="nav-link"
+                    title={I18NextService.i18n.t("create_post")}
+                    onMouseUp={linkEvent(this, handleCollapseClick)}
+                  >
+                    {I18NextService.i18n.t("create_post")}
+                  </NavLink>
+                </li>
+              )}
               {this.props.siteRes &&
                 canCreateCommunity(
                   this.props.siteRes,

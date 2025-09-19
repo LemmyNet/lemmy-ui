@@ -8,6 +8,7 @@ import {
   PersonView,
   PostView,
 } from "lemmy-js-client";
+import { userNotLoggedInOrBanned } from "./app";
 
 export function amAdmin(myUserInfo: MyUserInfo | undefined): boolean {
   return myUserInfo?.local_user_view.local_user.admin ?? false;
@@ -76,6 +77,6 @@ export function canCreateCommunity(
   myUserInfo: MyUserInfo | undefined,
 ): boolean {
   const adminOnly = siteRes.site_view.local_site.community_creation_admin_only;
-  const loggedIn = !!myUserInfo;
-  return (!adminOnly && loggedIn) || amAdmin(myUserInfo);
+  const disableInput_ = userNotLoggedInOrBanned(myUserInfo);
+  return (!adminOnly && !disableInput_) || amAdmin(myUserInfo);
 }
