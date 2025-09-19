@@ -87,7 +87,8 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
             !!(
               this.state.form.image_url ||
               this.state.form.alt_text ||
-              this.state.form.category
+              this.state.form.category ||
+              this.state.form.keywords
             ) && !this.state.bypassNavWarning
           }
         />
@@ -217,7 +218,8 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
       (this.state.form.category?.length ?? 0) > 0 &&
       (this.state.form.shortcode?.length ?? 0) > 0 &&
       (this.state.form.image_url?.length ?? 0) > 0 &&
-      (this.state.form.alt_text?.length ?? 0) > 0
+      (this.state.form.alt_text?.length ?? 0) > 0 &&
+      (this.state.form.keywords?.length ?? 0) > 0
     );
   }
 
