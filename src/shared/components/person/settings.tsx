@@ -944,10 +944,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 <option disabled aria-hidden="true">
                   {I18NextService.i18n.t("theme")}
                 </option>
-                <option value="browser">
+                <option value="instance">
                   {I18NextService.i18n.t("theme_instance_default")}
                 </option>
-                <option value="browser-compact">
+                <option value="instance-compact">
                   {I18NextService.i18n.t("theme_instance_default_compact")}
                 </option>
                 {this.state.themeList.map(theme => (
