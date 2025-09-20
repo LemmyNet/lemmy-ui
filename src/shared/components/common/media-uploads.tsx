@@ -31,43 +31,27 @@ export class MediaUploads extends Component<Props, any> {
   render() {
     const images = this.props.uploads.images;
 
-    return (
-      <div className="media-uploads table-responsive">
-        <table className="table">
-          <thead>
-            <tr>
-              {this.props.showUploader && (
-                <th>{I18NextService.i18n.t("uploader")}</th>
-              )}
-              <th colSpan={3}>{I18NextService.i18n.t("time")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {images.map(i => (
-              <tr key={i.local_image.pictrs_alias}>
-                {this.props.showUploader && (
-                  <td>
-                    <PersonListing
-                      person={i.person}
-                      myUserInfo={this.props.myUserInfo}
-                    />
-                  </td>
-                )}
-                <td>
-                  <MomentTime published={i.local_image.published_at} />
-                </td>
-                <td>
-                  <PictrsImage
-                    src={buildImageUrl(i.local_image.pictrs_alias)}
-                  />
-                </td>
-                <td>{this.deleteImageBtn(i.local_image)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
+    return images.map(i => (
+      <ul className="list-inline">
+        {this.props.showUploader && (
+          <li className="list-inline-item">
+            <PersonListing
+              person={i.person}
+              myUserInfo={this.props.myUserInfo}
+            />
+          </li>
+        )}
+        <li className="list-inline-item">
+          <MomentTime published={i.local_image.published_at} />
+        </li>
+        <li className="list-inline-item">
+          <PictrsImage src={buildImageUrl(i.local_image.pictrs_alias)} />
+        </li>
+        <li className="list-inline-item">
+          {this.deleteImageBtn(i.local_image)}
+        </li>
+      </ul>
+    ));
   }
 
   deleteImageBtn(image: LocalImage) {
