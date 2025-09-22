@@ -73,8 +73,6 @@ interface ReportsState {
   siteRes: GetSiteResponse;
   cursor?: DirectionalCursor;
   isIsomorphic: boolean;
-  removePostForm?: RemovePost;
-  removeCommentForm?: RemoveComment;
   banFromCommunityForm?: BanFromCommunityData;
   adminBanForm?: BanFromSiteData;
   showCommunityRuleViolations: boolean;
@@ -130,8 +128,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       this.handleResolveCommunityReport.bind(this);
     this.handleRemovePost = this.handleRemovePost.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
-    this.handleSubmitRemovePost = this.handleSubmitRemovePost.bind(this);
-    this.handleSubmitRemoveComment = this.handleSubmitRemoveComment.bind(this);
     this.handleAdminBan = this.handleAdminBan.bind(this);
     this.handleModBanFromCommunity = this.handleModBanFromCommunity.bind(this);
     this.handleSubmitBanFromCommunity =
@@ -175,30 +171,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   }
 
   render() {
-    const removePostForm = this.state.removePostForm;
-    const removeCommentForm = this.state.removeCommentForm;
     const banFromCommunityForm = this.state.banFromCommunityForm;
     const adminBanForm = this.state.adminBanForm;
     return (
       <div className="person-reports container-lg">
-        {removePostForm && (
-          <ModActionFormModal
-            onSubmit={this.handleSubmitRemovePost}
-            modActionType="remove-post"
-            isRemoved={!removePostForm.removed}
-            onCancel={this.handleCloseModActionModals}
-            show={true}
-          />
-        )}
-        {removeCommentForm && (
-          <ModActionFormModal
-            onSubmit={this.handleSubmitRemoveComment}
-            modActionType="remove-comment"
-            isRemoved={!removeCommentForm.removed}
-            onCancel={this.handleCloseModActionModals}
-            show={true}
-          />
-        )}
         {banFromCommunityForm && (
           <ModActionFormModal
             onSubmit={this.handleSubmitBanFromCommunity}
@@ -657,7 +633,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   }
 
   async handleMessageTypeChange(i: Reports, event: any) {
-    console.log(event.target.value);
     switch (event.target.value) {
       case "All":
       case "Comments":
@@ -731,12 +706,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     this.update();
   }
 
-  handleRemovePost(form: RemovePost) {
-    this.setState({ removePostForm: form });
+  async handleRemovePost(form: RemovePost) {
+    await HttpService.client.removePost(form);
+    this.update();
   }
 
-  handleRemoveComment(form: RemoveComment) {
-    this.setState({ removeCommentForm: form });
+  async handleRemoveComment(form: RemoveComment) {
+    await HttpService.client.removeComment(form);
+    this.update();
   }
 
   handleModBanFromCommunity(form: BanFromCommunityData) {
@@ -759,26 +736,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     toast("Not implemented");
     this.findAndUpdateCommunityReport(res);
     this.update();
-  }
-
-  async handleSubmitRemovePost(reason: string) {
-    const removePostForm = this.state.removePostForm;
-    if (removePostForm) {
-      removePostForm.reason = reason;
-      await HttpService.client.removePost(removePostForm);
-      this.setState({ removePostForm: undefined });
-      this.update();
-    }
-  }
-
-  async handleSubmitRemoveComment(reason: string) {
-    const removeCommentForm = this.state.removeCommentForm;
-    if (removeCommentForm) {
-      removeCommentForm.reason = reason;
-      await HttpService.client.removeComment(removeCommentForm);
-      this.setState({ removeCommentForm: undefined });
-      this.update();
-    }
   }
 
   async handleSubmitBanFromCommunity(form: BanUpdateForm) {
@@ -812,8 +769,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
   handleCloseModActionModals() {
     this.setState({
-      removePostForm: undefined,
-      removeCommentForm: undefined,
       adminBanForm: undefined,
       banFromCommunityForm: undefined,
     });
@@ -881,9 +836,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   }
 
   update() {
-    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
-      this.refetch();
-      UnreadCounterService.Instance.updateReports();
-    }
+    UnreadCounterService.Instance.updateReports();
+    this.refetch();
   }
 }

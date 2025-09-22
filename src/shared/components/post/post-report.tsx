@@ -20,6 +20,7 @@ import {
   BanFromCommunityData,
   BanFromSiteData,
 } from "@components/person/reports";
+import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
 
 interface PostReportProps {
   report: PostReportView;
@@ -36,6 +37,7 @@ interface PostReportProps {
 
 interface PostReportState {
   loading: boolean;
+  removePostForm?: RemovePost;
 }
 
 @tippyMixin
@@ -47,6 +49,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
   constructor(props: any, context: any) {
     super(props, context);
     this.handleRemovePost = this.handleRemovePost.bind(this);
+    this.handleRemovePost2 = this.handleRemovePost2.bind(this);
     this.handleModBanFromCommunity = this.handleModBanFromCommunity.bind(this);
     this.handleAdminBan = this.handleAdminBan.bind(this);
   }
@@ -66,6 +69,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     const tippyContent = I18NextService.i18n.t(
       r.post_report.resolved ? "unresolve_report" : "resolve_report",
     );
+    const removePostForm = this.state.removePostForm;
 
     // Set the original post data ( a troll could change it )
     post.name = r.post_report.original_post_name;
@@ -202,6 +206,15 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             iconClass={`text-${pv.creator_banned ? "success" : "danger"}`}
           />
         )}
+        {removePostForm && (
+          <ModActionFormModal
+            onSubmit={this.handleRemovePost2}
+            modActionType="remove-post"
+            isRemoved={pv.post.removed}
+            onCancel={() => this.setState({ removePostForm: undefined })}
+            show={true}
+          />
+        )}
       </div>
     );
   }
@@ -215,11 +228,20 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
   }
 
   handleRemovePost() {
-    this.setState({ loading: true });
-    this.props.onRemovePost({
-      post_id: this.props.report.post_report.post_id,
-      removed: !this.props.report.post.removed,
+    this.setState({
+      loading: true,
+      removePostForm: {
+        post_id: this.props.report.post_report.post_id,
+        removed: !this.props.report.post.removed,
+      },
     });
+  }
+
+  async handleRemovePost2(reason: string) {
+    var form = this.state.removePostForm!;
+    form.reason = reason;
+    this.props.onRemovePost(form);
+    this.setState({ removePostForm: undefined });
   }
 
   handleModBanFromCommunity() {
