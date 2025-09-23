@@ -53,7 +53,6 @@ export class CommentReport extends Component<
     this.handleModBanFromCommunity = this.handleModBanFromCommunity.bind(this);
     this.handleAdminBan = this.handleAdminBan.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
-    this.handleRemoveCommentReason = this.handleRemoveCommentReason.bind(this);
   }
 
   componentWillReceiveProps(
@@ -184,7 +183,7 @@ export class CommentReport extends Component<
           inline
           icon={comment_view.comment.removed ? "restore" : "x"}
           noLoading
-          onClick={this.handleRemoveComment}
+          onClick={() => this.setState({ showRemoveCommentDialog: true })}
           iconClass={`text-${comment_view.comment.removed ? "success" : "danger"}`}
         />
         <ActionButton
@@ -213,7 +212,7 @@ export class CommentReport extends Component<
         )}
         {this.state.showRemoveCommentDialog && (
           <ModActionFormModal
-            onSubmit={this.handleRemoveCommentReason}
+            onSubmit={this.handleRemoveComment}
             modActionType="remove-comment"
             isRemoved={comment_view.comment.removed}
             onCancel={() => this.setState({ showRemoveCommentDialog: false })}
@@ -232,20 +231,12 @@ export class CommentReport extends Component<
     });
   }
 
-  handleRemoveComment() {
-    this.setState({ showRemoveCommentDialog: true });
-  }
-
-  async handleRemoveCommentReason(reason: string) {
+  async handleRemoveComment(reason: string) {
     this.props.onRemoveComment({
       comment_id: this.props.report.comment.id,
       removed: !this.props.report.comment.removed,
       reason,
     });
-    this.closeDialog();
-  }
-
-  async closeDialog() {
     this.setState({ showRemoveCommentDialog: false });
   }
 

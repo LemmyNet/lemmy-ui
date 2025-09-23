@@ -37,19 +37,19 @@ interface PostReportProps {
 
 interface PostReportState {
   loading: boolean;
-  removePostForm?: RemovePost;
+  showRemovePostDialog: boolean;
 }
 
 @tippyMixin
 export class PostReport extends Component<PostReportProps, PostReportState> {
   state: PostReportState = {
     loading: false,
+    showRemovePostDialog: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
     this.handleRemovePost = this.handleRemovePost.bind(this);
-    this.handleRemovePost2 = this.handleRemovePost2.bind(this);
     this.handleModBanFromCommunity = this.handleModBanFromCommunity.bind(this);
     this.handleAdminBan = this.handleAdminBan.bind(this);
   }
@@ -69,7 +69,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     const tippyContent = I18NextService.i18n.t(
       r.post_report.resolved ? "unresolve_report" : "resolve_report",
     );
-    const removePostForm = this.state.removePostForm;
 
     // Set the original post data ( a troll could change it )
     post.name = r.post_report.original_post_name;
@@ -183,7 +182,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           inline
           icon={pv.post.removed ? "restore" : "x"}
           noLoading
-          onClick={this.handleRemovePost}
+          onClick={() => this.setState({ showRemovePostDialog: true })}
           iconClass={`text-${pv.post.removed ? "success" : "danger"}`}
         />
         <ActionButton
@@ -206,12 +205,12 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             iconClass={`text-${pv.creator_banned ? "success" : "danger"}`}
           />
         )}
-        {removePostForm && (
+        {this.state.showRemovePostDialog && (
           <ModActionFormModal
-            onSubmit={this.handleRemovePost2}
+            onSubmit={this.handleRemovePost}
             modActionType="remove-post"
             isRemoved={pv.post.removed}
-            onCancel={() => this.setState({ removePostForm: undefined })}
+            onCancel={() => this.setState({ showRemovePostDialog: false })}
             show={true}
           />
         )}
@@ -227,21 +226,13 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     });
   }
 
-  handleRemovePost() {
-    this.setState({
-      loading: true,
-      removePostForm: {
-        post_id: this.props.report.post_report.post_id,
-        removed: !this.props.report.post.removed,
-      },
+  async handleRemovePost(reason: string) {
+    this.props.onRemovePost({
+      post_id: this.props.report.post.id,
+      removed: !this.props.report.post.removed,
+      reason,
     });
-  }
-
-  async handleRemovePost2(reason: string) {
-    var form = this.state.removePostForm!;
-    form.reason = reason;
-    this.props.onRemovePost(form);
-    this.setState({ removePostForm: undefined });
+    this.setState({ showRemovePostDialog: false });
   }
 
   handleModBanFromCommunity() {
