@@ -28,14 +28,22 @@ const allLanguages = [
   { resource: "da", code: "da", name: "Dansk" },
   { resource: "de", code: "de", name: "Deutsch" },
   { resource: "el", code: "el", name: "Ελληνικά" },
-  { resource: "en", code: "en-US", name: "English", bundled: true },
+  {
+    resource: "en",
+    // There is no general variant for `en` in datefns, only region specific ones
+    datefns_resource: "en-US",
+    code: "en",
+    name: "English",
+    bundled: true,
+  },
   { resource: "eo", code: "eo", name: "Esperanto" },
   { resource: "es", code: "es", name: "Español" },
   { resource: "eu", code: "eu", name: "Euskara" },
-  { resource: "fa", code: "fa-IR", name: "فارسی" },
+  { resource: "fa", datefns_resource: "fa-IR", code: "fa", name: "فارسی" },
   { resource: "fi", code: "fi", name: "Suomi" },
   { resource: "fr", code: "fr", name: "Français" },
-  { resource: "ga", code: "ga", name: "Gaeilge" },
+  // Irish Gaelic is not supported by datefns, use English date format
+  { resource: "ga", datefns_resource: "en-US", code: "ga", name: "Gaeilge" },
   { resource: "gl", code: "gl", name: "Galego" },
   { resource: "hr", code: "hr", name: "Hrvatski" },
   { resource: "hu", code: "hu", name: "magyar nyelv" },
@@ -48,15 +56,32 @@ const allLanguages = [
   { resource: "oc", code: "oc", name: "Occitan" },
   { resource: "pl", code: "pl", name: "Polski" },
   { resource: "pt", code: "pt", name: "Português" },
-  { resource: "pt_BR", code: "pt-BR", name: "Português (Brasil)" },
+  {
+    resource: "pt_BR",
+    datefns_resource: "pt-BR",
+    code: "pt-BR",
+    name: "Português (Brasil)",
+  },
   { resource: "ru", code: "ru", name: "Русский" },
   { resource: "sv", code: "sv", name: "Svenska" },
   { resource: "vi", code: "vi", name: "Tiếng Việt" },
-  { resource: "zh", code: "zh-CN", name: "中文 (简体)" },
-  { resource: "zh_Hant", code: "zh-TW", name: "中文 (繁體)" },
+  {
+    resource: "zh",
+    datefns_resource: "zh-CN",
+    code: "zh-CN",
+    name: "中文 (简体)",
+  },
+  {
+    resource: "zh_Hant",
+    datefns_resource: "zh-TW",
+    code: "zh-TW",
+    name: "中文 (繁體)",
+  },
 ];
 
-const supportedLocales = allLanguages.map(x => x.code);
+const supportedLocales = allLanguages.map(
+  x => x.datefns_resource ?? x.resource,
+);
 
 module.exports = {
   bundledSyntaxHighlighters,
