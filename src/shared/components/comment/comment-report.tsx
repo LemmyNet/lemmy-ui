@@ -36,7 +36,7 @@ interface CommentReportProps {
 
 interface CommentReportState {
   loading: boolean;
-  removeCommentForm?: RemoveComment;
+  showRemoveCommentDialog: boolean;
 }
 
 @tippyMixin
@@ -46,13 +46,14 @@ export class CommentReport extends Component<
 > {
   state: CommentReportState = {
     loading: false,
+    showRemoveCommentDialog: false,
   };
   constructor(props: any, context: any) {
     super(props, context);
-    this.handleRemoveComment = this.handleRemoveComment.bind(this);
     this.handleModBanFromCommunity = this.handleModBanFromCommunity.bind(this);
     this.handleAdminBan = this.handleAdminBan.bind(this);
-    this.handleRemoveComment2 = this.handleRemoveComment2.bind(this);
+    this.handleRemoveComment = this.handleRemoveComment.bind(this);
+    this.handleRemoveCommentReason = this.handleRemoveCommentReason.bind(this);
   }
 
   componentWillReceiveProps(
@@ -69,7 +70,6 @@ export class CommentReport extends Component<
     const tippyContent = I18NextService.i18n.t(
       r.comment_report.resolved ? "unresolve_report" : "resolve_report",
     );
-    const removeCommentForm = this.state.removeCommentForm;
 
     // Set the original post data ( a troll could change it )
     comment.content = r.comment_report.original_comment_text;
@@ -211,12 +211,12 @@ export class CommentReport extends Component<
             iconClass={`text-${comment_view.creator_banned ? "success" : "danger"}`}
           />
         )}
-        {removeCommentForm && (
+        {this.state.showRemoveCommentDialog && (
           <ModActionFormModal
-            onSubmit={this.handleRemoveComment2}
+            onSubmit={this.handleRemoveCommentReason}
             modActionType="remove-comment"
             isRemoved={comment_view.comment.removed}
-            onCancel={() => this.setState({ removeCommentForm: undefined })}
+            onCancel={() => this.setState({ showRemoveCommentDialog: false })}
             show={true}
           />
         )}
@@ -233,20 +233,20 @@ export class CommentReport extends Component<
   }
 
   handleRemoveComment() {
-    this.setState({
-      loading: true,
-      removeCommentForm: {
-        comment_id: this.props.report.comment_report.comment_id,
-        removed: !this.props.report.comment.removed,
-      },
-    });
+    this.setState({ showRemoveCommentDialog: true });
   }
 
-  async handleRemoveComment2(reason: string) {
-    var form = this.state.removeCommentForm!;
-    form.reason = reason;
-    this.props.onRemoveComment(form);
-    this.setState({ removeCommentForm: undefined });
+  async handleRemoveCommentReason(reason: string) {
+    this.props.onRemoveComment({
+      comment_id: this.props.report.comment.id,
+      removed: !this.props.report.comment.removed,
+      reason,
+    });
+    this.closeDialog();
+  }
+
+  async closeDialog() {
+    this.setState({ showRemoveCommentDialog: false });
   }
 
   handleModBanFromCommunity() {
