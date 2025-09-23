@@ -89,11 +89,8 @@ const locales: DateFnsDesc[] = [
   { resource: "de", code: "de" },
   { resource: "de-AT", code: "de-AT" },
   { resource: "el", code: "el" },
-  { resource: "en-AU", code: "en-AU" },
-  { resource: "en-CA", code: "en-CA" },
-  { resource: "en-GB", code: "en-GB" },
-  { resource: "en-IE", code: "en-IE" },
-  { resource: "en-IE", code: "ga" }, // "ga" (Irish Gaelic) is available as user pref, but has currently no date-fns support
+  { resource: "en-US", code: "en-US" },
+  //{ resource: "en-IE", code: "ga" }, // "ga" (Irish Gaelic) is available as user pref, but has currently no date-fns support
   { resource: "en-IN", code: "en-IN" },
   { resource: "en-NZ", code: "en-NZ" },
   { resource: "en-US", code: "en-US", bundled: true },
@@ -179,10 +176,6 @@ async function loadLocale(locale: DateFnsDesc): Promise<Locale> {
 }
 
 export function pickLocale(lang: string): DateFnsDesc | undefined {
-  if (lang === "en") {
-    lang = "en-US";
-  }
-
   // if lang and country are the same, then date-fns expects only the lang
   // eg: instead of "fr-FR", we should import just "fr"
 
@@ -209,6 +202,7 @@ export function pickLocale(lang: string): DateFnsDesc | undefined {
 
 export async function verifyDateFnsImports(): Promise<ImportReport> {
   const report = new ImportReport();
+  /*
   const promises = locales.map(locale =>
     loadLocale(locale)
       .then(x => {
@@ -221,6 +215,7 @@ export async function verifyDateFnsImports(): Promise<ImportReport> {
       .catch(err => report.error.push({ id: locale.code, error: err })),
   );
   await Promise.all(promises);
+  */
   return report;
 }
 

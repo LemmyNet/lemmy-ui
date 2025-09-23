@@ -28,11 +28,11 @@ const allLanguages = [
   { resource: "da", code: "da", name: "Dansk" },
   { resource: "de", code: "de", name: "Deutsch" },
   { resource: "el", code: "el", name: "Ελληνικά" },
-  { resource: "en", code: "en", name: "English", bundled: true },
+  { resource: "en", code: "en-US", name: "English", bundled: true },
   { resource: "eo", code: "eo", name: "Esperanto" },
   { resource: "es", code: "es", name: "Español" },
   { resource: "eu", code: "eu", name: "Euskara" },
-  { resource: "fa", code: "fa", name: "فارسی" },
+  { resource: "fa", code: "fa-IR", name: "فارسی" },
   { resource: "fi", code: "fi", name: "Suomi" },
   { resource: "fr", code: "fr", name: "Français" },
   { resource: "ga", code: "ga", name: "Gaeilge" },
@@ -52,7 +52,7 @@ const allLanguages = [
   { resource: "ru", code: "ru", name: "Русский" },
   { resource: "sv", code: "sv", name: "Svenska" },
   { resource: "vi", code: "vi", name: "Tiếng Việt" },
-  { resource: "zh", code: "zh", name: "中文 (简体)" },
+  { resource: "zh", code: "zh-CN", name: "中文 (简体)" },
   { resource: "zh_Hant", code: "zh-TW", name: "中文 (繁體)" },
 ];
 
