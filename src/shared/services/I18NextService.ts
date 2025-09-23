@@ -4,57 +4,15 @@ import { en } from "../translations/en";
 import { Locale, setDefaultOptions } from "date-fns";
 import { isBrowser } from "@utils/browser";
 import { toast } from "@utils/app";
+import { allLanguages, TranslationDesc } from "../build-config";
 
 /****************
  * Translations *
  ****************/
 
-export type TranslationDesc = {
-  resource: string;
-  code: string;
-  name: string;
-  bundled?: boolean;
-};
-
 type FoundTranslation = [TranslationDesc] | [TranslationDesc, TranslationDesc];
 
-export const languages: TranslationDesc[] = [
-  { resource: "ar", code: "ar", name: "العربية" },
-  { resource: "bg", code: "bg", name: "Български" },
-  { resource: "ca", code: "ca", name: "Català" },
-  { resource: "cs", code: "cs", name: "Česky" },
-  { resource: "da", code: "da", name: "Dansk" },
-  { resource: "de", code: "de", name: "Deutsch" },
-  { resource: "el", code: "el", name: "Ελληνικά" },
-  { resource: "en", code: "en", name: "English", bundled: true },
-  { resource: "eo", code: "eo", name: "Esperanto" },
-  { resource: "es", code: "es", name: "Español" },
-  { resource: "eu", code: "eu", name: "Euskara" },
-  { resource: "fa", code: "fa", name: "فارسی" },
-  { resource: "fi", code: "fi", name: "Suomi" },
-  { resource: "fr", code: "fr", name: "Français" },
-  { resource: "ga", code: "ga", name: "Gaeilge" },
-  { resource: "gl", code: "gl", name: "Galego" },
-  { resource: "hr", code: "hr", name: "Hrvatski" },
-  { resource: "hu", code: "hu", name: "magyar nyelv" },
-  { resource: "id", code: "id", name: "Bahasa Indonesia" },
-  { resource: "it", code: "it", name: "Italiano" },
-  { resource: "ja", code: "ja", name: "日本語" },
-  { resource: "ko", code: "ko", name: "한국어" },
-  { resource: "nl", code: "nl", name: "Nederlands" },
-  { resource: "nn", code: "nn", name: "nynorsk" },
-  { resource: "oc", code: "oc", name: "Occitan" },
-  { resource: "pl", code: "pl", name: "Polski" },
-  { resource: "pt", code: "pt", name: "Português" },
-  { resource: "pt_BR", code: "pt-BR", name: "Português (Brasil)" },
-  { resource: "ru", code: "ru", name: "Русский" },
-  { resource: "sv", code: "sv", name: "Svenska" },
-  { resource: "vi", code: "vi", name: "Tiếng Việt" },
-  { resource: "zh", code: "zh", name: "中文 (简体)" },
-  { resource: "zh_Hant", code: "zh-TW", name: "中文 (繁體)" },
-];
-
-const languageByCode = languages.reduce((acc, l) => {
+const languageByCode = allLanguages.reduce((acc, l) => {
   acc[l.code] = l;
   return acc;
 }, {});
@@ -74,7 +32,7 @@ async function loadTranslation(
 
 export async function verifyTranslationImports(): Promise<ImportReport> {
   const report = new ImportReport();
-  const promises = languages.map(lang =>
+  const promises = allLanguages.map(lang =>
     loadTranslation(lang)
       .then(x => {
         if (x && x["translation"]) {
