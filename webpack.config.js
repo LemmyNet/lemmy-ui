@@ -7,7 +7,6 @@ const { ServiceWorkerPlugin } = require("service-worker-webpack");
 const {
   bundledSyntaxHighlighters,
   lazySyntaxHighlighters,
-  supportedLocales,
 } = require("./src/shared/build-config");
 
 const banner = `
@@ -100,10 +99,6 @@ module.exports = (env, argv) => {
         banner,
       }),
       contextPlugin,
-      new webpack.ContextReplacementPlugin(
-        /date-fns[/\\]locale/,
-        new RegExp(`(${supportedLocales.join("|")})\.js$`),
-      ),
     ],
   };
 

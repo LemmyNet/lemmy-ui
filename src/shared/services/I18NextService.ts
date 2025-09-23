@@ -4,7 +4,77 @@ import { en } from "../translations/en";
 import { Locale, setDefaultOptions } from "date-fns";
 import { isBrowser } from "@utils/browser";
 import { toast } from "@utils/app";
-import { allLanguages, TranslationDesc } from "../build-config";
+
+export type TranslationDesc = {
+  // Name of the translation file in `lemmy-translations`
+  resource: string;
+  // Name of the language in datefns library (undefined if it is equal to `resource`)
+  datefns_resource?: string;
+  // Short codename
+  code: string;
+  // Human readable language name
+  name: string;
+  bundled?: boolean;
+};
+
+export const allLanguages: TranslationDesc[] = [
+  { resource: "ar", code: "ar", name: "العربية" },
+  { resource: "bg", code: "bg", name: "Български" },
+  { resource: "ca", code: "ca", name: "Català" },
+  { resource: "cs", code: "cs", name: "Česky" },
+  { resource: "da", code: "da", name: "Dansk" },
+  { resource: "de", code: "de", name: "Deutsch" },
+  { resource: "el", code: "el", name: "Ελληνικά" },
+  {
+    resource: "en",
+    // There is no general variant for `en` in datefns, only region specific ones
+    datefns_resource: "en-US",
+    code: "en",
+    name: "English",
+    bundled: true,
+  },
+  { resource: "eo", code: "eo", name: "Esperanto" },
+  { resource: "es", code: "es", name: "Español" },
+  { resource: "eu", code: "eu", name: "Euskara" },
+  { resource: "fa", datefns_resource: "fa-IR", code: "fa", name: "فارسی" },
+  { resource: "fi", code: "fi", name: "Suomi" },
+  { resource: "fr", code: "fr", name: "Français" },
+  // Irish Gaelic is not supported by datefns, use English date format
+  { resource: "ga", datefns_resource: "en-US", code: "ga", name: "Gaeilge" },
+  { resource: "gl", code: "gl", name: "Galego" },
+  { resource: "hr", code: "hr", name: "Hrvatski" },
+  { resource: "hu", code: "hu", name: "magyar nyelv" },
+  { resource: "id", code: "id", name: "Bahasa Indonesia" },
+  { resource: "it", code: "it", name: "Italiano" },
+  { resource: "ja", code: "ja", name: "日本語" },
+  { resource: "ko", code: "ko", name: "한국어" },
+  { resource: "nl", code: "nl", name: "Nederlands" },
+  { resource: "nn", code: "nn", name: "nynorsk" },
+  { resource: "oc", code: "oc", name: "Occitan" },
+  { resource: "pl", code: "pl", name: "Polski" },
+  { resource: "pt", code: "pt", name: "Português" },
+  {
+    resource: "pt_BR",
+    datefns_resource: "pt-BR",
+    code: "pt-BR",
+    name: "Português (Brasil)",
+  },
+  { resource: "ru", code: "ru", name: "Русский" },
+  { resource: "sv", code: "sv", name: "Svenska" },
+  { resource: "vi", code: "vi", name: "Tiếng Việt" },
+  {
+    resource: "zh",
+    datefns_resource: "zh-CN",
+    code: "zh-CN",
+    name: "中文 (简体)",
+  },
+  {
+    resource: "zh_Hant",
+    datefns_resource: "zh-TW",
+    code: "zh-TW",
+    name: "中文 (繁體)",
+  },
+];
 
 /****************
  * Translations *
@@ -79,6 +149,10 @@ async function loadLocale(locale: TranslationDesc): Promise<Locale> {
 }
 
 export function pickLocale(lang: string): TranslationDesc | undefined {
+  if (lang === "en") {
+    lang = "en-US";
+  }
+
   // if lang and country are the same, then date-fns expects only the lang
   // eg: instead of "fr-FR", we should import just "fr"
 
@@ -139,10 +213,10 @@ export function findLanguageDescs(
     const pickedTranslations = pickTranslations(lang);
     if (pickedTranslations) {
       const pickedLocale = pickLocale(lang);
-      return [pickedLocale ?? localeByCode["en"], pickedTranslations];
+      return [pickedLocale ?? localeByCode["en-US"], pickedTranslations];
     }
   }
-  return [localeByCode["en"], [languageByCode["en"]]];
+  return [localeByCode["en-US"], [languageByCode["en"]]];
 }
 
 export function findLanguageChunkNames(

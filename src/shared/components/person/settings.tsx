@@ -48,7 +48,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { I18NextService } from "../../services/I18NextService";
+import { allLanguages, I18NextService } from "../../services/I18NextService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
@@ -78,7 +78,6 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { CommentSortSelect } from "../common/sort-select";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
-import { allLanguages } from "../../build-config";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
