@@ -45,7 +45,7 @@ import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";
 import { SearchableSelect } from "./common/searchable-select";
-import { CommunityLink } from "./community/community-link";
+import { communityLink, CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
@@ -911,9 +911,11 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               <>
                 <Link
                   className="text-body"
-                  to={`/c/${communityResp.community_view.community.name}`}
+                  to={
+                    communityLink(communityResp.community_view.community).link
+                  }
                 >
-                  /c/{communityResp.community_view.community.name}
+                  {communityLink(communityResp.community_view.community).link}
                 </Link>{" "}
                 <span>{I18NextService.i18n.t("modlog")}</span>
               </>
@@ -944,16 +946,33 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               <option value={"ModLockComment"}>Locking Comments</option>
               <option value={"ModFeaturePost"}>Featuring Posts</option>
               <option value={"ModRemoveComment"}>Removing Comments</option>
-              <option value={"ModRemoveCommunity"}>Removing Communities</option>
+              <option value={"ModLockComment"}>Locking Comments</option>
+              <option value={"AdminRemoveCommunity"}>
+                Removing Communities
+              </option>
               <option value={"ModBanFromCommunity"}>
                 Banning From Communities
               </option>
-              <option value={"ModAddCommunity"}>Adding Mod to Community</option>
+              <option value={"ModAddToCommunity"}>
+                Adding Mod to Community
+              </option>
               <option value={"ModTransferCommunity"}>
                 Transferring Communities
               </option>
-              <option value={"ModAdd"}>Adding Mod to Site</option>
-              <option value={"ModBan"}>Banning From Site</option>
+              <option value={"ModChangeCommunityVisibility"}>
+                Changing Community visibility
+              </option>
+              <option value={"AdminAdd"}>Adding Admin to Site</option>
+              <option value={"AdminBlockInstance"}>
+                Blocking a federated Instance
+              </option>
+              <option value={"AdminAllowInstance"}>
+                Allowing a federated Instance
+              </option>
+              <option value={"AdminPurgePerson"}>Purging a Person</option>
+              <option value={"AdminPurgeCommunity"}>Purging a Community</option>
+              <option value={"AdminPurgePost"}>Purging a Post</option>
+              <option value={"AdminPurgeComment"}>Purging a Comment</option>
             </select>
           </div>
         </div>

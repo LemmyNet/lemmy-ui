@@ -48,7 +48,7 @@ export class DonationDialog extends Component<Props, State> {
               aria-label={I18NextService.i18n.t("donation_dialog_button_hide")}
             ></button>
           </div>
-          <div class="card-text">
+          <div>
             <T i18nKey="donation_dialog_message">
               <br />
             </T>

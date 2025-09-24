@@ -138,6 +138,7 @@ interface State {
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
+  expandAllImages: boolean;
 }
 
 interface CommunityProps {
@@ -216,6 +217,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     showSidebarMobile: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
+    expandAllImages: false,
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -274,6 +276,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handleHidePost = this.handleHidePost.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
+    this.handleExpandImageClick = this.handleExpandImageClick.bind(this);
 
     this.mainContentRef = createRef();
     // Only fetch the data if coming from another route
@@ -294,8 +297,9 @@ export class Community extends Component<CommunityRouteProps, State> {
   async fetchCommunity(props: CommunityRouteProps) {
     const token = (this.fetchCommunityToken = Symbol());
     this.setState({ communityRes: LOADING_REQUEST });
+    const name = decodeURIComponent(props.match.params.name);
     const communityRes = await HttpService.client.getCommunity({
-      name: props.match.params.name,
+      name,
     });
     if (token === this.fetchCommunityToken) {
       this.setState({ communityRes });
@@ -326,9 +330,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   static async fetchInitialData({
     headers,
     query: { dataType, cursor, sort, postTimeRange, showHidden },
-    match: {
-      params: { name: communityName },
-    },
+    match: { params: props },
   }: InitialFetchRequest<
     CommunityPathProps,
     CommunityProps
@@ -337,6 +339,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
 
+    const communityName = decodeURIComponent(props.name);
     const communityForm: GetCommunity = {
       name: communityName,
     };
@@ -623,6 +626,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onMarkPostAsRead={this.handleMarkPostAsRead}
               onHidePost={this.handleHidePost}
               onPersonNote={this.handlePersonNote}
+              expandAllImages={this.state.expandAllImages}
             />
           );
       }
@@ -692,7 +696,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.state.communityRes.data;
     const { dataType, sort, postTimeRange, showHidden } = this.props;
     const communityRss = res
-      ? communityRSSUrl(res.community_view.community.ap_id, sort)
+      ? communityRSSUrl(res.community_view.community, sort)
       : undefined;
 
     return (
@@ -734,6 +738,16 @@ export class Community extends Component<CommunityRouteProps, State> {
             />
           </div>
         )}
+        <div className="col-auto ps-0">
+          <button
+            class="btn btn-secondary"
+            onClick={this.handleExpandImageClick}
+            aria-label={I18NextService.i18n.t("expand_all_images")}
+            data-tippy-content={I18NextService.i18n.t("expand_all_images")}
+          >
+            <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
+          </button>
+        </div>
         {communityRss && (
           <>
             <a href={communityRss} title="RSS" rel={relTags}>
@@ -783,6 +797,10 @@ export class Community extends Component<CommunityRouteProps, State> {
     }));
   }
 
+  handleExpandImageClick() {
+    this.setState({ expandAllImages: !this.state.expandAllImages });
+  }
+
   async updateUrl(props: Partial<CommunityProps>) {
     const {
       dataType,
@@ -811,7 +829,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   async fetchData(props: CommunityRouteProps) {
     const token = (this.fetchDataToken = Symbol());
     const { dataType, cursor, sort, postTimeRange, showHidden } = props;
-    const { name } = props.match.params;
+    const name = decodeURIComponent(props.match.params.name);
 
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });

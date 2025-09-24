@@ -1,4 +1,4 @@
-import { myAuth } from "@utils/app";
+import { userNotLoggedInOrBanned, myAuth } from "@utils/app";
 import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import { hostname, unreadCommentsCount } from "@utils/helpers";
@@ -6,7 +6,7 @@ import { formatRelativeDate, futureDaysToUnixTime } from "@utils/date";
 import { isImage, isVideo } from "@utils/media";
 import { canAdmin } from "@utils/roles";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, InfernoNode, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { T } from "inferno-i18next-dess";
 import {
@@ -61,6 +61,7 @@ import { NoOptionI18nKeys } from "i18next";
 type PostListingState = {
   showEdit: boolean;
   imageExpanded: boolean;
+  expandManuallyToggled: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
   showBody: boolean;
@@ -105,6 +106,7 @@ type PostListingProps = {
   onHidePost(form: HidePost): Promise<void>;
   onPersonNote(form: NotePerson): Promise<void>;
   onScrollIntoCommentsClick?(e: MouseEvent): void;
+  imageExpanded?: boolean;
 } & (
   | { markable?: false }
   | {
@@ -120,6 +122,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
     imageExpanded: false,
+    expandManuallyToggled: false,
     viewSource: false,
     showAdvanced: false,
     showBody: false,
@@ -179,6 +182,18 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentWillUnmount(): void {
     this.unlisten();
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & PostListingProps>,
+    _nextContext: any,
+  ): void {
+    if (
+      !this.state.expandManuallyToggled &&
+      nextProps.imageExpanded !== undefined
+    ) {
+      this.setState({ imageExpanded: nextProps.imageExpanded });
+    }
   }
 
   get postView(): PostView {
@@ -826,7 +841,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             myVote={this.postView.post_actions?.like_score}
             myUserInfo={this.props.myUserInfo}
             localSite={this.props.localSite}
-            disabled={!this.props.myUserInfo}
+            disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
           />
         )}
 
@@ -985,7 +1000,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   localSite={this.props.localSite}
                   subject={this.postView.post}
                   myVote={this.postView.post_actions?.like_score}
-                  disabled={!this.props.myUserInfo}
+                  disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
                 />
               </div>
             )}
@@ -1267,7 +1282,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleImageExpandClick(i: PostListing, event: any) {
     event.preventDefault();
-    i.setState({ imageExpanded: !i.state.imageExpanded });
+    i.setState({
+      imageExpanded: !i.state.imageExpanded,
+      expandManuallyToggled: true,
+    });
 
     if (myAuth() && i.props.markable && !i.props.disableAutoMarkAsRead) {
       i.handleMarkPostAsRead();

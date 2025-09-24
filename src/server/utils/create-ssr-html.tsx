@@ -59,7 +59,7 @@ export async function createSsrHtml(
   }
 
   const erudaStr =
-    process.env["LEMMY_UI_DEBUG"] === "true"
+    process.env["NODE_ENV"] === "development"
       ? renderToString(
           <>
             <script
