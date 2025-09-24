@@ -423,7 +423,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         )}
                         onMouseUp={linkEvent(this, handleCollapseClick)}
                       >
-                        <Icon icon="star" />
+                        <Icon icon="lock" />
                         <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
                           {I18NextService.i18n.t(
                             "pending_private_community_follows",
