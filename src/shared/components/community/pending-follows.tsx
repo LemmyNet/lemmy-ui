@@ -1,4 +1,4 @@
-import {  setIsoData } from "@utils/app";
+import { setIsoData } from "@utils/app";
 import {
   cursorComponents,
   getQueryParams,
@@ -15,10 +15,10 @@ import {
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
-  ApproveRegistrationApplication,
+  ApproveCommunityPendingFollower,
   LemmyHttp,
   ListCommunityPendingFollowsResponse,
-  PendingFollow,
+  PendingFollow as PendingFollowView,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -38,8 +38,7 @@ import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { InfernoNode } from "inferno";
-import { PersonListing } from "@components/person/person-listing";
-import { UserBadges } from "@components/common/user-badges";
+import { PendingFollow } from "@components/common/pending_follow";
 
 type ViewState = "Unread" | "All";
 
@@ -107,7 +106,7 @@ export class PendingFollows extends Component<
     super(props, context);
 
     this.handlePageChange = this.handlePageChange.bind(this);
-    this.handleApproveApplication = this.handleApproveApplication.bind(this);
+    this.handleApproveFollower = this.handleApproveFollower.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -227,45 +226,17 @@ export class PendingFollows extends Component<
     );
   }
 
-  applicationList(pending: PendingFollow[]) {
+  applicationList(pending: PendingFollowView[]) {
     return (
       <div>
-        {pending.map(p => (
+        {pending.map(pending_follow => (
           <>
             <hr />
-            <div className="d-flex flex-column">
-              <span>
-                <PersonListing
-                  person={p.person}
-                  showApubName
-                  myUserInfo={this.isoData.myUserInfo}
-                />
-                <UserBadges
-                  classNames="ms-1"
-                  myUserInfo={this.isoData.myUserInfo}
-                  creator={p.person}
-                  showCounts
-                />
-              </span>
-              <span>
-                {p.follow_state !== "Pending" && (
-                  <button
-                    className="btn btn-secondary me-2 my-2"
-                    aria-label={I18NextService.i18n.t("approve")}
-                  >
-                    {false ? <Spinner /> : I18NextService.i18n.t("approve")}
-                  </button>
-                )}
-                {p.follow_state === "Pending" && (
-                  <button
-                    className="btn btn-secondary me-2"
-                    aria-label={I18NextService.i18n.t("deny")}
-                  >
-                    {false ? <Spinner /> : I18NextService.i18n.t("deny")}
-                  </button>
-                )}
-              </span>
-            </div>
+            <PendingFollow
+              pending_follow={pending_follow}
+              myUserInfo={this.isoData.myUserInfo}
+              onApproveFollower={this.handleApproveFollower}
+            />
           </>
         ))}
       </div>
@@ -331,19 +302,14 @@ export class PendingFollows extends Component<
     this.props.history.push(`/pending_follows${getQueryString(queryParams)}`);
   }
 
-  async handleApproveApplication(form: ApproveRegistrationApplication) {
-    /*
+  async handleApproveFollower(form: ApproveCommunityPendingFollower) {
     const approveRes =
-      await HttpService.client.approveRegistrationApplication(form);
+      await HttpService.client.approveCommunityPendingFollow(form);
     this.setState(s => {
       if (s.appsRes.state === "success" && approveRes.state === "success") {
-        s.appsRes.data.registration_applications = editRegistrationApplication(
-          approveRes.data.registration_application,
-          s.appsRes.data.registration_applications,
-        );
+        this.refetch(this.props);
       }
       return s;
     });
-    */
   }
 }
