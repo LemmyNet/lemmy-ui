@@ -90,11 +90,8 @@ export class UnreadCounterService {
         await HttpService.client.getCommunityPendingFollowsCount({
           community_id: 0,
         });
-      console.log(pendingFollowsRes);
-      const test = await HttpService.client.listCommunityPendingFollows({});
-      console.log(test);
       if (pendingFollowsRes.state === "success") {
-        this.unreadApplicationCountSubject.next(pendingFollowsRes.data.count);
+        this.pendingFollowCountSubject.next(pendingFollowsRes.data.count);
       }
     }
   }

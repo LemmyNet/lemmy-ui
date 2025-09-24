@@ -32,7 +32,7 @@ interface NavbarState {
   unreadNotifsCount: number;
   unreadReportCount: number;
   unreadApplicationCount: number;
-  unreadPendingApplicationsCount: number;
+  unreadPendingFollowsCount: number;
 }
 
 function handleCollapseClick(i: Navbar) {
@@ -57,13 +57,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   unreadNotifsCountSubscription: Subscription;
   unreadReportCountSubscription: Subscription;
   unreadApplicationCountSubscription: Subscription;
-  unreadPendingApplicationsSubscription: Subscription;
+  unreadPendingFollowsSubscription: Subscription;
 
   state: NavbarState = {
     unreadNotifsCount: 0,
     unreadReportCount: 0,
     unreadApplicationCount: 0,
-    unreadPendingApplicationsCount: 0,
+    unreadPendingFollowsCount: 0,
   };
 
   constructor(props: any, context: any) {
@@ -93,11 +93,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           );
       }
       if (moderatesPrivateCommunity(this.props.myUserInfo)) {
-        this.unreadPendingApplicationsSubscription =
+        this.unreadPendingFollowsSubscription =
           UnreadCounterService.Instance.pendingFollowCountSubject.subscribe(
-            unreadPendingApplications =>
+            unreadPendingFollows =>
               this.setState({
-                unreadPendingApplicationsCount: unreadPendingApplications,
+                unreadPendingFollowsCount: unreadPendingFollows,
               }),
           );
       }
@@ -114,7 +114,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       this.unreadApplicationCountSubscription.unsubscribe();
     }
     if (moderatesPrivateCommunity(this.props.myUserInfo)) {
-      this.unreadPendingApplicationsSubscription.unsubscribe();
+      this.unreadPendingFollowsSubscription.unsubscribe();
     }
   }
 
@@ -183,6 +183,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </NavLink>
                 </li>
               )}
+              {/* TODO: what is this section for and why does it duplicate everything? */}
               {amAdmin(this.props.myUserInfo) && (
                 <li className="nav-item nav-item-icon">
                   <NavLink
@@ -409,38 +410,36 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   {moderatesPrivateCommunity(this.props.myUserInfo) && (
                     <li id="navApplications" className="nav-item">
                       <NavLink
-                        to="/registration_applications"
+                        to="/pending_follows"
                         className="nav-link d-inline-flex align-items-center d-md-inline-block"
                         title={I18NextService.i18n.t(
-                          "unread_registration_applications",
+                          "pending_private_community_follows",
                           {
-                            count: Number(
-                              this.state.unreadPendingApplicationsCount,
-                            ),
+                            count: Number(this.state.unreadPendingFollowsCount),
                             formattedCount: numToSI(
-                              this.state.unreadPendingApplicationsCount,
+                              this.state.unreadPendingFollowsCount,
                             ),
                           },
                         )}
                         onMouseUp={linkEvent(this, handleCollapseClick)}
                       >
-                        <Icon icon="clipboard" />
+                        <Icon icon="star" />
                         <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
                           {I18NextService.i18n.t(
-                            "unread_registration_applications",
+                            "pending_private_community_follows",
                             {
                               count: Number(
-                                this.state.unreadPendingApplicationsCount,
+                                this.state.unreadPendingFollowsCount,
                               ),
                               formattedCount: numToSI(
-                                this.state.unreadPendingApplicationsCount,
+                                this.state.unreadPendingFollowsCount,
                               ),
                             },
                           )}
                         </span>
-                        {this.state.unreadPendingApplicationsCount > 0 && (
+                        {this.state.unreadPendingFollowsCount > 0 && (
                           <span className="mx-1 badge text-bg-light">
-                            {numToSI(this.state.unreadPendingApplicationsCount)}
+                            {numToSI(this.state.unreadPendingFollowsCount)}
                           </span>
                         )}
                       </NavLink>
