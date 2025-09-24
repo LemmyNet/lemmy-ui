@@ -33,6 +33,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
 import { CommunityNotificationSelect } from "@components/common/notification-select";
 import { LanguageList } from "@components/common/language-list";
+import { NoOptionI18nKeys } from "i18next";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -171,7 +172,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     } = this.props.community_view;
 
     const visibility_label = community_visibility_label(visibility);
-    const visibility_description = visibility_label + "_desc";
+    const visibility_description = (visibility_label +
+      "_desc") as NoOptionI18nKeys;
     const can_view_community =
       visibility !== "Private" || follow_state === "Accepted";
     return (
@@ -769,7 +771,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
 export function community_visibility_label(
   visibility: CommunityVisibility,
-): string {
+): NoOptionI18nKeys {
   var visibility_label = "community_visibility_";
   // TODO: might be easier with a library that converts camel case to snake case
   switch (visibility) {
@@ -789,5 +791,5 @@ export function community_visibility_label(
       visibility_label += "private";
       break;
   }
-  return visibility_label;
+  return visibility_label as NoOptionI18nKeys;
 }
