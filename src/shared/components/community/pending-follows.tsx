@@ -38,7 +38,7 @@ import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { InfernoNode } from "inferno";
-import { PendingFollow } from "@components/common/pending_follow";
+import { PendingFollow } from "@components/common/pending-follow";
 
 type ViewState = "Unread" | "All";
 
