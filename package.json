@@ -42,7 +42,6 @@
     "@babel/preset-env": "^7.25.4",
     "@babel/preset-typescript": "^7.24.7",
     "@babel/runtime": "^7.25.4",
-    "@emoji-mart/data": "^1.2.1",
     "autosize": "^6.0.1",
     "babel-loader": "^10.0.0",
     "babel-plugin-inferno": "^6.7.1",
