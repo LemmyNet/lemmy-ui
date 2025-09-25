@@ -115,7 +115,7 @@ import {
   CommentsLoadingSkeleton,
   PostsLoadingSkeleton,
 } from "../common/loading-skeleton";
-import { Sidebar } from "./sidebar";
+import { canViewCommunity, Sidebar } from "./sidebar";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
@@ -441,16 +441,13 @@ export class Community extends Component<CommunityRouteProps, State> {
     const res =
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
-    const can_view_community =
-      res &&
-      (res.community_view.community.visibility !== "Private" ||
-        res.community_view.community_actions?.follow_state === "Accepted");
+    const canViewCommunity_ = res && canViewCommunity(res.community_view);
 
     return (
       <div className="community container-lg">
         <div className="row">
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
-            {can_view_community && (
+            {canViewCommunity_ && (
               <>
                 {this.renderCommunity()}
                 {this.selects()}
@@ -467,7 +464,7 @@ export class Community extends Component<CommunityRouteProps, State> {
                 </div>
               </>
             )}
-            {!can_view_community && (
+            {!canViewCommunity && (
               <div className="alert alert-danger text-bg-danger" role="alert">
                 <h4 className="alert-heading">
                   {I18NextService.i18n.t("community_visibility_private")}

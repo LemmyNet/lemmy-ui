@@ -76,8 +76,8 @@ export function moderatesPrivateCommunity(
   myUserInfo: MyUserInfo | undefined,
 ): boolean {
   return (
-    (myUserInfo?.moderates?.filter(c => c.community.visibility === "Private")
-      ?.length ?? 0) > 0
+    myUserInfo?.moderates?.some(c => c.community.visibility === "Private") ??
+    false
   );
 }
 

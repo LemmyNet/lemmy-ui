@@ -56,7 +56,7 @@ interface PendingFollowsProps {
   cursor?: DirectionalCursor;
 }
 
-function registrationStateFromQuery(view?: string): ViewState {
+function stateFromQuery(view?: string): ViewState {
   switch (view) {
     case "Unread":
     case "All":
@@ -71,7 +71,7 @@ export function getPendingFollowsQueryParams(
 ): PendingFollowsProps {
   return getQueryParams<PendingFollowsProps>(
     {
-      view_state: registrationStateFromQuery,
+      view_state: stateFromQuery,
       cursor: (cursor?: string) => cursor,
     },
     source,
@@ -145,7 +145,7 @@ export class PendingFollows extends Component<
     const state = this.state.appsRes.state;
     const pending = state === "success" && this.state.appsRes.data.items;
     return (
-      <div className="registration-applications container-lg">
+      <div className="container-lg">
         <div className="row">
           <div className="col-12">
             <HtmlTags
@@ -193,7 +193,7 @@ export class PendingFollows extends Component<
               className="btn-check"
               value={"Unread"}
               checked={this.props.view_state === "Unread"}
-              onChange={linkEvent(this, this.handleRegistrationStateChange)}
+              onChange={linkEvent(this, this.handlePendingFollowsStateChange)}
             />
             <label
               htmlFor={`${radioId}-unread`}
@@ -210,7 +210,7 @@ export class PendingFollows extends Component<
               className="btn-check"
               value={"All"}
               checked={this.props.view_state === "All"}
-              onChange={linkEvent(this, this.handleRegistrationStateChange)}
+              onChange={linkEvent(this, this.handlePendingFollowsStateChange)}
             />
             <label
               htmlFor={`${radioId}-all`}
@@ -243,7 +243,7 @@ export class PendingFollows extends Component<
     );
   }
 
-  handleRegistrationStateChange(i: PendingFollows, event: any) {
+  handlePendingFollowsStateChange(i: PendingFollows, event: any) {
     i.updateUrl({ view_state: event.target.value, cursor: undefined });
   }
 

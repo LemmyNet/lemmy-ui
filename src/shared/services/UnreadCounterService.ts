@@ -85,7 +85,6 @@ export class UnreadCounterService {
 
   public async updatePendingFollows() {
     if (this.shouldUpdate) {
-      // TODO: remove community_id param
       const pendingFollowsRes =
         await HttpService.client.getCommunityPendingFollowsCount({
           community_id: 0,

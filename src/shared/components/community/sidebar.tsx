@@ -168,14 +168,13 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   sidebar() {
     const {
       community: { name, ap_id, id, posting_restricted_to_mods, visibility },
-      community_actions: { received_ban_at, follow_state } = {},
+      community_actions: { received_ban_at } = {},
     } = this.props.community_view;
 
-    const visibility_label = community_visibility_label(visibility);
-    const visibility_description = (visibility_label +
+    const visibilityLabel = communityVisibilityLabel(visibility);
+    const visibilityDescription = (visibilityLabel +
       "_desc") as NoOptionI18nKeys;
-    const can_view_community =
-      visibility !== "Private" || follow_state === "Accepted";
+    const canViewCommunity_ = canViewCommunity(this.props.community_view);
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
@@ -207,12 +206,12 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     loading={this.state.followCommunityLoading}
                     showRemoteFetch={!this.props.myUserInfo}
                   />
-                  {this.canPost && can_view_community && this.createPost()}
+                  {this.canPost && canViewCommunity_ && this.createPost()}
                 </>
               )}
               <>
                 {this.props.myUserInfo && this.blockCommunity()}
-                {can_view_community && (
+                {canViewCommunity_ && (
                   <>
                     <div className="mb-2 d-flex">
                       <CommunityNotificationSelect
@@ -283,10 +282,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     {I18NextService.i18n.t("community_visibility")}:&nbsp;
                   </span>
                   <span className="fs-5 fw-medium align-middle">
-                    {I18NextService.i18n.t(visibility_label)}
+                    {I18NextService.i18n.t(visibilityLabel)}
                   </span>
                 </div>
-                <p>{I18NextService.i18n.t(visibility_description)}</p>
+                <p>{I18NextService.i18n.t(visibilityDescription)}</p>
               </div>
               <LanguageList
                 allLanguages={this.props.allLanguages}
@@ -769,7 +768,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 }
 
-export function community_visibility_label(
+export function communityVisibilityLabel(
   visibility: CommunityVisibility,
 ): NoOptionI18nKeys {
   var visibility_label = "community_visibility_";
@@ -792,4 +791,11 @@ export function community_visibility_label(
       break;
   }
   return visibility_label as NoOptionI18nKeys;
+}
+
+export function canViewCommunity(cv: CommunityView): boolean {
+  return (
+    cv.community.visibility !== "Private" ||
+    cv.community_actions?.follow_state === "Accepted"
+  );
 }

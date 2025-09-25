@@ -43,7 +43,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
-import { community_visibility_label } from "./sidebar";
+import { communityVisibilityLabel } from "./sidebar";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -183,7 +183,7 @@ export class Communities extends Component<
                   </td>
                   <td className="text-right">
                     {I18NextService.i18n.t(
-                      community_visibility_label(cv.community.visibility),
+                      communityVisibilityLabel(cv.community.visibility),
                     )}
                   </td>
                   <td className="text-right">
