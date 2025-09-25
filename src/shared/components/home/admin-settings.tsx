@@ -57,8 +57,9 @@ import { InstanceBlocks } from "./instance-blocks";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { fetchLimit } from "@utils/config";
 import { linkEvent } from "inferno";
-import { RoleLabelPill, UserBadges } from "@components/common/user-badges";
+import { UserBadges } from "@components/common/user-badges";
 import { MomentTime } from "@components/common/moment-time";
+import { TableHr } from "@components/common/tables";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: AdminListUsersResponse;
@@ -562,47 +563,63 @@ export class AdminSettings extends Component<
         );
       case "success": {
         const local_users = this.state.usersRes.data.users;
+        const nameCols = "col-12 col-md-3";
+        const dataCols = "col-4 col-md-2";
+
         return (
-          <>
+          <div id="users-table">
+            <div className="row">
+              <div className={`${nameCols} fw-bold`}>
+                {I18NextService.i18n.t("username")}
+              </div>
+              <div className={`${nameCols} fw-bold`}>
+                {I18NextService.i18n.t("email")}
+              </div>
+              <div className={`${dataCols} fw-bold`}>
+                {I18NextService.i18n.t("registered_date_title")}
+              </div>
+              <div className={`${dataCols} fw-bold`}>
+                {I18NextService.i18n.t("posts")}
+              </div>
+              <div className={`${dataCols} fw-bold`}>
+                {I18NextService.i18n.t("comments")}
+              </div>
+            </div>
+            <TableHr />
             {local_users.map(local_user => (
-              <ul className="list-inline" key={local_user.person.id}>
-                <li className="list-inline-item">
-                  <PersonListing
-                    person={local_user.person}
-                    myUserInfo={this.isoData.myUserInfo}
-                  />
-                </li>
-                <li className="list-inline-item">
-                  <UserBadges
-                    classNames="ms-1"
-                    isAdmin={local_user.local_user.admin}
-                    isBanned={local_user.banned}
-                    myUserInfo={this.isoData.myUserInfo}
-                    creator={local_user.person}
-                    showCounts
-                  />
-                </li>
-                {local_user.local_user.email && (
-                  <li className="list-inline-item">
-                    <RoleLabelPill
-                      label={local_user.local_user.email}
-                      tooltip={I18NextService.i18n.t("email")}
+              <>
+                <div className="row" key={local_user.person.id}>
+                  <div className={nameCols}>
+                    <PersonListing
+                      person={local_user.person}
+                      myUserInfo={this.isoData.myUserInfo}
                     />
-                  </li>
-                )}
-                <li className="list-inline-item">
-                  <span className="badge text-bg-light">
+                    <UserBadges
+                      classNames="ms-1"
+                      isAdmin={local_user.local_user.admin}
+                      isBanned={local_user.banned}
+                      myUserInfo={this.isoData.myUserInfo}
+                      creator={local_user.person}
+                    />
+                  </div>
+                  <div className={nameCols}>{local_user.local_user.email}</div>
+                  <div className={dataCols}>
                     <MomentTime published={local_user.person.published_at} />
-                  </span>
-                </li>
-              </ul>
+                  </div>
+                  <div className={dataCols}>{local_user.person.post_count}</div>
+                  <div className={dataCols}>
+                    {local_user.person.comment_count}
+                  </div>
+                </div>
+                <hr />
+              </>
             ))}
             <PaginatorCursor
               current={this.state.usersCursor}
               resource={this.state.usersRes}
               onPageChange={this.handleUsersPageChange}
             />
-          </>
+          </div>
         );
       }
     }

@@ -53,7 +53,7 @@ export function SubscribeButton({
   }
 
   const buttonClass = classNames("btn", {
-    "btn-link d-inline-block": isLink,
+    "btn-link p-0": isLink,
     [`btn-secondary d-block mb-2 w-100 btn-${subscribed === "Pending" ? "warning" : "secondary"}`]:
       !isLink,
   });

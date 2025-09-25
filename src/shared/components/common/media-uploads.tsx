@@ -7,6 +7,7 @@ import { MomentTime } from "./moment-time";
 import { PictrsImage } from "./pictrs-image";
 import { getHttpBase } from "@utils/env";
 import { toast } from "@utils/app";
+import { TableHr } from "./tables";
 
 interface Props {
   uploads: ListMediaResponse;
@@ -31,27 +32,45 @@ export class MediaUploads extends Component<Props, any> {
   render() {
     const images = this.props.uploads.images;
 
-    return images.map(i => (
-      <ul className="list-inline">
-        {this.props.showUploader && (
-          <li className="list-inline-item">
-            <PersonListing
-              person={i.person}
-              myUserInfo={this.props.myUserInfo}
-            />
-          </li>
-        )}
-        <li className="list-inline-item">
-          <MomentTime published={i.local_image.published_at} />
-        </li>
-        <li className="list-inline-item">
-          <PictrsImage src={buildImageUrl(i.local_image.pictrs_alias)} />
-        </li>
-        <li className="list-inline-item">
-          {this.deleteImageBtn(i.local_image)}
-        </li>
-      </ul>
-    ));
+    const cols = "col-6 col-md-3";
+
+    return (
+      <div className="media-uploads">
+        <div className="row">
+          {this.props.showUploader && (
+            <div className={`${cols} fw-bold`}>
+              {I18NextService.i18n.t("uploader")}
+            </div>
+          )}
+          <div className={`${cols} fw-bold`}>
+            {I18NextService.i18n.t("time")}
+          </div>
+        </div>
+        <TableHr />
+        {images.map(i => (
+          <>
+            <div className="row" key={i.local_image.pictrs_alias}>
+              {this.props.showUploader && (
+                <div className={cols}>
+                  <PersonListing
+                    person={i.person}
+                    myUserInfo={this.props.myUserInfo}
+                  />
+                </div>
+              )}
+              <div className={cols}>
+                <MomentTime published={i.local_image.published_at} />
+              </div>
+              <div className={cols}>
+                <PictrsImage src={buildImageUrl(i.local_image.pictrs_alias)} />
+              </div>
+              <div className={cols}>{this.deleteImageBtn(i.local_image)}</div>
+            </div>
+            <hr />
+          </>
+        ))}
+      </div>
+    );
   }
 
   deleteImageBtn(image: LocalImage) {
