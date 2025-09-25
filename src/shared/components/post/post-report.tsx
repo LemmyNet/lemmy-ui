@@ -179,7 +179,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           label={I18NextService.i18n.t(
             pv.post.removed ? "restore_post" : "remove_post",
           )}
-          inline
           icon={pv.post.removed ? "restore" : "x"}
           noLoading
           onClick={() => this.setState({ showRemovePostDialog: true })}
@@ -189,8 +188,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           label={I18NextService.i18n.t(
             pv.creator_banned ? "unban_from_community" : "ban_from_community",
           )}
-          inline
-          icon={pv.creator_banned ? "unban" : "ban"}
+          icon={pv.creator_banned ? "unban_from_site" : "ban_from_site"}
           noLoading
           onClick={this.handleModBanFromCommunity}
           iconClass={`text-${pv.creator_banned ? "success" : "danger"}`}

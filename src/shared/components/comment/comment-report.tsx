@@ -192,7 +192,7 @@ export class CommentReport extends Component<
               ? "unban_from_community"
               : "ban_from_community",
           )}
-          inline
+          inlineWithText
           icon={comment_view.creator_banned ? "unban" : "ban"}
           noLoading
           onClick={this.handleModBanFromCommunity}
@@ -201,9 +201,9 @@ export class CommentReport extends Component<
         {this.props.myUserInfo?.local_user_view.local_user.admin && (
           <ActionButton
             label={I18NextService.i18n.t(
-              comment_view.creator_banned ? "unban" : "ban",
+              comment_view.creator_banned ? "unban_from_site" : "ban_from_site",
             )}
-            inline
+            inlineWithText
             icon={comment_view.creator_banned ? "unban" : "ban"}
             noLoading
             onClick={this.handleAdminBan}
