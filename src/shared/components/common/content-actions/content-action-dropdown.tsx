@@ -35,7 +35,7 @@ interface ContentActionDropdownPropsBase {
   onEdit: () => void;
   onDelete: () => Promise<void>;
   onReport: (reason: string) => Promise<void>;
-  onBlock: () => Promise<void>;
+  onBlockUser: () => Promise<void>;
   onRemove: (reason: string) => Promise<void>;
   onBanFromCommunity: (form: BanUpdateForm) => Promise<void>;
   onAppointCommunityMod: () => Promise<void>;
@@ -66,6 +66,7 @@ export type ContentPostProps = {
   onFeatureLocal: () => Promise<void>;
   onFeatureCommunity: () => Promise<void>;
   onHidePost: () => Promise<void>;
+  onBlockCommunity: () => Promise<void>;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -156,7 +157,8 @@ export default class ContentActionDropdown extends Component<
 
   render() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
-    const { onSave, type, onDelete, onBlock, onEdit, moderators } = this.props;
+    const { onSave, type, onDelete, onBlockUser, onEdit, moderators } =
+      this.props;
     const {
       id,
       saved_at,
@@ -311,9 +313,18 @@ export default class ContentActionDropdown extends Component<
                       <ActionButton
                         icon="slash"
                         label={I18NextService.i18n.t("block_user")}
-                        onClick={onBlock}
+                        onClick={onBlockUser}
                       />
                     </li>
+                    {type === "post" && (
+                      <li>
+                        <ActionButton
+                          icon="slash"
+                          label={I18NextService.i18n.t("block_community")}
+                          onClick={this.props.onBlockCommunity}
+                        />
+                      </li>
+                    )}
                   </>
                 )}
 

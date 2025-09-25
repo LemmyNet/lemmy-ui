@@ -586,6 +586,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
               onBlockPerson={this.handleBlockPerson}
+              onBlockCommunity={this.handleBlockCommunity}
               onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}
               onPostReport={this.handlePostReport}

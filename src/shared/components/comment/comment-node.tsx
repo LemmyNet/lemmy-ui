@@ -447,7 +447,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           myUserInfo={this.props.myUserInfo}
                           onReply={this.handleReplyClick}
                           onReport={this.handleReportComment}
-                          onBlock={this.handleBlockPerson}
+                          onBlockUser={this.handleBlockPerson}
                           onSave={this.handleSaveComment}
                           onEdit={this.handleEditClick}
                           onDelete={this.handleDeleteComment}
