@@ -114,6 +114,7 @@ import { compareAsc, compareDesc } from "date-fns";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
 import { PostNotificationSelect } from "@components/common/notification-select";
+import { Link } from "inferno-router";
 
 const commentsShownInterval = 15;
 
@@ -941,19 +942,19 @@ export class Post extends Component<PostRouteProps, PostState> {
         <div>
           {!!getCommentIdFromProps(this.props) && (
             <>
-              <a
+              <Link
                 className="ps-0 d-block btn btn-link text-muted text-start"
-                href={this.handleViewAllComments()}
+                to={this.handleViewAllComments()}
               >
                 {I18NextService.i18n.t("view_all_comments")} ➔
-              </a>
+              </Link>
               {showContextButton && (
-                <a
+                <Link
                   className="ps-0 d-block btn btn-link text-muted text-start"
-                  href={this.handleViewContext()}
+                  to={this.handleViewContext()}
                 >
                   {I18NextService.i18n.t("show_context")} ➔
-                </a>
+                </Link>
               )}
             </>
           )}
