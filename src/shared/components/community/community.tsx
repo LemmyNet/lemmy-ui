@@ -297,8 +297,9 @@ export class Community extends Component<CommunityRouteProps, State> {
   async fetchCommunity(props: CommunityRouteProps) {
     const token = (this.fetchCommunityToken = Symbol());
     this.setState({ communityRes: LOADING_REQUEST });
+    const name = decodeURIComponent(props.match.params.name);
     const communityRes = await HttpService.client.getCommunity({
-      name: props.match.params.name,
+      name,
     });
     if (token === this.fetchCommunityToken) {
       this.setState({ communityRes });
@@ -329,9 +330,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   static async fetchInitialData({
     headers,
     query: { dataType, cursor, sort, postTimeRange, showHidden },
-    match: {
-      params: { name: communityName },
-    },
+    match: { params: props },
   }: InitialFetchRequest<
     CommunityPathProps,
     CommunityProps
@@ -340,6 +339,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
 
+    const communityName = decodeURIComponent(props.name);
     const communityForm: GetCommunity = {
       name: communityName,
     };
@@ -807,7 +807,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   async fetchData(props: CommunityRouteProps) {
     const token = (this.fetchDataToken = Symbol());
     const { dataType, cursor, sort, postTimeRange, showHidden } = props;
-    const { name } = props.match.params;
+    const name = decodeURIComponent(props.match.params.name);
 
     if (dataType === DataType.Post) {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
