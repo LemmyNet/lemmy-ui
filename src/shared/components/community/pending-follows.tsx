@@ -3,7 +3,6 @@ import {
   cursorComponents,
   getQueryParams,
   getQueryString,
-  randomStr,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -12,7 +11,6 @@ import {
   QueryParams,
   RouteDataResponse,
 } from "@utils/types";
-import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
   ApproveCommunityPendingFollower,
@@ -39,8 +37,9 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { InfernoNode } from "inferno";
 import { PendingFollow } from "@components/common/pending-follow";
+import { registrationStateRadios } from "@components/person/registration-applications";
 
-type ViewState = "Unread" | "All";
+type ViewState = "Unread" | "All" | "Denied";
 
 type PendingFollowsData = RouteDataResponse<{
   listPendingFollowsResponse: ListCommunityPendingFollowsResponse;
@@ -52,7 +51,7 @@ interface PendingFollowsState {
 }
 
 interface PendingFollowsProps {
-  view_state: ViewState;
+  viewState: ViewState;
   cursor?: DirectionalCursor;
 }
 
@@ -60,6 +59,7 @@ function stateFromQuery(view?: string): ViewState {
   switch (view) {
     case "Unread":
     case "All":
+    case "Denied":
       return view;
     default:
       return "Unread";
@@ -71,7 +71,7 @@ export function getPendingFollowsQueryParams(
 ): PendingFollowsProps {
   return getQueryParams<PendingFollowsProps>(
     {
-      view_state: stateFromQuery,
+      viewState: stateFromQuery,
       cursor: (cursor?: string) => cursor,
     },
     source,
@@ -128,7 +128,7 @@ export class PendingFollows extends Component<
     nextProps: PendingFollowsRouteProps & { children?: InfernoNode },
   ): void {
     if (
-      nextProps.view_state !== this.props.view_state ||
+      nextProps.viewState !== this.props.viewState ||
       nextProps.cursor !== this.props.cursor
     ) {
       this.refetch(nextProps);
@@ -179,54 +179,20 @@ export class PendingFollows extends Component<
   }
 
   selects() {
-    const radioId = randomStr();
     return (
       <div className="mb-2">
-        <span className="me-3">
-          <div
-            className="btn-group btn-group-toggle flex-wrap mb-2"
-            role="group"
-          >
-            <input
-              id={`${radioId}-unread`}
-              type="radio"
-              className="btn-check"
-              value={"Unread"}
-              checked={this.props.view_state === "Unread"}
-              onChange={linkEvent(this, this.handlePendingFollowsStateChange)}
-            />
-            <label
-              htmlFor={`${radioId}-unread`}
-              className={classNames("btn btn-outline-secondary pointer", {
-                active: this.props.view_state === "Unread",
-              })}
-            >
-              {I18NextService.i18n.t("unread")}
-            </label>
-
-            <input
-              id={`${radioId}-all`}
-              type="radio"
-              className="btn-check"
-              value={"All"}
-              checked={this.props.view_state === "All"}
-              onChange={linkEvent(this, this.handlePendingFollowsStateChange)}
-            />
-            <label
-              htmlFor={`${radioId}-all`}
-              className={classNames("btn btn-outline-secondary pointer", {
-                active: this.props.view_state === "All",
-              })}
-            >
-              {I18NextService.i18n.t("all")}
-            </label>
-          </div>
-        </span>
+        {registrationStateRadios(
+          linkEvent(this, this.handlePendingFollowsStateChange),
+          this.props.viewState,
+        )}
       </div>
     );
   }
 
   applicationList(pending: PendingFollowView[]) {
+    if (this.props.viewState === "Denied") {
+      pending = pending.filter(p => p.follow_state === "Denied");
+    }
     return (
       <div>
         {pending.map(pending_follow => (
@@ -244,7 +210,7 @@ export class PendingFollows extends Component<
   }
 
   handlePendingFollowsStateChange(i: PendingFollows, event: any) {
-    i.updateUrl({ view_state: event.target.value, cursor: undefined });
+    i.updateUrl({ viewState: event.target.value, cursor: undefined });
   }
 
   handlePageChange(cursor?: DirectionalCursor) {
@@ -254,7 +220,7 @@ export class PendingFollows extends Component<
   static async fetchInitialData({
     headers,
     match: {
-      params: { view, cursor },
+      params: { viewState, cursor },
     },
   }: InitialFetchRequest<
     Record<string, never>,
@@ -263,10 +229,12 @@ export class PendingFollows extends Component<
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
+    // TODO: this is always undefined after page reload
+    const state = viewState ?? "Unread";
     return {
       listPendingFollowsResponse: headers["Authorization"]
         ? await client.listCommunityPendingFollows({
-            pending_only: view === "Unread",
+            pending_only: state === "Unread",
             ...cursorComponents(cursor),
             limit: fetchLimit,
           })
@@ -277,12 +245,12 @@ export class PendingFollows extends Component<
   refetchToken?: symbol;
   async refetch(props: PendingFollowsProps) {
     const token = (this.refetchToken = Symbol());
-    const { view_state: state, cursor } = props;
+    const { viewState, cursor } = props;
     this.setState({
       appsRes: LOADING_REQUEST,
     });
     const appsRes = await HttpService.client.listCommunityPendingFollows({
-      pending_only: state === "Unread",
+      pending_only: viewState === "Unread",
       ...cursorComponents(cursor),
       limit: fetchLimit,
     });
@@ -292,11 +260,11 @@ export class PendingFollows extends Component<
   }
 
   async updateUrl(props: Partial<PendingFollowsProps>) {
-    const { cursor, view_state: state } = { ...this.props, ...props };
+    const { cursor, viewState: state } = { ...this.props, ...props };
 
     const queryParams: QueryParams<PendingFollowsProps> = {
       cursor,
-      view_state: state,
+      viewState: state,
     };
 
     this.props.history.push(`/pending_follows${getQueryString(queryParams)}`);

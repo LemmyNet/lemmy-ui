@@ -193,69 +193,15 @@ export class RegistrationApplications extends Component<
     );
   }
 
-  RegistrationStateRadios() {
-    const radioId = randomStr();
-
-    return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
-        <input
-          id={`${radioId}-unread`}
-          type="radio"
-          className="btn-check"
-          value={"Unread"}
-          checked={this.props.view === "Unread"}
-          onChange={linkEvent(this, this.handleRegistrationStateChange)}
-        />
-        <label
-          htmlFor={`${radioId}-unread`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "Unread",
-          })}
-        >
-          {I18NextService.i18n.t("unread")}
-        </label>
-
-        <input
-          id={`${radioId}-all`}
-          type="radio"
-          className="btn-check"
-          value={"All"}
-          checked={this.props.view === "All"}
-          onChange={linkEvent(this, this.handleRegistrationStateChange)}
-        />
-        <label
-          htmlFor={`${radioId}-all`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "All",
-          })}
-        >
-          {I18NextService.i18n.t("all")}
-        </label>
-
-        <input
-          id={`${radioId}-denied`}
-          type="radio"
-          className="btn-check"
-          value={"Denied"}
-          checked={this.props.view === "Denied"}
-          onChange={linkEvent(this, this.handleRegistrationStateChange)}
-        />
-        <label
-          htmlFor={`${radioId}-denied`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "Denied",
-          })}
-        >
-          {I18NextService.i18n.t("denied")}
-        </label>
-      </div>
-    );
-  }
-
   selects() {
     return (
       <div className="mb-2">
-        <span className="me-3">{this.RegistrationStateRadios()}</span>
+        <span className="me-3">
+          {registrationStateRadios(
+            linkEvent(this, this.handleRegistrationStateChange),
+            this.props.view,
+          )}
+        </span>
       </div>
     );
   }
@@ -355,4 +301,66 @@ export class RegistrationApplications extends Component<
       return s;
     });
   }
+}
+
+export function registrationStateRadios(
+  handler,
+  currentState: RegistrationState,
+) {
+  const radioId = randomStr();
+
+  return (
+    <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
+      <input
+        id={`${radioId}-unread`}
+        type="radio"
+        className="btn-check"
+        value={"Unread"}
+        checked={currentState === "Unread"}
+        onChange={handler}
+      />
+      <label
+        htmlFor={`${radioId}-unread`}
+        className={classNames("btn btn-outline-secondary pointer", {
+          active: currentState === "Unread",
+        })}
+      >
+        {I18NextService.i18n.t("unread")}
+      </label>
+
+      <input
+        id={`${radioId}-all`}
+        type="radio"
+        className="btn-check"
+        value={"All"}
+        checked={currentState === "All"}
+        onChange={handler}
+      />
+      <label
+        htmlFor={`${radioId}-all`}
+        className={classNames("btn btn-outline-secondary pointer", {
+          active: currentState === "All",
+        })}
+      >
+        {I18NextService.i18n.t("all")}
+      </label>
+
+      <input
+        id={`${radioId}-denied`}
+        type="radio"
+        className="btn-check"
+        value={"Denied"}
+        checked={currentState === "Denied"}
+        onChange={handler}
+      />
+      <label
+        htmlFor={`${radioId}-denied`}
+        className={classNames("btn btn-outline-secondary pointer", {
+          active: currentState === "Denied",
+        })}
+      >
+        {I18NextService.i18n.t("denied")}
+      </label>
+    </div>
+  );
 }
