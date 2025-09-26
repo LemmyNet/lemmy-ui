@@ -4,7 +4,7 @@ import App from "../shared/components/app/app";
 import { lazyHighlightjs } from "@utils/lazy-highlightjs";
 import { loadLanguageInstances } from "@services/I18NextService";
 import { verifyDynamicImports } from "@utils/dynamic-imports";
-import { setupEmojiDataModel, setupMarkdown } from "@utils/markdown";
+import { setupMarkdown } from "@utils/markdown";
 
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
@@ -28,7 +28,6 @@ async function startClient() {
   // Make sure the language is loaded before hydration.
   const [[dateFnsLocale, i18n]] = await Promise.all([
     loadLanguageInstances(fallbackLanguages, interfaceLanguage),
-    setupEmojiDataModel(),
   ]);
 
   const wrapper = (

@@ -200,7 +200,7 @@ const getCommunitiesListing = (
 ) =>
   communityViews &&
   communityViews.length > 0 && (
-    <div className="card border-secondary mb-3">
+    <div className="card mb-3">
       <div className="card-body">
         <h2 className="h5">{I18NextService.i18n.t(translationKey)}</h2>
         <ul className="list-unstyled mb-0">
@@ -1101,6 +1101,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
               placeholder={I18NextService.i18n.t("reason")}
               value={this.state.banReason}
               onInput={linkEvent(this, this.handleModBanReasonChange)}
+              required
             />
             <label className="col-form-label" htmlFor="mod-ban-expires">
               {I18NextService.i18n.t("expires")}
@@ -1271,7 +1272,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         person_id: person.id,
         ban,
         remove_or_restore_data: i.state.removeOrRestoreData,
-        reason: banReason,
+        reason: banReason ?? "",
         expires_at: futureDaysToUnixTime(banExpireDays),
       });
       this.updateBan(res);
