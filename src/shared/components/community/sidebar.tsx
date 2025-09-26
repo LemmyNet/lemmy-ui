@@ -771,7 +771,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 export function communityVisibilityLabel(
   visibility: CommunityVisibility,
 ): NoOptionI18nKeys {
-  var visibility_label = "community_visibility_";
+  let visibility_label = "community_visibility_";
   // TODO: might be easier with a library that converts camel case to snake case
   switch (visibility) {
     case "Public":
