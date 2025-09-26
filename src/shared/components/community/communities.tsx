@@ -4,6 +4,7 @@ import {
   getQueryString,
   cursorComponents,
   resourcesSettled,
+  numToSI,
 } from "@utils/helpers";
 import type { DirectionalCursor, QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
@@ -42,7 +43,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
-import { Badges } from "@components/common/badges";
+import { TableHr } from "@components/common/tables";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -140,7 +141,10 @@ export class Communities extends Component<
     }`;
   }
 
-  renderCommunities() {
+  renderListingsTable() {
+    const nameCols = "col-12 col-md-8";
+    const countCols = "col-6 col-md-1";
+
     switch (this.state.listCommunitiesResponse.state) {
       case "loading":
         return (
@@ -149,41 +153,69 @@ export class Communities extends Component<
           </h5>
         );
       case "success": {
-        return this.state.listCommunitiesResponse.data.communities.map(c => (
-          <div>
-            <CommunityLink
-              community={c.community}
-              myUserInfo={this.isoData.myUserInfo}
-            />
-            <Badges
-              className="ms-2 d-inline"
-              communityId={c.community.id}
-              subject={c.community}
-              lessBadges
-            />
-            <SubscribeButton
-              communityView={c}
-              isLink
-              onFollow={linkEvent(
-                {
-                  i: this,
-                  communityId: c.community.id,
-                  follow: true,
-                },
-                this.handleFollow,
-              )}
-              onUnFollow={linkEvent(
-                {
-                  i: this,
-                  communityId: c.community.id,
-                  follow: false,
-                },
-                this.handleFollow,
-              )}
-              showRemoteFetch={!this.isoData.myUserInfo}
-            />
+        return (
+          <div id="community_table">
+            <div className="row">
+              <div className={`${nameCols} fw-bold`}>
+                {I18NextService.i18n.t("name")}
+              </div>
+              <div className={`${countCols} fw-bold`}>
+                {I18NextService.i18n.t("users")} /{" "}
+                {I18NextService.i18n.t("month")}
+              </div>
+              <div className={`${countCols} fw-bold`}>
+                {I18NextService.i18n.t("posts")}
+              </div>
+              <div className={`${countCols} fw-bold`}>
+                {I18NextService.i18n.t("comments")}
+              </div>
+            </div>
+            <TableHr />
+            {this.state.listCommunitiesResponse.data.communities.map(cv => (
+              <>
+                <div className="row" key={cv.community.id}>
+                  <div className={nameCols}>
+                    <CommunityLink
+                      community={cv.community}
+                      myUserInfo={this.isoData.myUserInfo}
+                    />
+                  </div>
+                  <div className={countCols}>
+                    {numToSI(cv.community.users_active_month)}
+                  </div>
+                  <div className={countCols}>{numToSI(cv.community.posts)}</div>
+                  <div className={countCols}>
+                    {numToSI(cv.community.comments)}
+                  </div>
+                  <div className={countCols}>
+                    <SubscribeButton
+                      communityView={cv}
+                      onFollow={linkEvent(
+                        {
+                          i: this,
+                          communityId: cv.community.id,
+                          follow: true,
+                        },
+                        this.handleFollow,
+                      )}
+                      onUnFollow={linkEvent(
+                        {
+                          i: this,
+                          communityId: cv.community.id,
+                          follow: false,
+                        },
+                        this.handleFollow,
+                      )}
+                      isLink
+                      showRemoteFetch={!this.isoData.myUserInfo}
+                    />
+                  </div>
+                </div>
+                <hr />
+              </>
+            ))}
           </div>
-        ));
+        );
       }
     }
   }
@@ -230,7 +262,7 @@ export class Communities extends Component<
             </div>
             <div className="col-auto">{this.searchForm()}</div>
           </div>
-          <div>{this.renderCommunities()}</div>
+          <div>{this.renderListingsTable()}</div>
           <PaginatorCursor
             current={this.props.cursor}
             resource={this.state.listCommunitiesResponse}

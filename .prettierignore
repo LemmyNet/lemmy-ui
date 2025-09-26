@@ -2,6 +2,7 @@ src/shared/translations
 lemmy-translations
 src/assets/css/themes/*.css
 src/assets/css/code-themes/*.css
+src/assets/emojis.json
 stats.json
 dist
 pnpm-lock.yaml
