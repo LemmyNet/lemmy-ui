@@ -247,7 +247,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             className="col-12 col-form-label"
             htmlFor="default-items-per-page"
           >
-            {I18NextService.i18n.t("default_items_per_page")}
+            {I18NextService.i18n.t("posts_per_page")}
           </label>
           <div className="col-12">
             <input
