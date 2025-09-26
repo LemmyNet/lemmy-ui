@@ -248,6 +248,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       !this.state.collapsed &&
       node.children.length === 0 &&
       child_count > 0;
+    const deleted_or_removed =
+      this.props.node.comment_view.comment.deleted ||
+      this.props.node.comment_view.comment.removed;
 
     return (
       <li className="comment list-unstyled">
@@ -332,6 +335,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   <Icon icon="lock" classes="icon-inline text-danger" />
                 </span>
               )}
+              {deleted_or_removed && <Icon icon="trash" classes="ms-1" />}
               {/* This is an expanding spacer for mobile */}
               <div className="me-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
 
@@ -362,7 +366,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             )}
             {!this.state.showEdit && !this.state.collapsed && (
               <>
-                <div className="comment-content">
+                <div
+                  className={classNames("comment-content", {
+                    "text-muted": deleted_or_removed,
+                  })}
+                >
                   {this.state.viewSource ? (
                     <pre>{this.commentUnlessRemoved}</pre>
                   ) : (
