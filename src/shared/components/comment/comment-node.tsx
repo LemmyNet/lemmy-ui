@@ -248,9 +248,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       !this.state.collapsed &&
       node.children.length === 0 &&
       child_count > 0;
-    const deleted_or_removed =
-      this.props.node.comment_view.comment.deleted ||
-      this.props.node.comment_view.comment.removed;
+    const deleted = this.props.node.comment_view.comment.deleted;
+    const removed = this.props.node.comment_view.comment.removed;
 
     return (
       <li className="comment list-unstyled">
@@ -329,13 +328,22 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               )}
               {locked && (
                 <span
-                  className="unselectable pointer mx-1"
+                  className="mx-1"
                   data-tippy-content={I18NextService.i18n.t("locked")}
                 >
-                  <Icon icon="lock" classes="icon-inline text-danger" />
+                  <Icon icon="lock" classes="icon-inline" />
                 </span>
               )}
-              {deleted_or_removed && <Icon icon="trash" classes="ms-1" />}
+              {(deleted || removed) && (
+                <span
+                  className="mx-1"
+                  data-tippy-content={I18NextService.i18n.t(
+                    deleted ? "deleted" : "removed",
+                  )}
+                >
+                  <Icon icon="trash" classes="icon-inline" />
+                </span>
+              )}
               {/* This is an expanding spacer for mobile */}
               <div className="me-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
 
@@ -368,7 +376,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <>
                 <div
                   className={classNames("comment-content", {
-                    "text-muted": deleted_or_removed,
+                    "text-muted": deleted || removed,
                   })}
                 >
                   {this.state.viewSource ? (
