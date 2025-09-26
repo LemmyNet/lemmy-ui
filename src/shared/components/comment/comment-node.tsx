@@ -341,7 +341,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     deleted ? "deleted" : "removed",
                   )}
                 >
-                  <Icon icon="trash" classes="icon-inline" />
+                  <Icon icon={deleted ? "trash" : "x"} classes="icon-inline" />
                 </span>
               )}
               {/* This is an expanding spacer for mobile */}
