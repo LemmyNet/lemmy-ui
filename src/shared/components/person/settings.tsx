@@ -78,6 +78,8 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { CommentSortSelect } from "../common/sort-select";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
+import BlockingKeywordsTextArea from "@components/common/blocking-keywords-textarea";
+import { NoOptionI18nKeys } from "i18next";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -250,6 +252,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       this.handleBlockInstanceCommunities.bind(this);
     this.handleBlockInstancePersons =
       this.handleBlockInstancePersons.bind(this);
+    this.handleBlockingKeywordsUpdate =
+      this.handleBlockingKeywordsUpdate.bind(this);
 
     this.handleToggle2fa = this.handleToggle2fa.bind(this);
     this.handleEnable2fa = this.handleEnable2fa.bind(this);
@@ -328,6 +332,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           open_links_in_new_tab,
           enable_private_messages,
           auto_mark_fetched_posts_as_read,
+          blocking_keywords: mui.keyword_blocks,
         },
         avatar,
         banner,
@@ -1036,6 +1041,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </form>
+          <BlockingKeywordsTextArea
+            keywords={this.state.saveUserSettingsForm.blocking_keywords ?? []}
+            onUpdate={this.handleBlockingKeywordsUpdate}
+          />
           <div className="input-group mb-3">
             <div className="form-check">
               <input
@@ -1801,6 +1810,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
+  handleBlockingKeywordsUpdate(val: string[]) {
+    this.setState(s => ((s.saveUserSettingsForm.blocking_keywords = val), s));
+  }
+
   handleListingTypeChange(val: ListingType) {
     this.setState(
       s => ((s.saveUserSettingsForm.default_listing_type = val), s),
@@ -1899,7 +1912,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       // You need to reload the page, to properly update the siteRes everywhere
       setTimeout(() => location.reload(), 500);
     } else if (saveRes.state === "failed") {
-      toast(saveRes.err.name, "danger");
+      toast(
+        I18NextService.i18n.t(saveRes.err.name as NoOptionI18nKeys),
+        "danger",
+      );
     }
 
     setThemeOverride(undefined);
