@@ -285,6 +285,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onPlay={linkEvent(this, this.handleVideoLoadStart)}
             onVolumeChange={linkEvent(this, this.handleVideoVolumeChange)}
             controls
+            aria-label={post.alt_text}
           >
             <source src={post.embed_video_url ?? url} type="video/mp4" />
           </video>
