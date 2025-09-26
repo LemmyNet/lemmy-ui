@@ -47,8 +47,8 @@ export class PendingFollow extends Component<
   render() {
     const p = this.props.pending_follow;
     return (
-      <div className="d-flex flex-column">
-        <span>
+      <div className="mb-3 row align-items-center">
+        <span className="col col-md-3">
           <PersonListing
             person={p.person}
             showApubName
@@ -61,7 +61,7 @@ export class PendingFollow extends Component<
             showCounts
           />
         </span>
-        <span>
+        <span className="col">
           {p.follow_state === "ApprovalRequired" && (
             <>
               <button
