@@ -858,7 +858,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             myUserInfo={this.props.myUserInfo}
             onSave={this.handleSavePost}
             onReport={this.handleReport}
-            onBlockUser={this.handleBlockPerson}
+            onBlockPerson={this.handleBlockPerson}
             onBlockCommunity={this.handleBlockCommunity}
             onEdit={this.handleEditClick}
             onDelete={this.handleDeletePost}
