@@ -54,9 +54,9 @@ import { LoadingEllipses } from "./common/loading-ellipses";
 import { PaginatorCursor } from "./common/paginator-cursor";
 import { TableHr } from "./common/tables";
 
-const TIME_COLS = "col-4 col-md-2";
-const MOD_COLS = "col-8 col-md-4";
-const ACTION_COLS = "col-12 col-md-6";
+const TIME_COLS = "col-auto col-md-2";
+const MOD_COLS = "col-auto col-md-4";
+const ACTION_COLS = "col-auto col-md-6";
 
 type FilterType = "mod" | "user";
 
