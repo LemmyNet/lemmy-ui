@@ -6,6 +6,7 @@ import {
   PersonView,
   PostReportView,
   PostView,
+  RemovePost,
   ResolvePostReport,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
@@ -14,6 +15,12 @@ import { PersonListing } from "../person/person-listing";
 import { PostListing } from "./post-listing";
 import { EMPTY_REQUEST } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import ActionButton from "@components/common/content-actions/action-button";
+import {
+  BanFromCommunityData,
+  BanFromSiteData,
+} from "@components/person/reports";
+import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
 
 interface PostReportProps {
   report: PostReportView;
@@ -23,20 +30,28 @@ interface PostReportProps {
   localSite: LocalSite;
   admins: PersonView[];
   onResolveReport(form: ResolvePostReport): void;
+  onRemovePost(form: RemovePost): void;
+  onModBanFromCommunity(form: BanFromCommunityData): void;
+  onAdminBan(form: BanFromSiteData): void;
 }
 
 interface PostReportState {
   loading: boolean;
+  showRemovePostDialog: boolean;
 }
 
 @tippyMixin
 export class PostReport extends Component<PostReportProps, PostReportState> {
   state: PostReportState = {
     loading: false,
+    showRemovePostDialog: false,
   };
 
   constructor(props: any, context: any) {
     super(props, context);
+    this.handleRemovePost = this.handleRemovePost.bind(this);
+    this.handleModBanFromCommunity = this.handleModBanFromCommunity.bind(this);
+    this.handleAdminBan = this.handleAdminBan.bind(this);
   }
 
   componentWillReceiveProps(
@@ -160,6 +175,43 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             />
           )}
         </button>
+        <ActionButton
+          label={I18NextService.i18n.t(
+            pv.post.removed ? "restore_post" : "remove_post",
+          )}
+          icon={pv.post.removed ? "restore" : "x"}
+          noLoading
+          onClick={() => this.setState({ showRemovePostDialog: true })}
+          iconClass={`text-${pv.post.removed ? "success" : "danger"}`}
+        />
+        <ActionButton
+          label={I18NextService.i18n.t(
+            pv.creator_banned ? "unban_from_community" : "ban_from_community",
+          )}
+          icon={pv.creator_banned ? "unban_from_site" : "ban_from_site"}
+          noLoading
+          onClick={this.handleModBanFromCommunity}
+          iconClass={`text-${pv.creator_banned ? "success" : "danger"}`}
+        />
+        {this.props.myUserInfo?.local_user_view.local_user.admin && (
+          <ActionButton
+            label={I18NextService.i18n.t(pv.creator_banned ? "unban" : "ban")}
+            inline
+            icon={pv.creator_banned ? "unban" : "ban"}
+            noLoading
+            onClick={this.handleAdminBan}
+            iconClass={`text-${pv.creator_banned ? "success" : "danger"}`}
+          />
+        )}
+        {this.state.showRemovePostDialog && (
+          <ModActionFormModal
+            onSubmit={this.handleRemovePost}
+            modActionType="remove-post"
+            isRemoved={pv.post.removed}
+            onCancel={() => this.setState({ showRemovePostDialog: false })}
+            show={true}
+          />
+        )}
       </div>
     );
   }
@@ -169,6 +221,32 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     i.props.onResolveReport({
       report_id: i.props.report.post_report.id,
       resolved: !i.props.report.post_report.resolved,
+    });
+  }
+
+  async handleRemovePost(reason: string) {
+    this.props.onRemovePost({
+      post_id: this.props.report.post.id,
+      removed: !this.props.report.post.removed,
+      reason,
+    });
+    this.setState({ showRemovePostDialog: false });
+  }
+
+  handleModBanFromCommunity() {
+    this.setState({ loading: true });
+    this.props.onModBanFromCommunity({
+      person: this.props.report.post_creator,
+      community: this.props.report.community,
+      ban: !this.props.report.creator_banned_from_community,
+    });
+  }
+
+  handleAdminBan() {
+    this.setState({ loading: true });
+    this.props.onAdminBan({
+      person: this.props.report.post_creator,
+      ban: !this.props.report.creator_banned,
     });
   }
 }
