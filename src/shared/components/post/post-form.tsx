@@ -348,7 +348,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     // Means its an edit
     if (post_view) {
       const unix = getUnixTime(post_view.post.scheduled_publish_time_at);
-      var scheduled_publish_time_at = unixTimeToLocalDateStr(unix);
+      const scheduled_publish_time_at = unixTimeToLocalDateStr(unix);
       this.state = {
         ...this.state,
         form: {

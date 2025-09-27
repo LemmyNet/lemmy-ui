@@ -71,7 +71,6 @@ export default [
       "no-unused-expressions": 0,
       "no-useless-constructor": 0,
       "no-useless-escape": 0,
-      "no-var": 0,
       "prefer-const": "error",
       "prefer-rest-params": 0,
       "prettier/prettier": "error",
