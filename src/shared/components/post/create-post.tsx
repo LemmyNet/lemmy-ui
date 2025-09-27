@@ -31,7 +31,7 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
-import { PostForm } from "./post-form";
+import { filterCommunitySelection, PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
@@ -275,7 +275,10 @@ export class CreatePost extends Component<
               onSelectCommunity={this.handleSelectedCommunityChange}
               initialCommunities={
                 this.state.initialCommunitiesRes.state === "success"
-                  ? this.state.initialCommunitiesRes.data.communities
+                  ? filterCommunitySelection(
+                      this.state.initialCommunitiesRes.data.communities,
+                      this.isoData.myUserInfo,
+                    )
                   : []
               }
               loading={loading}
