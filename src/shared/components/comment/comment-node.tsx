@@ -248,6 +248,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       !this.state.collapsed &&
       node.children.length === 0 &&
       child_count > 0;
+    const deleted = this.props.node.comment_view.comment.deleted;
+    const removed = this.props.node.comment_view.comment.removed;
 
     return (
       <li className="comment list-unstyled">
@@ -326,10 +328,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               )}
               {locked && (
                 <span
-                  className="unselectable pointer mx-1"
+                  className="mx-1"
                   data-tippy-content={I18NextService.i18n.t("locked")}
                 >
-                  <Icon icon="lock" classes="icon-inline text-danger" />
+                  <Icon icon="lock" classes="icon-inline" />
+                </span>
+              )}
+              {(deleted || removed) && (
+                <span
+                  className="mx-1"
+                  data-tippy-content={I18NextService.i18n.t(
+                    deleted ? "deleted" : "removed",
+                  )}
+                >
+                  <Icon icon={deleted ? "trash" : "x"} classes="icon-inline" />
                 </span>
               )}
               {/* This is an expanding spacer for mobile */}
@@ -362,7 +374,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             )}
             {!this.state.showEdit && !this.state.collapsed && (
               <>
-                <div className="comment-content">
+                <div
+                  className={classNames("comment-content", {
+                    "text-muted": deleted || removed,
+                  })}
+                >
                   {this.state.viewSource ? (
                     <pre>{this.commentUnlessRemoved}</pre>
                   ) : (

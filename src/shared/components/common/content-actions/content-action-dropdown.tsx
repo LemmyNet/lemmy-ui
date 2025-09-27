@@ -213,6 +213,11 @@ export default class ContentActionDropdown extends Component<
             inline
             label={I18NextService.i18n.t("reply")}
             noLoading
+            disabled={
+              this.props.commentView.comment.deleted ||
+              this.props.commentView.comment.removed ||
+              this.props.commentView.comment.locked
+            }
           />
         )}
         <ActionButton
