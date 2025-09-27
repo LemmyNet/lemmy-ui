@@ -8,6 +8,7 @@ import {
   getUncombinedPersonContent,
   postViewToPersonContentCombinedView,
   setIsoData,
+  updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -83,6 +84,7 @@ import {
   ListPersonHiddenResponse,
   ListPersonReadResponse,
   LockComment,
+  BlockCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -286,6 +288,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.handleEditComment = this.handleEditComment.bind(this);
     this.handleSaveComment = this.handleSaveComment.bind(this);
     this.handleBlockPersonAlt = this.handleBlockPersonAlt.bind(this);
+    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
     this.handleCommentVote = this.handleCommentVote.bind(this);
@@ -672,6 +675,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     // TODO all the forms here
                     onSaveComment={this.handleSaveComment}
                     onBlockPerson={this.handleBlockPersonAlt}
+                    onBlockCommunity={this.handleBlockCommunity}
                     onDeleteComment={this.handleDeleteComment}
                     onRemoveComment={this.handleRemoveComment}
                     onCommentVote={this.handleCommentVote}
@@ -1323,6 +1327,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
       this.setState({ personBlocked: blockPersonRes.data.blocked });
+    }
+  }
+
+  async handleBlockCommunity(form: BlockCommunity) {
+    const blockCommunityRes = await HttpService.client.blockCommunity(form);
+    if (blockCommunityRes.state === "success") {
+      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
     }
   }
 

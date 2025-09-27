@@ -37,6 +37,7 @@ import {
   LocalSite,
   NotePerson,
   LockComment,
+  BlockCommunity,
 } from "lemmy-js-client";
 import { CommentViewType } from "@utils/types";
 import { CommentNodes } from "../comment/comment-nodes";
@@ -59,6 +60,7 @@ interface PersonDetailsProps {
   onEditComment(form: EditComment): Promise<RequestState<CommentResponse>>;
   onCommentVote(form: CreateCommentLike): Promise<void>;
   onBlockPerson(form: BlockPerson): Promise<void>;
+  onBlockCommunity(form: BlockCommunity): Promise<void>;
   onDeleteComment(form: DeleteComment): Promise<void>;
   onRemoveComment(form: RemoveComment): Promise<void>;
   onDistinguishComment(form: DistinguishComment): Promise<void>;
@@ -146,6 +148,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onPostVote={this.props.onPostVote}
             onPostReport={this.props.onPostReport}
             onBlockPerson={this.props.onBlockPerson}
+            onBlockCommunity={this.props.onBlockCommunity}
             onLockPost={this.props.onLockPost}
             onDeletePost={this.props.onDeletePost}
             onRemovePost={this.props.onRemovePost}

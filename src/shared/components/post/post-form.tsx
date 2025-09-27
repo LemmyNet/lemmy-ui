@@ -595,6 +595,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onPostVote={async () => EMPTY_REQUEST}
                 onPostReport={async () => {}}
                 onBlockPerson={async () => {}}
+                onBlockCommunity={async () => {}}
                 onLockPost={async () => {}}
                 onDeletePost={async () => {}}
                 onRemovePost={async () => {}}
@@ -844,6 +845,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onPostVote={async () => EMPTY_REQUEST}
                 onPostReport={async () => {}}
                 onBlockPerson={async () => {}}
+                onBlockCommunity={async () => {}}
                 onLockPost={async () => {}}
                 onDeletePost={async () => {}}
                 onRemovePost={async () => {}}

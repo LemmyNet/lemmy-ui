@@ -259,6 +259,7 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
               onPostVote={async () => EMPTY_REQUEST}
               onPostReport={async () => {}}
               onBlockPerson={async () => {}}
+              onBlockCommunity={async () => {}}
               onLockPost={async () => {}}
               onDeletePost={async () => {}}
               onRemovePost={async () => {}}
@@ -906,6 +907,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 onPostVote={async () => EMPTY_REQUEST}
                 onPostReport={async () => {}}
                 onBlockPerson={async () => {}}
+                onBlockCommunity={async () => {}}
                 onLockPost={async () => {}}
                 onDeletePost={async () => {}}
                 onRemovePost={async () => {}}

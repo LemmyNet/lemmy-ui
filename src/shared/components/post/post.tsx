@@ -613,6 +613,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 myUserInfo={this.isoData.myUserInfo}
                 localSite={siteRes.site_view.local_site}
                 onBlockPerson={this.handleBlockPerson}
+                onBlockCommunity={this.handleBlockCommunity}
                 onPostEdit={this.handlePostEdit}
                 onPostVote={this.handlePostVote}
                 onPostReport={this.handlePostReport}
