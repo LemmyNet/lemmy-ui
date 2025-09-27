@@ -278,6 +278,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     // if direct video link or embedded video link
     if ((url && isVideo(url)) || isVideo(post.embed_video_url ?? "")) {
+      /* eslint-disable jsx-a11y/media-has-caption */
       return (
         <div className="ratio ratio-16x9 mt-3">
           <video
@@ -291,6 +292,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </video>
         </div>
       );
+      /* eslint-enable jsx-a11y/media-has-caption */
     } else if (post.embed_video_url) {
       return (
         <div className="ratio ratio-16x9 mt-3">
