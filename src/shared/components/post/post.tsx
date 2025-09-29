@@ -1002,7 +1002,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     if (this.state.commentsRes.state === "success") {
       const comments = this.state.commentsRes.data.comments;
       if (comments.length) {
-        return buildCommentsTree(comments, !!getCommentIdFromProps(this.props));
+        return buildCommentsTree(comments, getCommentIdFromProps(this.props));
       }
     }
     return [];
