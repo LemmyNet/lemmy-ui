@@ -35,7 +35,7 @@ function collect(
         `${bad} out of ${bad + good} ${kind} imports failed.` + message,
       );
     } else {
-      console.log(`${good} ${kind} imports verified.` + message);
+      console.debug(`${good} ${kind} imports verified.` + message);
     }
   }
 }

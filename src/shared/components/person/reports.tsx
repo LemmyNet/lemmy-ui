@@ -543,7 +543,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   }
 
   async handleMessageTypeChange(i: Reports, event: any) {
-    console.log(event.target.value);
     switch (event.target.value) {
       case "All":
       case "Comments":
