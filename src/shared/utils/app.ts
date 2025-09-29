@@ -62,7 +62,8 @@ export function buildCommentsTree(
     ? 0
     : (getDepthFromComment(comments[0].comment) ?? 0);
 
-  for (const comment_view of comments) {
+  const comments_sorted = comments.sort((a, b) => a.comment.id - b.comment.id);
+  for (const comment_view of comments_sorted) {
     const depthI = getDepthFromComment(comment_view.comment) ?? 0;
     const depth = depthI ? depthI - depthOffset : 0;
     const node: CommentNodeI = {
