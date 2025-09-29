@@ -6,8 +6,14 @@ export function isImage(url: string) {
 
 const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm))/;
 
+const audioRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp3|wav|opus))/;
+
 export function isVideo(url: string) {
   return videoRegex.test(url);
+}
+
+export function isAudio(url: string) {
+  return audioRegex.test(url);
 }
 
 const magnetLinkRegex = /^magnet:\?xt=urn:btih:[0-9a-fA-F]{40,}.*$/;
