@@ -938,7 +938,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           this.props.myUserInfo,
         ).map(communityToChoice),
       );
-      console.log(newOptions);
 
       this.setState({
         communitySearchOptions: newOptions,
