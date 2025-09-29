@@ -18,6 +18,7 @@ import markdown_it_ruby from "markdown-it-ruby";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import markdown_it_highlightjs from "markdown-it-highlightjs/core";
+import { getStaticDir } from "./env";
 
 let Tribute: any;
 
@@ -282,9 +283,15 @@ export function getEmojiMart(
   onEmojiSelect: (e: any) => void,
   customPickerOptions: any = {},
 ) {
+  const data = async () => {
+    const response = await fetch(`${getStaticDir()}/assets/emojis.json`);
+
+    return response.json();
+  };
   const pickerOptions = {
     onEmojiSelect: onEmojiSelect,
     custom: customEmojis,
+    data,
     ...customPickerOptions,
   };
   return new Picker(pickerOptions);

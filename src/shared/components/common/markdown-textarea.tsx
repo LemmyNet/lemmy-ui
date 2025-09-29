@@ -92,6 +92,7 @@ export class MarkdownTextArea extends Component<
 
     this.handleLanguageChange = this.handleLanguageChange.bind(this);
     this.handleEmoji = this.handleEmoji.bind(this);
+    this.handleInsertLink = this.handleInsertLink.bind(this);
   }
 
   async componentDidMount() {
@@ -357,12 +358,7 @@ export class MarkdownTextArea extends Component<
         value = `![${emoji.alt_text}](${emoji.image_url} "emoji ${emoji.shortcode}")`;
       }
     }
-    this.setState({
-      content: `${this.state.content ?? ""} ${value} `,
-    });
-    this.contentChange();
-    const textarea: any = document.getElementById(this.id);
-    autosize.update(textarea);
+    this.insertAtCursor(value);
   }
 
   handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
@@ -466,28 +462,7 @@ export class MarkdownTextArea extends Component<
     const res = await HttpService.client.uploadImage({ image });
     if (res.state === "success") {
       const imageMarkdown = `![](${res.data.image_url})`;
-      const textarea: HTMLTextAreaElement = document.getElementById(
-        i.id,
-      ) as HTMLTextAreaElement;
-      const cursorPosition = textarea.selectionStart;
-
-      i.setState(({ content }) => {
-        const currentContent = content ?? "";
-        return {
-          content:
-            currentContent.slice(0, cursorPosition) +
-            imageMarkdown +
-            currentContent.slice(cursorPosition),
-        };
-      });
-
-      i.contentChange();
-      // Update cursor position to after the inserted image link
-      setTimeout(() => {
-        textarea.selectionStart = cursorPosition + imageMarkdown.length;
-        textarea.selectionEnd = cursorPosition + imageMarkdown.length;
-        autosize.update(textarea);
-      }, 10);
+      this.insertAtCursor(imageMarkdown);
 
       pictrsDeleteToast(res.data.filename);
     } else if (res.state === "failed") {
@@ -497,6 +472,34 @@ export class MarkdownTextArea extends Component<
 
       throw res.err;
     }
+  }
+
+  // Insert the given string at the current cursor position. By default the cursor is
+  // placed right after the newly inserted text, but this can be changed with
+  // `cursorOffset`.
+  insertAtCursor(text: string, cursorOffset: number = 0) {
+    const textarea: HTMLTextAreaElement = document.getElementById(
+      this.id,
+    ) as HTMLTextAreaElement;
+    const cursorPosition = textarea.selectionStart;
+
+    this.setState(({ content }) => {
+      const currentContent = content ?? "";
+      return {
+        content:
+          currentContent.slice(0, cursorPosition) +
+          text +
+          currentContent.slice(cursorPosition),
+      };
+    });
+    this.contentChange();
+    // Update cursor position to after the inserted image link
+    setTimeout(() => {
+      textarea.selectionStart = cursorPosition + text.length + cursorOffset;
+      textarea.selectionEnd = cursorPosition + text.length + cursorOffset;
+      textarea.focus();
+      autosize.update(textarea);
+    }, 10);
   }
 
   contentChange() {
@@ -611,9 +614,7 @@ export class MarkdownTextArea extends Component<
       textarea.focus();
       setTimeout(() => (textarea.selectionEnd = end + 3), 10);
     } else {
-      i.setState({ content: `${content} []()` });
-      textarea.focus();
-      setTimeout(() => (textarea.selectionEnd -= 1), 10);
+      this.insertAtCursor("[]()", -3);
     }
     i.contentChange();
   }

@@ -99,7 +99,11 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
     }
 
     // If there's no match, then it's not a pictrs image
-    if (!url.pathname.includes("/pictrs/image/")) {
+    if (
+      !url.pathname.includes("/pictrs/image/") &&
+      !url.pathname.includes("/api/v3/image_proxy") &&
+      !url.pathname.includes("/api/v4/image/proxy")
+    ) {
       return this.state.src;
     }
 

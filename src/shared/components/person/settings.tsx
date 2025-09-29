@@ -48,7 +48,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { I18NextService, languages } from "../../services/I18NextService";
+import { allLanguages, I18NextService } from "../../services/I18NextService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
@@ -909,7 +909,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 <option disabled aria-hidden="true">
                   ──
                 </option>
-                {languages
+                {allLanguages
                   .sort((a, b) => a.code.localeCompare(b.code))
                   .map(lang => (
                     <option key={lang.code} value={lang.code}>

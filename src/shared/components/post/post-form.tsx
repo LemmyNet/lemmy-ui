@@ -11,7 +11,7 @@ import {
   validTitle,
   validURL,
 } from "@utils/helpers";
-import { isImage } from "@utils/media";
+import { isImage, isVideo } from "@utils/media";
 import { Choice, StringBoolean } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, createRef, linkEvent } from "inferno";
@@ -348,7 +348,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     // Means its an edit
     if (post_view) {
       const unix = getUnixTime(post_view.post.scheduled_publish_time_at);
-      var scheduled_publish_time_at = unixTimeToLocalDateStr(unix);
+      const scheduled_publish_time_at = unixTimeToLocalDateStr(unix);
       this.state = {
         ...this.state,
         form: {
@@ -663,7 +663,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           onChange={this.handleLanguageChange}
           myUserInfo={this.props.myUserInfo}
         />
-        {url && isImage(url) && (
+        {url && (isImage(url) || isVideo(url)) && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-alt-text">
               {I18NextService.i18n.t("column_alttext")}
