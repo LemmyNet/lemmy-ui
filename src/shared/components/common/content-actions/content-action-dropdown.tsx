@@ -36,6 +36,7 @@ interface ContentActionDropdownPropsBase {
   onDelete: () => Promise<void>;
   onReport: (reason: string) => Promise<void>;
   onBlockPerson: () => Promise<void>;
+  onBlockCommunity: () => Promise<void>;
   onRemove: (reason: string) => Promise<void>;
   onBanFromCommunity: (form: BanUpdateForm) => Promise<void>;
   onAppointCommunityMod: () => Promise<void>;
@@ -66,7 +67,6 @@ export type ContentPostProps = {
   onFeatureLocal: () => Promise<void>;
   onFeatureCommunity: () => Promise<void>;
   onHidePost: () => Promise<void>;
-  onBlockCommunity: () => Promise<void>;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -316,15 +316,13 @@ export default class ContentActionDropdown extends Component<
                         onClick={onBlockPerson}
                       />
                     </li>
-                    {type === "post" && (
-                      <li>
-                        <ActionButton
-                          icon="slash"
-                          label={I18NextService.i18n.t("block_community")}
-                          onClick={this.props.onBlockCommunity}
-                        />
-                      </li>
-                    )}
+                    <li>
+                      <ActionButton
+                        icon="slash"
+                        label={I18NextService.i18n.t("block_community")}
+                        onClick={this.props.onBlockCommunity}
+                      />
+                    </li>
                   </>
                 )}
 

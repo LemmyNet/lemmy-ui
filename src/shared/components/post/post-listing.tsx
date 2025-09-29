@@ -142,6 +142,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleRemove = this.handleRemove.bind(this);
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
     this.handleDeletePost = this.handleDeletePost.bind(this);
     this.handleModLock = this.handleModLock.bind(this);
     this.handleModFeaturePostCommunity =

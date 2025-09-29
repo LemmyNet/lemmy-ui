@@ -312,6 +312,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
               // All of these are unused, since its viewonly
               onSaveComment={async () => {}}
               onBlockPerson={async () => {}}
+              onBlockCommunity={async () => {}}
               onDeleteComment={async () => {}}
               onRemoveComment={async () => {}}
               onCommentVote={async () => {}}
@@ -858,6 +859,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         // All of these are unused, since its viewonly
         onSaveComment={async () => {}}
         onBlockPerson={async () => {}}
+        onBlockCommunity={async () => {}}
         onDeleteComment={async () => {}}
         onRemoveComment={async () => {}}
         onCommentVote={async () => {}}

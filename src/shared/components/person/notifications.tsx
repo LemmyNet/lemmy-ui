@@ -404,6 +404,7 @@ export class Notifications extends Component<
             admins={this.isoData.siteRes.admins}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
+            onBlockCommunity={this.handleBlockCommunity}
             onDeleteComment={this.handleDeleteComment}
             onRemoveComment={this.handleRemoveComment}
             onCommentVote={this.handleCommentVote}

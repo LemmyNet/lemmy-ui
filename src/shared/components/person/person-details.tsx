@@ -112,6 +112,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onEditComment={this.props.onEditComment}
             onCommentVote={this.props.onCommentVote}
             onBlockPerson={this.props.onBlockPerson}
+            onBlockCommunity={this.props.onBlockCommunity}
             onSaveComment={this.props.onSaveComment}
             onDeleteComment={this.props.onDeleteComment}
             onRemoveComment={this.props.onRemoveComment}

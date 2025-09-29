@@ -96,6 +96,7 @@ export class CommentReport extends Component<
           // All of these are unused, since its viewonly
           onSaveComment={async () => {}}
           onBlockPerson={async () => {}}
+          onBlockCommunity={async () => {}}
           onDeleteComment={async () => {}}
           onRemoveComment={async () => {}}
           onCommentVote={async () => {}}

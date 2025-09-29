@@ -630,6 +630,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               localSite={siteRes.site_view.local_site}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
+              onBlockCommunity={this.handleBlockCommunity}
               onDeleteComment={this.handleDeleteComment}
               onRemoveComment={this.handleRemoveComment}
               onCommentVote={this.handleCommentVote}

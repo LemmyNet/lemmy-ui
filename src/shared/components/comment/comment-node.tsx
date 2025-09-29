@@ -14,6 +14,7 @@ import {
   AddModToCommunity,
   BanFromCommunity,
   BanPerson,
+  BlockCommunity,
   BlockPerson,
   CommentId,
   CommentResponse,
@@ -109,6 +110,7 @@ type CommentNodeProps = {
   ): Promise<RequestState<CommentResponse>>;
   onCommentVote(form: CreateCommentLike): Promise<void>;
   onBlockPerson(form: BlockPerson): Promise<void>;
+  onBlockCommunity(form: BlockCommunity): Promise<void>;
   onDeleteComment(form: DeleteComment): Promise<void>;
   onRemoveComment(form: RemoveComment): Promise<void>;
   onDistinguishComment(form: DistinguishComment): Promise<void>;
@@ -166,6 +168,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
     this.handleReplyClick = this.handleReplyClick.bind(this);
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
     this.handleSaveComment = this.handleSaveComment.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
@@ -448,6 +451,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           onReply={this.handleReplyClick}
                           onReport={this.handleReportComment}
                           onBlockPerson={this.handleBlockPerson}
+                          onBlockCommunity={this.handleBlockCommunity}
                           onSave={this.handleSaveComment}
                           onEdit={this.handleEditClick}
                           onDelete={this.handleDeleteComment}
@@ -528,6 +532,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onEditComment={this.props.onEditComment}
             onCommentVote={this.props.onCommentVote}
             onBlockPerson={this.props.onBlockPerson}
+            onBlockCommunity={this.props.onBlockCommunity}
             onSaveComment={this.props.onSaveComment}
             onDeleteComment={this.props.onDeleteComment}
             onRemoveComment={this.props.onRemoveComment}
@@ -693,6 +698,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   async handleBlockPerson() {
     this.props.onBlockPerson({
       person_id: this.commentView.creator.id,
+      block: true,
+    });
+  }
+
+  async handleBlockCommunity() {
+    this.props.onBlockCommunity({
+      community_id: this.community.id,
       block: true,
     });
   }
