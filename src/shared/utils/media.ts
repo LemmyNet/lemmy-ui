@@ -6,7 +6,7 @@ export function isImage(url: string) {
 
 const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm|ogv))/;
 
-const audioRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp3|wav|opus|ogg|m4a|flac))/;
+const audioRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp3|wav|opus|ogg|m4a|flac|spx))/;
 
 export function isVideo(url: string) {
   return videoRegex.test(url);
