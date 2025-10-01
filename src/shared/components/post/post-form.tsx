@@ -932,7 +932,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
 
     if (text.length > 0) {
-      newOptions.push(...(await fetchCommunities(text)).map(communityToChoice));
+      newOptions.push(
+        ...filterCommunitySelection(
+          await fetchCommunities(text),
+          this.props.myUserInfo,
+        ).map(communityToChoice),
+      );
 
       this.setState({
         communitySearchOptions: newOptions,
@@ -953,4 +958,22 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     update();
     this.setState({ bypassNavWarning: false });
   }
+}
+
+export function filterCommunitySelection(
+  comms: CommunityView[],
+  my_user?: MyUserInfo,
+): CommunityView[] {
+  const follows = my_user?.follows.map(c => c.community.id);
+  return (
+    comms
+      // filter out comms where only mods can post, unless current user is mod
+      .filter(c => !c.community.posting_restricted_to_mods || c.can_mod)
+      // filter out private comms unless the current user follows it
+      .filter(
+        c =>
+          c.community.visibility !== "Private" ||
+          follows?.includes(c.community.id),
+      )
+  );
 }
