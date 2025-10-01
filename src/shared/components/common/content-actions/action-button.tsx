@@ -10,6 +10,7 @@ interface ActionButtonPropsBase {
   inline?: boolean;
   inlineWithText?: boolean;
   noLoading?: boolean;
+  disabled?: boolean;
 }
 
 interface ActionButtonPropsLoading extends ActionButtonPropsBase {
@@ -63,7 +64,7 @@ export default class ActionButton extends Component<
         onClick={linkEvent(this, handleClick)}
         aria-label={label}
         data-tippy-content={inline ? label : undefined}
-        disabled={this.state.loading}
+        disabled={this.state.loading || this.props.disabled}
       >
         {this.state.loading ? (
           <Spinner />
