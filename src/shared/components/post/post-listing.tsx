@@ -278,6 +278,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     // if direct video link or embedded video link
     if ((url && isVideo(url)) || isVideo(post.embed_video_url ?? "")) {
+      /* eslint-disable jsx-a11y/media-has-caption */
       return (
         <div className="ratio ratio-16x9 mt-3">
           <video
@@ -285,11 +286,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onPlay={linkEvent(this, this.handleVideoLoadStart)}
             onVolumeChange={linkEvent(this, this.handleVideoVolumeChange)}
             controls
+            aria-label={post.alt_text}
           >
             <source src={post.embed_video_url ?? url} type="video/mp4" />
           </video>
         </div>
       );
+      /* eslint-enable jsx-a11y/media-has-caption */
     } else if (post.embed_video_url) {
       return (
         <div className="ratio ratio-16x9 mt-3">

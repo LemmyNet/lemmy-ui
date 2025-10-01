@@ -13,7 +13,7 @@ import "bootstrap/js/dist/modal";
 async function startClient() {
   // Allows to test imports from the browser console.
   window.checkLazyScripts = () => {
-    verifyDynamicImports(true).then(x => console.log(x));
+    verifyDynamicImports(true).then(x => console.debug(x));
   };
 
   window.history.scrollRestoration = "manual";
