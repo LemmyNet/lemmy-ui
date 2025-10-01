@@ -45,6 +45,7 @@ export default [
     files: ["src/**/*.js", "src/**/*.mjs", "src/**/*.ts", "src/**/*.tsx"],
     rules: {
       "@typescript-eslint/no-explicit-any": 0,
+      "no-console": ["error", { allow: ["warn", "error", "debug", "assert"] }],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_" },
