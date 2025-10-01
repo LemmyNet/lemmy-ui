@@ -221,13 +221,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   render() {
     const node = this.props.node;
-    const cv = this.commentView;
     const {
       creator_is_moderator,
       creator_banned_from_community,
+      creator_banned,
+
       comment_actions: { like_score: my_vote } = {},
       creator_is_admin,
       comment: {
+        deleted,
+        removed,
         id,
         language_id,
         published_at,
@@ -235,8 +238,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         updated_at,
         child_count,
         locked,
+        post_id,
       },
       creator,
+      person_actions,
     } = this.commentView;
 
     const moreRepliesBorderColor = this.props.node.depth
@@ -248,8 +253,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       !this.state.collapsed &&
       node.children.length === 0 &&
       child_count > 0;
-    const deleted = this.props.node.comment_view.comment.deleted;
-    const removed = this.props.node.comment_view.comment.removed;
 
     return (
       <li className="comment list-unstyled">
@@ -285,7 +288,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 myUserInfo={this.props.myUserInfo}
               />
 
-              {cv.comment.distinguished && (
+              {distinguished && (
                 <Icon icon="shield" inline classes="text-danger ms-1" />
               )}
 
@@ -294,11 +297,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 isPostCreator={this.isPostCreator}
                 isModerator={creator_is_moderator}
                 isAdmin={creator_is_admin}
-                creator={cv.creator}
-                isBanned={cv.creator_banned}
-                isBannedFromCommunity={cv.creator_banned_from_community}
+                creator={creator}
+                isBanned={creator_banned}
+                isBannedFromCommunity={creator_banned_from_community}
                 myUserInfo={this.props.myUserInfo}
-                personActions={cv.person_actions}
+                personActions={person_actions}
               />
 
               {this.props.showCommunity && isCommentView(this.commentView) && (
@@ -309,7 +312,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     myUserInfo={this.props.myUserInfo}
                   />
                   <span className="mx-2">•</span>
-                  <Link className="me-2" to={`/post/${cv.comment.post_id}`}>
+                  <Link className="me-2" to={`/post/${post_id}`}>
                     {this.commentView.post.name}
                   </Link>
                 </>
@@ -334,14 +337,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   <Icon icon="lock" classes="icon-inline" />
                 </span>
               )}
-              {(deleted || removed) && (
+              {deleted && (
                 <span
                   className="mx-1"
-                  data-tippy-content={I18NextService.i18n.t(
-                    deleted ? "deleted" : "removed",
-                  )}
+                  data-tippy-content={I18NextService.i18n.t("deleted")}
                 >
-                  <Icon icon={deleted ? "trash" : "x"} classes="icon-inline" />
+                  <Icon icon={"trash"} classes="icon-inline" />
+                </span>
+              )}
+              {removed && (
+                <span
+                  className="mx-1"
+                  data-tippy-content={I18NextService.i18n.t("removed")}
+                >
+                  <Icon icon={"x"} classes="icon-inline text-danger" />
                 </span>
               )}
               {/* This is an expanding spacer for mobile */}
