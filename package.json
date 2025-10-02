@@ -78,6 +78,7 @@
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-highlightjs": "^4.1.0",
     "markdown-it-html5-embed": "^1.0.0",
+    "markdown-it-link-attributes": "^4.0.1",
     "markdown-it-ruby": "^1.0.0",
     "markdown-it-sub": "^2.0.0",
     "markdown-it-sup": "^2.0.0",
