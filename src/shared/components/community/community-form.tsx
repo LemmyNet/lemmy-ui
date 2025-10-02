@@ -188,7 +188,7 @@ export class CommunityForm extends Component<
                 onImageChange={this.handleIconChange}
                 rounded
                 disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
-                noConfirmation={true}
+                noConfirmation
               />
             )}
           </div>
@@ -217,7 +217,7 @@ export class CommunityForm extends Component<
                 removeKey="deleteMedia"
                 onImageChange={this.handleBannerChange}
                 disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
-                noConfirmation={true}
+                noConfirmation
               />
             )}
           </div>
@@ -302,7 +302,7 @@ export class CommunityForm extends Component<
           siteLanguages={this.props.siteLanguages}
           showSite
           selectedLanguageIds={this.state.form.discussion_languages}
-          multiple={true}
+          multiple
           onChange={this.handleDiscussionLanguageChange}
           myUserInfo={this.props.myUserInfo}
         />

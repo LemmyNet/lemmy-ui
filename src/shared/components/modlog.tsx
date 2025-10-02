@@ -901,7 +901,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             inline
             classes="me-sm-2 mx-auto d-sm-inline d-block"
           />
-          <T i18nKey="modlog_content_warning" class="d-inline">
+          <T i18nKey="modlog_content_warning" className="d-inline">
             #<strong>#</strong>#
           </T>
         </div>

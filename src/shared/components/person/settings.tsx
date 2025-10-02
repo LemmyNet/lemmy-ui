@@ -923,9 +923,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             selectedLanguageIds={selectedLangs}
-            multiple={true}
-            showLanguageWarning={true}
-            showAll={true}
+            multiple
+            showLanguageWarning
+            showAll
             showSite
             onChange={this.handleDiscussionLanguageChange}
             myUserInfo={this.isoData.myUserInfo}
