@@ -3,7 +3,7 @@ import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import { hostname, unreadCommentsCount } from "@utils/helpers";
 import { formatRelativeDate, futureDaysToUnixTime } from "@utils/date";
-import { isImage, isVideo } from "@utils/media";
+import { isAudio, isImage, isVideo } from "@utils/media";
 import { canAdmin } from "@utils/roles";
 import classNames from "classnames";
 import { Component, InfernoNode, linkEvent } from "inferno";
@@ -278,18 +278,34 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     // if direct video link or embedded video link
     if ((url && isVideo(url)) || isVideo(post.embed_video_url ?? "")) {
+      /* eslint-disable jsx-a11y/media-has-caption */
       return (
         <div className="ratio ratio-16x9 mt-3">
           <video
-            onLoadStart={linkEvent(this, this.handleVideoLoadStart)}
-            onPlay={linkEvent(this, this.handleVideoLoadStart)}
-            onVolumeChange={linkEvent(this, this.handleVideoVolumeChange)}
+            onLoadStart={linkEvent(this, this.handleMediaLoadStart)}
+            onPlay={linkEvent(this, this.handleMediaLoadStart)}
+            onVolumeChange={linkEvent(this, this.handleMediaVolumeChange)}
             controls
+            aria-label={post.alt_text}
           >
-            <source src={post.embed_video_url ?? url} type="video/mp4" />
+            <source src={post.embed_video_url ?? url} />
           </video>
         </div>
       );
+    } else if ((url && isAudio(url)) || isAudio(post.embed_video_url ?? "")) {
+      return (
+        <audio
+          onLoadStart={linkEvent(this, this.handleMediaLoadStart)}
+          onPlay={linkEvent(this, this.handleMediaLoadStart)}
+          onVolumeChange={linkEvent(this, this.handleMediaVolumeChange)}
+          className="w-100"
+          controls
+          aria-label={post.alt_text}
+        >
+          <source src={url} />
+        </audio>
+      );
+      /* eslint-enable jsx-a11y/media-has-caption */
     } else if (post.embed_video_url) {
       return (
         <div className="ratio ratio-16x9 mt-3">
@@ -1031,8 +1047,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.setState({ showEdit: false });
   }
 
-  handleVideoLoadStart(_i: PostListing, e: Event) {
-    const video = e.target as HTMLVideoElement;
+  handleMediaLoadStart(_i: PostListing, e: Event) {
+    const video = e.target as HTMLMediaElement;
     const volume = localStorage.getItem("video_volume_level");
     const muted = localStorage.getItem("video_muted");
     video.volume = Number(volume || 0);
@@ -1043,8 +1059,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
-  handleVideoVolumeChange(_i: PostListing, e: Event) {
-    const video = e.target as HTMLVideoElement;
+  handleMediaVolumeChange(_i: PostListing, e: Event) {
+    const video = e.target as HTMLMediaElement;
     localStorage.setItem("video_muted", video.muted.toString());
     localStorage.setItem("video_volume_level", video.volume.toString());
   }

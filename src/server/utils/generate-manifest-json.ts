@@ -43,7 +43,7 @@ export default async function (site: Site) {
         icons = generateDefaultIcons();
       }
     } catch {
-      console.log(
+      console.warn(
         `Failed to fetch site logo for manifest icon. Using default icon`,
       );
       icons = generateDefaultIcons();

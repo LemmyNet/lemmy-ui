@@ -114,6 +114,7 @@ import { compareAsc, compareDesc } from "date-fns";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
 import { PostNotificationSelect } from "@components/common/notification-select";
+import { Link } from "inferno-router";
 
 const commentsShownInterval = 15;
 
@@ -368,6 +369,15 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   updateUrl(props: PartialPostRouteProps, replace = false) {
+    const location = this.buildUrl(props);
+    if (replace || this.props.location.pathname === location.pathname) {
+      this.props.history.replace(location);
+    } else {
+      this.props.history.push(location);
+    }
+  }
+
+  buildUrl(props: PartialPostRouteProps): { pathname: string; search: string } {
     const {
       view,
       sort,
@@ -398,12 +408,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       pathname = `/post/${post_id}`;
     }
 
-    const location = { pathname, search: getQueryString(query) };
-    if (replace || this.props.location.pathname === pathname) {
-      this.props.history.replace(location);
-    } else {
-      this.props.history.push(location);
-    }
+    return { pathname, search: getQueryString(query) };
   }
 
   static async fetchInitialData({
@@ -937,19 +942,19 @@ export class Post extends Component<PostRouteProps, PostState> {
         <div>
           {!!getCommentIdFromProps(this.props) && (
             <>
-              <button
-                className="ps-0 d-block btn btn-link text-muted"
-                onClick={linkEvent(this, this.handleViewAllComments)}
+              <Link
+                className="ps-0 d-block btn btn-link text-muted text-start"
+                to={this.handleViewAllComments()}
               >
                 {I18NextService.i18n.t("view_all_comments")} ➔
-              </button>
+              </Link>
               {showContextButton && (
-                <button
-                  className="ps-0 d-block btn btn-link text-muted"
-                  onClick={linkEvent(this, this.handleViewContext)}
+                <Link
+                  className="ps-0 d-block btn btn-link text-muted text-start"
+                  to={this.handleViewContext()}
                 >
                   {I18NextService.i18n.t("show_context")} ➔
-                </button>
+                </Link>
               )}
             </>
           )}
@@ -997,7 +1002,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     if (this.state.commentsRes.state === "success") {
       const comments = this.state.commentsRes.data.comments;
       if (comments.length) {
-        return buildCommentsTree(comments, !!getCommentIdFromProps(this.props));
+        return buildCommentsTree(comments, getCommentIdFromProps(this.props));
       }
     }
     return [];
@@ -1027,22 +1032,24 @@ export class Post extends Component<PostRouteProps, PostState> {
     i.setState({ showSidebarMobile: !i.state.showSidebarMobile });
   }
 
-  handleViewAllComments(i: Post) {
+  handleViewAllComments(): string {
     const id =
-      getIdFromProps(i.props) ||
-      (i.state.postRes.state === "success" &&
-        i.state.postRes.data.post_view.post.id);
+      getIdFromProps(this.props) ||
+      (this.state.postRes.state === "success" &&
+        this.state.postRes.data.post_view.post.id);
     if (id) {
-      i.updateUrl({
+      const location = this.buildUrl({
         match: { params: { post_id: id.toString() } },
       });
+      return location.pathname + location.search;
     }
+    return ".";
   }
 
-  handleViewContext(i: Post) {
-    if (i.state.commentsRes.state === "success") {
-      const commentId = getCommentIdFromProps(i.props);
-      const commentView = i.state.commentsRes.data.comments.find(
+  handleViewContext(): string {
+    if (this.state.commentsRes.state === "success") {
+      const commentId = getCommentIdFromProps(this.props);
+      const commentView = this.state.commentsRes.data.comments.find(
         c => c.comment.id === commentId,
       );
 
@@ -1050,7 +1057,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       const postId = commentView?.comment.post_id;
 
       if (parentId && postId) {
-        i.updateUrl({
+        const location = this.buildUrl({
           match: {
             params: {
               post_id: postId.toString(),
@@ -1058,8 +1065,10 @@ export class Post extends Component<PostRouteProps, PostState> {
             },
           },
         });
+        return location.pathname + location.search;
       }
     }
+    return ".";
   }
 
   async handleDeleteCommunityClick(form: DeleteCommunity) {
