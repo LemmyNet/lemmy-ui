@@ -204,6 +204,7 @@ export class MarkdownTextArea extends Component<
                     className="btn btn-sm btn-link rounded-0 text-muted fw-bold"
                     title={I18NextService.i18n.t("formatting_help")}
                     rel={relTags}
+                    target="_blank"
                   >
                     <Icon icon="help-circle" classes="icon-inline" />
                   </a>
