@@ -137,6 +137,9 @@ importers:
       markdown-it-html5-embed:
         specifier: ^1.0.0
         version: 1.0.0
+      markdown-it-link-attributes:
+        specifier: ^4.0.1
+        version: 4.0.1
       markdown-it-ruby:
         specifier: ^1.0.0
         version: 1.1.2
@@ -3432,6 +3435,9 @@ packages:
 
   markdown-it-html5-embed@1.0.0:
     resolution: {integrity: sha512-SPgugO/1+/9sZcgxoxijoTHSUpCUgFCNe1MSuTmDxDkV6NQrVzMclhRMFgE/rcHO+2rhIg3U7Oy80XA/E8ytpg==}
+
+  markdown-it-link-attributes@4.0.1:
+    resolution: {integrity: sha512-pg5OK0jPLg62H4k7M9mRJLT61gUp9nvG0XveKYHMOOluASo9OEF13WlXrpAp2aj35LbedAy3QOCgQCw0tkLKAQ==}
 
   markdown-it-ruby@1.1.2:
     resolution: {integrity: sha512-tFAuH3HlxiFmx0JtqA02uBKjTZF7ICQu/g3tVf3vwU+ZVPTAMAjWUqcMuj5icO3vwJWSTeST8+D34blL7Q41gA==}
@@ -8710,6 +8716,8 @@ snapshots:
     dependencies:
       markdown-it: 8.4.2
       mimoza: 1.0.0
+
+  markdown-it-link-attributes@4.0.1: {}
 
   markdown-it-ruby@1.1.2: {}
 
