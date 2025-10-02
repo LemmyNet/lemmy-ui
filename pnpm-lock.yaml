@@ -114,8 +114,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-comment-lock.1
-        version: 1.0.0-comment-lock.1
+        specifier: 1.0.0-errors-array.3
+        version: 1.0.0-errors-array.3
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -3351,8 +3351,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  lemmy-js-client@1.0.0-comment-lock.1:
-    resolution: {integrity: sha512-OVTBBvAyFWfMUJk5FytIuGKENhYn/8wFfoMdpI0tleAumGnj3tOoBipgJ6El8E7uJRCWlhL7xwP93wubBEJlUw==}
+  lemmy-js-client@1.0.0-errors-array.3:
+    resolution: {integrity: sha512-NytH07Djrf7Gzyq8/HaqbzVoqtArYaXqFm+Hb9izZ87umcGUhFrJH7aD4/c8tn2XsyyigxsgH6rnsYBOqJLPlw==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8618,7 +8618,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  lemmy-js-client@1.0.0-comment-lock.1:
+  lemmy-js-client@1.0.0-errors-array.3:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:

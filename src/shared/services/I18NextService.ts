@@ -4,6 +4,7 @@ import { en } from "../translations/en";
 import { Locale, setDefaultOptions } from "date-fns";
 import { isBrowser } from "@utils/browser";
 import { toast } from "@utils/app";
+import { AllLemmyErrors } from "lemmy-js-client";
 
 export type TranslationDesc = {
   // Name of the translation file in `lemmy-translations`
@@ -114,6 +115,21 @@ export async function verifyTranslationImports(): Promise<ImportReport> {
       .catch(err => report.error.push({ id: lang.code, error: err })),
   );
   await Promise.all(promises);
+
+  // Check for untranslated errors
+  const en = await loadTranslation({
+    resource: "en",
+    code: "en",
+    name: "",
+  });
+  const translation_keys = Object.keys(en["translation"]);
+  AllLemmyErrors.forEach(e => {
+    if (translation_keys.includes(e)) {
+      report.success.push(e);
+    } else {
+      report.error.push({ id: e, error: "Missing error translation" });
+    }
+  });
   return report;
 }
 
