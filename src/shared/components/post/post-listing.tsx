@@ -736,7 +736,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
                   <div className="small mb-1 mb-md-0">
                     <Link
-                      className="btn btn-link btn-sm text-muted ps-0"
+                      className="btn btn-sm btn-link text-muted ps-0"
                       title={title}
                       to={`/post/${pv.post.id}?scrollToComments=true`}
                       data-tippy-content={title}
@@ -809,7 +809,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </button>
         )}
         <Link
-          className="btn btn-link btn-animate text-muted"
+          className="btn btn-sm btn-link btn-animate text-muted"
           to={`/post/${id}`}
           title={I18NextService.i18n.t("link")}
         >
@@ -825,7 +825,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.props.markable && this.props.myUserInfo && (
           <button
             type="button"
-            className="btn btn-link btn-animate text-muted"
+            className="btn btn-sm btn-link btn-animate text-muted"
             onClick={this.handleMarkPostAsRead}
             data-tippy-content={
               this.props.read
@@ -911,7 +911,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     return (
       <Link
-        className="btn btn-link btn-sm text-muted ps-0"
+        className="btn btn-sm btn-link text-muted ps-0"
         title={title}
         to={`/post/${pv.post.id}?scrollToComments=true`}
         data-tippy-content={title}

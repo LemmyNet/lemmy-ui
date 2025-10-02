@@ -409,7 +409,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   {this.props.showContext && this.getLinkButton()}
                   {this.props.markable && (
                     <button
-                      className="btn btn-link btn-animate text-muted"
+                      className="btn btn-sm btn-link btn-animate text-muted"
                       onClick={linkEvent(this, this.handleMarkAsRead)}
                       data-tippy-content={
                         this.props.read
@@ -451,7 +451,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         />
                         <button
                           type="button"
-                          className="btn btn-link btn-animate text-muted"
+                          className="btn btn-sm btn-link btn-animate text-muted"
                           onClick={linkEvent(this, handleToggleViewSource)}
                           data-tippy-content={I18NextService.i18n.t(
                             "view_source",
@@ -503,7 +503,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             style={`border-left: var(--comment-border-width) ${moreRepliesBorderColor} solid !important`}
           >
             <button
-              className="btn btn-link text-muted"
+              className="btn btn-sm btn-link text-muted"
               onClick={linkEvent(this, this.handleFetchChildren)}
             >
               {this.state.fetchChildrenLoading ? (
