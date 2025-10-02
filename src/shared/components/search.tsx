@@ -303,6 +303,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
               viewOnly
               postLocked
               isTopLevel
+              showCommunity
               myUserInfo={isoData.myUserInfo}
               localSite={isoData.siteRes.site_view.local_site}
               allLanguages={isoData.siteRes.all_languages}
@@ -849,6 +850,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         viewOnly
         postLocked
         isTopLevel
+        showCommunity
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
         myUserInfo={this.isoData.myUserInfo}
