@@ -15,9 +15,9 @@ export function LanguageList({ allLanguages, languageIds }: LanguageListProps) {
   return (
     showLanguages && (
       <div>
-        <ul class="badges my-1 list-inline">
+        <ul className="badges my-1 list-inline">
           {langs.map(l => (
-            <li class="badge list-inline-item text-secondary border border-secondary">
+            <li className="badge list-inline-item text-secondary border border-secondary">
               {languageName(l)}
             </li>
           ))}

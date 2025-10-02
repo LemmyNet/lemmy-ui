@@ -212,7 +212,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   />
                 </div>
                 <form
-                  class="d-flex"
+                  className="d-flex"
                   onSubmit={linkEvent(this, this.handleSearchSubmit)}
                 >
                   <input
@@ -225,7 +225,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                     required
                     minLength={1}
                   />
-                  <button type="submit" class="btn btn-outline-secondary ms-1">
+                  <button
+                    type="submit"
+                    className="btn btn-outline-secondary ms-1"
+                  >
                     <Icon icon="search" />
                   </button>
                 </form>

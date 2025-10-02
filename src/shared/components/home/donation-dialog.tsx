@@ -36,14 +36,14 @@ export class DonationDialog extends Component<Props, State> {
   render() {
     if (this.state.show) {
       return (
-        <div class="alert alert-info fade show" role="alert">
-          <div class="d-flex">
-            <h4 class="alert-heading flex-grow-1">
+        <div className="alert alert-info fade show" role="alert">
+          <div className="d-flex">
+            <h4 className="alert-heading flex-grow-1">
               {I18NextService.i18n.t("donation_dialog_title")}
             </h4>
             <button
               type="button"
-              class="btn-close position-relative"
+              className="btn-close position-relative"
               onClick={this.clickHide}
               aria-label={I18NextService.i18n.t("donation_dialog_button_hide")}
             ></button>
@@ -53,8 +53,8 @@ export class DonationDialog extends Component<Props, State> {
               <br />
             </T>
           </div>
-          <div class="mt-3">
-            <button class="btn btn-info" onClick={this.clickDonate}>
+          <div className="mt-3">
+            <button className="btn btn-info" onClick={this.clickDonate}>
               {I18NextService.i18n.t("donation_dialog_button_donate")}
             </button>
           </div>

@@ -496,7 +496,7 @@ export class AdminSettings extends Component<
         const local_users = this.state.usersRes.data.users;
         return (
           <>
-            <table class="table table-striped table-hover">
+            <table className="table table-striped table-hover">
               <thead>
                 <tr>
                   <th scope="col">{I18NextService.i18n.t("username")}</th>

@@ -183,7 +183,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             community={banFromCommunityForm.community}
             isBanned={!banFromCommunityForm.ban}
             onCancel={this.handleCloseModActionModals}
-            show={true}
+            show
           />
         )}
         {adminBanForm && (
@@ -193,7 +193,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             creator={adminBanForm.person}
             isBanned={!adminBanForm.ban}
             onCancel={this.handleCloseModActionModals}
-            show={true}
+            show
           />
         )}
         <div className="row">
@@ -391,7 +391,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
               role="group"
             >
               <button
-                class="btn btn-secondary"
+                className="btn btn-secondary"
                 onClick={this.handleClickshowCommunityReports}
               >
                 {I18NextService.i18n.t(

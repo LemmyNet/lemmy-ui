@@ -196,7 +196,7 @@ const communityListing = (
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );
@@ -228,7 +228,7 @@ const personListing = (
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );
@@ -277,7 +277,7 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );
@@ -330,7 +330,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );

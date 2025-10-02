@@ -184,7 +184,7 @@ export class LanguageSelect extends Component<
         />
         <hr className="border-dark border-2 m-0" />
         <ul
-          class="list-group overflow-scroll rounded-0 rounded-bottom"
+          className="list-group overflow-scroll rounded-0 rounded-bottom"
           style="max-height: 200px;"
           tabIndex={-1}
         >
@@ -202,12 +202,15 @@ export class LanguageSelect extends Component<
                 id={l.id.toString()}
               >
                 <input
-                  class="form-check-input me-1 pe-none"
+                  className="form-check-input me-1 pe-none"
                   type="checkbox"
                   tabIndex={-1}
                   checked={selectedLangs?.includes(l.id)}
                 />
-                <label class="form-check-label pe-none" for={l.id.toString()}>
+                <label
+                  className="form-check-label pe-none"
+                  for={l.id.toString()}
+                >
                   {l.name}
                 </label>
               </button>

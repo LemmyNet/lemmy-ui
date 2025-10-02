@@ -109,7 +109,7 @@ export class ImageUploadForm extends Component<
             onConfirm={() => this.performImageUpload(this)}
             onCancel={() => this.handleRemoveImage(this)}
             pendingImageURL={URL.createObjectURL(this.state.pendingUpload)}
-            show={true}
+            show
           />
         )}
         <input

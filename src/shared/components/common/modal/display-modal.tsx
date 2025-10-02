@@ -58,7 +58,7 @@ export default class DisplayModal extends Component<DisplayModalProps, any> {
             </header>
             <div className="modal-body">
               {loading ? (
-                <div class="text-center align-middle text-body">
+                <div className="text-center align-middle text-body">
                   <Spinner large />
                   <div>
                     {loadingMessage}

@@ -86,7 +86,7 @@ export default class PersonNoteModal extends Component<
               >
                 <input
                   type="text"
-                  class="form-control"
+                  className="form-control"
                   placeholder={I18NextService.i18n.t("create_user_note")}
                   value={this.state.note}
                   onInput={linkEvent(this, handleNoteChange)}

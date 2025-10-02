@@ -45,13 +45,13 @@ export default class ImageUploadConfirmModalModal extends Component<
               </h3>
             </header>
             <div className="modal-body text-center align-middle text-body">
-              <div class="row">
+              <div className="row">
                 {I18NextService.i18n.t("upload_and_publish_image_desc")}
               </div>
-              <div class="row mt-2">
-                <div class="col">
+              <div className="row mt-2">
+                <div className="col">
                   <img
-                    class="img-fluid mx-auto"
+                    className="img-fluid mx-auto"
                     style="max-height: 50vh"
                     src={this.props.pendingImageURL}
                     alt=""

@@ -525,7 +525,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           allLanguages={this.props.siteRes?.all_languages}
           siteLanguages={this.props.siteRes?.discussion_languages}
           selectedLanguageIds={this.state.siteForm.discussion_languages}
-          multiple={true}
+          multiple
           onChange={this.handleDiscussionLanguageChange}
           showAll
           myUserInfo={this.props.myUserInfo}
