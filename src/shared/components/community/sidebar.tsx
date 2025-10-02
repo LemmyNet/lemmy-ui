@@ -413,7 +413,6 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
 
   sidebarMarkdown() {
     const { sidebar } = this.props.community_view.community;
-    console.log(sidebar);
     return (
       sidebar && (
         <div
