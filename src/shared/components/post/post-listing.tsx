@@ -29,6 +29,7 @@ import {
   MyUserInfo,
   NotePerson,
   PersonView,
+  PostListingMode,
   PostResponse,
   PostView,
   PurgePerson,
@@ -109,6 +110,7 @@ type PostListingProps = {
   onPersonNote(form: NotePerson): Promise<void>;
   onScrollIntoCommentsClick?(e: MouseEvent): void;
   imageExpanded?: boolean;
+  postListingMode: PostListingMode;
 } & (
   | { markable?: false }
   | {
@@ -123,7 +125,7 @@ type PostListingProps = {
 export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
-    imageExpanded: false,
+    imageExpanded: this.initImageExpanded(),
     expandManuallyToggled: false,
     viewSource: false,
     showAdvanced: false,
@@ -163,18 +165,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   unlisten = () => {};
 
   componentWillMount(): void {
-    if (this.props.showAdultConsentModal) {
-      this.setState({ imageExpanded: false });
-    }
-
-    if (this.props.myUserInfo) {
-      const blur_nsfw =
-        this.props.myUserInfo.local_user_view.local_user.blur_nsfw;
-      if (blur_nsfw && this.postView.post.nsfw) {
-        this.setState({ imageExpanded: false });
-      }
-    }
-
     // Leave edit mode on navigation
     this.unlisten = this.context.router.history.listen(() => {
       if (this.state.showEdit) {
@@ -193,14 +183,34 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   ): void {
     if (
       !this.state.expandManuallyToggled &&
-      nextProps.imageExpanded !== undefined
+      (nextProps.imageExpanded !== undefined ||
+        nextProps.postListingMode !== undefined)
     ) {
-      this.setState({ imageExpanded: nextProps.imageExpanded });
+      this.setState({
+        imageExpanded:
+          nextProps.imageExpanded || nextProps.postListingMode === "Card",
+      });
     }
   }
 
   get postView(): PostView {
     return this.props.post_view;
+  }
+
+  initImageExpanded(): boolean {
+    // Don't expand if theres a consent modal
+    const noConsentModal = !this.props.showAdultConsentModal;
+
+    // Dont expand if you have blur nsfw and the post is nsfw
+    const noBlurNsfw = !(
+      this.props.myUserInfo?.local_user_view.local_user.blur_nsfw &&
+      this.postView.post.nsfw
+    );
+
+    // Only expand for card view
+    const isCard = this.props.postListingMode === "Card";
+
+    return noConsentModal && noBlurNsfw && isCard;
   }
 
   render() {
@@ -211,7 +221,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {!this.state.showEdit ? (
           <>
             {this.listing()}
-            {this.state.imageExpanded && !this.props.hideImage && this.img}
             {this.showBody &&
               post.url &&
               isMagnetLink(post.url) &&
@@ -337,15 +346,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (imageSrc) {
       return (
         <>
-          <div className="offset-sm-3 my-2 d-none d-sm-block">
-            <a href={imageSrc} className="d-inline-block">
+          <div className="my-2 d-none d-sm-block">
+            <a href={imageSrc}>
               <PictrsImage src={imageSrc} alt={post.alt_text} />
             </a>
           </div>
           <div className="my-2 d-block d-sm-none">
             <button
               type="button"
-              className="p-0 border-0 bg-transparent d-inline-block"
+              className="p-0 border-0 bg-transparent"
               onClick={linkEvent(this, this.handleImageExpandClick)}
             >
               <PictrsImage src={imageSrc} alt={post.alt_text} />
@@ -379,7 +388,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       return (
         <button
           type="button"
-          className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0 bg-transparent"
+          className="thumbnail rounded overflow-hidden position-relative p-0 border-0 bg-transparent"
           data-tippy-content={I18NextService.i18n.t("expand_here")}
           onClick={linkEvent(this, this.handleImageExpandClick)}
           aria-label={I18NextService.i18n.t("expand_here")}
@@ -394,7 +403,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     } else if (!this.props.hideImage && url && thumbnail && !isVideo(url)) {
       return (
         <a
-          className="thumbnail rounded overflow-hidden d-inline-block position-relative p-0 border-0"
+          className="thumbnail rounded overflow-hidden position-relative p-0 border-0"
           href={url}
           rel={relTags}
           title={url}
@@ -414,7 +423,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             className={classNames(
               "thumbnail rounded",
               thumbnail
-                ? "overflow-hidden d-inline-block position-relative p-0 border-0"
+                ? "overflow-hidden position-relative p-0 border-0"
                 : "text-body bg-light d-flex justify-content-center",
             )}
             href={url}
@@ -989,7 +998,29 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
   }
 
+  cardViewColumns(): [string, string] {
+    // For the card or expanded view, use full width
+    if (this.state.imageExpanded || this.props.postListingMode === "Card") {
+      return ["col-12", "col-12"];
+    }
+    // For the list view (single item per row), use col-1 and 11
+    else if (this.props.postListingMode === "List") {
+      return ["col-1", "col-11"];
+    }
+    // For the small card, use 3 and 9
+    else {
+      return ["col-3", "col-9"];
+    }
+  }
+
   listing() {
+    const [imageCols, otherCols] = this.cardViewColumns();
+
+    const showExpandedImage =
+      this.state.imageExpanded &&
+      !this.props.hideImage &&
+      (this.state.imageExpanded || this.props.postListingMode === "Card");
+
     return (
       <>
         {/* The mobile view*/}
@@ -1026,12 +1057,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             )}
             <div className="col flex-grow-1">
               <div className="row">
-                <div className="col flex-grow-0 px-0">
-                  <div className="">{this.thumbnail()}</div>
-                </div>
-                <div className="col flex-grow-1">
+                {!showExpandedImage && (
+                  <div className={`${imageCols} px-0`}>{this.thumbnail()}</div>
+                )}
+                <div className={otherCols}>
                   {this.postTitleLine()}
                   {this.createdLine()}
+                  {showExpandedImage && this.img}
                   {this.commentsLine()}
                 </div>
               </div>

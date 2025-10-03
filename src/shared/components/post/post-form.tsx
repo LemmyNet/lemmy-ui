@@ -589,6 +589,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 myUserInfo={this.props.myUserInfo}
                 localSite={this.props.localSite}
                 admins={this.props.admins}
+                postListingMode="List"
                 viewOnly
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}
@@ -839,6 +840,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 myUserInfo={this.props.myUserInfo}
                 localSite={this.props.localSite}
                 admins={this.props.admins}
+                postListingMode="List"
                 viewOnly
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}

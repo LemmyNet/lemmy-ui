@@ -106,6 +106,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           myUserInfo={this.props.myUserInfo}
           localSite={this.props.localSite}
           admins={this.props.admins}
+          postListingMode="List"
           // All of these are unused, since its view only
           onPostEdit={async () => EMPTY_REQUEST}
           onPostVote={async () => EMPTY_REQUEST}

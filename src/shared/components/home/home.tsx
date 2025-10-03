@@ -76,6 +76,7 @@ import {
   NotePerson,
   LockComment,
   BlockCommunity,
+  PostListingMode,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -113,6 +114,7 @@ import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
 import { BannedDialog } from "./banned-dialog";
+import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -125,6 +127,7 @@ interface HomeState {
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
   expandAllImages: boolean;
+  postListingMode: PostListingMode;
 }
 
 interface HomeProps {
@@ -272,6 +275,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     isIsomorphic: false,
     markPageAsReadLoading: false,
     expandAllImages: false,
+    postListingMode:
+      this.isoData.myUserInfo?.local_user_view.local_user.post_listing_mode ??
+      this.isoData.siteRes.site_view.local_site.default_post_listing_mode,
   };
 
   loadingSettled(): boolean {
@@ -289,6 +295,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
     this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
+    this.handlePostListingModeChange =
+      this.handlePostListingModeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
@@ -755,6 +763,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onHidePost={this.handleHidePost}
               onPersonNote={this.handlePersonNote}
               expandAllImages={this.state.expandAllImages}
+              postListingMode={this.state.postListingMode}
             />
           );
         }
@@ -835,6 +844,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             onChange={this.handleListingTypeChange}
           />
         </div>
+        <div className="col-auto">
+          <PostListingModeSelect
+            current={this.state.postListingMode}
+            onChange={this.handlePostListingModeChange}
+          />
+        </div>
         {this.props.dataType === DataType.Post ? (
           <>
             <div className="col-auto">
@@ -865,16 +880,18 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             sort,
           )}
         </div>
-        <div className="col-auto ps-0">
-          <button
-            class="btn btn-secondary"
-            onClick={this.handleExpandAllImages}
-            aria-label={I18NextService.i18n.t("expand_all_images")}
-            data-tippy-content={I18NextService.i18n.t("expand_all_images")}
-          >
-            <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
-          </button>
-        </div>
+        {this.state.postListingMode !== "Card" && (
+          <div className="col-auto ps-0">
+            <button
+              class="btn btn-secondary"
+              onClick={this.handleExpandAllImages}
+              aria-label={I18NextService.i18n.t("expand_all_images")}
+              data-tippy-content={I18NextService.i18n.t("expand_all_images")}
+            >
+              <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
+            </button>
+          </div>
+        )}
       </div>
     );
   }
@@ -943,6 +960,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   handleListingTypeChange(val: ListingType) {
     this.updateUrl({ listingType: val, cursor: undefined });
+  }
+
+  handlePostListingModeChange(val: PostListingMode) {
+    this.setState({ postListingMode: val });
   }
 
   handleDataTypeChange(val: DataType) {
