@@ -14,6 +14,7 @@ import {
   AddModToCommunity,
   BanFromCommunity,
   BanPerson,
+  BlockCommunity,
   BlockPerson,
   CreatePostLike,
   CreatePostReport,
@@ -91,6 +92,7 @@ type PostListingProps = {
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
   onBlockPerson(form: BlockPerson): Promise<void>;
+  onBlockCommunity(form: BlockCommunity): Promise<void>;
   onLockPost(form: LockPost): Promise<void>;
   onDeletePost(form: DeletePost): Promise<void>;
   onRemovePost(form: RemovePost): Promise<void>;
@@ -140,6 +142,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleRemove = this.handleRemove.bind(this);
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
     this.handleDeletePost = this.handleDeletePost.bind(this);
     this.handleModLock = this.handleModLock.bind(this);
     this.handleModFeaturePostCommunity =
@@ -872,7 +875,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             myUserInfo={this.props.myUserInfo}
             onSave={this.handleSavePost}
             onReport={this.handleReport}
-            onBlock={this.handleBlockPerson}
+            onBlockPerson={this.handleBlockPerson}
+            onBlockCommunity={this.handleBlockCommunity}
             onEdit={this.handleEditClick}
             onDelete={this.handleDeletePost}
             onLock={this.handleModLock}
@@ -1098,6 +1102,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleBlockPerson() {
     return this.props.onBlockPerson({
       person_id: this.postView.creator.id,
+      block: true,
+    });
+  }
+
+  handleBlockCommunity() {
+    return this.props.onBlockCommunity({
+      community_id: this.postView.community.id,
       block: true,
     });
   }

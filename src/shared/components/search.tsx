@@ -259,6 +259,7 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
               onPostVote={async () => EMPTY_REQUEST}
               onPostReport={async () => {}}
               onBlockPerson={async () => {}}
+              onBlockCommunity={async () => {}}
               onLockPost={async () => {}}
               onDeletePost={async () => {}}
               onRemovePost={async () => {}}
@@ -312,6 +313,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
               // All of these are unused, since its viewonly
               onSaveComment={async () => {}}
               onBlockPerson={async () => {}}
+              onBlockCommunity={async () => {}}
               onDeleteComment={async () => {}}
               onRemoveComment={async () => {}}
               onCommentVote={async () => {}}
@@ -859,6 +861,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         // All of these are unused, since its viewonly
         onSaveComment={async () => {}}
         onBlockPerson={async () => {}}
+        onBlockCommunity={async () => {}}
         onDeleteComment={async () => {}}
         onRemoveComment={async () => {}}
         onCommentVote={async () => {}}
@@ -908,6 +911,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 onPostVote={async () => EMPTY_REQUEST}
                 onPostReport={async () => {}}
                 onBlockPerson={async () => {}}
+                onBlockCommunity={async () => {}}
                 onLockPost={async () => {}}
                 onDeletePost={async () => {}}
                 onRemovePost={async () => {}}
