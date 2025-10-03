@@ -29,6 +29,7 @@ import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { formatRelativeDate, isWeekOld } from "@utils/date";
+import { TableHr } from "@components/common/tables";
 
 type InstancesData = RouteDataResponse<{
   federatedInstancesResponse: GetFederatedInstancesResponse;
@@ -118,30 +119,26 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
       case "success": {
         const instances = this.state.instancesRes.data.federated_instances;
         return instances ? (
-          <div className="row">
-            <div className="col-lg-8">
-              <Tabs
-                tabs={["linked", "allowed", "blocked"]
-                  .filter(status => instances[status].length)
-                  .map((status: keyof FederatedInstances) => ({
-                    key: status,
-                    label: I18NextService.i18n.t(`${status}_instances`),
-                    getNode: isSelected => (
-                      <div
-                        role="tabpanel"
-                        className={classNames("tab-pane show", {
-                          active: isSelected,
-                        })}
-                      >
-                        {status === "blocked"
-                          ? this.itemList(instances[status], false)
-                          : this.itemList(instances[status])}
-                      </div>
-                    ),
-                  }))}
-              />
-            </div>
-          </div>
+          <Tabs
+            tabs={["linked", "allowed", "blocked"]
+              .filter(status => instances[status].length)
+              .map((status: keyof FederatedInstances) => ({
+                key: status,
+                label: I18NextService.i18n.t(`${status}_instances`),
+                getNode: isSelected => (
+                  <div
+                    role="tabpanel"
+                    className={classNames("tab-pane show", {
+                      active: isSelected,
+                    })}
+                  >
+                    {status === "blocked"
+                      ? this.itemList(instances[status], false)
+                      : this.itemList(instances[status])}
+                  </div>
+                ),
+              }))}
+          />
         ) : (
           <h5>No linked instance</h5>
         );
@@ -162,39 +159,48 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   }
 
   itemList(items: Instance[], link = true) {
+    const nameCols = "col-12 col-md-6";
+    const otherCols = "col-4 col-md-2";
+
     return items.length > 0 ? (
-      <div className="table-responsive">
-        <table id="instances_table" className="table table-sm table-hover">
-          <thead className="pointer">
-            <tr>
-              <th>{I18NextService.i18n.t("name")}</th>
-              <th>{I18NextService.i18n.t("software")}</th>
-              <th>{I18NextService.i18n.t("version")}</th>
-              <th>{I18NextService.i18n.t("last_updated")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map(i => (
-              <tr key={i.domain}>
-                <td>
-                  {link ? (
-                    <a href={`https://${i.domain}`} rel={relTags}>
-                      {i.domain}{" "}
-                    </a>
-                  ) : (
-                    <span>{i.domain}</span>
-                  )}
-                </td>
-                <td>{i.software}</td>
-                <td>{i.version}</td>
-                <td>
-                  {formatRelativeDate(i.updated_at ?? i.published_at)}
-                  {isWeekOld(new Date(i.updated_at ?? i.published_at)) && " 💀"}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div id="instances-table">
+        <div className="row">
+          <div className={`${nameCols} fw-bold`}>
+            {I18NextService.i18n.t("name")}
+          </div>
+          <div className={`${otherCols} fw-bold`}>
+            {I18NextService.i18n.t("software")}
+          </div>
+          <div className={`${otherCols} fw-bold`}>
+            {I18NextService.i18n.t("version")}
+          </div>
+          <div className={`${otherCols} fw-bold`}>
+            {I18NextService.i18n.t("last_updated")}
+          </div>
+        </div>
+        <TableHr />
+        {items.map(i => (
+          <>
+            <div key={i.domain} className="row">
+              <div className={nameCols}>
+                {link ? (
+                  <a href={`https://${i.domain}`} rel={relTags}>
+                    {i.domain}{" "}
+                  </a>
+                ) : (
+                  <span>{i.domain}</span>
+                )}
+              </div>
+              <div className={otherCols}>{i.software}</div>
+              <div className={otherCols}>{i.version}</div>
+              <div className={otherCols}>
+                {formatRelativeDate(i.updated_at ?? i.published_at)}
+                {isWeekOld(new Date(i.updated_at ?? i.published_at)) && " 💀"}
+              </div>
+            </div>
+            <hr />
+          </>
+        ))}
       </div>
     ) : (
       <div>{I18NextService.i18n.t("none_found")}</div>

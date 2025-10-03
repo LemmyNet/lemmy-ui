@@ -22,6 +22,7 @@ import {
   MyUserInfo,
   NotePerson,
   PersonView,
+  PostListingMode,
   PostResponse,
   PostView,
   PurgePerson,
@@ -69,6 +70,7 @@ interface PostListingsProps {
   onHidePost(form: HidePost): Promise<void>;
   onPersonNote(form: NotePerson): Promise<void>;
   expandAllImages?: boolean;
+  postListingMode: PostListingMode;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
@@ -88,48 +90,52 @@ export class PostListings extends Component<PostListingsProps, any> {
     return (
       <div className="post-listings">
         {this.posts.length > 0 ? (
-          this.posts.map((post_view, idx) => (
-            <>
-              <PostListing
-                post_view={post_view}
-                crossPosts={this.duplicatesMap.get(post_view.post.id)}
-                showDupes={this.props.showDupes}
-                showCommunity={this.props.showCommunity}
-                enableNsfw={this.props.enableNsfw}
-                showAdultConsentModal={this.props.showAdultConsentModal}
-                viewOnly={this.props.viewOnly}
-                allLanguages={this.props.allLanguages}
-                siteLanguages={this.props.siteLanguages}
-                myUserInfo={this.props.myUserInfo}
-                localSite={this.props.localSite}
-                admins={this.props.admins}
-                onPostEdit={this.props.onPostEdit}
-                onPostVote={this.props.onPostVote}
-                onPostReport={this.props.onPostReport}
-                onBlockPerson={this.props.onBlockPerson}
-                onBlockCommunity={this.props.onBlockCommunity}
-                onLockPost={this.props.onLockPost}
-                onDeletePost={this.props.onDeletePost}
-                onRemovePost={this.props.onRemovePost}
-                onSavePost={this.props.onSavePost}
-                onFeaturePost={this.props.onFeaturePost}
-                onPurgePerson={this.props.onPurgePerson}
-                onPurgePost={this.props.onPurgePost}
-                onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
-                onBanPerson={this.props.onBanPerson}
-                onAddModToCommunity={this.props.onAddModToCommunity}
-                onAddAdmin={this.props.onAddAdmin}
-                onTransferCommunity={this.props.onTransferCommunity}
-                onHidePost={this.props.onHidePost}
-                markable={this.props.markable}
-                read={!!post_view.post_actions?.read_at}
-                onMarkPostAsRead={this.props.onMarkPostAsRead}
-                onPersonNote={this.props.onPersonNote}
-                imageExpanded={this.props.expandAllImages}
-              />
-              {idx + 1 !== this.posts.length && <hr className="my-3" />}
-            </>
-          ))
+          <div className="row">
+            {this.posts.map((post_view, idx) => (
+              <div className={postListingModeCols(this.props.postListingMode)}>
+                <PostListing
+                  post_view={post_view}
+                  crossPosts={this.duplicatesMap.get(post_view.post.id)}
+                  showDupes={this.props.showDupes}
+                  showCommunity={this.props.showCommunity}
+                  enableNsfw={this.props.enableNsfw}
+                  showAdultConsentModal={this.props.showAdultConsentModal}
+                  viewOnly={this.props.viewOnly}
+                  allLanguages={this.props.allLanguages}
+                  siteLanguages={this.props.siteLanguages}
+                  myUserInfo={this.props.myUserInfo}
+                  localSite={this.props.localSite}
+                  admins={this.props.admins}
+                  onPostEdit={this.props.onPostEdit}
+                  onPostVote={this.props.onPostVote}
+                  onPostReport={this.props.onPostReport}
+                  onBlockPerson={this.props.onBlockPerson}
+                  onBlockCommunity={this.props.onBlockCommunity}
+                  onLockPost={this.props.onLockPost}
+                  onDeletePost={this.props.onDeletePost}
+                  onRemovePost={this.props.onRemovePost}
+                  onSavePost={this.props.onSavePost}
+                  onFeaturePost={this.props.onFeaturePost}
+                  onPurgePerson={this.props.onPurgePerson}
+                  onPurgePost={this.props.onPurgePost}
+                  onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
+                  onBanPerson={this.props.onBanPerson}
+                  onAddModToCommunity={this.props.onAddModToCommunity}
+                  onAddAdmin={this.props.onAddAdmin}
+                  onTransferCommunity={this.props.onTransferCommunity}
+                  onHidePost={this.props.onHidePost}
+                  markable={this.props.markable}
+                  read={!!post_view.post_actions?.read_at}
+                  onMarkPostAsRead={this.props.onMarkPostAsRead}
+                  onPersonNote={this.props.onPersonNote}
+                  imageExpanded={this.props.expandAllImages}
+                  postListingMode={this.props.postListingMode}
+                />
+                {this.props.postListingMode === "List" &&
+                  idx + 1 !== this.posts.length && <hr className="my-3" />}
+              </div>
+            ))}
+          </div>
         ) : (
           <>
             <div>{I18NextService.i18n.t("no_posts")}</div>
@@ -200,5 +206,15 @@ export class PostListings extends Component<PostListingsProps, any> {
     }
 
     return posts;
+  }
+}
+
+function postListingModeCols(mode: PostListingMode): string {
+  switch (mode) {
+    case "List":
+      return "col-12";
+    case "Card":
+    case "SmallCard":
+      return "col-12 col-md-6";
   }
 }

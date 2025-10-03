@@ -438,7 +438,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     </button>
                   )}
                   {this.props.myUserInfo &&
-                    !(this.props.viewOnly || creator_banned_from_community) && (
+                    (this.canModOrAdmin ||
+                      !(
+                        this.props.viewOnly || creator_banned_from_community
+                      )) && (
                       <>
                         <VoteButtonsCompact
                           voteContentType={VoteContentType.Comment}
@@ -645,17 +648,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
    * Only enable the comment form if its not locked, or you're a mod / admin
    **/
   get enableCommentForm(): boolean {
-    const canModOrAdmin =
+    return (
+      this.canModOrAdmin ||
+      (!this.props.postLocked && !this.commentView.comment.locked)
+    );
+  }
+
+  get canModOrAdmin(): boolean {
+    return (
       this.commentView.can_mod ||
       canAdmin(
         this.commentView.creator.id,
         this.props.admins,
         this.props.myUserInfo,
-      );
-
-    return (
-      canModOrAdmin ||
-      (!this.props.postLocked && !this.commentView.comment.locked)
+      )
     );
   }
 

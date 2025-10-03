@@ -16,7 +16,7 @@ import { modalMixin } from "../../mixins/modal-mixin";
 import { NoOptionI18nKeys } from "i18next";
 
 export interface BanUpdateForm {
-  reason?: string;
+  reason: string;
   shouldRemoveOrRestoreData?: boolean;
   daysUntilExpires?: number;
 }
@@ -115,7 +115,7 @@ async function handleSubmit(i: ModActionFormModal, event: any) {
       shouldRemoveOrRestoreData: i.state.shouldRemoveOrRestoreData!,
     } as BanUpdateForm & string); // Need to & string to handle type weirdness
   } else {
-    await i.props.onSubmit(i.state.reason);
+    await i.props.onSubmit(i.state.reason as BanUpdateForm & string);
   }
 
   i.setState({

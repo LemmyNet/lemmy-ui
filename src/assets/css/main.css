@@ -233,8 +233,6 @@ blockquote {
 .thumbnail {
   object-fit: cover;
   aspect-ratio: 1/1;
-  width: 5rem;
-  height: 5rem;
 }
 
 .mobile-thumbnail-container .thumbnail {

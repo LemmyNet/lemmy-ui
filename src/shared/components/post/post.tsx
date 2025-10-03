@@ -640,6 +640,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 read={!!res.post_view.post_actions?.read_at}
                 onMarkPostAsRead={this.handleMarkPostAsRead}
                 onPersonNote={this.handlePersonNote}
+                postListingMode="List"
               />
               <div ref={this.commentSectionRef} className="mb-2" />
 

@@ -89,6 +89,7 @@ import {
   NotePerson,
   UpdateCommunityNotifications,
   LockComment,
+  PostListingMode,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -123,6 +124,7 @@ import { CommunityHeader } from "./community-header";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
+import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -139,6 +141,7 @@ interface State {
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
   expandAllImages: boolean;
+  postListingMode: PostListingMode;
 }
 
 interface CommunityProps {
@@ -218,6 +221,9 @@ export class Community extends Component<CommunityRouteProps, State> {
     isIsomorphic: false,
     markPageAsReadLoading: false,
     expandAllImages: false,
+    postListingMode:
+      this.isoData.myUserInfo?.local_user_view.local_user.post_listing_mode ??
+      this.isoData.siteRes.site_view.local_site.default_post_listing_mode,
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -238,6 +244,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handlePostListingModeChange =
+      this.handlePostListingModeChange.bind(this);
 
     // All of the action binds
     this.handleDeleteCommunity = this.handleDeleteCommunity.bind(this);
@@ -606,6 +614,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onHidePost={this.handleHidePost}
               onPersonNote={this.handlePersonNote}
               expandAllImages={this.state.expandAllImages}
+              postListingMode={this.state.postListingMode}
             />
           );
       }
@@ -695,6 +704,12 @@ export class Community extends Component<CommunityRouteProps, State> {
             />
           </div>
         )}
+        <div className="col-auto">
+          <PostListingModeSelect
+            current={this.state.postListingMode}
+            onChange={this.handlePostListingModeChange}
+          />
+        </div>
         {this.props.dataType === DataType.Post ? (
           <>
             <div className="col-auto">
@@ -718,18 +733,20 @@ export class Community extends Component<CommunityRouteProps, State> {
             />
           </div>
         )}
-        <div className="col-auto ps-0">
-          <button
-            class="btn btn-secondary"
-            onClick={this.handleExpandImageClick}
-            aria-label={I18NextService.i18n.t("expand_all_images")}
-            data-tippy-content={I18NextService.i18n.t("expand_all_images")}
-          >
-            <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
-          </button>
-        </div>
+        {this.state.postListingMode !== "Card" && (
+          <div className="col-auto ps-0">
+            <button
+              class="btn btn-secondary"
+              onClick={this.handleExpandImageClick}
+              aria-label={I18NextService.i18n.t("expand_all_images")}
+              data-tippy-content={I18NextService.i18n.t("expand_all_images")}
+            >
+              <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
+            </button>
+          </div>
+        )}
         {communityRss && (
-          <>
+          <div className="col-auto">
             <a href={communityRss} title="RSS" rel={relTags}>
               <Icon icon="rss" classes="text-muted small" />
             </a>
@@ -738,7 +755,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               type="application/atom+xml"
               href={communityRss}
             />
-          </>
+          </div>
         )}
       </div>
     );
@@ -762,6 +779,10 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   handleDataTypeChange(dataType: DataType) {
     this.updateUrl({ dataType, cursor: undefined });
+  }
+
+  handlePostListingModeChange(val: PostListingMode) {
+    this.setState({ postListingMode: val });
   }
 
   handleShowHiddenChange(show?: StringBoolean) {

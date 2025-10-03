@@ -189,7 +189,7 @@ const communityListing = (
           <div>
             <CommunityLink community={c.community} myUserInfo={myUserInfo} />
             <Badges
-              className="ms-1 d-inline-flex"
+              className="ms-2 d-inline-flex"
               communityId={c.community.id}
               subject={c.community}
               lessBadges
@@ -253,6 +253,7 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
               allLanguages={isoData.siteRes.all_languages}
               siteLanguages={isoData.siteRes.discussion_languages}
               admins={isoData.siteRes.admins}
+              postListingMode="List"
               viewOnly
               // All of these are unused, since its view only
               onPostEdit={async () => EMPTY_REQUEST}
@@ -906,6 +907,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 myUserInfo={this.isoData.myUserInfo}
                 localSite={siteRes.site_view.local_site}
                 admins={this.isoData.siteRes.admins}
+                postListingMode="List"
                 // All of these are unused, since its view only
                 onPostEdit={async () => EMPTY_REQUEST}
                 onPostVote={async () => EMPTY_REQUEST}

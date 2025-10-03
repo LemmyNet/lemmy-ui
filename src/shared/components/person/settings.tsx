@@ -33,6 +33,7 @@ import {
   ListingType,
   LoginResponse,
   Person,
+  PostListingMode,
   PostSortType,
   SaveUserSettings,
   SuccessResponse,
@@ -78,6 +79,9 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { CommentSortSelect } from "../common/sort-select";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
+import BlockingKeywordsTextArea from "@components/common/blocking-keywords-textarea";
+import { NoOptionI18nKeys } from "i18next";
+import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -234,6 +238,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       this.handleCommentSortTypeChange.bind(this);
     this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
+    this.handlePostListingModeChange =
+      this.handlePostListingModeChange.bind(this);
     this.handleBioChange = this.handleBioChange.bind(this);
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
@@ -250,6 +256,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       this.handleBlockInstanceCommunities.bind(this);
     this.handleBlockInstancePersons =
       this.handleBlockInstancePersons.bind(this);
+    this.handleBlockingKeywordsUpdate =
+      this.handleBlockingKeywordsUpdate.bind(this);
 
     this.handleToggle2fa = this.handleToggle2fa.bind(this);
     this.handleEnable2fa = this.handleEnable2fa.bind(this);
@@ -267,6 +275,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           default_comment_sort_type,
           default_post_time_range_seconds,
           default_listing_type,
+          post_listing_mode,
           default_items_per_page,
           interface_language,
           show_avatars,
@@ -277,7 +286,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           open_links_in_new_tab,
           enable_private_messages,
           auto_mark_fetched_posts_as_read,
-          show_score: show_scores,
+          show_score,
           show_upvotes,
           show_downvotes,
           show_upvote_percentage,
@@ -308,6 +317,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           default_comment_sort_type,
           default_post_time_range_seconds,
           default_listing_type,
+          post_listing_mode,
           default_items_per_page,
           interface_language,
           discussion_languages: mui.discussion_languages,
@@ -315,7 +325,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           show_avatars,
           bot_account,
           show_bot_accounts,
-          show_scores,
+          show_score,
           show_upvotes,
           show_downvotes,
           show_upvote_percentage,
@@ -328,6 +338,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           open_links_in_new_tab,
           enable_private_messages,
           auto_mark_fetched_posts_as_read,
+          blocking_keywords: mui.keyword_blocks,
         },
         avatar,
         banner,
@@ -446,20 +457,20 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           <div className="col-12 col-md-6">
             {!userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
               <>
-                <div className="card border-secondary mb-3">
+                <div className="card mb-3">
                   <div className="card-body">
                     {this.changePasswordHtmlForm()}
                   </div>
                 </div>
-                <div className="card border-secondary mb-3">
+                <div className="card mb-3">
                   <div className="card-body">{this.totpSection()}</div>
                 </div>
               </>
             )}
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.importExportForm()}</div>
             </div>
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.deleteAccountForm()}</div>
             </div>
           </div>
@@ -480,17 +491,17 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         >
           <div className="row">
             <div className="col-12 col-md-6">
-              <div className="card border-secondary mb-3">
+              <div className="card mb-3">
                 <div className="card-body">{this.blockUserCard()}</div>
               </div>
             </div>
             <div className="col-12 col-md-6">
-              <div className="card border-secondary mb-3">
+              <div className="card mb-3">
                 <div className="card-body">{this.blockCommunityCard()}</div>
               </div>
             </div>
             <div className="col-12 col-md-6">
-              <div className="card border-secondary mb-3">
+              <div className="card mb-3">
                 <div className="card-body">
                   {this.blockInstanceCommunitiesCard()}
                 </div>
@@ -750,7 +761,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             >
               {I18NextService.i18n.t("export")}
             </button>
-            <fieldset className="border border-secondary rounded p-3 bg-dark bg-opacity-25">
+            <fieldset className="border rounded p-3 bg-dark bg-opacity-25">
               <input
                 type="file"
                 accept="application/json"
@@ -977,6 +988,19 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           </form>
           <form className="mb-3 row">
             <label className="col-sm-3 col-form-label">
+              {I18NextService.i18n.t("listing_mode")}
+            </label>
+            <div className="col-sm-9">
+              <PostListingModeSelect
+                current={
+                  this.state.saveUserSettingsForm.post_listing_mode ?? "List"
+                }
+                onChange={this.handlePostListingModeChange}
+              />
+            </div>
+          </form>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("post_sort_type")}
             </label>
             <div className="col-sm-9">
@@ -1036,6 +1060,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </form>
+          <BlockingKeywordsTextArea
+            keywords={this.state.saveUserSettingsForm.blocking_keywords ?? []}
+            onUpdate={this.handleBlockingKeywordsUpdate}
+          />
           <div className="input-group mb-3">
             <div className="form-check">
               <input
@@ -1074,7 +1102,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 className="form-check-input"
                 id="user-show-scores"
                 type="checkbox"
-                checked={this.state.saveUserSettingsForm.show_scores}
+                checked={this.state.saveUserSettingsForm.show_score}
                 onChange={linkEvent(this, this.handleShowScoresChange)}
               />
               <label className="form-check-label" htmlFor="user-show-scores">
@@ -1701,7 +1729,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       mui.local_user_view.local_user.show_score = event.target.checked;
     }
     i.setState(
-      s => ((s.saveUserSettingsForm.show_scores = event.target.checked), s),
+      s => ((s.saveUserSettingsForm.show_score = event.target.checked), s),
     );
   }
 
@@ -1783,6 +1811,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
+  handlePostListingModeChange(val: PostListingMode) {
+    this.setState(s => ((s.saveUserSettingsForm.post_listing_mode = val), s));
+  }
+
   handlePostSortTypeChange(val: PostSortType) {
     this.setState(
       s => ((s.saveUserSettingsForm.default_post_sort_type = val), s),
@@ -1799,6 +1831,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     this.setState(
       s => ((s.saveUserSettingsForm.default_post_time_range_seconds = val), s),
     );
+  }
+
+  handleBlockingKeywordsUpdate(val: string[]) {
+    this.setState(s => ((s.saveUserSettingsForm.blocking_keywords = val), s));
   }
 
   handleListingTypeChange(val: ListingType) {
@@ -1899,7 +1935,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       // You need to reload the page, to properly update the siteRes everywhere
       setTimeout(() => location.reload(), 500);
     } else if (saveRes.state === "failed") {
-      toast(saveRes.err.name, "danger");
+      toast(
+        I18NextService.i18n.t(saveRes.err.name as NoOptionI18nKeys),
+        "danger",
+      );
     }
 
     setThemeOverride(undefined);
