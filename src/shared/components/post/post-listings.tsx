@@ -6,6 +6,7 @@ import {
   AddModToCommunity,
   BanFromCommunity,
   BanPerson,
+  BlockCommunity,
   BlockPerson,
   CreatePostLike,
   CreatePostReport,
@@ -51,6 +52,7 @@ interface PostListingsProps {
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
   onBlockPerson(form: BlockPerson): Promise<void>;
+  onBlockCommunity(form: BlockCommunity): Promise<void>;
   onLockPost(form: LockPost): Promise<void>;
   onDeletePost(form: DeletePost): Promise<void>;
   onRemovePost(form: RemovePost): Promise<void>;
@@ -105,6 +107,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onPostVote={this.props.onPostVote}
                 onPostReport={this.props.onPostReport}
                 onBlockPerson={this.props.onBlockPerson}
+                onBlockCommunity={this.props.onBlockCommunity}
                 onLockPost={this.props.onLockPost}
                 onDeletePost={this.props.onDeletePost}
                 onRemovePost={this.props.onRemovePost}
