@@ -66,7 +66,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       reports_email_admins: ls?.reports_email_admins,
       discussion_languages: this.props.siteRes?.discussion_languages,
       slur_filter_regex: ls?.slur_filter_regex,
-      actor_name_max_length: ls?.actor_name_max_length,
       federation_enabled: ls?.federation_enabled,
       captcha_enabled: ls?.captcha_enabled,
       captcha_difficulty: ls?.captcha_difficulty,
@@ -541,16 +540,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           >
             {I18NextService.i18n.t("actor_name_max_length")}
           </label>
-          <div className="col-12">
-            <input
-              type="number"
-              id="create-site-actor-name"
-              className="form-control"
-              min={5}
-              value={this.state.siteForm.actor_name_max_length}
-              onInput={linkEvent(this, this.handleSiteActorNameMaxLength)}
-            />
-          </div>
         </div>
         <div className="mb-3 row">
           <div className="col-12">
@@ -667,7 +656,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         application_email_admins: stateSiteForm.application_email_admins,
         legal_information: stateSiteForm.legal_information,
         slur_filter_regex: stateSiteForm.slur_filter_regex,
-        actor_name_max_length: stateSiteForm.actor_name_max_length,
         rate_limit_message_max_requests:
           stateSiteForm.rate_limit_message_max_requests,
         rate_limit_message_interval_seconds:
@@ -800,12 +788,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handleSiteSlurFilterRegex(i: SiteForm, event: any) {
     i.setState(s => ((s.siteForm.slur_filter_regex = event.target.value), s));
-  }
-
-  handleSiteActorNameMaxLength(i: SiteForm, event: any) {
-    i.setState(
-      s => ((s.siteForm.actor_name_max_length = Number(event.target.value)), s),
-    );
   }
 
   handleSiteFederationEnabled(i: SiteForm, event: any) {
