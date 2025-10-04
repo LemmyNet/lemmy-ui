@@ -52,6 +52,11 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { LoadingEllipses } from "./common/loading-ellipses";
 import { PaginatorCursor } from "./common/paginator-cursor";
+import { TableHr } from "./common/tables";
+
+const TIME_COLS = "col-6 col-md-2";
+const MOD_COLS = "col-6 col-md-4";
+const ACTION_COLS = "col-12 col-md-6";
 
 type FilterType = "mod" | "user";
 
@@ -823,32 +828,31 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const combined = res.state === "success" ? res.data.modlog : [];
     const { myUserInfo } = this.isoData;
 
-    return (
-      <tbody>
-        {combined.map(i => {
-          const { id, moderator, publishedAt, data } = processModlogEntry(
-            i,
-            myUserInfo,
-          );
+    return combined.map(i => {
+      const { id, moderator, publishedAt, data } = processModlogEntry(
+        i,
+        myUserInfo,
+      );
 
-          return (
-            <tr key={id}>
-              <td>
-                <MomentTime published={publishedAt} />
-              </td>
-              <td>
-                {this.amAdminOrMod && moderator ? (
-                  <PersonListing person={moderator} myUserInfo={myUserInfo} />
-                ) : (
-                  <div>{this.modOrAdminText(moderator)}</div>
-                )}
-              </td>
-              <td>{data}</td>
-            </tr>
-          );
-        })}
-      </tbody>
-    );
+      return (
+        <>
+          <div className="row" key={id}>
+            <div className={TIME_COLS}>
+              <MomentTime published={publishedAt} />
+            </div>
+            <div className={MOD_COLS}>
+              {this.amAdminOrMod && moderator ? (
+                <PersonListing person={moderator} myUserInfo={myUserInfo} />
+              ) : (
+                <div>{this.modOrAdminText(moderator)}</div>
+              )}
+            </div>
+            <div className={ACTION_COLS}>{data}</div>
+          </div>
+          <hr />
+        </>
+      );
+    });
   }
 
   get amAdminOrMod(): boolean {
@@ -1011,23 +1015,28 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
         );
       case "success": {
         return (
-          <div className="table-responsive">
-            <table id="modlog_table" className="table table-sm table-hover">
-              <thead className="pointer">
-                <tr>
-                  <th> {I18NextService.i18n.t("time")}</th>
-                  <th>{I18NextService.i18n.t("mod")}</th>
-                  <th>{I18NextService.i18n.t("action")}</th>
-                </tr>
-              </thead>
+          <>
+            <div id="modlog_table">
+              <div className="row">
+                <div className={`${TIME_COLS} fw-bold`}>
+                  {I18NextService.i18n.t("time")}
+                </div>
+                <div className={`${MOD_COLS} fw-bold`}>
+                  {I18NextService.i18n.t("mod")}
+                </div>
+                <div className={`${ACTION_COLS} fw-bold`}>
+                  {I18NextService.i18n.t("action")}
+                </div>
+              </div>
+              <TableHr />
               {this.combined}
-            </table>
+            </div>
             <PaginatorCursor
               current={this.props.cursor}
               resource={this.state.res}
               onPageChange={this.handlePageChange}
             />
-          </div>
+          </>
         );
       }
     }
