@@ -2,7 +2,7 @@ import { getQueryString, validInstanceTLD } from "@utils/helpers";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, createRef, linkEvent } from "inferno";
-import { CommunityView } from "lemmy-js-client";
+import { CommunityFollowerState, CommunityView } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { VERSION } from "../../version";
 import { Icon, Spinner } from "./icon";
@@ -29,29 +29,7 @@ export function SubscribeButton({
   isLink = false,
   showRemoteFetch,
 }: SubscribeButtonProps) {
-  let i18key: NoOptionI18nKeys;
   const subscribed = community_actions?.follow_state;
-
-  switch (subscribed) {
-    case undefined: {
-      i18key = "subscribe";
-
-      break;
-    }
-    case "Accepted": {
-      i18key = "joined";
-
-      break;
-    }
-    case "Pending":
-    case "ApprovalRequired":
-    default: {
-      i18key = "subscribe_pending";
-
-      break;
-    }
-  }
-
   const buttonClass = classNames("btn", {
     "btn-link p-0": isLink,
     [`btn-secondary d-block mb-2 w-100 btn-${subscribed === "Pending" ? "warning" : "secondary"}`]:
@@ -87,11 +65,29 @@ export function SubscribeButton({
           {subscribed === "Accepted" && (
             <Icon icon="check" classes="icon-inline me-1" />
           )}
-          {I18NextService.i18n.t(i18key)}
+          {I18NextService.i18n.t(followStateKey(subscribed))}
         </>
       )}
     </button>
   );
+}
+
+export function followStateKey(
+  followState?: CommunityFollowerState,
+): NoOptionI18nKeys {
+  switch (followState) {
+    case undefined: {
+      return "subscribe";
+    }
+    case "Accepted": {
+      return "joined";
+    }
+    case "Pending":
+    case "ApprovalRequired":
+    default: {
+      return "subscribe_pending";
+    }
+  }
 }
 
 interface RemoteFetchModalProps {

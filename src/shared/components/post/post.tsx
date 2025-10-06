@@ -105,7 +105,7 @@ import { CommentForm } from "@components/comment/comment-form";
 import { CommentNodes } from "@components/comment/comment-nodes";
 import { HtmlTags } from "@components/common/html-tags";
 import { Icon, Spinner } from "@components/common/icon";
-import { Sidebar } from "@components/community/sidebar";
+import { CommunitySidebar } from "@components/community/community-sidebar";
 import { PostListing } from "./post-listing";
 import { getHttpBaseInternal } from "@utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -888,7 +888,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     const res = this.state.postRes;
     if (res.state === "success") {
       return (
-        <Sidebar
+        <CommunitySidebar
           community_view={res.data.community_view}
           moderators={[]} // TODO: fetch GetCommunityResponse?
           admins={this.state.siteRes.admins}

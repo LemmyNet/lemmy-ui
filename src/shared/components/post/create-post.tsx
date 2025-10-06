@@ -39,7 +39,7 @@ import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { toast } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { NoOptionI18nKeys } from "i18next";
-import { Sidebar } from "@components/community/sidebar";
+import { CommunitySidebar } from "@components/community/community-sidebar";
 import { Icon } from "@components/common/icon";
 
 export interface CreatePostProps {
@@ -443,7 +443,7 @@ export class CreatePost extends Component<
   sidebar() {
     if (this.state.selectedCommunity) {
       return (
-        <Sidebar
+        <CommunitySidebar
           community_view={this.state.selectedCommunity}
           moderators={[]} // TODO: fetch GetCommunityResponse?
           admins={this.isoData.siteRes.admins}

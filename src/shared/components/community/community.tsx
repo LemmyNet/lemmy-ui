@@ -115,7 +115,7 @@ import {
   CommentsLoadingSkeleton,
   PostsLoadingSkeleton,
 } from "../common/loading-skeleton";
-import { Sidebar } from "./sidebar";
+import { CommunitySidebar } from "./community-sidebar";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
@@ -538,7 +538,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     return (
       <>
-        <Sidebar
+        <CommunitySidebar
           community_view={res.community_view}
           moderators={res.moderators}
           admins={siteRes.admins}
