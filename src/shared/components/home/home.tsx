@@ -10,6 +10,7 @@ import {
   myAuth,
   setIsoData,
   showLocal,
+  updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
 import {
@@ -74,6 +75,7 @@ import {
   MarkPostAsRead,
   NotePerson,
   LockComment,
+  BlockCommunity,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -295,6 +297,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleEditComment = this.handleEditComment.bind(this);
     this.handleSaveComment = this.handleSaveComment.bind(this);
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
     this.handleLockComment = this.handleLockComment.bind(this);
@@ -737,6 +740,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
               onBlockPerson={this.handleBlockPerson}
+              onBlockCommunity={this.handleBlockCommunity}
               onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}
               onPostReport={this.handlePostReport}
@@ -780,6 +784,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               admins={this.isoData.siteRes.admins}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
+              onBlockCommunity={this.handleBlockCommunity}
               onDeleteComment={this.handleDeleteComment}
               onRemoveComment={this.handleRemoveComment}
               onCommentVote={this.handleCommentVote}
@@ -980,6 +985,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
+    }
+  }
+
+  async handleBlockCommunity(form: BlockCommunity) {
+    const blockCommunityRes = await HttpService.client.blockCommunity(form);
+    if (blockCommunityRes.state === "success") {
+      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
     }
   }
 

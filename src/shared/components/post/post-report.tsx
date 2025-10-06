@@ -111,6 +111,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           onPostVote={async () => EMPTY_REQUEST}
           onPostReport={async () => {}}
           onBlockPerson={async () => {}}
+          onBlockCommunity={async () => {}}
           onLockPost={async () => {}}
           onDeletePost={async () => {}}
           onRemovePost={async () => {}}

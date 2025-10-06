@@ -1,4 +1,10 @@
-import { enableNsfw, myAuth, setIsoData, updatePersonBlock } from "@utils/app";
+import {
+  enableNsfw,
+  myAuth,
+  setIsoData,
+  updateCommunityBlock,
+  updatePersonBlock,
+} from "@utils/app";
 import {
   capitalizeFirstLetter,
   cursorComponents,
@@ -16,6 +22,7 @@ import {
   BanFromCommunityResponse,
   BanPerson,
   BanPersonResponse,
+  BlockCommunity,
   BlockPerson,
   CommentId,
   CommentReportResponse,
@@ -136,6 +143,7 @@ export class Notifications extends Component<
     this.handleEditComment = this.handleEditComment.bind(this);
     this.handleSaveComment = this.handleSaveComment.bind(this);
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
     this.handleLockComment = this.handleLockComment.bind(this);
@@ -396,6 +404,7 @@ export class Notifications extends Component<
             admins={this.isoData.siteRes.admins}
             onSaveComment={this.handleSaveComment}
             onBlockPerson={this.handleBlockPerson}
+            onBlockCommunity={this.handleBlockCommunity}
             onDeleteComment={this.handleDeleteComment}
             onRemoveComment={this.handleRemoveComment}
             onCommentVote={this.handleCommentVote}
@@ -451,6 +460,7 @@ export class Notifications extends Component<
               onPostVote={async () => EMPTY_REQUEST}
               onPostReport={async () => {}}
               onBlockPerson={async () => {}}
+              onBlockCommunity={async () => {}}
               onLockPost={async () => {}}
               onDeletePost={async () => {}}
               onRemovePost={async () => {}}
@@ -605,6 +615,13 @@ export class Notifications extends Component<
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
+    }
+  }
+
+  async handleBlockCommunity(form: BlockCommunity) {
+    const blockCommunityRes = await HttpService.client.blockCommunity(form);
+    if (blockCommunityRes.state === "success") {
+      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
     }
   }
 
