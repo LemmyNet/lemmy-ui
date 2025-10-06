@@ -489,7 +489,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               site={site}
               admins={admins}
               localSite={local_site}
-              isMobile={true}
+              isMobile
               myUserInfo={this.isoData.myUserInfo}
               allLanguages={this.state.siteRes.all_languages}
               siteLanguages={this.state.siteRes.discussion_languages}
@@ -547,7 +547,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           id="sidebarSubscribedHeader"
         >
           <h5 className="mb-0 d-inline">
-            <T class="d-inline" i18nKey="subscribed_to_communities">
+            <T className="d-inline" i18nKey="subscribed_to_communities">
               #
               <Link className="text-body" to="/communities">
                 #
@@ -631,15 +631,15 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         <div>
           {this.selects}
           {this.listings}
-          <div class="row">
-            <div class="col">
+          <div className="row">
+            <div className="col">
               <PaginatorCursor
                 current={this.props.cursor}
                 resource={this.currentRes}
                 onPageChange={this.handlePageChange}
               />
             </div>
-            <div class="col-auto">{this.markPageAsReadButton}</div>
+            <div className="col-auto">{this.markPageAsReadButton}</div>
           </div>
         </div>
       </div>
@@ -659,9 +659,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
-      <div class="my-2">
+      <div className="my-2">
         <button
-          class="btn btn-secondary"
+          className="btn btn-secondary"
           onClick={linkEvent(this, this.handleMarkPageAsRead)}
         >
           {I18NextService.i18n.t("mark_page_as_read")}
@@ -872,7 +872,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         </div>
         <div className="col-auto ps-0">
           <button
-            class="btn btn-secondary"
+            className="btn btn-secondary"
             onClick={this.handleExpandAllImages}
             aria-label={I18NextService.i18n.t("expand_all_images")}
             data-tippy-content={I18NextService.i18n.t("expand_all_images")}

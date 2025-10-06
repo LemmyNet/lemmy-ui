@@ -84,7 +84,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                     {cv.editMode ? (
                       <MarkdownTextArea
                         initialContent={cv.tagline.content}
-                        focus={true}
+                        focus
                         onContentChange={s =>
                           this.handleTaglineChange(this, index, s)
                         }

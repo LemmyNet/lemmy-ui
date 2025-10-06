@@ -244,8 +244,11 @@ export class EmojiForm extends Component<Record<never, never>, EmojiFormState> {
                       )}
                     </td>
                     <td>
-                      <div class="row flex-nowrap g-0">
-                        <span class="col" title={this.getEditTooltip(editable)}>
+                      <div className="row flex-nowrap g-0">
+                        <span
+                          className="col"
+                          title={this.getEditTooltip(editable)}
+                        >
                           <button
                             className={classNames("btn btn-link btn-animate", {
                               "text-success": this.canSave(editable),

@@ -285,7 +285,7 @@ export class Signup extends Component<SignupRouteProps, State> {
                   hideNavigationWarnings
                   allLanguages={[]}
                   siteLanguages={[]}
-                  renderAsDiv={true}
+                  renderAsDiv
                   myUserInfo={this.isoData.myUserInfo}
                 />
               </div>

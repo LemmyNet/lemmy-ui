@@ -96,10 +96,10 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         <PostListing
           post_view={pv}
           showDupes="ShowSeparately"
-          showCommunity={true}
+          showCommunity
           enableNsfw={this.props.enableNsfw}
           showAdultConsentModal={this.props.showAdultConsentModal}
-          viewOnly={true}
+          viewOnly
           allLanguages={[]}
           siteLanguages={[]}
           hideImage
@@ -210,7 +210,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             modActionType="remove-post"
             isRemoved={pv.post.removed}
             onCancel={() => this.setState({ showRemovePostDialog: false })}
-            show={true}
+            show
           />
         )}
       </div>

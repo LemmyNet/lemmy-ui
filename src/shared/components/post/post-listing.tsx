@@ -316,7 +316,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             title="video embed"
             src={post.embed_video_url}
             sandbox="allow-same-origin allow-scripts"
-            allowFullScreen={true}
+            allowFullScreen
           ></iframe>
         </div>
       );
