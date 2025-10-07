@@ -14,7 +14,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { validActorRegexPattern } from "@utils/config";
 
 interface Props {
-  multi_community_view?: MultiCommunityView; // If a multi-community is given, that means this is an edit
+  multiCommunityView?: MultiCommunityView; // If a multi-community is given, that means this is an edit
   onCancel?(): any;
   onCreate?(form: CreateMultiCommunity): void;
   onEdit?(form: UpdateMultiCommunity): void;
@@ -48,7 +48,7 @@ export class MultiCommunityForm extends Component<Props, State> {
   }
 
   initForm() {
-    const mv = this.props.multi_community_view;
+    const mv = this.props.multiCommunityView;
     return mv
       ? {
           name: mv.multi.name,
@@ -77,7 +77,7 @@ export class MultiCommunityForm extends Component<Props, State> {
             !this.state.submitted
           }
         />
-        {!this.props.multi_community_view && (
+        {!this.props.multiCommunityView && (
           <div className="mb-3 row">
             <label
               className="col-12 col-sm-2 col-form-label"
@@ -159,13 +159,13 @@ export class MultiCommunityForm extends Component<Props, State> {
             >
               {this.props.loading ? (
                 <Spinner />
-              ) : this.props.multi_community_view ? (
+              ) : this.props.multiCommunityView ? (
                 capitalizeFirstLetter(I18NextService.i18n.t("save"))
               ) : (
                 capitalizeFirstLetter(I18NextService.i18n.t("create"))
               )}
             </button>
-            {this.props.multi_community_view && (
+            {this.props.multiCommunityView && (
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -185,7 +185,7 @@ export class MultiCommunityForm extends Component<Props, State> {
     i.setState({ submitted: true });
     const cForm = i.state.form;
 
-    const mv = i.props.multi_community_view;
+    const mv = i.props.multiCommunityView;
 
     if (mv) {
       i.props.onEdit?.({

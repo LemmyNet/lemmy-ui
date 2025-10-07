@@ -2,7 +2,7 @@ import { getQueryString, validInstanceTLD } from "@utils/helpers";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, MouseEventHandler, createRef, linkEvent } from "inferno";
-import { CommunityFollowerState, CommunityView } from "lemmy-js-client";
+import { CommunityFollowerState, DbUrl } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { VERSION } from "../../version";
 import { Icon, Spinner } from "./icon";
@@ -10,7 +10,8 @@ import { toast } from "@utils/app";
 import { modalMixin } from "../mixins/modal-mixin";
 
 interface SubscribeButtonProps {
-  communityView: CommunityView;
+  followState: CommunityFollowerState | undefined;
+  apId: DbUrl;
   onFollow: MouseEventHandler;
   onUnFollow: MouseEventHandler;
   loading?: boolean;
@@ -19,20 +20,17 @@ interface SubscribeButtonProps {
 }
 
 export function SubscribeButton({
-  communityView: {
-    community_actions,
-    community: { ap_id },
-  },
+  followState,
+  apId,
   onFollow,
   onUnFollow,
   loading = false,
   isLink = false,
   showRemoteFetch,
 }: SubscribeButtonProps) {
-  const subscribed = community_actions?.follow_state;
   const buttonClass = classNames("btn", {
     "btn-link p-0": isLink,
-    [`btn-secondary d-block mb-2 w-100 btn-${subscribed === "Pending" ? "warning" : "secondary"}`]:
+    [`btn-secondary d-block mb-2 w-100 btn-${followState === "Pending" ? "warning" : "secondary"}`]:
       !isLink,
   });
 
@@ -47,7 +45,7 @@ export function SubscribeButton({
         >
           {I18NextService.i18n.t("subscribe")}
         </button>
-        <RemoteFetchModal communityApId={ap_id} />
+        <RemoteFetchModal apId={apId} />
       </>
     );
   }
@@ -56,23 +54,23 @@ export function SubscribeButton({
     <button
       type="button"
       className={buttonClass}
-      onClick={!subscribed ? onFollow : onUnFollow}
+      onClick={!followState ? onFollow : onUnFollow}
     >
       {loading ? (
         <Spinner />
       ) : (
         <>
-          {subscribed === "Accepted" && (
+          {followState === "Accepted" && (
             <Icon icon="check" classes="icon-inline me-1" />
           )}
-          {I18NextService.i18n.t(followStateKey(subscribed))}
+          {I18NextService.i18n.t(followStateKey(followState))}
         </>
       )}
     </button>
   );
 }
 
-export function followStateKey(
+function followStateKey(
   followState?: CommunityFollowerState,
 ): NoOptionI18nKeys {
   switch (followState) {
@@ -91,7 +89,7 @@ export function followStateKey(
 }
 
 interface RemoteFetchModalProps {
-  communityApId: string;
+  apId: string;
   show?: boolean;
 }
 
@@ -104,7 +102,7 @@ function handleInput(i: RemoteFetchModal, event: any) {
 }
 
 function submitRemoteFollow(
-  { state: { instanceText }, props: { communityApId } }: RemoteFetchModal,
+  { state: { instanceText }, props: { apId } }: RemoteFetchModal,
   event: Event,
 ) {
   event.preventDefault();
@@ -131,7 +129,7 @@ function submitRemoteFollow(
   }
 
   window.location.href = `${instanceText}/activitypub/externalInteraction${getQueryString(
-    { uri: communityApId },
+    { uri: apId },
   )}`;
 }
 

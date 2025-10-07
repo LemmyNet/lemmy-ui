@@ -199,7 +199,11 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                 {!received_ban_at && (
                   <>
                     <SubscribeButton
-                      communityView={this.props.community_view}
+                      followState={
+                        this.props.community_view.community_actions
+                          ?.follow_state
+                      }
+                      apId={this.props.community_view.community.ap_id}
                       onFollow={linkEvent(this, this.handleFollowCommunity)}
                       onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
                       loading={this.state.followCommunityLoading}

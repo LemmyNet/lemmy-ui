@@ -12,10 +12,10 @@ import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { MultiCommunityForm } from "./multi-community-form";
 import { MultiCommunityLink } from "./multi-community-link";
-import { followStateKey } from "@components/common/subscribe-button";
+import { SubscribeButton } from "@components/common/subscribe-button";
 
 interface Props {
-  multi_community_view: MultiCommunityView;
+  multiCommunityView: MultiCommunityView;
   // TODO check on these
   editable?: boolean;
   hideButtons?: boolean;
@@ -62,7 +62,7 @@ export class MultiCommunitySidebar extends Component<Props, State> {
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & Props>,
   ): void {
-    if (this.props.multi_community_view !== nextProps.multi_community_view) {
+    if (this.props.multiCommunityView !== nextProps.multiCommunityView) {
       this.setState({
         showEdit: false,
         deleteLoading: false,
@@ -79,7 +79,7 @@ export class MultiCommunitySidebar extends Component<Props, State> {
           this.sidebar()
         ) : (
           <MultiCommunityForm
-            multi_community_view={this.props.multi_community_view}
+            multiCommunityView={this.props.multiCommunityView}
             onEdit={this.props.onEdit}
             onCancel={this.handleEditCancel}
             myUserInfo={this.props.myUserInfo}
@@ -90,6 +90,7 @@ export class MultiCommunitySidebar extends Component<Props, State> {
   }
 
   sidebar() {
+    const mv = this.props.multiCommunityView;
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
@@ -98,7 +99,20 @@ export class MultiCommunitySidebar extends Component<Props, State> {
               <div className="card-body">
                 {this.multiCommunityTitle()}
                 {this.props.editable && this.creatorButtons()}
-                {this.subscribeButton()}
+                <SubscribeButton
+                  followState={mv.follow_state}
+                  apId={mv.multi.ap_id}
+                  onFollow={linkEvent(
+                    { i: this, follow: true },
+                    this.handlefollowMultiCommunity,
+                  )}
+                  onUnFollow={linkEvent(
+                    { i: this, follow: false },
+                    this.handlefollowMultiCommunity,
+                  )}
+                  loading={this.state.followLoading}
+                  showRemoteFetch={!this.props.myUserInfo}
+                />
               </div>
             </section>
           )}
@@ -114,7 +128,7 @@ export class MultiCommunitySidebar extends Component<Props, State> {
   }
 
   multiCommunityTitle() {
-    const multiCommunity = this.props.multi_community_view.multi;
+    const multiCommunity = this.props.multiCommunityView.multi;
 
     return (
       <div>
@@ -142,32 +156,8 @@ export class MultiCommunitySidebar extends Component<Props, State> {
     );
   }
 
-  subscribeButton() {
-    const buttonClass = "btn btn-secondary d-block mb-2 w-100";
-    const subscribed = this.props.multi_community_view.follow_state;
-
-    return (
-      <button
-        type="button"
-        className={buttonClass}
-        onClick={linkEvent(this, this.handlefollowMultiCommunity)}
-      >
-        {this.state.followLoading ? (
-          <Spinner />
-        ) : (
-          <>
-            {subscribed === "Accepted" && (
-              <Icon icon="check" classes="icon-inline me-1" />
-            )}
-            {I18NextService.i18n.t(followStateKey(subscribed))}
-          </>
-        )}
-      </button>
-    );
-  }
-
   creator() {
-    const creator = this.props.multi_community_view.owner;
+    const creator = this.props.multiCommunityView.owner;
 
     // TODO should this be an inline list, like the others?
     return (
@@ -183,7 +173,7 @@ export class MultiCommunitySidebar extends Component<Props, State> {
   }
 
   sidebarMarkdown() {
-    const sidebar = this.props.multi_community_view.multi.description;
+    const sidebar = this.props.multiCommunityView.multi.description;
     return (
       sidebar && (
         <div
@@ -195,7 +185,7 @@ export class MultiCommunitySidebar extends Component<Props, State> {
   }
 
   creatorButtons() {
-    const mv = this.props.multi_community_view;
+    const mv = this.props.multiCommunityView;
     const amCreator =
       this.props.myUserInfo?.local_user_view.person.id === mv.owner.id;
 
@@ -250,19 +240,21 @@ export class MultiCommunitySidebar extends Component<Props, State> {
     this.setState({ showEdit: false });
   }
 
-  handlefollowMultiCommunity(i: MultiCommunitySidebar) {
-    const mv = i.props.multi_community_view;
-    const follow = mv.follow_state ? !mv.follow_state : true;
+  handlefollowMultiCommunity(data: {
+    i: MultiCommunitySidebar;
+    follow: boolean;
+  }) {
+    const mv = data.i.props.multiCommunityView;
 
-    i.setState({ followLoading: true });
-    i.props.onFollow({
+    data.i.setState({ followLoading: true });
+    data.i.props.onFollow({
       multi_community_id: mv.multi.id,
-      follow,
+      follow: data.follow,
     });
   }
 
   handleDelete(i: MultiCommunitySidebar) {
-    const mv = i.props.multi_community_view.multi;
+    const mv = i.props.multiCommunityView.multi;
     i.setState({ deleteLoading: true });
     i.props.onEdit({ id: mv.id, deleted: !mv.deleted });
   }
