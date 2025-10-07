@@ -60,12 +60,17 @@ fs.readFile(`${translationDir}${baseLanguage}.json`, "utf8", (_, fileStr) => {
     }
   }
 
-  const translation_keys = entries.map(e => e[0]);
+  const translationKeys = entries.map(e => e[0]);
+  var missingErrorTranslations = false;
   lemmyjsclient.AllLemmyErrors.forEach(e => {
-    if (!translation_keys.includes(e)) {
-      console.error(`Missing error translation for ${e}`);
+    if (!translationKeys.includes(e)) {
+      missingErrorTranslations = true;
+      console.error(`Missing translation for error ${e}`);
     }
   });
+  if (missingErrorTranslations) {
+    throw "Some errors are missing translations";
+  }
 
   const indent = "    ";
 
