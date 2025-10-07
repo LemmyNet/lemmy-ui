@@ -1042,7 +1042,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         <div className={classNames("d-none d-sm-block")}>
           <article className="row post-container">
             {this.isInteractable && (
-              <div className="col flex-grow-0">
+              <div className="col flex-grow-0 px-0">
                 <VoteButtons
                   voteContentType={VoteContentType.Post}
                   id={this.postView.post.id}
@@ -1055,7 +1055,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 />
               </div>
             )}
-            <div className="col flex-grow-1">
+            <div className="col flex-grow-1 ps-0">
               <div className="row">
                 {!showExpandedImage && (
                   <div className={`${imageCols} px-0`}>{this.thumbnail()}</div>
