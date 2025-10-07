@@ -571,7 +571,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             this.showPreviewButton()}
 
           {post.removed && (
-            <small className="ms-2 badge text-bg-secondary">
+            <small className="ms-2 badge text-bg-light">
               {I18NextService.i18n.t("removed")}
             </small>
           )}

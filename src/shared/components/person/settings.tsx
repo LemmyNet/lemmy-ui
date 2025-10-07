@@ -277,7 +277,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           open_links_in_new_tab,
           enable_private_messages,
           auto_mark_fetched_posts_as_read,
-          show_score: show_scores,
+          show_score,
           show_upvotes,
           show_downvotes,
           show_upvote_percentage,
@@ -315,7 +315,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           show_avatars,
           bot_account,
           show_bot_accounts,
-          show_scores,
+          show_score,
           show_upvotes,
           show_downvotes,
           show_upvote_percentage,
@@ -446,20 +446,20 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           <div className="col-12 col-md-6">
             {!userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
               <>
-                <div className="card border-secondary mb-3">
+                <div className="card mb-3">
                   <div className="card-body">
                     {this.changePasswordHtmlForm()}
                   </div>
                 </div>
-                <div className="card border-secondary mb-3">
+                <div className="card mb-3">
                   <div className="card-body">{this.totpSection()}</div>
                 </div>
               </>
             )}
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.importExportForm()}</div>
             </div>
-            <div className="card border-secondary mb-3">
+            <div className="card mb-3">
               <div className="card-body">{this.deleteAccountForm()}</div>
             </div>
           </div>
@@ -480,17 +480,17 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         >
           <div className="row">
             <div className="col-12 col-md-6">
-              <div className="card border-secondary mb-3">
+              <div className="card mb-3">
                 <div className="card-body">{this.blockUserCard()}</div>
               </div>
             </div>
             <div className="col-12 col-md-6">
-              <div className="card border-secondary mb-3">
+              <div className="card mb-3">
                 <div className="card-body">{this.blockCommunityCard()}</div>
               </div>
             </div>
             <div className="col-12 col-md-6">
-              <div className="card border-secondary mb-3">
+              <div className="card mb-3">
                 <div className="card-body">
                   {this.blockInstanceCommunitiesCard()}
                 </div>
@@ -750,7 +750,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             >
               {I18NextService.i18n.t("export")}
             </button>
-            <fieldset className="border border-secondary rounded p-3 bg-dark bg-opacity-25">
+            <fieldset className="border rounded p-3 bg-dark bg-opacity-25">
               <input
                 type="file"
                 accept="application/json"
@@ -1074,7 +1074,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 className="form-check-input"
                 id="user-show-scores"
                 type="checkbox"
-                checked={this.state.saveUserSettingsForm.show_scores}
+                checked={this.state.saveUserSettingsForm.show_score}
                 onChange={linkEvent(this, this.handleShowScoresChange)}
               />
               <label className="form-check-label" htmlFor="user-show-scores">
@@ -1701,7 +1701,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       mui.local_user_view.local_user.show_score = event.target.checked;
     }
     i.setState(
-      s => ((s.saveUserSettingsForm.show_scores = event.target.checked), s),
+      s => ((s.saveUserSettingsForm.show_score = event.target.checked), s),
     );
   }
 

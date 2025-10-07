@@ -1,319 +1,125 @@
-import { capitalizeFirstLetter, cursorComponents } from "@utils/helpers";
-import { Component, InfernoMouseEvent, linkEvent } from "inferno";
-import { ListTaglinesResponse, MyUserInfo, Tagline } from "lemmy-js-client";
-import { HttpService, I18NextService } from "../../services";
-import { Icon, Spinner } from "../common/icon";
+import { Component, linkEvent } from "inferno";
+import {
+  CreateTagline,
+  DeleteTagline,
+  MyUserInfo,
+  Tagline,
+  UpdateTagline,
+} from "lemmy-js-client";
+import { I18NextService } from "../../services";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import classNames from "classnames";
-import { isBrowser } from "@utils/browser";
 import { Prompt } from "inferno-router";
-import {
-  EMPTY_REQUEST,
-  LOADING_REQUEST,
-  RequestState,
-} from "@services/HttpService";
-import { PaginatorCursor } from "@components/common/paginator-cursor";
-import { DirectionalCursor } from "@utils/types";
-
-interface EditableTagline {
-  change?: "update" | "delete" | "create";
-  editMode?: boolean;
-  tagline: Tagline;
-}
-
-function markForUpdate(editable: EditableTagline) {
-  if (editable.change !== "create") {
-    editable.change = "update";
-  }
-}
 
 interface TaglineFormProps {
+  tagline?: Tagline; // If a tagline is given, that means this is an edit
   myUserInfo: MyUserInfo | undefined;
+  onCreate?(form: CreateTagline): void;
+  onEdit?(form: UpdateTagline): void;
+  onDelete?(form: DeleteTagline): void;
 }
 
 interface TaglineFormState {
-  taglinesRes: RequestState<ListTaglinesResponse>;
-  taglines: Array<EditableTagline>;
-  cursor?: DirectionalCursor;
+  content?: string;
+  // Necessary since markdown doesn't clear after a create submit
+  clearMarkdown: boolean;
+  bypassNavWarning: boolean;
 }
 
 @tippyMixin
 export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
   state: TaglineFormState = {
-    taglinesRes: EMPTY_REQUEST,
-    taglines: [],
+    content: this.props.tagline ? this.props.tagline.content : undefined,
+    clearMarkdown: false,
+    bypassNavWarning: true,
   };
+
   constructor(props: any, context: any) {
     super(props, context);
-    this.handlePageChange = this.handlePageChange.bind(this);
-  }
-
-  componentWillMount(): void {
-    if (isBrowser()) {
-      this.handlePageChange();
-    }
-  }
-
-  hasPendingChanges(): boolean {
-    return this.state.taglines.some(x => x.change);
   }
 
   render() {
+    const submitTitle = I18NextService.i18n.t(
+      this.props.tagline ? "save" : "create",
+    );
+
+    const isChanged =
+      !this.props.tagline || this.props.tagline.content !== this.state.content;
+
     return (
-      <div className="tagline-form col-12">
+      <div className="tagline-form">
         <Prompt
           message={I18NextService.i18n.t("block_leaving")}
-          when={this.hasPendingChanges()}
+          when={!!this.state.content && !this.state.bypassNavWarning}
         />
-        <h1 className="h4 mb-4">{I18NextService.i18n.t("taglines")}</h1>
-        <div className="table-responsive col-12">
-          <table
-            id="taglines_table"
-            className="table table-sm table-hover align-middle"
-          >
-            <thead className="pointer">
-              <th></th>
-              <th style="width:60px"></th>
-              <th style="width:121px"></th>
-            </thead>
-            <tbody>
-              {this.state.taglines.map((cv, index) => (
-                <tr key={index}>
-                  <td>
-                    {cv.editMode ? (
-                      <MarkdownTextArea
-                        initialContent={cv.tagline.content}
-                        focus
-                        onContentChange={s =>
-                          this.handleTaglineChange(this, index, s)
-                        }
-                        hideNavigationWarnings
-                        allLanguages={[]}
-                        siteLanguages={[]}
-                        myUserInfo={this.props.myUserInfo}
-                      />
-                    ) : (
-                      <div>{cv.tagline.content}</div>
-                    )}
-                  </td>
-                  <td
-                    className={classNames("text-center", {
-                      "border-info": cv.change === "update",
-                      "border-danger": cv.change === "delete",
-                      "border-warning": cv.change === "create",
-                    })}
-                  >
-                    {cv.change === "update" && (
-                      <span>
-                        <Icon icon="transfer" />
-                      </span>
-                    )}
-                    {cv.change === "delete" && (
-                      <span>
-                        <Icon icon="trash" />
-                      </span>
-                    )}
-                    {cv.change === "create" && (
-                      <span>
-                        <Icon icon="add" inline />
-                      </span>
-                    )}
-                  </td>
-                  <td className="text-right">
-                    <button
-                      className="btn btn-link btn-animate text-muted"
-                      onClick={linkEvent(
-                        { i: this, index: index },
-                        this.handleEditTaglineClick,
-                      )}
-                      data-tippy-content={I18NextService.i18n.t("edit")}
-                      aria-label={I18NextService.i18n.t("edit")}
-                    >
-                      <Icon icon="edit" classes="icon-inline" />
-                    </button>
-
-                    <button
-                      className="btn btn-link btn-animate text-muted"
-                      onClick={linkEvent(
-                        { i: this, index: index },
-                        this.handleDeleteTaglineClick,
-                      )}
-                      data-tippy-content={I18NextService.i18n.t("delete")}
-                      aria-label={I18NextService.i18n.t("delete")}
-                    >
-                      <Icon icon="trash" classes="icon-inline text-danger" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="mb-3 row">
-            <div className="col-12">
+        <form className="row row-cols-md-auto g-3 mb-3 align-items-center">
+          <div className="col-12">
+            {!this.state.clearMarkdown && (
+              <MarkdownTextArea
+                initialContent={this.state.content}
+                focus
+                onContentChange={s => this.handleTaglineChange(this, s)}
+                hideNavigationWarnings
+                allLanguages={[]}
+                siteLanguages={[]}
+                myUserInfo={this.props.myUserInfo}
+              />
+            )}
+          </div>
+          <div className="col-12">
+            {this.props.tagline && (
               <button
-                className="btn btn-sm btn-secondary me-2"
-                onClick={linkEvent(this, this.handleAddTaglineClick)}
+                className="btn btn-danger me-2"
+                type="submit"
+                onClick={linkEvent(this, this.handleDeleteTagline)}
               >
-                {I18NextService.i18n.t("add_tagline")}
+                {I18NextService.i18n.t("delete")}
               </button>
-            </div>
-          </div>
-
-          <div className="mb-3 row">
-            <div className="col-12">
+            )}
+            {isChanged && (
               <button
-                onClick={linkEvent(this, this.handleSaveClick)}
-                className="btn btn-secondary me-2"
-                disabled={
-                  this.state.taglinesRes.state === "loading" ||
-                  !this.hasPendingChanges()
-                }
+                className="btn btn-secondary"
+                type="submit"
+                onClick={linkEvent(this, this.handleSubmitTagline)}
               >
-                {this.state.taglinesRes.state === "loading" ? (
-                  <Spinner />
-                ) : (
-                  capitalizeFirstLetter(I18NextService.i18n.t("save"))
-                )}
+                {submitTitle}
               </button>
-              {this.hasPendingChanges() && (
-                <button
-                  onClick={linkEvent(this, this.handleCancelClick)}
-                  className="btn btn-secondary me-2"
-                >
-                  {I18NextService.i18n.t("cancel")}
-                </button>
-              )}
-            </div>
+            )}
           </div>
-          <div>
-            <PaginatorCursor
-              current={this.state.cursor}
-              resource={this.state.taglinesRes}
-              onPageChange={this.handlePageChange}
-            />
-          </div>
-        </div>
+        </form>
       </div>
     );
   }
 
-  handleTaglineChange(i: TaglineForm, index: number, val: string) {
-    const editable = i.state.taglines[index];
-    i.setState(() => {
-      markForUpdate(editable);
-      const tagline: Tagline = editable.tagline;
-      tagline.content = val;
-    });
+  handleTaglineChange(i: TaglineForm, content: string) {
+    i.setState({ content, bypassNavWarning: false });
   }
 
-  async handleDeleteTaglineClick(
-    d: { i: TaglineForm; index: number },
-    event: any,
-  ) {
+  handleDeleteTagline(i: TaglineForm, event: any) {
     event.preventDefault();
-    const editable = d.i.state.taglines[d.index];
-    if (editable.change === "create") {
-      // This drops the entry immediately, other deletes have to be saved.
-      d.i.setState(prev => {
-        return { taglines: prev.taglines.filter(x => x !== editable) };
+    const id = i.props.tagline?.id;
+    if (id) {
+      i.setState({ bypassNavWarning: true });
+      i.props.onDelete?.({ id });
+    }
+  }
+
+  handleSubmitTagline(i: TaglineForm, event: any) {
+    event.preventDefault();
+
+    const content = i.state.content ?? "";
+
+    if (i.props.tagline) {
+      i.setState({ bypassNavWarning: true });
+      i.props.onEdit?.({
+        id: i.props.tagline.id,
+        content,
       });
     } else {
-      d.i.setState(() => {
-        editable.change = "delete";
-        editable.editMode = false;
-      });
+      // Clear the markdown
+      i.setState({ clearMarkdown: true });
+      i.setState({ clearMarkdown: false, content: undefined });
+      i.props.onCreate?.({ content });
     }
-  }
-
-  handleEditTaglineClick(d: { i: TaglineForm; index: number }, event: any) {
-    event.preventDefault();
-    const editable = d.i.state.taglines[d.index];
-    d.i.setState(prev => {
-      prev.taglines
-        .filter(x => x !== editable)
-        .forEach(x => {
-          x.editMode = false;
-        });
-      editable.editMode = !editable.editMode;
-    });
-  }
-
-  async handleSaveClick(i: TaglineForm) {
-    const promises: Promise<any>[] = [];
-    for (const editable of i.state.taglines) {
-      if (editable.change === "update") {
-        promises.push(
-          HttpService.client.editTagline(editable.tagline).then(res => {
-            if (res.state === "success") {
-              i.setState(() => {
-                editable.change = undefined;
-                editable.tagline = res.data.tagline;
-              });
-            }
-          }),
-        );
-      } else if (editable.change === "delete") {
-        promises.push(
-          HttpService.client.deleteTagline(editable.tagline).then(res => {
-            if (res.state === "success") {
-              i.setState(() => {
-                editable.change = undefined;
-                return {
-                  taglines: i.state.taglines.filter(x => x !== editable),
-                };
-              });
-            }
-          }),
-        );
-      } else if (editable.change === "create") {
-        promises.push(
-          HttpService.client.createTagline(editable.tagline).then(res => {
-            if (res.state === "success") {
-              i.setState(() => {
-                editable.change = undefined;
-                editable.tagline = res.data.tagline;
-              });
-            }
-          }),
-        );
-      }
-    }
-    await Promise.all(promises);
-  }
-
-  async handleCancelClick(i: TaglineForm) {
-    i.handlePageChange(i.state.cursor);
-  }
-
-  async handleAddTaglineClick(
-    i: TaglineForm,
-    event: InfernoMouseEvent<HTMLButtonElement>,
-  ) {
-    event.preventDefault();
-    i.setState(prev => {
-      prev.taglines.forEach(x => {
-        x.editMode = false;
-      });
-      prev.taglines.push({
-        tagline: { id: -1, content: "", published_at: "" },
-        change: "create",
-        editMode: true,
-      });
-    });
-  }
-
-  async handlePageChange(cursor?: DirectionalCursor) {
-    this.setState({ taglinesRes: LOADING_REQUEST, cursor });
-    const taglinesRes = await HttpService.client.listTaglines({
-      ...cursorComponents(cursor),
-    });
-    this.setState({
-      taglinesRes,
-      taglines:
-        taglinesRes.state === "success"
-          ? taglinesRes.data.taglines.map(t => ({ tagline: t }))
-          : [],
-    });
   }
 }

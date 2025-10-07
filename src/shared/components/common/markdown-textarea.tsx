@@ -235,7 +235,7 @@ export class MarkdownTextArea extends Component<
                 />
                 {this.state.previewMode && this.state.content && (
                   <div
-                    className="card border-secondary card-body md-div"
+                    className="card card-body md-div"
                     dangerouslySetInnerHTML={mdToHtml(this.state.content, () =>
                       this.forceUpdate(),
                     )}

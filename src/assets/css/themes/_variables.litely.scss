@@ -15,15 +15,14 @@ $orange: #f1641e;
 $green: #00a846;
 $cyan: #02bdc2;
 
-$primary: $orange;
-$secondary: $green;
-$success: $indigo;
-$info: $blue;
-$danger: darken($primary, 25%);
+$primary: $blue;
+$secondary: $gray-600;
+$success: $green;
+$info: $orange;
+$danger: $red;
 
 $body-color: $gray-700;
 $body-bg: #fff;
-$link-color: $primary;
 $border-color: rgba($body-color, 0.25);
 $mark-bg: rgb(255, 252, 239);
 $headings-color: $gray-700;
@@ -32,10 +31,6 @@ $font-family-sans-serif:
   -apple-system, BlinkMacSystemFont, "Droid Sans", "Segoe UI", Verdana, "Arimo",
   "Helvetica", Arial, sans-serif;
 $font-weight-bold: 600;
-
-$card-color: $gray-700;
-$card-cap-color: $gray-700;
-$card-bg: $gray-100;
 
 $navbar-dark-toggler-border-color: rgba($black, 0.1);
 $navbar-light-color: $gray-600;
