@@ -522,7 +522,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <Link
         className={`d-inline ${
           !post.featured_community && !post.featured_local
-            ? "link-dark"
+            ? "text-body"
             : "link-primary"
         }`}
         to={`/post/${post.id}`}
@@ -548,7 +548,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <a
                 className={
                   !post.featured_community && !post.featured_local
-                    ? "link-dark"
+                    ? "text-body"
                     : "link-primary"
                 }
                 href={url}
@@ -644,7 +644,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <p className="small m-0">
             {url && !(hostname(url) === getExternalHost()) && (
               <a
-                className="fst-italic link-dark link-opacity-75 link-opacity-100-hover"
+                className="fst-italic text-body link-opacity-75 link-opacity-100-hover"
                 href={url}
                 title={url}
                 rel={relTags}
@@ -725,7 +725,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <div className="post-title">
                     <h1 className="h5 d-inline text-break">
                       <Link
-                        className="d-inline link-dark"
+                        className="d-inline text-body"
                         to={`/post/${pv.post.id}`}
                         title={I18NextService.i18n.t("comments")}
                       >
@@ -977,7 +977,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <button
         type="button"
-        className="btn btn-sm btn-link link-dark link-opacity-75 link-opacity-100-hover py-0 align-baseline"
+        className="btn btn-sm btn-link text-body link-opacity-75 link-opacity-100-hover py-0 align-baseline"
         onClick={linkEvent(this, this.handleShowBody)}
         aria-pressed={!this.state.showBody ? "false" : "true"}
       >
