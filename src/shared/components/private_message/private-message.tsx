@@ -265,7 +265,7 @@ export class PrivateMessage extends Component<
           <div className="row">
             <div className="col-sm-6">
               <PrivateMessageForm
-                replyType={true}
+                replyType
                 recipient={otherPerson}
                 myUserInfo={this.props.myUserInfo}
                 onCreate={this.handleCreate}

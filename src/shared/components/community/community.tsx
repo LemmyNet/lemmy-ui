@@ -445,15 +445,15 @@ export class Community extends Component<CommunityRouteProps, State> {
             {this.renderCommunity()}
             {this.selects()}
             {this.listings()}
-            <div class="row">
-              <div class="col">
+            <div className="row">
+              <div className="col">
                 <PaginatorCursor
                   current={this.props.cursor}
                   resource={this.currentRes}
                   onPageChange={this.handlePageChange}
                 />
               </div>
-              <div class="col-auto">{this.markPageAsReadButton}</div>
+              <div className="col-auto">{this.markPageAsReadButton}</div>
             </div>
           </div>
           <aside className="d-none d-md-block col-md-4 col-lg-3">
@@ -477,9 +477,9 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
-      <div class="my-2">
+      <div className="my-2">
         <button
-          class="btn btn-secondary"
+          className="btn btn-secondary"
           onClick={linkEvent(this, this.handleMarkPageAsRead)}
         >
           {I18NextService.i18n.t("mark_page_as_read")}
@@ -720,7 +720,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         )}
         <div className="col-auto ps-0">
           <button
-            class="btn btn-secondary"
+            className="btn btn-secondary"
             onClick={this.handleExpandImageClick}
             aria-label={I18NextService.i18n.t("expand_all_images")}
             data-tippy-content={I18NextService.i18n.t("expand_all_images")}

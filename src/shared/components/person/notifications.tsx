@@ -445,7 +445,7 @@ export class Notifications extends Component<
           this.isoData.myUserInfo && (
             <PostListing
               post_view={i}
-              showCommunity={true}
+              showCommunity
               showDupes="ShowSeparately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
@@ -455,7 +455,7 @@ export class Notifications extends Component<
               myUserInfo={this.isoData.myUserInfo}
               localSite={this.isoData.siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
-              viewOnly={true} // TODO: comments do allow edits and moderation
+              viewOnly // TODO: comments do allow edits and moderation
               onPostEdit={async () => EMPTY_REQUEST}
               onPostVote={async () => EMPTY_REQUEST}
               onPostReport={async () => {}}
@@ -474,8 +474,8 @@ export class Notifications extends Component<
               onAddAdmin={async () => {}}
               onTransferCommunity={async () => {}}
               onHidePost={async () => {}}
-              markable={true}
-              disableAutoMarkAsRead={true}
+              markable
+              disableAutoMarkAsRead
               read={item.notification.read}
               onMarkPostAsRead={this.handleMarkPostAsRead}
               onPersonNote={this.handlePersonNote}
