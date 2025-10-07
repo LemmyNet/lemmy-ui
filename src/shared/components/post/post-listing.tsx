@@ -1214,7 +1214,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   get showBody(): boolean {
-    return this.props.showBody || this.state.showBody;
+    return (
+      this.props.showBody ||
+      this.state.showBody ||
+      this.props.postListingMode === "Card"
+    );
   }
 
   handleRemove(reason: string) {
