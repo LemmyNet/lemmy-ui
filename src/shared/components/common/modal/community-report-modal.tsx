@@ -76,7 +76,7 @@ export default class CommunityReportModal extends Component<
                 id="community-report-form"
               >
                 <div className="row mb-3">
-                  <div class="col">
+                  <div className="col">
                     <label
                       className="visually-hidden"
                       htmlFor="community-report-reason"

@@ -101,8 +101,8 @@ export class CommentReport extends Component<
           node={node}
           admins={this.props.admins}
           viewType={CommentViewType.Flat}
-          viewOnly={true}
-          showCommunity={true}
+          viewOnly
+          showCommunity
           allLanguages={[]}
           siteLanguages={[]}
           hideImages
@@ -217,7 +217,7 @@ export class CommentReport extends Component<
             modActionType="remove-comment"
             isRemoved={comment_view.comment.removed}
             onCancel={() => this.setState({ showRemoveCommentDialog: false })}
-            show={true}
+            show
           />
         )}
       </div>

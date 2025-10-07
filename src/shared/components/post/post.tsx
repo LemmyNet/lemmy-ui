@@ -682,7 +682,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               </div>
               <div className="col-12 d-flex flex-wrap">
                 {this.sortRadios()}
-                <div class="flex-grow-1"></div>
+                <div className="flex-grow-1"></div>
                 <div className="btn-group w-auto mb-2" role="group">
                   <PostNotificationSelect
                     current={this.state.notifications}
