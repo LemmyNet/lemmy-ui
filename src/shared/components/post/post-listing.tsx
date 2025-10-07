@@ -1066,7 +1066,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                 />
               </div>
             )}
-            <div className="col flex-grow-1 ps-0">
+            <div className="col flex-grow-1">
               <div className="row">
                 {!showExpandedImage && (
                   <div className={`${imageCols} px-0`}>{this.thumbnail()}</div>
