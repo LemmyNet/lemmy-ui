@@ -342,13 +342,19 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     const url = post.url;
     const thumbnail = post.thumbnail_url;
     const imageSrc = url && isImage(url) ? url : thumbnail;
+    const imageDetails = this.postView.image_details;
 
     if (imageSrc) {
       return (
         <>
           <div className="my-2 d-none d-sm-block">
             <a href={imageSrc}>
-              <PictrsImage src={imageSrc} alt={post.alt_text} />
+              <PictrsImage
+                src={imageSrc}
+                alt={post.alt_text}
+                width={imageDetails?.width}
+                height={imageDetails?.height}
+              />
             </a>
           </div>
           <div className="my-2 d-block d-sm-none">
@@ -357,7 +363,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               className="p-0 border-0 bg-transparent"
               onClick={linkEvent(this, this.handleImageExpandClick)}
             >
-              <PictrsImage src={imageSrc} alt={post.alt_text} />
+              <PictrsImage
+                src={imageSrc}
+                alt={post.alt_text}
+                width={imageDetails?.width}
+                height={imageDetails?.height}
+              />
             </button>
           </div>
         </>

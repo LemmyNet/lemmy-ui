@@ -35,6 +35,7 @@ import { I18NextService } from "../../services";
 import { PostListing } from "./post-listing";
 import { RequestState } from "../../services/HttpService";
 import { ShowDupesType } from "@utils/types";
+import { isBrowser } from "@utils/browser";
 
 interface PostListingsProps {
   posts: PostView[];
@@ -86,11 +87,21 @@ export class PostListings extends Component<PostListingsProps, any> {
       : this.props.posts;
   }
 
+  async componentWillUpdate() {
+    if (isBrowser()) {
+      const Masonry = (await import("masonry-layout")).default;
+      new Masonry(".post-listings-grid", {
+        percentPosition: true,
+        horizontalOrder: true,
+      });
+    }
+  }
+
   render() {
     return (
       <div className="post-listings">
         {this.posts.length > 0 ? (
-          <div className="row">
+          <div className="row post-listings-grid">
             {this.posts.map((post_view, idx) => (
               <div className={postListingModeCols(this.props.postListingMode)}>
                 <PostListing
