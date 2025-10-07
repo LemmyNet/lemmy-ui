@@ -1,4 +1,5 @@
 const fs = require("fs");
+const lemmyjsclient = require("lemmy-js-client");
 
 const translationDir = "lemmy-translations/translations/";
 const outDir = "src/shared/translations/";
@@ -40,7 +41,8 @@ fs.readFile(`${translationDir}${baseLanguage}.json`, "utf8", (_, fileStr) => {
   const optionRegex = /\{\{(.+?)\}\}/g;
   const optionMap = new Map();
 
-  for (const [key, val] of Object.entries(JSON.parse(fileStr))) {
+  const entries = Object.entries(JSON.parse(fileStr));
+  for (const [key, val] of entries) {
     const options = [];
     for (
       let match = optionRegex.exec(val);
@@ -57,6 +59,13 @@ fs.readFile(`${translationDir}${baseLanguage}.json`, "utf8", (_, fileStr) => {
       noOptionKeys.push(key);
     }
   }
+
+  const translation_keys = entries.map(e => e[0]);
+  lemmyjsclient.AllLemmyErrors.forEach(e => {
+    if (!translation_keys.includes(e)) {
+      console.error(`Missing error translation for ${e}`);
+    }
+  });
 
   const indent = "    ";
 
