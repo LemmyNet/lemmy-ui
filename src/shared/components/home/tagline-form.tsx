@@ -57,7 +57,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
             {!this.state.clearMarkdown && (
               <MarkdownTextArea
                 initialContent={this.state.content}
-                focus={true}
+                focus
                 onContentChange={s => this.handleTaglineChange(this, s)}
                 hideNavigationWarnings
                 allLanguages={[]}
