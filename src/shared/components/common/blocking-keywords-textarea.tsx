@@ -20,16 +20,16 @@ function handleTextBlur(i: BlockingKeywordsTextArea, _event: any) {
 }
 
 function toText(keywords: string[]): string {
-  return keywords.map(k => k.trim()).join(",");
+  return keywords.join("\n");
 }
 
 function fromText(text: string): string[] {
-  // Remove whitespace
-  const intermediateText = text.replace(/\s/g, "");
+  // Split lines
+  const intermediateText = text.replace(/\s+/g, "\n");
 
-  // Split by commas, and filter out empty strings
+  // Split by newlines, and filter out empty strings
   // Note: an empty array is a Some(None) / erase
-  const keywords = intermediateText.split(",").filter(k => k.trim());
+  const keywords = intermediateText.split("\n").filter(k => k.trim());
   return keywords;
 }
 
