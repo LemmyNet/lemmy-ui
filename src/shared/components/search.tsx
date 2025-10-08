@@ -189,7 +189,7 @@ const communityListing = (
           <div>
             <CommunityLink community={c.community} myUserInfo={myUserInfo} />
             <Badges
-              className="ms-1 d-inline-flex"
+              className="ms-2 d-inline-flex"
               communityId={c.community.id}
               subject={c.community}
               lessBadges

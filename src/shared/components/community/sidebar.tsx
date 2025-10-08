@@ -174,7 +174,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       <aside className="mb-3">
         <div id="sidebarContainer">
           {!this.props.hideButtons && (
-            <section id="sidebarMain" className="card border-secondary mb-3">
+            <section id="sidebarMain" className="card mb-3">
               <div className="card-body">
                 {this.communityTitle()}
                 {this.props.editable && this.adminButtons()}
@@ -254,7 +254,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
               </div>
             </section>
           )}
-          <section id="sidebarInfo" className="card border-secondary mb-3">
+          <section id="sidebarInfo" className="card mb-3">
             <div className="card-body">
               {posting_restricted_to_mods && (
                 <div
@@ -751,7 +751,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onRemoveCommunity({
       community_id: i.props.community_view.community.id,
       removed: !i.props.community_view.community.removed,
-      reason: i.state.removeReason,
+      reason: i.state.removeReason ?? "",
     });
   }
 
@@ -760,7 +760,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.setState({ purgeCommunityLoading: true });
     i.props.onPurgeCommunity({
       community_id: i.props.community_view.community.id,
-      reason: i.state.purgeReason,
+      reason: i.state.purgeReason ?? "",
     });
   }
 

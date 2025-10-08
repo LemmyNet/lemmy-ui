@@ -46,31 +46,30 @@ interface ViewVotesModalState {
 
 function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
   return (
-    <div className="table-responsive">
-      <table id="community_table" className="table table-sm table-hover">
-        <tbody>
-          {votes.map(v => (
-            <tr key={v.creator.id}>
-              <td className="text-start">
-                <PersonListing
-                  person={v.creator}
-                  useApubName
-                  myUserInfo={myUserInfo}
-                />
-                <UserBadges
-                  classNames="ms-1"
-                  creator={v.creator}
-                  isBanned={v.creator_banned}
-                  isBannedFromCommunity={v.creator_banned_from_community}
-                  myUserInfo={myUserInfo}
-                  showCounts
-                />
-              </td>
-              <td className="text-end">{scoreToIcon(v.score)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div id="votes-table">
+      {votes.map(v => (
+        <>
+          <div className="row" key={v.creator.id}>
+            <div className="col-10">
+              <PersonListing
+                person={v.creator}
+                useApubName
+                myUserInfo={myUserInfo}
+              />
+              <UserBadges
+                classNames="ms-1"
+                creator={v.creator}
+                isBanned={v.creator_banned}
+                isBannedFromCommunity={v.creator_banned_from_community}
+                myUserInfo={myUserInfo}
+                showCounts
+              />
+            </div>
+            <div className="col-2">{scoreToIcon(v.score)}</div>
+          </div>
+          <hr />
+        </>
+      ))}
     </div>
   );
 }

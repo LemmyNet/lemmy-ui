@@ -12,18 +12,19 @@ $gray-900: #222;
 
 $blue: #375a7f;
 $red: #e74c3c;
+$orange: #f1641e;
 $yellow: #f39c12;
 $green: #00bc8c;
 $cyan: #3498db;
 
-$primary: $green;
+$primary: $blue;
 $secondary: $gray-500;
 $success: $green;
+$info: $orange;
 $dark: $gray-300;
 
 $body-color: $gray-300;
 $body-bg: $gray-900;
-$link-color: $success;
 $border-color: rgba($body-color, 0.25);
 $mark-bg: #333;
 $mark-bg-dark: #333;
@@ -47,9 +48,6 @@ $font-family-sans-serif:
 $h1-font-size: 3rem;
 $h2-font-size: 2.5rem;
 $h3-font-size: 2rem;
-
-$card-cap-bg: $gray-700;
-$card-bg: $gray-800;
 
 $navbar-padding-y: 1rem;
 $navbar-dark-color: rgba($white, 0.6);

@@ -522,7 +522,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <Link
         className={`d-inline ${
           !post.featured_community && !post.featured_local
-            ? "link-dark"
+            ? "text-body"
             : "link-primary"
         }`}
         to={`/post/${post.id}`}
@@ -548,7 +548,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <a
                 className={
                   !post.featured_community && !post.featured_local
-                    ? "link-dark"
+                    ? "text-body"
                     : "link-primary"
                 }
                 href={url}
@@ -571,7 +571,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             this.showPreviewButton()}
 
           {post.removed && (
-            <small className="ms-2 badge text-bg-secondary">
+            <small className="ms-2 badge text-bg-light">
               {I18NextService.i18n.t("removed")}
             </small>
           )}
@@ -644,7 +644,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <p className="small m-0">
             {url && !(hostname(url) === getExternalHost()) && (
               <a
-                className="fst-italic link-dark link-opacity-75 link-opacity-100-hover"
+                className="fst-italic text-body link-opacity-75 link-opacity-100-hover"
                 href={url}
                 title={url}
                 rel={relTags}
@@ -725,7 +725,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <div className="post-title">
                     <h1 className="h5 d-inline text-break">
                       <Link
-                        className="d-inline link-dark"
+                        className="d-inline text-body"
                         to={`/post/${pv.post.id}`}
                         title={I18NextService.i18n.t("comments")}
                       >

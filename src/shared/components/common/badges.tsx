@@ -30,7 +30,7 @@ export const Badges = ({
       {!lessBadges && (
         <>
           <li
-            className="list-inline-item badge text-bg-secondary pointer"
+            className="list-inline-item badge text-bg-light pointer"
             data-tippy-content={I18NextService.i18n.t(
               "active_users_in_the_last_day",
               {
@@ -46,7 +46,7 @@ export const Badges = ({
             / {I18NextService.i18n.t("day")}
           </li>
           <li
-            className="list-inline-item badge text-bg-secondary pointer"
+            className="list-inline-item badge text-bg-light pointer"
             data-tippy-content={I18NextService.i18n.t(
               "active_users_in_the_last_week",
               {
@@ -64,7 +64,7 @@ export const Badges = ({
         </>
       )}
       <li
-        className="list-inline-item badge text-bg-secondary pointer"
+        className="list-inline-item badge text-bg-light pointer"
         data-tippy-content={I18NextService.i18n.t(
           "active_users_in_the_last_month",
           {
@@ -81,7 +81,7 @@ export const Badges = ({
       </li>
       {!lessBadges && (
         <li
-          className="list-inline-item badge text-bg-secondary pointer"
+          className="list-inline-item badge text-bg-light pointer"
           data-tippy-content={I18NextService.i18n.t(
             "active_users_in_the_last_six_months",
             {
@@ -103,13 +103,13 @@ export const Badges = ({
       )}
       {isLocalSite(subject) && (
         <>
-          <li className="list-inline-item badge text-bg-secondary">
+          <li className="list-inline-item badge text-bg-light">
             {I18NextService.i18n.t("number_of_users", {
               count: Number(subject.users),
               formattedCount: numToSI(subject.users),
             })}
           </li>
-          <li className="list-inline-item badge text-bg-secondary">
+          <li className="list-inline-item badge text-bg-light">
             {I18NextService.i18n.t("number_of_communities", {
               count: Number(subject.communities),
               formattedCount: numToSI(subject.communities),
@@ -120,14 +120,14 @@ export const Badges = ({
       {isCommunity(subject) && (
         <>
           {!lessBadges && (
-            <li className="list-inline-item badge text-bg-secondary">
+            <li className="list-inline-item badge text-bg-light">
               {I18NextService.i18n.t("number_of_local_subscribers", {
                 count: Number(subject.subscribers_local),
                 formattedCount: numToSI(subject.subscribers_local),
               })}
             </li>
           )}
-          <li className="list-inline-item badge text-bg-secondary">
+          <li className="list-inline-item badge text-bg-light">
             {I18NextService.i18n.t("number_of_subscribers", {
               count: Number(subject.subscribers),
               formattedCount: numToSI(subject.subscribers),
@@ -135,13 +135,13 @@ export const Badges = ({
           </li>
         </>
       )}
-      <li className="list-inline-item badge text-bg-secondary">
+      <li className="list-inline-item badge text-bg-light">
         {I18NextService.i18n.t("number_of_posts", {
           count: Number(subject.posts),
           formattedCount: numToSI(subject.posts),
         })}
       </li>
-      <li className="list-inline-item badge text-bg-secondary">
+      <li className="list-inline-item badge text-bg-light">
         {I18NextService.i18n.t("number_of_comments", {
           count: Number(subject.comments),
           formattedCount: numToSI(subject.comments),
@@ -150,7 +150,7 @@ export const Badges = ({
       {!lessBadges && (
         <li className="list-inline-item">
           <Link
-            className="badge text-bg-primary"
+            className="badge text-bg-secondary"
             to={`/modlog${communityId ? `/${communityId}` : ""}`}
           >
             {I18NextService.i18n.t("modlog")}

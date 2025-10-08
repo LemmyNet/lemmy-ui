@@ -17,6 +17,7 @@ import AdultConsentModal from "../common/modal/adult-consent-modal";
 import { destroyTippy, setupTippy } from "@utils/tippy";
 import { Locale, setDefaultOptions } from "date-fns";
 import { i18n } from "i18next";
+import { setupEmojiDataModel } from "@utils/markdown";
 
 function handleJumpToContent(app: App, event: any) {
   event.preventDefault();
@@ -43,8 +44,9 @@ export default class App extends Component<AppProps, any> {
     setDefaultOptions({ locale: this.props.dateFnsLocale });
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     setupTippy(this.rootRef);
+    await setupEmojiDataModel();
   }
 
   componentWillUnmount() {
