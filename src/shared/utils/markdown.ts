@@ -349,7 +349,7 @@ export async function setupTribute() {
         trigger: "@",
         selectTemplate: (item: any) => {
           const it: PersonTribute = item.original;
-          return `[${it.key}](${it.view.person.ap_id})`;
+          return it.key;
         },
         values: debounce(async (text: string, cb: any) => {
           cb(await personSearch(text));
@@ -366,7 +366,7 @@ export async function setupTribute() {
         trigger: "!",
         selectTemplate: (item: any) => {
           const it: CommunityTribute = item.original;
-          return `[${it.key}](${it.view.community.ap_id})`;
+          return it.key;
         },
         values: debounce(async (text: string, cb: any) => {
           cb(await communitySearch(text));
