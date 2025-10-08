@@ -7,7 +7,7 @@ import { InfernoNode } from "inferno";
 export default function CrossPostButton(props: CrossPostParams): InfernoNode {
   return (
     <Link
-      className="btn btn-sm btn-link btn-animate text-muted py-0"
+      className="btn btn-link btn-animate text-muted py-0"
       to={{
         pathname: "/create_post",
         state: props,

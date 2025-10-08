@@ -454,7 +454,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         />
                         <button
                           type="button"
-                          className="btn btn-sm btn-link btn-animate text-muted"
+                          className="btn btn-sm btn-link btn-animate text-muted py-0"
                           onClick={linkEvent(this, handleToggleViewSource)}
                           data-tippy-content={I18NextService.i18n.t(
                             "view_source",
