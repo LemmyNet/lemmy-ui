@@ -977,7 +977,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <button
         type="button"
-        className="btn btn-link link-dark link-opacity-75 link-opacity-100-hover align-baseline py-0"
+        className="btn btn-link text-body link-opacity-75 link-opacity-100-hover align-baseline py-0"
         onClick={linkEvent(this, this.handleShowBody)}
         aria-pressed={!this.state.showBody ? "false" : "true"}
       >
