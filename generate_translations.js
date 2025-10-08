@@ -61,7 +61,7 @@ fs.readFile(`${translationDir}${baseLanguage}.json`, "utf8", (_, fileStr) => {
   }
 
   const translationKeys = entries.map(e => e[0]);
-  var missingErrorTranslations = false;
+  let missingErrorTranslations = false;
   lemmyjsclient.AllLemmyErrors.forEach(e => {
     if (!translationKeys.includes(e)) {
       missingErrorTranslations = true;
