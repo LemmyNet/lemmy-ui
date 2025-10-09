@@ -45,6 +45,7 @@ interface SidebarProps {
   enableNsfw?: boolean;
   showIcon?: boolean;
   editable?: boolean;
+  hideButtons?: boolean;
   myUserInfo: MyUserInfo | undefined;
   onDeleteCommunity(form: DeleteCommunity): void;
   onRemoveCommunity(form: RemoveCommunity): void;
@@ -178,87 +179,92 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
-          <section id="sidebarMain" className="card border-secondary mb-3">
-            <div className="card-body">
-              {this.communityTitle()}
-              {this.props.editable && this.adminButtons()}
-              {received_ban_at && (
-                <div
-                  className="alert alert-danger text-sm-start text-xs-center mt-2"
-                  role="alert"
-                >
-                  <Icon
-                    icon="ban"
-                    inline
-                    classes="me-sm-2 mx-auto d-sm-inline d-block"
-                  />
-                  <T i18nKey="banned_from_community_blurb" className="d-inline">
-                    #<strong className="fw-bold">#</strong>#
-                  </T>
-                </div>
-              )}
-              {!received_ban_at && (
-                <>
-                  <SubscribeButton
-                    communityView={this.props.community_view}
-                    onFollow={linkEvent(this, this.handleFollowCommunity)}
-                    onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
-                    loading={this.state.followCommunityLoading}
-                    showRemoteFetch={!this.props.myUserInfo}
-                  />
-                  {this.canPost && canViewCommunity_ && this.createPost()}
-                </>
-              )}
-              <>
-                {this.props.myUserInfo && this.blockCommunity()}
-                {canViewCommunity_ && (
-                  <>
-                    <div className="mb-2 d-flex">
-                      <CommunityNotificationSelect
-                        current={this.state.notifications}
-                        onChange={this.handleNotificationChange}
-                      />
-                    </div>
-                    <form
-                      class="d-flex"
-                      onSubmit={linkEvent(this, this.handleSearchSubmit)}
+          {!this.props.hideButtons && (
+            <section id="sidebarMain" className="card mb-3">
+              <div className="card-body">
+                {this.communityTitle()}
+                {this.props.editable && this.adminButtons()}
+                {received_ban_at && (
+                  <div
+                    className="alert alert-danger text-sm-start text-xs-center mt-2"
+                    role="alert"
+                  >
+                    <Icon
+                      icon="ban"
+                      inline
+                      classes="me-sm-2 mx-auto d-sm-inline d-block"
+                    />
+                    <T
+                      i18nKey="banned_from_community_blurb"
+                      className="d-inline"
                     >
-                      <input
-                        name="q"
-                        type="search"
-                        className="form-control flex-initial"
-                        placeholder={`${I18NextService.i18n.t("search")}...`}
-                        aria-label={I18NextService.i18n.t("search")}
-                        onInput={linkEvent(this, this.handleSearchChange)}
-                        required
-                        minLength={1}
-                      />
-                      <button
-                        type="submit"
-                        class="btn btn-outline-secondary ms-1"
-                      >
-                        <Icon icon="search" />
-                      </button>
-                    </form>
+                      #<strong className="fw-bold">#</strong>#
+                    </T>
+                  </div>
+                )}
+                {!received_ban_at && (
+                  <>
+                    <SubscribeButton
+                      communityView={this.props.community_view}
+                      onFollow={linkEvent(this, this.handleFollowCommunity)}
+                      onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
+                      loading={this.state.followCommunityLoading}
+                      showRemoteFetch={!this.props.myUserInfo}
+                    />
+                    {this.canPost && canViewCommunity_ && this.createPost()}
                   </>
                 )}
-              </>
-              {!this.props.myUserInfo && (
-                <div className="alert alert-info" role="alert">
-                  <T
-                    i18nKey="community_not_logged_in_alert"
-                    interpolation={{
-                      community: name,
-                      instance: hostname(ap_id),
-                    }}
-                  >
-                    #<code className="user-select-all">#</code>#
-                  </T>
-                </div>
-              )}
-            </div>
-          </section>
-          <section id="sidebarInfo" className="card border-secondary mb-3">
+                <>
+                  {this.props.myUserInfo && this.blockCommunity()}
+                  {canViewCommunity_ && (
+                    <>
+                      <div className="mb-2 d-flex">
+                        <CommunityNotificationSelect
+                          current={this.state.notifications}
+                          onChange={this.handleNotificationChange}
+                        />
+                      </div>
+                      <form
+                        className="d-flex"
+                        onSubmit={linkEvent(this, this.handleSearchSubmit)}
+                      >
+                        <input
+                          name="q"
+                          type="search"
+                          className="form-control flex-initial"
+                          placeholder={`${I18NextService.i18n.t("search")}...`}
+                          aria-label={I18NextService.i18n.t("search")}
+                          onInput={linkEvent(this, this.handleSearchChange)}
+                          required
+                          minLength={1}
+                        />
+                        <button
+                          type="submit"
+                          className="btn btn-outline-secondary ms-1"
+                        >
+                          <Icon icon="search" />
+                        </button>
+                      </form>
+                    </>
+                  )}
+                </>
+                {!this.props.myUserInfo && (
+                  <div className="alert alert-info" role="alert">
+                    <T
+                      i18nKey="community_not_logged_in_alert"
+                      interpolation={{
+                        community: name,
+                        instance: hostname(ap_id),
+                      }}
+                    >
+                      #<code className="user-select-all">#</code>#
+                    </T>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+          <section id="sidebarInfo" className="card mb-3">
             <div className="card-body">
               {posting_restricted_to_mods && (
                 <div
@@ -742,7 +748,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.props.onRemoveCommunity({
       community_id: i.props.community_view.community.id,
       removed: !i.props.community_view.community.removed,
-      reason: i.state.removeReason,
+      reason: i.state.removeReason ?? "",
     });
   }
 
@@ -751,7 +757,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     i.setState({ purgeCommunityLoading: true });
     i.props.onPurgeCommunity({
       community_id: i.props.community_view.community.id,
-      reason: i.state.purgeReason,
+      reason: i.state.purgeReason ?? "",
     });
   }
 

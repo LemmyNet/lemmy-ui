@@ -210,7 +210,7 @@ export class VoteButtonsCompact extends Component<
           <button
             type="button"
             className={`btn btn-animate btn-sm btn-link py-0 px-1 ${
-              this.props.myVote === 1 ? "text-info" : "text-muted"
+              this.props.myVote === 1 ? "text-primary" : "text-muted"
             }`}
             data-tippy-content={tippy(
               localUser,
@@ -320,7 +320,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
           <button
             type="button"
             className={`btn-animate btn btn-link p-0 ${
-              this.props.myVote === 1 ? "text-info" : "text-muted"
+              this.props.myVote === 1 ? "text-primary" : "text-muted"
             }`}
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}

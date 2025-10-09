@@ -189,14 +189,14 @@ const communityListing = (
           <div>
             <CommunityLink community={c.community} myUserInfo={myUserInfo} />
             <Badges
-              className="ms-1 d-inline-flex"
+              className="ms-2 d-inline-flex"
               communityId={c.community.id}
               subject={c.community}
               lessBadges
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );
@@ -228,7 +228,7 @@ const personListing = (
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );
@@ -259,6 +259,7 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
               onPostVote={async () => EMPTY_REQUEST}
               onPostReport={async () => {}}
               onBlockPerson={async () => {}}
+              onBlockCommunity={async () => {}}
               onLockPost={async () => {}}
               onDeletePost={async () => {}}
               onRemovePost={async () => {}}
@@ -277,7 +278,7 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );
@@ -303,6 +304,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
               viewOnly
               postLocked
               isTopLevel
+              showCommunity
               myUserInfo={isoData.myUserInfo}
               localSite={isoData.siteRes.site_view.local_site}
               allLanguages={isoData.siteRes.all_languages}
@@ -311,6 +313,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
               // All of these are unused, since its viewonly
               onSaveComment={async () => {}}
               onBlockPerson={async () => {}}
+              onBlockCommunity={async () => {}}
               onDeleteComment={async () => {}}
               onRemoveComment={async () => {}}
               onCommentVote={async () => {}}
@@ -330,7 +333,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );
@@ -849,6 +852,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         viewOnly
         postLocked
         isTopLevel
+        showCommunity
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
         myUserInfo={this.isoData.myUserInfo}
@@ -857,6 +861,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         // All of these are unused, since its viewonly
         onSaveComment={async () => {}}
         onBlockPerson={async () => {}}
+        onBlockCommunity={async () => {}}
         onDeleteComment={async () => {}}
         onRemoveComment={async () => {}}
         onCommentVote={async () => {}}
@@ -906,6 +911,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 onPostVote={async () => EMPTY_REQUEST}
                 onPostReport={async () => {}}
                 onBlockPerson={async () => {}}
+                onBlockCommunity={async () => {}}
                 onLockPost={async () => {}}
                 onDeletePost={async () => {}}
                 onRemovePost={async () => {}}

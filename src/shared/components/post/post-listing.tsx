@@ -3,10 +3,10 @@ import { canShare, share } from "@utils/browser";
 import { getExternalHost, getHttpBase } from "@utils/env";
 import { hostname, unreadCommentsCount } from "@utils/helpers";
 import { formatRelativeDate, futureDaysToUnixTime } from "@utils/date";
-import { isImage, isVideo } from "@utils/media";
+import { isAudio, isImage, isVideo } from "@utils/media";
 import { canAdmin } from "@utils/roles";
 import classNames from "classnames";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { T } from "inferno-i18next-dess";
 import {
@@ -14,6 +14,7 @@ import {
   AddModToCommunity,
   BanFromCommunity,
   BanPerson,
+  BlockCommunity,
   BlockPerson,
   CreatePostLike,
   CreatePostReport,
@@ -61,7 +62,6 @@ import { NoOptionI18nKeys } from "i18next";
 type PostListingState = {
   showEdit: boolean;
   imageExpanded: boolean;
-  expandManuallyToggled: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
   showBody: boolean;
@@ -91,6 +91,7 @@ type PostListingProps = {
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
   onBlockPerson(form: BlockPerson): Promise<void>;
+  onBlockCommunity(form: BlockCommunity): Promise<void>;
   onLockPost(form: LockPost): Promise<void>;
   onDeletePost(form: DeletePost): Promise<void>;
   onRemovePost(form: RemovePost): Promise<void>;
@@ -106,7 +107,6 @@ type PostListingProps = {
   onHidePost(form: HidePost): Promise<void>;
   onPersonNote(form: NotePerson): Promise<void>;
   onScrollIntoCommentsClick?(e: MouseEvent): void;
-  imageExpanded?: boolean;
 } & (
   | { markable?: false }
   | {
@@ -122,7 +122,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
     imageExpanded: false,
-    expandManuallyToggled: false,
     viewSource: false,
     showAdvanced: false,
     showBody: false,
@@ -140,6 +139,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.handleRemove = this.handleRemove.bind(this);
     this.handleSavePost = this.handleSavePost.bind(this);
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
     this.handleDeletePost = this.handleDeletePost.bind(this);
     this.handleModLock = this.handleModLock.bind(this);
     this.handleModFeaturePostCommunity =
@@ -182,18 +182,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentWillUnmount(): void {
     this.unlisten();
-  }
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PostListingProps>,
-    _nextContext: any,
-  ): void {
-    if (
-      !this.state.expandManuallyToggled &&
-      nextProps.imageExpanded !== undefined
-    ) {
-      this.setState({ imageExpanded: nextProps.imageExpanded });
-    }
   }
 
   get postView(): PostView {
@@ -278,18 +266,34 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     // if direct video link or embedded video link
     if ((url && isVideo(url)) || isVideo(post.embed_video_url ?? "")) {
+      /* eslint-disable jsx-a11y/media-has-caption */
       return (
         <div className="ratio ratio-16x9 mt-3">
           <video
-            onLoadStart={linkEvent(this, this.handleVideoLoadStart)}
-            onPlay={linkEvent(this, this.handleVideoLoadStart)}
-            onVolumeChange={linkEvent(this, this.handleVideoVolumeChange)}
+            onLoadStart={linkEvent(this, this.handleMediaLoadStart)}
+            onPlay={linkEvent(this, this.handleMediaLoadStart)}
+            onVolumeChange={linkEvent(this, this.handleMediaVolumeChange)}
             controls
+            aria-label={post.alt_text}
           >
-            <source src={post.embed_video_url ?? url} type="video/mp4" />
+            <source src={post.embed_video_url ?? url} />
           </video>
         </div>
       );
+    } else if ((url && isAudio(url)) || isAudio(post.embed_video_url ?? "")) {
+      return (
+        <audio
+          onLoadStart={linkEvent(this, this.handleMediaLoadStart)}
+          onPlay={linkEvent(this, this.handleMediaLoadStart)}
+          onVolumeChange={linkEvent(this, this.handleMediaVolumeChange)}
+          className="w-100"
+          controls
+          aria-label={post.alt_text}
+        >
+          <source src={url} />
+        </audio>
+      );
+      /* eslint-enable jsx-a11y/media-has-caption */
     } else if (post.embed_video_url) {
       return (
         <div className="ratio ratio-16x9 mt-3">
@@ -297,7 +301,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             title="video embed"
             src={post.embed_video_url}
             sandbox="allow-same-origin allow-scripts"
-            allowFullScreen={true}
+            allowFullScreen
           ></iframe>
         </div>
       );
@@ -503,7 +507,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <Link
         className={`d-inline ${
           !post.featured_community && !post.featured_local
-            ? "link-dark"
+            ? "text-body"
             : "link-primary"
         }`}
         to={`/post/${post.id}`}
@@ -529,7 +533,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <a
                 className={
                   !post.featured_community && !post.featured_local
-                    ? "link-dark"
+                    ? "text-body"
                     : "link-primary"
                 }
                 href={url}
@@ -552,7 +556,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             this.showPreviewButton()}
 
           {post.removed && (
-            <small className="ms-2 badge text-bg-secondary">
+            <small className="ms-2 badge text-bg-light">
               {I18NextService.i18n.t("removed")}
             </small>
           )}
@@ -625,7 +629,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <p className="small m-0">
             {url && !(hostname(url) === getExternalHost()) && (
               <a
-                className="fst-italic link-dark link-opacity-75 link-opacity-100-hover"
+                className="fst-italic text-body link-opacity-75 link-opacity-100-hover"
                 href={url}
                 title={url}
                 rel={relTags}
@@ -706,7 +710,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <div className="post-title">
                     <h1 className="h5 d-inline text-break">
                       <Link
-                        className="d-inline link-dark"
+                        className="d-inline text-body"
                         to={`/post/${pv.post.id}`}
                         title={I18NextService.i18n.t("comments")}
                       >
@@ -720,7 +724,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
                   <div className="small mb-1 mb-md-0">
                     <Link
-                      className="btn btn-link btn-sm text-muted ps-0"
+                      className="btn btn-sm btn-link text-muted ps-0"
                       title={title}
                       to={`/post/${pv.post.id}?scrollToComments=true`}
                       data-tippy-content={title}
@@ -793,7 +797,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </button>
         )}
         <Link
-          className="btn btn-link btn-animate text-muted"
+          className="btn btn-sm btn-link btn-animate text-muted"
           to={`/post/${id}`}
           title={I18NextService.i18n.t("link")}
         >
@@ -809,7 +813,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.props.markable && this.props.myUserInfo && (
           <button
             type="button"
-            className="btn btn-link btn-animate text-muted"
+            className="btn btn-sm btn-link btn-animate text-muted"
             onClick={this.handleMarkPostAsRead}
             data-tippy-content={
               this.props.read
@@ -856,7 +860,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             myUserInfo={this.props.myUserInfo}
             onSave={this.handleSavePost}
             onReport={this.handleReport}
-            onBlock={this.handleBlockPerson}
+            onBlockPerson={this.handleBlockPerson}
+            onBlockCommunity={this.handleBlockCommunity}
             onEdit={this.handleEditClick}
             onDelete={this.handleDeletePost}
             onLock={this.handleModLock}
@@ -895,7 +900,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     return (
       <Link
-        className="btn btn-link btn-sm text-muted ps-0"
+        className="btn btn-sm btn-link text-muted ps-0"
         title={title}
         to={`/post/${pv.post.id}?scrollToComments=true`}
         data-tippy-content={title}
@@ -957,7 +962,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <button
         type="button"
-        className="btn btn-sm btn-link link-dark link-opacity-75 link-opacity-100-hover py-0 align-baseline"
+        className="btn btn-sm btn-link text-body link-opacity-75 link-opacity-100-hover py-0 align-baseline"
         onClick={linkEvent(this, this.handleShowBody)}
         aria-pressed={!this.state.showBody ? "false" : "true"}
       >
@@ -1031,8 +1036,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.setState({ showEdit: false });
   }
 
-  handleVideoLoadStart(_i: PostListing, e: Event) {
-    const video = e.target as HTMLVideoElement;
+  handleMediaLoadStart(_i: PostListing, e: Event) {
+    const video = e.target as HTMLMediaElement;
     const volume = localStorage.getItem("video_volume_level");
     const muted = localStorage.getItem("video_muted");
     video.volume = Number(volume || 0);
@@ -1043,8 +1048,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
-  handleVideoVolumeChange(_i: PostListing, e: Event) {
-    const video = e.target as HTMLVideoElement;
+  handleMediaVolumeChange(_i: PostListing, e: Event) {
+    const video = e.target as HTMLMediaElement;
     localStorage.setItem("video_muted", video.muted.toString());
     localStorage.setItem("video_volume_level", video.volume.toString());
   }
@@ -1082,6 +1087,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   handleBlockPerson() {
     return this.props.onBlockPerson({
       person_id: this.postView.creator.id,
+      block: true,
+    });
+  }
+
+  handleBlockCommunity() {
+    return this.props.onBlockCommunity({
+      community_id: this.postView.community.id,
       block: true,
     });
   }
@@ -1282,10 +1294,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleImageExpandClick(i: PostListing, event: any) {
     event.preventDefault();
-    i.setState({
-      imageExpanded: !i.state.imageExpanded,
-      expandManuallyToggled: true,
-    });
+    i.setState({ imageExpanded: !i.state.imageExpanded });
 
     if (myAuth() && i.props.markable && !i.props.disableAutoMarkAsRead) {
       i.handleMarkPostAsRead();

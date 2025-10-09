@@ -138,7 +138,6 @@ interface State {
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
-  expandAllImages: boolean;
 }
 
 interface CommunityProps {
@@ -217,7 +216,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     showSidebarMobile: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
-    expandAllImages: false,
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -276,7 +274,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handleHidePost = this.handleHidePost.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
-    this.handleExpandImageClick = this.handleExpandImageClick.bind(this);
 
     this.mainContentRef = createRef();
     // Only fetch the data if coming from another route
@@ -447,24 +444,23 @@ export class Community extends Component<CommunityRouteProps, State> {
       <div className="community container-lg">
         <div className="row">
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
-            {canViewCommunity_ && (
+            {canViewCommunity_ ? (
               <>
                 {this.renderCommunity()}
                 {this.selects()}
                 {this.listings()}
-                <div class="row">
-                  <div class="col">
+                <div className="row">
+                  <div className="col">
                     <PaginatorCursor
                       current={this.props.cursor}
                       resource={this.currentRes}
                       onPageChange={this.handlePageChange}
                     />
                   </div>
-                  <div class="col-auto">{this.markPageAsReadButton}</div>
+                  <div className="col-auto">{this.markPageAsReadButton}</div>
                 </div>
               </>
-            )}
-            {!canViewCommunity && (
+            ) : (
               <div className="alert alert-danger text-bg-danger" role="alert">
                 <h4 className="alert-heading">
                   {I18NextService.i18n.t("community_visibility_private")}
@@ -496,9 +492,9 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
-      <div class="my-2">
+      <div className="my-2">
         <button
-          class="btn btn-secondary"
+          className="btn btn-secondary"
           onClick={linkEvent(this, this.handleMarkPageAsRead)}
         >
           {I18NextService.i18n.t("mark_page_as_read")}
@@ -605,6 +601,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
               onBlockPerson={this.handleBlockPerson}
+              onBlockCommunity={this.handleBlockCommunity}
               onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}
               onPostReport={this.handlePostReport}
@@ -623,7 +620,6 @@ export class Community extends Component<CommunityRouteProps, State> {
               onMarkPostAsRead={this.handleMarkPostAsRead}
               onHidePost={this.handleHidePost}
               onPersonNote={this.handlePersonNote}
-              expandAllImages={this.state.expandAllImages}
             />
           );
       }
@@ -648,6 +644,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               localSite={siteRes.site_view.local_site}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
+              onBlockCommunity={this.handleBlockCommunity}
               onDeleteComment={this.handleDeleteComment}
               onRemoveComment={this.handleRemoveComment}
               onCommentVote={this.handleCommentVote}
@@ -735,16 +732,6 @@ export class Community extends Component<CommunityRouteProps, State> {
             />
           </div>
         )}
-        <div className="col-auto ps-0">
-          <button
-            class="btn btn-secondary"
-            onClick={this.handleExpandImageClick}
-            aria-label={I18NextService.i18n.t("expand_all_images")}
-            data-tippy-content={I18NextService.i18n.t("expand_all_images")}
-          >
-            <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
-          </button>
-        </div>
         {communityRss && (
           <>
             <a href={communityRss} title="RSS" rel={relTags}>
@@ -792,10 +779,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     i.setState(({ showSidebarMobile }) => ({
       showSidebarMobile: !showSidebarMobile,
     }));
-  }
-
-  handleExpandImageClick() {
-    this.setState({ expandAllImages: !this.state.expandAllImages });
   }
 
   async updateUrl(props: Partial<CommunityProps>) {

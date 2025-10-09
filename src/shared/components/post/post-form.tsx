@@ -11,7 +11,7 @@ import {
   validTitle,
   validURL,
 } from "@utils/helpers";
-import { isImage } from "@utils/media";
+import { isAudio, isImage, isVideo } from "@utils/media";
 import { Choice, StringBoolean } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, createRef, linkEvent } from "inferno";
@@ -595,6 +595,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onPostVote={async () => EMPTY_REQUEST}
                 onPostReport={async () => {}}
                 onBlockPerson={async () => {}}
+                onBlockCommunity={async () => {}}
                 onLockPost={async () => {}}
                 onDeletePost={async () => {}}
                 onRemovePost={async () => {}}
@@ -663,7 +664,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           onChange={this.handleLanguageChange}
           myUserInfo={this.props.myUserInfo}
         />
-        {url && isImage(url) && (
+        {url && (isImage(url) || isVideo(url) || isAudio(url)) && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-alt-text">
               {I18NextService.i18n.t("column_alttext")}
@@ -844,6 +845,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onPostVote={async () => EMPTY_REQUEST}
                 onPostReport={async () => {}}
                 onBlockPerson={async () => {}}
+                onBlockCommunity={async () => {}}
                 onLockPost={async () => {}}
                 onDeletePost={async () => {}}
                 onRemovePost={async () => {}}
@@ -932,7 +934,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
 
     if (text.length > 0) {
-      newOptions.push(...(await fetchCommunities(text)).map(communityToChoice));
+      newOptions.push(
+        ...filterCommunitySelection(
+          await fetchCommunities(text),
+          this.props.myUserInfo,
+        ).map(communityToChoice),
+      );
 
       this.setState({
         communitySearchOptions: newOptions,
@@ -953,4 +960,22 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     update();
     this.setState({ bypassNavWarning: false });
   }
+}
+
+export function filterCommunitySelection(
+  comms: CommunityView[],
+  my_user?: MyUserInfo,
+): CommunityView[] {
+  const follows = my_user?.follows.map(c => c.community.id);
+  return (
+    comms
+      // filter out comms where only mods can post, unless current user is mod
+      .filter(c => !c.community.posting_restricted_to_mods || c.can_mod)
+      // filter out private comms unless the current user follows it
+      .filter(
+        c =>
+          c.community.visibility !== "Private" ||
+          follows?.includes(c.community.id),
+      )
+  );
 }

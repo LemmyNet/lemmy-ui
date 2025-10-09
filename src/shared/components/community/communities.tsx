@@ -2,9 +2,9 @@ import { editCommunity, setIsoData, showLocal } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
-  numToSI,
   cursorComponents,
   resourcesSettled,
+  numToSI,
 } from "@utils/helpers";
 import type { DirectionalCursor, QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
@@ -44,6 +44,7 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { communityVisibilityLabel } from "./sidebar";
+import { TableHr } from "@components/common/tables";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -142,6 +143,9 @@ export class Communities extends Component<
   }
 
   renderListingsTable() {
+    const nameCols = "col-12 col-md-7";
+    const countCols = "col-6 col-md-1";
+
     switch (this.state.listCommunitiesResponse.state) {
       case "loading":
         return (
@@ -151,54 +155,48 @@ export class Communities extends Component<
         );
       case "success": {
         return (
-          <table id="community_table" className="table table-sm table-hover">
-            <thead className="pointer">
-              <tr>
-                <th>{I18NextService.i18n.t("name")}</th>
-                <th>{I18NextService.i18n.t("community_visibility")}</th>
-                <th className="text-right">
-                  {I18NextService.i18n.t("subscribers")}
-                </th>
-                <th className="text-right">
-                  {I18NextService.i18n.t("users")} /{" "}
-                  {I18NextService.i18n.t("month")}
-                </th>
-                <th className="text-right d-none d-lg-table-cell">
-                  {I18NextService.i18n.t("posts")}
-                </th>
-                <th className="text-right d-none d-lg-table-cell">
-                  {I18NextService.i18n.t("comments")}
-                </th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.state.listCommunitiesResponse.data.communities.map(cv => (
-                <tr key={cv.community.id}>
-                  <td>
+          <div id="community_table">
+            <div className="row">
+              <div className={`${nameCols} fw-bold`}>
+                {I18NextService.i18n.t("name")}
+              </div>
+              <div className={`${countCols} fw-bold`}>
+                {I18NextService.i18n.t("community_visibility")}
+              </div>
+              <div className={`${countCols} fw-bold`}>
+                {I18NextService.i18n.t("users")} /{" "}
+                {I18NextService.i18n.t("month")}
+              </div>
+              <div className={`${countCols} fw-bold`}>
+                {I18NextService.i18n.t("posts")}
+              </div>
+              <div className={`${countCols} fw-bold`}>
+                {I18NextService.i18n.t("comments")}
+              </div>
+            </div>
+            <TableHr />
+            {this.state.listCommunitiesResponse.data.communities.map(cv => (
+              <>
+                <div className="row" key={cv.community.id}>
+                  <div className={nameCols}>
                     <CommunityLink
                       community={cv.community}
                       myUserInfo={this.isoData.myUserInfo}
                     />
-                  </td>
-                  <td className="text-right">
+                  </div>
+                  <div className={countCols}>
                     {I18NextService.i18n.t(
                       communityVisibilityLabel(cv.community.visibility),
                     )}
-                  </td>
-                  <td className="text-right">
-                    {numToSI(cv.community.subscribers)}
-                  </td>
-                  <td className="text-right">
+                  </div>
+                  <div className={countCols}>
                     {numToSI(cv.community.users_active_month)}
-                  </td>
-                  <td className="text-right d-none d-lg-table-cell">
-                    {numToSI(cv.community.posts)}
-                  </td>
-                  <td className="text-right d-none d-lg-table-cell">
+                  </div>
+                  <div className={countCols}>{numToSI(cv.community.posts)}</div>
+                  <div className={countCols}>
                     {numToSI(cv.community.comments)}
-                  </td>
-                  <td className="text-right">
+                  </div>
+                  <div className={countCols}>
                     <SubscribeButton
                       communityView={cv}
                       onFollow={linkEvent(
@@ -220,11 +218,12 @@ export class Communities extends Component<
                       isLink
                       showRemoteFetch={!this.isoData.myUserInfo}
                     />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                </div>
+                <hr />
+              </>
+            ))}
+          </div>
         );
       }
     }
@@ -272,7 +271,7 @@ export class Communities extends Component<
             </div>
             <div className="col-auto">{this.searchForm()}</div>
           </div>
-          <div className="table-responsive">{this.renderListingsTable()}</div>
+          <div>{this.renderListingsTable()}</div>
           <PaginatorCursor
             current={this.props.cursor}
             resource={this.state.listCommunitiesResponse}

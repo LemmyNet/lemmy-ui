@@ -8,6 +8,7 @@ import {
   getUncombinedPersonContent,
   postViewToPersonContentCombinedView,
   setIsoData,
+  updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -83,6 +84,7 @@ import {
   ListPersonHiddenResponse,
   ListPersonReadResponse,
   LockComment,
+  BlockCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -200,7 +202,7 @@ const getCommunitiesListing = (
 ) =>
   communityViews &&
   communityViews.length > 0 && (
-    <div className="card border-secondary mb-3">
+    <div className="card mb-3">
       <div className="card-body">
         <h2 className="h5">{I18NextService.i18n.t(translationKey)}</h2>
         <ul className="list-unstyled mb-0">
@@ -286,6 +288,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.handleEditComment = this.handleEditComment.bind(this);
     this.handleSaveComment = this.handleSaveComment.bind(this);
     this.handleBlockPersonAlt = this.handleBlockPersonAlt.bind(this);
+    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
     this.handleCommentVote = this.handleCommentVote.bind(this);
@@ -672,6 +675,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     // TODO all the forms here
                     onSaveComment={this.handleSaveComment}
                     onBlockPerson={this.handleBlockPersonAlt}
+                    onBlockCommunity={this.handleBlockCommunity}
                     onDeleteComment={this.handleDeleteComment}
                     onRemoveComment={this.handleRemoveComment}
                     onCommentVote={this.handleCommentVote}
@@ -1101,6 +1105,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
               placeholder={I18NextService.i18n.t("reason")}
               value={this.state.banReason}
               onInput={linkEvent(this, this.handleModBanReasonChange)}
+              required
             />
             <label className="col-form-label" htmlFor="mod-ban-expires">
               {I18NextService.i18n.t("expires")}
@@ -1271,7 +1276,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         person_id: person.id,
         ban,
         remove_or_restore_data: i.state.removeOrRestoreData,
-        reason: banReason,
+        reason: banReason ?? "",
         expires_at: futureDaysToUnixTime(banExpireDays),
       });
       this.updateBan(res);
@@ -1323,6 +1328,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
       this.setState({ personBlocked: blockPersonRes.data.blocked });
+    }
+  }
+
+  async handleBlockCommunity(form: BlockCommunity) {
+    const blockCommunityRes = await HttpService.client.blockCommunity(form);
+    if (blockCommunityRes.state === "success") {
+      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
     }
   }
 

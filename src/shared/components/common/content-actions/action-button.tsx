@@ -8,7 +8,9 @@ interface ActionButtonPropsBase {
   icon: string;
   iconClass?: string;
   inline?: boolean;
+  inlineWithText?: boolean;
   noLoading?: boolean;
+  disabled?: boolean;
 }
 
 interface ActionButtonPropsLoading extends ActionButtonPropsBase {
@@ -49,27 +51,27 @@ export default class ActionButton extends Component<
   }
 
   render() {
-    const { label, icon, iconClass, inline } = this.props;
+    const { label, icon, iconClass, inline, inlineWithText } = this.props;
 
     return (
       <button
         className={classNames(
           "btn btn-link btn-sm",
-          inline
-            ? "btn-animate text-muted py-0"
+          inline || inlineWithText
+            ? "btn-animate text-body py-0"
             : "d-flex align-items-center rounded-0 dropdown-item",
         )}
         onClick={linkEvent(this, handleClick)}
         aria-label={label}
         data-tippy-content={inline ? label : undefined}
-        disabled={this.state.loading}
+        disabled={this.state.loading || this.props.disabled}
       >
         {this.state.loading ? (
           <Spinner />
         ) : (
           <Icon classes={classNames("me-2", iconClass)} icon={icon} inline />
         )}
-        {!inline && label}
+        {(!inline || inlineWithText) && label}
       </button>
     );
   }

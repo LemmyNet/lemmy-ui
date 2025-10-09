@@ -14,6 +14,7 @@ import {
   AddModToCommunity,
   BanFromCommunity,
   BanPerson,
+  BlockCommunity,
   BlockPerson,
   CommentId,
   CommentResponse,
@@ -109,6 +110,7 @@ type CommentNodeProps = {
   ): Promise<RequestState<CommentResponse>>;
   onCommentVote(form: CreateCommentLike): Promise<void>;
   onBlockPerson(form: BlockPerson): Promise<void>;
+  onBlockCommunity(form: BlockCommunity): Promise<void>;
   onDeleteComment(form: DeleteComment): Promise<void>;
   onRemoveComment(form: RemoveComment): Promise<void>;
   onDistinguishComment(form: DistinguishComment): Promise<void>;
@@ -166,6 +168,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
     this.handleReplyClick = this.handleReplyClick.bind(this);
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
     this.handleSaveComment = this.handleSaveComment.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
@@ -221,13 +224,16 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   render() {
     const node = this.props.node;
-    const cv = this.commentView;
     const {
       creator_is_moderator,
       creator_banned_from_community,
+      creator_banned,
+
       comment_actions: { like_score: my_vote } = {},
       creator_is_admin,
       comment: {
+        deleted,
+        removed,
         id,
         language_id,
         published_at,
@@ -235,8 +241,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         updated_at,
         child_count,
         locked,
+        post_id,
       },
       creator,
+      person_actions,
     } = this.commentView;
 
     const moreRepliesBorderColor = this.props.node.depth
@@ -283,7 +291,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 myUserInfo={this.props.myUserInfo}
               />
 
-              {cv.comment.distinguished && (
+              {distinguished && (
                 <Icon icon="shield" inline classes="text-danger ms-1" />
               )}
 
@@ -292,11 +300,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 isPostCreator={this.isPostCreator}
                 isModerator={creator_is_moderator}
                 isAdmin={creator_is_admin}
-                creator={cv.creator}
-                isBanned={cv.creator_banned}
-                isBannedFromCommunity={cv.creator_banned_from_community}
+                creator={creator}
+                isBanned={creator_banned}
+                isBannedFromCommunity={creator_banned_from_community}
                 myUserInfo={this.props.myUserInfo}
-                personActions={cv.person_actions}
+                personActions={person_actions}
               />
 
               {this.props.showCommunity && isCommentView(this.commentView) && (
@@ -307,7 +315,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     myUserInfo={this.props.myUserInfo}
                   />
                   <span className="mx-2">•</span>
-                  <Link className="me-2" to={`/post/${cv.comment.post_id}`}>
+                  <Link className="me-2" to={`/post/${post_id}`}>
                     {this.commentView.post.name}
                   </Link>
                 </>
@@ -326,10 +334,26 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               )}
               {locked && (
                 <span
-                  className="unselectable pointer mx-1"
+                  className="mx-1"
                   data-tippy-content={I18NextService.i18n.t("locked")}
                 >
-                  <Icon icon="lock" classes="icon-inline text-danger" />
+                  <Icon icon="lock" classes="icon-inline" />
+                </span>
+              )}
+              {deleted && (
+                <span
+                  className="mx-1"
+                  data-tippy-content={I18NextService.i18n.t("deleted")}
+                >
+                  <Icon icon={"trash"} classes="icon-inline" />
+                </span>
+              )}
+              {removed && (
+                <span
+                  className="mx-1"
+                  data-tippy-content={I18NextService.i18n.t("removed")}
+                >
+                  <Icon icon={"x"} classes="icon-inline text-danger" />
                 </span>
               )}
               {/* This is an expanding spacer for mobile */}
@@ -362,7 +386,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             )}
             {!this.state.showEdit && !this.state.collapsed && (
               <>
-                <div className="comment-content">
+                <div
+                  className={classNames("comment-content", {
+                    "text-muted": deleted || removed,
+                  })}
+                >
                   {this.state.viewSource ? (
                     <pre>{this.commentUnlessRemoved}</pre>
                   ) : (
@@ -384,7 +412,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   {this.props.showContext && this.getLinkButton()}
                   {this.props.markable && (
                     <button
-                      className="btn btn-link btn-animate text-muted"
+                      className="btn btn-sm btn-link btn-animate text-muted"
                       onClick={linkEvent(this, this.handleMarkAsRead)}
                       data-tippy-content={
                         this.props.read
@@ -410,7 +438,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     </button>
                   )}
                   {this.props.myUserInfo &&
-                    !(this.props.viewOnly || creator_banned_from_community) && (
+                    (this.canModOrAdmin ||
+                      !(
+                        this.props.viewOnly || creator_banned_from_community
+                      )) && (
                       <>
                         <VoteButtonsCompact
                           voteContentType={VoteContentType.Comment}
@@ -426,7 +457,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                         />
                         <button
                           type="button"
-                          className="btn btn-link btn-animate text-muted"
+                          className="btn btn-sm btn-link btn-animate text-muted"
                           onClick={linkEvent(this, handleToggleViewSource)}
                           data-tippy-content={I18NextService.i18n.t(
                             "view_source",
@@ -447,7 +478,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           myUserInfo={this.props.myUserInfo}
                           onReply={this.handleReplyClick}
                           onReport={this.handleReportComment}
-                          onBlock={this.handleBlockPerson}
+                          onBlockPerson={this.handleBlockPerson}
+                          onBlockCommunity={this.handleBlockCommunity}
                           onSave={this.handleSaveComment}
                           onEdit={this.handleEditClick}
                           onDelete={this.handleDeleteComment}
@@ -478,7 +510,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             style={`border-left: var(--comment-border-width) ${moreRepliesBorderColor} solid !important`}
           >
             <button
-              className="btn btn-link text-muted"
+              className="btn btn-sm btn-link text-muted"
               onClick={linkEvent(this, this.handleFetchChildren)}
             >
               {this.state.fetchChildrenLoading ? (
@@ -528,6 +560,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onEditComment={this.props.onEditComment}
             onCommentVote={this.props.onCommentVote}
             onBlockPerson={this.props.onBlockPerson}
+            onBlockCommunity={this.props.onBlockCommunity}
             onSaveComment={this.props.onSaveComment}
             onDeleteComment={this.props.onDeleteComment}
             onRemoveComment={this.props.onRemoveComment}
@@ -615,17 +648,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
    * Only enable the comment form if its not locked, or you're a mod / admin
    **/
   get enableCommentForm(): boolean {
-    const canModOrAdmin =
+    return (
+      this.canModOrAdmin ||
+      (!this.props.postLocked && !this.commentView.comment.locked)
+    );
+  }
+
+  get canModOrAdmin(): boolean {
+    return (
       this.commentView.can_mod ||
       canAdmin(
         this.commentView.creator.id,
         this.props.admins,
         this.props.myUserInfo,
-      );
-
-    return (
-      canModOrAdmin ||
-      (!this.props.postLocked && !this.commentView.comment.locked)
+      )
     );
   }
 
@@ -693,6 +729,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   async handleBlockPerson() {
     this.props.onBlockPerson({
       person_id: this.commentView.creator.id,
+      block: true,
+    });
+  }
+
+  async handleBlockCommunity() {
+    this.props.onBlockCommunity({
+      community_id: this.community.id,
       block: true,
     });
   }

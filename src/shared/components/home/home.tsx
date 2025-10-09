@@ -10,6 +10,7 @@ import {
   myAuth,
   setIsoData,
   showLocal,
+  updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
 import {
@@ -74,6 +75,7 @@ import {
   MarkPostAsRead,
   NotePerson,
   LockComment,
+  BlockCommunity,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -122,7 +124,6 @@ interface HomeState {
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
-  expandAllImages: boolean;
 }
 
 interface HomeProps {
@@ -269,7 +270,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     subscribedCollapsed: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
-    expandAllImages: false,
   };
 
   loadingSettled(): boolean {
@@ -295,6 +295,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleEditComment = this.handleEditComment.bind(this);
     this.handleSaveComment = this.handleSaveComment.bind(this);
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
+    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
     this.handleDeleteComment = this.handleDeleteComment.bind(this);
     this.handleRemoveComment = this.handleRemoveComment.bind(this);
     this.handleLockComment = this.handleLockComment.bind(this);
@@ -320,7 +321,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleHidePost = this.handleHidePost.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
-    this.handleExpandAllImages = this.handleExpandAllImages.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -486,16 +486,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               site={site}
               admins={admins}
               localSite={local_site}
-              isMobile={true}
+              isMobile
               myUserInfo={this.isoData.myUserInfo}
               allLanguages={this.state.siteRes.all_languages}
               siteLanguages={this.state.siteRes.discussion_languages}
             />
           )}
           {showSubscribedMobile && (
-            <div className="card border-secondary mb-3">
-              {this.subscribedCommunities(true)}
-            </div>
+            <div className="card mb-3">{this.subscribedCommunities(true)}</div>
           )}
         </div>
       </div>
@@ -522,10 +520,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         />
         {this.hasFollows && (
           <div className="accordion">
-            <section
-              id="sidebarSubscribed"
-              className="card border-secondary mb-3"
-            >
+            <section id="sidebarSubscribed" className="card mb-3">
               {this.subscribedCommunities(false)}
             </section>
           </div>
@@ -544,7 +539,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           id="sidebarSubscribedHeader"
         >
           <h5 className="mb-0 d-inline">
-            <T class="d-inline" i18nKey="subscribed_to_communities">
+            <T className="d-inline" i18nKey="subscribed_to_communities">
               #
               <Link className="text-body" to="/communities">
                 #
@@ -628,15 +623,15 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         <div>
           {this.selects}
           {this.listings}
-          <div class="row">
-            <div class="col">
+          <div className="row">
+            <div className="col">
               <PaginatorCursor
                 current={this.props.cursor}
                 resource={this.currentRes}
                 onPageChange={this.handlePageChange}
               />
             </div>
-            <div class="col-auto">{this.markPageAsReadButton}</div>
+            <div className="col-auto">{this.markPageAsReadButton}</div>
           </div>
         </div>
       </div>
@@ -656,9 +651,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
-      <div class="my-2">
+      <div className="my-2">
         <button
-          class="btn btn-secondary"
+          className="btn btn-secondary"
           onClick={linkEvent(this, this.handleMarkPageAsRead)}
         >
           {I18NextService.i18n.t("mark_page_as_read")}
@@ -737,6 +732,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
               onBlockPerson={this.handleBlockPerson}
+              onBlockCommunity={this.handleBlockCommunity}
               onPostEdit={this.handlePostEdit}
               onPostVote={this.handlePostVote}
               onPostReport={this.handlePostReport}
@@ -755,7 +751,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onMarkPostAsRead={this.handleMarkPostAsRead}
               onHidePost={this.handleHidePost}
               onPersonNote={this.handlePersonNote}
-              expandAllImages={this.state.expandAllImages}
             />
           );
         }
@@ -780,6 +775,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               admins={this.isoData.siteRes.admins}
               onSaveComment={this.handleSaveComment}
               onBlockPerson={this.handleBlockPerson}
+              onBlockCommunity={this.handleBlockCommunity}
               onDeleteComment={this.handleDeleteComment}
               onRemoveComment={this.handleRemoveComment}
               onCommentVote={this.handleCommentVote}
@@ -864,16 +860,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               this.state.siteRes.site_view.local_site.default_post_listing_type,
             sort,
           )}
-        </div>
-        <div className="col-auto ps-0">
-          <button
-            class="btn btn-secondary"
-            onClick={this.handleExpandAllImages}
-            aria-label={I18NextService.i18n.t("expand_all_images")}
-            data-tippy-content={I18NextService.i18n.t("expand_all_images")}
-          >
-            <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
-          </button>
         </div>
       </div>
     );
@@ -980,6 +966,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
       updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
+    }
+  }
+
+  async handleBlockCommunity(form: BlockCommunity) {
+    const blockCommunityRes = await HttpService.client.blockCommunity(form);
+    if (blockCommunityRes.state === "success") {
+      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
     }
   }
 
@@ -1180,10 +1173,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
       toast(I18NextService.i18n.t(form.hide ? "post_hidden" : "post_unhidden"));
     }
-  }
-
-  handleExpandAllImages() {
-    this.setState({ expandAllImages: !this.state.expandAllImages });
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {

@@ -26,6 +26,7 @@ import {
   Person,
   CommentSlimView,
   Community,
+  CommentId,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -55,12 +56,11 @@ import Toastify from "toastify-js";
 
 export function buildCommentsTree(
   comments: CommentSlimView[],
-  parentComment: boolean,
+  parentCommentId?: CommentId,
 ): CommentNodeI[] {
   const map = new Map<number, CommentNodeI>();
-  const depthOffset = !parentComment
-    ? 0
-    : (getDepthFromComment(comments[0].comment) ?? 0);
+  const parentComment = comments.find(c => c.comment.id === parentCommentId);
+  const depthOffset = getDepthFromComment(parentComment?.comment) ?? 0;
 
   for (const comment_view of comments) {
     const depthI = getDepthFromComment(comment_view.comment) ?? 0;
@@ -76,8 +76,8 @@ export function buildCommentsTree(
   const tree: CommentNodeI[] = [];
 
   // if its a parent comment fetch, then push the first comment to the top node.
-  if (parentComment) {
-    const cNode = map.get(comments[0].comment.id);
+  if (parentCommentId) {
+    const cNode = map.get(parentCommentId);
     if (cNode) {
       tree.push(cNode);
     }

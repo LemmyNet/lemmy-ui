@@ -6,6 +6,7 @@ import {
   AddModToCommunity,
   BanFromCommunity,
   BanPerson,
+  BlockCommunity,
   BlockPerson,
   CreatePostLike,
   CreatePostReport,
@@ -51,6 +52,7 @@ interface PostListingsProps {
   onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
   onPostReport(form: CreatePostReport): Promise<void>;
   onBlockPerson(form: BlockPerson): Promise<void>;
+  onBlockCommunity(form: BlockCommunity): Promise<void>;
   onLockPost(form: LockPost): Promise<void>;
   onDeletePost(form: DeletePost): Promise<void>;
   onRemovePost(form: RemovePost): Promise<void>;
@@ -66,7 +68,6 @@ interface PostListingsProps {
   onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
   onHidePost(form: HidePost): Promise<void>;
   onPersonNote(form: NotePerson): Promise<void>;
-  expandAllImages?: boolean;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
@@ -105,6 +106,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                 onPostVote={this.props.onPostVote}
                 onPostReport={this.props.onPostReport}
                 onBlockPerson={this.props.onBlockPerson}
+                onBlockCommunity={this.props.onBlockCommunity}
                 onLockPost={this.props.onLockPost}
                 onDeletePost={this.props.onDeletePost}
                 onRemovePost={this.props.onRemovePost}
@@ -122,7 +124,6 @@ export class PostListings extends Component<PostListingsProps, any> {
                 read={!!post_view.post_actions?.read_at}
                 onMarkPostAsRead={this.props.onMarkPostAsRead}
                 onPersonNote={this.props.onPersonNote}
-                imageExpanded={this.props.expandAllImages}
               />
               {idx + 1 !== this.posts.length && <hr className="my-3" />}
             </>
