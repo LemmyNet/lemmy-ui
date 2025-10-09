@@ -88,6 +88,11 @@ import {
   OAuthCallbackConfig,
   getOAuthCallbackQueryParams,
 } from "@components/home/oauth/oauth-callback";
+import {
+  getPendingFollowsQueryParams,
+  PendingFollows,
+  PendingFollowsFetchConfig,
+} from "@components/community/pending-follows";
 
 export interface IRoutePropsWithFetch<
   DataT extends RouteData,
@@ -220,6 +225,12 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     fetchInitialData: RegistrationApplications.fetchInitialData,
     getQueryParams: getRegistrationApplicationQueryParams,
   } as RegistrationApplicationsFetchConfig,
+  {
+    path: `/pending_follows`,
+    component: PendingFollows,
+    fetchInitialData: PendingFollows.fetchInitialData,
+    getQueryParams: getPendingFollowsQueryParams,
+  } as PendingFollowsFetchConfig,
   {
     path: `/search`,
     component: Search,
