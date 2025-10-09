@@ -655,7 +655,11 @@ export class Post extends Component<PostRouteProps, PostState> {
                     // reset on new location, otherwise <Prompt /> stops working
                   }
                   node={res.post_view.post.id}
-                  disabled={res.post_view.post.locked}
+                  disabled={
+                    res.post_view.post.locked ||
+                    res.post_view.post.deleted ||
+                    res.post_view.post.removed
+                  }
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   containerClass="post-comment-container"
@@ -848,7 +852,11 @@ export class Post extends Component<PostRouteProps, PostState> {
             viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
             isTopLevel
-            postLocked={postRes.data.post_view.post.locked}
+            postLocked={
+              postRes.data.post_view.post.locked ||
+              postRes.data.post_view.post.removed ||
+              postRes.data.post_view.post.deleted
+            }
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
@@ -966,7 +974,11 @@ export class Post extends Component<PostRouteProps, PostState> {
             community={postRes.data.community_view.community}
             viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
-            postLocked={postRes.data.post_view.post.locked}
+            postLocked={
+              postRes.data.post_view.post.locked ||
+              postRes.data.post_view.post.removed ||
+              postRes.data.post_view.post.deleted
+            }
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
