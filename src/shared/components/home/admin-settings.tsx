@@ -256,21 +256,6 @@ export class AdminSettings extends Component<
               ),
             },
             {
-              key: "admins",
-              label: capitalizeFirstLetter(I18NextService.i18n.t("admins")),
-              getNode: isSelected => (
-                <div
-                  className={classNames("tab-pane", {
-                    active: isSelected,
-                  })}
-                  role="tabpanel"
-                  id="admins-tab-pane"
-                >
-                  {this.admins()}
-                </div>
-              ),
-            },
-            {
               key: "users",
               label: I18NextService.i18n.t("users"),
               getNode: isSelected => (
@@ -283,6 +268,8 @@ export class AdminSettings extends Component<
                 >
                   {this.userListTitleAndSelects()}
                   {this.userList()}
+                  <hr />
+                  {this.admins()}
                 </div>
               ),
             },
