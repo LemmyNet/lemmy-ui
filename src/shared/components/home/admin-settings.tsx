@@ -204,7 +204,7 @@ export class AdminSettings extends Component<
 
   render() {
     return (
-      <div className="admin-settings container-lg">
+      <div className="admin-settings container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -222,11 +222,11 @@ export class AdminSettings extends Component<
                   role="tabpanel"
                   id="site-tab-pane"
                 >
-                  <h1 className="h4 mb-4">
+                  <h1 className="row justify-content-md-center h4 mb-4">
                     {I18NextService.i18n.t("site_config")}
                   </h1>
-                  <div className="row">
-                    <div className="col-12">
+                  <div className="row justify-content-md-center">
+                    <div className="col-12 col-md-6">
                       <SiteForm
                         showLocal={showLocal(this.isoData)}
                         onSaveSite={this.handleEditSite}
