@@ -852,7 +852,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
             isTopLevel
-            postLocked={
+            postLockedOrRemovedOrDeleted={
               postRes.data.post_view.post.locked ||
               postRes.data.post_view.post.removed ||
               postRes.data.post_view.post.deleted
@@ -974,7 +974,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             community={postRes.data.community_view.community}
             viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
-            postLocked={
+            postLockedOrRemovedOrDeleted={
               postRes.data.post_view.post.locked ||
               postRes.data.post_view.post.removed ||
               postRes.data.post_view.post.deleted

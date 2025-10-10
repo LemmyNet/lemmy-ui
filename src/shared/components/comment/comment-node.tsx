@@ -92,7 +92,7 @@ type CommentNodeProps = {
   noBorder?: boolean;
   isTopLevel?: boolean;
   viewOnly?: boolean;
-  postLocked?: boolean;
+  postLockedOrRemovedOrDeleted?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
   viewType: CommentViewType;
@@ -545,7 +545,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             nodes={node.children}
             postCreatorId={this.postCreatorId}
             community={this.community}
-            postLocked={this.props.postLocked}
+            postLockedOrRemovedOrDeleted={
+              this.props.postLockedOrRemovedOrDeleted
+            }
             admins={this.props.admins}
             readCommentsAt={this.props.readCommentsAt}
             viewType={this.props.viewType}
@@ -650,7 +652,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   get enableCommentForm(): boolean {
     return (
       this.canModOrAdmin ||
-      (!this.props.postLocked && !this.commentView.comment.locked)
+      (!this.props.postLockedOrRemovedOrDeleted &&
+        !this.commentView.comment.locked)
     );
   }
 
