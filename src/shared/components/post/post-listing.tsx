@@ -789,7 +789,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.commentsButton}
         {canShare() && (
           <button
-            className="btn btn-sm btn-link btn-animate text-muted py-0"
+            className="btn btn-link btn-animate text-muted py-0"
             onClick={linkEvent(this, this.handleShare)}
             type="button"
           >
@@ -797,14 +797,14 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           </button>
         )}
         <Link
-          className="btn btn-sm btn-link btn-animate text-muted"
+          className="btn btn-link btn-animate text-muted py-0"
           to={`/post/${id}`}
           title={I18NextService.i18n.t("link")}
         >
           <Icon icon="link" classes="icon-inline" />
         </Link>
         <a
-          className="btn btn-sm btn-link btn-animate text-muted py-0"
+          className="btn btn-link btn-animate text-muted py-0"
           title={I18NextService.i18n.t("fedilink")}
           href={ap_id}
         >
@@ -813,7 +813,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         {this.props.markable && this.props.myUserInfo && (
           <button
             type="button"
-            className="btn btn-sm btn-link btn-animate text-muted"
+            className="btn btn-link btn-animate text-muted py-0"
             onClick={this.handleMarkPostAsRead}
             data-tippy-content={
               this.props.read
@@ -900,7 +900,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
     return (
       <Link
-        className="btn btn-sm btn-link text-muted ps-0"
+        className="btn btn-sm btn-link text-muted ps-0 py-0"
         title={title}
         to={`/post/${pv.post.id}?scrollToComments=true`}
         data-tippy-content={title}
@@ -932,7 +932,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   get viewSourceButton() {
     return (
       <button
-        className="btn btn-sm btn-link btn-animate text-muted py-0"
+        className="btn btn-link btn-animate text-muted py-0"
         onClick={linkEvent(this, this.handleViewSource)}
         data-tippy-content={I18NextService.i18n.t("view_source")}
         aria-label={I18NextService.i18n.t("view_source")}
@@ -962,7 +962,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <button
         type="button"
-        className="btn btn-sm btn-link text-body link-opacity-75 link-opacity-100-hover py-0 align-baseline"
+        className="btn btn-link text-body link-opacity-75 link-opacity-100-hover align-baseline py-0"
         onClick={linkEvent(this, this.handleShowBody)}
         aria-pressed={!this.state.showBody ? "false" : "true"}
       >
