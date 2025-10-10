@@ -857,24 +857,26 @@ export class Notifications extends Component<
         if (s.notifsRes.state === "success") {
           s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
             c => {
-              if (
-                c.data.type_ !== "PrivateMessage" &&
-                c.data.community.id === communityId &&
-                c.data.creator.id === banRes.data.person_view.person.id
-              ) {
-                const notif: NotificationView = {
-                  notification: { ...c.notification },
-                  data: { ...c.data },
-                };
-                switch (notif.data.type_) {
-                  case "Comment":
-                  case "Post": {
-                    notif.data.creator_banned_from_community =
-                      banRes.data.banned;
-                    break;
+              const notif: NotificationView = {
+                notification: { ...c.notification },
+                data: { ...c.data },
+              };
+              switch (notif.data.type_) {
+                case "Comment":
+                case "Post":
+                  {
+                    if (
+                      notif.data.community.id === communityId &&
+                      notif.data.creator.id ===
+                        banRes.data.person_view.person.id
+                    ) {
+                      notif.data.creator_banned_from_community =
+                        banRes.data.banned;
+
+                      break;
+                    }
                   }
-                }
-                return notif;
+                  return notif;
               }
               return c;
             },

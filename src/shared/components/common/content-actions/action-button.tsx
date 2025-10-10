@@ -56,7 +56,7 @@ export default class ActionButton extends Component<
     return (
       <button
         className={classNames(
-          "btn btn-link btn-sm",
+          "btn btn-link",
           inline || inlineWithText
             ? "btn-animate text-body py-0"
             : "d-flex align-items-center rounded-0 dropdown-item",

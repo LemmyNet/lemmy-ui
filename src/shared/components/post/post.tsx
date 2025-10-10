@@ -72,6 +72,7 @@ import {
   NotePerson,
   PostNotificationsMode,
   PostResponse,
+  PostView,
   PurgeComment,
   PurgeCommunity,
   PurgePerson,
@@ -655,7 +656,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                     // reset on new location, otherwise <Prompt /> stops working
                   }
                   node={res.post_view.post.id}
-                  disabled={res.post_view.post.locked}
+                  disabled={postLockedDeletedOrRemoved(res.post_view)}
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
                   containerClass="post-comment-container"
@@ -848,7 +849,9 @@ export class Post extends Component<PostRouteProps, PostState> {
             viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
             isTopLevel
-            postLocked={postRes.data.post_view.post.locked}
+            postLockedOrRemovedOrDeleted={postLockedDeletedOrRemoved(
+              postRes.data.post_view,
+            )}
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
@@ -966,7 +969,9 @@ export class Post extends Component<PostRouteProps, PostState> {
             community={postRes.data.community_view.community}
             viewType={this.props.view}
             maxCommentsShown={this.state.maxCommentsShown}
-            postLocked={postRes.data.post_view.post.locked}
+            postLockedOrRemovedOrDeleted={postLockedDeletedOrRemoved(
+              postRes.data.post_view,
+            )}
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
@@ -1605,4 +1610,10 @@ export class Post extends Component<PostRouteProps, PostState> {
     // Update the moderators
     // TODO: update GetCommunityResponse?
   }
+}
+
+function postLockedDeletedOrRemoved(post_view: PostView): boolean {
+  return (
+    post_view.post.locked || post_view.post.deleted || post_view.post.removed
+  );
 }

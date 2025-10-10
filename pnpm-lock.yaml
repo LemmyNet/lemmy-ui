@@ -114,8 +114,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-emoji-shortcode.1
-        version: 1.0.0-emoji-shortcode.1
+        specifier: 1.0.0-admin-block-expiry.0
+        version: 1.0.0-admin-block-expiry.0
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -3369,8 +3369,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  lemmy-js-client@1.0.0-emoji-shortcode.1:
-    resolution: {integrity: sha512-jsAyzK17z64wvlYN9CSCcJhpdf4xGomwm7bDpgMkj3GWSgoRKNtrRkLwiR5VSTJxoxYNDJXl2jYX35Mf3olPow==}
+  lemmy-js-client@1.0.0-admin-block-expiry.0:
+    resolution: {integrity: sha512-IxTVpjQilWI73/5d4Oybf0W85Z7ZSa2BJq4v1SprqX/Jb/n8bi2X8mG7oPOzjL7npuwzW47wD4ieqpZZFNh8BA==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8673,7 +8673,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  lemmy-js-client@1.0.0-emoji-shortcode.1:
+  lemmy-js-client@1.0.0-admin-block-expiry.0:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:
