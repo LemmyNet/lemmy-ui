@@ -2,12 +2,14 @@ import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, linkEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
+  CommentSortType,
   CreateSite,
   EditSite,
   FederationMode,
   GetSiteResponse,
   ListingType,
   MyUserInfo,
+  PostSortType,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
@@ -18,6 +20,11 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 import UrlListTextarea from "../common/url-list-textarea";
 import { FormEvent } from "inferno";
 import { FederationModeSelect } from "./federation-mode-select";
+import {
+  CommentSortSelect,
+  PostSortSelect,
+} from "@components/common/sort-select";
+import { TimeIntervalSelect } from "@components/common/time-interval-select";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -71,6 +78,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       captcha_difficulty: ls?.captcha_difficulty,
       blocked_urls: this.props.siteRes?.blocked_urls.map(u => u.url),
       content_warning: this.props.siteRes?.site_view.site.content_warning,
+      disable_email_notifications: ls?.disable_email_notifications,
+      default_items_per_page: ls?.default_items_per_page,
+      default_comment_sort_type: ls?.default_comment_sort_type,
+      default_post_sort_type: ls?.default_post_sort_type,
+      default_post_time_range_seconds: ls?.default_post_time_range_seconds,
     };
   }
 
@@ -87,6 +99,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     this.handleDefaultPostListingTypeChange =
       this.handleDefaultPostListingTypeChange.bind(this);
+
+    this.handleCommentSortTypeChange =
+      this.handleCommentSortTypeChange.bind(this);
+
+    this.handlePostSortTypeChange = this.handlePostSortTypeChange.bind(this);
+
+    this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
 
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
@@ -220,6 +239,25 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               allLanguages={[]}
               siteLanguages={[]}
               myUserInfo={this.props.myUserInfo}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="default-items-per-page"
+          >
+            {I18NextService.i18n.t("posts_per_page")}
+          </label>
+          <div className="col-12">
+            <input
+              id="items-per-page"
+              type="number"
+              className="form-control"
+              value={this.state.siteForm.default_items_per_page}
+              onInput={linkEvent(this, this.handleDefaultItemsPerPageChange)}
+              min={1}
+              max={50}
             />
           </div>
         </div>
@@ -380,6 +418,28 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <div className="form-check">
               <input
                 className="form-check-input"
+                id="disable-email-notifications"
+                type="checkbox"
+                checked={this.state.siteForm.disable_email_notifications}
+                onChange={linkEvent(
+                  this,
+                  this.handleSiteDisableEmailNotifications,
+                )}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="disable-email-notifications"
+              >
+                {I18NextService.i18n.t("disable_email_notifications")}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <div className="col-12">
+            <div className="form-check">
+              <input
+                className="form-check-input"
                 id="create-site-require-email-verification"
                 type="checkbox"
                 checked={this.state.siteForm.require_email_verification}
@@ -482,6 +542,41 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </form>
         )}
+        <form className="mb-3 row">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("post_sort_type")}
+          </label>
+          <div className="col-sm-9">
+            <PostSortSelect
+              current={this.state.siteForm.default_post_sort_type ?? "Active"}
+              onChange={this.handlePostSortTypeChange}
+            />
+          </div>
+        </form>
+        <form className="mb-3 row">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("comment_sort_type")}
+          </label>
+          <div className="col-sm-9">
+            <CommentSortSelect
+              current={this.state.siteForm.default_comment_sort_type ?? "Hot"}
+              onChange={this.handleCommentSortTypeChange}
+            />
+          </div>
+        </form>
+        <form className="mb-3 row">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("post_time_range")}
+          </label>
+          <div className="col-sm-9">
+            <TimeIntervalSelect
+              currentSeconds={
+                this.state.siteForm.default_post_time_range_seconds
+              }
+              onChange={this.handlePostTimeRangeChange}
+            />
+          </div>
+        </form>
         <div className="mb-3 row">
           <div className="col-12">
             <div className="form-check">
@@ -695,8 +790,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleSiteNameChange(i: SiteForm, event: any) {
-    i.state.siteForm.name = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.name = event.target.value), s));
   }
 
   handleSiteSidebarChange(val: string) {
@@ -707,36 +801,49 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.setState(s => ((s.siteForm.legal_information = val), s));
   }
 
+  handleDefaultItemsPerPageChange(i: SiteForm, event: any) {
+    i.setState(
+      s => (
+        (s.siteForm.default_items_per_page = Number(event.target.value)),
+        s
+      ),
+    );
+  }
+
   handleSiteApplicationQuestionChange(val: string) {
     this.setState(s => ((s.siteForm.application_question = val), s));
   }
 
   handleSiteDescChange(i: SiteForm, event: any) {
-    i.state.siteForm.description = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.description = event.target.value), s));
   }
 
   handleSiteEnableNsfwChange(i: SiteForm, event: any) {
-    i.state.siteForm.disallow_nsfw_content = event.target.checked;
+    const newState = i.state;
+    newState.siteForm.disallow_nsfw_content = event.target.checked;
     if (event.target.checked) {
-      i.state.siteForm.content_warning = "";
+      newState.siteForm.content_warning = "";
     }
-    i.setState(i.state);
+    i.setState(newState);
   }
 
   handleSiteRegistrationModeChange(i: SiteForm, event: any) {
-    i.state.siteForm.registration_mode = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.registration_mode = event.target.value), s));
   }
 
   handleSiteOauthRegistration(i: SiteForm, event: any) {
-    i.state.siteForm.oauth_registration = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.siteForm.oauth_registration = event.target.checked), s),
+    );
   }
 
   handleSiteCommunityCreationAdminOnly(i: SiteForm, event: any) {
-    i.state.siteForm.community_creation_admin_only = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => (
+        (s.siteForm.community_creation_admin_only = event.target.checked),
+        s
+      ),
+    );
   }
 
   handleSiteVoteModeChange(
@@ -749,33 +856,41 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     },
     event: FormEvent<HTMLSelectElement>,
   ) {
-    i.state.siteForm[voteKind] = event.target.value as FederationMode;
-    i.setState(i.state);
+    const newState = i.state;
+    newState.siteForm[voteKind] = event.target.value as FederationMode;
+    i.setState(newState);
   }
 
   handleSiteRequireEmailVerification(i: SiteForm, event: any) {
-    i.state.siteForm.require_email_verification = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.siteForm.require_email_verification = event.target.checked), s),
+    );
   }
 
   handleSiteApplicationEmailAdmins(i: SiteForm, event: any) {
-    i.state.siteForm.application_email_admins = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.siteForm.application_email_admins = event.target.checked), s),
+    );
+  }
+
+  handleSiteDisableEmailNotifications(i: SiteForm, event: any) {
+    i.setState(
+      s => ((s.siteForm.disable_email_notifications = event.target.checked), s),
+    );
   }
 
   handleSiteReportsEmailAdmins(i: SiteForm, event: any) {
-    i.state.siteForm.reports_email_admins = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.siteForm.reports_email_admins = event.target.checked), s),
+    );
   }
 
   handleSitePrivateInstance(i: SiteForm, event: any) {
-    i.state.siteForm.private_instance = event.target.checked;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.private_instance = event.target.checked), s));
   }
 
   handleSiteDefaultTheme(i: SiteForm, event: any) {
-    i.state.siteForm.default_theme = event.target.value;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.default_theme = event.target.value), s));
   }
 
   handleIconChange(url?: string) {
@@ -791,13 +906,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 
   handleSiteFederationEnabled(i: SiteForm, event: any) {
-    i.state.siteForm.federation_enabled = event.target.checked;
-    i.setState(i.state);
+    i.setState(
+      s => ((s.siteForm.federation_enabled = event.target.checked), s),
+    );
   }
 
   handleSiteCaptchaEnabled(i: SiteForm, event: any) {
-    i.state.siteForm.captcha_enabled = event.target.checked;
-    i.setState(i.state);
+    i.setState(s => ((s.siteForm.captcha_enabled = event.target.checked), s));
   }
 
   handleSiteCaptchaDifficulty(i: SiteForm, event: any) {
@@ -812,14 +927,20 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.setState(s => ((s.siteForm.default_post_listing_type = val), s));
   }
 
+  handleCommentSortTypeChange(val: CommentSortType) {
+    this.setState(s => ((s.siteForm.default_comment_sort_type = val), s));
+  }
+
+  handlePostSortTypeChange(val: PostSortType) {
+    this.setState(s => ((s.siteForm.default_post_sort_type = val), s));
+  }
+
+  handlePostTimeRangeChange(val: number) {
+    this.setState(s => ((s.siteForm.default_post_time_range_seconds = val), s));
+  }
+
   handleBlockedUrlsUpdate(newBlockedUrls: string[]) {
-    this.setState(prev => ({
-      ...prev,
-      siteForm: {
-        ...prev.siteForm,
-        blocked_urls: newBlockedUrls,
-      },
-    }));
+    this.setState(s => ((s.siteForm.blocked_urls = newBlockedUrls), s));
   }
 
   handleSiteContentWarningChange(val: string) {
