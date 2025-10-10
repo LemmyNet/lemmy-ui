@@ -138,6 +138,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             post_view={i}
             showDupes="ShowSeparately"
             admins={this.props.admins}
+            postListingMode="List"
             showCommunity
             enableNsfw={this.props.enableNsfw}
             showAdultConsentModal={this.props.showAdultConsentModal}
