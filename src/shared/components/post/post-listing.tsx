@@ -6,7 +6,7 @@ import { formatRelativeDate, futureDaysToUnixTime } from "@utils/date";
 import { isAudio, isImage, isVideo } from "@utils/media";
 import { canAdmin } from "@utils/roles";
 import classNames from "classnames";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import { T } from "inferno-i18next-dess";
 import {
@@ -63,7 +63,6 @@ import { NoOptionI18nKeys } from "i18next";
 type PostListingState = {
   showEdit: boolean;
   imageExpanded: boolean;
-  expandManuallyToggled: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
   showBody: boolean;
@@ -109,7 +108,6 @@ type PostListingProps = {
   onHidePost(form: HidePost): Promise<void>;
   onPersonNote(form: NotePerson): Promise<void>;
   onScrollIntoCommentsClick?(e: MouseEvent): void;
-  imageExpanded?: boolean;
   postListingMode: PostListingMode;
 } & (
   | { markable?: false }
@@ -126,7 +124,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
     imageExpanded: this.initImageExpanded(),
-    expandManuallyToggled: false,
     viewSource: false,
     showAdvanced: false,
     showBody: false,
@@ -175,22 +172,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentWillUnmount(): void {
     this.unlisten();
-  }
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PostListingProps>,
-    _nextContext: any,
-  ): void {
-    if (
-      !this.state.expandManuallyToggled &&
-      (nextProps.imageExpanded !== undefined ||
-        nextProps.postListingMode !== undefined)
-    ) {
-      this.setState({
-        imageExpanded:
-          nextProps.imageExpanded || nextProps.postListingMode === "Card",
-      });
-    }
   }
 
   get postView(): PostView {
@@ -542,7 +523,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
       <Link
         className={`d-inline ${
           !post.featured_community && !post.featured_local
-            ? "link-dark"
+            ? "text-body"
             : "link-primary"
         }`}
         to={`/post/${post.id}`}
@@ -568,7 +549,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
               <a
                 className={
                   !post.featured_community && !post.featured_local
-                    ? "link-dark"
+                    ? "text-body"
                     : "link-primary"
                 }
                 href={url}
@@ -664,7 +645,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <p className="small m-0">
             {url && !(hostname(url) === getExternalHost()) && (
               <a
-                className="fst-italic link-dark link-opacity-75 link-opacity-100-hover"
+                className="fst-italic text-body link-opacity-75 link-opacity-100-hover"
                 href={url}
                 title={url}
                 rel={relTags}
@@ -745,7 +726,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
                   <div className="post-title">
                     <h1 className="h5 d-inline text-break">
                       <Link
-                        className="d-inline link-dark"
+                        className="d-inline text-body"
                         to={`/post/${pv.post.id}`}
                         title={I18NextService.i18n.t("comments")}
                       >
@@ -997,7 +978,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     return (
       <button
         type="button"
-        className="btn btn-sm btn-link link-dark link-opacity-75 link-opacity-100-hover py-0 align-baseline"
+        className="btn btn-sm btn-link text-body link-opacity-75 link-opacity-100-hover py-0 align-baseline"
         onClick={linkEvent(this, this.handleShowBody)}
         aria-pressed={!this.state.showBody ? "false" : "true"}
       >
@@ -1356,10 +1337,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   handleImageExpandClick(i: PostListing, event: any) {
     event.preventDefault();
-    i.setState({
-      imageExpanded: !i.state.imageExpanded,
-      expandManuallyToggled: true,
-    });
+    i.setState({ imageExpanded: !i.state.imageExpanded });
 
     if (myAuth() && i.props.markable && !i.props.disableAutoMarkAsRead) {
       i.handleMarkPostAsRead();

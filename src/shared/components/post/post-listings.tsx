@@ -70,7 +70,6 @@ interface PostListingsProps {
   onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
   onHidePost(form: HidePost): Promise<void>;
   onPersonNote(form: NotePerson): Promise<void>;
-  expandAllImages?: boolean;
   postListingMode: PostListingMode;
 }
 
@@ -139,7 +138,6 @@ export class PostListings extends Component<PostListingsProps, any> {
                   read={!!post_view.post_actions?.read_at}
                   onMarkPostAsRead={this.props.onMarkPostAsRead}
                   onPersonNote={this.props.onPersonNote}
-                  imageExpanded={this.props.expandAllImages}
                   postListingMode={this.props.postListingMode}
                 />
                 {this.props.postListingMode === "List" &&
