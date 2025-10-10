@@ -50,7 +50,7 @@ interface CommentNodesProps {
   noBorder?: boolean;
   isTopLevel?: boolean;
   viewOnly?: boolean;
-  postLocked?: boolean;
+  postLockedOrRemovedOrDeleted?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
   viewType: CommentViewType;
@@ -121,7 +121,9 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               noBorder={this.props.noBorder}
               isTopLevel={this.props.isTopLevel}
               viewOnly={this.props.viewOnly}
-              postLocked={this.props.postLocked}
+              postLockedOrRemovedOrDeleted={
+                this.props.postLockedOrRemovedOrDeleted
+              }
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
               showContext={this.props.showContext}

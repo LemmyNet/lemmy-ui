@@ -20,7 +20,7 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
-import { Spinner } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -132,9 +132,11 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
                       active: isSelected,
                     })}
                   >
-                    {status === "blocked"
-                      ? this.itemList(instances[status], false)
-                      : this.itemList(instances[status])}
+                    {status === "blocked" ? (
+                      <InstanceList items={instances[status]} blocked />
+                    ) : (
+                      <InstanceList items={instances[status]} />
+                    )}
                   </div>
                 ),
               }))}
@@ -157,53 +159,74 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
       </div>
     );
   }
+}
 
-  itemList(items: Instance[], link = true) {
-    const nameCols = "col-12 col-md-6";
-    const otherCols = "col-4 col-md-2";
+interface InstanceListProps {
+  items: Instance[];
+  /// Only use link for non-blocked
+  blocked?: boolean;
+  onRemove?(instance: string): void;
+  hideNoneFound?: boolean;
+}
 
-    return items.length > 0 ? (
-      <div id="instances-table">
-        <div className="row">
-          <div className={`${nameCols} fw-bold`}>
-            {I18NextService.i18n.t("name")}
-          </div>
-          <div className={`${otherCols} fw-bold`}>
-            {I18NextService.i18n.t("software")}
-          </div>
-          <div className={`${otherCols} fw-bold`}>
-            {I18NextService.i18n.t("version")}
-          </div>
-          <div className={`${otherCols} fw-bold`}>
-            {I18NextService.i18n.t("last_updated")}
-          </div>
+export function InstanceList({
+  items,
+  blocked,
+  onRemove,
+  hideNoneFound,
+}: InstanceListProps) {
+  const nameCols = "col-12 col-md-6";
+  const otherCols = "col-4 col-md-2";
+
+  return items.length > 0 ? (
+    <div id="instances-table">
+      <div className="row">
+        <div className={`${nameCols} fw-bold`}>
+          {I18NextService.i18n.t("name")}
         </div>
-        <TableHr />
-        {items.map(i => (
-          <>
-            <div key={i.domain} className="row">
-              <div className={nameCols}>
-                {link ? (
-                  <a href={`https://${i.domain}`} rel={relTags}>
-                    {i.domain}{" "}
-                  </a>
-                ) : (
-                  <span>{i.domain}</span>
-                )}
-              </div>
-              <div className={otherCols}>{i.software}</div>
-              <div className={otherCols}>{i.version}</div>
-              <div className={otherCols}>
-                {formatRelativeDate(i.updated_at ?? i.published_at)}
-                {isWeekOld(new Date(i.updated_at ?? i.published_at)) && " 💀"}
-              </div>
-            </div>
-            <hr />
-          </>
-        ))}
+        <div className={`${otherCols} fw-bold`}>
+          {I18NextService.i18n.t("software")}
+        </div>
+        <div className={`${otherCols} fw-bold`}>
+          {I18NextService.i18n.t("version")}
+        </div>
+        <div className={`${otherCols} fw-bold`}>
+          {I18NextService.i18n.t("last_updated")}
+        </div>
       </div>
-    ) : (
-      <div>{I18NextService.i18n.t("none_found")}</div>
-    );
-  }
+      <TableHr />
+      {items.map(i => (
+        <>
+          <div key={i.domain} className="row">
+            <div className={nameCols}>
+              {!blocked ? (
+                <a href={`https://${i.domain}`} rel={relTags}>
+                  {i.domain}{" "}
+                </a>
+              ) : (
+                <span>{i.domain}</span>
+              )}
+              {onRemove !== undefined && (
+                <button
+                  className="btn btn-link"
+                  onClick={() => onRemove(i.domain)}
+                >
+                  <Icon icon={"x"} classes="icon-inline text-danger" />
+                </button>
+              )}
+            </div>
+            <div className={otherCols}>{i.software}</div>
+            <div className={otherCols}>{i.version}</div>
+            <div className={otherCols}>
+              {formatRelativeDate(i.updated_at ?? i.published_at)}
+              {isWeekOld(new Date(i.updated_at ?? i.published_at)) && " 💀"}
+            </div>
+          </div>
+          <hr />
+        </>
+      ))}
+    </div>
+  ) : (
+    !hideNoneFound && <div>{I18NextService.i18n.t("none_found")}</div>
+  );
 }

@@ -9,6 +9,8 @@ import { DirectionalCursor, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component } from "inferno";
 import {
+  AdminAllowInstanceParams,
+  AdminBlockInstanceParams,
   AdminListUsersResponse,
   CreateCustomEmoji,
   CreateOAuthProvider,
@@ -53,13 +55,16 @@ import { snapToTop } from "@utils/browser";
 import { isBrowser } from "@utils/browser";
 import ConfirmationModal from "../common/modal/confirmation-modal";
 import OAuthProvidersTab from "./oauth/oauth-providers-tab";
-import { InstanceBlocks } from "./instance-blocks";
+import { InstanceBlockForm } from "./instance-block-form";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { fetchLimit } from "@utils/config";
 import { linkEvent } from "inferno";
 import { UserBadges } from "@components/common/user-badges";
 import { MomentTime } from "@components/common/moment-time";
 import { TableHr } from "@components/common/tables";
+import { NoOptionI18nKeys } from "i18next";
+import { InstanceList } from "./instances";
+import { InstanceAllowForm } from "./instance-allow-form";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: AdminListUsersResponse;
@@ -143,6 +148,10 @@ export class AdminSettings extends Component<
     this.handleEditEmoji = this.handleEditEmoji.bind(this);
     this.handleDeleteEmoji = this.handleDeleteEmoji.bind(this);
     this.handleCreateEmoji = this.handleCreateEmoji.bind(this);
+    this.handleInstanceBlockCreate = this.handleInstanceBlockCreate.bind(this);
+    this.handleInstanceBlockRemove = this.handleInstanceBlockRemove.bind(this);
+    this.handleInstanceAllowCreate = this.handleInstanceAllowCreate.bind(this);
+    this.handleInstanceAllowRemove = this.handleInstanceAllowRemove.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -194,11 +203,6 @@ export class AdminSettings extends Component<
   }
 
   render() {
-    const federationData =
-      this.state.instancesRes.state === "success"
-        ? this.state.instancesRes.data.federated_instances
-        : undefined;
-
     return (
       <div className="admin-settings container-lg">
         <HtmlTags
@@ -248,14 +252,7 @@ export class AdminSettings extends Component<
                   role="tabpanel"
                   id="instance_blocks-tab-pane"
                 >
-                  {federationData ? (
-                    <InstanceBlocks
-                      blockedInstances={federationData.blocked}
-                      allowedInstances={federationData.allowed}
-                    />
-                  ) : (
-                    <Spinner />
-                  )}
+                  {this.instanceBlocksTab()}
                 </div>
               ),
             },
@@ -459,6 +456,15 @@ export class AdminSettings extends Component<
     const emojisRes = await HttpService.client.listCustomEmojis({});
 
     this.setState({ emojisRes });
+  }
+
+  async fetchInstancesOnly() {
+    this.setState({
+      instancesRes: LOADING_REQUEST,
+    });
+    const instancesRes = await HttpService.client.getFederatedInstances();
+
+    this.setState({ instancesRes });
   }
 
   admins() {
@@ -733,6 +739,114 @@ export class AdminSettings extends Component<
 
   emptyEmojiForm() {
     return <EmojiForm onCreate={this.handleCreateEmoji} />;
+  }
+
+  instanceBlocksTab() {
+    switch (this.state.instancesRes.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success": {
+        const instances = this.state.instancesRes.data.federated_instances;
+        return (
+          <div>
+            <h1 className="h4 mb-4">
+              {I18NextService.i18n.t("blocked_instances")}
+            </h1>
+            <InstanceList
+              items={instances?.blocked ?? []}
+              blocked
+              hideNoneFound
+              onRemove={this.handleInstanceBlockRemove}
+            />
+            <InstanceBlockForm onCreate={this.handleInstanceBlockCreate} />
+            <hr />
+            <h1 className="h4 mb-4">
+              {I18NextService.i18n.t("allowed_instances")}
+            </h1>
+            <InstanceList
+              items={instances?.allowed ?? []}
+              hideNoneFound
+              onRemove={this.handleInstanceAllowRemove}
+            />
+            <InstanceAllowForm onCreate={this.handleInstanceAllowCreate} />
+          </div>
+        );
+      }
+    }
+  }
+
+  async handleInstanceBlockCreate(form: AdminBlockInstanceParams) {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.adminBlockInstance(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("blocked_x", { item: form.instance }));
+      await this.fetchInstancesOnly();
+    } else if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleInstanceBlockRemove(instance: string) {
+    this.setState({ loading: true });
+
+    const form: AdminBlockInstanceParams = {
+      instance,
+      block: false,
+      reason: "",
+    };
+    const res = await HttpService.client.adminBlockInstance(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("unblocked_x", { item: form.instance }));
+      await this.fetchInstancesOnly();
+    } else if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleInstanceAllowCreate(form: AdminAllowInstanceParams) {
+    this.setState({ loading: true });
+
+    const res = await HttpService.client.adminAllowInstance(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("allowed_x", { item: form.instance }));
+      await this.fetchInstancesOnly();
+    } else if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
+    }
+
+    this.setState({ loading: false });
+  }
+
+  async handleInstanceAllowRemove(instance: string) {
+    this.setState({ loading: true });
+
+    const form: AdminAllowInstanceParams = {
+      instance,
+      allow: false,
+      reason: "",
+    };
+    const res = await HttpService.client.adminAllowInstance(form);
+
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("disallowed_x", { item: form.instance }));
+      await this.fetchInstancesOnly();
+    } else if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
+    }
+
+    this.setState({ loading: false });
   }
 
   async handleEditSite(form: EditSite) {

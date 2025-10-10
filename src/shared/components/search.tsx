@@ -303,7 +303,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
               ]}
               viewType={CommentViewType.Flat}
               viewOnly
-              postLocked
+              postLockedOrRemovedOrDeleted
               isTopLevel
               showCommunity
               myUserInfo={isoData.myUserInfo}
@@ -851,7 +851,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         nodes={commentsToFlatNodes(comments)}
         viewType={CommentViewType.Flat}
         viewOnly
-        postLocked
+        postLockedOrRemovedOrDeleted
         isTopLevel
         showCommunity
         allLanguages={siteRes.all_languages}
