@@ -204,7 +204,7 @@ export class AdminSettings extends Component<
 
   render() {
     return (
-      <div className="admin-settings container-lg">
+      <div className="admin-settings container">
         <HtmlTags
           title={this.documentTitle}
           path={this.context.router.route.match.url}
@@ -222,10 +222,10 @@ export class AdminSettings extends Component<
                   role="tabpanel"
                   id="site-tab-pane"
                 >
-                  <h1 className="h4 mb-4">
+                  <h1 className="row justify-content-md-center h4 mb-4">
                     {I18NextService.i18n.t("site_config")}
                   </h1>
-                  <div className="row">
+                  <div className="row justify-content-md-center">
                     <div className="col-12 col-md-6">
                       <SiteForm
                         showLocal={showLocal(this.isoData)}
@@ -236,7 +236,6 @@ export class AdminSettings extends Component<
                         myUserInfo={this.isoData.myUserInfo}
                       />
                     </div>
-                    <div className="col-12 col-md-6">{this.admins()}</div>
                   </div>
                 </div>
               ),
@@ -269,6 +268,8 @@ export class AdminSettings extends Component<
                 >
                   {this.userListTitleAndSelects()}
                   {this.userList()}
+                  <hr />
+                  {this.admins()}
                 </div>
               ),
             },
@@ -468,21 +469,58 @@ export class AdminSettings extends Component<
   }
 
   admins() {
+    const admins = this.isoData.siteRes.admins;
+
+    const nameCols = "col-12 col-md-6";
+    const dataCols = "col-4 col-md-2";
+
     return (
       <>
-        <h2 className="h5">
+        <h1 className="h4 mb-4">
           {capitalizeFirstLetter(I18NextService.i18n.t("admins"))}
-        </h2>
-        <ul className="list-unstyled">
-          {this.isoData.siteRes?.admins.map(admin => (
-            <li key={admin.person.id} className="list-inline-item">
-              <PersonListing
-                person={admin.person}
-                myUserInfo={this.isoData.myUserInfo}
-              />
-            </li>
+        </h1>
+        <div id="admins-table">
+          <div className="row">
+            <div className={`${nameCols} fw-bold`}>
+              {I18NextService.i18n.t("username")}
+            </div>
+            <div className={`${dataCols} fw-bold`}>
+              {I18NextService.i18n.t("registered_date_title")}
+            </div>
+            <div className={`${dataCols} fw-bold`}>
+              {I18NextService.i18n.t("posts")}
+            </div>
+            <div className={`${dataCols} fw-bold`}>
+              {I18NextService.i18n.t("comments")}
+            </div>
+          </div>
+          <TableHr />
+          {admins.map(admin => (
+            <>
+              <div className="row" key={admin.person.id}>
+                <div className={nameCols}>
+                  <PersonListing
+                    person={admin.person}
+                    myUserInfo={this.isoData.myUserInfo}
+                  />
+                  <UserBadges
+                    classNames="ms-1"
+                    isAdmin={admin.is_admin}
+                    isBanned={admin.banned}
+                    myUserInfo={this.isoData.myUserInfo}
+                    creator={admin.person}
+                  />
+                </div>
+                <div className={dataCols}>
+                  <MomentTime published={admin.person.published_at} />
+                </div>
+                <div className={dataCols}>{admin.person.post_count}</div>
+                <div className={dataCols}>{admin.person.comment_count}</div>
+              </div>
+              <hr />
+            </>
           ))}
-        </ul>
+        </div>
         {this.leaveAdmin()}
         <ConfirmationModal
           message={I18NextService.i18n.t("leave_admin_team_confirmation")}
