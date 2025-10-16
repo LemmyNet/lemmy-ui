@@ -9,7 +9,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 interface MomentTimeProps {
   published: string;
   updated?: string;
-  showAgo: boolean;
+  showAgo?: boolean;
   ignoreUpdated?: boolean;
 }
 
