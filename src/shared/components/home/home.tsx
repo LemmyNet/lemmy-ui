@@ -948,8 +948,15 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.updateUrl({ listingType: val, cursor: undefined });
   }
 
-  handlePostListingModeChange(val: PostListingMode) {
+  async handlePostListingModeChange(val: PostListingMode) {
     this.setState({ postListingMode: val });
+
+    // Also, save your user settings to this mode
+    if (this.isoData.myUserInfo) {
+      await HttpService.client.saveUserSettings({
+        post_listing_mode: val,
+      });
+    }
   }
 
   handleDataTypeChange(val: DataType) {

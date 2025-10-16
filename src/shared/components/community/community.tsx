@@ -768,8 +768,15 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.updateUrl({ dataType, cursor: undefined });
   }
 
-  handlePostListingModeChange(val: PostListingMode) {
+  async handlePostListingModeChange(val: PostListingMode) {
     this.setState({ postListingMode: val });
+
+    // Also, save your user settings to this mode
+    if (this.isoData.myUserInfo) {
+      await HttpService.client.saveUserSettings({
+        post_listing_mode: val,
+      });
+    }
   }
 
   handleShowHiddenChange(show?: StringBoolean) {
