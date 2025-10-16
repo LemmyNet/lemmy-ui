@@ -163,7 +163,7 @@ export function PostCreatedLine({
       {showPostBadges && (
         <PostBadges post={postView.post} allLanguages={allLanguages} />
       )}
-      {showUrlLine && (
+      {showUrlLine && postView.post.url && (
         <>
           {" · "}
           <UrlLine postView={postView} myUserInfo={myUserInfo} />
