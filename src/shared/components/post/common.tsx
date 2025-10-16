@@ -283,6 +283,7 @@ export function PostImg({ postView, showAdultConsentModal }: PostImgProps) {
           alt={post.alt_text}
           width={imageDetails?.width}
           height={imageDetails?.height}
+          blurhash={imageDetails?.blurhash}
           nsfw={postView.post.nsfw || postView.community.nsfw}
         />
       </a>

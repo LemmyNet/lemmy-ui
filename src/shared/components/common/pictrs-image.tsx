@@ -1,15 +1,17 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
+import { decodeBlurHash } from "fast-blurhash";
 
 import { setIsoData } from "@utils/app";
 import { IsoData } from "@utils/types";
 import { getStaticDir } from "@utils/env";
+import { isBrowser } from "@utils/browser";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
 
 // For some reason, masonry needs a default image size, and will properly size it down
-const defaultImgSize = 3000;
+const defaultImgSize = 512;
 
 interface PictrsImageProps {
   src: string;
@@ -23,6 +25,7 @@ interface PictrsImageProps {
   cardTop?: boolean;
   width?: number;
   height?: number;
+  blurhash?: string;
 }
 
 interface PictrsImageState {
@@ -49,8 +52,16 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
   }
 
   render() {
-    const { icon, iconOverlay, banner, thumbnail, nsfw, pushup, cardTop } =
-      this.props;
+    const {
+      icon,
+      iconOverlay,
+      banner,
+      thumbnail,
+      nsfw,
+      pushup,
+      cardTop,
+      blurhash,
+    } = this.props;
 
     const { src } = this.state;
 
@@ -61,12 +72,17 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
 
     const [width, height] = this.widthAndHeight();
 
+    const blurHashBase64 = blurhash
+      ? computeBlurHashBase64(blurhash, width, height)
+      : undefined;
+
     return (
       !this.isoData.showAdultConsentModal && (
         <picture>
           <source srcSet={this.src("webp")} type="image/webp" />
           <source srcSet={src} />
           <source srcSet={this.src("jpg")} type="image/jpeg" />
+          <source srcSet={blurHashBase64} />
           <img
             src={src}
             alt={this.alt()}
@@ -150,4 +166,21 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       ];
     }
   }
+}
+
+function computeBlurHashBase64(
+  blurhash: string,
+  width: number,
+  height: number,
+): string | undefined {
+  let canvas: HTMLCanvasElement | undefined;
+  if (isBrowser()) {
+    const pixels = decodeBlurHash(blurhash, width, height);
+    canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const imageData = ctx!.createImageData(width, height);
+    imageData.data.set(pixels);
+    ctx!.putImageData(imageData, 0, 0);
+  }
+  return canvas?.toDataURL();
 }
