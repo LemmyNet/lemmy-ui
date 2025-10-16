@@ -60,7 +60,7 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       nsfw,
       pushup,
       cardTop,
-      blurhash,
+      // blurhash,
     } = this.props;
 
     const { src } = this.state;
@@ -72,6 +72,7 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
 
     const [width, height] = this.widthAndHeight();
 
+    const blurhash = "LEHV6nWB2yk8pyo0adR*.7kCMdnj";
     const blurHashBase64 = blurhash
       ? computeBlurHashBase64(blurhash, width, height)
       : undefined;
@@ -82,7 +83,6 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
           <source srcSet={this.src("webp")} type="image/webp" />
           <source srcSet={src} />
           <source srcSet={this.src("jpg")} type="image/jpeg" />
-          <source srcSet={blurHashBase64} />
           <img
             src={src}
             alt={this.alt()}
@@ -90,6 +90,12 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
             loading="lazy"
             width={width}
             height={height}
+            style={{
+              "background-image": `url(${blurHashBase64})`,
+              "background-repeat": "no-repeat",
+              "background-size": "cover",
+              "background-position": "center",
+            }}
             className={classNames("overflow-hidden pictrs-image", {
               "img-fluid": !(icon || iconOverlay),
               banner,
