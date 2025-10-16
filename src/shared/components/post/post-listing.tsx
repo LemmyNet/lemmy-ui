@@ -81,8 +81,6 @@ type PostListingProps = {
   onMarkPostAsRead(form: MarkPostAsRead): void;
 };
 
-// TODO grep for all cases of d-none. Simplify these.
-
 @tippyMixin
 export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
@@ -108,23 +106,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     this.unlisten();
   }
 
-  // TODO move this somewhere
-  initImageExpanded(): boolean {
-    // Don't expand if theres a consent modal
-    const noConsentModal = !this.props.showAdultConsentModal;
-
-    // Dont expand if you have blur nsfw and the post is nsfw
-    const noBlurNsfw = !(
-      this.props.myUserInfo?.local_user_view.local_user.blur_nsfw &&
-      this.props.postView.post.nsfw
-    );
-
-    // Only expand for card view
-    const isCard = this.props.postListingMode === "Card";
-
-    return noConsentModal && noBlurNsfw && isCard;
-  }
-
   render() {
     const p = this.props;
     return (
@@ -144,7 +125,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             isNsfwCommunity={p.postView.community.nsfw}
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
-            // TODO test this
             onEdit={p.onPostEdit}
             onCancel={() => handleEditCancel(this)}
           />

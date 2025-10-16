@@ -50,7 +50,6 @@ export function PostName({ post }: PostNameProps) {
 type PostBadgesProps = {
   post: Post;
 };
-// TODO test this
 function PostBadges({ post }: PostBadgesProps) {
   {
     /**
@@ -113,9 +112,6 @@ function PostBadges({ post }: PostBadgesProps) {
     </>
   );
 }
-
-// TODO need to add url line somewhere
-// url && this.urlLine();
 
 type PostCreatedLineProps = {
   postView: PostView;

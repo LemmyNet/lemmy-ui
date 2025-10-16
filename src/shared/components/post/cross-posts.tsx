@@ -11,7 +11,6 @@ import { ShowCrossPostsType, VoteContentType } from "@utils/types";
 import { Link } from "inferno-router";
 import { PostView, MyUserInfo, LocalSite } from "lemmy-js-client";
 
-// TODO grep all these functional components for this.
 type CrossPostsProps = {
   crossPosts?: PostView[];
   type_: ShowCrossPostsType;

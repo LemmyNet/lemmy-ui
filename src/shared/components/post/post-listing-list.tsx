@@ -13,7 +13,6 @@ import { PostCreatedLine, PostName } from "./common";
 import { CrossPosts } from "./cross-posts";
 import { CommentsButton } from "./post-action-bar";
 
-// TODO make all boolean imports required?
 type Props = {
   postView: PostView;
   crossPosts: PostView[];
