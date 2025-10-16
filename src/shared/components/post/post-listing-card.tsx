@@ -37,6 +37,7 @@ import {
   UrlLine,
   TorrentHelp,
   PostImg,
+  PostBadges,
 } from "./common";
 import { CrossPosts } from "./cross-posts";
 import { PostActionBar } from "./post-action-bar";
@@ -123,11 +124,12 @@ export class PostListingCard extends Component<
                 showCommunity={p.showCommunity}
                 showPublishedTime={false}
                 showUrlLine={false}
+                showPostBadges={false}
                 allLanguages={p.allLanguages}
                 myUserInfo={p.myUserInfo}
               />
             </div>
-            <div className="col-auto small">
+            <div className="col-auto small ps-1">
               <PostPublishedTime post={p.postView.post} />
             </div>
           </div>
@@ -136,6 +138,11 @@ export class PostListingCard extends Component<
               <PostName post={p.postView.post} showBody={p.showBody} />
               <div className="small">
                 <UrlLine postView={p.postView} myUserInfo={p.myUserInfo} />
+                <span> </span>
+                <PostBadges
+                  post={p.postView.post}
+                  allLanguages={p.allLanguages}
+                />
               </div>
             </div>
             {!p.hideImage && showThumbnail && (

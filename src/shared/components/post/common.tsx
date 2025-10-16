@@ -55,23 +55,28 @@ export function PostName({ post, showBody }: PostNameProps) {
 
 type PostBadgesProps = {
   post: Post;
+  allLanguages: Language[];
 };
-function PostBadges({ post }: PostBadgesProps) {
-  {
-    /**
-     * If there is (a) a URL and an embed title, or (b) a post body, and
-     * we were not told to show the body by the parent component, show the
-     * MetadataCard/body toggle.
-     */
-  }
+export function PostBadges({ post, allLanguages }: PostBadgesProps) {
   return (
     <>
+      {post.language_id !== 0 && (
+        <span className="mx-1 badge text-bg-light">
+          {allLanguages.find(lang => lang.id === post.language_id)?.name}
+        </span>
+      )}{" "}
+      {post.scheduled_publish_time_at && (
+        <span className="mx-1 badge text-bg-light">
+          {I18NextService.i18n.t("publish_in_time", {
+            time: formatRelativeDate(post.scheduled_publish_time_at, true),
+          })}
+        </span>
+      )}
       {post.removed && (
         <small className="ms-2 badge text-bg-light">
           {I18NextService.i18n.t("removed")}
         </small>
       )}
-
       {post.deleted && (
         <small
           className="unselectable pointer ms-2 text-muted fst-italic"
@@ -80,7 +85,6 @@ function PostBadges({ post }: PostBadgesProps) {
           <Icon icon="trash" classes="icon-inline text-danger" />
         </small>
       )}
-
       {post.locked && (
         <small
           className="unselectable pointer ms-2 text-muted fst-italic"
@@ -89,7 +93,6 @@ function PostBadges({ post }: PostBadgesProps) {
           <Icon icon="lock" classes="icon-inline text-danger" />
         </small>
       )}
-
       {post.featured_community && (
         <small
           className="unselectable pointer ms-2 text-muted fst-italic"
@@ -99,7 +102,6 @@ function PostBadges({ post }: PostBadgesProps) {
           <Icon icon="pin" classes="icon-inline text-primary" />
         </small>
       )}
-
       {post.featured_local && (
         <small
           className="unselectable pointer ms-2 text-muted fst-italic"
@@ -109,7 +111,6 @@ function PostBadges({ post }: PostBadgesProps) {
           <Icon icon="pin" classes="icon-inline text-secondary" />
         </small>
       )}
-
       {post.nsfw && (
         <small className="ms-2 badge text-bg-danger">
           {I18NextService.i18n.t("nsfw")}
@@ -124,6 +125,7 @@ type PostCreatedLineProps = {
   showCommunity: boolean;
   showPublishedTime: boolean;
   showUrlLine: boolean;
+  showPostBadges: boolean;
   allLanguages: Language[];
   myUserInfo: MyUserInfo | undefined;
 };
@@ -132,6 +134,7 @@ export function PostCreatedLine({
   showCommunity,
   showPublishedTime,
   showUrlLine,
+  showPostBadges,
   allLanguages,
   myUserInfo,
 }: PostCreatedLineProps) {
@@ -157,22 +160,9 @@ export function PostCreatedLine({
         myUserInfo={myUserInfo}
         personActions={postView.person_actions}
       />
-      {postView.post.language_id !== 0 && (
-        <span className="mx-1 badge text-bg-light">
-          {
-            allLanguages.find(lang => lang.id === postView.post.language_id)
-              ?.name
-          }
-        </span>
-      )}{" "}
-      {postView.post.scheduled_publish_time_at && (
-        <span className="mx-1 badge text-bg-light">
-          {I18NextService.i18n.t("publish_in_time", {
-            time: formatRelativeDate(postView.post.scheduled_publish_time_at),
-          })}
-        </span>
+      {showPostBadges && (
+        <PostBadges post={postView.post} allLanguages={allLanguages} />
       )}
-      <PostBadges post={postView.post} />
       {showUrlLine && (
         <>
           {" · "}
