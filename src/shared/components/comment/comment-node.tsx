@@ -366,7 +366,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 subject={this.props.node.comment_view.comment}
               />
               <span>
-                <MomentTime published={published_at} updated={updated_at} />
+                <MomentTime
+                  published={published_at}
+                  updated={updated_at}
+                  showAgo={false}
+                />
               </span>
             </div>
             {/* end of user row */}

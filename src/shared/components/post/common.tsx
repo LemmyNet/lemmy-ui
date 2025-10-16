@@ -187,7 +187,13 @@ type PostPublishedTimeProps = {
   post: Post;
 };
 export function PostPublishedTime({ post }: PostPublishedTimeProps) {
-  return <MomentTime published={post.published_at} updated={post.updated_at} />;
+  return (
+    <MomentTime
+      published={post.published_at}
+      updated={post.updated_at}
+      showAgo={false}
+    />
+  );
 }
 
 type PostLinkProps = {

@@ -157,6 +157,7 @@ function ExpandedCrossPosts({
                   <MomentTime
                     published={pv.post.published_at}
                     updated={pv.post.updated_at}
+                    showAgo={false}
                   />
                 </div>
               </div>

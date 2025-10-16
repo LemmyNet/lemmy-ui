@@ -9,7 +9,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 interface MomentTimeProps {
   published: string;
   updated?: string;
-  showAgo?: boolean;
+  showAgo: boolean;
   ignoreUpdated?: boolean;
 }
 
@@ -64,7 +64,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
           className="moment-time fst-italic pointer unselectable"
         >
           <Icon icon="edit-2" classes="icon-inline me-1" />
-          {formatRelativeDate(this.updatedTime)}
+          {formatRelativeDate(this.updatedTime, this.props.showAgo)}
         </span>
       );
     } else {
@@ -74,7 +74,7 @@ export class MomentTime extends Component<MomentTimeProps, any> {
           className="moment-time pointer unselectable"
           data-tippy-content={formatDate(published)}
         >
-          {formatRelativeDate(published)}
+          {formatRelativeDate(published, this.props.showAgo)}
         </span>
       );
     }
