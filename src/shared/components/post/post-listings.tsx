@@ -33,7 +33,7 @@ import {
 import { I18NextService } from "../../services";
 import { PostListing } from "./post-listing";
 import { ShowCrossPostsType } from "@utils/types";
-import { isBrowser } from "@utils/browser";
+import { masonryUpdate } from "@utils/browser";
 
 interface PostListingsProps {
   posts: PostView[];
@@ -228,15 +228,5 @@ function postListingModeCols(mode: PostListingMode): string {
     case "Card":
     case "SmallCard":
       return "col-12 col-md-6";
-  }
-}
-
-async function masonryUpdate() {
-  if (isBrowser()) {
-    const Masonry = (await import("masonry-layout")).default;
-    new Masonry(".post-listings-grid", {
-      percentPosition: true,
-      horizontalOrder: true,
-    });
   }
 }

@@ -32,6 +32,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { PostForm } from "./post-form";
 import { PostListingList } from "./post-listing-list";
 import { PostListingCard } from "./post-listing-card";
+import { masonryUpdate } from "@utils/browser";
 
 type PostListingState = {
   showEdit: boolean;
@@ -222,10 +223,12 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 }
 
-function handleEditClick(i: PostListing) {
+async function handleEditClick(i: PostListing) {
   i.setState({ showEdit: true });
+  await masonryUpdate();
 }
 
-function handleEditCancel(i: PostListing) {
+async function handleEditCancel(i: PostListing) {
   i.setState({ showEdit: false });
+  await masonryUpdate();
 }
