@@ -581,8 +581,10 @@ export class Community extends Component<CommunityRouteProps, State> {
           return (
             <PostListings
               posts={this.state.postsRes.data.posts}
-              showDupes="ShowSeparately"
+              showCrossPosts="ShowSeparately"
               markable
+              showCommunity={false}
+              viewOnly={false}
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes.all_languages}
@@ -611,6 +613,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onHidePost={this.handleHidePost}
               onPersonNote={this.handlePersonNote}
               postListingMode={this.state.postListingMode}
+              onScrollIntoCommentsClick={() => {}}
             />
           );
       }

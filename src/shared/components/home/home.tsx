@@ -730,8 +730,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <PostListings
               posts={posts}
               showCommunity
-              showDupes="Small"
+              showCrossPosts="Small"
               markable
+              viewOnly={false}
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes.all_languages}
@@ -760,6 +761,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onHidePost={this.handleHidePost}
               onPersonNote={this.handlePersonNote}
               postListingMode={this.state.postListingMode}
+              onScrollIntoCommentsClick={() => {}}
             />
           );
         }

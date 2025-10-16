@@ -776,3 +776,19 @@ export function commentViewToPersonContentCombinedView(
 export function userNotLoggedInOrBanned(user: MyUserInfo | undefined): boolean {
   return user === undefined || user.local_user_view.banned;
 }
+
+export function linkTarget(user: MyUserInfo | undefined): string {
+  return user?.local_user_view.local_user.open_links_in_new_tab
+    ? "_blank"
+    : // _self is the default target on links when the field is not specified
+      "_self";
+}
+
+export function postIsInteractable(
+  postView: PostView,
+  viewOnly: boolean,
+): boolean {
+  const bannedFromCommunity = postView.community_actions?.received_ban_at;
+
+  return !(viewOnly || bannedFromCommunity);
+}
