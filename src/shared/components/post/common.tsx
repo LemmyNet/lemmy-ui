@@ -138,6 +138,9 @@ export function PostCreatedLine({
   allLanguages,
   myUserInfo,
 }: PostCreatedLineProps) {
+  // Hide the person avatar only on the home page (IE where you show the community)
+  const hideAvatar = showCommunity;
+
   return (
     <div className="small mb-1 mb-md-0">
       {showCommunity && (
@@ -149,7 +152,12 @@ export function PostCreatedLine({
           {" · "}
         </>
       )}
-      <PersonListing person={postView.creator} myUserInfo={myUserInfo} muted />
+      <PersonListing
+        person={postView.creator}
+        myUserInfo={myUserInfo}
+        muted
+        hideAvatar={hideAvatar}
+      />
       <UserBadges
         classNames="ms-1"
         isModerator={postView.creator_is_moderator}
