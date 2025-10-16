@@ -14,21 +14,27 @@ import {
   isMagnetLink,
   extractMagnetLinkDownloadName,
   isImage,
+  isMedia,
 } from "@utils/media";
 import { Link } from "inferno-router";
 import { Post, PostView, MyUserInfo, Language } from "lemmy-js-client";
 import { T } from "inferno-i18next-dess";
 import { hostname } from "@utils/helpers";
+import { ShowBodyType } from "@utils/types";
 
 type PostNameProps = {
   post: Post;
+  showBody: ShowBodyType;
 };
-export function PostName({ post }: PostNameProps) {
+export function PostName({ post, showBody }: PostNameProps) {
   const url = post.url;
+
+  // Only navigate to external, if its media, or the full post
+  const navigateExternal = (url && isMedia(url)) || showBody === "Full";
 
   return (
     <h1 className="post-name h5 d-inline text-break">
-      {url ? (
+      {navigateExternal ? (
         <a
           className={
             !post.featured_community && !post.featured_local

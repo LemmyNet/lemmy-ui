@@ -11,7 +11,7 @@ import {
   validTitle,
   validURL,
 } from "@utils/helpers";
-import { isAudio, isImage, isVideo } from "@utils/media";
+import { isImage, isMedia } from "@utils/media";
 import { Choice, StringBoolean } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, createRef, linkEvent } from "inferno";
@@ -667,7 +667,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           onChange={this.handleLanguageChange}
           myUserInfo={this.props.myUserInfo}
         />
-        {url && (isImage(url) || isVideo(url) || isAudio(url)) && (
+        {url && isMedia(url) && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-alt-text">
               {I18NextService.i18n.t("column_alttext")}

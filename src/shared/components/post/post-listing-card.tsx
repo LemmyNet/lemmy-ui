@@ -133,7 +133,7 @@ export class PostListingCard extends Component<
           </div>
           <div className="row mb-1">
             <div className="col flex-grow-1">
-              <PostName post={p.postView.post} />
+              <PostName post={p.postView.post} showBody={p.showBody} />
               <div className="small">
                 <UrlLine postView={p.postView} myUserInfo={p.myUserInfo} />
               </div>

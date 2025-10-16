@@ -58,12 +58,13 @@ export function PostListingList({
           </div>
         )}
         <div className="col flex-grow-1">
-          <PostName post={postView.post} />
+          <PostName post={postView.post} showBody="Hidden" />
           <PostCreatedLine
             postView={postView}
             showCommunity={showCommunity}
             showPublishedTime
             showUrlLine
+            showPostBadges
             allLanguages={allLanguages}
             myUserInfo={myUserInfo}
           />
