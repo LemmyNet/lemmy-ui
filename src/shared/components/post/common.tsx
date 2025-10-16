@@ -149,7 +149,9 @@ export function PostCreatedLine({
             community={postView.community}
             myUserInfo={myUserInfo}
           />
-          {" · "}
+          <span className="mx-1 small text-muted">
+            {I18NextService.i18n.t("by")}
+          </span>
         </>
       )}
       <PersonListing
