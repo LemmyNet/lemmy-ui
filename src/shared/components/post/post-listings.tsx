@@ -85,14 +85,11 @@ export class PostListings extends Component<PostListingsProps, any> {
       : this.props.posts;
   }
 
+  async componentWillMount() {
+    await masonryUpdate();
+  }
   async componentWillUpdate() {
-    if (isBrowser()) {
-      const Masonry = (await import("masonry-layout")).default;
-      new Masonry(".post-listings-grid", {
-        percentPosition: true,
-        horizontalOrder: true,
-      });
-    }
+    await masonryUpdate();
   }
 
   render() {
@@ -231,5 +228,15 @@ function postListingModeCols(mode: PostListingMode): string {
     case "Card":
     case "SmallCard":
       return "col-12 col-md-6";
+  }
+}
+
+async function masonryUpdate() {
+  if (isBrowser()) {
+    const Masonry = (await import("masonry-layout")).default;
+    new Masonry(".post-listings-grid", {
+      percentPosition: true,
+      horizontalOrder: true,
+    });
   }
 }
