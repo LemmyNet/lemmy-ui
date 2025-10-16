@@ -444,9 +444,9 @@ export class Notifications extends Component<
         return (
           this.isoData.myUserInfo && (
             <PostListing
-              post_view={i}
+              postView={i}
               showCommunity
-              showDupes="ShowSeparately"
+              showCrossPosts="ShowSeparately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={[]}
@@ -455,30 +455,35 @@ export class Notifications extends Component<
               myUserInfo={this.isoData.myUserInfo}
               localSite={this.isoData.siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
+              postListingMode="SmallCard"
+              crossPosts={[]}
+              showBody={"Preview"}
+              editLoading={false}
+              readLoading={false}
               viewOnly // TODO: comments do allow edits and moderation
-              onPostEdit={async () => EMPTY_REQUEST}
-              onPostVote={async () => EMPTY_REQUEST}
-              onPostReport={async () => {}}
-              onBlockPerson={async () => {}}
-              onBlockCommunity={async () => {}}
-              onLockPost={async () => {}}
-              onDeletePost={async () => {}}
-              onRemovePost={async () => {}}
-              onSavePost={async () => {}}
-              onFeaturePost={async () => {}}
-              onPurgePerson={async () => {}}
-              onPurgePost={async () => {}}
-              onBanPersonFromCommunity={async () => {}}
-              onBanPerson={async () => {}}
-              onAddModToCommunity={async () => {}}
-              onAddAdmin={async () => {}}
-              onTransferCommunity={async () => {}}
-              onHidePost={async () => {}}
+              onPostEdit={() => EMPTY_REQUEST}
+              onPostVote={() => EMPTY_REQUEST}
+              onPostReport={() => {}}
+              onBlockPerson={() => {}}
+              onBlockCommunity={() => {}}
+              onLockPost={() => {}}
+              onDeletePost={() => {}}
+              onRemovePost={() => {}}
+              onSavePost={() => {}}
+              onFeaturePost={() => {}}
+              onPurgePerson={() => {}}
+              onPurgePost={() => {}}
+              onBanPersonFromCommunity={() => {}}
+              onBanPerson={() => {}}
+              onAddModToCommunity={() => {}}
+              onAddAdmin={() => {}}
+              onTransferCommunity={() => {}}
+              onHidePost={() => {}}
               markable
               disableAutoMarkAsRead
-              read={item.notification.read}
               onMarkPostAsRead={this.handleMarkPostAsRead}
               onPersonNote={this.handlePersonNote}
+              onScrollIntoCommentsClick={() => {}}
             />
           )
         );

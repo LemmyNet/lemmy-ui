@@ -231,10 +231,10 @@ blockquote {
 }
 
 .thumbnail {
+  height: 80px;
+  width: 80px;
   object-fit: cover;
   aspect-ratio: 1/1;
-  width: 5rem;
-  height: 5rem;
 }
 
 .mobile-thumbnail-container .thumbnail {
@@ -500,4 +500,18 @@ em-emoji-picker {
 
 .language-item:focus {
   background-color: var(--bs-info-bg-subtle) !important;
+}
+
+.fade-preview {
+  --mask: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 1) 0,
+      rgba(0, 0, 0, 1) 40%,
+      rgba(0, 0, 0, 0) 95%,
+      rgba(0, 0, 0, 0) 0
+    )
+    100% 50% / 100% 100% repeat-x;
+  -webkit-mask: var(--mask);
+  mask: var(--mask);
+  max-height: 100px;
 }

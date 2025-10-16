@@ -17,8 +17,8 @@ interface PersonNoteModalProps {
   note?: string;
   personId: PersonId;
   show: boolean;
-  onSubmit: (form: NotePerson) => Promise<void>;
-  onCancel: () => void;
+  onSubmit(form: NotePerson): void;
+  onCancel(): void;
 }
 
 interface PersonNoteModalState {
@@ -131,7 +131,7 @@ function handleNoteChange(i: PersonNoteModal, event: any) {
   i.setState({ note: event.target.value });
 }
 
-async function handleSubmit(i: PersonNoteModal, event: any) {
+function handleSubmit(i: PersonNoteModal, event: any) {
   event.preventDefault();
 
   i.setState({ loading: true });
@@ -139,7 +139,7 @@ async function handleSubmit(i: PersonNoteModal, event: any) {
   // Empty string is a delete note
   const note = i.state.note ?? "";
 
-  await i.props.onSubmit({
+  i.props.onSubmit({
     note,
     person_id: i.props.personId,
   });

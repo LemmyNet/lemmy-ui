@@ -24,7 +24,7 @@ import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
 
 interface PostReportProps {
   report: PostReportView;
-  enableNsfw?: boolean;
+  enableNsfw: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
@@ -94,10 +94,11 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     return (
       <div className="post-report">
         <PostListing
-          post_view={pv}
-          showDupes="ShowSeparately"
+          postView={pv}
+          showCrossPosts="ShowSeparately"
           showCommunity
           enableNsfw={this.props.enableNsfw}
+          crossPosts={[]}
           showAdultConsentModal={this.props.showAdultConsentModal}
           viewOnly
           allLanguages={[]}
@@ -106,27 +107,34 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           myUserInfo={this.props.myUserInfo}
           localSite={this.props.localSite}
           admins={this.props.admins}
+          postListingMode="SmallCard"
+          showBody={"Full"}
+          markable={false}
+          disableAutoMarkAsRead={false}
+          editLoading={false}
+          readLoading={false}
           // All of these are unused, since its view only
-          onPostEdit={async () => EMPTY_REQUEST}
-          onPostVote={async () => EMPTY_REQUEST}
-          onPostReport={async () => {}}
-          onBlockPerson={async () => {}}
-          onBlockCommunity={async () => {}}
-          onLockPost={async () => {}}
-          onDeletePost={async () => {}}
-          onRemovePost={async () => {}}
-          onSavePost={async () => {}}
-          onFeaturePost={async () => {}}
-          onPurgePerson={async () => {}}
-          onPurgePost={async () => {}}
-          onBanPersonFromCommunity={async () => {}}
-          onBanPerson={async () => {}}
-          onAddModToCommunity={async () => {}}
-          onAddAdmin={async () => {}}
-          onTransferCommunity={async () => {}}
-          onMarkPostAsRead={async () => {}}
-          onHidePost={async () => {}}
-          onPersonNote={async () => {}}
+          onPostEdit={() => EMPTY_REQUEST}
+          onPostVote={() => EMPTY_REQUEST}
+          onPostReport={() => {}}
+          onBlockPerson={() => {}}
+          onBlockCommunity={() => {}}
+          onLockPost={() => {}}
+          onDeletePost={() => {}}
+          onRemovePost={() => {}}
+          onSavePost={() => {}}
+          onFeaturePost={() => {}}
+          onPurgePerson={() => {}}
+          onPurgePost={() => {}}
+          onBanPersonFromCommunity={() => {}}
+          onBanPerson={() => {}}
+          onAddModToCommunity={() => {}}
+          onAddAdmin={() => {}}
+          onTransferCommunity={() => {}}
+          onMarkPostAsRead={() => {}}
+          onHidePost={() => {}}
+          onPersonNote={() => {}}
+          onScrollIntoCommentsClick={() => {}}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}

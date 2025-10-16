@@ -133,6 +133,8 @@ interface PostState {
   isIsomorphic: boolean;
   lastCreatedCommentId?: CommentId;
   notifications: PostNotificationsMode;
+  editLoading: boolean;
+  readLoading: boolean;
 }
 
 function getCommentSortTypeFromQuery(
@@ -257,6 +259,8 @@ export class Post extends Component<PostRouteProps, PostState> {
     maxCommentsShown: commentsShownInterval,
     isIsomorphic: false,
     notifications: "RepliesAndMentions",
+    editLoading: false,
+    readLoading: false,
   };
 
   loadingSettled() {
@@ -606,10 +610,10 @@ export class Post extends Component<PostRouteProps, PostState> {
                 description={res.post_view.post.body}
               />
               <PostListing
-                post_view={res.post_view}
+                postView={res.post_view}
                 crossPosts={res.cross_posts}
-                showDupes="Expanded"
-                showBody
+                showCrossPosts="Expanded"
+                showBody="Full"
                 showCommunity
                 admins={siteRes.admins}
                 enableNsfw={enableNsfw(siteRes)}
@@ -618,6 +622,11 @@ export class Post extends Component<PostRouteProps, PostState> {
                 siteLanguages={siteRes.discussion_languages}
                 myUserInfo={this.isoData.myUserInfo}
                 localSite={siteRes.site_view.local_site}
+                hideImage={false}
+                viewOnly={false}
+                disableAutoMarkAsRead={false}
+                editLoading={this.state.editLoading}
+                readLoading={this.state.readLoading}
                 onBlockPerson={this.handleBlockPerson}
                 onBlockCommunity={this.handleBlockCommunity}
                 onPostEdit={this.handlePostEdit}
@@ -638,9 +647,9 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onHidePost={this.handleHidePost}
                 onScrollIntoCommentsClick={this.handleScrollIntoCommentsClick}
                 markable
-                read={!!res.post_view.post_actions?.read_at}
                 onMarkPostAsRead={this.handleMarkPostAsRead}
                 onPersonNote={this.handlePersonNote}
+                postListingMode="SmallCard"
               />
               <div ref={this.commentSectionRef} className="mb-2" />
 
@@ -1315,8 +1324,13 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async handlePostEdit(form: EditPost) {
+    this.setState({ editLoading: true });
     const res = await HttpService.client.editPost(form);
     this.updatePost(res);
+    if (res.state === "success") {
+      toast(I18NextService.i18n.t("edited_post"));
+    }
+    this.setState({ editLoading: false });
     return res;
   }
 
@@ -1394,6 +1408,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async handleMarkPostAsRead(form: MarkPostAsRead) {
+    this.setState({ readLoading: true });
     const res = await HttpService.client.markPostAsRead(form);
     if (res.state === "success") {
       this.setState(s => {
@@ -1407,6 +1422,7 @@ export class Post extends Component<PostRouteProps, PostState> {
         return { postRes: s.postRes };
       });
     }
+    this.setState({ readLoading: false });
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {

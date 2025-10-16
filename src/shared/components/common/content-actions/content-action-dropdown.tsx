@@ -30,23 +30,25 @@ import { tippyMixin } from "../../mixins/tippy-mixin";
 import PersonNoteModal from "../modal/person-note-modal";
 import { userNotLoggedInOrBanned } from "@utils/app";
 
+// TODO there is no reason to try to combine these. It should be completely split into simple PostActionsDropdown, and CommentActionDropdowns, pushing up the simple forms.
 interface ContentActionDropdownPropsBase {
-  onSave: () => Promise<void>;
-  onEdit: () => void;
-  onDelete: () => Promise<void>;
-  onReport: (reason: string) => Promise<void>;
-  onBlockPerson: () => Promise<void>;
-  onBlockCommunity: () => Promise<void>;
-  onRemove: (reason: string) => Promise<void>;
-  onBanFromCommunity: (form: BanUpdateForm) => Promise<void>;
-  onAppointCommunityMod: () => Promise<void>;
-  onTransferCommunity: () => Promise<void>;
-  onBanFromSite: (form: BanUpdateForm) => Promise<void>;
-  onPurgeContent: (reason: string) => Promise<void>;
-  onPurgeUser: (reason: string) => Promise<void>;
-  onAppointAdmin: () => Promise<void>;
-  onPersonNote: (form: NotePerson) => Promise<void>;
-  onLock: (reason: string) => Promise<void>;
+  onSave(): void;
+  onEdit(): void;
+  onDelete(): void;
+  // TODO These should be pushing up the specific forms, rather than bare reasons.
+  onReport(reason: string): void;
+  onBlockPerson(): void;
+  onBlockCommunity(): void;
+  onRemove(reason: string): void;
+  onBanFromCommunity(form: BanUpdateForm): void;
+  onAppointCommunityMod(): void;
+  onTransferCommunity(): void;
+  onBanFromSite(form: BanUpdateForm): void;
+  onPurgeContent(reason: string): void;
+  onPurgeUser(reason: string): void;
+  onAppointAdmin(): void;
+  onPersonNote(form: NotePerson): void;
+  onLock(reason: string): void;
   moderators?: CommunityModeratorView[];
   admins: PersonView[];
   community: Community;
@@ -56,17 +58,17 @@ interface ContentActionDropdownPropsBase {
 export type ContentCommentProps = {
   type: "comment";
   commentView: CommentNodeView;
-  onReply: () => void;
-  onDistinguish: () => Promise<void>;
+  onReply(): void;
+  onDistinguish(): void;
 } & ContentActionDropdownPropsBase;
 
 export type ContentPostProps = {
   type: "post";
   postView: PostView;
   crossPostParams: CrossPostParams;
-  onFeatureLocal: () => Promise<void>;
-  onFeatureCommunity: () => Promise<void>;
-  onHidePost: () => Promise<void>;
+  onFeatureLocal(): void;
+  onFeatureCommunity(): void;
+  onHidePost(): void;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -990,10 +992,10 @@ export default class ContentActionDropdown extends Component<
     return canAdmin(creator.id, this.props.admins, this.props.myUserInfo, true);
   }
 
-  wrapHandler(handler: (arg?: any) => Promise<void>) {
-    return async (arg?: any) => {
-      await handler(arg);
+  wrapHandler(handler: (arg?: any) => void) {
+    return (arg?: any) => {
       this.hideAllDialogs();
+      handler(arg);
     };
   }
 }
