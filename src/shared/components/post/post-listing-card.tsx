@@ -109,10 +109,12 @@ export class PostListingCard extends Component<
   render() {
     const p = this.props;
 
-    // Only show thumbnail if its either a small card, or
-    // its a non-image large card
     const isImagePost = p.postView.post.url && isImage(p.postView.post.url);
-    const showThumbnail = p.smallCard || (!p.smallCard && !isImagePost);
+    const showThumbnail =
+      // If its a small card, only show the thumb for url posts
+      (p.smallCard && !!p.postView.post.url) ||
+      // If its a large card, only show it for url posts that aren't also images
+      (!p.smallCard && !isImagePost && p.postView.post.url);
 
     return (
       <div>
