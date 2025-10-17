@@ -1,3 +1,5 @@
+// @ts-expect-error has a weird import error
+import { lazyLoad } from "unlazy";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 
@@ -7,6 +9,9 @@ import { getStaticDir } from "@utils/env";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
+
+// For some reason, masonry needs a default image size, and will properly size it down
+const defaultImgSize = 512;
 
 interface PictrsImageProps {
   src: string;
@@ -18,6 +23,9 @@ interface PictrsImageProps {
   iconOverlay?: boolean;
   pushup?: boolean;
   cardTop?: boolean;
+  width?: number;
+  height?: number;
+  blurhash?: string;
 }
 
 interface PictrsImageState {
@@ -43,9 +51,21 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
     }
   }
 
+  async componentDidMount() {
+    lazyLoad();
+  }
+
   render() {
-    const { icon, iconOverlay, banner, thumbnail, nsfw, pushup, cardTop } =
-      this.props;
+    const {
+      icon,
+      iconOverlay,
+      banner,
+      thumbnail,
+      nsfw,
+      pushup,
+      cardTop,
+      blurhash,
+    } = this.props;
 
     const { src } = this.state;
 
@@ -54,17 +74,27 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       (this.isoData.myUserInfo?.local_user_view.local_user.blur_nsfw ??
         !this.isoData.siteRes.site_view.site.content_warning);
 
+    const [width, height] = this.widthAndHeight();
+
+    // A testable blurhash
+    // const blurhash = "LEHV6nWB2yk8pyo0adR*.7kCMdnj";
+
     return (
       !this.isoData.showAdultConsentModal && (
         <picture>
-          <source srcSet={this.src("webp")} type="image/webp" />
-          <source srcSet={src} />
-          <source srcSet={this.src("jpg")} type="image/jpeg" />
+          <source data-srcset={this.src("webp")} type="image/webp" />
+          <source data-srcset={src} />
+          <source data-srcset={this.src("jpg")} type="image/jpeg" />
           <img
             src={src}
+            data-src={src}
+            data-blurhash={blurhash}
+            data-sizes="auto"
             alt={this.alt()}
             title={this.alt()}
             loading="lazy"
+            width={width}
+            height={height}
             className={classNames("overflow-hidden pictrs-image", {
               "img-fluid": !(icon || iconOverlay),
               banner,
@@ -127,5 +157,18 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       return "";
     }
     return this.props.alt || "";
+  }
+
+  widthAndHeight(): [number, number] {
+    if (this.props.icon) {
+      return [iconThumbnailSize, iconThumbnailSize];
+    } else if (this.props.thumbnail) {
+      return [thumbnailSize, thumbnailSize];
+    } else {
+      return [
+        this.props.width ?? defaultImgSize,
+        this.props.height ?? defaultImgSize,
+      ];
+    }
   }
 }

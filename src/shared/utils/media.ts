@@ -16,6 +16,13 @@ export function isAudio(url: string) {
   return audioRegex.test(url);
 }
 
+/**
+ * Is true if its an image, audio, or video
+ **/
+export function isMedia(url: string) {
+  return isImage(url) || isVideo(url) || isAudio(url);
+}
+
 const magnetLinkRegex = /^magnet:\?xt=urn:btih:[0-9a-fA-F]{40,}.*$/;
 
 export function isMagnetLink(url: string) {

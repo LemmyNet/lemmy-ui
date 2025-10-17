@@ -243,8 +243,8 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
           <div>
             <PostListing
               key={post_view.post.id}
-              post_view={post_view}
-              showDupes="ShowSeparately"
+              postView={post_view}
+              showCrossPosts="ShowSeparately"
               showCommunity
               myUserInfo={isoData.myUserInfo}
               localSite={isoData.siteRes.site_view.local_site}
@@ -253,28 +253,37 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
               allLanguages={isoData.siteRes.all_languages}
               siteLanguages={isoData.siteRes.discussion_languages}
               admins={isoData.siteRes.admins}
+              postListingMode="List"
               viewOnly
+              crossPosts={[]}
+              showBody={"Hidden"}
+              hideImage={false}
+              markable={false}
+              disableAutoMarkAsRead={false}
+              editLoading={false}
+              readLoading={false}
               // All of these are unused, since its view only
-              onPostEdit={async () => EMPTY_REQUEST}
-              onPostVote={async () => EMPTY_REQUEST}
-              onPostReport={async () => {}}
-              onBlockPerson={async () => {}}
-              onBlockCommunity={async () => {}}
-              onLockPost={async () => {}}
-              onDeletePost={async () => {}}
-              onRemovePost={async () => {}}
-              onSavePost={async () => {}}
-              onFeaturePost={async () => {}}
-              onPurgePerson={async () => {}}
-              onPurgePost={async () => {}}
-              onBanPersonFromCommunity={async () => {}}
-              onBanPerson={async () => {}}
-              onAddModToCommunity={async () => {}}
-              onAddAdmin={async () => {}}
-              onTransferCommunity={async () => {}}
-              onMarkPostAsRead={async () => {}}
-              onHidePost={async () => {}}
-              onPersonNote={async () => {}}
+              onPostEdit={() => EMPTY_REQUEST}
+              onPostVote={() => EMPTY_REQUEST}
+              onPostReport={() => {}}
+              onBlockPerson={() => {}}
+              onBlockCommunity={() => {}}
+              onLockPost={() => {}}
+              onDeletePost={() => {}}
+              onRemovePost={() => {}}
+              onSavePost={() => {}}
+              onFeaturePost={() => {}}
+              onPurgePerson={() => {}}
+              onPurgePost={() => {}}
+              onBanPersonFromCommunity={() => {}}
+              onBanPerson={() => {}}
+              onAddModToCommunity={() => {}}
+              onAddAdmin={() => {}}
+              onTransferCommunity={() => {}}
+              onMarkPostAsRead={() => {}}
+              onHidePost={() => {}}
+              onPersonNote={() => {}}
+              onScrollIntoCommentsClick={() => {}}
             />
           </div>
         ))}
@@ -895,8 +904,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           <div key={pv.post.id} className="row">
             <div className="col-12">
               <PostListing
-                post_view={pv}
-                showDupes="ShowSeparately"
+                postView={pv}
+                showCrossPosts="ShowSeparately"
                 showCommunity
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}
@@ -906,27 +915,36 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 myUserInfo={this.isoData.myUserInfo}
                 localSite={siteRes.site_view.local_site}
                 admins={this.isoData.siteRes.admins}
+                postListingMode="List"
+                showBody={"Hidden"}
+                crossPosts={[]}
+                hideImage={false}
+                markable={false}
+                disableAutoMarkAsRead={false}
+                editLoading={false}
+                readLoading={false}
                 // All of these are unused, since its view only
-                onPostEdit={async () => EMPTY_REQUEST}
-                onPostVote={async () => EMPTY_REQUEST}
-                onPostReport={async () => {}}
-                onBlockPerson={async () => {}}
-                onBlockCommunity={async () => {}}
-                onLockPost={async () => {}}
-                onDeletePost={async () => {}}
-                onRemovePost={async () => {}}
-                onSavePost={async () => {}}
-                onFeaturePost={async () => {}}
-                onPurgePerson={async () => {}}
-                onPurgePost={async () => {}}
-                onBanPersonFromCommunity={async () => {}}
-                onBanPerson={async () => {}}
-                onAddModToCommunity={async () => {}}
-                onAddAdmin={async () => {}}
-                onTransferCommunity={async () => {}}
-                onMarkPostAsRead={async () => {}}
-                onHidePost={async () => {}}
-                onPersonNote={async () => {}}
+                onPostEdit={() => EMPTY_REQUEST}
+                onPostVote={() => EMPTY_REQUEST}
+                onPostReport={() => {}}
+                onBlockPerson={() => {}}
+                onBlockCommunity={() => {}}
+                onLockPost={() => {}}
+                onDeletePost={() => {}}
+                onRemovePost={() => {}}
+                onSavePost={() => {}}
+                onFeaturePost={() => {}}
+                onPurgePerson={() => {}}
+                onPurgePost={() => {}}
+                onBanPersonFromCommunity={() => {}}
+                onBanPerson={() => {}}
+                onAddModToCommunity={() => {}}
+                onAddAdmin={() => {}}
+                onTransferCommunity={() => {}}
+                onMarkPostAsRead={() => {}}
+                onHidePost={() => {}}
+                onPersonNote={() => {}}
+                onScrollIntoCommentsClick={() => {}}
               />
             </div>
           </div>

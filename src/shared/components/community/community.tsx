@@ -89,6 +89,7 @@ import {
   NotePerson,
   UpdateCommunityNotifications,
   LockComment,
+  PostListingMode,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -123,6 +124,7 @@ import { CommunityHeader } from "./community-header";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
+import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -138,6 +140,7 @@ interface State {
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
+  postListingMode: PostListingMode;
 }
 
 interface CommunityProps {
@@ -216,6 +219,9 @@ export class Community extends Component<CommunityRouteProps, State> {
     showSidebarMobile: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
+    postListingMode:
+      this.isoData.myUserInfo?.local_user_view.local_user.post_listing_mode ??
+      this.isoData.siteRes.site_view.local_site.default_post_listing_mode,
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -236,6 +242,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handlePostListingModeChange =
+      this.handlePostListingModeChange.bind(this);
 
     // All of the action binds
     this.handleDeleteCommunity = this.handleDeleteCommunity.bind(this);
@@ -573,8 +581,10 @@ export class Community extends Component<CommunityRouteProps, State> {
           return (
             <PostListings
               posts={this.state.postsRes.data.posts}
-              showDupes="ShowSeparately"
+              showCrossPosts="ShowSeparately"
               markable
+              showCommunity={false}
+              viewOnly={false}
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes.all_languages}
@@ -602,6 +612,8 @@ export class Community extends Component<CommunityRouteProps, State> {
               onMarkPostAsRead={this.handleMarkPostAsRead}
               onHidePost={this.handleHidePost}
               onPersonNote={this.handlePersonNote}
+              postListingMode={this.state.postListingMode}
+              onScrollIntoCommentsClick={() => {}}
             />
           );
       }
@@ -691,6 +703,12 @@ export class Community extends Component<CommunityRouteProps, State> {
             />
           </div>
         )}
+        <div className="col-auto">
+          <PostListingModeSelect
+            current={this.state.postListingMode}
+            onChange={this.handlePostListingModeChange}
+          />
+        </div>
         {this.props.dataType === DataType.Post ? (
           <>
             <div className="col-auto">
@@ -715,7 +733,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           </div>
         )}
         {communityRss && (
-          <>
+          <div className="col-auto">
             <a href={communityRss} title="RSS" rel={relTags}>
               <Icon icon="rss" classes="text-muted small" />
             </a>
@@ -724,7 +742,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               type="application/atom+xml"
               href={communityRss}
             />
-          </>
+          </div>
         )}
       </div>
     );
@@ -748,6 +766,17 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   handleDataTypeChange(dataType: DataType) {
     this.updateUrl({ dataType, cursor: undefined });
+  }
+
+  async handlePostListingModeChange(val: PostListingMode) {
+    this.setState({ postListingMode: val });
+
+    // Also, save your user settings to this mode
+    if (this.isoData.myUserInfo) {
+      await HttpService.client.saveUserSettings({
+        post_listing_mode: val,
+      });
+    }
   }
 
   handleShowHiddenChange(show?: StringBoolean) {
