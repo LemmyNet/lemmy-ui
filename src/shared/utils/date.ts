@@ -17,10 +17,10 @@ export function futureDaysToUnixTime(days?: number): number | undefined {
     : undefined;
 }
 
-export function formatRelativeDate(date: string) {
+export function formatRelativeDate(date: string, addSuffix: boolean = true) {
   try {
     const then = parseISO(date);
-    return formatDistanceToNowStrict(then, { addSuffix: true });
+    return formatDistanceToNowStrict(then, { addSuffix });
   } catch {
     return "indeterminate";
   }

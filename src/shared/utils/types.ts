@@ -192,8 +192,11 @@ export type CursorComponents = {
 };
 
 /**
- * Determines whether to simplify / remove duplicates, and how to display them.
- *
- * Don't Remove also means **keep** duplicate posts in list views.
+ * Determines whether to simplify / remove cross-posts, and how to display them.
  **/
-export type ShowDupesType = "Small" | "Expanded" | "ShowSeparately";
+export type ShowCrossPostsType = "Small" | "Expanded" | "ShowSeparately";
+
+/**
+ * Whether the body is hidden, preview (for card view lists), or full.
+ **/
+export type ShowBodyType = "Hidden" | "Preview" | "Full";

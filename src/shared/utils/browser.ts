@@ -122,3 +122,13 @@ export function share(shareData: ShareData) {
 export function snapToTop() {
   window.scrollTo({ left: 0, top: 0, behavior: "instant" });
 }
+
+export async function masonryUpdate() {
+  if (isBrowser()) {
+    const Masonry = (await import("masonry-layout")).default;
+    new Masonry(".post-listings-grid", {
+      percentPosition: true,
+      horizontalOrder: true,
+    });
+  }
+}

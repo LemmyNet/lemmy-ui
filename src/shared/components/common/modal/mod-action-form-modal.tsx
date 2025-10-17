@@ -23,14 +23,14 @@ export interface BanUpdateForm {
 
 interface ModActionFormModalPropsSiteBan {
   modActionType: "site-ban";
-  onSubmit: (form: BanUpdateForm) => Promise<void>;
+  onSubmit(form: BanUpdateForm): void;
   creator: Person;
   isBanned: boolean;
 }
 
 interface ModActionFormModalPropsCommunityBan {
   modActionType: "community-ban";
-  onSubmit: (form: BanUpdateForm) => Promise<void>;
+  onSubmit(form: BanUpdateForm): void;
   creator: Person;
   community?: Community;
   isBanned: boolean;
@@ -38,19 +38,19 @@ interface ModActionFormModalPropsCommunityBan {
 
 interface ModActionFormModalPropsPurgePerson {
   modActionType: "purge-person";
-  onSubmit: (reason: string) => Promise<void>;
+  onSubmit(reason: string): void;
   creator: Person;
 }
 
 interface ModActionFormModalPropsRemove {
   modActionType: "remove-post" | "remove-comment";
-  onSubmit: (reason: string) => Promise<void>;
+  onSubmit(reason: string): void;
   isRemoved: boolean;
 }
 
 interface ModActionFormModalPropsLock {
   modActionType: "lock-post" | "lock-comment";
-  onSubmit: (reason: string) => Promise<void>;
+  onSubmit(reason: string): void;
   isLocked: boolean;
 }
 
@@ -61,7 +61,7 @@ interface ModActionFormModalPropsRest {
     | "report-message"
     | "purge-post"
     | "purge-comment";
-  onSubmit: (reason: string) => Promise<void>;
+  onSubmit(reason: string): void;
 }
 
 type ModActionFormModalProps = (
@@ -71,7 +71,7 @@ type ModActionFormModalProps = (
   | ModActionFormModalPropsPurgePerson
   | ModActionFormModalPropsRemove
   | ModActionFormModalPropsLock
-) & { onCancel: () => void; show: boolean; children?: InfernoNode };
+) & { onCancel(): void; show: boolean; children?: InfernoNode };
 
 interface ModActionFormFormState {
   loading: boolean;
@@ -104,18 +104,18 @@ function handleTogglePermaBan(i: ModActionFormModal) {
   }));
 }
 
-async function handleSubmit(i: ModActionFormModal, event: any) {
+function handleSubmit(i: ModActionFormModal, event: any) {
   event.preventDefault();
   i.setState({ loading: true });
 
   if (i.isBanModal) {
-    await i.props.onSubmit({
+    i.props.onSubmit({
       reason: i.state.reason,
       daysUntilExpires: i.state.daysUntilExpire!,
       shouldRemoveOrRestoreData: i.state.shouldRemoveOrRestoreData!,
     } as BanUpdateForm & string); // Need to & string to handle type weirdness
   } else {
-    await i.props.onSubmit(i.state.reason as BanUpdateForm & string);
+    i.props.onSubmit(i.state.reason as BanUpdateForm & string);
   }
 
   i.setState({

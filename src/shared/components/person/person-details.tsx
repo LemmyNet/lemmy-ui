@@ -135,10 +135,18 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
         return (
           <PostListing
             key={i.post.id}
-            post_view={i}
-            showDupes="ShowSeparately"
+            postView={i}
+            showCrossPosts="ShowSeparately"
             admins={this.props.admins}
+            postListingMode="SmallCard"
             showCommunity
+            crossPosts={[]}
+            showBody={"Preview"}
+            hideImage={false}
+            viewOnly={false}
+            disableAutoMarkAsRead={false}
+            editLoading={false}
+            readLoading={false}
             enableNsfw={this.props.enableNsfw}
             showAdultConsentModal={this.props.showAdultConsentModal}
             allLanguages={this.props.allLanguages}
@@ -164,9 +172,9 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onTransferCommunity={this.props.onTransferCommunity}
             onHidePost={async () => {}}
             markable
-            read={!!i.post_actions?.read_at}
             onMarkPostAsRead={this.props.onMarkPostAsRead}
             onPersonNote={this.props.onPersonNote}
+            onScrollIntoCommentsClick={() => {}}
           />
         );
       }

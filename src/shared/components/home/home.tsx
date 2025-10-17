@@ -76,6 +76,7 @@ import {
   NotePerson,
   LockComment,
   BlockCommunity,
+  PostListingMode,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
@@ -113,6 +114,7 @@ import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
 import { BannedDialog } from "./banned-dialog";
+import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -124,6 +126,7 @@ interface HomeState {
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
+  postListingMode: PostListingMode;
 }
 
 interface HomeProps {
@@ -270,6 +273,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     subscribedCollapsed: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
+    postListingMode:
+      this.isoData.myUserInfo?.local_user_view.local_user.post_listing_mode ??
+      this.isoData.siteRes.site_view.local_site.default_post_listing_mode,
   };
 
   loadingSettled(): boolean {
@@ -287,6 +293,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
     this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
+    this.handlePostListingModeChange =
+      this.handlePostListingModeChange.bind(this);
     this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
@@ -722,8 +730,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <PostListings
               posts={posts}
               showCommunity
-              showDupes="Small"
+              showCrossPosts="Small"
               markable
+              viewOnly={false}
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes.all_languages}
@@ -751,6 +760,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onMarkPostAsRead={this.handleMarkPostAsRead}
               onHidePost={this.handleHidePost}
               onPersonNote={this.handlePersonNote}
+              postListingMode={this.state.postListingMode}
+              onScrollIntoCommentsClick={() => {}}
             />
           );
         }
@@ -829,6 +840,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             showSubscribed
             myUserInfo={this.isoData.myUserInfo}
             onChange={this.handleListingTypeChange}
+          />
+        </div>
+        <div className="col-auto">
+          <PostListingModeSelect
+            current={this.state.postListingMode}
+            onChange={this.handlePostListingModeChange}
           />
         </div>
         {this.props.dataType === DataType.Post ? (
@@ -929,6 +946,17 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   handleListingTypeChange(val: ListingType) {
     this.updateUrl({ listingType: val, cursor: undefined });
+  }
+
+  async handlePostListingModeChange(val: PostListingMode) {
+    this.setState({ postListingMode: val });
+
+    // Also, save your user settings to this mode
+    if (this.isoData.myUserInfo) {
+      await HttpService.client.saveUserSettings({
+        post_listing_mode: val,
+      });
+    }
   }
 
   handleDataTypeChange(val: DataType) {

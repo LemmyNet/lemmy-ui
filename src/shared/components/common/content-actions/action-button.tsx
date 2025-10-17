@@ -14,7 +14,7 @@ interface ActionButtonPropsBase {
 }
 
 interface ActionButtonPropsLoading extends ActionButtonPropsBase {
-  onClick: () => Promise<void>;
+  onClick: () => void;
   noLoading?: false;
 }
 
@@ -29,11 +29,11 @@ interface ActionButtonState {
   loading: boolean;
 }
 
-async function handleClick(i: ActionButton) {
+function handleClick(i: ActionButton) {
   if (!i.props.noLoading) {
     i.setState({ loading: true });
   }
-  await i.props.onClick();
+  i.props.onClick();
   i.setState({ loading: false });
 }
 

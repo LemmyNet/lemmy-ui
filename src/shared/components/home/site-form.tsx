@@ -9,6 +9,7 @@ import {
   GetSiteResponse,
   ListingType,
   MyUserInfo,
+  PostListingMode,
   PostSortType,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
@@ -25,6 +26,7 @@ import {
   PostSortSelect,
 } from "@components/common/sort-select";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
+import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -106,6 +108,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     this.handlePostSortTypeChange = this.handlePostSortTypeChange.bind(this);
 
     this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
+
+    this.handlePostListingModeChange =
+      this.handlePostListingModeChange.bind(this);
 
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
@@ -544,6 +549,17 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         )}
         <form className="mb-3 row">
           <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("listing_mode")}
+          </label>
+          <div className="col-sm-9">
+            <PostListingModeSelect
+              current={this.state.siteForm.default_post_listing_mode ?? "List"}
+              onChange={this.handlePostListingModeChange}
+            />
+          </div>
+        </form>
+        <form className="mb-3 row">
+          <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("post_sort_type")}
           </label>
           <div className="col-sm-9">
@@ -933,6 +949,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   handlePostSortTypeChange(val: PostSortType) {
     this.setState(s => ((s.siteForm.default_post_sort_type = val), s));
+  }
+
+  handlePostListingModeChange(val: PostListingMode) {
+    this.setState(s => ((s.siteForm.default_post_listing_mode = val), s));
   }
 
   handlePostTimeRangeChange(val: number) {

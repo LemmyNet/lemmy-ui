@@ -33,6 +33,7 @@ import {
   ListingType,
   LoginResponse,
   Person,
+  PostListingMode,
   PostSortType,
   SaveUserSettings,
   SuccessResponse,
@@ -80,6 +81,7 @@ import { CommentSortSelect } from "../common/sort-select";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
 import BlockingKeywordsTextArea from "@components/common/blocking-keywords-textarea";
 import { NoOptionI18nKeys } from "i18next";
+import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -236,6 +238,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       this.handleCommentSortTypeChange.bind(this);
     this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
+    this.handlePostListingModeChange =
+      this.handlePostListingModeChange.bind(this);
     this.handleBioChange = this.handleBioChange.bind(this);
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
@@ -271,6 +275,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           default_comment_sort_type,
           default_post_time_range_seconds,
           default_listing_type,
+          post_listing_mode,
           default_items_per_page,
           interface_language,
           show_avatars,
@@ -312,6 +317,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           default_comment_sort_type,
           default_post_time_range_seconds,
           default_listing_type,
+          post_listing_mode,
           default_items_per_page,
           interface_language,
           discussion_languages: mui.discussion_languages,
@@ -977,6 +983,19 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 showSubscribed
                 myUserInfo={this.isoData.myUserInfo}
                 onChange={this.handleListingTypeChange}
+              />
+            </div>
+          </form>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {I18NextService.i18n.t("listing_mode")}
+            </label>
+            <div className="col-sm-9">
+              <PostListingModeSelect
+                current={
+                  this.state.saveUserSettingsForm.post_listing_mode ?? "List"
+                }
+                onChange={this.handlePostListingModeChange}
               />
             </div>
           </form>
@@ -1790,6 +1809,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     this.setState(
       s => ((s.saveUserSettingsForm.discussion_languages = val), s),
     );
+  }
+
+  handlePostListingModeChange(val: PostListingMode) {
+    this.setState(s => ((s.saveUserSettingsForm.post_listing_mode = val), s));
   }
 
   handlePostSortTypeChange(val: PostSortType) {
