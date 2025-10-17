@@ -1,3 +1,5 @@
+// @ts-expect-error has a weird import error
+import { lazyLoad } from "unlazy";
 import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
 import { Component, createRef, linkEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
@@ -45,6 +47,7 @@ export default class App extends Component<AppProps, any> {
   }
 
   async componentDidMount() {
+    lazyLoad();
     setupTippy(this.rootRef);
     await setupEmojiDataModel();
   }

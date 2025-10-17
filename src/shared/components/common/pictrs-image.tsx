@@ -1,11 +1,11 @@
+// @ts-expect-error has a weird import error
+import { lazyLoad } from "unlazy";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { decodeBlurHash } from "fast-blurhash";
 
 import { setIsoData } from "@utils/app";
 import { IsoData } from "@utils/types";
 import { getStaticDir } from "@utils/env";
-import { isBrowser } from "@utils/browser";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
@@ -51,6 +51,10 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
     }
   }
 
+  async componentDidMount() {
+    lazyLoad();
+  }
+
   render() {
     const {
       icon,
@@ -60,7 +64,7 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       nsfw,
       pushup,
       cardTop,
-      // blurhash,
+      blurhash,
     } = this.props;
 
     const { src } = this.state;
@@ -72,30 +76,25 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
 
     const [width, height] = this.widthAndHeight();
 
-    const blurhash = "LEHV6nWB2yk8pyo0adR*.7kCMdnj";
-    const blurHashBase64 = blurhash
-      ? computeBlurHashBase64(blurhash, width, height)
-      : undefined;
+    // A testable blurhash
+    // const blurhash = "LEHV6nWB2yk8pyo0adR*.7kCMdnj";
 
     return (
       !this.isoData.showAdultConsentModal && (
         <picture>
-          <source srcSet={this.src("webp")} type="image/webp" />
-          <source srcSet={src} />
-          <source srcSet={this.src("jpg")} type="image/jpeg" />
+          <source data-srcset={this.src("webp")} type="image/webp" />
+          <source data-srcset={src} />
+          <source data-srcset={this.src("jpg")} type="image/jpeg" />
           <img
             src={src}
+            data-src={src}
+            data-blurhash={blurhash}
+            data-sizes="auto"
             alt={this.alt()}
             title={this.alt()}
             loading="lazy"
             width={width}
             height={height}
-            style={{
-              "background-image": `url(${blurHashBase64})`,
-              "background-repeat": "no-repeat",
-              "background-size": "cover",
-              "background-position": "center",
-            }}
             className={classNames("overflow-hidden pictrs-image", {
               "img-fluid": !(icon || iconOverlay),
               banner,
@@ -172,21 +171,4 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       ];
     }
   }
-}
-
-function computeBlurHashBase64(
-  blurhash: string,
-  width: number,
-  height: number,
-): string | undefined {
-  let canvas: HTMLCanvasElement | undefined;
-  if (isBrowser()) {
-    const pixels = decodeBlurHash(blurhash, width, height);
-    canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const imageData = ctx!.createImageData(width, height);
-    imageData.data.set(pixels);
-    ctx!.putImageData(imageData, 0, 0);
-  }
-  return canvas?.toDataURL();
 }
