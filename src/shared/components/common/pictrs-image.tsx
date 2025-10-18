@@ -6,6 +6,7 @@ import { Component, linkEvent } from "inferno";
 import { setIsoData } from "@utils/app";
 import { IsoData } from "@utils/types";
 import { getStaticDir } from "@utils/env";
+import { masonryUpdate } from "@utils/browser";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
@@ -79,6 +80,11 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
     // A testable blurhash
     // const blurhash = "LEHV6nWB2yk8pyo0adR*.7kCMdnj";
 
+    // TODO all these blurhash algorithms are quite slow.
+    // It'd be much better to generate the blurhash base64 png server side,
+    // and set it as the src= below (as unlazy instructs).
+    // You might be able to avoid doing the masonry update also.
+    // https://unlazy.byjohann.dev/guide/usage.html
     return (
       !this.isoData.showAdultConsentModal && (
         <picture>
@@ -86,10 +92,8 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
           <source data-srcset={src} />
           <source data-srcset={this.src("jpg")} type="image/jpeg" />
           <img
-            src={src}
             data-src={src}
             data-blurhash={blurhash}
-            data-sizes="auto"
             alt={this.alt()}
             title={this.alt()}
             loading="lazy"
@@ -110,6 +114,7 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
               "avatar-pushup": pushup,
               "card-img-top": cardTop,
             })}
+            onLoad={() => masonryUpdate()}
             onError={linkEvent(this, handleImgLoadError)}
           />
         </picture>

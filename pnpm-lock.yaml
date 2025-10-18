@@ -319,8 +319,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.1
       unlazy:
-        specifier: ^0.12.4
-        version: 0.12.4
+        specifier: ^1.0.0
+        version: 1.0.0
       webpack-bundle-analyzer:
         specifier: ^4.10.2
         version: 4.10.2
@@ -1592,8 +1592,8 @@ packages:
     resolution: {integrity: sha512-FrvMpAK+hTbFy7vH5j1+tMYHMSKLE6RzluFJlkFNKD0p9YsUT75JlBSmr5so3QRzvMwU5/bIEdeNrxm8du8l3Q==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@unlazy/core@0.12.4':
-    resolution: {integrity: sha512-0hmw+g06Xmr33bSGnPPlc8Mt4Q1dOHe0IE+bF7KcPbiyTEX4GlsFmAm29uXr/Nv3L3HaB1Wq7Js0ik9mEAJhJA==}
+  '@unlazy/core@1.0.0':
+    resolution: {integrity: sha512-xhdQywyEJMjx0RSZtLd1RYzUFWYlY1k8A17NnqWPBj9djYwDuOUUT/fLNYec1zQKdsLJBIoY2w6wC1j2Q8rEog==}
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -4829,8 +4829,8 @@ packages:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
 
-  unlazy@0.12.4:
-    resolution: {integrity: sha512-fdx0Fmz2DYuxWkcUWFAUZBMRzN3gsRL9m/t2eE2UI2BoefFUwxLgC0ApYswwgYwZjwBaA1asnvwwYfnx2cEEcw==}
+  unlazy@1.0.0:
+    resolution: {integrity: sha512-fnTUBpnWlBpNFtl31adP6rXmex1Dm/CSagopeW7x8T09BITlEV58bcdV1dr3Z67Th9H24u0YClQWPzHagms+jQ==}
 
   unpipe@1.0.0:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
@@ -6677,7 +6677,7 @@ snapshots:
       '@typescript-eslint/types': 8.46.0
       eslint-visitor-keys: 4.2.1
 
-  '@unlazy/core@0.12.4': {}
+  '@unlazy/core@1.0.0': {}
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:
@@ -10159,9 +10159,9 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unlazy@0.12.4:
+  unlazy@1.0.0:
     dependencies:
-      '@unlazy/core': 0.12.4
+      '@unlazy/core': 1.0.0
 
   unpipe@1.0.0: {}
 
