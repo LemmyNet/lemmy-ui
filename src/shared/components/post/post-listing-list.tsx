@@ -70,7 +70,7 @@ export function PostListingList({
           />
           <CommentsButton
             postView={postView}
-            type_="Text"
+            type_="text"
             onScrollIntoCommentsClick={onScrollIntoCommentsClick}
           />
         </div>

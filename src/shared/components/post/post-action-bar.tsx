@@ -94,7 +94,7 @@ export function PostActionBar(props: PostActionBarProps) {
     <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
       <CommentsButton
         postView={postView}
-        type_="Icon"
+        type_="icon"
         onScrollIntoCommentsClick={onScrollIntoCommentsClick}
       />
       {canShare() && (
@@ -199,7 +199,7 @@ export function PostActionBar(props: PostActionBarProps) {
   );
 }
 
-type CommentsButtonTextOrIcon = "Text" | "Icon";
+type CommentsButtonTextOrIcon = "text" | "icon";
 type CommentsButtonProps = {
   postView: PostView;
   type_: CommentsButtonTextOrIcon;
@@ -226,9 +226,9 @@ export function CommentsButton({
       data-tippy-content={title}
       onClick={onScrollIntoCommentsClick}
     >
-      {type_ === "Icon" && <Icon icon="message-square" classes="me-1" inline />}
+      {type_ === "icon" && <Icon icon="message-square" classes="me-1" inline />}
       {count}
-      {type_ === "Text" && <span> {I18NextService.i18n.t("comments")}</span>}
+      {type_ === "text" && <span> {I18NextService.i18n.t("comments")}</span>}
       {unreadCount && (
         <>
           {" "}
