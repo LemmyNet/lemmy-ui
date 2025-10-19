@@ -172,14 +172,14 @@ function getQueryStringFromCommentSortType(
   return sort;
 }
 
-const defaultCommentView: CommentViewType = CommentViewType.Tree;
+const defaultCommentView: CommentViewType = "tree";
 
 function getCommentViewTypeFromQuery(source?: string): CommentViewType {
   switch (source) {
     case "Tree":
-      return CommentViewType.Tree;
+      return "tree";
     case "Flat":
-      return CommentViewType.Flat;
+      return "flat";
     default:
       return defaultCommentView;
   }
@@ -192,9 +192,9 @@ function getQueryStringFromCommentView(
     return undefined;
   }
   switch (view) {
-    case CommentViewType.Tree:
+    case "tree":
       return "Tree";
-    case CommentViewType.Flat:
+    case "flat":
       return "Flat";
     default:
       return undefined;
@@ -700,8 +700,8 @@ export class Post extends Component<PostRouteProps, PostState> {
                   />
                 </div>
               </div>
-              {this.props.view === CommentViewType.Tree && this.commentsTree()}
-              {this.props.view === CommentViewType.Flat && this.commentsFlat()}
+              {this.props.view === "tree" && this.commentsTree()}
+              {this.props.view === "flat" && this.commentsFlat()}
             </div>
             <aside className="d-none d-md-block col-md-4 col-lg-3">
               {this.sidebar()}
@@ -817,14 +817,14 @@ export class Post extends Component<PostRouteProps, PostState> {
             id={`${radioId}-chat`}
             type="radio"
             className="btn-check"
-            value={CommentViewType.Flat}
-            checked={this.props.view === CommentViewType.Flat}
+            value={"flat"}
+            checked={this.props.view === "flat"}
             onChange={linkEvent(this, this.handleCommentViewTypeChange)}
           />
           <label
             htmlFor={`${radioId}-chat`}
             className={classNames("btn btn-outline-secondary pointer", {
-              active: this.props.view === CommentViewType.Flat,
+              active: this.props.view === "flat",
             })}
           >
             {I18NextService.i18n.t("chat")}
@@ -1028,17 +1028,17 @@ export class Post extends Component<PostRouteProps, PostState> {
   async handleCommentSortChange(i: Post, event: any) {
     const sort = event.target.value as CommentSortType;
     const flattenable = sort === "new" || sort === "old";
-    if (flattenable || i.props.view !== CommentViewType.Flat) {
+    if (flattenable || i.props.view !== "flat") {
       i.updateUrl({ sort });
     } else {
-      i.updateUrl({ sort, view: CommentViewType.Tree });
+      i.updateUrl({ sort, view: "tree" });
     }
   }
 
   handleCommentViewTypeChange(i: Post, event: any) {
     const flattenable = i.props.sort === "new" || i.props.sort === "old";
-    const view: CommentViewType = Number(event.target.value);
-    if (flattenable || view !== CommentViewType.Flat) {
+    const view: CommentViewType = event.target.value;
+    if (flattenable || view !== "flat") {
       i.updateUrl({ view });
     } else {
       i.updateUrl({ view, sort: "new" });

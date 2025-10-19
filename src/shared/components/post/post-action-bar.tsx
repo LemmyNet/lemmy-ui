@@ -8,7 +8,7 @@ import { canShare, share } from "@utils/browser";
 import { futureDaysToUnixTime } from "@utils/date";
 import { getHttpBase } from "@utils/env";
 import { unreadCommentsCount } from "@utils/helpers";
-import { CrossPostParams, ShowBodyType, VoteContentType } from "@utils/types";
+import { CrossPostParams, ShowBodyType } from "@utils/types";
 import classNames from "classnames";
 import { Link } from "inferno-router";
 import {
@@ -149,7 +149,7 @@ export function PostActionBar(props: PostActionBarProps) {
       )}
       {postIsInteractable(postView, viewOnly) && (
         <VoteButtonsCompact
-          voteContentType={VoteContentType.Post}
+          voteContentType={"post"}
           id={id}
           onVote={onPostVote}
           subject={postView.post}

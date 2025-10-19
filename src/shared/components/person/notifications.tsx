@@ -59,7 +59,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
-import { CommentViewType, InitialFetchRequest } from "@utils/types";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import { UnreadCounterService } from "../../services";
 import {
@@ -394,7 +394,7 @@ export class Notifications extends Component<
           <CommentNode
             key={item.notification.id}
             node={{ comment_view: i, children: [], depth: 0 }}
-            viewType={CommentViewType.Flat}
+            viewType={"flat"}
             showCommunity
             showContext
             allLanguages={siteRes.all_languages}

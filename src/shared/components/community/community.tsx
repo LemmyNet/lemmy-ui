@@ -5,7 +5,6 @@ import {
   editPersonNotes,
   editPost,
   enableNsfw,
-  getDataTypeString,
   mixedToCommentSortType,
   mixedToPostSortType,
   setIsoData,
@@ -92,7 +91,7 @@ import {
   PostListingMode,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
-import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
+import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -104,7 +103,7 @@ import {
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
-import { DataTypeSelect } from "../common/data-type-select";
+import { PostOrCommentTypeSelect } from "../common/post-or-comment-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { PostSortSelect, CommentSortSelect } from "../common/sort-select";
@@ -144,7 +143,7 @@ interface State {
 }
 
 interface CommunityProps {
-  dataType: DataType;
+  postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
   cursor?: DirectionalCursor;
@@ -165,7 +164,7 @@ export function getCommunityQueryParams(
   const local_site = siteRes.site_view.local_site;
   return getQueryParams<CommunityProps, Fallbacks>(
     {
-      dataType: getDataTypeFromQuery,
+      postOrCommentType: getPostOrCommentTypeFromQuery,
       cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
       postTimeRange: getPostTimeRangeFromQuery,
@@ -180,8 +179,8 @@ export function getCommunityQueryParams(
   );
 }
 
-function getDataTypeFromQuery(type?: string): DataType {
-  return type ? DataType[type] : DataType.Post;
+function getPostOrCommentTypeFromQuery(type?: string): PostOrCommentType {
+  return type ? (type as PostOrCommentType) : "post";
 }
 
 function getSortTypeFromQuery(
@@ -228,7 +227,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   loadingSettled() {
     return resourcesSettled([
       this.state.communityRes,
-      this.props.dataType === DataType.Post
+      this.props.postOrCommentType === "post"
         ? this.state.postsRes
         : this.state.commentsRes,
     ]);
@@ -240,7 +239,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
     this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
-    this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
+    this.handlePostOrCommentTypeChange =
+      this.handlePostOrCommentTypeChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handlePostListingModeChange =
       this.handlePostListingModeChange.bind(this);
@@ -334,7 +334,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   static async fetchInitialData({
     headers,
-    query: { dataType, cursor, sort, postTimeRange, showHidden },
+    query: { postOrCommentType, cursor, sort, postTimeRange, showHidden },
     match: { params: props },
   }: InitialFetchRequest<
     CommunityPathProps,
@@ -354,7 +354,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     let commentsFetch: Promise<RequestState<GetCommentsResponse>> =
       Promise.resolve(EMPTY_REQUEST);
 
-    if (dataType === DataType.Post) {
+    if (postOrCommentType === "post") {
       const getPostsForm: GetPosts = {
         community_name: communityName,
         ...cursorComponents(cursor),
@@ -392,7 +392,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   get currentRes() {
-    if (this.props.dataType === DataType.Post) {
+    if (this.props.postOrCommentType === "post") {
       return this.state.postsRes;
     } else {
       return this.state.commentsRes;
@@ -470,13 +470,13 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   get markPageAsReadButton(): InfernoNode {
-    const { dataType } = this.props;
+    const { postOrCommentType } = this.props;
     const { postsRes, markPageAsReadLoading } = this.state;
 
     if (markPageAsReadLoading) return <Spinner />;
 
     const haveUnread =
-      dataType === DataType.Post &&
+      postOrCommentType === "post" &&
       postsRes.state === "success" &&
       postsRes.data.posts.some(p => !p.post_actions?.read_at);
 
@@ -494,11 +494,11 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   async handleMarkPageAsRead(i: Community) {
-    const { dataType } = i.props;
+    const { postOrCommentType } = i.props;
     const { postsRes } = i.state;
 
     const post_ids =
-      dataType === DataType.Post &&
+      postOrCommentType === "post" &&
       postsRes.state === "success" &&
       postsRes.data.posts
         .filter(p => !p.post_actions?.read_at)
@@ -571,10 +571,10 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   listings() {
-    const { dataType } = this.props;
+    const { postOrCommentType } = this.props;
     const siteRes = this.isoData.siteRes;
 
-    if (dataType === DataType.Post) {
+    if (postOrCommentType === "post") {
       switch (this.state.postsRes.state) {
         case "loading":
           return <PostsLoadingSkeleton />;
@@ -629,7 +629,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           return (
             <CommentNodes
               nodes={commentsToFlatNodes(this.state.commentsRes.data.comments)}
-              viewType={CommentViewType.Flat}
+              viewType={"flat"}
               isTopLevel
               showContext
               admins={siteRes.admins}
@@ -683,7 +683,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     const res =
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
-    const { dataType, sort, postTimeRange, showHidden } = this.props;
+    const { postOrCommentType, sort, postTimeRange, showHidden } = this.props;
     const communityRss = res
       ? communityRSSUrl(res.community_view.community, sort)
       : undefined;
@@ -691,12 +691,12 @@ export class Community extends Component<CommunityRouteProps, State> {
     return (
       <div className="row align-items-center mb-3 g-3">
         <div className="col-auto">
-          <DataTypeSelect
-            type_={dataType}
-            onChange={this.handleDataTypeChange}
+          <PostOrCommentTypeSelect
+            type_={postOrCommentType}
+            onChange={this.handlePostOrCommentTypeChange}
           />
         </div>
-        {dataType === DataType.Post && this.isoData.myUserInfo && (
+        {postOrCommentType === "post" && this.isoData.myUserInfo && (
           <div className="col-auto">
             <PostHiddenSelect
               showHidden={showHidden}
@@ -710,7 +710,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             onChange={this.handlePostListingModeChange}
           />
         </div>
-        {this.props.dataType === DataType.Post ? (
+        {this.props.postOrCommentType === "post" ? (
           <>
             <div className="col-auto">
               <PostSortSelect
@@ -765,8 +765,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.updateUrl({ sort, cursor: undefined });
   }
 
-  handleDataTypeChange(dataType: DataType) {
-    this.updateUrl({ dataType, cursor: undefined });
+  handlePostOrCommentTypeChange(postOrCommentType: PostOrCommentType) {
+    this.updateUrl({ postOrCommentType, cursor: undefined });
   }
 
   async handlePostListingModeChange(val: PostListingMode) {
@@ -795,7 +795,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   async updateUrl(props: Partial<CommunityProps>) {
     const {
-      dataType,
+      postOrCommentType,
       cursor,
       sort,
       showHidden,
@@ -808,7 +808,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     };
 
     const queryParams: QueryParams<CommunityProps> = {
-      dataType: getDataTypeString(dataType ?? DataType.Post),
+      postOrCommentType: postOrCommentType ?? "post",
       cursor,
       sort,
       showHidden: showHidden,
@@ -820,10 +820,11 @@ export class Community extends Component<CommunityRouteProps, State> {
   fetchDataToken?: symbol;
   async fetchData(props: CommunityRouteProps) {
     const token = (this.fetchDataToken = Symbol());
-    const { dataType, cursor, sort, postTimeRange, showHidden } = props;
+    const { postOrCommentType, cursor, sort, postTimeRange, showHidden } =
+      props;
     const name = decodeURIComponent(props.match.params.name);
 
-    if (dataType === DataType.Post) {
+    if (postOrCommentType === "post") {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
         ...cursorComponents(cursor),

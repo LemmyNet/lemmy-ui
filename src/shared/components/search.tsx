@@ -44,7 +44,7 @@ import {
   MultiCommunityView,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
-import { CommentViewType, InitialFetchRequest } from "@utils/types";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
@@ -317,7 +317,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
                   depth: 0,
                 },
               ]}
-              viewType={CommentViewType.Flat}
+              viewType={"flat"}
               viewOnly
               postLockedOrRemovedOrDeleted
               isTopLevel
@@ -865,7 +865,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     return (
       <CommentNodes
         nodes={commentsToFlatNodes(comments)}
-        viewType={CommentViewType.Flat}
+        viewType={"flat"}
         viewOnly
         postLockedOrRemovedOrDeleted
         isTopLevel

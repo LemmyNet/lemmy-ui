@@ -11,14 +11,14 @@ import {
   PersonId,
   Post,
 } from "lemmy-js-client";
-import { VoteContentType, VoteType } from "@utils/types";
+import { PostOrCommentType } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import classNames from "classnames";
 
 interface VoteButtonsProps {
-  voteContentType: VoteContentType;
+  voteContentType: PostOrCommentType;
   id: number;
   onVote: (i: CreateCommentLike | CreatePostLike) => void;
   subject: Post | Comment;
@@ -36,7 +36,7 @@ interface VoteButtonsState {
 export function showUpvotes(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
-  type: VoteContentType,
+  type: PostOrCommentType,
 ): boolean {
   return enableUpvotes(localSite, type) && (localUser?.show_upvotes ?? true);
 }
@@ -44,7 +44,7 @@ export function showUpvotes(
 export function showDownvotes(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
-  type: VoteContentType,
+  type: PostOrCommentType,
   creatorId: PersonId,
 ): boolean {
   const show =
@@ -61,7 +61,7 @@ export function showScore(localUser: LocalUser | undefined): boolean {
 export function showPercentage(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
-  type: VoteContentType,
+  type: PostOrCommentType,
 ): boolean {
   return (
     (localUser?.show_upvote_percentage ?? true) &&
@@ -72,9 +72,9 @@ export function showPercentage(
 
 export function enableDownvotes(
   localSite: LocalSite,
-  type: VoteContentType,
+  type: PostOrCommentType,
 ): boolean {
-  if (type === VoteContentType.Comment) {
+  if (type === "comment") {
     return localSite.comment_downvotes !== "disable";
   } else {
     return localSite.post_downvotes !== "disable";
@@ -83,9 +83,9 @@ export function enableDownvotes(
 
 export function enableUpvotes(
   localSite: LocalSite,
-  type: VoteContentType,
+  type: PostOrCommentType,
 ): boolean {
-  if (type === VoteContentType.Comment) {
+  if (type === "comment") {
     return localSite.comment_upvotes !== "disable";
   } else {
     return localSite.post_upvotes !== "disable";
@@ -96,7 +96,7 @@ function tippy(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
   counts: Comment | Post,
-  type: VoteContentType,
+  type: PostOrCommentType,
   creatorId: PersonId,
 ): string {
   const scoreStr =
@@ -138,17 +138,17 @@ function handleUpvote(i: VoteButtons | VoteButtonsCompact) {
   i.setState({ upvoteLoading: true });
 
   switch (i.props.voteContentType) {
-    case VoteContentType.Comment:
+    case "comment":
       i.props.onVote({
         comment_id: i.props.id,
-        is_upvote: newVoteIsUpvote(VoteType.Upvote, i.props.myVoteIsUpvote),
+        is_upvote: newVoteIsUpvote("upvote", i.props.myVoteIsUpvote),
       });
       break;
-    case VoteContentType.Post:
+    case "post":
     default:
       i.props.onVote({
         post_id: i.props.id,
-        is_upvote: newVoteIsUpvote(VoteType.Upvote, i.props.myVoteIsUpvote),
+        is_upvote: newVoteIsUpvote("upvote", i.props.myVoteIsUpvote),
       });
   }
 }
@@ -156,17 +156,17 @@ function handleUpvote(i: VoteButtons | VoteButtonsCompact) {
 function handleDownvote(i: VoteButtons | VoteButtonsCompact) {
   i.setState({ downvoteLoading: true });
   switch (i.props.voteContentType) {
-    case VoteContentType.Comment:
+    case "comment":
       i.props.onVote({
         comment_id: i.props.id,
-        is_upvote: newVoteIsUpvote(VoteType.Downvote, i.props.myVoteIsUpvote),
+        is_upvote: newVoteIsUpvote("downvote", i.props.myVoteIsUpvote),
       });
       break;
-    case VoteContentType.Post:
+    case "post":
     default:
       i.props.onVote({
         post_id: i.props.id,
-        is_upvote: newVoteIsUpvote(VoteType.Downvote, i.props.myVoteIsUpvote),
+        is_upvote: newVoteIsUpvote("downvote", i.props.myVoteIsUpvote),
       });
   }
 }

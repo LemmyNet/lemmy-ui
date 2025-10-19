@@ -7,7 +7,7 @@ import { PersonListing } from "@components/person/person-listing";
 import { I18NextService } from "@services/index";
 import { hostname, unreadCommentsCount } from "@utils/helpers";
 import { mdToHtmlInline } from "@utils/markdown";
-import { ShowCrossPostsType, VoteContentType } from "@utils/types";
+import { ShowCrossPostsType } from "@utils/types";
 import { Link } from "inferno-router";
 import { PostView, MyUserInfo, LocalSite } from "lemmy-js-client";
 
@@ -91,7 +91,7 @@ function ExpandedCrossPosts({
           return (
             <div className="d-flex col-sm-12 col-md-6 col-lg-4 mb-3">
               <VoteButtons
-                voteContentType={VoteContentType.Post}
+                voteContentType={"post"}
                 id={pv.post.id}
                 subject={pv.post}
                 myVoteIsUpvote={pv.post_actions?.vote_is_upvote}

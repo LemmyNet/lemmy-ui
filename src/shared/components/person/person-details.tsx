@@ -39,7 +39,6 @@ import {
   LockComment,
   BlockCommunity,
 } from "lemmy-js-client";
-import { CommentViewType } from "@utils/types";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
 import { RequestState } from "../../services/HttpService";
@@ -99,7 +98,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           <CommentNodes
             key={i.comment.id}
             nodes={[{ comment_view: i, children: [], depth: 0 }]}
-            viewType={CommentViewType.Flat}
+            viewType={"flat"}
             admins={this.props.admins}
             noBorder
             showCommunity

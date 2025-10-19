@@ -45,7 +45,6 @@ import {
   CommentNodeView,
   CommentViewType,
   isCommentView,
-  VoteContentType,
 } from "@utils/types";
 import { mdToHtml, mdToHtmlNoImages } from "@utils/markdown";
 import { I18NextService } from "../../services";
@@ -252,7 +251,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       : colorList[0];
 
     const showMoreChildren =
-      this.props.viewType === CommentViewType.Tree &&
+      this.props.viewType === "tree" &&
       !this.state.collapsed &&
       node.children.length === 0 &&
       child_count > 0;
@@ -448,7 +447,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       )) && (
                       <>
                         <VoteButtonsCompact
-                          voteContentType={VoteContentType.Comment}
+                          voteContentType={"comment"}
                           id={id}
                           onVote={this.props.onCommentVote}
                           myUserInfo={this.props.myUserInfo}

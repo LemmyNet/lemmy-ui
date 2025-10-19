@@ -64,39 +64,17 @@ export interface PostFormParams {
   alt_text?: string;
 }
 
-export enum CommentViewType {
-  Tree,
-  Flat,
-}
+export type CommentViewType = "tree" | "flat";
 
-export enum DataType {
-  Post,
-  Comment,
-}
+export type PostOrCommentType = "post" | "comment";
 
-export enum BanType {
-  Community,
-  Site,
-}
+export type BanType = "community" | "site";
 
 export type PersonDetailsView = "uploads" | PersonContentType;
 
-export enum PurgeType {
-  Person,
-  Community,
-  Post,
-  Comment,
-}
+export type PurgeType = "person" | "community" | "post" | "comment";
 
-export enum VoteType {
-  Upvote,
-  Downvote,
-}
-
-export enum VoteContentType {
-  Post,
-  Comment,
-}
+export type VoteType = "upvote" | "downvote";
 
 export type CommentNodeView = CommentView | CommentSlimView;
 

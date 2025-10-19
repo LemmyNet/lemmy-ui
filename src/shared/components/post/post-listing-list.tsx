@@ -1,4 +1,4 @@
-import { ShowCrossPostsType, VoteContentType } from "@utils/types";
+import { ShowCrossPostsType } from "@utils/types";
 import {
   CreatePostLike,
   Language,
@@ -46,7 +46,7 @@ export function PostListingList({
         {postIsInteractable(postView, viewOnly) && (
           <div className="col-auto px-0">
             <VoteButtons
-              voteContentType={VoteContentType.Post}
+              voteContentType={"post"}
               id={postView.post.id}
               onVote={onPostVote}
               myUserInfo={myUserInfo}

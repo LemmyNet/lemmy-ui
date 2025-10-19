@@ -6,7 +6,6 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { Icon } from "./icon";
 import classNames from "classnames";
 import { calculateUpvotePct } from "@utils/app";
-import { VoteContentType } from "@utils/types";
 import {
   showDownvotes,
   showPercentage,
@@ -36,10 +35,7 @@ export class VoteDisplay extends Component<Props, any> {
       localSite,
     } = this.props;
     const localUser = this.props.myUserInfo?.local_user_view.local_user;
-    const type =
-      "post_id" in this.props.subject
-        ? VoteContentType.Comment
-        : VoteContentType.Post;
+    const type = "post_id" in this.props.subject ? "comment" : "post";
 
     const show_score = showScore(localUser);
     const show_upvotes = showUpvotes(localUser, localSite, type);
@@ -114,10 +110,7 @@ export class VoteDisplay extends Component<Props, any> {
   // A special case since they are both wrapped in a badge
   upvotesAndDownvotes() {
     const localUser = this.props.myUserInfo?.local_user_view.local_user;
-    const type =
-      "post_id" in this.props.subject
-        ? VoteContentType.Comment
-        : VoteContentType.Post;
+    const type = "post_id" in this.props.subject ? "comment" : "post";
     const {
       localSite,
       subject: { creator_id },

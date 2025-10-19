@@ -31,7 +31,6 @@ import {
 import {
   CommentNodeI,
   CommentNodeView,
-  DataType,
   IsoData,
   RouteData,
   VoteType,
@@ -311,10 +310,6 @@ export function getCommentParentId(comment?: Comment): number | undefined {
     : undefined;
 }
 
-export function getDataTypeString(dt: DataType) {
-  return dt === DataType.Post ? "post" : "comment";
-}
-
 export function getDepthFromComment(comment?: Comment): number | undefined {
   const len = comment?.path.split(".").length;
   return len ? len - 2 : undefined;
@@ -421,7 +416,7 @@ export function newVoteIsUpvote(
   voteType: VoteType,
   myVoteIsUpvote?: boolean,
 ): boolean | undefined {
-  if (voteType === VoteType.Upvote) {
+  if (voteType === "upvote") {
     return myVoteIsUpvote === true ? undefined : true;
   } else {
     return myVoteIsUpvote === false ? undefined : false;
