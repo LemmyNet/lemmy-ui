@@ -11,8 +11,6 @@ import {
   SearchType,
   PersonView,
   Language,
-  BlockCommunityResponse,
-  BlockPersonResponse,
   Instance,
   PostReport,
   CommentReport,
@@ -27,11 +25,12 @@ import {
   CommentSlimView,
   Community,
   CommentId,
+  CommunityResponse,
+  PersonResponse,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
   CommentNodeView,
-  DataType,
   IsoData,
   RouteData,
   VoteType,
@@ -254,8 +253,8 @@ export function postDownvotesMode(siteRes: GetSiteResponse): FederationMode {
 
 export function enableDownvotes(siteRes: GetSiteResponse): boolean {
   return (
-    siteRes.site_view.local_site.post_downvotes !== "Disable" ||
-    siteRes.site_view.local_site.comment_downvotes !== "Disable"
+    siteRes.site_view.local_site.post_downvotes !== "disable" ||
+    siteRes.site_view.local_site.comment_downvotes !== "disable"
   );
 }
 
@@ -264,10 +263,10 @@ export function enableNsfw(siteRes?: GetSiteResponse): boolean {
 }
 
 export async function fetchCommunities(q: string) {
-  const res = await fetchSearchResults(q, "Communities");
+  const res = await fetchSearchResults(q, "communities");
 
   return res.state === "success"
-    ? res.data.results.filter(s => s.type_ === "Community")
+    ? res.data.results.filter(s => s.type_ === "community")
     : [];
 }
 
@@ -275,8 +274,8 @@ export function fetchSearchResults(q: string, type_: SearchType) {
   const form: Search = {
     q,
     type_,
-    sort: "Top",
-    listing_type: "All",
+    sort: "top",
+    listing_type: "all",
   };
 
   return HttpService.client.search(form);
@@ -287,10 +286,10 @@ export async function fetchThemeList(): Promise<string[]> {
 }
 
 export async function fetchUsers(q: string) {
-  const res = await fetchSearchResults(q, "Users");
+  const res = await fetchSearchResults(q, "users");
 
   return res.state === "success"
-    ? res.data.results.filter(s => s.type_ === "Person")
+    ? res.data.results.filter(s => s.type_ === "person")
     : [];
 }
 
@@ -309,10 +308,6 @@ export function getCommentParentId(comment?: Comment): number | undefined {
   return split && split.length > 1
     ? Number(split.at(split.length - 2))
     : undefined;
-}
-
-export function getDataTypeString(dt: DataType) {
-  return dt === DataType.Post ? "Post" : "Comment";
 }
 
 export function getDepthFromComment(comment?: Comment): number | undefined {
@@ -341,9 +336,9 @@ export function getUncombinedPersonContent(
   content: PersonContentCombinedView,
 ): PersonContentCombined {
   switch (content.type_) {
-    case "Post":
+    case "post":
       return content.post;
-    case "Comment":
+    case "comment":
       return content.comment;
   }
 }
@@ -358,13 +353,13 @@ export function getUncombinedReport(
   report: ReportCombinedView,
 ): ReportCombined {
   switch (report.type_) {
-    case "Post":
+    case "post":
       return report.post_report;
-    case "Comment":
+    case "comment":
       return report.comment_report;
-    case "PrivateMessage":
+    case "private_message":
       return report.private_message_report;
-    case "Community":
+    case "community":
       return report.community_report;
   }
 }
@@ -417,11 +412,14 @@ export function myAuth(): string | undefined {
   return UserService.Instance.auth();
 }
 
-export function newVote(voteType: VoteType, myVote?: number): number {
-  if (voteType === VoteType.Upvote) {
-    return myVote === 1 ? 0 : 1;
+export function newVoteIsUpvote(
+  voteType: VoteType,
+  myVoteIsUpvote?: boolean,
+): boolean | undefined {
+  if (voteType === "upvote") {
+    return myVoteIsUpvote === true ? undefined : true;
   } else {
-    return myVote === -1 ? 0 : -1;
+    return myVoteIsUpvote === false ? undefined : false;
   }
 }
 
@@ -463,20 +461,20 @@ export function mixedToCommentSortType(
   sort: CommentSortType | PostSortType,
 ): CommentSortType {
   switch (sort) {
-    case "Hot":
-    case "Top":
-    case "New":
-    case "Old":
-    case "Controversial":
+    case "hot":
+    case "top":
+    case "new":
+    case "old":
+    case "controversial":
       return sort;
-    case "Active":
-    case "MostComments":
-    case "NewComments":
-    case "Scaled":
-      return "Hot";
+    case "active":
+    case "most_comments":
+    case "new_comments":
+    case "scaled":
+      return "hot";
     default:
       assertType<never>(sort);
-      return "Hot";
+      return "hot";
   }
 }
 
@@ -484,19 +482,19 @@ export function mixedToPostSortType(
   sort: PostSortType | CommentSortType,
 ): PostSortType {
   switch (sort) {
-    case "Active":
-    case "Hot":
-    case "New":
-    case "Old":
-    case "Top":
-    case "MostComments":
-    case "NewComments":
-    case "Controversial":
-    case "Scaled":
+    case "active":
+    case "hot":
+    case "new":
+    case "old":
+    case "top":
+    case "most_comments":
+    case "new_comments":
+    case "controversial":
+    case "scaled":
       return sort;
     default:
       assertType<never>(sort);
-      return "Active";
+      return "active";
   }
 }
 
@@ -645,11 +643,12 @@ export async function pictrsDeleteToast(filename: string) {
 }
 
 export function updateCommunityBlock(
-  data: BlockCommunityResponse,
+  data: CommunityResponse,
+  blocked: boolean,
   myUserInfo: MyUserInfo | undefined,
 ) {
   if (myUserInfo) {
-    if (data.blocked) {
+    if (blocked) {
       myUserInfo.community_blocks.push(data.community_view.community);
       toast(
         I18NextService.i18n.t("blocked_x", {
@@ -670,11 +669,12 @@ export function updateCommunityBlock(
 }
 
 export function updatePersonBlock(
-  data: BlockPersonResponse,
+  data: PersonResponse,
+  blocked: boolean,
   myUserInfo: MyUserInfo | undefined,
 ) {
   if (myUserInfo) {
-    if (data.blocked) {
+    if (blocked) {
       myUserInfo.person_blocks.push(data.person_view.person);
       toast(
         I18NextService.i18n.t("blocked_x", {
@@ -759,7 +759,7 @@ export function postViewToPersonContentCombinedView(
   pv: PostView,
 ): PersonContentCombinedView {
   return {
-    type_: "Post",
+    type_: "post",
     ...pv,
   };
 }
@@ -768,7 +768,7 @@ export function commentViewToPersonContentCombinedView(
   cv: CommentView,
 ): PersonContentCombinedView {
   return {
-    type_: "Comment",
+    type_: "comment",
     ...cv,
   };
 }

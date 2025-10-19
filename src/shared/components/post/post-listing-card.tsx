@@ -206,15 +206,15 @@ export class PostListingCard extends Component<
             onPersonNote={p.onPersonNote}
           />
         </article>
-        {p.showBody === "Full" &&
+        {p.showBody === "full" &&
           p.postView.post.url &&
           isMagnetLink(p.postView.post.url) && <TorrentHelp />}
-        {p.showBody === "Full" &&
+        {p.showBody === "full" &&
           p.postView.post.url &&
           p.postView.post.embed_title && (
             <MetadataCard post={p.postView.post} />
           )}
-        {p.showBody === "Full" && <VideoBlock postView={p.postView} />}
+        {p.showBody === "full" && <VideoBlock postView={p.postView} />}
         <CrossPosts
           crossPosts={p.crossPosts}
           type_={p.showCrossPosts}
@@ -233,11 +233,11 @@ type BodyProps = {
 };
 function Body({ viewSource, body, showBody }: BodyProps) {
   const classes = classNames("my-2", {
-    "fade-preview": showBody === "Preview",
+    "fade-preview": showBody === "preview",
   });
 
   const innerClasses = classNames("col-12-", {
-    "card card-body": showBody === "Full",
+    "card card-body": showBody === "full",
   });
 
   return (

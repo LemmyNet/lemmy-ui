@@ -82,7 +82,7 @@ export default async (req: Request, res: Response) => {
 
       if (
         path === "/signup" &&
-        siteRes.site_view.local_site.registration_mode === "Closed"
+        siteRes.site_view.local_site.registration_mode === "closed"
       ) {
         res.redirect("/");
         return;

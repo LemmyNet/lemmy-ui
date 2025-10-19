@@ -40,7 +40,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { InfernoNode } from "inferno";
 
-type RegistrationState = "Unread" | "All" | "Denied";
+type RegistrationState = "unread" | "all" | "denied";
 
 type RegistrationApplicationsData = RouteDataResponse<{
   listRegistrationApplicationsResponse: ListRegistrationApplicationsResponse;
@@ -58,12 +58,12 @@ interface RegistrationApplicationsProps {
 
 function registrationStateFromQuery(view?: string): RegistrationState {
   switch (view) {
-    case "Unread":
-    case "All":
-    case "Denied":
+    case "unread":
+    case "all":
+    case "denied":
       return view;
     default:
-      return "Unread";
+      return "unread";
   }
 }
 
@@ -202,14 +202,14 @@ export class RegistrationApplications extends Component<
           id={`${radioId}-unread`}
           type="radio"
           className="btn-check"
-          value={"Unread"}
-          checked={this.props.view === "Unread"}
+          value={"unread"}
+          checked={this.props.view === "unread"}
           onChange={linkEvent(this, this.handleRegistrationStateChange)}
         />
         <label
           htmlFor={`${radioId}-unread`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "Unread",
+            active: this.props.view === "unread",
           })}
         >
           {I18NextService.i18n.t("unread")}
@@ -219,14 +219,14 @@ export class RegistrationApplications extends Component<
           id={`${radioId}-all`}
           type="radio"
           className="btn-check"
-          value={"All"}
-          checked={this.props.view === "All"}
+          value={"all"}
+          checked={this.props.view === "all"}
           onChange={linkEvent(this, this.handleRegistrationStateChange)}
         />
         <label
           htmlFor={`${radioId}-all`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "All",
+            active: this.props.view === "all",
           })}
         >
           {I18NextService.i18n.t("all")}
@@ -236,14 +236,14 @@ export class RegistrationApplications extends Component<
           id={`${radioId}-denied`}
           type="radio"
           className="btn-check"
-          value={"Denied"}
-          checked={this.props.view === "Denied"}
+          value={"denied"}
+          checked={this.props.view === "denied"}
           onChange={linkEvent(this, this.handleRegistrationStateChange)}
         />
         <label
           htmlFor={`${radioId}-denied`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "Denied",
+            active: this.props.view === "denied",
           })}
         >
           {I18NextService.i18n.t("denied")}
@@ -261,7 +261,7 @@ export class RegistrationApplications extends Component<
   }
 
   applicationList(apps: RegistrationApplicationView[]) {
-    if (this.props.view === "Denied") {
+    if (this.props.view === "denied") {
       apps = apps.filter(ra => !ra.creator_local_user.accepted_application);
     }
     return (
@@ -304,7 +304,7 @@ export class RegistrationApplications extends Component<
     return {
       listRegistrationApplicationsResponse: headers["Authorization"]
         ? await client.listRegistrationApplications({
-            unread_only: view === "Unread",
+            unread_only: view === "unread",
             ...cursorComponents(cursor),
             limit: fetchLimit,
           })
@@ -320,7 +320,7 @@ export class RegistrationApplications extends Component<
       appsRes: LOADING_REQUEST,
     });
     const appsRes = await HttpService.client.listRegistrationApplications({
-      unread_only: state === "Unread",
+      unread_only: state === "unread",
       ...cursorComponents(cursor),
       limit: fetchLimit,
     });

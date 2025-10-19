@@ -21,8 +21,8 @@ import { Choice, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, createRef, linkEvent } from "inferno";
 import {
-  BlockCommunityResponse,
-  BlockPersonResponse,
+  CommunityResponse,
+  PersonResponse,
   CommentSortType,
   Community,
   GenerateTotpSecretResponse,
@@ -977,7 +977,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <ListingTypeSelect
                 type_={
                   this.state.saveUserSettingsForm.default_listing_type ??
-                  "Local"
+                  "local"
                 }
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
@@ -993,7 +993,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="col-sm-9">
               <PostListingModeSelect
                 current={
-                  this.state.saveUserSettingsForm.post_listing_mode ?? "List"
+                  this.state.saveUserSettingsForm.post_listing_mode ?? "list"
                 }
                 onChange={this.handlePostListingModeChange}
               />
@@ -1007,7 +1007,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <PostSortSelect
                 current={
                   this.state.saveUserSettingsForm.default_post_sort_type ??
-                  "Active"
+                  "active"
                 }
                 onChange={this.handlePostSortTypeChange}
               />
@@ -1021,7 +1021,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <CommentSortSelect
                 current={
                   this.state.saveUserSettingsForm.default_comment_sort_type ??
-                  "Hot"
+                  "hot"
                 }
                 onChange={this.handleCommentSortTypeChange}
               />
@@ -1132,7 +1132,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <div className="col-sm-9">
                 <VoteShowSelect
                   current={
-                    this.state.saveUserSettingsForm.show_downvotes ?? "Show"
+                    this.state.saveUserSettingsForm.show_downvotes ?? "show"
                   }
                   onChange={this.handleShowDownvotesChange}
                 />
@@ -1551,12 +1551,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   });
 
   async handleBlockPerson({ value }: Choice) {
+    const block = true;
     if (value !== "0") {
       const res = await HttpService.client.blockPerson({
         person_id: Number(value),
-        block: true,
+        block,
       });
-      this.personBlock(res);
+      this.personBlock(res, block);
     }
   }
 
@@ -1567,42 +1568,46 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     ctx: Settings;
     recipientId: number;
   }) {
+    const block = false;
     const res = await HttpService.client.blockPerson({
       person_id: recipientId,
-      block: false,
+      block,
     });
-    ctx.personBlock(res);
+    ctx.personBlock(res, block);
   }
 
   async handleBlockCommunity({ value }: Choice) {
+    const block = true;
     if (value !== "0") {
       const res = await HttpService.client.blockCommunity({
         community_id: Number(value),
-        block: true,
+        block,
       });
-      this.communityBlock(res);
+      this.communityBlock(res, block);
     }
   }
 
   async handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
+    const block = false;
     if (myAuth()) {
       const res = await HttpService.client.blockCommunity({
         community_id: i.communityId,
-        block: false,
+        block,
       });
-      i.ctx.communityBlock(res);
+      i.ctx.communityBlock(res, block);
     }
   }
 
   async handleBlockInstanceCommunities({ value }: Choice) {
+    const block = true;
     if (value !== "0") {
       const id = Number(value);
       const res = await HttpService.client.userBlockInstanceCommunities({
-        block: true,
+        block,
         instance_id: id,
       });
       if (res.state === "success") {
-        this.instanceCommunitiesBlock(id, true);
+        this.instanceCommunitiesBlock(id, block);
       }
     }
   }
@@ -1614,24 +1619,26 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     ctx: Settings;
     instanceId: number;
   }) {
+    const block = false;
     const res = await HttpService.client.userBlockInstanceCommunities({
-      block: false,
+      block,
       instance_id: instanceId,
     });
     if (res.state === "success") {
-      ctx.instanceCommunitiesBlock(instanceId, false);
+      ctx.instanceCommunitiesBlock(instanceId, block);
     }
   }
 
   async handleBlockInstancePersons({ value }: Choice) {
+    const block = true;
     if (value !== "0") {
       const id = Number(value);
       const res = await HttpService.client.userBlockInstancePersons({
-        block: true,
+        block,
         instance_id: id,
       });
       if (res.state === "success") {
-        this.instancePersonsBlock(id, true);
+        this.instancePersonsBlock(id, block);
       }
     }
   }
@@ -1643,12 +1650,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     ctx: Settings;
     instanceId: number;
   }) {
+    const block = false;
     const res = await HttpService.client.userBlockInstancePersons({
-      block: false,
+      block,
       instance_id: instanceId,
     });
     if (res.state === "success") {
-      ctx.instancePersonsBlock(instanceId, false);
+      ctx.instancePersonsBlock(instanceId, block);
     }
   }
 
@@ -2121,9 +2129,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     i.ctx.setState({ currentTab: i.tab });
   }
 
-  personBlock(res: RequestState<BlockPersonResponse>) {
+  personBlock(res: RequestState<PersonResponse>, blocked: boolean) {
     if (res.state === "success") {
-      updatePersonBlock(res.data, this.isoData.myUserInfo);
+      updatePersonBlock(res.data, blocked, this.isoData.myUserInfo);
       const mui = this.isoData.myUserInfo;
       if (mui) {
         this.setState({ personBlocks: mui.person_blocks });
@@ -2131,9 +2139,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
   }
 
-  communityBlock(res: RequestState<BlockCommunityResponse>) {
+  communityBlock(res: RequestState<CommunityResponse>, blocked: boolean) {
     if (res.state === "success") {
-      updateCommunityBlock(res.data, this.isoData.myUserInfo);
+      updateCommunityBlock(res.data, blocked, this.isoData.myUserInfo);
       const mui = this.isoData.myUserInfo;
       if (mui) {
         this.setState({ communityBlocks: mui.community_blocks });

@@ -660,7 +660,7 @@ main a.btn {
   text-decoration-color: var(--bs-gray-200) !important;
 }
 
-/* make sure the toggle button in the sidebar "Subscribed" does not overflow the container */
+/* make sure the toggle button in the sidebar "subscribed" does not overflow the container */
 #sidebarSubscribedHeader {
   flex-wrap: wrap;
 }

@@ -79,7 +79,7 @@ export class PostListings extends Component<PostListingsProps, any> {
   }
 
   get posts() {
-    return this.props.showCrossPosts !== "ShowSeparately"
+    return this.props.showCrossPosts !== "show_separately"
       ? this.removeDuplicates()
       : this.props.posts;
   }
@@ -104,7 +104,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                   myUserInfo={this.props.myUserInfo}
                   localSite={this.props.localSite}
                   admins={this.props.admins}
-                  showBody={"Preview"}
+                  showBody={"preview"}
                   hideImage={false}
                   disableAutoMarkAsRead={false}
                   editLoading={false}
@@ -214,10 +214,10 @@ export class PostListings extends Component<PostListingsProps, any> {
 
 function postListingModeCols(mode: PostListingMode): string {
   switch (mode) {
-    case "List":
+    case "list":
       return "col-12";
-    case "Card":
-    case "SmallCard":
+    case "card":
+    case "small_card":
       return "col-12 col-md-6";
   }
 }

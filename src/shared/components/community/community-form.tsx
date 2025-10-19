@@ -266,9 +266,9 @@ export class CommunityForm extends Component<
               className="form-select position-static"
               id="community-visibility"
               onChange={linkEvent(this, this.handleCommunityVisibilityChange)}
-              value={this.state.form.visibilty ?? "Public"}
+              value={this.state.form.visibilty ?? "public"}
             >
-              <option value="Public">{I18NextService.i18n.t("public")}</option>
+              <option value="public">{I18NextService.i18n.t("public")}</option>
               <option value="LocalOnly">
                 {I18NextService.i18n.t("local_only")}
               </option>

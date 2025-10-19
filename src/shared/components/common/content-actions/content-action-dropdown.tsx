@@ -657,26 +657,25 @@ export default class ContentActionDropdown extends Component<
 
   toggleBanFromCommunityShow() {
     this.toggleDialogShow("BanDialog", {
-      banType: BanType.Community,
+      banType: "community",
     });
   }
 
   toggleBanFromSiteShow() {
     this.toggleDialogShow("BanDialog", {
-      banType: BanType.Site,
+      banType: "site",
     });
   }
 
   togglePurgePersonShow() {
     this.toggleDialogShow("PurgeDialog", {
-      purgeType: PurgeType.Person,
+      purgeType: "person",
     });
   }
 
   togglePurgeContentShow() {
     this.toggleDialogShow("PurgeDialog", {
-      purgeType:
-        this.props.type === "post" ? PurgeType.Post : PurgeType.Comment,
+      purgeType: this.props.type === "post" ? "post" : "comment",
     });
   }
 
@@ -772,19 +771,17 @@ export default class ContentActionDropdown extends Component<
         {renderBanDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(
-              banType === BanType.Community
-                ? onBanFromCommunity
-                : onBanFromSite,
+              banType === "community" ? onBanFromCommunity : onBanFromSite,
             )}
             modActionType={
-              banType === BanType.Community ? "community-ban" : "site-ban"
+              banType === "community" ? "community-ban" : "site-ban"
             }
             creator={creator}
             onCancel={this.hideAllDialogs}
             isBanned={
-              banType === BanType.Community
+              banType === "community"
                 ? !!creator_banned_from_community
-                : banType === BanType.Site
+                : banType === "site"
                   ? creator_banned
                   : false
             }
@@ -805,12 +802,12 @@ export default class ContentActionDropdown extends Component<
         {renderPurgeDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(
-              purgeType === PurgeType.Person ? onPurgeUser : onPurgeContent,
+              purgeType === "person" ? onPurgeUser : onPurgeContent,
             )}
             modActionType={
-              purgeType === PurgeType.Post
+              purgeType === "post"
                 ? "purge-post"
-                : purgeType === PurgeType.Comment
+                : purgeType === "comment"
                   ? "purge-comment"
                   : "purge-person"
             }

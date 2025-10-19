@@ -21,7 +21,7 @@ import {
   BanFromCommunity,
   BanFromCommunityResponse,
   BanPerson,
-  BanPersonResponse,
+  PersonResponse,
   BlockCommunity,
   BlockPerson,
   CommentId,
@@ -59,7 +59,7 @@ import {
   TransferCommunity,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
-import { CommentViewType, InitialFetchRequest } from "@utils/types";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import { UnreadCounterService } from "../../services";
 import {
@@ -123,7 +123,7 @@ export class Notifications extends Component<
   private isoData = setIsoData<NotificationsData>(this.context);
   state: NotificationsState = {
     unreadOrAll: UnreadOrAll.Unread,
-    messageType: "All",
+    messageType: "all",
     siteRes: this.isoData.siteRes,
     notifsRes: EMPTY_REQUEST,
     markAllAsReadRes: EMPTY_REQUEST,
@@ -309,14 +309,14 @@ export class Notifications extends Component<
           id={`${radioId}-all`}
           type="radio"
           className="btn-check"
-          value={"All"}
-          checked={this.state.messageType === "All"}
+          value={"all"}
+          checked={this.state.messageType === "all"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-all`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "All",
+            active: this.state.messageType === "all",
           })}
         >
           {I18NextService.i18n.t("all")}
@@ -326,14 +326,14 @@ export class Notifications extends Component<
           id={`${radioId}-replies`}
           type="radio"
           className="btn-check"
-          value={"Reply"}
-          checked={this.state.messageType === "Reply"}
+          value={"reply"}
+          checked={this.state.messageType === "reply"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-replies`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "Reply",
+            active: this.state.messageType === "reply",
           })}
         >
           {I18NextService.i18n.t("replies")}
@@ -343,14 +343,14 @@ export class Notifications extends Component<
           id={`${radioId}-mentions`}
           type="radio"
           className="btn-check"
-          value={"Mention"}
-          checked={this.state.messageType === "Mention"}
+          value={"mention"}
+          checked={this.state.messageType === "mention"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-mentions`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "Mention",
+            active: this.state.messageType === "mention",
           })}
         >
           {I18NextService.i18n.t("mentions")}
@@ -360,14 +360,14 @@ export class Notifications extends Component<
           id={`${radioId}-messages`}
           type="radio"
           className="btn-check"
-          value={"PrivateMessage"}
-          checked={this.state.messageType === "PrivateMessage"}
+          value={"private_message"}
+          checked={this.state.messageType === "private_message"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-messages`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "PrivateMessage",
+            active: this.state.messageType === "private_message",
           })}
         >
           {I18NextService.i18n.t("messages")}
@@ -389,12 +389,12 @@ export class Notifications extends Component<
     const siteRes = this.state.siteRes;
     const i = item.data;
     switch (i.type_) {
-      case "Comment":
+      case "comment":
         return (
           <CommentNode
             key={item.notification.id}
             node={{ comment_view: i, children: [], depth: 0 }}
-            viewType={CommentViewType.Flat}
+            viewType={"flat"}
             showCommunity
             showContext
             allLanguages={siteRes.all_languages}
@@ -426,7 +426,7 @@ export class Notifications extends Component<
             onLockComment={this.handleLockComment}
           />
         );
-      case "PrivateMessage":
+      case "private_message":
         return (
           <PrivateMessage
             key={item.notification.id}
@@ -440,13 +440,13 @@ export class Notifications extends Component<
             onMarkRead={this.handleMessageMarkAsRead}
           />
         );
-      case "Post":
+      case "post":
         return (
           this.isoData.myUserInfo && (
             <PostListing
               postView={i}
               showCommunity
-              showCrossPosts="ShowSeparately"
+              showCrossPosts="show_separately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={[]}
@@ -455,9 +455,9 @@ export class Notifications extends Component<
               myUserInfo={this.isoData.myUserInfo}
               localSite={this.isoData.siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
-              postListingMode="SmallCard"
+              postListingMode="small_card"
               crossPosts={[]}
-              showBody={"Preview"}
+              showBody={"preview"}
               editLoading={false}
               readLoading={false}
               viewOnly // TODO: comments do allow edits and moderation
@@ -533,7 +533,7 @@ export class Notifications extends Component<
     if (myUserInfo) {
       return {
         notifsRes: await client.listNotifications({
-          type_: "All",
+          type_: "all",
           unread_only: true,
           limit: fetchLimit,
         }),
@@ -619,14 +619,22 @@ export class Notifications extends Component<
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
+      updatePersonBlock(
+        blockPersonRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
     }
   }
 
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
     if (blockCommunityRes.state === "success") {
-      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
+      updateCommunityBlock(
+        blockCommunityRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
     }
   }
 
@@ -718,7 +726,7 @@ export class Notifications extends Component<
   async handleCommentMarkAsRead(comment_id: CommentId, read: boolean) {
     if (this.state.notifsRes.state !== "success") return;
     const notification = this.state.notifsRes.data.notifications.find(
-      n => n.data.type_ === "Comment" && n.data.comment.id === comment_id,
+      n => n.data.type_ === "comment" && n.data.comment.id === comment_id,
     );
     if (notification) {
       await this.handleMarkNotificationAsRead({
@@ -735,7 +743,7 @@ export class Notifications extends Component<
     if (this.state.notifsRes.state !== "success") return;
     const notification = this.state.notifsRes.data.notifications.find(
       n =>
-        n.data.type_ === "PrivateMessage" &&
+        n.data.type_ === "private_message" &&
         n.data.private_message.id === privateMessageId,
     );
     if (notification) {
@@ -753,7 +761,7 @@ export class Notifications extends Component<
 
   async handleBanPerson(form: BanPerson) {
     const banRes = await HttpService.client.banPerson(form);
-    this.updateBan(banRes);
+    this.updateBan(banRes, form.ban);
   }
 
   async handleDeleteMessage(form: DeletePrivateMessage) {
@@ -808,10 +816,10 @@ export class Notifications extends Component<
             recipient_id: 0,
             read: true,
             published_at: nowBoolean(true) ?? "",
-            kind: "PrivateMessage",
+            kind: "private_message",
           },
           data: {
-            type_: "PrivateMessage",
+            type_: "private_message",
             ...res.data.private_message_view,
           },
         });
@@ -829,7 +837,7 @@ export class Notifications extends Component<
       if (s.notifsRes.state === "success" && res.state === "success") {
         const notif = s.notifsRes.data.notifications.find(
           n =>
-            n.data.type_ === "PrivateMessage" &&
+            n.data.type_ === "private_message" &&
             n.data.private_message.id ===
               res.data.private_message_view.private_message.id,
         );
@@ -841,7 +849,7 @@ export class Notifications extends Component<
             return {
               notification: { ...n.notification },
               data: {
-                type_: "PrivateMessage",
+                type_: "private_message",
                 ...res.data.private_message_view,
               },
             };
@@ -867,8 +875,8 @@ export class Notifications extends Component<
                 data: { ...c.data },
               };
               switch (notif.data.type_) {
-                case "Comment":
-                case "Post":
+                case "comment":
+                case "post":
                   {
                     if (
                       notif.data.community.id === communityId &&
@@ -892,7 +900,7 @@ export class Notifications extends Component<
     }
   }
 
-  updateBan(banRes: RequestState<BanPersonResponse>) {
+  updateBan(banRes: RequestState<PersonResponse>, banned: boolean) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
@@ -904,9 +912,9 @@ export class Notifications extends Component<
                 data: { ...c.data },
               };
               switch (notif.data.type_) {
-                case "Comment":
-                case "Post": {
-                  notif.data.creator_banned = banRes.data.banned;
+                case "comment":
+                case "post": {
+                  notif.data.creator_banned = banned;
                   break;
                 }
               }
@@ -942,7 +950,7 @@ export class Notifications extends Component<
       if (s.notifsRes.state === "success" && res.state === "success") {
         const notif = s.notifsRes.data.notifications.find(
           n =>
-            n.data.type_ === "Comment" &&
+            n.data.type_ === "comment" &&
             n.data.comment.id === res.data.comment_view.comment.id,
         );
         s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
@@ -952,7 +960,7 @@ export class Notifications extends Component<
             }
             return {
               notification: { ...n.notification },
-              data: { type_: "Comment", ...res.data.comment_view },
+              data: { type_: "comment", ...res.data.comment_view },
             };
           },
         );
@@ -964,7 +972,7 @@ export class Notifications extends Component<
   async handleMarkPostAsRead(form: MarkPostAsRead) {
     if (this.state.notifsRes.state !== "success") return;
     const notification = this.state.notifsRes.data.notifications.find(
-      n => n.data.type_ === "Post" && n.data.post.id === form.post_id,
+      n => n.data.type_ === "post" && n.data.post.id === form.post_id,
     );
     if (notification) {
       await this.handleMarkNotificationAsRead({
@@ -988,8 +996,8 @@ export class Notifications extends Component<
                 data: { ...c.data },
               };
               switch (notif.data.type_) {
-                case "Post":
-                case "Comment":
+                case "post":
+                case "comment":
                   if (
                     notif.data.creator.id === form.person_id &&
                     notif.data.person_actions

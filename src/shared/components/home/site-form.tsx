@@ -284,7 +284,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </label>
               <FederationModeSelect
                 id={vote.kind}
-                current={this.state.siteForm[vote.kind] ?? "All"}
+                current={this.state.siteForm[vote.kind] ?? "all"}
                 onChange={linkEvent(
                   { i: this, voteKind: vote.kind },
                   this.handleSiteVoteModeChange,
@@ -348,19 +348,19 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               onChange={linkEvent(this, this.handleSiteRegistrationModeChange)}
               className="form-select d-inline-block w-auto"
             >
-              <option value={"RequireApplication"}>
+              <option value={"require_application"}>
                 {I18NextService.i18n.t("require_registration_application")}
               </option>
               <option value={"Open"}>
                 {I18NextService.i18n.t("open_registration")}
               </option>
-              <option value={"Closed"}>
+              <option value={"closed"}>
                 {I18NextService.i18n.t("close_registration")}
               </option>
             </select>
           </div>
         </div>
-        {this.state.siteForm.registration_mode === "RequireApplication" && (
+        {this.state.siteForm.registration_mode === "require_application" && (
           <div className="mb-3 row">
             <label className="col-12 col-form-label">
               {I18NextService.i18n.t("application_questionnaire")}
@@ -538,7 +538,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </label>
             <div className="col-sm-9">
               <ListingTypeSelect
-                type_={this.state.siteForm.default_post_listing_type ?? "Local"}
+                type_={this.state.siteForm.default_post_listing_type ?? "local"}
                 showLocal
                 showSubscribed={false}
                 myUserInfo={this.props.myUserInfo}
@@ -553,7 +553,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </label>
           <div className="col-sm-9">
             <PostListingModeSelect
-              current={this.state.siteForm.default_post_listing_mode ?? "List"}
+              current={this.state.siteForm.default_post_listing_mode ?? "list"}
               onChange={this.handlePostListingModeChange}
             />
           </div>
@@ -564,7 +564,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </label>
           <div className="col-sm-9">
             <PostSortSelect
-              current={this.state.siteForm.default_post_sort_type ?? "Active"}
+              current={this.state.siteForm.default_post_sort_type ?? "active"}
               onChange={this.handlePostSortTypeChange}
             />
           </div>
@@ -575,7 +575,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </label>
           <div className="col-sm-9">
             <CommentSortSelect
-              current={this.state.siteForm.default_comment_sort_type ?? "Hot"}
+              current={this.state.siteForm.default_comment_sort_type ?? "hot"}
               onChange={this.handleCommentSortTypeChange}
             />
           </div>

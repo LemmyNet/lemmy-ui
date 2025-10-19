@@ -9,7 +9,7 @@ import {
   RemoveComment,
   ResolveCommentReport,
 } from "lemmy-js-client";
-import { CommentNodeI, CommentViewType } from "@utils/types";
+import { CommentNodeI } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
@@ -100,7 +100,7 @@ export class CommentReport extends Component<
         <CommentNode
           node={node}
           admins={this.props.admins}
-          viewType={CommentViewType.Flat}
+          viewType={"flat"}
           viewOnly
           showCommunity
           allLanguages={[]}

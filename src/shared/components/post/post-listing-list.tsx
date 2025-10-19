@@ -1,4 +1,4 @@
-import { ShowCrossPostsType, VoteContentType } from "@utils/types";
+import { ShowCrossPostsType } from "@utils/types";
 import {
   CreatePostLike,
   Language,
@@ -46,19 +46,19 @@ export function PostListingList({
         {postIsInteractable(postView, viewOnly) && (
           <div className="col-auto px-0">
             <VoteButtons
-              voteContentType={VoteContentType.Post}
+              voteContentType={"post"}
               id={postView.post.id}
               onVote={onPostVote}
               myUserInfo={myUserInfo}
               localSite={localSite}
               subject={postView.post}
-              myVote={postView.post_actions?.like_score}
+              myVoteIsUpvote={postView.post_actions?.vote_is_upvote}
               disabled={userNotLoggedInOrBanned(myUserInfo)}
             />
           </div>
         )}
         <div className="col flex-grow-1">
-          <PostName post={postView.post} showBody="Hidden" />
+          <PostName post={postView.post} showBody="hidden" />
           <PostCreatedLine
             postView={postView}
             showCommunity={showCommunity}
@@ -70,7 +70,7 @@ export function PostListingList({
           />
           <CommentsButton
             postView={postView}
-            type_="Text"
+            type_="text"
             onScrollIntoCommentsClick={onScrollIntoCommentsClick}
           />
         </div>
