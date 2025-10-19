@@ -284,6 +284,7 @@ export function PostImg({ postView, showAdultConsentModal }: PostImgProps) {
           width={imageDetails?.width}
           height={imageDetails?.height}
           blurhash={imageDetails?.blurhash}
+          blurhash_base64={imageDetails?.blurhash_base64}
           nsfw={postView.post.nsfw || postView.community.nsfw}
         />
       </a>
