@@ -229,7 +229,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       creator_banned_from_community,
       creator_banned,
 
-      comment_actions: { like_score: my_vote } = {},
+      comment_actions: { vote_is_upvote: myVoteIsUpvote } = {},
       creator_is_admin,
       comment: {
         deleted,
@@ -362,7 +362,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <VoteDisplay
                 myUserInfo={this.props.myUserInfo}
                 localSite={this.props.localSite}
-                myVote={my_vote}
+                myVoteIsUpvote={myVoteIsUpvote}
                 subject={this.props.node.comment_view.comment}
               />
               <span>
@@ -454,7 +454,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           myUserInfo={this.props.myUserInfo}
                           localSite={this.props.localSite}
                           subject={this.props.node.comment_view.comment}
-                          myVote={my_vote}
+                          myVoteIsUpvote={myVoteIsUpvote}
                           disabled={userNotLoggedInOrBanned(
                             this.props.myUserInfo,
                           )}
@@ -893,7 +893,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       parent_id: i.commentId,
       max_depth: commentTreeMaxDepth,
       limit: 999, // TODO
-      type_: "All",
+      type_: "all",
     });
   }
 }

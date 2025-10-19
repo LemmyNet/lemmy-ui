@@ -40,7 +40,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { InfernoNode } from "inferno";
 
-type RegistrationState = "Unread" | "All" | "Denied";
+type RegistrationState = "Unread" | "all" | "Denied";
 
 type RegistrationApplicationsData = RouteDataResponse<{
   listRegistrationApplicationsResponse: ListRegistrationApplicationsResponse;
@@ -59,7 +59,7 @@ interface RegistrationApplicationsProps {
 function registrationStateFromQuery(view?: string): RegistrationState {
   switch (view) {
     case "Unread":
-    case "All":
+    case "all":
     case "Denied":
       return view;
     default:
@@ -219,14 +219,14 @@ export class RegistrationApplications extends Component<
           id={`${radioId}-all`}
           type="radio"
           className="btn-check"
-          value={"All"}
-          checked={this.props.view === "All"}
+          value={"all"}
+          checked={this.props.view === "all"}
           onChange={linkEvent(this, this.handleRegistrationStateChange)}
         />
         <label
           htmlFor={`${radioId}-all`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "All",
+            active: this.props.view === "all",
           })}
         >
           {I18NextService.i18n.t("all")}

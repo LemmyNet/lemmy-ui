@@ -52,13 +52,13 @@ export function PostListingList({
               myUserInfo={myUserInfo}
               localSite={localSite}
               subject={postView.post}
-              myVote={postView.post_actions?.like_score}
+              myVoteIsUpvote={postView.post_actions?.vote_is_upvote}
               disabled={userNotLoggedInOrBanned(myUserInfo)}
             />
           </div>
         )}
         <div className="col flex-grow-1">
-          <PostName post={postView.post} showBody="Hidden" />
+          <PostName post={postView.post} showBody="hidden" />
           <PostCreatedLine
             postView={postView}
             showCommunity={showCommunity}

@@ -24,9 +24,9 @@ export function CrossPosts({
   localSite,
 }: CrossPostsProps) {
   switch (type_) {
-    case "Small":
+    case "small":
       return <SmallCrossPosts crossPosts={crossPosts} />;
-    case "Expanded":
+    case "expanded":
       return (
         <ExpandedCrossPosts
           crossPosts={crossPosts}
@@ -34,7 +34,7 @@ export function CrossPosts({
           localSite={localSite}
         />
       );
-    case "ShowSeparately":
+    case "show_separately":
       return <></>;
   }
 }
@@ -94,7 +94,7 @@ function ExpandedCrossPosts({
                 voteContentType={VoteContentType.Post}
                 id={pv.post.id}
                 subject={pv.post}
-                myVote={pv.post_actions?.like_score}
+                myVoteIsUpvote={pv.post_actions?.vote_is_upvote}
                 myUserInfo={myUserInfo}
                 localSite={localSite}
                 disabled

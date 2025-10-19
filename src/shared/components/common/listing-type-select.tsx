@@ -51,8 +51,8 @@ export class ListingTypeSelect extends Component<
               id={`${this.id}-subscribed`}
               type="radio"
               className="btn-check"
-              value={"Subscribed"}
-              checked={this.state.type_ === "Subscribed"}
+              value={"subscribed"}
+              checked={this.state.type_ === "subscribed"}
               onChange={linkEvent(this, this.handleTypeChange)}
               disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
             />
@@ -60,7 +60,7 @@ export class ListingTypeSelect extends Component<
               htmlFor={`${this.id}-subscribed`}
               title={I18NextService.i18n.t("subscribed_description")}
               className={classNames("btn btn-outline-secondary", {
-                active: this.state.type_ === "Subscribed",
+                active: this.state.type_ === "subscribed",
                 disabled: !this.props.myUserInfo,
                 pointer: this.props.myUserInfo,
               })}
@@ -75,15 +75,15 @@ export class ListingTypeSelect extends Component<
               id={`${this.id}-local`}
               type="radio"
               className="btn-check"
-              value={"Local"}
-              checked={this.state.type_ === "Local"}
+              value={"local"}
+              checked={this.state.type_ === "local"}
               onChange={linkEvent(this, this.handleTypeChange)}
             />
             <label
               htmlFor={`${this.id}-local`}
               title={I18NextService.i18n.t("local_description")}
               className={classNames("pointer btn btn-outline-secondary", {
-                active: this.state.type_ === "Local",
+                active: this.state.type_ === "local",
               })}
             >
               {I18NextService.i18n.t("local")}
@@ -94,8 +94,8 @@ export class ListingTypeSelect extends Component<
           id={`${this.id}-all`}
           type="radio"
           className="btn-check"
-          value={"All"}
-          checked={this.state.type_ === "All"}
+          value={"all"}
+          checked={this.state.type_ === "all"}
           onChange={linkEvent(this, this.handleTypeChange)}
         />
         <label
@@ -103,8 +103,8 @@ export class ListingTypeSelect extends Component<
           htmlFor={`${this.id}-all`}
           className={classNames("pointer btn btn-outline-secondary", {
             active:
-              this.state.type_ === "All" ||
-              (!this.props.showLocal && this.state.type_) === "Local",
+              this.state.type_ === "all" ||
+              (!this.props.showLocal && this.state.type_) === "local",
           })}
         >
           {I18NextService.i18n.t("all")}
@@ -115,15 +115,15 @@ export class ListingTypeSelect extends Component<
               id={`${this.id}-moderator-view`}
               type="radio"
               className="btn-check"
-              value={"ModeratorView"}
-              checked={this.state.type_ === "ModeratorView"}
+              value={"moderator_view"}
+              checked={this.state.type_ === "moderator_view"}
               onChange={linkEvent(this, this.handleTypeChange)}
             />
             <label
               htmlFor={`${this.id}-moderator-view`}
               title={I18NextService.i18n.t("moderator_view_description")}
               className={classNames("pointer btn btn-outline-secondary", {
-                active: this.state.type_ === "ModeratorView",
+                active: this.state.type_ === "moderator_view",
               })}
             >
               {I18NextService.i18n.t("moderator_view")}

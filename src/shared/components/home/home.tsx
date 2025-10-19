@@ -36,7 +36,7 @@ import {
   BanFromCommunity,
   BanFromCommunityResponse,
   BanPerson,
-  BanPersonResponse,
+  PersonResponse,
   BlockPerson,
   CommentResponse,
   CreateComment,
@@ -148,15 +148,15 @@ function getRss(listingType: ListingType, sort: PostSortType) {
 
   const queryString = getQueryString({ sort });
   switch (listingType) {
-    case "All": {
+    case "all": {
       rss = "/feeds/all.xml" + queryString;
       break;
     }
-    case "Local": {
+    case "local": {
       rss = "/feeds/local.xml" + queryString;
       break;
     }
-    case "Subscribed": {
+    case "subscribed": {
       const auth = myAuth();
       rss = auth ? `/feeds/front/${auth}.xml${queryString}` : undefined;
       break;
@@ -685,6 +685,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       i.setState({ markPageAsReadLoading: true });
       const res = await HttpService.client.markManyPostAsRead({
         post_ids,
+        read: true,
       });
       if (res.state === "success") {
         i.setState(s => {
@@ -730,7 +731,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <PostListings
               posts={posts}
               showCommunity
-              showCrossPosts="Small"
+              showCrossPosts="small"
               markable
               viewOnly={false}
               enableNsfw={enableNsfw(siteRes)}
@@ -993,14 +994,22 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
+      updatePersonBlock(
+        blockPersonRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
     }
   }
 
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
     if (blockCommunityRes.state === "success") {
-      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
+      updateCommunityBlock(
+        blockCommunityRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
     }
   }
 
@@ -1177,7 +1186,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   async handleBanPerson(form: BanPerson) {
     const banRes = await HttpService.client.banPerson(form);
-    this.updateBan(banRes);
+    this.updateBan(banRes, form.ban);
   }
 
   async handleHidePost(form: HidePost) {
@@ -1226,19 +1235,19 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  updateBan(banRes: RequestState<BanPersonResponse>) {
+  updateBan(banRes: RequestState<PersonResponse>, banned: boolean) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator_banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banned));
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator_banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banned));
         }
         return s;
       });

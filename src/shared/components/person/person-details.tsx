@@ -94,7 +94,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   renderItemType(i: PersonContentCombinedView): InfernoNode {
     switch (i.type_) {
-      case "Comment": {
+      case "comment": {
         return (
           <CommentNodes
             key={i.comment.id}
@@ -131,17 +131,17 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           />
         );
       }
-      case "Post": {
+      case "post": {
         return (
           <PostListing
             key={i.post.id}
             postView={i}
-            showCrossPosts="ShowSeparately"
+            showCrossPosts="show_separately"
             admins={this.props.admins}
-            postListingMode="SmallCard"
+            postListingMode="small_card"
             showCommunity
             crossPosts={[]}
-            showBody={"Preview"}
+            showBody={"preview"}
             hideImage={false}
             viewOnly={false}
             disableAutoMarkAsRead={false}

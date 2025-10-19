@@ -41,7 +41,7 @@ import {
   BanFromCommunity,
   BanFromCommunityResponse,
   BanPerson,
-  BanPersonResponse,
+  PersonResponse,
   BlockCommunity,
   BlockPerson,
   CommentResponse,
@@ -360,7 +360,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         ...cursorComponents(cursor),
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
-        type_: "All",
+        type_: "all",
         show_hidden: showHidden === "true",
         ...cursorComponents(cursor),
       };
@@ -370,7 +370,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       const getCommentsForm: GetComments = {
         community_name: communityName,
         sort: mixedToCommentSortType(sort),
-        type_: "All",
+        type_: "all",
       };
 
       commentsFetch = client.getComments(getCommentsForm);
@@ -507,6 +507,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (post_ids && post_ids.length) {
       i.setState({ markPageAsReadLoading: true });
       const res = await HttpService.client.markManyPostAsRead({
+        read: true,
         post_ids,
       });
       if (res.state === "success") {
@@ -581,7 +582,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           return (
             <PostListings
               posts={this.state.postsRes.data.posts}
-              showCrossPosts="ShowSeparately"
+              showCrossPosts="show_separately"
               markable
               showCommunity={false}
               viewOnly={false}
@@ -828,7 +829,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         ...cursorComponents(cursor),
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
-        type_: "All",
+        type_: "all",
         community_name: name,
         show_hidden: showHidden === "true",
       });
@@ -839,7 +840,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
       const commentsRes = await HttpService.client.getComments({
         sort: mixedToCommentSortType(sort),
-        type_: "All",
+        type_: "all",
         community_name: name,
       });
       if (token === this.fetchDataToken) {
@@ -895,16 +896,18 @@ export class Community extends Component<CommunityRouteProps, State> {
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
     if (blockCommunityRes.state === "success") {
-      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
+      updateCommunityBlock(
+        blockCommunityRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
       this.setState(s => {
         if (s.communityRes.state === "success" && this.isoData.myUserInfo) {
           const cv = s.communityRes.data.community_view;
           if (!cv.community_actions) {
             cv.community_actions = {};
           }
-          cv.community_actions.blocked_at = nowBoolean(
-            blockCommunityRes.data.blocked,
-          );
+          cv.community_actions.blocked_at = nowBoolean(form.block);
         }
       });
     }
@@ -913,7 +916,11 @@ export class Community extends Component<CommunityRouteProps, State> {
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
+      updatePersonBlock(
+        blockPersonRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
     }
   }
 
@@ -1134,7 +1141,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   async handleBanPerson(form: BanPerson) {
     const banRes = await HttpService.client.banPerson(form);
-    this.updateBan(banRes);
+    this.updateBan(banRes, form.ban);
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
@@ -1160,19 +1167,19 @@ export class Community extends Component<CommunityRouteProps, State> {
     }
   }
 
-  updateBan(banRes: RequestState<BanPersonResponse>) {
+  updateBan(banRes: RequestState<PersonResponse>, banned: boolean) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator_banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banned));
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator_banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banned));
         }
         return s;
       });

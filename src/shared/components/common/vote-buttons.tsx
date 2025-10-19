@@ -1,4 +1,4 @@
-import { calculateUpvotePct, newVote } from "@utils/app";
+import { calculateUpvotePct, newVoteIsUpvote } from "@utils/app";
 import { numToSI } from "@utils/helpers";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -24,7 +24,7 @@ interface VoteButtonsProps {
   subject: Post | Comment;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
-  myVote?: number;
+  myVoteIsUpvote?: boolean;
   disabled: boolean;
 }
 
@@ -48,8 +48,8 @@ export function showDownvotes(
   creatorId: PersonId,
 ): boolean {
   const show =
-    localUser?.show_downvotes === "Show" ||
-    (localUser?.show_downvotes === "ShowForOthers" &&
+    localUser?.show_downvotes === "show" ||
+    (localUser?.show_downvotes === "show_for_others" &&
       localUser?.person_id !== creatorId);
   return enableDownvotes(localSite, type) && show;
 }
@@ -75,9 +75,9 @@ export function enableDownvotes(
   type: VoteContentType,
 ): boolean {
   if (type === VoteContentType.Comment) {
-    return localSite.comment_downvotes !== "Disable";
+    return localSite.comment_downvotes !== "disable";
   } else {
-    return localSite.post_downvotes !== "Disable";
+    return localSite.post_downvotes !== "disable";
   }
 }
 
@@ -86,9 +86,9 @@ export function enableUpvotes(
   type: VoteContentType,
 ): boolean {
   if (type === VoteContentType.Comment) {
-    return localSite.comment_upvotes !== "Disable";
+    return localSite.comment_upvotes !== "disable";
   } else {
-    return localSite.post_upvotes !== "Disable";
+    return localSite.post_upvotes !== "disable";
   }
 }
 
@@ -141,14 +141,14 @@ function handleUpvote(i: VoteButtons | VoteButtonsCompact) {
     case VoteContentType.Comment:
       i.props.onVote({
         comment_id: i.props.id,
-        score: newVote(VoteType.Upvote, i.props.myVote),
+        is_upvote: newVoteIsUpvote(VoteType.Upvote, i.props.myVoteIsUpvote),
       });
       break;
     case VoteContentType.Post:
     default:
       i.props.onVote({
         post_id: i.props.id,
-        score: newVote(VoteType.Upvote, i.props.myVote),
+        is_upvote: newVoteIsUpvote(VoteType.Upvote, i.props.myVoteIsUpvote),
       });
   }
 }
@@ -159,14 +159,14 @@ function handleDownvote(i: VoteButtons | VoteButtonsCompact) {
     case VoteContentType.Comment:
       i.props.onVote({
         comment_id: i.props.id,
-        score: newVote(VoteType.Downvote, i.props.myVote),
+        is_upvote: newVoteIsUpvote(VoteType.Downvote, i.props.myVoteIsUpvote),
       });
       break;
     case VoteContentType.Post:
     default:
       i.props.onVote({
         post_id: i.props.id,
-        score: newVote(VoteType.Downvote, i.props.myVote),
+        is_upvote: newVoteIsUpvote(VoteType.Downvote, i.props.myVoteIsUpvote),
       });
   }
 }
@@ -210,7 +210,7 @@ export class VoteButtonsCompact extends Component<
           <button
             type="button"
             className={`btn btn-animate btn-sm btn-link py-0 px-1 ${
-              this.props.myVote === 1 ? "text-primary" : "text-muted"
+              this.props.myVoteIsUpvote === true ? "text-primary" : "text-muted"
             }`}
             data-tippy-content={tippy(
               localUser,
@@ -222,7 +222,7 @@ export class VoteButtonsCompact extends Component<
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}
             aria-label={I18NextService.i18n.t("upvote")}
-            aria-pressed={this.props.myVote === 1}
+            aria-pressed={this.props.myVoteIsUpvote === true}
           >
             {this.state.upvoteLoading ? (
               <Spinner />
@@ -242,7 +242,7 @@ export class VoteButtonsCompact extends Component<
           <button
             type="button"
             className={`ms-2 btn btn-sm btn-link btn-animate btn py-0 px-1 ${
-              this.props.myVote === -1 ? "text-danger" : "text-muted"
+              this.props.myVoteIsUpvote === false ? "text-danger" : "text-muted"
             }`}
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleDownvote)}
@@ -254,7 +254,7 @@ export class VoteButtonsCompact extends Component<
               creator_id,
             )}
             aria-label={I18NextService.i18n.t("downvote")}
-            aria-pressed={this.props.myVote === -1}
+            aria-pressed={this.props.myVoteIsUpvote === false}
           >
             {this.state.downvoteLoading ? (
               <Spinner />
@@ -320,7 +320,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
           <button
             type="button"
             className={`btn-animate btn btn-link p-0 ${
-              this.props.myVote === 1 ? "text-primary" : "text-muted"
+              this.props.myVoteIsUpvote === true ? "text-primary" : "text-muted"
             }`}
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}
@@ -332,7 +332,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
               creator_id,
             )}
             aria-label={I18NextService.i18n.t("upvote")}
-            aria-pressed={this.props.myVote === 1}
+            aria-pressed={this.props.myVoteIsUpvote === true}
           >
             {this.state.upvoteLoading ? (
               <Spinner />
@@ -361,7 +361,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
           <button
             type="button"
             className={`btn-animate btn btn-link p-0 ${
-              this.props.myVote === -1 ? "text-danger" : "text-muted"
+              this.props.myVoteIsUpvote === false ? "text-danger" : "text-muted"
             }`}
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleDownvote)}
@@ -373,7 +373,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
               creator_id,
             )}
             aria-label={I18NextService.i18n.t("downvote")}
-            aria-pressed={this.props.myVote === -1}
+            aria-pressed={this.props.myVoteIsUpvote === false}
           >
             {this.state.downvoteLoading ? (
               <Spinner />

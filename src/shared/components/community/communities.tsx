@@ -62,11 +62,11 @@ interface CommunitiesProps {
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
-  return listingType ? (listingType as ListingType) : "Local";
+  return listingType ? (listingType as ListingType) : "local";
 }
 
 function getSortTypeFromQuery(type?: string): CommunitySortType {
-  return type ? (type as CommunitySortType) : "Hot";
+  return type ? (type as CommunitySortType) : "hot";
 }
 
 export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
@@ -335,7 +335,7 @@ export class Communities extends Component<
     const searchParamEncoded = i.state.searchText;
     const { listingType } = i.props;
     i.context.router.history.push(
-      `/search${getQueryString({ q: searchParamEncoded, type: "Communities", listingType })}`,
+      `/search${getQueryString({ q: searchParamEncoded, type: "communities", listingType })}`,
     );
   }
 

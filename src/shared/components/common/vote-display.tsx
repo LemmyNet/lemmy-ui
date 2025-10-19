@@ -18,7 +18,7 @@ interface Props {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   subject: Post | Comment;
-  myVote?: number;
+  myVoteIsUpvote?: boolean;
 }
 
 const BADGE_CLASSES = "unselectable";
@@ -61,7 +61,7 @@ export class VoteDisplay extends Component<Props, any> {
 
   score() {
     const {
-      myVote,
+      myVoteIsUpvote,
       subject: { score },
     } = this.props;
     const scoreStr = numToSI(score);
@@ -73,7 +73,7 @@ export class VoteDisplay extends Component<Props, any> {
 
     return (
       <span
-        className={`${BADGE_CLASSES} ${scoreColor(myVote)}`}
+        className={`${BADGE_CLASSES} ${scoreColor(myVoteIsUpvote)}`}
         aria-label={scoreTippy}
         data-tippy-content={scoreTippy}
       >
@@ -151,7 +151,7 @@ export class VoteDisplay extends Component<Props, any> {
 
   upvotes() {
     const {
-      myVote,
+      myVoteIsUpvote,
       subject: { upvotes },
     } = this.props;
     const upvotesStr = numToSI(upvotes);
@@ -164,7 +164,7 @@ export class VoteDisplay extends Component<Props, any> {
     return (
       <span
         className={classNames({
-          "text-info": myVote === 1,
+          "text-info": myVoteIsUpvote === true,
         })}
         aria-label={upvotesTippy}
         data-tippy-content={upvotesTippy}
@@ -177,7 +177,7 @@ export class VoteDisplay extends Component<Props, any> {
 
   downvotes() {
     const {
-      myVote,
+      myVoteIsUpvote,
       subject: { downvotes },
     } = this.props;
     const downvotesStr = numToSI(downvotes);
@@ -190,7 +190,7 @@ export class VoteDisplay extends Component<Props, any> {
     return (
       <span
         className={classNames({
-          "text-danger": myVote === -1,
+          "text-danger": myVoteIsUpvote === false,
         })}
         aria-label={downvotesTippy}
         data-tippy-content={downvotesTippy}
@@ -202,10 +202,10 @@ export class VoteDisplay extends Component<Props, any> {
   }
 }
 
-function scoreColor(myVote?: number): string {
-  if (myVote === 1) {
+function scoreColor(myVoteIsUpvote?: boolean): string {
+  if (myVoteIsUpvote === true) {
     return "text-info";
-  } else if (myVote === -1) {
+  } else if (myVoteIsUpvote === false) {
     return "text-danger";
   } else {
     return "text-muted";

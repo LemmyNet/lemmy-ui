@@ -251,7 +251,7 @@ export class Signup extends Component<SignupRouteProps, State> {
           </>
         )}
 
-        {siteView?.local_site.registration_mode === "RequireApplication" && (
+        {siteView?.local_site.registration_mode === "require_application" && (
           <>
             <div className="mb-3 row">
               <div className="offset-sm-2 col-sm-10">

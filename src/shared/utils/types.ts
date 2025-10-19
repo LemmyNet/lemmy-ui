@@ -79,7 +79,7 @@ export enum BanType {
   Site,
 }
 
-export type PersonDetailsView = "Uploads" | PersonContentType;
+export type PersonDetailsView = "uploads" | PersonContentType;
 
 export enum PurgeType {
   Person,
@@ -194,9 +194,9 @@ export type CursorComponents = {
 /**
  * Determines whether to simplify / remove cross-posts, and how to display them.
  **/
-export type ShowCrossPostsType = "Small" | "Expanded" | "ShowSeparately";
+export type ShowCrossPostsType = "small" | "expanded" | "show_separately";
 
 /**
  * Whether the body is hidden, preview (for card view lists), or full.
  **/
-export type ShowBodyType = "Hidden" | "Preview" | "Full";
+export type ShowBodyType = "hidden" | "preview" | "full";

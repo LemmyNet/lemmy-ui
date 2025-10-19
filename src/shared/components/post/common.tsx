@@ -30,7 +30,7 @@ export function PostName({ post, showBody }: PostNameProps) {
   const url = post.url;
 
   // Only navigate to external, if its media, or the full post
-  const navigateExternal = (url && isMedia(url)) || showBody === "Full";
+  const navigateExternal = (url && isMedia(url)) || showBody === "full";
 
   return (
     <h1 className="post-name h5 d-inline text-break">

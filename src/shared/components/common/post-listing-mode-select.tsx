@@ -15,9 +15,9 @@ type Choice = {
 };
 
 const choices: Choice[] = [
-  { key: "list", value: "List" },
-  { key: "card", value: "Card" },
-  { key: "small_card", value: "SmallCard" },
+  { key: "list", value: "list" },
+  { key: "card", value: "card" },
+  { key: "small_card", value: "small_card" },
 ];
 
 export class PostListingModeSelect extends Component<Props, any> {

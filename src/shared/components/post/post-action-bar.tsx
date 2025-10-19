@@ -153,14 +153,14 @@ export function PostActionBar(props: PostActionBarProps) {
           id={id}
           onVote={onPostVote}
           subject={postView.post}
-          myVote={postView.post_actions?.like_score}
+          myVoteIsUpvote={postView.post_actions?.vote_is_upvote}
           myUserInfo={myUserInfo}
           localSite={localSite}
           disabled={userNotLoggedInOrBanned(myUserInfo)}
         />
       )}
 
-      {showBody === "Full" && body && (
+      {showBody === "full" && body && (
         <ViewSourceButton
           viewSource={viewSource}
           onClickViewSource={onClickViewSource}
@@ -383,7 +383,7 @@ function handleModFeaturePostLocal(i: PostActionBarProps) {
   return i.onFeaturePost({
     post_id: i.postView.post.id,
     featured: !i.postView.post.featured_local,
-    feature_type: "Local",
+    feature_type: "local",
   });
 }
 
@@ -391,7 +391,7 @@ function handleModFeaturePostCommunity(i: PostActionBarProps) {
   return i.onFeaturePost({
     post_id: i.postView.post.id,
     featured: !i.postView.post.featured_community,
-    feature_type: "Community",
+    feature_type: "community",
   });
 }
 

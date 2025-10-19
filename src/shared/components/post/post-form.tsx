@@ -583,7 +583,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 viewOnly
                 markable={false}
                 posts={this.props.crossPosts}
-                showCrossPosts="ShowSeparately"
+                showCrossPosts="show_separately"
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
@@ -591,7 +591,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 myUserInfo={this.props.myUserInfo}
                 localSite={this.props.localSite}
                 admins={this.props.admins}
-                postListingMode="List"
+                postListingMode="list"
                 // All of these are unused, since its view only
                 onPostEdit={() => EMPTY_REQUEST}
                 onPostVote={() => EMPTY_REQUEST}
@@ -821,7 +821,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         return <Spinner />;
       case "success": {
         const suggestedPosts = this.state.suggestedPostsRes.data.results.filter(
-          r => r.type_ === "Post",
+          r => r.type_ === "post",
         );
 
         return (
@@ -836,7 +836,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 viewOnly
                 markable={false}
                 posts={suggestedPosts}
-                showCrossPosts="ShowSeparately"
+                showCrossPosts="show_separately"
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
@@ -844,7 +844,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 myUserInfo={this.props.myUserInfo}
                 localSite={this.props.localSite}
                 admins={this.props.admins}
-                postListingMode="List"
+                postListingMode="list"
                 // All of these are unused, since its view only
                 onPostEdit={() => EMPTY_REQUEST}
                 onPostVote={() => EMPTY_REQUEST}
@@ -907,9 +907,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       this.setState({
         suggestedPostsRes: await HttpService.client.search({
           q,
-          type_: "Posts",
-          sort: "Top",
-          listing_type: "All",
+          type_: "posts",
+          sort: "top",
+          listing_type: "all",
           community_id: this.state.form.community_id,
         }),
       });
@@ -980,7 +980,7 @@ export function filterCommunitySelection(
       // filter out private comms unless the current user follows it
       .filter(
         c =>
-          c.community.visibility !== "Private" ||
+          c.community.visibility !== "private" ||
           follows?.includes(c.community.id),
       )
   );
