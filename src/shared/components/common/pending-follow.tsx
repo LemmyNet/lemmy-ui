@@ -62,7 +62,7 @@ export class PendingFollow extends Component<
           />
         </span>
         <span className="col">
-          {p.follow_state === "ApprovalRequired" && (
+          {p.follow_state === "approval_required" && (
             <>
               <button
                 className="btn btn-secondary me-2 my-2"

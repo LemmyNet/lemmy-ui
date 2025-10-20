@@ -68,9 +68,9 @@ export default async function (site: Site) {
         url: "/search",
       },
       {
-        name: "Communities",
+        name: "communities",
         url: "/communities",
-        short_name: "Communities",
+        short_name: "communities",
         description: "Browse communities",
       },
       {

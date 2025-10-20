@@ -43,8 +43,8 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
-import { communityVisibilityLabel } from "./sidebar";
 import { TableHr } from "@components/common/tables";
+import { NoOptionI18nKeys } from "i18next";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -63,11 +63,11 @@ interface CommunitiesProps {
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
-  return listingType ? (listingType as ListingType) : "Local";
+  return listingType ? (listingType as ListingType) : "local";
 }
 
 function getSortTypeFromQuery(type?: string): CommunitySortType {
-  return type ? (type as CommunitySortType) : "Hot";
+  return type ? (type as CommunitySortType) : "hot";
 }
 
 export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
@@ -186,7 +186,8 @@ export class Communities extends Component<
                   </div>
                   <div className={countCols}>
                     {I18NextService.i18n.t(
-                      communityVisibilityLabel(cv.community.visibility),
+                      ("community_visibility_" +
+                        cv.community.visibility) as NoOptionI18nKeys,
                     )}
                   </div>
                   <div className={countCols}>
@@ -344,7 +345,7 @@ export class Communities extends Component<
     const searchParamEncoded = i.state.searchText;
     const { listingType } = i.props;
     i.context.router.history.push(
-      `/search${getQueryString({ q: searchParamEncoded, type: "Communities", listingType })}`,
+      `/search${getQueryString({ q: searchParamEncoded, type: "communities", listingType })}`,
     );
   }
 

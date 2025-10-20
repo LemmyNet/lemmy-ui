@@ -45,7 +45,6 @@ import {
   CommentNodeView,
   CommentViewType,
   isCommentView,
-  VoteContentType,
 } from "@utils/types";
 import { mdToHtml, mdToHtmlNoImages } from "@utils/markdown";
 import { I18NextService } from "../../services";
@@ -92,7 +91,7 @@ type CommentNodeProps = {
   noBorder?: boolean;
   isTopLevel?: boolean;
   viewOnly?: boolean;
-  postLocked?: boolean;
+  postLockedOrRemovedOrDeleted?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
   viewType: CommentViewType;
@@ -229,7 +228,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       creator_banned_from_community,
       creator_banned,
 
-      comment_actions: { like_score: my_vote } = {},
+      comment_actions: { vote_is_upvote: myVoteIsUpvote } = {},
       creator_is_admin,
       comment: {
         deleted,
@@ -252,7 +251,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       : colorList[0];
 
     const showMoreChildren =
-      this.props.viewType === CommentViewType.Tree &&
+      this.props.viewType === "tree" &&
       !this.state.collapsed &&
       node.children.length === 0 &&
       child_count > 0;
@@ -362,11 +361,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <VoteDisplay
                 myUserInfo={this.props.myUserInfo}
                 localSite={this.props.localSite}
-                myVote={my_vote}
+                myVoteIsUpvote={myVoteIsUpvote}
                 subject={this.props.node.comment_view.comment}
               />
               <span>
-                <MomentTime published={published_at} updated={updated_at} />
+                <MomentTime
+                  published={published_at}
+                  updated={updated_at}
+                  showAgo={false}
+                />
               </span>
             </div>
             {/* end of user row */}
@@ -444,20 +447,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       )) && (
                       <>
                         <VoteButtonsCompact
-                          voteContentType={VoteContentType.Comment}
+                          voteContentType={"comment"}
                           id={id}
                           onVote={this.props.onCommentVote}
                           myUserInfo={this.props.myUserInfo}
                           localSite={this.props.localSite}
                           subject={this.props.node.comment_view.comment}
-                          myVote={my_vote}
+                          myVoteIsUpvote={myVoteIsUpvote}
                           disabled={userNotLoggedInOrBanned(
                             this.props.myUserInfo,
                           )}
                         />
                         <button
                           type="button"
-                          className="btn btn-sm btn-link btn-animate text-muted"
+                          className="btn btn-sm btn-link btn-animate text-muted py-0"
                           onClick={linkEvent(this, handleToggleViewSource)}
                           data-tippy-content={I18NextService.i18n.t(
                             "view_source",
@@ -545,7 +548,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             nodes={node.children}
             postCreatorId={this.postCreatorId}
             community={this.community}
-            postLocked={this.props.postLocked}
+            postLockedOrRemovedOrDeleted={
+              this.props.postLockedOrRemovedOrDeleted
+            }
             admins={this.props.admins}
             readCommentsAt={this.props.readCommentsAt}
             viewType={this.props.viewType}
@@ -650,7 +655,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   get enableCommentForm(): boolean {
     return (
       this.canModOrAdmin ||
-      (!this.props.postLocked && !this.commentView.comment.locked)
+      (!this.props.postLockedOrRemovedOrDeleted &&
+        !this.commentView.comment.locked)
     );
   }
 
@@ -886,7 +892,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       parent_id: i.commentId,
       max_depth: commentTreeMaxDepth,
       limit: 999, // TODO
-      type_: "All",
+      type_: "all",
     });
   }
 }

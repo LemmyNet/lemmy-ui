@@ -9,7 +9,6 @@ import {
   CommunityModeratorView,
   CommunityNotificationsMode,
   CommunityView,
-  CommunityVisibility,
   DeleteCommunity,
   EditCommunity,
   FollowCommunity,
@@ -91,7 +90,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     showCommunityReportModal: false,
     renderCommunityReportModal: false,
     searchText: "",
-    notifications: "RepliesAndMentions",
+    notifications: "replies_and_mentions",
   };
 
   constructor(props: any, context: any) {
@@ -104,7 +103,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     this.handleNotificationChange = this.handleNotificationChange.bind(this);
     this.state.notifications =
       this.props.community_view.community_actions?.notifications ??
-      "RepliesAndMentions";
+      "replies_and_mentions";
   }
 
   unlisten = () => {};
@@ -172,7 +171,8 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       community_actions: { received_ban_at } = {},
     } = this.props.community_view;
 
-    const visibilityLabel = communityVisibilityLabel(visibility);
+    const visibilityLabel = ("community_visibility_" +
+      visibility) as NoOptionI18nKeys;
     const visibilityDescription = (visibilityLabel +
       "_desc") as NoOptionI18nKeys;
     const canViewCommunity_ = canViewCommunity(this.props.community_view);
@@ -774,34 +774,9 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 }
 
-export function communityVisibilityLabel(
-  visibility: CommunityVisibility,
-): NoOptionI18nKeys {
-  let visibility_label = "community_visibility_";
-  // TODO: might be easier with a library that converts camel case to snake case
-  switch (visibility) {
-    case "Public":
-      visibility_label += "public";
-      break;
-    case "Unlisted":
-      visibility_label += "unlisted";
-      break;
-    case "LocalOnlyPublic":
-      visibility_label += "local_only_public";
-      break;
-    case "LocalOnlyPrivate":
-      visibility_label += "local_only_private";
-      break;
-    case "Private":
-      visibility_label += "private";
-      break;
-  }
-  return visibility_label as NoOptionI18nKeys;
-}
-
 export function canViewCommunity(cv: CommunityView): boolean {
   return (
-    cv.community.visibility !== "Private" ||
-    cv.community_actions?.follow_state === "Accepted"
+    cv.community.visibility !== "private" ||
+    cv.community_actions?.follow_state === "accepted"
   );
 }

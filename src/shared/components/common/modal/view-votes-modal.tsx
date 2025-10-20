@@ -65,7 +65,7 @@ function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
                 showCounts
               />
             </div>
-            <div className="col-2">{scoreToIcon(v.score)}</div>
+            <div className="col-2">{scoreToIcon(v.is_upvote)}</div>
           </div>
           <hr />
         </>
@@ -74,8 +74,8 @@ function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
   );
 }
 
-function scoreToIcon(score: number) {
-  return score === 1 ? (
+function scoreToIcon(isUpvote: boolean) {
+  return isUpvote === true ? (
     <Icon icon="arrow-up1" classes="icon-inline small text-info" />
   ) : (
     <Icon icon="arrow-down1" classes="icon-inline small text-danger" />

@@ -64,39 +64,17 @@ export interface PostFormParams {
   alt_text?: string;
 }
 
-export enum CommentViewType {
-  Tree,
-  Flat,
-}
+export type CommentViewType = "tree" | "flat";
 
-export enum DataType {
-  Post,
-  Comment,
-}
+export type PostOrCommentType = "post" | "comment";
 
-export enum BanType {
-  Community,
-  Site,
-}
+export type BanType = "community" | "site";
 
-export type PersonDetailsView = "Uploads" | PersonContentType;
+export type PersonDetailsView = "uploads" | PersonContentType;
 
-export enum PurgeType {
-  Person,
-  Community,
-  Post,
-  Comment,
-}
+export type PurgeType = "person" | "community" | "post" | "comment";
 
-export enum VoteType {
-  Upvote,
-  Downvote,
-}
-
-export enum VoteContentType {
-  Post,
-  Comment,
-}
+export type VoteType = "upvote" | "downvote";
 
 export type CommentNodeView = CommentView | CommentSlimView;
 
@@ -192,8 +170,11 @@ export type CursorComponents = {
 };
 
 /**
- * Determines whether to simplify / remove duplicates, and how to display them.
- *
- * Don't Remove also means **keep** duplicate posts in list views.
+ * Determines whether to simplify / remove cross-posts, and how to display them.
  **/
-export type ShowDupesType = "Small" | "Expanded" | "ShowSeparately";
+export type ShowCrossPostsType = "small" | "expanded" | "show_separately";
+
+/**
+ * Whether the body is hidden, preview (for card view lists), or full.
+ **/
+export type ShowBodyType = "hidden" | "preview" | "full";

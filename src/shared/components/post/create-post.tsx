@@ -77,8 +77,8 @@ export function getCreatePostQueryParams(source?: string): CreatePostProps {
 function fetchCommunitiesForOptions(client: WrappedLemmyHttp) {
   return client.listCommunities({
     limit: 30,
-    sort: "ActiveMonthly",
-    type_: "All",
+    sort: "active_monthly",
+    type_: "all",
   });
 }
 

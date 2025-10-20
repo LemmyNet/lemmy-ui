@@ -39,7 +39,7 @@ import { InfernoNode } from "inferno";
 import { PendingFollow } from "@components/common/pending-follow";
 import { registrationStateRadios } from "@components/person/registration-applications";
 
-type ViewState = "Unread" | "All" | "Denied";
+type ViewState = "unread" | "all" | "denied";
 
 type PendingFollowsData = RouteDataResponse<{
   listPendingFollowsResponse: ListCommunityPendingFollowsResponse;
@@ -57,12 +57,12 @@ interface PendingFollowsProps {
 
 function stateFromQuery(view?: string): ViewState {
   switch (view) {
-    case "Unread":
-    case "All":
-    case "Denied":
+    case "unread":
+    case "all":
+    case "denied":
       return view;
     default:
-      return "Unread";
+      return "unread";
   }
 }
 
@@ -190,8 +190,8 @@ export class PendingFollows extends Component<
   }
 
   applicationList(pending: PendingFollowView[]) {
-    if (this.props.viewState === "Denied") {
-      pending = pending.filter(p => p.follow_state === "Denied");
+    if (this.props.viewState === "denied") {
+      pending = pending.filter(p => p.follow_state === "denied");
     }
     return (
       <div>
@@ -234,7 +234,7 @@ export class PendingFollows extends Component<
     return {
       listPendingFollowsResponse: headers["Authorization"]
         ? await client.listCommunityPendingFollows({
-            pending_only: state === "Unread",
+            unread_only: state === "unread",
             ...cursorComponents(cursor),
             limit: fetchLimit,
           })
@@ -250,7 +250,7 @@ export class PendingFollows extends Component<
       appsRes: LOADING_REQUEST,
     });
     const appsRes = await HttpService.client.listCommunityPendingFollows({
-      pending_only: viewState === "Unread",
+      unread_only: viewState === "unread",
       ...cursorComponents(cursor),
       limit: fetchLimit,
     });

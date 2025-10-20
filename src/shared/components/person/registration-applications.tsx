@@ -40,7 +40,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { InfernoNode } from "inferno";
 
-type RegistrationState = "Unread" | "All" | "Denied";
+type RegistrationState = "unread" | "all" | "denied";
 
 type RegistrationApplicationsData = RouteDataResponse<{
   listRegistrationApplicationsResponse: ListRegistrationApplicationsResponse;
@@ -58,12 +58,12 @@ interface RegistrationApplicationsProps {
 
 function registrationStateFromQuery(view?: string): RegistrationState {
   switch (view) {
-    case "Unread":
-    case "All":
-    case "Denied":
+    case "unread":
+    case "all":
+    case "denied":
       return view;
     default:
-      return "Unread";
+      return "unread";
   }
 }
 
@@ -207,7 +207,7 @@ export class RegistrationApplications extends Component<
   }
 
   applicationList(apps: RegistrationApplicationView[]) {
-    if (this.props.view === "Denied") {
+    if (this.props.view === "denied") {
       apps = apps.filter(ra => !ra.creator_local_user.accepted_application);
     }
     return (
@@ -250,7 +250,7 @@ export class RegistrationApplications extends Component<
     return {
       listRegistrationApplicationsResponse: headers["Authorization"]
         ? await client.listRegistrationApplications({
-            unread_only: view === "Unread",
+            unread_only: view === "unread",
             ...cursorComponents(cursor),
             limit: fetchLimit,
           })
@@ -266,7 +266,7 @@ export class RegistrationApplications extends Component<
       appsRes: LOADING_REQUEST,
     });
     const appsRes = await HttpService.client.listRegistrationApplications({
-      unread_only: state === "Unread",
+      unread_only: state === "unread",
       ...cursorComponents(cursor),
       limit: fetchLimit,
     });
@@ -315,14 +315,14 @@ export function registrationStateRadios(
         id={`${radioId}-unread`}
         type="radio"
         className="btn-check"
-        value={"Unread"}
-        checked={currentState === "Unread"}
+        value={"unread"}
+        checked={currentState === "unread"}
         onChange={handler}
       />
       <label
         htmlFor={`${radioId}-unread`}
         className={classNames("btn btn-outline-secondary pointer", {
-          active: currentState === "Unread",
+          active: currentState === "unread",
         })}
       >
         {I18NextService.i18n.t("unread")}
@@ -332,14 +332,14 @@ export function registrationStateRadios(
         id={`${radioId}-all`}
         type="radio"
         className="btn-check"
-        value={"All"}
-        checked={currentState === "All"}
+        value={"all"}
+        checked={currentState === "all"}
         onChange={handler}
       />
       <label
         htmlFor={`${radioId}-all`}
         className={classNames("btn btn-outline-secondary pointer", {
-          active: currentState === "All",
+          active: currentState === "all",
         })}
       >
         {I18NextService.i18n.t("all")}
@@ -349,14 +349,14 @@ export function registrationStateRadios(
         id={`${radioId}-denied`}
         type="radio"
         className="btn-check"
-        value={"Denied"}
-        checked={currentState === "Denied"}
+        value={"denied"}
+        checked={currentState === "denied"}
         onChange={handler}
       />
       <label
         htmlFor={`${radioId}-denied`}
         className={classNames("btn btn-outline-secondary pointer", {
-          active: currentState === "Denied",
+          active: currentState === "denied",
         })}
       >
         {I18NextService.i18n.t("denied")}

@@ -86,9 +86,7 @@ export class UnreadCounterService {
   public async updatePendingFollows() {
     if (this.shouldUpdate) {
       const pendingFollowsRes =
-        await HttpService.client.getCommunityPendingFollowsCount({
-          community_id: 0,
-        });
+        await HttpService.client.getCommunityPendingFollowsCount();
       if (pendingFollowsRes.state === "success") {
         this.pendingFollowCountSubject.next(pendingFollowsRes.data.count);
       }
