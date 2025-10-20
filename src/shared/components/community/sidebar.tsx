@@ -89,7 +89,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     showCommunityReportModal: false,
     renderCommunityReportModal: false,
     searchText: "",
-    notifications: "RepliesAndMentions",
+    notifications: "replies_and_mentions",
   };
 
   constructor(props: any, context: any) {
@@ -102,7 +102,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     this.handleNotificationChange = this.handleNotificationChange.bind(this);
     this.state.notifications =
       this.props.community_view.community_actions?.notifications ??
-      "RepliesAndMentions";
+      "replies_and_mentions";
   }
 
   unlisten = () => {};
@@ -279,10 +279,10 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                   </span>
                   <span className="fs-5 fw-medium align-middle">
                     {I18NextService.i18n.t(
-                      visibility === "Public" ? "public" : "local_only",
+                      visibility === "public" ? "public" : "local_only",
                     )}
                     <Icon
-                      icon={visibility === "Public" ? "globe" : "house"}
+                      icon={visibility === "public" ? "globe" : "house"}
                       inline
                       classes="ms-1 text-secondary"
                     />
@@ -290,7 +290,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 </div>
                 <p>
                   {I18NextService.i18n.t(
-                    visibility === "Public"
+                    visibility === "public"
                       ? "public_blurb"
                       : "local_only_blurb",
                   )}

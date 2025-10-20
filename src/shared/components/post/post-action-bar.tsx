@@ -8,7 +8,7 @@ import { canShare, share } from "@utils/browser";
 import { futureDaysToUnixTime } from "@utils/date";
 import { getHttpBase } from "@utils/env";
 import { unreadCommentsCount } from "@utils/helpers";
-import { CrossPostParams, ShowBodyType, VoteContentType } from "@utils/types";
+import { CrossPostParams, ShowBodyType } from "@utils/types";
 import classNames from "classnames";
 import { Link } from "inferno-router";
 import {
@@ -94,7 +94,7 @@ export function PostActionBar(props: PostActionBarProps) {
     <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
       <CommentsButton
         postView={postView}
-        type_="Icon"
+        type_="icon"
         onScrollIntoCommentsClick={onScrollIntoCommentsClick}
       />
       {canShare() && (
@@ -149,18 +149,18 @@ export function PostActionBar(props: PostActionBarProps) {
       )}
       {postIsInteractable(postView, viewOnly) && (
         <VoteButtonsCompact
-          voteContentType={VoteContentType.Post}
+          voteContentType={"post"}
           id={id}
           onVote={onPostVote}
           subject={postView.post}
-          myVote={postView.post_actions?.like_score}
+          myVoteIsUpvote={postView.post_actions?.vote_is_upvote}
           myUserInfo={myUserInfo}
           localSite={localSite}
           disabled={userNotLoggedInOrBanned(myUserInfo)}
         />
       )}
 
-      {showBody === "Full" && body && (
+      {showBody === "full" && body && (
         <ViewSourceButton
           viewSource={viewSource}
           onClickViewSource={onClickViewSource}
@@ -199,7 +199,7 @@ export function PostActionBar(props: PostActionBarProps) {
   );
 }
 
-type CommentsButtonTextOrIcon = "Text" | "Icon";
+type CommentsButtonTextOrIcon = "text" | "icon";
 type CommentsButtonProps = {
   postView: PostView;
   type_: CommentsButtonTextOrIcon;
@@ -226,9 +226,9 @@ export function CommentsButton({
       data-tippy-content={title}
       onClick={onScrollIntoCommentsClick}
     >
-      {type_ === "Icon" && <Icon icon="message-square" classes="me-1" inline />}
+      {type_ === "icon" && <Icon icon="message-square" classes="me-1" inline />}
       {count}
-      {type_ === "Text" && <span> {I18NextService.i18n.t("comments")}</span>}
+      {type_ === "text" && <span> {I18NextService.i18n.t("comments")}</span>}
       {unreadCount && (
         <>
           {" "}
@@ -383,7 +383,7 @@ function handleModFeaturePostLocal(i: PostActionBarProps) {
   return i.onFeaturePost({
     post_id: i.postView.post.id,
     featured: !i.postView.post.featured_local,
-    feature_type: "Local",
+    feature_type: "local",
   });
 }
 
@@ -391,7 +391,7 @@ function handleModFeaturePostCommunity(i: PostActionBarProps) {
   return i.onFeaturePost({
     post_id: i.postView.post.id,
     featured: !i.postView.post.featured_community,
-    feature_type: "Community",
+    feature_type: "community",
   });
 }
 

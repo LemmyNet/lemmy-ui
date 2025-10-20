@@ -136,7 +136,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   renderListingMode() {
     const p = this.props;
     switch (p.postListingMode) {
-      case "List":
+      case "list":
         return (
           <PostListingList
             postView={p.postView}
@@ -152,11 +152,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             onScrollIntoCommentsClick={p.onScrollIntoCommentsClick}
           />
         );
-      case "Card":
-      case "SmallCard":
+      case "card":
+      case "small_card":
         return (
           <PostListingCard
-            smallCard={p.postListingMode === "SmallCard"}
+            smallCard={p.postListingMode === "small_card"}
             postView={p.postView}
             crossPosts={p.crossPosts}
             admins={p.admins}

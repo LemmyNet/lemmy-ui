@@ -39,7 +39,6 @@ import {
   LockComment,
   BlockCommunity,
 } from "lemmy-js-client";
-import { CommentViewType } from "@utils/types";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
 import { RequestState } from "../../services/HttpService";
@@ -94,12 +93,12 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   renderItemType(i: PersonContentCombinedView): InfernoNode {
     switch (i.type_) {
-      case "Comment": {
+      case "comment": {
         return (
           <CommentNodes
             key={i.comment.id}
             nodes={[{ comment_view: i, children: [], depth: 0 }]}
-            viewType={CommentViewType.Flat}
+            viewType={"flat"}
             admins={this.props.admins}
             noBorder
             showCommunity
@@ -131,17 +130,17 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           />
         );
       }
-      case "Post": {
+      case "post": {
         return (
           <PostListing
             key={i.post.id}
             postView={i}
-            showCrossPosts="ShowSeparately"
+            showCrossPosts="show_separately"
             admins={this.props.admins}
-            postListingMode="SmallCard"
+            postListingMode="small_card"
             showCommunity
             crossPosts={[]}
-            showBody={"Preview"}
+            showBody={"preview"}
             hideImage={false}
             viewOnly={false}
             disableAutoMarkAsRead={false}

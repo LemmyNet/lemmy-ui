@@ -95,7 +95,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       <div className="post-report">
         <PostListing
           postView={pv}
-          showCrossPosts="ShowSeparately"
+          showCrossPosts="show_separately"
           showCommunity
           enableNsfw={this.props.enableNsfw}
           crossPosts={[]}
@@ -107,8 +107,8 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           myUserInfo={this.props.myUserInfo}
           localSite={this.props.localSite}
           admins={this.props.admins}
-          postListingMode="SmallCard"
-          showBody={"Full"}
+          postListingMode="small_card"
+          showBody={"full"}
           markable={false}
           disableAutoMarkAsRead={false}
           editLoading={false}

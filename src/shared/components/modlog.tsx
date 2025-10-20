@@ -101,7 +101,7 @@ interface ModlogProps {
 }
 
 function getActionFromString(action?: string): ModlogActionType {
-  return action !== undefined ? (action as ModlogActionType) : "All";
+  return action !== undefined ? (action as ModlogActionType) : "all";
 }
 
 interface ModlogEntry {
@@ -113,17 +113,17 @@ interface ModlogEntry {
 
 function mapCommunityVisibility(visibility: CommunityVisibility): string {
   switch (visibility) {
-    case "LocalOnlyPrivate": {
+    case "local_only_private": {
       return "Private (Local Only)";
     }
 
-    case "LocalOnlyPublic": {
+    case "local_only_public": {
       return "Public (Local Only)";
     }
 
-    case "Private":
-    case "Public":
-    case "Unlisted": {
+    case "private":
+    case "public":
+    case "unlisted": {
       return visibility;
     }
 
@@ -152,7 +152,7 @@ function processModlogEntry(
         ),
       };
 
-    case "AdminAllowInstance": {
+    case "admin_allow_instance": {
       const {
         admin_allow_instance: { id, published_at },
         admin,
@@ -172,7 +172,7 @@ function processModlogEntry(
       };
     }
 
-    case "AdminBlockInstance": {
+    case "admin_block_instance": {
       const {
         admin_block_instance: { id, published_at },
         admin,
@@ -192,7 +192,7 @@ function processModlogEntry(
       };
     }
 
-    case "AdminPurgeComment": {
+    case "admin_purge_comment": {
       const {
         admin_purge_comment: { id, reason, published_at },
         post: { name },
@@ -218,7 +218,7 @@ function processModlogEntry(
       };
     }
 
-    case "AdminPurgeCommunity": {
+    case "admin_purge_community": {
       const {
         admin_purge_community: { id, reason, published_at },
         admin,
@@ -241,7 +241,7 @@ function processModlogEntry(
       };
     }
 
-    case "AdminPurgePerson": {
+    case "admin_purge_person": {
       const {
         admin_purge_person: { id, reason, published_at },
         admin,
@@ -264,7 +264,7 @@ function processModlogEntry(
       };
     }
 
-    case "AdminPurgePost": {
+    case "admin_purge_post": {
       const {
         admin_purge_post: { id, reason, published_at },
         admin,
@@ -289,7 +289,7 @@ function processModlogEntry(
       };
     }
 
-    case "AdminAdd": {
+    case "admin_add": {
       const {
         admin_add: { id, removed, published_at },
         moderator,
@@ -312,7 +312,7 @@ function processModlogEntry(
       };
     }
 
-    case "ModAddToCommunity": {
+    case "mod_add_to_community": {
       const {
         mod_add_to_community: { id, removed, published_at },
         moderator,
@@ -339,7 +339,7 @@ function processModlogEntry(
       };
     }
 
-    case "AdminBan": {
+    case "admin_ban": {
       const {
         admin_ban: { id, reason, expires_at, banned, published_at },
         moderator,
@@ -371,7 +371,7 @@ function processModlogEntry(
       };
     }
 
-    case "ModBanFromCommunity": {
+    case "mod_ban_from_community": {
       const {
         mod_ban_from_community: {
           id,
@@ -414,7 +414,7 @@ function processModlogEntry(
       };
     }
 
-    case "ModChangeCommunityVisibility": {
+    case "mod_change_community_visibility": {
       const {
         mod_change_community_visibility: { id, visibility, published_at },
         moderator,
@@ -439,7 +439,7 @@ function processModlogEntry(
       };
     }
 
-    case "ModFeaturePost": {
+    case "mod_feature_post": {
       const {
         mod_feature_post: { id, featured, is_featured_community, published_at },
         post: { id: postId, name },
@@ -468,7 +468,7 @@ function processModlogEntry(
       };
     }
 
-    case "ModLockPost": {
+    case "mod_lock_post": {
       const {
         mod_lock_post: { id, locked, published_at, reason },
         moderator,
@@ -495,7 +495,7 @@ function processModlogEntry(
       };
     }
 
-    case "ModRemoveComment": {
+    case "mod_remove_comment": {
       const {
         mod_remove_comment: { id, reason, removed, published_at },
         moderator,
@@ -527,7 +527,7 @@ function processModlogEntry(
       };
     }
 
-    case "ModLockComment": {
+    case "mod_lock_comment": {
       const {
         mod_lock_comment: { id, reason, locked, published_at },
         moderator,
@@ -559,7 +559,7 @@ function processModlogEntry(
       };
     }
 
-    case "AdminRemoveCommunity": {
+    case "admin_remove_community": {
       const {
         admin_remove_community: { id, reason, removed, published_at },
         moderator,
@@ -587,7 +587,7 @@ function processModlogEntry(
       };
     }
 
-    case "ModRemovePost": {
+    case "mod_remove_post": {
       const {
         mod_remove_post: { id, reason, removed, published_at },
         moderator,
@@ -614,7 +614,7 @@ function processModlogEntry(
       };
     }
 
-    case "ModTransferCommunity": {
+    case "mod_transfer_community": {
       const {
         mod_transfer_community: { id, published_at },
         moderator,
@@ -944,39 +944,41 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               <option disabled aria-hidden="true">
                 {I18NextService.i18n.t("filter_by_action")}
               </option>
-              <option value={"All"}>{I18NextService.i18n.t("all")}</option>
-              <option value={"ModRemovePost"}>Removing Posts</option>
-              <option value={"ModLockPost"}>Locking Posts</option>
-              <option value={"ModLockComment"}>Locking Comments</option>
-              <option value={"ModFeaturePost"}>Featuring Posts</option>
-              <option value={"ModRemoveComment"}>Removing Comments</option>
-              <option value={"ModLockComment"}>Locking Comments</option>
-              <option value={"AdminRemoveCommunity"}>
+              <option value={"all"}>{I18NextService.i18n.t("all")}</option>
+              <option value={"mod_remove_post"}>Removing Posts</option>
+              <option value={"mod_lock_post"}>Locking Posts</option>
+              <option value={"mod_lock_comment"}>Locking Comments</option>
+              <option value={"mod_feature_post"}>Featuring Posts</option>
+              <option value={"mod_remove_comment"}>Removing Comments</option>
+              <option value={"admin_remove_community"}>
                 Removing Communities
               </option>
-              <option value={"ModBanFromCommunity"}>
+              <option value={"admin_ban"}>Banning From Site</option>
+              <option value={"mod_ban_from_community"}>
                 Banning From Communities
               </option>
-              <option value={"ModAddToCommunity"}>
+              <option value={"mod_add_to_community"}>
                 Adding Mod to Community
               </option>
-              <option value={"ModTransferCommunity"}>
+              <option value={"mod_transfer_community"}>
                 Transferring Communities
               </option>
-              <option value={"ModChangeCommunityVisibility"}>
+              <option value={"mod_change_community_visibility"}>
                 Changing Community visibility
               </option>
-              <option value={"AdminAdd"}>Adding Admin to Site</option>
-              <option value={"AdminBlockInstance"}>
+              <option value={"admin_add"}>Adding Admin to Site</option>
+              <option value={"admin_block_instance"}>
                 Blocking a federated Instance
               </option>
-              <option value={"AdminAllowInstance"}>
+              <option value={"admin_allow_instance"}>
                 Allowing a federated Instance
               </option>
-              <option value={"AdminPurgePerson"}>Purging a Person</option>
-              <option value={"AdminPurgeCommunity"}>Purging a Community</option>
-              <option value={"AdminPurgePost"}>Purging a Post</option>
-              <option value={"AdminPurgeComment"}>Purging a Comment</option>
+              <option value={"admin_purge_person"}>Purging a Person</option>
+              <option value={"admin_purge_community"}>
+                Purging a Community
+              </option>
+              <option value={"admin_purge_post"}>Purging a Post</option>
+              <option value={"admin_purge_comment"}>Purging a Comment</option>
             </select>
           </div>
         </div>
