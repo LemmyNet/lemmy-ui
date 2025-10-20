@@ -1,5 +1,6 @@
 // @ts-expect-error has a weird import error
 import { lazyLoad } from "unlazy";
+import { createPngDataUri } from "unlazy/blurhash";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 
@@ -27,7 +28,6 @@ interface PictrsImageProps {
   width?: number;
   height?: number;
   blurhash?: string;
-  blurhash_base64?: string;
 }
 
 interface PictrsImageState {
@@ -67,7 +67,6 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       pushup,
       cardTop,
       blurhash,
-      blurhash_base64,
     } = this.props;
 
     const { src } = this.state;
@@ -79,24 +78,15 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
 
     const [width, height] = this.widthAndHeight();
 
+    // Unlazy recommends you manually set the src to the blurred image.
+    // https://unlazy.byjohann.dev/guide/usage.html
+    //
     // A testable blurhash
     // const blurhash = "LEHV6nWB2yk8pyo0adR*.7kCMdnj";
 
-    // Unlazy recommends you only:
-    // - Set src as the server-side-computed blurred image.
-    // - Set data-src or data-srcset as the full size image
-    // - Set data-blurhash as the blurhash simple string (only if you need to compute it on the front end)
-    //
-    // More info here:
-    // https://unlazy.byjohann.dev/guide/usage.html
-
-    // Don't set the blurhash string if there's a base64, otherwise it will try to compute it in the front end.
-    const blurhashString = blurhash_base64 ? undefined : blurhash;
-
-    // Set the src as the blurhash PNG data-url
-    const blurhashDataUrl = blurhash_base64
-      ? blurhashBase64DataUrlPng(blurhash_base64)
-      : undefined;
+    const blurredImageOrSrc = blurhash
+      ? createPngDataUri(blurhash, { ratio: width / height })
+      : src;
 
     return (
       !this.isoData.showAdultConsentModal && (
@@ -105,9 +95,8 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
           <source data-srcset={src} />
           <source data-srcset={this.src("jpg")} type="image/jpeg" />
           <img
-            src={blurhashDataUrl}
+            src={blurredImageOrSrc}
             data-src={src}
-            data-blurhash={blurhashString}
             alt={this.alt()}
             title={this.alt()}
             loading="lazy"
@@ -190,8 +179,4 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       ];
     }
   }
-}
-
-function blurhashBase64DataUrlPng(blurhash_base64: string): string {
-  return `data:image/png;base64,${blurhash_base64}`;
 }
