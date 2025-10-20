@@ -5,7 +5,12 @@ import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { Match } from "inferno-router/dist/Route";
 import { renderToString } from "inferno-server";
-import { GetSiteResponse, LemmyHttp, MyUserInfo } from "lemmy-js-client";
+import {
+  GetSiteResponse,
+  LemmyError,
+  LemmyHttp,
+  MyUserInfo,
+} from "lemmy-js-client";
 import App from "../../shared/components/app/app";
 import { InitialFetchRequest, RouteData } from "@utils/types";
 import { routes } from "@utils/routes";
@@ -117,14 +122,15 @@ export default async (req: Request, res: Response) => {
 
     // Redirect to the 404 if there's an API error
     if (error) {
-      console.error(error.err);
+      const err = error.err as LemmyError;
+      res.status(err.status);
+      console.error(err);
 
-      if (error.err.name === "instance_is_private") {
+      if (err.name === "instance_is_private") {
         res.redirect(`/signup`);
         return;
       } else {
-        res.status(500);
-        errorPageData = getErrorPageData(new Error(error.err.name), siteRes);
+        errorPageData = getErrorPageData(new Error(err.name), siteRes);
       }
     }
 
