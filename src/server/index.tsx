@@ -1,3 +1,5 @@
+/* eslint no-console: "off" */
+
 import { getStaticDir } from "@utils/env";
 import { VERSION } from "../shared/version";
 import express from "express";

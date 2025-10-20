@@ -28,6 +28,7 @@ export function debounce<T extends any[], R>(
   let timeout: NodeJS.Timeout | null;
 
   return function () {
+    // eslint-disable-next-line prefer-rest-params
     const args = arguments;
     const callNow = immediate && !timeout;
 
@@ -140,7 +141,6 @@ export function hsl(num: number) {
 
 const SHORTNUM_SI_FORMAT = new Intl.NumberFormat("en-US", {
   maximumSignificantDigits: 3,
-  //@ts-ignore
   notation: "compact",
   compactDisplay: "short",
 });
@@ -188,7 +188,7 @@ export function resourcesSettled(resources: RequestState<any>[]) {
 
 export function validEmail(email: string) {
   const re =
-    /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z\-]+\.)+[A-Za-z]{2,}))$/;
+    /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z-]+\.)+[A-Za-z]{2,}))$/;
   return re.test(String(email).toLowerCase());
 }
 

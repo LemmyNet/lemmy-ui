@@ -43,7 +43,7 @@ export default async function (site: Site) {
         icons = generateDefaultIcons();
       }
     } catch {
-      console.log(
+      console.warn(
         `Failed to fetch site logo for manifest icon. Using default icon`,
       );
       icons = generateDefaultIcons();
@@ -68,9 +68,9 @@ export default async function (site: Site) {
         url: "/search",
       },
       {
-        name: "Communities",
+        name: "communities",
         url: "/communities",
-        short_name: "Communities",
+        short_name: "communities",
         description: "Browse communities",
       },
       {

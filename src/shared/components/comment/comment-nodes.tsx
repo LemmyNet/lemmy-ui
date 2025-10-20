@@ -6,6 +6,7 @@ import {
   AddModToCommunity,
   BanFromCommunity,
   BanPerson,
+  BlockCommunity,
   BlockPerson,
   CommentResponse,
   Community,
@@ -49,7 +50,7 @@ interface CommentNodesProps {
   noBorder?: boolean;
   isTopLevel?: boolean;
   viewOnly?: boolean;
-  postLocked?: boolean;
+  postLockedOrRemovedOrDeleted?: boolean;
   showContext?: boolean;
   showCommunity?: boolean;
   viewType: CommentViewType;
@@ -69,6 +70,7 @@ interface CommentNodesProps {
   ): Promise<RequestState<CommentResponse>>;
   onCommentVote(form: CreateCommentLike): Promise<void>;
   onBlockPerson(form: BlockPerson): Promise<void>;
+  onBlockCommunity(form: BlockCommunity): Promise<void>;
   onDeleteComment(form: DeleteComment): Promise<void>;
   onRemoveComment(form: RemoveComment): Promise<void>;
   onDistinguishComment(form: DistinguishComment): Promise<void>;
@@ -119,7 +121,9 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               noBorder={this.props.noBorder}
               isTopLevel={this.props.isTopLevel}
               viewOnly={this.props.viewOnly}
-              postLocked={this.props.postLocked}
+              postLockedOrRemovedOrDeleted={
+                this.props.postLockedOrRemovedOrDeleted
+              }
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
               showContext={this.props.showContext}
@@ -134,6 +138,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               onEditComment={this.props.onEditComment}
               onCommentVote={this.props.onCommentVote}
               onBlockPerson={this.props.onBlockPerson}
+              onBlockCommunity={this.props.onBlockCommunity}
               onSaveComment={this.props.onSaveComment}
               onDeleteComment={this.props.onDeleteComment}
               onRemoveComment={this.props.onRemoveComment}

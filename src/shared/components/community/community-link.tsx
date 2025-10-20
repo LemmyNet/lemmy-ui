@@ -76,9 +76,9 @@ export function communityLink(
     return { link: `/c/${community.name}` };
   } else {
     const serverStr = `@${hostname(community.ap_id)}`;
-    const link = !realLink
-      ? `/c/${community.name}${serverStr}`
-      : community.ap_id;
+    const link = realLink
+      ? community.ap_id
+      : `/c/${community.name}${serverStr}`;
 
     return { link, serverStr };
   }

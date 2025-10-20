@@ -1,25 +1,25 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
-import { DataType } from "@utils/types";
+import { PostOrCommentType } from "@utils/types";
 import { I18NextService } from "../../services";
 
-interface DataTypeSelectProps {
-  type_: DataType;
-  onChange?(val: DataType): any;
+interface PostOrCommentTypeSelectProps {
+  type_: PostOrCommentType;
+  onChange?(val: PostOrCommentType): any;
 }
 
-interface DataTypeSelectState {
-  type_: DataType;
+interface PostOrCommentTypeSelectState {
+  type_: PostOrCommentType;
 }
 
-export class DataTypeSelect extends Component<
-  DataTypeSelectProps,
-  DataTypeSelectState
+export class PostOrCommentTypeSelect extends Component<
+  PostOrCommentTypeSelectProps,
+  PostOrCommentTypeSelectState
 > {
-  private id = `listing-type-input-${randomStr()}`;
+  private id = `data-type-input-${randomStr()}`;
 
-  state: DataTypeSelectState = {
+  state: PostOrCommentTypeSelectState = {
     type_: this.props.type_,
   };
 
@@ -27,7 +27,8 @@ export class DataTypeSelect extends Component<
     super(props, context);
   }
 
-  static getDerivedStateFromProps(props: any): DataTypeSelectProps {
+  // Necessary in case the props change
+  static getDerivedStateFromProps(props: any): PostOrCommentTypeSelectProps {
     return {
       type_: props.type_,
     };
@@ -43,14 +44,14 @@ export class DataTypeSelect extends Component<
           id={`${this.id}-posts`}
           type="radio"
           className="btn-check"
-          value={DataType.Post}
-          checked={this.state.type_ === DataType.Post}
+          value={"post"}
+          checked={this.state.type_ === "post"}
           onChange={linkEvent(this, this.handleTypeChange)}
         />
         <label
           htmlFor={`${this.id}-posts`}
           className={classNames("pointer btn btn-outline-secondary", {
-            active: this.state.type_ === DataType.Post,
+            active: this.state.type_ === "post",
           })}
         >
           {I18NextService.i18n.t("posts")}
@@ -60,14 +61,14 @@ export class DataTypeSelect extends Component<
           id={`${this.id}-comments`}
           type="radio"
           className="btn-check"
-          value={DataType.Comment}
-          checked={this.state.type_ === DataType.Comment}
+          value={"comment"}
+          checked={this.state.type_ === "comment"}
           onChange={linkEvent(this, this.handleTypeChange)}
         />
         <label
           htmlFor={`${this.id}-comments`}
           className={classNames("pointer btn btn-outline-secondary", {
-            active: this.state.type_ === DataType.Comment,
+            active: this.state.type_ === "comment",
           })}
         >
           {I18NextService.i18n.t("comments")}
@@ -76,7 +77,7 @@ export class DataTypeSelect extends Component<
     );
   }
 
-  handleTypeChange(i: DataTypeSelect, event: any) {
-    i.props.onChange?.(Number(event.target.value));
+  handleTypeChange(i: PostOrCommentTypeSelect, event: any) {
+    i.props.onChange?.(event.target.value);
   }
 }

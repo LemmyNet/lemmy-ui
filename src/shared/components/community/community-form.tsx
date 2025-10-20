@@ -188,7 +188,7 @@ export class CommunityForm extends Component<
                 onImageChange={this.handleIconChange}
                 rounded
                 disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
-                noConfirmation={true}
+                noConfirmation
               />
             )}
           </div>
@@ -217,7 +217,7 @@ export class CommunityForm extends Component<
                 removeKey="deleteMedia"
                 onImageChange={this.handleBannerChange}
                 disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
-                noConfirmation={true}
+                noConfirmation
               />
             )}
           </div>
@@ -266,9 +266,9 @@ export class CommunityForm extends Component<
               className="form-select position-static"
               id="community-visibility"
               onChange={linkEvent(this, this.handleCommunityVisibilityChange)}
-              value={this.state.form.visibilty ?? "Public"}
+              value={this.state.form.visibilty ?? "public"}
             >
-              <option value="Public">{I18NextService.i18n.t("public")}</option>
+              <option value="public">{I18NextService.i18n.t("public")}</option>
               <option value="LocalOnly">
                 {I18NextService.i18n.t("local_only")}
               </option>
@@ -302,7 +302,7 @@ export class CommunityForm extends Component<
           siteLanguages={this.props.siteLanguages}
           showSite
           selectedLanguageIds={this.state.form.discussion_languages}
-          multiple={true}
+          multiple
           onChange={this.handleDiscussionLanguageChange}
           myUserInfo={this.props.myUserInfo}
         />

@@ -15,6 +15,7 @@ import {
 import { Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
+  CommunityView,
   CreatePost as CreatePostI,
   GetCommunity,
   GetCommunityResponse,
@@ -31,13 +32,15 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
-import { PostForm } from "./post-form";
+import { filterCommunitySelection, PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { toast } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { NoOptionI18nKeys } from "i18next";
+import { Sidebar } from "@components/community/sidebar";
+import { Icon } from "@components/common/icon";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -74,8 +77,8 @@ export function getCreatePostQueryParams(source?: string): CreatePostProps {
 function fetchCommunitiesForOptions(client: WrappedLemmyHttp) {
   return client.listCommunities({
     limit: 30,
-    sort: "ActiveMonthly",
-    type_: "All",
+    sort: "active_monthly",
+    type_: "all",
   });
 }
 
@@ -85,11 +88,12 @@ function stringAsQueryParam(param?: string) {
 
 interface CreatePostState {
   loading: boolean;
-  selectedCommunityChoice?: Choice;
+  selectedCommunity?: CommunityView;
   selectedCommunityIsNsfw: boolean;
   initialCommunitiesRes: RequestState<ListCommunitiesResponse>;
   isIsomorphic: boolean;
   resetCounter: number; // resets PostForm when changed
+  showSidebarMobile: boolean;
 }
 
 type CreatePostPathProps = Record<string, never>;
@@ -113,6 +117,7 @@ export class CreatePost extends Component<
     isIsomorphic: false,
     resetCounter: 0,
     selectedCommunityIsNsfw: false,
+    showSidebarMobile: false,
   };
 
   constructor(props: CreatePostRouteProps, context: any) {
@@ -129,6 +134,7 @@ export class CreatePost extends Component<
     this.handleThumbnailUrlBlur = this.handleThumbnailUrlBlur.bind(this);
     this.handleAltTextBlur = this.handleAltTextBlur.bind(this);
     this.handleCopySuggestedTitle = this.handleCopySuggestedTitle.bind(this);
+    this.handleShowSidebarMobile = this.handleShowSidebarMobile.bind(this);
 
     // Only fetch the data if coming from another routeupdate
     if (FirstLoadService.isFirstLoad) {
@@ -143,13 +149,9 @@ export class CreatePost extends Component<
       };
 
       if (communityRes?.state === "success") {
-        const communityChoice = communityToChoice(
-          communityRes.data.community_view,
-        );
-
         this.state = {
           ...this.state,
-          selectedCommunityChoice: communityChoice,
+          selectedCommunity: communityRes.data.community_view,
         };
       }
     }
@@ -162,7 +164,7 @@ export class CreatePost extends Component<
       });
       if (res.state === "success") {
         this.setState({
-          selectedCommunityChoice: communityToChoice(res.data.community_view),
+          selectedCommunity: res.data.community_view,
           selectedCommunityIsNsfw: res.data.community_view.community.nsfw,
           loading: false,
         });
@@ -184,12 +186,12 @@ export class CreatePost extends Component<
       });
 
       if (
-        communityId?.toString() !== this.state.selectedCommunityChoice?.value
+        communityId?.toString() !== this.state.selectedCommunity?.community.id
       ) {
         await this.fetchCommunity({ communityId });
       } else if (!communityId) {
         this.setState({
-          selectedCommunityChoice: undefined,
+          selectedCommunity: undefined,
           loading: false,
         });
       }
@@ -228,8 +230,7 @@ export class CreatePost extends Component<
   }
 
   render() {
-    const { selectedCommunityChoice, selectedCommunityIsNsfw, loading } =
-      this.state;
+    const { selectedCommunity, selectedCommunityIsNsfw, loading } = this.state;
     const {
       body,
       communityId,
@@ -253,7 +254,9 @@ export class CreatePost extends Component<
     };
 
     const siteRes = this.isoData.siteRes;
-
+    const selectedCommunityChoice = selectedCommunity
+      ? communityToChoice(selectedCommunity)
+      : undefined;
     return (
       <div className="create-post container-lg">
         <HtmlTags
@@ -261,7 +264,7 @@ export class CreatePost extends Component<
           path={this.context.router.route.match.url}
         />
         <div className="row">
-          <div id="createPostForm" className="col-12 col-lg-6 offset-lg-3 mb-4">
+          <div id="createPostForm" className="col-12 col-lg-6 offset-lg-2 mb-4">
             <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>
             <PostForm
               key={this.state.resetCounter}
@@ -275,7 +278,10 @@ export class CreatePost extends Component<
               onSelectCommunity={this.handleSelectedCommunityChange}
               initialCommunities={
                 this.state.initialCommunitiesRes.state === "success"
-                  ? this.state.initialCommunitiesRes.data.communities
+                  ? filterCommunitySelection(
+                      this.state.initialCommunitiesRes.data.communities,
+                      this.isoData.myUserInfo,
+                    )
                   : []
               }
               loading={loading}
@@ -293,6 +299,24 @@ export class CreatePost extends Component<
               isNsfwCommunity={selectedCommunityIsNsfw}
             />
           </div>
+          <div className="d-block d-md-none">
+            <button
+              className="btn btn-secondary d-inline-block mb-2 me-3"
+              onClick={this.handleShowSidebarMobile}
+            >
+              {I18NextService.i18n.t("sidebar")}{" "}
+              <Icon
+                icon={
+                  this.state.showSidebarMobile ? `minus-square` : `plus-square`
+                }
+                classes="icon-inline"
+              />
+            </button>
+            {this.state.showSidebarMobile && this.sidebar()}
+          </div>
+          <aside className="d-none d-md-block col-md-4 col-lg-3">
+            {this.sidebar()}
+          </aside>
         </div>
       </div>
     );
@@ -410,5 +434,35 @@ export class CreatePost extends Component<
     }
 
     return data;
+  }
+
+  handleShowSidebarMobile() {
+    this.setState({ showSidebarMobile: !this.state.showSidebarMobile });
+  }
+
+  sidebar() {
+    if (this.state.selectedCommunity) {
+      return (
+        <Sidebar
+          community_view={this.state.selectedCommunity}
+          moderators={[]} // TODO: fetch GetCommunityResponse?
+          admins={this.isoData.siteRes.admins}
+          enableNsfw={enableNsfw(this.isoData.siteRes)}
+          showIcon
+          allLanguages={this.isoData.siteRes.all_languages}
+          siteLanguages={this.isoData.siteRes.discussion_languages}
+          myUserInfo={this.isoData.myUserInfo}
+          hideButtons
+          onDeleteCommunity={async () => {}}
+          onLeaveModTeam={async () => {}}
+          onFollowCommunity={async () => {}}
+          onRemoveCommunity={async () => {}}
+          onPurgeCommunity={async () => {}}
+          onBlockCommunity={async () => {}}
+          onEditCommunity={async () => {}}
+          onUpdateCommunityNotifs={async () => {}}
+        />
+      );
+    }
   }
 }

@@ -99,7 +99,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     const siteView = this.props.siteRes?.site_view;
     const person = this.props.myUserInfo?.local_user_view.person;
     const registrationClosed =
-      siteView?.local_site.registration_mode === "Closed";
+      siteView?.local_site.registration_mode === "closed";
 
     return (
       <div className="shadow-sm">

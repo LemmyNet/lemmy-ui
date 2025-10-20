@@ -30,22 +30,25 @@ import { tippyMixin } from "../../mixins/tippy-mixin";
 import PersonNoteModal from "../modal/person-note-modal";
 import { userNotLoggedInOrBanned } from "@utils/app";
 
+// TODO there is no reason to try to combine these. It should be completely split into simple PostActionsDropdown, and CommentActionDropdowns, pushing up the simple forms.
 interface ContentActionDropdownPropsBase {
-  onSave: () => Promise<void>;
-  onEdit: () => void;
-  onDelete: () => Promise<void>;
-  onReport: (reason: string) => Promise<void>;
-  onBlock: () => Promise<void>;
-  onRemove: (reason: string) => Promise<void>;
-  onBanFromCommunity: (form: BanUpdateForm) => Promise<void>;
-  onAppointCommunityMod: () => Promise<void>;
-  onTransferCommunity: () => Promise<void>;
-  onBanFromSite: (form: BanUpdateForm) => Promise<void>;
-  onPurgeContent: (reason: string) => Promise<void>;
-  onPurgeUser: (reason: string) => Promise<void>;
-  onAppointAdmin: () => Promise<void>;
-  onPersonNote: (form: NotePerson) => Promise<void>;
-  onLock: (reason: string) => Promise<void>;
+  onSave(): void;
+  onEdit(): void;
+  onDelete(): void;
+  // TODO These should be pushing up the specific forms, rather than bare reasons.
+  onReport(reason: string): void;
+  onBlockPerson(): void;
+  onBlockCommunity(): void;
+  onRemove(reason: string): void;
+  onBanFromCommunity(form: BanUpdateForm): void;
+  onAppointCommunityMod(): void;
+  onTransferCommunity(): void;
+  onBanFromSite(form: BanUpdateForm): void;
+  onPurgeContent(reason: string): void;
+  onPurgeUser(reason: string): void;
+  onAppointAdmin(): void;
+  onPersonNote(form: NotePerson): void;
+  onLock(reason: string): void;
   moderators?: CommunityModeratorView[];
   admins: PersonView[];
   community: Community;
@@ -55,17 +58,17 @@ interface ContentActionDropdownPropsBase {
 export type ContentCommentProps = {
   type: "comment";
   commentView: CommentNodeView;
-  onReply: () => void;
-  onDistinguish: () => Promise<void>;
+  onReply(): void;
+  onDistinguish(): void;
 } & ContentActionDropdownPropsBase;
 
 export type ContentPostProps = {
   type: "post";
   postView: PostView;
   crossPostParams: CrossPostParams;
-  onFeatureLocal: () => Promise<void>;
-  onFeatureCommunity: () => Promise<void>;
-  onHidePost: () => Promise<void>;
+  onFeatureLocal(): void;
+  onFeatureCommunity(): void;
+  onHidePost(): void;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -156,7 +159,8 @@ export default class ContentActionDropdown extends Component<
 
   render() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
-    const { onSave, type, onDelete, onBlock, onEdit, moderators } = this.props;
+    const { onSave, type, onDelete, onBlockPerson, onEdit, moderators } =
+      this.props;
     const {
       id,
       saved_at,
@@ -213,6 +217,11 @@ export default class ContentActionDropdown extends Component<
             inline
             label={I18NextService.i18n.t("reply")}
             noLoading
+            disabled={
+              this.props.commentView.comment.deleted ||
+              this.props.commentView.comment.removed ||
+              this.props.commentView.comment.locked
+            }
           />
         )}
         <ActionButton
@@ -228,7 +237,7 @@ export default class ContentActionDropdown extends Component<
 
         <div className="dropdown">
           <button
-            className="btn btn-sm btn-link btn-animate text-muted py-0 dropdown-toggle"
+            className="btn btn-link btn-animate text-muted py-0 dropdown-toggle"
             data-tippy-content={I18NextService.i18n.t("more")}
             data-bs-toggle="dropdown"
             aria-expanded="false"
@@ -311,7 +320,14 @@ export default class ContentActionDropdown extends Component<
                       <ActionButton
                         icon="slash"
                         label={I18NextService.i18n.t("block_user")}
-                        onClick={onBlock}
+                        onClick={onBlockPerson}
+                      />
+                    </li>
+                    <li>
+                      <ActionButton
+                        icon="slash"
+                        label={I18NextService.i18n.t("block_community")}
+                        onClick={this.props.onBlockCommunity}
                       />
                     </li>
                   </>
@@ -641,26 +657,25 @@ export default class ContentActionDropdown extends Component<
 
   toggleBanFromCommunityShow() {
     this.toggleDialogShow("BanDialog", {
-      banType: BanType.Community,
+      banType: "community",
     });
   }
 
   toggleBanFromSiteShow() {
     this.toggleDialogShow("BanDialog", {
-      banType: BanType.Site,
+      banType: "site",
     });
   }
 
   togglePurgePersonShow() {
     this.toggleDialogShow("PurgeDialog", {
-      purgeType: PurgeType.Person,
+      purgeType: "person",
     });
   }
 
   togglePurgeContentShow() {
     this.toggleDialogShow("PurgeDialog", {
-      purgeType:
-        this.props.type === "post" ? PurgeType.Post : PurgeType.Comment,
+      purgeType: this.props.type === "post" ? "post" : "comment",
     });
   }
 
@@ -756,19 +771,17 @@ export default class ContentActionDropdown extends Component<
         {renderBanDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(
-              banType === BanType.Community
-                ? onBanFromCommunity
-                : onBanFromSite,
+              banType === "community" ? onBanFromCommunity : onBanFromSite,
             )}
             modActionType={
-              banType === BanType.Community ? "community-ban" : "site-ban"
+              banType === "community" ? "community-ban" : "site-ban"
             }
             creator={creator}
             onCancel={this.hideAllDialogs}
             isBanned={
-              banType === BanType.Community
+              banType === "community"
                 ? !!creator_banned_from_community
-                : banType === BanType.Site
+                : banType === "site"
                   ? creator_banned
                   : false
             }
@@ -789,12 +802,12 @@ export default class ContentActionDropdown extends Component<
         {renderPurgeDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(
-              purgeType === PurgeType.Person ? onPurgeUser : onPurgeContent,
+              purgeType === "person" ? onPurgeUser : onPurgeContent,
             )}
             modActionType={
-              purgeType === PurgeType.Post
+              purgeType === "post"
                 ? "purge-post"
-                : purgeType === PurgeType.Comment
+                : purgeType === "comment"
                   ? "purge-comment"
                   : "purge-person"
             }
@@ -976,10 +989,10 @@ export default class ContentActionDropdown extends Component<
     return canAdmin(creator.id, this.props.admins, this.props.myUserInfo, true);
   }
 
-  wrapHandler(handler: (arg?: any) => Promise<void>) {
-    return async (arg?: any) => {
-      await handler(arg);
+  wrapHandler(handler: (arg?: any) => void) {
+    return (arg?: any) => {
       this.hideAllDialogs();
+      handler(arg);
     };
   }
 }

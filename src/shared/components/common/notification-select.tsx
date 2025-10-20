@@ -64,15 +64,15 @@ function handleNotificationChange<T extends string>(
 const postNotifChoices: Choice<PostNotificationsMode>[] = [
   {
     key: "notification_mode_all_comments",
-    value: "AllComments",
+    value: "all_comments",
   },
   {
     key: "notification_mode_replies_and_mentions",
-    value: "RepliesAndMentions",
+    value: "replies_and_mentions",
   },
   {
     key: "notification_mode_mute",
-    value: "Mute",
+    value: "mute",
   },
 ];
 
@@ -94,19 +94,19 @@ export class PostNotificationSelect extends Component<
 const communityNotifChoices: Choice<CommunityNotificationsMode>[] = [
   {
     key: "notification_mode_all_posts_and_comments",
-    value: "AllPostsAndComments",
+    value: "all_posts_and_comments",
   },
   {
     key: "notification_mode_all_posts",
-    value: "AllPosts",
+    value: "all_posts",
   },
   {
     key: "notification_mode_replies_and_mentions",
-    value: "RepliesAndMentions",
+    value: "replies_and_mentions",
   },
   {
     key: "notification_mode_mute",
-    value: "Mute",
+    value: "mute",
   },
 ];
 

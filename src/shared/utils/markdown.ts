@@ -18,6 +18,8 @@ import markdown_it_ruby from "markdown-it-ruby";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
 import markdown_it_highlightjs from "markdown-it-highlightjs/core";
+import { getStaticDir } from "./env";
+import mila from "markdown-it-link-attributes";
 
 let Tribute: any;
 
@@ -166,6 +168,7 @@ export function setupMarkdown() {
     linkify: true,
     typographer: true,
   };
+  const milaAttrs = { rel: "noopener nofollow" };
 
   // const emojiDefs = Array.from(customEmojisLookup.entries()).reduce(
   //   (main, [key, value]) => ({ ...main, [key]: value }),
@@ -180,7 +183,8 @@ export function setupMarkdown() {
     .use(markdown_it_highlightjs, highlightjsConfig)
     .use(markdown_it_ruby)
     .use(localInstanceLinkParser)
-    .use(markdown_it_bidi);
+    .use(markdown_it_bidi)
+    .use(mila, milaAttrs);
   // .use(markdown_it_emoji, {
   //   defs: emojiDefs,
   // });
@@ -197,6 +201,7 @@ export function setupMarkdown() {
     // .use(markdown_it_emoji, {
     //   defs: emojiDefs,
     // })
+    .use(mila, milaAttrs)
     .disable("image");
   const defaultImageRenderer = md.renderer.rules.image;
   md.renderer.rules.image = function (
@@ -282,9 +287,15 @@ export function getEmojiMart(
   onEmojiSelect: (e: any) => void,
   customPickerOptions: any = {},
 ) {
+  const data = async () => {
+    const response = await fetch(`${getStaticDir()}/assets/emojis.json`);
+
+    return response.json();
+  };
   const pickerOptions = {
     onEmojiSelect: onEmojiSelect,
     custom: customEmojis,
+    data,
     ...customPickerOptions,
   };
   return new Picker(pickerOptions);
@@ -338,7 +349,7 @@ export async function setupTribute() {
         trigger: "@",
         selectTemplate: (item: any) => {
           const it: PersonTribute = item.original;
-          return `[${it.key}](${it.view.person.ap_id})`;
+          return it.key;
         },
         values: debounce(async (text: string, cb: any) => {
           cb(await personSearch(text));
@@ -355,7 +366,7 @@ export async function setupTribute() {
         trigger: "!",
         selectTemplate: (item: any) => {
           const it: CommunityTribute = item.original;
-          return `[${it.key}](${it.view.community.ap_id})`;
+          return it.key;
         },
         values: debounce(async (text: string, cb: any) => {
           cb(await communitySearch(text));
