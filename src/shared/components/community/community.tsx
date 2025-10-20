@@ -1,4 +1,5 @@
 import {
+  canViewCommunity,
   commentsToFlatNodes,
   communityRSSUrl,
   editComment,
@@ -115,7 +116,7 @@ import {
   CommentsLoadingSkeleton,
   PostsLoadingSkeleton,
 } from "../common/loading-skeleton";
-import { canViewCommunity, Sidebar } from "./sidebar";
+import { Sidebar } from "./sidebar";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";

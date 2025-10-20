@@ -33,6 +33,7 @@ import CommunityReportModal from "@components/common/modal/community-report-moda
 import { CommunityNotificationSelect } from "@components/common/notification-select";
 import { LanguageList } from "@components/common/language-list";
 import { NoOptionI18nKeys } from "i18next";
+import { canViewCommunity } from "@utils/app";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -772,11 +773,4 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
       `/search${getQueryString({ q: searchParamEncoded, communityId: i.props.community_view.community.id.toString() })}`,
     );
   }
-}
-
-export function canViewCommunity(cv: CommunityView): boolean {
-  return (
-    cv.community.visibility !== "private" ||
-    cv.community_actions?.follow_state === "accepted"
-  );
 }

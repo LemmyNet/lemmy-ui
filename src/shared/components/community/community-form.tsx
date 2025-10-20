@@ -268,23 +268,23 @@ export class CommunityForm extends Component<
               onChange={linkEvent(this, this.handleCommunityVisibilityChange)}
               value={this.state.form.visibilty ?? "public"}
             >
-              <option value="Public">
+              <option value="public">
                 {I18NextService.i18n.t("community_visibility_public")}
               </option>
-              <option value="Unlisted">
+              <option value="unlisted">
                 {I18NextService.i18n.t("community_visibility_unlisted")}
               </option>
-              <option value="LocalOnlyPublic">
+              <option value="local_only_public">
                 {I18NextService.i18n.t(
                   "community_visibility_local_only_public",
                 )}
               </option>
-              <option value="LocalOnlyPrivate">
+              <option value="local_only_private">
                 {I18NextService.i18n.t(
                   "community_visibility_local_only_private",
                 )}
               </option>
-              <option value="Private">
+              <option value="private">
                 {I18NextService.i18n.t("community_visibility_private")}
               </option>
             </select>
