@@ -124,11 +124,17 @@ type ImgThumbProps = {
  * Renders a thumbnail only if one exists
  **/
 function ImgThumb({ postView }: ImgThumbProps) {
+  const imageDetails = postView.image_details;
+
   return postView.post.thumbnail_url ? (
     <PictrsImage
       src={postView.post.thumbnail_url}
       thumbnail
       alt={postView.post.alt_text}
+      width={imageDetails?.width}
+      height={imageDetails?.height}
+      blurhash={imageDetails?.blurhash}
+      blurhash_base64={imageDetails?.blurhash_base64}
       nsfw={postView.post.nsfw || postView.community.nsfw}
     />
   ) : (
