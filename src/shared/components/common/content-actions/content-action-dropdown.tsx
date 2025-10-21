@@ -246,7 +246,7 @@ export default class ContentActionDropdown extends Component<
             <Icon icon="more-vertical" inline />
           </button>
 
-          <ul className="dropdown-menu" id={dropdownId}>
+          <ul className="dropdown-menu dropdown-menu-end" id={dropdownId}>
             {this.state.dropdownOpenedOnce && (
               <>
                 <li>
