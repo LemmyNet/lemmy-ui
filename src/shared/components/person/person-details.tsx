@@ -145,7 +145,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             viewOnly={false}
             disableAutoMarkAsRead={false}
             editLoading={false}
-            readLoading={false}
             enableNsfw={this.props.enableNsfw}
             showAdultConsentModal={this.props.showAdultConsentModal}
             allLanguages={this.props.allLanguages}

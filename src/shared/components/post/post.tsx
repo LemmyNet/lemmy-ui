@@ -134,7 +134,6 @@ interface PostState {
   lastCreatedCommentId?: CommentId;
   notifications: PostNotificationsMode;
   editLoading: boolean;
-  readLoading: boolean;
 }
 
 function getCommentSortTypeFromQuery(
@@ -260,7 +259,6 @@ export class Post extends Component<PostRouteProps, PostState> {
     isIsomorphic: false,
     notifications: "replies_and_mentions",
     editLoading: false,
-    readLoading: false,
   };
 
   loadingSettled() {
@@ -626,7 +624,6 @@ export class Post extends Component<PostRouteProps, PostState> {
                 viewOnly={false}
                 disableAutoMarkAsRead={false}
                 editLoading={this.state.editLoading}
-                readLoading={this.state.readLoading}
                 onBlockPerson={this.handleBlockPerson}
                 onBlockCommunity={this.handleBlockCommunity}
                 onPostEdit={this.handlePostEdit}
@@ -1414,7 +1411,6 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async handleMarkPostAsRead(form: MarkPostAsRead) {
-    this.setState({ readLoading: true });
     const res = await HttpService.client.markPostAsRead(form);
     if (res.state === "success") {
       this.setState(s => {
@@ -1428,7 +1424,6 @@ export class Post extends Component<PostRouteProps, PostState> {
         return { postRes: s.postRes };
       });
     }
-    this.setState({ readLoading: false });
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {

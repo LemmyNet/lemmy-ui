@@ -1,5 +1,5 @@
 import PostActionDropdown from "@components/common/content-actions/post-action-dropdown";
-import { Icon, Spinner } from "@components/common/icon";
+import { Icon } from "@components/common/icon";
 import { BanUpdateForm } from "@components/common/modal/mod-action-form-modal";
 import { VoteButtonsCompact } from "@components/common/vote-buttons";
 import { I18NextService } from "@services/index";
@@ -46,7 +46,6 @@ type PostActionBarProps = {
   viewSource: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
-  readLoading: boolean;
   onPostVote(form: CreatePostLike): void;
   onScrollIntoCommentsClick(e: MouseEvent): void;
   onViewSource(): void;
@@ -83,7 +82,6 @@ export function PostActionBar(props: PostActionBarProps) {
     viewSource,
     myUserInfo,
     localSite,
-    readLoading,
     markable,
   } = props;
   const { ap_id, id } = postView.post;
@@ -109,33 +107,6 @@ export function PostActionBar(props: PostActionBarProps) {
       >
         <Icon icon="fedilink" inline />
       </a>
-      {postIsInteractable(postView, viewOnly) && markable && myUserInfo && (
-        <button
-          type="button"
-          className="btn btn-link btn-animate text-muted py-0"
-          onClick={() => handleMarkPostAsRead(props)}
-          data-tippy-content={
-            postView.post_actions?.read_at
-              ? I18NextService.i18n.t("mark_as_unread")
-              : I18NextService.i18n.t("mark_as_read")
-          }
-          aria-label={
-            postView.post_actions?.read_at
-              ? I18NextService.i18n.t("mark_as_unread")
-              : I18NextService.i18n.t("mark_as_read")
-          }
-        >
-          {readLoading ? (
-            <Spinner />
-          ) : (
-            <Icon
-              icon="check"
-              inline
-              classes={`${postView.post_actions?.read_at && "text-success"}`}
-            />
-          )}
-        </button>
-      )}
       {postIsInteractable(postView, viewOnly) && (
         <VoteButtonsCompact
           voteContentType={"post"}
@@ -158,6 +129,8 @@ export function PostActionBar(props: PostActionBarProps) {
           myUserInfo={myUserInfo}
           viewSource={viewSource}
           showBody={showBody}
+          viewOnly={viewOnly}
+          markable={markable}
           onSave={() => handleSavePost(props)}
           onReport={reason => handleReport(props, reason)}
           onBlockPerson={() => handleBlockPerson(props)}
@@ -179,6 +152,7 @@ export function PostActionBar(props: PostActionBarProps) {
           onPersonNote={props.onPersonNote}
           onViewSource={props.onViewSource}
           onSharePost={() => handleShare(props.postView.post)}
+          onMarkPostAsRead={() => handleMarkPostAsRead(props)}
         />
       )}
     </div>

@@ -269,7 +269,6 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
               markable={false}
               disableAutoMarkAsRead={false}
               editLoading={false}
-              readLoading={false}
               // All of these are unused, since its view only
               onPostEdit={() => EMPTY_REQUEST}
               onPostVote={() => EMPTY_REQUEST}
@@ -930,7 +929,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 markable={false}
                 disableAutoMarkAsRead={false}
                 editLoading={false}
-                readLoading={false}
                 // All of these are unused, since its view only
                 onPostEdit={() => EMPTY_REQUEST}
                 onPostVote={() => EMPTY_REQUEST}

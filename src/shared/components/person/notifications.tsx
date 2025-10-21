@@ -459,7 +459,6 @@ export class Notifications extends Component<
               crossPosts={[]}
               showBody={"preview"}
               editLoading={false}
-              readLoading={false}
               viewOnly // TODO: comments do allow edits and moderation
               onPostEdit={() => EMPTY_REQUEST}
               onPostVote={() => EMPTY_REQUEST}

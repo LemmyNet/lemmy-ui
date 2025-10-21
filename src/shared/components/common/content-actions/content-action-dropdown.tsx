@@ -29,7 +29,7 @@ import {
 import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";
 import PersonNoteModal from "../modal/person-note-modal";
-import { userNotLoggedInOrBanned } from "@utils/app";
+import { postIsInteractable, userNotLoggedInOrBanned } from "@utils/app";
 import { canShare } from "@utils/browser";
 
 // TODO there is no reason to try to combine these. It should be completely split into simple PostActionsDropdown, and CommentActionDropdowns, pushing up the simple forms.
@@ -70,11 +70,14 @@ export type ContentPostProps = {
   crossPostParams: CrossPostParams;
   viewSource: boolean;
   showBody: ShowBodyType;
+  markable: boolean;
+  viewOnly: boolean;
   onFeatureLocal(): void;
   onFeatureCommunity(): void;
   onHidePost(): void;
   onViewSource(): void;
   onSharePost(): void;
+  onMarkPostAsRead(): void;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -237,10 +240,6 @@ export default class ContentActionDropdown extends Component<
           label={I18NextService.i18n.t(saved_at ? "unsave" : "save")}
           iconClass={classNames({ "text-warning": saved_at })}
         />
-        {type === "post" && (
-          <CrossPostButton {...this.props.crossPostParams!} />
-        )}
-
         <div className="dropdown">
           <button
             className="btn btn-link btn-animate text-muted py-0 dropdown-toggle"
@@ -257,6 +256,34 @@ export default class ContentActionDropdown extends Component<
           <ul className="dropdown-menu" id={dropdownId}>
             {this.state.dropdownOpenedOnce && (
               <>
+                {type === "post" && (
+                  <li>
+                    <CrossPostButton {...this.props.crossPostParams!} />
+                  </li>
+                )}
+                {type === "post" &&
+                  postIsInteractable(
+                    this.props.postView,
+                    this.props.viewOnly,
+                  ) &&
+                  this.props.markable &&
+                  this.props.myUserInfo && (
+                    <li>
+                      <ActionButton
+                        icon="check"
+                        iconClass={classNames({
+                          "text-success":
+                            this.props.postView.post_actions?.read_at,
+                        })}
+                        label={
+                          this.props.postView.post_actions?.read_at
+                            ? I18NextService.i18n.t("mark_as_unread")
+                            : I18NextService.i18n.t("mark_as_read")
+                        }
+                        onClick={this.props.onMarkPostAsRead}
+                      />
+                    </li>
+                  )}
                 {type === "post" &&
                   this.props.showBody === "full" &&
                   this.props.postView.post.body && (
