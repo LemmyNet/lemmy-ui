@@ -29,7 +29,11 @@ import {
 import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";
 import PersonNoteModal from "../modal/person-note-modal";
-import { postIsInteractable, userNotLoggedInOrBanned } from "@utils/app";
+import {
+  linkTarget,
+  postIsInteractable,
+  userNotLoggedInOrBanned,
+} from "@utils/app";
 import { canShare } from "@utils/browser";
 
 // TODO there is no reason to try to combine these. It should be completely split into simple PostActionsDropdown, and CommentActionDropdowns, pushing up the simple forms.
@@ -249,6 +253,36 @@ export default class ContentActionDropdown extends Component<
           <ul className="dropdown-menu dropdown-menu-end" id={dropdownId}>
             {this.state.dropdownOpenedOnce && (
               <>
+                {/* Links / fedilinks */}
+                {type === "post" && (
+                  <>
+                    <li>
+                      <Link
+                        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+                        to={`/post/${this.props.postView.post.id}`}
+                        title={I18NextService.i18n.t("link")}
+                      >
+                        <Icon icon="link" classes="me-2" inline />
+                        {I18NextService.i18n.t("link")}
+                      </Link>
+                    </li>
+                    <li>
+                      <a
+                        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+                        title={I18NextService.i18n.t("fedilink")}
+                        href={this.props.postView.post.ap_id}
+                        target={linkTarget(this.props.myUserInfo)}
+                      >
+                        <Icon icon="fedilink" classes="me-2" inline />
+                        {I18NextService.i18n.t("fedilink")}
+                      </a>
+                    </li>
+                    <li>
+                      <hr className="dropdown-divider" />
+                    </li>
+                  </>
+                )}
+
                 <li>
                   <ActionButton
                     onClick={onSave}

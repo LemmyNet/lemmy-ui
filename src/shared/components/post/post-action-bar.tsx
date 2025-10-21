@@ -84,7 +84,7 @@ export function PostActionBar(props: PostActionBarProps) {
     localSite,
     markable,
   } = props;
-  const { ap_id, id } = postView.post;
+  const { id } = postView.post;
 
   return (
     <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
@@ -93,20 +93,6 @@ export function PostActionBar(props: PostActionBarProps) {
         type_="icon"
         onScrollIntoCommentsClick={onScrollIntoCommentsClick}
       />
-      <Link
-        className="btn btn-link btn-animate text-muted py-0"
-        to={`/post/${id}`}
-        title={I18NextService.i18n.t("link")}
-      >
-        <Icon icon="link" classes="icon-inline" />
-      </Link>
-      <a
-        className="btn btn-link btn-animate text-muted py-0"
-        title={I18NextService.i18n.t("fedilink")}
-        href={ap_id}
-      >
-        <Icon icon="fedilink" inline />
-      </a>
       {postIsInteractable(postView, viewOnly) && (
         <VoteButtonsCompact
           voteContentType={"post"}
