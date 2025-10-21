@@ -4,7 +4,7 @@ import { BanUpdateForm } from "@components/common/modal/mod-action-form-modal";
 import { VoteButtonsCompact } from "@components/common/vote-buttons";
 import { I18NextService } from "@services/index";
 import { postIsInteractable, userNotLoggedInOrBanned } from "@utils/app";
-import { canShare, share } from "@utils/browser";
+import { share } from "@utils/browser";
 import { futureDaysToUnixTime } from "@utils/date";
 import { getHttpBase } from "@utils/env";
 import { unreadCommentsCount } from "@utils/helpers";
@@ -95,15 +95,6 @@ export function PostActionBar(props: PostActionBarProps) {
         type_="icon"
         onScrollIntoCommentsClick={onScrollIntoCommentsClick}
       />
-      {canShare() && (
-        <button
-          className="btn btn-link btn-animate text-muted py-0"
-          onClick={() => handleShare(postView.post)}
-          type="button"
-        >
-          <Icon icon="share" inline />
-        </button>
-      )}
       <Link
         className="btn btn-link btn-animate text-muted py-0"
         to={`/post/${id}`}
@@ -187,6 +178,7 @@ export function PostActionBar(props: PostActionBarProps) {
           onHidePost={() => handleHidePost(props)}
           onPersonNote={props.onPersonNote}
           onViewSource={props.onViewSource}
+          onSharePost={() => handleShare(props.postView.post)}
         />
       )}
     </div>

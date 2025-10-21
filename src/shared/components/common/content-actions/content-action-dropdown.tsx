@@ -30,6 +30,7 @@ import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";
 import PersonNoteModal from "../modal/person-note-modal";
 import { userNotLoggedInOrBanned } from "@utils/app";
+import { canShare } from "@utils/browser";
 
 // TODO there is no reason to try to combine these. It should be completely split into simple PostActionsDropdown, and CommentActionDropdowns, pushing up the simple forms.
 interface ContentActionDropdownPropsBase {
@@ -73,6 +74,7 @@ export type ContentPostProps = {
   onFeatureCommunity(): void;
   onHidePost(): void;
   onViewSource(): void;
+  onSharePost(): void;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -269,6 +271,13 @@ export default class ContentActionDropdown extends Component<
                       />
                     </li>
                   )}
+                {type === "post" && canShare() && (
+                  <ActionButton
+                    icon="share"
+                    label={I18NextService.i18n.t("share_post")}
+                    onClick={this.props.onSharePost}
+                  />
+                )}
                 {type === "post" && (
                   <li>
                     <ActionButton
