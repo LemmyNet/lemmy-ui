@@ -9,7 +9,6 @@ import { futureDaysToUnixTime } from "@utils/date";
 import { getHttpBase } from "@utils/env";
 import { unreadCommentsCount } from "@utils/helpers";
 import { CrossPostParams, ShowBodyType } from "@utils/types";
-import classNames from "classnames";
 import { Link } from "inferno-router";
 import {
   PostView,
@@ -50,7 +49,7 @@ type PostActionBarProps = {
   readLoading: boolean;
   onPostVote(form: CreatePostLike): void;
   onScrollIntoCommentsClick(e: MouseEvent): void;
-  onClickViewSource(): void;
+  onViewSource(): void;
   onMarkPostAsRead(form: MarkPostAsRead): void;
   onEditClick(): void;
   onPostVote(form: CreatePostLike): void;
@@ -84,11 +83,10 @@ export function PostActionBar(props: PostActionBarProps) {
     viewSource,
     myUserInfo,
     localSite,
-    onClickViewSource,
     readLoading,
     markable,
   } = props;
-  const { ap_id, id, body } = postView.post;
+  const { ap_id, id } = postView.post;
 
   return (
     <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
@@ -160,13 +158,6 @@ export function PostActionBar(props: PostActionBarProps) {
         />
       )}
 
-      {showBody === "full" && body && (
-        <ViewSourceButton
-          viewSource={viewSource}
-          onClickViewSource={onClickViewSource}
-        />
-      )}
-
       {myUserInfo && postIsInteractable(postView, viewOnly) && (
         <PostActionDropdown
           postView={postView}
@@ -174,6 +165,8 @@ export function PostActionBar(props: PostActionBarProps) {
           admins={admins}
           crossPostParams={crossPostParams(postView.post)}
           myUserInfo={myUserInfo}
+          viewSource={viewSource}
+          showBody={showBody}
           onSave={() => handleSavePost(props)}
           onReport={reason => handleReport(props, reason)}
           onBlockPerson={() => handleBlockPerson(props)}
@@ -193,6 +186,7 @@ export function PostActionBar(props: PostActionBarProps) {
           onAppointAdmin={() => handleAppointAdmin(props)}
           onHidePost={() => handleHidePost(props)}
           onPersonNote={props.onPersonNote}
+          onViewSource={props.onViewSource}
         />
       )}
     </div>
@@ -238,30 +232,6 @@ export function CommentsButton({
         </>
       )}
     </Link>
-  );
-}
-
-type ViewSourceButtonProps = {
-  viewSource: boolean;
-  onClickViewSource(): void;
-};
-function ViewSourceButton({
-  viewSource,
-  onClickViewSource,
-}: ViewSourceButtonProps) {
-  return (
-    <button
-      className="btn btn-link btn-animate text-muted py-0"
-      onClick={onClickViewSource}
-      data-tippy-content={I18NextService.i18n.t("view_source")}
-      aria-label={I18NextService.i18n.t("view_source")}
-    >
-      <Icon
-        icon="file-text"
-        classes={classNames({ "text-success": viewSource })}
-        inline
-      />
-    </button>
   );
 }
 

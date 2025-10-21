@@ -24,6 +24,7 @@ import {
   CommentNodeView,
   CrossPostParams,
   PurgeType,
+  ShowBodyType,
 } from "@utils/types";
 import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";
@@ -66,9 +67,12 @@ export type ContentPostProps = {
   type: "post";
   postView: PostView;
   crossPostParams: CrossPostParams;
+  viewSource: boolean;
+  showBody: ShowBodyType;
   onFeatureLocal(): void;
   onFeatureCommunity(): void;
   onHidePost(): void;
+  onViewSource(): void;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -251,6 +255,20 @@ export default class ContentActionDropdown extends Component<
           <ul className="dropdown-menu" id={dropdownId}>
             {this.state.dropdownOpenedOnce && (
               <>
+                {type === "post" &&
+                  this.props.showBody === "full" &&
+                  this.props.postView.post.body && (
+                    <li>
+                      <ActionButton
+                        icon="file-text"
+                        iconClass={classNames({
+                          "text-success": this.props.viewSource,
+                        })}
+                        label={I18NextService.i18n.t("view_source")}
+                        onClick={this.props.onViewSource}
+                      />
+                    </li>
+                  )}
                 {type === "post" && (
                   <li>
                     <ActionButton

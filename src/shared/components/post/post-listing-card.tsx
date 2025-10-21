@@ -184,7 +184,7 @@ export class PostListingCard extends Component<
             readLoading={p.readLoading}
             onPostVote={p.onPostVote}
             onScrollIntoCommentsClick={p.onScrollIntoCommentsClick}
-            onClickViewSource={() => handleViewSource(this)}
+            onViewSource={() => handleViewSource(this)}
             onMarkPostAsRead={p.onMarkPostAsRead}
             onEditClick={p.onEditClick}
             onPostReport={p.onPostReport}
