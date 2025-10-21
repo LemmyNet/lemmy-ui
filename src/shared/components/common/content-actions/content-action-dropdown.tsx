@@ -233,13 +233,6 @@ export default class ContentActionDropdown extends Component<
             }
           />
         )}
-        <ActionButton
-          onClick={onSave}
-          inline
-          icon="bookmark"
-          label={I18NextService.i18n.t(saved_at ? "unsave" : "save")}
-          iconClass={classNames({ "text-warning": saved_at })}
-        />
         <div className="dropdown">
           <button
             className="btn btn-link btn-animate text-muted py-0 dropdown-toggle"
@@ -256,6 +249,14 @@ export default class ContentActionDropdown extends Component<
           <ul className="dropdown-menu" id={dropdownId}>
             {this.state.dropdownOpenedOnce && (
               <>
+                <li>
+                  <ActionButton
+                    onClick={onSave}
+                    icon="bookmark"
+                    label={I18NextService.i18n.t(saved_at ? "unsave" : "save")}
+                    iconClass={classNames({ "text-warning": saved_at })}
+                  />
+                </li>
                 {type === "post" && (
                   <li>
                     <CrossPostButton {...this.props.crossPostParams!} />
