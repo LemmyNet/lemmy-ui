@@ -11,7 +11,7 @@ import {
   QueryParams,
   RouteDataResponse,
 } from "@utils/types";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import {
   ApproveCommunityPendingFollower,
   LemmyHttp,
@@ -37,9 +37,10 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { InfernoNode } from "inferno";
 import { PendingFollow } from "@components/common/pending-follow";
-import { registrationStateRadios } from "@components/person/registration-applications";
-
-type ViewState = "unread" | "all" | "denied";
+import {
+  RegistrationState,
+  RegistrationStateRadios,
+} from "@components/common/registration-state-radios";
 
 type PendingFollowsData = RouteDataResponse<{
   listPendingFollowsResponse: ListCommunityPendingFollowsResponse;
@@ -51,11 +52,11 @@ interface PendingFollowsState {
 }
 
 interface PendingFollowsProps {
-  viewState: ViewState;
+  viewState: RegistrationState;
   cursor?: DirectionalCursor;
 }
 
-function stateFromQuery(view?: string): ViewState {
+function stateFromQuery(view?: string): RegistrationState {
   switch (view) {
     case "unread":
     case "all":
@@ -107,6 +108,8 @@ export class PendingFollows extends Component<
 
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleApproveFollower = this.handleApproveFollower.bind(this);
+    this.handlePendingFollowsStateChange =
+      this.handlePendingFollowsStateChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -181,10 +184,10 @@ export class PendingFollows extends Component<
   selects() {
     return (
       <div className="mb-2">
-        {registrationStateRadios(
-          linkEvent(this, this.handlePendingFollowsStateChange),
-          this.props.viewState,
-        )}
+        <RegistrationStateRadios
+          state={this.props.viewState}
+          onClickHandler={this.handlePendingFollowsStateChange}
+        />
       </div>
     );
   }
@@ -209,8 +212,8 @@ export class PendingFollows extends Component<
     );
   }
 
-  handlePendingFollowsStateChange(i: PendingFollows, event: any) {
-    i.updateUrl({ viewState: event.target.value, cursor: undefined });
+  handlePendingFollowsStateChange(val: RegistrationState) {
+    this.updateUrl({ viewState: val, cursor: undefined });
   }
 
   handlePageChange(cursor?: DirectionalCursor) {
@@ -230,7 +233,7 @@ export class PendingFollows extends Component<
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     // TODO: this is always undefined after page reload
-    const state = viewState ?? "Unread";
+    const state = viewState ?? "unread";
     return {
       listPendingFollowsResponse: headers["Authorization"]
         ? await client.listCommunityPendingFollows({
