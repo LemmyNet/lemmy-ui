@@ -87,26 +87,28 @@ export function PostActionBar(props: PostActionBarProps) {
   const { id } = postView.post;
 
   return (
-    <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
-      <CommentsButton
-        postView={postView}
-        type_="icon"
-        onScrollIntoCommentsClick={onScrollIntoCommentsClick}
-      />
-      {postIsInteractable(postView, viewOnly) && (
-        <VoteButtonsCompact
-          voteContentType={"post"}
-          id={id}
-          onVote={onPostVote}
-          subject={postView.post}
-          myVoteIsUpvote={postView.post_actions?.vote_is_upvote}
-          myUserInfo={myUserInfo}
-          localSite={localSite}
-          disabled={userNotLoggedInOrBanned(myUserInfo)}
+    <div className="row">
+      <div className="col flex-grow-1 text-muted">
+        <CommentsButton
+          postView={postView}
+          type_="icon"
+          onScrollIntoCommentsClick={onScrollIntoCommentsClick}
         />
-      )}
+      </div>
+      <div className="col-auto d-flex">
+        {postIsInteractable(postView, viewOnly) && (
+          <VoteButtonsCompact
+            voteContentType={"post"}
+            id={id}
+            onVote={onPostVote}
+            subject={postView.post}
+            myVoteIsUpvote={postView.post_actions?.vote_is_upvote}
+            myUserInfo={myUserInfo}
+            localSite={localSite}
+            disabled={userNotLoggedInOrBanned(myUserInfo)}
+          />
+        )}
 
-      {myUserInfo && postIsInteractable(postView, viewOnly) && (
         <PostActionDropdown
           postView={postView}
           community={postView.community}
@@ -140,7 +142,7 @@ export function PostActionBar(props: PostActionBarProps) {
           onSharePost={() => handleShare(props.postView.post)}
           onMarkPostAsRead={() => handleMarkPostAsRead(props)}
         />
-      )}
+      </div>
     </div>
   );
 }
@@ -175,13 +177,13 @@ export function CommentsButton({
       {type_ === "icon" && <Icon icon="message-square" classes="me-1" inline />}
       {count}
       {type_ === "text" && <span> {I18NextService.i18n.t("comments")}</span>}
-      {unreadCount && (
-        <>
-          {" "}
-          <span className="fst-italic">
-            ({unreadCount} {I18NextService.i18n.t("new")})
-          </span>
-        </>
+      {unreadCount && type_ === "text" && (
+        <span className="ms-2 fst-italic">
+          ({unreadCount} {I18NextService.i18n.t("new")})
+        </span>
+      )}
+      {unreadCount && type_ === "icon" && (
+        <span className="ms-2 badge text-bg-light">+{unreadCount}</span>
       )}
     </Link>
   );
