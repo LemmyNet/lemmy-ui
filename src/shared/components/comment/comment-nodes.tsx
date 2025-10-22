@@ -50,7 +50,7 @@ interface CommentNodesProps {
   viewOnly?: boolean;
   postLockedOrRemovedOrDeleted?: boolean;
   showContext: boolean;
-  showCommunity?: boolean;
+  showCommunity: boolean;
   viewType: CommentViewType;
   allLanguages: Language[];
   siteLanguages: number[];

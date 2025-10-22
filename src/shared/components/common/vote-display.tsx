@@ -23,6 +23,7 @@ interface Props {
 const BADGE_CLASSES = "unselectable";
 const UPVOTE_PCT_THRESHOLD = 90;
 
+// TODO this needs to be mixed into the actual vote actions
 @tippyMixin
 export class VoteDisplay extends Component<Props, any> {
   constructor(props: any, context: any) {

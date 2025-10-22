@@ -854,6 +854,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               postRes.data.community_view.community,
               this.props.sort,
             )}
+            showCommunity={false}
             postCreatorId={postRes.data.post_view.post.creator_id}
             community={postRes.data.community_view.community}
             viewType={this.props.view}
@@ -971,6 +972,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               postRes.data.community_view.community,
               commentIdFromProps,
             )}
+            showCommunity={false}
             postCreatorId={postRes.data.post_view.post.creator_id}
             community={postRes.data.community_view.community}
             viewType={this.props.view}

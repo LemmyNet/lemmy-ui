@@ -60,7 +60,6 @@ import { CommentForm } from "./comment-form";
 import { CommentNodes } from "./comment-nodes";
 import { BanUpdateForm } from "../common/modal/mod-action-form-modal";
 import CommentActionDropdown from "../common/content-actions/comment-action-dropdown";
-import { VoteDisplay } from "../common/vote-display";
 import { canAdmin } from "@utils/roles";
 
 type CommentNodeState = {
@@ -85,7 +84,7 @@ type CommentNodeProps = {
   viewOnly?: boolean;
   postLockedOrRemovedOrDeleted?: boolean;
   showContext: boolean;
-  showCommunity?: boolean;
+  showCommunity: boolean;
   viewType: CommentViewType;
   allLanguages: Language[];
   siteLanguages: number[];
@@ -183,26 +182,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   render() {
     const node = this.props.node;
     const {
-      creator_is_moderator,
       creator_banned_from_community,
-      creator_banned,
-
       comment_actions: { vote_is_upvote: myVoteIsUpvote } = {},
-      creator_is_admin,
       comment: {
         deleted,
         removed,
         id,
-        language_id,
         published_at,
         distinguished,
         updated_at,
         child_count,
-        locked,
-        post_id,
       },
-      creator,
-      person_actions,
     } = this.commentView;
 
     const moreRepliesBorderColor = node.view.depth
@@ -229,105 +219,21 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             <div
               className="d-flex flex-wrap align-items-center text-muted small"
               onClick={linkEvent(this, handleCommentCollapse)}
+              aria-label={this.expandText}
+              data-tippy-content={this.expandText}
               role="group"
             >
-              <button
-                className="btn btn-sm btn-link text-muted me-2"
-                onClick={linkEvent(this, handleCommentCollapse)}
-                aria-label={this.expandText}
-                data-tippy-content={this.expandText}
-                aria-pressed={this.state.collapsed ? "true" : "false"}
-              >
-                <Icon
-                  icon={`${this.state.collapsed ? "plus" : "minus"}-square`}
-                  classes="icon-inline"
-                />
-              </button>
-
-              <PersonListing
-                person={creator}
-                myUserInfo={this.props.myUserInfo}
-              />
-
-              {distinguished && (
-                <Icon icon="shield" inline classes="text-danger ms-1" />
-              )}
-
-              <UserBadges
-                classNames="ms-1"
-                isPostCreator={this.isPostCreator}
-                isModerator={creator_is_moderator}
-                isAdmin={creator_is_admin}
-                creator={creator}
-                isBanned={creator_banned}
-                isBannedFromCommunity={creator_banned_from_community}
-                myUserInfo={this.props.myUserInfo}
-                personActions={person_actions}
-              />
-
-              {this.props.showCommunity &&
-                isCommentNodeFull(this.props.node) && (
-                  <>
-                    <span className="mx-1">{I18NextService.i18n.t("to")}</span>
-                    <CommunityLink
-                      community={this.community}
-                      myUserInfo={this.props.myUserInfo}
-                    />
-                    <span className="mx-2">•</span>
-                    <Link className="me-2" to={`/post/${post_id}`}>
-                      {this.props.node.view.comment_view.post.name}
-                    </Link>
-                  </>
-                )}
-
-              <LinkButton
-                comment={this.commentView.comment}
+              <CommentHeader
+                node={this.props.node}
+                showCommunity={this.props.showCommunity}
                 showContext={this.props.showContext}
-                small
+                isPostCreator={this.isPostCreator}
+                allLanguages={this.props.allLanguages}
+                myUserInfo={this.props.myUserInfo}
               />
-
-              {language_id !== 0 && (
-                <span className="badge text-bg-light d-none d-sm-inline me-2">
-                  {
-                    this.props.allLanguages.find(
-                      lang => lang.id === language_id,
-                    )?.name
-                  }
-                </span>
-              )}
-              {locked && (
-                <span
-                  className="mx-1"
-                  data-tippy-content={I18NextService.i18n.t("locked")}
-                >
-                  <Icon icon="lock" classes="icon-inline" />
-                </span>
-              )}
-              {deleted && (
-                <span
-                  className="mx-1"
-                  data-tippy-content={I18NextService.i18n.t("deleted")}
-                >
-                  <Icon icon={"trash"} classes="icon-inline" />
-                </span>
-              )}
-              {removed && (
-                <span
-                  className="mx-1"
-                  data-tippy-content={I18NextService.i18n.t("removed")}
-                >
-                  <Icon icon={"x"} classes="icon-inline text-danger" />
-                </span>
-              )}
-              {/* This is an expanding spacer for mobile */}
+              {/* This is an expanding spacer for mobile TODO GET RID */}
               <div className="me-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
 
-              <VoteDisplay
-                myUserInfo={this.props.myUserInfo}
-                localSite={this.props.localSite}
-                myVoteIsUpvote={myVoteIsUpvote}
-                subject={this.commentView.comment}
-              />
               <span>
                 <MomentTime
                   published={published_at}
@@ -506,6 +412,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             postLockedOrRemovedOrDeleted={
               this.props.postLockedOrRemovedOrDeleted
             }
+            showCommunity={this.props.showCommunity}
             showContext={false}
             admins={this.props.admins}
             readCommentsAt={this.props.readCommentsAt}
@@ -847,6 +754,103 @@ function buildNodeChildren(node: CommentNodeType): CommentNodeType[] {
   }
 }
 
+type CommentHeaderProps = {
+  node: CommentNodeType;
+  showCommunity: boolean;
+  showContext: boolean;
+  isPostCreator: boolean;
+  allLanguages: Language[];
+  myUserInfo: MyUserInfo | undefined;
+};
+
+function CommentHeader({
+  node,
+  showCommunity,
+  showContext,
+  isPostCreator,
+  allLanguages,
+  myUserInfo,
+}: CommentHeaderProps) {
+  const {
+    creator_is_moderator,
+    creator_banned_from_community,
+    creator_banned,
+    creator_is_admin,
+    comment: { deleted, removed, language_id, distinguished, locked, post_id },
+    creator,
+    person_actions,
+  } = node.view.comment_view;
+  const comment = node.view.comment_view.comment;
+
+  return (
+    <>
+      <PersonListing person={creator} myUserInfo={myUserInfo} />
+
+      {distinguished && (
+        <Icon icon="shield" inline classes="text-danger ms-1" />
+      )}
+
+      <UserBadges
+        classNames="ms-1"
+        isPostCreator={isPostCreator}
+        isModerator={creator_is_moderator}
+        isAdmin={creator_is_admin}
+        creator={creator}
+        isBanned={creator_banned}
+        isBannedFromCommunity={creator_banned_from_community}
+        myUserInfo={myUserInfo}
+        personActions={person_actions}
+      />
+
+      {showCommunity && isCommentNodeFull(node) && (
+        <>
+          <span className="mx-1">{I18NextService.i18n.t("to")}</span>
+          <CommunityLink
+            community={node.view.comment_view.community}
+            myUserInfo={myUserInfo}
+          />
+          <span className="mx-2">•</span>
+          <Link className="me-2" to={`/post/${post_id}`}>
+            {node.view.comment_view.post.name}
+          </Link>
+        </>
+      )}
+
+      <LinkButton comment={comment} showContext={showContext} small />
+
+      {language_id !== 0 && (
+        <span className="badge text-bg-light d-none d-sm-inline me-2">
+          {allLanguages.find(lang => lang.id === language_id)?.name}
+        </span>
+      )}
+      {locked && (
+        <span
+          className="mx-1"
+          data-tippy-content={I18NextService.i18n.t("locked")}
+        >
+          <Icon icon="lock" classes="icon-inline" />
+        </span>
+      )}
+      {deleted && (
+        <span
+          className="mx-1"
+          data-tippy-content={I18NextService.i18n.t("deleted")}
+        >
+          <Icon icon={"trash"} classes="icon-inline" />
+        </span>
+      )}
+      {removed && (
+        <span
+          className="mx-1"
+          data-tippy-content={I18NextService.i18n.t("removed")}
+        >
+          <Icon icon={"x"} classes="icon-inline text-danger" />
+        </span>
+      )}
+    </>
+  );
+}
+
 // TODO this is currently unused, but the code may be useful for the notifications screen, when that gets fully added.
 // function markAsRead() {
 //   return (
@@ -877,3 +881,10 @@ function buildNodeChildren(node: CommentNodeType): CommentNodeType[] {
 //     )
 //   );
 // }
+// TODO
+// <VoteDisplay
+//   myUserInfo={this.props.myUserInfo}
+//   localSite={this.props.localSite}
+//   myVoteIsUpvote={myVoteIsUpvote}
+//   subject={this.commentView.comment}
+// />

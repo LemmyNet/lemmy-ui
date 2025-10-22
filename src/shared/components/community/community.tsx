@@ -632,6 +632,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               viewType={"flat"}
               isTopLevel
               showContext
+              showCommunity={false}
               hideImages={false}
               admins={siteRes.admins}
               allLanguages={siteRes.all_languages}
