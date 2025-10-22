@@ -11,6 +11,7 @@ import { isCakeDay } from "@utils/date";
 
 interface PersonListingProps {
   person: Person;
+  banned: boolean;
   realLink?: boolean;
   useApubName?: boolean;
   muted?: boolean;
@@ -22,6 +23,7 @@ interface PersonListingProps {
 
 export function PersonListing({
   person,
+  banned,
   realLink,
   useApubName,
   muted,
@@ -29,18 +31,8 @@ export function PersonListing({
   badgeForPostCreator,
   myUserInfo,
 }: PersonListingProps) {
-  const local = person.local;
-  let link: string;
-  let serverStr: string | undefined = undefined;
-
   const name = useApubName ? person.name : (person.display_name ?? person.name);
-
-  if (local) {
-    link = `/u/${person.name}`;
-  } else {
-    serverStr = `@${hostname(person.ap_id)}`;
-    link = !realLink ? `/u/${person.name}${serverStr}` : person.ap_id;
-  }
+  const { link, serverStr } = personLink(person, realLink);
 
   const classes = classNames(
     "person-listing d-inline-flex align-items-baseline",
@@ -55,6 +47,7 @@ export function PersonListing({
         <Link title={name} className={classes} to={link}>
           <AvatarAndName
             name={name}
+            banned={banned}
             serverStr={serverStr}
             avatar={person.avatar}
             hideAvatar={hideAvatar}
@@ -66,6 +59,7 @@ export function PersonListing({
         <a title={name} className={classes} href={link} rel={relTags}>
           <AvatarAndName
             name={name}
+            banned={banned}
             serverStr={serverStr}
             avatar={person.avatar}
             hideAvatar={hideAvatar}
@@ -83,6 +77,7 @@ export function PersonListing({
 type AvatarAndNameProps = {
   name: string;
   serverStr?: string;
+  banned: boolean;
   avatar?: string;
   hideAvatar?: boolean;
   badgeForPostCreator?: boolean;
@@ -92,6 +87,7 @@ type AvatarAndNameProps = {
 function AvatarAndName({
   name,
   serverStr,
+  banned,
   avatar,
   hideAvatar,
   badgeForPostCreator,
@@ -102,16 +98,37 @@ function AvatarAndName({
   });
   return (
     <>
-      {!hideAvatar &&
-        /* TODO: hide avatar of banned person */
-        showAvatars(myUserInfo) && (
-          <PictrsImage
-            src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
-            icon
-          />
-        )}
+      {!hideAvatar && !banned && showAvatars(myUserInfo) && (
+        <PictrsImage
+          src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
+          icon
+        />
+      )}
       <span className={nameClasses}>{name}</span>
       {serverStr && <small className="text-muted">{serverStr}</small>}
     </>
   );
+}
+
+type PersonLinkAndServerStr = {
+  link: string;
+  serverStr?: string;
+};
+
+function personLink(
+  person: Person,
+  realLink: boolean = false,
+): PersonLinkAndServerStr {
+  const local = person.local;
+  let link: string;
+  let serverStr: string | undefined = undefined;
+
+  if (local) {
+    link = `/u/${person.name}`;
+  } else {
+    serverStr = `@${hostname(person.ap_id)}`;
+    link = !realLink ? `/u/${person.name}${serverStr}` : person.ap_id;
+  }
+
+  return { link, serverStr };
 }

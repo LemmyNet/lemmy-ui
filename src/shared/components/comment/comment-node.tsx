@@ -675,6 +675,7 @@ function CommentHeader({
     <>
       <PersonListing
         person={creator}
+        banned={creator_banned || creator_banned_from_community}
         myUserInfo={myUserInfo}
         badgeForPostCreator={isPostCreator}
       />

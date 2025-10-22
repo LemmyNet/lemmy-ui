@@ -139,6 +139,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           {I18NextService.i18n.t("reporter")}:{" "}
           <PersonListing
             person={r.creator}
+            banned={false}
             myUserInfo={this.props.myUserInfo}
           />
         </div>
@@ -152,6 +153,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
                 #
                 <PersonListing
                   person={resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>
@@ -160,6 +162,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
                 #
                 <PersonListing
                   person={resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>

@@ -128,6 +128,7 @@ export class CommentReport extends Component<
           {I18NextService.i18n.t("reporter")}:{" "}
           <PersonListing
             person={r.creator}
+            banned={false}
             myUserInfo={this.props.myUserInfo}
           />
         </div>
@@ -141,6 +142,7 @@ export class CommentReport extends Component<
                 #
                 <PersonListing
                   person={r.resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>
@@ -149,6 +151,7 @@ export class CommentReport extends Component<
                 #
                 <PersonListing
                   person={r.resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>

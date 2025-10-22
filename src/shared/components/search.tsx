@@ -223,6 +223,7 @@ const personListing = (
           <div>
             <PersonListing
               person={p.person}
+              banned={p.banned}
               showApubName
               myUserInfo={myUserInfo}
             />
