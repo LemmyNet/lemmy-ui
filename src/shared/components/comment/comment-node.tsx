@@ -1,8 +1,4 @@
-import {
-  colorList,
-  userNotLoggedInOrBanned,
-  getCommentParentId,
-} from "@utils/app";
+import { colorList, userNotLoggedInOrBanned } from "@utils/app";
 import { numToSI } from "@utils/helpers";
 import { futureDaysToUnixTime } from "@utils/date";
 import classNames from "classnames";
@@ -113,13 +109,6 @@ type CommentNodeProps = {
   onLockComment(form: LockComment): void;
 };
 
-function handleToggleViewSource(i: CommentNode) {
-  i.setState(({ viewSource, ...restPrev }) => ({
-    viewSource: !viewSource,
-    ...restPrev,
-  }));
-}
-
 @tippyMixin
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   state: CommentNodeState = {
@@ -184,15 +173,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const {
       creator_banned_from_community,
       comment_actions: { vote_is_upvote: myVoteIsUpvote } = {},
-      comment: {
-        deleted,
-        removed,
-        id,
-        published_at,
-        distinguished,
-        updated_at,
-        child_count,
-      },
+      comment: { id, published_at, distinguished, updated_at, child_count },
+      comment,
     } = this.commentView;
 
     const moreRepliesBorderColor = node.view.depth
@@ -204,6 +186,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       !this.state.collapsed &&
       node.view.children.length === 0 &&
       child_count > 0;
+
+    // TODO vote view move
+    // TODO right align
 
     return (
       <li className="comment list-unstyled">
@@ -260,36 +245,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             )}
             {!this.state.showEdit && !this.state.collapsed && (
               <>
-                <div
-                  className={classNames("comment-content", {
-                    "text-muted": deleted || removed,
-                  })}
-                >
-                  {this.state.viewSource ? (
-                    <pre>{this.commentUnlessRemoved}</pre>
-                  ) : (
-                    <div
-                      className="md-div"
-                      dangerouslySetInnerHTML={
-                        this.props.hideImages
-                          ? mdToHtmlNoImages(this.commentUnlessRemoved, () =>
-                              this.forceUpdate(),
-                            )
-                          : mdToHtml(this.commentUnlessRemoved, () =>
-                              this.forceUpdate(),
-                            )
-                      }
-                    />
-                  )}
-                </div>
+                <CommentContent
+                  comment={comment}
+                  viewSource={this.state.viewSource}
+                  hideImages={this.props.hideImages}
+                />
                 <div className="comment-bottom-btns d-flex justify-content-start column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
-                  {this.props.showContext && (
-                    <LinkButton
-                      comment={this.commentView.comment}
-                      showContext={this.props.showContext}
-                      small={false}
-                    />
-                  )}
                   {this.props.myUserInfo &&
                     (this.canModOrAdmin ||
                       !(
@@ -308,27 +269,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             this.props.myUserInfo,
                           )}
                         />
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-link btn-animate text-muted py-0"
-                          onClick={linkEvent(this, handleToggleViewSource)}
-                          data-tippy-content={I18NextService.i18n.t(
-                            "view_source",
-                          )}
-                          aria-label={I18NextService.i18n.t("view_source")}
-                        >
-                          <Icon
-                            icon="file-text"
-                            classes={`icon-inline ${
-                              this.state.viewSource && "text-success"
-                            }`}
-                          />
-                        </button>
                         <CommentActionDropdown
                           commentView={this.commentView}
                           community={this.community}
                           admins={this.props.admins}
                           myUserInfo={this.props.myUserInfo}
+                          viewSource={this.state.viewSource}
+                          showContext={this.props.showContext}
                           onReply={() => handleReplyClick(this)}
                           onReport={reason => handleReportComment(this, reason)}
                           onBlockPerson={() => handleBlockPerson(this)}
@@ -357,6 +304,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           onAppointAdmin={() => handleAppointAdmin(this)}
                           onPersonNote={form => handlePersonNote(this, form)}
                           onLock={reason => handleModLock(this, reason)}
+                          onViewSource={() => handleToggleViewSource(this)}
                         />
                       </>
                     )}
@@ -469,15 +417,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       : I18NextService.i18n.t("collapse");
   }
 
-  get commentUnlessRemoved(): string {
-    const comment = this.commentView.comment;
-    return comment.removed
-      ? `*${I18NextService.i18n.t("removed")}*`
-      : comment.deleted
-        ? `*${I18NextService.i18n.t("deleted")}*`
-        : comment.content;
-  }
-
   /**
    * Only enable the comment form if its not locked, or you're a mod / admin
    **/
@@ -524,6 +463,11 @@ function handleEditClick(i: CommentNode) {
 
 function handleReplyCancel(i: CommentNode) {
   i.setState({ showReply: false, showEdit: false });
+}
+
+function handleToggleViewSource(i: CommentNode) {
+  const newViewSource = i.state.viewSource;
+  i.setState({ viewSource: !newViewSource });
 }
 
 function handleCreateComment(i: CommentNode, form: CreateComment) {
@@ -700,42 +644,6 @@ function handleFetchChildren(i: CommentNode) {
   });
 }
 
-type LinkButtonProps = {
-  comment: Comment;
-  showContext: boolean;
-  small: boolean;
-};
-
-function LinkButton({ comment, showContext, small }: LinkButtonProps) {
-  const classnames = classNames("btn btn-link btn-animate text-muted", {
-    "btn-sm": small,
-  });
-
-  const title = showContext
-    ? I18NextService.i18n.t("show_context")
-    : I18NextService.i18n.t("link");
-
-  const commentId = (showContext && getCommentParentId(comment)) || comment.id;
-  return (
-    <>
-      <Link
-        className={classnames}
-        to={`/post/${comment.post_id}/${commentId}#comment-${commentId}`}
-        title={title}
-      >
-        <Icon icon="link" classes="icon-inline" />
-      </Link>
-      <a
-        className={classnames}
-        title={I18NextService.i18n.t("fedilink")}
-        href={comment.ap_id}
-      >
-        <Icon icon="fedilink" classes="icon-inline" />
-      </a>
-    </>
-  );
-}
-
 function buildNodeChildren(node: CommentNodeType): CommentNodeType[] {
   if (isCommentNodeFull(node)) {
     return node.view.children.map(c => {
@@ -766,7 +674,6 @@ type CommentHeaderProps = {
 function CommentHeader({
   node,
   showCommunity,
-  showContext,
   isPostCreator,
   allLanguages,
   myUserInfo,
@@ -780,7 +687,6 @@ function CommentHeader({
     creator,
     person_actions,
   } = node.view.comment_view;
-  const comment = node.view.comment_view.comment;
 
   return (
     <>
@@ -816,8 +722,6 @@ function CommentHeader({
         </>
       )}
 
-      <LinkButton comment={comment} showContext={showContext} small />
-
       {language_id !== 0 && (
         <span className="badge text-bg-light d-none d-sm-inline me-2">
           {allLanguages.find(lang => lang.id === language_id)?.name}
@@ -848,6 +752,44 @@ function CommentHeader({
         </span>
       )}
     </>
+  );
+}
+
+type CommentContentProps = {
+  comment: Comment;
+  viewSource: boolean;
+  hideImages: boolean;
+};
+function CommentContent({
+  comment,
+  viewSource,
+  hideImages,
+}: CommentContentProps) {
+  const commentUnlessRemoved = comment.removed
+    ? `*${I18NextService.i18n.t("removed")}*`
+    : comment.deleted
+      ? `*${I18NextService.i18n.t("deleted")}*`
+      : comment.content;
+
+  return (
+    <div
+      className={classNames("comment-content", {
+        "text-muted": comment.deleted || comment.removed,
+      })}
+    >
+      {viewSource ? (
+        <pre>{commentUnlessRemoved}</pre>
+      ) : (
+        <div
+          className="md-div"
+          dangerouslySetInnerHTML={
+            hideImages
+              ? mdToHtmlNoImages(commentUnlessRemoved, () => {})
+              : mdToHtml(commentUnlessRemoved, () => {})
+          }
+        />
+      )}
+    </div>
   );
 }
 

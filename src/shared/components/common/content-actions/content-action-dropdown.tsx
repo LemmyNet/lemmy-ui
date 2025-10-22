@@ -31,6 +31,7 @@ import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";
 import PersonNoteModal from "../modal/person-note-modal";
 import {
+  getCommentParentId,
   linkTarget,
   postIsInteractable,
   userNotLoggedInOrBanned,
@@ -39,6 +40,11 @@ import { canShare } from "@utils/browser";
 
 // TODO there is no reason to try to combine these. It should be completely split into simple PostActionsDropdown, and CommentActionDropdowns, pushing up the simple forms.
 interface ContentActionDropdownPropsBase {
+  moderators?: CommunityModeratorView[];
+  admins: PersonView[];
+  community: Community;
+  viewSource: boolean;
+  myUserInfo: MyUserInfo | undefined;
   onSave(): void;
   onEdit(): void;
   onDelete(): void;
@@ -56,15 +62,13 @@ interface ContentActionDropdownPropsBase {
   onAppointAdmin(): void;
   onPersonNote(form: NotePerson): void;
   onLock(reason: string): void;
-  moderators?: CommunityModeratorView[];
-  admins: PersonView[];
-  community: Community;
-  myUserInfo: MyUserInfo | undefined;
+  onViewSource(): void;
 }
 
 export type ContentCommentProps = {
   type: "comment";
   commentView: CommentView | CommentSlimView;
+  showContext: boolean;
   onReply(): void;
   onDistinguish(): void;
 } & ContentActionDropdownPropsBase;
@@ -73,14 +77,12 @@ export type ContentPostProps = {
   type: "post";
   postView: PostView;
   crossPostParams: CrossPostParams;
-  viewSource: boolean;
   showBody: ShowBodyType;
   markable: boolean;
   viewOnly: boolean;
   onFeatureLocal(): void;
   onFeatureCommunity(): void;
   onHidePost(): void;
-  onViewSource(): void;
   onSharePost(): void;
   onMarkPostAsRead(): void;
 } & ContentActionDropdownPropsBase;
@@ -222,6 +224,29 @@ export default class ContentActionDropdown extends Component<
               "comment_moderation_history",
             ),
           };
+
+    const apId =
+      type === "post"
+        ? this.props.postView.post.ap_id
+        : this.props.commentView.comment.ap_id;
+
+    const linkTitle =
+      type === "comment" && this.props.showContext
+        ? I18NextService.i18n.t("show_context")
+        : I18NextService.i18n.t("link");
+
+    const commentId =
+      type === "comment"
+        ? (this.props.showContext &&
+            getCommentParentId(this.props.commentView.comment)) ||
+          this.props.commentView.comment.id
+        : undefined;
+
+    const link =
+      type === "post"
+        ? `/post/${this.props.postView.post.id}`
+        : `/post/${this.props.commentView.comment.post_id}/${commentId}#comment-${commentId}`;
+
     return (
       <>
         {type === "comment" && (
@@ -255,48 +280,46 @@ export default class ContentActionDropdown extends Component<
             {this.state.dropdownOpenedOnce && (
               <>
                 {/* Links / fedilinks */}
-                {type === "post" && (
-                  <>
-                    <li>
-                      <Link
-                        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
-                        to={`/post/${this.props.postView.post.id}`}
-                        title={I18NextService.i18n.t("link")}
-                      >
-                        <Icon icon="link" classes="me-2" inline />
-                        {I18NextService.i18n.t("link")}
-                      </Link>
-                    </li>
-                    <li>
-                      <a
-                        className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
-                        title={I18NextService.i18n.t("fedilink")}
-                        href={this.props.postView.post.ap_id}
-                        target={linkTarget(this.props.myUserInfo)}
-                      >
-                        <Icon icon="fedilink" classes="me-2" inline />
-                        {I18NextService.i18n.t("fedilink")}
-                      </a>
-                    </li>
-                    <li>
-                      <hr className="dropdown-divider" />
-                    </li>
-                  </>
+                <li>
+                  <Link
+                    className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+                    to={link}
+                    title={linkTitle}
+                  >
+                    <Icon icon="link" classes="me-2" inline />
+                    {linkTitle}
+                  </Link>
+                </li>
+                <li>
+                  <a
+                    className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+                    title={I18NextService.i18n.t("fedilink")}
+                    href={apId}
+                    target={linkTarget(this.props.myUserInfo)}
+                  >
+                    <Icon icon="fedilink" classes="me-2" inline />
+                    {I18NextService.i18n.t("fedilink")}
+                  </a>
+                </li>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+
+                {(type === "comment" ||
+                  (type === "post" &&
+                    this.props.showBody === "full" &&
+                    this.props.postView.post.body)) && (
+                  <li>
+                    <ActionButton
+                      icon="file-text"
+                      iconClass={classNames({
+                        "text-success": this.props.viewSource,
+                      })}
+                      label={I18NextService.i18n.t("view_source")}
+                      onClick={this.props.onViewSource}
+                    />
+                  </li>
                 )}
-                {type === "post" &&
-                  this.props.showBody === "full" &&
-                  this.props.postView.post.body && (
-                    <li>
-                      <ActionButton
-                        icon="file-text"
-                        iconClass={classNames({
-                          "text-success": this.props.viewSource,
-                        })}
-                        label={I18NextService.i18n.t("view_source")}
-                        onClick={this.props.onViewSource}
-                      />
-                    </li>
-                  )}
                 {type === "post" && canShare() && (
                   <ActionButton
                     icon="share"
