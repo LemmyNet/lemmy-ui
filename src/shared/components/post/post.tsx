@@ -852,6 +852,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               commentsRes.data.comments,
               postRes.data.post_view.post.creator_id,
               postRes.data.community_view.community,
+              this.props.sort,
             )}
             postCreatorId={postRes.data.post_view.post.creator_id}
             community={postRes.data.community_view.community}
@@ -934,6 +935,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     const postRes = this.state.postRes;
     const commentsRes = this.state.commentsRes;
     const siteRes = this.state.siteRes;
+    const commentIdFromProps = getCommentIdFromProps(this.props);
 
     return (
       postRes.state === "success" &&
@@ -951,6 +953,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 commentsRes.data.comments,
                 postRes.data.post_view.post.creator_id,
                 postRes.data.community_view.community,
+                commentIdFromProps,
               ) && (
                 <Link
                   className="ps-0 d-block btn btn-link text-muted text-start"
@@ -966,6 +969,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               commentsRes.data.comments,
               postRes.data.post_view.post.creator_id,
               postRes.data.community_view.community,
+              commentIdFromProps,
             )}
             postCreatorId={postRes.data.post_view.post.creator_id}
             community={postRes.data.community_view.community}
@@ -1641,11 +1645,12 @@ function sortedFlatNodes(
   comments: CommentSlimView[],
   postCreatorId: PersonId,
   community: Community,
+  sort: CommentSortType,
 ): CommentNodeType[] {
   const nodeToDate = (node: CommentNodeType) =>
     node.view.comment_view.comment.published_at;
   const nodes = commentsSlimToFlatNodes(comments, postCreatorId, community);
-  if (this.props.sort === "new") {
+  if (sort === "new") {
     return nodes.sort((a, b) => compareDesc(nodeToDate(a), nodeToDate(b)));
   } else {
     return nodes.sort((a, b) => compareAsc(nodeToDate(a), nodeToDate(b)));
@@ -1656,9 +1661,10 @@ function commentTree(
   comments: CommentSlimView[],
   postCreatorId: PersonId,
   community: Community,
+  commentIdFromProps: CommentId | undefined,
 ): CommentNodeType[] {
   if (comments.length) {
-    const tree = buildCommentsTree(comments, getCommentIdFromProps(this.props));
+    const tree = buildCommentsTree(comments, commentIdFromProps);
     const treeNodes: CommentNodeType[] = tree.map(v => {
       return { view: v, postCreatorId, community };
     });
@@ -1672,9 +1678,14 @@ function showContextButton(
   comments: CommentSlimView[],
   postCreatorId: PersonId,
   community: Community,
+  commentIdFromProps: CommentId | undefined,
 ): boolean {
-  const firstComment = commentTree(comments, postCreatorId, community).at(0)
-    ?.view.comment_view.comment;
+  const firstComment = commentTree(
+    comments,
+    postCreatorId,
+    community,
+    commentIdFromProps,
+  ).at(0)?.view.comment_view.comment;
   const depth = getDepthFromComment(firstComment);
   return depth ? depth > 0 : false;
 }
