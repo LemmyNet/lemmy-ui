@@ -239,7 +239,7 @@ export default class ContentActionDropdown extends Component<
         )}
         <div className="dropdown">
           <button
-            className="btn btn-link btn-animate text-muted py-0 dropdown-toggle"
+            className="btn btn-link btn-animate text-muted py-0 ps-2 pe-0"
             data-tippy-content={I18NextService.i18n.t("more")}
             data-bs-toggle="dropdown"
             aria-expanded="false"
@@ -282,43 +282,6 @@ export default class ContentActionDropdown extends Component<
                     </li>
                   </>
                 )}
-
-                <li>
-                  <ActionButton
-                    onClick={onSave}
-                    icon="bookmark"
-                    label={I18NextService.i18n.t(saved_at ? "unsave" : "save")}
-                    iconClass={classNames({ "text-warning": saved_at })}
-                  />
-                </li>
-                {type === "post" && (
-                  <li>
-                    <CrossPostButton {...this.props.crossPostParams!} />
-                  </li>
-                )}
-                {type === "post" &&
-                  postIsInteractable(
-                    this.props.postView,
-                    this.props.viewOnly,
-                  ) &&
-                  this.props.markable &&
-                  this.props.myUserInfo && (
-                    <li>
-                      <ActionButton
-                        icon="check"
-                        iconClass={classNames({
-                          "text-success":
-                            this.props.postView.post_actions?.read_at,
-                        })}
-                        label={
-                          this.props.postView.post_actions?.read_at
-                            ? I18NextService.i18n.t("mark_as_unread")
-                            : I18NextService.i18n.t("mark_as_read")
-                        }
-                        onClick={this.props.onMarkPostAsRead}
-                      />
-                    </li>
-                  )}
                 {type === "post" &&
                   this.props.showBody === "full" &&
                   this.props.postView.post.body && (
@@ -340,17 +303,57 @@ export default class ContentActionDropdown extends Component<
                     onClick={this.props.onSharePost}
                   />
                 )}
-                {type === "post" && (
+                {this.props.myUserInfo && (
                   <li>
                     <ActionButton
-                      icon={hidden_at ? "eye" : "eye-slash"}
+                      onClick={onSave}
+                      icon="bookmark"
                       label={I18NextService.i18n.t(
-                        hidden_at ? "unhide_post" : "hide_post",
+                        saved_at ? "unsave" : "save",
                       )}
-                      onClick={this.props.onHidePost}
+                      iconClass={classNames({ "text-warning": saved_at })}
                     />
                   </li>
                 )}
+                {/* Interactable post items */}
+                {type === "post" &&
+                  this.props.myUserInfo &&
+                  postIsInteractable(
+                    this.props.postView,
+                    this.props.viewOnly,
+                  ) && (
+                    <>
+                      <li>
+                        <CrossPostButton {...this.props.crossPostParams!} />
+                      </li>
+                      {this.props.markable && (
+                        <li>
+                          <ActionButton
+                            icon="check"
+                            iconClass={classNames({
+                              "text-success":
+                                this.props.postView.post_actions?.read_at,
+                            })}
+                            label={
+                              this.props.postView.post_actions?.read_at
+                                ? I18NextService.i18n.t("mark_as_unread")
+                                : I18NextService.i18n.t("mark_as_read")
+                            }
+                            onClick={this.props.onMarkPostAsRead}
+                          />
+                        </li>
+                      )}
+                      <li>
+                        <ActionButton
+                          icon={hidden_at ? "eye" : "eye-slash"}
+                          label={I18NextService.i18n.t(
+                            hidden_at ? "unhide_post" : "hide_post",
+                          )}
+                          onClick={this.props.onHidePost}
+                        />
+                      </li>
+                    </>
+                  )}
                 {this.amCreator &&
                 !userNotLoggedInOrBanned(this.props.myUserInfo) ? (
                   <>
@@ -374,52 +377,57 @@ export default class ContentActionDropdown extends Component<
                     </li>
                   </>
                 ) : (
-                  <>
-                    {type === "comment" && (
+                  this.props.myUserInfo && (
+                    <>
+                      {type === "comment" && (
+                        <li>
+                          <Link
+                            className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+                            to={`/create_private_message/${creator.id}`}
+                            title={I18NextService.i18n.t("message")}
+                            aria-label={I18NextService.i18n.t("message")}
+                            data-tippy-content={I18NextService.i18n.t(
+                              "message",
+                            )}
+                          >
+                            <Icon icon="mail" inline classes="me-2" />
+                            {I18NextService.i18n.t("message")}
+                          </Link>
+                        </li>
+                      )}
+
                       <li>
-                        <Link
-                          className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-                          to={`/create_private_message/${creator.id}`}
-                          title={I18NextService.i18n.t("message")}
-                          aria-label={I18NextService.i18n.t("message")}
-                          data-tippy-content={I18NextService.i18n.t("message")}
-                        >
-                          <Icon icon="mail" inline classes="me-2" />
-                          {I18NextService.i18n.t("message")}
-                        </Link>
+                        <ActionButton
+                          icon="flag"
+                          label={I18NextService.i18n.t("create_report")}
+                          onClick={this.toggleReportDialogShow}
+                          noLoading
+                        />
                       </li>
-                    )}
-                    <li>
-                      <ActionButton
-                        icon="flag"
-                        label={I18NextService.i18n.t("create_report")}
-                        onClick={this.toggleReportDialogShow}
-                        noLoading
-                      />
-                    </li>
-                    <li>
-                      <ActionButton
-                        icon="edit"
-                        label={I18NextService.i18n.t("create_user_note")}
-                        onClick={this.togglePersonNoteShow}
-                        noLoading
-                      />
-                    </li>
-                    <li>
-                      <ActionButton
-                        icon="slash"
-                        label={I18NextService.i18n.t("block_user")}
-                        onClick={onBlockPerson}
-                      />
-                    </li>
-                    <li>
-                      <ActionButton
-                        icon="slash"
-                        label={I18NextService.i18n.t("block_community")}
-                        onClick={this.props.onBlockCommunity}
-                      />
-                    </li>
-                  </>
+                      <li>
+                        <ActionButton
+                          icon="edit"
+                          label={I18NextService.i18n.t("create_user_note")}
+                          onClick={this.togglePersonNoteShow}
+                          noLoading
+                        />
+                      </li>
+                      <li>
+                        <ActionButton
+                          icon="slash"
+                          label={I18NextService.i18n.t("block_user")}
+                          onClick={onBlockPerson}
+                        />
+                      </li>
+                      <li>
+                        <ActionButton
+                          icon="slash"
+                          label={I18NextService.i18n.t("block_community")}
+                          onClick={this.props.onBlockCommunity}
+                        />
+                      </li>
+                    </>
+                  )
                 )}
 
                 {(amMod(
@@ -508,6 +516,8 @@ export default class ContentActionDropdown extends Component<
                     <Icon icon="history" inline classes="me-2" />
                     {modHistoryUserTranslation}
                   </Link>
+                </li>
+                <li>
                   <Link
                     className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
                     to={modHistoryItemLink}
@@ -606,12 +616,13 @@ export default class ContentActionDropdown extends Component<
                       )}
                     </>
                   )}
-                {(amCommunityCreator(
-                  creator.id,
-                  moderators,
-                  this.props.myUserInfo,
-                ) ||
-                  this.canAdmin) &&
+                {this.props.myUserInfo &&
+                  (amCommunityCreator(
+                    creator.id,
+                    moderators,
+                    this.props.myUserInfo,
+                  ) ||
+                    this.canAdmin) &&
                   creator_is_moderator && (
                     <li>
                       <ActionButton
