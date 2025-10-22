@@ -188,7 +188,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       child_count > 0;
 
     // TODO vote view move
-    // TODO right align
 
     return (
       <li className="comment list-unstyled">
@@ -202,30 +201,29 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           <div className="ms-2">
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
             <div
-              className="d-flex flex-wrap align-items-center text-muted small"
+              className="row text-muted small"
               onClick={linkEvent(this, handleCommentCollapse)}
               aria-label={this.expandText}
-              data-tippy-content={this.expandText}
               role="group"
             >
-              <CommentHeader
-                node={this.props.node}
-                showCommunity={this.props.showCommunity}
-                showContext={this.props.showContext}
-                isPostCreator={this.isPostCreator}
-                allLanguages={this.props.allLanguages}
-                myUserInfo={this.props.myUserInfo}
-              />
-              {/* This is an expanding spacer for mobile TODO GET RID */}
-              <div className="me-lg-5 flex-grow-1 flex-lg-grow-0 unselectable pointer mx-2" />
+              <div className="col flex-grow-1">
+                <CommentHeader
+                  node={this.props.node}
+                  showCommunity={this.props.showCommunity}
+                  showContext={this.props.showContext}
+                  isPostCreator={this.isPostCreator}
+                  allLanguages={this.props.allLanguages}
+                  myUserInfo={this.props.myUserInfo}
+                />
+              </div>
 
-              <span>
+              <div className="col-auto">
                 <MomentTime
                   published={published_at}
                   updated={updated_at}
                   showAgo={false}
                 />
-              </span>
+              </div>
             </div>
             {/* end of user row */}
             {this.state.showEdit && (
@@ -250,7 +248,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   viewSource={this.state.viewSource}
                   hideImages={this.props.hideImages}
                 />
-                <div className="comment-bottom-btns d-flex justify-content-start column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
+                <div className="comment-bottom-btns d-flex justify-content-end column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
                   {this.props.myUserInfo &&
                     (this.canModOrAdmin ||
                       !(
