@@ -253,6 +253,7 @@ export default class ContentActionDropdown extends Component<
           <ActionButton
             onClick={this.props.onReply}
             icon="reply1"
+            iconClass="text-muted"
             inline
             label={I18NextService.i18n.t("reply")}
             noLoading

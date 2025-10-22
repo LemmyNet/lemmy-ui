@@ -171,7 +171,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   render() {
     const node = this.props.node;
     const {
-      creator_banned_from_community,
       comment_actions: { vote_is_upvote: myVoteIsUpvote } = {},
       comment: { id, published_at, distinguished, updated_at, child_count },
       comment,
@@ -186,8 +185,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       !this.state.collapsed &&
       node.view.children.length === 0 &&
       child_count > 0;
-
-    // TODO vote view move
 
     return (
       <li className="comment list-unstyled">
@@ -249,63 +246,51 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   hideImages={this.props.hideImages}
                 />
                 <div className="comment-bottom-btns d-flex justify-content-end column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
-                  {this.props.myUserInfo &&
-                    (this.canModOrAdmin ||
-                      !(
-                        this.props.viewOnly || creator_banned_from_community
-                      )) && (
-                      <>
-                        <VoteButtonsCompact
-                          voteContentType={"comment"}
-                          id={id}
-                          onVote={this.props.onCommentVote}
-                          myUserInfo={this.props.myUserInfo}
-                          localSite={this.props.localSite}
-                          subject={this.commentView.comment}
-                          myVoteIsUpvote={myVoteIsUpvote}
-                          disabled={userNotLoggedInOrBanned(
-                            this.props.myUserInfo,
-                          )}
-                        />
-                        <CommentActionDropdown
-                          commentView={this.commentView}
-                          community={this.community}
-                          admins={this.props.admins}
-                          myUserInfo={this.props.myUserInfo}
-                          viewSource={this.state.viewSource}
-                          showContext={this.props.showContext}
-                          onReply={() => handleReplyClick(this)}
-                          onReport={reason => handleReportComment(this, reason)}
-                          onBlockPerson={() => handleBlockPerson(this)}
-                          onBlockCommunity={() => handleBlockCommunity(this)}
-                          onSave={() => handleSaveComment(this)}
-                          onEdit={() => handleEditClick(this)}
-                          onDelete={() => handleDeleteComment(this)}
-                          onDistinguish={() => handleDistinguishComment(this)}
-                          onRemove={reason => handleRemoveComment(this, reason)}
-                          onBanFromCommunity={form =>
-                            handleBanFromCommunity(this, form)
-                          }
-                          onAppointCommunityMod={() =>
-                            handleAppointCommunityMod(this)
-                          }
-                          onTransferCommunity={() =>
-                            handleTransferCommunity(this)
-                          }
-                          onPurgeUser={reason =>
-                            handlePurgePerson(this, reason)
-                          }
-                          onPurgeContent={reason =>
-                            handlePurgeComment(this, reason)
-                          }
-                          onBanFromSite={form => handleBanFromSite(this, form)}
-                          onAppointAdmin={() => handleAppointAdmin(this)}
-                          onPersonNote={form => handlePersonNote(this, form)}
-                          onLock={reason => handleModLock(this, reason)}
-                          onViewSource={() => handleToggleViewSource(this)}
-                        />
-                      </>
-                    )}
+                  <>
+                    <VoteButtonsCompact
+                      voteContentType={"comment"}
+                      id={id}
+                      onVote={this.props.onCommentVote}
+                      myUserInfo={this.props.myUserInfo}
+                      localSite={this.props.localSite}
+                      subject={this.commentView.comment}
+                      myVoteIsUpvote={myVoteIsUpvote}
+                      disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
+                    />
+                    <CommentActionDropdown
+                      commentView={this.commentView}
+                      community={this.community}
+                      admins={this.props.admins}
+                      myUserInfo={this.props.myUserInfo}
+                      viewSource={this.state.viewSource}
+                      showContext={this.props.showContext}
+                      onReply={() => handleReplyClick(this)}
+                      onReport={reason => handleReportComment(this, reason)}
+                      onBlockPerson={() => handleBlockPerson(this)}
+                      onBlockCommunity={() => handleBlockCommunity(this)}
+                      onSave={() => handleSaveComment(this)}
+                      onEdit={() => handleEditClick(this)}
+                      onDelete={() => handleDeleteComment(this)}
+                      onDistinguish={() => handleDistinguishComment(this)}
+                      onRemove={reason => handleRemoveComment(this, reason)}
+                      onBanFromCommunity={form =>
+                        handleBanFromCommunity(this, form)
+                      }
+                      onAppointCommunityMod={() =>
+                        handleAppointCommunityMod(this)
+                      }
+                      onTransferCommunity={() => handleTransferCommunity(this)}
+                      onPurgeUser={reason => handlePurgePerson(this, reason)}
+                      onPurgeContent={reason =>
+                        handlePurgeComment(this, reason)
+                      }
+                      onBanFromSite={form => handleBanFromSite(this, form)}
+                      onAppointAdmin={() => handleAppointAdmin(this)}
+                      onPersonNote={form => handlePersonNote(this, form)}
+                      onLock={reason => handleModLock(this, reason)}
+                      onViewSource={() => handleToggleViewSource(this)}
+                    />
+                  </>
                 </div>
               </>
             )}
@@ -821,10 +806,3 @@ function CommentContent({
 //     )
 //   );
 // }
-// TODO
-// <VoteDisplay
-//   myUserInfo={this.props.myUserInfo}
-//   localSite={this.props.localSite}
-//   myVoteIsUpvote={myVoteIsUpvote}
-//   subject={this.commentView.comment}
-// />
