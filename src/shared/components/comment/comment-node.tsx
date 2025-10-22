@@ -140,28 +140,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handleReplyCancel = this.handleReplyCancel.bind(this);
-    this.handleCreateComment = this.handleCreateComment.bind(this);
-    this.handleEditComment = this.handleEditComment.bind(this);
-    this.handleReportComment = this.handleReportComment.bind(this);
-    this.handleRemoveComment = this.handleRemoveComment.bind(this);
-    this.handleReplyClick = this.handleReplyClick.bind(this);
-    this.handleBlockPerson = this.handleBlockPerson.bind(this);
-    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
-    this.handleSaveComment = this.handleSaveComment.bind(this);
-    this.handleEditClick = this.handleEditClick.bind(this);
-    this.handleDeleteComment = this.handleDeleteComment.bind(this);
-    this.handleDistinguishComment = this.handleDistinguishComment.bind(this);
-    this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
-    this.handleBanFromSite = this.handleBanFromSite.bind(this);
-    this.handleAppointCommunityMod = this.handleAppointCommunityMod.bind(this);
-    this.handleAppointAdmin = this.handleAppointAdmin.bind(this);
-    this.handlePurgePerson = this.handlePurgePerson.bind(this);
-    this.handlePurgeComment = this.handlePurgeComment.bind(this);
-    this.handleTransferCommunity = this.handleTransferCommunity.bind(this);
-    this.handlePersonNote = this.handlePersonNote.bind(this);
-    this.handleModLock = this.handleModLock.bind(this);
   }
 
   componentWillReceiveProps(
@@ -250,12 +228,12 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
             <div
               className="d-flex flex-wrap align-items-center text-muted small"
-              onClick={linkEvent(this, this.handleCommentCollapse)}
+              onClick={linkEvent(this, handleCommentCollapse)}
               role="group"
             >
               <button
                 className="btn btn-sm btn-link text-muted me-2"
-                onClick={linkEvent(this, this.handleCommentCollapse)}
+                onClick={linkEvent(this, handleCommentCollapse)}
                 aria-label={this.expandText}
                 data-tippy-content={this.expandText}
                 aria-pressed={this.state.collapsed ? "true" : "false"}
@@ -363,14 +341,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               <CommentForm
                 node={node}
                 edit
-                onReplyCancel={this.handleReplyCancel}
+                onReplyCancel={() => handleReplyCancel(this)}
                 disabled={!this.enableCommentForm}
                 focus
                 allLanguages={this.props.allLanguages}
                 siteLanguages={this.props.siteLanguages}
                 containerClass="comment-comment-container"
                 myUserInfo={this.props.myUserInfo}
-                onEditComment={this.handleEditComment}
+                onEditComment={form => handleEditComment(this, form)}
                 onCreateComment={() => {}}
               />
             )}
@@ -445,24 +423,34 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           community={this.community}
                           admins={this.props.admins}
                           myUserInfo={this.props.myUserInfo}
-                          onReply={this.handleReplyClick}
-                          onReport={this.handleReportComment}
-                          onBlockPerson={this.handleBlockPerson}
-                          onBlockCommunity={this.handleBlockCommunity}
-                          onSave={this.handleSaveComment}
-                          onEdit={this.handleEditClick}
-                          onDelete={this.handleDeleteComment}
-                          onDistinguish={this.handleDistinguishComment}
-                          onRemove={this.handleRemoveComment}
-                          onBanFromCommunity={this.handleBanFromCommunity}
-                          onAppointCommunityMod={this.handleAppointCommunityMod}
-                          onTransferCommunity={this.handleTransferCommunity}
-                          onPurgeUser={this.handlePurgePerson}
-                          onPurgeContent={this.handlePurgeComment}
-                          onBanFromSite={this.handleBanFromSite}
-                          onAppointAdmin={this.handleAppointAdmin}
-                          onPersonNote={this.handlePersonNote}
-                          onLock={this.handleModLock}
+                          onReply={() => handleReplyClick(this)}
+                          onReport={reason => handleReportComment(this, reason)}
+                          onBlockPerson={() => handleBlockPerson(this)}
+                          onBlockCommunity={() => handleBlockCommunity(this)}
+                          onSave={() => handleSaveComment(this)}
+                          onEdit={() => handleEditClick(this)}
+                          onDelete={() => handleDeleteComment(this)}
+                          onDistinguish={() => handleDistinguishComment(this)}
+                          onRemove={reason => handleRemoveComment(this, reason)}
+                          onBanFromCommunity={form =>
+                            handleBanFromCommunity(this, form)
+                          }
+                          onAppointCommunityMod={() =>
+                            handleAppointCommunityMod(this)
+                          }
+                          onTransferCommunity={() =>
+                            handleTransferCommunity(this)
+                          }
+                          onPurgeUser={reason =>
+                            handlePurgePerson(this, reason)
+                          }
+                          onPurgeContent={reason =>
+                            handlePurgeComment(this, reason)
+                          }
+                          onBanFromSite={form => handleBanFromSite(this, form)}
+                          onAppointAdmin={() => handleAppointAdmin(this)}
+                          onPersonNote={form => handlePersonNote(this, form)}
+                          onLock={reason => handleModLock(this, reason)}
                         />
                       </>
                     )}
@@ -480,7 +468,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           >
             <button
               className="btn btn-sm btn-link text-muted"
-              onClick={linkEvent(this, this.handleFetchChildren)}
+              onClick={() => handleFetchChildren(this)}
             >
               {this.state.fetchChildrenLoading ? (
                 <Spinner />
@@ -499,14 +487,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {this.state.showReply && (
           <CommentForm
             node={node}
-            onReplyCancel={this.handleReplyCancel}
+            onReplyCancel={() => handleReplyCancel(this)}
             disabled={!this.enableCommentForm}
             focus
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             containerClass="comment-comment-container"
             myUserInfo={this.props.myUserInfo}
-            onCreateComment={this.handleCreateComment}
+            onCreateComment={form => handleCreateComment(this, form)}
             onEditComment={() => {}}
           />
         )}
@@ -605,28 +593,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     );
   }
 
-  handleReplyClick() {
-    this.setState({ showReply: true });
-  }
-
-  handleEditClick() {
-    this.setState({ showEdit: true });
-  }
-
-  handleReplyCancel() {
-    this.setState({ showReply: false, showEdit: false });
-  }
-
-  handleCreateComment(form: CreateComment) {
-    this.props.onCreateComment(form);
-    this.setState({ showReply: false, showEdit: false });
-  }
-
-  handleEditComment(form: EditComment) {
-    this.props.onEditComment(form);
-    this.setState({ showReply: false, showEdit: false });
-  }
-
   /**
    * From the post screen, use the last readCommentsAt time.
    *
@@ -639,178 +605,192 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const commentTime = parseISO(this.commentView.comment.published_at);
     return isBefore(checkTime, commentTime);
   }
+}
 
-  handleCommentCollapse(i: CommentNode, event: InfernoMouseEvent<any>) {
-    event.stopPropagation();
-    i.setState({ collapsed: !i.state.collapsed });
-  }
+function handleReplyClick(i: CommentNode) {
+  i.setState({ showReply: true });
+}
 
-  handleShowAdvanced(i: CommentNode) {
-    i.setState({ showAdvanced: !i.state.showAdvanced });
-  }
+function handleEditClick(i: CommentNode) {
+  i.setState({ showEdit: true });
+}
 
-  handleSaveComment() {
-    this.props.onSaveComment({
-      comment_id: this.commentView.comment.id,
-      save: !this.commentView.comment_actions?.saved_at,
-    });
-  }
+function handleReplyCancel(i: CommentNode) {
+  i.setState({ showReply: false, showEdit: false });
+}
 
-  handleBlockPerson() {
-    this.props.onBlockPerson({
-      person_id: this.commentView.creator.id,
-      block: true,
-    });
-  }
+function handleCreateComment(i: CommentNode, form: CreateComment) {
+  i.props.onCreateComment(form);
+  i.setState({ showReply: false, showEdit: false });
+}
 
-  handleBlockCommunity() {
-    this.props.onBlockCommunity({
-      community_id: this.community.id,
-      block: true,
-    });
-  }
+function handleEditComment(i: CommentNode, form: EditComment) {
+  i.props.onEditComment(form);
+  i.setState({ showReply: false, showEdit: false });
+}
 
-  handleDeleteComment() {
-    this.props.onDeleteComment({
-      comment_id: this.commentId,
-      deleted: !this.commentView.comment.deleted,
-    });
-  }
+function handleCommentCollapse(i: CommentNode, event: InfernoMouseEvent<any>) {
+  event.stopPropagation();
+  i.setState({ collapsed: !i.state.collapsed });
+}
 
-  handleRemoveComment(reason: string) {
-    this.props.onRemoveComment({
-      comment_id: this.commentId,
-      removed: !this.commentView.comment.removed,
-      reason,
-    });
-  }
+function handleSaveComment(i: CommentNode) {
+  i.props.onSaveComment({
+    comment_id: i.commentView.comment.id,
+    save: !i.commentView.comment_actions?.saved_at,
+  });
+}
 
-  handleDistinguishComment() {
-    this.props.onDistinguishComment({
-      comment_id: this.commentId,
-      distinguished: !this.commentView.comment.distinguished,
-    });
-  }
+function handleBlockPerson(i: CommentNode) {
+  i.props.onBlockPerson({
+    person_id: i.commentView.creator.id,
+    block: true,
+  });
+}
 
-  handleBanFromCommunity({
-    daysUntilExpires,
+function handleBlockCommunity(i: CommentNode) {
+  i.props.onBlockCommunity({
+    community_id: i.community.id,
+    block: true,
+  });
+}
+
+function handleDeleteComment(i: CommentNode) {
+  i.props.onDeleteComment({
+    comment_id: i.commentId,
+    deleted: !i.commentView.comment.deleted,
+  });
+}
+
+function handleRemoveComment(i: CommentNode, reason: string) {
+  i.props.onRemoveComment({
+    comment_id: i.commentId,
+    removed: !i.commentView.comment.removed,
     reason,
-    shouldRemoveOrRestoreData,
-  }: BanUpdateForm) {
-    const {
-      creator: { id: person_id },
-      creator_banned_from_community,
-    } = this.commentView;
-    const community_id = this.community.id;
+  });
+}
 
-    const ban = !creator_banned_from_community;
-    // If its an unban, restore all their data
-    if (ban === false) {
-      shouldRemoveOrRestoreData = true;
-    }
-    const expires_at = futureDaysToUnixTime(daysUntilExpires);
+function handleDistinguishComment(i: CommentNode) {
+  i.props.onDistinguishComment({
+    comment_id: i.commentId,
+    distinguished: !i.commentView.comment.distinguished,
+  });
+}
 
-    this.props.onBanPersonFromCommunity({
-      community_id,
-      person_id,
-      ban,
-      remove_or_restore_data: shouldRemoveOrRestoreData,
-      reason,
-      expires_at,
-    });
+function handleBanFromCommunity(i: CommentNode, form: BanUpdateForm) {
+  const {
+    creator: { id: person_id },
+    creator_banned_from_community,
+  } = i.commentView;
+  const community_id = i.community.id;
+
+  let shouldRemoveOrRestoreData = form.shouldRemoveOrRestoreData;
+
+  const ban = !creator_banned_from_community;
+  // If its an unban, restore all their data
+  if (ban === false) {
+    shouldRemoveOrRestoreData = true;
   }
+  const expires_at = futureDaysToUnixTime(form.daysUntilExpires);
 
-  handleBanFromSite({
-    daysUntilExpires,
+  i.props.onBanPersonFromCommunity({
+    community_id,
+    person_id,
+    ban,
+    remove_or_restore_data: shouldRemoveOrRestoreData,
+    reason: form.reason,
+    expires_at,
+  });
+}
+
+function handleBanFromSite(i: CommentNode, form: BanUpdateForm) {
+  const {
+    creator: { id: person_id },
+    creator_banned,
+  } = i.commentView;
+
+  let shouldRemoveOrRestoreData = form.shouldRemoveOrRestoreData;
+
+  const ban = !creator_banned;
+
+  // If its an unban, restore all their data
+  if (ban === false) {
+    shouldRemoveOrRestoreData = true;
+  }
+  const expires_at = futureDaysToUnixTime(form.daysUntilExpires);
+
+  i.props.onBanPerson({
+    person_id,
+    ban,
+    remove_or_restore_data: shouldRemoveOrRestoreData,
+    reason: form.reason,
+    expires_at,
+  });
+}
+
+function handleReportComment(i: CommentNode, reason: string) {
+  i.props.onCommentReport({
+    comment_id: i.commentId,
     reason,
-    shouldRemoveOrRestoreData,
-  }: BanUpdateForm) {
-    const {
-      creator: { id: person_id },
-      creator_banned,
-    } = this.commentView;
+  });
+}
 
-    const ban = !creator_banned;
+function handleAppointCommunityMod(i: CommentNode) {
+  i.props.onAddModToCommunity({
+    community_id: i.community.id,
+    person_id: i.commentView.creator.id,
+    added: !i.commentView.creator_is_moderator,
+  });
+}
 
-    // If its an unban, restore all their data
-    if (ban === false) {
-      shouldRemoveOrRestoreData = true;
-    }
-    const expires_at = futureDaysToUnixTime(daysUntilExpires);
+function handleAppointAdmin(i: CommentNode) {
+  i.props.onAddAdmin({
+    person_id: i.commentView.creator.id,
+    added: !i.commentView.creator_is_admin,
+  });
+}
 
-    this.props.onBanPerson({
-      person_id,
-      ban,
-      remove_or_restore_data: shouldRemoveOrRestoreData,
-      reason,
-      expires_at,
-    });
-  }
+function handlePersonNote(i: CommentNode, form: NotePerson) {
+  i.props.onPersonNote(form);
+}
 
-  handleReportComment(reason: string) {
-    this.props.onCommentReport({
-      comment_id: this.commentId,
-      reason,
-    });
-  }
+function handleModLock(i: CommentNode, reason: string) {
+  return i.props.onLockComment({
+    comment_id: i.commentId,
+    locked: !i.commentView.comment.locked,
+    reason,
+  });
+}
 
-  handleAppointCommunityMod() {
-    this.props.onAddModToCommunity({
-      community_id: this.community.id,
-      person_id: this.commentView.creator.id,
-      added: !this.commentView.creator_is_moderator,
-    });
-  }
+function handlePurgePerson(i: CommentNode, reason: string) {
+  i.props.onPurgePerson({
+    person_id: i.commentView.creator.id,
+    reason,
+  });
+}
 
-  handleAppointAdmin() {
-    this.props.onAddAdmin({
-      person_id: this.commentView.creator.id,
-      added: !this.commentView.creator_is_admin,
-    });
-  }
+function handlePurgeComment(i: CommentNode, reason: string) {
+  i.props.onPurgeComment({
+    comment_id: i.commentId,
+    reason,
+  });
+}
 
-  handlePersonNote(form: NotePerson) {
-    this.props.onPersonNote(form);
-  }
+function handleTransferCommunity(i: CommentNode) {
+  i.props.onTransferCommunity({
+    community_id: i.community.id,
+    person_id: i.commentView.creator.id,
+  });
+}
 
-  handleModLock(reason: string) {
-    return this.props.onLockComment({
-      comment_id: this.commentId,
-      locked: !this.commentView.comment.locked,
-      reason,
-    });
-  }
-
-  handlePurgePerson(reason: string) {
-    this.props.onPurgePerson({
-      person_id: this.commentView.creator.id,
-      reason,
-    });
-  }
-
-  handlePurgeComment(reason: string) {
-    this.props.onPurgeComment({
-      comment_id: this.commentId,
-      reason,
-    });
-  }
-
-  handleTransferCommunity() {
-    this.props.onTransferCommunity({
-      community_id: this.community.id,
-      person_id: this.commentView.creator.id,
-    });
-  }
-
-  handleFetchChildren(i: CommentNode) {
-    i.setState({ fetchChildrenLoading: true });
-    i.props.onFetchChildren?.({
-      parent_id: i.commentId,
-      max_depth: commentTreeMaxDepth,
-      limit: 999, // TODO
-      type_: "all",
-    });
-  }
+function handleFetchChildren(i: CommentNode) {
+  i.setState({ fetchChildrenLoading: true });
+  i.props.onFetchChildren?.({
+    parent_id: i.commentId,
+    max_depth: commentTreeMaxDepth,
+    limit: 999, // TODO
+    type_: "all",
+  });
 }
 
 type LinkButtonProps = {
