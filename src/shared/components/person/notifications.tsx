@@ -386,6 +386,8 @@ export class Notifications extends Component<
     );
   }
 
+  // TODO the markable status of all these items should be moved externally from the item.
+  // A NotificationWrapper should display a checkmark that exists outside the component.
   renderItemType(item: NotificationView) {
     const siteRes = this.state.siteRes;
     const i = item.data;
@@ -421,9 +423,6 @@ export class Notifications extends Component<
             onBanPerson={this.handleBanPerson}
             onCreateComment={this.handleCreateComment}
             onEditComment={this.handleEditComment}
-            markable
-            read={item.notification.read}
-            onMarkRead={this.handleCommentMarkAsRead}
             onPersonNote={this.handlePersonNote}
             onLockComment={this.handleLockComment}
           />

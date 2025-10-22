@@ -50,7 +50,7 @@ interface MarkdownTextAreaProps {
   onContentChange?(val: string): void;
   onContentBlur?(val: string): void;
   onReplyCancel?(): void;
-  onSubmit?(content: string, languageId?: number): Promise<boolean>;
+  onSubmit?(content: string, languageId?: number): void;
   allLanguages?: Language[];
   siteLanguages?: LanguageId[];
   renderAsDiv?: boolean;
@@ -575,15 +575,12 @@ export class MarkdownTextArea extends Component<
     this.setState({ languageId: val[0] });
   }
 
-  async handleSubmit(i: MarkdownTextArea, event: any) {
+  handleSubmit(i: MarkdownTextArea, event: any) {
     event.preventDefault();
     if (i.state.content) {
       i.setState({ loading: true, submitted: true });
-      const success = await i.props.onSubmit?.(
-        i.state.content,
-        i.state.languageId,
-      );
-      i.setState({ loading: false, submitted: success ?? true });
+      i.props.onSubmit?.(i.state.content, i.state.languageId);
+      i.setState({ loading: false });
     }
   }
 

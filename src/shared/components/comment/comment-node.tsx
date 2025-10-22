@@ -17,7 +17,6 @@ import {
   BlockCommunity,
   BlockPerson,
   CommentId,
-  CommentResponse,
   CommentSlimView,
   CommentView,
   Comment,
@@ -61,7 +60,6 @@ import { CommentForm } from "./comment-form";
 import { CommentNodes } from "./comment-nodes";
 import { BanUpdateForm } from "../common/modal/mod-action-form-modal";
 import CommentActionDropdown from "../common/content-actions/comment-action-dropdown";
-import { RequestState } from "../../services/HttpService";
 import { VoteDisplay } from "../common/vote-display";
 import { canAdmin } from "@utils/roles";
 
@@ -94,38 +92,27 @@ type CommentNodeProps = {
   hideImages: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
-  onSaveComment(form: SaveComment): Promise<void>;
-  onCreateComment(
-    form: EditComment | CreateComment,
-  ): Promise<RequestState<CommentResponse>>;
-  onEditComment(
-    form: EditComment | CreateComment,
-  ): Promise<RequestState<CommentResponse>>;
-  onCommentVote(form: CreateCommentLike): Promise<void>;
-  onBlockPerson(form: BlockPerson): Promise<void>;
-  onBlockCommunity(form: BlockCommunity): Promise<void>;
-  onDeleteComment(form: DeleteComment): Promise<void>;
-  onRemoveComment(form: RemoveComment): Promise<void>;
-  onDistinguishComment(form: DistinguishComment): Promise<void>;
-  onAddModToCommunity(form: AddModToCommunity): Promise<void>;
-  onAddAdmin(form: AddAdmin): Promise<void>;
-  onBanPersonFromCommunity(form: BanFromCommunity): Promise<void>;
-  onBanPerson(form: BanPerson): Promise<void>;
-  onTransferCommunity(form: TransferCommunity): Promise<void>;
+  onSaveComment(form: SaveComment): void;
+  onCreateComment(form: CreateComment): void;
+  onEditComment(form: EditComment): void;
+  onCommentVote(form: CreateCommentLike): void;
+  onBlockPerson(form: BlockPerson): void;
+  onBlockCommunity(form: BlockCommunity): void;
+  onDeleteComment(form: DeleteComment): void;
+  onRemoveComment(form: RemoveComment): void;
+  onDistinguishComment(form: DistinguishComment): void;
+  onAddModToCommunity(form: AddModToCommunity): void;
+  onAddAdmin(form: AddAdmin): void;
+  onBanPersonFromCommunity(form: BanFromCommunity): void;
+  onBanPerson(form: BanPerson): void;
+  onTransferCommunity(form: TransferCommunity): void;
   onFetchChildren?(form: GetComments): void;
-  onCommentReport(form: CreateCommentReport): Promise<void>;
-  onPurgePerson(form: PurgePerson): Promise<void>;
-  onPurgeComment(form: PurgeComment): Promise<void>;
-  onPersonNote(form: NotePerson): Promise<void>;
-  onLockComment(form: LockComment): Promise<void>;
-} & (
-  | { markable?: false }
-  | {
-      markable: true;
-      read: boolean;
-      onMarkRead(comment_id: number, read: boolean): void;
-    }
-);
+  onCommentReport(form: CreateCommentReport): void;
+  onPurgePerson(form: PurgePerson): void;
+  onPurgeComment(form: PurgeComment): void;
+  onPersonNote(form: NotePerson): void;
+  onLockComment(form: LockComment): void;
+};
 
 function handleToggleViewSource(i: CommentNode) {
   i.setState(({ viewSource, ...restPrev }) => ({
@@ -383,7 +370,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 siteLanguages={this.props.siteLanguages}
                 containerClass="comment-comment-container"
                 myUserInfo={this.props.myUserInfo}
-                onUpsertComment={this.handleEditComment}
+                onEditComment={this.handleEditComment}
+                onCreateComment={() => {}}
               />
             )}
             {!this.state.showEdit && !this.state.collapsed && (
@@ -417,33 +405,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                       showContext={this.props.showContext}
                       small={false}
                     />
-                  )}
-                  {this.props.markable && (
-                    <button
-                      className="btn btn-sm btn-link btn-animate text-muted"
-                      onClick={linkEvent(this, this.handleMarkAsRead)}
-                      data-tippy-content={
-                        this.props.read
-                          ? I18NextService.i18n.t("mark_as_unread")
-                          : I18NextService.i18n.t("mark_as_read")
-                      }
-                      aria-label={
-                        this.props.read
-                          ? I18NextService.i18n.t("mark_as_unread")
-                          : I18NextService.i18n.t("mark_as_read")
-                      }
-                    >
-                      {this.state.markLoading ? (
-                        <Spinner />
-                      ) : (
-                        <Icon
-                          icon="check"
-                          classes={`icon-inline ${
-                            this.props.read && "text-success"
-                          }`}
-                        />
-                      )}
-                    </button>
                   )}
                   {this.props.myUserInfo &&
                     (this.canModOrAdmin ||
@@ -545,7 +506,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             siteLanguages={this.props.siteLanguages}
             containerClass="comment-comment-container"
             myUserInfo={this.props.myUserInfo}
-            onUpsertComment={this.handleCreateComment}
+            onCreateComment={this.handleCreateComment}
+            onEditComment={() => {}}
           />
         )}
         {!this.state.collapsed && node.view.children.length > 0 && (
@@ -655,24 +617,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     this.setState({ showReply: false, showEdit: false });
   }
 
-  async handleCreateComment(
-    form: CreateComment,
-  ): Promise<RequestState<CommentResponse>> {
-    const res = await this.props.onCreateComment(form);
-    if (res.state !== "failed") {
-      this.setState({ showReply: false, showEdit: false });
-    }
-    return res;
+  handleCreateComment(form: CreateComment) {
+    this.props.onCreateComment(form);
+    this.setState({ showReply: false, showEdit: false });
   }
 
-  async handleEditComment(
-    form: EditComment,
-  ): Promise<RequestState<CommentResponse>> {
-    const res = await this.props.onEditComment(form);
-    if (res.state !== "failed") {
-      this.setState({ showReply: false, showEdit: false });
-    }
-    return res;
+  handleEditComment(form: EditComment) {
+    this.props.onEditComment(form);
+    this.setState({ showReply: false, showEdit: false });
   }
 
   /**
@@ -697,43 +649,35 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     i.setState({ showAdvanced: !i.state.showAdvanced });
   }
 
-  async handleSaveComment() {
+  handleSaveComment() {
     this.props.onSaveComment({
       comment_id: this.commentView.comment.id,
       save: !this.commentView.comment_actions?.saved_at,
     });
   }
 
-  async handleBlockPerson() {
+  handleBlockPerson() {
     this.props.onBlockPerson({
       person_id: this.commentView.creator.id,
       block: true,
     });
   }
 
-  async handleBlockCommunity() {
+  handleBlockCommunity() {
     this.props.onBlockCommunity({
       community_id: this.community.id,
       block: true,
     });
   }
 
-  handleMarkAsRead(i: CommentNode) {
-    if (i.props.markable) {
-      i.setState({ markLoading: true });
-      const cv = i.commentView;
-      i.props.onMarkRead(cv.comment.id, !i.props.read);
-    }
-  }
-
-  async handleDeleteComment() {
+  handleDeleteComment() {
     this.props.onDeleteComment({
       comment_id: this.commentId,
       deleted: !this.commentView.comment.deleted,
     });
   }
 
-  async handleRemoveComment(reason: string) {
+  handleRemoveComment(reason: string) {
     this.props.onRemoveComment({
       comment_id: this.commentId,
       removed: !this.commentView.comment.removed,
@@ -741,14 +685,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  async handleDistinguishComment() {
+  handleDistinguishComment() {
     this.props.onDistinguishComment({
       comment_id: this.commentId,
       distinguished: !this.commentView.comment.distinguished,
     });
   }
 
-  async handleBanFromCommunity({
+  handleBanFromCommunity({
     daysUntilExpires,
     reason,
     shouldRemoveOrRestoreData,
@@ -776,7 +720,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  async handleBanFromSite({
+  handleBanFromSite({
     daysUntilExpires,
     reason,
     shouldRemoveOrRestoreData,
@@ -803,14 +747,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  async handleReportComment(reason: string) {
+  handleReportComment(reason: string) {
     this.props.onCommentReport({
       comment_id: this.commentId,
       reason,
     });
   }
 
-  async handleAppointCommunityMod() {
+  handleAppointCommunityMod() {
     this.props.onAddModToCommunity({
       community_id: this.community.id,
       person_id: this.commentView.creator.id,
@@ -818,18 +762,18 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  async handleAppointAdmin() {
+  handleAppointAdmin() {
     this.props.onAddAdmin({
       person_id: this.commentView.creator.id,
       added: !this.commentView.creator_is_admin,
     });
   }
 
-  async handlePersonNote(form: NotePerson) {
+  handlePersonNote(form: NotePerson) {
     this.props.onPersonNote(form);
   }
 
-  async handleModLock(reason: string) {
+  handleModLock(reason: string) {
     return this.props.onLockComment({
       comment_id: this.commentId,
       locked: !this.commentView.comment.locked,
@@ -837,21 +781,21 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     });
   }
 
-  async handlePurgePerson(reason: string) {
+  handlePurgePerson(reason: string) {
     this.props.onPurgePerson({
       person_id: this.commentView.creator.id,
       reason,
     });
   }
 
-  async handlePurgeComment(reason: string) {
+  handlePurgeComment(reason: string) {
     this.props.onPurgeComment({
       comment_id: this.commentId,
       reason,
     });
   }
 
-  async handleTransferCommunity() {
+  handleTransferCommunity() {
     this.props.onTransferCommunity({
       community_id: this.community.id,
       person_id: this.commentView.creator.id,
@@ -922,3 +866,34 @@ function buildNodeChildren(node: CommentNodeType): CommentNodeType[] {
     });
   }
 }
+
+// TODO this is currently unused, but the code may be useful for the notifications screen, when that gets fully added.
+// function markAsRead() {
+//   return (
+//     this.props.markable && (
+//       <button
+//         className="btn btn-sm btn-link btn-animate text-muted"
+//         onClick={linkEvent(this, this.handleMarkAsRead)}
+//         data-tippy-content={
+//           this.props.read
+//             ? I18NextService.i18n.t("mark_as_unread")
+//             : I18NextService.i18n.t("mark_as_read")
+//         }
+//         aria-label={
+//           this.props.read
+//             ? I18NextService.i18n.t("mark_as_unread")
+//             : I18NextService.i18n.t("mark_as_read")
+//         }
+//       >
+//         {this.state.markLoading ? (
+//           <Spinner />
+//         ) : (
+//           <Icon
+//             icon="check"
+//             classes={`icon-inline ${this.props.read && "text-success"}`}
+//           />
+//         )}
+//       </button>
+//     )
+//   );
+// }

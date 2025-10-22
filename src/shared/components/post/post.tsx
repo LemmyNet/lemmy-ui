@@ -665,7 +665,8 @@ export class Post extends Component<PostRouteProps, PostState> {
                   siteLanguages={siteRes.discussion_languages}
                   containerClass="post-comment-container"
                   myUserInfo={this.isoData.myUserInfo}
-                  onUpsertComment={this.handleCreateToplevelComment}
+                  onCreateComment={this.handleCreateToplevelComment}
+                  onEditComment={() => {}}
                 />
               )}
               <div className="d-block d-md-none">
