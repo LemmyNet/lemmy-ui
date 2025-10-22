@@ -18,6 +18,9 @@ import {
   BlockPerson,
   CommentId,
   CommentResponse,
+  CommentSlimView,
+  CommentView,
+  Comment,
   Community,
   CreateComment,
   CreateCommentLike,
@@ -41,10 +44,9 @@ import {
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "@utils/config";
 import {
-  CommentNodeI,
-  CommentNodeView,
   CommentViewType,
-  isCommentView,
+  isCommentNodeFull,
+  CommentNodeType,
 } from "@utils/types";
 import { mdToHtml, mdToHtmlNoImages } from "@utils/markdown";
 import { I18NextService } from "../../services";
@@ -77,27 +79,19 @@ type CommentNodeState = {
 };
 
 type CommentNodeProps = {
-  node: CommentNodeI;
-  /**
-   * Only use this for the CommentSlim variant.
-   **/
-  postCreatorId?: PersonId;
-  /**
-   * Only use this for the CommentSlim variant.
-   **/
-  community?: Community;
+  node: CommentNodeType;
   admins: PersonView[];
   readCommentsAt?: string;
   noBorder?: boolean;
   isTopLevel?: boolean;
   viewOnly?: boolean;
   postLockedOrRemovedOrDeleted?: boolean;
-  showContext?: boolean;
+  showContext: boolean;
   showCommunity?: boolean;
   viewType: CommentViewType;
   allLanguages: Language[];
   siteLanguages: number[];
-  hideImages?: boolean;
+  hideImages: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   onSaveComment(form: SaveComment): Promise<void>;
@@ -186,13 +180,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>,
   ) {
-    if (this.props.node.comment_view !== nextProps.node.comment_view) {
+    if (this.props.node.view !== nextProps.node.view) {
       this.setState({ markLoading: false });
     }
   }
 
-  get commentView(): CommentNodeView {
-    return this.props.node.comment_view;
+  get commentView(): CommentView | CommentSlimView {
+    return this.props.node.view.comment_view;
   }
 
   get commentId(): CommentId {
@@ -203,10 +197,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
    * Gets the community correctly if its the commentSlim variant
    **/
   get community(): Community {
-    if (isCommentView(this.commentView)) {
-      return this.commentView.community;
+    if (isCommentNodeFull(this.props.node)) {
+      return this.props.node.view.comment_view.community;
     } else {
-      return this.props.community!;
+      return this.props.node.community;
     }
   }
 
@@ -214,10 +208,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
    * Gets the postCreatorId correctly if its the commentSlim variant
    **/
   get postCreatorId(): PersonId {
-    if (isCommentView(this.commentView)) {
-      return this.commentView.post.creator_id;
+    if (isCommentNodeFull(this.props.node)) {
+      return this.props.node.view.comment_view.post.creator_id;
     } else {
-      return this.props.postCreatorId!;
+      return this.props.node.postCreatorId;
     }
   }
 
@@ -246,14 +240,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       person_actions,
     } = this.commentView;
 
-    const moreRepliesBorderColor = this.props.node.depth
-      ? colorList[this.props.node.depth % colorList.length]
+    const moreRepliesBorderColor = node.view.depth
+      ? colorList[node.view.depth % colorList.length]
       : colorList[0];
 
     const showMoreChildren =
       this.props.viewType === "tree" &&
       !this.state.collapsed &&
-      node.children.length === 0 &&
+      node.view.children.length === 0 &&
       child_count > 0;
 
     return (
@@ -306,21 +300,26 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 personActions={person_actions}
               />
 
-              {this.props.showCommunity && isCommentView(this.commentView) && (
-                <>
-                  <span className="mx-1">{I18NextService.i18n.t("to")}</span>
-                  <CommunityLink
-                    community={this.commentView.community}
-                    myUserInfo={this.props.myUserInfo}
-                  />
-                  <span className="mx-2">•</span>
-                  <Link className="me-2" to={`/post/${post_id}`}>
-                    {this.commentView.post.name}
-                  </Link>
-                </>
-              )}
+              {this.props.showCommunity &&
+                isCommentNodeFull(this.props.node) && (
+                  <>
+                    <span className="mx-1">{I18NextService.i18n.t("to")}</span>
+                    <CommunityLink
+                      community={this.community}
+                      myUserInfo={this.props.myUserInfo}
+                    />
+                    <span className="mx-2">•</span>
+                    <Link className="me-2" to={`/post/${post_id}`}>
+                      {this.props.node.view.comment_view.post.name}
+                    </Link>
+                  </>
+                )}
 
-              {this.getLinkButton(true)}
+              <LinkButton
+                comment={this.commentView.comment}
+                showContext={this.props.showContext}
+                small
+              />
 
               {language_id !== 0 && (
                 <span className="badge text-bg-light d-none d-sm-inline me-2">
@@ -362,7 +361,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 myUserInfo={this.props.myUserInfo}
                 localSite={this.props.localSite}
                 myVoteIsUpvote={myVoteIsUpvote}
-                subject={this.props.node.comment_view.comment}
+                subject={this.commentView.comment}
               />
               <span>
                 <MomentTime
@@ -412,7 +411,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   )}
                 </div>
                 <div className="comment-bottom-btns d-flex justify-content-start column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
-                  {this.props.showContext && this.getLinkButton()}
+                  {this.props.showContext && (
+                    <LinkButton
+                      comment={this.commentView.comment}
+                      showContext={this.props.showContext}
+                      small={false}
+                    />
+                  )}
                   {this.props.markable && (
                     <button
                       className="btn btn-sm btn-link btn-animate text-muted"
@@ -452,7 +457,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           onVote={this.props.onCommentVote}
                           myUserInfo={this.props.myUserInfo}
                           localSite={this.props.localSite}
-                          subject={this.props.node.comment_view.comment}
+                          subject={this.commentView.comment}
                           myVoteIsUpvote={myVoteIsUpvote}
                           disabled={userNotLoggedInOrBanned(
                             this.props.myUserInfo,
@@ -543,14 +548,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onUpsertComment={this.handleCreateComment}
           />
         )}
-        {!this.state.collapsed && node.children.length > 0 && (
+        {!this.state.collapsed && node.view.children.length > 0 && (
           <CommentNodes
-            nodes={node.children}
+            nodes={buildNodeChildren(this.props.node)}
             postCreatorId={this.postCreatorId}
             community={this.community}
             postLockedOrRemovedOrDeleted={
               this.props.postLockedOrRemovedOrDeleted
             }
+            showContext={false}
             admins={this.props.admins}
             readCommentsAt={this.props.readCommentsAt}
             viewType={this.props.viewType}
@@ -558,7 +564,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             siteLanguages={this.props.siteLanguages}
             hideImages={this.props.hideImages}
             isChild={!this.props.isTopLevel}
-            depth={this.props.node.depth + 1}
+            depth={this.props.node.view.depth + 1}
             myUserInfo={this.props.myUserInfo}
             localSite={this.props.localSite}
             onCreateComment={this.props.onCreateComment}
@@ -586,40 +592,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
         {/* A collapsed clearfix */}
         {this.state.collapsed && <div className="row col-12" />}
       </li>
-    );
-  }
-
-  getLinkButton(small = false) {
-    const cv = this.commentView;
-
-    const classnames = classNames("btn btn-link btn-animate text-muted", {
-      "btn-sm": small,
-    });
-
-    const title = this.props.showContext
-      ? I18NextService.i18n.t("show_context")
-      : I18NextService.i18n.t("link");
-
-    const commentId =
-      (this.props.showContext && getCommentParentId(cv.comment)) ||
-      cv.comment.id;
-    return (
-      <>
-        <Link
-          className={classnames}
-          to={`/post/${cv.comment.post_id}/${commentId}#comment-${commentId}`}
-          title={title}
-        >
-          <Icon icon="link" classes="icon-inline" />
-        </Link>
-        <a
-          className={classnames}
-          title={I18NextService.i18n.t("fedilink")}
-          href={cv.comment.ap_id}
-        >
-          <Icon icon="fedilink" classes="icon-inline" />
-        </a>
-      </>
     );
   }
 
@@ -893,6 +865,60 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       max_depth: commentTreeMaxDepth,
       limit: 999, // TODO
       type_: "all",
+    });
+  }
+}
+
+type LinkButtonProps = {
+  comment: Comment;
+  showContext: boolean;
+  small: boolean;
+};
+
+function LinkButton({ comment, showContext, small }: LinkButtonProps) {
+  const classnames = classNames("btn btn-link btn-animate text-muted", {
+    "btn-sm": small,
+  });
+
+  const title = showContext
+    ? I18NextService.i18n.t("show_context")
+    : I18NextService.i18n.t("link");
+
+  const commentId = (showContext && getCommentParentId(comment)) || comment.id;
+  return (
+    <>
+      <Link
+        className={classnames}
+        to={`/post/${comment.post_id}/${commentId}#comment-${commentId}`}
+        title={title}
+      >
+        <Icon icon="link" classes="icon-inline" />
+      </Link>
+      <a
+        className={classnames}
+        title={I18NextService.i18n.t("fedilink")}
+        href={comment.ap_id}
+      >
+        <Icon icon="fedilink" classes="icon-inline" />
+      </a>
+    </>
+  );
+}
+
+function buildNodeChildren(node: CommentNodeType): CommentNodeType[] {
+  if (isCommentNodeFull(node)) {
+    return node.view.children.map(c => {
+      return {
+        view: c,
+      };
+    });
+  } else {
+    return node.view.children.map(c => {
+      return {
+        view: c,
+        community: node.community,
+        postCreatorId: node.postCreatorId,
+      };
     });
   }
 }

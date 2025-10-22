@@ -1,5 +1,6 @@
 import {
   commentsToFlatNodes,
+  commentToFlatNode,
   communityToChoice,
   enableNsfw,
   fetchCommunities,
@@ -309,13 +310,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
           <div>
             <CommentNodes
               key={c.comment.id}
-              nodes={[
-                {
-                  comment_view: c,
-                  children: [],
-                  depth: 0,
-                },
-              ]}
+              nodes={[commentToFlatNode(c)]}
               viewType={"flat"}
               viewOnly
               postLockedOrRemovedOrDeleted
@@ -326,6 +321,8 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
               allLanguages={isoData.siteRes.all_languages}
               siteLanguages={isoData.siteRes.discussion_languages}
               admins={isoData.siteRes.admins}
+              showContext={false}
+              hideImages={false}
               // All of these are unused, since its viewonly
               onSaveComment={async () => {}}
               onBlockPerson={async () => {}}
@@ -874,6 +871,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         myUserInfo={this.isoData.myUserInfo}
         localSite={siteRes.site_view.local_site}
         admins={this.isoData.siteRes.admins}
+        showContext={false}
+        hideImages={false}
         // All of these are unused, since its viewonly
         onSaveComment={async () => {}}
         onBlockPerson={async () => {}}

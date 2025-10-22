@@ -1,4 +1,5 @@
 import {
+  commentToFlatNode,
   enableNsfw,
   myAuth,
   setIsoData,
@@ -393,10 +394,11 @@ export class Notifications extends Component<
         return (
           <CommentNode
             key={item.notification.id}
-            node={{ comment_view: i, children: [], depth: 0 }}
+            node={commentToFlatNode(i)}
             viewType={"flat"}
             showCommunity
             showContext
+            hideImages={false}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}

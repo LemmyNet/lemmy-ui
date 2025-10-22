@@ -9,7 +9,7 @@ import {
   Language,
   MyUserInfo,
 } from "lemmy-js-client";
-import { CommentNodeI } from "@utils/types";
+import { CommentNodeType } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -20,7 +20,7 @@ interface CommentFormProps {
   /**
    * Can either be the parent, or the editable comment. The right side is a postId.
    */
-  node: CommentNodeI | number;
+  node: CommentNodeType | number;
   edit?: boolean;
   disabled?: boolean;
   focus?: boolean;
@@ -45,7 +45,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
     const initialContent =
       typeof this.props.node !== "number"
         ? this.props.edit
-          ? this.props.node.comment_view.comment.content
+          ? this.props.node.view.comment_view.comment.content
           : undefined
         : undefined;
     const placeholder = this.props.disabled
@@ -116,15 +116,15 @@ export class CommentForm extends Component<CommentFormProps, any> {
         language_id,
       });
     } else if (edit) {
-      const comment_id = node.comment_view.comment.id;
+      const comment_id = node.view.comment_view.comment.id;
       response = await onUpsertComment({
         content,
         comment_id,
         language_id,
       });
     } else {
-      const post_id = node.comment_view.comment.post_id;
-      const parent_id = node.comment_view.comment.id;
+      const post_id = node.view.comment_view.comment.post_id;
+      const parent_id = node.view.comment_view.comment.id;
       response = await onUpsertComment({
         content,
         parent_id,

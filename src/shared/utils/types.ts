@@ -1,5 +1,4 @@
 import {
-  CommentView,
   CommunityView,
   CreateOAuthProvider,
   GetSiteResponse,
@@ -7,7 +6,10 @@ import {
   PersonView,
   MyUserInfo,
   PaginationCursor,
+  CommentView,
   CommentSlimView,
+  PersonId,
+  Community,
 } from "lemmy-js-client";
 import { RequestState } from "@services/HttpService";
 import { Match } from "inferno-router/dist/Route";
@@ -76,19 +78,36 @@ export type PurgeType = "person" | "community" | "post" | "comment";
 
 export type VoteType = "upvote" | "downvote";
 
-export type CommentNodeView = CommentView | CommentSlimView;
-
-/**
- * Differentiate between CommentView and CommentSlimView
- **/
-export function isCommentView(cnv: CommentNodeView): cnv is CommentView {
-  return (cnv as CommentView).post !== undefined;
+export interface CommentNodeI<T> {
+  comment_view: T;
+  children: Array<CommentNodeI<T>>;
+  depth: number;
 }
 
-export interface CommentNodeI {
-  comment_view: CommentNodeView;
-  children: Array<CommentNodeI>;
-  depth: number;
+/**
+ * If its the CommentSlim variant, you need to include postCreatorId, and the community
+ **/
+type CommentNodeFull = {
+  view: CommentNodeI<CommentView>;
+};
+type CommentNodeSlim = {
+  view: CommentNodeI<CommentSlimView>;
+  postCreatorId: PersonId;
+  community: Community;
+};
+
+/**
+ * A comment node to differentiate the full and slim variants.
+ **/
+export type CommentNodeType = CommentNodeFull | CommentNodeSlim;
+
+/**
+ * Differentiate between the Node Type
+ **/
+export function isCommentNodeFull(
+  node: CommentNodeType,
+): node is CommentNodeFull {
+  return (node as CommentNodeFull).view.comment_view.post !== undefined;
 }
 
 export type RouteData = Record<string, RequestState<any>>;

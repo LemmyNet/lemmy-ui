@@ -1,6 +1,5 @@
 import {
   buildCommentsTree,
-  commentsToFlatNodes,
   editPersonNotes,
   editCommentSlim,
   enableNsfw,
@@ -25,7 +24,7 @@ import {
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isImage } from "@utils/media";
-import { QueryParams, RouteDataResponse } from "@utils/types";
+import { CommentNodeType, QueryParams, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, createRef, linkEvent } from "inferno";
 import {
@@ -85,13 +84,12 @@ import {
   SuccessResponse,
   TransferCommunity,
   UpdateCommunityNotifications,
+  CommentSlimView,
+  PersonId,
+  Community,
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "@utils/config";
-import {
-  CommentNodeI,
-  CommentViewType,
-  InitialFetchRequest,
-} from "@utils/types";
+import { CommentViewType, InitialFetchRequest } from "@utils/types";
 import { FirstLoadService } from "@services/FirstLoadService";
 import { I18NextService } from "@services/I18NextService";
 import {
@@ -849,7 +847,11 @@ export class Post extends Component<PostRouteProps, PostState> {
       return (
         <div>
           <CommentNodes
-            nodes={this.sortedFlatNodes()}
+            nodes={sortedFlatNodes(
+              commentsRes.data.comments,
+              postRes.data.post_view.post.creator_id,
+              postRes.data.community_view.community,
+            )}
             postCreatorId={postRes.data.post_view.post.creator_id}
             community={postRes.data.community_view.community}
             viewType={this.props.view}
@@ -863,6 +865,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               postRes.data.post_view.post_actions?.read_comments_at
             }
             showContext
+            hideImages={false}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
@@ -919,20 +922,6 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  sortedFlatNodes(): CommentNodeI[] {
-    if (this.state.commentsRes.state !== "success") {
-      return [];
-    }
-    const nodeToDate = (node: CommentNodeI) =>
-      node.comment_view.comment.published_at;
-    const nodes = commentsToFlatNodes(this.state.commentsRes.data.comments);
-    if (this.props.sort === "new") {
-      return nodes.sort((a, b) => compareDesc(nodeToDate(a), nodeToDate(b)));
-    } else {
-      return nodes.sort((a, b) => compareAsc(nodeToDate(a), nodeToDate(b)));
-    }
-  }
-
   commentsTree() {
     if (this.state.commentsRes.state === "loading") {
       return (
@@ -941,15 +930,13 @@ export class Post extends Component<PostRouteProps, PostState> {
         </div>
       );
     }
-
     const postRes = this.state.postRes;
-    const firstComment = this.commentTree().at(0)?.comment_view.comment;
-    const depth = getDepthFromComment(firstComment);
-    const showContextButton = depth ? depth > 0 : false;
+    const commentsRes = this.state.commentsRes;
     const siteRes = this.state.siteRes;
 
     return (
-      postRes.state === "success" && (
+      postRes.state === "success" &&
+      commentsRes.state === "success" && (
         <div>
           {!!getCommentIdFromProps(this.props) && (
             <>
@@ -959,7 +946,11 @@ export class Post extends Component<PostRouteProps, PostState> {
               >
                 {I18NextService.i18n.t("view_all_comments")} ➔
               </Link>
-              {showContextButton && (
+              {showContextButton(
+                commentsRes.data.comments,
+                postRes.data.post_view.post.creator_id,
+                postRes.data.community_view.community,
+              ) && (
                 <Link
                   className="ps-0 d-block btn btn-link text-muted text-start"
                   to={this.handleViewContext()}
@@ -970,7 +961,11 @@ export class Post extends Component<PostRouteProps, PostState> {
             </>
           )}
           <CommentNodes
-            nodes={this.commentTree()}
+            nodes={commentTree(
+              commentsRes.data.comments,
+              postRes.data.post_view.post.creator_id,
+              postRes.data.community_view.community,
+            )}
             postCreatorId={postRes.data.post_view.post.creator_id}
             community={postRes.data.community_view.community}
             viewType={this.props.view}
@@ -982,6 +977,8 @@ export class Post extends Component<PostRouteProps, PostState> {
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
             }
+            showContext={false}
+            hideImages={false}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={this.isoData.myUserInfo}
@@ -1010,16 +1007,6 @@ export class Post extends Component<PostRouteProps, PostState> {
         </div>
       )
     );
-  }
-
-  commentTree(): CommentNodeI[] {
-    if (this.state.commentsRes.state === "success") {
-      const comments = this.state.commentsRes.data.comments;
-      if (comments.length) {
-        return buildCommentsTree(comments, getCommentIdFromProps(this.props));
-      }
-    }
-    return [];
   }
 
   async handleCommentSortChange(i: Post, event: any) {
@@ -1633,4 +1620,60 @@ function postLockedDeletedOrRemoved(post_view: PostView): boolean {
   return (
     post_view.post.locked || post_view.post.deleted || post_view.post.removed
   );
+}
+
+function commentsSlimToFlatNodes(
+  comments: CommentSlimView[],
+  postCreatorId: PersonId,
+  community: Community,
+): CommentNodeType[] {
+  return comments.map(c => {
+    return {
+      view: { comment_view: c, children: [], depth: 0 },
+      postCreatorId,
+      community,
+    };
+  });
+}
+
+function sortedFlatNodes(
+  comments: CommentSlimView[],
+  postCreatorId: PersonId,
+  community: Community,
+): CommentNodeType[] {
+  const nodeToDate = (node: CommentNodeType) =>
+    node.view.comment_view.comment.published_at;
+  const nodes = commentsSlimToFlatNodes(comments, postCreatorId, community);
+  if (this.props.sort === "new") {
+    return nodes.sort((a, b) => compareDesc(nodeToDate(a), nodeToDate(b)));
+  } else {
+    return nodes.sort((a, b) => compareAsc(nodeToDate(a), nodeToDate(b)));
+  }
+}
+
+function commentTree(
+  comments: CommentSlimView[],
+  postCreatorId: PersonId,
+  community: Community,
+): CommentNodeType[] {
+  if (comments.length) {
+    const tree = buildCommentsTree(comments, getCommentIdFromProps(this.props));
+    const treeNodes: CommentNodeType[] = tree.map(v => {
+      return { view: v, postCreatorId, community };
+    });
+    return treeNodes;
+  } else {
+    return [];
+  }
+}
+
+function showContextButton(
+  comments: CommentSlimView[],
+  postCreatorId: PersonId,
+  community: Community,
+): boolean {
+  const firstComment = commentTree(comments, postCreatorId, community).at(0)
+    ?.view.comment_view.comment;
+  const depth = getDepthFromComment(firstComment);
+  return depth ? depth > 0 : false;
 }

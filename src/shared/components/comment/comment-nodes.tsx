@@ -30,12 +30,12 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
-import { CommentNodeI, CommentViewType } from "@utils/types";
+import { CommentViewType, CommentNodeType } from "@utils/types";
 import { CommentNode } from "./comment-node";
 import { RequestState } from "../../services/HttpService";
 
 interface CommentNodesProps {
-  nodes: CommentNodeI[];
+  nodes: CommentNodeType[];
   /**
    * Only use this for the CommentSlim variant.
    **/
@@ -51,12 +51,12 @@ interface CommentNodesProps {
   isTopLevel?: boolean;
   viewOnly?: boolean;
   postLockedOrRemovedOrDeleted?: boolean;
-  showContext?: boolean;
+  showContext: boolean;
   showCommunity?: boolean;
   viewType: CommentViewType;
   allLanguages: Language[];
   siteLanguages: number[];
-  hideImages?: boolean;
+  hideImages: boolean;
   isChild?: boolean;
   depth?: number;
   myUserInfo: MyUserInfo | undefined;
@@ -114,10 +114,8 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
         >
           {this.props.nodes.slice(0, maxComments).map(node => (
             <CommentNode
-              key={node.comment_view.comment.id}
+              key={node.view.comment_view.comment.id}
               node={node}
-              postCreatorId={this.props.postCreatorId}
-              community={this.props.community}
               noBorder={this.props.noBorder}
               isTopLevel={this.props.isTopLevel}
               viewOnly={this.props.viewOnly}

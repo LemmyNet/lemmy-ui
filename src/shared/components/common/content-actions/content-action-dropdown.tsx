@@ -3,6 +3,8 @@ import { I18NextService } from "../../../services";
 import { Icon } from "../icon";
 import CrossPostButton from "./cross-post-button";
 import {
+  CommentSlimView,
+  CommentView,
   Community,
   CommunityModeratorView,
   MyUserInfo,
@@ -21,7 +23,6 @@ import ModActionFormModal, {
 } from "../modal/mod-action-form-modal";
 import {
   BanType,
-  CommentNodeView,
   CrossPostParams,
   PurgeType,
   ShowBodyType,
@@ -63,7 +64,7 @@ interface ContentActionDropdownPropsBase {
 
 export type ContentCommentProps = {
   type: "comment";
-  commentView: CommentNodeView;
+  commentView: CommentView | CommentSlimView;
   onReply(): void;
   onDistinguish(): void;
 } & ContentActionDropdownPropsBase;
