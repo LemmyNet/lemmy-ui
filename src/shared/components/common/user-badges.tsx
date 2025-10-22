@@ -72,8 +72,8 @@ export class UserBadges extends Component<UserBadgesProps> {
       // for other users,
       localUserView.person?.id !== this.props.creator?.id &&
       // and theres at least one up or downvote
-      (this.props.personActions?.upvotes ||
-        this.props.personActions?.downvotes);
+      (this.props.personActions?.upvotes !== 0 ||
+        this.props.personActions?.downvotes !== 0);
 
     const personNote = this.props.personActions?.note;
 
