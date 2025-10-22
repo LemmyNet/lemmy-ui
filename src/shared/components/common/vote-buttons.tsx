@@ -15,7 +15,6 @@ import { PostOrCommentType } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import classNames from "classnames";
 
 interface VoteButtonsProps {
   voteContentType: PostOrCommentType;
@@ -204,6 +203,8 @@ export class VoteButtonsCompact extends Component<
       voteContentType,
       subject: { creator_id },
     } = this.props;
+
+    const noDownvotes = this.props.subject.downvotes === 0;
     return (
       <>
         {enableUpvotes(localSite, voteContentType) && (
@@ -266,15 +267,12 @@ export class VoteButtonsCompact extends Component<
                   localSite,
                   voteContentType,
                   creator_id,
-                ) && (
-                  <span
-                    className={classNames("ms-2", {
-                      invisible: this.props.subject.downvotes === 0,
-                    })}
-                  >
-                    {numToSI(this.props.subject.downvotes)}
-                  </span>
-                )}
+                ) &&
+                  !noDownvotes && (
+                    <span className="ms-2">
+                      {numToSI(this.props.subject.downvotes)}
+                    </span>
+                  )}
               </>
             )}
           </button>
