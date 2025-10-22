@@ -9,6 +9,7 @@ import { getStaticDir } from "@utils/env";
 import { masonryUpdate } from "@utils/browser";
 import { randomStr } from "@utils/helpers";
 import { ImageDetails } from "lemmy-js-client";
+import { createRef } from "inferno";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
@@ -40,11 +41,10 @@ function handleImgLoadError(i: PictrsImage) {
   });
 }
 
-// Necessary for cleaning up lazyload
-let lazyLoadCleanup: any;
-
 export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
   private readonly isoData: IsoData = setIsoData(this.context);
+  private imageRef = createRef<HTMLImageElement>();
+  private lazyLoadCleanup: undefined | (() => void);
 
   state: PictrsImageState = {
     src: this.props.src,
@@ -58,12 +58,13 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
   }
 
   componentDidMount() {
-    const image = document.querySelector(`#${this.state.id}`);
-    lazyLoadCleanup = lazyLoad(image);
+    if (this.imageRef.current) {
+      this.lazyLoadCleanup = lazyLoad(this.imageRef.current);
+    }
   }
 
   componentWillUnmount() {
-    lazyLoadCleanup();
+    this.lazyLoadCleanup?.();
   }
 
   render() {
@@ -100,6 +101,7 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
           <source data-srcset={src} />
           <source data-srcset={this.src("jpg")} type="image/jpeg" />
           <img
+            ref={this.imageRef}
             id={this.state.id}
             src={base64Placeholder(width, height)}
             data-src={src}
