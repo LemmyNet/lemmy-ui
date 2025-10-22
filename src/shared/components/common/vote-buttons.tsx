@@ -18,7 +18,6 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import classNames from "classnames";
 
 const UPVOTE_PCT_THRESHOLD = 90;
-const BADGE_CLASSES = "unselectable me-2";
 
 interface VoteButtonsProps {
   voteContentType: PostOrCommentType;
@@ -414,14 +413,17 @@ function Score({ myVoteIsUpvote, score }: ScoreProps) {
   });
 
   return (
-    <span
-      className={classNames(BADGE_CLASSES, scoreColor(myVoteIsUpvote), "small")}
+    <button
+      className={classNames(
+        "btn btn-animate btn-sm btn-link py-0 px-1",
+        scoreColor(myVoteIsUpvote),
+      )}
       aria-label={scoreTippy}
       data-tippy-content={scoreTippy}
     >
       <Icon icon="heart" classes="me-1 icon-inline small" />
       {scoreStr}
-    </span>
+    </button>
   );
 }
 
@@ -442,14 +444,14 @@ function UpvotePct(props: UpvotePctProps) {
 
   return (
     thresholdCheck && (
-      <span
-        className={classNames(BADGE_CLASSES, "small")}
+      <button
+        className={"btn btn-animate btn-sm btn-link py-0 px-1"}
         aria-label={upvotesPctTippy}
         data-tippy-content={upvotesPctTippy}
       >
         <Icon icon="smile" classes="me-1 icon-inline small" />
         {pctStr}
-      </span>
+      </button>
     )
   );
 }
