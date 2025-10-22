@@ -673,15 +673,16 @@ function CommentHeader({
 
   return (
     <>
-      <PersonListing person={creator} myUserInfo={myUserInfo} />
-
+      <PersonListing
+        person={creator}
+        myUserInfo={myUserInfo}
+        badgeForPostCreator={isPostCreator}
+      />
       {distinguished && (
         <Icon icon="shield" inline classes="text-danger ms-1" />
       )}
-
       <UserBadges
         classNames="ms-1"
-        isPostCreator={isPostCreator}
         isModerator={creator_is_moderator}
         isAdmin={creator_is_admin}
         creator={creator}
@@ -690,7 +691,6 @@ function CommentHeader({
         myUserInfo={myUserInfo}
         personActions={person_actions}
       />
-
       {showCommunity && isCommentNodeFull(node) && (
         <>
           <span className="mx-1">{I18NextService.i18n.t("to")}</span>
@@ -704,7 +704,6 @@ function CommentHeader({
           </Link>
         </>
       )}
-
       {language_id !== 0 && (
         <span className="badge text-bg-light d-none d-sm-inline me-2">
           {allLanguages.find(lang => lang.id === language_id)?.name}

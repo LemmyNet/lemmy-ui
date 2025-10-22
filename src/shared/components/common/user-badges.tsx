@@ -10,7 +10,6 @@ import { Icon } from "./icon";
 interface UserBadgesProps {
   isBanned?: boolean;
   isBannedFromCommunity?: boolean;
-  isPostCreator?: boolean;
   isModerator?: boolean;
   isAdmin?: boolean;
   creator: Person;
@@ -81,7 +80,6 @@ export class UserBadges extends Component<UserBadgesProps> {
       (this.props.isBanned ||
         this.props.isBannedFromCommunity ||
         isDeleted ||
-        this.props.isPostCreator ||
         this.props.isModerator ||
         this.props.isAdmin ||
         isBot ||
@@ -122,14 +120,6 @@ export class UserBadges extends Component<UserBadgesProps> {
             </span>
           )}
 
-          {this.props.isPostCreator && (
-            <span className="col">
-              <RoleLabelPill
-                label={I18NextService.i18n.t("op").toUpperCase()}
-                tooltip={I18NextService.i18n.t("creator")}
-              />
-            </span>
-          )}
           {this.props.isModerator && (
             <span className="col">
               <RoleLabelIcon
