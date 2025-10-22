@@ -173,12 +173,11 @@ export class UserBadges extends Component<UserBadgesProps> {
             </span>
           )}
           {isNewAccount && (
-            <span
-              className="col"
-              aria-label={I18NextService.i18n.t("new_account_label")}
-              data-tippy-content={I18NextService.i18n.t("new_account_label")}
-            >
-              🌱
+            <span className="col">
+              <RoleLabelIcon
+                icon="user-plus"
+                tooltip={I18NextService.i18n.t("new_account_label")}
+              />
             </span>
           )}
           {showCounts && (
