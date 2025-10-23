@@ -1,6 +1,5 @@
 // @ts-expect-error has a weird import error
 import { lazyLoad } from "unlazy";
-import { createPngDataUri } from "unlazy/blurhash";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 
@@ -8,6 +7,7 @@ import { setIsoData } from "@utils/app";
 import { IsoData } from "@utils/types";
 import { getStaticDir } from "@utils/env";
 import { masonryUpdate } from "@utils/browser";
+import { randomStr } from "@utils/helpers";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
@@ -32,6 +32,7 @@ interface PictrsImageProps {
 
 interface PictrsImageState {
   src: string;
+  id: string;
 }
 
 function handleImgLoadError(i: PictrsImage) {
@@ -40,11 +41,15 @@ function handleImgLoadError(i: PictrsImage) {
   });
 }
 
+// Necessary for cleaning up lazyload
+let lazyLoadCleanup: any;
+
 export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
   private readonly isoData: IsoData = setIsoData(this.context);
 
   state: PictrsImageState = {
     src: this.props.src,
+    id: randomStr(),
   };
 
   componentDidUpdate(prevProps: PictrsImageProps) {
@@ -53,8 +58,13 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
     }
   }
 
-  async componentDidMount() {
-    lazyLoad();
+  componentDidMount() {
+    const image = document.querySelector(`#${this.state.id}`);
+    lazyLoadCleanup = lazyLoad(image);
+  }
+
+  componentWillUnmount() {
+    lazyLoadCleanup();
   }
 
   render() {
@@ -84,10 +94,6 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
     // A testable blurhash
     // const blurhash = "LEHV6nWB2yk8pyo0adR*.7kCMdnj";
 
-    const blurredImageOrSrc = blurhash
-      ? createPngDataUri(blurhash, { ratio: width / height })
-      : src;
-
     return (
       !this.isoData.showAdultConsentModal && (
         <picture>
@@ -95,8 +101,9 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
           <source data-srcset={src} />
           <source data-srcset={this.src("jpg")} type="image/jpeg" />
           <img
-            src={blurredImageOrSrc}
+            id={this.state.id}
             data-src={src}
+            data-blurhash={blurhash}
             alt={this.alt()}
             title={this.alt()}
             loading="lazy"
