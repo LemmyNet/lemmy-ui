@@ -32,6 +32,8 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
 import { CommunityNotificationSelect } from "@components/common/notification-select";
 import { LanguageList } from "@components/common/language-list";
+import { NoOptionI18nKeys } from "i18next";
+import { canViewCommunity } from "@utils/app";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -89,7 +91,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     showCommunityReportModal: false,
     renderCommunityReportModal: false,
     searchText: "",
-    notifications: "RepliesAndMentions",
+    notifications: "replies_and_mentions",
   };
 
   constructor(props: any, context: any) {
@@ -102,7 +104,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     this.handleNotificationChange = this.handleNotificationChange.bind(this);
     this.state.notifications =
       this.props.community_view.community_actions?.notifications ??
-      "RepliesAndMentions";
+      "replies_and_mentions";
   }
 
   unlisten = () => {};
@@ -170,6 +172,11 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
       community_actions: { received_ban_at } = {},
     } = this.props.community_view;
 
+    const visibilityLabel = ("community_visibility_" +
+      visibility) as NoOptionI18nKeys;
+    const visibilityDescription = (visibilityLabel +
+      "_desc") as NoOptionI18nKeys;
+    const canViewCommunity_ = canViewCommunity(this.props.community_view);
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
@@ -209,38 +216,42 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                       loading={this.state.followCommunityLoading}
                       showRemoteFetch={!this.props.myUserInfo}
                     />
-                    {this.canPost && this.createPost()}
+                    {this.canPost && canViewCommunity_ && this.createPost()}
                   </>
                 )}
                 <>
                   {this.props.myUserInfo && this.blockCommunity()}
-                  <div className="mb-2 d-flex">
-                    <CommunityNotificationSelect
-                      current={this.state.notifications}
-                      onChange={this.handleNotificationChange}
-                    />
-                  </div>
-                  <form
-                    class="d-flex"
-                    onSubmit={linkEvent(this, this.handleSearchSubmit)}
-                  >
-                    <input
-                      name="q"
-                      type="search"
-                      className="form-control flex-initial"
-                      placeholder={`${I18NextService.i18n.t("search")}...`}
-                      aria-label={I18NextService.i18n.t("search")}
-                      onInput={linkEvent(this, this.handleSearchChange)}
-                      required
-                      minLength={1}
-                    />
-                    <button
-                      type="submit"
-                      class="btn btn-outline-secondary ms-1"
-                    >
-                      <Icon icon="search" />
-                    </button>
-                  </form>
+                  {canViewCommunity_ && (
+                    <>
+                      <div className="mb-2 d-flex">
+                        <CommunityNotificationSelect
+                          current={this.state.notifications}
+                          onChange={this.handleNotificationChange}
+                        />
+                      </div>
+                      <form
+                        className="d-flex"
+                        onSubmit={linkEvent(this, this.handleSearchSubmit)}
+                      >
+                        <input
+                          name="q"
+                          type="search"
+                          className="form-control flex-initial"
+                          placeholder={`${I18NextService.i18n.t("search")}...`}
+                          aria-label={I18NextService.i18n.t("search")}
+                          onInput={linkEvent(this, this.handleSearchChange)}
+                          required
+                          minLength={1}
+                        />
+                        <button
+                          type="submit"
+                          className="btn btn-outline-secondary ms-1"
+                        >
+                          <Icon icon="search" />
+                        </button>
+                      </form>
+                    </>
+                  )}
                 </>
                 {!this.props.myUserInfo && (
                   <div className="alert alert-info" role="alert">
@@ -282,23 +293,10 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     {I18NextService.i18n.t("community_visibility")}:&nbsp;
                   </span>
                   <span className="fs-5 fw-medium align-middle">
-                    {I18NextService.i18n.t(
-                      visibility === "Public" ? "public" : "local_only",
-                    )}
-                    <Icon
-                      icon={visibility === "Public" ? "globe" : "house"}
-                      inline
-                      classes="ms-1 text-secondary"
-                    />
+                    {I18NextService.i18n.t(visibilityLabel)}
                   </span>
                 </div>
-                <p>
-                  {I18NextService.i18n.t(
-                    visibility === "Public"
-                      ? "public_blurb"
-                      : "local_only_blurb",
-                  )}
-                </p>
+                <p>{I18NextService.i18n.t(visibilityDescription)}</p>
               </div>
               <LanguageList
                 allLanguages={this.props.allLanguages}

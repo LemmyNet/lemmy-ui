@@ -11,7 +11,7 @@ import {
   validTitle,
   validURL,
 } from "@utils/helpers";
-import { isAudio, isImage, isVideo } from "@utils/media";
+import { isImage, isMedia } from "@utils/media";
 import { Choice, StringBoolean } from "@utils/types";
 import autosize from "autosize";
 import { Component, InfernoNode, createRef, linkEvent } from "inferno";
@@ -70,24 +70,24 @@ interface PostFormProps {
   onCancel?(): void;
   onCreate?(form: CreatePost, bypassNavWarning: () => void): void;
   onEdit?(form: EditPost, bypassNavWarning: () => void): void;
-  enableNsfw?: boolean;
+  enableNsfw: boolean;
   showAdultConsentModal: boolean;
   selectedCommunityChoice?: Choice;
   isNsfwCommunity: boolean;
-  onSelectCommunity?: (choice: Choice) => void;
+  onSelectCommunity?(choice: Choice): void;
   initialCommunities?: CommunityView[];
   loading: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   admins: PersonView[];
-  onTitleBlur?: (title: string) => void;
-  onUrlBlur?: (url: string) => void;
-  onBodyBlur?: (body: string) => void;
-  onLanguageChange?: (languageId?: number) => void;
-  onNsfwChange?: (nsfw: StringBoolean) => void;
-  onThumbnailUrlBlur?: (thumbnailUrl: string) => void;
-  onAltTextBlur?: (altText: string) => void;
-  onCopySuggestedTitle?: (url: string, title: string) => void;
+  onTitleBlur?(title: string): void;
+  onUrlBlur?(url: string): void;
+  onBodyBlur?(body: string): void;
+  onLanguageChange?(languageId?: number): void;
+  onNsfwChange?(nsfw: StringBoolean): void;
+  onThumbnailUrlBlur?(thumbnailUrl: string): void;
+  onAltTextBlur?(altText: string): void;
+  onCopySuggestedTitle?(url: string, title: string): void;
 }
 
 interface PostFormState {
@@ -580,8 +580,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               </div>
               <PostListings
                 showCommunity
+                viewOnly
+                markable={false}
                 posts={this.props.crossPosts}
-                showDupes="ShowSeparately"
+                showCrossPosts="show_separately"
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
@@ -589,28 +591,29 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 myUserInfo={this.props.myUserInfo}
                 localSite={this.props.localSite}
                 admins={this.props.admins}
-                viewOnly
+                postListingMode="list"
                 // All of these are unused, since its view only
-                onPostEdit={async () => EMPTY_REQUEST}
-                onPostVote={async () => EMPTY_REQUEST}
-                onPostReport={async () => {}}
-                onBlockPerson={async () => {}}
-                onBlockCommunity={async () => {}}
-                onLockPost={async () => {}}
-                onDeletePost={async () => {}}
-                onRemovePost={async () => {}}
-                onSavePost={async () => {}}
-                onFeaturePost={async () => {}}
-                onPurgePerson={async () => {}}
-                onPurgePost={async () => {}}
-                onBanPersonFromCommunity={async () => {}}
-                onBanPerson={async () => {}}
-                onAddModToCommunity={async () => {}}
-                onAddAdmin={async () => {}}
-                onTransferCommunity={async () => {}}
-                onMarkPostAsRead={async () => {}}
-                onHidePost={async () => {}}
-                onPersonNote={async () => {}}
+                onPostEdit={() => EMPTY_REQUEST}
+                onPostVote={() => EMPTY_REQUEST}
+                onPostReport={() => {}}
+                onBlockPerson={() => {}}
+                onBlockCommunity={() => {}}
+                onLockPost={() => {}}
+                onDeletePost={() => {}}
+                onRemovePost={() => {}}
+                onSavePost={() => {}}
+                onFeaturePost={() => {}}
+                onPurgePerson={() => {}}
+                onPurgePost={() => {}}
+                onBanPersonFromCommunity={() => {}}
+                onBanPerson={() => {}}
+                onAddModToCommunity={() => {}}
+                onAddAdmin={() => {}}
+                onTransferCommunity={() => {}}
+                onMarkPostAsRead={() => {}}
+                onHidePost={() => {}}
+                onPersonNote={() => {}}
+                onScrollIntoCommentsClick={() => {}}
               />
             </>
           )}
@@ -664,7 +667,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           onChange={this.handleLanguageChange}
           myUserInfo={this.props.myUserInfo}
         />
-        {url && (isImage(url) || isVideo(url) || isAudio(url)) && (
+        {url && isMedia(url) && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-alt-text">
               {I18NextService.i18n.t("column_alttext")}
@@ -818,7 +821,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         return <Spinner />;
       case "success": {
         const suggestedPosts = this.state.suggestedPostsRes.data.results.filter(
-          r => r.type_ === "Post",
+          r => r.type_ === "post",
         );
 
         return (
@@ -830,8 +833,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               </div>
               <PostListings
                 showCommunity
+                viewOnly
+                markable={false}
                 posts={suggestedPosts}
-                showDupes="ShowSeparately"
+                showCrossPosts="show_separately"
                 enableNsfw={this.props.enableNsfw}
                 showAdultConsentModal={this.props.showAdultConsentModal}
                 allLanguages={this.props.allLanguages}
@@ -839,28 +844,29 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 myUserInfo={this.props.myUserInfo}
                 localSite={this.props.localSite}
                 admins={this.props.admins}
-                viewOnly
+                postListingMode="list"
                 // All of these are unused, since its view only
-                onPostEdit={async () => EMPTY_REQUEST}
-                onPostVote={async () => EMPTY_REQUEST}
-                onPostReport={async () => {}}
-                onBlockPerson={async () => {}}
-                onBlockCommunity={async () => {}}
-                onLockPost={async () => {}}
-                onDeletePost={async () => {}}
-                onRemovePost={async () => {}}
-                onSavePost={async () => {}}
-                onFeaturePost={async () => {}}
-                onPurgePerson={async () => {}}
-                onPurgePost={async () => {}}
-                onBanPersonFromCommunity={async () => {}}
-                onBanPerson={async () => {}}
-                onAddModToCommunity={async () => {}}
-                onAddAdmin={async () => {}}
-                onTransferCommunity={async () => {}}
-                onMarkPostAsRead={async () => {}}
-                onHidePost={async () => {}}
-                onPersonNote={async () => {}}
+                onPostEdit={() => EMPTY_REQUEST}
+                onPostVote={() => EMPTY_REQUEST}
+                onPostReport={() => {}}
+                onBlockPerson={() => {}}
+                onBlockCommunity={() => {}}
+                onLockPost={() => {}}
+                onDeletePost={() => {}}
+                onRemovePost={() => {}}
+                onSavePost={() => {}}
+                onFeaturePost={() => {}}
+                onPurgePerson={() => {}}
+                onPurgePost={() => {}}
+                onBanPersonFromCommunity={() => {}}
+                onBanPerson={() => {}}
+                onAddModToCommunity={() => {}}
+                onAddAdmin={() => {}}
+                onTransferCommunity={() => {}}
+                onMarkPostAsRead={() => {}}
+                onHidePost={() => {}}
+                onPersonNote={() => {}}
+                onScrollIntoCommentsClick={() => {}}
               />
             </>
           )
@@ -901,9 +907,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       this.setState({
         suggestedPostsRes: await HttpService.client.search({
           q,
-          type_: "Posts",
-          sort: "Top",
-          listing_type: "All",
+          type_: "posts",
+          sort: "top",
+          listing_type: "all",
           community_id: this.state.form.community_id,
         }),
       });
@@ -974,7 +980,7 @@ export function filterCommunitySelection(
       // filter out private comms unless the current user follows it
       .filter(
         c =>
-          c.community.visibility !== "Private" ||
+          c.community.visibility !== "private" ||
           follows?.includes(c.community.id),
       )
   );

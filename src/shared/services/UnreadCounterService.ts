@@ -22,6 +22,10 @@ export class UnreadCounterService {
   public unreadApplicationCountSubject: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
+  // fetched by HttpService.getCommunityPendingFollowsCount, appear in pending follows page
+  public pendingFollowCountSubject: BehaviorSubject<number> =
+    new BehaviorSubject<number>(0);
+
   private enableUnreadCounts: boolean = false;
   private enableReports: boolean = false;
   private enableApplications: boolean = false;
@@ -79,10 +83,21 @@ export class UnreadCounterService {
     }
   }
 
+  public async updatePendingFollows() {
+    if (this.shouldUpdate) {
+      const pendingFollowsRes =
+        await HttpService.client.getCommunityPendingFollowsCount();
+      if (pendingFollowsRes.state === "success") {
+        this.pendingFollowCountSubject.next(pendingFollowsRes.data.count);
+      }
+    }
+  }
+
   public async updateAll() {
     this.updateUnreadCounts();
     this.updateReports();
     this.updateApplications();
+    this.updatePendingFollows();
   }
 
   static get Instance() {

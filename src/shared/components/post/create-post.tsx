@@ -77,8 +77,8 @@ export function getCreatePostQueryParams(source?: string): CreatePostProps {
 function fetchCommunitiesForOptions(client: WrappedLemmyHttp) {
   return client.listCommunities({
     limit: 30,
-    sort: "ActiveMonthly",
-    type_: "All",
+    sort: "active_monthly",
+    type_: "all",
   });
 }
 
@@ -452,7 +452,7 @@ export class CreatePost extends Component<
           allLanguages={this.isoData.siteRes.all_languages}
           siteLanguages={this.isoData.siteRes.discussion_languages}
           myUserInfo={this.isoData.myUserInfo}
-          hideButtons={true}
+          hideButtons
           onDeleteCommunity={async () => {}}
           onLeaveModTeam={async () => {}}
           onFollowCommunity={async () => {}}

@@ -30,7 +30,7 @@ export function SubscribeButton({
 }: SubscribeButtonProps) {
   const buttonClass = classNames("btn", {
     "btn-link p-0": isLink,
-    [`btn-secondary d-block mb-2 w-100 btn-${followState === "Pending" ? "warning" : "secondary"}`]:
+    [`btn-secondary d-block mb-2 w-100 btn-${followState === "pending" ? "warning" : "secondary"}`]:
       !isLink,
   });
 
@@ -60,7 +60,7 @@ export function SubscribeButton({
         <Spinner />
       ) : (
         <>
-          {followState === "Accepted" && (
+          {followState === "accepted" && (
             <Icon icon="check" classes="icon-inline me-1" />
           )}
           {I18NextService.i18n.t(followStateKey(followState))}
@@ -77,11 +77,11 @@ function followStateKey(
     case undefined: {
       return "subscribe";
     }
-    case "Accepted": {
+    case "accepted": {
       return "joined";
     }
-    case "Pending":
-    case "ApprovalRequired":
+    case "pending":
+    case "approval_required":
     default: {
       return "subscribe_pending";
     }

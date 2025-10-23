@@ -21,8 +21,8 @@ import { Choice, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, createRef, linkEvent } from "inferno";
 import {
-  BlockCommunityResponse,
-  BlockPersonResponse,
+  CommunityResponse,
+  PersonResponse,
   CommentSortType,
   Community,
   GenerateTotpSecretResponse,
@@ -33,6 +33,7 @@ import {
   ListingType,
   LoginResponse,
   Person,
+  PostListingMode,
   PostSortType,
   SaveUserSettings,
   SuccessResponse,
@@ -78,6 +79,9 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { CommentSortSelect } from "../common/sort-select";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
+import BlockingKeywordsTextArea from "@components/common/blocking-keywords-textarea";
+import { NoOptionI18nKeys } from "i18next";
+import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: GetFederatedInstancesResponse;
@@ -234,6 +238,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       this.handleCommentSortTypeChange.bind(this);
     this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
+    this.handlePostListingModeChange =
+      this.handlePostListingModeChange.bind(this);
     this.handleBioChange = this.handleBioChange.bind(this);
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
@@ -250,6 +256,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       this.handleBlockInstanceCommunities.bind(this);
     this.handleBlockInstancePersons =
       this.handleBlockInstancePersons.bind(this);
+    this.handleBlockingKeywordsUpdate =
+      this.handleBlockingKeywordsUpdate.bind(this);
 
     this.handleToggle2fa = this.handleToggle2fa.bind(this);
     this.handleEnable2fa = this.handleEnable2fa.bind(this);
@@ -267,6 +275,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           default_comment_sort_type,
           default_post_time_range_seconds,
           default_listing_type,
+          post_listing_mode,
           default_items_per_page,
           interface_language,
           show_avatars,
@@ -308,6 +317,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           default_comment_sort_type,
           default_post_time_range_seconds,
           default_listing_type,
+          post_listing_mode,
           default_items_per_page,
           interface_language,
           discussion_languages: mui.discussion_languages,
@@ -328,6 +338,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           open_links_in_new_tab,
           enable_private_messages,
           auto_mark_fetched_posts_as_read,
+          blocking_keywords: mui.keyword_blocks,
         },
         avatar,
         banner,
@@ -923,9 +934,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             selectedLanguageIds={selectedLangs}
-            multiple={true}
-            showLanguageWarning={true}
-            showAll={true}
+            multiple
+            showLanguageWarning
+            showAll
             showSite
             onChange={this.handleDiscussionLanguageChange}
             myUserInfo={this.isoData.myUserInfo}
@@ -966,12 +977,25 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <ListingTypeSelect
                 type_={
                   this.state.saveUserSettingsForm.default_listing_type ??
-                  "Local"
+                  "local"
                 }
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
                 myUserInfo={this.isoData.myUserInfo}
                 onChange={this.handleListingTypeChange}
+              />
+            </div>
+          </form>
+          <form className="mb-3 row">
+            <label className="col-sm-3 col-form-label">
+              {I18NextService.i18n.t("listing_mode")}
+            </label>
+            <div className="col-sm-9">
+              <PostListingModeSelect
+                current={
+                  this.state.saveUserSettingsForm.post_listing_mode ?? "list"
+                }
+                onChange={this.handlePostListingModeChange}
               />
             </div>
           </form>
@@ -983,7 +1007,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <PostSortSelect
                 current={
                   this.state.saveUserSettingsForm.default_post_sort_type ??
-                  "Active"
+                  "active"
                 }
                 onChange={this.handlePostSortTypeChange}
               />
@@ -997,7 +1021,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <CommentSortSelect
                 current={
                   this.state.saveUserSettingsForm.default_comment_sort_type ??
-                  "Hot"
+                  "hot"
                 }
                 onChange={this.handleCommentSortTypeChange}
               />
@@ -1036,6 +1060,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </form>
+          <BlockingKeywordsTextArea
+            keywords={this.state.saveUserSettingsForm.blocking_keywords ?? []}
+            onUpdate={this.handleBlockingKeywordsUpdate}
+          />
           <div className="input-group mb-3">
             <div className="form-check">
               <input
@@ -1104,7 +1132,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <div className="col-sm-9">
                 <VoteShowSelect
                   current={
-                    this.state.saveUserSettingsForm.show_downvotes ?? "Show"
+                    this.state.saveUserSettingsForm.show_downvotes ?? "show"
                   }
                   onChange={this.handleShowDownvotesChange}
                 />
@@ -1523,12 +1551,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   });
 
   async handleBlockPerson({ value }: Choice) {
+    const block = true;
     if (value !== "0") {
       const res = await HttpService.client.blockPerson({
         person_id: Number(value),
-        block: true,
+        block,
       });
-      this.personBlock(res);
+      this.personBlock(res, block);
     }
   }
 
@@ -1539,42 +1568,46 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     ctx: Settings;
     recipientId: number;
   }) {
+    const block = false;
     const res = await HttpService.client.blockPerson({
       person_id: recipientId,
-      block: false,
+      block,
     });
-    ctx.personBlock(res);
+    ctx.personBlock(res, block);
   }
 
   async handleBlockCommunity({ value }: Choice) {
+    const block = true;
     if (value !== "0") {
       const res = await HttpService.client.blockCommunity({
         community_id: Number(value),
-        block: true,
+        block,
       });
-      this.communityBlock(res);
+      this.communityBlock(res, block);
     }
   }
 
   async handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
+    const block = false;
     if (myAuth()) {
       const res = await HttpService.client.blockCommunity({
         community_id: i.communityId,
-        block: false,
+        block,
       });
-      i.ctx.communityBlock(res);
+      i.ctx.communityBlock(res, block);
     }
   }
 
   async handleBlockInstanceCommunities({ value }: Choice) {
+    const block = true;
     if (value !== "0") {
       const id = Number(value);
       const res = await HttpService.client.userBlockInstanceCommunities({
-        block: true,
+        block,
         instance_id: id,
       });
       if (res.state === "success") {
-        this.instanceCommunitiesBlock(id, true);
+        this.instanceCommunitiesBlock(id, block);
       }
     }
   }
@@ -1586,24 +1619,26 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     ctx: Settings;
     instanceId: number;
   }) {
+    const block = false;
     const res = await HttpService.client.userBlockInstanceCommunities({
-      block: false,
+      block,
       instance_id: instanceId,
     });
     if (res.state === "success") {
-      ctx.instanceCommunitiesBlock(instanceId, false);
+      ctx.instanceCommunitiesBlock(instanceId, block);
     }
   }
 
   async handleBlockInstancePersons({ value }: Choice) {
+    const block = true;
     if (value !== "0") {
       const id = Number(value);
       const res = await HttpService.client.userBlockInstancePersons({
-        block: true,
+        block,
         instance_id: id,
       });
       if (res.state === "success") {
-        this.instancePersonsBlock(id, true);
+        this.instancePersonsBlock(id, block);
       }
     }
   }
@@ -1615,12 +1650,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     ctx: Settings;
     instanceId: number;
   }) {
+    const block = false;
     const res = await HttpService.client.userBlockInstancePersons({
-      block: false,
+      block,
       instance_id: instanceId,
     });
     if (res.state === "success") {
-      ctx.instancePersonsBlock(instanceId, false);
+      ctx.instancePersonsBlock(instanceId, block);
     }
   }
 
@@ -1783,6 +1819,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
+  handlePostListingModeChange(val: PostListingMode) {
+    this.setState(s => ((s.saveUserSettingsForm.post_listing_mode = val), s));
+  }
+
   handlePostSortTypeChange(val: PostSortType) {
     this.setState(
       s => ((s.saveUserSettingsForm.default_post_sort_type = val), s),
@@ -1799,6 +1839,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     this.setState(
       s => ((s.saveUserSettingsForm.default_post_time_range_seconds = val), s),
     );
+  }
+
+  handleBlockingKeywordsUpdate(val: string[]) {
+    this.setState(s => ((s.saveUserSettingsForm.blocking_keywords = val), s));
   }
 
   handleListingTypeChange(val: ListingType) {
@@ -1899,7 +1943,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       // You need to reload the page, to properly update the siteRes everywhere
       setTimeout(() => location.reload(), 500);
     } else if (saveRes.state === "failed") {
-      toast(saveRes.err.name, "danger");
+      toast(
+        I18NextService.i18n.t(saveRes.err.name as NoOptionI18nKeys),
+        "danger",
+      );
     }
 
     setThemeOverride(undefined);
@@ -2082,9 +2129,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     i.ctx.setState({ currentTab: i.tab });
   }
 
-  personBlock(res: RequestState<BlockPersonResponse>) {
+  personBlock(res: RequestState<PersonResponse>, blocked: boolean) {
     if (res.state === "success") {
-      updatePersonBlock(res.data, this.isoData.myUserInfo);
+      updatePersonBlock(res.data, blocked, this.isoData.myUserInfo);
       const mui = this.isoData.myUserInfo;
       if (mui) {
         this.setState({ personBlocks: mui.person_blocks });
@@ -2092,9 +2139,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
   }
 
-  communityBlock(res: RequestState<BlockCommunityResponse>) {
+  communityBlock(res: RequestState<CommunityResponse>, blocked: boolean) {
     if (res.state === "success") {
-      updateCommunityBlock(res.data, this.isoData.myUserInfo);
+      updateCommunityBlock(res.data, blocked, this.isoData.myUserInfo);
       const mui = this.isoData.myUserInfo;
       if (mui) {
         this.setState({ communityBlocks: mui.community_blocks });

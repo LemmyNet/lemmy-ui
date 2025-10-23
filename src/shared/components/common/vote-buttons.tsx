@@ -1,4 +1,4 @@
-import { calculateUpvotePct, newVote } from "@utils/app";
+import { calculateUpvotePct, newVoteIsUpvote } from "@utils/app";
 import { numToSI } from "@utils/helpers";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -11,20 +11,20 @@ import {
   PersonId,
   Post,
 } from "lemmy-js-client";
-import { VoteContentType, VoteType } from "@utils/types";
+import { PostOrCommentType } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import classNames from "classnames";
 
 interface VoteButtonsProps {
-  voteContentType: VoteContentType;
+  voteContentType: PostOrCommentType;
   id: number;
   onVote: (i: CreateCommentLike | CreatePostLike) => void;
   subject: Post | Comment;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
-  myVote?: number;
+  myVoteIsUpvote?: boolean;
   disabled: boolean;
 }
 
@@ -36,7 +36,7 @@ interface VoteButtonsState {
 export function showUpvotes(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
-  type: VoteContentType,
+  type: PostOrCommentType,
 ): boolean {
   return enableUpvotes(localSite, type) && (localUser?.show_upvotes ?? true);
 }
@@ -44,12 +44,12 @@ export function showUpvotes(
 export function showDownvotes(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
-  type: VoteContentType,
+  type: PostOrCommentType,
   creatorId: PersonId,
 ): boolean {
   const show =
-    localUser?.show_downvotes === "Show" ||
-    (localUser?.show_downvotes === "ShowForOthers" &&
+    localUser?.show_downvotes === "show" ||
+    (localUser?.show_downvotes === "show_for_others" &&
       localUser?.person_id !== creatorId);
   return enableDownvotes(localSite, type) && show;
 }
@@ -61,7 +61,7 @@ export function showScore(localUser: LocalUser | undefined): boolean {
 export function showPercentage(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
-  type: VoteContentType,
+  type: PostOrCommentType,
 ): boolean {
   return (
     (localUser?.show_upvote_percentage ?? true) &&
@@ -72,23 +72,23 @@ export function showPercentage(
 
 export function enableDownvotes(
   localSite: LocalSite,
-  type: VoteContentType,
+  type: PostOrCommentType,
 ): boolean {
-  if (type === VoteContentType.Comment) {
-    return localSite.comment_downvotes !== "Disable";
+  if (type === "comment") {
+    return localSite.comment_downvotes !== "disable";
   } else {
-    return localSite.post_downvotes !== "Disable";
+    return localSite.post_downvotes !== "disable";
   }
 }
 
 export function enableUpvotes(
   localSite: LocalSite,
-  type: VoteContentType,
+  type: PostOrCommentType,
 ): boolean {
-  if (type === VoteContentType.Comment) {
-    return localSite.comment_upvotes !== "Disable";
+  if (type === "comment") {
+    return localSite.comment_upvotes !== "disable";
   } else {
-    return localSite.post_upvotes !== "Disable";
+    return localSite.post_upvotes !== "disable";
   }
 }
 
@@ -96,7 +96,7 @@ function tippy(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
   counts: Comment | Post,
-  type: VoteContentType,
+  type: PostOrCommentType,
   creatorId: PersonId,
 ): string {
   const scoreStr =
@@ -138,17 +138,17 @@ function handleUpvote(i: VoteButtons | VoteButtonsCompact) {
   i.setState({ upvoteLoading: true });
 
   switch (i.props.voteContentType) {
-    case VoteContentType.Comment:
+    case "comment":
       i.props.onVote({
         comment_id: i.props.id,
-        score: newVote(VoteType.Upvote, i.props.myVote),
+        is_upvote: newVoteIsUpvote("upvote", i.props.myVoteIsUpvote),
       });
       break;
-    case VoteContentType.Post:
+    case "post":
     default:
       i.props.onVote({
         post_id: i.props.id,
-        score: newVote(VoteType.Upvote, i.props.myVote),
+        is_upvote: newVoteIsUpvote("upvote", i.props.myVoteIsUpvote),
       });
   }
 }
@@ -156,17 +156,17 @@ function handleUpvote(i: VoteButtons | VoteButtonsCompact) {
 function handleDownvote(i: VoteButtons | VoteButtonsCompact) {
   i.setState({ downvoteLoading: true });
   switch (i.props.voteContentType) {
-    case VoteContentType.Comment:
+    case "comment":
       i.props.onVote({
         comment_id: i.props.id,
-        score: newVote(VoteType.Downvote, i.props.myVote),
+        is_upvote: newVoteIsUpvote("downvote", i.props.myVoteIsUpvote),
       });
       break;
-    case VoteContentType.Post:
+    case "post":
     default:
       i.props.onVote({
         post_id: i.props.id,
-        score: newVote(VoteType.Downvote, i.props.myVote),
+        is_upvote: newVoteIsUpvote("downvote", i.props.myVoteIsUpvote),
       });
   }
 }
@@ -210,7 +210,7 @@ export class VoteButtonsCompact extends Component<
           <button
             type="button"
             className={`btn btn-animate btn-sm btn-link py-0 px-1 ${
-              this.props.myVote === 1 ? "text-primary" : "text-muted"
+              this.props.myVoteIsUpvote === true ? "text-primary" : "text-muted"
             }`}
             data-tippy-content={tippy(
               localUser,
@@ -222,7 +222,7 @@ export class VoteButtonsCompact extends Component<
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}
             aria-label={I18NextService.i18n.t("upvote")}
-            aria-pressed={this.props.myVote === 1}
+            aria-pressed={this.props.myVoteIsUpvote === true}
           >
             {this.state.upvoteLoading ? (
               <Spinner />
@@ -242,7 +242,7 @@ export class VoteButtonsCompact extends Component<
           <button
             type="button"
             className={`ms-2 btn btn-sm btn-link btn-animate btn py-0 px-1 ${
-              this.props.myVote === -1 ? "text-danger" : "text-muted"
+              this.props.myVoteIsUpvote === false ? "text-danger" : "text-muted"
             }`}
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleDownvote)}
@@ -254,7 +254,7 @@ export class VoteButtonsCompact extends Component<
               creator_id,
             )}
             aria-label={I18NextService.i18n.t("downvote")}
-            aria-pressed={this.props.myVote === -1}
+            aria-pressed={this.props.myVoteIsUpvote === false}
           >
             {this.state.downvoteLoading ? (
               <Spinner />
@@ -320,7 +320,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
           <button
             type="button"
             className={`btn-animate btn btn-link p-0 ${
-              this.props.myVote === 1 ? "text-primary" : "text-muted"
+              this.props.myVoteIsUpvote === true ? "text-primary" : "text-muted"
             }`}
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleUpvote)}
@@ -332,7 +332,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
               creator_id,
             )}
             aria-label={I18NextService.i18n.t("upvote")}
-            aria-pressed={this.props.myVote === 1}
+            aria-pressed={this.props.myVoteIsUpvote === true}
           >
             {this.state.upvoteLoading ? (
               <Spinner />
@@ -361,7 +361,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
           <button
             type="button"
             className={`btn-animate btn btn-link p-0 ${
-              this.props.myVote === -1 ? "text-danger" : "text-muted"
+              this.props.myVoteIsUpvote === false ? "text-danger" : "text-muted"
             }`}
             disabled={this.props.disabled}
             onClick={linkEvent(this, handleDownvote)}
@@ -373,7 +373,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
               creator_id,
             )}
             aria-label={I18NextService.i18n.t("downvote")}
-            aria-pressed={this.props.myVote === -1}
+            aria-pressed={this.props.myVoteIsUpvote === false}
           >
             {this.state.downvoteLoading ? (
               <Spinner />

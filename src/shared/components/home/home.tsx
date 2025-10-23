@@ -4,7 +4,6 @@ import {
   editPersonNotes,
   editPost,
   enableNsfw,
-  getDataTypeString,
   mixedToCommentSortType,
   mixedToPostSortType,
   myAuth,
@@ -36,7 +35,7 @@ import {
   BanFromCommunity,
   BanFromCommunityResponse,
   BanPerson,
-  BanPersonResponse,
+  PersonResponse,
   BlockPerson,
   CommentResponse,
   CreateComment,
@@ -76,9 +75,10 @@ import {
   NotePerson,
   LockComment,
   BlockCommunity,
+  PostListingMode,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
-import { CommentViewType, DataType, InitialFetchRequest } from "@utils/types";
+import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
 import { mdToHtml } from "@utils/markdown";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
@@ -91,7 +91,7 @@ import {
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
-import { DataTypeSelect } from "../common/data-type-select";
+import { PostOrCommentTypeSelect } from "../common/post-or-comment-type-select";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ListingTypeSelect } from "../common/listing-type-select";
@@ -113,6 +113,7 @@ import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
 import { BannedDialog } from "./banned-dialog";
+import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -124,12 +125,12 @@ interface HomeState {
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
-  expandAllImages: boolean;
+  postListingMode: PostListingMode;
 }
 
 interface HomeProps {
   listingType?: ListingType;
-  dataType: DataType;
+  postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
   cursor?: DirectionalCursor;
@@ -146,15 +147,15 @@ function getRss(listingType: ListingType, sort: PostSortType) {
 
   const queryString = getQueryString({ sort });
   switch (listingType) {
-    case "All": {
+    case "all": {
       rss = "/feeds/all.xml" + queryString;
       break;
     }
-    case "Local": {
+    case "local": {
       rss = "/feeds/local.xml" + queryString;
       break;
     }
-    case "Subscribed": {
+    case "subscribed": {
       const auth = myAuth();
       rss = auth ? `/feeds/front/${auth}.xml${queryString}` : undefined;
       break;
@@ -173,8 +174,8 @@ function getRss(listingType: ListingType, sort: PostSortType) {
   );
 }
 
-function getDataTypeFromQuery(type?: string): DataType {
-  return type ? DataType[type] : DataType.Post;
+function getPostOrCommentTypeFromQuery(type?: string): PostOrCommentType {
+  return type ? (type as PostOrCommentType) : "post";
 }
 
 function getListingTypeFromQuery(
@@ -217,7 +218,7 @@ export function getHomeQueryParams(
       postTimeRange: getPostTimeRangeFromQuery,
       listingType: getListingTypeFromQuery,
       cursor: (cursor?: string) => cursor,
-      dataType: getDataTypeFromQuery,
+      postOrCommentType: getPostOrCommentTypeFromQuery,
       showHidden: (include?: StringBoolean) => include,
     },
     source,
@@ -271,12 +272,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     subscribedCollapsed: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
-    expandAllImages: false,
+    postListingMode:
+      this.isoData.myUserInfo?.local_user_view.local_user.post_listing_mode ??
+      this.isoData.siteRes.site_view.local_site.default_post_listing_mode,
   };
 
   loadingSettled(): boolean {
     return resourcesSettled([
-      this.props.dataType === DataType.Post
+      this.props.postOrCommentType === "post"
         ? this.state.postsRes
         : this.state.commentsRes,
     ]);
@@ -289,7 +292,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleCommentSortChange = this.handleCommentSortChange.bind(this);
     this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
     this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
-    this.handleDataTypeChange = this.handleDataTypeChange.bind(this);
+    this.handlePostListingModeChange =
+      this.handlePostListingModeChange.bind(this);
+    this.handlePostOrCommentTypeChange =
+      this.handlePostOrCommentTypeChange.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
 
@@ -323,7 +329,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handleHidePost = this.handleHidePost.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
-    this.handleExpandAllImages = this.handleExpandAllImages.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -359,7 +364,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   static async fetchInitialData({
-    query: { listingType, dataType, sort, postTimeRange, cursor, showHidden },
+    query: {
+      listingType,
+      postOrCommentType,
+      sort,
+      postTimeRange,
+      cursor,
+      showHidden,
+    },
     headers,
   }: InitialFetchRequest<HomePathProps, HomeProps>): Promise<HomeData> {
     const client = wrapClient(
@@ -371,7 +383,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     let commentsFetch: Promise<RequestState<GetCommentsResponse>> =
       Promise.resolve(EMPTY_REQUEST);
 
-    if (dataType === DataType.Post) {
+    if (postOrCommentType === "post") {
       const getPostsForm: GetPosts = {
         type_: listingType,
         ...cursorComponents(cursor),
@@ -489,7 +501,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               site={site}
               admins={admins}
               localSite={local_site}
-              isMobile={true}
+              isMobile
               myUserInfo={this.isoData.myUserInfo}
               allLanguages={this.state.siteRes.all_languages}
               siteLanguages={this.state.siteRes.discussion_languages}
@@ -542,7 +554,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           id="sidebarSubscribedHeader"
         >
           <h5 className="mb-0 d-inline">
-            <T class="d-inline" i18nKey="subscribed_to_communities">
+            <T className="d-inline" i18nKey="subscribed_to_communities">
               #
               <Link className="text-body" to="/communities">
                 #
@@ -601,12 +613,19 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async updateUrl(props: Partial<HomeProps>) {
-    const { dataType, listingType, cursor, sort, postTimeRange, showHidden } = {
+    const {
+      postOrCommentType,
+      listingType,
+      cursor,
+      sort,
+      postTimeRange,
+      showHidden,
+    } = {
       ...this.props,
       ...props,
     };
     const queryParams: QueryParams<HomeProps> = {
-      dataType: getDataTypeString(dataType ?? DataType.Post),
+      postOrCommentType: postOrCommentType ?? "post",
       listingType,
       cursor,
       sort,
@@ -626,15 +645,15 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         <div>
           {this.selects}
           {this.listings}
-          <div class="row">
-            <div class="col">
+          <div className="row">
+            <div className="col">
               <PaginatorCursor
                 current={this.props.cursor}
                 resource={this.currentRes}
                 onPageChange={this.handlePageChange}
               />
             </div>
-            <div class="col-auto">{this.markPageAsReadButton}</div>
+            <div className="col-auto">{this.markPageAsReadButton}</div>
           </div>
         </div>
       </div>
@@ -642,21 +661,21 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get markPageAsReadButton(): InfernoNode {
-    const { dataType } = this.props;
+    const { postOrCommentType } = this.props;
     const { postsRes, markPageAsReadLoading } = this.state;
 
     if (markPageAsReadLoading) return <Spinner />;
 
     const haveUnread =
-      dataType === DataType.Post &&
+      postOrCommentType === "post" &&
       postsRes.state === "success" &&
       postsRes.data.posts.some(p => !p.post_actions?.read_at);
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
-      <div class="my-2">
+      <div className="my-2">
         <button
-          class="btn btn-secondary"
+          className="btn btn-secondary"
           onClick={linkEvent(this, this.handleMarkPageAsRead)}
         >
           {I18NextService.i18n.t("mark_page_as_read")}
@@ -666,11 +685,11 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async handleMarkPageAsRead(i: Home) {
-    const { dataType } = i.props;
+    const { postOrCommentType } = i.props;
     const { postsRes } = i.state;
 
     const post_ids =
-      dataType === DataType.Post &&
+      postOrCommentType === "post" &&
       postsRes.state === "success" &&
       postsRes.data.posts
         .filter(p => !p.post_actions?.read_at)
@@ -680,6 +699,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       i.setState({ markPageAsReadLoading: true });
       const res = await HttpService.client.markManyPostAsRead({
         post_ids,
+        read: true,
       });
       if (res.state === "success") {
         i.setState(s => {
@@ -702,7 +722,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get currentRes() {
-    if (this.props.dataType === DataType.Post) {
+    if (this.props.postOrCommentType === "post") {
       return this.state.postsRes;
     } else {
       return this.state.commentsRes;
@@ -710,10 +730,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get listings() {
-    const { dataType } = this.props;
+    const { postOrCommentType } = this.props;
     const siteRes = this.state.siteRes;
 
-    if (dataType === DataType.Post) {
+    if (postOrCommentType === "post") {
       switch (this.state.postsRes?.state) {
         case "empty":
           return <div style="min-height: 20000px;"></div>;
@@ -725,8 +745,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <PostListings
               posts={posts}
               showCommunity
-              showDupes="Small"
+              showCrossPosts="small"
               markable
+              viewOnly={false}
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes.all_languages}
@@ -754,7 +775,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onMarkPostAsRead={this.handleMarkPostAsRead}
               onHidePost={this.handleHidePost}
               onPersonNote={this.handlePersonNote}
-              expandAllImages={this.state.expandAllImages}
+              postListingMode={this.state.postListingMode}
+              onScrollIntoCommentsClick={() => {}}
             />
           );
         }
@@ -768,7 +790,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           return (
             <CommentNodes
               nodes={commentsToFlatNodes(comments)}
-              viewType={CommentViewType.Flat}
+              viewType={"flat"}
               isTopLevel
               showCommunity
               showContext
@@ -804,18 +826,18 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get selects() {
-    const { listingType, dataType, sort, postTimeRange, showHidden } =
+    const { listingType, postOrCommentType, sort, postTimeRange, showHidden } =
       this.props;
 
     return (
       <div className="row align-items-center mb-3 g-3">
         <div className="col-auto">
-          <DataTypeSelect
-            type_={dataType}
-            onChange={this.handleDataTypeChange}
+          <PostOrCommentTypeSelect
+            type_={postOrCommentType}
+            onChange={this.handlePostOrCommentTypeChange}
           />
         </div>
-        {dataType === DataType.Post && this.isoData.myUserInfo && (
+        {postOrCommentType === "post" && this.isoData.myUserInfo && (
           <div className="col-auto">
             <PostHiddenSelect
               showHidden={showHidden}
@@ -835,7 +857,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             onChange={this.handleListingTypeChange}
           />
         </div>
-        {this.props.dataType === DataType.Post ? (
+        <div className="col-auto">
+          <PostListingModeSelect
+            current={this.state.postListingMode}
+            onChange={this.handlePostListingModeChange}
+          />
+        </div>
+        {this.props.postOrCommentType === "post" ? (
           <>
             <div className="col-auto">
               <PostSortSelect
@@ -865,23 +893,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             sort,
           )}
         </div>
-        <div className="col-auto ps-0">
-          <button
-            class="btn btn-secondary"
-            onClick={this.handleExpandAllImages}
-            aria-label={I18NextService.i18n.t("expand_all_images")}
-            data-tippy-content={I18NextService.i18n.t("expand_all_images")}
-          >
-            <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
-          </button>
-        </div>
       </div>
     );
   }
 
   fetchDataToken?: symbol;
   async fetchData({
-    dataType,
+    postOrCommentType,
     cursor,
     listingType,
     sort,
@@ -889,7 +907,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     showHidden,
   }: HomeProps) {
     const token = (this.fetchDataToken = Symbol());
-    if (dataType === DataType.Post) {
+    if (postOrCommentType === "post") {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
         ...cursorComponents(cursor),
@@ -945,8 +963,19 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.updateUrl({ listingType: val, cursor: undefined });
   }
 
-  handleDataTypeChange(val: DataType) {
-    this.updateUrl({ dataType: val, cursor: undefined });
+  async handlePostListingModeChange(val: PostListingMode) {
+    this.setState({ postListingMode: val });
+
+    // Also, save your user settings to this mode
+    if (this.isoData.myUserInfo) {
+      await HttpService.client.saveUserSettings({
+        post_listing_mode: val,
+      });
+    }
+  }
+
+  handlePostOrCommentTypeChange(val: PostOrCommentType) {
+    this.updateUrl({ postOrCommentType: val, cursor: undefined });
   }
 
   handleShowHiddenChange(show?: StringBoolean) {
@@ -979,14 +1008,22 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
+      updatePersonBlock(
+        blockPersonRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
     }
   }
 
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
     if (blockCommunityRes.state === "success") {
-      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
+      updateCommunityBlock(
+        blockCommunityRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
     }
   }
 
@@ -1163,7 +1200,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   async handleBanPerson(form: BanPerson) {
     const banRes = await HttpService.client.banPerson(form);
-    this.updateBan(banRes);
+    this.updateBan(banRes, form.ban);
   }
 
   async handleHidePost(form: HidePost) {
@@ -1189,10 +1226,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  handleExpandAllImages() {
-    this.setState({ expandAllImages: !this.state.expandAllImages });
-  }
-
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
     // Maybe not necessary
     if (banRes.state === "success") {
@@ -1216,19 +1249,19 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  updateBan(banRes: RequestState<BanPersonResponse>) {
+  updateBan(banRes: RequestState<PersonResponse>, banned: boolean) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator_banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banned));
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator_banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banned));
         }
         return s;
       });

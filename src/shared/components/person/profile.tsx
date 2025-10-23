@@ -38,7 +38,7 @@ import {
   BanFromCommunity,
   BanFromCommunityResponse,
   BanPerson,
-  BanPersonResponse,
+  PersonResponse,
   BlockPerson,
   CommentResponse,
   Community,
@@ -145,7 +145,7 @@ interface ProfileState {
   pageBack?: boolean;
 }
 
-type Filter = "Saved" | "Liked" | "Read" | "Hidden" | "None";
+type Filter = "saved" | "liked" | "read" | "hidden" | "none";
 
 interface ProfileProps {
   view: PersonDetailsView;
@@ -167,31 +167,31 @@ export function getProfileQueryParams(source?: string): ProfileProps {
 }
 
 function getSortTypeFromQuery(sort?: string): SearchSortType {
-  return sort ? (sort as SearchSortType) : "New";
+  return sort ? (sort as SearchSortType) : "new";
 }
 
 function getViewFromProps(view?: string): PersonDetailsView {
   switch (view) {
-    case "Uploads":
-    case "All":
-    case "Posts":
-    case "Comments":
+    case "uploads":
+    case "all":
+    case "posts":
+    case "comments":
       return view;
     default:
-      return "All";
+      return "all";
   }
 }
 
 function getFilterFromQuery(filter?: string): Filter {
   switch (filter) {
-    case "None":
-    case "Saved":
-    case "Read":
-    case "Hidden":
-    case "Liked":
+    case "none":
+    case "saved":
+    case "read":
+    case "hidden":
+    case "liked":
       return filter;
     default:
-      return "None";
+      return "none";
   }
 }
 
@@ -382,15 +382,15 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     const needPerson =
       this.state.personRes.state !== "success" || showBothLoading;
-    const needUploads = isMe && view === "Uploads";
-    const needSaved = isMe && filter === "Saved" && !needUploads;
-    const needLiked = isMe && filter === "Liked" && !needUploads;
-    const needRead = isMe && filter === "Read" && !needUploads;
-    const needHidden = isMe && filter === "Hidden" && !needUploads;
+    const needUploads = isMe && view === "uploads";
+    const needSaved = isMe && filter === "saved" && !needUploads;
+    const needLiked = isMe && filter === "liked" && !needUploads;
+    const needRead = isMe && filter === "read" && !needUploads;
+    const needHidden = isMe && filter === "hidden" && !needUploads;
     const needContent =
       !needSaved && !needUploads && !needLiked && !needRead && !needHidden;
 
-    const type_ = view === "Uploads" ? undefined : view;
+    const type_ = view === "uploads" ? undefined : view;
 
     this.setState(s => ({
       personRes: needPerson ? LOADING_REQUEST : s.personRes,
@@ -485,15 +485,15 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const username = decodeURIComponent(props.username);
     const isMe = usernameIsPerson(username, myUserInfo?.local_user_view.person);
 
-    const needUploads = isMe && view === "Uploads";
-    const needSaved = isMe && filter === "Saved" && !needUploads;
-    const needLiked = isMe && filter === "Liked" && !needUploads;
-    const needRead = isMe && filter === "Read" && !needUploads;
-    const needHidden = isMe && filter === "Hidden" && !needUploads;
+    const needUploads = isMe && view === "uploads";
+    const needSaved = isMe && filter === "saved" && !needUploads;
+    const needLiked = isMe && filter === "liked" && !needUploads;
+    const needRead = isMe && filter === "read" && !needUploads;
+    const needHidden = isMe && filter === "hidden" && !needUploads;
     const needContent =
       !needUploads && !needSaved && !needLiked && !needRead && !needHidden;
 
-    const type_ = view === "Uploads" ? undefined : view;
+    const type_ = view === "uploads" ? undefined : view;
 
     return await Promise.all([
       client.getPersonDetails({ username }),
@@ -593,29 +593,29 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         const { sort, view, filter } = this.props;
 
         const savedContent =
-          (filter === "Saved" &&
+          (filter === "saved" &&
             this.state.personSavedRes.state === "success" &&
             this.state.personSavedRes.data.saved) ||
           undefined;
         const content =
-          (filter === "None" &&
+          (filter === "none" &&
             this.state.personContentRes.state === "success" &&
             this.state.personContentRes.data.content) ||
           undefined;
         const likedContent =
-          (filter === "Liked" &&
+          (filter === "liked" &&
             this.state.personLikedRes.state === "success" &&
             this.state.personLikedRes.data.liked) ||
           undefined;
         const readContent: PersonContentCombinedView[] | undefined =
-          (filter === "Read" &&
+          (filter === "read" &&
             this.state.personReadRes.state === "success" &&
             this.state.personReadRes.data.read.map(
               postViewToPersonContentCombinedView,
             )) ||
           undefined;
         const hiddenContent: PersonContentCombinedView[] | undefined =
-          (filter === "Hidden" &&
+          (filter === "hidden" &&
             this.state.personHiddenRes.state === "success" &&
             this.state.personHiddenRes.data.hidden.map(
               postViewToPersonContentCombinedView,
@@ -623,7 +623,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           undefined;
         const resState = this.currentRes.state;
 
-        const isUpload = view === "Uploads";
+        const isUpload = view === "uploads";
 
         const bio = !personRes.person_view.banned
           ? personRes.person_view.person.bio
@@ -735,19 +735,19 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   get currentRes() {
-    if (this.props.view === "Uploads") {
+    if (this.props.view === "uploads") {
       return this.state.uploadsRes;
     } else {
       switch (this.props.filter) {
-        case "Saved":
+        case "saved":
           return this.state.personSavedRes;
-        case "Liked":
+        case "liked":
           return this.state.personLikedRes;
-        case "Read":
+        case "read":
           return this.state.personReadRes;
-        case "Hidden":
+        case "hidden":
           return this.state.personHiddenRes;
-        case "None":
+        case "none":
           return this.state.personContentRes;
       }
     }
@@ -756,10 +756,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   get viewRadios() {
     return (
       <div className="btn-group btn-group-toggle flex-wrap" role="group">
-        {this.getRadio("All")}
-        {this.getRadio("Comments")}
-        {this.getRadio("Posts")}
-        {this.amCurrentUser && this.getRadio("Uploads")}
+        {this.getRadio("all")}
+        {this.getRadio("comments")}
+        {this.getRadio("posts")}
+        {this.amCurrentUser && this.getRadio("uploads")}
       </div>
     );
   }
@@ -767,11 +767,11 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   get filterRadios() {
     return (
       <div className="btn-group btn-group-toggle flex-wrap" role="group">
-        {this.amCurrentUser && this.getFilterRadio("Saved")}
-        {this.amCurrentUser && this.getFilterRadio("Liked")}
-        {this.amCurrentUser && this.getFilterRadio("Read")}
-        {this.amCurrentUser && this.getFilterRadio("Hidden")}
-        {this.amCurrentUser && this.getFilterRadio("None")}
+        {this.amCurrentUser && this.getFilterRadio("saved")}
+        {this.amCurrentUser && this.getFilterRadio("liked")}
+        {this.amCurrentUser && this.getFilterRadio("read")}
+        {this.amCurrentUser && this.getFilterRadio("hidden")}
+        {this.amCurrentUser && this.getFilterRadio("none")}
       </div>
     );
   }
@@ -817,7 +817,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           value={filter}
           checked={active}
           onChange={linkEvent(this, this.handleFilterChange)}
-          disabled={view === "Uploads"}
+          disabled={view === "uploads"}
         />
         <label
           htmlFor={radioId}
@@ -845,7 +845,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           <PostSortSelect current={sort} onChange={this.handleSortChange} />
         </div>
         {/* TODO: Rss feed for the Saved, Uploads, and Upvoted */}
-        {filter === "None" && (
+        {filter === "none" && (
           <div className="col-auto">
             <a href={profileRss} rel={relTags} title="RSS">
               <Icon icon="rss" classes="text-muted small ps-0" />
@@ -1197,7 +1197,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   handleViewChange(i: Profile, event: any) {
     const view = getViewFromProps(event.target.value);
-    if (view === "Uploads") {
+    if (view === "uploads") {
       i.updateUrl({ view, cursor: undefined, filter: undefined });
     } else {
       i.updateUrl({ view, cursor: undefined });
@@ -1279,7 +1279,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         reason: banReason ?? "",
         expires_at: futureDaysToUnixTime(banExpireDays),
       });
-      this.updateBan(res);
+      this.updateBan(res, ban);
       i.setState({ showBanDialog: false });
     }
   }
@@ -1290,8 +1290,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       block,
     });
     if (res.state === "success") {
-      updatePersonBlock(res.data, this.isoData.myUserInfo);
-      this.setState({ personBlocked: res.data.blocked });
+      updatePersonBlock(res.data, block, this.isoData.myUserInfo);
+      this.setState({ personBlocked: block });
     }
   }
 
@@ -1326,15 +1326,23 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   async handleBlockPersonAlt(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
-      this.setState({ personBlocked: blockPersonRes.data.blocked });
+      updatePersonBlock(
+        blockPersonRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
+      this.setState({ personBlocked: form.block });
     }
   }
 
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
     if (blockCommunityRes.state === "success") {
-      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
+      updateCommunityBlock(
+        blockCommunityRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
     }
   }
 
@@ -1505,7 +1513,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (res.state === "success") {
       this.updateCurrentList(c => {
         if (
-          c.type_ === "Post" &&
+          c.type_ === "post" &&
           c.post.id === form.post_id &&
           this.isoData.myUserInfo
         ) {
@@ -1526,7 +1534,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   async handleBanPerson(form: BanPerson) {
     const banRes = await HttpService.client.banPerson(form);
-    this.updateBan(banRes);
+    this.updateBan(banRes, form.ban);
   }
 
   maybeUpdatePerson(c: PersonView) {
@@ -1553,37 +1561,37 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   updateCurrentList(
     mapFn: (c: PersonContentCombinedView) => PersonContentCombinedView,
   ) {
-    if (this.props.filter === "Saved") {
+    if (this.props.filter === "saved") {
       this.setState(s => {
         if (s.personSavedRes.state === "success") {
           s.personSavedRes.data.saved = s.personSavedRes.data.saved.map(mapFn);
         }
         return { personSavedRes: s.personSavedRes };
       });
-    } else if (this.props.filter === "Liked") {
+    } else if (this.props.filter === "liked") {
       this.setState(s => {
         if (s.personLikedRes.state === "success") {
           s.personLikedRes.data.liked = s.personLikedRes.data.liked.map(mapFn);
         }
         return { personLikedRes: s.personLikedRes };
       });
-    } else if (this.props.filter === "Read") {
+    } else if (this.props.filter === "read") {
       this.setState(s => {
         if (s.personReadRes.state === "success") {
           s.personReadRes.data.read = s.personReadRes.data.read
             .map(postViewToPersonContentCombinedView)
             .map(mapFn)
-            .filter(c => c.type_ === "Post");
+            .filter(c => c.type_ === "post");
         }
         return { personReadRes: s.personReadRes };
       });
-    } else if (this.props.filter === "Hidden") {
+    } else if (this.props.filter === "hidden") {
       this.setState(s => {
         if (s.personHiddenRes.state === "success") {
           s.personHiddenRes.data.hidden = s.personHiddenRes.data.hidden
             .map(postViewToPersonContentCombinedView)
             .map(mapFn)
-            .filter(c => c.type_ === "Post");
+            .filter(c => c.type_ === "post");
         }
         return { personHiddenRes: s.personHiddenRes };
       });
@@ -1599,7 +1607,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   editCombinedCurrent(data: PersonContentCombinedView) {
-    if (this.props.filter === "Saved") {
+    if (this.props.filter === "saved") {
       this.setState(s => {
         if (s.personSavedRes.state === "success") {
           s.personSavedRes.data.saved = editCombined(
@@ -1610,7 +1618,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         }
         return { personSavedRes: s.personSavedRes };
       });
-    } else if (this.props.filter === "Liked") {
+    } else if (this.props.filter === "liked") {
       this.setState(s => {
         if (s.personLikedRes.state === "success") {
           s.personLikedRes.data.liked = editCombined(
@@ -1621,16 +1629,16 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         }
         return { personLikedRes: s.personLikedRes };
       });
-    } else if (this.props.filter === "Read") {
+    } else if (this.props.filter === "read") {
       this.setState(s => {
-        if (s.personReadRes.state === "success" && data.type_ === "Post") {
+        if (s.personReadRes.state === "success" && data.type_ === "post") {
           s.personReadRes.data.read = editPost(data, s.personReadRes.data.read);
         }
         return { personReadRes: s.personReadRes };
       });
-    } else if (this.props.filter === "Hidden") {
+    } else if (this.props.filter === "hidden") {
       this.setState(s => {
-        if (s.personHiddenRes.state === "success" && data.type_ === "Post") {
+        if (s.personHiddenRes.state === "success" && data.type_ === "post") {
           s.personHiddenRes.data.hidden = editPost(
             data,
             s.personHiddenRes.data.hidden,
@@ -1671,14 +1679,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
-  updateBan(banRes: RequestState<BanPersonResponse>) {
+  updateBan(banRes: RequestState<PersonResponse>, banned: boolean) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.updateCurrentList(c =>
         c.creator.id === banRes.data.person_view.person.id
           ? {
               ...c,
-              creator_banned: banRes.data.banned,
+              creator_banned: banned,
             }
           : c,
       );

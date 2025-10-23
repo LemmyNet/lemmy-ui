@@ -3,7 +3,6 @@ import {
   cursorComponents,
   getQueryParams,
   getQueryString,
-  randomStr,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -12,8 +11,7 @@ import {
   QueryParams,
   RouteDataResponse,
 } from "@utils/types";
-import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import {
   ApproveRegistrationApplication,
   LemmyHttp,
@@ -39,8 +37,10 @@ import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { InfernoNode } from "inferno";
-
-type RegistrationState = "Unread" | "All" | "Denied";
+import {
+  RegistrationState,
+  RegistrationStateRadios,
+} from "@components/common/registration-state-radios";
 
 type RegistrationApplicationsData = RouteDataResponse<{
   listRegistrationApplicationsResponse: ListRegistrationApplicationsResponse;
@@ -58,12 +58,12 @@ interface RegistrationApplicationsProps {
 
 function registrationStateFromQuery(view?: string): RegistrationState {
   switch (view) {
-    case "Unread":
-    case "All":
-    case "Denied":
+    case "unread":
+    case "all":
+    case "denied":
       return view;
     default:
-      return "Unread";
+      return "unread";
   }
 }
 
@@ -110,6 +110,8 @@ export class RegistrationApplications extends Component<
 
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleApproveApplication = this.handleApproveApplication.bind(this);
+    this.handleRegistrationStateChange =
+      this.handleRegistrationStateChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -193,75 +195,21 @@ export class RegistrationApplications extends Component<
     );
   }
 
-  RegistrationStateRadios() {
-    const radioId = randomStr();
-
-    return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
-        <input
-          id={`${radioId}-unread`}
-          type="radio"
-          className="btn-check"
-          value={"Unread"}
-          checked={this.props.view === "Unread"}
-          onChange={linkEvent(this, this.handleRegistrationStateChange)}
-        />
-        <label
-          htmlFor={`${radioId}-unread`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "Unread",
-          })}
-        >
-          {I18NextService.i18n.t("unread")}
-        </label>
-
-        <input
-          id={`${radioId}-all`}
-          type="radio"
-          className="btn-check"
-          value={"All"}
-          checked={this.props.view === "All"}
-          onChange={linkEvent(this, this.handleRegistrationStateChange)}
-        />
-        <label
-          htmlFor={`${radioId}-all`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "All",
-          })}
-        >
-          {I18NextService.i18n.t("all")}
-        </label>
-
-        <input
-          id={`${radioId}-denied`}
-          type="radio"
-          className="btn-check"
-          value={"Denied"}
-          checked={this.props.view === "Denied"}
-          onChange={linkEvent(this, this.handleRegistrationStateChange)}
-        />
-        <label
-          htmlFor={`${radioId}-denied`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "Denied",
-          })}
-        >
-          {I18NextService.i18n.t("denied")}
-        </label>
-      </div>
-    );
-  }
-
   selects() {
     return (
       <div className="mb-2">
-        <span className="me-3">{this.RegistrationStateRadios()}</span>
+        <span className="me-3">
+          <RegistrationStateRadios
+            state={this.props.view}
+            onClickHandler={this.handleRegistrationStateChange}
+          />
+        </span>
       </div>
     );
   }
 
   applicationList(apps: RegistrationApplicationView[]) {
-    if (this.props.view === "Denied") {
+    if (this.props.view === "denied") {
       apps = apps.filter(ra => !ra.creator_local_user.accepted_application);
     }
     return (
@@ -281,8 +229,8 @@ export class RegistrationApplications extends Component<
     );
   }
 
-  handleRegistrationStateChange(i: RegistrationApplications, event: any) {
-    i.updateUrl({ view: event.target.value, cursor: undefined });
+  handleRegistrationStateChange(val: RegistrationState) {
+    this.updateUrl({ view: val, cursor: undefined });
   }
 
   handlePageChange(cursor?: DirectionalCursor) {
@@ -304,7 +252,7 @@ export class RegistrationApplications extends Component<
     return {
       listRegistrationApplicationsResponse: headers["Authorization"]
         ? await client.listRegistrationApplications({
-            unread_only: view === "Unread",
+            unread_only: view === "unread",
             ...cursorComponents(cursor),
             limit: fetchLimit,
           })
@@ -320,7 +268,7 @@ export class RegistrationApplications extends Component<
       appsRes: LOADING_REQUEST,
     });
     const appsRes = await HttpService.client.listRegistrationApplications({
-      unread_only: state === "Unread",
+      unread_only: state === "unread",
       ...cursorComponents(cursor),
       limit: fetchLimit,
     });

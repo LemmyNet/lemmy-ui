@@ -87,17 +87,17 @@ class SortSelect<SortT extends string> extends Component<
 }
 
 const postSortChoices: SortChoice<PostSortType>[] = [
-  { key: "hot", value: "Hot" },
-  { key: "active", value: "Active" },
-  { key: "scaled", value: "Scaled" },
+  { key: "hot", value: "hot" },
+  { key: "active", value: "active" },
+  { key: "scaled", value: "scaled" },
   "spacer",
-  { key: "top", value: "Top" },
-  { key: "controversial", value: "Controversial" },
-  { key: "new", value: "New" },
-  { key: "old", value: "Old" },
+  { key: "top", value: "top" },
+  { key: "controversial", value: "controversial" },
+  { key: "new", value: "new" },
+  { key: "old", value: "old" },
   "spacer",
-  { key: "most_comments", value: "MostComments" },
-  { key: "new_comments", value: "NewComments" },
+  { key: "most_comments", value: "most_comments" },
+  { key: "new_comments", value: "new_comments" },
 ];
 
 export class PostSortSelect extends Component<
@@ -116,11 +116,11 @@ export class PostSortSelect extends Component<
 }
 
 const commentSortChoices: SortChoice<CommentSortType>[] = [
-  { key: "hot", value: "Hot" },
-  { key: "new", value: "New" },
-  { key: "old", value: "Old" },
-  { key: "controversial", value: "Controversial" },
-  { key: "top", value: "Top" },
+  { key: "hot", value: "hot" },
+  { key: "new", value: "new" },
+  { key: "old", value: "old" },
+  { key: "controversial", value: "controversial" },
+  { key: "top", value: "top" },
 ];
 
 export class CommentSortSelect extends Component<
@@ -139,22 +139,22 @@ export class CommentSortSelect extends Component<
 }
 
 const communitiesSortChoices: SortChoice<CommunitySortType>[] = [
-  { key: "hot", value: "Hot" },
-  { key: "new", value: "New" },
-  { key: "old", value: "Old" },
+  { key: "hot", value: "hot" },
+  { key: "new", value: "new" },
+  { key: "old", value: "old" },
   "spacer",
-  { key: "comments", value: "Comments" },
-  { key: "posts", value: "Posts" },
-  { key: "subscribers", value: "Subscribers" },
-  { key: "subscribers_local", value: "SubscribersLocal" },
+  { key: "comments", value: "comments" },
+  { key: "posts", value: "posts" },
+  { key: "subscribers", value: "subscribers" },
+  { key: "subscribers_local", value: "subscribers_local" },
   "spacer",
-  { key: "active_daily", value: "ActiveDaily" },
-  { key: "active_weekly", value: "ActiveWeekly" },
-  { key: "active_monthly", value: "ActiveMonthly" },
-  { key: "active_six_months", value: "ActiveSixMonths" },
+  { key: "active_daily", value: "active_daily" },
+  { key: "active_weekly", value: "active_weekly" },
+  { key: "active_monthly", value: "active_monthly" },
+  { key: "active_six_months", value: "active_six_months" },
   "spacer",
-  { key: "name_asc", value: "NameAsc" },
-  { key: "name_desc", value: "NameDesc" },
+  { key: "name_asc", value: "name_asc" },
+  { key: "name_desc", value: "name_desc" },
 ];
 
 export class CommunitiesSortSelect extends Component<
@@ -173,9 +173,9 @@ export class CommunitiesSortSelect extends Component<
 }
 
 const searchSortChoices: SortChoice<SearchSortType>[] = [
-  { key: "top", value: "Top" },
-  { key: "new", value: "New" },
-  { key: "old", value: "Old" },
+  { key: "top", value: "top" },
+  { key: "new", value: "new" },
+  { key: "old", value: "old" },
 ];
 
 export class SearchSortSelect extends Component<
@@ -194,9 +194,9 @@ export class SearchSortSelect extends Component<
 }
 
 const voteShowChoices: SortChoice<VoteShow>[] = [
-  { key: "vote_show", value: "Show" },
-  { key: "vote_show_for_others", value: "ShowForOthers" },
-  { key: "vote_hide", value: "Hide" },
+  { key: "vote_show", value: "show" },
+  { key: "vote_show_for_others", value: "show_for_others" },
+  { key: "vote_hide", value: "hide" },
 ];
 
 export class VoteShowSelect extends Component<CommonSortSelectProps<VoteShow>> {
