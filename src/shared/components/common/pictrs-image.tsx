@@ -15,6 +15,9 @@ const thumbnailSize = 256;
 // For some reason, masonry needs a default image size, and will properly size it down
 const defaultImgSize = 512;
 
+const base64Placeholder =
+  "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+
 interface PictrsImageProps {
   src: string;
   alt?: string;
@@ -102,6 +105,7 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
           <source data-srcset={this.src("jpg")} type="image/jpeg" />
           <img
             id={this.state.id}
+            src={base64Placeholder}
             data-src={src}
             data-blurhash={blurhash}
             alt={this.alt()}
