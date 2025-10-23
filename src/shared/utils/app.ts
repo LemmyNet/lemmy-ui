@@ -792,3 +792,10 @@ export function postIsInteractable(
 
   return !(viewOnly || bannedFromCommunity);
 }
+
+export function canViewCommunity(cv: CommunityView): boolean {
+  return (
+    cv.community.visibility !== "private" ||
+    cv.community_actions?.follow_state === "accepted"
+  );
+}

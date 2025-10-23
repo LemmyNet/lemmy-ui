@@ -1,4 +1,5 @@
 import {
+  canViewCommunity,
   commentsToFlatNodes,
   communityRSSUrl,
   editComment,
@@ -443,23 +444,41 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   render() {
+    const res =
+      this.state.communityRes.state === "success" &&
+      this.state.communityRes.data;
+    const canViewCommunity_ = res && canViewCommunity(res.community_view);
+
     return (
       <div className="community container-lg">
         <div className="row">
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
-            {this.renderCommunity()}
-            {this.selects()}
-            {this.listings()}
-            <div className="row">
-              <div className="col">
-                <PaginatorCursor
-                  current={this.props.cursor}
-                  resource={this.currentRes}
-                  onPageChange={this.handlePageChange}
-                />
+            {canViewCommunity_ ? (
+              <>
+                {this.renderCommunity()}
+                {this.selects()}
+                {this.listings()}
+                <div className="row">
+                  <div className="col">
+                    <PaginatorCursor
+                      current={this.props.cursor}
+                      resource={this.currentRes}
+                      onPageChange={this.handlePageChange}
+                    />
+                  </div>
+                  <div className="col-auto">{this.markPageAsReadButton}</div>
+                </div>
+              </>
+            ) : (
+              <div className="alert alert-danger text-bg-danger" role="alert">
+                <h4 className="alert-heading">
+                  {I18NextService.i18n.t("community_visibility_private")}
+                </h4>
+                <div className="card-text">
+                  {I18NextService.i18n.t("cant_view_private_community_message")}
+                </div>
               </div>
-              <div className="col-auto">{this.markPageAsReadButton}</div>
-            </div>
+            )}
           </div>
           <aside className="d-none d-md-block col-md-4 col-lg-3">
             {this.sidebar()}
