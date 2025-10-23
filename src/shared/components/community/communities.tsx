@@ -44,6 +44,7 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { TableHr } from "@components/common/tables";
+import { NoOptionI18nKeys } from "i18next";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: ListCommunitiesResponse;
@@ -142,7 +143,7 @@ export class Communities extends Component<
   }
 
   renderListingsTable() {
-    const nameCols = "col-12 col-md-8";
+    const nameCols = "col-12 col-md-7";
     const countCols = "col-6 col-md-1";
 
     switch (this.state.listCommunitiesResponse.state) {
@@ -158,6 +159,9 @@ export class Communities extends Component<
             <div className="row">
               <div className={`${nameCols} fw-bold`}>
                 {I18NextService.i18n.t("name")}
+              </div>
+              <div className={`${countCols} fw-bold`}>
+                {I18NextService.i18n.t("community_visibility")}
               </div>
               <div className={`${countCols} fw-bold`}>
                 {I18NextService.i18n.t("users")} /{" "}
@@ -179,6 +183,12 @@ export class Communities extends Component<
                       community={cv.community}
                       myUserInfo={this.isoData.myUserInfo}
                     />
+                  </div>
+                  <div className={countCols}>
+                    {I18NextService.i18n.t(
+                      ("community_visibility_" +
+                        cv.community.visibility) as NoOptionI18nKeys,
+                    )}
                   </div>
                   <div className={countCols}>
                     {numToSI(cv.community.users_active_month)}
