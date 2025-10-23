@@ -51,6 +51,7 @@ export class PendingFollow extends Component<
         <span className="col col-md-3">
           <PersonListing
             person={p.person}
+            banned={false}
             showApubName
             myUserInfo={this.props.myUserInfo}
           />
