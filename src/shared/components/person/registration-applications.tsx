@@ -3,7 +3,6 @@ import {
   cursorComponents,
   getQueryParams,
   getQueryString,
-  randomStr,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -12,8 +11,7 @@ import {
   QueryParams,
   RouteDataResponse,
 } from "@utils/types";
-import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import {
   ApproveRegistrationApplication,
   LemmyHttp,
@@ -39,8 +37,10 @@ import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { InfernoNode } from "inferno";
-
-type RegistrationState = "unread" | "all" | "denied";
+import {
+  RegistrationState,
+  RegistrationStateRadios,
+} from "@components/common/registration-state-radios";
 
 type RegistrationApplicationsData = RouteDataResponse<{
   listRegistrationApplicationsResponse: ListRegistrationApplicationsResponse;
@@ -110,6 +110,8 @@ export class RegistrationApplications extends Component<
 
     this.handlePageChange = this.handlePageChange.bind(this);
     this.handleApproveApplication = this.handleApproveApplication.bind(this);
+    this.handleRegistrationStateChange =
+      this.handleRegistrationStateChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -193,69 +195,15 @@ export class RegistrationApplications extends Component<
     );
   }
 
-  RegistrationStateRadios() {
-    const radioId = randomStr();
-
-    return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
-        <input
-          id={`${radioId}-unread`}
-          type="radio"
-          className="btn-check"
-          value={"unread"}
-          checked={this.props.view === "unread"}
-          onChange={linkEvent(this, this.handleRegistrationStateChange)}
-        />
-        <label
-          htmlFor={`${radioId}-unread`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "unread",
-          })}
-        >
-          {I18NextService.i18n.t("unread")}
-        </label>
-
-        <input
-          id={`${radioId}-all`}
-          type="radio"
-          className="btn-check"
-          value={"all"}
-          checked={this.props.view === "all"}
-          onChange={linkEvent(this, this.handleRegistrationStateChange)}
-        />
-        <label
-          htmlFor={`${radioId}-all`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "all",
-          })}
-        >
-          {I18NextService.i18n.t("all")}
-        </label>
-
-        <input
-          id={`${radioId}-denied`}
-          type="radio"
-          className="btn-check"
-          value={"denied"}
-          checked={this.props.view === "denied"}
-          onChange={linkEvent(this, this.handleRegistrationStateChange)}
-        />
-        <label
-          htmlFor={`${radioId}-denied`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.props.view === "denied",
-          })}
-        >
-          {I18NextService.i18n.t("denied")}
-        </label>
-      </div>
-    );
-  }
-
   selects() {
     return (
       <div className="mb-2">
-        <span className="me-3">{this.RegistrationStateRadios()}</span>
+        <span className="me-3">
+          <RegistrationStateRadios
+            state={this.props.view}
+            onClickHandler={this.handleRegistrationStateChange}
+          />
+        </span>
       </div>
     );
   }
@@ -281,8 +229,8 @@ export class RegistrationApplications extends Component<
     );
   }
 
-  handleRegistrationStateChange(i: RegistrationApplications, event: any) {
-    i.updateUrl({ view: event.target.value, cursor: undefined });
+  handleRegistrationStateChange(val: RegistrationState) {
+    this.updateUrl({ view: val, cursor: undefined });
   }
 
   handlePageChange(cursor?: DirectionalCursor) {
