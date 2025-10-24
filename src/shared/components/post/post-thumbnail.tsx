@@ -129,6 +129,7 @@ function ImgThumb({ postView }: ImgThumbProps) {
       src={postView.post.thumbnail_url}
       thumbnail
       alt={postView.post.alt_text}
+      imageDetails={postView.image_details}
       nsfw={postView.post.nsfw || postView.community.nsfw}
     />
   ) : (

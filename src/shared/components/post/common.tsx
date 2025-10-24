@@ -273,7 +273,6 @@ export function PostImg({ postView, showAdultConsentModal }: PostImgProps) {
   const url = post.url;
   const thumbnail = post.thumbnail_url;
   const imageSrc = url && isImage(url) ? url : thumbnail;
-  const imageDetails = postView.image_details;
 
   return imageSrc ? (
     <div className="my-2">
@@ -281,8 +280,7 @@ export function PostImg({ postView, showAdultConsentModal }: PostImgProps) {
         <PictrsImage
           src={imageSrc}
           alt={post.alt_text}
-          width={imageDetails?.width}
-          height={imageDetails?.height}
+          imageDetails={postView.image_details}
           nsfw={postView.post.nsfw || postView.community.nsfw}
         />
       </a>

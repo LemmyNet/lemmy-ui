@@ -33,7 +33,6 @@ import {
 import { I18NextService } from "../../services";
 import { PostListing } from "./post-listing";
 import { ShowCrossPostsType } from "@utils/types";
-import { masonryUpdate } from "@utils/browser";
 
 interface PostListingsProps {
   posts: PostView[];
@@ -83,13 +82,6 @@ export class PostListings extends Component<PostListingsProps, any> {
     return this.props.showCrossPosts !== "show_separately"
       ? this.removeDuplicates()
       : this.props.posts;
-  }
-
-  async componentWillMount() {
-    await masonryUpdate();
-  }
-  async componentWillUpdate() {
-    await masonryUpdate();
   }
 
   render() {
