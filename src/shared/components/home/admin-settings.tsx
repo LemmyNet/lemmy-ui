@@ -178,7 +178,7 @@ export class AdminSettings extends Component<
     );
     return {
       usersRes: await client.listUsers({ banned_only: false }),
-      instancesRes: await client.getFederatedInstances(),
+      instancesRes: await client.getFederatedInstances({ kind: "all" }),
       uploadsRes: await client.listMediaAdmin({ limit: fetchLimit }),
       taglinesRes: await client.listTaglines({ limit: fetchLimit }),
       emojisRes: await client.listCustomEmojis({}),
@@ -390,7 +390,7 @@ export class AdminSettings extends Component<
         ...cursorComponents(this.state.usersCursor),
         limit: fetchLimit,
       }),
-      HttpService.client.getFederatedInstances(),
+      HttpService.client.getFederatedInstances({ kind: "all" }),
       HttpService.client.listMediaAdmin({
         ...cursorComponents(this.state.uploadsCursor),
         limit: fetchLimit,
@@ -463,7 +463,9 @@ export class AdminSettings extends Component<
     this.setState({
       instancesRes: LOADING_REQUEST,
     });
-    const instancesRes = await HttpService.client.getFederatedInstances();
+    const instancesRes = await HttpService.client.getFederatedInstances({
+      kind: "all",
+    });
 
     this.setState({ instancesRes });
   }
@@ -795,7 +797,11 @@ export class AdminSettings extends Component<
               {I18NextService.i18n.t("blocked_instances")}
             </h1>
             <InstanceList
-              items={instances?.blocked ?? []}
+              items={
+                instances
+                  .filter(view => view.blocked)
+                  .map(view => view.instance) ?? []
+              }
               blocked
               hideNoneFound
               onRemove={this.handleInstanceBlockRemove}
@@ -806,7 +812,11 @@ export class AdminSettings extends Component<
               {I18NextService.i18n.t("allowed_instances")}
             </h1>
             <InstanceList
-              items={instances?.allowed ?? []}
+              items={
+                instances
+                  .filter(view => view.allowed)
+                  .map(view => view.instance) ?? []
+              }
               hideNoneFound
               onRemove={this.handleInstanceAllowRemove}
             />
