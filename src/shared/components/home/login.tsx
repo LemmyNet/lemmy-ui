@@ -45,6 +45,7 @@ interface State {
   form: {
     username_or_email: string;
     password: string;
+    stay_logged_in: boolean;
   };
   siteRes: GetSiteResponse;
   show2faModal: boolean;
@@ -84,7 +85,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
 
 async function handleLoginSubmit(i: Login, event: any) {
   event.preventDefault();
-  const { password, username_or_email } = i.state.form;
+  const { password, username_or_email, stay_logged_in } = i.state.form;
 
   if (username_or_email && password) {
     i.setState({ loginRes: LOADING_REQUEST });
@@ -92,6 +93,7 @@ async function handleLoginSubmit(i: Login, event: any) {
     const loginRes = await HttpService.client.login({
       username_or_email,
       password,
+      stay_logged_in,
     });
     switch (loginRes.state) {
       case "failed": {
@@ -178,6 +180,12 @@ function handleLoginPasswordChange(i: Login, event: any) {
   i.setState(prevState => (prevState.form.password = event.target.value));
 }
 
+function handleStayLoggedInChange(i: Login, event: any) {
+  i.setState(
+    prevState => (prevState.form.stay_logged_in = event.target.checked),
+  );
+}
+
 function handleClose2faModal(i: Login) {
   i.setState({ show2faModal: false });
 }
@@ -215,6 +223,7 @@ export class Login extends Component<LoginRouteProps, State> {
     form: {
       username_or_email: "",
       password: "",
+      stay_logged_in: false,
     },
     siteRes: this.isoData.siteRes,
     show2faModal: false,
@@ -355,6 +364,20 @@ export class Login extends Component<LoginRouteProps, State> {
               label={I18NextService.i18n.t("password")}
               showForgotLink
             />
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="stay-logged-in"
+                type="checkbox"
+                checked={this.state.form.stay_logged_in}
+                onChange={linkEvent(this, handleStayLoggedInChange)}
+              />
+              <label className="form-check-label" htmlFor="stay-logged-in">
+                {I18NextService.i18n.t("stay_logged_in")}
+              </label>
+            </div>
           </div>
           <div className="mb-3 row">
             <div className="col-sm-10">
