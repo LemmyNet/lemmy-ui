@@ -52,6 +52,7 @@ import {
 } from "@services/index";
 import { isBrowser } from "@utils/browser";
 import Toastify from "toastify-js";
+import { isAnimatedImage } from "./media";
 
 export function buildCommentsTree(
   comments: CommentSlimView[],
@@ -797,5 +798,28 @@ export function canViewCommunity(cv: CommunityView): boolean {
   return (
     cv.community.visibility !== "private" ||
     cv.community_actions?.follow_state === "accepted"
+  );
+}
+
+/**
+ * Hide the image if its in the prop, or you have hide_media in your local user settings.
+ **/
+export function hideImages(
+  hideImage: boolean,
+  user: MyUserInfo | undefined,
+): boolean {
+  return hideImage || !!user?.local_user_view.local_user.hide_media;
+}
+
+/**
+ * Hide the image if its an animated one, and you have them disabled.
+ **/
+export function hideAnimatedImage(
+  url: string,
+  user: MyUserInfo | undefined,
+): boolean {
+  return (
+    isAnimatedImage(url) &&
+    !user?.local_user_view.local_user.enable_animated_images
   );
 }

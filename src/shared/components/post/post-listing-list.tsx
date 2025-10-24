@@ -7,7 +7,11 @@ import {
   PostView,
 } from "lemmy-js-client";
 import { VoteButtons } from "@components/common/vote-buttons";
-import { postIsInteractable, userNotLoggedInOrBanned } from "@utils/app";
+import {
+  hideImages,
+  postIsInteractable,
+  userNotLoggedInOrBanned,
+} from "@utils/app";
 import { PostThumbnail } from "./post-thumbnail";
 import { PostCreatedLine, PostName } from "./common";
 import { CrossPosts } from "./cross-posts";
@@ -40,6 +44,7 @@ export function PostListingList({
   onPostVote,
   onScrollIntoCommentsClick,
 }: Props) {
+  const hideImages_ = hideImages(hideImage, myUserInfo);
   return (
     <div>
       <article className="row post-container">
@@ -74,7 +79,7 @@ export function PostListingList({
             onScrollIntoCommentsClick={onScrollIntoCommentsClick}
           />
         </div>
-        {!hideImage && (
+        {!hideImages_ && (
           <div className="col-auto">
             <PostThumbnail
               postView={postView}
