@@ -25,8 +25,8 @@ import { Badges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { SubscribeButton } from "../common/subscribe-button";
-import { CommunityForm } from "../community/community-form";
-import { CommunityLink } from "../community/community-link";
+import { CommunityForm } from "./community-form";
+import { CommunityLink } from "./community-link";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
@@ -77,7 +77,7 @@ interface SidebarState {
 }
 
 @tippyMixin
-export class Sidebar extends Component<SidebarProps, SidebarState> {
+export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
   state: SidebarState = {
     showEdit: false,
     showRemoveDialog: false,
@@ -206,7 +206,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
                 {!received_ban_at && (
                   <>
                     <SubscribeButton
-                      communityView={this.props.community_view}
+                      followState={
+                        this.props.community_view.community_actions
+                          ?.follow_state
+                      }
+                      apId={this.props.community_view.community.ap_id}
                       onFollow={linkEvent(this, this.handleFollowCommunity)}
                       onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
                       loading={this.state.followCommunityLoading}
@@ -622,7 +626,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  handleEditClick(i: Sidebar) {
+  handleEditClick(i: CommunitySidebar) {
     i.setState({ showEdit: true });
   }
 
@@ -630,15 +634,15 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     this.setState({ showEdit: false });
   }
 
-  handleShowConfirmLeaveModTeamClick(i: Sidebar) {
+  handleShowConfirmLeaveModTeamClick(i: CommunitySidebar) {
     i.setState({ showConfirmLeaveModTeam: true });
   }
 
-  handleCancelLeaveModTeamClick(i: Sidebar) {
+  handleCancelLeaveModTeamClick(i: CommunitySidebar) {
     i.setState({ showConfirmLeaveModTeam: false });
   }
 
-  handleShowCommunityReportModal(i: Sidebar) {
+  handleShowCommunityReportModal(i: CommunitySidebar) {
     i.setState({
       showCommunityReportModal: true,
       renderCommunityReportModal: true,
@@ -667,23 +671,23 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  handleModRemoveShow(i: Sidebar) {
+  handleModRemoveShow(i: CommunitySidebar) {
     i.setState({ showRemoveDialog: true });
   }
 
-  handleModRemoveReasonChange(i: Sidebar, event: any) {
+  handleModRemoveReasonChange(i: CommunitySidebar, event: any) {
     i.setState({ removeReason: event.target.value });
   }
 
-  handleModRemoveExpiresChange(i: Sidebar, event: any) {
+  handleModRemoveExpiresChange(i: CommunitySidebar, event: any) {
     i.setState({ removeExpires: event.target.value });
   }
 
-  handlePurgeCommunityShow(i: Sidebar) {
+  handlePurgeCommunityShow(i: CommunitySidebar) {
     i.setState({ showPurgeDialog: true, showRemoveDialog: false });
   }
 
-  handlePurgeReasonChange(i: Sidebar, event: any) {
+  handlePurgeReasonChange(i: CommunitySidebar, event: any) {
     i.setState({ purgeReason: event.target.value });
   }
 
@@ -697,7 +701,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
   }
 
   // TODO Do we need two of these?
-  handleUnfollowCommunity(i: Sidebar) {
+  handleUnfollowCommunity(i: CommunitySidebar) {
     i.setState({ followCommunityLoading: true });
     i.props.onFollowCommunity({
       community_id: i.props.community_view.community.id,
@@ -705,7 +709,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     });
   }
 
-  handleFollowCommunity(i: Sidebar) {
+  handleFollowCommunity(i: CommunitySidebar) {
     i.setState({ followCommunityLoading: true });
     i.props.onFollowCommunity({
       community_id: i.props.community_view.community.id,
@@ -713,7 +717,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     });
   }
 
-  handleBlockCommunity(i: Sidebar) {
+  handleBlockCommunity(i: CommunitySidebar) {
     const { community, community_actions: { blocked_at } = {} } =
       i.props.community_view;
 
@@ -723,7 +727,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     });
   }
 
-  handleLeaveModTeam(i: Sidebar) {
+  handleLeaveModTeam(i: CommunitySidebar) {
     const myId = i.props.myUserInfo?.local_user_view.person.id;
     if (myId) {
       i.setState({ leaveModTeamLoading: true });
@@ -735,7 +739,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     }
   }
 
-  handleDeleteCommunity(i: Sidebar) {
+  handleDeleteCommunity(i: CommunitySidebar) {
     i.setState({ deleteCommunityLoading: true });
     i.props.onDeleteCommunity({
       community_id: i.props.community_view.community.id,
@@ -743,7 +747,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     });
   }
 
-  handleRemoveCommunity(i: Sidebar, event: any) {
+  handleRemoveCommunity(i: CommunitySidebar, event: any) {
     event.preventDefault();
     i.setState({ removeCommunityLoading: true });
     i.props.onRemoveCommunity({
@@ -753,7 +757,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     });
   }
 
-  handlePurgeCommunity(i: Sidebar, event: any) {
+  handlePurgeCommunity(i: CommunitySidebar, event: any) {
     event.preventDefault();
     i.setState({ purgeCommunityLoading: true });
     i.props.onPurgeCommunity({
@@ -762,11 +766,11 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
     });
   }
 
-  handleSearchChange(i: Sidebar, event: any) {
+  handleSearchChange(i: CommunitySidebar, event: any) {
     i.setState({ searchText: event.target.value });
   }
 
-  handleSearchSubmit(i: Sidebar, event: any) {
+  handleSearchSubmit(i: CommunitySidebar, event: any) {
     event.preventDefault();
     const searchParamEncoded = i.state.searchText;
     i.context.router.history.push(
