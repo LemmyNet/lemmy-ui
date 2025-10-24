@@ -291,6 +291,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           show_downvotes,
           show_upvote_percentage,
           show_person_votes,
+          collapse_bot_comments,
         },
         person: {
           avatar,
@@ -339,6 +340,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           enable_private_messages,
           auto_mark_fetched_posts_as_read,
           blocking_keywords: mui.keyword_blocks,
+          collapse_bot_comments,
         },
         avatar,
         banner,
@@ -1225,6 +1227,23 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="form-check">
               <input
                 className="form-check-input"
+                id="collapse-bot-comments"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.collapse_bot_comments}
+                onChange={linkEvent(this, this.handleCollapseBotCommentsChange)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="collapse-bot-comments"
+              >
+                {I18NextService.i18n.t("collapse_bot_comments")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
                 id="user-show-read-posts"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_read_posts}
@@ -1773,6 +1792,15 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     i.setState(
       s => (
         (s.saveUserSettingsForm.show_person_votes = event.target.checked),
+        s
+      ),
+    );
+  }
+
+  handleCollapseBotCommentsChange(i: Settings, event: any) {
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.collapse_bot_comments = event.target.checked),
         s
       ),
     );
