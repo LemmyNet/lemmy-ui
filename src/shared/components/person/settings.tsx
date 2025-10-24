@@ -291,6 +291,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           show_downvotes,
           show_upvote_percentage,
           show_person_votes,
+          infinite_scroll_enabled,
         },
         person: {
           avatar,
@@ -339,6 +340,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           enable_private_messages,
           auto_mark_fetched_posts_as_read,
           blocking_keywords: mui.keyword_blocks,
+          infinite_scroll_enabled,
         },
         avatar,
         banner,
@@ -1321,6 +1323,25 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </div>
           </div>
           <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-infinite-scrolling"
+                type="checkbox"
+                checked={
+                  this.state.saveUserSettingsForm.infinite_scroll_enabled
+                }
+                onChange={linkEvent(this, this.handleInfiniteScrollingChange)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="user-infinite-scrolling"
+              >
+                {I18NextService.i18n.t("infinite_scrolling")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
             <button type="submit" className="btn d-block btn-secondary me-4">
               {this.state.saveRes.state === "loading" ? (
                 <Spinner />
@@ -1726,6 +1747,15 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       s => (
         (s.saveUserSettingsForm.auto_mark_fetched_posts_as_read =
           event.target.checked),
+        s
+      ),
+    );
+  }
+
+  handleInfiniteScrollingChange(i: Settings, event: any) {
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.infinite_scroll_enabled = event.target.checked),
         s
       ),
     );
