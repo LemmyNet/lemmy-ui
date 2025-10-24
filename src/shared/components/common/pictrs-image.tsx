@@ -8,6 +8,7 @@ import { IsoData } from "@utils/types";
 import { getStaticDir } from "@utils/env";
 import { masonryUpdate } from "@utils/browser";
 import { randomStr } from "@utils/helpers";
+import { ImageDetails } from "lemmy-js-client";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
@@ -25,9 +26,7 @@ interface PictrsImageProps {
   iconOverlay?: boolean;
   pushup?: boolean;
   cardTop?: boolean;
-  width?: number;
-  height?: number;
-  blurhash?: string;
+  imageDetails?: ImageDetails;
 }
 
 interface PictrsImageState {
@@ -76,7 +75,7 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       nsfw,
       pushup,
       cardTop,
-      blurhash,
+      imageDetails,
     } = this.props;
 
     const { src } = this.state;
@@ -104,7 +103,7 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
             id={this.state.id}
             src={base64Placeholder(width, height)}
             data-src={src}
-            data-blurhash={blurhash}
+            data-blurhash={imageDetails?.blurhash}
             alt={this.alt()}
             title={this.alt()}
             loading="lazy"
@@ -182,8 +181,8 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       return [thumbnailSize, thumbnailSize];
     } else {
       return [
-        this.props.width ?? defaultImgSize,
-        this.props.height ?? defaultImgSize,
+        this.props.imageDetails?.width ?? defaultImgSize,
+        this.props.imageDetails?.height ?? defaultImgSize,
       ];
     }
   }
