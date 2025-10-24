@@ -4,6 +4,12 @@ export function isImage(url: string) {
   return imageRegex.test(url);
 }
 
+const animatedImageRegex = /(http)?s?:?(\/\/[^"']*\.(?:gif))/;
+
+export function isAnimatedImage(url: string) {
+  return animatedImageRegex.test(url);
+}
+
 const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm|ogv))/;
 
 const audioRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp3|wav|opus|ogg|m4a|flac|spx))/;

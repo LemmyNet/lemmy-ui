@@ -147,7 +147,7 @@ export class PostListingCard extends Component<
                 />
               </div>
             </div>
-            {!p.hideImage && showThumbnail && (
+            {showThumbnail && (
               <div className="col-auto">
                 <PostThumbnail
                   postView={p.postView}
@@ -157,9 +157,11 @@ export class PostListingCard extends Component<
               </div>
             )}
           </div>
-          {!p.hideImage && !p.smallCard && isImagePost && (
+          {!p.smallCard && isImagePost && (
             <PostImg
               postView={p.postView}
+              hideImage={p.hideImage}
+              myUserInfo={p.myUserInfo}
               showAdultConsentModal={p.showAdultConsentModal}
             />
           )}

@@ -1,7 +1,7 @@
 import { Icon } from "@components/common/icon";
 import { PictrsImage } from "@components/common/pictrs-image";
 import { I18NextService } from "@services/index";
-import { linkTarget } from "@utils/app";
+import { hideAnimatedImage, hideImages, linkTarget } from "@utils/app";
 import { relTags } from "@utils/config";
 import { isImage, isVideo } from "@utils/media";
 import classNames from "classnames";
@@ -17,8 +17,15 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
   const post = postView.post;
   const url = post.url;
   const thumbnail = post.thumbnail_url;
+  const hideImages_ = hideImages(hideImage, myUserInfo);
 
-  if (!hideImage && url && isImage(url) && thumbnail) {
+  if (
+    !hideImages_ &&
+    url &&
+    isImage(url) &&
+    !hideAnimatedImage(url, myUserInfo) &&
+    thumbnail
+  ) {
     return (
       <a
         className="d-block position-relative"
@@ -35,7 +42,13 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
         />
       </a>
     );
-  } else if (!hideImage && url && thumbnail && !isVideo(url)) {
+  } else if (
+    !hideImages_ &&
+    url &&
+    !hideAnimatedImage(url, myUserInfo) &&
+    thumbnail &&
+    !isVideo(url)
+  ) {
     return (
       <a
         className="d-block position-relative"
@@ -53,7 +66,7 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
       </a>
     );
   } else if (url) {
-    if ((!hideImage && isVideo(url)) || post.embed_video_url) {
+    if ((!hideImages_ && isVideo(url)) || post.embed_video_url) {
       return (
         <a
           className={classNames(
