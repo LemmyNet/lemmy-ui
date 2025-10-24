@@ -54,6 +54,7 @@ export class MediaUploads extends Component<Props, any> {
                 <div className={cols}>
                   <PersonListing
                     person={i.person}
+                    banned={false}
                     myUserInfo={this.props.myUserInfo}
                   />
                 </div>

@@ -57,7 +57,6 @@ type PostListingProps = {
   markable: boolean;
   disableAutoMarkAsRead: boolean;
   editLoading: boolean;
-  readLoading: boolean;
   onPostEdit(form: EditPost): void;
   onPostVote(form: CreatePostLike): void;
   onPostReport(form: CreatePostReport): void;
@@ -174,7 +173,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             markable={p.markable}
             disableAutoMarkAsRead={p.disableAutoMarkAsRead}
             editLoading={p.editLoading}
-            readLoading={p.readLoading}
             onEditClick={() => handleEditClick(this)}
             onPostEdit={p.onPostEdit}
             onPostVote={p.onPostVote}

@@ -53,6 +53,7 @@ function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
             <div className="col-10">
               <PersonListing
                 person={v.creator}
+                banned={v.creator_banned || v.creator_banned_from_community}
                 useApubName
                 myUserInfo={myUserInfo}
               />

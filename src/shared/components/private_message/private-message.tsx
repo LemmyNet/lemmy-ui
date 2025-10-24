@@ -97,6 +97,7 @@ export class PrivateMessage extends Component<
             <li className="list-inline-item">
               <PersonListing
                 person={otherPerson}
+                banned={false}
                 myUserInfo={this.props.myUserInfo}
               />
             </li>

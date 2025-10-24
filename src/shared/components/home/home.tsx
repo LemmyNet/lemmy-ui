@@ -794,6 +794,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               isTopLevel
               showCommunity
               showContext
+              hideImages={false}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
               myUserInfo={this.isoData.myUserInfo}

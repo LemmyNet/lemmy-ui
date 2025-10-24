@@ -134,7 +134,13 @@ function ExpandedCrossPosts({
                       </>
                     )}
                   </Link>
-                  <PersonListing person={pv.creator} myUserInfo={myUserInfo} />
+                  <PersonListing
+                    person={pv.creator}
+                    myUserInfo={myUserInfo}
+                    banned={
+                      pv.creator_banned || pv.creator_banned_from_community
+                    }
+                  />
                   <UserBadges
                     classNames="ms-1"
                     isModerator={pv.creator_is_moderator}

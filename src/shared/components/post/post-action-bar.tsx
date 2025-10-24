@@ -1,15 +1,14 @@
 import PostActionDropdown from "@components/common/content-actions/post-action-dropdown";
-import { Icon, Spinner } from "@components/common/icon";
+import { Icon } from "@components/common/icon";
 import { BanUpdateForm } from "@components/common/modal/mod-action-form-modal";
 import { VoteButtonsCompact } from "@components/common/vote-buttons";
 import { I18NextService } from "@services/index";
 import { postIsInteractable, userNotLoggedInOrBanned } from "@utils/app";
-import { canShare, share } from "@utils/browser";
+import { share } from "@utils/browser";
 import { futureDaysToUnixTime } from "@utils/date";
 import { getHttpBase } from "@utils/env";
 import { unreadCommentsCount } from "@utils/helpers";
 import { CrossPostParams, ShowBodyType } from "@utils/types";
-import classNames from "classnames";
 import { Link } from "inferno-router";
 import {
   PostView,
@@ -47,10 +46,9 @@ type PostActionBarProps = {
   viewSource: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
-  readLoading: boolean;
   onPostVote(form: CreatePostLike): void;
   onScrollIntoCommentsClick(e: MouseEvent): void;
-  onClickViewSource(): void;
+  onViewSource(): void;
   onMarkPostAsRead(form: MarkPostAsRead): void;
   onEditClick(): void;
   onPostVote(form: CreatePostLike): void;
@@ -84,96 +82,43 @@ export function PostActionBar(props: PostActionBarProps) {
     viewSource,
     myUserInfo,
     localSite,
-    onClickViewSource,
-    readLoading,
     markable,
   } = props;
-  const { ap_id, id, body } = postView.post;
+  const { id } = postView.post;
 
   return (
-    <div className="d-flex align-items-center justify-content-start flex-wrap text-muted">
-      <CommentsButton
-        postView={postView}
-        type_="icon"
-        onScrollIntoCommentsClick={onScrollIntoCommentsClick}
-      />
-      {canShare() && (
-        <button
-          className="btn btn-link btn-animate text-muted py-0"
-          onClick={() => handleShare(postView.post)}
-          type="button"
-        >
-          <Icon icon="share" inline />
-        </button>
-      )}
-      <Link
-        className="btn btn-link btn-animate text-muted py-0"
-        to={`/post/${id}`}
-        title={I18NextService.i18n.t("link")}
-      >
-        <Icon icon="link" classes="icon-inline" />
-      </Link>
-      <a
-        className="btn btn-link btn-animate text-muted py-0"
-        title={I18NextService.i18n.t("fedilink")}
-        href={ap_id}
-      >
-        <Icon icon="fedilink" inline />
-      </a>
-      {postIsInteractable(postView, viewOnly) && markable && myUserInfo && (
-        <button
-          type="button"
-          className="btn btn-link btn-animate text-muted py-0"
-          onClick={() => handleMarkPostAsRead(props)}
-          data-tippy-content={
-            postView.post_actions?.read_at
-              ? I18NextService.i18n.t("mark_as_unread")
-              : I18NextService.i18n.t("mark_as_read")
-          }
-          aria-label={
-            postView.post_actions?.read_at
-              ? I18NextService.i18n.t("mark_as_unread")
-              : I18NextService.i18n.t("mark_as_read")
-          }
-        >
-          {readLoading ? (
-            <Spinner />
-          ) : (
-            <Icon
-              icon="check"
-              inline
-              classes={`${postView.post_actions?.read_at && "text-success"}`}
-            />
-          )}
-        </button>
-      )}
-      {postIsInteractable(postView, viewOnly) && (
-        <VoteButtonsCompact
-          voteContentType={"post"}
-          id={id}
-          onVote={onPostVote}
-          subject={postView.post}
-          myVoteIsUpvote={postView.post_actions?.vote_is_upvote}
-          myUserInfo={myUserInfo}
-          localSite={localSite}
-          disabled={userNotLoggedInOrBanned(myUserInfo)}
+    <div className="row">
+      <div className="col flex-grow-1 text-muted">
+        <CommentsButton
+          postView={postView}
+          type_="icon"
+          onScrollIntoCommentsClick={onScrollIntoCommentsClick}
         />
-      )}
+      </div>
+      <div className="col-auto d-flex">
+        {postIsInteractable(postView, viewOnly) && (
+          <VoteButtonsCompact
+            voteContentType={"post"}
+            id={id}
+            onVote={onPostVote}
+            subject={postView.post}
+            myVoteIsUpvote={postView.post_actions?.vote_is_upvote}
+            myUserInfo={myUserInfo}
+            localSite={localSite}
+            disabled={userNotLoggedInOrBanned(myUserInfo)}
+          />
+        )}
 
-      {showBody === "full" && body && (
-        <ViewSourceButton
-          viewSource={viewSource}
-          onClickViewSource={onClickViewSource}
-        />
-      )}
-
-      {myUserInfo && postIsInteractable(postView, viewOnly) && (
         <PostActionDropdown
           postView={postView}
           community={postView.community}
           admins={admins}
           crossPostParams={crossPostParams(postView.post)}
           myUserInfo={myUserInfo}
+          viewSource={viewSource}
+          showBody={showBody}
+          viewOnly={viewOnly}
+          markable={markable}
           onSave={() => handleSavePost(props)}
           onReport={reason => handleReport(props, reason)}
           onBlockPerson={() => handleBlockPerson(props)}
@@ -193,8 +138,11 @@ export function PostActionBar(props: PostActionBarProps) {
           onAppointAdmin={() => handleAppointAdmin(props)}
           onHidePost={() => handleHidePost(props)}
           onPersonNote={props.onPersonNote}
+          onViewSource={props.onViewSource}
+          onSharePost={() => handleShare(props.postView.post)}
+          onMarkPostAsRead={() => handleMarkPostAsRead(props)}
         />
-      )}
+      </div>
     </div>
   );
 }
@@ -229,39 +177,15 @@ export function CommentsButton({
       {type_ === "icon" && <Icon icon="message-square" classes="me-1" inline />}
       {count}
       {type_ === "text" && <span> {I18NextService.i18n.t("comments")}</span>}
-      {unreadCount && (
-        <>
-          {" "}
-          <span className="fst-italic">
-            ({unreadCount} {I18NextService.i18n.t("new")})
-          </span>
-        </>
+      {unreadCount && type_ === "text" && (
+        <span className="ms-2 fst-italic">
+          ({unreadCount} {I18NextService.i18n.t("new")})
+        </span>
+      )}
+      {unreadCount && type_ === "icon" && (
+        <span className="ms-2 badge text-bg-light">+{unreadCount}</span>
       )}
     </Link>
-  );
-}
-
-type ViewSourceButtonProps = {
-  viewSource: boolean;
-  onClickViewSource(): void;
-};
-function ViewSourceButton({
-  viewSource,
-  onClickViewSource,
-}: ViewSourceButtonProps) {
-  return (
-    <button
-      className="btn btn-link btn-animate text-muted py-0"
-      onClick={onClickViewSource}
-      data-tippy-content={I18NextService.i18n.t("view_source")}
-      aria-label={I18NextService.i18n.t("view_source")}
-    >
-      <Icon
-        icon="file-text"
-        classes={classNames({ "text-success": viewSource })}
-        inline
-      />
-    </button>
   );
 }
 

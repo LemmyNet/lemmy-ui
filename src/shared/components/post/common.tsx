@@ -156,6 +156,9 @@ export function PostCreatedLine({
       )}
       <PersonListing
         person={postView.creator}
+        banned={
+          postView.creator_banned || postView.creator_banned_from_community
+        }
         myUserInfo={myUserInfo}
         muted
         hideAvatar={hideAvatar}

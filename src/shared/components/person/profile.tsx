@@ -890,6 +890,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     <li className="list-inline-item">
                       <PersonListing
                         person={pv.person}
+                        banned={pv.banned}
                         realLink
                         useApubName
                         muted

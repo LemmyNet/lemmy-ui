@@ -85,6 +85,7 @@ export class CommunityReport extends Component<Props, State> {
           {I18NextService.i18n.t("reporter")}:{" "}
           <PersonListing
             person={r.creator}
+            banned={false}
             myUserInfo={this.props.myUserInfo}
           />
         </div>
@@ -98,6 +99,7 @@ export class CommunityReport extends Component<Props, State> {
                 #
                 <PersonListing
                   person={r.resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>
@@ -106,6 +108,7 @@ export class CommunityReport extends Component<Props, State> {
                 #
                 <PersonListing
                   person={r.resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>

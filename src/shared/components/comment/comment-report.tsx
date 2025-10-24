@@ -9,7 +9,6 @@ import {
   RemoveComment,
   ResolveCommentReport,
 } from "lemmy-js-client";
-import { CommentNodeI } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
@@ -22,6 +21,7 @@ import {
   BanFromSiteData,
 } from "@components/person/reports";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
+import { commentToFlatNode } from "@utils/app";
 
 interface CommentReportProps {
   report: CommentReportView;
@@ -89,20 +89,15 @@ export class CommentReport extends Component<
       post_tags: [],
     };
 
-    const node: CommentNodeI = {
-      comment_view,
-      children: [],
-      depth: 0,
-    };
-
     return (
       <div className="comment-report">
         <CommentNode
-          node={node}
+          node={commentToFlatNode(comment_view)}
           admins={this.props.admins}
           viewType={"flat"}
           viewOnly
           showCommunity
+          showContext={false}
           allLanguages={[]}
           siteLanguages={[]}
           hideImages
@@ -133,6 +128,7 @@ export class CommentReport extends Component<
           {I18NextService.i18n.t("reporter")}:{" "}
           <PersonListing
             person={r.creator}
+            banned={false}
             myUserInfo={this.props.myUserInfo}
           />
         </div>
@@ -146,6 +142,7 @@ export class CommentReport extends Component<
                 #
                 <PersonListing
                   person={r.resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>
@@ -154,6 +151,7 @@ export class CommentReport extends Component<
                 #
                 <PersonListing
                   person={r.resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>
