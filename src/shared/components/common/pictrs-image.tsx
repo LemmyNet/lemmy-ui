@@ -7,7 +7,6 @@ import { setIsoData } from "@utils/app";
 import { IsoData } from "@utils/types";
 import { getStaticDir } from "@utils/env";
 import { masonryUpdate } from "@utils/browser";
-import { randomStr } from "@utils/helpers";
 import { ImageDetails } from "lemmy-js-client";
 import { createRef } from "inferno";
 
@@ -32,7 +31,6 @@ interface PictrsImageProps {
 
 interface PictrsImageState {
   src: string;
-  id: string;
 }
 
 function handleImgLoadError(i: PictrsImage) {
@@ -48,7 +46,6 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
 
   state: PictrsImageState = {
     src: this.props.src,
-    id: randomStr(),
   };
 
   componentDidUpdate(prevProps: PictrsImageProps) {
@@ -102,7 +99,6 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
           <source data-srcset={this.src("jpg")} type="image/jpeg" />
           <img
             ref={this.imageRef}
-            id={this.state.id}
             src={base64Placeholder(width, height)}
             data-src={src}
             data-blurhash={imageDetails?.blurhash}
