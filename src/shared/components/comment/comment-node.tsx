@@ -146,8 +146,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     showReply: false,
     showEdit: false,
     // Collapse comments that have no children and are removed by default
-    collapsed:
-      !this.commentView.comment.child_count && this.commentView.comment.removed,
+    collapsed: this.initCommentCollapsed(),
     viewSource: false,
     showAdvanced: false,
     createOrEditCommentLoading: false,
@@ -189,6 +188,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     if (this.props.node.comment_view !== nextProps.node.comment_view) {
       this.setState({ markLoading: false });
     }
+  }
+
+  initCommentCollapsed(): boolean {
+    // Collapse comments that have no children and are removed by default
+    const hasNoChildrenAndRemoved =
+      !this.commentView.comment.child_count && this.commentView.comment.removed;
+
+    // Or if its a bot comment and you have collapse_bot_comments turned on
+    const botCollapsed =
+      this.commentView.creator.bot_account &&
+      !!this.props.myUserInfo?.local_user_view.local_user.collapse_bot_comments;
+
+    return hasNoChildrenAndRemoved || botCollapsed;
   }
 
   get commentView(): CommentNodeView {
