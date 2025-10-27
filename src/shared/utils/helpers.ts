@@ -164,8 +164,7 @@ export async function poll(promiseFn: any, millis: number) {
   return poll(promiseFn, millis);
 }
 
-const DEFAULT_ALPHABET =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const DEFAULT_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 export function randomStr(
   idDesiredLength = 20,

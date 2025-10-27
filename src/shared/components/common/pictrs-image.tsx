@@ -1,15 +1,20 @@
+// @ts-expect-error has a weird import error
+import { lazyLoad } from "unlazy";
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 
 import { setIsoData } from "@utils/app";
 import { IsoData } from "@utils/types";
 import { getStaticDir } from "@utils/env";
+import { masonryUpdate } from "@utils/browser";
+import { ImageDetails } from "lemmy-js-client";
+import { createRef } from "inferno";
 
 const iconThumbnailSize = 96;
 const thumbnailSize = 256;
 
 // For some reason, masonry needs a default image size, and will properly size it down
-const defaultImgSize = 3000;
+const defaultImgSize = 512;
 
 interface PictrsImageProps {
   src: string;
@@ -21,8 +26,7 @@ interface PictrsImageProps {
   iconOverlay?: boolean;
   pushup?: boolean;
   cardTop?: boolean;
-  width?: number;
-  height?: number;
+  imageDetails?: ImageDetails;
 }
 
 interface PictrsImageState {
@@ -37,6 +41,8 @@ function handleImgLoadError(i: PictrsImage) {
 
 export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
   private readonly isoData: IsoData = setIsoData(this.context);
+  private imageRef = createRef<HTMLImageElement>();
+  private lazyLoadCleanup: undefined | (() => void);
 
   state: PictrsImageState = {
     src: this.props.src,
@@ -48,9 +54,27 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
     }
   }
 
+  componentDidMount() {
+    if (this.imageRef.current) {
+      this.lazyLoadCleanup = lazyLoad(this.imageRef.current);
+    }
+  }
+
+  componentWillUnmount() {
+    this.lazyLoadCleanup?.();
+  }
+
   render() {
-    const { icon, iconOverlay, banner, thumbnail, nsfw, pushup, cardTop } =
-      this.props;
+    const {
+      icon,
+      iconOverlay,
+      banner,
+      thumbnail,
+      nsfw,
+      pushup,
+      cardTop,
+      imageDetails,
+    } = this.props;
 
     const { src } = this.state;
 
@@ -61,14 +85,23 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
 
     const [width, height] = this.widthAndHeight();
 
+    // Unlazy recommends you manually set the src to the blurred image.
+    // https://unlazy.byjohann.dev/guide/usage.html
+    //
+    // A testable blurhash
+    // const blurhash = "LEHV6nWB2yk8pyo0adR*.7kCMdnj";
+
     return (
       !this.isoData.showAdultConsentModal && (
         <picture>
-          <source srcSet={this.src("webp")} type="image/webp" />
-          <source srcSet={src} />
-          <source srcSet={this.src("jpg")} type="image/jpeg" />
+          <source data-srcset={this.src("webp")} type="image/webp" />
+          <source data-srcset={src} />
+          <source data-srcset={this.src("jpg")} type="image/jpeg" />
           <img
-            src={src}
+            ref={this.imageRef}
+            src={base64Placeholder(width, height)}
+            data-src={src}
+            data-blurhash={imageDetails?.blurhash}
             alt={this.alt()}
             title={this.alt()}
             loading="lazy"
@@ -89,6 +122,7 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
               "avatar-pushup": pushup,
               "card-img-top": cardTop,
             })}
+            onLoad={() => masonryUpdate()}
             onError={linkEvent(this, handleImgLoadError)}
           />
         </picture>
@@ -145,9 +179,12 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       return [thumbnailSize, thumbnailSize];
     } else {
       return [
-        this.props.width ?? defaultImgSize,
-        this.props.height ?? defaultImgSize,
+        this.props.imageDetails?.width ?? defaultImgSize,
+        this.props.imageDetails?.height ?? defaultImgSize,
       ];
     }
   }
+}
+function base64Placeholder(width: number = 32, height: number = 32) {
+  return `data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}'%3e%3c/svg%3e`;
 }
