@@ -369,7 +369,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         });
 
         this.setState({
-          instancesRes: await HttpService.client.getFederatedInstances(),
+          instancesRes: await HttpService.client.getFederatedInstances({
+            kind: "linked",
+          }),
         });
       }
     }
@@ -391,7 +393,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
-      instancesRes: await client.getFederatedInstances(),
+      instancesRes: await client.getFederatedInstances({ kind: "linked" }),
     };
   }
 
@@ -1556,10 +1558,11 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
     if (this.state.instancesRes.state === "success") {
       searchInstanceOptions =
-        this.state.instancesRes.data.federated_instances?.linked.filter(
-          instance =>
-            instance.domain.toLowerCase().includes(text.toLowerCase()),
-        ) ?? [];
+        this.state.instancesRes.data.federated_instances
+          ?.filter(view =>
+            view.instance.domain.toLowerCase().includes(text.toLowerCase()),
+          )
+          .map(view => view.instance) ?? [];
     }
 
     this.setState({
@@ -2181,7 +2184,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const mui = this.isoData.myUserInfo;
     if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
-        this.state.instancesRes.data.federated_instances?.linked ?? [];
+        this.state.instancesRes.data.federated_instances.map(
+          view => view.instance,
+        ) ?? [];
       updateInstanceCommunitiesBlock(blocked, id, linkedInstances, mui);
       this.setState({
         instanceCommunitiesBlocks: mui.instance_communities_blocks,
@@ -2193,7 +2198,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const mui = this.isoData.myUserInfo;
     if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
-        this.state.instancesRes.data.federated_instances?.linked ?? [];
+        this.state.instancesRes.data.federated_instances.map(
+          view => view.instance,
+        ) ?? [];
       updateInstancePersonsBlock(blocked, id, linkedInstances, mui);
       this.setState({
         instancePersonsBlocks: mui.instance_persons_blocks,
