@@ -50,7 +50,7 @@ export const instanceLinkRegex = new RegExp(
   "g",
 );
 
-export const testHost = "0.0.0.0:8536";
+export const testHost = "localhost:8536";
 
 export const validActorRegexPattern =
   "^\\w+|[\\p{Script=Arabic}\\d_]+|[\\p{Script=Cyrillic}\\d_]+$";
