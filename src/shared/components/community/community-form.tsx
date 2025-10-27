@@ -34,6 +34,7 @@ interface CommunityFormState {
   form: {
     name?: string;
     title?: string;
+    sidebar?: string;
     description?: string;
     icon?: string;
     banner?: string;
@@ -60,8 +61,8 @@ export class CommunityForm extends Component<
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.handleCommunityDescriptionChange =
-      this.handleCommunityDescriptionChange.bind(this);
+    this.handleCommunitySidebarChange =
+      this.handleCommunitySidebarChange.bind(this);
 
     this.handleIconChange = this.handleIconChange.bind(this);
     this.handleBannerChange = this.handleBannerChange.bind(this);
@@ -77,6 +78,7 @@ export class CommunityForm extends Component<
         form: {
           name: cv.community.name,
           title: cv.community.title,
+          sidebar: cv.community.sidebar,
           description: cv.community.description,
           nsfw: cv.community.nsfw,
           icon: cv.community.icon,
@@ -223,14 +225,32 @@ export class CommunityForm extends Component<
           </div>
         </div>
         <div className="mb-3 row">
+          <label
+            className="col-12 col-sm-2 col-form-label"
+            htmlFor="community-description"
+          >
+            {I18NextService.i18n.t("description")}
+          </label>
+          <div className="col-12 col-sm-10">
+            <input
+              type="text"
+              className="form-control"
+              id="community-description"
+              value={this.state.form.description}
+              onInput={linkEvent(this, this.handleCommunityDescriptionChange)}
+              maxLength={150}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
           <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
             {I18NextService.i18n.t("sidebar")}
           </label>
           <div className="col-12 col-sm-10">
             <MarkdownTextArea
-              initialContent={this.state.form.description}
-              placeholder={I18NextService.i18n.t("description") ?? undefined}
-              onContentChange={this.handleCommunityDescriptionChange}
+              initialContent={this.state.form.sidebar}
+              placeholder={I18NextService.i18n.t("sidebar") ?? undefined}
+              onContentChange={this.handleCommunitySidebarChange}
               hideNavigationWarnings
               allLanguages={[]}
               siteLanguages={[]}
@@ -362,6 +382,7 @@ export class CommunityForm extends Component<
       i.props.onUpsertCommunity({
         community_id: cv.community.id,
         title: cForm.title,
+        sidebar: cForm.sidebar,
         description: cForm.description,
         icon: cForm.icon,
         banner: cForm.banner,
@@ -395,8 +416,12 @@ export class CommunityForm extends Component<
     i.setState(s => ((s.form.title = event.target.value), s));
   }
 
-  handleCommunityDescriptionChange(val: string) {
-    this.setState(s => ((s.form.description = val), s));
+  handleCommunityDescriptionChange(i: CommunityForm, event: any) {
+    i.setState(s => ((s.form.description = event.target.value), s));
+  }
+
+  handleCommunitySidebarChange(val: string) {
+    this.setState(s => ((s.form.sidebar = val), s));
   }
 
   handleCommunityNsfwChange(i: CommunityForm, event: any) {
