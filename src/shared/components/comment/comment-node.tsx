@@ -257,7 +257,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   viewSource={this.state.viewSource}
                   hideImages={this.props.hideImages}
                 />
-                <div className="comment-bottom-btns d-flex justify-content-end column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
+                <div className="comment-bottom-btns d-flex justify-content-end justify-content-md-start column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
                   <>
                     <VoteButtonsCompact
                       voteContentType={"comment"}
