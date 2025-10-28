@@ -280,7 +280,6 @@ export function PostImg({
   const url = post.url;
   const thumbnail = post.thumbnail_url;
   const imageSrc = url && isImage(url) ? url : thumbnail;
-  const imageDetails = postView.image_details;
 
   return !hideImages(hideImage, myUserInfo) &&
     imageSrc &&
@@ -290,8 +289,7 @@ export function PostImg({
         <PictrsImage
           src={imageSrc}
           alt={post.alt_text}
-          width={imageDetails?.width}
-          height={imageDetails?.height}
+          imageDetails={postView.image_details}
           nsfw={postView.post.nsfw || postView.community.nsfw}
         />
       </a>

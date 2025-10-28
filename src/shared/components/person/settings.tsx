@@ -293,6 +293,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           show_person_votes,
           enable_animated_images,
           hide_media,
+          collapse_bot_comments,
         },
         person: {
           avatar,
@@ -343,6 +344,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           blocking_keywords: mui.keyword_blocks,
           enable_animated_images,
           hide_media,
+          collapse_bot_comments,
         },
         avatar,
         banner,
@@ -371,7 +373,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         });
 
         this.setState({
-          instancesRes: await HttpService.client.getFederatedInstances(),
+          instancesRes: await HttpService.client.getFederatedInstances({
+            kind: "linked",
+          }),
         });
       }
     }
@@ -393,7 +397,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
-      instancesRes: await client.getFederatedInstances(),
+      instancesRes: await client.getFederatedInstances({ kind: "linked" }),
     };
   }
 
@@ -1263,6 +1267,23 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="form-check">
               <input
                 className="form-check-input"
+                id="collapse-bot-comments"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.collapse_bot_comments}
+                onChange={linkEvent(this, this.handleCollapseBotCommentsChange)}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="collapse-bot-comments"
+              >
+                {I18NextService.i18n.t("collapse_bot_comments")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
                 id="user-show-read-posts"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_read_posts}
@@ -1575,10 +1596,11 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
     if (this.state.instancesRes.state === "success") {
       searchInstanceOptions =
-        this.state.instancesRes.data.federated_instances?.linked.filter(
-          instance =>
-            instance.domain.toLowerCase().includes(text.toLowerCase()),
-        ) ?? [];
+        this.state.instancesRes.data.federated_instances
+          ?.filter(view =>
+            view.instance.domain.toLowerCase().includes(text.toLowerCase()),
+          )
+          .map(view => view.instance) ?? [];
     }
 
     this.setState({
@@ -1835,6 +1857,15 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     i.setState(
       s => (
         (s.saveUserSettingsForm.show_person_votes = event.target.checked),
+        s
+      ),
+    );
+  }
+
+  handleCollapseBotCommentsChange(i: Settings, event: any) {
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.collapse_bot_comments = event.target.checked),
         s
       ),
     );
@@ -2215,7 +2246,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const mui = this.isoData.myUserInfo;
     if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
-        this.state.instancesRes.data.federated_instances?.linked ?? [];
+        this.state.instancesRes.data.federated_instances.map(
+          view => view.instance,
+        ) ?? [];
       updateInstanceCommunitiesBlock(blocked, id, linkedInstances, mui);
       this.setState({
         instanceCommunitiesBlocks: mui.instance_communities_blocks,
@@ -2227,7 +2260,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const mui = this.isoData.myUserInfo;
     if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
-        this.state.instancesRes.data.federated_instances?.linked ?? [];
+        this.state.instancesRes.data.federated_instances.map(
+          view => view.instance,
+        ) ?? [];
       updateInstancePersonsBlock(blocked, id, linkedInstances, mui);
       this.setState({
         instancePersonsBlocks: mui.instance_persons_blocks,
