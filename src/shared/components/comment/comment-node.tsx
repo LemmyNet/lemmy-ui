@@ -1,4 +1,4 @@
-import { colorList, userNotLoggedInOrBanned } from "@utils/app";
+import { colorList, userNotLoggedInOrBanned, hideImages } from "@utils/app";
 import { numToSI } from "@utils/helpers";
 import { futureDaysToUnixTime } from "@utils/date";
 import classNames from "classnames";
@@ -198,6 +198,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       node.view.children.length === 0 &&
       child_count > 0;
 
+    const hideImages_ = hideImages(
+      this.props.hideImages ?? false,
+      this.props.myUserInfo,
+    );
+
     return (
       <li className="comment list-unstyled">
         <article
@@ -255,7 +260,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 <CommentContent
                   comment={comment}
                   viewSource={this.state.viewSource}
-                  hideImages={this.props.hideImages}
+                  hideImages={hideImages_}
                 />
                 <div className="comment-bottom-btns d-flex justify-content-end justify-content-md-start column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
                   <>

@@ -136,45 +136,11 @@ export function pickTranslations(lang: string): FoundTranslation | undefined {
  * date-fns *
  ************/
 
-const localeByCode = allLanguages.reduce((acc, l) => {
-  acc[l.code] = l;
-  return acc;
-}, {});
-
 async function loadLocale(locale: TranslationDesc): Promise<Locale> {
   return import(
     /* webpackChunkName: `date-fns-[request]` */
     `date-fns/locale/${locale.datefns_resource ?? locale.resource}.js`
   ).then(x => x.default);
-}
-
-export function pickLocale(lang: string): TranslationDesc | undefined {
-  if (lang === "en") {
-    lang = "en-US";
-  }
-
-  // if lang and country are the same, then date-fns expects only the lang
-  // eg: instead of "fr-FR", we should import just "fr"
-
-  const parts = lang.split("-");
-  if (parts.length > 1) {
-    if (parts[0] === parts[1].toLowerCase()) {
-      lang = parts[0];
-    }
-  }
-
-  let locale = localeByCode[lang];
-  if (!locale && parts.length > 1) {
-    // Look for language-only variant e.g. "de" for "de-CH"
-    locale = localeByCode[parts[0]];
-  }
-  if (!locale && parts.length > 0) {
-    // Look for any variant of the same language
-    return allLanguages.find(l => {
-      return l.code.startsWith(parts[0]);
-    });
-  }
-  return locale;
 }
 
 export async function verifyDateFnsImports(): Promise<ImportReport> {
@@ -198,13 +164,10 @@ export async function verifyDateFnsImports(): Promise<ImportReport> {
  * Translations and date-fns *
  *****************************/
 
-// This finds a translation first and also returns the corresponding date-fns
-// locale. This prevents picking a language for date-fns that is not available
-// as translation.
 export function findLanguageDescs(
   languages: readonly string[], // readonly because navigator.languages is too
   interfaceLanguage: string = "browser",
-): [TranslationDesc, FoundTranslation] {
+): FoundTranslation {
   const langList =
     interfaceLanguage === "browser"
       ? [...languages]
@@ -212,22 +175,19 @@ export function findLanguageDescs(
   for (const lang of langList) {
     const pickedTranslations = pickTranslations(lang);
     if (pickedTranslations) {
-      const pickedLocale = pickLocale(lang);
-      return [pickedLocale ?? localeByCode["en-US"], pickedTranslations];
+      return pickedTranslations;
     }
   }
-  return [localeByCode["en-US"], [languageByCode["en"]]];
+  return [languageByCode["en"]];
 }
 
 export function findLanguageChunkNames(
   languages: readonly string[],
   interfaceLanguage: string = "browser",
 ): string[] {
-  const [locale, translations] = findLanguageDescs(
-    languages,
-    interfaceLanguage,
-  );
-  const localeNames = locale.bundled ? [] : [`date-fns-${locale.resource}-js`];
+  const translations = findLanguageDescs(languages, interfaceLanguage);
+  const locale = translations[0].datefns_resource ?? translations[0].code;
+  const localeNames = translations[0].bundled ? [] : [`date-fns-${locale}-js`];
   return [
     ...localeNames,
     ...translations
@@ -240,11 +200,8 @@ export async function loadLanguageInstances(
   languages: readonly string[],
   interfaceLanguage: string = "browser",
 ): Promise<[Locale, i18n]> {
-  const [localeDesc, translationDescs] = findLanguageDescs(
-    languages,
-    interfaceLanguage,
-  );
-  const localePromise = loadLocale(localeDesc);
+  const translationDescs = findLanguageDescs(languages, interfaceLanguage);
+  const localePromise = loadLocale(translationDescs[0]);
 
   const options: InitOptions = {
     debug: false,
@@ -283,11 +240,8 @@ export async function updateLanguageInstances(
   languages: readonly string[],
   interfaceLanguage: string = "browser",
 ): Promise<void> {
-  const [localeDesc, translationDescs] = findLanguageDescs(
-    languages,
-    interfaceLanguage,
-  );
-  const locale = loadLocale(localeDesc);
+  const translationDescs = findLanguageDescs(languages, interfaceLanguage);
+  const locale = loadLocale(translationDescs[0]);
 
   await Promise.all(
     translationDescs

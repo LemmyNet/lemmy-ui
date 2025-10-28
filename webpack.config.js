@@ -113,6 +113,7 @@ module.exports = (env, argv) => {
     },
     target: "node",
     externals: [nodeExternals(), "inferno-helmet"],
+    plugins: [...base.plugins],
   };
 
   const clientConfig = {
@@ -138,6 +139,17 @@ module.exports = (env, argv) => {
     ],
   };
 
+  const embeddedConfig = {
+    ...base,
+    entry: "./src/embedded/index.ts",
+    target: "browserslist", // looks up package.json
+    output: {
+      ...base.output,
+      filename: "js/embedded.js",
+    },
+    plugins: [...base.plugins],
+  };
+
   if (mode === "development") {
     // serverConfig.cache = {
     //   type: "filesystem",
@@ -153,5 +165,5 @@ module.exports = (env, argv) => {
     serverConfig.plugins.push(new BundleAnalyzerPlugin());
   }
 
-  return [serverConfig, clientConfig];
+  return [serverConfig, clientConfig, embeddedConfig];
 };

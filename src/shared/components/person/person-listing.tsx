@@ -1,5 +1,4 @@
-import { showAvatars } from "@utils/app";
-import { getStaticDir } from "@utils/env";
+import { hideAnimatedImage, hideImages, showAvatars } from "@utils/app";
 import { hostname } from "@utils/helpers";
 import classNames from "classnames";
 import { Link } from "inferno-router";
@@ -96,14 +95,17 @@ function AvatarAndName({
   const nameClasses = classNames({
     "badge text-bg-info": badgeForPostCreator,
   });
+  const hideAvatar_ =
+    // Hide the avatar if you have hide images on
+    hideImages(hideAvatar ?? false, myUserInfo) ||
+    // Or its an animated image
+    hideAnimatedImage(avatar ?? "", myUserInfo) ||
+    // Or you have hide avatars in your user settings
+    !showAvatars(myUserInfo);
+
   return (
     <>
-      {!hideAvatar && !banned && showAvatars(myUserInfo) && (
-        <PictrsImage
-          src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
-          icon
-        />
-      )}
+      {!hideAvatar_ && !banned && avatar && <PictrsImage src={avatar} icon />}
       <span className={nameClasses}>{name}</span>
       {serverStr && <small className="text-muted">{serverStr}</small>}
     </>

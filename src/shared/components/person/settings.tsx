@@ -291,6 +291,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           show_downvotes,
           show_upvote_percentage,
           show_person_votes,
+          enable_animated_images,
+          hide_media,
           collapse_bot_comments,
         },
         person: {
@@ -340,6 +342,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           enable_private_messages,
           auto_mark_fetched_posts_as_read,
           blocking_keywords: mui.keyword_blocks,
+          enable_animated_images,
+          hide_media,
           collapse_bot_comments,
         },
         avatar,
@@ -369,7 +373,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         });
 
         this.setState({
-          instancesRes: await HttpService.client.getFederatedInstances(),
+          instancesRes: await HttpService.client.getFederatedInstances({
+            kind: "linked",
+          }),
         });
       }
     }
@@ -391,7 +397,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
-      instancesRes: await client.getFederatedInstances(),
+      instancesRes: await client.getFederatedInstances({ kind: "linked" }),
     };
   }
 
@@ -1200,6 +1206,40 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="form-check">
               <input
                 className="form-check-input"
+                id="user-enable-animated-images"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.enable_animated_images}
+                onChange={linkEvent(
+                  this,
+                  this.handleEnableAnimatedImagesChange,
+                )}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="user-enable-animated-images"
+              >
+                {I18NextService.i18n.t("show_animated_images")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-hide-media"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.hide_media}
+                onChange={linkEvent(this, this.handleHideMediaChange)}
+              />
+              <label className="form-check-label" htmlFor="user-hide-media">
+                {I18NextService.i18n.t("hide_all_media")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
                 id="user-bot-account"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.bot_account}
@@ -1560,10 +1600,11 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
     if (this.state.instancesRes.state === "success") {
       searchInstanceOptions =
-        this.state.instancesRes.data.federated_instances?.linked.filter(
-          instance =>
-            instance.domain.toLowerCase().includes(text.toLowerCase()),
-        ) ?? [];
+        this.state.instancesRes.data.federated_instances
+          ?.filter(view =>
+            view.instance.domain.toLowerCase().includes(text.toLowerCase()),
+          )
+          .map(view => view.instance) ?? [];
     }
 
     this.setState({
@@ -1702,6 +1743,30 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
     i.setState(
       s => ((s.saveUserSettingsForm.show_avatars = event.target.checked), s),
+    );
+  }
+
+  handleEnableAnimatedImagesChange(i: Settings, event: any) {
+    const mui = i.isoData.myUserInfo;
+    if (mui) {
+      mui.local_user_view.local_user.enable_animated_images =
+        event.target.checked;
+    }
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.enable_animated_images = event.target.checked),
+        s
+      ),
+    );
+  }
+
+  handleHideMediaChange(i: Settings, event: any) {
+    const mui = i.isoData.myUserInfo;
+    if (mui) {
+      mui.local_user_view.local_user.hide_media = event.target.checked;
+    }
+    i.setState(
+      s => ((s.saveUserSettingsForm.hide_media = event.target.checked), s),
     );
   }
 
@@ -2185,7 +2250,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const mui = this.isoData.myUserInfo;
     if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
-        this.state.instancesRes.data.federated_instances?.linked ?? [];
+        this.state.instancesRes.data.federated_instances.map(
+          view => view.instance,
+        ) ?? [];
       updateInstanceCommunitiesBlock(blocked, id, linkedInstances, mui);
       this.setState({
         instanceCommunitiesBlocks: mui.instance_communities_blocks,
@@ -2197,7 +2264,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const mui = this.isoData.myUserInfo;
     if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
-        this.state.instancesRes.data.federated_instances?.linked ?? [];
+        this.state.instancesRes.data.federated_instances.map(
+          view => view.instance,
+        ) ?? [];
       updateInstancePersonsBlock(blocked, id, linkedInstances, mui);
       this.setState({
         instancePersonsBlocks: mui.instance_persons_blocks,
