@@ -2,6 +2,7 @@ import {
   colorList,
   userNotLoggedInOrBanned,
   getCommentParentId,
+  hideImages,
 } from "@utils/app";
 import { numToSI } from "@utils/helpers";
 import { futureDaysToUnixTime } from "@utils/date";
@@ -268,6 +269,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       node.children.length === 0 &&
       child_count > 0;
 
+    const hideImages_ = hideImages(
+      this.props.hideImages ?? false,
+      this.props.myUserInfo,
+    );
+
     return (
       <li className="comment list-unstyled">
         <article
@@ -412,7 +418,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     <div
                       className="md-div"
                       dangerouslySetInnerHTML={
-                        this.props.hideImages
+                        hideImages_
                           ? mdToHtmlNoImages(this.commentUnlessRemoved, () =>
                               this.forceUpdate(),
                             )

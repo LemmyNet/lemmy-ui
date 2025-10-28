@@ -291,6 +291,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           show_downvotes,
           show_upvote_percentage,
           show_person_votes,
+          enable_animated_images,
+          hide_media,
           collapse_bot_comments,
         },
         person: {
@@ -340,6 +342,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           enable_private_messages,
           auto_mark_fetched_posts_as_read,
           blocking_keywords: mui.keyword_blocks,
+          enable_animated_images,
+          hide_media,
           collapse_bot_comments,
         },
         avatar,
@@ -1198,6 +1202,40 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="form-check">
               <input
                 className="form-check-input"
+                id="user-enable-animated-images"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.enable_animated_images}
+                onChange={linkEvent(
+                  this,
+                  this.handleEnableAnimatedImagesChange,
+                )}
+              />
+              <label
+                className="form-check-label"
+                htmlFor="user-enable-animated-images"
+              >
+                {I18NextService.i18n.t("show_animated_images")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="user-hide-media"
+                type="checkbox"
+                checked={this.state.saveUserSettingsForm.hide_media}
+                onChange={linkEvent(this, this.handleHideMediaChange)}
+              />
+              <label className="form-check-label" htmlFor="user-hide-media">
+                {I18NextService.i18n.t("hide_all_media")}
+              </label>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
                 id="user-bot-account"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.bot_account}
@@ -1701,6 +1739,30 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
     i.setState(
       s => ((s.saveUserSettingsForm.show_avatars = event.target.checked), s),
+    );
+  }
+
+  handleEnableAnimatedImagesChange(i: Settings, event: any) {
+    const mui = i.isoData.myUserInfo;
+    if (mui) {
+      mui.local_user_view.local_user.enable_animated_images =
+        event.target.checked;
+    }
+    i.setState(
+      s => (
+        (s.saveUserSettingsForm.enable_animated_images = event.target.checked),
+        s
+      ),
+    );
+  }
+
+  handleHideMediaChange(i: Settings, event: any) {
+    const mui = i.isoData.myUserInfo;
+    if (mui) {
+      mui.local_user_view.local_user.hide_media = event.target.checked;
+    }
+    i.setState(
+      s => ((s.saveUserSettingsForm.hide_media = event.target.checked), s),
     );
   }
 

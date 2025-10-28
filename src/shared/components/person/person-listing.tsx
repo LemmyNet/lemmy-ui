@@ -1,5 +1,4 @@
-import { showAvatars } from "@utils/app";
-import { getStaticDir } from "@utils/env";
+import { hideAnimatedImage, hideImages, showAvatars } from "@utils/app";
 import { hostname } from "@utils/helpers";
 import classNames from "classnames";
 import { Component } from "inferno";
@@ -55,11 +54,11 @@ export class PersonListing extends Component<PersonListingProps, any> {
       <>
         {!this.props.realLink ? (
           <Link title={name} className={classes} to={link}>
-            {this.avatarAndName(name, serverStr)}
+            {this.avatarAndName(this.props.myUserInfo, name, serverStr)}
           </Link>
         ) : (
           <a title={name} className={classes} href={link} rel={relTags}>
-            {this.avatarAndName(name, serverStr)}
+            {this.avatarAndName(this.props.myUserInfo, name, serverStr)}
           </a>
         )}
 
@@ -68,18 +67,24 @@ export class PersonListing extends Component<PersonListingProps, any> {
     );
   }
 
-  avatarAndName(name: string, serverStr?: string) {
+  avatarAndName(
+    myUserInfo: MyUserInfo | undefined,
+    name: string,
+    serverStr?: string,
+  ) {
     const avatar = this.props.person.avatar;
+
+    const hideAvatar =
+      // Hide the avatar if you have hide images on
+      hideImages(this.props.hideAvatar ?? false, myUserInfo) ||
+      // Or its an animated image
+      hideAnimatedImage(avatar ?? "", myUserInfo) ||
+      // Or you have hide avatars in your user settings
+      !showAvatars(this.props.myUserInfo);
+
     return (
       <>
-        {!this.props.hideAvatar &&
-          /* TODO: hide avatar of banned person */
-          showAvatars(this.props.myUserInfo) && (
-            <PictrsImage
-              src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
-              icon
-            />
-          )}
+        {!hideAvatar && avatar && <PictrsImage src={avatar} icon />}
         <span>{name}</span>
         {serverStr && <small className="text-muted">{serverStr}</small>}
       </>
