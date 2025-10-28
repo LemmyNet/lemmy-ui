@@ -63,7 +63,7 @@ pnpm install
 LEMMY_UI_BACKEND_REMOTE=voyager.lemmy.ml pnpm dev
 ```
 
-Finally open `http://0.0.0.0:1234` in your browser. This uses the public test instance `https://voyager.lemmy.ml/` as backend. For more details such as developing with a locally compiled Lemmy backend, read the [documentation](https://join-lemmy.org/docs/contributors/01-overview.html).
+Finally open `http://localhost:1234` in your browser. This uses the public test instance `https://voyager.lemmy.ml/` as backend. For more details such as developing with a locally compiled Lemmy backend, read the [documentation](https://join-lemmy.org/docs/contributors/01-overview.html).
 
 ## Configuration
 
