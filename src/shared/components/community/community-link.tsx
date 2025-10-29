@@ -1,4 +1,4 @@
-import { showAvatars } from "@utils/app";
+import { hideAnimatedImage, hideImages, showAvatars } from "@utils/app";
 import { hostname } from "@utils/helpers";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
@@ -33,25 +33,36 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
 
     return !this.props.realLink ? (
       <Link title={title} className={classes} to={link}>
-        {this.avatarAndName(title, serverStr)}
+        {this.avatarAndName(this.props.myUserInfo, title, serverStr)}
       </Link>
     ) : (
       <a title={title} className={classes} href={link} rel={relTags}>
-        {this.avatarAndName(title, serverStr)}
+        {this.avatarAndName(this.props.myUserInfo, title, serverStr)}
       </a>
     );
   }
 
-  avatarAndName(title: string, serverStr?: string) {
+  avatarAndName(
+    myUserInfo: MyUserInfo | undefined,
+    title: string,
+    serverStr?: string,
+  ) {
     const icon = this.props.community.icon;
     const nsfw = this.props.community.nsfw;
 
+    const hideAvatar =
+      // Hide the avatar if you have hide images on
+      hideImages(this.props.hideAvatar ?? false, myUserInfo) ||
+      // Or its an animated image
+      hideAnimatedImage(icon ?? "", myUserInfo) ||
+      // Or you have hide avatars in your user settings
+      !showAvatars(this.props.myUserInfo);
+
     return (
       <>
-        {!this.props.hideAvatar &&
-          !this.props.community.removed &&
-          showAvatars(this.props.myUserInfo) &&
-          icon && <PictrsImage src={icon} icon nsfw={nsfw} />}
+        {!hideAvatar && !this.props.community.removed && icon && (
+          <PictrsImage src={icon} icon nsfw={nsfw} />
+        )}
         <span className="overflow-wrap-anywhere">
           {title}
           {serverStr && <small className="text-muted">{serverStr}</small>}

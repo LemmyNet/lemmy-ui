@@ -33,7 +33,6 @@ import {
 import { I18NextService } from "../../services";
 import { PostListing } from "./post-listing";
 import { ShowCrossPostsType } from "@utils/types";
-import { masonryUpdate } from "@utils/browser";
 
 interface PostListingsProps {
   posts: PostView[];
@@ -85,13 +84,6 @@ export class PostListings extends Component<PostListingsProps, any> {
       : this.props.posts;
   }
 
-  async componentWillMount() {
-    await masonryUpdate();
-  }
-  async componentWillUpdate() {
-    await masonryUpdate();
-  }
-
   render() {
     return (
       <div className="post-listings">
@@ -116,7 +108,6 @@ export class PostListings extends Component<PostListingsProps, any> {
                   hideImage={false}
                   disableAutoMarkAsRead={false}
                   editLoading={false}
-                  readLoading={false}
                   onPostEdit={this.props.onPostEdit}
                   onPostVote={this.props.onPostVote}
                   onPostReport={this.props.onPostReport}

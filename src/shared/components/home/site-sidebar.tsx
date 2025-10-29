@@ -130,6 +130,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           <li key={av.person.id} className="list-inline-item">
             <PersonListing
               person={av.person}
+              banned={av.banned}
               myUserInfo={this.props.myUserInfo}
             />
           </li>

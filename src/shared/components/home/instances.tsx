@@ -2,13 +2,11 @@ import { setIsoData } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
-  FederatedInstances,
   GetFederatedInstancesResponse,
   GetSiteResponse,
   Instance,
   LemmyHttp,
 } from "lemmy-js-client";
-import classNames from "classnames";
 import { relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -21,7 +19,6 @@ import {
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import Tabs from "../common/tabs";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
@@ -87,7 +84,9 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     });
 
     this.setState({
-      instancesRes: await HttpService.client.getFederatedInstances(),
+      instancesRes: await HttpService.client.getFederatedInstances({
+        kind: "all",
+      }),
     });
   }
 
@@ -98,7 +97,9 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
-      federatedInstancesResponse: await client.getFederatedInstances(),
+      federatedInstancesResponse: await client.getFederatedInstances({
+        kind: "all",
+      }),
     };
   }
 
@@ -117,33 +118,34 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
           </h5>
         );
       case "success": {
-        const instances = this.state.instancesRes.data.federated_instances;
-        return instances ? (
-          <Tabs
-            tabs={["linked", "allowed", "blocked"]
-              .filter(status => instances[status].length)
-              .map((status: keyof FederatedInstances) => ({
-                key: status,
-                label: I18NextService.i18n.t(`${status}_instances`),
-                getNode: isSelected => (
-                  <div
-                    role="tabpanel"
-                    className={classNames("tab-pane show", {
-                      active: isSelected,
-                    })}
-                  >
-                    {status === "blocked" ? (
-                      <InstanceList items={instances[status]} blocked />
-                    ) : (
-                      <InstanceList items={instances[status]} />
-                    )}
-                  </div>
-                ),
-              }))}
-          />
-        ) : (
-          <h5>No linked instance</h5>
-        );
+        // TODO this needs fixed, and I'm not doing it in this ticket.
+        // const instances = this.state.instancesRes.data.federated_instances;
+        // return instances ? (
+        //   <Tabs
+        //     tabs={["linked", "allowed", "blocked"]
+        //       .filter(status => instances[status].length)
+        //       .map((status: keyof FederatedInstances) => ({
+        //         key: status,
+        //         label: I18NextService.i18n.t(`${status}_instances`),
+        //         getNode: isSelected => (
+        //           <div
+        //             role="tabpanel"
+        //             className={classNames("tab-pane show", {
+        //               active: isSelected,
+        //             })}
+        //           >
+        //             {status === "blocked" ? (
+        //               <InstanceList items={instances[status]} blocked />
+        //             ) : (
+        //               <InstanceList items={instances[status]} />
+        //             )}
+        //           </div>
+        //         ),
+        //       }))}
+        // />
+        // ) : (
+        //   <h5>No linked instance</h5>
+        // );
       }
     }
   }

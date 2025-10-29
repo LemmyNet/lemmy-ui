@@ -168,7 +168,14 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
 
   sidebar() {
     const {
-      community: { name, ap_id, id, posting_restricted_to_mods, visibility },
+      community: {
+        name,
+        ap_id,
+        id,
+        description,
+        posting_restricted_to_mods,
+        visibility,
+      },
       community_actions: { received_ban_at } = {},
     } = this.props.community_view;
 
@@ -184,6 +191,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
             <section id="sidebarMain" className="card mb-3">
               <div className="card-body">
                 {this.communityTitle()}
+                {description && <h6>{description}</h6>}
                 {this.props.editable && this.adminButtons()}
                 {received_ban_at && (
                   <div
@@ -370,6 +378,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
           <li key={mod.moderator.id} className="list-inline-item">
             <PersonListing
               person={mod.moderator}
+              banned={false}
               myUserInfo={this.props.myUserInfo}
             />
           </li>

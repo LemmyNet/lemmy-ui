@@ -304,7 +304,11 @@ function processModlogEntry(
           <>
             <span>{removed ? "Removed " : "Appointed "}</span>
             <span>
-              <PersonListing person={other_person} myUserInfo={myUserInfo} />
+              <PersonListing
+                person={other_person}
+                myUserInfo={myUserInfo}
+                banned={false}
+              />
             </span>
             <span> as an admin </span>
           </>
@@ -328,7 +332,11 @@ function processModlogEntry(
           <>
             <span>{removed ? "Removed " : "Appointed "}</span>
             <span>
-              <PersonListing person={other_person} myUserInfo={myUserInfo} />
+              <PersonListing
+                person={other_person}
+                myUserInfo={myUserInfo}
+                banned={false}
+              />
             </span>
             <span> as a mod to the community </span>
             <span>
@@ -354,7 +362,11 @@ function processModlogEntry(
           <>
             <span>{banned ? "Banned " : "Unbanned "}</span>
             <span>
-              <PersonListing person={other_person} myUserInfo={myUserInfo} />
+              <PersonListing
+                person={other_person}
+                myUserInfo={myUserInfo}
+                banned={banned}
+              />
             </span>
             {reason && (
               <span>
@@ -393,7 +405,11 @@ function processModlogEntry(
           <>
             <span>{banned ? "Banned " : "Unbanned "}</span>
             <span>
-              <PersonListing person={other_person} myUserInfo={myUserInfo} />
+              <PersonListing
+                person={other_person}
+                myUserInfo={myUserInfo}
+                banned={banned}
+              />
             </span>
             <span> from the community </span>
             <span>
@@ -515,7 +531,12 @@ function processModlogEntry(
             </span>
             <span>
               {" "}
-              by <PersonListing person={other_person} myUserInfo={myUserInfo} />
+              by{" "}
+              <PersonListing
+                person={other_person}
+                myUserInfo={myUserInfo}
+                banned={false}
+              />
             </span>
             {reason && (
               <span>
@@ -547,7 +568,12 @@ function processModlogEntry(
             </span>
             <span>
               {" "}
-              by <PersonListing person={other_person} myUserInfo={myUserInfo} />
+              by{" "}
+              <PersonListing
+                person={other_person}
+                myUserInfo={myUserInfo}
+                banned={false}
+              />
             </span>
             {reason && (
               <span>
@@ -634,7 +660,11 @@ function processModlogEntry(
             </span>
             <span> to </span>
             <span>
-              <PersonListing person={other_person} myUserInfo={myUserInfo} />
+              <PersonListing
+                person={other_person}
+                myUserInfo={myUserInfo}
+                banned={false}
+              />
             </span>
           </>
         ),
@@ -842,7 +872,11 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             </div>
             <div className={MOD_COLS}>
               {this.amAdminOrMod && moderator ? (
-                <PersonListing person={moderator} myUserInfo={myUserInfo} />
+                <PersonListing
+                  person={moderator}
+                  myUserInfo={myUserInfo}
+                  banned={false}
+                />
               ) : (
                 <div>{this.modOrAdminText(moderator)}</div>
               )}

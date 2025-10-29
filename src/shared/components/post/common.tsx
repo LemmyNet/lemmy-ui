@@ -5,7 +5,7 @@ import { UserBadges } from "@components/common/user-badges";
 import { CommunityLink } from "@components/community/community-link";
 import { PersonListing } from "@components/person/person-listing";
 import { I18NextService } from "@services/index";
-import { linkTarget } from "@utils/app";
+import { hideAnimatedImage, hideImages, linkTarget } from "@utils/app";
 import { relTags, torrentHelpUrl } from "@utils/config";
 import { formatRelativeDate } from "@utils/date";
 import { getExternalHost } from "@utils/env";
@@ -156,6 +156,9 @@ export function PostCreatedLine({
       )}
       <PersonListing
         person={postView.creator}
+        banned={
+          postView.creator_banned || postView.creator_banned_from_community
+        }
         myUserInfo={myUserInfo}
         muted
         hideAvatar={hideAvatar}
@@ -262,8 +265,15 @@ export function UrlLine({ postView, myUserInfo }: UrlLineProps) {
 type PostImgProps = {
   postView: PostView;
   showAdultConsentModal: boolean;
+  hideImage: boolean;
+  myUserInfo: MyUserInfo | undefined;
 };
-export function PostImg({ postView, showAdultConsentModal }: PostImgProps) {
+export function PostImg({
+  postView,
+  showAdultConsentModal,
+  hideImage,
+  myUserInfo,
+}: PostImgProps) {
   if (showAdultConsentModal) {
     return <></>;
   }
@@ -273,16 +283,16 @@ export function PostImg({ postView, showAdultConsentModal }: PostImgProps) {
   const url = post.url;
   const thumbnail = post.thumbnail_url;
   const imageSrc = url && isImage(url) ? url : thumbnail;
-  const imageDetails = postView.image_details;
 
-  return imageSrc ? (
+  return !hideImages(hideImage, myUserInfo) &&
+    imageSrc &&
+    !hideAnimatedImage(imageSrc, myUserInfo) ? (
     <div className="my-2">
       <a href={imageSrc}>
         <PictrsImage
           src={imageSrc}
           alt={post.alt_text}
-          width={imageDetails?.width}
-          height={imageDetails?.height}
+          imageDetails={postView.image_details}
           nsfw={postView.post.nsfw || postView.community.nsfw}
         />
       </a>

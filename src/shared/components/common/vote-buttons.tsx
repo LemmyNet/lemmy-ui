@@ -17,6 +17,8 @@ import { Icon, Spinner } from "../common/icon";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import classNames from "classnames";
 
+const UPVOTE_PCT_THRESHOLD = 90;
+
 interface VoteButtonsProps {
   voteContentType: PostOrCommentType;
   id: number;
@@ -33,7 +35,7 @@ interface VoteButtonsState {
   downvoteLoading: boolean;
 }
 
-export function showUpvotes(
+function showUpvotes(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
   type: PostOrCommentType,
@@ -41,7 +43,7 @@ export function showUpvotes(
   return enableUpvotes(localSite, type) && (localUser?.show_upvotes ?? true);
 }
 
-export function showDownvotes(
+function showDownvotes(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
   type: PostOrCommentType,
@@ -54,11 +56,11 @@ export function showDownvotes(
   return enableDownvotes(localSite, type) && show;
 }
 
-export function showScore(localUser: LocalUser | undefined): boolean {
+function showScore(localUser: LocalUser | undefined): boolean {
   return !localUser || localUser?.show_score || localUser?.show_upvotes;
 }
 
-export function showPercentage(
+function showPercentage(
   localUser: LocalUser | undefined,
   localSite: LocalSite,
   type: PostOrCommentType,
@@ -70,7 +72,7 @@ export function showPercentage(
   );
 }
 
-export function enableDownvotes(
+function enableDownvotes(
   localSite: LocalSite,
   type: PostOrCommentType,
 ): boolean {
@@ -81,10 +83,7 @@ export function enableDownvotes(
   }
 }
 
-export function enableUpvotes(
-  localSite: LocalSite,
-  type: PostOrCommentType,
-): boolean {
+function enableUpvotes(localSite: LocalSite, type: PostOrCommentType): boolean {
   if (type === "comment") {
     return localSite.comment_upvotes !== "disable";
   } else {
@@ -200,12 +199,29 @@ export class VoteButtonsCompact extends Component<
     const localUser = this.props.myUserInfo?.local_user_view.local_user;
     const {
       localSite,
-      subject,
+      subject: { upvotes, score },
       voteContentType,
       subject: { creator_id },
+      subject,
     } = this.props;
+
+    const noDownvotes = this.props.subject.downvotes === 0;
+
+    const showScore_ = showScore(localUser);
+    const showUpvotes_ = showUpvotes(localUser, localSite, voteContentType);
+    const showPct = showPercentage(localUser, localSite, voteContentType);
+
+    // If the score is the same as the upvotes,
+    // and both score and upvotes are enabled,
+    // only show the upvotes.
+    const hideScore = showScore_ && showUpvotes_ && score === upvotes;
+
     return (
       <>
+        {showScore_ && !hideScore && (
+          <Score myVoteIsUpvote={this.props.myVoteIsUpvote} score={score} />
+        )}
+        {showPct && <UpvotePct subject={subject} />}
         {enableUpvotes(localSite, voteContentType) && (
           <button
             type="button"
@@ -266,15 +282,12 @@ export class VoteButtonsCompact extends Component<
                   localSite,
                   voteContentType,
                   creator_id,
-                ) && (
-                  <span
-                    className={classNames("ms-2", {
-                      invisible: this.props.subject.downvotes === 0,
-                    })}
-                  >
-                    {numToSI(this.props.subject.downvotes)}
-                  </span>
-                )}
+                ) &&
+                  !noDownvotes && (
+                    <span className="ms-2">
+                      {numToSI(this.props.subject.downvotes)}
+                    </span>
+                  )}
               </>
             )}
           </button>
@@ -384,5 +397,71 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
         )}
       </div>
     );
+  }
+}
+
+type ScoreProps = {
+  myVoteIsUpvote?: boolean;
+  score: number;
+};
+function Score({ myVoteIsUpvote, score }: ScoreProps) {
+  const scoreStr = numToSI(score);
+
+  const scoreTippy = I18NextService.i18n.t("number_of_points", {
+    count: Number(score),
+    formattedCount: scoreStr,
+  });
+
+  return (
+    <button
+      className={classNames(
+        "btn btn-animate btn-sm btn-link py-0 px-1",
+        scoreColor(myVoteIsUpvote),
+      )}
+      aria-label={scoreTippy}
+      data-tippy-content={scoreTippy}
+    >
+      <Icon icon="heart" classes="me-1 icon-inline small" />
+      {scoreStr}
+    </button>
+  );
+}
+
+type UpvotePctProps = {
+  subject: Post | Comment;
+};
+function UpvotePct(props: UpvotePctProps) {
+  const { upvotes, downvotes } = props.subject;
+  const pct = calculateUpvotePct(upvotes, downvotes);
+  const pctStr = `${pct.toFixed(0)}%`;
+
+  const thresholdCheck = pct < UPVOTE_PCT_THRESHOLD;
+
+  const upvotesPctTippy = I18NextService.i18n.t("upvote_percentage", {
+    count: Number(pct),
+    formattedCount: Number(pct),
+  });
+
+  return (
+    thresholdCheck && (
+      <button
+        className={"btn btn-animate btn-sm btn-link py-0 px-1"}
+        aria-label={upvotesPctTippy}
+        data-tippy-content={upvotesPctTippy}
+      >
+        <Icon icon="smile" classes="me-1 icon-inline small" />
+        {pctStr}
+      </button>
+    )
+  );
+}
+
+function scoreColor(myVoteIsUpvote: boolean | undefined): string {
+  if (myVoteIsUpvote === true) {
+    return "text-info";
+  } else if (myVoteIsUpvote === false) {
+    return "text-danger";
+  } else {
+    return "text-muted";
   }
 }

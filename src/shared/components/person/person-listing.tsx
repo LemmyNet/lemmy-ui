@@ -1,8 +1,6 @@
-import { showAvatars } from "@utils/app";
-import { getStaticDir } from "@utils/env";
+import { hideAnimatedImage, hideImages, showAvatars } from "@utils/app";
 import { hostname } from "@utils/helpers";
 import classNames from "classnames";
-import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { MyUserInfo, Person } from "lemmy-js-client";
 import { relTags } from "@utils/config";
@@ -12,77 +10,127 @@ import { isCakeDay } from "@utils/date";
 
 interface PersonListingProps {
   person: Person;
+  banned: boolean;
   realLink?: boolean;
   useApubName?: boolean;
   muted?: boolean;
   hideAvatar?: boolean;
   showApubName?: boolean;
+  badgeForPostCreator?: boolean;
   myUserInfo: MyUserInfo | undefined;
 }
 
-export class PersonListing extends Component<PersonListingProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
+export function PersonListing({
+  person,
+  banned,
+  realLink,
+  useApubName,
+  muted,
+  hideAvatar,
+  badgeForPostCreator,
+  myUserInfo,
+}: PersonListingProps) {
+  const name = useApubName ? person.name : (person.display_name ?? person.name);
+  const { link, serverStr } = personLink(person, realLink);
+
+  const classes = classNames(
+    "person-listing d-inline-flex align-items-baseline",
+    {
+      "text-muted": muted,
+      "text-info": !muted,
+    },
+  );
+  return (
+    <>
+      {!realLink ? (
+        <Link title={name} className={classes} to={link}>
+          <AvatarAndName
+            name={name}
+            banned={banned}
+            serverStr={serverStr}
+            avatar={person.avatar}
+            hideAvatar={hideAvatar}
+            badgeForPostCreator={badgeForPostCreator}
+            myUserInfo={myUserInfo}
+          />
+        </Link>
+      ) : (
+        <a title={name} className={classes} href={link} rel={relTags}>
+          <AvatarAndName
+            name={name}
+            banned={banned}
+            serverStr={serverStr}
+            avatar={person.avatar}
+            hideAvatar={hideAvatar}
+            badgeForPostCreator={badgeForPostCreator}
+            myUserInfo={myUserInfo}
+          />
+        </a>
+      )}
+
+      {isCakeDay(person.published_at) && <CakeDay creatorName={name} />}
+    </>
+  );
+}
+
+type AvatarAndNameProps = {
+  name: string;
+  serverStr?: string;
+  banned: boolean;
+  avatar?: string;
+  hideAvatar?: boolean;
+  badgeForPostCreator?: boolean;
+  myUserInfo: MyUserInfo | undefined;
+};
+
+function AvatarAndName({
+  name,
+  serverStr,
+  banned,
+  avatar,
+  hideAvatar,
+  badgeForPostCreator,
+  myUserInfo,
+}: AvatarAndNameProps) {
+  const nameClasses = classNames({
+    "badge text-bg-info": badgeForPostCreator,
+  });
+  const hideAvatar_ =
+    // Hide the avatar if you have hide images on
+    hideImages(hideAvatar ?? false, myUserInfo) ||
+    // Or its an animated image
+    hideAnimatedImage(avatar ?? "", myUserInfo) ||
+    // Or you have hide avatars in your user settings
+    !showAvatars(myUserInfo);
+
+  return (
+    <>
+      {!hideAvatar_ && !banned && avatar && <PictrsImage src={avatar} icon />}
+      <span className={nameClasses}>{name}</span>
+      {serverStr && <small className="text-muted">{serverStr}</small>}
+    </>
+  );
+}
+
+type PersonLinkAndServerStr = {
+  link: string;
+  serverStr?: string;
+};
+
+function personLink(
+  person: Person,
+  realLink: boolean = false,
+): PersonLinkAndServerStr {
+  const local = person.local;
+  let link: string;
+  let serverStr: string | undefined = undefined;
+
+  if (local) {
+    link = `/u/${person.name}`;
+  } else {
+    serverStr = `@${hostname(person.ap_id)}`;
+    link = !realLink ? `/u/${person.name}${serverStr}` : person.ap_id;
   }
 
-  render() {
-    const { person, useApubName } = this.props;
-    const local = person.local;
-    let link: string;
-    let serverStr: string | undefined = undefined;
-
-    const name = useApubName
-      ? person.name
-      : (person.display_name ?? person.name);
-
-    if (local) {
-      link = `/u/${person.name}`;
-    } else {
-      serverStr = `@${hostname(person.ap_id)}`;
-      link = !this.props.realLink
-        ? `/u/${person.name}${serverStr}`
-        : person.ap_id;
-    }
-
-    const classes = classNames(
-      "person-listing d-inline-flex align-items-baseline",
-      {
-        "text-muted": this.props.muted,
-        "text-info": !this.props.muted,
-      },
-    );
-    return (
-      <>
-        {!this.props.realLink ? (
-          <Link title={name} className={classes} to={link}>
-            {this.avatarAndName(name, serverStr)}
-          </Link>
-        ) : (
-          <a title={name} className={classes} href={link} rel={relTags}>
-            {this.avatarAndName(name, serverStr)}
-          </a>
-        )}
-
-        {isCakeDay(person.published_at) && <CakeDay creatorName={name} />}
-      </>
-    );
-  }
-
-  avatarAndName(name: string, serverStr?: string) {
-    const avatar = this.props.person.avatar;
-    return (
-      <>
-        {!this.props.hideAvatar &&
-          /* TODO: hide avatar of banned person */
-          showAvatars(this.props.myUserInfo) && (
-            <PictrsImage
-              src={avatar ?? `${getStaticDir()}/assets/icons/icon-96x96.png`}
-              icon
-            />
-          )}
-        <span>{name}</span>
-        {serverStr && <small className="text-muted">{serverStr}</small>}
-      </>
-    );
-  }
+  return { link, serverStr };
 }

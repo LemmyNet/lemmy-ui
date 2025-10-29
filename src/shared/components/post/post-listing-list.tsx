@@ -74,15 +74,13 @@ export function PostListingList({
             onScrollIntoCommentsClick={onScrollIntoCommentsClick}
           />
         </div>
-        {!hideImage && (
-          <div className="col-auto">
-            <PostThumbnail
-              postView={postView}
-              hideImage={hideImage}
-              myUserInfo={myUserInfo}
-            />
-          </div>
-        )}
+        <div className="col-auto">
+          <PostThumbnail
+            postView={postView}
+            hideImage={hideImage}
+            myUserInfo={myUserInfo}
+          />
+        </div>
       </article>
       <CrossPosts
         crossPosts={crossPosts}

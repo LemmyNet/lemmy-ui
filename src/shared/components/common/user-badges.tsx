@@ -10,7 +10,6 @@ import { Icon } from "./icon";
 interface UserBadgesProps {
   isBanned?: boolean;
   isBannedFromCommunity?: boolean;
-  isPostCreator?: boolean;
   isModerator?: boolean;
   isAdmin?: boolean;
   creator: Person;
@@ -72,8 +71,8 @@ export class UserBadges extends Component<UserBadgesProps> {
       // for other users,
       localUserView.person?.id !== this.props.creator?.id &&
       // and theres at least one up or downvote
-      (this.props.personActions?.upvotes ||
-        this.props.personActions?.downvotes);
+      (this.props.personActions?.upvotes !== 0 ||
+        this.props.personActions?.downvotes !== 0);
 
     const personNote = this.props.personActions?.note;
 
@@ -81,7 +80,6 @@ export class UserBadges extends Component<UserBadgesProps> {
       (this.props.isBanned ||
         this.props.isBannedFromCommunity ||
         isDeleted ||
-        this.props.isPostCreator ||
         this.props.isModerator ||
         this.props.isAdmin ||
         isBot ||
@@ -122,14 +120,6 @@ export class UserBadges extends Component<UserBadgesProps> {
             </span>
           )}
 
-          {this.props.isPostCreator && (
-            <span className="col">
-              <RoleLabelPill
-                label={I18NextService.i18n.t("op").toUpperCase()}
-                tooltip={I18NextService.i18n.t("creator")}
-              />
-            </span>
-          )}
           {this.props.isModerator && (
             <span className="col">
               <RoleLabelIcon
@@ -173,12 +163,12 @@ export class UserBadges extends Component<UserBadgesProps> {
             </span>
           )}
           {isNewAccount && (
-            <span
-              className="col"
-              aria-label={I18NextService.i18n.t("new_account_label")}
-              data-tippy-content={I18NextService.i18n.t("new_account_label")}
-            >
-              🌱
+            <span className="col">
+              <RoleLabelIcon
+                icon="user-plus"
+                tooltip={I18NextService.i18n.t("new_account_label")}
+                classes="text-muted"
+              />
             </span>
           )}
           {showCounts && (

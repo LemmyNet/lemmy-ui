@@ -65,6 +65,7 @@ export class RegistrationApplication extends Component<
           {I18NextService.i18n.t("applicant")}:{" "}
           <PersonListing
             person={a.creator}
+            banned={false}
             myUserInfo={this.props.myUserInfo}
           />
         </div>
@@ -95,6 +96,7 @@ export class RegistrationApplication extends Component<
                 #
                 <PersonListing
                   person={a.admin}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>
@@ -104,6 +106,7 @@ export class RegistrationApplication extends Component<
                   #
                   <PersonListing
                     person={a.admin}
+                    banned={false}
                     myUserInfo={this.props.myUserInfo}
                   />
                 </T>

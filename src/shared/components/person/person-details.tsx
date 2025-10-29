@@ -42,6 +42,7 @@ import {
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
 import { RequestState } from "../../services/HttpService";
+import { commentToFlatNode } from "@utils/app";
 
 interface PersonDetailsProps {
   content: PersonContentCombinedView[];
@@ -97,12 +98,13 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
         return (
           <CommentNodes
             key={i.comment.id}
-            nodes={[{ comment_view: i, children: [], depth: 0 }]}
+            nodes={[commentToFlatNode(i)]}
             viewType={"flat"}
             admins={this.props.admins}
             noBorder
             showCommunity
             showContext
+            hideImages={false}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             myUserInfo={this.props.myUserInfo}
@@ -145,7 +147,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             viewOnly={false}
             disableAutoMarkAsRead={false}
             editLoading={false}
-            readLoading={false}
             enableNsfw={this.props.enableNsfw}
             showAdultConsentModal={this.props.showAdultConsentModal}
             allLanguages={this.props.allLanguages}
