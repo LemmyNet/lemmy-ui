@@ -5,7 +5,6 @@ import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { favIconPngUrl, favIconUrl } from "@utils/config";
 import { IsoDataOptionalSite } from "@utils/types";
-import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
 import { findLanguageChunkNames } from "@services/I18NextService";
 import path from "path";
@@ -29,10 +28,6 @@ export async function createSsrHtml(
   if (process.env["NODE_ENV"] === "development") {
     embeddedScript = readFileSync(path.resolve("./dist/js/embedded.js"));
   }
-
-  const fallbackTheme = `<link rel="stylesheet" type="text/css" href="/css/themes/${
-    (await buildThemeList())[0]
-  }.css" />`;
 
   const customHtmlHeaderScriptTag = new RegExp("<script", "g");
   const customHtmlHeaderWithNonce = customHtmlHeader.replace(
@@ -87,38 +82,20 @@ export async function createSsrHtml(
     .map(x => `<link rel="preload" as="script" href="${x}" />`)
     .join("");
 
+  // Construct this manually instead of using `helmet.link.toString() ||fallbackTheme`. This
+  // prevents loading unnecessary atom-one css files and uses deferred loading.
+  // TODO: add canonical link back
+  const helmetStyles = `<link data-inferno-helmet="true" rel="stylesheet" href="/css/themes/browser.css" media="print" onload="this.media='all'">`;
+
   return `
     <!DOCTYPE html>
     <html ${helmet.htmlAttributes.toString()}>
     <head>
-    <script nonce="${cspNonce}">
-    window.isoData = ${serialize(isoData)};
-
-    ${embeddedScript}
-    </script>
-    ${lazyScripts}
-  
-    <!-- A remote debugging utility for mobile -->
-    ${erudaStr}
-  
-    <!-- Custom injected script -->
-    ${customHtmlHeaderWithNonce}
+    <!-- Required meta tags -->
   
     ${helmet.title.toString()}
     ${helmet.meta.toString()}
-  
-    <style>
-    #app[data-adult-consent] {
-      filter: blur(10px);
-      -webkit-filter: blur(10px);
-      -moz-filter: blur(10px);
-      -o-filter: blur(10px);
-      -ms-filter: blur(10px);
-      pointer-events: none;
-    }
-    </style>
 
-    <!-- Required meta tags -->
     <meta name="Description" content="Lemmy">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -133,12 +110,6 @@ export async function createSsrHtml(
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href=${appleTouchIcon} />
     <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
-  
-    <!-- Styles -->
-    <link rel="stylesheet" type="text/css" href="${getStaticDir()}/styles/styles.css" />
-  
-    <!-- Current theme and more -->
-    ${helmet.link.toString() || fallbackTheme}
     
     </head>
   
@@ -152,6 +123,40 @@ export async function createSsrHtml(
       <div id='root'>${root}</div>
       <script defer src='${getStaticDir()}/js/client.js'></script>
     </body>
+    <script nonce="${cspNonce}">
+    window.isoData = ${serialize(isoData)};
+
+    ${embeddedScript}
+    </script>
+    ${lazyScripts}
+  
+    <!-- A remote debugging utility for mobile -->
+    ${erudaStr}
+  
+    <!-- Custom injected script -->
+    ${customHtmlHeaderWithNonce}
+  
+    <style>
+    #app[data-adult-consent] {
+      filter: blur(10px);
+      -webkit-filter: blur(10px);
+      -moz-filter: blur(10px);
+      -o-filter: blur(10px);
+      -ms-filter: blur(10px);
+      pointer-events: none;
+    }
+    </style>
+  
+    <!-- Current theme and more -->
+    ${helmetStyles}
+
+    <!-- 
+      Styles 
+      https://www.filamentgroup.com/lab/load-css-simpler/
+    -->
+    <link rel="stylesheet" href="${getStaticDir()}/styles/styles.css" media="print" onload="this.media='all'">
+
+  
   </html>
   `;
 }
