@@ -44,12 +44,16 @@ import { PaginatorCursor } from "@components/common/paginator-cursor";
 function getKindFromQuery(kind?: string): GetFederatedInstancesKind {
   return kind ? (kind as GetFederatedInstancesKind) : "all";
 }
+function getDomainFilterFromQuery(kind?: string): string | undefined {
+  return kind;
+}
 
 export function getInstancesQueryParams(source?: string): InstancesProps {
   return getQueryParams<InstancesProps>(
     {
       kind: getKindFromQuery,
       cursor: (cursor?: string) => cursor,
+      domain_filter: getDomainFilterFromQuery,
     },
     source,
   );
@@ -69,6 +73,7 @@ interface InstancesState {
 interface InstancesProps {
   kind: GetFederatedInstancesKind;
   cursor?: DirectionalCursor;
+  domain_filter?: string;
 }
 
 type InstancesRouteProps = RouteComponentProps<Record<string, never>> &
@@ -86,7 +91,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     instancesRes: EMPTY_REQUEST,
     siteRes: this.isoData.siteRes,
     isIsomorphic: false,
-    domain_filter: undefined,
+    domain_filter: this.props.domain_filter,
   };
 
   loadingSettled() {
@@ -123,7 +128,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     this.setState({
       instancesRes: await HttpService.client.getFederatedInstances({
         kind: this.props.kind,
-        domain_filter: this.state.domain_filter,
+        domain_filter: this.props.domain_filter,
         ...cursorComponents(this.props.cursor),
         limit: fetchLimit,
       }),
@@ -202,10 +207,12 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   }
 
   async updateUrl(state: Partial<InstancesProps>) {
-    const { kind } = { ...this.state, ...state };
+    const { kind, cursor, domain_filter } = { ...this.props, ...state };
 
     const queryParams: QueryParams<InstancesProps> = {
       kind,
+      cursor,
+      domain_filter,
     };
 
     this.props.history.push(`/instances${getQueryString(queryParams)}`);
@@ -238,8 +245,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
             placeholder={`${I18NextService.i18n.t("search")}...`}
             aria-label={I18NextService.i18n.t("search")}
             onInput={linkEvent(this, this.handleSearchChange)}
-            required
-            minLength={2}
+            value={this.state.domain_filter}
           />
           <button type="submit" className="btn btn-outline-secondary ms-1">
             <Icon icon="search" />
@@ -254,6 +260,11 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
 
   handleSearchSubmit(i: Instances, event: any) {
     event.preventDefault();
+    let domain_filter = i.state.domain_filter;
+    if (domain_filter === "") {
+      domain_filter = undefined;
+    }
+    i.updateUrl({ domain_filter });
     i.fetchInstances();
   }
 }
