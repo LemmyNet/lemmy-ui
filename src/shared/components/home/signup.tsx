@@ -45,6 +45,7 @@ interface State {
     captcha_answer?: string;
     honeypot?: string;
     answer?: string;
+    stay_logged_in: boolean;
   };
   captchaPlaying: boolean;
 }
@@ -76,6 +77,7 @@ export class Signup extends Component<SignupRouteProps, State> {
     captchaRes: EMPTY_REQUEST,
     form: {
       show_nsfw: !!this.isoData.siteRes?.site_view.site.content_warning,
+      stay_logged_in: false,
     },
     captchaPlaying: false,
   };
@@ -251,7 +253,7 @@ export class Signup extends Component<SignupRouteProps, State> {
           </>
         )}
 
-        {siteView?.local_site.registration_mode === "RequireApplication" && (
+        {siteView?.local_site.registration_mode === "require_application" && (
           <>
             <div className="mb-3 row">
               <div className="offset-sm-2 col-sm-10">
@@ -285,7 +287,7 @@ export class Signup extends Component<SignupRouteProps, State> {
                   hideNavigationWarnings
                   allLanguages={[]}
                   siteLanguages={[]}
-                  renderAsDiv={true}
+                  renderAsDiv
                   myUserInfo={this.isoData.myUserInfo}
                 />
               </div>
@@ -293,20 +295,18 @@ export class Signup extends Component<SignupRouteProps, State> {
           </>
         )}
         {this.renderCaptcha()}
-        <div className="mb-3 row">
-          <div className="col-sm-10">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="register-show-nsfw"
-                type="checkbox"
-                checked={this.state.form.show_nsfw}
-                onChange={linkEvent(this, this.handleRegisterShowNsfwChange)}
-              />
-              <label className="form-check-label" htmlFor="register-show-nsfw">
-                {I18NextService.i18n.t("show_nsfw")}
-              </label>
-            </div>
+        <div className="mb-3">
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              id="register-show-nsfw"
+              type="checkbox"
+              checked={this.state.form.show_nsfw}
+              onChange={linkEvent(this, this.handleRegisterShowNsfwChange)}
+            />
+            <label className="form-check-label" htmlFor="register-show-nsfw">
+              {I18NextService.i18n.t("show_nsfw")}
+            </label>
           </div>
         </div>
         <input
@@ -319,6 +319,23 @@ export class Signup extends Component<SignupRouteProps, State> {
           value={this.state.form.honeypot}
           onInput={linkEvent(this, this.handleHoneyPotChange)}
         />
+        <div className="input-group mb-3">
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              id="register-stay-logged-in"
+              type="checkbox"
+              checked={this.state.form.stay_logged_in}
+              onChange={linkEvent(this, this.handleStayLoggedInChange)}
+            />
+            <label
+              className="form-check-label"
+              htmlFor="register-stay-logged-in"
+            >
+              {I18NextService.i18n.t("stay_logged_in")}
+            </label>
+          </div>
+        </div>
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-secondary">
@@ -422,6 +439,7 @@ export class Signup extends Component<SignupRouteProps, State> {
       password,
       password_verify,
       username,
+      stay_logged_in,
     } = i.state.form;
 
     const oauthProvider = getOAuthProvider(i);
@@ -449,6 +467,7 @@ export class Signup extends Component<SignupRouteProps, State> {
         captcha_answer,
         honeypot,
         answer,
+        stay_logged_in,
       });
       switch (registerRes.state) {
         case "failed": {
@@ -513,6 +532,11 @@ export class Signup extends Component<SignupRouteProps, State> {
 
   handleRegisterShowNsfwChange(i: Signup, event: any) {
     i.state.form.show_nsfw = event.target.checked;
+    i.setState(i.state);
+  }
+
+  handleStayLoggedInChange(i: Signup, event: any) {
+    i.state.form.stay_logged_in = event.target.checked;
     i.setState(i.state);
   }
 

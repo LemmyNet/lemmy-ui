@@ -3,6 +3,8 @@ import { I18NextService } from "../../../services";
 import { Icon } from "../icon";
 import CrossPostButton from "./cross-post-button";
 import {
+  CommentSlimView,
+  CommentView,
   Community,
   CommunityModeratorView,
   MyUserInfo,
@@ -21,51 +23,68 @@ import ModActionFormModal, {
 } from "../modal/mod-action-form-modal";
 import {
   BanType,
-  CommentNodeView,
   CrossPostParams,
   PurgeType,
+  ShowBodyType,
 } from "@utils/types";
 import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";
 import PersonNoteModal from "../modal/person-note-modal";
-import { userNotLoggedInOrBanned } from "@utils/app";
+import {
+  getCommentParentId,
+  linkTarget,
+  postIsInteractable,
+  userNotLoggedInOrBanned,
+} from "@utils/app";
+import { canShare } from "@utils/browser";
 
+// TODO there is no reason to try to combine these. It should be completely split into simple PostActionsDropdown, and CommentActionDropdowns, pushing up the simple forms.
 interface ContentActionDropdownPropsBase {
-  onSave: () => Promise<void>;
-  onEdit: () => void;
-  onDelete: () => Promise<void>;
-  onReport: (reason: string) => Promise<void>;
-  onBlock: () => Promise<void>;
-  onRemove: (reason: string) => Promise<void>;
-  onBanFromCommunity: (form: BanUpdateForm) => Promise<void>;
-  onAppointCommunityMod: () => Promise<void>;
-  onTransferCommunity: () => Promise<void>;
-  onBanFromSite: (form: BanUpdateForm) => Promise<void>;
-  onPurgeContent: (reason: string) => Promise<void>;
-  onPurgeUser: (reason: string) => Promise<void>;
-  onAppointAdmin: () => Promise<void>;
-  onPersonNote: (form: NotePerson) => Promise<void>;
-  onLock: (reason: string) => Promise<void>;
   moderators?: CommunityModeratorView[];
   admins: PersonView[];
   community: Community;
+  viewSource: boolean;
   myUserInfo: MyUserInfo | undefined;
+  onSave(): void;
+  onEdit(): void;
+  onDelete(): void;
+  // TODO These should be pushing up the specific forms, rather than bare reasons.
+  onReport(reason: string): void;
+  onBlockPerson(): void;
+  onBlockCommunity(): void;
+  onRemove(reason: string): void;
+  onBanFromCommunity(form: BanUpdateForm): void;
+  onAppointCommunityMod(): void;
+  onTransferCommunity(): void;
+  onBanFromSite(form: BanUpdateForm): void;
+  onPurgeContent(reason: string): void;
+  onPurgeUser(reason: string): void;
+  onAppointAdmin(): void;
+  onPersonNote(form: NotePerson): void;
+  onLock(reason: string): void;
+  onViewSource(): void;
 }
 
 export type ContentCommentProps = {
   type: "comment";
-  commentView: CommentNodeView;
-  onReply: () => void;
-  onDistinguish: () => Promise<void>;
+  commentView: CommentView | CommentSlimView;
+  showContext: boolean;
+  onReply(): void;
+  onDistinguish(): void;
 } & ContentActionDropdownPropsBase;
 
 export type ContentPostProps = {
   type: "post";
   postView: PostView;
   crossPostParams: CrossPostParams;
-  onFeatureLocal: () => Promise<void>;
-  onFeatureCommunity: () => Promise<void>;
-  onHidePost: () => Promise<void>;
+  showBody: ShowBodyType;
+  markable: boolean;
+  viewOnly: boolean;
+  onFeatureLocal(): void;
+  onFeatureCommunity(): void;
+  onHidePost(): void;
+  onSharePost(): void;
+  onMarkPostAsRead(): void;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -156,7 +175,8 @@ export default class ContentActionDropdown extends Component<
 
   render() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
-    const { onSave, type, onDelete, onBlock, onEdit, moderators } = this.props;
+    const { onSave, type, onDelete, onBlockPerson, onEdit, moderators } =
+      this.props;
     const {
       id,
       saved_at,
@@ -204,12 +224,36 @@ export default class ContentActionDropdown extends Component<
               "comment_moderation_history",
             ),
           };
+
+    const apId =
+      type === "post"
+        ? this.props.postView.post.ap_id
+        : this.props.commentView.comment.ap_id;
+
+    const linkTitle =
+      type === "comment" && this.props.showContext
+        ? I18NextService.i18n.t("show_context")
+        : I18NextService.i18n.t("link");
+
+    const commentId =
+      type === "comment"
+        ? (this.props.showContext &&
+            getCommentParentId(this.props.commentView.comment)) ||
+          this.props.commentView.comment.id
+        : undefined;
+
+    const link =
+      type === "post"
+        ? `/post/${this.props.postView.post.id}`
+        : `/post/${this.props.commentView.comment.post_id}/${commentId}#comment-${commentId}`;
+
     return (
       <>
         {type === "comment" && (
           <ActionButton
             onClick={this.props.onReply}
             icon="reply1"
+            iconClass="text-muted"
             inline
             label={I18NextService.i18n.t("reply")}
             noLoading
@@ -220,20 +264,9 @@ export default class ContentActionDropdown extends Component<
             }
           />
         )}
-        <ActionButton
-          onClick={onSave}
-          inline
-          icon="bookmark"
-          label={I18NextService.i18n.t(saved_at ? "unsave" : "save")}
-          iconClass={classNames({ "text-warning": saved_at })}
-        />
-        {type === "post" && (
-          <CrossPostButton {...this.props.crossPostParams!} />
-        )}
-
         <div className="dropdown">
           <button
-            className="btn btn-sm btn-link btn-animate text-muted py-0 dropdown-toggle"
+            className="btn btn-link btn-animate text-muted py-0 ps-2 pe-0"
             data-tippy-content={I18NextService.i18n.t("more")}
             data-bs-toggle="dropdown"
             aria-expanded="false"
@@ -244,20 +277,108 @@ export default class ContentActionDropdown extends Component<
             <Icon icon="more-vertical" inline />
           </button>
 
-          <ul className="dropdown-menu" id={dropdownId}>
+          <ul className="dropdown-menu dropdown-menu-end" id={dropdownId}>
             {this.state.dropdownOpenedOnce && (
               <>
-                {type === "post" && (
+                {/* Links / fedilinks */}
+                <li>
+                  <Link
+                    className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+                    to={link}
+                    title={linkTitle}
+                  >
+                    <Icon icon="link" classes="me-2" inline />
+                    {linkTitle}
+                  </Link>
+                </li>
+                <li>
+                  <a
+                    className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+                    title={I18NextService.i18n.t("fedilink")}
+                    href={apId}
+                    target={linkTarget(this.props.myUserInfo)}
+                  >
+                    <Icon icon="fedilink" classes="me-2" inline />
+                    {I18NextService.i18n.t("fedilink")}
+                  </a>
+                </li>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+
+                {(type === "comment" ||
+                  (type === "post" &&
+                    this.props.showBody === "full" &&
+                    this.props.postView.post.body)) && (
                   <li>
                     <ActionButton
-                      icon={hidden_at ? "eye" : "eye-slash"}
-                      label={I18NextService.i18n.t(
-                        hidden_at ? "unhide_post" : "hide_post",
-                      )}
-                      onClick={this.props.onHidePost}
+                      icon="file-text"
+                      iconClass={classNames({
+                        "text-success": this.props.viewSource,
+                      })}
+                      label={I18NextService.i18n.t("view_source")}
+                      onClick={this.props.onViewSource}
                     />
                   </li>
                 )}
+                {type === "post" && canShare() && (
+                  <ActionButton
+                    icon="share"
+                    label={I18NextService.i18n.t("share_post")}
+                    onClick={this.props.onSharePost}
+                  />
+                )}
+                {this.props.myUserInfo && (
+                  <li>
+                    <ActionButton
+                      onClick={onSave}
+                      icon="bookmark"
+                      label={I18NextService.i18n.t(
+                        saved_at ? "unsave" : "save",
+                      )}
+                      iconClass={classNames({ "text-warning": saved_at })}
+                    />
+                  </li>
+                )}
+                {/* Interactable post items */}
+                {type === "post" &&
+                  this.props.myUserInfo &&
+                  postIsInteractable(
+                    this.props.postView,
+                    this.props.viewOnly,
+                  ) && (
+                    <>
+                      <li>
+                        <CrossPostButton {...this.props.crossPostParams!} />
+                      </li>
+                      {this.props.markable && (
+                        <li>
+                          <ActionButton
+                            icon="check"
+                            iconClass={classNames({
+                              "text-success":
+                                this.props.postView.post_actions?.read_at,
+                            })}
+                            label={
+                              this.props.postView.post_actions?.read_at
+                                ? I18NextService.i18n.t("mark_as_unread")
+                                : I18NextService.i18n.t("mark_as_read")
+                            }
+                            onClick={this.props.onMarkPostAsRead}
+                          />
+                        </li>
+                      )}
+                      <li>
+                        <ActionButton
+                          icon={hidden_at ? "eye" : "eye-slash"}
+                          label={I18NextService.i18n.t(
+                            hidden_at ? "unhide_post" : "hide_post",
+                          )}
+                          onClick={this.props.onHidePost}
+                        />
+                      </li>
+                    </>
+                  )}
                 {this.amCreator &&
                 !userNotLoggedInOrBanned(this.props.myUserInfo) ? (
                   <>
@@ -281,45 +402,57 @@ export default class ContentActionDropdown extends Component<
                     </li>
                   </>
                 ) : (
-                  <>
-                    {type === "comment" && (
+                  this.props.myUserInfo && (
+                    <>
+                      {type === "comment" && (
+                        <li>
+                          <Link
+                            className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+                            to={`/create_private_message/${creator.id}`}
+                            title={I18NextService.i18n.t("message")}
+                            aria-label={I18NextService.i18n.t("message")}
+                            data-tippy-content={I18NextService.i18n.t(
+                              "message",
+                            )}
+                          >
+                            <Icon icon="mail" inline classes="me-2" />
+                            {I18NextService.i18n.t("message")}
+                          </Link>
+                        </li>
+                      )}
+
                       <li>
-                        <Link
-                          className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
-                          to={`/create_private_message/${creator.id}`}
-                          title={I18NextService.i18n.t("message")}
-                          aria-label={I18NextService.i18n.t("message")}
-                          data-tippy-content={I18NextService.i18n.t("message")}
-                        >
-                          <Icon icon="mail" inline classes="me-2" />
-                          {I18NextService.i18n.t("message")}
-                        </Link>
+                        <ActionButton
+                          icon="flag"
+                          label={I18NextService.i18n.t("create_report")}
+                          onClick={this.toggleReportDialogShow}
+                          noLoading
+                        />
                       </li>
-                    )}
-                    <li>
-                      <ActionButton
-                        icon="flag"
-                        label={I18NextService.i18n.t("create_report")}
-                        onClick={this.toggleReportDialogShow}
-                        noLoading
-                      />
-                    </li>
-                    <li>
-                      <ActionButton
-                        icon="edit"
-                        label={I18NextService.i18n.t("create_user_note")}
-                        onClick={this.togglePersonNoteShow}
-                        noLoading
-                      />
-                    </li>
-                    <li>
-                      <ActionButton
-                        icon="slash"
-                        label={I18NextService.i18n.t("block_user")}
-                        onClick={onBlock}
-                      />
-                    </li>
-                  </>
+                      <li>
+                        <ActionButton
+                          icon="edit"
+                          label={I18NextService.i18n.t("create_user_note")}
+                          onClick={this.togglePersonNoteShow}
+                          noLoading
+                        />
+                      </li>
+                      <li>
+                        <ActionButton
+                          icon="slash"
+                          label={I18NextService.i18n.t("block_user")}
+                          onClick={onBlockPerson}
+                        />
+                      </li>
+                      <li>
+                        <ActionButton
+                          icon="slash"
+                          label={I18NextService.i18n.t("block_community")}
+                          onClick={this.props.onBlockCommunity}
+                        />
+                      </li>
+                    </>
+                  )
                 )}
 
                 {(amMod(
@@ -408,6 +541,8 @@ export default class ContentActionDropdown extends Component<
                     <Icon icon="history" inline classes="me-2" />
                     {modHistoryUserTranslation}
                   </Link>
+                </li>
+                <li>
                   <Link
                     className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
                     to={modHistoryItemLink}
@@ -506,12 +641,13 @@ export default class ContentActionDropdown extends Component<
                       )}
                     </>
                   )}
-                {(amCommunityCreator(
-                  creator.id,
-                  moderators,
-                  this.props.myUserInfo,
-                ) ||
-                  this.canAdmin) &&
+                {this.props.myUserInfo &&
+                  (amCommunityCreator(
+                    creator.id,
+                    moderators,
+                    this.props.myUserInfo,
+                  ) ||
+                    this.canAdmin) &&
                   creator_is_moderator && (
                     <li>
                       <ActionButton
@@ -646,26 +782,25 @@ export default class ContentActionDropdown extends Component<
 
   toggleBanFromCommunityShow() {
     this.toggleDialogShow("BanDialog", {
-      banType: BanType.Community,
+      banType: "community",
     });
   }
 
   toggleBanFromSiteShow() {
     this.toggleDialogShow("BanDialog", {
-      banType: BanType.Site,
+      banType: "site",
     });
   }
 
   togglePurgePersonShow() {
     this.toggleDialogShow("PurgeDialog", {
-      purgeType: PurgeType.Person,
+      purgeType: "person",
     });
   }
 
   togglePurgeContentShow() {
     this.toggleDialogShow("PurgeDialog", {
-      purgeType:
-        this.props.type === "post" ? PurgeType.Post : PurgeType.Comment,
+      purgeType: this.props.type === "post" ? "post" : "comment",
     });
   }
 
@@ -761,19 +896,17 @@ export default class ContentActionDropdown extends Component<
         {renderBanDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(
-              banType === BanType.Community
-                ? onBanFromCommunity
-                : onBanFromSite,
+              banType === "community" ? onBanFromCommunity : onBanFromSite,
             )}
             modActionType={
-              banType === BanType.Community ? "community-ban" : "site-ban"
+              banType === "community" ? "community-ban" : "site-ban"
             }
             creator={creator}
             onCancel={this.hideAllDialogs}
             isBanned={
-              banType === BanType.Community
+              banType === "community"
                 ? !!creator_banned_from_community
-                : banType === BanType.Site
+                : banType === "site"
                   ? creator_banned
                   : false
             }
@@ -794,12 +927,12 @@ export default class ContentActionDropdown extends Component<
         {renderPurgeDialog && (
           <ModActionFormModal
             onSubmit={this.wrapHandler(
-              purgeType === PurgeType.Person ? onPurgeUser : onPurgeContent,
+              purgeType === "person" ? onPurgeUser : onPurgeContent,
             )}
             modActionType={
-              purgeType === PurgeType.Post
+              purgeType === "post"
                 ? "purge-post"
-                : purgeType === PurgeType.Comment
+                : purgeType === "comment"
                   ? "purge-comment"
                   : "purge-person"
             }
@@ -981,10 +1114,10 @@ export default class ContentActionDropdown extends Component<
     return canAdmin(creator.id, this.props.admins, this.props.myUserInfo, true);
   }
 
-  wrapHandler(handler: (arg?: any) => Promise<void>) {
-    return async (arg?: any) => {
-      await handler(arg);
+  wrapHandler(handler: (arg?: any) => void) {
+    return (arg?: any) => {
       this.hideAllDialogs();
+      handler(arg);
     };
   }
 }

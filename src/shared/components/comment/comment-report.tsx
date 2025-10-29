@@ -9,7 +9,6 @@ import {
   RemoveComment,
   ResolveCommentReport,
 } from "lemmy-js-client";
-import { CommentNodeI, CommentViewType } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
@@ -22,6 +21,7 @@ import {
   BanFromSiteData,
 } from "@components/person/reports";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
+import { commentToFlatNode } from "@utils/app";
 
 interface CommentReportProps {
   report: CommentReportView;
@@ -89,20 +89,15 @@ export class CommentReport extends Component<
       post_tags: [],
     };
 
-    const node: CommentNodeI = {
-      comment_view,
-      children: [],
-      depth: 0,
-    };
-
     return (
       <div className="comment-report">
         <CommentNode
-          node={node}
+          node={commentToFlatNode(comment_view)}
           admins={this.props.admins}
-          viewType={CommentViewType.Flat}
-          viewOnly={true}
-          showCommunity={true}
+          viewType={"flat"}
+          viewOnly
+          showCommunity
+          showContext={false}
           allLanguages={[]}
           siteLanguages={[]}
           hideImages
@@ -111,6 +106,7 @@ export class CommentReport extends Component<
           // All of these are unused, since its viewonly
           onSaveComment={async () => {}}
           onBlockPerson={async () => {}}
+          onBlockCommunity={async () => {}}
           onDeleteComment={async () => {}}
           onRemoveComment={async () => {}}
           onCommentVote={async () => {}}
@@ -132,6 +128,7 @@ export class CommentReport extends Component<
           {I18NextService.i18n.t("reporter")}:{" "}
           <PersonListing
             person={r.creator}
+            banned={false}
             myUserInfo={this.props.myUserInfo}
           />
         </div>
@@ -145,6 +142,7 @@ export class CommentReport extends Component<
                 #
                 <PersonListing
                   person={r.resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>
@@ -153,6 +151,7 @@ export class CommentReport extends Component<
                 #
                 <PersonListing
                   person={r.resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>
@@ -216,7 +215,7 @@ export class CommentReport extends Component<
             modActionType="remove-comment"
             isRemoved={comment_view.comment.removed}
             onCancel={() => this.setState({ showRemoveCommentDialog: false })}
-            show={true}
+            show
           />
         )}
       </div>

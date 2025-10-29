@@ -5,18 +5,20 @@ import { CrossPostParams } from "@utils/types";
 import { InfernoNode } from "inferno";
 
 export default function CrossPostButton(props: CrossPostParams): InfernoNode {
+  const label = I18NextService.i18n.t("cross_post");
   return (
     <Link
-      className="btn btn-sm btn-link btn-animate text-muted py-0"
+      className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
       to={{
         pathname: "/create_post",
         state: props,
       }}
-      title={I18NextService.i18n.t("cross_post")}
-      data-tippy-content={I18NextService.i18n.t("cross_post")}
-      aria-label={I18NextService.i18n.t("cross_post")}
+      title={label}
+      data-tippy-content={label}
+      aria-label={label}
     >
-      <Icon icon="copy" inline />
+      <Icon icon="copy" classes="me-2" inline />
+      {label}
     </Link>
   );
 }

@@ -37,11 +37,12 @@ import {
   LocalSite,
   NotePerson,
   LockComment,
+  BlockCommunity,
 } from "lemmy-js-client";
-import { CommentViewType } from "@utils/types";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
 import { RequestState } from "../../services/HttpService";
+import { commentToFlatNode } from "@utils/app";
 
 interface PersonDetailsProps {
   content: PersonContentCombinedView[];
@@ -59,6 +60,7 @@ interface PersonDetailsProps {
   onEditComment(form: EditComment): Promise<RequestState<CommentResponse>>;
   onCommentVote(form: CreateCommentLike): Promise<void>;
   onBlockPerson(form: BlockPerson): Promise<void>;
+  onBlockCommunity(form: BlockCommunity): Promise<void>;
   onDeleteComment(form: DeleteComment): Promise<void>;
   onRemoveComment(form: RemoveComment): Promise<void>;
   onDistinguishComment(form: DistinguishComment): Promise<void>;
@@ -92,16 +94,17 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
 
   renderItemType(i: PersonContentCombinedView): InfernoNode {
     switch (i.type_) {
-      case "Comment": {
+      case "comment": {
         return (
           <CommentNodes
             key={i.comment.id}
-            nodes={[{ comment_view: i, children: [], depth: 0 }]}
-            viewType={CommentViewType.Flat}
+            nodes={[commentToFlatNode(i)]}
+            viewType={"flat"}
             admins={this.props.admins}
             noBorder
             showCommunity
             showContext
+            hideImages={false}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             myUserInfo={this.props.myUserInfo}
@@ -110,6 +113,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onEditComment={this.props.onEditComment}
             onCommentVote={this.props.onCommentVote}
             onBlockPerson={this.props.onBlockPerson}
+            onBlockCommunity={this.props.onBlockCommunity}
             onSaveComment={this.props.onSaveComment}
             onDeleteComment={this.props.onDeleteComment}
             onRemoveComment={this.props.onRemoveComment}
@@ -128,14 +132,21 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
           />
         );
       }
-      case "Post": {
+      case "post": {
         return (
           <PostListing
             key={i.post.id}
-            post_view={i}
-            showDupes="ShowSeparately"
+            postView={i}
+            showCrossPosts="show_separately"
             admins={this.props.admins}
+            postListingMode="small_card"
             showCommunity
+            crossPosts={[]}
+            showBody={"preview"}
+            hideImage={false}
+            viewOnly={false}
+            disableAutoMarkAsRead={false}
+            editLoading={false}
             enableNsfw={this.props.enableNsfw}
             showAdultConsentModal={this.props.showAdultConsentModal}
             allLanguages={this.props.allLanguages}
@@ -146,6 +157,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onPostVote={this.props.onPostVote}
             onPostReport={this.props.onPostReport}
             onBlockPerson={this.props.onBlockPerson}
+            onBlockCommunity={this.props.onBlockCommunity}
             onLockPost={this.props.onLockPost}
             onDeletePost={this.props.onDeletePost}
             onRemovePost={this.props.onRemovePost}
@@ -160,9 +172,9 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onTransferCommunity={this.props.onTransferCommunity}
             onHidePost={async () => {}}
             markable
-            read={!!i.post_actions?.read_at}
             onMarkPostAsRead={this.props.onMarkPostAsRead}
             onPersonNote={this.props.onPersonNote}
+            onScrollIntoCommentsClick={() => {}}
           />
         );
       }

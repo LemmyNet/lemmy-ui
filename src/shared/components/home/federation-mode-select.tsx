@@ -10,9 +10,9 @@ interface FederationModeSelectProps<T> {
 }
 
 const modes: { value: FederationMode; i18nKey: NoOptionI18nKeys }[] = [
-  { value: "All", i18nKey: "all" },
-  { value: "Local", i18nKey: "local" },
-  { value: "Disable", i18nKey: "disable" },
+  { value: "all", i18nKey: "all" },
+  { value: "local", i18nKey: "local" },
+  { value: "disable", i18nKey: "disable" },
 ];
 
 export class FederationModeSelect<T> extends Component<

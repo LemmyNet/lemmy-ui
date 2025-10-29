@@ -81,6 +81,7 @@ export class PrivateMessageForm extends Component<
               <PersonListing
                 person={this.props.recipient}
                 myUserInfo={this.props.myUserInfo}
+                banned={false}
               />
             </div>
           </div>

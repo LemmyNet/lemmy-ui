@@ -97,6 +97,7 @@ export class PrivateMessage extends Component<
             <li className="list-inline-item">
               <PersonListing
                 person={otherPerson}
+                banned={false}
                 myUserInfo={this.props.myUserInfo}
               />
             </li>
@@ -265,7 +266,7 @@ export class PrivateMessage extends Component<
           <div className="row">
             <div className="col-sm-6">
               <PrivateMessageForm
-                replyType={true}
+                replyType
                 recipient={otherPerson}
                 myUserInfo={this.props.myUserInfo}
                 onCreate={this.handleCreate}

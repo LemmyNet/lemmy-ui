@@ -3,24 +3,22 @@ import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
-  CommentResponse,
   CreateComment,
   EditComment,
   Language,
   MyUserInfo,
 } from "lemmy-js-client";
-import { CommentNodeI } from "@utils/types";
+import { CommentNodeType } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import { RequestState } from "../../services/HttpService";
 import { userNotLoggedInOrBanned } from "@utils/app";
 
 interface CommentFormProps {
   /**
    * Can either be the parent, or the editable comment. The right side is a postId.
    */
-  node: CommentNodeI | number;
+  node: CommentNodeType | number;
   edit?: boolean;
   disabled?: boolean;
   focus?: boolean;
@@ -28,24 +26,21 @@ interface CommentFormProps {
   allLanguages: Language[];
   siteLanguages: number[];
   containerClass?: string;
-  onUpsertComment(
-    form: EditComment | CreateComment,
-  ): Promise<RequestState<CommentResponse>>;
   myUserInfo: MyUserInfo | undefined;
+  onCreateComment(form: CreateComment): void;
+  onEditComment(form: EditComment): void;
 }
 
 export class CommentForm extends Component<CommentFormProps, any> {
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
   }
 
   render() {
     const initialContent =
       typeof this.props.node !== "number"
         ? this.props.edit
-          ? this.props.node.comment_view.comment.content
+          ? this.props.node.view.comment_view.comment.content
           : undefined
         : undefined;
     const placeholder = this.props.disabled
@@ -68,7 +63,9 @@ export class CommentForm extends Component<CommentFormProps, any> {
             replyType={typeof this.props.node !== "number"}
             focus={this.props.focus}
             disabled={disabled}
-            onSubmit={this.handleCommentSubmit}
+            onSubmit={(content, languageId) =>
+              handleCommentSubmit(this, content, languageId)
+            }
             onReplyCancel={this.props.onReplyCancel}
             placeholder={placeholder ?? undefined}
             allLanguages={this.props.allLanguages}
@@ -78,7 +75,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
         ) : (
           <div className="alert alert-warning" role="alert">
             <Icon icon="alert-triangle" classes="icon-inline me-2" />
-            <T i18nKey="must_login" class="d-inline">
+            <T i18nKey="must_login" className="d-inline">
               #
               <Link className="alert-link" to="/login">
                 #
@@ -100,39 +97,39 @@ export class CommentForm extends Component<CommentFormProps, any> {
         ? capitalizeFirstLetter(I18NextService.i18n.t("save"))
         : capitalizeFirstLetter(I18NextService.i18n.t("reply"));
   }
+}
 
-  async handleCommentSubmit(
-    content: string,
-    language_id?: number,
-  ): Promise<boolean> {
-    const { node, onUpsertComment, edit } = this.props;
-    let response: RequestState<CommentResponse>;
+function handleCommentSubmit(
+  i: CommentForm,
+  content: string,
+  language_id?: number,
+) {
+  const { node, onCreateComment, onEditComment, edit } = i.props;
 
-    if (typeof node === "number") {
-      const post_id = node;
-      response = await onUpsertComment({
-        content,
-        post_id,
-        language_id,
-      });
-    } else if (edit) {
-      const comment_id = node.comment_view.comment.id;
-      response = await onUpsertComment({
-        content,
-        comment_id,
-        language_id,
-      });
-    } else {
-      const post_id = node.comment_view.comment.post_id;
-      const parent_id = node.comment_view.comment.id;
-      response = await onUpsertComment({
-        content,
-        parent_id,
-        post_id,
-        language_id,
-      });
-    }
-
-    return response.state !== "failed";
+  if (typeof node === "number") {
+    const post_id = node;
+    onCreateComment({
+      content,
+      post_id,
+      language_id,
+    });
+  } else if (edit) {
+    const comment_id = node.view.comment_view.comment.id;
+    onEditComment({
+      content,
+      comment_id,
+      language_id,
+    });
+  }
+  // If its a node, and not an edit, that means its a reply to the parent
+  else {
+    const post_id = node.view.comment_view.comment.post_id;
+    const parent_id = node.view.comment_view.comment.id;
+    onCreateComment({
+      content,
+      parent_id,
+      post_id,
+      language_id,
+    });
   }
 }

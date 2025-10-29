@@ -8,10 +8,14 @@ import { IsoDataOptionalSite } from "@utils/types";
 import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
 import { findLanguageChunkNames } from "@services/I18NextService";
+import path from "path";
+import { readFileSync } from "node:fs";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
 let appleTouchIcon: string | undefined = undefined;
+
+let embeddedScript = readFileSync(path.resolve("./dist/js/embedded.js"));
 
 export async function createSsrHtml(
   root: string,
@@ -21,6 +25,10 @@ export async function createSsrHtml(
   interfaceLanguage?: string,
 ) {
   const site = isoData.siteRes;
+
+  if (process.env["NODE_ENV"] === "development") {
+    embeddedScript = readFileSync(path.resolve("./dist/js/embedded.js"));
+  }
 
   const fallbackTheme = `<link rel="stylesheet" type="text/css" href="/css/themes/${
     (await buildThemeList())[0]
@@ -86,10 +94,7 @@ export async function createSsrHtml(
     <script nonce="${cspNonce}">
     window.isoData = ${serialize(isoData)};
 
-    if (!document.documentElement.hasAttribute("data-bs-theme")) {
-      const light = window.matchMedia("(prefers-color-scheme: light)").matches;
-      document.documentElement.setAttribute("data-bs-theme", light ? "light" : "dark");
-    }
+    ${embeddedScript}
     </script>
     ${lazyScripts}
   

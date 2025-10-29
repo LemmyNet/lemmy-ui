@@ -7,7 +7,7 @@ import { modalMixin } from "../../mixins/modal-mixin";
 import { MouseEventHandler } from "inferno";
 
 interface ConfirmationModalProps {
-  onYes: () => Promise<void>;
+  onYes: () => void;
   onNo: MouseEventHandler<HTMLButtonElement>;
   message: string;
   loadingMessage: string;
@@ -18,9 +18,9 @@ interface ConfirmationModalState {
   loading: boolean;
 }
 
-async function handleYes(i: ConfirmationModal) {
+function handleYes(i: ConfirmationModal) {
   i.setState({ loading: true });
-  await i.props.onYes();
+  i.props.onYes();
   i.setState({ loading: false });
 }
 

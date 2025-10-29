@@ -1,5 +1,6 @@
 import {
   commentsToFlatNodes,
+  commentToFlatNode,
   communityToChoice,
   enableNsfw,
   fetchCommunities,
@@ -44,7 +45,7 @@ import {
   MultiCommunityView,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
-import { CommentViewType, InitialFetchRequest } from "@utils/types";
+import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../services";
 import {
   EMPTY_REQUEST,
@@ -100,12 +101,20 @@ interface SearchState {
   isIsomorphic: boolean;
 }
 
-const defaultSearchType = "All";
-const defaultSearchSortType = "Top";
-const defaultListingType = "All";
-const defaultCommunitySortType = "Hot";
+const defaultSearchType = "all";
+const defaultSearchSortType = "top";
+const defaultListingType = "all";
+const defaultCommunitySortType = "hot";
 
-const searchTypes = ["All", "Comments", "Posts", "Communities", "Users", "Url"];
+const searchTypes = [
+  "all",
+  "comments",
+  "posts",
+  "communities",
+  "users",
+  "multi_communities",
+  // TODO add multi-community search
+];
 
 export function getSearchQueryParams(source?: string): SearchProps {
   return getQueryParams<SearchProps>(
@@ -189,14 +198,14 @@ const communityListing = (
           <div>
             <CommunityLink community={c.community} myUserInfo={myUserInfo} />
             <Badges
-              className="ms-1 d-inline-flex"
+              className="ms-2 d-inline-flex"
               communityId={c.community.id}
               subject={c.community}
               lessBadges
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );
@@ -214,6 +223,7 @@ const personListing = (
           <div>
             <PersonListing
               person={p.person}
+              banned={p.banned}
               showApubName
               myUserInfo={myUserInfo}
             />
@@ -228,7 +238,7 @@ const personListing = (
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );
@@ -243,8 +253,8 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
           <div>
             <PostListing
               key={post_view.post.id}
-              post_view={post_view}
-              showDupes="ShowSeparately"
+              postView={post_view}
+              showCrossPosts="show_separately"
               showCommunity
               myUserInfo={isoData.myUserInfo}
               localSite={isoData.siteRes.site_view.local_site}
@@ -253,31 +263,40 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
               allLanguages={isoData.siteRes.all_languages}
               siteLanguages={isoData.siteRes.discussion_languages}
               admins={isoData.siteRes.admins}
+              postListingMode="list"
               viewOnly
+              crossPosts={[]}
+              showBody={"hidden"}
+              hideImage={false}
+              markable={false}
+              disableAutoMarkAsRead={false}
+              editLoading={false}
               // All of these are unused, since its view only
-              onPostEdit={async () => EMPTY_REQUEST}
-              onPostVote={async () => EMPTY_REQUEST}
-              onPostReport={async () => {}}
-              onBlockPerson={async () => {}}
-              onLockPost={async () => {}}
-              onDeletePost={async () => {}}
-              onRemovePost={async () => {}}
-              onSavePost={async () => {}}
-              onFeaturePost={async () => {}}
-              onPurgePerson={async () => {}}
-              onPurgePost={async () => {}}
-              onBanPersonFromCommunity={async () => {}}
-              onBanPerson={async () => {}}
-              onAddModToCommunity={async () => {}}
-              onAddAdmin={async () => {}}
-              onTransferCommunity={async () => {}}
-              onMarkPostAsRead={async () => {}}
-              onHidePost={async () => {}}
-              onPersonNote={async () => {}}
+              onPostEdit={() => EMPTY_REQUEST}
+              onPostVote={() => EMPTY_REQUEST}
+              onPostReport={() => {}}
+              onBlockPerson={() => {}}
+              onBlockCommunity={() => {}}
+              onLockPost={() => {}}
+              onDeletePost={() => {}}
+              onRemovePost={() => {}}
+              onSavePost={() => {}}
+              onFeaturePost={() => {}}
+              onPurgePerson={() => {}}
+              onPurgePost={() => {}}
+              onBanPersonFromCommunity={() => {}}
+              onBanPerson={() => {}}
+              onAddModToCommunity={() => {}}
+              onAddAdmin={() => {}}
+              onTransferCommunity={() => {}}
+              onMarkPostAsRead={() => {}}
+              onHidePost={() => {}}
+              onPersonNote={() => {}}
+              onScrollIntoCommentsClick={() => {}}
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );
@@ -292,25 +311,23 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
           <div>
             <CommentNodes
               key={c.comment.id}
-              nodes={[
-                {
-                  comment_view: c,
-                  children: [],
-                  depth: 0,
-                },
-              ]}
-              viewType={CommentViewType.Flat}
+              nodes={[commentToFlatNode(c)]}
+              viewType={"flat"}
               viewOnly
-              postLocked
+              postLockedOrRemovedOrDeleted
               isTopLevel
+              showCommunity
               myUserInfo={isoData.myUserInfo}
               localSite={isoData.siteRes.site_view.local_site}
               allLanguages={isoData.siteRes.all_languages}
               siteLanguages={isoData.siteRes.discussion_languages}
               admins={isoData.siteRes.admins}
+              showContext={false}
+              hideImages={false}
               // All of these are unused, since its viewonly
               onSaveComment={async () => {}}
               onBlockPerson={async () => {}}
+              onBlockCommunity={async () => {}}
               onDeleteComment={async () => {}}
               onRemoveComment={async () => {}}
               onCommentVote={async () => {}}
@@ -330,7 +347,7 @@ const commentListing = (comments: CommentView[], isoData: IsoData) => {
             />
           </div>
         ))}
-        <hr class="border m-2" />
+        <hr className="border m-2" />
       </>
     )
   );
@@ -656,15 +673,15 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   displayResults(type: SearchType) {
     switch (type) {
-      case "All":
+      case "all":
         return this.all;
-      case "Comments":
+      case "comments":
         return this.comments;
-      case "Posts":
+      case "posts":
         return this.posts;
-      case "Communities":
+      case "communities":
         return this.communities;
-      case "Users":
+      case "users":
         return this.users;
       default:
         return <></>;
@@ -756,7 +773,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               myUserInfo={this.isoData.myUserInfo}
             />
           </div>
-          {(type === "All" || type === "Posts") && (
+          {(type === "all" || type === "posts") && (
             <div className="col">
               <input
                 className="btn-check"
@@ -806,19 +823,19 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     if (searchResponse.state === "success") {
       searchResponse.data.results.forEach(sr => {
         switch (sr.type_) {
-          case "Post":
+          case "post":
             posts_array.push(sr);
             break;
-          case "Comment":
+          case "comment":
             comments_array.push(sr);
             break;
-          case "Community":
+          case "community":
             communities_array.push(sr);
             break;
-          case "Person":
+          case "person":
             persons_array.push(sr);
             break;
-          case "MultiCommunity":
+          case "multi_community":
             multi_communities_array.push(sr); //TODO: display these
             break;
         }
@@ -839,24 +856,28 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const { searchRes: searchResponse, siteRes } = this.state;
     const comments =
       searchResponse.state === "success"
-        ? searchResponse.data.results.filter(s => s.type_ === "Comment")
+        ? searchResponse.data.results.filter(s => s.type_ === "comment")
         : [];
 
     return (
       <CommentNodes
         nodes={commentsToFlatNodes(comments)}
-        viewType={CommentViewType.Flat}
+        viewType={"flat"}
         viewOnly
-        postLocked
+        postLockedOrRemovedOrDeleted
         isTopLevel
+        showCommunity
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
         myUserInfo={this.isoData.myUserInfo}
         localSite={siteRes.site_view.local_site}
         admins={this.isoData.siteRes.admins}
+        showContext={false}
+        hideImages={false}
         // All of these are unused, since its viewonly
         onSaveComment={async () => {}}
         onBlockPerson={async () => {}}
+        onBlockCommunity={async () => {}}
         onDeleteComment={async () => {}}
         onRemoveComment={async () => {}}
         onCommentVote={async () => {}}
@@ -881,7 +902,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const { searchRes: searchResponse, siteRes } = this.state;
     const posts =
       searchResponse.state === "success"
-        ? searchResponse.data.results.filter(s => s.type_ === "Post")
+        ? searchResponse.data.results.filter(s => s.type_ === "post")
         : [];
 
     return (
@@ -890,8 +911,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           <div key={pv.post.id} className="row">
             <div className="col-12">
               <PostListing
-                post_view={pv}
-                showDupes="ShowSeparately"
+                postView={pv}
+                showCrossPosts="show_separately"
                 showCommunity
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}
@@ -901,26 +922,35 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 myUserInfo={this.isoData.myUserInfo}
                 localSite={siteRes.site_view.local_site}
                 admins={this.isoData.siteRes.admins}
+                postListingMode="list"
+                showBody={"hidden"}
+                crossPosts={[]}
+                hideImage={false}
+                markable={false}
+                disableAutoMarkAsRead={false}
+                editLoading={false}
                 // All of these are unused, since its view only
-                onPostEdit={async () => EMPTY_REQUEST}
-                onPostVote={async () => EMPTY_REQUEST}
-                onPostReport={async () => {}}
-                onBlockPerson={async () => {}}
-                onLockPost={async () => {}}
-                onDeletePost={async () => {}}
-                onRemovePost={async () => {}}
-                onSavePost={async () => {}}
-                onFeaturePost={async () => {}}
-                onPurgePerson={async () => {}}
-                onPurgePost={async () => {}}
-                onBanPersonFromCommunity={async () => {}}
-                onBanPerson={async () => {}}
-                onAddModToCommunity={async () => {}}
-                onAddAdmin={async () => {}}
-                onTransferCommunity={async () => {}}
-                onMarkPostAsRead={async () => {}}
-                onHidePost={async () => {}}
-                onPersonNote={async () => {}}
+                onPostEdit={() => EMPTY_REQUEST}
+                onPostVote={() => EMPTY_REQUEST}
+                onPostReport={() => {}}
+                onBlockPerson={() => {}}
+                onBlockCommunity={() => {}}
+                onLockPost={() => {}}
+                onDeletePost={() => {}}
+                onRemovePost={() => {}}
+                onSavePost={() => {}}
+                onFeaturePost={() => {}}
+                onPurgePerson={() => {}}
+                onPurgePost={() => {}}
+                onBanPersonFromCommunity={() => {}}
+                onBanPerson={() => {}}
+                onAddModToCommunity={() => {}}
+                onAddAdmin={() => {}}
+                onTransferCommunity={() => {}}
+                onMarkPostAsRead={() => {}}
+                onHidePost={() => {}}
+                onPersonNote={() => {}}
+                onScrollIntoCommentsClick={() => {}}
               />
             </div>
           </div>
@@ -933,7 +963,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const { searchRes: searchResponse } = this.state;
     const communities =
       searchResponse.state === "success"
-        ? searchResponse.data.results.filter(s => s.type_ === "Community")
+        ? searchResponse.data.results.filter(s => s.type_ === "community")
         : [];
 
     return (
@@ -949,7 +979,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const { searchRes: searchResponse } = this.state;
     const users =
       searchResponse.state === "success"
-        ? searchResponse.data.results.filter(s => s.type_ === "Person")
+        ? searchResponse.data.results.filter(s => s.type_ === "person")
         : [];
 
     return (

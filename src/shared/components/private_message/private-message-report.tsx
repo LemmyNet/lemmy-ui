@@ -52,6 +52,7 @@ export class PrivateMessageReport extends Component<Props, State> {
           {I18NextService.i18n.t("creator")}:{" "}
           <PersonListing
             person={r.private_message_creator}
+            banned={r.creator_banned}
             myUserInfo={this.props.myUserInfo}
           />
         </div>
@@ -69,6 +70,7 @@ export class PrivateMessageReport extends Component<Props, State> {
           {I18NextService.i18n.t("reporter")}:{" "}
           <PersonListing
             person={r.creator}
+            banned={false}
             myUserInfo={this.props.myUserInfo}
           />
         </div>
@@ -82,6 +84,7 @@ export class PrivateMessageReport extends Component<Props, State> {
                 #
                 <PersonListing
                   person={r.resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>
@@ -90,6 +93,7 @@ export class PrivateMessageReport extends Component<Props, State> {
                 #
                 <PersonListing
                   person={r.resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>

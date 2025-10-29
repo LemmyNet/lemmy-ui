@@ -1,5 +1,4 @@
 import {
-  CommentView,
   CommunityView,
   CreateOAuthProvider,
   GetSiteResponse,
@@ -7,7 +6,10 @@ import {
   PersonView,
   MyUserInfo,
   PaginationCursor,
+  CommentView,
   CommentSlimView,
+  PersonId,
+  Community,
 } from "lemmy-js-client";
 import { RequestState } from "@services/HttpService";
 import { Match } from "inferno-router/dist/Route";
@@ -64,53 +66,48 @@ export interface PostFormParams {
   alt_text?: string;
 }
 
-export enum CommentViewType {
-  Tree,
-  Flat,
+export type CommentViewType = "tree" | "flat";
+
+export type PostOrCommentType = "post" | "comment";
+
+export type BanType = "community" | "site";
+
+export type PersonDetailsView = "uploads" | PersonContentType;
+
+export type PurgeType = "person" | "community" | "post" | "comment";
+
+export type VoteType = "upvote" | "downvote";
+
+export interface CommentNodeI<T> {
+  comment_view: T;
+  children: Array<CommentNodeI<T>>;
+  depth: number;
 }
-
-export enum DataType {
-  Post,
-  Comment,
-}
-
-export enum BanType {
-  Community,
-  Site,
-}
-
-export type PersonDetailsView = "Uploads" | PersonContentType;
-
-export enum PurgeType {
-  Person,
-  Community,
-  Post,
-  Comment,
-}
-
-export enum VoteType {
-  Upvote,
-  Downvote,
-}
-
-export enum VoteContentType {
-  Post,
-  Comment,
-}
-
-export type CommentNodeView = CommentView | CommentSlimView;
 
 /**
- * Differentiate between CommentView and CommentSlimView
+ * If its the CommentSlim variant, you need to include postCreatorId, and the community
  **/
-export function isCommentView(cnv: CommentNodeView): cnv is CommentView {
-  return (cnv as CommentView).post !== undefined;
-}
+type CommentNodeFull = {
+  view: CommentNodeI<CommentView>;
+};
+type CommentNodeSlim = {
+  view: CommentNodeI<CommentSlimView>;
+  postCreatorId: PersonId;
+  community: Community;
+};
 
-export interface CommentNodeI {
-  comment_view: CommentNodeView;
-  children: Array<CommentNodeI>;
-  depth: number;
+/**
+ * A comment node to differentiate the full and slim variants.
+ **/
+export type CommentNodeType = CommentNodeFull | CommentNodeSlim;
+
+/**
+ * Differentiate between the Node Type
+ **/
+export function isCommentNodeFull(
+  node: CommentNodeType,
+): node is CommentNodeFull {
+  return (node as CommentNodeFull).view.comment_view.post !== undefined;
 }
 
 export type RouteData = Record<string, RequestState<any>>;
@@ -192,8 +189,11 @@ export type CursorComponents = {
 };
 
 /**
- * Determines whether to simplify / remove duplicates, and how to display them.
- *
- * Don't Remove also means **keep** duplicate posts in list views.
+ * Determines whether to simplify / remove cross-posts, and how to display them.
  **/
-export type ShowDupesType = "Small" | "Expanded" | "ShowSeparately";
+export type ShowCrossPostsType = "small" | "expanded" | "show_separately";
+
+/**
+ * Whether the body is hidden, preview (for card view lists), or full.
+ **/
+export type ShowBodyType = "hidden" | "preview" | "full";

@@ -38,13 +38,13 @@ export function SubscribeButton({
 
       break;
     }
-    case "Accepted": {
+    case "accepted": {
       i18key = "joined";
 
       break;
     }
-    case "Pending":
-    case "ApprovalRequired":
+    case "pending":
+    case "approval_required":
     default: {
       i18key = "subscribe_pending";
 
@@ -52,19 +52,18 @@ export function SubscribeButton({
     }
   }
 
-  const buttonClass = classNames(
-    "btn",
-    isLink ? "btn-link d-inline-block" : "d-block mb-2 w-100",
-  );
+  const buttonClass = classNames("btn", {
+    "btn-link p-0": isLink,
+    [`btn-secondary d-block mb-2 w-100 btn-${subscribed === "pending" ? "warning" : "secondary"}`]:
+      !isLink,
+  });
 
   if (showRemoteFetch) {
     return (
       <>
         <button
           type="button"
-          className={classNames(buttonClass, {
-            "btn-secondary": !isLink,
-          })}
+          className={buttonClass}
           data-bs-toggle="modal"
           data-bs-target="#remoteFetchModal"
         >
@@ -78,16 +77,14 @@ export function SubscribeButton({
   return (
     <button
       type="button"
-      className={classNames(buttonClass, {
-        [`btn-${subscribed === "Pending" ? "warning" : "secondary"}`]: !isLink,
-      })}
+      className={buttonClass}
       onClick={!subscribed ? onFollow : onUnFollow}
     >
       {loading ? (
         <Spinner />
       ) : (
         <>
-          {subscribed === "Accepted" && (
+          {subscribed === "accepted" && (
             <Icon icon="check" classes="icon-inline me-1" />
           )}
           {I18NextService.i18n.t(i18key)}

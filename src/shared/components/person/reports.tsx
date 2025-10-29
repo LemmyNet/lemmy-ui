@@ -105,7 +105,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   state: ReportsState = {
     reportsRes: EMPTY_REQUEST,
     unreadOrAll: UnreadOrAll.Unread,
-    messageType: "All",
+    messageType: "all",
     siteRes: this.isoData.siteRes,
     isIsomorphic: false,
     showCommunityRuleViolations: false,
@@ -183,7 +183,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             community={banFromCommunityForm.community}
             isBanned={!banFromCommunityForm.ban}
             onCancel={this.handleCloseModActionModals}
-            show={true}
+            show
           />
         )}
         {adminBanForm && (
@@ -193,7 +193,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             creator={adminBanForm.person}
             isBanned={!adminBanForm.ban}
             onCancel={this.handleCloseModActionModals}
-            show={true}
+            show
           />
         )}
         <div className="row">
@@ -218,19 +218,19 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
   get section() {
     switch (this.state.messageType) {
-      case "All": {
+      case "all": {
         return this.all();
       }
-      case "Comments": {
+      case "comments": {
         return this.commentReports();
       }
-      case "Posts": {
+      case "posts": {
         return this.postReports();
       }
-      case "PrivateMessages": {
+      case "private_messages": {
         return this.privateMessageReports();
       }
-      case "Communities": {
+      case "communities": {
         return this.communityReports();
       }
 
@@ -291,14 +291,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           id={`${radioId}-all`}
           type="radio"
           className="btn-check"
-          value={"All"}
-          checked={this.state.messageType === "All"}
+          value={"all"}
+          checked={this.state.messageType === "all"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-all`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "All",
+            active: this.state.messageType === "all",
           })}
         >
           {I18NextService.i18n.t("all")}
@@ -308,14 +308,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           id={`${radioId}-comments`}
           type="radio"
           className="btn-check"
-          value={"Comments"}
-          checked={this.state.messageType === "Comments"}
+          value={"comments"}
+          checked={this.state.messageType === "comments"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-comments`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "Comments",
+            active: this.state.messageType === "comments",
           })}
         >
           {I18NextService.i18n.t("comments")}
@@ -325,14 +325,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           id={`${radioId}-posts`}
           type="radio"
           className="btn-check"
-          value={"Posts"}
-          checked={this.state.messageType === "Posts"}
+          value={"posts"}
+          checked={this.state.messageType === "posts"}
           onChange={linkEvent(this, this.handleMessageTypeChange)}
         />
         <label
           htmlFor={`${radioId}-posts`}
           className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "Posts",
+            active: this.state.messageType === "posts",
           })}
         >
           {I18NextService.i18n.t("posts")}
@@ -344,14 +344,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
               id={`${radioId}-messages`}
               type="radio"
               className="btn-check"
-              value={"PrivateMessages"}
-              checked={this.state.messageType === "PrivateMessages"}
+              value={"private_messages"}
+              checked={this.state.messageType === "private_messages"}
               onChange={linkEvent(this, this.handleMessageTypeChange)}
             />
             <label
               htmlFor={`${radioId}-messages`}
               className={classNames("btn btn-outline-secondary pointer", {
-                active: this.state.messageType === "PrivateMessages",
+                active: this.state.messageType === "private_messages",
               })}
             >
               {I18NextService.i18n.t("messages")}
@@ -361,14 +361,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
               id={`${radioId}-communities`}
               type="radio"
               className="btn-check"
-              value={"Communities"}
-              checked={this.state.messageType === "Communities"}
+              value={"communities"}
+              checked={this.state.messageType === "communities"}
               onChange={linkEvent(this, this.handleMessageTypeChange)}
             />
             <label
               htmlFor={`${radioId}-communities`}
               className={classNames("btn btn-outline-secondary pointer", {
-                active: this.state.messageType === "Communities",
+                active: this.state.messageType === "communities",
               })}
             >
               {I18NextService.i18n.t("communities")}
@@ -391,7 +391,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
               role="group"
             >
               <button
-                class="btn btn-secondary"
+                className="btn btn-secondary"
                 onClick={this.handleClickshowCommunityReports}
               >
                 {I18NextService.i18n.t(
@@ -410,7 +410,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   renderItemType(i: ReportCombinedView): InfernoNode {
     const siteRes = this.state.siteRes;
     switch (i.type_) {
-      case "Comment":
+      case "comment":
         return (
           <CommentReport
             key={i.type_ + i.comment_report.id}
@@ -424,7 +424,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             onModBanFromCommunity={this.handleModBanFromCommunity}
           />
         );
-      case "Post":
+      case "post":
         return (
           <PostReport
             key={i.type_ + i.post_report.id}
@@ -440,7 +440,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             onModBanFromCommunity={this.handleModBanFromCommunity}
           />
         );
-      case "PrivateMessage":
+      case "private_message":
         return (
           <PrivateMessageReport
             key={i.type_ + i.private_message_report.id}
@@ -449,7 +449,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             myUserInfo={this.isoData.myUserInfo}
           />
         );
-      case "Community":
+      case "community":
         return (
           <CommunityReport
             key={i.type_ + i.community_report.id}
@@ -494,7 +494,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           </h5>
         );
       case "success": {
-        const reports = res.data.reports.filter(r => r.type_ === "Comment");
+        const reports = res.data.reports.filter(r => r.type_ === "comment");
         return (
           <div>
             {reports.map(cr => (
@@ -530,7 +530,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           </h5>
         );
       case "success": {
-        const reports = res.data.reports.filter(r => r.type_ === "Post");
+        const reports = res.data.reports.filter(r => r.type_ === "post");
         return (
           <div>
             {reports.map(pr => (
@@ -568,7 +568,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         );
       case "success": {
         const reports = res.data.reports.filter(
-          r => r.type_ === "PrivateMessage",
+          r => r.type_ === "private_message",
         );
         return (
           <div>
@@ -599,7 +599,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           </h5>
         );
       case "success": {
-        const reports = res.data.reports.filter(r => r.type_ === "Community");
+        const reports = res.data.reports.filter(r => r.type_ === "community");
         return (
           <div>
             {reports.map(cr => (
@@ -634,11 +634,11 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
   async handleMessageTypeChange(i: Reports, event: any) {
     switch (event.target.value) {
-      case "All":
-      case "Comments":
-      case "Posts":
-      case "PrivateMessages":
-      case "Communities": {
+      case "all":
+      case "comments":
+      case "posts":
+      case "private_messages":
+      case "communities": {
         i.setState({
           messageType: event.target.value,
           cursor: undefined,
@@ -785,7 +785,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     this.setState(s => {
       if (s.reportsRes.state === "success" && res.state === "success") {
         s.reportsRes.data.reports = editCombined(
-          { type_: "Comment", ...res.data.comment_report_view },
+          { type_: "comment", ...res.data.comment_report_view },
           s.reportsRes.data.reports,
           getUncombinedReport,
         );
@@ -798,7 +798,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     this.setState(s => {
       if (s.reportsRes.state === "success" && res.state === "success") {
         s.reportsRes.data.reports = editCombined(
-          { type_: "Post", ...res.data.post_report_view },
+          { type_: "post", ...res.data.post_report_view },
           s.reportsRes.data.reports,
           getUncombinedReport,
         );
@@ -813,7 +813,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     this.setState(s => {
       if (s.reportsRes.state === "success" && res.state === "success") {
         s.reportsRes.data.reports = editCombined(
-          { type_: "PrivateMessage", ...res.data.private_message_report_view },
+          { type_: "private_message", ...res.data.private_message_report_view },
           s.reportsRes.data.reports,
           getUncombinedReport,
         );
@@ -826,7 +826,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     this.setState(s => {
       if (s.reportsRes.state === "success" && res.state === "success") {
         s.reportsRes.data.reports = editCombined(
-          { type_: "Community", ...res.data.community_report_view },
+          { type_: "community", ...res.data.community_report_view },
           s.reportsRes.data.reports,
           getUncombinedReport,
         );

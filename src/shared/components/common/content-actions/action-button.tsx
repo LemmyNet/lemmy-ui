@@ -14,7 +14,7 @@ interface ActionButtonPropsBase {
 }
 
 interface ActionButtonPropsLoading extends ActionButtonPropsBase {
-  onClick: () => Promise<void>;
+  onClick: () => void;
   noLoading?: false;
 }
 
@@ -29,11 +29,11 @@ interface ActionButtonState {
   loading: boolean;
 }
 
-async function handleClick(i: ActionButton) {
+function handleClick(i: ActionButton) {
   if (!i.props.noLoading) {
     i.setState({ loading: true });
   }
-  await i.props.onClick();
+  i.props.onClick();
   i.setState({ loading: false });
 }
 
@@ -56,9 +56,9 @@ export default class ActionButton extends Component<
     return (
       <button
         className={classNames(
-          "btn btn-link btn-sm",
+          "btn btn-link",
           inline || inlineWithText
-            ? "btn-animate text-body py-0"
+            ? "btn-animate text-body py-0 px-1 ms-2 me-0"
             : "d-flex align-items-center rounded-0 dropdown-item",
         )}
         onClick={linkEvent(this, handleClick)}
@@ -69,7 +69,13 @@ export default class ActionButton extends Component<
         {this.state.loading ? (
           <Spinner />
         ) : (
-          <Icon classes={classNames("me-2", iconClass)} icon={icon} inline />
+          <Icon
+            classes={classNames(iconClass, {
+              "me-2": !(inline || inlineWithText),
+            })}
+            icon={icon}
+            inline
+          />
         )}
         {(!inline || inlineWithText) && label}
       </button>

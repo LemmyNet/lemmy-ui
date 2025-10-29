@@ -7,6 +7,7 @@ import { MomentTime } from "./moment-time";
 import { PictrsImage } from "./pictrs-image";
 import { getHttpBase } from "@utils/env";
 import { toast } from "@utils/app";
+import { TableHr } from "./tables";
 
 interface Props {
   uploads: ListMediaResponse;
@@ -31,41 +32,44 @@ export class MediaUploads extends Component<Props, any> {
   render() {
     const images = this.props.uploads.images;
 
+    const cols = "col-6 col-md-3";
+
     return (
-      <div className="media-uploads table-responsive">
-        <table className="table">
-          <thead>
-            <tr>
+      <div className="media-uploads">
+        <div className="row">
+          {this.props.showUploader && (
+            <div className={`${cols} fw-bold`}>
+              {I18NextService.i18n.t("uploader")}
+            </div>
+          )}
+          <div className={`${cols} fw-bold`}>
+            {I18NextService.i18n.t("time")}
+          </div>
+        </div>
+        <TableHr />
+        {images.map(i => (
+          <>
+            <div className="row" key={i.local_image.pictrs_alias}>
               {this.props.showUploader && (
-                <th>{I18NextService.i18n.t("uploader")}</th>
-              )}
-              <th colSpan={3}>{I18NextService.i18n.t("time")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {images.map(i => (
-              <tr key={i.local_image.pictrs_alias}>
-                {this.props.showUploader && (
-                  <td>
-                    <PersonListing
-                      person={i.person}
-                      myUserInfo={this.props.myUserInfo}
-                    />
-                  </td>
-                )}
-                <td>
-                  <MomentTime published={i.local_image.published_at} />
-                </td>
-                <td>
-                  <PictrsImage
-                    src={buildImageUrl(i.local_image.pictrs_alias)}
+                <div className={cols}>
+                  <PersonListing
+                    person={i.person}
+                    banned={false}
+                    myUserInfo={this.props.myUserInfo}
                   />
-                </td>
-                <td>{this.deleteImageBtn(i.local_image)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              )}
+              <div className={cols}>
+                <MomentTime published={i.local_image.published_at} />
+              </div>
+              <div className={cols}>
+                <PictrsImage src={buildImageUrl(i.local_image.pictrs_alias)} />
+              </div>
+              <div className={cols}>{this.deleteImageBtn(i.local_image)}</div>
+            </div>
+            <hr />
+          </>
+        ))}
       </div>
     );
   }
