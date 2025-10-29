@@ -108,7 +108,6 @@ export class PostListings extends Component<PostListingsProps, any> {
                   hideImage={false}
                   disableAutoMarkAsRead={false}
                   editLoading={false}
-                  readLoading={false}
                   onPostEdit={this.props.onPostEdit}
                   onPostVote={this.props.onPostVote}
                   onPostReport={this.props.onPostReport}

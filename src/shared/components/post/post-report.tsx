@@ -112,7 +112,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           markable={false}
           disableAutoMarkAsRead={false}
           editLoading={false}
-          readLoading={false}
           // All of these are unused, since its view only
           onPostEdit={() => EMPTY_REQUEST}
           onPostVote={() => EMPTY_REQUEST}
@@ -140,6 +139,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           {I18NextService.i18n.t("reporter")}:{" "}
           <PersonListing
             person={r.creator}
+            banned={false}
             myUserInfo={this.props.myUserInfo}
           />
         </div>
@@ -153,6 +153,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
                 #
                 <PersonListing
                   person={resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>
@@ -161,6 +162,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
                 #
                 <PersonListing
                   person={resolver}
+                  banned={false}
                   myUserInfo={this.props.myUserInfo}
                 />
               </T>

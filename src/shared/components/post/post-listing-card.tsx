@@ -68,7 +68,6 @@ type PostListingCardProps = {
   markable: boolean;
   disableAutoMarkAsRead: boolean;
   editLoading: boolean;
-  readLoading: boolean;
   onEditClick(): void;
   onPostEdit(form: EditPost): void;
   onPostVote(form: CreatePostLike): void;
@@ -183,10 +182,9 @@ export class PostListingCard extends Component<
             viewSource={this.state.viewSource}
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
-            readLoading={p.readLoading}
             onPostVote={p.onPostVote}
             onScrollIntoCommentsClick={p.onScrollIntoCommentsClick}
-            onClickViewSource={() => handleViewSource(this)}
+            onViewSource={() => handleViewSource(this)}
             onMarkPostAsRead={p.onMarkPostAsRead}
             onEditClick={p.onEditClick}
             onPostReport={p.onPostReport}

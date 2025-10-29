@@ -503,6 +503,7 @@ export class AdminSettings extends Component<
                 <div className={nameCols}>
                   <PersonListing
                     person={admin.person}
+                    banned={admin.banned}
                     myUserInfo={this.isoData.myUserInfo}
                   />
                   <UserBadges
@@ -638,6 +639,7 @@ export class AdminSettings extends Component<
                   <div className={nameCols}>
                     <PersonListing
                       person={local_user.person}
+                      banned={local_user.banned}
                       myUserInfo={this.isoData.myUserInfo}
                     />
                     <UserBadges

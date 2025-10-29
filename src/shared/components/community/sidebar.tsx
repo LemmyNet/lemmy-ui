@@ -374,6 +374,7 @@ export class Sidebar extends Component<SidebarProps, SidebarState> {
           <li key={mod.moderator.id} className="list-inline-item">
             <PersonListing
               person={mod.moderator}
+              banned={false}
               myUserInfo={this.props.myUserInfo}
             />
           </li>

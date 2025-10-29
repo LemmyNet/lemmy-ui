@@ -30,8 +30,8 @@ import {
 } from "lemmy-js-client";
 import {
   CommentNodeI,
-  CommentNodeView,
   IsoData,
+  CommentNodeType,
   RouteData,
   VoteType,
 } from "@utils/types";
@@ -54,18 +54,18 @@ import { isBrowser } from "@utils/browser";
 import Toastify from "toastify-js";
 import { isAnimatedImage } from "./media";
 
-export function buildCommentsTree(
-  comments: CommentSlimView[],
+export function buildCommentsTree<T extends CommentSlimView>(
+  comments: T[],
   parentCommentId?: CommentId,
-): CommentNodeI[] {
-  const map = new Map<number, CommentNodeI>();
+): CommentNodeI<T>[] {
+  const map = new Map<number, CommentNodeI<T>>();
   const parentComment = comments.find(c => c.comment.id === parentCommentId);
   const depthOffset = getDepthFromComment(parentComment?.comment) ?? 0;
 
   for (const comment_view of comments) {
     const depthI = getDepthFromComment(comment_view.comment) ?? 0;
     const depth = depthI ? depthI - depthOffset : 0;
-    const node: CommentNodeI = {
+    const node: CommentNodeI<T> = {
       comment_view,
       children: [],
       depth,
@@ -73,7 +73,7 @@ export function buildCommentsTree(
     map.set(comment_view.comment.id, { ...node });
   }
 
-  const tree: CommentNodeI[] = [];
+  const tree: CommentNodeI<T>[] = [];
 
   // if its a parent comment fetch, then push the first comment to the top node.
   if (parentCommentId) {
@@ -119,13 +119,13 @@ export const colorList: string[] = [
 ];
 
 export function commentsToFlatNodes(
-  comments: CommentNodeView[],
-): CommentNodeI[] {
-  const nodes: CommentNodeI[] = [];
-  for (const comment of comments) {
-    nodes.push({ comment_view: comment, children: [], depth: 0 });
-  }
-  return nodes;
+  comments: CommentView[],
+): CommentNodeType[] {
+  return comments.map(commentToFlatNode);
+}
+
+export function commentToFlatNode(cv: CommentView): CommentNodeType {
+  return { view: { comment_view: cv, children: [], depth: 0 } };
 }
 
 export function communityRSSUrl(community: Community, sort: string): string {
@@ -365,13 +365,13 @@ export function getUncombinedReport(
   }
 }
 
-export function insertCommentIntoTree(
-  tree: CommentNodeI[],
-  cv: CommentView,
+export function insertCommentIntoTree<T extends CommentSlimView>(
+  tree: CommentNodeI<T>[],
+  cv: T,
   parentComment: boolean,
 ) {
   // Building a fake node to be used for later
-  const node: CommentNodeI = {
+  const node: CommentNodeI<T> = {
     comment_view: cv,
     children: [],
     depth: 0,
@@ -499,10 +499,10 @@ export function mixedToPostSortType(
   }
 }
 
-export function searchCommentTree(
-  tree: CommentNodeI[],
+export function searchCommentTree<T extends CommentSlimView>(
+  tree: CommentNodeI<T>[],
   id: number,
-): CommentNodeI | undefined {
+): CommentNodeI<T> | undefined {
   for (const node of tree) {
     if (node.comment_view.comment.id === id) {
       return node;

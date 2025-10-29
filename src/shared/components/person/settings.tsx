@@ -599,7 +599,11 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <ul className="list-unstyled mb-0">
           {this.state.personBlocks.map(p => (
             <li key={p.id}>
-              <PersonListing person={p} myUserInfo={this.isoData.myUserInfo} />
+              <PersonListing
+                person={p}
+                myUserInfo={this.isoData.myUserInfo}
+                banned={false}
+              />
               <button
                 className="btn btn-sm"
                 onClick={linkEvent(
