@@ -91,34 +91,10 @@ export async function createSsrHtml(
     <!DOCTYPE html>
     <html ${helmet.htmlAttributes.toString()}>
     <head>
-    <script nonce="${cspNonce}">
-    window.isoData = ${serialize(isoData)};
-
-    ${embeddedScript}
-    </script>
-    ${lazyScripts}
-  
-    <!-- A remote debugging utility for mobile -->
-    ${erudaStr}
-  
-    <!-- Custom injected script -->
-    ${customHtmlHeaderWithNonce}
-  
-    ${helmet.title.toString()}
-    ${helmet.meta.toString()}
-  
-    <style>
-    #app[data-adult-consent] {
-      filter: blur(10px);
-      -webkit-filter: blur(10px);
-      -moz-filter: blur(10px);
-      -o-filter: blur(10px);
-      -ms-filter: blur(10px);
-      pointer-events: none;
-    }
-    </style>
 
     <!-- Required meta tags -->
+    ${helmet.title.toString()}
+    ${helmet.meta.toString()}
     <meta name="Description" content="Lemmy">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -133,13 +109,14 @@ export async function createSsrHtml(
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href=${appleTouchIcon} />
     <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
-  
-    <!-- Styles -->
-    <link rel="stylesheet" type="text/css" href="${getStaticDir()}/styles/styles.css" />
-  
-    <!-- Current theme and more -->
-    ${helmet.link.toString() || fallbackTheme}
     
+    <!-- specify icon size so they arent rendered too large before css is loaded -->
+    <style>
+    .icon {
+    width: 1em;
+    height: 1em;
+      }
+    </style>
     </head>
   
     <body ${helmet.bodyAttributes.toString()}>
@@ -150,8 +127,42 @@ export async function createSsrHtml(
       </noscript>
   
       <div id='root'>${root}</div>
-      <script defer src='${getStaticDir()}/js/client.js'></script>
     </body>
+
+    <!-- 
+      Styles with deferred loading
+      https://www.filamentgroup.com/lab/load-css-simpler/
+    -->
+    <link rel="stylesheet" href="${getStaticDir()}/styles/styles.css" media="print" onload="this.media='all'">
+
+  
+    <!-- Current theme and more -->
+    ${helmet.link.toString() || fallbackTheme}
+
+    <script nonce="${cspNonce}">
+    window.isoData = ${serialize(isoData)};
+
+    ${embeddedScript}
+    </script>
+      <script defer src='${getStaticDir()}/js/client.js'></script>
+    ${lazyScripts}
+
+      <!-- A remote debugging utility for mobile -->
+          ${erudaStr}
+          
+    <!-- Custom injected script -->
+    ${customHtmlHeaderWithNonce}
+  
+    <style>
+    #app[data-adult-consent] {
+      filter: blur(10px);
+      -webkit-filter: blur(10px);
+      -moz-filter: blur(10px);
+      -o-filter: blur(10px);
+      -ms-filter: blur(10px);
+      pointer-events: none;
+    }
+    </style>
   </html>
   `;
 }
