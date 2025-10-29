@@ -1,9 +1,10 @@
 import {
-  editComment,
+  defaultPostListingMode,
   editPersonNotes,
   editPost,
   enableNsfw,
   mixedToPostSortType,
+  multiCommunityRSSUrl,
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
@@ -33,20 +34,17 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   AddAdmin,
   AddModToCommunity,
-  AddModToCommunityResponse,
   BanFromCommunity,
   BanFromCommunityResponse,
   BanPerson,
-  BanPersonResponse,
+  PersonResponse,
   BlockCommunity,
   BlockPerson,
-  CommentResponse,
   CreatePostLike,
   CreatePostReport,
   DeletePost,
   EditPost,
   FeaturePost,
-  GetCommunityResponse,
   GetPosts,
   GetPostsResponse,
   GetSiteResponse,
@@ -68,6 +66,8 @@ import {
   GetMultiCommunity,
   FollowMultiCommunity,
   UpdateMultiCommunity,
+  PostListingMode,
+  MultiCommunityResponse,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -96,6 +96,7 @@ import { nowBoolean } from "@utils/date";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
 import { LoadingEllipses } from "@components/common/loading-ellipses";
 import { MultiCommunityLink } from "./multi-community-link";
+import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
 
 type MultiCommunityData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
@@ -109,7 +110,7 @@ interface State {
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
-  expandAllImages: boolean;
+  postListingMode: PostListingMode;
 }
 
 interface Props {
@@ -181,7 +182,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     showSidebarMobile: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
-    expandAllImages: false,
+    postListingMode: defaultPostListingMode(this.isoData),
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -222,7 +223,8 @@ export class MultiCommunity extends Component<RouteProps, State> {
     this.handleHidePost = this.handleHidePost.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
-    this.handleExpandImageClick = this.handleExpandImageClick.bind(this);
+    this.handlePostListingModeChange =
+      this.handlePostListingModeChange.bind(this);
 
     this.mainContentRef = createRef();
     // Only fetch the data if coming from another route
@@ -291,7 +293,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
       ...cursorComponents(cursor),
       sort: mixedToPostSortType(sort),
       time_range_seconds: postTimeRange,
-      type_: "All",
+      type_: "all",
       show_hidden: showHidden === "true",
       ...cursorComponents(cursor),
     };
@@ -365,15 +367,15 @@ export class MultiCommunity extends Component<RouteProps, State> {
             {this.renderCommunity()}
             {this.selects()}
             {this.listings()}
-            <div class="row">
-              <div class="col">
+            <div className="row">
+              <div className="col">
                 <PaginatorCursor
                   current={this.props.cursor}
                   resource={this.currentRes}
                   onPageChange={this.handlePageChange}
                 />
               </div>
-              <div class="col-auto">{this.markPageAsReadButton}</div>
+              <div className="col-auto">{this.markPageAsReadButton}</div>
             </div>
           </div>
           <aside className="d-none d-md-block col-md-4 col-lg-3">
@@ -395,9 +397,9 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
-      <div class="my-2">
+      <div className="my-2">
         <button
-          class="btn btn-secondary"
+          className="btn btn-secondary"
           onClick={linkEvent(this, this.handleMarkPageAsRead)}
         >
           {I18NextService.i18n.t("mark_page_as_read")}
@@ -419,6 +421,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
       i.setState({ markPageAsReadLoading: true });
       const res = await HttpService.client.markManyPostAsRead({
         post_ids,
+        read: true,
       });
       if (res.state === "success") {
         i.setState(s => {
@@ -467,7 +470,10 @@ export class MultiCommunity extends Component<RouteProps, State> {
         return (
           <PostListings
             posts={this.state.postsRes.data.posts}
-            showDupes="Small"
+            showCrossPosts="small"
+            showCommunity
+            viewOnly={false}
+            postListingMode={"list"}
             markable
             enableNsfw={enableNsfw(siteRes)}
             showAdultConsentModal={this.isoData.showAdultConsentModal}
@@ -496,7 +502,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
             onMarkPostAsRead={this.handleMarkPostAsRead}
             onHidePost={this.handleHidePost}
             onPersonNote={this.handlePersonNote}
-            expandAllImages={this.state.expandAllImages}
+            onScrollIntoCommentsClick={() => {}}
           />
         );
     }
@@ -532,11 +538,12 @@ export class MultiCommunity extends Component<RouteProps, State> {
   selects() {
     const { sort, postTimeRange, showHidden } = this.props;
 
-    // TODO fix RSS
-    // const multiCommunityRss = res
-    //   ? communityRSSUrl(res.community_view.community, sort)
-    //   : undefined;
-    const multiCommunityRss = undefined;
+    const res =
+      this.state.multiCommunityRes.state === "success" &&
+      this.state.multiCommunityRes.data;
+    const multiCommunityRss = res
+      ? multiCommunityRSSUrl(res.multi_community_view.multi, sort)
+      : undefined;
 
     return (
       <div className="row align-items-center mb-3 g-3">
@@ -549,6 +556,12 @@ export class MultiCommunity extends Component<RouteProps, State> {
           </div>
         )}
         <div className="col-auto">
+          <PostListingModeSelect
+            current={this.state.postListingMode}
+            onChange={this.handlePostListingModeChange}
+          />
+        </div>
+        <div className="col-auto">
           <PostSortSelect
             current={mixedToPostSortType(sort)}
             onChange={this.handleSortChange}
@@ -559,16 +572,6 @@ export class MultiCommunity extends Component<RouteProps, State> {
             currentSeconds={postTimeRange}
             onChange={this.handlePostTimeRangeChange}
           />
-        </div>
-        <div className="col-auto ps-0">
-          <button
-            class="btn btn-secondary"
-            onClick={this.handleExpandImageClick}
-            aria-label={I18NextService.i18n.t("expand_all_images")}
-            data-tippy-content={I18NextService.i18n.t("expand_all_images")}
-          >
-            <Icon icon={this.state.expandAllImages ? "minus" : "plus"} />
-          </button>
         </div>
         {multiCommunityRss && (
           <>
@@ -611,10 +614,6 @@ export class MultiCommunity extends Component<RouteProps, State> {
     }));
   }
 
-  handleExpandImageClick() {
-    this.setState({ expandAllImages: !this.state.expandAllImages });
-  }
-
   async updateUrl(props: Partial<Props>) {
     const {
       cursor,
@@ -648,7 +647,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
       ...cursorComponents(cursor),
       sort: mixedToPostSortType(sort),
       time_range_seconds: postTimeRange,
-      type_: "All",
+      type_: "all",
       multi_community_id: id,
       show_hidden: showHidden === "true",
     });
@@ -659,12 +658,16 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
   async handleAddModToCommunity(form: AddModToCommunity) {
     const addModRes = await HttpService.client.addModToCommunity(form);
-    this.updateModerators(addModRes);
+    if (addModRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(form.added ? "appointed_mod" : "removed_mod"),
+      );
+    }
   }
 
   async handleFollow(form: FollowMultiCommunity) {
     const res = await HttpService.client.followMultiCommunity(form);
-    this.updateCommunity(res);
+    this.updateMultiCommunity(res);
   }
 
   async handlePurgePerson(form: PurgePerson) {
@@ -680,21 +683,28 @@ export class MultiCommunity extends Component<RouteProps, State> {
   async handleBlockCommunity(form: BlockCommunity) {
     const blockCommunityRes = await HttpService.client.blockCommunity(form);
     if (blockCommunityRes.state === "success") {
-      updateCommunityBlock(blockCommunityRes.data, this.isoData.myUserInfo);
+      updateCommunityBlock(
+        blockCommunityRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
     }
   }
 
   async handleBlockPerson(form: BlockPerson) {
     const blockPersonRes = await HttpService.client.blockPerson(form);
     if (blockPersonRes.state === "success") {
-      updatePersonBlock(blockPersonRes.data, this.isoData.myUserInfo);
+      updatePersonBlock(
+        blockPersonRes.data,
+        form.block,
+        this.isoData.myUserInfo,
+      );
     }
   }
 
-  // TODO RESUME HERE
   async handleEditMultiCommunity(form: UpdateMultiCommunity) {
     const res = await HttpService.client.updateMultiCommunity(form);
-    this.updateCommunity(res);
+    this.updateMultiCommunity(res);
 
     return res;
   }
@@ -792,13 +802,6 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
     if (res.state === "success") {
       this.setState(s => {
-        if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments = editPersonNotes(
-            form.note,
-            form.person_id,
-            s.commentsRes.data.comments,
-          );
-        }
         if (s.postsRes.state === "success") {
           s.postsRes.data.posts = editPersonNotes(
             form.note,
@@ -825,8 +828,9 @@ export class MultiCommunity extends Component<RouteProps, State> {
   async handleTransferCommunity(form: TransferCommunity) {
     const transferCommunityRes =
       await HttpService.client.transferCommunity(form);
-    toast(I18NextService.i18n.t("transfer_community"));
-    this.updateCommunityFull(transferCommunityRes);
+    if (transferCommunityRes.state === "success") {
+      toast(I18NextService.i18n.t("transfer_community"));
+    }
   }
 
   async handleBanFromCommunity(form: BanFromCommunity) {
@@ -836,7 +840,18 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
   async handleBanPerson(form: BanPerson) {
     const banRes = await HttpService.client.banPerson(form);
-    this.updateBan(banRes);
+    this.updateBan(banRes, form.ban);
+  }
+
+  async handlePostListingModeChange(val: PostListingMode) {
+    this.setState({ postListingMode: val });
+
+    // Also, save your user settings to this mode
+    if (this.isoData.myUserInfo) {
+      await HttpService.client.saveUserSettings({
+        post_listing_mode: val,
+      });
+    }
   }
 
   updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
@@ -850,53 +865,30 @@ export class MultiCommunity extends Component<RouteProps, State> {
               c.creator_banned_from_community = banRes.data.banned;
             });
         }
-        if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => {
-              c.creator_banned_from_community = banRes.data.banned;
-            });
-        }
         return s;
       });
     }
   }
 
-  updateBan(banRes: RequestState<BanPersonResponse>) {
+  updateBan(banRes: RequestState<PersonResponse>, banned: boolean) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator_banned = banRes.data.banned));
-        }
-        if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments
-            .filter(c => c.creator.id === banRes.data.person_view.person.id)
-            .forEach(c => (c.creator_banned = banRes.data.banned));
+            .forEach(c => (c.creator_banned = banned));
         }
         return s;
       });
     }
   }
 
-  updateMultiCommunity(res: RequestState<GetMultiCommunityResponse>) {
+  updateMultiCommunity(res: RequestState<MultiCommunityResponse>) {
     this.setState(s => {
       if (s.multiCommunityRes.state === "success" && res.state === "success") {
-        s.multiCommunityRes.data.community_view = res.data.community_view;
-        s.multiCommunityRes.data.discussion_languages =
-          res.data.discussion_languages;
-      }
-      return s;
-    });
-  }
-
-  updateCommunityFull(res: RequestState<GetCommunityResponse>) {
-    this.setState(s => {
-      if (s.multiCommunityRes.state === "success" && res.state === "success") {
-        s.multiCommunityRes.data.community_view = res.data.community_view;
-        s.multiCommunityRes.data.moderators = res.data.moderators;
+        s.multiCommunityRes.data.multi_community_view =
+          res.data.multi_community_view;
       }
       return s;
     });
@@ -909,39 +901,6 @@ export class MultiCommunity extends Component<RouteProps, State> {
     }
   }
 
-  findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
-    this.setState(s => {
-      if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editComment(
-          res.data.comment_view,
-          s.commentsRes.data.comments,
-        );
-      }
-      return s;
-    });
-  }
-
-  findAndUpdateComment(res: RequestState<CommentResponse>) {
-    this.setState(s => {
-      if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editComment(
-          res.data.comment_view,
-          s.commentsRes.data.comments,
-        );
-      }
-      return s;
-    });
-  }
-
-  createAndUpdateComments(res: RequestState<CommentResponse>) {
-    this.setState(s => {
-      if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments.unshift(res.data.comment_view);
-      }
-      return s;
-    });
-  }
-
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
       if (s.postsRes.state === "success" && res.state === "success") {
@@ -949,16 +908,6 @@ export class MultiCommunity extends Component<RouteProps, State> {
           res.data.post_view,
           s.postsRes.data.posts,
         );
-      }
-      return s;
-    });
-  }
-
-  updateModerators(res: RequestState<AddModToCommunityResponse>) {
-    // Update the moderators
-    this.setState(s => {
-      if (s.multiCommunityRes.state === "success" && res.state === "success") {
-        s.multiCommunityRes.data.moderators = res.data.moderators;
       }
       return s;
     });

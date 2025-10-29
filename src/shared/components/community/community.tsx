@@ -2,6 +2,7 @@ import {
   canViewCommunity,
   commentsToFlatNodes,
   communityRSSUrl,
+  defaultPostListingMode,
   editComment,
   editPersonNotes,
   editPost,
@@ -219,9 +220,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     showSidebarMobile: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
-    postListingMode:
-      this.isoData.myUserInfo?.local_user_view.local_user.post_listing_mode ??
-      this.isoData.siteRes.site_view.local_site.default_post_listing_mode,
+    postListingMode: defaultPostListingMode(this.isoData),
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -879,6 +878,11 @@ export class Community extends Component<CommunityRouteProps, State> {
   async handleAddModToCommunity(form: AddModToCommunity) {
     const addModRes = await HttpService.client.addModToCommunity(form);
     this.updateModerators(addModRes);
+    if (addModRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(form.added ? "appointed_mod" : "removed_mod"),
+      );
+    }
   }
 
   async handleFollow(form: FollowCommunity) {

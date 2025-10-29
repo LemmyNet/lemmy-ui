@@ -166,7 +166,11 @@ export class MultiCommunitySidebar extends Component<Props, State> {
           {I18NextService.i18n.t("creator")}:{" "}
         </li>
         <li key={creator.id} className="list-inline-item">
-          <PersonListing person={creator} myUserInfo={this.props.myUserInfo} />
+          <PersonListing
+            person={creator}
+            banned={false}
+            myUserInfo={this.props.myUserInfo}
+          />
         </li>
       </ul>
     );
