@@ -40,12 +40,13 @@ import { TableHr } from "@components/common/tables";
 import { State, StateRadio } from "@components/common/state-radios";
 import { linkEvent } from "inferno";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
+import { createRef } from "inferno";
 
 function getKindFromQuery(kind?: string): GetFederatedInstancesKind {
   return kind ? (kind as GetFederatedInstancesKind) : "all";
 }
-function getDomainFilterFromQuery(kind?: string): string | undefined {
-  return kind;
+function getDomainFilterFromQuery(domain_filter?: string): string | undefined {
+  return domain_filter;
 }
 
 export function getInstancesQueryParams(source?: string): InstancesProps {
@@ -67,7 +68,6 @@ interface InstancesState {
   instancesRes: RequestState<GetFederatedInstancesResponse>;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
-  domain_filter?: string;
 }
 
 interface InstancesProps {
@@ -87,11 +87,11 @@ export type InstancesFetchConfig = IRoutePropsWithFetch<
 @scrollMixin
 export class Instances extends Component<InstancesRouteProps, InstancesState> {
   private isoData = setIsoData<InstancesData>(this.context);
+  searchInput = createRef<HTMLInputElement>();
   state: InstancesState = {
     instancesRes: EMPTY_REQUEST,
     siteRes: this.isoData.siteRes,
     isIsomorphic: false,
-    domain_filter: this.props.domain_filter,
   };
 
   loadingSettled() {
@@ -120,6 +120,20 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     }
   }
 
+  componentDidUpdate(prevProps: InstancesRouteProps) {
+    if (this.props.location.key !== prevProps.location.key) {
+      if (this.props.history.action !== "POP") {
+        this.searchInput.current?.select();
+      }
+    }
+  }
+
+  componentDidMount() {
+    if (this.props.history.action !== "POP" || this.state.isIsomorphic) {
+      this.searchInput.current?.select();
+    }
+  }
+
   async fetchInstances() {
     this.setState({
       instancesRes: LOADING_REQUEST,
@@ -137,7 +151,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
 
   static async fetchInitialData({
     headers,
-    query: { kind, cursor },
+    query: { kind, cursor, domain_filter },
   }: InitialFetchRequest<
     Record<string, never>,
     InstancesProps
@@ -149,6 +163,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
       federatedInstancesResponse: await client.getFederatedInstances({
         kind: kind,
         ...cursorComponents(cursor),
+        domain_filter,
         limit: fetchLimit,
       }),
     };
@@ -244,8 +259,8 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
             className="form-control flex-initial"
             placeholder={`${I18NextService.i18n.t("search")}...`}
             aria-label={I18NextService.i18n.t("search")}
-            onInput={linkEvent(this, this.handleSearchChange)}
-            value={this.state.domain_filter}
+            defaultValue={this.props.domain_filter}
+            ref={this.searchInput}
           />
           <button type="submit" className="btn btn-outline-secondary ms-1">
             <Icon icon="search" />
@@ -254,13 +269,10 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
       </div>
     );
   }
-  handleSearchChange(i: Instances, event: any) {
-    i.setState({ domain_filter: event.target.value });
-  }
-
   handleSearchSubmit(i: Instances, event: any) {
     event.preventDefault();
-    let domain_filter = i.state.domain_filter;
+    let domain_filter: string | undefined =
+      i.searchInput.current?.value ?? i.props.q;
     if (domain_filter === "") {
       domain_filter = undefined;
     }
