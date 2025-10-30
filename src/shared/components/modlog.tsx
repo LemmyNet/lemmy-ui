@@ -236,7 +236,7 @@ function processModlogEntry(
           <>
             <span>Purged Post From</span>
             <CommunityLink
-              community={target_community}
+              community={target_community!}
               myUserInfo={myUserInfo}
             />
             {reason && (
@@ -259,7 +259,7 @@ function processModlogEntry(
             <span>{is_revert ? "Appointed " : "Removed "}</span>
             <span>
               <PersonListing
-                person={target_person}
+                person={target_person!}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -280,7 +280,7 @@ function processModlogEntry(
             <span>{is_revert ? "Appointed " : "Removed "}</span>
             <span>
               <PersonListing
-                person={target_person}
+                person={target_person!}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -288,7 +288,7 @@ function processModlogEntry(
             <span> as a mod to the community </span>
             <span>
               <CommunityLink
-                community={target_community}
+                community={target_community!}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -307,7 +307,7 @@ function processModlogEntry(
             <span>{is_revert ? "Unbanned " : "Banned "}</span>
             <span>
               <PersonListing
-                person={target_person}
+                person={target_person!}
                 myUserInfo={myUserInfo}
                 banned={!is_revert}
               />
@@ -337,7 +337,7 @@ function processModlogEntry(
             <span>{is_revert ? "Unbanned " : "Banned "}</span>
             <span>
               <PersonListing
-                person={target_person}
+                person={target_person!}
                 myUserInfo={myUserInfo}
                 banned={!is_revert}
               />
@@ -345,7 +345,7 @@ function processModlogEntry(
             <span> from the community </span>
             <span>
               <CommunityLink
-                community={target_community}
+                community={target_community!}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -374,7 +374,7 @@ function processModlogEntry(
             <span>Change visibility of</span>
             <span>
               <CommunityLink
-                community={target_community}
+                community={target_community!}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -396,7 +396,7 @@ function processModlogEntry(
             </span>
             <span>" in community "</span>
             <CommunityLink
-              community={target_community}
+              community={target_community!}
               myUserInfo={myUserInfo}
             />
           </>
@@ -413,13 +413,9 @@ function processModlogEntry(
           <>
             <span>{is_revert ? "Unfeatured " : "Featured "}</span>
             <span>
-              Post <Link to={`/post/${target_post?.id}`}>{name}</Link>
+              Post{" "}
+              <Link to={`/post/${target_post?.id}`}>{target_post?.name}</Link>
             </span>
-            <span>" in Local, from community "</span>
-            <CommunityLink
-              community={target_community}
-              myUserInfo={myUserInfo}
-            />
           </>
         ),
       };
@@ -464,7 +460,7 @@ function processModlogEntry(
               {" "}
               by{" "}
               <PersonListing
-                person={target_person}
+                person={target_person!}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -497,7 +493,7 @@ function processModlogEntry(
               {" "}
               by{" "}
               <PersonListing
-                person={target_person}
+                person={target_person!}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -523,7 +519,7 @@ function processModlogEntry(
             <span>
               Community{" "}
               <CommunityLink
-                community={target_community}
+                community={target_community!}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -569,14 +565,14 @@ function processModlogEntry(
             <span>Transferred</span>
             <span>
               <CommunityLink
-                community={target_community}
+                community={target_community!}
                 myUserInfo={myUserInfo}
               />
             </span>
             <span> to </span>
             <span>
               <PersonListing
-                person={target_person}
+                person={target_person!}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
