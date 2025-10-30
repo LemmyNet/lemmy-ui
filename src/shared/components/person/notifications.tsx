@@ -85,8 +85,7 @@ import { NoOptionI18nKeys } from "i18next";
 import { nowBoolean } from "@utils/date";
 import { CommentNode } from "@components/comment/comment-node";
 import { PostListing } from "@components/post/post-listing";
-import { processModlogEntry } from "@components/modlog";
-import { MomentTime } from "@components/common/moment-time";
+import { NotificationModlogItem } from "./notification-modlog-item";
 
 enum UnreadOrAll {
   Unread,
@@ -162,6 +161,8 @@ export class Notifications extends Component<
     this.handleCommentMarkAsRead = this.handleCommentMarkAsRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
+    this.handleMarkNotificationAsRead =
+      this.handleMarkNotificationAsRead.bind(this);
 
     this.handleDeleteMessage = this.handleDeleteMessage.bind(this);
     this.handleMessageMarkAsRead = this.handleMessageMarkAsRead.bind(this);
@@ -491,20 +492,13 @@ export class Notifications extends Component<
           )
         );
       case "mod_action": {
-        const {
-          modlog: { published_at },
-          data,
-        } = processModlogEntry(
-          item.data as ModlogView,
-          this.isoData.myUserInfo,
-        );
         return (
-          <div>
-            <span className="me-1">
-              <MomentTime published={published_at} />
-            </span>
-            <span>{data}</span>
-          </div>
+          <NotificationModlogItem
+            notification={item.notification}
+            modlog_view={item.data as ModlogView}
+            myUserInfo={this.isoData.myUserInfo}
+            onMarkRead={this.handleMarkNotificationAsRead}
+          />
         );
       }
     }

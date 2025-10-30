@@ -17,6 +17,7 @@ import { PersonListing } from "../person/person-listing";
 import { PrivateMessageForm } from "./private-message-form";
 import ModActionFormModal from "../common/modal/mod-action-form-modal";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import { mark_as_read_i18n } from "@utils/app";
 
 interface PrivateMessageState {
   showReply: boolean;
@@ -154,16 +155,10 @@ export class PrivateMessage extends Component<
                           type="button"
                           className="btn btn-link btn-animate text-muted"
                           onClick={linkEvent(this, this.handleMarkRead)}
-                          data-tippy-content={
-                            this.props.read
-                              ? I18NextService.i18n.t("mark_as_unread")
-                              : I18NextService.i18n.t("mark_as_read")
-                          }
-                          aria-label={
-                            this.props.read
-                              ? I18NextService.i18n.t("mark_as_unread")
-                              : I18NextService.i18n.t("mark_as_read")
-                          }
+                          data-tippy-content={mark_as_read_i18n(
+                            this.props.read,
+                          )}
+                          aria-label={mark_as_read_i18n(this.props.read)}
                         >
                           {this.state.readLoading ? (
                             <Spinner />
