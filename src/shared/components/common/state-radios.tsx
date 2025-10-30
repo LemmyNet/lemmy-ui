@@ -7,7 +7,7 @@ import { Component } from "inferno";
 
 export interface State {
   value: string;
-  i18n: NoOptionI18nKeys;
+  i18n?: NoOptionI18nKeys;
 }
 
 export interface StateRadioProps {
@@ -48,7 +48,9 @@ export class StateRadio extends Component<StateRadioProps, object> {
                 active: this.props.currentState === state.value,
               })}
             >
-              {I18NextService.i18n.t(state.i18n)}
+              {I18NextService.i18n.t(
+                state.i18n ?? (state.value as NoOptionI18nKeys),
+              )}
             </label>
           </>
         ))}

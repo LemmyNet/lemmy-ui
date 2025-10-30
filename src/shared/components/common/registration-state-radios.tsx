@@ -20,9 +20,9 @@ export class RegistrationStateRadios extends Component<
 
   render() {
     const allStates: State[] = [
-      { value: "unread", i18n: "unread" },
-      { value: "all", i18n: "all" },
-      { value: "denied", i18n: "denied" },
+      { value: "unread" },
+      { value: "all" },
+      { value: "denied" },
     ];
     return (
       <StateRadio

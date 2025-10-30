@@ -236,7 +236,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
 
   renderRadios() {
     const allStates: State[] = [
-      { value: "all", i18n: "all" },
+      { value: "all" },
       { value: "linked", i18n: "linked_instances" },
       { value: "allowed", i18n: "allowed_instances" },
       { value: "blocked", i18n: "blocked_instances" },
