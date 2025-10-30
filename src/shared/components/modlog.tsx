@@ -104,13 +104,13 @@ function getActionFromString(action?: string): ModlogKind | undefined {
   return action as ModlogKind;
 }
 
-interface ModlogEntry {
+export interface ModlogEntry {
   modlog: Modlog_;
   moderator: Person | null;
   data: InfernoNode;
 }
 
-function processModlogEntry(
+export function processModlogEntry(
   view: ModlogView,
   myUserInfo: MyUserInfo | undefined,
 ): ModlogEntry {

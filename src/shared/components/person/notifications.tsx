@@ -58,6 +58,7 @@ import {
   SaveComment,
   SuccessResponse,
   TransferCommunity,
+  ModlogView,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -84,6 +85,8 @@ import { NoOptionI18nKeys } from "i18next";
 import { nowBoolean } from "@utils/date";
 import { CommentNode } from "@components/comment/comment-node";
 import { PostListing } from "@components/post/post-listing";
+import { processModlogEntry } from "@components/modlog";
+import { MomentTime } from "@components/common/moment-time";
 
 enum UnreadOrAll {
   Unread,
@@ -487,6 +490,23 @@ export class Notifications extends Component<
             />
           )
         );
+      case "mod_action": {
+        const {
+          modlog: { published_at },
+          data,
+        } = processModlogEntry(
+          item.data as ModlogView,
+          this.isoData.myUserInfo,
+        );
+        return (
+          <div>
+            <span className="me-1">
+              <MomentTime published={published_at} />
+            </span>
+            <span>{data}</span>
+          </div>
+        );
+      }
     }
   }
 
