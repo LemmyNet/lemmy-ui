@@ -29,6 +29,7 @@ import {
   ModlogView,
   MyUserInfo,
   Person,
+  Modlog as Modlog_,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -104,9 +105,8 @@ function getActionFromString(action?: string): ModlogKind | undefined {
 }
 
 interface ModlogEntry {
-  id: number;
+  modlog: Modlog_;
   moderator: Person | null;
-  published_at: string;
   data: InfernoNode;
 }
 
@@ -114,8 +114,13 @@ function processModlogEntry(
   view: ModlogView,
   myUserInfo: MyUserInfo | undefined,
 ): ModlogEntry {
-  // TODO: return view.modlog directly instead of individual fields
-  const { id, published_at, reason, is_revert, expires_at } = view.modlog;
+  const modlog = view.modlog;
+  const { id, reason, is_revert, expires_at } = modlog;
+
+  // The target fields are all optional, however the backend validates that they are not null
+  // for a given type. For example if `kind == mod_remove_comment` then target_comment can
+  // never be null. In general if a field is not null during testing for a given type, you
+  // can rely on the fact that it will never be null in production for the same type.
   const {
     moderator,
     target_instance,
@@ -124,6 +129,7 @@ function processModlogEntry(
     target_person,
     target_post,
   } = view;
+
   switch (view.modlog.kind) {
     /*
     default:
@@ -144,9 +150,8 @@ function processModlogEntry(
 
     case "admin_allow_instance": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>Allowed instance</span>
@@ -158,9 +163,8 @@ function processModlogEntry(
 
     case "admin_block_instance": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>Blocked Instance</span>
@@ -172,9 +176,8 @@ function processModlogEntry(
 
     case "admin_purge_comment": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>
@@ -193,9 +196,8 @@ function processModlogEntry(
 
     case "admin_purge_community": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>Purged a Community</span>
@@ -211,9 +213,8 @@ function processModlogEntry(
 
     case "admin_purge_person": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>Purged a Person</span>
@@ -229,9 +230,8 @@ function processModlogEntry(
 
     case "admin_purge_post": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>Purged Post From</span>
@@ -251,9 +251,8 @@ function processModlogEntry(
 
     case "admin_add": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>{is_revert ? "Appointed " : "Removed "}</span>
@@ -272,9 +271,8 @@ function processModlogEntry(
 
     case "mod_add_to_community": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>{is_revert ? "Appointed " : "Removed "}</span>
@@ -299,9 +297,8 @@ function processModlogEntry(
 
     case "admin_ban": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>{is_revert ? "Unbanned " : "Banned "}</span>
@@ -329,9 +326,8 @@ function processModlogEntry(
 
     case "mod_ban_from_community": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>{is_revert ? "Unbanned " : "Banned "}</span>
@@ -366,9 +362,8 @@ function processModlogEntry(
 
     case "mod_change_community_visibility": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>Change visibility of</span>
@@ -385,9 +380,8 @@ function processModlogEntry(
 
     case "mod_feature_post_community": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>{is_revert ? "Unfeatured " : "Featured "}</span>
@@ -406,9 +400,8 @@ function processModlogEntry(
 
     case "admin_feature_post_site": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>{is_revert ? "Unfeatured " : "Featured "}</span>
@@ -423,9 +416,8 @@ function processModlogEntry(
 
     case "mod_lock_post": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>{is_revert ? "Unlocked " : "Locked "}</span>
@@ -444,9 +436,8 @@ function processModlogEntry(
 
     case "mod_remove_comment": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>{is_revert ? "Restored " : "Removed "}</span>
@@ -477,9 +468,8 @@ function processModlogEntry(
 
     case "mod_lock_comment": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>{is_revert ? "Unlocked " : "Locked "}</span>
@@ -510,9 +500,8 @@ function processModlogEntry(
 
     case "admin_remove_community": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>{is_revert ? "Restored " : "Removed "}</span>
@@ -535,9 +524,8 @@ function processModlogEntry(
 
     case "mod_remove_post": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>{is_revert ? "Restored " : "Removed "}</span>
@@ -557,9 +545,8 @@ function processModlogEntry(
 
     case "mod_transfer_community": {
       return {
-        id,
+        modlog,
         moderator,
-        published_at,
         data: (
           <>
             <span>Transferred</span>
@@ -770,10 +757,11 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const { myUserInfo } = this.isoData;
 
     return combined.map(i => {
-      const { id, moderator, published_at, data } = processModlogEntry(
-        i,
-        myUserInfo,
-      );
+      const {
+        modlog: { id, published_at },
+        moderator,
+        data,
+      } = processModlogEntry(i, myUserInfo);
 
       return (
         <>
