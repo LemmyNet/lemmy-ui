@@ -893,7 +893,12 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               <option value={"mod_remove_post"}>Removing Posts</option>
               <option value={"mod_lock_post"}>Locking Posts</option>
               <option value={"mod_lock_comment"}>Locking Comments</option>
-              <option value={"mod_feature_post"}>Featuring Posts</option>
+              <option value={"mod_feature_post_community"}>
+                Featuring Posts in Community
+              </option>
+              <option value={"admin_feature_post_site"}>
+                Featuring Posts for local Instance
+              </option>
               <option value={"mod_remove_comment"}>Removing Comments</option>
               <option value={"admin_remove_community"}>
                 Removing Communities
@@ -996,8 +1001,12 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   }
 
   handleFilterActionChange(i: Modlog, event: any) {
+    let val = event.target.value;
+    if (val === "all") {
+      val = undefined;
+    }
     i.updateUrl({
-      actionType: event.target.value as ModlogKind,
+      actionType: val as ModlogKind,
       cursor: undefined,
     });
   }
