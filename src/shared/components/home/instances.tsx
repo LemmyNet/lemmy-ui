@@ -77,7 +77,7 @@ interface InstancesProps {
 }
 
 type InstancesRouteProps = RouteComponentProps<Record<string, never>> &
-  Record<string, never>;
+  InstancesProps;
 export type InstancesFetchConfig = IRoutePropsWithFetch<
   InstancesData,
   Record<string, never>,
@@ -272,7 +272,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   handleSearchSubmit(i: Instances, event: any) {
     event.preventDefault();
     let domain_filter: string | undefined =
-      i.searchInput.current?.value ?? i.props.q;
+      i.searchInput.current?.value ?? i.props.domain_filter;
     if (domain_filter === "") {
       domain_filter = undefined;
     }
