@@ -448,10 +448,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   componentDidUpdate(prevProps: SearchRouteProps) {
-    if (this.props.location.key !== prevProps.location.key) {
-      if (this.props.history.action !== "POP") {
-        this.searchInput.current?.select();
-      }
+    if (
+      this.props.location.key !== prevProps.location.key &&
+      this.props.history.action !== "POP"
+    ) {
+      this.searchInput.current?.select();
     }
   }
 

@@ -58,6 +58,7 @@ import {
   SaveComment,
   SuccessResponse,
   TransferCommunity,
+  ModlogView,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -84,6 +85,8 @@ import { NoOptionI18nKeys } from "i18next";
 import { nowBoolean } from "@utils/date";
 import { CommentNode } from "@components/comment/comment-node";
 import { PostListing } from "@components/post/post-listing";
+import { NotificationModlogItem } from "./notification-modlog-item";
+import { State, StateRadio } from "@components/common/state-radios";
 
 enum UnreadOrAll {
   Unread,
@@ -159,6 +162,8 @@ export class Notifications extends Component<
     this.handleCommentMarkAsRead = this.handleCommentMarkAsRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
+    this.handleMarkNotificationAsRead =
+      this.handleMarkNotificationAsRead.bind(this);
 
     this.handleDeleteMessage = this.handleDeleteMessage.bind(this);
     this.handleMessageMarkAsRead = this.handleMessageMarkAsRead.bind(this);
@@ -167,6 +172,7 @@ export class Notifications extends Component<
     this.handleEditMessage = this.handleEditMessage.bind(this);
     this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
+    this.handleMessageTypeChange = this.handleMessageTypeChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -302,78 +308,20 @@ export class Notifications extends Component<
   }
 
   messageTypeRadios() {
-    const radioId = randomStr();
+    const allStates: State[] = [
+      { value: "all" },
+      { value: "replies" },
+      { value: "mentions" },
+      { value: "messages" },
+      { value: "mod_action", i18n: "modlog" },
+    ];
 
     return (
-      <div className="btn-group btn-group-toggle flex-wrap" role="group">
-        <input
-          id={`${radioId}-all`}
-          type="radio"
-          className="btn-check"
-          value={"all"}
-          checked={this.state.messageType === "all"}
-          onChange={linkEvent(this, this.handleMessageTypeChange)}
-        />
-        <label
-          htmlFor={`${radioId}-all`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "all",
-          })}
-        >
-          {I18NextService.i18n.t("all")}
-        </label>
-
-        <input
-          id={`${radioId}-replies`}
-          type="radio"
-          className="btn-check"
-          value={"reply"}
-          checked={this.state.messageType === "reply"}
-          onChange={linkEvent(this, this.handleMessageTypeChange)}
-        />
-        <label
-          htmlFor={`${radioId}-replies`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "reply",
-          })}
-        >
-          {I18NextService.i18n.t("replies")}
-        </label>
-
-        <input
-          id={`${radioId}-mentions`}
-          type="radio"
-          className="btn-check"
-          value={"mention"}
-          checked={this.state.messageType === "mention"}
-          onChange={linkEvent(this, this.handleMessageTypeChange)}
-        />
-        <label
-          htmlFor={`${radioId}-mentions`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "mention",
-          })}
-        >
-          {I18NextService.i18n.t("mentions")}
-        </label>
-
-        <input
-          id={`${radioId}-messages`}
-          type="radio"
-          className="btn-check"
-          value={"private_message"}
-          checked={this.state.messageType === "private_message"}
-          onChange={linkEvent(this, this.handleMessageTypeChange)}
-        />
-        <label
-          htmlFor={`${radioId}-messages`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "private_message",
-          })}
-        >
-          {I18NextService.i18n.t("messages")}
-        </label>
-      </div>
+      <StateRadio
+        allStates={allStates}
+        currentState={this.state.messageType}
+        onClickHandler={this.handleMessageTypeChange}
+      />
     );
   }
 
@@ -487,6 +435,16 @@ export class Notifications extends Component<
             />
           )
         );
+      case "mod_action": {
+        return (
+          <NotificationModlogItem
+            notification={item.notification}
+            modlog_view={item.data as ModlogView}
+            myUserInfo={this.isoData.myUserInfo}
+            onMarkRead={this.handleMarkNotificationAsRead}
+          />
+        );
+      }
     }
   }
 
@@ -514,12 +472,13 @@ export class Notifications extends Component<
     await i.refetch();
   }
 
-  async handleMessageTypeChange(i: Notifications, event: any) {
-    i.setState({
-      messageType: event.target.value as NotificationDataType,
+  async handleMessageTypeChange(val: NotificationDataType) {
+    this.setState({
+      messageType: val,
       cursor: undefined,
     });
-    await i.refetch();
+    // TODO: somehow it cannot refetch from here
+    this.refetch();
   }
 
   static async fetchInitialData({
