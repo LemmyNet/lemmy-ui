@@ -202,7 +202,8 @@ export class RemoteFetch extends Component<
                   </div>
                 )}
                 <SubscribeButton
-                  communityView={communityView}
+                  followState={communityView.community_actions?.follow_state}
+                  apId={communityView.community.ap_id}
                   onFollow={linkEvent(this, handleFollow)}
                   onUnFollow={linkEvent(this, handleUnfollow)}
                   loading={this.state.followCommunityLoading}

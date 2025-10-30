@@ -1,5 +1,6 @@
 import {
   commentsToFlatNodes,
+  defaultPostListingMode,
   editComment,
   editPersonNotes,
   editPost,
@@ -272,9 +273,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     subscribedCollapsed: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
-    postListingMode:
-      this.isoData.myUserInfo?.local_user_view.local_user.post_listing_mode ??
-      this.isoData.siteRes.site_view.local_site.default_post_listing_mode,
+    postListingMode: defaultPostListingMode(this.isoData),
   };
 
   loadingSettled(): boolean {
@@ -987,8 +986,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {
-    // TODO not sure what to do here
-    await HttpService.client.addModToCommunity(form);
+    const addModRes = await HttpService.client.addModToCommunity(form);
+    if (addModRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(form.added ? "appointed_mod" : "removed_mod"),
+      );
+    }
   }
 
   async handlePurgePerson(form: PurgePerson) {

@@ -27,6 +27,8 @@ import {
   CommentId,
   CommunityResponse,
   PersonResponse,
+  PostListingMode,
+  MultiCommunity,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -129,10 +131,22 @@ export function commentToFlatNode(cv: CommentView): CommentNodeType {
 }
 
 export function communityRSSUrl(community: Community, sort: string): string {
-  // Only add the domain for non-local communities
+  // Only add the domain for non-local
   const domain = community.local ? "" : `@${hostname(community.ap_id)}`;
 
   return `/feeds/c/${community.name}${domain}.xml${getQueryString({ sort })}`;
+}
+
+export function multiCommunityRSSUrl(
+  multiCommunity: MultiCommunity,
+  sort: string,
+): string {
+  // Only add the domain for non-local
+  const domain = multiCommunity.local
+    ? ""
+    : `@${hostname(multiCommunity.ap_id)}`;
+
+  return `/feeds/m/${multiCommunity.name}${domain}.xml${getQueryString({ sort })}`;
 }
 
 export async function communitySearch(
@@ -821,5 +835,15 @@ export function hideAnimatedImage(
   return (
     isAnimatedImage(url) &&
     !user?.local_user_view.local_user.enable_animated_images
+  );
+}
+
+/**
+ * Sets the default post listing mode from either your user settings, or the site default.
+ **/
+export function defaultPostListingMode(isoData: IsoData): PostListingMode {
+  return (
+    isoData.myUserInfo?.local_user_view.local_user.post_listing_mode ??
+    isoData.siteRes.site_view.local_site.default_post_listing_mode
   );
 }

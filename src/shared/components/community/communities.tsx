@@ -199,7 +199,8 @@ export class Communities extends Component<
                   </div>
                   <div className={countCols}>
                     <SubscribeButton
-                      communityView={cv}
+                      followState={cv.community_actions?.follow_state}
+                      apId={cv.community.ap_id}
                       onFollow={linkEvent(
                         {
                           i: this,
