@@ -37,7 +37,10 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { formatRelativeDate, isWeekOld } from "@utils/date";
 import { TableHr } from "@components/common/tables";
-import { RadioOption, RadioButtonGroup } from "@components/common/state-radios";
+import {
+  RadioOption,
+  RadioButtonGroup,
+} from "@components/common/radio-button-group";
 import { linkEvent } from "inferno";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { createRef } from "inferno";
