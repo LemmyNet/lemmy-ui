@@ -1,5 +1,5 @@
 import { Component } from "inferno";
-import { State, StateRadio } from "./state-radios";
+import { RadioOption, RadioButtonGroup } from "./state-radios";
 
 export type RegistrationState = "unread" | "all" | "denied";
 
@@ -19,16 +19,16 @@ export class RegistrationStateRadios extends Component<
   }
 
   render() {
-    const allStates: State[] = [
+    const allStates: RadioOption[] = [
       { value: "unread", i18n: "unread" },
       { value: "all", i18n: "all" },
       { value: "denied", i18n: "denied" },
     ];
     return (
-      <StateRadio
-        allStates={allStates}
-        currentState={this.props.state}
-        onClickHandler={this.handleChange}
+      <RadioButtonGroup
+        allOptions={allStates}
+        currentOption={this.props.state}
+        onClick={this.handleChange}
       />
     );
   }

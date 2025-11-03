@@ -5,19 +5,19 @@ import { NoOptionI18nKeys } from "i18next";
 import { linkEvent } from "inferno";
 import { Component } from "inferno";
 
-export interface State {
+export interface RadioOption {
   value: string;
   i18n: NoOptionI18nKeys;
 }
 
-export interface StateRadioProps {
+export interface RadioButtonGroupProps {
   className?: string;
-  allStates: State[];
-  currentState: string;
-  onClickHandler(val: string): void;
+  allOptions: RadioOption[];
+  currentOption: string;
+  onClick(val: string): void;
 }
 
-export class StateRadio extends Component<StateRadioProps, object> {
+export class RadioButtonGroup extends Component<RadioButtonGroupProps, object> {
   constructor(props: any, context: any) {
     super(props, context);
   }
@@ -32,20 +32,20 @@ export class StateRadio extends Component<StateRadioProps, object> {
         )}
         role="group"
       >
-        {this.props.allStates.map(state => (
+        {this.props.allOptions.map(state => (
           <>
             <input
               id={`${radioId}-${state.value}`}
               type="radio"
               className="btn-check"
               value={state.value}
-              checked={this.props.currentState === state.value}
+              checked={this.props.currentOption === state.value}
               onChange={linkEvent(this, this.handleChange)}
             />
             <label
               htmlFor={`${radioId}-${state.value}`}
               className={classNames("btn btn-outline-secondary pointer", {
-                active: this.props.currentState === state.value,
+                active: this.props.currentOption === state.value,
               })}
             >
               {I18NextService.i18n.t(state.i18n)}
@@ -56,7 +56,7 @@ export class StateRadio extends Component<StateRadioProps, object> {
     );
   }
 
-  handleChange(i: StateRadio, event: any) {
-    i.props.onClickHandler(event.target.value);
+  handleChange(i: RadioButtonGroup, event: any) {
+    i.props.onClick(event.target.value);
   }
 }
