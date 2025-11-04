@@ -131,23 +131,6 @@ function processModlogEntry(
   } = view;
 
   switch (view.modlog.kind) {
-    /*
-    default:
-      // FIXME: placeholder for version mismatch between js-client and backend
-      // Without a default case typescript is able to report missing types
-      return {
-        id: 0,
-        moderator: null,
-        published_at: nowBoolean(true)!,
-        data: (
-          <>
-            <span>Placeholder for:</span>{" "}
-            <span>{(view.modlog as { kind: string }).kind}</span>
-          </>
-        ),
-      };
-      */
-
     case "admin_allow_instance": {
       return {
         modlog,
