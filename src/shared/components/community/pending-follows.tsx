@@ -186,7 +186,7 @@ export class PendingFollows extends Component<
       <div className="mb-2">
         <RegistrationStateRadios
           state={this.props.viewState}
-          onClickHandler={this.handlePendingFollowsStateChange}
+          onClick={this.handlePendingFollowsStateChange}
         />
       </div>
     );
