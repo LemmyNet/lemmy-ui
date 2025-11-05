@@ -112,7 +112,7 @@
     "@types/markdown-it": "^14.1.2",
     "@types/markdown-it-container": "^2.0.10",
     "@types/masonry-layout": "^4.2.8",
-    "@types/node": "^22.5.0",
+    "@types/node": "^24.0.0",
     "@types/path-browserify": "^1.0.3",
     "@types/sanitize-html": "^2.13.0",
     "@types/serialize-javascript": "^5.0.4",
