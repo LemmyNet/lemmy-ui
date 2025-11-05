@@ -799,12 +799,7 @@ export class AdminSettings extends Component<
               {I18NextService.i18n.t("blocked_instances")}
             </h1>
             <InstanceList
-              items={
-                instances
-                  .filter(view => view.blocked)
-                  .map(view => view.instance) ?? []
-              }
-              blocked
+              instances={instances.filter(view => view.blocked) ?? []}
               hideNoneFound
               onRemove={this.handleInstanceBlockRemove}
             />
@@ -814,11 +809,7 @@ export class AdminSettings extends Component<
               {I18NextService.i18n.t("allowed_instances")}
             </h1>
             <InstanceList
-              items={
-                instances
-                  .filter(view => view.allowed)
-                  .map(view => view.instance) ?? []
-              }
+              instances={instances.filter(view => view.allowed) ?? []}
               hideNoneFound
               onRemove={this.handleInstanceAllowRemove}
             />

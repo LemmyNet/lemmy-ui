@@ -1,13 +1,18 @@
 import { setIsoData } from "@utils/app";
-import { RouteDataResponse } from "@utils/types";
+import {
+  DirectionalCursor,
+  QueryParams,
+  RouteDataResponse,
+} from "@utils/types";
 import { Component } from "inferno";
 import {
+  FederatedInstanceView,
+  GetFederatedInstancesKind,
   GetFederatedInstancesResponse,
   GetSiteResponse,
-  Instance,
   LemmyHttp,
 } from "lemmy-js-client";
-import { relTags } from "@utils/config";
+import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
@@ -22,11 +27,38 @@ import { Icon, Spinner } from "../common/icon";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
-import { resourcesSettled } from "@utils/helpers";
+import {
+  cursorComponents,
+  getQueryParams,
+  getQueryString,
+  resourcesSettled,
+} from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { formatRelativeDate, isWeekOld } from "@utils/date";
 import { TableHr } from "@components/common/tables";
+import {
+  RadioOption,
+  RadioButtonGroup,
+} from "@components/common/radio-button-group";
+import { linkEvent } from "inferno";
+import { PaginatorCursor } from "@components/common/paginator-cursor";
+import { createRef } from "inferno";
+
+function getKindFromQuery(kind?: string): GetFederatedInstancesKind {
+  return kind ? (kind as GetFederatedInstancesKind) : "all";
+}
+
+export function getInstancesQueryParams(source?: string): InstancesProps {
+  return getQueryParams<InstancesProps>(
+    {
+      kind: getKindFromQuery,
+      cursor: (cursor?: string) => cursor,
+      domain_filter: (domain_filter?: string) => domain_filter,
+    },
+    source,
+  );
+}
 
 type InstancesData = RouteDataResponse<{
   federatedInstancesResponse: GetFederatedInstancesResponse;
@@ -38,17 +70,24 @@ interface InstancesState {
   isIsomorphic: boolean;
 }
 
+interface InstancesProps {
+  kind: GetFederatedInstancesKind;
+  cursor?: DirectionalCursor;
+  domain_filter?: string;
+}
+
 type InstancesRouteProps = RouteComponentProps<Record<string, never>> &
-  Record<string, never>;
+  InstancesProps;
 export type InstancesFetchConfig = IRoutePropsWithFetch<
   InstancesData,
   Record<string, never>,
-  Record<string, never>
+  InstancesProps
 >;
 
 @scrollMixin
 export class Instances extends Component<InstancesRouteProps, InstancesState> {
   private isoData = setIsoData<InstancesData>(this.context);
+  searchInput = createRef<HTMLInputElement>();
   state: InstancesState = {
     instancesRes: EMPTY_REQUEST,
     siteRes: this.isoData.siteRes,
@@ -61,6 +100,9 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
 
   constructor(props: any, context: any) {
     super(props, context);
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -78,6 +120,21 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     }
   }
 
+  componentDidUpdate(prevProps: InstancesRouteProps) {
+    if (
+      this.props.location.key !== prevProps.location.key &&
+      this.props.history.action !== "POP"
+    ) {
+      this.searchInput.current?.select();
+    }
+  }
+
+  componentDidMount() {
+    if (this.props.history.action !== "POP" || this.state.isIsomorphic) {
+      this.searchInput.current?.select();
+    }
+  }
+
   async fetchInstances() {
     this.setState({
       instancesRes: LOADING_REQUEST,
@@ -85,20 +142,30 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
 
     this.setState({
       instancesRes: await HttpService.client.getFederatedInstances({
-        kind: "all",
+        kind: this.props.kind,
+        domain_filter: this.props.domain_filter,
+        ...cursorComponents(this.props.cursor),
+        limit: fetchLimit,
       }),
     });
   }
 
   static async fetchInitialData({
     headers,
-  }: InitialFetchRequest): Promise<InstancesData> {
+    query: { kind, cursor, domain_filter },
+  }: InitialFetchRequest<
+    Record<string, never>,
+    InstancesProps
+  >): Promise<InstancesData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
       federatedInstancesResponse: await client.getFederatedInstances({
-        kind: "all",
+        kind: kind,
+        ...cursorComponents(cursor),
+        domain_filter,
+        limit: fetchLimit,
       }),
     };
   }
@@ -118,34 +185,12 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
           </h5>
         );
       case "success": {
-        // TODO this needs fixed, and I'm not doing it in this ticket.
-        // const instances = this.state.instancesRes.data.federated_instances;
-        // return instances ? (
-        //   <Tabs
-        //     tabs={["linked", "allowed", "blocked"]
-        //       .filter(status => instances[status].length)
-        //       .map((status: keyof FederatedInstances) => ({
-        //         key: status,
-        //         label: I18NextService.i18n.t(`${status}_instances`),
-        //         getNode: isSelected => (
-        //           <div
-        //             role="tabpanel"
-        //             className={classNames("tab-pane show", {
-        //               active: isSelected,
-        //             })}
-        //           >
-        //             {status === "blocked" ? (
-        //               <InstanceList items={instances[status]} blocked />
-        //             ) : (
-        //               <InstanceList items={instances[status]} />
-        //             )}
-        //           </div>
-        //         ),
-        //       }))}
-        // />
-        // ) : (
-        //   <h5>No linked instance</h5>
-        // );
+        const instances = this.state.instancesRes.data.federated_instances;
+        return instances ? (
+          <InstanceList instances={instances} />
+        ) : (
+          <h5>No linked instance</h5>
+        );
       }
     }
   }
@@ -157,30 +202,102 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
+        {this.renderRadios()}
         {this.renderInstances()}
+        <PaginatorCursor
+          current={this.props.cursor}
+          resource={this.state.instancesRes}
+          onPageChange={this.handlePageChange}
+        />
       </div>
     );
+  }
+
+  handleChange(state: GetFederatedInstancesKind) {
+    this.updateUrl({ kind: state });
+    this.fetchInstances();
+  }
+
+  handlePageChange(cursor?: DirectionalCursor) {
+    this.updateUrl({ cursor });
+  }
+
+  updateUrl(state: Partial<InstancesProps>) {
+    const { kind, cursor, domain_filter } = { ...this.props, ...state };
+
+    const queryParams: QueryParams<InstancesProps> = {
+      kind,
+      cursor,
+      domain_filter,
+    };
+
+    this.props.history.push(`/instances${getQueryString(queryParams)}`);
+  }
+
+  renderRadios() {
+    const allStates: RadioOption[] = [
+      { value: "all", i18n: "all" },
+      { value: "linked", i18n: "linked_instances" },
+      { value: "allowed", i18n: "allowed_instances" },
+      { value: "blocked", i18n: "blocked_instances" },
+    ];
+    return (
+      <div className="row mb-2">
+        <RadioButtonGroup
+          className="col-auto"
+          allOptions={allStates}
+          currentOption={this.props.kind}
+          onClick={this.handleChange}
+        />
+        <div className="col" />
+        <form
+          className="d-flex col-auto align-self-end"
+          onSubmit={linkEvent(this, this.handleSearchSubmit)}
+        >
+          <input
+            name="q"
+            type="search"
+            className="form-control flex-initial"
+            placeholder={`${I18NextService.i18n.t("search")}...`}
+            aria-label={I18NextService.i18n.t("search")}
+            defaultValue={this.props.domain_filter}
+            ref={this.searchInput}
+          />
+          <button type="submit" className="btn btn-outline-secondary ms-1">
+            <Icon icon="search" />
+          </button>
+        </form>
+      </div>
+    );
+  }
+  handleSearchSubmit(i: Instances, event: any) {
+    event.preventDefault();
+    let domain_filter: string | undefined =
+      i.searchInput.current?.value ?? i.props.domain_filter;
+    if (domain_filter === "") {
+      domain_filter = undefined;
+    }
+    i.updateUrl({ domain_filter });
+    i.fetchInstances();
   }
 }
 
 interface InstanceListProps {
-  items: Instance[];
-  /// Only use link for non-blocked
-  blocked?: boolean;
-  onRemove?(instance: string): void;
+  instances: FederatedInstanceView[];
   hideNoneFound?: boolean;
+  onRemove?(instance: string): void;
+  cursor?: DirectionalCursor;
 }
 
 export function InstanceList({
-  items,
-  blocked,
-  onRemove,
+  instances,
   hideNoneFound,
+  onRemove,
 }: InstanceListProps) {
   const nameCols = "col-12 col-md-6";
   const otherCols = "col-4 col-md-2";
 
-  return items.length > 0 ? (
+  return instances.length > 0 ? (
     <div id="instances-table">
       <div className="row">
         <div className={`${nameCols} fw-bold`}>
@@ -197,31 +314,35 @@ export function InstanceList({
         </div>
       </div>
       <TableHr />
-      {items.map(i => (
+      {instances.map(i => (
         <>
-          <div key={i.domain} className="row">
+          <div key={i.instance.domain} className="row">
             <div className={nameCols}>
-              {!blocked ? (
-                <a href={`https://${i.domain}`} rel={relTags}>
-                  {i.domain}{" "}
+              {!i.blocked ? (
+                <a href={`https://${i.instance.domain}`} rel={relTags}>
+                  {i.instance.domain}{" "}
                 </a>
               ) : (
-                <span>{i.domain}</span>
+                <span>{i.instance.domain}</span>
               )}
               {onRemove !== undefined && (
                 <button
                   className="btn btn-link"
-                  onClick={() => onRemove(i.domain)}
+                  onClick={() => onRemove(i.instance.domain)}
                 >
                   <Icon icon={"x"} classes="icon-inline text-danger" />
                 </button>
               )}
             </div>
-            <div className={otherCols}>{i.software}</div>
-            <div className={otherCols}>{i.version}</div>
+            <div className={otherCols}>{i.instance.software}</div>
+            <div className={otherCols}>{i.instance.version}</div>
             <div className={otherCols}>
-              {formatRelativeDate(i.updated_at ?? i.published_at)}
-              {isWeekOld(new Date(i.updated_at ?? i.published_at)) && " 💀"}
+              {formatRelativeDate(
+                i.instance.updated_at ?? i.instance.published_at,
+              )}
+              {isWeekOld(
+                new Date(i.instance.updated_at ?? i.instance.published_at),
+              ) && " 💀"}
             </div>
           </div>
           <hr />
