@@ -117,6 +117,7 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
         className="text-body"
         to={`/post/${post.id}`}
         title={I18NextService.i18n.t("comments")}
+        target={linkTarget(myUserInfo)}
       >
         <div className="thumbnail rounded bg-light d-flex justify-content-center">
           <Icon
