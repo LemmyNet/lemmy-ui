@@ -215,11 +215,11 @@ function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_community && (
           <>
             <span>Purged Post From</span>
             <CommunityLink
-              community={target_community!}
+              community={target_community}
               myUserInfo={myUserInfo}
             />
             {reason && (
@@ -236,12 +236,12 @@ function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && (
           <>
             <span>{is_revert ? "Appointed " : "Removed "}</span>
             <span>
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -256,12 +256,12 @@ function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && target_community && (
           <>
             <span>{is_revert ? "Appointed " : "Removed "}</span>
             <span>
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -269,7 +269,7 @@ function processModlogEntry(
             <span> as a mod to the community </span>
             <span>
               <CommunityLink
-                community={target_community!}
+                community={target_community}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -282,12 +282,12 @@ function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && (
           <>
             <span>{is_revert ? "Unbanned " : "Banned "}</span>
             <span>
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={!is_revert}
               />
@@ -311,12 +311,12 @@ function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && target_community && (
           <>
             <span>{is_revert ? "Unbanned " : "Banned "}</span>
             <span>
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={!is_revert}
               />
@@ -324,7 +324,7 @@ function processModlogEntry(
             <span> from the community </span>
             <span>
               <CommunityLink
-                community={target_community!}
+                community={target_community}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -347,12 +347,12 @@ function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_community && (
           <>
             <span>Change visibility of</span>
             <span>
               <CommunityLink
-                community={target_community!}
+                community={target_community}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -365,7 +365,7 @@ function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_community && (
           <>
             <span>{is_revert ? "Unfeatured " : "Featured "}</span>
             <span>
@@ -373,7 +373,7 @@ function processModlogEntry(
             </span>
             <span>" in community "</span>
             <CommunityLink
-              community={target_community!}
+              community={target_community}
               myUserInfo={myUserInfo}
             />
           </>
@@ -405,7 +405,8 @@ function processModlogEntry(
           <>
             <span>{is_revert ? "Unlocked " : "Locked "}</span>
             <span>
-              Post <Link to={`/post/${target_post?.id}`}>{name}</Link>
+              Post{" "}
+              <Link to={`/post/${target_post?.id}`}>{target_post?.name}</Link>
             </span>
             {reason && (
               <span>
@@ -421,7 +422,7 @@ function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && (
           <>
             <span>{is_revert ? "Restored " : "Removed "}</span>
             <span>
@@ -434,7 +435,7 @@ function processModlogEntry(
               {" "}
               by{" "}
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -453,7 +454,7 @@ function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && (
           <>
             <span>{is_revert ? "Unlocked " : "Locked "}</span>
             <span>
@@ -466,7 +467,7 @@ function processModlogEntry(
               {" "}
               by{" "}
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -485,13 +486,13 @@ function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_community && (
           <>
             <span>{is_revert ? "Restored " : "Removed "}</span>
             <span>
               Community{" "}
               <CommunityLink
-                community={target_community!}
+                community={target_community}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -530,19 +531,19 @@ function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_community && target_person && (
           <>
             <span>Transferred</span>
             <span>
               <CommunityLink
-                community={target_community!}
+                community={target_community}
                 myUserInfo={myUserInfo}
               />
             </span>
             <span> to </span>
             <span>
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
