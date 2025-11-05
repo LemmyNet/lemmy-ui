@@ -7,7 +7,7 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "moduleResolution": "node",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2022", "dom"],
     "types": ["inferno"],
     "jsx": "preserve",
     "noUnusedLocals": true,
