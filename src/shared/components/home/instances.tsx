@@ -37,7 +37,10 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { formatRelativeDate, isWeekOld } from "@utils/date";
 import { TableHr } from "@components/common/tables";
-import { State, StateRadio } from "@components/common/state-radios";
+import {
+  RadioOption,
+  RadioButtonGroup,
+} from "@components/common/radio-button-group";
 import { linkEvent } from "inferno";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { createRef } from "inferno";
@@ -45,16 +48,13 @@ import { createRef } from "inferno";
 function getKindFromQuery(kind?: string): GetFederatedInstancesKind {
   return kind ? (kind as GetFederatedInstancesKind) : "all";
 }
-function getDomainFilterFromQuery(domain_filter?: string): string | undefined {
-  return domain_filter;
-}
 
 export function getInstancesQueryParams(source?: string): InstancesProps {
   return getQueryParams<InstancesProps>(
     {
       kind: getKindFromQuery,
       cursor: (cursor?: string) => cursor,
-      domain_filter: getDomainFilterFromQuery,
+      domain_filter: (domain_filter?: string) => domain_filter,
     },
     source,
   );
@@ -222,7 +222,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     this.updateUrl({ cursor });
   }
 
-  async updateUrl(state: Partial<InstancesProps>) {
+  updateUrl(state: Partial<InstancesProps>) {
     const { kind, cursor, domain_filter } = { ...this.props, ...state };
 
     const queryParams: QueryParams<InstancesProps> = {
@@ -235,19 +235,19 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   }
 
   renderRadios() {
-    const allStates: State[] = [
-      { value: "all" },
+    const allStates: RadioOption[] = [
+      { value: "all", i18n: "all" },
       { value: "linked", i18n: "linked_instances" },
       { value: "allowed", i18n: "allowed_instances" },
       { value: "blocked", i18n: "blocked_instances" },
     ];
     return (
       <div className="row mb-2">
-        <StateRadio
+        <RadioButtonGroup
           className="col-auto"
-          allStates={allStates}
-          currentState={this.props.kind}
-          onClickHandler={this.handleChange}
+          allOptions={allStates}
+          currentOption={this.props.kind}
+          onClick={this.handleChange}
         />
         <div className="col" />
         <form

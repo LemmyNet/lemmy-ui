@@ -201,7 +201,7 @@ export class RegistrationApplications extends Component<
         <span className="me-3">
           <RegistrationStateRadios
             state={this.props.view}
-            onClickHandler={this.handleRegistrationStateChange}
+            onClick={this.handleRegistrationStateChange}
           />
         </span>
       </div>

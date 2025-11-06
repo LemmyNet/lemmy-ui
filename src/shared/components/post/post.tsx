@@ -11,6 +11,7 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
   editCommentsSlimLocked,
+  linkTarget,
 } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import {
@@ -936,6 +937,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     const postRes = this.state.postRes;
     const commentsRes = this.state.commentsRes;
     const siteRes = this.state.siteRes;
+    const myUserInfo = this.isoData.myUserInfo;
     const commentIdFromProps = getCommentIdFromProps(this.props);
 
     return (
@@ -947,6 +949,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               <Link
                 className="ps-0 d-block btn btn-link text-muted text-start"
                 to={this.handleViewAllComments()}
+                target={linkTarget(myUserInfo)}
               >
                 {I18NextService.i18n.t("view_all_comments")} ➔
               </Link>
@@ -959,6 +962,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 <Link
                   className="ps-0 d-block btn btn-link text-muted text-start"
                   to={this.handleViewContext()}
+                  target={linkTarget(myUserInfo)}
                 >
                   {I18NextService.i18n.t("show_context")} ➔
                 </Link>

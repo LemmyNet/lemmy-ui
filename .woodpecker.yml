@@ -3,7 +3,7 @@ variables:
 
 steps:
   fetch_git_submodules:
-    image: node:22-alpine
+    image: node:24-alpine
     commands:
       - apk add git
       - git submodule init
@@ -28,7 +28,7 @@ steps:
       - event: pull_request
 
   install:
-    image: node:22-alpine
+    image: node:24-alpine
     commands:
       - *install_pnpm
       - pnpm i
@@ -36,7 +36,7 @@ steps:
       - event: pull_request
 
   lint:
-    image: node:22-alpine
+    image: node:24-alpine
     commands:
       - *install_pnpm
       - pnpm lint
@@ -44,7 +44,7 @@ steps:
       - event: pull_request
 
   build_dev:
-    image: node:22-alpine
+    image: node:24-alpine
     commands:
       - *install_pnpm
       - pnpm prebuild:dev
