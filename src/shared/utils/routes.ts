@@ -97,6 +97,12 @@ import {
   PendingFollows,
   PendingFollowsFetchConfig,
 } from "@components/community/pending-follows";
+import { CreateMultiCommunity } from "@components/multi-community/create-multi-community";
+import {
+  getMultiCommunityQueryParams,
+  MultiCommunity,
+  MultiCommunityFetchConfig,
+} from "@components/multi-community/multi-community";
 
 export interface IRoutePropsWithFetch<
   DataT extends RouteData,
@@ -153,6 +159,10 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     component: CreateCommunity,
   },
   {
+    path: `/create_multi_community`,
+    component: CreateMultiCommunity,
+  },
+  {
     path: `/create_private_message/:recipient_id`,
     component: CreatePrivateMessage,
     fetchInitialData: CreatePrivateMessage.fetchInitialData,
@@ -188,6 +198,13 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     getQueryParams: getCommunityQueryParams,
     mountedSameRouteNavKey: "community",
   } as CommunityFetchConfig,
+  {
+    path: `/m/:name`,
+    component: MultiCommunity,
+    fetchInitialData: MultiCommunity.fetchInitialData,
+    getQueryParams: getMultiCommunityQueryParams,
+    mountedSameRouteNavKey: "multi_community",
+  } as MultiCommunityFetchConfig,
   {
     path: `/u/:username`,
     component: Profile,

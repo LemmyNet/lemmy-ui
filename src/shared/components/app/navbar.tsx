@@ -275,6 +275,20 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     </NavLink>
                   </li>
                 )}
+
+              {this.props.siteRes &&
+                !userNotLoggedInOrBanned(this.props.myUserInfo) && (
+                  <li className="nav-item">
+                    <NavLink
+                      to="/create_multi_community"
+                      className="nav-link"
+                      title={I18NextService.i18n.t("create_multi_community")}
+                      onMouseUp={linkEvent(this, handleCollapseClick)}
+                    >
+                      {I18NextService.i18n.t("create_multi_community")}
+                    </NavLink>
+                  </li>
+                )}
               <li className="nav-item">
                 <a
                   className="nav-link d-inline-flex align-items-center d-md-inline-block"

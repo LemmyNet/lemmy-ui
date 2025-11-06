@@ -16,7 +16,6 @@ import { SubscribeButton } from "@components/common/subscribe-button";
 
 interface Props {
   multiCommunityView: MultiCommunityView;
-  // TODO check on these
   editable?: boolean;
   hideButtons?: boolean;
   myUserInfo: MyUserInfo | undefined;
@@ -58,7 +57,6 @@ export class MultiCommunitySidebar extends Component<Props, State> {
     this.unlisten();
   }
 
-  // TODO why is this necessary
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & Props>,
   ): void {
@@ -72,7 +70,6 @@ export class MultiCommunitySidebar extends Component<Props, State> {
   }
 
   render() {
-    // TODO add the communities to multi-community.
     return (
       <div className="multi-community-sidebar">
         {!this.state.showEdit ? (
@@ -159,7 +156,6 @@ export class MultiCommunitySidebar extends Component<Props, State> {
   creator() {
     const creator = this.props.multiCommunityView.owner;
 
-    // TODO should this be an inline list, like the others?
     return (
       <ul className="list-inline small">
         <li className="list-inline-item">
