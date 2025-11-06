@@ -34,7 +34,6 @@ import {
   AddAdmin,
   AddModToCommunity,
   BanFromCommunity,
-  BanFromCommunityResponse,
   BanPerson,
   PersonResponse,
   BlockPerson,
@@ -1199,7 +1198,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBanFromCommunity(banRes);
+    this.updateBanFromCommunity(banRes, form.ban);
   }
 
   async handleBanPerson(form: BanPerson) {
@@ -1230,7 +1229,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
+  updateBanFromCommunity(
+    banRes: RequestState<PersonResponse>,
+    banned: boolean,
+  ) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
@@ -1238,14 +1240,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
-              c.creator_banned_from_community = banRes.data.banned;
+              c.creator_banned_from_community = banned;
             });
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
-              c.creator_banned_from_community = banRes.data.banned;
+              c.creator_banned_from_community = banned;
             });
         }
         return s;

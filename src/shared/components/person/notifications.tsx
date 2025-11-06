@@ -20,7 +20,6 @@ import {
   AddAdmin,
   AddModToCommunity,
   BanFromCommunity,
-  BanFromCommunityResponse,
   BanPerson,
   PersonResponse,
   BlockCommunity,
@@ -756,7 +755,7 @@ export class Notifications extends Component<
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBanFromCommunity(banRes, form.community_id);
+    this.updateBanFromCommunity(banRes, form.community_id, form.ban);
   }
 
   async handleBanPerson(form: BanPerson) {
@@ -861,8 +860,9 @@ export class Notifications extends Component<
   }
 
   updateBanFromCommunity(
-    banRes: RequestState<BanFromCommunityResponse>,
+    banRes: RequestState<PersonResponse>,
     communityId: CommunityId,
+    banned: boolean,
   ) {
     // Maybe not necessary
     if (banRes.state === "success") {
@@ -883,8 +883,7 @@ export class Notifications extends Component<
                       notif.data.creator.id ===
                         banRes.data.person_view.person.id
                     ) {
-                      notif.data.creator_banned_from_community =
-                        banRes.data.banned;
+                      notif.data.creator_banned_from_community = banned;
 
                       break;
                     }

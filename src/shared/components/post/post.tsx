@@ -32,7 +32,6 @@ import {
   AddModToCommunity,
   AddModToCommunityResponse,
   BanFromCommunity,
-  BanFromCommunityResponse,
   BanPerson,
   PersonResponse,
   BlockCommunity,
@@ -1422,7 +1421,7 @@ export class Post extends Component<PostRouteProps, PostState> {
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBanFromCommunity(banRes);
+    this.updateBanFromCommunity(banRes, form.ban);
     if (banRes.state === "success" && this.state.postRes.state === "success") {
       toast(
         I18NextService.i18n.t(
@@ -1485,7 +1484,10 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
+  updateBanFromCommunity(
+    banRes: RequestState<PersonResponse>,
+    banned: boolean,
+  ) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
@@ -1495,13 +1497,13 @@ export class Post extends Component<PostRouteProps, PostState> {
             banRes.data.person_view.person.id
         ) {
           const pv = s.postRes.data.post_view;
-          pv.creator_banned_from_community = banRes.data.banned;
+          pv.creator_banned_from_community = banned;
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
-              c.creator_banned_from_community = banRes.data.banned;
+              c.creator_banned_from_community = banned;
             });
         }
         return s;

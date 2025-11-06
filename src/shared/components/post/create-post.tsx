@@ -1,4 +1,9 @@
-import { communityToChoice, enableNsfw, setIsoData } from "@utils/app";
+import {
+  communityToChoice,
+  enableNsfw,
+  filterCommunitySelection,
+  setIsoData,
+} from "@utils/app";
 import {
   bareRoutePush,
   getIdFromString,
@@ -32,7 +37,7 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
-import { filterCommunitySelection, PostForm } from "./post-form";
+import { PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";

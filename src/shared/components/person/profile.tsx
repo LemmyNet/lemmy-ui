@@ -36,7 +36,6 @@ import {
   AddAdmin,
   AddModToCommunity,
   BanFromCommunity,
-  BanFromCommunityResponse,
   BanPerson,
   PersonResponse,
   BlockPerson,
@@ -1530,7 +1529,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBanFromCommunity(banRes, form.community_id);
+    this.updateBanFromCommunity(banRes, form.community_id, form.ban);
   }
 
   async handleBanPerson(form: BanPerson) {
@@ -1662,8 +1661,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   updateBanFromCommunity(
-    banRes: RequestState<BanFromCommunityResponse>,
+    banRes: RequestState<PersonResponse>,
     communityId: CommunityId,
+    banned: boolean,
   ) {
     // Maybe not necessary
     if (banRes.state === "success") {
@@ -1672,7 +1672,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         c.community.id === communityId
           ? {
               ...c,
-              creator_banned_from_community: banRes.data.banned,
+              creator_banned_from_community: banned,
             }
           : c,
       );
