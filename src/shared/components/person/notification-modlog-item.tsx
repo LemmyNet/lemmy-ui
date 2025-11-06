@@ -10,6 +10,8 @@ import { MomentTime } from "../common/moment-time";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { mark_as_read_i18n } from "@utils/app";
 import { processModlogEntry } from "@components/modlog";
+import { PersonListing } from "./person-listing";
+import { I18NextService } from "@services/index";
 
 interface NotificationModlogItemState {
   readLoading: boolean;
@@ -48,13 +50,27 @@ export class NotificationModlogItem extends Component<
   render() {
     const {
       modlog: { published_at },
+      moderator,
       data,
     } = processModlogEntry(this.props.modlog_view, this.props.myUserInfo);
     return (
-      <div>
-        <span className="mt-2 me-1">
-          <MomentTime published={published_at} />
-        </span>
+      <div className="ms-2">
+        <div className="row text-muted small " role="group">
+          <div className="col flex-grow-1 ">
+            {moderator ? (
+              <PersonListing
+                person={moderator}
+                banned={false}
+                myUserInfo={this.props.myUserInfo}
+              />
+            ) : (
+              I18NextService.i18n.t("mod")
+            )}
+          </div>
+          <div className="col-auto">
+            <MomentTime published={published_at} showAgo={false} />
+          </div>
+        </div>
         <span>{data}</span>
         <ul className="list-inline mb-0 text-muted fw-bold">
           <li className="list-inline-item">
