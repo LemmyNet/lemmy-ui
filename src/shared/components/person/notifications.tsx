@@ -58,7 +58,6 @@ import {
   SaveComment,
   SuccessResponse,
   TransferCommunity,
-  ModlogView,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -338,13 +337,13 @@ export class Notifications extends Component<
   // A NotificationWrapper should display a checkmark that exists outside the component.
   renderItemType(item: NotificationView) {
     const siteRes = this.state.siteRes;
-    const i = item.data;
-    switch (i.type_) {
+    const data = item.data;
+    switch (data.type_) {
       case "comment":
         return (
           <CommentNode
             key={item.notification.id}
-            node={commentToFlatNode(i)}
+            node={commentToFlatNode(data)}
             viewType={"flat"}
             showCommunity
             showContext
@@ -379,7 +378,7 @@ export class Notifications extends Component<
         return (
           <PrivateMessage
             key={item.notification.id}
-            private_message_view={i}
+            private_message_view={data}
             myUserInfo={this.isoData.myUserInfo}
             onDelete={this.handleDeleteMessage}
             onReport={this.handleMessageReport}
@@ -393,7 +392,7 @@ export class Notifications extends Component<
         return (
           this.isoData.myUserInfo && (
             <PostListing
-              postView={i}
+              postView={data}
               showCommunity
               showCrossPosts="show_separately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
@@ -439,7 +438,7 @@ export class Notifications extends Component<
         return (
           <NotificationModlogItem
             notification={item.notification}
-            modlog_view={item.data as ModlogView}
+            modlog_view={data}
             myUserInfo={this.isoData.myUserInfo}
             onMarkRead={this.handleMarkNotificationAsRead}
           />
