@@ -85,7 +85,10 @@ import { nowBoolean } from "@utils/date";
 import { CommentNode } from "@components/comment/comment-node";
 import { PostListing } from "@components/post/post-listing";
 import { NotificationModlogItem } from "./notification-modlog-item";
-import { State, StateRadio } from "@components/common/state-radios";
+import {
+  RadioButtonGroup,
+  RadioOption,
+} from "@components/common/radio-button-group";
 
 enum UnreadOrAll {
   Unread,
@@ -307,7 +310,7 @@ export class Notifications extends Component<
   }
 
   messageTypeRadios() {
-    const allStates: State[] = [
+    const allStates: RadioOption[] = [
       { value: "all" },
       { value: "replies" },
       { value: "mentions" },
@@ -316,10 +319,10 @@ export class Notifications extends Component<
     ];
 
     return (
-      <StateRadio
-        allStates={allStates}
-        currentState={this.state.messageType}
-        onClickHandler={this.handleMessageTypeChange}
+      <RadioButtonGroup
+        allOptions={allStates}
+        currentOption={this.state.messageType}
+        onClick={this.handleMessageTypeChange}
       />
     );
   }
