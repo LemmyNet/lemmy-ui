@@ -15,6 +15,11 @@ import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { LanguageList } from "@components/common/language-list";
+import {
+  CreateCommunityButton,
+  CreateMultiCommunityButton,
+  CreatePostButton,
+} from "@components/common/content-actions/create-item-buttons";
 
 interface SiteSidebarProps {
   site: Site;
@@ -107,6 +112,12 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           allLanguages={this.props.allLanguages}
           languageIds={this.props.siteLanguages}
         />
+        <CreatePostButton />
+        <CreateCommunityButton
+          localSite={this.props.localSite}
+          myUserInfo={this.props.myUserInfo}
+        />
+        <CreateMultiCommunityButton myUserInfo={this.props.myUserInfo} />
         {this.props.localSite && <Badges subject={this.props.localSite} />}
         {this.props.admins && this.admins(this.props.admins)}
       </div>
@@ -116,7 +127,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   siteSidebar(sidebar: string) {
     return (
       <div
-        className="md-div"
+        className="md-div mb-2"
         dangerouslySetInnerHTML={mdToHtml(sidebar, () => this.forceUpdate())}
       />
     );

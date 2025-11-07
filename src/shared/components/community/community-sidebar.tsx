@@ -2,7 +2,6 @@ import { getQueryString, hostname } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
-import { Link } from "inferno-router";
 import {
   AddModToCommunity,
   BlockCommunity,
@@ -34,6 +33,7 @@ import { CommunityNotificationSelect } from "@components/common/notification-sel
 import { LanguageList } from "@components/common/language-list";
 import { NoOptionI18nKeys } from "i18next";
 import { canViewCommunity } from "@utils/app";
+import { CreatePostButton } from "@components/common/content-actions/create-item-buttons";
 
 interface SidebarProps {
   community_view: CommunityView;
@@ -224,7 +224,11 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                       loading={this.state.followCommunityLoading}
                       showRemoteFetch={!this.props.myUserInfo}
                     />
-                    {this.canPost && canViewCommunity_ && this.createPost()}
+                    {this.canPost && canViewCommunity_ && (
+                      <CreatePostButton
+                        communityView={this.props.community_view}
+                      />
+                    )}
                   </>
                 )}
                 <>
@@ -384,23 +388,6 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
           </li>
         ))}
       </ul>
-    );
-  }
-
-  createPost() {
-    const cv = this.props.community_view;
-    return (
-      <Link
-        className={`btn btn-secondary d-block mb-2 w-100 ${
-          cv.community.deleted || cv.community.removed ? "no-click" : ""
-        }`}
-        to={
-          "/create_post" +
-          getQueryString({ communityId: cv.community.id.toString() })
-        }
-      >
-        {I18NextService.i18n.t("create_a_post")}
-      </Link>
     );
   }
 
