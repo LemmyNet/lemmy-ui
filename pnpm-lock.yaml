@@ -114,8 +114,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-multi-community-name-get-posts.0
-        version: 1.0.0-multi-community-name-get-posts.0
+        specifier: 1.0.0-multi-community-name-get-posts.1
+        version: 1.0.0-multi-community-name-get-posts.1
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -3417,8 +3417,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  lemmy-js-client@1.0.0-multi-community-name-get-posts.0:
-    resolution: {integrity: sha512-UDr661wbZv+G5zxH3YQnQGv5yuK2+fyoOQx7OlSK+kkG2nGQjN3R8r0RlOG10CEWMnqxk+BmAJlj5WwV/Qkung==}
+  lemmy-js-client@1.0.0-multi-community-name-get-posts.1:
+    resolution: {integrity: sha512-pPknNvPEwoc6ZMrzcy/zV4WSNi7xMA8XREEQaz9DDEeCr2n7NU2uZCo4t8dqhgMcRDYbS6mmHj1ScTQpL0Okxg==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8802,7 +8802,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  lemmy-js-client@1.0.0-multi-community-name-get-posts.0:
+  lemmy-js-client@1.0.0-multi-community-name-get-posts.1:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:
