@@ -1,6 +1,6 @@
 import { getQueryString, hostname } from "@utils/helpers";
 import { amAdmin, amMod, amTopMod } from "@utils/roles";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, FormEvent, InfernoMouseEvent, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   AddModToCommunity,
@@ -91,20 +91,13 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     showCommunityReportModal: false,
     renderCommunityReportModal: false,
     searchText: "",
-    notifications: "replies_and_mentions",
+    notifications:
+      this.props.community_view?.community_actions?.notifications ??
+      "replies_and_mentions",
   };
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.handleEditCancel = this.handleEditCancel.bind(this);
-    this.handleSubmitCommunityReport =
-      this.handleSubmitCommunityReport.bind(this);
-    this.handleHideCommunityReportModal =
-      this.handleHideCommunityReportModal.bind(this);
-    this.handleNotificationChange = this.handleNotificationChange.bind(this);
-    this.state.notifications =
-      this.props.community_view.community_actions?.notifications ??
-      "replies_and_mentions";
   }
 
   unlisten = () => {};
@@ -157,7 +150,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
             siteLanguages={this.props.siteLanguages}
             communityLanguages={this.props.communityLanguages}
             onUpsertCommunity={this.props.onEditCommunity}
-            onCancel={this.handleEditCancel}
+            onCancel={() => handleEditCancel(this)}
             enableNsfw={this.props.enableNsfw}
             myUserInfo={this.props.myUserInfo}
           />
@@ -219,8 +212,8 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                           ?.follow_state
                       }
                       apId={this.props.community_view.community.ap_id}
-                      onFollow={linkEvent(this, this.handleFollowCommunity)}
-                      onUnFollow={linkEvent(this, this.handleUnfollowCommunity)}
+                      onFollow={() => handleFollowCommunity(this, true)}
+                      onUnFollow={() => handleFollowCommunity(this, false)}
                       loading={this.state.followCommunityLoading}
                       showRemoteFetch={!this.props.myUserInfo}
                     />
@@ -238,12 +231,12 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                       <div className="mb-2 d-flex">
                         <CommunityNotificationSelect
                           current={this.state.notifications}
-                          onChange={this.handleNotificationChange}
+                          onChange={val => handleNotificationChange(this, val)}
                         />
                       </div>
                       <form
                         className="d-flex"
-                        onSubmit={linkEvent(this, this.handleSearchSubmit)}
+                        onSubmit={e => handleSearchSubmit(this, e)}
                       >
                         <input
                           name="q"
@@ -251,7 +244,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                           className="form-control flex-initial"
                           placeholder={`${I18NextService.i18n.t("search")}...`}
                           aria-label={I18NextService.i18n.t("search")}
-                          onInput={linkEvent(this, this.handleSearchChange)}
+                          onInput={e => handleSearchChange(this, e)}
                           required
                           minLength={1}
                         />
@@ -399,7 +392,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
       !subscribed && (
         <button
           className="btn btn-danger d-block mb-2 w-100"
-          onClick={linkEvent(this, this.handleBlockCommunity)}
+          onClick={() => handleBlockCommunity(this)}
         >
           {I18NextService.i18n.t(
             blocked_at ? "unblock_community" : "block_community",
@@ -431,7 +424,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
               <li className="list-inline-item-action">
                 <button
                   className="btn btn-link text-muted d-inline-block"
-                  onClick={linkEvent(this, this.handleEditClick)}
+                  onClick={() => handleEditClick(this)}
                   data-tippy-content={I18NextService.i18n.t("edit")}
                   aria-label={I18NextService.i18n.t("edit")}
                 >
@@ -443,10 +436,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                   <li className="list-inline-item-action">
                     <button
                       className="btn btn-link text-muted d-inline-block"
-                      onClick={linkEvent(
-                        this,
-                        this.handleShowConfirmLeaveModTeamClick,
-                      )}
+                      onClick={() => handleShowConfirmLeaveModTeamClick(this)}
                     >
                       {I18NextService.i18n.t("leave_mod_team")}
                     </button>
@@ -459,7 +449,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     <li className="list-inline-item-action">
                       <button
                         className="btn btn-link text-muted d-inline-block"
-                        onClick={linkEvent(this, this.handleLeaveModTeam)}
+                        onClick={() => handleLeaveModTeam(this)}
                       >
                         {I18NextService.i18n.t("yes")}
                       </button>
@@ -467,10 +457,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     <li className="list-inline-item-action">
                       <button
                         className="btn btn-link text-muted d-inline-block"
-                        onClick={linkEvent(
-                          this,
-                          this.handleCancelLeaveModTeamClick,
-                        )}
+                        onClick={() => handleCancelLeaveModTeamClick(this)}
                       >
                         {I18NextService.i18n.t("no")}
                       </button>
@@ -481,7 +468,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                 <li className="list-inline-item-action">
                   <button
                     className="btn btn-link text-muted d-inline-block"
-                    onClick={linkEvent(this, this.handleDeleteCommunity)}
+                    onClick={() => handleDeleteCommunity(this)}
                     data-tippy-content={
                       !community_view.community.deleted
                         ? I18NextService.i18n.t("delete")
@@ -513,14 +500,14 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
               {!this.props.community_view.community.removed ? (
                 <button
                   className="btn btn-link text-muted d-inline-block"
-                  onClick={linkEvent(this, this.handleModRemoveShow)}
+                  onClick={() => handleModRemoveShow(this)}
                 >
                   {I18NextService.i18n.t("remove")}
                 </button>
               ) : (
                 <button
                   className="btn btn-link text-muted d-inline-block"
-                  onClick={linkEvent(this, this.handleRemoveCommunity)}
+                  onClick={e => handleRemoveCommunity(this, e)}
                 >
                   {this.state.removeCommunityLoading ? (
                     <Spinner />
@@ -531,7 +518,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
               )}
               <button
                 className="btn btn-link text-muted d-inline-block"
-                onClick={linkEvent(this, this.handlePurgeCommunityShow)}
+                onClick={() => handlePurgeCommunityShow(this)}
                 aria-label={I18NextService.i18n.t("purge_community")}
               >
                 {I18NextService.i18n.t("purge_community")}
@@ -541,21 +528,21 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
           <li className="list-inline-item-action">
             <button
               className="btn btn-link text-muted d-inline-block"
-              onClick={linkEvent(this, this.handleShowCommunityReportModal)}
+              onClick={() => handleShowCommunityReportModal(this)}
             >
               {I18NextService.i18n.t("create_report")}
             </button>
             {this.state.renderCommunityReportModal && (
               <CommunityReportModal
-                onSubmit={this.handleSubmitCommunityReport}
-                onCancel={this.handleHideCommunityReportModal}
+                onSubmit={reason => handleSubmitCommunityReport(this, reason)}
+                onCancel={() => handleHideCommunityReportModal(this)}
                 show={this.state.showCommunityReportModal}
               />
             )}
           </li>
         </ul>
         {this.state.showRemoveDialog && (
-          <form onSubmit={linkEvent(this, this.handleRemoveCommunity)}>
+          <form onSubmit={e => handleRemoveCommunity(this, e)}>
             <div className="input-group mb-3">
               <label className="col-form-label" htmlFor="remove-reason">
                 {I18NextService.i18n.t("reason")}
@@ -566,7 +553,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                 className="form-control me-2"
                 placeholder={I18NextService.i18n.t("optional")}
                 value={this.state.removeReason}
-                onInput={linkEvent(this, this.handleModRemoveReasonChange)}
+                onInput={e => handleModRemoveReasonChange(this, e)}
               />
             </div>
             {/* TODO hold off on expires for now */}
@@ -586,7 +573,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
           </form>
         )}
         {this.state.showPurgeDialog && (
-          <form onSubmit={linkEvent(this, this.handlePurgeCommunity)}>
+          <form onSubmit={e => handlePurgeCommunity(this, e)}>
             <div className="input-group mb-3">
               <PurgeWarning />
             </div>
@@ -600,7 +587,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                 className="form-control me-2"
                 placeholder={I18NextService.i18n.t("reason")}
                 value={this.state.purgeReason}
-                onInput={linkEvent(this, this.handlePurgeReasonChange)}
+                onInput={e => handlePurgeReasonChange(this, e)}
               />
             </div>
             <div className="input-group mb-3">
@@ -622,43 +609,6 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  handleEditClick(i: CommunitySidebar) {
-    i.setState({ showEdit: true });
-  }
-
-  handleEditCancel() {
-    this.setState({ showEdit: false });
-  }
-
-  handleShowConfirmLeaveModTeamClick(i: CommunitySidebar) {
-    i.setState({ showConfirmLeaveModTeam: true });
-  }
-
-  handleCancelLeaveModTeamClick(i: CommunitySidebar) {
-    i.setState({ showConfirmLeaveModTeam: false });
-  }
-
-  handleShowCommunityReportModal(i: CommunitySidebar) {
-    i.setState({
-      showCommunityReportModal: true,
-      renderCommunityReportModal: true,
-    });
-  }
-
-  async handleSubmitCommunityReport(reason: string) {
-    const res = await HttpService.client.createCommunityReport({
-      community_id: this.props.community_view.community.id,
-      reason,
-    });
-    if (res.state === "success") {
-      this.setState({ showCommunityReportModal: false });
-    }
-  }
-
-  handleHideCommunityReportModal() {
-    this.setState({ showCommunityReportModal: false });
-  }
-
   get canPost(): boolean {
     return (
       !this.props.community_view.community.posting_restricted_to_mods ||
@@ -666,111 +616,159 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
       amAdmin(this.props.myUserInfo)
     );
   }
+}
 
-  handleModRemoveShow(i: CommunitySidebar) {
-    i.setState({ showRemoveDialog: true });
+function handleDeleteCommunity(i: CommunitySidebar) {
+  i.setState({ deleteCommunityLoading: true });
+  i.props.onDeleteCommunity({
+    community_id: i.props.community_view.community.id,
+    deleted: !i.props.community_view.community.deleted,
+  });
+}
+
+function handleRemoveCommunity(
+  i: CommunitySidebar,
+  event: FormEvent<HTMLFormElement> | InfernoMouseEvent<HTMLButtonElement>,
+) {
+  event.preventDefault();
+  i.setState({ removeCommunityLoading: true });
+  i.props.onRemoveCommunity({
+    community_id: i.props.community_view.community.id,
+    removed: !i.props.community_view.community.removed,
+    reason: i.state.removeReason ?? "",
+  });
+}
+
+function handlePurgeCommunity(
+  i: CommunitySidebar,
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+  i.setState({ purgeCommunityLoading: true });
+  i.props.onPurgeCommunity({
+    community_id: i.props.community_view.community.id,
+    reason: i.state.purgeReason ?? "",
+  });
+}
+
+function handleSearchChange(
+  i: CommunitySidebar,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState({ searchText: event.target.value });
+}
+
+function handleSearchSubmit(
+  i: CommunitySidebar,
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+  const searchParamEncoded = i.state.searchText;
+  i.context.router.history.push(
+    `/search${getQueryString({ q: searchParamEncoded, communityId: i.props.community_view.community.id.toString() })}`,
+  );
+}
+function handleEditClick(i: CommunitySidebar) {
+  i.setState({ showEdit: true });
+}
+
+function handleEditCancel(i: CommunitySidebar) {
+  i.setState({ showEdit: false });
+}
+
+function handleShowConfirmLeaveModTeamClick(i: CommunitySidebar) {
+  i.setState({ showConfirmLeaveModTeam: true });
+}
+
+function handleCancelLeaveModTeamClick(i: CommunitySidebar) {
+  i.setState({ showConfirmLeaveModTeam: false });
+}
+
+function handleShowCommunityReportModal(i: CommunitySidebar) {
+  i.setState({
+    showCommunityReportModal: true,
+    renderCommunityReportModal: true,
+  });
+}
+
+async function handleSubmitCommunityReport(
+  i: CommunitySidebar,
+  reason: string,
+) {
+  const res = await HttpService.client.createCommunityReport({
+    community_id: i.props.community_view.community.id,
+    reason,
+  });
+  if (res.state === "success") {
+    i.setState({ showCommunityReportModal: false });
   }
+}
 
-  handleModRemoveReasonChange(i: CommunitySidebar, event: any) {
-    i.setState({ removeReason: event.target.value });
-  }
+function handleHideCommunityReportModal(i: CommunitySidebar) {
+  i.setState({ showCommunityReportModal: false });
+}
 
-  handleModRemoveExpiresChange(i: CommunitySidebar, event: any) {
-    i.setState({ removeExpires: event.target.value });
-  }
+function handleModRemoveShow(i: CommunitySidebar) {
+  i.setState({ showRemoveDialog: true });
+}
 
-  handlePurgeCommunityShow(i: CommunitySidebar) {
-    i.setState({ showPurgeDialog: true, showRemoveDialog: false });
-  }
+function handleModRemoveReasonChange(
+  i: CommunitySidebar,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState({ removeReason: event.target.value });
+}
 
-  handlePurgeReasonChange(i: CommunitySidebar, event: any) {
-    i.setState({ purgeReason: event.target.value });
-  }
+// function handleModRemoveExpiresChange(i: CommunitySidebar, event: any) {
+//   i.setState({ removeExpires: event.target.value });
+// }
 
-  async handleNotificationChange(val: CommunityNotificationsMode) {
-    this.setState({ notifications: val });
-    const form = {
-      community_id: this.props.community_view.community.id,
-      mode: this.state.notifications,
-    };
-    this.props.onUpdateCommunityNotifs(form);
-  }
+function handlePurgeCommunityShow(i: CommunitySidebar) {
+  i.setState({ showPurgeDialog: true, showRemoveDialog: false });
+}
 
-  // TODO Do we need two of these?
-  handleUnfollowCommunity(i: CommunitySidebar) {
-    i.setState({ followCommunityLoading: true });
-    i.props.onFollowCommunity({
+function handlePurgeReasonChange(i: CommunitySidebar, event: any) {
+  i.setState({ purgeReason: event.target.value });
+}
+
+function handleNotificationChange(
+  i: CommunitySidebar,
+  val: CommunityNotificationsMode,
+) {
+  i.setState({ notifications: val });
+  const form = {
+    community_id: i.props.community_view.community.id,
+    mode: i.state.notifications,
+  };
+  i.props.onUpdateCommunityNotifs(form);
+}
+
+function handleFollowCommunity(i: CommunitySidebar, follow: boolean) {
+  i.setState({ followCommunityLoading: true });
+  i.props.onFollowCommunity({
+    community_id: i.props.community_view.community.id,
+    follow,
+  });
+}
+
+function handleBlockCommunity(i: CommunitySidebar) {
+  const { community, community_actions: { blocked_at } = {} } =
+    i.props.community_view;
+
+  i.props.onBlockCommunity({
+    community_id: community.id,
+    block: !blocked_at,
+  });
+}
+
+function handleLeaveModTeam(i: CommunitySidebar) {
+  const myId = i.props.myUserInfo?.local_user_view.person.id;
+  if (myId) {
+    i.setState({ leaveModTeamLoading: true });
+    i.props.onLeaveModTeam({
       community_id: i.props.community_view.community.id,
-      follow: false,
+      person_id: myId,
+      added: false,
     });
-  }
-
-  handleFollowCommunity(i: CommunitySidebar) {
-    i.setState({ followCommunityLoading: true });
-    i.props.onFollowCommunity({
-      community_id: i.props.community_view.community.id,
-      follow: true,
-    });
-  }
-
-  handleBlockCommunity(i: CommunitySidebar) {
-    const { community, community_actions: { blocked_at } = {} } =
-      i.props.community_view;
-
-    i.props.onBlockCommunity({
-      community_id: community.id,
-      block: !blocked_at,
-    });
-  }
-
-  handleLeaveModTeam(i: CommunitySidebar) {
-    const myId = i.props.myUserInfo?.local_user_view.person.id;
-    if (myId) {
-      i.setState({ leaveModTeamLoading: true });
-      i.props.onLeaveModTeam({
-        community_id: i.props.community_view.community.id,
-        person_id: myId,
-        added: false,
-      });
-    }
-  }
-
-  handleDeleteCommunity(i: CommunitySidebar) {
-    i.setState({ deleteCommunityLoading: true });
-    i.props.onDeleteCommunity({
-      community_id: i.props.community_view.community.id,
-      deleted: !i.props.community_view.community.deleted,
-    });
-  }
-
-  handleRemoveCommunity(i: CommunitySidebar, event: any) {
-    event.preventDefault();
-    i.setState({ removeCommunityLoading: true });
-    i.props.onRemoveCommunity({
-      community_id: i.props.community_view.community.id,
-      removed: !i.props.community_view.community.removed,
-      reason: i.state.removeReason ?? "",
-    });
-  }
-
-  handlePurgeCommunity(i: CommunitySidebar, event: any) {
-    event.preventDefault();
-    i.setState({ purgeCommunityLoading: true });
-    i.props.onPurgeCommunity({
-      community_id: i.props.community_view.community.id,
-      reason: i.state.purgeReason ?? "",
-    });
-  }
-
-  handleSearchChange(i: CommunitySidebar, event: any) {
-    i.setState({ searchText: event.target.value });
-  }
-
-  handleSearchSubmit(i: CommunitySidebar, event: any) {
-    event.preventDefault();
-    const searchParamEncoded = i.state.searchText;
-    i.context.router.history.push(
-      `/search${getQueryString({ q: searchParamEncoded, communityId: i.props.community_view.community.id.toString() })}`,
-    );
   }
 }
