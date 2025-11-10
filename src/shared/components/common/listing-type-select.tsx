@@ -1,6 +1,6 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { ListingType, MyUserInfo } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { userNotLoggedInOrBanned } from "@utils/app";
@@ -53,7 +53,7 @@ export class ListingTypeSelect extends Component<
               className="btn-check"
               value={"subscribed"}
               checked={this.state.type_ === "subscribed"}
-              onChange={linkEvent(this, this.handleTypeChange)}
+              onChange={e => handleTypeChange(this, e)}
               disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
             />
             <label
@@ -77,7 +77,7 @@ export class ListingTypeSelect extends Component<
               className="btn-check"
               value={"local"}
               checked={this.state.type_ === "local"}
-              onChange={linkEvent(this, this.handleTypeChange)}
+              onChange={e => handleTypeChange(this, e)}
             />
             <label
               htmlFor={`${this.id}-local`}
@@ -96,7 +96,7 @@ export class ListingTypeSelect extends Component<
           className="btn-check"
           value={"all"}
           checked={this.state.type_ === "all"}
-          onChange={linkEvent(this, this.handleTypeChange)}
+          onChange={e => handleTypeChange(this, e)}
         />
         <label
           title={I18NextService.i18n.t("all_description")}
@@ -117,7 +117,7 @@ export class ListingTypeSelect extends Component<
               className="btn-check"
               value={"moderator_view"}
               checked={this.state.type_ === "moderator_view"}
-              onChange={linkEvent(this, this.handleTypeChange)}
+              onChange={e => handleTypeChange(this, e)}
             />
             <label
               htmlFor={`${this.id}-moderator-view`}
@@ -133,8 +133,8 @@ export class ListingTypeSelect extends Component<
       </div>
     );
   }
+}
 
-  handleTypeChange(i: ListingTypeSelect, event: any) {
-    i.props.onChange(event.target.value);
-  }
+function handleTypeChange(i: ListingTypeSelect, event: any) {
+  i.props.onChange(event.target.value);
 }
