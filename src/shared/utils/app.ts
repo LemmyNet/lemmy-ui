@@ -29,6 +29,7 @@ import {
   PersonResponse,
   PostListingMode,
   MultiCommunity,
+  MultiCommunityView,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -202,6 +203,13 @@ export function editCommunity(
   communities: CommunityView[],
 ): CommunityView[] {
   return editListImmutable("community", data, communities);
+}
+
+export function editMultiCommunity(
+  data: MultiCommunityView,
+  multiCommunities: MultiCommunityView[],
+): MultiCommunityView[] {
+  return editListImmutable("multi", data, multiCommunities);
 }
 
 export function editPost(data: PostView, posts: PostView[]): PostView[] {
