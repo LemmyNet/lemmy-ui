@@ -104,7 +104,7 @@ function getActionFromString(action?: string): ModlogKind | undefined {
   return action as ModlogKind;
 }
 
-export interface ModlogEntry {
+interface ModlogEntry {
   modlog: Modlog_;
   moderator: Person | null;
   data: InfernoNode;
@@ -131,23 +131,6 @@ export function processModlogEntry(
   } = view;
 
   switch (view.modlog.kind) {
-    /*
-    default:
-      // FIXME: placeholder for version mismatch between js-client and backend
-      // Without a default case typescript is able to report missing types
-      return {
-        id: 0,
-        moderator: null,
-        published_at: nowBoolean(true)!,
-        data: (
-          <>
-            <span>Placeholder for:</span>{" "}
-            <span>{(view.modlog as { kind: string }).kind}</span>
-          </>
-        ),
-      };
-      */
-
     case "admin_allow_instance": {
       return {
         modlog,
@@ -232,11 +215,11 @@ export function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_community && (
           <>
             <span>Purged Post From</span>
             <CommunityLink
-              community={target_community!}
+              community={target_community}
               myUserInfo={myUserInfo}
             />
             {reason && (
@@ -253,12 +236,12 @@ export function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && (
           <>
             <span>{is_revert ? "Appointed " : "Removed "}</span>
             <span>
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -273,12 +256,12 @@ export function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && target_community && (
           <>
             <span>{is_revert ? "Appointed " : "Removed "}</span>
             <span>
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -286,7 +269,7 @@ export function processModlogEntry(
             <span> as a mod to the community </span>
             <span>
               <CommunityLink
-                community={target_community!}
+                community={target_community}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -299,12 +282,12 @@ export function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && (
           <>
             <span>{is_revert ? "Unbanned " : "Banned "}</span>
             <span>
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={!is_revert}
               />
@@ -328,12 +311,12 @@ export function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && target_community && (
           <>
             <span>{is_revert ? "Unbanned " : "Banned "}</span>
             <span>
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={!is_revert}
               />
@@ -341,7 +324,7 @@ export function processModlogEntry(
             <span> from the community </span>
             <span>
               <CommunityLink
-                community={target_community!}
+                community={target_community}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -364,12 +347,12 @@ export function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_community && (
           <>
             <span>Change visibility of</span>
             <span>
               <CommunityLink
-                community={target_community!}
+                community={target_community}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -382,7 +365,7 @@ export function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_community && (
           <>
             <span>{is_revert ? "Unfeatured " : "Featured "}</span>
             <span>
@@ -390,7 +373,7 @@ export function processModlogEntry(
             </span>
             <span>" in community "</span>
             <CommunityLink
-              community={target_community!}
+              community={target_community}
               myUserInfo={myUserInfo}
             />
           </>
@@ -422,7 +405,8 @@ export function processModlogEntry(
           <>
             <span>{is_revert ? "Unlocked " : "Locked "}</span>
             <span>
-              Post <Link to={`/post/${target_post?.id}`}>{name}</Link>
+              Post{" "}
+              <Link to={`/post/${target_post?.id}`}>{target_post?.name}</Link>
             </span>
             {reason && (
               <span>
@@ -438,7 +422,7 @@ export function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && (
           <>
             <span>{is_revert ? "Restored " : "Removed "}</span>
             <span>
@@ -451,7 +435,7 @@ export function processModlogEntry(
               {" "}
               by{" "}
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -470,7 +454,7 @@ export function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_person && (
           <>
             <span>{is_revert ? "Unlocked " : "Locked "}</span>
             <span>
@@ -483,7 +467,7 @@ export function processModlogEntry(
               {" "}
               by{" "}
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
@@ -502,13 +486,13 @@ export function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_community && (
           <>
             <span>{is_revert ? "Restored " : "Removed "}</span>
             <span>
               Community{" "}
               <CommunityLink
-                community={target_community!}
+                community={target_community}
                 myUserInfo={myUserInfo}
               />
             </span>
@@ -547,19 +531,19 @@ export function processModlogEntry(
       return {
         modlog,
         moderator,
-        data: (
+        data: target_community && target_person && (
           <>
             <span>Transferred</span>
             <span>
               <CommunityLink
-                community={target_community!}
+                community={target_community}
                 myUserInfo={myUserInfo}
               />
             </span>
             <span> to </span>
             <span>
               <PersonListing
-                person={target_person!}
+                person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
               />
