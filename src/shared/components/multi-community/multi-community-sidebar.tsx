@@ -1,4 +1,4 @@
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   FollowMultiCommunity,
   MultiCommunityView,
@@ -39,7 +39,6 @@ export class MultiCommunitySidebar extends Component<Props, State> {
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.handleEditCancel = this.handleEditCancel.bind(this);
   }
 
   unlisten = () => {};
@@ -78,7 +77,7 @@ export class MultiCommunitySidebar extends Component<Props, State> {
           <MultiCommunityForm
             multiCommunityView={this.props.multiCommunityView}
             onEdit={this.props.onEdit}
-            onCancel={this.handleEditCancel}
+            onCancel={() => handleEditCancel(this)}
             myUserInfo={this.props.myUserInfo}
           />
         )}
@@ -99,14 +98,8 @@ export class MultiCommunitySidebar extends Component<Props, State> {
                 <SubscribeButton
                   followState={mv.follow_state}
                   apId={mv.multi.ap_id}
-                  onFollow={linkEvent(
-                    { i: this, follow: true },
-                    this.handlefollowMultiCommunity,
-                  )}
-                  onUnFollow={linkEvent(
-                    { i: this, follow: false },
-                    this.handlefollowMultiCommunity,
-                  )}
+                  onFollow={() => handleFollowMultiCommunity(this, true)}
+                  onUnFollow={() => handleFollowMultiCommunity(this, false)}
                   loading={this.state.followLoading}
                   showRemoteFetch={!this.props.myUserInfo}
                 />
@@ -195,7 +188,7 @@ export class MultiCommunitySidebar extends Component<Props, State> {
           <li className="list-inline-item-action">
             <button
               className="btn btn-link text-muted d-inline-block"
-              onClick={linkEvent(this, this.handleEditClick)}
+              onClick={() => handleEditClick(this)}
               data-tippy-content={I18NextService.i18n.t("edit")}
               aria-label={I18NextService.i18n.t("edit")}
             >
@@ -205,7 +198,7 @@ export class MultiCommunitySidebar extends Component<Props, State> {
           <li className="list-inline-item-action">
             <button
               className="btn btn-link text-muted d-inline-block"
-              onClick={linkEvent(this, this.handleDelete)}
+              onClick={() => handleDelete(this)}
               data-tippy-content={
                 !mv.multi.deleted
                   ? I18NextService.i18n.t("delete")
@@ -231,31 +224,27 @@ export class MultiCommunitySidebar extends Component<Props, State> {
       )
     );
   }
+}
+function handleEditClick(i: MultiCommunitySidebar) {
+  i.setState({ showEdit: true });
+}
 
-  handleEditClick(i: MultiCommunitySidebar) {
-    i.setState({ showEdit: true });
-  }
+function handleEditCancel(i: MultiCommunitySidebar) {
+  i.setState({ showEdit: false });
+}
 
-  handleEditCancel() {
-    this.setState({ showEdit: false });
-  }
+function handleDelete(i: MultiCommunitySidebar) {
+  const mv = i.props.multiCommunityView.multi;
+  i.setState({ deleteLoading: true });
+  i.props.onEdit({ id: mv.id, deleted: !mv.deleted });
+}
 
-  handlefollowMultiCommunity(data: {
-    i: MultiCommunitySidebar;
-    follow: boolean;
-  }) {
-    const mv = data.i.props.multiCommunityView;
+function handleFollowMultiCommunity(i: MultiCommunitySidebar, follow: boolean) {
+  const mv = i.props.multiCommunityView;
 
-    data.i.setState({ followLoading: true });
-    data.i.props.onFollow({
-      multi_community_id: mv.multi.id,
-      follow: data.follow,
-    });
-  }
-
-  handleDelete(i: MultiCommunitySidebar) {
-    const mv = i.props.multiCommunityView.multi;
-    i.setState({ deleteLoading: true });
-    i.props.onEdit({ id: mv.id, deleted: !mv.deleted });
-  }
+  i.setState({ followLoading: true });
+  i.props.onFollow({
+    multi_community_id: mv.multi.id,
+    follow,
+  });
 }
