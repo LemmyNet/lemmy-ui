@@ -174,7 +174,6 @@ export class Notifications extends Component<
     this.handleEditMessage = this.handleEditMessage.bind(this);
     this.handleMarkPostAsRead = this.handleMarkPostAsRead.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
-    this.handleMessageTypeChange = this.handleMessageTypeChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -322,7 +321,7 @@ export class Notifications extends Component<
       <RadioButtonGroup
         allOptions={allStates}
         currentOption={this.state.messageType}
-        onClick={this.handleMessageTypeChange}
+        onClick={val => this.handleMessageTypeChange(this, val)}
       />
     );
   }
@@ -474,13 +473,12 @@ export class Notifications extends Component<
     await i.refetch();
   }
 
-  async handleMessageTypeChange(val: NotificationDataType) {
+  async handleMessageTypeChange(i: Notifications, val: string) {
     this.setState({
-      messageType: val,
+      messageType: val as NotificationDataType,
       cursor: undefined,
     });
-    // TODO: somehow it cannot refetch from here
-    this.refetch();
+    i.refetch();
   }
 
   static async fetchInitialData({

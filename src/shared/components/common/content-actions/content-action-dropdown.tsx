@@ -362,7 +362,7 @@ export default class ContentActionDropdown extends Component<
                             })}
                             label={mark_as_read_i18n(
                               this.props.postView.post_actions?.read_at !==
-                                null,
+                                undefined,
                             )}
                             onClick={this.props.onMarkPostAsRead}
                           />
