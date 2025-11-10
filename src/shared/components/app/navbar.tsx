@@ -240,6 +240,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 </NavLink>
               </li>
               <li className="nav-item">
+                <NavLink
+                  to="/multi_communities"
+                  className="nav-link"
+                  title={I18NextService.i18n.t("multi_communities")}
+                  onMouseUp={linkEvent(this, handleCollapseClick)}
+                >
+                  {I18NextService.i18n.t("multi_communities")}
+                </NavLink>
+              </li>
+              <li className="nav-item">
                 <a
                   className="nav-link d-inline-flex align-items-center d-md-inline-block"
                   title={I18NextService.i18n.t("support_lemmy")}
