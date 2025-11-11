@@ -68,7 +68,7 @@ import { PaginatorCursor } from "./common/paginator-cursor";
 import { SearchSortSelect } from "./common/sort-select";
 import { SearchableSelect } from "./common/searchable-select";
 import { UserBadges } from "./common/user-badges";
-import { Badges } from "./common/badges";
+import { CommunityBadges, MultiCommunityBadges } from "./common/badges";
 import { CommunityLink } from "./community/community-link";
 import { MultiCommunityLink } from "./multi-community/multi-community-link";
 
@@ -197,10 +197,9 @@ const communityListing = (
         {communities.map(c => (
           <div>
             <CommunityLink community={c.community} myUserInfo={myUserInfo} />
-            <Badges
+            <CommunityBadges
               className="ms-2 d-inline-flex"
-              communityId={c.community.id}
-              subject={c.community}
+              community={c.community}
               lessBadges
             />
           </div>
@@ -224,6 +223,11 @@ const multiCommunityListing = (
             <MultiCommunityLink
               multiCommunity={m.multi}
               myUserInfo={myUserInfo}
+            />
+            <MultiCommunityBadges
+              className="ms-2 d-inline-flex"
+              multiCommunity={m.multi}
+              lessBadges
             />
           </div>
         ))}

@@ -13,6 +13,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { MultiCommunityForm } from "./multi-community-form";
 import { MultiCommunityLink } from "./multi-community-link";
 import { SubscribeButton } from "@components/common/subscribe-button";
+import { MultiCommunityBadges } from "@components/common/badges";
 
 interface Props {
   multiCommunityView: MultiCommunityView;
@@ -109,6 +110,7 @@ export class MultiCommunitySidebar extends Component<Props, State> {
           <section id="sidebarInfo" className="card mb-3">
             <div className="card-body">
               {this.sidebarMarkdown()}
+              <MultiCommunityBadges multiCommunity={mv.multi} />
               {this.creator()}
             </div>
           </section>

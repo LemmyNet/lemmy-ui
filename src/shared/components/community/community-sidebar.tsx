@@ -20,7 +20,7 @@ import {
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { HttpService, I18NextService } from "../../services";
-import { Badges } from "../common/badges";
+import { CommunityBadges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon, PurgeWarning, Spinner } from "../common/icon";
 import { SubscribeButton } from "../common/subscribe-button";
@@ -164,7 +164,6 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
       community: {
         name,
         ap_id,
-        id,
         description,
         posting_restricted_to_mods,
         visibility,
@@ -307,9 +306,8 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                 allLanguages={this.props.allLanguages}
                 languageIds={this.props.siteLanguages}
               />
-              <Badges
-                communityId={id}
-                subject={this.props.community_view.community}
+              <CommunityBadges
+                community={this.props.community_view.community}
               />
               {this.mods()}
             </div>

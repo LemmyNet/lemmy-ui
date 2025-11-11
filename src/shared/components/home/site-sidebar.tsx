@@ -9,7 +9,7 @@ import {
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
-import { Badges } from "../common/badges";
+import { LocalSiteBadges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
@@ -118,7 +118,9 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           myUserInfo={this.props.myUserInfo}
         />
         <CreateMultiCommunityButton myUserInfo={this.props.myUserInfo} />
-        {this.props.localSite && <Badges subject={this.props.localSite} />}
+        {this.props.localSite && (
+          <LocalSiteBadges localSite={this.props.localSite} />
+        )}
         {this.props.admins && this.admins(this.props.admins)}
       </div>
     );
