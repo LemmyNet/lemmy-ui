@@ -227,11 +227,11 @@ function crossPostBody(
 ): string | undefined {
   const body = post.body;
 
-  if (post.creator_id === myUserInfo?.local_user_view?.person?.id) {
-    return body;
-  }
+  // If its you're own post, don't include the x-posted-from line, or the quotes
   return body
-    ? `${I18NextService.i18n.t("cross_posted_from_url", { ap_id: post.ap_id })}
+    ? post.creator_id === myUserInfo?.local_user_view?.person?.id
+      ? body
+      : `${I18NextService.i18n.t("cross_posted_from_url", { ap_id: post.ap_id })}
       \n\n${body.replace(/^/gm, "> ")}`
     : undefined;
 }
