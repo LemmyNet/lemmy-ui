@@ -84,6 +84,11 @@ import { NoOptionI18nKeys } from "i18next";
 import { nowBoolean } from "@utils/date";
 import { CommentNode } from "@components/comment/comment-node";
 import { PostListing } from "@components/post/post-listing";
+import { NotificationModlogItem } from "./notification-modlog-item";
+import {
+  RadioButtonGroup,
+  RadioOption,
+} from "@components/common/radio-button-group";
 
 enum UnreadOrAll {
   Unread,
@@ -159,6 +164,8 @@ export class Notifications extends Component<
     this.handleCommentMarkAsRead = this.handleCommentMarkAsRead.bind(this);
     this.handleBanFromCommunity = this.handleBanFromCommunity.bind(this);
     this.handleBanPerson = this.handleBanPerson.bind(this);
+    this.handleMarkNotificationAsRead =
+      this.handleMarkNotificationAsRead.bind(this);
 
     this.handleDeleteMessage = this.handleDeleteMessage.bind(this);
     this.handleMessageMarkAsRead = this.handleMessageMarkAsRead.bind(this);
@@ -302,78 +309,20 @@ export class Notifications extends Component<
   }
 
   messageTypeRadios() {
-    const radioId = randomStr();
+    const allStates: RadioOption[] = [
+      { value: "all" },
+      { value: "reply", i18n: "replies" },
+      { value: "mention", i18n: "mentions" },
+      { value: "private_message", i18n: "messages" },
+      { value: "mod_action", i18n: "modlog" },
+    ];
 
     return (
-      <div className="btn-group btn-group-toggle flex-wrap" role="group">
-        <input
-          id={`${radioId}-all`}
-          type="radio"
-          className="btn-check"
-          value={"all"}
-          checked={this.state.messageType === "all"}
-          onChange={linkEvent(this, this.handleMessageTypeChange)}
-        />
-        <label
-          htmlFor={`${radioId}-all`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "all",
-          })}
-        >
-          {I18NextService.i18n.t("all")}
-        </label>
-
-        <input
-          id={`${radioId}-replies`}
-          type="radio"
-          className="btn-check"
-          value={"reply"}
-          checked={this.state.messageType === "reply"}
-          onChange={linkEvent(this, this.handleMessageTypeChange)}
-        />
-        <label
-          htmlFor={`${radioId}-replies`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "reply",
-          })}
-        >
-          {I18NextService.i18n.t("replies")}
-        </label>
-
-        <input
-          id={`${radioId}-mentions`}
-          type="radio"
-          className="btn-check"
-          value={"mention"}
-          checked={this.state.messageType === "mention"}
-          onChange={linkEvent(this, this.handleMessageTypeChange)}
-        />
-        <label
-          htmlFor={`${radioId}-mentions`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "mention",
-          })}
-        >
-          {I18NextService.i18n.t("mentions")}
-        </label>
-
-        <input
-          id={`${radioId}-messages`}
-          type="radio"
-          className="btn-check"
-          value={"private_message"}
-          checked={this.state.messageType === "private_message"}
-          onChange={linkEvent(this, this.handleMessageTypeChange)}
-        />
-        <label
-          htmlFor={`${radioId}-messages`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "private_message",
-          })}
-        >
-          {I18NextService.i18n.t("messages")}
-        </label>
-      </div>
+      <RadioButtonGroup
+        allOptions={allStates}
+        currentOption={this.state.messageType}
+        onClick={val => this.handleMessageTypeChange(this, val)}
+      />
     );
   }
 
@@ -390,13 +339,13 @@ export class Notifications extends Component<
   // A NotificationWrapper should display a checkmark that exists outside the component.
   renderItemType(item: NotificationView) {
     const siteRes = this.state.siteRes;
-    const i = item.data;
-    switch (i.type_) {
+    const data = item.data;
+    switch (data.type_) {
       case "comment":
         return (
           <CommentNode
             key={item.notification.id}
-            node={commentToFlatNode(i)}
+            node={commentToFlatNode(data)}
             viewType={"flat"}
             showCommunity
             showContext
@@ -431,7 +380,7 @@ export class Notifications extends Component<
         return (
           <PrivateMessage
             key={item.notification.id}
-            private_message_view={i}
+            private_message_view={data}
             myUserInfo={this.isoData.myUserInfo}
             onDelete={this.handleDeleteMessage}
             onReport={this.handleMessageReport}
@@ -445,7 +394,7 @@ export class Notifications extends Component<
         return (
           this.isoData.myUserInfo && (
             <PostListing
-              postView={i}
+              postView={data}
               showCommunity
               showCrossPosts="show_separately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
@@ -487,6 +436,16 @@ export class Notifications extends Component<
             />
           )
         );
+      case "mod_action": {
+        return (
+          <NotificationModlogItem
+            notification={item.notification}
+            modlog_view={data}
+            myUserInfo={this.isoData.myUserInfo}
+            onMarkRead={this.handleMarkNotificationAsRead}
+          />
+        );
+      }
     }
   }
 
@@ -514,12 +473,12 @@ export class Notifications extends Component<
     await i.refetch();
   }
 
-  async handleMessageTypeChange(i: Notifications, event: any) {
-    i.setState({
-      messageType: event.target.value as NotificationDataType,
+  async handleMessageTypeChange(i: Notifications, val: string) {
+    this.setState({
+      messageType: val as NotificationDataType,
       cursor: undefined,
     });
-    await i.refetch();
+    i.refetch();
   }
 
   static async fetchInitialData({

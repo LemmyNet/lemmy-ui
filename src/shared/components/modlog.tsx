@@ -110,7 +110,7 @@ interface ModlogEntry {
   data: InfernoNode;
 }
 
-function processModlogEntry(
+export function processModlogEntry(
   view: ModlogView,
   myUserInfo: MyUserInfo | undefined,
 ): ModlogEntry {

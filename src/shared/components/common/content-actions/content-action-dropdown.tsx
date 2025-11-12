@@ -33,6 +33,7 @@ import PersonNoteModal from "../modal/person-note-modal";
 import {
   getCommentParentId,
   linkTarget,
+  mark_as_read_i18n,
   postIsInteractable,
   userNotLoggedInOrBanned,
 } from "@utils/app";
@@ -359,11 +360,10 @@ export default class ContentActionDropdown extends Component<
                               "text-success":
                                 this.props.postView.post_actions?.read_at,
                             })}
-                            label={
-                              this.props.postView.post_actions?.read_at
-                                ? I18NextService.i18n.t("mark_as_unread")
-                                : I18NextService.i18n.t("mark_as_read")
-                            }
+                            label={mark_as_read_i18n(
+                              this.props.postView.post_actions?.read_at !==
+                                undefined,
+                            )}
                             onClick={this.props.onMarkPostAsRead}
                           />
                         </li>
