@@ -311,9 +311,9 @@ export class Notifications extends Component<
   messageTypeRadios() {
     const allStates: RadioOption[] = [
       { value: "all" },
-      { value: "replies" },
-      { value: "mentions" },
-      { value: "messages" },
+      { value: "reply", i18n: "replies" },
+      { value: "mention", i18n: "mentions" },
+      { value: "private_message", i18n: "messages" },
       { value: "mod_action", i18n: "modlog" },
     ];
 
