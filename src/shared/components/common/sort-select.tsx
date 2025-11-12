@@ -181,7 +181,6 @@ const multiCommunitiesSortChoices: SortChoice<MultiCommunitySortType>[] = [
   { key: "subscribers", value: "subscribers" },
   { key: "subscribers_local", value: "subscribers_local" },
   "spacer",
-  "spacer",
   { key: "name_asc", value: "name_asc" },
   { key: "name_desc", value: "name_desc" },
 ];
