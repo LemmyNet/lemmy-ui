@@ -18,6 +18,7 @@ import { SearchableSelect } from "@components/common/searchable-select";
 import { Choice } from "@utils/types";
 
 interface Props {
+  currentCommunities: CommunityView[];
   onCreate(id: CommunityId): void;
   myUserInfo: MyUserInfo | undefined;
 }
@@ -87,7 +88,15 @@ const handleCommunitySearch = debounce(
         ...filterCommunitySelection(
           await fetchCommunities(text),
           i.props.myUserInfo,
-        ).map(communityToChoice),
+        )
+          // Filter out currently selected comms
+          .filter(
+            c =>
+              !i.props.currentCommunities
+                .map(cc => cc.community.id)
+                .includes(c.community.id),
+          )
+          .map(communityToChoice),
       );
 
       i.setState({

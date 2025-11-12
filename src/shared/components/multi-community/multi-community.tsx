@@ -420,6 +420,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
           />
           {isCreator && (
             <MultiCommunityEntryForm
+              currentCommunities={communities}
               onCreate={communityId =>
                 handleCreateMultiCommunityEntry(this, multiId, communityId)
               }
