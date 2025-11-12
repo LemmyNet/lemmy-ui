@@ -8,7 +8,7 @@ import {
 } from "@utils/helpers";
 import type { DirectionalCursor, QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import {
   CommunityResponse,
   CommunitySortType,
@@ -108,11 +108,6 @@ export class Communities extends Component<
 
   constructor(props: CommunitiesRouteProps, context: any) {
     super(props, context);
-    this.handlePageChange = this.handlePageChange.bind(this);
-    this.handleSortChange = this.handleSortChange.bind(this);
-    this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
-    this.handleVisitRandomCommunity =
-      this.handleVisitRandomCommunity.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -199,23 +194,12 @@ export class Communities extends Component<
                   </div>
                   <div className={countCols}>
                     <SubscribeButton
-                      communityView={cv}
-                      onFollow={linkEvent(
-                        {
-                          i: this,
-                          communityId: cv.community.id,
-                          follow: true,
-                        },
-                        this.handleFollow,
-                      )}
-                      onUnFollow={linkEvent(
-                        {
-                          i: this,
-                          communityId: cv.community.id,
-                          follow: false,
-                        },
-                        this.handleFollow,
-                      )}
+                      followState={cv.community_actions?.follow_state}
+                      apId={cv.community.ap_id}
+                      onFollow={() => handleFollow(this, cv.community.id, true)}
+                      onUnFollow={() =>
+                        handleFollow(this, cv.community.id, false)
+                      }
                       isLink
                       showRemoteFetch={!this.isoData.myUserInfo}
                     />
@@ -249,19 +233,19 @@ export class Communities extends Component<
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
                 myUserInfo={this.isoData.myUserInfo}
-                onChange={this.handleListingTypeChange}
+                onChange={val => handleListingTypeChange(this, val)}
               />
             </div>
             <div className="col-auto me-auto">
               <CommunitiesSortSelect
                 current={sort}
-                onChange={this.handleSortChange}
+                onChange={val => handleSortChange(this, val)}
               />
             </div>
             <div className="col">
               <button
                 className="btn btn-secondary"
-                onClick={this.handleVisitRandomCommunity}
+                onClick={() => handleVisitRandomCommunity(this)}
                 aria-label={I18NextService.i18n.t("visit_random_community")}
                 data-tippy-content={I18NextService.i18n.t(
                   "visit_random_community",
@@ -276,7 +260,7 @@ export class Communities extends Component<
           <PaginatorCursor
             current={this.props.cursor}
             resource={this.state.listCommunitiesResponse}
-            onPageChange={this.handlePageChange}
+            onPageChange={cursor => handlePageChange(this, cursor)}
           />
         </div>
       </div>
@@ -285,7 +269,7 @@ export class Communities extends Component<
 
   searchForm() {
     return (
-      <form className="row" onSubmit={linkEvent(this, this.handleSearchSubmit)}>
+      <form className="row" onSubmit={e => handleSearchSubmit(this, e)}>
         <div className="col-auto">
           <input
             type="text"
@@ -293,7 +277,7 @@ export class Communities extends Component<
             className="form-control"
             value={this.state.searchText}
             placeholder={`${I18NextService.i18n.t("search")}...`}
-            onInput={linkEvent(this, this.handleSearchChange)}
+            onInput={e => handleSearchChange(this, e)}
             required
             minLength={3}
           />
@@ -321,47 +305,6 @@ export class Communities extends Component<
     this.props.history.push(`/communities${getQueryString(queryParams)}`);
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
-    this.updateUrl({ cursor });
-  }
-
-  handleSortChange(val: CommunitySortType) {
-    this.updateUrl({ sort: val, cursor: undefined });
-  }
-
-  handleListingTypeChange(val: ListingType) {
-    this.updateUrl({
-      listingType: val,
-      cursor: undefined,
-    });
-  }
-
-  handleSearchChange(i: Communities, event: any) {
-    i.setState({ searchText: event.target.value });
-  }
-
-  handleSearchSubmit(i: Communities, event: any) {
-    event.preventDefault();
-    const searchParamEncoded = i.state.searchText;
-    const { listingType } = i.props;
-    i.context.router.history.push(
-      `/search${getQueryString({ q: searchParamEncoded, type: "communities", listingType })}`,
-    );
-  }
-
-  async handleVisitRandomCommunity() {
-    const form: GetRandomCommunity = {
-      type_: this.props.listingType,
-    };
-
-    const res = await HttpService.client.getRandomCommunity(form);
-
-    if (res.state === "success") {
-      const link = communityLink(res.data.community_view.community).link;
-      this.context.router.history.push(link);
-    }
-  }
-
   static async fetchInitialData({
     headers,
     query: { listingType, sort, cursor },
@@ -384,18 +327,6 @@ export class Communities extends Component<
       listCommunitiesResponse:
         await client.listCommunities(listCommunitiesForm),
     };
-  }
-
-  async handleFollow(data: {
-    i: Communities;
-    communityId: number;
-    follow: boolean;
-  }) {
-    const res = await HttpService.client.followCommunity({
-      community_id: data.communityId,
-      follow: data.follow,
-    });
-    data.i.findAndUpdateCommunity(res);
   }
 
   fetchToken?: symbol;
@@ -427,4 +358,57 @@ export class Communities extends Component<
       return s;
     });
   }
+}
+
+function handlePageChange(i: Communities, cursor?: DirectionalCursor) {
+  i.updateUrl({ cursor });
+}
+
+function handleSortChange(i: Communities, val: CommunitySortType) {
+  i.updateUrl({ sort: val, cursor: undefined });
+}
+
+function handleListingTypeChange(i: Communities, val: ListingType) {
+  i.updateUrl({
+    listingType: val,
+    cursor: undefined,
+  });
+}
+
+function handleSearchChange(i: Communities, event: any) {
+  i.setState({ searchText: event.target.value });
+}
+
+function handleSearchSubmit(i: Communities, event: any) {
+  event.preventDefault();
+  const searchParamEncoded = i.state.searchText;
+  const { listingType } = i.props;
+  i.context.router.history.push(
+    `/search${getQueryString({ q: searchParamEncoded, type: "communities", listingType })}`,
+  );
+}
+
+async function handleVisitRandomCommunity(i: Communities) {
+  const form: GetRandomCommunity = {
+    type_: i.props.listingType,
+  };
+
+  const res = await HttpService.client.getRandomCommunity(form);
+
+  if (res.state === "success") {
+    const link = communityLink(res.data.community_view.community).link;
+    i.context.router.history.push(link);
+  }
+}
+
+async function handleFollow(
+  i: Communities,
+  communityId: number,
+  follow: boolean,
+) {
+  const res = await HttpService.client.followCommunity({
+    community_id: communityId,
+    follow: follow,
+  });
+  i.findAndUpdateCommunity(res);
 }

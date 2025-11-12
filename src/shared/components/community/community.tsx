@@ -2,6 +2,7 @@ import {
   canViewCommunity,
   commentsToFlatNodes,
   communityRSSUrl,
+  defaultPostListingMode,
   editComment,
   editPersonNotes,
   editPost,
@@ -39,7 +40,6 @@ import {
   AddModToCommunity,
   AddModToCommunityResponse,
   BanFromCommunity,
-  BanFromCommunityResponse,
   BanPerson,
   PersonResponse,
   BlockCommunity,
@@ -116,7 +116,7 @@ import {
   CommentsLoadingSkeleton,
   PostsLoadingSkeleton,
 } from "../common/loading-skeleton";
-import { Sidebar } from "./sidebar";
+import { CommunitySidebar } from "./community-sidebar";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
@@ -219,9 +219,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     showSidebarMobile: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
-    postListingMode:
-      this.isoData.myUserInfo?.local_user_view.local_user.post_listing_mode ??
-      this.isoData.siteRes.site_view.local_site.default_post_listing_mode,
+    postListingMode: defaultPostListingMode(this.isoData),
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -563,7 +561,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     return (
       <>
-        <Sidebar
+        <CommunitySidebar
           community_view={res.community_view}
           moderators={res.moderators}
           admins={siteRes.admins}
@@ -879,6 +877,11 @@ export class Community extends Component<CommunityRouteProps, State> {
   async handleAddModToCommunity(form: AddModToCommunity) {
     const addModRes = await HttpService.client.addModToCommunity(form);
     this.updateModerators(addModRes);
+    if (addModRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(form.added ? "appointed_mod" : "removed_mod"),
+      );
+    }
   }
 
   async handleFollow(form: FollowCommunity) {
@@ -1158,7 +1161,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBanFromCommunity(banRes);
+    this.updateBanFromCommunity(banRes, form.ban);
   }
 
   async handleBanPerson(form: BanPerson) {
@@ -1166,7 +1169,10 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.updateBan(banRes, form.ban);
   }
 
-  updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
+  updateBanFromCommunity(
+    banRes: RequestState<PersonResponse>,
+    banned: boolean,
+  ) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
@@ -1174,14 +1180,14 @@ export class Community extends Component<CommunityRouteProps, State> {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
-              c.creator_banned_from_community = banRes.data.banned;
+              c.creator_banned_from_community = banned;
             });
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
-              c.creator_banned_from_community = banRes.data.banned;
+              c.creator_banned_from_community = banned;
             });
         }
         return s;

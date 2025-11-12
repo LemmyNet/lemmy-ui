@@ -1,7 +1,7 @@
 import { Component } from "inferno";
 import { I18NextService } from "../../../services";
 import { Icon } from "../icon";
-import CrossPostButton from "./cross-post-button";
+import { CrossPostButton } from "./create-item-buttons";
 import {
   CommentSlimView,
   CommentView,

@@ -114,8 +114,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-merge-modlog-tables.6
-        version: 1.0.0-merge-modlog-tables.6
+        specifier: 1.0.0-multi-community-query.0
+        version: 1.0.0-multi-community-query.0
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -3425,8 +3425,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  lemmy-js-client@1.0.0-merge-modlog-tables.6:
-    resolution: {integrity: sha512-tsfXCwlWlI69mqWMd+J/UhOlJJ/Xl0xxGgbZWVvZ6GS8z/mBqVf/MW8kntf/PnvxDAwff/3Ij26p8HY9K7R12w==}
+  lemmy-js-client@1.0.0-multi-community-query.0:
+    resolution: {integrity: sha512-SKznon35+OFD9zwVMFdIJm5R2l5dZximycUZFIgkMzhjKcqRUiC8ZgPYNULY+LQPC9dj/GUFmotVxmlYVN7T1Q==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8813,7 +8813,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  lemmy-js-client@1.0.0-merge-modlog-tables.6:
+  lemmy-js-client@1.0.0-multi-community-query.0:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:

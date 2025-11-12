@@ -24,6 +24,7 @@ interface CommunityFormProps {
   siteLanguages?: number[];
   communityLanguages?: number[];
   onCancel?(): any;
+  // TODO get rid of this, use onCreate and onEdit
   onUpsertCommunity(form: CreateCommunity | EditCommunity): void;
   enableNsfw?: boolean;
   loading?: boolean;
@@ -54,7 +55,7 @@ export class CommunityForm extends Component<
   private id = `community-form-${randomStr()}`;
 
   state: CommunityFormState = {
-    form: {},
+    form: this.initCommunityForm(),
     submitted: false,
   };
 
@@ -69,13 +70,12 @@ export class CommunityForm extends Component<
 
     this.handleDiscussionLanguageChange =
       this.handleDiscussionLanguageChange.bind(this);
+  }
 
+  initCommunityForm() {
     const cv = this.props.community_view;
-
-    if (cv) {
-      this.state = {
-        ...this.state,
-        form: {
+    return cv
+      ? {
           name: cv.community.name,
           title: cv.community.title,
           sidebar: cv.community.sidebar,
@@ -86,9 +86,8 @@ export class CommunityForm extends Component<
           posting_restricted_to_mods: cv.community.posting_restricted_to_mods,
           discussion_languages: this.props.communityLanguages,
           visibilty: cv.community.visibility,
-        },
-      };
-    }
+        }
+      : {};
   }
 
   render() {

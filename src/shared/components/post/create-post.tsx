@@ -1,4 +1,9 @@
-import { communityToChoice, enableNsfw, setIsoData } from "@utils/app";
+import {
+  communityToChoice,
+  enableNsfw,
+  filterCommunitySelection,
+  setIsoData,
+} from "@utils/app";
 import {
   bareRoutePush,
   getIdFromString,
@@ -32,14 +37,14 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
-import { filterCommunitySelection, PostForm } from "./post-form";
+import { PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { toast } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { NoOptionI18nKeys } from "i18next";
-import { Sidebar } from "@components/community/sidebar";
+import { CommunitySidebar } from "@components/community/community-sidebar";
 import { Icon } from "@components/common/icon";
 
 export interface CreatePostProps {
@@ -443,7 +448,7 @@ export class CreatePost extends Component<
   sidebar() {
     if (this.state.selectedCommunity) {
       return (
-        <Sidebar
+        <CommunitySidebar
           community_view={this.state.selectedCommunity}
           moderators={[]} // TODO: fetch GetCommunityResponse?
           admins={this.isoData.siteRes.admins}

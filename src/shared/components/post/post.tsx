@@ -33,7 +33,6 @@ import {
   AddModToCommunity,
   AddModToCommunityResponse,
   BanFromCommunity,
-  BanFromCommunityResponse,
   BanPerson,
   PersonResponse,
   BlockCommunity,
@@ -105,7 +104,7 @@ import { CommentForm } from "@components/comment/comment-form";
 import { CommentNodes } from "@components/comment/comment-nodes";
 import { HtmlTags } from "@components/common/html-tags";
 import { Icon, Spinner } from "@components/common/icon";
-import { Sidebar } from "@components/community/sidebar";
+import { CommunitySidebar } from "@components/community/community-sidebar";
 import { PostListing } from "./post-listing";
 import { getHttpBaseInternal } from "@utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -904,7 +903,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     const res = this.state.postRes;
     if (res.state === "success") {
       return (
-        <Sidebar
+        <CommunitySidebar
           community_view={res.data.community_view}
           moderators={[]} // TODO: fetch GetCommunityResponse?
           admins={this.state.siteRes.admins}
@@ -1426,7 +1425,7 @@ export class Post extends Component<PostRouteProps, PostState> {
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBanFromCommunity(banRes);
+    this.updateBanFromCommunity(banRes, form.ban);
     if (banRes.state === "success" && this.state.postRes.state === "success") {
       toast(
         I18NextService.i18n.t(
@@ -1489,7 +1488,10 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
+  updateBanFromCommunity(
+    banRes: RequestState<PersonResponse>,
+    banned: boolean,
+  ) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
@@ -1499,13 +1501,13 @@ export class Post extends Component<PostRouteProps, PostState> {
             banRes.data.person_view.person.id
         ) {
           const pv = s.postRes.data.post_view;
-          pv.creator_banned_from_community = banRes.data.banned;
+          pv.creator_banned_from_community = banned;
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
-              c.creator_banned_from_community = banRes.data.banned;
+              c.creator_banned_from_community = banned;
             });
         }
         return s;

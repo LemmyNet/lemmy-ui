@@ -1,5 +1,6 @@
 import {
   commentsToFlatNodes,
+  defaultPostListingMode,
   editComment,
   editPersonNotes,
   editPost,
@@ -33,7 +34,6 @@ import {
   AddAdmin,
   AddModToCommunity,
   BanFromCommunity,
-  BanFromCommunityResponse,
   BanPerson,
   PersonResponse,
   BlockPerson,
@@ -114,6 +114,7 @@ import { nowBoolean } from "@utils/date";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
 import { BannedDialog } from "./banned-dialog";
 import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
+import { MultiCommunityLink } from "@components/multi-community/multi-community-link";
 
 interface HomeState {
   postsRes: RequestState<GetPostsResponse>;
@@ -121,6 +122,7 @@ interface HomeState {
   showSubscribedMobile: boolean;
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
+  subscribedMultisCollapsed: boolean;
   tagline?: string;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
@@ -270,11 +272,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     showSubscribedMobile: false,
     showSidebarMobile: false,
     subscribedCollapsed: false,
+    subscribedMultisCollapsed: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
-    postListingMode:
-      this.isoData.myUserInfo?.local_user_view.local_user.post_listing_mode ??
-      this.isoData.siteRes.site_view.local_site.default_post_listing_mode,
+    postListingMode: defaultPostListingMode(this.isoData),
   };
 
   loadingSettled(): boolean {
@@ -471,6 +472,11 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     return !!mui && mui.follows.length > 0;
   }
 
+  get hasMultiFollows(): boolean {
+    const mui = this.isoData.myUserInfo;
+    return !!mui && mui.multi_community_follows.length > 0;
+  }
+
   get mobileView() {
     const {
       siteRes: {
@@ -508,7 +514,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             />
           )}
           {showSubscribedMobile && (
-            <div className="card mb-3">{this.subscribedCommunities(true)}</div>
+            <>
+              <div className="card mb-3">
+                {this.subscribedCommunities(true)}
+              </div>
+              <div className="card mb-3">
+                {this.subscribedMultiCommunities(true)}
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -537,6 +550,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           <div className="accordion">
             <section id="sidebarSubscribed" className="card mb-3">
               {this.subscribedCommunities(false)}
+            </section>
+          </div>
+        )}
+        {this.hasMultiFollows && (
+          <div className="accordion">
+            <section id="sidebarSubscribedMultis" className="card mb-3">
+              {this.subscribedMultiCommunities(false)}
             </section>
           </div>
         )}
@@ -600,6 +620,69 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                   >
                     <CommunityLink
                       community={cfv.community}
+                      myUserInfo={this.isoData.myUserInfo}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  subscribedMultiCommunities(isMobile = false) {
+    const { subscribedMultisCollapsed } = this.state;
+
+    return (
+      <>
+        <header
+          className="card-header d-flex align-items-center"
+          id="sidebarSubscribedMultisHeader"
+        >
+          <h5 className="mb-0 d-inline text-body">
+            {I18NextService.i18n.t("multi_communities")}
+          </h5>
+          {!isMobile && (
+            <button
+              type="button"
+              className="btn btn-sm text-muted"
+              onClick={linkEvent(this, this.handleCollapseMultisSubscribe)}
+              aria-label={
+                subscribedMultisCollapsed
+                  ? I18NextService.i18n.t("expand")
+                  : I18NextService.i18n.t("collapse")
+              }
+              data-tippy-content={
+                subscribedMultisCollapsed
+                  ? I18NextService.i18n.t("expand")
+                  : I18NextService.i18n.t("collapse")
+              }
+              aria-expanded="true"
+              aria-controls="sidebarSubscribedMultisBody"
+            >
+              <Icon
+                icon={`${subscribedMultisCollapsed ? "plus" : "minus"}-square`}
+                classes="icon-inline"
+              />
+            </button>
+          )}
+        </header>
+        {!subscribedMultisCollapsed && (
+          <div
+            id="sidebarSubscribedMultisBody"
+            aria-labelledby="sidebarSubscribedMultisHeader"
+          >
+            <div className="card-body">
+              <ul className="list-inline mb-0">
+                {this.isoData.myUserInfo?.multi_community_follows.map(mv => (
+                  <li
+                    key={mv.multi.id}
+                    className="list-inline-item d-inline-block"
+                  >
+                    <MultiCommunityLink
+                      multiCommunity={mv.multi}
                       myUserInfo={this.isoData.myUserInfo}
                     />
                   </li>
@@ -944,6 +1027,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     i.setState({ subscribedCollapsed: !i.state.subscribedCollapsed });
   }
 
+  handleCollapseMultisSubscribe(i: Home) {
+    i.setState({
+      subscribedMultisCollapsed: !i.state.subscribedMultisCollapsed,
+    });
+  }
+
   handlePageChange(cursor?: DirectionalCursor) {
     this.updateUrl({ cursor });
   }
@@ -987,8 +1076,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {
-    // TODO not sure what to do here
-    await HttpService.client.addModToCommunity(form);
+    const addModRes = await HttpService.client.addModToCommunity(form);
+    if (addModRes.state === "success") {
+      toast(
+        I18NextService.i18n.t(form.added ? "appointed_mod" : "removed_mod"),
+      );
+    }
   }
 
   async handlePurgePerson(form: PurgePerson) {
@@ -1196,7 +1289,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBanFromCommunity(banRes);
+    this.updateBanFromCommunity(banRes, form.ban);
   }
 
   async handleBanPerson(form: BanPerson) {
@@ -1227,7 +1320,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  updateBanFromCommunity(banRes: RequestState<BanFromCommunityResponse>) {
+  updateBanFromCommunity(
+    banRes: RequestState<PersonResponse>,
+    banned: boolean,
+  ) {
     // Maybe not necessary
     if (banRes.state === "success") {
       this.setState(s => {
@@ -1235,14 +1331,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           s.postsRes.data.posts
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
-              c.creator_banned_from_community = banRes.data.banned;
+              c.creator_banned_from_community = banned;
             });
         }
         if (s.commentsRes.state === "success") {
           s.commentsRes.data.comments
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
-              c.creator_banned_from_community = banRes.data.banned;
+              c.creator_banned_from_community = banned;
             });
         }
         return s;

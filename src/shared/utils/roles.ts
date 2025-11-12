@@ -3,7 +3,7 @@ import {
   CommentView,
   CommunityModeratorView,
   CommunityView,
-  GetSiteResponse,
+  LocalSite,
   MyUserInfo,
   PersonView,
   PostView,
@@ -82,10 +82,10 @@ export function moderatesPrivateCommunity(
 }
 
 export function canCreateCommunity(
-  siteRes: GetSiteResponse,
+  localSite: LocalSite,
   myUserInfo: MyUserInfo | undefined,
 ): boolean {
-  const adminOnly = siteRes.site_view.local_site.community_creation_admin_only;
+  const adminOnly = localSite.community_creation_admin_only;
   const disableInput_ = userNotLoggedInOrBanned(myUserInfo);
   return (!adminOnly && !disableInput_) || amAdmin(myUserInfo);
 }

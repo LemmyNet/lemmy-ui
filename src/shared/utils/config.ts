@@ -34,6 +34,7 @@ export const adultConsentCookieKey = "adultConsent";
 // No. of max displayed communities per
 // page on route "/communities"
 export const communityLimit = 50;
+export const multiCommunityLimit = 50;
 
 const queryPairRegex = "[a-zA-Zd_-]+=[a-zA-Zd+-_]+";
 

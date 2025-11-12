@@ -6,7 +6,7 @@ import inferno from "eslint-plugin-inferno";
 
 export default [
   pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
   prettier,
   {
     plugins: {
@@ -22,7 +22,9 @@ export default [
   },
   {
     languageOptions: {
-      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true
+      },
     },
   },
   // For some reason this has to be in its own block

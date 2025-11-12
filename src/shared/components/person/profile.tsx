@@ -36,7 +36,6 @@ import {
   AddAdmin,
   AddModToCommunity,
   BanFromCommunity,
-  BanFromCommunityResponse,
   BanPerson,
   PersonResponse,
   BlockPerson,
@@ -85,6 +84,7 @@ import {
   ListPersonReadResponse,
   LockComment,
   BlockCommunity,
+  MultiCommunityView,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -114,6 +114,7 @@ import { cakeDate, futureDaysToUnixTime, nowBoolean } from "@utils/date";
 import { isBrowser } from "@utils/browser";
 import DisplayModal from "../common/modal/display-modal";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
+import { MultiCommunityLink } from "@components/multi-community/multi-community-link";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
@@ -195,36 +196,87 @@ function getFilterFromQuery(filter?: string): Filter {
   }
 }
 
-const getCommunitiesListing = (
-  translationKey: NoOptionI18nKeys,
-  communityViews?: { community: Community }[],
-  myUserInfo?: MyUserInfo,
-) =>
-  communityViews &&
-  communityViews.length > 0 && (
-    <div className="card mb-3">
-      <div className="card-body">
-        <h2 className="h5">{I18NextService.i18n.t(translationKey)}</h2>
-        <ul className="list-unstyled mb-0">
-          {communityViews.map(({ community }) => (
-            <li key={community.id}>
-              <CommunityLink community={community} myUserInfo={myUserInfo} />
-            </li>
-          ))}
-        </ul>
+type CommunitiesListingProps = {
+  translationKey: NoOptionI18nKeys;
+  // TODO does this need to be destructured?
+  communityViews?: { community: Community }[];
+  myUserInfo?: MyUserInfo;
+};
+function CommunitiesListing({
+  translationKey,
+  communityViews,
+  myUserInfo,
+}: CommunitiesListingProps) {
+  return (
+    communityViews &&
+    communityViews.length > 0 && (
+      <div className="card mb-3">
+        <div className="card-body">
+          <h2 className="h5">{I18NextService.i18n.t(translationKey)}</h2>
+          <ul className="list-unstyled mb-0">
+            {communityViews.map(({ community }) => (
+              <li key={community.id}>
+                <CommunityLink community={community} myUserInfo={myUserInfo} />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-    </div>
+    )
   );
+}
 
-const Moderates = ({
-  moderates,
-}: {
+type ModeratesProps = {
   moderates?: CommunityModeratorView[];
   myUserInfo: MyUserInfo | undefined;
-}) => getCommunitiesListing("moderates", moderates);
+};
+function Moderates({ moderates, myUserInfo }: ModeratesProps) {
+  return (
+    <CommunitiesListing
+      translationKey="moderates"
+      communityViews={moderates}
+      myUserInfo={myUserInfo}
+    />
+  );
+}
 
-const Follows = ({ myUserInfo }: { myUserInfo: MyUserInfo | undefined }) =>
-  getCommunitiesListing("subscribed", myUserInfo?.follows, myUserInfo);
+type FollowsProps = { myUserInfo: MyUserInfo | undefined };
+function Follows({ myUserInfo }: FollowsProps) {
+  return (
+    <CommunitiesListing
+      translationKey="subscribed"
+      communityViews={myUserInfo?.follows}
+      myUserInfo={myUserInfo}
+    />
+  );
+}
+
+type MultiCommunitiesProps = {
+  multis?: MultiCommunityView[];
+  myUserInfo?: MyUserInfo;
+};
+function MultiCommunities({ multis, myUserInfo }: MultiCommunitiesProps) {
+  return (
+    multis &&
+    multis.length > 0 && (
+      <div className="card mb-3">
+        <div className="card-body">
+          <h2 className="h5">{I18NextService.i18n.t("multi_communities")}</h2>
+          <ul className="list-unstyled mb-0">
+            {multis.map(m => (
+              <li key={m.multi.id}>
+                <MultiCommunityLink
+                  multiCommunity={m.multi}
+                  myUserInfo={myUserInfo}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )
+  );
+}
 
 function isPersonBlocked(
   personRes: RequestState<GetPersonDetailsResponse>,
@@ -262,13 +314,13 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     personReadRes: EMPTY_REQUEST,
     personHiddenRes: EMPTY_REQUEST,
     uploadsRes: EMPTY_REQUEST,
+    registrationRes: EMPTY_REQUEST,
     personBlocked: false,
     siteRes: this.isoData.siteRes,
     showBanDialog: false,
     removeOrRestoreData: false,
     isIsomorphic: false,
     showRegistrationDialog: false,
-    registrationRes: EMPTY_REQUEST,
   };
 
   loadingSettled() {
@@ -719,6 +771,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
               {this.amCurrentUser && (
                 <Follows myUserInfo={this.isoData.myUserInfo} />
               )}
+              <MultiCommunities
+                multis={personRes.multi_communities_created}
+                myUserInfo={this.isoData.myUserInfo}
+              />
             </div>
           </div>
         );
@@ -1530,7 +1586,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   async handleBanFromCommunity(form: BanFromCommunity) {
     const banRes = await HttpService.client.banFromCommunity(form);
-    this.updateBanFromCommunity(banRes, form.community_id);
+    this.updateBanFromCommunity(banRes, form.community_id, form.ban);
   }
 
   async handleBanPerson(form: BanPerson) {
@@ -1662,8 +1718,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   updateBanFromCommunity(
-    banRes: RequestState<BanFromCommunityResponse>,
+    banRes: RequestState<PersonResponse>,
     communityId: CommunityId,
+    banned: boolean,
   ) {
     // Maybe not necessary
     if (banRes.state === "success") {
@@ -1672,7 +1729,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         c.community.id === communityId
           ? {
               ...c,
-              creator_banned_from_community: banRes.data.banned,
+              creator_banned_from_community: banned,
             }
           : c,
       );

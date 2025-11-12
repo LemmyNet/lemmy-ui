@@ -7,6 +7,7 @@ import { NoOptionI18nKeys } from "i18next";
 import {
   CommentSortType,
   CommunitySortType,
+  MultiCommunitySortType,
   PostSortType,
   SearchSortType,
   VoteShow,
@@ -166,6 +167,33 @@ export class CommunitiesSortSelect extends Component<
         title="sort_type"
         onChange={this.props.onChange}
         choices={communitiesSortChoices}
+        current={this.props.current}
+      />
+    );
+  }
+}
+
+const multiCommunitiesSortChoices: SortChoice<MultiCommunitySortType>[] = [
+  { key: "new", value: "new" },
+  { key: "old", value: "old" },
+  "spacer",
+  { key: "communities", value: "communities" },
+  { key: "subscribers", value: "subscribers" },
+  { key: "subscribers_local", value: "subscribers_local" },
+  "spacer",
+  { key: "name_asc", value: "name_asc" },
+  { key: "name_desc", value: "name_desc" },
+];
+
+export class MultiCommunitiesSortSelect extends Component<
+  CommonSortSelectProps<MultiCommunitySortType>
+> {
+  render() {
+    return (
+      <SortSelect<MultiCommunitySortType>
+        title="sort_type"
+        onChange={this.props.onChange}
+        choices={multiCommunitiesSortChoices}
         current={this.props.current}
       />
     );

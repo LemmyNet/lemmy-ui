@@ -97,6 +97,17 @@ import {
   PendingFollows,
   PendingFollowsFetchConfig,
 } from "@components/community/pending-follows";
+import { CreateMultiCommunity } from "@components/multi-community/create-multi-community";
+import {
+  getMultiCommunityQueryParams,
+  MultiCommunity,
+  MultiCommunityFetchConfig,
+} from "@components/multi-community/multi-community";
+import {
+  getMultiCommunitiesQueryParams,
+  MultiCommunities,
+  MultiCommunitiesFetchConfig,
+} from "@components/multi-community/multi-communities";
 
 export interface IRoutePropsWithFetch<
   DataT extends RouteData,
@@ -153,6 +164,10 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     component: CreateCommunity,
   },
   {
+    path: `/create_multi_community`,
+    component: CreateMultiCommunity,
+  },
+  {
     path: `/create_private_message/:recipient_id`,
     component: CreatePrivateMessage,
     fetchInitialData: CreatePrivateMessage.fetchInitialData,
@@ -164,6 +179,13 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     getQueryParams: getCommunitiesQueryParams,
     mountedSameRouteNavKey: "communities",
   } as CommunitiesFetchConfig,
+  {
+    path: `/multi_communities`,
+    component: MultiCommunities,
+    fetchInitialData: MultiCommunities.fetchInitialData,
+    getQueryParams: getMultiCommunitiesQueryParams,
+    mountedSameRouteNavKey: "multi_communities",
+  } as MultiCommunitiesFetchConfig,
   {
     // "/comment/:post_id?/:comment_id" would be preferable as direct comment
     // link, but it looks like a Route can't match multiple paths and a
@@ -188,6 +210,13 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     getQueryParams: getCommunityQueryParams,
     mountedSameRouteNavKey: "community",
   } as CommunityFetchConfig,
+  {
+    path: `/m/:name`,
+    component: MultiCommunity,
+    fetchInitialData: MultiCommunity.fetchInitialData,
+    getQueryParams: getMultiCommunityQueryParams,
+    mountedSameRouteNavKey: "multi_community",
+  } as MultiCommunityFetchConfig,
   {
     path: `/u/:username`,
     component: Profile,
