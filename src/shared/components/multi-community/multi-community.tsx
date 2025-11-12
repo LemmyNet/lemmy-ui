@@ -638,7 +638,7 @@ function MultiCommunityEntryList({
                 />
                 {isCreator && (
                   <button
-                    className="btn btn-link"
+                    className="btn btn-sm btn-link"
                     onClick={() => onDelete(c.community.id)}
                   >
                     <Icon icon={"x"} classes="icon-inline text-danger" />
