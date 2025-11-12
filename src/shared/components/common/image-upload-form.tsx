@@ -82,28 +82,31 @@ export class ImageUploadForm extends Component<
         {this.state.loading ? (
           <Spinner large />
         ) : (
-          <span className="d-inline-block position-relative mb-2">
-            {/* TODO: Create "Current Image" translation for alt text */}
-            <img
-              alt=""
-              src={this.props.imageSrc}
-              height={this.props.rounded ? 60 : ""}
-              width={this.props.rounded ? 60 : ""}
-              className={classNames({
-                "rounded-circle object-fit-cover": this.props.rounded,
-                "img-fluid": !this.props.rounded,
-              })}
-            />
-            <button
-              className="position-absolute d-block p-0 end-0 border-0 top-0 bg-transparent text-white"
-              type="button"
-              onClick={linkEvent(this, this.handleRemoveImage)}
-              aria-label={I18NextService.i18n.t("remove")}
-            >
-              <Icon icon="x" classes="mini-overlay" />
-            </button>
-          </span>
+          this.props.imageSrc && (
+            <span className="d-inline-block position-relative mb-2">
+              {/* TODO: Create "Current Image" translation for alt text */}
+              <img
+                alt=""
+                src={this.props.imageSrc}
+                height={this.props.rounded ? 60 : ""}
+                width={this.props.rounded ? 60 : ""}
+                className={classNames({
+                  "rounded-circle object-fit-cover": this.props.rounded,
+                  "img-fluid": !this.props.rounded,
+                })}
+              />
+              <button
+                className="position-absolute d-block p-0 end-0 border-0 top-0 bg-transparent text-white"
+                type="button"
+                onClick={linkEvent(this, this.handleRemoveImage)}
+                aria-label={I18NextService.i18n.t("remove")}
+              >
+                <Icon icon="x" classes="mini-overlay" />
+              </button>
+            </span>
+          )
         )}
+
         {this.state?.pendingUpload && !this.props.noConfirmation && (
           <ImageUploadConfirmModalModal
             onConfirm={() => this.performImageUpload(this)}
