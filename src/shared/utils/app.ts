@@ -873,3 +873,9 @@ export function filterCommunitySelection(
       )
   );
 }
+
+export function mark_as_read_i18n(read: boolean): string {
+  return read
+    ? I18NextService.i18n.t("mark_as_unread")
+    : I18NextService.i18n.t("mark_as_read");
+}

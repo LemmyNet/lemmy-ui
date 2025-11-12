@@ -5,7 +5,7 @@ import { NoOptionI18nKeys } from "i18next";
 
 export interface RadioOption {
   value: string;
-  i18n: NoOptionI18nKeys;
+  i18n?: NoOptionI18nKeys;
 }
 
 export interface RadioButtonGroupProps {
@@ -41,7 +41,9 @@ export function RadioButtonGroup(props: RadioButtonGroupProps) {
               active: props.currentOption === state.value,
             })}
           >
-            {I18NextService.i18n.t(state.i18n)}
+            {I18NextService.i18n.t(
+              state.i18n ?? (state.value as NoOptionI18nKeys),
+            )}
           </label>
         </>
       ))}
