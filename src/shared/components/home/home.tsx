@@ -1006,6 +1006,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     } else {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
       const commentsRes = await HttpService.client.getComments({
+        ...cursorComponents(cursor),
         sort: mixedToCommentSortType(sort),
         type_: listingType,
       });

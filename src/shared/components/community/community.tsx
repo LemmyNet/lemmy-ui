@@ -356,7 +356,6 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (postOrCommentType === "post") {
       const getPostsForm: GetPosts = {
         community_name: communityName,
-        ...cursorComponents(cursor),
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         type_: "all",
@@ -370,6 +369,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         community_name: communityName,
         sort: mixedToCommentSortType(sort),
         type_: "all",
+        ...cursorComponents(cursor),
       };
 
       commentsFetch = client.getComments(getCommentsForm);
@@ -862,6 +862,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         sort: mixedToCommentSortType(sort),
         type_: "all",
         community_name: name,
+        ...cursorComponents(cursor),
       });
       if (token === this.fetchDataToken) {
         this.setState({ commentsRes });
