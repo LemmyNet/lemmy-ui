@@ -43,6 +43,7 @@ import {
 } from "../mixins/keyboard-shortcuts-mixin";
 import {
   toggleExpansion,
+  getShowBodyMode,
   type KeyboardNavigationState,
 } from "@utils/keyboard-shortcuts-expansion";
 
@@ -81,6 +82,9 @@ interface PostListingsProps {
   onHidePost(form: HidePost): void;
   onPersonNote(form: NotePerson): void;
   onScrollIntoCommentsClick(): void;
+  onNextPage?(): void;
+  onPrevPage?(): void;
+  onFirstPage?(): void;
 }
 
 @keyboardShortcutsMixin
@@ -190,7 +194,12 @@ export class PostListings
 
   render() {
     return (
-      <div className="post-listings">
+      <div
+        className="post-listings"
+        role="feed"
+        aria-label="Posts"
+        tabIndex={-1}
+      >
         {this.posts.length > 0 ? (
           <div className="row post-listings-grid">
             {this.posts.map((postView, idx) => (
@@ -208,7 +217,10 @@ export class PostListings
                   myUserInfo={this.props.myUserInfo}
                   localSite={this.props.localSite}
                   admins={this.props.admins}
-                  showBody={"preview"}
+                  showBody={getShowBodyMode(
+                    this.state.expandedPostIndices,
+                    idx,
+                  )}
                   hideImage={false}
                   disableAutoMarkAsRead={false}
                   editLoading={false}
@@ -237,6 +249,11 @@ export class PostListings
                   onScrollIntoCommentsClick={
                     this.props.onScrollIntoCommentsClick
                   }
+                  isHighlighted={this.state.highlightedIndex === idx}
+                  isExpanded={this.state.expandedPostIndices.has(idx)}
+                  postIndex={idx}
+                  onHighlight={this.handleHighlight}
+                  onToggleExpand={this.toggleExpand}
                 />
                 {idx + 1 !== this.posts.length && <hr className="my-3" />}
               </div>
