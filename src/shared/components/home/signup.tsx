@@ -27,7 +27,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { RouteData } from "@utils/types";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { handleUseOAuthProvider } from "./login";
-import { secondsDurationToStr } from "@utils/date";
+import { secondsDurationToAlertClass, secondsDurationToStr } from "@utils/date";
 
 interface SignupProps {
   sso_provider_id?: string;
@@ -298,7 +298,12 @@ export class Signup extends Component<SignupRouteProps, State> {
             {lastApplicationDurationSeconds && (
               <div className="mb-3 row">
                 <div className="offset-sm-2 col-sm-10">
-                  <div className="fst-italic">
+                  <div
+                    className={secondsDurationToAlertClass(
+                      lastApplicationDurationSeconds,
+                    )}
+                    role="alert"
+                  >
                     {I18NextService.i18n.t("estimated_approval_time", {
                       time: secondsDurationToStr(
                         lastApplicationDurationSeconds,

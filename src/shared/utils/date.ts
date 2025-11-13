@@ -76,6 +76,24 @@ export function secondsDurationToStr(seconds: number): string {
   return formatDistance(0, seconds * 1000, { includeSeconds: true });
 }
 
+/**
+ * Constructs an alert class from the duration.
+ * < 1 hour = success
+ * < 1 day = warning
+ * else = danger
+ */
+export function secondsDurationToAlertClass(seconds: number): string {
+  let classes: string;
+  if (seconds < 3600) {
+    classes = "success";
+  } else if (seconds < 86400) {
+    classes = "warning";
+  } else {
+    classes = "danger";
+  }
+  return `alert alert-${classes}`;
+}
+
 function convertUTCDateToLocalDate(date: Date): Date {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
 }
