@@ -43,6 +43,17 @@ import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
 import { RequestState } from "../../services/HttpService";
 import { commentToFlatNode } from "@utils/app";
+import { ensureInView } from "@utils/keyboard-shortcuts";
+import { getPersonDetailIndexSelector } from "@utils/keyboard-shortcuts-constants";
+import {
+  toggleExpansion,
+  getShowBodyMode,
+  type KeyboardNavigationState,
+} from "@utils/keyboard-shortcuts-expansion";
+import {
+  keyboardShortcutsMixin,
+  type KeyboardShortcutsComponent,
+} from "../mixins/keyboard-shortcuts-mixin";
 
 interface PersonDetailsProps {
   content: PersonContentCombinedView[];
@@ -85,14 +96,117 @@ interface PersonDetailsProps {
   onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
   onPersonNote(form: NotePerson): Promise<void>;
   onLockComment(form: LockComment): Promise<void>;
+  onNextPage?(): void;
+  onPrevPage?(): void;
+  onFirstPage?(): void;
 }
 
-export class PersonDetails extends Component<PersonDetailsProps, any> {
+@keyboardShortcutsMixin
+export class PersonDetails
+  extends Component<PersonDetailsProps, KeyboardNavigationState>
+  implements KeyboardShortcutsComponent<PersonContentCombinedView>
+{
+  state: KeyboardNavigationState = {
+    highlightedIndex: 0,
+    expandedPostIndices: new Set<number>(),
+  };
+
   constructor(props: any, context: any) {
     super(props, context);
+    this.handleHighlight = this.handleHighlight.bind(this);
+    this.togglePostExpand = this.togglePostExpand.bind(this);
   }
 
-  renderItemType(i: PersonContentCombinedView): InfernoNode {
+  // KeyboardShortcutsComponent interface implementation
+  getItems() {
+    return this.props.content;
+  }
+
+  getCurrentIndex() {
+    return this.state.highlightedIndex;
+  }
+
+  setCurrentIndex(index: number) {
+    this.setState({ highlightedIndex: index });
+  }
+
+  scrollToIndex(index: number) {
+    this.scrollToItem(index);
+  }
+
+  // Custom key handler for component-specific keys
+  handleCustomKeys(
+    event: KeyboardEvent,
+    currentItem: PersonContentCombinedView,
+  ): boolean {
+    // Pagination shortcuts (work even when no items)
+    if (event.key === "n" && this.props.onNextPage) {
+      this.props.onNextPage();
+      return true;
+    }
+
+    if (event.key === "P" && this.props.onFirstPage) {
+      this.props.onFirstPage();
+      return true;
+    }
+
+    if (event.key === "p" && this.props.onPrevPage) {
+      this.props.onPrevPage();
+      return true;
+    }
+
+    // For comments, let certain keys (r, e) bubble down to CommentNode
+    // where the actual handlers are
+    const isCommentItem =
+      currentItem && "type_" in currentItem && currentItem.type_ === "comment";
+    if (isCommentItem && (event.key === "r" || event.key === "e")) {
+      // Don't handle these at PersonDetails level - let CommentNode handle them
+      return false;
+    }
+    return false;
+  }
+
+  scrollToItem(index: number) {
+    requestAnimationFrame(() => {
+      const wrapperElement = document.querySelector(
+        getPersonDetailIndexSelector(index),
+      ) as HTMLElement;
+
+      if (wrapperElement) {
+        ensureInView(wrapperElement);
+
+        // Focus the actual component (PostListing or CommentNode article) inside the wrapper
+        // so that their onKeyDown handlers can fire
+        const focusableElement = wrapperElement.querySelector(
+          '.post-listing[tabindex="0"], article[tabindex="0"]',
+        ) as HTMLElement;
+
+        if (focusableElement) {
+          focusableElement.focus();
+        } else {
+          // Fallback to wrapper if no focusable element found
+          wrapperElement.focus();
+        }
+      }
+    });
+  }
+
+  handleHighlight(itemIndex: number) {
+    this.setState({ highlightedIndex: itemIndex });
+  }
+
+  togglePostExpand(postIndex: number) {
+    this.setState(prevState => ({
+      expandedPostIndices: toggleExpansion(
+        prevState.expandedPostIndices,
+        postIndex,
+      ),
+    }));
+  }
+
+  renderItemType(i: PersonContentCombinedView, idx: number): InfernoNode {
+    const isHighlighted = this.state.highlightedIndex === idx;
+
     switch (i.type_) {
       case "comment": {
         return (
@@ -129,10 +243,12 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onPurgeComment={this.props.onPurgeComment}
             onPersonNote={this.props.onPersonNote}
             onLockComment={this.props.onLockComment}
+            highlightedCommentId={isHighlighted ? i.comment.id : undefined}
           />
         );
       }
       case "post": {
+        const isExpanded = this.state.expandedPostIndices.has(idx);
         return (
           <PostListing
             key={i.post.id}
@@ -142,7 +258,11 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             postListingMode="small_card"
             showCommunity
             crossPosts={[]}
-            showBody={"preview"}
+            showBody={getShowBodyMode(this.state.expandedPostIndices, idx)}
+            isExpanded={isExpanded}
+            isHighlighted={isHighlighted}
+            postIndex={idx}
+            onToggleExpand={() => this.togglePostExpand(idx)}
             hideImage={false}
             viewOnly={false}
             disableAutoMarkAsRead={false}
@@ -185,11 +305,33 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     const combined: PersonContentCombinedView[] = this.props.content;
 
     return (
-      <div>
-        {combined.map(i => [
-          this.renderItemType(i),
-          <hr key={i.type_} className="my-3" />,
-        ])}
+      <div
+        className="person-details"
+        role="feed"
+        aria-label="User posts and comments"
+        tabIndex={-1}
+      >
+        {combined.map((i, idx) => (
+          // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+          <div
+            key={
+              i.type_ === "post"
+                ? `post-${i.post.id}`
+                : `comment-${i.comment.id}`
+            }
+            data-person-detail-index={idx}
+            onClick={() => this.handleHighlight(idx)}
+            onKeyDown={e => {
+              if (e.key === "Enter" || e.key === " ") {
+                this.handleHighlight(idx);
+                e.preventDefault();
+              }
+            }}
+          >
+            {this.renderItemType(i, idx)}
+            {idx + 1 !== combined.length && <hr className="my-3" />}
+          </div>
+        ))}
       </div>
     );
   }
