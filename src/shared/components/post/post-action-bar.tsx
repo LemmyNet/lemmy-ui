@@ -113,7 +113,7 @@ export function PostActionBar(props: PostActionBarProps) {
           postView={postView}
           community={postView.community}
           admins={admins}
-          crossPostParams={crossPostParams(postView.post)}
+          crossPostParams={crossPostParams(postView.post, myUserInfo)}
           myUserInfo={myUserInfo}
           viewSource={viewSource}
           showBody={showBody}
@@ -189,7 +189,7 @@ export function CommentsButton({
   );
 }
 
-function crossPostParams(post: Post): CrossPostParams {
+function crossPostParams(post: Post, myUserInfo?: MyUserInfo): CrossPostParams {
   const { name, url, alt_text, nsfw, language_id, thumbnail_url } = post;
   const crossPostParams: CrossPostParams = { name };
 
@@ -197,7 +197,7 @@ function crossPostParams(post: Post): CrossPostParams {
     crossPostParams.url = url;
   }
 
-  const crossPostBody_ = crossPostBody(post);
+  const crossPostBody_ = crossPostBody(post, myUserInfo);
   if (crossPostBody_) {
     crossPostParams.body = crossPostBody_;
   }
@@ -221,13 +221,26 @@ function crossPostParams(post: Post): CrossPostParams {
   return crossPostParams;
 }
 
-function crossPostBody(post: Post): string | undefined {
+function crossPostBody(
+  post: Post,
+  myUserInfo?: MyUserInfo,
+): string | undefined {
   const body = post.body;
 
-  return body
-    ? `${I18NextService.i18n.t("cross_posted_from_url", { ap_id: post.ap_id })}
-      \n\n${body.replace(/^/gm, "> ")}`
-    : undefined;
+  let bodyOut: string | undefined;
+  if (body) {
+    // If its you're own post, don't include the x-posted-from line, or the quotes
+    if (post.creator_id === myUserInfo?.local_user_view?.person?.id) {
+      bodyOut = body;
+    } else {
+      bodyOut = `${I18NextService.i18n.t("cross_posted_from_url", { ap_id: post.ap_id })}
+      \n\n${body.replace(/^/gm, "> ")}`;
+    }
+  } else {
+    bodyOut = undefined;
+  }
+
+  return bodyOut;
 }
 
 function handleShare(post: Post) {
