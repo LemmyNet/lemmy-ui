@@ -106,7 +106,7 @@ function getActionFromString(action?: string): ModlogKind | undefined {
 
 interface ModlogEntry {
   modlog: Modlog_;
-  moderator: Person | null;
+  moderator?: Person;
   data: InfernoNode;
 }
 
@@ -369,7 +369,8 @@ export function processModlogEntry(
           <>
             <span>{is_revert ? "Unfeatured " : "Featured "}</span>
             <span>
-              Post <Link to={`/post/${target_post?.id}`}>{name}</Link>
+              Post{" "}
+              <Link to={`/post/${target_post?.id}`}>{target_post?.name}</Link>
             </span>
             <span>" in community "</span>
             <CommunityLink
@@ -779,7 +780,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     return amAdmin(this.isoData.myUserInfo) || amMod_;
   }
 
-  modOrAdminText(person: Person | null): string {
+  modOrAdminText(person?: Person): string {
     return person &&
       this.isoData.siteRes.admins.some(({ person: { id } }) => id === person.id)
       ? I18NextService.i18n.t("admin")

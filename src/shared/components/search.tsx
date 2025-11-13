@@ -68,8 +68,9 @@ import { PaginatorCursor } from "./common/paginator-cursor";
 import { SearchSortSelect } from "./common/sort-select";
 import { SearchableSelect } from "./common/searchable-select";
 import { UserBadges } from "./common/user-badges";
-import { Badges } from "./common/badges";
+import { CommunityBadges, MultiCommunityBadges } from "./common/badges";
 import { CommunityLink } from "./community/community-link";
+import { MultiCommunityLink } from "./multi-community/multi-community-link";
 
 interface SearchProps {
   q?: string;
@@ -113,7 +114,6 @@ const searchTypes = [
   "communities",
   "users",
   "multi_communities",
-  // TODO add multi-community search
 ];
 
 export function getSearchQueryParams(source?: string): SearchProps {
@@ -197,10 +197,36 @@ const communityListing = (
         {communities.map(c => (
           <div>
             <CommunityLink community={c.community} myUserInfo={myUserInfo} />
-            <Badges
+            <CommunityBadges
               className="ms-2 d-inline-flex"
-              communityId={c.community.id}
-              subject={c.community}
+              community={c.community}
+              lessBadges
+            />
+          </div>
+        ))}
+        <hr className="border m-2" />
+      </>
+    )
+  );
+};
+
+const multiCommunityListing = (
+  multiCommunities: MultiCommunityView[],
+  myUserInfo: MyUserInfo | undefined,
+) => {
+  return (
+    multiCommunities.length > 0 && (
+      <>
+        <h3>{I18NextService.i18n.t("multi_communities")}</h3>
+        {multiCommunities.map(m => (
+          <div>
+            <MultiCommunityLink
+              multiCommunity={m.multi}
+              myUserInfo={myUserInfo}
+            />
+            <MultiCommunityBadges
+              className="ms-2 d-inline-flex"
+              multiCommunity={m.multi}
               lessBadges
             />
           </div>
@@ -684,8 +710,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         return this.communities;
       case "users":
         return this.users;
-      default:
-        return <></>;
+      case "multi_communities":
+        return this.multiCommunities;
     }
   }
 
@@ -837,7 +863,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             persons_array.push(sr);
             break;
           case "multi_community":
-            multi_communities_array.push(sr); //TODO: display these
+            multi_communities_array.push(sr);
             break;
         }
       });
@@ -846,6 +872,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     return (
       <>
         {communityListing(communities_array, this.isoData.myUserInfo)}
+        {multiCommunityListing(
+          multi_communities_array,
+          this.isoData.myUserInfo,
+        )}
         {personListing(persons_array, this.isoData.myUserInfo)}
         {postListing(posts_array, this.isoData)}
         {commentListing(comments_array, this.isoData)}
@@ -971,6 +1001,22 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       <>
         <div className="col-12">
           {communityListing(communities, this.isoData.myUserInfo)}
+        </div>
+      </>
+    );
+  }
+
+  get multiCommunities() {
+    const { searchRes: searchResponse } = this.state;
+    const multiCommunities =
+      searchResponse.state === "success"
+        ? searchResponse.data.results.filter(s => s.type_ === "multi_community")
+        : [];
+
+    return (
+      <>
+        <div className="col-12">
+          {multiCommunityListing(multiCommunities, this.isoData.myUserInfo)}
         </div>
       </>
     );

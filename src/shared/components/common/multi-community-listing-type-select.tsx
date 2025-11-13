@@ -1,29 +1,26 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { Component } from "inferno";
-import { ListingType, MyUserInfo } from "lemmy-js-client";
+import { MultiCommunityListingType, MyUserInfo } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { userNotLoggedInOrBanned } from "@utils/app";
 
-interface ListingTypeSelectProps {
-  type_: ListingType;
+interface Props {
+  type_: MultiCommunityListingType;
   showLocal: boolean;
   showSubscribed: boolean;
   myUserInfo: MyUserInfo | undefined;
-  onChange(val: ListingType): void;
+  onChange(val: MultiCommunityListingType): void;
 }
 
-interface ListingTypeSelectState {
-  type_: ListingType;
+interface State {
+  type_: MultiCommunityListingType;
 }
 
-export class ListingTypeSelect extends Component<
-  ListingTypeSelectProps,
-  ListingTypeSelectState
-> {
+export class MultiCommunityListingTypeSelect extends Component<Props, State> {
   private id = `listing-type-input-${randomStr()}`;
 
-  state: ListingTypeSelectState = {
+  state: State = {
     type_: this.props.type_,
   };
 
@@ -31,9 +28,7 @@ export class ListingTypeSelect extends Component<
     super(props, context);
   }
 
-  static getDerivedStateFromProps(
-    props: ListingTypeSelectProps,
-  ): ListingTypeSelectState {
+  static getDerivedStateFromProps(props: Props): State {
     return {
       type_: props.type_,
     };
@@ -109,32 +104,11 @@ export class ListingTypeSelect extends Component<
         >
           {I18NextService.i18n.t("all")}
         </label>
-        {(this.props.myUserInfo?.moderates.length ?? 0) > 0 && (
-          <>
-            <input
-              id={`${this.id}-moderator-view`}
-              type="radio"
-              className="btn-check"
-              value={"moderator_view"}
-              checked={this.state.type_ === "moderator_view"}
-              onChange={e => handleTypeChange(this, e)}
-            />
-            <label
-              htmlFor={`${this.id}-moderator-view`}
-              title={I18NextService.i18n.t("moderator_view_description")}
-              className={classNames("pointer btn btn-outline-secondary", {
-                active: this.state.type_ === "moderator_view",
-              })}
-            >
-              {I18NextService.i18n.t("moderator_view")}
-            </label>
-          </>
-        )}
       </div>
     );
   }
 }
 
-function handleTypeChange(i: ListingTypeSelect, event: any) {
+function handleTypeChange(i: MultiCommunityListingTypeSelect, event: any) {
   i.props.onChange(event.target.value);
 }
