@@ -6,6 +6,14 @@ import { isBefore, parseISO, subMinutes } from "date-fns";
 import { Component, InfernoNode, InfernoMouseEvent, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
+  areKeyboardShortcutsEnabled,
+  shouldIgnoreEvent,
+} from "@utils/keyboard-shortcuts";
+import {
+  handleKeyboardShortcut,
+  type KeyboardShortcutHandlers,
+} from "@utils/keyboard-shortcuts-actions";
+import {
   AddAdmin,
   AddModToCommunity,
   BanFromCommunity,
@@ -63,7 +71,6 @@ type CommentNodeState = {
   showEdit: boolean;
   collapsed: boolean;
   viewSource: boolean;
-  showAdvanced: boolean;
   createOrEditCommentLoading: boolean;
   upvoteLoading: boolean;
   downvoteLoading: boolean;
@@ -107,6 +114,9 @@ type CommentNodeProps = {
   onPurgeComment(form: PurgeComment): void;
   onPersonNote(form: NotePerson): void;
   onLockComment(form: LockComment): void;
+  // Keyboard navigation props
+  highlightedCommentId?: number | null;
+  onCommentClick?(commentId: number): void;
 };
 
 @tippyMixin
@@ -117,7 +127,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     // Collapse comments that have no children and are removed by default
     collapsed: this.initCommentCollapsed(),
     viewSource: false,
-    showAdvanced: false,
     createOrEditCommentLoading: false,
     upvoteLoading: false,
     downvoteLoading: false,
@@ -127,6 +136,51 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   constructor(props: any, context: any) {
     super(props, context);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+  }
+
+  handleKeyDown(event: KeyboardEvent) {
+    const p = this.props;
+
+    if (
+      !areKeyboardShortcutsEnabled() ||
+      shouldIgnoreEvent(event) ||
+      p.viewOnly ||
+      !this.isHighlighted
+    ) {
+      return;
+    }
+
+    const { creator } = this.commentView;
+
+    const handlers: KeyboardShortcutHandlers = {
+      myUserInfo: p.myUserInfo,
+      router: this.context.router,
+      onCommentVote: p.onCommentVote,
+      onSaveComment: p.onSaveComment,
+      onCollapse: () => {
+        this.setState({ collapsed: !this.state.collapsed });
+      },
+      onReply: () => {
+        if (this.enableCommentForm) {
+          handleReplyClick(this);
+        }
+      },
+      onEdit: () => handleEditClick(this),
+      canEdit: () => {
+        return (
+          p.myUserInfo !== undefined &&
+          p.myUserInfo.local_user_view.person.id === creator.id
+        );
+      },
+    };
+
+    const handled = handleKeyboardShortcut(event, this.commentView, handlers);
+
+    if (handled) {
+      event.preventDefault();
+      event.stopPropagation(); // Prevent parent handlers from also processing
+    }
   }
 
   componentWillReceiveProps(
@@ -156,6 +210,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   get commentId(): CommentId {
     return this.commentView.comment.id;
+  }
+
+  get isHighlighted(): boolean {
+    return this.props.highlightedCommentId === this.commentId;
   }
 
   /**
@@ -205,12 +263,22 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
     return (
       <li className="comment list-unstyled">
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
         <article
           id={`comment-${id}`}
           className={classNames(`details comment-node py-2`, {
             "border-top border-light": !this.props.noBorder,
             mark: this.isCommentNew || distinguished,
+            "keyboard-selected": this.isHighlighted,
           })}
+          onClick={() => {
+            if (this.props.onCommentClick) {
+              this.props.onCommentClick(id);
+            }
+          }}
+          onKeyDown={this.handleKeyDown}
+          tabIndex={this.isHighlighted ? 0 : -1} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
+          aria-label={`Comment by ${this.commentView.creator.name}`}
         >
           <div className="ms-2">
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
@@ -392,6 +460,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             onPurgeComment={this.props.onPurgeComment}
             onPersonNote={this.props.onPersonNote}
             onLockComment={this.props.onLockComment}
+            highlightedCommentId={this.props.highlightedCommentId}
+            onCommentClick={this.props.onCommentClick}
           />
         )}
         {/* A collapsed clearfix */}
