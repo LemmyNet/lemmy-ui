@@ -775,7 +775,7 @@ export function isAnonymousPath(pathname: string) {
 }
 
 export function calculateUpvotePct(upvotes: number, downvotes: number): number {
-  return (upvotes / (upvotes + downvotes)) * 100;
+  return Math.round((upvotes / (upvotes + downvotes)) * 100);
 }
 
 export function postViewToPersonContentCombinedView(
