@@ -29,6 +29,17 @@ import { CommentNodeType, QueryParams, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, createRef, linkEvent } from "inferno";
 import {
+  areKeyboardShortcutsEnabled,
+  shouldIgnoreEvent,
+} from "@utils/keyboard-shortcuts";
+import { handleKeyboardAction } from "@utils/keyboard-shortcuts-handler";
+import { PostCommentNavigator } from "@utils/post-comment-navigator";
+import {
+  SELECTOR,
+  PATTERN,
+  getCommentElementId,
+} from "@utils/keyboard-shortcuts-constants";
+import {
   AddAdmin,
   AddModToCommunity,
   AddModToCommunityResponse,
@@ -133,6 +144,9 @@ interface PostState {
   lastCreatedCommentId?: CommentId;
   notifications: PostNotificationsMode;
   editLoading: boolean;
+  // Keyboard navigation state
+  highlightedCommentId: CommentId | null; // null means post is highlighted
+  imageExpanded: boolean;
 }
 
 function getCommentSortTypeFromQuery(
@@ -249,6 +263,18 @@ export class Post extends Component<PostRouteProps, PostState> {
   private commentScrollDebounced: () => void;
   private shouldScrollToComments: boolean = false;
   private commentSectionRef = createRef<HTMLDivElement>();
+  private commentNavigator = new PostCommentNavigator(
+    () => {
+      // Get all visible comment elements in DOM order
+      // Collapsed comments' children are not rendered, so they won't be in the DOM
+      // Query for article elements with IDs exactly matching 'comment-{digits}'
+      return Array.from(
+        document.querySelectorAll(SELECTOR.COMMENT_ARTICLES),
+      ).filter(el => PATTERN.COMMENT_ID.test(el.id)) as HTMLElement[];
+    },
+    () => this.state.highlightedCommentId,
+    id => this.setState({ highlightedCommentId: id }),
+  );
   state: PostState = {
     postRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
@@ -258,7 +284,11 @@ export class Post extends Component<PostRouteProps, PostState> {
     isIsomorphic: false,
     notifications: "replies_and_mentions",
     editLoading: false,
+    highlightedCommentId: null, // Start with post highlighted
+    imageExpanded: false, // Start with image not expanded
   };
+
+  postListingRef = createRef<PostListing>();
 
   loadingSettled() {
     return resourcesSettled([this.state.postRes, this.state.commentsRes]);
@@ -309,6 +339,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       this.handleScrollIntoCommentsClick.bind(this);
     this.handlePersonNote = this.handlePersonNote.bind(this);
     this.handleNotificationChange = this.handleNotificationChange.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -403,9 +434,9 @@ export class Post extends Component<PostRouteProps, PostState> {
 
     let pathname: string | undefined;
     if (comment_id && post_id) {
-      pathname = `/post/${post_id}/${comment_id}#comment-${comment_id}`;
+      pathname = `/post/${post_id}/${comment_id}#${getCommentElementId(parseInt(comment_id))}`;
     } else if (comment_id) {
-      pathname = `/comment/${comment_id}#comment-${comment_id}`;
+      pathname = `/comment/${comment_id}#${getCommentElementId(parseInt(comment_id))}`;
     } else {
       pathname = `/post/${post_id}`;
     }
@@ -450,6 +481,9 @@ export class Post extends Component<PostRouteProps, PostState> {
 
   componentWillUnmount() {
     document.removeEventListener("scroll", this.commentScrollDebounced);
+    if (isBrowser()) {
+      document.removeEventListener("keydown", this.handleKeyDown);
+    }
   }
 
   async componentWillMount() {
@@ -468,9 +502,110 @@ export class Post extends Component<PostRouteProps, PostState> {
     this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
     document.addEventListener("scroll", this.commentScrollDebounced);
 
+    if (isBrowser() && areKeyboardShortcutsEnabled()) {
+      document.addEventListener("keydown", this.handleKeyDown);
+    }
+
     if (this.state.isIsomorphic) {
       this.maybeScrollToComments();
     }
+  }
+
+  handleKeyDown(event: KeyboardEvent) {
+    if (!areKeyboardShortcutsEnabled() || shouldIgnoreEvent(event)) {
+      return;
+    }
+
+    const { highlightedCommentId } = this.state;
+
+    // Handle navigation keys with navigator
+    switch (event.key) {
+      case "j": // Next comment (or first comment if on post)
+        if (this.commentNavigator.navigateNext()) {
+          event.preventDefault();
+        }
+        return;
+
+      case "k": // Previous comment (or back to post)
+        if (this.commentNavigator.navigatePrevious()) {
+          event.preventDefault();
+        }
+        return;
+
+      case "J": // Next sibling comment
+        if (this.commentNavigator.navigateToNextSibling()) {
+          event.preventDefault();
+        }
+        return;
+
+      case "K": // Previous sibling comment
+        if (this.commentNavigator.navigateToPreviousSibling()) {
+          event.preventDefault();
+        }
+        return;
+
+      case "p": // Parent comment
+        if (this.commentNavigator.navigateToParent()) {
+          event.preventDefault();
+        }
+        return;
+
+      case "t": // Thread root (top-level comment)
+        if (this.commentNavigator.navigateToThreadRoot()) {
+          event.preventDefault();
+        }
+        return;
+    }
+
+    // Action keys - handle with shared utility
+    if (highlightedCommentId === null) {
+      // Post is highlighted - handle post actions
+      if (this.state.postRes.state === "success") {
+        const postView = this.state.postRes.data.post_view;
+        handleKeyboardAction(event, postView, {
+          myUserInfo: this.isoData.myUserInfo,
+          router: this.context.router,
+          onPostVote: this.handlePostVote.bind(this),
+          onSavePost: this.handleSavePost.bind(this),
+          onExpand: () => {
+            this.setState({ imageExpanded: !this.state.imageExpanded });
+          },
+          onEdit: () => {
+            this.postListingRef.current?.enterEditMode();
+          },
+          canEdit: () => {
+            return (
+              this.isoData.myUserInfo !== undefined &&
+              this.isoData.myUserInfo.local_user_view.person.id ===
+                postView.creator.id
+            );
+          },
+        });
+      }
+    } else {
+      // Comment is highlighted - handle comment actions
+      const commentView = this.findCommentById(highlightedCommentId);
+      if (commentView) {
+        handleKeyboardAction(event, commentView, {
+          myUserInfo: this.isoData.myUserInfo,
+          router: this.context.router,
+          onCommentVote: this.handleCommentVote.bind(this),
+          onSaveComment: this.handleSaveComment.bind(this),
+        });
+      }
+    }
+  }
+
+  findCommentById(commentId: CommentId): CommentSlimView | null {
+    if (this.state.commentsRes.state !== "success") {
+      return null;
+    }
+
+    return (
+      this.state.commentsRes.data.comments.find(
+        c => c.comment.id === commentId,
+      ) ?? null
+    );
   }
 
   componentWillReceiveProps(nextProps: PostRouteProps): void {
@@ -607,6 +742,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 description={res.post_view.post.body}
               />
               <PostListing
+                ref={this.postListingRef}
                 postView={res.post_view}
                 crossPosts={res.cross_posts}
                 showCrossPosts="expanded"
@@ -646,6 +782,15 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onMarkPostAsRead={this.handleMarkPostAsRead}
                 onPersonNote={this.handlePersonNote}
                 postListingMode="small_card"
+                postId={res.post_view.post.id}
+                isHighlighted={this.state.highlightedCommentId === null}
+                isExpanded={this.state.imageExpanded}
+                onHighlight={() =>
+                  this.setState({ highlightedCommentId: null })
+                }
+                onToggleExpand={() =>
+                  this.setState({ imageExpanded: !this.state.imageExpanded })
+                }
               />
               <div ref={this.commentSectionRef} className="mb-2" />
 
@@ -894,6 +1039,10 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={this.handleEditComment}
             onPersonNote={this.handlePersonNote}
             onLockComment={this.handleLockComment}
+            highlightedCommentId={this.state.highlightedCommentId}
+            onCommentClick={commentId =>
+              this.setState({ highlightedCommentId: commentId })
+            }
           />
         </div>
       );
@@ -1014,6 +1163,10 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={this.handleEditComment}
             onPersonNote={this.handlePersonNote}
             onLockComment={this.handleLockComment}
+            highlightedCommentId={this.state.highlightedCommentId}
+            onCommentClick={commentId =>
+              this.setState({ highlightedCommentId: commentId })
+            }
           />
         </div>
       )
