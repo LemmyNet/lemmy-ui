@@ -36,7 +36,6 @@ import {
   PostPublishedTime,
   UrlLine,
   TorrentHelp,
-  PostImg,
   PostBadges,
 } from "./common";
 import { CrossPosts } from "./cross-posts";
@@ -68,6 +67,7 @@ type PostListingCardProps = {
   markable: boolean;
   disableAutoMarkAsRead: boolean;
   editLoading: boolean;
+  imageExpanded?: boolean;
   onEditClick(): void;
   onPostEdit(form: EditPost): void;
   onPostVote(form: CreatePostLike): void;
@@ -152,15 +152,18 @@ export class PostListingCard extends Component<
                   postView={p.postView}
                   hideImage={p.hideImage}
                   myUserInfo={p.myUserInfo}
+                  imageExpanded={p.imageExpanded}
+                  showAdultConsentModal={p.showAdultConsentModal}
                 />
               </div>
             )}
           </div>
           {!p.smallCard && isImagePost && (
-            <PostImg
+            <PostThumbnail
               postView={p.postView}
               hideImage={p.hideImage}
               myUserInfo={p.myUserInfo}
+              imageExpanded={p.imageExpanded}
               showAdultConsentModal={p.showAdultConsentModal}
             />
           )}

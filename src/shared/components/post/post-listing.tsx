@@ -144,6 +144,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             showCommunity={p.showCommunity}
             hideImage={p.hideImage}
             viewOnly={p.viewOnly}
+            showAdultConsentModal={p.showAdultConsentModal}
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
             showCrossPosts={p.showCrossPosts}
