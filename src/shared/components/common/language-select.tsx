@@ -95,7 +95,7 @@ export class LanguageSelect extends Component<
   }
 
   get selectBtn() {
-    const selectedLangs = this.props.selectedLanguageIds;
+    let selectedLangs = this.props.selectedLanguageIds;
     const filteredLangs = selectableLanguages(
       this.props.allLanguages,
       this.props.siteLanguages,
@@ -103,6 +103,18 @@ export class LanguageSelect extends Component<
       this.props.showSite,
       this.props.myUserInfo,
     );
+
+    // If no language is explicitly selected, take interface_language of current user as default.
+    if (!selectedLangs && this.props.allLanguages && this.props.myUserInfo) {
+      const default_lang_code =
+        this.props.myUserInfo.local_user_view.local_user.interface_language;
+      const default_lang = this.props.allLanguages.find(
+        l => l.code === default_lang_code,
+      );
+      if (default_lang) {
+        selectedLangs = [default_lang.id];
+      }
+    }
 
     return (
       <select
@@ -120,11 +132,9 @@ export class LanguageSelect extends Component<
         multiple={this.props.multiple}
         disabled={this.props.disabled}
       >
-        {!this.props.multiple && (
-          <option selected disabled hidden>
-            {I18NextService.i18n.t("language_select_placeholder")}
-          </option>
-        )}
+        <option selected disabled hidden>
+          {I18NextService.i18n.t("language_select_placeholder")}
+        </option>
         {filteredLangs.map(l => (
           <option
             key={l.id}
@@ -188,11 +198,6 @@ export class LanguageSelect extends Component<
           style="max-height: 200px;"
           tabIndex={-1}
         >
-          {!this.props.multiple && (
-            <option selected disabled hidden>
-              {I18NextService.i18n.t("language_select_placeholder")}
-            </option>
-          )}
           {filteredLangs.map(l => (
             <li className="list-group-item p-0 border-0">
               <button
