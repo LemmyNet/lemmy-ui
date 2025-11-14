@@ -1,14 +1,9 @@
-import PostActionDropdown from "@components/common/content-actions/post-action-dropdown";
 import { Icon } from "@components/common/icon";
-import { BanUpdateForm } from "@components/common/modal/mod-action-form-modal";
 import { VoteButtonsCompact } from "@components/common/vote-buttons";
 import { I18NextService } from "@services/index";
 import { postIsInteractable, userNotLoggedInOrBanned } from "@utils/app";
-import { share } from "@utils/browser";
-import { futureDaysToUnixTime } from "@utils/date";
-import { getHttpBase } from "@utils/env";
 import { unreadCommentsCount } from "@utils/helpers";
-import { getCrossPostParams } from "@utils/post";
+import { PostActionDropdownWrapper } from "./post-action-dropdown-wrapper";
 import { ShowBodyType } from "@utils/types";
 import { Link } from "inferno-router";
 import {
@@ -18,7 +13,6 @@ import {
   LocalSite,
   CreatePostLike,
   MarkPostAsRead,
-  Post,
   AddAdmin,
   AddModToCommunity,
   BanFromCommunity,
@@ -110,38 +104,34 @@ export function PostActionBar(props: PostActionBarProps) {
           />
         )}
 
-        <PostActionDropdown
+        <PostActionDropdownWrapper
           postView={postView}
-          community={postView.community}
           admins={admins}
-          crossPostParams={getCrossPostParams(postView.post)}
-          myUserInfo={myUserInfo}
-          viewSource={viewSource}
           showBody={showBody}
-          viewOnly={viewOnly}
           markable={markable}
-          onSave={() => handleSavePost(props)}
-          onReport={reason => handleReport(props, reason)}
-          onBlockPerson={() => handleBlockPerson(props)}
-          onBlockCommunity={() => handleBlockCommunity(props)}
-          onEdit={props.onEditClick}
-          onDelete={() => handleDeletePost(props)}
-          onLock={reason => handleModLock(props, reason)}
-          onFeatureCommunity={() => handleModFeaturePostCommunity(props)}
-          onFeatureLocal={() => handleModFeaturePostLocal(props)}
-          onRemove={reason => handleRemove(props, reason)}
-          onBanFromCommunity={form => handleModBanFromCommunity(props, form)}
-          onAppointCommunityMod={() => handleAppointCommunityMod(props)}
-          onTransferCommunity={() => handleTransferCommunity(props)}
-          onBanFromSite={reason => handleModBanFromSite(props, reason)}
-          onPurgeUser={reason => handlePurgePerson(props, reason)}
-          onPurgeContent={reason => handlePurgePost(props, reason)}
-          onAppointAdmin={() => handleAppointAdmin(props)}
-          onHidePost={() => handleHidePost(props)}
-          onPersonNote={props.onPersonNote}
+          viewOnly={viewOnly}
+          viewSource={viewSource}
+          myUserInfo={myUserInfo}
           onViewSource={props.onViewSource}
-          onSharePost={() => handleShare(props.postView.post)}
-          onMarkPostAsRead={() => handleMarkPostAsRead(props)}
+          onEditClick={props.onEditClick}
+          onPostReport={props.onPostReport}
+          onBlockPerson={props.onBlockPerson}
+          onBlockCommunity={props.onBlockCommunity}
+          onLockPost={props.onLockPost}
+          onDeletePost={props.onDeletePost}
+          onRemovePost={props.onRemovePost}
+          onSavePost={props.onSavePost}
+          onFeaturePost={props.onFeaturePost}
+          onPurgePerson={props.onPurgePerson}
+          onPurgePost={props.onPurgePost}
+          onBanPersonFromCommunity={props.onBanPersonFromCommunity}
+          onBanPerson={props.onBanPerson}
+          onAddModToCommunity={props.onAddModToCommunity}
+          onAddAdmin={props.onAddAdmin}
+          onTransferCommunity={props.onTransferCommunity}
+          onHidePost={props.onHidePost}
+          onPersonNote={props.onPersonNote}
+          onMarkPostAsRead={props.onMarkPostAsRead}
         />
       </div>
     </div>
@@ -188,178 +178,4 @@ export function CommentsButton({
       )}
     </Link>
   );
-}
-
-function handleShare(post: Post) {
-  const { name, body, id } = post;
-  share({
-    title: name,
-    text: body?.slice(0, 50),
-    url: `${getHttpBase()}/post/${id}`,
-  });
-}
-
-// TODO All these handlers should not have to exist. The PostActionsDropdown should push up the forms directly
-function handleMarkPostAsRead(props: PostActionBarProps) {
-  if (!props.markable) return;
-
-  // Toggle the read, based on the existence of read_at
-  const read = !props.postView.post_actions?.read_at;
-
-  props.onMarkPostAsRead?.({
-    post_id: props.postView.post.id,
-    read,
-  });
-}
-
-function handleReport(i: PostActionBarProps, reason: string) {
-  return i.onPostReport({
-    post_id: i.postView.post.id,
-    reason,
-  });
-}
-
-function handleBlockPerson(i: PostActionBarProps) {
-  return i.onBlockPerson({
-    person_id: i.postView.creator.id,
-    block: true,
-  });
-}
-
-function handleBlockCommunity(i: PostActionBarProps) {
-  return i.onBlockCommunity({
-    community_id: i.postView.community.id,
-    block: true,
-  });
-}
-
-function handleDeletePost(i: PostActionBarProps) {
-  return i.onDeletePost({
-    post_id: i.postView.post.id,
-    deleted: !i.postView.post.deleted,
-  });
-}
-
-function handleSavePost(i: PostActionBarProps) {
-  return i.onSavePost({
-    post_id: i.postView.post.id,
-    save: !i.postView.post_actions?.saved_at,
-  });
-}
-
-function handleRemove(i: PostActionBarProps, reason: string) {
-  return i.onRemovePost({
-    post_id: i.postView.post.id,
-    removed: !i.postView.post.removed,
-    reason,
-  });
-}
-
-function handleModLock(i: PostActionBarProps, reason: string) {
-  return i.onLockPost({
-    post_id: i.postView.post.id,
-    locked: !i.postView.post.locked,
-    reason,
-  });
-}
-
-function handleModFeaturePostLocal(i: PostActionBarProps) {
-  return i.onFeaturePost({
-    post_id: i.postView.post.id,
-    featured: !i.postView.post.featured_local,
-    feature_type: "local",
-  });
-}
-
-function handleModFeaturePostCommunity(i: PostActionBarProps) {
-  return i.onFeaturePost({
-    post_id: i.postView.post.id,
-    featured: !i.postView.post.featured_community,
-    feature_type: "community",
-  });
-}
-
-function handlePurgePost(i: PostActionBarProps, reason: string) {
-  return i.onPurgePost({
-    post_id: i.postView.post.id,
-    reason,
-  });
-}
-
-function handlePurgePerson(i: PostActionBarProps, reason: string) {
-  return i.onPurgePerson({
-    person_id: i.postView.creator.id,
-    reason,
-  });
-}
-
-function handleHidePost(i: PostActionBarProps) {
-  return i.onHidePost({
-    hide: !i.postView.post_actions?.hidden_at,
-    post_id: i.postView.post.id,
-  });
-}
-
-function handleModBanFromCommunity(i: PostActionBarProps, form: BanUpdateForm) {
-  const {
-    creator: { id: person_id },
-    creator_banned_from_community,
-    community: { id: community_id },
-  } = i.postView;
-  const ban = !creator_banned_from_community;
-  const expires_at = futureDaysToUnixTime(form.daysUntilExpires);
-
-  // If its an unban, restore all their data
-  const shouldRemoveOrRestoreData = ban ? form.shouldRemoveOrRestoreData : true;
-
-  return i.onBanPersonFromCommunity({
-    community_id,
-    person_id,
-    ban,
-    remove_or_restore_data: shouldRemoveOrRestoreData,
-    reason: form.reason,
-    expires_at,
-  });
-}
-
-function handleModBanFromSite(i: PostActionBarProps, form: BanUpdateForm) {
-  const {
-    creator: { id: person_id },
-    creator_banned: banned,
-  } = i.postView;
-  const ban = !banned;
-
-  // If its an unban, restore all their data
-  const shouldRemoveOrRestoreData = ban ? form.shouldRemoveOrRestoreData : true;
-  const expires_at = futureDaysToUnixTime(form.daysUntilExpires);
-
-  return i.onBanPerson({
-    person_id,
-    ban,
-    remove_or_restore_data: shouldRemoveOrRestoreData,
-    reason: form.reason,
-    expires_at,
-  });
-}
-
-function handleAppointCommunityMod(i: PostActionBarProps) {
-  return i.onAddModToCommunity({
-    community_id: i.postView.community.id,
-    person_id: i.postView.creator.id,
-    added: !i.postView.creator_is_moderator,
-  });
-}
-
-function handleAppointAdmin(i: PostActionBarProps) {
-  return i.onAddAdmin({
-    person_id: i.postView.creator.id,
-    added: !i.postView.creator_is_admin,
-  });
-}
-
-function handleTransferCommunity(i: PostActionBarProps) {
-  return i.onTransferCommunity({
-    community_id: i.postView.community.id,
-    person_id: i.postView.creator.id,
-  });
 }
