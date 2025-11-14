@@ -78,6 +78,7 @@ interface SearchProps {
   sort: SearchSortType;
   listingType: ListingType;
   titleOnly: boolean;
+  postUrlOnly: boolean;
   communityId?: number;
   creatorId?: number;
   cursor?: DirectionalCursor;
@@ -124,6 +125,7 @@ export function getSearchQueryParams(source?: string): SearchProps {
       sort: getSortTypeFromQuery,
       listingType: getListingTypeFromQuery,
       titleOnly: getTitleOnlyFromQuery,
+      postUrlOnly: getPostUrlOnlyFromQuery,
       communityId: getIdFromString,
       creatorId: getIdFromString,
       cursor: (cursor?: string) => cursor,
@@ -148,6 +150,9 @@ function getListingTypeFromQuery(listingType?: string): ListingType {
 
 const getTitleOnlyFromQuery = (titleOnly?: string): boolean =>
   titleOnly?.toLowerCase() === "true";
+
+const getPostUrlOnlyFromQuery = (postUrlOnly?: string): boolean =>
+  postUrlOnly?.toLowerCase() === "true";
 
 const Filter = ({
   filterType,
@@ -598,6 +603,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       sort,
       listingType: listing_type,
       titleOnly: title_only,
+      postUrlOnly: post_url_only,
       communityId: community_id,
       creatorId: creator_id,
       cursor,
@@ -641,9 +647,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         type_: searchType,
         sort,
         listing_type,
-        ...cursorComponents(cursor),
-        limit: fetchLimit,
         title_only,
+        post_url_only,
+        limit: fetchLimit,
+        ...cursorComponents(cursor),
       };
 
       searchResponse = await client.search(form);
@@ -745,25 +752,20 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             )}
           </button>
         </div>
-        <div className="col-auto form-check ms-2 h-min d-flex align-items-center">
-          <input
-            type="checkbox"
-            className="form-check-input mt-0"
-            onChange={linkEvent(this, this.handleTitleOnlyChange)}
-            checked={this.props.titleOnly}
-            id="title_only"
-          />
-          <label for="title_only" className="m-1 form-check-label">
-            {I18NextService.i18n.t("post_title_only")}
-          </label>
-        </div>
       </form>
     );
   }
 
   get selects() {
-    const { type, listingType, titleOnly, sort, communityId, creatorId } =
-      this.props;
+    const {
+      type,
+      listingType,
+      titleOnly,
+      postUrlOnly,
+      sort,
+      communityId,
+      creatorId,
+    } = this.props;
     const {
       communitySearchOptions,
       creatorSearchOptions,
@@ -801,18 +803,35 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             />
           </div>
           {(type === "all" || type === "posts") && (
-            <div className="col">
-              <input
-                className="btn-check"
-                id="title-only"
-                type="checkbox"
-                checked={titleOnly}
-                onChange={linkEvent(this, this.handleTitleOnlyChange)}
-              />
-              <label className="btn btn-outline-secondary" htmlFor="title-only">
-                {I18NextService.i18n.t("post_title_only")}
-              </label>
-            </div>
+            <>
+              <div className="col">
+                <input
+                  className="btn-check"
+                  id="title-only"
+                  type="checkbox"
+                  checked={titleOnly}
+                  onChange={linkEvent(this, this.handleTitleOnlyChange)}
+                />
+                <label
+                  className="btn btn-outline-secondary"
+                  htmlFor="title-only"
+                >
+                  {I18NextService.i18n.t("post_title_only")}
+                </label>
+              </div>
+              <div className="col">
+                <input
+                  className="btn-check"
+                  id="url-only"
+                  type="checkbox"
+                  checked={postUrlOnly}
+                  onChange={linkEvent(this, this.handlePostUrlOnlyChange)}
+                />
+                <label className="btn btn-outline-secondary" htmlFor="url-only">
+                  {I18NextService.i18n.t("post_url_only")}
+                </label>
+              </div>
+            </>
           )}
           <div className="col">
             <SearchSortSelect current={sort} onChange={this.handleSortChange} />
@@ -1057,6 +1076,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       sort,
       listingType,
       titleOnly,
+      postUrlOnly,
       cursor,
     } = props;
 
@@ -1070,6 +1090,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         sort,
         listing_type: listingType,
         title_only: titleOnly,
+        post_url_only: postUrlOnly,
         limit: fetchLimit,
         ...cursorComponents(cursor),
       });
@@ -1133,6 +1154,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     i.updateUrl({ titleOnly, q: i.getQ() });
   }
 
+  handlePostUrlOnlyChange(i: Search, event: any) {
+    const postUrlOnly = event.target.checked;
+    i.updateUrl({ postUrlOnly, q: i.getQ() });
+  }
+
   handleTypeChange(i: Search, event: any) {
     const type = event.target.value as SearchType;
 
@@ -1186,6 +1212,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       type,
       listingType,
       titleOnly,
+      postUrlOnly,
       sort,
       communityId,
       creatorId,
@@ -1200,6 +1227,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       type,
       listingType,
       titleOnly: titleOnly?.toString(),
+      postUrlOnly: postUrlOnly?.toString(),
       communityId: communityId?.toString(),
       creatorId: creatorId?.toString(),
       cursor,
