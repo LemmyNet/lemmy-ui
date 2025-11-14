@@ -8,7 +8,8 @@ import { share } from "@utils/browser";
 import { futureDaysToUnixTime } from "@utils/date";
 import { getHttpBase } from "@utils/env";
 import { unreadCommentsCount } from "@utils/helpers";
-import { CrossPostParams, ShowBodyType } from "@utils/types";
+import { getCrossPostParams } from "@utils/post";
+import { ShowBodyType } from "@utils/types";
 import { Link } from "inferno-router";
 import {
   PostView,
@@ -113,7 +114,7 @@ export function PostActionBar(props: PostActionBarProps) {
           postView={postView}
           community={postView.community}
           admins={admins}
-          crossPostParams={crossPostParams(postView.post)}
+          crossPostParams={getCrossPostParams(postView.post)}
           myUserInfo={myUserInfo}
           viewSource={viewSource}
           showBody={showBody}
@@ -187,47 +188,6 @@ export function CommentsButton({
       )}
     </Link>
   );
-}
-
-function crossPostParams(post: Post): CrossPostParams {
-  const { name, url, alt_text, nsfw, language_id, thumbnail_url } = post;
-  const crossPostParams: CrossPostParams = { name };
-
-  if (url) {
-    crossPostParams.url = url;
-  }
-
-  const crossPostBody_ = crossPostBody(post);
-  if (crossPostBody_) {
-    crossPostParams.body = crossPostBody_;
-  }
-
-  if (alt_text) {
-    crossPostParams.altText = alt_text;
-  }
-
-  if (nsfw) {
-    crossPostParams.nsfw = nsfw ? "true" : "false";
-  }
-
-  if (language_id !== undefined) {
-    crossPostParams.languageId = language_id;
-  }
-
-  if (thumbnail_url) {
-    crossPostParams.customThumbnailUrl = thumbnail_url;
-  }
-
-  return crossPostParams;
-}
-
-function crossPostBody(post: Post): string | undefined {
-  const body = post.body;
-
-  return body
-    ? `${I18NextService.i18n.t("cross_posted_from_url", { ap_id: post.ap_id })}
-      \n\n${body.replace(/^/gm, "> ")}`
-    : undefined;
 }
 
 function handleShare(post: Post) {
