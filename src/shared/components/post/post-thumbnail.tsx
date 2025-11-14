@@ -12,8 +12,20 @@ type Props = {
   postView: PostView;
   hideImage: boolean;
   myUserInfo: MyUserInfo | undefined;
+  imageExpanded?: boolean;
+  showAdultConsentModal?: boolean;
 };
-export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
+export function PostThumbnail({
+  postView,
+  hideImage,
+  myUserInfo,
+  imageExpanded,
+  showAdultConsentModal,
+}: Props) {
+  // Don't show images if adult consent modal should be shown
+  if (showAdultConsentModal) {
+    return <></>;
+  }
   const post = postView.post;
   const url = post.url;
   const thumbnail = post.thumbnail_url;
@@ -26,22 +38,35 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
     !hideAnimatedImage(url, myUserInfo) &&
     thumbnail
   ) {
-    return (
-      <a
-        className="d-block position-relative"
-        href={url}
-        rel={relTags}
-        title={url}
-        target={linkTarget(myUserInfo)}
-      >
-        <ImgThumb postView={postView} />
-        <Icon
-          icon="image"
-          small
-          classes="d-block text-white position-absolute end-0 top-0 mini-overlay text-opacity-75 text-opacity-100-hover"
-        />
-      </a>
-    );
+    // Show expanded full image or thumbnail based on imageExpanded state
+    if (imageExpanded) {
+      return (
+        <ImageLink url={url} myUserInfo={myUserInfo}>
+          <PictrsImage
+            src={url}
+            alt={post.alt_text}
+            imageDetails={postView.image_details}
+            nsfw={post.nsfw || postView.community.nsfw}
+          />
+          <Icon
+            icon="image"
+            small
+            classes="d-block text-white position-absolute end-0 top-0 mini-overlay text-opacity-75 text-opacity-100-hover"
+          />
+        </ImageLink>
+      );
+    } else {
+      return (
+        <ImageLink url={url} myUserInfo={myUserInfo}>
+          <ImgThumb postView={postView} />
+          <Icon
+            icon="image"
+            small
+            classes="d-block text-white position-absolute end-0 top-0 mini-overlay text-opacity-75 text-opacity-100-hover"
+          />
+        </ImageLink>
+      );
+    }
   } else if (
     !hideImages_ &&
     url &&
@@ -50,35 +75,27 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
     !isVideo(url)
   ) {
     return (
-      <a
-        className="d-block position-relative"
-        href={url}
-        rel={relTags}
-        title={url}
-        target={linkTarget(myUserInfo)}
-      >
+      <ImageLink url={url} myUserInfo={myUserInfo}>
         <ImgThumb postView={postView} />
         <Icon
           icon="external-link"
           small
           classes="d-block text-white position-absolute end-0 top-0 mini-overlay text-opacity-75 text-opacity-100-hover"
         />
-      </a>
+      </ImageLink>
     );
   } else if (url) {
     if ((!hideImages_ && isVideo(url)) || post.embed_video_url) {
       return (
-        <a
+        <ImageLink
+          url={url}
+          myUserInfo={myUserInfo}
           className={classNames(
             "thumbnail rounded",
             thumbnail
               ? "d-block position-relative"
               : "text-body bg-light d-flex justify-content-center",
           )}
-          href={url}
-          title={url}
-          rel={relTags}
-          target={linkTarget(myUserInfo)}
         >
           <ImgThumb postView={postView} />
           <Icon
@@ -90,17 +107,11 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
                 : "d-flex align-items-center"
             }
           />
-        </a>
+        </ImageLink>
       );
     } else {
       return (
-        <a
-          className="text-body"
-          href={url}
-          title={url}
-          rel={relTags}
-          target={linkTarget(myUserInfo)}
-        >
+        <ImageLink url={url} myUserInfo={myUserInfo} className="text-body">
           <div className="thumbnail rounded bg-light d-flex justify-content-center">
             <Icon
               icon="external-link"
@@ -108,7 +119,7 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
               classes="d-flex align-items-center"
             />
           </div>
-        </a>
+        </ImageLink>
       );
     }
   } else {
@@ -129,6 +140,30 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
       </Link>
     );
   }
+}
+
+/**
+ * Wrapper component for image/thumbnail links
+ * Centralizes link behavior and attributes for all thumbnail types
+ */
+type ImageLinkProps = {
+  url: string;
+  myUserInfo: MyUserInfo | undefined;
+  className?: string;
+  children: any;
+};
+function ImageLink({ url, myUserInfo, className, children }: ImageLinkProps) {
+  return (
+    <a
+      className={className ?? "d-block position-relative"}
+      href={url}
+      rel={relTags}
+      title={url}
+      target={linkTarget(myUserInfo)}
+    >
+      {children}
+    </a>
+  );
 }
 
 type ImgThumbProps = {

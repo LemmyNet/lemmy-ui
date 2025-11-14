@@ -18,6 +18,7 @@ import {
   getQueryString,
   cursorComponents,
   resourcesSettled,
+  directionalCursor,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import type {
@@ -299,6 +300,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       this.handlePostOrCommentTypeChange.bind(this);
     this.handleShowHiddenChange = this.handleShowHiddenChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleNextPage = this.handleNextPage.bind(this);
+    this.handlePrevPage = this.handlePrevPage.bind(this);
+    this.handleFirstPage = this.handleFirstPage.bind(this);
 
     this.handleCreateComment = this.handleCreateComment.bind(this);
     this.handleEditComment = this.handleEditComment.bind(this);
@@ -860,6 +864,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onPersonNote={this.handlePersonNote}
               postListingMode={this.state.postListingMode}
               onScrollIntoCommentsClick={() => {}}
+              onNextPage={this.handleNextPage}
+              onPrevPage={this.handlePrevPage}
+              onFirstPage={this.handleFirstPage}
             />
           );
         }
@@ -1036,6 +1043,24 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   handlePageChange(cursor?: DirectionalCursor) {
     this.updateUrl({ cursor });
+  }
+
+  handleNextPage() {
+    const res = this.currentRes;
+    if (res.state === "success" && res.data.next_page) {
+      this.handlePageChange(directionalCursor(res.data.next_page, false));
+    }
+  }
+
+  handlePrevPage() {
+    const res = this.currentRes;
+    if (res.state === "success" && this.props.cursor && res.data.prev_page) {
+      this.handlePageChange(directionalCursor(res.data.prev_page, true));
+    }
+  }
+
+  handleFirstPage() {
+    this.handlePageChange(undefined);
   }
 
   handleSortChange(val: PostSortType) {

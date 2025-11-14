@@ -1,4 +1,4 @@
-import { ShowCrossPostsType } from "@utils/types";
+import { ShowBodyType, ShowCrossPostsType } from "@utils/types";
 import {
   CreatePostLike,
   Language,
@@ -12,19 +12,23 @@ import { PostThumbnail } from "./post-thumbnail";
 import { PostCreatedLine, PostName } from "./common";
 import { CrossPosts } from "./cross-posts";
 import { CommentsButton } from "./post-action-bar";
+import { mdToHtml } from "@utils/markdown";
 
 type Props = {
   postView: PostView;
   crossPosts: PostView[];
   allLanguages: Language[];
   showCommunity: boolean;
+  showBody: ShowBodyType;
   hideImage: boolean;
   viewOnly: boolean;
+  showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   showCrossPosts: ShowCrossPostsType;
   onPostVote(form: CreatePostLike): void;
   onScrollIntoCommentsClick(e: MouseEvent): void;
+  imageExpanded?: boolean;
 };
 
 export function PostListingList({
@@ -32,13 +36,16 @@ export function PostListingList({
   crossPosts,
   allLanguages,
   showCommunity,
+  showBody,
   hideImage,
   viewOnly,
+  showAdultConsentModal,
   myUserInfo,
   localSite,
   showCrossPosts,
   onPostVote,
   onScrollIntoCommentsClick,
+  imageExpanded,
 }: Props) {
   return (
     <div>
@@ -58,7 +65,7 @@ export function PostListingList({
           </div>
         )}
         <div className="col flex-grow-1">
-          <PostName post={postView.post} showBody="hidden" />
+          <PostName post={postView.post} showBody={showBody} />
           <PostCreatedLine
             postView={postView}
             showCommunity={showCommunity}
@@ -73,12 +80,17 @@ export function PostListingList({
             type_="text"
             onScrollIntoCommentsClick={onScrollIntoCommentsClick}
           />
+          {postView.post.body && showBody === "full" && (
+            <PostBody body={postView.post.body} />
+          )}
         </div>
         <div className="col-auto">
           <PostThumbnail
             postView={postView}
             hideImage={hideImage}
             myUserInfo={myUserInfo}
+            imageExpanded={imageExpanded}
+            showAdultConsentModal={showAdultConsentModal}
           />
         </div>
       </article>
@@ -89,5 +101,22 @@ export function PostListingList({
         localSite={localSite}
       />
     </div>
+  );
+}
+
+type PostBodyProps = {
+  body: string;
+};
+
+function PostBody({ body }: PostBodyProps) {
+  return (
+    <article id="postContent" className="my-2">
+      <div className="col-12 card card-body">
+        <div
+          className="md-div"
+          dangerouslySetInnerHTML={mdToHtml(body, () => {})}
+        />
+      </div>
+    </article>
   );
 }

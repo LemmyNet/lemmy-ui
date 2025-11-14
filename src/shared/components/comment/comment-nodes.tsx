@@ -79,6 +79,9 @@ interface CommentNodesProps {
   onPurgeComment(form: PurgeComment): void;
   onPersonNote(form: NotePerson): void;
   onLockComment(form: LockComment): void;
+  // Keyboard navigation props
+  highlightedCommentId?: number | null;
+  onCommentClick?(commentId: number): void;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -146,6 +149,8 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               onPurgeComment={this.props.onPurgeComment}
               onPersonNote={this.props.onPersonNote}
               onLockComment={this.props.onLockComment}
+              highlightedCommentId={this.props.highlightedCommentId}
+              onCommentClick={this.props.onCommentClick}
             />
           ))}
         </ul>

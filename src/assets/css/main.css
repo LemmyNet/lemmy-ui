@@ -515,3 +515,17 @@ em-emoji-picker {
   mask: var(--mask);
   max-height: 100px;
 }
+
+/* Keyboard Navigation Styles */
+
+/* Remove default focus outline and add smooth transitions */
+.post-listing,
+.comment-node {
+  outline: none;
+  transition: background-color 0.15s ease-in-out;
+}
+
+/* Keyboard navigation highlight - adapts to theme via body-color variable */
+.keyboard-selected {
+  background-color: rgba(var(--bs-body-color-rgb), 0.1);
+}

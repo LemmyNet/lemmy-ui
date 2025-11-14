@@ -22,6 +22,7 @@ import {
   bareRoutePush,
   getApubName,
   cursorComponents,
+  directionalCursor,
 } from "@utils/helpers";
 import { amAdmin, canAdmin } from "@utils/roles";
 import type { DirectionalCursor, QueryParams } from "@utils/types";
@@ -332,6 +333,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     this.handleSortChange = this.handleSortChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleNextPage = this.handleNextPage.bind(this);
+    this.handlePrevPage = this.handlePrevPage.bind(this);
+    this.handleFirstPage = this.handleFirstPage.bind(this);
 
     this.handleBlockPerson = this.handleBlockPerson.bind(this);
     this.handleUnblockPerson = this.handleUnblockPerson.bind(this);
@@ -754,6 +758,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onMarkPostAsRead={this.handleMarkPostAsRead}
                     onPersonNote={this.handlePersonNote}
                     onLockComment={this.handleLockComment}
+                    onNextPage={this.handleNextPage}
+                    onPrevPage={this.handlePrevPage}
+                    onFirstPage={this.handleFirstPage}
                   />
                 ))}
               <PaginatorCursor
@@ -1246,6 +1253,24 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   handlePageChange(cursor?: DirectionalCursor) {
     this.updateUrl({ cursor });
+  }
+
+  handleNextPage() {
+    const res = this.currentRes;
+    if (res.state === "success" && res.data.next_page) {
+      this.handlePageChange(directionalCursor(res.data.next_page, false));
+    }
+  }
+
+  handlePrevPage() {
+    const res = this.currentRes;
+    if (res.state === "success" && this.props.cursor && res.data.prev_page) {
+      this.handlePageChange(directionalCursor(res.data.prev_page, true));
+    }
+  }
+
+  handleFirstPage() {
+    this.handlePageChange(undefined);
   }
 
   handleSortChange(sort: SearchSortType) {

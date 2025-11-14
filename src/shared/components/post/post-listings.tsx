@@ -33,6 +33,19 @@ import {
 import { I18NextService } from "../../services";
 import { PostListing } from "./post-listing";
 import { ShowCrossPostsType } from "@utils/types";
+import {
+  areKeyboardShortcutsEnabled,
+  ensureInView,
+} from "@utils/keyboard-shortcuts";
+import {
+  keyboardShortcutsMixin,
+  type KeyboardShortcutsComponent,
+} from "../mixins/keyboard-shortcuts-mixin";
+import {
+  toggleExpansion,
+  getShowBodyMode,
+  type KeyboardNavigationState,
+} from "@utils/keyboard-shortcuts-expansion";
 
 interface PostListingsProps {
   posts: PostView[];
@@ -69,13 +82,108 @@ interface PostListingsProps {
   onHidePost(form: HidePost): void;
   onPersonNote(form: NotePerson): void;
   onScrollIntoCommentsClick(): void;
+  onNextPage?(): void;
+  onPrevPage?(): void;
+  onFirstPage?(): void;
 }
 
-export class PostListings extends Component<PostListingsProps, any> {
+@keyboardShortcutsMixin
+export class PostListings
+  extends Component<PostListingsProps, KeyboardNavigationState>
+  implements KeyboardShortcutsComponent<PostView>
+{
+  state: KeyboardNavigationState = {
+    highlightedIndex: 0,
+    expandedPostIndices: new Set<number>(),
+  };
+
   duplicatesMap = new Map<number, PostView[]>();
 
   constructor(props: any, context: any) {
     super(props, context);
+    this.handleHighlight = this.handleHighlight.bind(this);
+    this.toggleExpand = this.toggleExpand.bind(this);
+  }
+
+  componentDidMount() {
+    // Focus first post on initial load to enable keyboard shortcuts immediately
+    if (areKeyboardShortcutsEnabled() && this.posts.length > 0) {
+      this.scrollToIndex(0);
+    }
+  }
+
+  // KeyboardShortcutsComponent interface implementation
+  getItems() {
+    return this.posts;
+  }
+
+  getCurrentIndex() {
+    return this.state.highlightedIndex;
+  }
+
+  setCurrentIndex(index: number) {
+    this.setState({ highlightedIndex: index });
+  }
+
+  scrollToIndex(index: number) {
+    requestAnimationFrame(() => {
+      const postListingElement = document.querySelector(
+        `.post-listing[data-post-index="${index}"]`,
+      ) as HTMLElement;
+
+      if (postListingElement) {
+        ensureInView(postListingElement);
+        postListingElement.focus();
+      }
+    });
+  }
+
+  // Handle component-specific custom keys
+  // Called by mixin before universal handler
+  handleCustomKeys(_event: KeyboardEvent, _currentPost: PostView): boolean {
+    if (_event.key === "x") {
+      const currentIndex = this.state.highlightedIndex;
+      this.setState(prevState => ({
+        expandedPostIndices: toggleExpansion(
+          prevState.expandedPostIndices,
+          currentIndex,
+        ),
+      }));
+      return true; // Key was handled
+    }
+
+    // Pagination shortcuts (only if handlers are provided)
+    if (_event.key === "n" && this.props.onNextPage) {
+      this.props.onNextPage();
+      return true;
+    }
+
+    // Check for P (shift+p) before p to avoid lowercase p matching both
+    if (_event.key === "P" && this.props.onFirstPage) {
+      this.props.onFirstPage();
+      return true;
+    }
+
+    if (_event.key === "p" && this.props.onPrevPage) {
+      this.props.onPrevPage();
+      return true;
+    }
+
+    return false; // Key not handled, let universal handler process it
+  }
+
+  handleHighlight(postIndex: number) {
+    this.setState({ highlightedIndex: postIndex });
+  }
+
+  toggleExpand() {
+    const currentIndex = this.state.highlightedIndex;
+    this.setState(prevState => ({
+      expandedPostIndices: toggleExpansion(
+        prevState.expandedPostIndices,
+        currentIndex,
+      ),
+    }));
   }
 
   get posts() {
@@ -86,7 +194,12 @@ export class PostListings extends Component<PostListingsProps, any> {
 
   render() {
     return (
-      <div className="post-listings">
+      <div
+        className="post-listings"
+        role="feed"
+        aria-label="Posts"
+        tabIndex={-1}
+      >
         {this.posts.length > 0 ? (
           <div className="row post-listings-grid">
             {this.posts.map((postView, idx) => (
@@ -104,7 +217,10 @@ export class PostListings extends Component<PostListingsProps, any> {
                   myUserInfo={this.props.myUserInfo}
                   localSite={this.props.localSite}
                   admins={this.props.admins}
-                  showBody={"preview"}
+                  showBody={getShowBodyMode(
+                    this.state.expandedPostIndices,
+                    idx,
+                  )}
                   hideImage={false}
                   disableAutoMarkAsRead={false}
                   editLoading={false}
@@ -133,6 +249,11 @@ export class PostListings extends Component<PostListingsProps, any> {
                   onScrollIntoCommentsClick={
                     this.props.onScrollIntoCommentsClick
                   }
+                  isHighlighted={this.state.highlightedIndex === idx}
+                  isExpanded={this.state.expandedPostIndices.has(idx)}
+                  postIndex={idx}
+                  onHighlight={this.handleHighlight}
+                  onToggleExpand={this.toggleExpand}
                 />
                 {idx + 1 !== this.posts.length && <hr className="my-3" />}
               </div>

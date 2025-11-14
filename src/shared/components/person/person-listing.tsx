@@ -117,7 +117,7 @@ type PersonLinkAndServerStr = {
   serverStr?: string;
 };
 
-function personLink(
+export function personLink(
   person: Person,
   realLink: boolean = false,
 ): PersonLinkAndServerStr {
