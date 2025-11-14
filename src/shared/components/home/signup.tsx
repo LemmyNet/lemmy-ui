@@ -27,6 +27,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { RouteData } from "@utils/types";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { handleUseOAuthProvider } from "./login";
+import { secondsDurationToAlertClass, secondsDurationToStr } from "@utils/date";
 
 interface SignupProps {
   sso_provider_id?: string;
@@ -148,6 +149,8 @@ export class Signup extends Component<SignupRouteProps, State> {
   registerForm() {
     const siteView = this.isoData.siteRes?.site_view;
     const oauth_provider = getOAuthProvider(this);
+    const lastApplicationDurationSeconds =
+      this.isoData.siteRes.last_application_duration_seconds;
 
     return (
       <form
@@ -292,6 +295,24 @@ export class Signup extends Component<SignupRouteProps, State> {
                 />
               </div>
             </div>
+            {lastApplicationDurationSeconds && (
+              <div className="mb-3 row">
+                <div className="offset-sm-2 col-sm-10">
+                  <div
+                    className={secondsDurationToAlertClass(
+                      lastApplicationDurationSeconds,
+                    )}
+                    role="alert"
+                  >
+                    {I18NextService.i18n.t("estimated_approval_time", {
+                      time: secondsDurationToStr(
+                        lastApplicationDurationSeconds,
+                      ),
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
         {this.renderCaptcha()}

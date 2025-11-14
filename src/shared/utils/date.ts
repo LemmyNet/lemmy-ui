@@ -9,6 +9,7 @@ import {
   setYear,
   formatDistanceToNowStrict,
   subDays,
+  formatDistance,
 } from "date-fns";
 
 export function futureDaysToUnixTime(days?: number): number | undefined {
@@ -49,6 +50,7 @@ export function isCakeDay(published: string): boolean {
 export function getUnixTimeLemmy(text?: string): number | undefined {
   return text ? new Date(text).getTime() / 1000 : undefined;
 }
+
 /**
  * Converts timestamp string to unix timestamp in millis, as used by Javascript
  */
@@ -65,6 +67,31 @@ export function unixTimeToLocalDateStr(unixTime?: number): string | undefined {
   return unixTime
     ? convertUTCDateToLocalDate(new Date(unixTime)).toISOString().slice(0, -8)
     : undefined;
+}
+
+/**
+ * Converts a seconds duration, to a readable date-fns string.
+ */
+export function secondsDurationToStr(seconds: number): string {
+  return formatDistance(0, seconds * 1000, { includeSeconds: true });
+}
+
+/**
+ * Constructs an alert class from the duration.
+ * < 1 hour = success
+ * < 1 day = warning
+ * else = danger
+ */
+export function secondsDurationToAlertClass(seconds: number): string {
+  let classes: string;
+  if (seconds < 3600) {
+    classes = "success";
+  } else if (seconds < 86400) {
+    classes = "warning";
+  } else {
+    classes = "danger";
+  }
+  return `alert alert-${classes}`;
 }
 
 function convertUTCDateToLocalDate(date: Date): Date {
