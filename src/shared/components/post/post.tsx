@@ -1447,11 +1447,25 @@ export class Post extends Component<PostRouteProps, PostState> {
   async handleSaveComment(form: SaveComment) {
     const saveCommentRes = await HttpService.client.saveComment(form);
     this.findAndUpdateComment(saveCommentRes);
+
+    if (saveCommentRes.state === "success") {
+      const message = form.save
+        ? I18NextService.i18n.t("comment_saved")
+        : I18NextService.i18n.t("comment_unsaved");
+      toast(message);
+    }
   }
 
   async handleSavePost(form: SavePost) {
     const saveRes = await HttpService.client.savePost(form);
     this.updatePost(saveRes);
+
+    if (saveRes.state === "success") {
+      const message = form.save
+        ? I18NextService.i18n.t("post_saved")
+        : I18NextService.i18n.t("post_unsaved");
+      toast(message);
+    }
   }
 
   async handleFeaturePost(form: FeaturePost) {
