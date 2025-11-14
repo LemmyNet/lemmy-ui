@@ -351,7 +351,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               <option value={"require_application"}>
                 {I18NextService.i18n.t("require_registration_application")}
               </option>
-              <option value={"Open"}>
+              <option value={"open"}>
                 {I18NextService.i18n.t("open_registration")}
               </option>
               <option value={"closed"}>
