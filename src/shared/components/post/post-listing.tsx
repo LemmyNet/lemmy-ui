@@ -303,6 +303,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
           <PostListingList
             postView={p.postView}
             crossPosts={p.crossPosts}
+            admins={p.admins}
             allLanguages={p.allLanguages}
             showCommunity={p.showCommunity}
             showBody={p.showBody}
@@ -312,9 +313,29 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
             showCrossPosts={p.showCrossPosts}
-            onPostVote={p.onPostVote}
-            onScrollIntoCommentsClick={p.onScrollIntoCommentsClick}
+            markable={p.markable}
             imageExpanded={this.state.imageExpanded}
+            onEditClick={() => handleEditClick(this)}
+            onPostVote={p.onPostVote}
+            onPostReport={p.onPostReport}
+            onBlockPerson={p.onBlockPerson}
+            onBlockCommunity={p.onBlockCommunity}
+            onLockPost={p.onLockPost}
+            onDeletePost={p.onDeletePost}
+            onRemovePost={p.onRemovePost}
+            onSavePost={p.onSavePost}
+            onFeaturePost={p.onFeaturePost}
+            onPurgePerson={p.onPurgePerson}
+            onPurgePost={p.onPurgePost}
+            onBanPersonFromCommunity={p.onBanPersonFromCommunity}
+            onBanPerson={p.onBanPerson}
+            onAddModToCommunity={p.onAddModToCommunity}
+            onAddAdmin={p.onAddAdmin}
+            onTransferCommunity={p.onTransferCommunity}
+            onHidePost={p.onHidePost}
+            onPersonNote={p.onPersonNote}
+            onScrollIntoCommentsClick={p.onScrollIntoCommentsClick}
+            onMarkPostAsRead={p.onMarkPostAsRead}
           />
         );
       case "card":

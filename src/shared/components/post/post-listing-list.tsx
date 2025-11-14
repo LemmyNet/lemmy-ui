@@ -1,10 +1,29 @@
 import { ShowBodyType, ShowCrossPostsType } from "@utils/types";
 import {
+  AddAdmin,
+  AddModToCommunity,
+  BanFromCommunity,
+  BanPerson,
+  BlockCommunity,
+  BlockPerson,
   CreatePostLike,
+  CreatePostReport,
+  DeletePost,
+  FeaturePost,
+  HidePost,
   Language,
   LocalSite,
+  LockPost,
+  MarkPostAsRead,
   MyUserInfo,
+  NotePerson,
+  PersonView,
   PostView,
+  PurgePerson,
+  PurgePost,
+  RemovePost,
+  SavePost,
+  TransferCommunity,
 } from "lemmy-js-client";
 import { VoteButtons } from "@components/common/vote-buttons";
 import { postIsInteractable, userNotLoggedInOrBanned } from "@utils/app";
@@ -12,11 +31,13 @@ import { PostThumbnail } from "./post-thumbnail";
 import { PostCreatedLine, PostName } from "./common";
 import { CrossPosts } from "./cross-posts";
 import { CommentsButton } from "./post-action-bar";
+import { PostActionDropdownWrapper } from "./post-action-dropdown-wrapper";
 import { mdToHtml } from "@utils/markdown";
 
 type Props = {
   postView: PostView;
   crossPosts: PostView[];
+  admins: PersonView[];
   allLanguages: Language[];
   showCommunity: boolean;
   showBody: ShowBodyType;
@@ -26,14 +47,35 @@ type Props = {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   showCrossPosts: ShowCrossPostsType;
-  onPostVote(form: CreatePostLike): void;
-  onScrollIntoCommentsClick(e: MouseEvent): void;
+  markable: boolean;
   imageExpanded?: boolean;
+  onEditClick(): void;
+  onPostVote(form: CreatePostLike): void;
+  onPostReport(form: CreatePostReport): void;
+  onBlockPerson(form: BlockPerson): void;
+  onBlockCommunity(form: BlockCommunity): void;
+  onLockPost(form: LockPost): void;
+  onDeletePost(form: DeletePost): void;
+  onRemovePost(form: RemovePost): void;
+  onSavePost(form: SavePost): void;
+  onFeaturePost(form: FeaturePost): void;
+  onPurgePerson(form: PurgePerson): void;
+  onPurgePost(form: PurgePost): void;
+  onBanPersonFromCommunity(form: BanFromCommunity): void;
+  onBanPerson(form: BanPerson): void;
+  onAddModToCommunity(form: AddModToCommunity): void;
+  onAddAdmin(form: AddAdmin): void;
+  onTransferCommunity(form: TransferCommunity): void;
+  onHidePost(form: HidePost): void;
+  onPersonNote(form: NotePerson): void;
+  onScrollIntoCommentsClick(e: MouseEvent): void;
+  onMarkPostAsRead(form: MarkPostAsRead): void;
 };
 
 export function PostListingList({
   postView,
   crossPosts,
+  admins,
   allLanguages,
   showCommunity,
   showBody,
@@ -43,9 +85,29 @@ export function PostListingList({
   myUserInfo,
   localSite,
   showCrossPosts,
-  onPostVote,
-  onScrollIntoCommentsClick,
+  markable,
   imageExpanded,
+  onEditClick,
+  onPostVote,
+  onPostReport,
+  onBlockPerson,
+  onBlockCommunity,
+  onLockPost,
+  onDeletePost,
+  onRemovePost,
+  onSavePost,
+  onFeaturePost,
+  onPurgePerson,
+  onPurgePost,
+  onBanPersonFromCommunity,
+  onBanPerson,
+  onAddModToCommunity,
+  onAddAdmin,
+  onTransferCommunity,
+  onHidePost,
+  onPersonNote,
+  onScrollIntoCommentsClick,
+  onMarkPostAsRead,
 }: Props) {
   return (
     <div>
@@ -75,11 +137,42 @@ export function PostListingList({
             allLanguages={allLanguages}
             myUserInfo={myUserInfo}
           />
-          <CommentsButton
-            postView={postView}
-            type_="text"
-            onScrollIntoCommentsClick={onScrollIntoCommentsClick}
-          />
+          <div className="d-flex align-items-center gap-2">
+            <CommentsButton
+              postView={postView}
+              type_="text"
+              onScrollIntoCommentsClick={onScrollIntoCommentsClick}
+            />
+            <PostActionDropdownWrapper
+              postView={postView}
+              admins={admins}
+              showBody={showBody}
+              markable={markable}
+              viewOnly={viewOnly}
+              viewSource={false}
+              myUserInfo={myUserInfo}
+              onViewSource={() => {}}
+              onEditClick={onEditClick}
+              onPostReport={onPostReport}
+              onBlockPerson={onBlockPerson}
+              onBlockCommunity={onBlockCommunity}
+              onLockPost={onLockPost}
+              onDeletePost={onDeletePost}
+              onRemovePost={onRemovePost}
+              onSavePost={onSavePost}
+              onFeaturePost={onFeaturePost}
+              onPurgePerson={onPurgePerson}
+              onPurgePost={onPurgePost}
+              onBanPersonFromCommunity={onBanPersonFromCommunity}
+              onBanPerson={onBanPerson}
+              onAddModToCommunity={onAddModToCommunity}
+              onAddAdmin={onAddAdmin}
+              onTransferCommunity={onTransferCommunity}
+              onHidePost={onHidePost}
+              onPersonNote={onPersonNote}
+              onMarkPostAsRead={onMarkPostAsRead}
+            />
+          </div>
           {postView.post.body && showBody === "full" && (
             <PostBody body={postView.post.body} />
           )}
