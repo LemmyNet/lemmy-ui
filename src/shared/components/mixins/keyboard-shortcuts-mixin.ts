@@ -3,6 +3,7 @@ import { isBrowser } from "@utils/browser";
 import {
   areKeyboardShortcutsEnabled,
   shouldIgnoreEvent,
+  activateKeyboardMode,
 } from "@utils/keyboard-shortcuts";
 import { handleKeyboardAction } from "@utils/keyboard-shortcuts-handler";
 import { KeyboardNavigationController } from "@utils/keyboard-navigation-controller";
@@ -116,6 +117,10 @@ export function keyboardShortcutsMixin<
       if (!areKeyboardShortcutsEnabled() || shouldIgnoreEvent(event)) {
         return;
       }
+
+      // Activate keyboard mode on first keyboard navigation
+      // This makes highlights visible only for keyboard users
+      activateKeyboardMode();
 
       const items = this.getItems();
 

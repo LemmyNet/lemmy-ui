@@ -31,6 +31,7 @@ import { Component, createRef, linkEvent } from "inferno";
 import {
   areKeyboardShortcutsEnabled,
   shouldIgnoreEvent,
+  activateKeyboardMode,
 } from "@utils/keyboard-shortcuts";
 import { handleKeyboardAction } from "@utils/keyboard-shortcuts-handler";
 import { PostCommentNavigator } from "@utils/post-comment-navigator";
@@ -515,6 +516,10 @@ export class Post extends Component<PostRouteProps, PostState> {
     if (!areKeyboardShortcutsEnabled() || shouldIgnoreEvent(event)) {
       return;
     }
+
+    // Activate keyboard mode on first keyboard navigation
+    // This makes highlights visible only for keyboard users
+    activateKeyboardMode();
 
     const { highlightedCommentId } = this.state;
 

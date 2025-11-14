@@ -525,7 +525,8 @@ em-emoji-picker {
   transition: background-color 0.15s ease-in-out;
 }
 
-/* Keyboard navigation highlight - adapts to theme via body-color variable */
-.keyboard-selected {
+/* Keyboard navigation highlight - only visible after keyboard navigation is used
+   This prevents the highlight from showing for mouse/touch users */
+.keyboard-mode-active .keyboard-selected {
   background-color: rgba(var(--bs-body-color-rgb), 0.1);
 }

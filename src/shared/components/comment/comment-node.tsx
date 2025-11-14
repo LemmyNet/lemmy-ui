@@ -8,6 +8,7 @@ import { Link } from "inferno-router";
 import {
   areKeyboardShortcutsEnabled,
   shouldIgnoreEvent,
+  activateKeyboardMode,
 } from "@utils/keyboard-shortcuts";
 import {
   handleKeyboardShortcut,
@@ -142,12 +143,15 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   handleKeyDown(event: KeyboardEvent) {
     const p = this.props;
 
-    if (
-      !areKeyboardShortcutsEnabled() ||
-      shouldIgnoreEvent(event) ||
-      p.viewOnly ||
-      !this.isHighlighted
-    ) {
+    if (!areKeyboardShortcutsEnabled() || shouldIgnoreEvent(event)) {
+      return;
+    }
+
+    // Activate keyboard mode on first keyboard action
+    // This makes highlights visible for keyboard users
+    activateKeyboardMode();
+
+    if (p.viewOnly || !this.isHighlighted) {
       return;
     }
 

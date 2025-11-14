@@ -36,6 +36,7 @@ import { masonryUpdate } from "@utils/browser";
 import {
   areKeyboardShortcutsEnabled,
   shouldIgnoreEvent,
+  activateKeyboardMode,
 } from "@utils/keyboard-shortcuts";
 import {
   handleKeyboardShortcut,
@@ -205,12 +206,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     // On listing pages, only process if explicitly highlighted
     const shouldHandle = p.isHighlighted === undefined ? true : p.isHighlighted;
 
-    if (
-      !areKeyboardShortcutsEnabled() ||
-      shouldIgnoreEvent(event) ||
-      p.viewOnly ||
-      !shouldHandle
-    ) {
+    if (!areKeyboardShortcutsEnabled() || shouldIgnoreEvent(event)) {
+      return;
+    }
+
+    // Activate keyboard mode on first keyboard action
+    // This makes highlights visible for keyboard users
+    activateKeyboardMode();
+
+    if (p.viewOnly || !shouldHandle) {
       return;
     }
 

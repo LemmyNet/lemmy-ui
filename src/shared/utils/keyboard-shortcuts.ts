@@ -21,6 +21,20 @@ export function areKeyboardShortcutsEnabled(): boolean {
 }
 
 /**
+ * Activate keyboard mode - adds class to html element to enable keyboard navigation highlights
+ * This is called on the first keyboard navigation action to ensure highlights only show
+ * for users who actually use keyboard shortcuts (not mouse/touch users)
+ */
+export function activateKeyboardMode(): void {
+  if (!isBrowser()) {
+    return;
+  }
+  if (!document.documentElement.classList.contains("keyboard-mode-active")) {
+    document.documentElement.classList.add("keyboard-mode-active");
+  }
+}
+
+/**
  * Check if element is a form control that needs all keyboard input
  * @param element - The element to check
  * @returns true if element is a form control (input, textarea, select, contentEditable)
