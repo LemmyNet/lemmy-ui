@@ -752,30 +752,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             )}
           </button>
         </div>
-        <div className="col-auto form-check ms-2 h-min d-flex align-items-center">
-          <input
-            type="checkbox"
-            className="form-check-input mt-0"
-            onChange={linkEvent(this, this.handleTitleOnlyChange)}
-            checked={this.props.titleOnly}
-            id="title_only"
-          />
-          <label for="title_only" className="m-1 form-check-label">
-            {I18NextService.i18n.t("post_title_only")}
-          </label>
-        </div>
-        <div className="col-auto form-check ms-2 h-min d-flex align-items-center">
-          <input
-            type="checkbox"
-            className="form-check-input mt-0"
-            onChange={linkEvent(this, this.handlePostUrlOnlyChange)}
-            checked={this.props.postUrlOnly}
-            id="url-only"
-          />
-          <label for="url-only" className="m-1 form-check-label">
-            {I18NextService.i18n.t("post_url_only")}
-          </label>
-        </div>
       </form>
     );
   }
