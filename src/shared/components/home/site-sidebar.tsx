@@ -126,7 +126,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         <CreateMultiCommunityButton myUserInfo={this.props.myUserInfo} />
         {local_site && <LocalSiteBadges localSite={local_site} />}
         {admins && this.admins(admins)}
-        {active_plugins && this.plugins(active_plugins)}
+        {active_plugins.length > 0 && this.plugins(active_plugins)}
       </div>
     );
   }
