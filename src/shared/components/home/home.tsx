@@ -478,14 +478,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get mobileView() {
-    const {
-      siteRes: {
-        site_view: { local_site, site },
-        admins,
-      },
-      showSubscribedMobile,
-      showSidebarMobile,
-    } = this.state;
+    const { siteRes, showSubscribedMobile, showSidebarMobile } = this.state;
 
     return (
       <div className="row">
@@ -504,13 +497,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           />
           {showSidebarMobile && (
             <SiteSidebar
-              site={site}
-              admins={admins}
-              localSite={local_site}
+              site={siteRes.site_view.site}
+              siteRes={siteRes}
               isMobile
               myUserInfo={this.isoData.myUserInfo}
-              allLanguages={this.state.siteRes.all_languages}
-              siteLanguages={this.state.siteRes.discussion_languages}
             />
           )}
           {showSubscribedMobile && (
@@ -529,22 +519,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get mySidebar() {
-    const {
-      siteRes: {
-        site_view: { local_site, site },
-        admins,
-      },
-    } = this.state;
+    const { siteRes } = this.state;
 
     return (
       <div id="sidebarContainer">
         <SiteSidebar
-          site={site}
-          admins={admins}
-          localSite={local_site}
+          site={siteRes.site_view.site}
+          siteRes={siteRes}
           myUserInfo={this.isoData.myUserInfo}
-          allLanguages={this.state.siteRes.all_languages}
-          siteLanguages={this.state.siteRes.discussion_languages}
         />
         {this.hasFollows && (
           <div className="accordion">

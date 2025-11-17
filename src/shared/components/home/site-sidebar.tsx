@@ -1,10 +1,10 @@
 import classNames from "classnames";
 import { Component, linkEvent } from "inferno";
 import {
-  Language,
-  LocalSite,
+  GetSiteResponse,
   MyUserInfo,
   PersonView,
+  PluginMetadata,
   Site,
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
@@ -23,12 +23,9 @@ import {
 
 interface SiteSidebarProps {
   site: Site;
-  localSite?: LocalSite;
-  admins?: PersonView[];
+  siteRes?: GetSiteResponse;
   isMobile?: boolean;
   myUserInfo: MyUserInfo | undefined;
-  allLanguages?: Language[];
-  siteLanguages?: number[];
 }
 
 interface SiteSidebarState {
@@ -46,14 +43,14 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   render() {
+    const site = this.props.site;
+
     return (
       <div className="site-sidebar accordion">
         <section id="sidebarInfo" className="card mb-3">
           <header className="card-header" id="sidebarInfoHeader">
             {this.siteName()}
-            {!this.state.collapsed && (
-              <BannerIconHeader banner={this.props.site.banner} />
-            )}
+            {!this.state.collapsed && <BannerIconHeader banner={site.banner} />}
           </header>
 
           {!this.state.collapsed && (
@@ -67,9 +64,11 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   siteName() {
+    const site = this.props.site;
+
     return (
       <div className={classNames({ "mb-2": !this.state.collapsed })}>
-        <h5 className="mb-0 d-inline">{this.props.site.name}</h5>
+        <h5 className="mb-0 d-inline">{site.name}</h5>
         {!this.props.isMobile && (
           <button
             type="button"
@@ -102,26 +101,32 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   siteInfo() {
-    const { site } = this.props;
+    const site = this.props.site;
+    const {
+      site_view: { local_site },
+      all_languages,
+      discussion_languages,
+      admins,
+      active_plugins,
+    } = this.props.siteRes || ({} as GetSiteResponse);
 
     return (
       <div>
         {site.description && <h6>{site.description}</h6>}
         {site.sidebar && this.siteSidebar(site.sidebar)}
         <LanguageList
-          allLanguages={this.props.allLanguages}
-          languageIds={this.props.siteLanguages}
+          allLanguages={all_languages}
+          languageIds={discussion_languages}
         />
         <CreatePostButton />
         <CreateCommunityButton
-          localSite={this.props.localSite}
+          localSite={local_site}
           myUserInfo={this.props.myUserInfo}
         />
         <CreateMultiCommunityButton myUserInfo={this.props.myUserInfo} />
-        {this.props.localSite && (
-          <LocalSiteBadges localSite={this.props.localSite} />
-        )}
-        {this.props.admins && this.admins(this.props.admins)}
+        {local_site && <LocalSiteBadges localSite={local_site} />}
+        {admins && this.admins(admins)}
+        {active_plugins && this.plugins(active_plugins)}
       </div>
     );
   }
@@ -146,6 +151,23 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
               banned={av.banned}
               myUserInfo={this.props.myUserInfo}
             />
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  plugins(plugins: PluginMetadata[]) {
+    return (
+      <ul className="mt-1 list-inline small mb-0">
+        <li className="list-inline-item">
+          {I18NextService.i18n.t("active_plugins")}:
+        </li>
+        {plugins.map(p => (
+          <li className="list-inline-item">
+            <a href={p.url} data-tippy-content={p.description}>
+              {p.name}
+            </a>
           </li>
         ))}
       </ul>
