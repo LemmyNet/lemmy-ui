@@ -478,7 +478,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get mobileView() {
-    const { siteRes, showSubscribedMobile, showSidebarMobile } = this.state;
+    const {
+      siteRes: {
+        site_view: { local_site, site },
+        admins,
+      },
+      showSubscribedMobile,
+      showSidebarMobile,
+    } = this.state;
 
     return (
       <div className="row">
@@ -497,10 +504,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           />
           {showSidebarMobile && (
             <SiteSidebar
-              site={siteRes.site_view.site}
-              siteRes={siteRes}
+              site={site}
+              admins={admins}
+              localSite={local_site}
               isMobile
               myUserInfo={this.isoData.myUserInfo}
+              allLanguages={this.state.siteRes.all_languages}
+              siteLanguages={this.state.siteRes.discussion_languages}
+              activePlugins={this.state.siteRes.active_plugins}
             />
           )}
           {showSubscribedMobile && (
@@ -519,14 +530,23 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get mySidebar() {
-    const { siteRes } = this.state;
+    const {
+      siteRes: {
+        site_view: { local_site, site },
+        admins,
+      },
+    } = this.state;
 
     return (
       <div id="sidebarContainer">
         <SiteSidebar
-          site={siteRes.site_view.site}
-          siteRes={siteRes}
+          site={site}
+          admins={admins}
+          localSite={local_site}
           myUserInfo={this.isoData.myUserInfo}
+          allLanguages={this.state.siteRes.all_languages}
+          siteLanguages={this.state.siteRes.discussion_languages}
+          activePlugins={this.state.siteRes.active_plugins}
         />
         {this.hasFollows && (
           <div className="accordion">
