@@ -45,13 +45,23 @@ const contextPlugin = (() => {
   });
 })();
 
+function enableSourceMaps(mode) {
+  const envVal = process.env.LEMMY_UI_SOURCE_MAPS;
+  if (envVal) {
+    return envVal === "true";
+  }
+  return mode === "development";
+}
+
 module.exports = (env, argv) => {
   const mode = argv.mode;
 
+  /** @type {webpack.Configuration} */
   const base = {
     output: {
       hashFunction: "xxhash64",
     },
+    devtool: enableSourceMaps(mode) && "source-map",
     resolve: {
       extensions: [".js", ".jsx", ".ts", ".tsx"],
       alias: {
@@ -102,6 +112,7 @@ module.exports = (env, argv) => {
     ],
   };
 
+  /** @type {webpack.Configuration} */
   const serverConfig = {
     ...base,
     entry: "./src/server/index.tsx",
@@ -116,6 +127,7 @@ module.exports = (env, argv) => {
     plugins: [...base.plugins],
   };
 
+  /** @type {webpack.Configuration} */
   const clientConfig = {
     ...base,
     entry: "./src/client/index.tsx",
@@ -139,6 +151,7 @@ module.exports = (env, argv) => {
     ],
   };
 
+  /** @type {webpack.Configuration} */
   const embeddedConfig = {
     ...base,
     entry: "./src/embedded/index.ts",
