@@ -14,7 +14,8 @@ steps:
   prettier_check:
     image: tmknom/prettier:3.6.2
     commands:
-      - prettier -c .
+      # Ignore src as this is already checked by lint
+      - prettier -c . "!src"
     when:
       - event: pull_request
 
