@@ -109,7 +109,7 @@ importers:
         version: 9.0.4(history@5.3.0)
       inferno-server:
         specifier: ^9.0.4
-        version: 9.0.4
+        version: 9.0.5
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
@@ -2986,8 +2986,8 @@ packages:
     peerDependencies:
       history: ^5.3.0
 
-  inferno-server@9.0.4:
-    resolution: {integrity: sha512-TvwdAb+o/jZrtHBZvKgFWhHOfnTPbxxrdrOWujzK9yVMK3sNdiTI9vD/AkNCxbmppq7Y+WNIJh1MYRVRjzGovQ==}
+  inferno-server@9.0.5:
+    resolution: {integrity: sha512-jo/eaaG8upBqpsRl9vvinXmFuN1k6BzS/Q4MwTHBxFNHwBOp1ZiFYyJd1Y3+tdHY1o8/uFGVMREY8+i0He1TBw==}
     engines: {node: '>=8'}
 
   inferno-shared@8.2.3:
@@ -8337,9 +8337,9 @@ snapshots:
       inferno: 9.0.4
       path-to-regexp: 1.9.0
 
-  inferno-server@9.0.4:
+  inferno-server@9.0.5:
     dependencies:
-      inferno: 9.0.4
+      inferno: 9.0.5
 
   inferno-shared@8.2.3: {}
 
