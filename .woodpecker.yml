@@ -12,10 +12,9 @@ steps:
       - event: [pull_request, tag]
 
   prettier_check:
-    image: tmknom/prettier:3.6.2
+    image: jauderho/prettier:3.7.3-alpine
     commands:
-      # Ignore src as this is already checked by lint
-      - prettier -c . "!src"
+      - prettier -c .
     when:
       - event: pull_request
 
