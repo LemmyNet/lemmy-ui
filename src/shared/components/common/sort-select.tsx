@@ -18,8 +18,9 @@ interface CommonSortSelectProps<SortT extends string> {
   current: SortT;
 }
 
-interface SortSelectProps<SortT extends string>
-  extends CommonSortSelectProps<SortT> {
+interface SortSelectProps<
+  SortT extends string,
+> extends CommonSortSelectProps<SortT> {
   choices: SortChoice<SortT>[];
   title: NoOptionI18nKeys;
 }
