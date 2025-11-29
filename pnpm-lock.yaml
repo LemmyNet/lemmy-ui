@@ -91,13 +91,13 @@ importers:
         version: 23.16.8
       inferno:
         specifier: ^9.0.3
-        version: 9.0.4
+        version: 9.0.5
       inferno-create-element:
         specifier: ^9.0.3
         version: 9.0.5
       inferno-helmet:
         specifier: ^5.2.1
-        version: 5.2.1(inferno@9.0.4)
+        version: 5.2.1(inferno@9.0.5)
       inferno-hydrate:
         specifier: ^9.0.3
         version: 9.0.5
@@ -2159,9 +2159,6 @@ packages:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
     hasBin: true
-
-  csstype@3.1.3:
-    resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
@@ -7305,8 +7302,6 @@ snapshots:
 
   cssesc@3.0.0: {}
 
-  csstype@3.1.3: {}
-
   csstype@3.2.3: {}
 
   damerau-levenshtein@1.0.8: {}
@@ -8328,10 +8323,10 @@ snapshots:
     dependencies:
       inferno: 9.0.5
 
-  inferno-helmet@5.2.1(inferno@9.0.4):
+  inferno-helmet@5.2.1(inferno@9.0.5):
     dependencies:
       deep-equal: 1.1.2
-      inferno-side-effect: 1.1.5(inferno@9.0.4)
+      inferno-side-effect: 1.1.5(inferno@9.0.5)
       object-assign: 4.1.1
     transitivePeerDependencies:
       - inferno
@@ -8361,10 +8356,10 @@ snapshots:
 
   inferno-shared@8.2.3: {}
 
-  inferno-side-effect@1.1.5(inferno@9.0.4):
+  inferno-side-effect@1.1.5(inferno@9.0.5):
     dependencies:
       exenv: 1.2.2
-      inferno: 9.0.4
+      inferno: 9.0.5
       npm: 5.10.0
       shallowequal: 1.1.0
 
@@ -8376,13 +8371,13 @@ snapshots:
 
   inferno@8.2.3:
     dependencies:
-      csstype: 3.1.3
+      csstype: 3.2.3
       inferno-vnode-flags: 8.2.3
       opencollective-postinstall: 2.0.3
 
   inferno@9.0.4:
     dependencies:
-      csstype: 3.1.3
+      csstype: 3.2.3
       inferno-vnode-flags: 9.0.4
       opencollective-postinstall: 2.0.3
 
