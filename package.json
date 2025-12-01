@@ -16,8 +16,8 @@
     "lint": "pnpm translations:generate && tsc --noEmit && pnpm eslint --report-unused-disable-directives && pnpm prettier --check \"src/**/*.{ts,tsx,js,mjs,css,scss}\"",
     "prepare": "husky",
     "run:prod": "node generate_translations.js && pnpm build:prod && node --enable-source-maps dist/js/server.js",
-    "themes:build": "sass src/assets/css/themes/:src/assets/css/themes",
-    "themes:watch": "sass --watch src/assets/css/themes/:src/assets/css/themes",
+    "themes:build": "sass src/assets/css/themes/:src/assets/css/themes --embed-sources",
+    "themes:watch": "sass --watch src/assets/css/themes/:src/assets/css/themes --embed-sources",
     "translations:generate": "node generate_translations.js",
     "translations:init": "git submodule init && pnpm translations:update",
     "translations:update": "git submodule update --remote --recursive"

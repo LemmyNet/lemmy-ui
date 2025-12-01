@@ -13,3 +13,9 @@ function envBoolean(
 
 /** Defaults to true in development, false in production. */
 export const enableEruda = envBoolean("LEMMY_UI_ERUDA");
+
+/** Disabled by default, as `.css.map` files are untracked and only exist
+ * after running `pnpm themes:build`. They also become possibly outdated after
+ * switching between commits.
+ */
+export const serveCssMaps = envBoolean("LEMMY_UI_SERVE_CSS_MAPS", false);

@@ -83,10 +83,11 @@ The following environment variables can be used to configure lemmy-ui:
 
 These environment variables are for debugging purposes and are disabled by default for production builds, but can be enabled explicitly.
 
-| `ENV_VAR`              | type   | default | evaluation | description                                                                                                           |
-| ---------------------- | ------ | ------- | ---------- | --------------------------------------------------------------------------------------------------------------------- |
-| `LEMMY_UI_ERUDA`       | `bool` | `true`  | runtime    | Enables Eruda, the console for mobile browsers. (In production Eruda partially violates the CSP, but remains useful.) |
-| `LEMMY_UI_SOURCE_MAPS` | `bool` | `true`  | buildtime  | Gives browsers and node the ability to report accurate stack traces.                                                  |
+| `ENV_VAR`                 | type   | default | evaluation | description                                                                                                           |
+| ------------------------- | ------ | ------- | ---------- | --------------------------------------------------------------------------------------------------------------------- |
+| `LEMMY_UI_ERUDA`          | `bool` | `true`  | runtime    | Enables Eruda, the console for mobile browsers. (In production Eruda partially violates the CSP, but remains useful.) |
+| `LEMMY_UI_SOURCE_MAPS`    | `bool` | `true`  | buildtime  | Gives browsers and node the ability to report accurate stack traces.                                                  |
+| `LEMMY_UI_SERVE_CSS_MAPS` | `bool` | `false` | runtime    | Serves `.css.map` files when requested. Map files are untracked, run `pnpm themes:build` to generate and update them. |
 
 ## Credits
 
