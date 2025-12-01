@@ -88,6 +88,7 @@ These environment variables are for debugging purposes and are disabled by defau
 | `LEMMY_UI_ERUDA`          | `bool` | `true`  | runtime    | Enables Eruda, the console for mobile browsers. (In production Eruda partially violates the CSP, but remains useful.) |
 | `LEMMY_UI_SOURCE_MAPS`    | `bool` | `true`  | buildtime  | Gives browsers and node the ability to report accurate stack traces.                                                  |
 | `LEMMY_UI_SERVE_CSS_MAPS` | `bool` | `false` | runtime    | Serves `.css.map` files when requested. Map files are untracked, run `pnpm themes:build` to generate and update them. |
+| `LEMMY_UI_COMPRESSION`    | `bool` | `true`  | runtime    | Enables response body compression, useful to test on slow connections.                                                |
 
 ## Credits
 

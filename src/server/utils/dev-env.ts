@@ -19,3 +19,6 @@ export const enableEruda = envBoolean("LEMMY_UI_ERUDA");
  * switching between commits.
  */
 export const serveCssMaps = envBoolean("LEMMY_UI_SERVE_CSS_MAPS", false);
+
+/** Defaults to true in development, false in production. */
+export const enableResponseBodyCompression = envBoolean("LEMMY_UI_COMPRESSION");

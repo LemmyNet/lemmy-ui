@@ -17,6 +17,8 @@ import CodeThemeHandler from "./handlers/code-theme-handler";
 import { verifyDynamicImports } from "@utils/dynamic-imports";
 import cookieParser from "cookie-parser";
 import { setupMarkdown } from "@utils/markdown";
+import compression from "compression";
+import { enableResponseBodyCompression } from "./utils/dev-env";
 
 const server = express();
 server.use(cookieParser());
@@ -41,6 +43,9 @@ const [hostname, port] = (() => {
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
+if (enableResponseBodyCompression) {
+  server.use(compression());
+}
 
 const serverPath = path.resolve("./dist");
 
