@@ -1,30 +1,24 @@
 import { getQueryString, hostname } from "@utils/helpers";
-import { amAdmin, amMod, amTopMod } from "@utils/roles";
-import { Component, FormEvent, InfernoMouseEvent, InfernoNode } from "inferno";
+import { amAdmin, amMod } from "@utils/roles";
+import { Component, FormEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
-  AddModToCommunity,
   BlockCommunity,
   CommunityModeratorView,
   CommunityNotificationsMode,
   CommunityView,
-  DeleteCommunity,
-  EditCommunity,
   FollowCommunity,
   Language,
   MyUserInfo,
   PersonView,
-  PurgeCommunity,
-  RemoveCommunity,
   UpdateCommunityNotifications,
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { HttpService, I18NextService } from "../../services";
 import { CommunityBadges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
-import { Icon, PurgeWarning, Spinner } from "../common/icon";
+import { Icon } from "../common/icon";
 import { SubscribeButton } from "../common/subscribe-button";
-import { CommunityForm } from "./community-form";
 import { CommunityLink } from "./community-link";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -44,32 +38,15 @@ interface SidebarProps {
   communityLanguages?: number[];
   enableNsfw?: boolean;
   showIcon?: boolean;
-  editable?: boolean;
   hideButtons?: boolean;
   myUserInfo: MyUserInfo | undefined;
-  onDeleteCommunity(form: DeleteCommunity): void;
-  onRemoveCommunity(form: RemoveCommunity): void;
-  onLeaveModTeam(form: AddModToCommunity): void;
   onFollowCommunity(form: FollowCommunity): void;
   onBlockCommunity(form: BlockCommunity): void;
-  onPurgeCommunity(form: PurgeCommunity): void;
-  onEditCommunity(form: EditCommunity): void;
   onUpdateCommunityNotifs(form: UpdateCommunityNotifications): void;
 }
 
 interface SidebarState {
-  removeReason?: string;
-  removeExpires?: string;
-  showEdit: boolean;
-  showRemoveDialog: boolean;
-  showPurgeDialog: boolean;
-  purgeReason?: string;
-  showConfirmLeaveModTeam: boolean;
-  deleteCommunityLoading: boolean;
-  removeCommunityLoading: boolean;
-  leaveModTeamLoading: boolean;
   followCommunityLoading: boolean;
-  purgeCommunityLoading: boolean;
   showCommunityReportModal: boolean;
   renderCommunityReportModal: boolean;
   searchText: string;
@@ -79,15 +56,7 @@ interface SidebarState {
 @tippyMixin
 export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
   state: SidebarState = {
-    showEdit: false,
-    showRemoveDialog: false,
-    showPurgeDialog: false,
-    showConfirmLeaveModTeam: false,
-    deleteCommunityLoading: false,
-    removeCommunityLoading: false,
-    leaveModTeamLoading: false,
     followCommunityLoading: false,
-    purgeCommunityLoading: false,
     showCommunityReportModal: false,
     renderCommunityReportModal: false,
     searchText: "",
@@ -100,66 +69,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     super(props, context);
   }
 
-  unlisten = () => {};
-
-  componentWillMount() {
-    // Leave edit mode on navigation
-    this.unlisten = this.context.router.history.listen(() => {
-      if (this.state.showEdit) {
-        this.setState({ showEdit: false });
-      }
-    });
-  }
-
-  componentWillUnmount(): void {
-    this.unlisten();
-  }
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & SidebarProps>,
-  ): void {
-    if (this.props.moderators !== nextProps.moderators) {
-      this.setState({
-        showConfirmLeaveModTeam: false,
-      });
-    }
-
-    if (this.props.community_view !== nextProps.community_view) {
-      this.setState({
-        showEdit: false,
-        showPurgeDialog: false,
-        showRemoveDialog: false,
-        deleteCommunityLoading: false,
-        removeCommunityLoading: false,
-        leaveModTeamLoading: false,
-        followCommunityLoading: false,
-        purgeCommunityLoading: false,
-      });
-    }
-  }
-
   render() {
-    return (
-      <div className="community-sidebar">
-        {!this.state.showEdit ? (
-          this.sidebar()
-        ) : (
-          <CommunityForm
-            community_view={this.props.community_view}
-            allLanguages={this.props.allLanguages}
-            siteLanguages={this.props.siteLanguages}
-            communityLanguages={this.props.communityLanguages}
-            onUpsertCommunity={this.props.onEditCommunity}
-            onCancel={() => handleEditCancel(this)}
-            enableNsfw={this.props.enableNsfw}
-            myUserInfo={this.props.myUserInfo}
-          />
-        )}
-      </div>
-    );
-  }
-
-  sidebar() {
     const {
       community: {
         name,
@@ -177,143 +87,161 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
       "_desc") as NoOptionI18nKeys;
     const canViewCommunity_ = canViewCommunity(this.props.community_view);
     return (
-      <aside className="mb-3">
-        <div id="sidebarContainer">
-          {!this.props.hideButtons && (
-            <section id="sidebarMain" className="card mb-3">
+      <div className="community-sidebar">
+        <aside className="mb-3">
+          <div id="sidebarContainer">
+            {!this.props.hideButtons && (
+              <section id="sidebarMain" className="card mb-3">
+                <div className="card-body">
+                  {this.communityTitle()}
+                  {description && <h6>{description}</h6>}
+                  {received_ban_at && (
+                    <div
+                      className="alert alert-danger text-sm-start text-xs-center mt-2"
+                      role="alert"
+                    >
+                      <Icon
+                        icon="ban"
+                        inline
+                        classes="me-sm-2 mx-auto d-sm-inline d-block"
+                      />
+                      <T
+                        i18nKey="banned_from_community_blurb"
+                        className="d-inline"
+                      >
+                        #<strong className="fw-bold">#</strong>#
+                      </T>
+                    </div>
+                  )}
+                  {!received_ban_at && (
+                    <>
+                      <SubscribeButton
+                        followState={
+                          this.props.community_view.community_actions
+                            ?.follow_state
+                        }
+                        apId={this.props.community_view.community.ap_id}
+                        onFollow={() => handleFollowCommunity(this, true)}
+                        onUnFollow={() => handleFollowCommunity(this, false)}
+                        loading={this.state.followCommunityLoading}
+                        showRemoteFetch={!this.props.myUserInfo}
+                      />
+                      {this.canPost && canViewCommunity_ && (
+                        <CreatePostButton
+                          communityView={this.props.community_view}
+                        />
+                      )}
+                    </>
+                  )}
+                  <button
+                    className="btn btn-secondary d-block mb-2 w-100"
+                    onClick={() => handleShowCommunityReportModal(this)}
+                  >
+                    {I18NextService.i18n.t("create_report")}
+                  </button>
+                  {this.state.renderCommunityReportModal && (
+                    <CommunityReportModal
+                      onSubmit={reason =>
+                        handleSubmitCommunityReport(this, reason)
+                      }
+                      onCancel={() => handleHideCommunityReportModal(this)}
+                      show={this.state.showCommunityReportModal}
+                    />
+                  )}
+                  <>
+                    {this.props.myUserInfo && this.blockCommunity()}
+                    {canViewCommunity_ && (
+                      <>
+                        <div className="mb-2 d-flex">
+                          <CommunityNotificationSelect
+                            current={this.state.notifications}
+                            onChange={val =>
+                              handleNotificationChange(this, val)
+                            }
+                          />
+                        </div>
+                        <form
+                          className="d-flex"
+                          onSubmit={e => handleSearchSubmit(this, e)}
+                        >
+                          <input
+                            name="q"
+                            type="search"
+                            className="form-control flex-initial"
+                            placeholder={`${I18NextService.i18n.t("search")}...`}
+                            aria-label={I18NextService.i18n.t("search")}
+                            onInput={e => handleSearchChange(this, e)}
+                            required
+                            minLength={1}
+                          />
+                          <button
+                            type="submit"
+                            className="btn btn-outline-secondary ms-1"
+                          >
+                            <Icon icon="search" />
+                          </button>
+                        </form>
+                      </>
+                    )}
+                  </>
+                  {!this.props.myUserInfo && (
+                    <div className="alert alert-info" role="alert">
+                      <T
+                        i18nKey="community_not_logged_in_alert"
+                        interpolation={{
+                          community: name,
+                          instance: hostname(ap_id),
+                        }}
+                      >
+                        #<code className="user-select-all">#</code>#
+                      </T>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+            <section id="sidebarInfo" className="card mb-3">
               <div className="card-body">
-                {this.communityTitle()}
-                {description && <h6>{description}</h6>}
-                {this.props.editable && this.adminButtons()}
-                {received_ban_at && (
+                {posting_restricted_to_mods && (
                   <div
-                    className="alert alert-danger text-sm-start text-xs-center mt-2"
+                    className="alert alert-warning text-sm-start text-xs-center"
                     role="alert"
                   >
                     <Icon
-                      icon="ban"
+                      icon="lock"
                       inline
                       classes="me-sm-2 mx-auto d-sm-inline d-block"
                     />
-                    <T
-                      i18nKey="banned_from_community_blurb"
-                      className="d-inline"
-                    >
+                    <T i18nKey="community_locked_message" className="d-inline">
                       #<strong className="fw-bold">#</strong>#
                     </T>
                   </div>
                 )}
-                {!received_ban_at && (
-                  <>
-                    <SubscribeButton
-                      followState={
-                        this.props.community_view.community_actions
-                          ?.follow_state
-                      }
-                      apId={this.props.community_view.community.ap_id}
-                      onFollow={() => handleFollowCommunity(this, true)}
-                      onUnFollow={() => handleFollowCommunity(this, false)}
-                      loading={this.state.followCommunityLoading}
-                      showRemoteFetch={!this.props.myUserInfo}
-                    />
-                    {this.canPost && canViewCommunity_ && (
-                      <CreatePostButton
-                        communityView={this.props.community_view}
-                      />
-                    )}
-                  </>
-                )}
-                <>
-                  {this.props.myUserInfo && this.blockCommunity()}
-                  {canViewCommunity_ && (
-                    <>
-                      <div className="mb-2 d-flex">
-                        <CommunityNotificationSelect
-                          current={this.state.notifications}
-                          onChange={val => handleNotificationChange(this, val)}
-                        />
-                      </div>
-                      <form
-                        className="d-flex"
-                        onSubmit={e => handleSearchSubmit(this, e)}
-                      >
-                        <input
-                          name="q"
-                          type="search"
-                          className="form-control flex-initial"
-                          placeholder={`${I18NextService.i18n.t("search")}...`}
-                          aria-label={I18NextService.i18n.t("search")}
-                          onInput={e => handleSearchChange(this, e)}
-                          required
-                          minLength={1}
-                        />
-                        <button
-                          type="submit"
-                          className="btn btn-outline-secondary ms-1"
-                        >
-                          <Icon icon="search" />
-                        </button>
-                      </form>
-                    </>
-                  )}
-                </>
-                {!this.props.myUserInfo && (
-                  <div className="alert alert-info" role="alert">
-                    <T
-                      i18nKey="community_not_logged_in_alert"
-                      interpolation={{
-                        community: name,
-                        instance: hostname(ap_id),
-                      }}
-                    >
-                      #<code className="user-select-all">#</code>#
-                    </T>
+                {this.sidebarMarkdown()}
+                <div>
+                  <div className="fw-semibold mb-1">
+                    <span className="align-middle">
+                      {I18NextService.i18n.t("community_visibility")}:&nbsp;
+                    </span>
+                    <span className="fs-5 fw-medium align-middle">
+                      {I18NextService.i18n.t(visibilityLabel)}
+                    </span>
                   </div>
-                )}
+                  <p>{I18NextService.i18n.t(visibilityDescription)}</p>
+                </div>
+                <LanguageList
+                  allLanguages={this.props.allLanguages}
+                  languageIds={this.props.siteLanguages}
+                />
+                <CommunityBadges
+                  community={this.props.community_view.community}
+                />
+                {this.mods()}
               </div>
             </section>
-          )}
-          <section id="sidebarInfo" className="card mb-3">
-            <div className="card-body">
-              {posting_restricted_to_mods && (
-                <div
-                  className="alert alert-warning text-sm-start text-xs-center"
-                  role="alert"
-                >
-                  <Icon
-                    icon="lock"
-                    inline
-                    classes="me-sm-2 mx-auto d-sm-inline d-block"
-                  />
-                  <T i18nKey="community_locked_message" className="d-inline">
-                    #<strong className="fw-bold">#</strong>#
-                  </T>
-                </div>
-              )}
-              {this.sidebarMarkdown()}
-              <div>
-                <div className="fw-semibold mb-1">
-                  <span className="align-middle">
-                    {I18NextService.i18n.t("community_visibility")}:&nbsp;
-                  </span>
-                  <span className="fs-5 fw-medium align-middle">
-                    {I18NextService.i18n.t(visibilityLabel)}
-                  </span>
-                </div>
-                <p>{I18NextService.i18n.t(visibilityDescription)}</p>
-              </div>
-              <LanguageList
-                allLanguages={this.props.allLanguages}
-                languageIds={this.props.siteLanguages}
-              />
-              <CommunityBadges
-                community={this.props.community_view.community}
-              />
-              {this.mods()}
-            </div>
-          </section>
-        </div>
-      </aside>
+          </div>
+        </aside>
+      </div>
     );
   }
 
@@ -412,201 +340,6 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  adminButtons() {
-    const community_view = this.props.community_view;
-    return (
-      <>
-        <ul className="list-inline mb-1 text-muted fw-bold">
-          {amMod(this.props.community_view) && (
-            <>
-              <li className="list-inline-item-action">
-                <button
-                  className="btn btn-link text-muted d-inline-block"
-                  onClick={() => handleEditClick(this)}
-                  data-tippy-content={I18NextService.i18n.t("edit")}
-                  aria-label={I18NextService.i18n.t("edit")}
-                >
-                  <Icon icon="edit" classes="icon-inline" />
-                </button>
-              </li>
-              {!amTopMod(this.props.moderators, this.props.myUserInfo) &&
-                (!this.state.showConfirmLeaveModTeam ? (
-                  <li className="list-inline-item-action">
-                    <button
-                      className="btn btn-link text-muted d-inline-block"
-                      onClick={() => handleShowConfirmLeaveModTeamClick(this)}
-                    >
-                      {I18NextService.i18n.t("leave_mod_team")}
-                    </button>
-                  </li>
-                ) : (
-                  <>
-                    <li className="list-inline-item-action">
-                      {I18NextService.i18n.t("are_you_sure")}
-                    </li>
-                    <li className="list-inline-item-action">
-                      <button
-                        className="btn btn-link text-muted d-inline-block"
-                        onClick={() => handleLeaveModTeam(this)}
-                      >
-                        {I18NextService.i18n.t("yes")}
-                      </button>
-                    </li>
-                    <li className="list-inline-item-action">
-                      <button
-                        className="btn btn-link text-muted d-inline-block"
-                        onClick={() => handleCancelLeaveModTeamClick(this)}
-                      >
-                        {I18NextService.i18n.t("no")}
-                      </button>
-                    </li>
-                  </>
-                ))}
-              {amTopMod(this.props.moderators, this.props.myUserInfo) && (
-                <li className="list-inline-item-action">
-                  <button
-                    className="btn btn-link text-muted d-inline-block"
-                    onClick={() => handleDeleteCommunity(this)}
-                    data-tippy-content={
-                      !community_view.community.deleted
-                        ? I18NextService.i18n.t("delete")
-                        : I18NextService.i18n.t("restore")
-                    }
-                    aria-label={
-                      !community_view.community.deleted
-                        ? I18NextService.i18n.t("delete")
-                        : I18NextService.i18n.t("restore")
-                    }
-                  >
-                    {this.state.deleteCommunityLoading ? (
-                      <Spinner />
-                    ) : (
-                      <Icon
-                        icon="trash"
-                        classes={`icon-inline ${
-                          community_view.community.deleted && "text-danger"
-                        }`}
-                      />
-                    )}{" "}
-                  </button>
-                </li>
-              )}
-            </>
-          )}
-          {amAdmin(this.props.myUserInfo) && (
-            <li className="list-inline-item">
-              {!this.props.community_view.community.removed ? (
-                <button
-                  className="btn btn-link text-muted d-inline-block"
-                  onClick={() => handleModRemoveShow(this)}
-                >
-                  {I18NextService.i18n.t("remove")}
-                </button>
-              ) : (
-                <button
-                  className="btn btn-link text-muted d-inline-block"
-                  onClick={e => handleRemoveCommunity(this, e)}
-                >
-                  {this.state.removeCommunityLoading ? (
-                    <Spinner />
-                  ) : (
-                    I18NextService.i18n.t("restore")
-                  )}
-                </button>
-              )}
-              <button
-                className="btn btn-link text-muted d-inline-block"
-                onClick={() => handlePurgeCommunityShow(this)}
-                aria-label={I18NextService.i18n.t("purge_community")}
-              >
-                {I18NextService.i18n.t("purge_community")}
-              </button>
-            </li>
-          )}
-          <li className="list-inline-item-action">
-            <button
-              className="btn btn-link text-muted d-inline-block"
-              onClick={() => handleShowCommunityReportModal(this)}
-            >
-              {I18NextService.i18n.t("create_report")}
-            </button>
-            {this.state.renderCommunityReportModal && (
-              <CommunityReportModal
-                onSubmit={reason => handleSubmitCommunityReport(this, reason)}
-                onCancel={() => handleHideCommunityReportModal(this)}
-                show={this.state.showCommunityReportModal}
-              />
-            )}
-          </li>
-        </ul>
-        {this.state.showRemoveDialog && (
-          <form onSubmit={e => handleRemoveCommunity(this, e)}>
-            <div className="input-group mb-3">
-              <label className="col-form-label" htmlFor="remove-reason">
-                {I18NextService.i18n.t("reason")}
-              </label>
-              <input
-                type="text"
-                id="remove-reason"
-                className="form-control me-2"
-                placeholder={I18NextService.i18n.t("optional")}
-                value={this.state.removeReason}
-                onInput={e => handleModRemoveReasonChange(this, e)}
-              />
-            </div>
-            {/* TODO hold off on expires for now */}
-            {/* <div class="mb-3 row"> */}
-            {/*   <label class="col-form-label">Expires</label> */}
-            {/*   <input type="date" class="form-control me-2" placeholder={I18NextService.i18n.t('expires')} value={this.state.removeExpires} onInput={linkEvent(this, this.handleModRemoveExpiresChange)} /> */}
-            {/* </div> */}
-            <div className="input-group mb-3">
-              <button type="submit" className="btn btn-secondary">
-                {this.state.removeCommunityLoading ? (
-                  <Spinner />
-                ) : (
-                  I18NextService.i18n.t("remove_community")
-                )}
-              </button>
-            </div>
-          </form>
-        )}
-        {this.state.showPurgeDialog && (
-          <form onSubmit={e => handlePurgeCommunity(this, e)}>
-            <div className="input-group mb-3">
-              <PurgeWarning />
-            </div>
-            <div className="input-group mb-3">
-              <label className="visually-hidden" htmlFor="purge-reason">
-                {I18NextService.i18n.t("reason")}
-              </label>
-              <input
-                type="text"
-                id="purge-reason"
-                className="form-control me-2"
-                placeholder={I18NextService.i18n.t("reason")}
-                value={this.state.purgeReason}
-                onInput={e => handlePurgeReasonChange(this, e)}
-              />
-            </div>
-            <div className="input-group mb-3">
-              {this.state.purgeCommunityLoading ? (
-                <Spinner />
-              ) : (
-                <button
-                  type="submit"
-                  className="btn btn-secondary"
-                  aria-label={I18NextService.i18n.t("purge_community")}
-                >
-                  {I18NextService.i18n.t("purge_community")}
-                </button>
-              )}
-            </div>
-          </form>
-        )}
-      </>
-    );
-  }
-
   get canPost(): boolean {
     return (
       !this.props.community_view.community.posting_restricted_to_mods ||
@@ -614,39 +347,6 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
       amAdmin(this.props.myUserInfo)
     );
   }
-}
-
-function handleDeleteCommunity(i: CommunitySidebar) {
-  i.setState({ deleteCommunityLoading: true });
-  i.props.onDeleteCommunity({
-    community_id: i.props.community_view.community.id,
-    deleted: !i.props.community_view.community.deleted,
-  });
-}
-
-function handleRemoveCommunity(
-  i: CommunitySidebar,
-  event: FormEvent<HTMLFormElement> | InfernoMouseEvent<HTMLButtonElement>,
-) {
-  event.preventDefault();
-  i.setState({ removeCommunityLoading: true });
-  i.props.onRemoveCommunity({
-    community_id: i.props.community_view.community.id,
-    removed: !i.props.community_view.community.removed,
-    reason: i.state.removeReason ?? "",
-  });
-}
-
-function handlePurgeCommunity(
-  i: CommunitySidebar,
-  event: FormEvent<HTMLFormElement>,
-) {
-  event.preventDefault();
-  i.setState({ purgeCommunityLoading: true });
-  i.props.onPurgeCommunity({
-    community_id: i.props.community_view.community.id,
-    reason: i.state.purgeReason ?? "",
-  });
 }
 
 function handleSearchChange(
@@ -665,21 +365,6 @@ function handleSearchSubmit(
   i.context.router.history.push(
     `/search${getQueryString({ q: searchParamEncoded, communityId: i.props.community_view.community.id.toString() })}`,
   );
-}
-function handleEditClick(i: CommunitySidebar) {
-  i.setState({ showEdit: true });
-}
-
-function handleEditCancel(i: CommunitySidebar) {
-  i.setState({ showEdit: false });
-}
-
-function handleShowConfirmLeaveModTeamClick(i: CommunitySidebar) {
-  i.setState({ showConfirmLeaveModTeam: true });
-}
-
-function handleCancelLeaveModTeamClick(i: CommunitySidebar) {
-  i.setState({ showConfirmLeaveModTeam: false });
 }
 
 function handleShowCommunityReportModal(i: CommunitySidebar) {
@@ -704,29 +389,6 @@ async function handleSubmitCommunityReport(
 
 function handleHideCommunityReportModal(i: CommunitySidebar) {
   i.setState({ showCommunityReportModal: false });
-}
-
-function handleModRemoveShow(i: CommunitySidebar) {
-  i.setState({ showRemoveDialog: true });
-}
-
-function handleModRemoveReasonChange(
-  i: CommunitySidebar,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.setState({ removeReason: event.target.value });
-}
-
-// function handleModRemoveExpiresChange(i: CommunitySidebar, event: any) {
-//   i.setState({ removeExpires: event.target.value });
-// }
-
-function handlePurgeCommunityShow(i: CommunitySidebar) {
-  i.setState({ showPurgeDialog: true, showRemoveDialog: false });
-}
-
-function handlePurgeReasonChange(i: CommunitySidebar, event: any) {
-  i.setState({ purgeReason: event.target.value });
 }
 
 function handleNotificationChange(
@@ -757,16 +419,4 @@ function handleBlockCommunity(i: CommunitySidebar) {
     community_id: community.id,
     block: !blocked_at,
   });
-}
-
-function handleLeaveModTeam(i: CommunitySidebar) {
-  const myId = i.props.myUserInfo?.local_user_view.person.id;
-  if (myId) {
-    i.setState({ leaveModTeamLoading: true });
-    i.props.onLeaveModTeam({
-      community_id: i.props.community_view.community.id,
-      person_id: myId,
-      added: false,
-    });
-  }
 }
