@@ -10,6 +10,7 @@ import { fetchIconPng } from "./fetch-icon-png";
 import { findLanguageChunkNames } from "@services/I18NextService";
 import path from "path";
 import { readFileSync } from "node:fs";
+import { enableEruda } from "./dev-env";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
@@ -66,18 +67,17 @@ export async function createSsrHtml(
     }
   }
 
-  const erudaStr =
-    process.env["NODE_ENV"] === "development"
-      ? renderToString(
-          <>
-            <script
-              nonce={cspNonce}
-              src="//cdn.jsdelivr.net/npm/eruda"
-            ></script>
-            <script nonce={cspNonce}>eruda.init();</script>
-          </>,
-        )
-      : "";
+  const erudaStr = enableEruda
+    ? renderToString(
+        <>
+          <script
+            nonce={cspNonce}
+            src="https://cdn.jsdelivr.net/npm/eruda"
+          ></script>
+          <script nonce={cspNonce}>eruda.init();</script>
+        </>,
+      )
+    : "";
 
   const helmet = Helmet.renderStatic();
 
