@@ -16,7 +16,7 @@ import {
   GetSiteResponse,
   LemmyHttp,
   ListReports,
-  ListReportsResponse,
+  PagedResponse,
   PostReportResponse,
   PrivateMessageReportResponse,
   ReportCombinedView,
@@ -63,11 +63,11 @@ enum UnreadOrAll {
 }
 
 type ReportsData = RouteDataResponse<{
-  reportsRes: ListReportsResponse;
+  reportsRes: PagedResponse<ReportCombinedView>;
 }>;
 
 interface ReportsState {
-  reportsRes: RequestState<ListReportsResponse>;
+  reportsRes: RequestState<PagedResponse<ReportCombinedView>>;
   unreadOrAll: UnreadOrAll;
   messageType: ReportType;
   siteRes: GetSiteResponse;
@@ -472,7 +472,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       case "success":
         return (
           <div>
-            {this.state.reportsRes.data.reports.map(i => (
+            {this.state.reportsRes.data.data.map(i => (
               <>
                 <hr />
                 {this.renderItemType(i)}
@@ -494,7 +494,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           </h5>
         );
       case "success": {
-        const reports = res.data.reports.filter(r => r.type_ === "comment");
+        const reports = res.data.data.filter(r => r.type_ === "comment");
         return (
           <div>
             {reports.map(cr => (
@@ -530,7 +530,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           </h5>
         );
       case "success": {
-        const reports = res.data.reports.filter(r => r.type_ === "post");
+        const reports = res.data.data.filter(r => r.type_ === "post");
         return (
           <div>
             {reports.map(pr => (
@@ -567,7 +567,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           </h5>
         );
       case "success": {
-        const reports = res.data.reports.filter(
+        const reports = res.data.data.filter(
           r => r.type_ === "private_message",
         );
         return (
@@ -599,7 +599,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           </h5>
         );
       case "success": {
-        const reports = res.data.reports.filter(r => r.type_ === "community");
+        const reports = res.data.data.filter(r => r.type_ === "community");
         return (
           <div>
             {reports.map(cr => (
@@ -784,9 +784,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
     this.setState(s => {
       if (s.reportsRes.state === "success" && res.state === "success") {
-        s.reportsRes.data.reports = editCombined(
+        s.reportsRes.data.data = editCombined(
           { type_: "comment", ...res.data.comment_report_view },
-          s.reportsRes.data.reports,
+          s.reportsRes.data.data,
           getUncombinedReport,
         );
       }
@@ -797,9 +797,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   findAndUpdatePostReport(res: RequestState<PostReportResponse>) {
     this.setState(s => {
       if (s.reportsRes.state === "success" && res.state === "success") {
-        s.reportsRes.data.reports = editCombined(
+        s.reportsRes.data.data = editCombined(
           { type_: "post", ...res.data.post_report_view },
-          s.reportsRes.data.reports,
+          s.reportsRes.data.data,
           getUncombinedReport,
         );
       }
@@ -812,9 +812,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   ) {
     this.setState(s => {
       if (s.reportsRes.state === "success" && res.state === "success") {
-        s.reportsRes.data.reports = editCombined(
+        s.reportsRes.data.data = editCombined(
           { type_: "private_message", ...res.data.private_message_report_view },
-          s.reportsRes.data.reports,
+          s.reportsRes.data.data,
           getUncombinedReport,
         );
       }
@@ -825,9 +825,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   findAndUpdateCommunityReport(res: RequestState<CommunityReportResponse>) {
     this.setState(s => {
       if (s.reportsRes.state === "success" && res.state === "success") {
-        s.reportsRes.data.reports = editCombined(
+        s.reportsRes.data.data = editCombined(
           { type_: "community", ...res.data.community_report_view },
-          s.reportsRes.data.reports,
+          s.reportsRes.data.data,
           getUncombinedReport,
         );
       }

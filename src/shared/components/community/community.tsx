@@ -61,11 +61,12 @@ import {
   FeaturePost,
   FollowCommunity,
   GetComments,
-  GetCommentsResponse,
+  PagedResponse,
+  CommentView,
   GetCommunity,
   GetCommunityResponse,
   GetPosts,
-  GetPostsResponse,
+  PostView,
   GetSiteResponse,
   HidePost,
   LemmyHttp,
@@ -128,14 +129,14 @@ import { PostListingModeSelect } from "@components/common/post-listing-mode-sele
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
-  postsRes: GetPostsResponse;
-  commentsRes: GetCommentsResponse;
+  postsRes: PagedResponse<PostView>;
+  commentsRes: PagedResponse<CommentView>;
 }>;
 
 interface State {
   communityRes: RequestState<GetCommunityResponse>;
-  postsRes: RequestState<GetPostsResponse>;
-  commentsRes: RequestState<GetCommentsResponse>;
+  postsRes: RequestState<PagedResponse<PostView>>;
+  commentsRes: RequestState<PagedResponse<CommentView>>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
@@ -348,9 +349,9 @@ export class Community extends Component<CommunityRouteProps, State> {
       name: communityName,
     };
 
-    let postsFetch: Promise<RequestState<GetPostsResponse>> =
+    let postsFetch: Promise<RequestState<PagedResponse<PostView>>> =
       Promise.resolve(EMPTY_REQUEST);
-    let commentsFetch: Promise<RequestState<GetCommentsResponse>> =
+    let commentsFetch: Promise<RequestState<PagedResponse<CommentView>>> =
       Promise.resolve(EMPTY_REQUEST);
 
     if (postOrCommentType === "post") {
@@ -495,7 +496,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     const haveUnread =
       postOrCommentType === "post" &&
       postsRes.state === "success" &&
-      postsRes.data.posts.some(p => !p.post_actions?.read_at);
+      postsRes.data.data.some(p => !p.post_actions?.read_at);
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
@@ -517,7 +518,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     const post_ids =
       postOrCommentType === "post" &&
       postsRes.state === "success" &&
-      postsRes.data.posts
+      postsRes.data.data
         .filter(p => !p.post_actions?.read_at)
         .map(p => p.post.id);
 
@@ -530,7 +531,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       if (res.state === "success") {
         i.setState(s => {
           if (s.postsRes.state === "success") {
-            s.postsRes.data.posts.forEach(p => {
+            s.postsRes.data.data.forEach(p => {
               if (post_ids.includes(p.post.id) && i.isoData.myUserInfo) {
                 if (!p.post_actions) {
                   p.post_actions = {};
@@ -598,7 +599,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         case "success":
           return (
             <PostListings
-              posts={this.state.postsRes.data.posts}
+              posts={this.state.postsRes.data.data}
               showCrossPosts="show_separately"
               markable
               showCommunity={false}
@@ -645,7 +646,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         case "success":
           return (
             <CommentNodes
-              nodes={commentsToFlatNodes(this.state.commentsRes.data.comments)}
+              nodes={commentsToFlatNodes(this.state.commentsRes.data.data)}
               viewType={"flat"}
               isTopLevel
               showContext
@@ -1040,7 +1041,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (res.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.posts.forEach(p => {
+          s.postsRes.data.data.forEach(p => {
             if (p.post.id === form.post_id && this.isoData.myUserInfo) {
               if (!p.post_actions) {
                 p.post_actions = {};
@@ -1096,7 +1097,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (hideRes.state === "success") {
       this.setState(prev => {
         if (prev.postsRes.state === "success" && this.isoData.myUserInfo) {
-          for (const post of prev.postsRes.data.posts.filter(
+          for (const post of prev.postsRes.data.data.filter(
             p => form.post_id === p.post.id,
           )) {
             if (!post.post_actions) {
@@ -1119,17 +1120,17 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (res.state === "success") {
       this.setState(s => {
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments = editPersonNotes(
+          s.commentsRes.data.data = editPersonNotes(
             form.note,
             form.person_id,
-            s.commentsRes.data.comments,
+            s.commentsRes.data.data,
           );
         }
         if (s.postsRes.state === "success") {
-          s.postsRes.data.posts = editPersonNotes(
+          s.postsRes.data.data = editPersonNotes(
             form.note,
             form.person_id,
-            s.postsRes.data.posts,
+            s.postsRes.data.data,
           );
         }
         toast(
@@ -1178,14 +1179,14 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.posts
+          s.postsRes.data.data
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               c.creator_banned_from_community = banned;
             });
         }
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments
+          s.commentsRes.data.data
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               c.creator_banned_from_community = banned;
@@ -1201,12 +1202,12 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.posts
+          s.postsRes.data.data
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator_banned = banned));
         }
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments
+          s.commentsRes.data.data
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator_banned = banned));
         }
@@ -1246,9 +1247,9 @@ export class Community extends Component<CommunityRouteProps, State> {
   findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editComment(
+        s.commentsRes.data.data = editComment(
           res.data.comment_view,
-          s.commentsRes.data.comments,
+          s.commentsRes.data.data,
         );
       }
       return s;
@@ -1258,9 +1259,9 @@ export class Community extends Component<CommunityRouteProps, State> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editComment(
+        s.commentsRes.data.data = editComment(
           res.data.comment_view,
-          s.commentsRes.data.comments,
+          s.commentsRes.data.data,
         );
       }
       return s;
@@ -1270,7 +1271,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments.unshift(res.data.comment_view);
+        s.commentsRes.data.data.unshift(res.data.comment_view);
       }
       return s;
     });
@@ -1279,9 +1280,9 @@ export class Community extends Component<CommunityRouteProps, State> {
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
       if (s.postsRes.state === "success" && res.state === "success") {
-        s.postsRes.data.posts = editPost(
+        s.postsRes.data.data = editPost(
           res.data.post_view,
-          s.postsRes.data.posts,
+          s.postsRes.data.data,
         );
       }
       return s;

@@ -8,12 +8,7 @@ import {
 import { I18NextService } from "../../../services";
 import type { Modal } from "bootstrap";
 import { Icon, Spinner } from "../icon";
-import {
-  ListCommentLikesResponse,
-  ListPostLikesResponse,
-  MyUserInfo,
-  VoteView,
-} from "lemmy-js-client";
+import { PagedResponse, MyUserInfo, VoteView } from "lemmy-js-client";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -39,8 +34,8 @@ interface ViewVotesModalProps {
 }
 
 interface ViewVotesModalState {
-  postLikesRes: RequestState<ListPostLikesResponse>;
-  commentLikesRes: RequestState<ListCommentLikesResponse>;
+  postLikesRes: RequestState<PagedResponse<VoteView>>;
+  commentLikesRes: RequestState<PagedResponse<VoteView>>;
   cursor?: DirectionalCursor;
 }
 
@@ -176,7 +171,7 @@ export default class ViewVotesModal extends Component<
           </h1>
         );
       case "success": {
-        const likes = this.state.postLikesRes.data.post_likes;
+        const likes = this.state.postLikesRes.data.data;
         return voteViewTable(likes, this.props.myUserInfo);
       }
     }
@@ -191,7 +186,7 @@ export default class ViewVotesModal extends Component<
           </h1>
         );
       case "success": {
-        const likes = this.state.commentLikesRes.data.comment_likes;
+        const likes = this.state.commentLikesRes.data.data;
         return voteViewTable(likes, this.props.myUserInfo);
       }
     }

@@ -12,7 +12,8 @@ import { Component } from "inferno";
 import {
   LemmyHttp,
   ListMultiCommunities,
-  ListMultiCommunitiesResponse,
+  PagedResponse,
+  MultiCommunityView,
   MultiCommunityId,
   MultiCommunityListingType,
   MultiCommunityResponse,
@@ -45,11 +46,11 @@ import { MultiCommunityLink } from "./multi-community-link";
 import { MultiCommunityListingTypeSelect } from "@components/common/multi-community-listing-type-select";
 
 type MultiCommunitiesData = RouteDataResponse<{
-  listMultiCommunitiesRes: ListMultiCommunitiesResponse;
+  listMultiCommunitiesRes: PagedResponse<MultiCommunityView>;
 }>;
 
 interface State {
-  listMultiCommunitiesRes: RequestState<ListMultiCommunitiesResponse>;
+  listMultiCommunitiesRes: RequestState<PagedResponse<MultiCommunityView>>;
   searchText: string;
   isIsomorphic: boolean;
 }
@@ -160,37 +161,35 @@ export class MultiCommunities extends Component<RouteProps, State> {
               </div>
             </div>
             <TableHr />
-            {this.state.listMultiCommunitiesRes.data.multi_communities.map(
-              v => (
-                <>
-                  <div className="row" key={v.multi.id}>
-                    <div className={nameCols}>
-                      <MultiCommunityLink
-                        multiCommunity={v.multi}
-                        myUserInfo={this.isoData.myUserInfo}
-                      />
-                    </div>
-                    <div className={countCols}>
-                      {numToSI(v.multi.subscribers)}
-                    </div>
-                    <div className={countCols}>
-                      {numToSI(v.multi.communities)}
-                    </div>
-                    <div className={countCols}>
-                      <SubscribeButton
-                        followState={v.follow_state}
-                        apId={v.multi.ap_id}
-                        onFollow={() => handleFollow(this, v.multi.id, true)}
-                        onUnFollow={() => handleFollow(this, v.multi.id, false)}
-                        showRemoteFetch={!this.isoData.myUserInfo}
-                        isLink
-                      />
-                    </div>
+            {this.state.listMultiCommunitiesRes.data.data.map(v => (
+              <>
+                <div className="row" key={v.multi.id}>
+                  <div className={nameCols}>
+                    <MultiCommunityLink
+                      multiCommunity={v.multi}
+                      myUserInfo={this.isoData.myUserInfo}
+                    />
                   </div>
-                  <hr />
-                </>
-              ),
-            )}
+                  <div className={countCols}>
+                    {numToSI(v.multi.subscribers)}
+                  </div>
+                  <div className={countCols}>
+                    {numToSI(v.multi.communities)}
+                  </div>
+                  <div className={countCols}>
+                    <SubscribeButton
+                      followState={v.follow_state}
+                      apId={v.multi.ap_id}
+                      onFollow={() => handleFollow(this, v.multi.id, true)}
+                      onUnFollow={() => handleFollow(this, v.multi.id, false)}
+                      showRemoteFetch={!this.isoData.myUserInfo}
+                      isLink
+                    />
+                  </div>
+                </div>
+                <hr />
+              </>
+            ))}
           </div>
         );
       }
@@ -318,9 +317,9 @@ export class MultiCommunities extends Component<RouteProps, State> {
         s.listMultiCommunitiesRes.state === "success" &&
         res.state === "success"
       ) {
-        s.listMultiCommunitiesRes.data.multi_communities = editMultiCommunity(
+        s.listMultiCommunitiesRes.data.data = editMultiCommunity(
           res.data.multi_community_view,
-          s.listMultiCommunitiesRes.data.multi_communities,
+          s.listMultiCommunitiesRes.data.data,
         );
       }
       return s;

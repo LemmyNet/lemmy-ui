@@ -21,12 +21,12 @@ import {
   GetCommunity,
   GetCommunityResponse,
   GetModlog,
-  GetModlogResponse,
+  PagedResponse,
+  ModlogView,
   GetPersonDetails,
   GetPersonDetailsResponse,
   LemmyHttp,
   ModlogKind,
-  ModlogView,
   MyUserInfo,
   Person,
   Modlog as Modlog_,
@@ -61,7 +61,7 @@ const ACTION_COLS = "col-12 col-md-6";
 type FilterType = "mod" | "user";
 
 type ModlogData = RouteDataResponse<{
-  res: GetModlogResponse;
+  res: PagedResponse<ModlogView>;
   communityRes: GetCommunityResponse;
   modUserResponse: GetPersonDetailsResponse;
   userResponse: GetPersonDetailsResponse;
@@ -82,7 +82,7 @@ export function getModlogQueryParams(source?: string): ModlogProps {
 }
 
 interface ModlogState {
-  res: RequestState<GetModlogResponse>;
+  res: RequestState<PagedResponse<ModlogView>>;
   communityRes: RequestState<GetCommunityResponse>;
   loadingModSearch: boolean;
   loadingUserSearch: boolean;
@@ -738,7 +738,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   get combined() {
     const res = this.state.res;
-    const combined = res.state === "success" ? res.data.modlog : [];
+    const combined = res.state === "success" ? res.data.data : [];
     const { myUserInfo } = this.isoData;
 
     return combined.map(i => {
@@ -970,7 +970,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   get modlogItemsCount(): number {
     const { res } = this.state;
 
-    return res.state === "success" ? res.data.modlog.length : 0;
+    return res.state === "success" ? res.data.data.length : 0;
   }
 
   handleFilterActionChange(i: Modlog, event: any) {

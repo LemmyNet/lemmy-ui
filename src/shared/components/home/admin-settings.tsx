@@ -11,7 +11,8 @@ import { Component } from "inferno";
 import {
   AdminAllowInstanceParams,
   AdminBlockInstanceParams,
-  AdminListUsersResponse,
+  PagedResponse,
+  LocalUserView,
   CreateCustomEmoji,
   CreateOAuthProvider,
   CreateTagline,
@@ -21,12 +22,12 @@ import {
   EditCustomEmoji,
   EditOAuthProvider,
   EditSite,
-  GetFederatedInstancesResponse,
+  FederatedInstanceView,
   GetSiteResponse,
   LemmyHttp,
   ListCustomEmojisResponse,
-  ListMediaResponse,
-  ListTaglinesResponse,
+  LocalImageView,
+  Tagline,
   UpdateTagline,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
@@ -67,23 +68,23 @@ import { InstanceList } from "./instances";
 import { InstanceAllowForm } from "./instance-allow-form";
 
 type AdminSettingsData = RouteDataResponse<{
-  usersRes: AdminListUsersResponse;
-  instancesRes: GetFederatedInstancesResponse;
-  uploadsRes: ListMediaResponse;
-  taglinesRes: ListTaglinesResponse;
+  usersRes: PagedResponse<LocalUserView>;
+  instancesRes: PagedResponse<FederatedInstanceView>;
+  uploadsRes: PagedResponse<LocalImageView>;
+  taglinesRes: PagedResponse<Tagline>;
   emojisRes: ListCustomEmojisResponse;
 }>;
 
 interface AdminSettingsState {
-  instancesRes: RequestState<GetFederatedInstancesResponse>;
-  usersRes: RequestState<AdminListUsersResponse>;
+  instancesRes: RequestState<PagedResponse<FederatedInstanceView>>;
+  usersRes: RequestState<PagedResponse<LocalUserView>>;
   usersCursor?: DirectionalCursor;
   usersBannedOnly: boolean;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
-  uploadsRes: RequestState<ListMediaResponse>;
+  uploadsRes: RequestState<PagedResponse<LocalImageView>>;
   uploadsCursor?: DirectionalCursor;
-  taglinesRes: RequestState<ListTaglinesResponse>;
+  taglinesRes: RequestState<PagedResponse<Tagline>>;
   taglinesCursor?: DirectionalCursor;
   emojisRes: RequestState<ListCustomEmojisResponse>;
   loading: boolean;
@@ -609,7 +610,7 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const local_users = this.state.usersRes.data.users;
+        const local_users = this.state.usersRes.data.data;
         const nameCols = "col-12 col-md-3";
         const dataCols = "col-4 col-md-2";
 
@@ -710,7 +711,7 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const taglines = this.state.taglinesRes.data.taglines;
+        const taglines = this.state.taglinesRes.data.data;
 
         return (
           <>
@@ -792,7 +793,7 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const instances = this.state.instancesRes.data.federated_instances;
+        const instances = this.state.instancesRes.data.data;
         return (
           <div>
             <h1 className="h4 mb-4">

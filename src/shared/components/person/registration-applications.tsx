@@ -15,7 +15,7 @@ import { Component } from "inferno";
 import {
   ApproveRegistrationApplication,
   LemmyHttp,
-  ListRegistrationApplicationsResponse,
+  PagedResponse,
   RegistrationApplicationView,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
@@ -43,11 +43,11 @@ import {
 } from "@components/common/registration-state-radios";
 
 type RegistrationApplicationsData = RouteDataResponse<{
-  listRegistrationApplicationsResponse: ListRegistrationApplicationsResponse;
+  listRegistrationApplicationsResponse: PagedResponse<RegistrationApplicationView>;
 }>;
 
 interface RegistrationApplicationsState {
-  appsRes: RequestState<ListRegistrationApplicationsResponse>;
+  appsRes: RequestState<PagedResponse<RegistrationApplicationView>>;
   isIsomorphic: boolean;
 }
 
@@ -151,9 +151,7 @@ export class RegistrationApplications extends Component<
 
   renderApps() {
     const appsState = this.state.appsRes.state;
-    const apps =
-      appsState === "success" &&
-      this.state.appsRes.data.registration_applications;
+    const apps = appsState === "success" && this.state.appsRes.data.data;
 
     return (
       <div className="row">
@@ -295,9 +293,9 @@ export class RegistrationApplications extends Component<
       await HttpService.client.approveRegistrationApplication(form);
     this.setState(s => {
       if (s.appsRes.state === "success" && approveRes.state === "success") {
-        s.appsRes.data.registration_applications = editRegistrationApplication(
+        s.appsRes.data.data = editRegistrationApplication(
           approveRes.data.registration_application,
-          s.appsRes.data.registration_applications,
+          s.appsRes.data.data,
         );
       }
       return s;

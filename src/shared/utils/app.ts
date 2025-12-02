@@ -289,7 +289,7 @@ export async function fetchCommunities(q: string) {
   const res = await fetchSearchResults(q, "communities");
 
   return res.state === "success"
-    ? res.data.results.filter(s => s.type_ === "community")
+    ? res.data.search.filter(s => s.type_ === "community")
     : [];
 }
 
@@ -312,7 +312,7 @@ export async function fetchUsers(q: string) {
   const res = await fetchSearchResults(q, "users");
 
   return res.state === "success"
-    ? res.data.results.filter(s => s.type_ === "person")
+    ? res.data.search.filter(s => s.type_ === "person")
     : [];
 }
 

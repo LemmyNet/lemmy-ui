@@ -15,7 +15,8 @@ import { Component } from "inferno";
 import {
   ApproveCommunityPendingFollower,
   LemmyHttp,
-  ListCommunityPendingFollowsResponse,
+  PagedResponse,
+  PendingFollowerView,
   PendingFollow as PendingFollowView,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
@@ -43,11 +44,11 @@ import {
 } from "@components/common/registration-state-radios";
 
 type PendingFollowsData = RouteDataResponse<{
-  listPendingFollowsResponse: ListCommunityPendingFollowsResponse;
+  listPendingFollowsResponse: PagedResponse<PendingFollowerView>;
 }>;
 
 interface PendingFollowsState {
-  appsRes: RequestState<ListCommunityPendingFollowsResponse>;
+  appsRes: RequestState<PagedResponse<PendingFollowerView>>;
   isIsomorphic: boolean;
 }
 
@@ -146,7 +147,7 @@ export class PendingFollows extends Component<
 
   render() {
     const state = this.state.appsRes.state;
-    const pending = state === "success" && this.state.appsRes.data.items;
+    const pending = state === "success" && this.state.appsRes.data.data;
     return (
       <div className="container-lg">
         <div className="row">

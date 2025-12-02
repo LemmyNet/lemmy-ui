@@ -15,7 +15,8 @@ import {
   GetRandomCommunity,
   LemmyHttp,
   ListCommunities,
-  ListCommunitiesResponse,
+  PagedResponse,
+  CommunityView,
   ListingType,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
@@ -47,11 +48,11 @@ import { TableHr } from "@components/common/tables";
 import { NoOptionI18nKeys } from "i18next";
 
 type CommunitiesData = RouteDataResponse<{
-  listCommunitiesResponse: ListCommunitiesResponse;
+  listCommunitiesResponse: PagedResponse<CommunityView>;
 }>;
 
 interface CommunitiesState {
-  listCommunitiesResponse: RequestState<ListCommunitiesResponse>;
+  listCommunitiesResponse: RequestState<PagedResponse<CommunityView>>;
   searchText: string;
   isIsomorphic: boolean;
 }
@@ -170,7 +171,7 @@ export class Communities extends Component<
               </div>
             </div>
             <TableHr />
-            {this.state.listCommunitiesResponse.data.communities.map(cv => (
+            {this.state.listCommunitiesResponse.data.data.map(cv => (
               <>
                 <div className="row" key={cv.community.id}>
                   <div className={nameCols}>
@@ -350,9 +351,9 @@ export class Communities extends Component<
         s.listCommunitiesResponse.state === "success" &&
         res.state === "success"
       ) {
-        s.listCommunitiesResponse.data.communities = editCommunity(
+        s.listCommunitiesResponse.data.data = editCommunity(
           res.data.community_view,
-          s.listCommunitiesResponse.data.communities,
+          s.listCommunitiesResponse.data.data,
         );
       }
       return s;

@@ -155,9 +155,11 @@ export class RemoteFetch extends Component<
 
   get community(): CommunityView | undefined {
     const { resolveObjectRes: res } = this.state;
-    return res.state === "success"
-      ? res.data.results.find(x => x.type_ === "community")
-      : undefined;
+    if (res.state === "success" && res.data.resolve?.type_ === "community") {
+      return res.data.resolve;
+    } else {
+      return undefined;
+    }
   }
 
   get content() {

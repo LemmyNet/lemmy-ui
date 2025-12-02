@@ -6,9 +6,9 @@ import {
 } from "@utils/types";
 import { Component } from "inferno";
 import {
-  FederatedInstanceView,
   GetFederatedInstancesKind,
-  GetFederatedInstancesResponse,
+  PagedResponse,
+  FederatedInstanceView,
   GetSiteResponse,
   LemmyHttp,
 } from "lemmy-js-client";
@@ -61,11 +61,11 @@ export function getInstancesQueryParams(source?: string): InstancesProps {
 }
 
 type InstancesData = RouteDataResponse<{
-  federatedInstancesResponse: GetFederatedInstancesResponse;
+  federatedInstancesResponse: PagedResponse<FederatedInstanceView>;
 }>;
 
 interface InstancesState {
-  instancesRes: RequestState<GetFederatedInstancesResponse>;
+  instancesRes: RequestState<PagedResponse<FederatedInstanceView>>;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
 }
@@ -185,7 +185,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
           </h5>
         );
       case "success": {
-        const instances = this.state.instancesRes.data.federated_instances;
+        const instances = this.state.instancesRes.data.data;
         return instances ? (
           <InstanceList instances={instances} />
         ) : (
