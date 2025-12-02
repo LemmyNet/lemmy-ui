@@ -5,6 +5,7 @@ import {
   LocalSite,
   MyUserInfo,
   PersonView,
+  PluginMetadata,
   Site,
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
@@ -29,6 +30,7 @@ interface SiteSidebarProps {
   myUserInfo: MyUserInfo | undefined;
   allLanguages?: Language[];
   siteLanguages?: number[];
+  activePlugins?: PluginMetadata[];
 }
 
 interface SiteSidebarState {
@@ -102,7 +104,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   siteInfo() {
-    const { site } = this.props;
+    const { site, activePlugins } = this.props;
 
     return (
       <div>
@@ -122,6 +124,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           <LocalSiteBadges localSite={this.props.localSite} />
         )}
         {this.props.admins && this.admins(this.props.admins)}
+        {activePlugins && this.plugins(activePlugins)}
       </div>
     );
   }
@@ -149,6 +152,25 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           </li>
         ))}
       </ul>
+    );
+  }
+
+  plugins(plugins: PluginMetadata[]) {
+    return (
+      plugins.length > 0 && (
+        <ul className="mt-1 list-inline small mb-0">
+          <li className="list-inline-item">
+            {I18NextService.i18n.t("active_plugins")}:
+          </li>
+          {plugins.map(p => (
+            <li className="list-inline-item">
+              <a href={p.url} data-tippy-content={p.description}>
+                {p.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
     );
   }
 

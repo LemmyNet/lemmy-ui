@@ -57,7 +57,7 @@ function showDownvotes(
 }
 
 function showScore(localUser: LocalUser | undefined): boolean {
-  return !localUser || localUser?.show_score || localUser?.show_upvotes;
+  return !localUser || localUser?.show_score;
 }
 
 function showPercentage(
@@ -214,7 +214,7 @@ export class VoteButtonsCompact extends Component<
     // If the score is the same as the upvotes,
     // and both score and upvotes are enabled,
     // only show the upvotes.
-    const hideScore = showScore_ && showUpvotes_ && score === upvotes;
+    const hideScore = !showScore_ || (showUpvotes_ && score === upvotes);
 
     return (
       <>

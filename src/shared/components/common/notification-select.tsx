@@ -12,8 +12,9 @@ interface CommonNotificationSelectProps<T extends string> {
   current: T;
 }
 
-interface NotificationSelectProps<T extends string>
-  extends CommonNotificationSelectProps<T> {
+interface NotificationSelectProps<
+  T extends string,
+> extends CommonNotificationSelectProps<T> {
   choices: Choice<T>[];
   showIcon?: boolean;
 }

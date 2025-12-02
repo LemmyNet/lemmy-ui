@@ -511,6 +511,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               myUserInfo={this.isoData.myUserInfo}
               allLanguages={this.state.siteRes.all_languages}
               siteLanguages={this.state.siteRes.discussion_languages}
+              activePlugins={this.state.siteRes.active_plugins}
             />
           )}
           {showSubscribedMobile && (
@@ -545,6 +546,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           myUserInfo={this.isoData.myUserInfo}
           allLanguages={this.state.siteRes.all_languages}
           siteLanguages={this.state.siteRes.discussion_languages}
+          activePlugins={this.state.siteRes.active_plugins}
         />
         {this.hasFollows && (
           <div className="accordion">
