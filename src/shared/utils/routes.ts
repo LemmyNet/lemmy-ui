@@ -211,12 +211,24 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     mountedSameRouteNavKey: "community",
   } as CommunityFetchConfig,
   {
+    path: `/c/:name/settings`,
+    component: CommunitySettings,
+    fetchInitialData: CommunitySettings.fetchInitialData,
+    getQueryParams: getCommunitySettingsQueryParams,
+  } as CommunitySettingsFetchConfig,
+  {
     path: `/m/:name`,
     component: MultiCommunity,
     fetchInitialData: MultiCommunity.fetchInitialData,
     getQueryParams: getMultiCommunityQueryParams,
     mountedSameRouteNavKey: "multi_community",
   } as MultiCommunityFetchConfig,
+  {
+    path: `/m/:name/settings`,
+    component: MultiCommunitySettings,
+    fetchInitialData: MultiCommunitySettings.fetchInitialData,
+    getQueryParams: getMultiCommunitySettingsQueryParams,
+  } as MultiCommunitySettingsFetchConfig,
   {
     path: `/u/:username`,
     component: Profile,
