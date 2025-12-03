@@ -9,16 +9,16 @@ ARG TARGETARCH
 # - libvips binaries are not available for ARM32
 # - It can break depending on the CPU (https://github.com/LemmyNet/lemmy-ui/issues/1566)
 RUN \
-    --mount=type=cache,target=/var/cache/apk,id=apk-${TARGETARCH},sharing=private \
-    set -x && apk update && apk upgrade && apk add curl python3 build-base gcc wget git vips-dev pkgconfig
+  --mount=type=cache,target=/var/cache/apk,id=apk-${TARGETARCH},sharing=private \
+  set -x && apk update && apk upgrade && apk add curl python3 build-base gcc wget git vips-dev pkgconfig
+
+# Install node-gyp and corepack
+RUN \
+  --mount=type=cache,target=/root/.npm \
+  npm install -g -f node-gyp corepack
 
 # Enable corepack to use pnpm
 RUN corepack enable
-
-# Install node-gyp
-RUN \
-    --mount=type=cache,target=/root/.npm \
-    npm install -g node-gyp
 
 WORKDIR /usr/src/app
 
@@ -28,8 +28,8 @@ ENV npm_config_target_libc=musl
 # Cache deps
 COPY package.json pnpm-lock.yaml ./
 RUN \
-    --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm i
+  --mount=type=cache,target=/root/.local/share/pnpm/store \
+  pnpm i
 # Build
 COPY generate_translations.js \
   tsconfig.json \
@@ -46,14 +46,14 @@ RUN echo "export const VERSION = '$(git describe --tag)';" > "src/shared/version
 RUN echo "export const BUILD_DATE_ISO8601 = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';" > "src/shared/build-date.ts"
 
 RUN \
-    --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm i
+  --mount=type=cache,target=/root/.local/share/pnpm/store \
+  pnpm i
 RUN \
-    --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm prebuild:prod
+  --mount=type=cache,target=/root/.local/share/pnpm/store \
+  pnpm prebuild:prod
 RUN \
-    --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm build:prod
+  --mount=type=cache,target=/root/.local/share/pnpm/store \
+  pnpm build:prod
 
 RUN rm -rf ./node_modules/import-sort-parser-typescript
 RUN rm -rf ./node_modules/typescript
@@ -66,8 +66,8 @@ ARG TARGETARCH
 ENV NODE_ENV=production
 
 RUN \
-    --mount=type=cache,target=/var/cache/apk,id=apk-${TARGETARCH},sharing=private \
-    apk update && apk add curl vips-cpp
+  --mount=type=cache,target=/var/cache/apk,id=apk-${TARGETARCH},sharing=private \
+  apk update && apk add curl vips-cpp
 
 COPY --from=builder --chown=node:node /usr/src/app/dist /app/dist
 COPY --from=builder --chown=node:node /usr/src/app/node_modules /app/node_modules
