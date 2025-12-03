@@ -1,17 +1,14 @@
 import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
-import {
-  capitalizeFirstLetter,
-  cursorComponents,
-  resourcesSettled,
-} from "@utils/helpers";
+import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { DirectionalCursor, RouteDataResponse } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component } from "inferno";
 import {
   AdminAllowInstanceParams,
   AdminBlockInstanceParams,
-  AdminListUsersResponse,
+  PagedResponse,
+  LocalUserView,
   CreateCustomEmoji,
   CreateOAuthProvider,
   CreateTagline,
@@ -21,13 +18,14 @@ import {
   EditCustomEmoji,
   EditOAuthProvider,
   EditSite,
-  GetFederatedInstancesResponse,
+  FederatedInstanceView,
   GetSiteResponse,
   LemmyHttp,
   ListCustomEmojisResponse,
-  ListMediaResponse,
-  ListTaglinesResponse,
+  LocalImageView,
+  Tagline,
   UpdateTagline,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -67,24 +65,24 @@ import { InstanceList } from "./instances";
 import { InstanceAllowForm } from "./instance-allow-form";
 
 type AdminSettingsData = RouteDataResponse<{
-  usersRes: AdminListUsersResponse;
-  instancesRes: GetFederatedInstancesResponse;
-  uploadsRes: ListMediaResponse;
-  taglinesRes: ListTaglinesResponse;
+  usersRes: PagedResponse<LocalUserView>;
+  instancesRes: PagedResponse<FederatedInstanceView>;
+  uploadsRes: PagedResponse<LocalImageView>;
+  taglinesRes: PagedResponse<Tagline>;
   emojisRes: ListCustomEmojisResponse;
 }>;
 
 interface AdminSettingsState {
-  instancesRes: RequestState<GetFederatedInstancesResponse>;
-  usersRes: RequestState<AdminListUsersResponse>;
-  usersCursor?: DirectionalCursor;
+  instancesRes: RequestState<PagedResponse<FederatedInstanceView>>;
+  usersRes: RequestState<PagedResponse<LocalUserView>>;
+  usersCursor?: PaginationCursor;
   usersBannedOnly: boolean;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
-  uploadsRes: RequestState<ListMediaResponse>;
-  uploadsCursor?: DirectionalCursor;
-  taglinesRes: RequestState<ListTaglinesResponse>;
-  taglinesCursor?: DirectionalCursor;
+  uploadsRes: RequestState<PagedResponse<LocalImageView>>;
+  uploadsCursor?: PaginationCursor;
+  taglinesRes: RequestState<PagedResponse<Tagline>>;
+  taglinesCursor?: PaginationCursor;
   emojisRes: RequestState<ListCustomEmojisResponse>;
   loading: boolean;
   themeList: string[];
@@ -387,16 +385,16 @@ export class AdminSettings extends Component<
     ] = await Promise.all([
       HttpService.client.listUsers({
         banned_only: this.state.usersBannedOnly,
-        ...cursorComponents(this.state.usersCursor),
+        page_cursor: this.state.usersCursor,
         limit: fetchLimit,
       }),
       HttpService.client.getFederatedInstances({ kind: "all" }),
       HttpService.client.listMediaAdmin({
-        ...cursorComponents(this.state.uploadsCursor),
+        page_cursor: this.state.uploadsCursor,
         limit: fetchLimit,
       }),
       HttpService.client.listTaglines({
-        ...cursorComponents(this.state.taglinesCursor),
+        page_cursor: this.state.taglinesCursor,
         limit: fetchLimit,
       }),
       HttpService.client.listCustomEmojis({}),
@@ -418,7 +416,7 @@ export class AdminSettings extends Component<
       usersRes: LOADING_REQUEST,
     });
     const usersRes = await HttpService.client.listUsers({
-      ...cursorComponents(this.state.uploadsCursor),
+      page_cursor: this.state.usersCursor,
       banned_only: this.state.usersBannedOnly,
       limit: fetchLimit,
     });
@@ -431,7 +429,7 @@ export class AdminSettings extends Component<
       uploadsRes: LOADING_REQUEST,
     });
     const uploadsRes = await HttpService.client.listMediaAdmin({
-      ...cursorComponents(this.state.uploadsCursor),
+      page_cursor: this.state.uploadsCursor,
       limit: fetchLimit,
     });
 
@@ -443,7 +441,7 @@ export class AdminSettings extends Component<
       taglinesRes: LOADING_REQUEST,
     });
     const taglinesRes = await HttpService.client.listTaglines({
-      ...cursorComponents(this.state.taglinesCursor),
+      page_cursor: this.state.taglinesCursor,
       limit: fetchLimit,
     });
 
@@ -609,7 +607,7 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const local_users = this.state.usersRes.data.users;
+        const local_users = this.state.usersRes.data.items;
         const nameCols = "col-12 col-md-3";
         const dataCols = "col-4 col-md-2";
 
@@ -710,7 +708,7 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const taglines = this.state.taglinesRes.data.taglines;
+        const taglines = this.state.taglinesRes.data.items;
 
         return (
           <>
@@ -792,7 +790,7 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const instances = this.state.instancesRes.data.federated_instances;
+        const instances = this.state.instancesRes.data.items;
         return (
           <div>
             <h1 className="h4 mb-4">
@@ -933,18 +931,18 @@ export class AdminSettings extends Component<
     await i.fetchUsersOnly();
   }
 
-  async handleUsersPageChange(cursor: DirectionalCursor) {
+  async handleUsersPageChange(cursor: PaginationCursor) {
     this.setState({ usersCursor: cursor });
     await this.fetchUsersOnly();
   }
 
-  async handleUploadsPageChange(cursor: DirectionalCursor) {
+  async handleUploadsPageChange(cursor: PaginationCursor) {
     this.setState({ uploadsCursor: cursor });
     snapToTop();
     await this.fetchUploadsOnly();
   }
 
-  async handleTaglinesPageChange(cursor: DirectionalCursor) {
+  async handleTaglinesPageChange(cursor: PaginationCursor) {
     this.setState({ taglinesCursor: cursor });
     snapToTop();
     await this.fetchTaglinesOnly();

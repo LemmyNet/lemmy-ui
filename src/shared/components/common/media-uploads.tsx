@@ -1,5 +1,10 @@
 import { Component, InfernoNode, linkEvent } from "inferno";
-import { ListMediaResponse, LocalImage, MyUserInfo } from "lemmy-js-client";
+import {
+  LocalImage,
+  LocalImageView,
+  MyUserInfo,
+  PagedResponse,
+} from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -10,7 +15,7 @@ import { toast } from "@utils/app";
 import { TableHr } from "./tables";
 
 interface Props {
-  uploads: ListMediaResponse;
+  uploads: PagedResponse<LocalImageView>;
   showUploader?: boolean;
   myUserInfo: MyUserInfo | undefined;
 }
@@ -30,7 +35,7 @@ export class MediaUploads extends Component<Props, any> {
   }
 
   render() {
-    const images = this.props.uploads.images;
+    const images = this.props.uploads.items;
 
     const cols = "col-6 col-md-3";
 

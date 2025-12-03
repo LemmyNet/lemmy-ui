@@ -8,12 +8,11 @@ import {
 } from "@utils/app";
 import {
   capitalizeFirstLetter,
-  cursorComponents,
   randomStr,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { DirectionalCursor, RouteDataResponse } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -40,7 +39,7 @@ import {
   EditPrivateMessage,
   GetSiteResponse,
   LemmyHttp,
-  ListNotificationsResponse,
+  PagedResponse,
   LockComment,
   MarkNotificationAsRead,
   MarkPostAsRead,
@@ -57,6 +56,7 @@ import {
   SaveComment,
   SuccessResponse,
   TransferCommunity,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -95,15 +95,15 @@ enum UnreadOrAll {
 }
 
 type NotificationsData = RouteDataResponse<{
-  notifsRes: ListNotificationsResponse;
+  notifsRes: PagedResponse<NotificationView>;
 }>;
 
 interface NotificationsState {
   unreadOrAll: UnreadOrAll;
   messageType: NotificationDataType;
-  notifsRes: RequestState<ListNotificationsResponse>;
+  notifsRes: RequestState<PagedResponse<NotificationView>>;
   markAllAsReadRes: RequestState<SuccessResponse>;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
 }
@@ -204,9 +204,7 @@ export class Notifications extends Component<
   get hasUnreads(): boolean {
     if (this.state.unreadOrAll === UnreadOrAll.Unread) {
       const { notifsRes } = this.state;
-      return (
-        notifsRes.state === "success" && notifsRes.data.notifications.length > 0
-      );
+      return notifsRes.state === "success" && notifsRes.data.items.length > 0;
     } else {
       return false;
     }
@@ -456,13 +454,13 @@ export class Notifications extends Component<
       return (
         <div>
           {notifsRes.state === "success" &&
-            notifsRes.data.notifications.map(r => this.renderItemType(r))}
+            notifsRes.data.items.map(r => this.renderItemType(r))}
         </div>
       );
     }
   }
 
-  async handlePageChange(cursor?: DirectionalCursor) {
+  async handlePageChange(cursor?: PaginationCursor) {
     this.setState({ cursor });
     await this.refetch();
   }
@@ -514,7 +512,7 @@ export class Notifications extends Component<
       .listNotifications({
         type_: this.state.messageType,
         unread_only,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
         limit: fetchLimit,
       })
       .then(notifsRes => {
@@ -536,16 +534,14 @@ export class Notifications extends Component<
     if (markAllAsReadRes.state === "success") {
       i.setState(s => {
         if (s.notifsRes.state === "success") {
-          s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
-            nv => {
-              const a = {
-                notification: { ...nv.notification },
-                data: { ...nv.data },
-              };
-              setRead(a, true);
-              return a;
-            },
-          );
+          s.notifsRes.data.items = s.notifsRes.data.items.map(nv => {
+            const a = {
+              notification: { ...nv.notification },
+              data: { ...nv.data },
+            };
+            setRead(a, true);
+            return a;
+          });
         }
         return { notifsRes: s.notifsRes, markAllAsReadRes };
       });
@@ -683,7 +679,7 @@ export class Notifications extends Component<
 
   async handleCommentMarkAsRead(comment_id: CommentId, read: boolean) {
     if (this.state.notifsRes.state !== "success") return;
-    const notification = this.state.notifsRes.data.notifications.find(
+    const notification = this.state.notifsRes.data.items.find(
       n => n.data.type_ === "comment" && n.data.comment.id === comment_id,
     );
     if (notification) {
@@ -699,7 +695,7 @@ export class Notifications extends Component<
     read: boolean,
   ) {
     if (this.state.notifsRes.state !== "success") return;
-    const notification = this.state.notifsRes.data.notifications.find(
+    const notification = this.state.notifsRes.data.items.find(
       n =>
         n.data.type_ === "private_message" &&
         n.data.private_message.id === privateMessageId,
@@ -740,19 +736,17 @@ export class Notifications extends Component<
     const res = await HttpService.client.markNotificationAsRead(form);
     this.setState(s => {
       if (res.state === "success" && s.notifsRes.state === "success") {
-        s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
-          n => {
-            if (n.notification.id !== form.notification_id) {
-              return n;
-            }
-            const updated: NotificationView = {
-              notification: { ...n.notification },
-              data: { ...n.data },
-            };
-            setRead(updated, form.read);
-            return updated;
-          },
-        );
+        s.notifsRes.data.items = s.notifsRes.data.items.map(n => {
+          if (n.notification.id !== form.notification_id) {
+            return n;
+          }
+          const updated: NotificationView = {
+            notification: { ...n.notification },
+            data: { ...n.data },
+          };
+          setRead(updated, form.read);
+          return updated;
+        });
       }
       return { notifsRes: s.notifsRes };
     });
@@ -767,7 +761,7 @@ export class Notifications extends Component<
     const res = await HttpService.client.createPrivateMessage(form);
     this.setState(s => {
       if (s.notifsRes.state === "success" && res.state === "success") {
-        s.notifsRes.data.notifications.unshift({
+        s.notifsRes.data.items.unshift({
           // FIXME: maybe just let it disappear, comments do too (own comments don't show in notifs)
           notification: {
             id: 0,
@@ -793,26 +787,24 @@ export class Notifications extends Component<
   findAndUpdateMessage(res: RequestState<PrivateMessageResponse>) {
     this.setState(s => {
       if (s.notifsRes.state === "success" && res.state === "success") {
-        const notif = s.notifsRes.data.notifications.find(
+        const notif = s.notifsRes.data.items.find(
           n =>
             n.data.type_ === "private_message" &&
             n.data.private_message.id ===
               res.data.private_message_view.private_message.id,
         );
-        s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
-          n => {
-            if (n !== notif) {
-              return n;
-            }
-            return {
-              notification: { ...n.notification },
-              data: {
-                type_: "private_message",
-                ...res.data.private_message_view,
-              },
-            };
-          },
-        );
+        s.notifsRes.data.items = s.notifsRes.data.items.map(n => {
+          if (n !== notif) {
+            return n;
+          }
+          return {
+            notification: { ...n.notification },
+            data: {
+              type_: "private_message",
+              ...res.data.private_message_view,
+            },
+          };
+        });
       }
       return s;
     });
@@ -827,31 +819,28 @@ export class Notifications extends Component<
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.notifsRes.state === "success") {
-          s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
-            c => {
-              const notif: NotificationView = {
-                notification: { ...c.notification },
-                data: { ...c.data },
-              };
-              switch (notif.data.type_) {
-                case "comment":
-                case "post":
-                  {
-                    if (
-                      notif.data.community.id === communityId &&
-                      notif.data.creator.id ===
-                        banRes.data.person_view.person.id
-                    ) {
-                      notif.data.creator_banned_from_community = banned;
+          s.notifsRes.data.items = s.notifsRes.data.items.map(c => {
+            const notif: NotificationView = {
+              notification: { ...c.notification },
+              data: { ...c.data },
+            };
+            switch (notif.data.type_) {
+              case "comment":
+              case "post":
+                {
+                  if (
+                    notif.data.community.id === communityId &&
+                    notif.data.creator.id === banRes.data.person_view.person.id
+                  ) {
+                    notif.data.creator_banned_from_community = banned;
 
-                      break;
-                    }
+                    break;
                   }
-                  return notif;
-              }
-              return c;
-            },
-          );
+                }
+                return notif;
+            }
+            return c;
+          });
         }
         return { notifsRes: s.notifsRes };
       });
@@ -863,22 +852,20 @@ export class Notifications extends Component<
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.notifsRes.state === "success") {
-          s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
-            c => {
-              const notif: NotificationView = {
-                notification: { ...c.notification },
-                data: { ...c.data },
-              };
-              switch (notif.data.type_) {
-                case "comment":
-                case "post": {
-                  notif.data.creator_banned = banned;
-                  break;
-                }
+          s.notifsRes.data.items = s.notifsRes.data.items.map(c => {
+            const notif: NotificationView = {
+              notification: { ...c.notification },
+              data: { ...c.data },
+            };
+            switch (notif.data.type_) {
+              case "comment":
+              case "post": {
+                notif.data.creator_banned = banned;
+                break;
               }
-              return notif;
-            },
-          );
+            }
+            return notif;
+          });
         }
         return { notifsRes: s.notifsRes };
       });
@@ -906,22 +893,20 @@ export class Notifications extends Component<
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.notifsRes.state === "success" && res.state === "success") {
-        const notif = s.notifsRes.data.notifications.find(
+        const notif = s.notifsRes.data.items.find(
           n =>
             n.data.type_ === "comment" &&
             n.data.comment.id === res.data.comment_view.comment.id,
         );
-        s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
-          n => {
-            if (n !== notif) {
-              return n;
-            }
-            return {
-              notification: { ...n.notification },
-              data: { type_: "comment", ...res.data.comment_view },
-            };
-          },
-        );
+        s.notifsRes.data.items = s.notifsRes.data.items.map(n => {
+          if (n !== notif) {
+            return n;
+          }
+          return {
+            notification: { ...n.notification },
+            data: { type_: "comment", ...res.data.comment_view },
+          };
+        });
       }
       return s;
     });
@@ -929,7 +914,7 @@ export class Notifications extends Component<
 
   async handleMarkPostAsRead(form: MarkPostAsRead) {
     if (this.state.notifsRes.state !== "success") return;
-    const notification = this.state.notifsRes.data.notifications.find(
+    const notification = this.state.notifsRes.data.items.find(
       n => n.data.type_ === "post" && n.data.post.id === form.post_id,
     );
     if (notification) {
@@ -947,26 +932,24 @@ export class Notifications extends Component<
       // Update the content lists
       this.setState(s => {
         if (s.notifsRes.state === "success") {
-          s.notifsRes.data.notifications = s.notifsRes.data.notifications.map(
-            c => {
-              const notif: NotificationView = {
-                notification: { ...c.notification },
-                data: { ...c.data },
-              };
-              switch (notif.data.type_) {
-                case "post":
-                case "comment":
-                  if (
-                    notif.data.creator.id === form.person_id &&
-                    notif.data.person_actions
-                  ) {
-                    notif.data.person_actions.note = form.note;
-                  }
-                  break;
-              }
-              return notif;
-            },
-          );
+          s.notifsRes.data.items = s.notifsRes.data.items.map(c => {
+            const notif: NotificationView = {
+              notification: { ...c.notification },
+              data: { ...c.data },
+            };
+            switch (notif.data.type_) {
+              case "post":
+              case "comment":
+                if (
+                  notif.data.creator.id === form.person_id &&
+                  notif.data.person_actions
+                ) {
+                  notif.data.person_actions.note = form.note;
+                }
+                break;
+            }
+            return notif;
+          });
         }
         toast(
           I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"),

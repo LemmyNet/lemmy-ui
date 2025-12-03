@@ -21,10 +21,9 @@ import {
   resourcesSettled,
   bareRoutePush,
   getApubName,
-  cursorComponents,
 } from "@utils/helpers";
 import { amAdmin, canAdmin } from "@utils/roles";
-import type { DirectionalCursor, QueryParams } from "@utils/types";
+import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { format } from "date-fns";
@@ -56,8 +55,8 @@ import {
   GetPersonDetailsResponse,
   GetSiteResponse,
   LemmyHttp,
-  ListMediaResponse,
-  ListPersonContentResponse,
+  PagedResponse,
+  LocalImageView,
   LockPost,
   PersonView,
   PostResponse,
@@ -73,18 +72,18 @@ import {
   RegistrationApplicationResponse,
   MyUserInfo,
   CommunityId,
-  ListPersonSavedResponse,
+  PersonSavedCombinedView,
   PersonContentCombinedView,
   Person,
   MarkPostAsRead,
-  ListPersonLikedResponse,
+  PersonLikedCombinedView,
   SearchSortType,
   NotePerson,
-  ListPersonHiddenResponse,
-  ListPersonReadResponse,
+  PostView,
   LockComment,
   BlockCommunity,
   MultiCommunityView,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -118,22 +117,22 @@ import { MultiCommunityLink } from "@components/multi-community/multi-community-
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
-  personContentRes: ListPersonContentResponse;
-  personSavedRes: ListPersonSavedResponse;
-  personLikedRes: ListPersonLikedResponse;
-  personReadRes: ListPersonReadResponse;
-  personHiddenRes: ListPersonHiddenResponse;
-  uploadsRes: ListMediaResponse;
+  personContentRes: PagedResponse<PersonContentCombinedView>;
+  personSavedRes: PagedResponse<PersonSavedCombinedView>;
+  personLikedRes: PagedResponse<PersonLikedCombinedView>;
+  personReadRes: PagedResponse<PostView>;
+  personHiddenRes: PagedResponse<PostView>;
+  uploadsRes: PagedResponse<LocalImageView>;
 }>;
 
 interface ProfileState {
   personRes: RequestState<GetPersonDetailsResponse>;
-  personContentRes: RequestState<ListPersonContentResponse>;
-  personSavedRes: RequestState<ListPersonSavedResponse>;
-  personLikedRes: RequestState<ListPersonLikedResponse>;
-  personReadRes: RequestState<ListPersonReadResponse>;
-  personHiddenRes: RequestState<ListPersonHiddenResponse>;
-  uploadsRes: RequestState<ListMediaResponse>;
+  personContentRes: RequestState<PagedResponse<PersonContentCombinedView>>;
+  personSavedRes: RequestState<PagedResponse<PersonSavedCombinedView>>;
+  personLikedRes: RequestState<PagedResponse<PersonLikedCombinedView>>;
+  personReadRes: RequestState<PagedResponse<PostView>>;
+  personHiddenRes: RequestState<PagedResponse<PostView>>;
+  uploadsRes: RequestState<PagedResponse<LocalImageView>>;
   registrationRes: RequestState<RegistrationApplicationResponse>;
   personBlocked: boolean;
   banReason?: string;
@@ -151,7 +150,7 @@ type Filter = "saved" | "liked" | "read" | "hidden" | "none";
 interface ProfileProps {
   view: PersonDetailsView;
   sort: SearchSortType;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   filter: Filter;
 }
 
@@ -460,34 +459,34 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         HttpService.client.listPersonContent({
           type_,
           username,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needSaved &&
         HttpService.client.listPersonSaved({
           type_,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needUploads &&
         HttpService.client.listMedia({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needLiked &&
         HttpService.client.listPersonLiked({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
           type_,
         }),
       needRead &&
         HttpService.client.listPersonRead({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needHidden &&
         HttpService.client.listPersonHidden({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
     ]).then(args => {
@@ -553,30 +552,30 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         client.listPersonContent({
           type_,
           username,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
         }),
       needSaved &&
         client.listPersonSaved({
           type_,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needUploads &&
-        client.listMedia({ ...cursorComponents(cursor), limit: fetchLimit }),
+        client.listMedia({ page_cursor: cursor, limit: fetchLimit }),
       needLiked &&
         client.listPersonLiked({
           type_,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needRead &&
         client.listPersonRead({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needHidden &&
         client.listPersonHidden({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
     ]).then(args => {
@@ -647,29 +646,29 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         const savedContent =
           (filter === "saved" &&
             this.state.personSavedRes.state === "success" &&
-            this.state.personSavedRes.data.saved) ||
+            this.state.personSavedRes.data.items) ||
           undefined;
         const content =
           (filter === "none" &&
             this.state.personContentRes.state === "success" &&
-            this.state.personContentRes.data.content) ||
+            this.state.personContentRes.data.items) ||
           undefined;
         const likedContent =
           (filter === "liked" &&
             this.state.personLikedRes.state === "success" &&
-            this.state.personLikedRes.data.liked) ||
+            this.state.personLikedRes.data.items) ||
           undefined;
         const readContent: PersonContentCombinedView[] | undefined =
           (filter === "read" &&
             this.state.personReadRes.state === "success" &&
-            this.state.personReadRes.data.read.map(
+            this.state.personReadRes.data.items.map(
               postViewToPersonContentCombinedView,
             )) ||
           undefined;
         const hiddenContent: PersonContentCombinedView[] | undefined =
           (filter === "hidden" &&
             this.state.personHiddenRes.state === "success" &&
-            this.state.personHiddenRes.data.hidden.map(
+            this.state.personHiddenRes.data.items.map(
               postViewToPersonContentCombinedView,
             )) ||
           undefined;
@@ -1244,7 +1243,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 
@@ -1524,38 +1523,38 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
         // Update the content lists
         if (s.personContentRes.state === "success") {
-          s.personContentRes.data.content = editPersonNotes(
+          s.personContentRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.personContentRes.data.content,
+            s.personContentRes.data.items,
           );
         }
         if (s.personLikedRes.state === "success") {
-          s.personLikedRes.data.liked = editPersonNotes(
+          s.personLikedRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.personLikedRes.data.liked,
+            s.personLikedRes.data.items,
           );
         }
         if (s.personReadRes.state === "success") {
-          s.personReadRes.data.read = editPersonNotes(
+          s.personReadRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.personReadRes.data.read,
+            s.personReadRes.data.items,
           );
         }
         if (s.personHiddenRes.state === "success") {
-          s.personHiddenRes.data.hidden = editPersonNotes(
+          s.personHiddenRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.personHiddenRes.data.hidden,
+            s.personHiddenRes.data.items,
           );
         }
         if (s.personSavedRes.state === "success") {
-          s.personSavedRes.data.saved = editPersonNotes(
+          s.personSavedRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.personSavedRes.data.saved,
+            s.personSavedRes.data.items,
           );
         }
       }
@@ -1621,21 +1620,21 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (this.props.filter === "saved") {
       this.setState(s => {
         if (s.personSavedRes.state === "success") {
-          s.personSavedRes.data.saved = s.personSavedRes.data.saved.map(mapFn);
+          s.personSavedRes.data.items = s.personSavedRes.data.items.map(mapFn);
         }
         return { personSavedRes: s.personSavedRes };
       });
     } else if (this.props.filter === "liked") {
       this.setState(s => {
         if (s.personLikedRes.state === "success") {
-          s.personLikedRes.data.liked = s.personLikedRes.data.liked.map(mapFn);
+          s.personLikedRes.data.items = s.personLikedRes.data.items.map(mapFn);
         }
         return { personLikedRes: s.personLikedRes };
       });
     } else if (this.props.filter === "read") {
       this.setState(s => {
         if (s.personReadRes.state === "success") {
-          s.personReadRes.data.read = s.personReadRes.data.read
+          s.personReadRes.data.items = s.personReadRes.data.items
             .map(postViewToPersonContentCombinedView)
             .map(mapFn)
             .filter(c => c.type_ === "post");
@@ -1645,7 +1644,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     } else if (this.props.filter === "hidden") {
       this.setState(s => {
         if (s.personHiddenRes.state === "success") {
-          s.personHiddenRes.data.hidden = s.personHiddenRes.data.hidden
+          s.personHiddenRes.data.items = s.personHiddenRes.data.items
             .map(postViewToPersonContentCombinedView)
             .map(mapFn)
             .filter(c => c.type_ === "post");
@@ -1655,8 +1654,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     } else {
       this.setState(s => {
         if (s.personContentRes.state === "success") {
-          s.personContentRes.data.content =
-            s.personContentRes.data.content.map(mapFn);
+          s.personContentRes.data.items =
+            s.personContentRes.data.items.map(mapFn);
         }
         return { personContentRes: s.personContentRes };
       });
@@ -1667,9 +1666,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (this.props.filter === "saved") {
       this.setState(s => {
         if (s.personSavedRes.state === "success") {
-          s.personSavedRes.data.saved = editCombined(
+          s.personSavedRes.data.items = editCombined(
             data,
-            s.personSavedRes.data.saved,
+            s.personSavedRes.data.items,
             getUncombinedPersonContent,
           );
         }
@@ -1678,9 +1677,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     } else if (this.props.filter === "liked") {
       this.setState(s => {
         if (s.personLikedRes.state === "success") {
-          s.personLikedRes.data.liked = editCombined(
+          s.personLikedRes.data.items = editCombined(
             data,
-            s.personLikedRes.data.liked,
+            s.personLikedRes.data.items,
             getUncombinedPersonContent,
           );
         }
@@ -1689,16 +1688,19 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     } else if (this.props.filter === "read") {
       this.setState(s => {
         if (s.personReadRes.state === "success" && data.type_ === "post") {
-          s.personReadRes.data.read = editPost(data, s.personReadRes.data.read);
+          s.personReadRes.data.items = editPost(
+            data,
+            s.personReadRes.data.items,
+          );
         }
         return { personReadRes: s.personReadRes };
       });
     } else if (this.props.filter === "hidden") {
       this.setState(s => {
         if (s.personHiddenRes.state === "success" && data.type_ === "post") {
-          s.personHiddenRes.data.hidden = editPost(
+          s.personHiddenRes.data.items = editPost(
             data,
-            s.personHiddenRes.data.hidden,
+            s.personHiddenRes.data.items,
           );
         }
         return { personHiddenRes: s.personHiddenRes };
@@ -1706,9 +1708,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     } else {
       this.setState(s => {
         if (s.personContentRes.state === "success") {
-          s.personContentRes.data.content = editCombined(
+          s.personContentRes.data.items = editCombined(
             data,
-            s.personContentRes.data.content,
+            s.personContentRes.data.items,
             getUncombinedPersonContent,
           );
         }
@@ -1770,7 +1772,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.personContentRes.state === "success" && res.state === "success") {
-        s.personContentRes.data.content.unshift(
+        s.personContentRes.data.items.unshift(
           commentViewToPersonContentCombinedView(res.data.comment_view),
         );
       }

@@ -2,8 +2,6 @@ import { Component, linkEvent } from "inferno";
 import { I18NextService } from "../../services";
 import { PaginationCursor } from "lemmy-js-client";
 import { RequestState } from "@services/HttpService";
-import { DirectionalCursor } from "@utils/types";
-import { directionalCursor } from "@utils/helpers";
 
 interface PaginatedResource {
   next_page?: PaginationCursor;
@@ -11,20 +9,20 @@ interface PaginatedResource {
 }
 
 interface PaginatorCursorProps {
-  current: DirectionalCursor | undefined;
+  current: PaginationCursor | undefined;
   resource: RequestState<PaginatedResource>;
-  onPageChange(cursor?: DirectionalCursor): void;
+  onPageChange(cursor?: PaginationCursor): void;
 }
 
 function handleNext(i: PaginatorCursor) {
   if (i.nextPage) {
-    i.props.onPageChange(directionalCursor(i.nextPage, false));
+    i.props.onPageChange(i.nextPage);
   }
 }
 
 function handlePrev(i: PaginatorCursor) {
   if (i.prevPage) {
-    i.props.onPageChange(directionalCursor(i.prevPage, true));
+    i.props.onPageChange(i.prevPage);
   }
 }
 

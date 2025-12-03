@@ -25,7 +25,7 @@ import {
   GetCommunity,
   GetCommunityResponse,
   LemmyHttp,
-  ListCommunitiesResponse,
+  PagedResponse,
 } from "lemmy-js-client";
 import { InitialFetchRequest, PostFormParams } from "@utils/types";
 import { FirstLoadService, I18NextService } from "@services/index";
@@ -60,7 +60,7 @@ export interface CreatePostProps {
 
 type CreatePostData = RouteDataResponse<{
   communityResponse: GetCommunityResponse;
-  initialCommunitiesRes: ListCommunitiesResponse;
+  initialCommunitiesRes: PagedResponse<CommunityView>;
 }>;
 
 export function getCreatePostQueryParams(source?: string): CreatePostProps {
@@ -95,7 +95,7 @@ interface CreatePostState {
   loading: boolean;
   selectedCommunity?: CommunityView;
   selectedCommunityIsNsfw: boolean;
-  initialCommunitiesRes: RequestState<ListCommunitiesResponse>;
+  initialCommunitiesRes: RequestState<PagedResponse<CommunityView>>;
   isIsomorphic: boolean;
   resetCounter: number; // resets PostForm when changed
   showSidebarMobile: boolean;
@@ -284,7 +284,7 @@ export class CreatePost extends Component<
               initialCommunities={
                 this.state.initialCommunitiesRes.state === "success"
                   ? filterCommunitySelection(
-                      this.state.initialCommunitiesRes.data.communities,
+                      this.state.initialCommunitiesRes.data.items,
                       this.isoData.myUserInfo,
                     )
                   : []
