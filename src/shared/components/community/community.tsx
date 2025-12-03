@@ -18,14 +18,9 @@ import {
   getQueryString,
   resourcesSettled,
   bareRoutePush,
-  cursorComponents,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type {
-  DirectionalCursor,
-  QueryParams,
-  StringBoolean,
-} from "@utils/types";
+import type { QueryParams, StringBoolean } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import {
   Component,
@@ -91,6 +86,7 @@ import {
   UpdateCommunityNotifications,
   LockComment,
   PostListingMode,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -148,7 +144,7 @@ interface CommunityProps {
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
 
@@ -361,7 +357,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         time_range_seconds: postTimeRange,
         type_: "all",
         show_hidden: showHidden === "true",
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
       };
 
       postsFetch = client.getPosts(getPostsForm);
@@ -370,7 +366,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         community_name: communityName,
         sort: mixedToCommentSortType(sort),
         type_: "all",
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
       };
 
       commentsFetch = client.getComments(getCommentsForm);
@@ -769,7 +765,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     );
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 
@@ -847,7 +843,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (postOrCommentType === "post") {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         type_: "all",
@@ -863,7 +859,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         sort: mixedToCommentSortType(sort),
         type_: "all",
         community_name: name,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
       });
       if (token === this.fetchDataToken) {
         this.setState({ commentsRes });

@@ -1,21 +1,17 @@
 import { editRegistrationApplication, setIsoData } from "@utils/app";
 import {
-  cursorComponents,
   getQueryParams,
   getQueryString,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import {
-  DirectionalCursor,
-  QueryParams,
-  RouteDataResponse,
-} from "@utils/types";
+import { QueryParams, RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
   ApproveRegistrationApplication,
   LemmyHttp,
   PagedResponse,
+  PaginationCursor,
   RegistrationApplicationView,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
@@ -53,7 +49,7 @@ interface RegistrationApplicationsState {
 
 interface RegistrationApplicationsProps {
   view: RegistrationState;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
 }
 
 function registrationStateFromQuery(view?: string): RegistrationState {
@@ -231,7 +227,7 @@ export class RegistrationApplications extends Component<
     this.updateUrl({ view: val, cursor: undefined });
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 
@@ -251,7 +247,7 @@ export class RegistrationApplications extends Component<
       listRegistrationApplicationsResponse: headers["Authorization"]
         ? await client.listRegistrationApplications({
             unread_only: view === "unread",
-            ...cursorComponents(cursor),
+            page_cursor: cursor,
             limit: fetchLimit,
           })
         : EMPTY_REQUEST,
@@ -267,7 +263,7 @@ export class RegistrationApplications extends Component<
     });
     const appsRes = await HttpService.client.listRegistrationApplications({
       unread_only: state === "unread",
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
       limit: fetchLimit,
     });
     if (token === this.refetchToken) {

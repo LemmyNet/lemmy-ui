@@ -2,11 +2,10 @@ import { editMultiCommunity, setIsoData, showLocal } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
-  cursorComponents,
   resourcesSettled,
   numToSI,
 } from "@utils/helpers";
-import type { DirectionalCursor, QueryParams } from "@utils/types";
+import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
@@ -18,6 +17,7 @@ import {
   MultiCommunityListingType,
   MultiCommunityResponse,
   MultiCommunitySortType,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService } from "@services/FirstLoadService";
@@ -58,7 +58,7 @@ interface State {
 interface Props {
   listingType: MultiCommunityListingType;
   sort: MultiCommunitySortType;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
 }
 
 function getListingTypeFromQuery(
@@ -287,7 +287,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
       type_: listingType,
       sort,
       limit: multiCommunityLimit,
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
     };
 
     return {
@@ -304,7 +304,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
         type_: listingType,
         sort: sort,
         limit: multiCommunityLimit,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
       });
     if (token === this.fetchToken) {
       this.setState({ listMultiCommunitiesRes });
@@ -327,7 +327,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
   }
 }
 
-function handlePageChange(i: MultiCommunities, cursor?: DirectionalCursor) {
+function handlePageChange(i: MultiCommunities, cursor?: PaginationCursor) {
   i.updateUrl({ cursor });
 }
 

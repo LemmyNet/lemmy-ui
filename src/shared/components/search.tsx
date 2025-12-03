@@ -18,9 +18,8 @@ import {
   getQueryParams,
   getQueryString,
   resourcesSettled,
-  cursorComponents,
 } from "@utils/helpers";
-import type { DirectionalCursor, IsoData, QueryParams } from "@utils/types";
+import type { IsoData, QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent, createRef } from "inferno";
 import {
@@ -81,7 +80,7 @@ interface SearchProps {
   postUrlOnly: boolean;
   communityId?: number;
   creatorId?: number;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
 }
 
 type SearchData = RouteDataResponse<{
@@ -650,7 +649,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         title_only,
         post_url_only,
         limit: fetchLimit,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
       };
 
       searchResponse = await client.search(form);
@@ -1092,7 +1091,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         title_only: titleOnly,
         post_url_only: postUrlOnly,
         limit: fetchLimit,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
       });
       if (token !== this.searchToken) {
         return;
@@ -1169,7 +1168,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     });
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 

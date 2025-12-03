@@ -16,15 +16,10 @@ import {
 import {
   getQueryParams,
   getQueryString,
-  cursorComponents,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type {
-  DirectionalCursor,
-  QueryParams,
-  StringBoolean,
-} from "@utils/types";
+import type { QueryParams, StringBoolean } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, InfernoNode, MouseEventHandler, linkEvent } from "inferno";
@@ -77,6 +72,7 @@ import {
   BlockCommunity,
   PostListingMode,
   PagedResponse,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -136,7 +132,7 @@ interface HomeProps {
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
 
@@ -388,7 +384,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (postOrCommentType === "post") {
       const getPostsForm: GetPosts = {
         type_: listingType,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         show_hidden: showHidden === "true",
@@ -997,7 +993,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (postOrCommentType === "post") {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         type_: listingType,
@@ -1009,7 +1005,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     } else {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
       const commentsRes = await HttpService.client.getComments({
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
         sort: mixedToCommentSortType(sort),
         type_: listingType,
       });
@@ -1037,7 +1033,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     });
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 

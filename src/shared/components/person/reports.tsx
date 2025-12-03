@@ -5,10 +5,10 @@ import {
   setIsoData,
   toast,
 } from "@utils/app";
-import { cursorComponents, randomStr, resourcesSettled } from "@utils/helpers";
+import { randomStr, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { amAdmin } from "@utils/roles";
-import { DirectionalCursor, RouteDataResponse } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -71,7 +71,7 @@ interface ReportsState {
   unreadOrAll: UnreadOrAll;
   messageType: ReportType;
   siteRes: GetSiteResponse;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   isIsomorphic: boolean;
   banFromCommunityForm?: BanFromCommunityData;
   adminBanForm?: BanFromSiteData;
@@ -619,7 +619,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  async handlePageChange(cursor?: DirectionalCursor) {
+  async handlePageChange(cursor?: PaginationCursor) {
     this.setState({ cursor });
     await this.refetch();
   }
@@ -680,7 +680,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       unresolved_only,
       type_: this.state.messageType,
       show_community_rule_violations: this.state.showCommunityRuleViolations,
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
     };
 
     const reportPromise = HttpService.client

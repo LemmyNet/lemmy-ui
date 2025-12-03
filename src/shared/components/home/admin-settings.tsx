@@ -1,11 +1,7 @@
 import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
-import {
-  capitalizeFirstLetter,
-  cursorComponents,
-  resourcesSettled,
-} from "@utils/helpers";
+import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { DirectionalCursor, RouteDataResponse } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component } from "inferno";
 import {
@@ -29,6 +25,7 @@ import {
   LocalImageView,
   Tagline,
   UpdateTagline,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -78,14 +75,14 @@ type AdminSettingsData = RouteDataResponse<{
 interface AdminSettingsState {
   instancesRes: RequestState<PagedResponse<FederatedInstanceView>>;
   usersRes: RequestState<PagedResponse<LocalUserView>>;
-  usersCursor?: DirectionalCursor;
+  usersCursor?: PaginationCursor;
   usersBannedOnly: boolean;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<PagedResponse<LocalImageView>>;
-  uploadsCursor?: DirectionalCursor;
+  uploadsCursor?: PaginationCursor;
   taglinesRes: RequestState<PagedResponse<Tagline>>;
-  taglinesCursor?: DirectionalCursor;
+  taglinesCursor?: PaginationCursor;
   emojisRes: RequestState<ListCustomEmojisResponse>;
   loading: boolean;
   themeList: string[];
@@ -388,16 +385,16 @@ export class AdminSettings extends Component<
     ] = await Promise.all([
       HttpService.client.listUsers({
         banned_only: this.state.usersBannedOnly,
-        ...cursorComponents(this.state.usersCursor),
+        page_cursor: this.state.usersCursor,
         limit: fetchLimit,
       }),
       HttpService.client.getFederatedInstances({ kind: "all" }),
       HttpService.client.listMediaAdmin({
-        ...cursorComponents(this.state.uploadsCursor),
+        page_cursor: this.state.uploadsCursor,
         limit: fetchLimit,
       }),
       HttpService.client.listTaglines({
-        ...cursorComponents(this.state.taglinesCursor),
+        page_cursor: this.state.taglinesCursor,
         limit: fetchLimit,
       }),
       HttpService.client.listCustomEmojis({}),
@@ -419,7 +416,7 @@ export class AdminSettings extends Component<
       usersRes: LOADING_REQUEST,
     });
     const usersRes = await HttpService.client.listUsers({
-      ...cursorComponents(this.state.uploadsCursor),
+      page_cursor: this.state.usersCursor,
       banned_only: this.state.usersBannedOnly,
       limit: fetchLimit,
     });
@@ -432,7 +429,7 @@ export class AdminSettings extends Component<
       uploadsRes: LOADING_REQUEST,
     });
     const uploadsRes = await HttpService.client.listMediaAdmin({
-      ...cursorComponents(this.state.uploadsCursor),
+      page_cursor: this.state.uploadsCursor,
       limit: fetchLimit,
     });
 
@@ -444,7 +441,7 @@ export class AdminSettings extends Component<
       taglinesRes: LOADING_REQUEST,
     });
     const taglinesRes = await HttpService.client.listTaglines({
-      ...cursorComponents(this.state.taglinesCursor),
+      page_cursor: this.state.taglinesCursor,
       limit: fetchLimit,
     });
 
@@ -934,18 +931,18 @@ export class AdminSettings extends Component<
     await i.fetchUsersOnly();
   }
 
-  async handleUsersPageChange(cursor: DirectionalCursor) {
+  async handleUsersPageChange(cursor: PaginationCursor) {
     this.setState({ usersCursor: cursor });
     await this.fetchUsersOnly();
   }
 
-  async handleUploadsPageChange(cursor: DirectionalCursor) {
+  async handleUploadsPageChange(cursor: PaginationCursor) {
     this.setState({ uploadsCursor: cursor });
     snapToTop();
     await this.fetchUploadsOnly();
   }
 
-  async handleTaglinesPageChange(cursor: DirectionalCursor) {
+  async handleTaglinesPageChange(cursor: PaginationCursor) {
     this.setState({ taglinesCursor: cursor });
     snapToTop();
     await this.fetchTaglinesOnly();

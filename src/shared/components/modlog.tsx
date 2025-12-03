@@ -6,12 +6,11 @@ import {
   getQueryString,
   resourcesSettled,
   bareRoutePush,
-  cursorComponents,
 } from "@utils/helpers";
 import { formatRelativeDate } from "@utils/date";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { amAdmin, amMod } from "@utils/roles";
-import type { DirectionalCursor, QueryParams } from "@utils/types";
+import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -30,6 +29,7 @@ import {
   MyUserInfo,
   Person,
   Modlog as Modlog_,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -92,7 +92,7 @@ interface ModlogState {
 }
 
 interface ModlogProps {
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   userId?: number;
   modId?: number;
   actionType?: ModlogKind;
@@ -984,7 +984,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     });
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 
@@ -1082,7 +1082,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       mod_person_id: modId,
       comment_id: commentId,
       post_id: postId,
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
     });
 
     if (token === this.fetchModlogToken) {
@@ -1122,7 +1122,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const communityId = getIdFromString(urlCommunityId);
 
     const modlogForm: GetModlog = {
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
       limit: fetchLimit,
       community_id: communityId,
       type_: actionType,

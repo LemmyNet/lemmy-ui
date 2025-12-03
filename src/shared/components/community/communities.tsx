@@ -2,11 +2,10 @@ import { editCommunity, setIsoData, showLocal } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
-  cursorComponents,
   resourcesSettled,
   numToSI,
 } from "@utils/helpers";
-import type { DirectionalCursor, QueryParams } from "@utils/types";
+import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
@@ -18,6 +17,7 @@ import {
   PagedResponse,
   CommunityView,
   ListingType,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService } from "@services/FirstLoadService";
@@ -60,7 +60,7 @@ interface CommunitiesState {
 interface CommunitiesProps {
   listingType: ListingType;
   sort: CommunitySortType;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
@@ -321,7 +321,7 @@ export class Communities extends Component<
       type_: listingType,
       sort,
       limit: communityLimit,
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
     };
 
     return {
@@ -338,7 +338,7 @@ export class Communities extends Component<
       type_: listingType,
       sort: sort,
       limit: communityLimit,
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
     });
     if (token === this.fetchToken) {
       this.setState({ listCommunitiesResponse });
@@ -361,7 +361,7 @@ export class Communities extends Component<
   }
 }
 
-function handlePageChange(i: Communities, cursor?: DirectionalCursor) {
+function handlePageChange(i: Communities, cursor?: PaginationCursor) {
   i.updateUrl({ cursor });
 }
 

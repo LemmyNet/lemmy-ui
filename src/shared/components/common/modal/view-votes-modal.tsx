@@ -8,7 +8,12 @@ import {
 import { I18NextService } from "../../../services";
 import type { Modal } from "bootstrap";
 import { Icon, Spinner } from "../icon";
-import { PagedResponse, MyUserInfo, VoteView } from "lemmy-js-client";
+import {
+  PagedResponse,
+  MyUserInfo,
+  VoteView,
+  PaginationCursor,
+} from "lemmy-js-client";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -20,8 +25,6 @@ import { PersonListing } from "../../person/person-listing";
 import { modalMixin } from "../../mixins/modal-mixin";
 import { UserBadges } from "../user-badges";
 import { isBrowser } from "@utils/browser";
-import { DirectionalCursor } from "@utils/types";
-import { cursorComponents } from "@utils/helpers";
 import { PaginatorCursor } from "../paginator-cursor";
 
 interface ViewVotesModalProps {
@@ -36,7 +39,7 @@ interface ViewVotesModalProps {
 interface ViewVotesModalState {
   postLikesRes: RequestState<PagedResponse<VoteView>>;
   commentLikesRes: RequestState<PagedResponse<VoteView>>;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
 }
 
 function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
@@ -201,7 +204,7 @@ export default class ViewVotesModal extends Component<
     this.modal?.hide();
   }
 
-  async handlePageChange(cursor?: DirectionalCursor) {
+  async handlePageChange(cursor?: PaginationCursor) {
     this.setState({ cursor });
     await this.refetch();
   }
@@ -215,7 +218,7 @@ export default class ViewVotesModal extends Component<
       this.setState({
         postLikesRes: await HttpService.client.listPostLikes({
           post_id: this.props.id,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit,
         }),
       });
@@ -224,7 +227,7 @@ export default class ViewVotesModal extends Component<
       this.setState({
         commentLikesRes: await HttpService.client.listCommentLikes({
           comment_id: this.props.id,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit,
         }),
       });

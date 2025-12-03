@@ -1,9 +1,5 @@
 import { setIsoData } from "@utils/app";
-import {
-  DirectionalCursor,
-  QueryParams,
-  RouteDataResponse,
-} from "@utils/types";
+import { QueryParams, RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
   GetFederatedInstancesKind,
@@ -11,6 +7,7 @@ import {
   FederatedInstanceView,
   GetSiteResponse,
   LemmyHttp,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -28,7 +25,6 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import {
-  cursorComponents,
   getQueryParams,
   getQueryString,
   resourcesSettled,
@@ -72,7 +68,7 @@ interface InstancesState {
 
 interface InstancesProps {
   kind: GetFederatedInstancesKind;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   domain_filter?: string;
 }
 
@@ -144,7 +140,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
       instancesRes: await HttpService.client.getFederatedInstances({
         kind: this.props.kind,
         domain_filter: this.props.domain_filter,
-        ...cursorComponents(this.props.cursor),
+        page_cursor: this.props.cursor,
         limit: fetchLimit,
       }),
     });
@@ -163,7 +159,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     return {
       federatedInstancesResponse: await client.getFederatedInstances({
         kind: kind,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
         domain_filter,
         limit: fetchLimit,
       }),
@@ -218,7 +214,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     this.fetchInstances();
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 
@@ -286,7 +282,7 @@ interface InstanceListProps {
   instances: FederatedInstanceView[];
   hideNoneFound?: boolean;
   onRemove?(instance: string): void;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
 }
 
 export function InstanceList({

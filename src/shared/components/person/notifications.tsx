@@ -8,12 +8,11 @@ import {
 } from "@utils/app";
 import {
   capitalizeFirstLetter,
-  cursorComponents,
   randomStr,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { DirectionalCursor, RouteDataResponse } from "@utils/types";
+import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -57,6 +56,7 @@ import {
   SaveComment,
   SuccessResponse,
   TransferCommunity,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -103,7 +103,7 @@ interface NotificationsState {
   messageType: NotificationDataType;
   notifsRes: RequestState<PagedResponse<NotificationView>>;
   markAllAsReadRes: RequestState<SuccessResponse>;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
 }
@@ -460,7 +460,7 @@ export class Notifications extends Component<
     }
   }
 
-  async handlePageChange(cursor?: DirectionalCursor) {
+  async handlePageChange(cursor?: PaginationCursor) {
     this.setState({ cursor });
     await this.refetch();
   }
@@ -512,7 +512,7 @@ export class Notifications extends Component<
       .listNotifications({
         type_: this.state.messageType,
         unread_only,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
         limit: fetchLimit,
       })
       .then(notifsRes => {

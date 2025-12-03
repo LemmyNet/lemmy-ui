@@ -21,10 +21,9 @@ import {
   resourcesSettled,
   bareRoutePush,
   getApubName,
-  cursorComponents,
 } from "@utils/helpers";
 import { amAdmin, canAdmin } from "@utils/roles";
-import type { DirectionalCursor, QueryParams } from "@utils/types";
+import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { format } from "date-fns";
@@ -84,6 +83,7 @@ import {
   LockComment,
   BlockCommunity,
   MultiCommunityView,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
@@ -150,7 +150,7 @@ type Filter = "saved" | "liked" | "read" | "hidden" | "none";
 interface ProfileProps {
   view: PersonDetailsView;
   sort: SearchSortType;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   filter: Filter;
 }
 
@@ -459,34 +459,34 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         HttpService.client.listPersonContent({
           type_,
           username,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needSaved &&
         HttpService.client.listPersonSaved({
           type_,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needUploads &&
         HttpService.client.listMedia({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needLiked &&
         HttpService.client.listPersonLiked({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
           type_,
         }),
       needRead &&
         HttpService.client.listPersonRead({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needHidden &&
         HttpService.client.listPersonHidden({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
     ]).then(args => {
@@ -552,30 +552,30 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         client.listPersonContent({
           type_,
           username,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
         }),
       needSaved &&
         client.listPersonSaved({
           type_,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needUploads &&
-        client.listMedia({ ...cursorComponents(cursor), limit: fetchLimit }),
+        client.listMedia({ page_cursor: cursor, limit: fetchLimit }),
       needLiked &&
         client.listPersonLiked({
           type_,
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needRead &&
         client.listPersonRead({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
       needHidden &&
         client.listPersonHidden({
-          ...cursorComponents(cursor),
+          page_cursor: cursor,
           limit: fetchLimit,
         }),
     ]).then(args => {
@@ -1243,7 +1243,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 

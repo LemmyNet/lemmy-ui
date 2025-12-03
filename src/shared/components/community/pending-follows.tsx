@@ -1,21 +1,17 @@
 import { setIsoData } from "@utils/app";
 import {
-  cursorComponents,
   getQueryParams,
   getQueryString,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import {
-  DirectionalCursor,
-  QueryParams,
-  RouteDataResponse,
-} from "@utils/types";
+import { QueryParams, RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
   ApproveCommunityPendingFollower,
   LemmyHttp,
   PagedResponse,
+  PaginationCursor,
   PendingFollowerView,
   PendingFollow as PendingFollowView,
 } from "lemmy-js-client";
@@ -54,7 +50,7 @@ interface PendingFollowsState {
 
 interface PendingFollowsProps {
   viewState: RegistrationState;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
 }
 
 function stateFromQuery(view?: string): RegistrationState {
@@ -217,7 +213,7 @@ export class PendingFollows extends Component<
     this.updateUrl({ viewState: val, cursor: undefined });
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 
@@ -239,7 +235,7 @@ export class PendingFollows extends Component<
       listPendingFollowsResponse: headers["Authorization"]
         ? await client.listCommunityPendingFollows({
             unread_only: state === "unread",
-            ...cursorComponents(cursor),
+            page_cursor: cursor,
             limit: fetchLimit,
           })
         : EMPTY_REQUEST,
@@ -255,7 +251,7 @@ export class PendingFollows extends Component<
     });
     const appsRes = await HttpService.client.listCommunityPendingFollows({
       unread_only: viewState === "unread",
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
       limit: fetchLimit,
     });
     if (token === this.refetchToken) {

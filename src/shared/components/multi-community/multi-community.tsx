@@ -14,14 +14,9 @@ import {
   getQueryString,
   resourcesSettled,
   bareRoutePush,
-  cursorComponents,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type {
-  DirectionalCursor,
-  QueryParams,
-  StringBoolean,
-} from "@utils/types";
+import type { QueryParams, StringBoolean } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode, RefObject, createRef } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -65,6 +60,7 @@ import {
   CommunityId,
   MultiCommunityId,
   CommunityView,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -115,7 +111,7 @@ interface State {
 interface Props {
   sort: PostSortType;
   postTimeRange: number;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
 
@@ -258,12 +254,11 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
     const getPostsForm: GetPosts = {
       multi_community_name: name,
-      ...cursorComponents(cursor),
       sort: mixedToPostSortType(sort),
       time_range_seconds: postTimeRange,
       type_: "all",
       show_hidden: showHidden === "true",
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
     };
 
     const postsFetch = client.getPosts(getPostsForm);
@@ -597,7 +592,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
     this.setState({ postsRes: LOADING_REQUEST });
     const postsRes = await HttpService.client.getPosts({
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
       sort: mixedToPostSortType(sort),
       time_range_seconds: postTimeRange,
       type_: "all",
@@ -965,7 +960,7 @@ function findAndUpdatePost(i: MultiCommunity, res: RequestState<PostResponse>) {
   });
 }
 
-function handlePageChange(i: MultiCommunity, cursor?: DirectionalCursor) {
+function handlePageChange(i: MultiCommunity, cursor?: PaginationCursor) {
   i.updateUrl({ cursor });
 }
 
