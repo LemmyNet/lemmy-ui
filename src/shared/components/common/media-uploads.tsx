@@ -35,7 +35,7 @@ export class MediaUploads extends Component<Props, any> {
   }
 
   render() {
-    const images = this.props.uploads.data;
+    const images = this.props.uploads.items;
 
     const cols = "col-6 col-md-3";
 

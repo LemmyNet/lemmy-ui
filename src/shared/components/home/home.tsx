@@ -751,7 +751,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const haveUnread =
       postOrCommentType === "post" &&
       postsRes.state === "success" &&
-      postsRes.data.data.some(p => !p.post_actions?.read_at);
+      postsRes.data.items.some(p => !p.post_actions?.read_at);
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
@@ -773,7 +773,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const post_ids =
       postOrCommentType === "post" &&
       postsRes.state === "success" &&
-      postsRes.data.data
+      postsRes.data.items
         .filter(p => !p.post_actions?.read_at)
         .map(p => p.post.id);
 
@@ -786,7 +786,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       if (res.state === "success") {
         i.setState(s => {
           if (s.postsRes.state === "success") {
-            s.postsRes.data.data.forEach(p => {
+            s.postsRes.data.items.forEach(p => {
               if (post_ids.includes(p.post.id) && i.isoData.myUserInfo) {
                 if (!p.post_actions) {
                   p.post_actions = {};
@@ -822,7 +822,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         case "loading":
           return <PostsLoadingSkeleton />;
         case "success": {
-          const posts = this.state.postsRes.data.data;
+          const posts = this.state.postsRes.data.items;
           return (
             <PostListings
               posts={posts}
@@ -868,7 +868,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         case "loading":
           return <CommentsLoadingSkeleton />;
         case "success": {
-          const comments = this.state.commentsRes.data.data;
+          const comments = this.state.commentsRes.data.items;
           return (
             <CommentNodes
               nodes={commentsToFlatNodes(comments)}
@@ -1153,17 +1153,17 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (res.state === "success") {
       this.setState(s => {
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.data = editPersonNotes(
+          s.commentsRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.commentsRes.data.data,
+            s.commentsRes.data.items,
           );
         }
         if (s.postsRes.state === "success") {
-          s.postsRes.data.data = editPersonNotes(
+          s.postsRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.postsRes.data.data,
+            s.postsRes.data.items,
           );
         }
         toast(
@@ -1219,7 +1219,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (res.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.data.forEach(p => {
+          s.postsRes.data.items.forEach(p => {
             if (p.post.id === form.post_id && this.isoData.myUserInfo) {
               if (!p.post_actions) {
                 p.post_actions = {};
@@ -1303,7 +1303,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (hideRes.state === "success") {
       this.setState(prev => {
         if (prev.postsRes.state === "success" && this.isoData.myUserInfo) {
-          for (const post of prev.postsRes.data.data.filter(
+          for (const post of prev.postsRes.data.items.filter(
             p => form.post_id === p.post.id,
           )) {
             if (!post.post_actions) {
@@ -1328,14 +1328,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.data
+          s.postsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               c.creator_banned_from_community = banned;
             });
         }
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.data
+          s.commentsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               c.creator_banned_from_community = banned;
@@ -1351,12 +1351,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.data
+          s.postsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator_banned = banned));
         }
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.data
+          s.commentsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator_banned = banned));
         }
@@ -1375,9 +1375,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.data = editComment(
+        s.commentsRes.data.items = editComment(
           res.data.comment_view,
-          s.commentsRes.data.data,
+          s.commentsRes.data.items,
         );
       }
       return s;
@@ -1387,9 +1387,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.data = editComment(
+        s.commentsRes.data.items = editComment(
           res.data.comment_view,
-          s.commentsRes.data.data,
+          s.commentsRes.data.items,
         );
       }
       return s;
@@ -1399,7 +1399,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.data.unshift(res.data.comment_view);
+        s.commentsRes.data.items.unshift(res.data.comment_view);
       }
       return s;
     });
@@ -1408,9 +1408,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
       if (s.postsRes.state === "success" && res.state === "success") {
-        s.postsRes.data.data = editPost(
+        s.postsRes.data.items = editPost(
           res.data.post_view,
-          s.postsRes.data.data,
+          s.postsRes.data.items,
         );
       }
       return s;

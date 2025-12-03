@@ -358,7 +358,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
     const haveUnread =
       postsRes.state === "success" &&
-      postsRes.data.data.some(p => !p.post_actions?.read_at);
+      postsRes.data.items.some(p => !p.post_actions?.read_at);
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
@@ -437,7 +437,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
       case "success":
         return (
           <PostListings
-            posts={this.state.postsRes.data.data}
+            posts={this.state.postsRes.data.items}
             showCrossPosts="small"
             showCommunity
             viewOnly={false}
@@ -767,7 +767,7 @@ async function handleMarkPostAsRead(
   if (res.state === "success") {
     i.setState(s => {
       if (s.postsRes.state === "success") {
-        s.postsRes.data.data.forEach(p => {
+        s.postsRes.data.items.forEach(p => {
           if (p.post.id === form.post_id && myUserInfo) {
             if (!p.post_actions) {
               p.post_actions = {};
@@ -815,7 +815,7 @@ async function handleHidePost(
   if (hideRes.state === "success") {
     i.setState(prev => {
       if (prev.postsRes.state === "success" && myUserInfo) {
-        for (const post of prev.postsRes.data.data.filter(
+        for (const post of prev.postsRes.data.items.filter(
           p => form.post_id === p.post.id,
         )) {
           if (!post.post_actions) {
@@ -838,10 +838,10 @@ async function handlePersonNote(i: MultiCommunity, form: NotePerson) {
   if (res.state === "success") {
     i.setState(s => {
       if (s.postsRes.state === "success") {
-        s.postsRes.data.data = editPersonNotes(
+        s.postsRes.data.items = editPersonNotes(
           form.note,
           form.person_id,
-          s.postsRes.data.data,
+          s.postsRes.data.items,
         );
       }
       toast(I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"));
@@ -902,7 +902,7 @@ function updateBanFromCommunity(
   if (banRes.state === "success") {
     i.setState(s => {
       if (s.postsRes.state === "success") {
-        s.postsRes.data.data
+        s.postsRes.data.items
           .filter(c => c.creator.id === banRes.data.person_view.person.id)
           .forEach(c => {
             c.creator_banned_from_community = banned;
@@ -922,7 +922,7 @@ function updateBan(
   if (banRes.state === "success") {
     i.setState(s => {
       if (s.postsRes.state === "success") {
-        s.postsRes.data.data
+        s.postsRes.data.items
           .filter(c => c.creator.id === banRes.data.person_view.person.id)
           .forEach(c => (c.creator_banned = banned));
       }
@@ -954,7 +954,10 @@ function purgeItem(i: MultiCommunity, purgeRes: RequestState<SuccessResponse>) {
 function findAndUpdatePost(i: MultiCommunity, res: RequestState<PostResponse>) {
   i.setState(s => {
     if (s.postsRes.state === "success" && res.state === "success") {
-      s.postsRes.data.data = editPost(res.data.post_view, s.postsRes.data.data);
+      s.postsRes.data.items = editPost(
+        res.data.post_view,
+        s.postsRes.data.items,
+      );
     }
     return s;
   });
@@ -993,7 +996,7 @@ async function handleMarkPageAsRead(
 
   const post_ids =
     postsRes.state === "success" &&
-    postsRes.data.data
+    postsRes.data.items
       .filter(p => !p.post_actions?.read_at)
       .map(p => p.post.id);
 
@@ -1006,7 +1009,7 @@ async function handleMarkPageAsRead(
     if (res.state === "success") {
       i.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.data.forEach(p => {
+          s.postsRes.data.items.forEach(p => {
             if (post_ids.includes(p.post.id) && myUserInfo) {
               if (!p.post_actions) {
                 p.post_actions = {};

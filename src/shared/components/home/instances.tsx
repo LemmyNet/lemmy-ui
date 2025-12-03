@@ -181,7 +181,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
           </h5>
         );
       case "success": {
-        const instances = this.state.instancesRes.data.data;
+        const instances = this.state.instancesRes.data.items;
         return instances ? (
           <InstanceList instances={instances} />
         ) : (

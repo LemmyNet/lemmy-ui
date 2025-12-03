@@ -284,7 +284,7 @@ export class CreatePost extends Component<
               initialCommunities={
                 this.state.initialCommunitiesRes.state === "success"
                   ? filterCommunitySelection(
-                      this.state.initialCommunitiesRes.data.data,
+                      this.state.initialCommunitiesRes.data.items,
                       this.isoData.myUserInfo,
                     )
                   : []

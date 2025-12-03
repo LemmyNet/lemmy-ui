@@ -143,7 +143,7 @@ export class PendingFollows extends Component<
 
   render() {
     const state = this.state.appsRes.state;
-    const pending = state === "success" && this.state.appsRes.data.data;
+    const pending = state === "success" && this.state.appsRes.data.items;
     return (
       <div className="container-lg">
         <div className="row">

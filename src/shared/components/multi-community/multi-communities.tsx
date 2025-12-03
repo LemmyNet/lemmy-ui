@@ -161,7 +161,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
               </div>
             </div>
             <TableHr />
-            {this.state.listMultiCommunitiesRes.data.data.map(v => (
+            {this.state.listMultiCommunitiesRes.data.items.map(v => (
               <>
                 <div className="row" key={v.multi.id}>
                   <div className={nameCols}>
@@ -317,9 +317,9 @@ export class MultiCommunities extends Component<RouteProps, State> {
         s.listMultiCommunitiesRes.state === "success" &&
         res.state === "success"
       ) {
-        s.listMultiCommunitiesRes.data.data = editMultiCommunity(
+        s.listMultiCommunitiesRes.data.items = editMultiCommunity(
           res.data.multi_community_view,
-          s.listMultiCommunitiesRes.data.data,
+          s.listMultiCommunitiesRes.data.items,
         );
       }
       return s;

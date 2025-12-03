@@ -1601,7 +1601,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
     if (this.state.instancesRes.state === "success") {
       searchInstanceOptions =
-        this.state.instancesRes.data.data
+        this.state.instancesRes.data.items
           ?.filter(view =>
             view.instance.domain.toLowerCase().includes(text.toLowerCase()),
           )
@@ -2251,7 +2251,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const mui = this.isoData.myUserInfo;
     if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
-        this.state.instancesRes.data.data.map(view => view.instance) ?? [];
+        this.state.instancesRes.data.items.map(view => view.instance) ?? [];
       updateInstanceCommunitiesBlock(blocked, id, linkedInstances, mui);
       this.setState({
         instanceCommunitiesBlocks: mui.instance_communities_blocks,
@@ -2263,7 +2263,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const mui = this.isoData.myUserInfo;
     if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
-        this.state.instancesRes.data.data.map(view => view.instance) ?? [];
+        this.state.instancesRes.data.items.map(view => view.instance) ?? [];
       updateInstancePersonsBlock(blocked, id, linkedInstances, mui);
       this.setState({
         instancePersonsBlocks: mui.instance_persons_blocks,

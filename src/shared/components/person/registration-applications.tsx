@@ -147,7 +147,7 @@ export class RegistrationApplications extends Component<
 
   renderApps() {
     const appsState = this.state.appsRes.state;
-    const apps = appsState === "success" && this.state.appsRes.data.data;
+    const apps = appsState === "success" && this.state.appsRes.data.items;
 
     return (
       <div className="row">
@@ -289,9 +289,9 @@ export class RegistrationApplications extends Component<
       await HttpService.client.approveRegistrationApplication(form);
     this.setState(s => {
       if (s.appsRes.state === "success" && approveRes.state === "success") {
-        s.appsRes.data.data = editRegistrationApplication(
+        s.appsRes.data.items = editRegistrationApplication(
           approveRes.data.registration_application,
-          s.appsRes.data.data,
+          s.appsRes.data.items,
         );
       }
       return s;

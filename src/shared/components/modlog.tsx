@@ -738,7 +738,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   get combined() {
     const res = this.state.res;
-    const combined = res.state === "success" ? res.data.data : [];
+    const combined = res.state === "success" ? res.data.items : [];
     const { myUserInfo } = this.isoData;
 
     return combined.map(i => {
@@ -970,7 +970,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   get modlogItemsCount(): number {
     const { res } = this.state;
 
-    return res.state === "success" ? res.data.data.length : 0;
+    return res.state === "success" ? res.data.items.length : 0;
   }
 
   handleFilterActionChange(i: Modlog, event: any) {

@@ -174,7 +174,7 @@ export default class ViewVotesModal extends Component<
           </h1>
         );
       case "success": {
-        const likes = this.state.postLikesRes.data.data;
+        const likes = this.state.postLikesRes.data.items;
         return voteViewTable(likes, this.props.myUserInfo);
       }
     }
@@ -189,7 +189,7 @@ export default class ViewVotesModal extends Component<
           </h1>
         );
       case "success": {
-        const likes = this.state.commentLikesRes.data.data;
+        const likes = this.state.commentLikesRes.data.items;
         return voteViewTable(likes, this.props.myUserInfo);
       }
     }

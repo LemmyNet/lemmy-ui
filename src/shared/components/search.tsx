@@ -440,7 +440,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
       if (communitiesRes?.state === "success") {
         this.state.communitySearchOptions =
-          communitiesRes.data.data.map(communityToChoice);
+          communitiesRes.data.items.map(communityToChoice);
       }
 
       if (communityRes?.state === "success") {
@@ -507,11 +507,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     if (res.state === "success") {
       const retainSelected: false | undefined | Choice =
-        !res.data.data.some(cv => cv.community.id === communityId) &&
+        !res.data.items.some(cv => cv.community.id === communityId) &&
         this.state.communitySearchOptions.find(
           choice => choice.value === communityId?.toString(),
         );
-      const choices = res.data.data.map(communityToChoice);
+      const choices = res.data.items.map(communityToChoice);
       this.setState({
         communitySearchOptions: retainSelected
           ? [retainSelected, ...choices]

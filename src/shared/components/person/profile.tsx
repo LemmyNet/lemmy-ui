@@ -646,29 +646,29 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         const savedContent =
           (filter === "saved" &&
             this.state.personSavedRes.state === "success" &&
-            this.state.personSavedRes.data.data) ||
+            this.state.personSavedRes.data.items) ||
           undefined;
         const content =
           (filter === "none" &&
             this.state.personContentRes.state === "success" &&
-            this.state.personContentRes.data.data) ||
+            this.state.personContentRes.data.items) ||
           undefined;
         const likedContent =
           (filter === "liked" &&
             this.state.personLikedRes.state === "success" &&
-            this.state.personLikedRes.data.data) ||
+            this.state.personLikedRes.data.items) ||
           undefined;
         const readContent: PersonContentCombinedView[] | undefined =
           (filter === "read" &&
             this.state.personReadRes.state === "success" &&
-            this.state.personReadRes.data.data.map(
+            this.state.personReadRes.data.items.map(
               postViewToPersonContentCombinedView,
             )) ||
           undefined;
         const hiddenContent: PersonContentCombinedView[] | undefined =
           (filter === "hidden" &&
             this.state.personHiddenRes.state === "success" &&
-            this.state.personHiddenRes.data.data.map(
+            this.state.personHiddenRes.data.items.map(
               postViewToPersonContentCombinedView,
             )) ||
           undefined;
@@ -1523,38 +1523,38 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
         // Update the content lists
         if (s.personContentRes.state === "success") {
-          s.personContentRes.data.data = editPersonNotes(
+          s.personContentRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.personContentRes.data.data,
+            s.personContentRes.data.items,
           );
         }
         if (s.personLikedRes.state === "success") {
-          s.personLikedRes.data.data = editPersonNotes(
+          s.personLikedRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.personLikedRes.data.data,
+            s.personLikedRes.data.items,
           );
         }
         if (s.personReadRes.state === "success") {
-          s.personReadRes.data.data = editPersonNotes(
+          s.personReadRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.personReadRes.data.data,
+            s.personReadRes.data.items,
           );
         }
         if (s.personHiddenRes.state === "success") {
-          s.personHiddenRes.data.data = editPersonNotes(
+          s.personHiddenRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.personHiddenRes.data.data,
+            s.personHiddenRes.data.items,
           );
         }
         if (s.personSavedRes.state === "success") {
-          s.personSavedRes.data.data = editPersonNotes(
+          s.personSavedRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.personSavedRes.data.data,
+            s.personSavedRes.data.items,
           );
         }
       }
@@ -1620,21 +1620,21 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (this.props.filter === "saved") {
       this.setState(s => {
         if (s.personSavedRes.state === "success") {
-          s.personSavedRes.data.data = s.personSavedRes.data.data.map(mapFn);
+          s.personSavedRes.data.items = s.personSavedRes.data.items.map(mapFn);
         }
         return { personSavedRes: s.personSavedRes };
       });
     } else if (this.props.filter === "liked") {
       this.setState(s => {
         if (s.personLikedRes.state === "success") {
-          s.personLikedRes.data.data = s.personLikedRes.data.data.map(mapFn);
+          s.personLikedRes.data.items = s.personLikedRes.data.items.map(mapFn);
         }
         return { personLikedRes: s.personLikedRes };
       });
     } else if (this.props.filter === "read") {
       this.setState(s => {
         if (s.personReadRes.state === "success") {
-          s.personReadRes.data.data = s.personReadRes.data.data
+          s.personReadRes.data.items = s.personReadRes.data.items
             .map(postViewToPersonContentCombinedView)
             .map(mapFn)
             .filter(c => c.type_ === "post");
@@ -1644,7 +1644,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     } else if (this.props.filter === "hidden") {
       this.setState(s => {
         if (s.personHiddenRes.state === "success") {
-          s.personHiddenRes.data.data = s.personHiddenRes.data.data
+          s.personHiddenRes.data.items = s.personHiddenRes.data.items
             .map(postViewToPersonContentCombinedView)
             .map(mapFn)
             .filter(c => c.type_ === "post");
@@ -1654,8 +1654,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     } else {
       this.setState(s => {
         if (s.personContentRes.state === "success") {
-          s.personContentRes.data.data =
-            s.personContentRes.data.data.map(mapFn);
+          s.personContentRes.data.items =
+            s.personContentRes.data.items.map(mapFn);
         }
         return { personContentRes: s.personContentRes };
       });
@@ -1666,9 +1666,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     if (this.props.filter === "saved") {
       this.setState(s => {
         if (s.personSavedRes.state === "success") {
-          s.personSavedRes.data.data = editCombined(
+          s.personSavedRes.data.items = editCombined(
             data,
-            s.personSavedRes.data.data,
+            s.personSavedRes.data.items,
             getUncombinedPersonContent,
           );
         }
@@ -1677,9 +1677,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     } else if (this.props.filter === "liked") {
       this.setState(s => {
         if (s.personLikedRes.state === "success") {
-          s.personLikedRes.data.data = editCombined(
+          s.personLikedRes.data.items = editCombined(
             data,
-            s.personLikedRes.data.data,
+            s.personLikedRes.data.items,
             getUncombinedPersonContent,
           );
         }
@@ -1688,16 +1688,19 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     } else if (this.props.filter === "read") {
       this.setState(s => {
         if (s.personReadRes.state === "success" && data.type_ === "post") {
-          s.personReadRes.data.data = editPost(data, s.personReadRes.data.data);
+          s.personReadRes.data.items = editPost(
+            data,
+            s.personReadRes.data.items,
+          );
         }
         return { personReadRes: s.personReadRes };
       });
     } else if (this.props.filter === "hidden") {
       this.setState(s => {
         if (s.personHiddenRes.state === "success" && data.type_ === "post") {
-          s.personHiddenRes.data.data = editPost(
+          s.personHiddenRes.data.items = editPost(
             data,
-            s.personHiddenRes.data.data,
+            s.personHiddenRes.data.items,
           );
         }
         return { personHiddenRes: s.personHiddenRes };
@@ -1705,9 +1708,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     } else {
       this.setState(s => {
         if (s.personContentRes.state === "success") {
-          s.personContentRes.data.data = editCombined(
+          s.personContentRes.data.items = editCombined(
             data,
-            s.personContentRes.data.data,
+            s.personContentRes.data.items,
             getUncombinedPersonContent,
           );
         }
@@ -1769,7 +1772,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.personContentRes.state === "success" && res.state === "success") {
-        s.personContentRes.data.data.unshift(
+        s.personContentRes.data.items.unshift(
           commentViewToPersonContentCombinedView(res.data.comment_view),
         );
       }

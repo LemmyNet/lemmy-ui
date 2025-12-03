@@ -171,7 +171,7 @@ export class Communities extends Component<
               </div>
             </div>
             <TableHr />
-            {this.state.listCommunitiesResponse.data.data.map(cv => (
+            {this.state.listCommunitiesResponse.data.items.map(cv => (
               <>
                 <div className="row" key={cv.community.id}>
                   <div className={nameCols}>
@@ -351,9 +351,9 @@ export class Communities extends Component<
         s.listCommunitiesResponse.state === "success" &&
         res.state === "success"
       ) {
-        s.listCommunitiesResponse.data.data = editCommunity(
+        s.listCommunitiesResponse.data.items = editCommunity(
           res.data.community_view,
-          s.listCommunitiesResponse.data.data,
+          s.listCommunitiesResponse.data.items,
         );
       }
       return s;

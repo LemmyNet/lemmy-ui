@@ -492,7 +492,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     const haveUnread =
       postOrCommentType === "post" &&
       postsRes.state === "success" &&
-      postsRes.data.data.some(p => !p.post_actions?.read_at);
+      postsRes.data.items.some(p => !p.post_actions?.read_at);
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
@@ -514,7 +514,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     const post_ids =
       postOrCommentType === "post" &&
       postsRes.state === "success" &&
-      postsRes.data.data
+      postsRes.data.items
         .filter(p => !p.post_actions?.read_at)
         .map(p => p.post.id);
 
@@ -527,7 +527,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       if (res.state === "success") {
         i.setState(s => {
           if (s.postsRes.state === "success") {
-            s.postsRes.data.data.forEach(p => {
+            s.postsRes.data.items.forEach(p => {
               if (post_ids.includes(p.post.id) && i.isoData.myUserInfo) {
                 if (!p.post_actions) {
                   p.post_actions = {};
@@ -595,7 +595,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         case "success":
           return (
             <PostListings
-              posts={this.state.postsRes.data.data}
+              posts={this.state.postsRes.data.items}
               showCrossPosts="show_separately"
               markable
               showCommunity={false}
@@ -642,7 +642,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         case "success":
           return (
             <CommentNodes
-              nodes={commentsToFlatNodes(this.state.commentsRes.data.data)}
+              nodes={commentsToFlatNodes(this.state.commentsRes.data.items)}
               viewType={"flat"}
               isTopLevel
               showContext
@@ -1037,7 +1037,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (res.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.data.forEach(p => {
+          s.postsRes.data.items.forEach(p => {
             if (p.post.id === form.post_id && this.isoData.myUserInfo) {
               if (!p.post_actions) {
                 p.post_actions = {};
@@ -1093,7 +1093,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (hideRes.state === "success") {
       this.setState(prev => {
         if (prev.postsRes.state === "success" && this.isoData.myUserInfo) {
-          for (const post of prev.postsRes.data.data.filter(
+          for (const post of prev.postsRes.data.items.filter(
             p => form.post_id === p.post.id,
           )) {
             if (!post.post_actions) {
@@ -1116,17 +1116,17 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (res.state === "success") {
       this.setState(s => {
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.data = editPersonNotes(
+          s.commentsRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.commentsRes.data.data,
+            s.commentsRes.data.items,
           );
         }
         if (s.postsRes.state === "success") {
-          s.postsRes.data.data = editPersonNotes(
+          s.postsRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.postsRes.data.data,
+            s.postsRes.data.items,
           );
         }
         toast(
@@ -1175,14 +1175,14 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.data
+          s.postsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               c.creator_banned_from_community = banned;
             });
         }
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.data
+          s.commentsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               c.creator_banned_from_community = banned;
@@ -1198,12 +1198,12 @@ export class Community extends Component<CommunityRouteProps, State> {
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.data
+          s.postsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator_banned = banned));
         }
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.data
+          s.commentsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator_banned = banned));
         }
@@ -1243,9 +1243,9 @@ export class Community extends Component<CommunityRouteProps, State> {
   findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.data = editComment(
+        s.commentsRes.data.items = editComment(
           res.data.comment_view,
-          s.commentsRes.data.data,
+          s.commentsRes.data.items,
         );
       }
       return s;
@@ -1255,9 +1255,9 @@ export class Community extends Component<CommunityRouteProps, State> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.data = editComment(
+        s.commentsRes.data.items = editComment(
           res.data.comment_view,
-          s.commentsRes.data.data,
+          s.commentsRes.data.items,
         );
       }
       return s;
@@ -1267,7 +1267,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.data.unshift(res.data.comment_view);
+        s.commentsRes.data.items.unshift(res.data.comment_view);
       }
       return s;
     });
@@ -1276,9 +1276,9 @@ export class Community extends Component<CommunityRouteProps, State> {
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
       if (s.postsRes.state === "success" && res.state === "success") {
-        s.postsRes.data.data = editPost(
+        s.postsRes.data.items = editPost(
           res.data.post_view,
-          s.postsRes.data.data,
+          s.postsRes.data.items,
         );
       }
       return s;

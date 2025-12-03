@@ -204,7 +204,7 @@ export class Notifications extends Component<
   get hasUnreads(): boolean {
     if (this.state.unreadOrAll === UnreadOrAll.Unread) {
       const { notifsRes } = this.state;
-      return notifsRes.state === "success" && notifsRes.data.data.length > 0;
+      return notifsRes.state === "success" && notifsRes.data.items.length > 0;
     } else {
       return false;
     }
@@ -454,7 +454,7 @@ export class Notifications extends Component<
       return (
         <div>
           {notifsRes.state === "success" &&
-            notifsRes.data.data.map(r => this.renderItemType(r))}
+            notifsRes.data.items.map(r => this.renderItemType(r))}
         </div>
       );
     }
@@ -534,7 +534,7 @@ export class Notifications extends Component<
     if (markAllAsReadRes.state === "success") {
       i.setState(s => {
         if (s.notifsRes.state === "success") {
-          s.notifsRes.data.data = s.notifsRes.data.data.map(nv => {
+          s.notifsRes.data.items = s.notifsRes.data.items.map(nv => {
             const a = {
               notification: { ...nv.notification },
               data: { ...nv.data },
@@ -679,7 +679,7 @@ export class Notifications extends Component<
 
   async handleCommentMarkAsRead(comment_id: CommentId, read: boolean) {
     if (this.state.notifsRes.state !== "success") return;
-    const notification = this.state.notifsRes.data.data.find(
+    const notification = this.state.notifsRes.data.items.find(
       n => n.data.type_ === "comment" && n.data.comment.id === comment_id,
     );
     if (notification) {
@@ -695,7 +695,7 @@ export class Notifications extends Component<
     read: boolean,
   ) {
     if (this.state.notifsRes.state !== "success") return;
-    const notification = this.state.notifsRes.data.data.find(
+    const notification = this.state.notifsRes.data.items.find(
       n =>
         n.data.type_ === "private_message" &&
         n.data.private_message.id === privateMessageId,
@@ -736,7 +736,7 @@ export class Notifications extends Component<
     const res = await HttpService.client.markNotificationAsRead(form);
     this.setState(s => {
       if (res.state === "success" && s.notifsRes.state === "success") {
-        s.notifsRes.data.data = s.notifsRes.data.data.map(n => {
+        s.notifsRes.data.items = s.notifsRes.data.items.map(n => {
           if (n.notification.id !== form.notification_id) {
             return n;
           }
@@ -761,7 +761,7 @@ export class Notifications extends Component<
     const res = await HttpService.client.createPrivateMessage(form);
     this.setState(s => {
       if (s.notifsRes.state === "success" && res.state === "success") {
-        s.notifsRes.data.data.unshift({
+        s.notifsRes.data.items.unshift({
           // FIXME: maybe just let it disappear, comments do too (own comments don't show in notifs)
           notification: {
             id: 0,
@@ -787,13 +787,13 @@ export class Notifications extends Component<
   findAndUpdateMessage(res: RequestState<PrivateMessageResponse>) {
     this.setState(s => {
       if (s.notifsRes.state === "success" && res.state === "success") {
-        const notif = s.notifsRes.data.data.find(
+        const notif = s.notifsRes.data.items.find(
           n =>
             n.data.type_ === "private_message" &&
             n.data.private_message.id ===
               res.data.private_message_view.private_message.id,
         );
-        s.notifsRes.data.data = s.notifsRes.data.data.map(n => {
+        s.notifsRes.data.items = s.notifsRes.data.items.map(n => {
           if (n !== notif) {
             return n;
           }
@@ -819,7 +819,7 @@ export class Notifications extends Component<
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.notifsRes.state === "success") {
-          s.notifsRes.data.data = s.notifsRes.data.data.map(c => {
+          s.notifsRes.data.items = s.notifsRes.data.items.map(c => {
             const notif: NotificationView = {
               notification: { ...c.notification },
               data: { ...c.data },
@@ -852,7 +852,7 @@ export class Notifications extends Component<
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.notifsRes.state === "success") {
-          s.notifsRes.data.data = s.notifsRes.data.data.map(c => {
+          s.notifsRes.data.items = s.notifsRes.data.items.map(c => {
             const notif: NotificationView = {
               notification: { ...c.notification },
               data: { ...c.data },
@@ -893,12 +893,12 @@ export class Notifications extends Component<
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.notifsRes.state === "success" && res.state === "success") {
-        const notif = s.notifsRes.data.data.find(
+        const notif = s.notifsRes.data.items.find(
           n =>
             n.data.type_ === "comment" &&
             n.data.comment.id === res.data.comment_view.comment.id,
         );
-        s.notifsRes.data.data = s.notifsRes.data.data.map(n => {
+        s.notifsRes.data.items = s.notifsRes.data.items.map(n => {
           if (n !== notif) {
             return n;
           }
@@ -914,7 +914,7 @@ export class Notifications extends Component<
 
   async handleMarkPostAsRead(form: MarkPostAsRead) {
     if (this.state.notifsRes.state !== "success") return;
-    const notification = this.state.notifsRes.data.data.find(
+    const notification = this.state.notifsRes.data.items.find(
       n => n.data.type_ === "post" && n.data.post.id === form.post_id,
     );
     if (notification) {
@@ -932,7 +932,7 @@ export class Notifications extends Component<
       // Update the content lists
       this.setState(s => {
         if (s.notifsRes.state === "success") {
-          s.notifsRes.data.data = s.notifsRes.data.data.map(c => {
+          s.notifsRes.data.items = s.notifsRes.data.items.map(c => {
             const notif: NotificationView = {
               notification: { ...c.notification },
               data: { ...c.data },

@@ -607,7 +607,7 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const local_users = this.state.usersRes.data.data;
+        const local_users = this.state.usersRes.data.items;
         const nameCols = "col-12 col-md-3";
         const dataCols = "col-4 col-md-2";
 
@@ -708,7 +708,7 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const taglines = this.state.taglinesRes.data.data;
+        const taglines = this.state.taglinesRes.data.items;
 
         return (
           <>
@@ -790,7 +790,7 @@ export class AdminSettings extends Component<
           </h5>
         );
       case "success": {
-        const instances = this.state.instancesRes.data.data;
+        const instances = this.state.instancesRes.data.items;
         return (
           <div>
             <h1 className="h4 mb-4">
