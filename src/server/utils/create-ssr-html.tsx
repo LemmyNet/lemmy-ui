@@ -9,14 +9,23 @@ import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
 import { findLanguageChunkNames } from "@services/I18NextService";
 import path from "path";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { enableEruda } from "./dev-env";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
 let appleTouchIcon: string | undefined = undefined;
 
-let embeddedScript = readFileSync(path.resolve("./dist/js/embedded.js"));
+function readEmbeddedScript() {
+  const scriptFile = "./dist/js/embedded.js";
+  const embeddedScript = readFileSync(path.resolve(scriptFile)).toString();
+  if (existsSync(scriptFile + ".map")) {
+    return `${embeddedScript}\n//# sourceMappingURL=${getStaticDir()}/js/embedded.js.map`;
+  }
+  return embeddedScript;
+}
+
+let embeddedScript = readEmbeddedScript();
 
 export async function createSsrHtml(
   root: string,
@@ -28,7 +37,7 @@ export async function createSsrHtml(
   const site = isoData.siteRes;
 
   if (process.env["NODE_ENV"] === "development") {
-    embeddedScript = readFileSync(path.resolve("./dist/js/embedded.js"));
+    embeddedScript = readEmbeddedScript();
   }
 
   const fallbackTheme = `<link rel="stylesheet" type="text/css" href="/css/themes/${
