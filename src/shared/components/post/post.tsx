@@ -56,8 +56,8 @@ import {
   FeaturePost,
   FollowCommunity,
   GetComments,
-  GetCommentsResponse,
-  GetCommentsSlimResponse,
+  PagedResponse,
+  CommentView,
   GetCommunityResponse,
   GetPost,
   GetPostResponse,
@@ -119,12 +119,12 @@ const commentsShownInterval = 15;
 
 type PostData = RouteDataResponse<{
   postRes: GetPostResponse;
-  commentsRes: GetCommentsResponse;
+  commentsRes: PagedResponse<CommentView>;
 }>;
 
 interface PostState {
   postRes: RequestState<GetPostResponse>;
-  commentsRes: RequestState<GetCommentsSlimResponse>;
+  commentsRes: RequestState<PagedResponse<CommentSlimView>>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   maxCommentsShown: number;
@@ -557,7 +557,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     if (wrappedElement && this.isBottom(wrappedElement)) {
       const commentCount =
         this.state.commentsRes.state === "success"
-          ? this.state.commentsRes.data.comments.length
+          ? this.state.commentsRes.data.items.length
           : 0;
 
       if (this.state.maxCommentsShown < commentCount) {
@@ -849,7 +849,7 @@ export class Post extends Component<PostRouteProps, PostState> {
         <div>
           <CommentNodes
             nodes={sortedFlatNodes(
-              commentsRes.data.comments,
+              commentsRes.data.items,
               postRes.data.post_view.post.creator_id,
               postRes.data.community_view.community,
               this.props.sort,
@@ -953,7 +953,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 {I18NextService.i18n.t("view_all_comments")} ➔
               </Link>
               {showContextButton(
-                commentsRes.data.comments,
+                commentsRes.data.items,
                 postRes.data.post_view.post.creator_id,
                 postRes.data.community_view.community,
                 commentIdFromProps,
@@ -970,7 +970,7 @@ export class Post extends Component<PostRouteProps, PostState> {
           )}
           <CommentNodes
             nodes={commentTree(
-              commentsRes.data.comments,
+              commentsRes.data.items,
               postRes.data.post_view.post.creator_id,
               postRes.data.community_view.community,
               commentIdFromProps,
@@ -1060,7 +1060,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   handleViewContext(): string {
     if (this.state.commentsRes.state === "success") {
       const commentId = getCommentIdFromProps(this.props);
-      const commentView = this.state.commentsRes.data.comments.find(
+      const commentView = this.state.commentsRes.data.items.find(
         c => c.comment.id === commentId,
       );
 
@@ -1209,10 +1209,10 @@ export class Post extends Component<PostRouteProps, PostState> {
     if (res.state === "success") {
       this.setState(s => {
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments = editPersonNotes(
+          s.commentsRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.commentsRes.data.comments,
+            s.commentsRes.data.items,
           );
         }
         if (s.postRes.state === "success") {
@@ -1279,10 +1279,10 @@ export class Post extends Component<PostRouteProps, PostState> {
 
     this.setState(s => {
       if (res.state === "success" && s.commentsRes.state === "success") {
-        s.commentsRes.data.comments = editCommentsSlimLocked(
+        s.commentsRes.data.items = editCommentsSlimLocked(
           res.data.comment_view.comment.path,
           form.locked,
-          s.commentsRes.data.comments,
+          s.commentsRes.data.items,
         );
         toast(I18NextService.i18n.t(form.locked ? "locked" : "unlocked"));
       }
@@ -1398,11 +1398,11 @@ export class Post extends Component<PostRouteProps, PostState> {
       this.state.commentsRes.state === "success" &&
       moreCommentsRes.state === "success"
     ) {
-      const newComments = moreCommentsRes.data.comments;
+      const newComments = moreCommentsRes.data.items;
       // Remove the first comment, since it is the parent
       newComments.shift();
       const newRes = this.state.commentsRes;
-      newRes.data.comments.push(...newComments);
+      newRes.data.items.push(...newComments);
       this.setState({ commentsRes: newRes });
     }
   }
@@ -1504,7 +1504,7 @@ export class Post extends Component<PostRouteProps, PostState> {
           pv.creator_banned_from_community = banned;
         }
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments
+          s.commentsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               c.creator_banned_from_community = banned;
@@ -1527,7 +1527,7 @@ export class Post extends Component<PostRouteProps, PostState> {
           s.postRes.data.post_view.creator_banned = banned;
         }
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments
+          s.commentsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator_banned = banned));
         }
@@ -1576,7 +1576,7 @@ export class Post extends Component<PostRouteProps, PostState> {
         // The comment must be inserted not at the very beginning of the list,
         // because the buildCommentsTree needs a correct path ordering.
         // It should be inserted right after its parent is found
-        const comments = s.commentsRes.data.comments;
+        const comments = s.commentsRes.data.items;
         const newComment = res.data.comment_view;
         const newCommentParentId = getCommentParentId(newComment.comment);
 
@@ -1596,9 +1596,9 @@ export class Post extends Component<PostRouteProps, PostState> {
   findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editCommentSlim(
+        s.commentsRes.data.items = editCommentSlim(
           res.data.comment_view,
-          s.commentsRes.data.comments,
+          s.commentsRes.data.items,
         );
       }
       return s;
@@ -1611,9 +1611,9 @@ export class Post extends Component<PostRouteProps, PostState> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editCommentSlim(
+        s.commentsRes.data.items = editCommentSlim(
           res.data.comment_view,
-          s.commentsRes.data.comments,
+          s.commentsRes.data.items,
         );
       }
       return s;

@@ -6,12 +6,11 @@ import {
   getQueryString,
   resourcesSettled,
   bareRoutePush,
-  cursorComponents,
 } from "@utils/helpers";
 import { formatRelativeDate } from "@utils/date";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { amAdmin, amMod } from "@utils/roles";
-import type { DirectionalCursor, QueryParams } from "@utils/types";
+import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -21,15 +20,16 @@ import {
   GetCommunity,
   GetCommunityResponse,
   GetModlog,
-  GetModlogResponse,
+  PagedResponse,
+  ModlogView,
   GetPersonDetails,
   GetPersonDetailsResponse,
   LemmyHttp,
   ModlogKind,
-  ModlogView,
   MyUserInfo,
   Person,
   Modlog as Modlog_,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -61,7 +61,7 @@ const ACTION_COLS = "col-12 col-md-6";
 type FilterType = "mod" | "user";
 
 type ModlogData = RouteDataResponse<{
-  res: GetModlogResponse;
+  res: PagedResponse<ModlogView>;
   communityRes: GetCommunityResponse;
   modUserResponse: GetPersonDetailsResponse;
   userResponse: GetPersonDetailsResponse;
@@ -82,7 +82,7 @@ export function getModlogQueryParams(source?: string): ModlogProps {
 }
 
 interface ModlogState {
-  res: RequestState<GetModlogResponse>;
+  res: RequestState<PagedResponse<ModlogView>>;
   communityRes: RequestState<GetCommunityResponse>;
   loadingModSearch: boolean;
   loadingUserSearch: boolean;
@@ -92,7 +92,7 @@ interface ModlogState {
 }
 
 interface ModlogProps {
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   userId?: number;
   modId?: number;
   actionType?: ModlogKind;
@@ -738,7 +738,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   get combined() {
     const res = this.state.res;
-    const combined = res.state === "success" ? res.data.modlog : [];
+    const combined = res.state === "success" ? res.data.items : [];
     const { myUserInfo } = this.isoData;
 
     return combined.map(i => {
@@ -970,7 +970,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   get modlogItemsCount(): number {
     const { res } = this.state;
 
-    return res.state === "success" ? res.data.modlog.length : 0;
+    return res.state === "success" ? res.data.items.length : 0;
   }
 
   handleFilterActionChange(i: Modlog, event: any) {
@@ -984,7 +984,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     });
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 
@@ -1082,7 +1082,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       mod_person_id: modId,
       comment_id: commentId,
       post_id: postId,
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
     });
 
     if (token === this.fetchModlogToken) {
@@ -1122,7 +1122,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const communityId = getIdFromString(urlCommunityId);
 
     const modlogForm: GetModlog = {
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
       limit: fetchLimit,
       community_id: communityId,
       type_: actionType,

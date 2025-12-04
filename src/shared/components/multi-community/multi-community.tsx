@@ -14,14 +14,9 @@ import {
   getQueryString,
   resourcesSettled,
   bareRoutePush,
-  cursorComponents,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type {
-  DirectionalCursor,
-  QueryParams,
-  StringBoolean,
-} from "@utils/types";
+import type { QueryParams, StringBoolean } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode, RefObject, createRef } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -39,7 +34,8 @@ import {
   EditPost,
   FeaturePost,
   GetPosts,
-  GetPostsResponse,
+  PagedResponse,
+  PostView,
   GetSiteResponse,
   HidePost,
   LemmyHttp,
@@ -64,6 +60,7 @@ import {
   CommunityId,
   MultiCommunityId,
   CommunityView,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -98,12 +95,12 @@ import { CommunityLink } from "@components/community/community-link";
 
 type MultiCommunityData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
-  postsRes: GetPostsResponse;
+  postsRes: PagedResponse<PostView>;
 }>;
 
 interface State {
   multiCommunityRes: RequestState<GetMultiCommunityResponse>;
-  postsRes: RequestState<GetPostsResponse>;
+  postsRes: RequestState<PagedResponse<PostView>>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
@@ -114,7 +111,7 @@ interface State {
 interface Props {
   sort: PostSortType;
   postTimeRange: number;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
 
@@ -257,12 +254,11 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
     const getPostsForm: GetPosts = {
       multi_community_name: name,
-      ...cursorComponents(cursor),
       sort: mixedToPostSortType(sort),
       time_range_seconds: postTimeRange,
       type_: "all",
       show_hidden: showHidden === "true",
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
     };
 
     const postsFetch = client.getPosts(getPostsForm);
@@ -362,7 +358,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
     const haveUnread =
       postsRes.state === "success" &&
-      postsRes.data.posts.some(p => !p.post_actions?.read_at);
+      postsRes.data.items.some(p => !p.post_actions?.read_at);
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
@@ -441,7 +437,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
       case "success":
         return (
           <PostListings
-            posts={this.state.postsRes.data.posts}
+            posts={this.state.postsRes.data.items}
             showCrossPosts="small"
             showCommunity
             viewOnly={false}
@@ -596,7 +592,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
     this.setState({ postsRes: LOADING_REQUEST });
     const postsRes = await HttpService.client.getPosts({
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
       sort: mixedToPostSortType(sort),
       time_range_seconds: postTimeRange,
       type_: "all",
@@ -771,7 +767,7 @@ async function handleMarkPostAsRead(
   if (res.state === "success") {
     i.setState(s => {
       if (s.postsRes.state === "success") {
-        s.postsRes.data.posts.forEach(p => {
+        s.postsRes.data.items.forEach(p => {
           if (p.post.id === form.post_id && myUserInfo) {
             if (!p.post_actions) {
               p.post_actions = {};
@@ -819,7 +815,7 @@ async function handleHidePost(
   if (hideRes.state === "success") {
     i.setState(prev => {
       if (prev.postsRes.state === "success" && myUserInfo) {
-        for (const post of prev.postsRes.data.posts.filter(
+        for (const post of prev.postsRes.data.items.filter(
           p => form.post_id === p.post.id,
         )) {
           if (!post.post_actions) {
@@ -842,10 +838,10 @@ async function handlePersonNote(i: MultiCommunity, form: NotePerson) {
   if (res.state === "success") {
     i.setState(s => {
       if (s.postsRes.state === "success") {
-        s.postsRes.data.posts = editPersonNotes(
+        s.postsRes.data.items = editPersonNotes(
           form.note,
           form.person_id,
-          s.postsRes.data.posts,
+          s.postsRes.data.items,
         );
       }
       toast(I18NextService.i18n.t(form.note ? "note_created" : "note_deleted"));
@@ -906,7 +902,7 @@ function updateBanFromCommunity(
   if (banRes.state === "success") {
     i.setState(s => {
       if (s.postsRes.state === "success") {
-        s.postsRes.data.posts
+        s.postsRes.data.items
           .filter(c => c.creator.id === banRes.data.person_view.person.id)
           .forEach(c => {
             c.creator_banned_from_community = banned;
@@ -926,7 +922,7 @@ function updateBan(
   if (banRes.state === "success") {
     i.setState(s => {
       if (s.postsRes.state === "success") {
-        s.postsRes.data.posts
+        s.postsRes.data.items
           .filter(c => c.creator.id === banRes.data.person_view.person.id)
           .forEach(c => (c.creator_banned = banned));
       }
@@ -958,16 +954,16 @@ function purgeItem(i: MultiCommunity, purgeRes: RequestState<SuccessResponse>) {
 function findAndUpdatePost(i: MultiCommunity, res: RequestState<PostResponse>) {
   i.setState(s => {
     if (s.postsRes.state === "success" && res.state === "success") {
-      s.postsRes.data.posts = editPost(
+      s.postsRes.data.items = editPost(
         res.data.post_view,
-        s.postsRes.data.posts,
+        s.postsRes.data.items,
       );
     }
     return s;
   });
 }
 
-function handlePageChange(i: MultiCommunity, cursor?: DirectionalCursor) {
+function handlePageChange(i: MultiCommunity, cursor?: PaginationCursor) {
   i.updateUrl({ cursor });
 }
 
@@ -1000,7 +996,7 @@ async function handleMarkPageAsRead(
 
   const post_ids =
     postsRes.state === "success" &&
-    postsRes.data.posts
+    postsRes.data.items
       .filter(p => !p.post_actions?.read_at)
       .map(p => p.post.id);
 
@@ -1013,7 +1009,7 @@ async function handleMarkPageAsRead(
     if (res.state === "success") {
       i.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.posts.forEach(p => {
+          s.postsRes.data.items.forEach(p => {
             if (post_ids.includes(p.post.id) && myUserInfo) {
               if (!p.post_actions) {
                 p.post_actions = {};

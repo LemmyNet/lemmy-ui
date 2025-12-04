@@ -5,7 +5,6 @@ import {
   PersonContentType,
   PersonView,
   MyUserInfo,
-  PaginationCursor,
   CommentView,
   CommentSlimView,
   PersonId,
@@ -180,13 +179,6 @@ export type ProviderToEdit = Omit<
   CreateOAuthProvider,
   "client_id" | "client_secret"
 >;
-
-export type DirectionalCursor = `${PaginationCursor}` | `-${PaginationCursor}`;
-
-export type CursorComponents = {
-  page_cursor?: PaginationCursor;
-  page_back?: boolean;
-};
 
 /**
  * Determines whether to simplify / remove cross-posts, and how to display them.

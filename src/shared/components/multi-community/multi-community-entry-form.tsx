@@ -3,7 +3,7 @@ import { Component } from "inferno";
 import {
   CommunityId,
   CommunityView,
-  ListCommunitiesResponse,
+  PagedResponse,
   MyUserInfo,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
@@ -24,7 +24,7 @@ interface Props {
 }
 
 interface State {
-  listCommunitiesRes: RequestState<ListCommunitiesResponse>;
+  listCommunitiesRes: RequestState<PagedResponse<CommunityView>>;
   selectedCommunity?: CommunityView;
   communitySearchOptions: Choice[];
   communitySearchLoading: boolean;

@@ -16,15 +16,10 @@ import {
 import {
   getQueryParams,
   getQueryString,
-  cursorComponents,
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type {
-  DirectionalCursor,
-  QueryParams,
-  StringBoolean,
-} from "@utils/types";
+import type { QueryParams, StringBoolean } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, InfernoNode, MouseEventHandler, linkEvent } from "inferno";
@@ -50,9 +45,9 @@ import {
   EditPost,
   FeaturePost,
   GetComments,
-  GetCommentsResponse,
+  CommentView,
   GetPosts,
-  GetPostsResponse,
+  PostView,
   GetSiteResponse,
   HidePost,
   LemmyHttp,
@@ -76,6 +71,8 @@ import {
   LockComment,
   BlockCommunity,
   PostListingMode,
+  PagedResponse,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -117,8 +114,8 @@ import { PostListingModeSelect } from "@components/common/post-listing-mode-sele
 import { MultiCommunityLink } from "@components/multi-community/multi-community-link";
 
 interface HomeState {
-  postsRes: RequestState<GetPostsResponse>;
-  commentsRes: RequestState<GetCommentsResponse>;
+  postsRes: RequestState<PagedResponse<PostView>>;
+  commentsRes: RequestState<PagedResponse<CommentView>>;
   showSubscribedMobile: boolean;
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
@@ -135,13 +132,13 @@ interface HomeProps {
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
   showHidden?: StringBoolean;
 }
 
 type HomeData = RouteDataResponse<{
-  postsRes: GetPostsResponse;
-  commentsRes: GetCommentsResponse;
+  postsRes: PagedResponse<PostView>;
+  commentsRes: PagedResponse<CommentView>;
 }>;
 
 function getRss(listingType: ListingType, sort: PostSortType) {
@@ -379,15 +376,15 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
 
-    let postsFetch: Promise<RequestState<GetPostsResponse>> =
+    let postsFetch: Promise<RequestState<PagedResponse<PostView>>> =
       Promise.resolve(EMPTY_REQUEST);
-    let commentsFetch: Promise<RequestState<GetCommentsResponse>> =
+    let commentsFetch: Promise<RequestState<PagedResponse<CommentView>>> =
       Promise.resolve(EMPTY_REQUEST);
 
     if (postOrCommentType === "post") {
       const getPostsForm: GetPosts = {
         type_: listingType,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         show_hidden: showHidden === "true",
@@ -754,7 +751,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const haveUnread =
       postOrCommentType === "post" &&
       postsRes.state === "success" &&
-      postsRes.data.posts.some(p => !p.post_actions?.read_at);
+      postsRes.data.items.some(p => !p.post_actions?.read_at);
 
     if (!haveUnread || !this.isoData.myUserInfo) return undefined;
     return (
@@ -776,7 +773,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const post_ids =
       postOrCommentType === "post" &&
       postsRes.state === "success" &&
-      postsRes.data.posts
+      postsRes.data.items
         .filter(p => !p.post_actions?.read_at)
         .map(p => p.post.id);
 
@@ -789,7 +786,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       if (res.state === "success") {
         i.setState(s => {
           if (s.postsRes.state === "success") {
-            s.postsRes.data.posts.forEach(p => {
+            s.postsRes.data.items.forEach(p => {
               if (post_ids.includes(p.post.id) && i.isoData.myUserInfo) {
                 if (!p.post_actions) {
                   p.post_actions = {};
@@ -825,7 +822,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         case "loading":
           return <PostsLoadingSkeleton />;
         case "success": {
-          const posts = this.state.postsRes.data.posts;
+          const posts = this.state.postsRes.data.items;
           return (
             <PostListings
               posts={posts}
@@ -871,7 +868,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         case "loading":
           return <CommentsLoadingSkeleton />;
         case "success": {
-          const comments = this.state.commentsRes.data.comments;
+          const comments = this.state.commentsRes.data.items;
           return (
             <CommentNodes
               nodes={commentsToFlatNodes(comments)}
@@ -996,7 +993,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (postOrCommentType === "post") {
       this.setState({ postsRes: LOADING_REQUEST, commentsRes: EMPTY_REQUEST });
       const postsRes = await HttpService.client.getPosts({
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         type_: listingType,
@@ -1008,7 +1005,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     } else {
       this.setState({ commentsRes: LOADING_REQUEST, postsRes: EMPTY_REQUEST });
       const commentsRes = await HttpService.client.getComments({
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
         sort: mixedToCommentSortType(sort),
         type_: listingType,
       });
@@ -1036,7 +1033,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     });
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 
@@ -1156,17 +1153,17 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (res.state === "success") {
       this.setState(s => {
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments = editPersonNotes(
+          s.commentsRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.commentsRes.data.comments,
+            s.commentsRes.data.items,
           );
         }
         if (s.postsRes.state === "success") {
-          s.postsRes.data.posts = editPersonNotes(
+          s.postsRes.data.items = editPersonNotes(
             form.note,
             form.person_id,
-            s.postsRes.data.posts,
+            s.postsRes.data.items,
           );
         }
         toast(
@@ -1222,7 +1219,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (res.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.posts.forEach(p => {
+          s.postsRes.data.items.forEach(p => {
             if (p.post.id === form.post_id && this.isoData.myUserInfo) {
               if (!p.post_actions) {
                 p.post_actions = {};
@@ -1306,7 +1303,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (hideRes.state === "success") {
       this.setState(prev => {
         if (prev.postsRes.state === "success" && this.isoData.myUserInfo) {
-          for (const post of prev.postsRes.data.posts.filter(
+          for (const post of prev.postsRes.data.items.filter(
             p => form.post_id === p.post.id,
           )) {
             if (!post.post_actions) {
@@ -1331,14 +1328,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.posts
+          s.postsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               c.creator_banned_from_community = banned;
             });
         }
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments
+          s.commentsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => {
               c.creator_banned_from_community = banned;
@@ -1354,12 +1351,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     if (banRes.state === "success") {
       this.setState(s => {
         if (s.postsRes.state === "success") {
-          s.postsRes.data.posts
+          s.postsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator_banned = banned));
         }
         if (s.commentsRes.state === "success") {
-          s.commentsRes.data.comments
+          s.commentsRes.data.items
             .filter(c => c.creator.id === banRes.data.person_view.person.id)
             .forEach(c => (c.creator_banned = banned));
         }
@@ -1378,9 +1375,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editComment(
+        s.commentsRes.data.items = editComment(
           res.data.comment_view,
-          s.commentsRes.data.comments,
+          s.commentsRes.data.items,
         );
       }
       return s;
@@ -1390,9 +1387,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments = editComment(
+        s.commentsRes.data.items = editComment(
           res.data.comment_view,
-          s.commentsRes.data.comments,
+          s.commentsRes.data.items,
         );
       }
       return s;
@@ -1402,7 +1399,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
-        s.commentsRes.data.comments.unshift(res.data.comment_view);
+        s.commentsRes.data.items.unshift(res.data.comment_view);
       }
       return s;
     });
@@ -1411,9 +1408,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
       if (s.postsRes.state === "success" && res.state === "success") {
-        s.postsRes.data.posts = editPost(
+        s.postsRes.data.items = editPost(
           res.data.post_view,
-          s.postsRes.data.posts,
+          s.postsRes.data.items,
         );
       }
       return s;

@@ -18,9 +18,8 @@ import {
   getQueryParams,
   getQueryString,
   resourcesSettled,
-  cursorComponents,
 } from "@utils/helpers";
-import type { DirectionalCursor, IsoData, QueryParams } from "@utils/types";
+import type { IsoData, QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
 import { Component, linkEvent, createRef } from "inferno";
 import {
@@ -31,7 +30,7 @@ import {
   GetPersonDetailsResponse,
   GetSiteResponse,
   LemmyHttp,
-  ListCommunitiesResponse,
+  PagedResponse,
   ListingType,
   PersonView,
   PostView,
@@ -81,12 +80,12 @@ interface SearchProps {
   postUrlOnly: boolean;
   communityId?: number;
   creatorId?: number;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
 }
 
 type SearchData = RouteDataResponse<{
   communityResponse: GetCommunityResponse;
-  listCommunitiesResponse: ListCommunitiesResponse;
+  listCommunitiesResponse: PagedResponse<CommunityView>;
   creatorDetailsResponse: GetPersonDetailsResponse;
   searchResponse: SearchResponse;
 }>;
@@ -441,7 +440,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
       if (communitiesRes?.state === "success") {
         this.state.communitySearchOptions =
-          communitiesRes.data.communities.map(communityToChoice);
+          communitiesRes.data.items.map(communityToChoice);
       }
 
       if (communityRes?.state === "success") {
@@ -508,11 +507,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     if (res.state === "success") {
       const retainSelected: false | undefined | Choice =
-        !res.data.communities.some(cv => cv.community.id === communityId) &&
+        !res.data.items.some(cv => cv.community.id === communityId) &&
         this.state.communitySearchOptions.find(
           choice => choice.value === communityId?.toString(),
         );
-      const choices = res.data.communities.map(communityToChoice);
+      const choices = res.data.items.map(communityToChoice);
       this.setState({
         communitySearchOptions: retainSelected
           ? [retainSelected, ...choices]
@@ -650,7 +649,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         title_only,
         post_url_only,
         limit: fetchLimit,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
       };
 
       searchResponse = await client.search(form);
@@ -867,7 +866,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const persons_array: PersonView[] = [];
     const multi_communities_array: MultiCommunityView[] = [];
     if (searchResponse.state === "success") {
-      searchResponse.data.results.forEach(sr => {
+      searchResponse.data.search.forEach(sr => {
         switch (sr.type_) {
           case "post":
             posts_array.push(sr);
@@ -906,7 +905,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const { searchRes: searchResponse, siteRes } = this.state;
     const comments =
       searchResponse.state === "success"
-        ? searchResponse.data.results.filter(s => s.type_ === "comment")
+        ? searchResponse.data.search.filter(s => s.type_ === "comment")
         : [];
 
     return (
@@ -952,7 +951,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const { searchRes: searchResponse, siteRes } = this.state;
     const posts =
       searchResponse.state === "success"
-        ? searchResponse.data.results.filter(s => s.type_ === "post")
+        ? searchResponse.data.search.filter(s => s.type_ === "post")
         : [];
 
     return (
@@ -1013,7 +1012,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const { searchRes: searchResponse } = this.state;
     const communities =
       searchResponse.state === "success"
-        ? searchResponse.data.results.filter(s => s.type_ === "community")
+        ? searchResponse.data.search.filter(s => s.type_ === "community")
         : [];
 
     return (
@@ -1029,7 +1028,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const { searchRes: searchResponse } = this.state;
     const multiCommunities =
       searchResponse.state === "success"
-        ? searchResponse.data.results.filter(s => s.type_ === "multi_community")
+        ? searchResponse.data.search.filter(s => s.type_ === "multi_community")
         : [];
 
     return (
@@ -1045,7 +1044,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const { searchRes: searchResponse } = this.state;
     const users =
       searchResponse.state === "success"
-        ? searchResponse.data.results.filter(s => s.type_ === "person")
+        ? searchResponse.data.search.filter(s => s.type_ === "person")
         : [];
 
     return (
@@ -1060,7 +1059,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get resultsCount(): number {
     const { searchRes: r } = this.state;
 
-    const searchCount = r.state === "success" ? r.data.results.length : 0;
+    const searchCount = r.state === "success" ? r.data.search.length : 0;
 
     return searchCount;
   }
@@ -1092,7 +1091,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         title_only: titleOnly,
         post_url_only: postUrlOnly,
         limit: fetchLimit,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
       });
       if (token !== this.searchToken) {
         return;
@@ -1169,7 +1168,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     });
   }
 
-  handlePageChange(cursor?: DirectionalCursor) {
+  handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 
