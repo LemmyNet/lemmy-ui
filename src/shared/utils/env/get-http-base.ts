@@ -1,5 +1,5 @@
-import { getBaseLocal } from "@utils/env";
+import { getBaseLocal, getSecure } from "@utils/env";
 
 export default function getHttpBase() {
-  return getBaseLocal();
+  return getBaseLocal(getSecure());
 }

@@ -1,5 +1,5 @@
-import { getHost, getSecure } from "@utils/env";
+import { getHost } from "@utils/env";
 
-export default function getBaseLocal() {
-  return `http${getSecure()}://${getHost()}`;
+export default function getBaseLocal(s = "") {
+  return `http${s}://${getHost()}`;
 }
