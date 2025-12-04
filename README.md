@@ -79,6 +79,17 @@ The following environment variables can be used to configure lemmy-ui:
 | `LEMMY_UI_DISABLE_CSP`         | `bool`   | `false`          | Disables CSP security headers                                                       |
 | `LEMMY_UI_CUSTOM_HTML_HEADER`  | `string` | `undefined`      | Injects a custom script into `<head>`.                                              |
 
+### Debugging
+
+These environment variables are for debugging purposes and are disabled by default for production builds, but can be enabled explicitly.
+
+| `ENV_VAR`                 | type   | default | evaluation | description                                                                                                           |
+| ------------------------- | ------ | ------- | ---------- | --------------------------------------------------------------------------------------------------------------------- |
+| `LEMMY_UI_ERUDA`          | `bool` | `true`  | runtime    | Enables Eruda, the console for mobile browsers. (In production Eruda partially violates the CSP, but remains useful.) |
+| `LEMMY_UI_SOURCE_MAPS`    | `bool` | `true`  | buildtime  | Gives browsers and node the ability to report accurate stack traces.                                                  |
+| `LEMMY_UI_SERVE_CSS_MAPS` | `bool` | `false` | runtime    | Serves `.css.map` files when requested. Map files are untracked, run `pnpm themes:build` to generate and update them. |
+| `LEMMY_UI_COMPRESSION`    | `bool` | `true`  | runtime    | Enables response body compression, useful to test on slow connections.                                                |
+
 ## Credits
 
 Icons from [Feather Icons](https://feathericons.com/).

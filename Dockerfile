@@ -85,4 +85,4 @@ USER node
 EXPOSE 1234
 WORKDIR /app
 
-CMD ["node", "dist/js/server.js"]
+CMD ["node", "--enable-source-maps", "dist/js/server.js"]
