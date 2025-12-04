@@ -142,11 +142,7 @@ export default async (req: Request, res: Response) => {
       showAdultConsentModal:
         !!site?.site_view.site.content_warning &&
         !(site.my_user || req.cookies[adultConsentCookieKey]),
-      lemmy_external_host:
-        process.env.LEMMY_UI_BACKEND_REMOTE ??
-        process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ??
-        testHost,
-      forceHttps: process.env.LEMMY_UI_BACKEND_REMOTE !== undefined,
+      lemmy_external_host: process.env.LEMMY_UI_LEMMY_EXTERNAL_HOST ?? testHost,
     };
 
     const wrapper = (
