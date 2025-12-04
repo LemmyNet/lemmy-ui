@@ -72,7 +72,7 @@ export async function createSsrHtml(
         <>
           <script
             nonce={cspNonce}
-            src="https://cdn.jsdelivr.net/npm/eruda"
+            src="https://cdn.jsdelivr.net/npm/eruda/eruda.js"
           ></script>
           <script nonce={cspNonce}>eruda.init();</script>
         </>,
