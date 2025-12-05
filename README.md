@@ -69,16 +69,16 @@ Finally open `http://localhost:1234` in your browser. This uses the public test 
 
 The following environment variables can be used to configure lemmy-ui:
 
-| `ENV_VAR`                      | type     | default            | description                                                                                                                      |
-| ------------------------------ | -------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `LEMMY_UI_HOST`                | `string` | `0.0.0.0:1234`     | The IP / port that the lemmy-ui isomorphic node server is hosted at.                                                             |
+| `ENV_VAR`                      | type     | default            | description                                                                                                                        |
+| ------------------------------ | -------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `LEMMY_UI_HOST`                | `string` | `0.0.0.0:1234`     | The IP / port that the lemmy-ui isomorphic node server is hosted at.                                                               |
 | `LEMMY_UI_FRONTEND`            | `string` | `undefined`        | The base url where browsers can reach the lemmy-ui server, is inferred from request headers when undefined. (Protocol is optional) |
-| `LEMMY_UI_BACKEND`             | `string` | `localhost:8536`   | The base url for lemmy-ui in the browser to connect to the lemmy backend server. (Protocol is optional)                          |
-| `LEMMY_UI_BACKEND_INTERNAL`    | `string` | `LEMMY_UI_BACKEND` | The base url for the lemmy-ui server to connect to the lemmy backend server. (Protocol is optional)                              |
-| `LEMMY_UI_HTTPS`               | `bool`   | `false`            | Uses `https://` as the default protocol for base urls.                                                                           |
-| `LEMMY_UI_EXTRA_THEMES_FOLDER` | `string` | `./extra_themes`   | A location for additional lemmy css themes.                                                                                      |
-| `LEMMY_UI_DISABLE_CSP`         | `bool`   | `false`            | Disables CSP security headers                                                                                                    |
-| `LEMMY_UI_CUSTOM_HTML_HEADER`  | `string` | `undefined`        | Injects a custom script into `<head>`.                                                                                           |
+| `LEMMY_UI_BACKEND`             | `string` | `localhost:8536`   | The base url for lemmy-ui in the browser to connect to the lemmy backend server. (Protocol is optional)                            |
+| `LEMMY_UI_BACKEND_INTERNAL`    | `string` | `LEMMY_UI_BACKEND` | The base url for the lemmy-ui server to connect to the lemmy backend server. (Protocol is optional)                                |
+| `LEMMY_UI_HTTPS`               | `bool`   | `false`            | Uses `https://` as the default protocol for base urls.                                                                             |
+| `LEMMY_UI_EXTRA_THEMES_FOLDER` | `string` | `./extra_themes`   | A location for additional lemmy css themes.                                                                                        |
+| `LEMMY_UI_DISABLE_CSP`         | `bool`   | `false`            | Disables CSP security headers                                                                                                      |
+| `LEMMY_UI_CUSTOM_HTML_HEADER`  | `string` | `undefined`        | Injects a custom script into `<head>`.                                                                                             |
 
 ### Debugging
 
