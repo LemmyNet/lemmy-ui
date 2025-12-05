@@ -193,11 +193,12 @@ const Filter = ({
 const communityListing = (
   communities: CommunityView[],
   myUserInfo: MyUserInfo | undefined,
+  showHeader: boolean = true,
 ) => {
   return (
     communities.length > 0 && (
       <>
-        <h3>{I18NextService.i18n.t("communities")}</h3>
+        {showHeader && <h3>{I18NextService.i18n.t("communities")}</h3>}
         {communities.map(c => (
           <div>
             <CommunityLink community={c.community} myUserInfo={myUserInfo} />
@@ -217,11 +218,12 @@ const communityListing = (
 const multiCommunityListing = (
   multiCommunities: MultiCommunityView[],
   myUserInfo: MyUserInfo | undefined,
+  showHeader: boolean = true,
 ) => {
   return (
     multiCommunities.length > 0 && (
       <>
-        <h3>{I18NextService.i18n.t("multi_communities")}</h3>
+        {showHeader && <h3>{I18NextService.i18n.t("multi_communities")}</h3>}
         {multiCommunities.map(m => (
           <div>
             <MultiCommunityLink
@@ -244,11 +246,12 @@ const multiCommunityListing = (
 const personListing = (
   persons: PersonView[],
   myUserInfo: MyUserInfo | undefined,
+  showHeader: boolean = true,
 ) => {
   return (
     persons.length > 0 && (
       <>
-        <h3>{I18NextService.i18n.t("users")}</h3>
+        {showHeader && <h3>{I18NextService.i18n.t("users")}</h3>}
         {persons.map(p => (
           <div>
             <PersonListing
@@ -274,11 +277,15 @@ const personListing = (
   );
 };
 
-const postListing = (posts: PostView[], isoData: IsoData) => {
+const postListing = (
+  posts: PostView[],
+  isoData: IsoData,
+  showHeader: boolean = true,
+) => {
   return (
     posts.length > 0 && (
       <>
-        <h3>{I18NextService.i18n.t("posts")}</h3>
+        {showHeader && <h3>{I18NextService.i18n.t("posts")}</h3>}
         {posts.map(post_view => (
           <div>
             <PostListing
@@ -332,11 +339,15 @@ const postListing = (posts: PostView[], isoData: IsoData) => {
   );
 };
 
-const commentListing = (comments: CommentView[], isoData: IsoData) => {
+const commentListing = (
+  comments: CommentView[],
+  isoData: IsoData,
+  showHeader: boolean = true,
+) => {
   return (
     comments.length > 0 && (
       <>
-        <h3>{I18NextService.i18n.t("comments")}</h3>
+        {showHeader && <h3>{I18NextService.i18n.t("comments")}</h3>}
         {comments.map(c => (
           <div>
             <CommentNodes
@@ -690,6 +701,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         <h1 className="h4 mb-4">{I18NextService.i18n.t("search")}</h1>
         {this.selects}
         {this.searchForm}
+        {this.displayResolve()}
         {this.displayResults(type)}
         {this.resultsCount === 0 &&
           this.state.searchRes.state === "success" && (
@@ -702,6 +714,29 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         />
       </div>
     );
+  }
+
+  displayResolve() {
+    const { searchRes: searchResponse } = this.state;
+    if (searchResponse.state === "success" && searchResponse.data.resolve) {
+      const resolve = searchResponse.data.resolve;
+      switch (resolve.type_) {
+        case "post":
+          return postListing([resolve], this.isoData, false);
+        case "comment":
+          return commentListing([resolve], this.isoData, false);
+        case "community":
+          return communityListing([resolve], this.isoData.myUserInfo, false);
+        case "person":
+          return personListing([resolve], this.isoData.myUserInfo, false);
+        case "multi_community":
+          return multiCommunityListing(
+            [resolve],
+            this.isoData.myUserInfo,
+            false,
+          );
+      }
+    }
   }
 
   displayResults(type: SearchType) {
@@ -1059,9 +1094,12 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get resultsCount(): number {
     const { searchRes: r } = this.state;
 
-    const searchCount = r.state === "success" ? r.data.search.length : 0;
-
-    return searchCount;
+    if (r.state === "success") {
+      const resolveCount = r.data.resolve !== undefined ? 1 : 0;
+      return r.data.search.length + resolveCount;
+    } else {
+      return 0;
+    }
   }
 
   searchToken?: symbol;
