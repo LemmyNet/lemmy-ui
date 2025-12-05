@@ -246,7 +246,7 @@ const multiCommunityListing = (
 const personListing = (
   persons: PersonView[],
   myUserInfo: MyUserInfo | undefined,
-  showHeader: boolean = false,
+  showHeader: boolean = true,
 ) => {
   return (
     persons.length > 0 && (
@@ -1094,12 +1094,12 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get resultsCount(): number {
     const { searchRes: r } = this.state;
 
-    const searchCount =
-      r.state === "success"
-        ? r.data.search.length + Number(r.data.resolve !== undefined)
-        : 0;
-
-    return searchCount;
+    if (r.state === "success") {
+      const resolveCount = r.data.resolve !== undefined ? 1 : 0;
+      return r.data.search.length + resolveCount;
+    } else {
+      return 0;
+    }
   }
 
   searchToken?: symbol;
