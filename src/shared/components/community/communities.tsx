@@ -2,11 +2,10 @@ import { editCommunity, setIsoData, showLocal } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
-  cursorComponents,
   resourcesSettled,
   numToSI,
 } from "@utils/helpers";
-import type { DirectionalCursor, QueryParams } from "@utils/types";
+import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
@@ -15,8 +14,10 @@ import {
   GetRandomCommunity,
   LemmyHttp,
   ListCommunities,
-  ListCommunitiesResponse,
+  PagedResponse,
+  CommunityView,
   ListingType,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService } from "@services/FirstLoadService";
@@ -47,11 +48,11 @@ import { TableHr } from "@components/common/tables";
 import { NoOptionI18nKeys } from "i18next";
 
 type CommunitiesData = RouteDataResponse<{
-  listCommunitiesResponse: ListCommunitiesResponse;
+  listCommunitiesResponse: PagedResponse<CommunityView>;
 }>;
 
 interface CommunitiesState {
-  listCommunitiesResponse: RequestState<ListCommunitiesResponse>;
+  listCommunitiesResponse: RequestState<PagedResponse<CommunityView>>;
   searchText: string;
   isIsomorphic: boolean;
 }
@@ -59,7 +60,7 @@ interface CommunitiesState {
 interface CommunitiesProps {
   listingType: ListingType;
   sort: CommunitySortType;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
@@ -170,7 +171,7 @@ export class Communities extends Component<
               </div>
             </div>
             <TableHr />
-            {this.state.listCommunitiesResponse.data.communities.map(cv => (
+            {this.state.listCommunitiesResponse.data.items.map(cv => (
               <>
                 <div className="row" key={cv.community.id}>
                   <div className={nameCols}>
@@ -320,7 +321,7 @@ export class Communities extends Component<
       type_: listingType,
       sort,
       limit: communityLimit,
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
     };
 
     return {
@@ -337,7 +338,7 @@ export class Communities extends Component<
       type_: listingType,
       sort: sort,
       limit: communityLimit,
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
     });
     if (token === this.fetchToken) {
       this.setState({ listCommunitiesResponse });
@@ -350,9 +351,9 @@ export class Communities extends Component<
         s.listCommunitiesResponse.state === "success" &&
         res.state === "success"
       ) {
-        s.listCommunitiesResponse.data.communities = editCommunity(
+        s.listCommunitiesResponse.data.items = editCommunity(
           res.data.community_view,
-          s.listCommunitiesResponse.data.communities,
+          s.listCommunitiesResponse.data.items,
         );
       }
       return s;
@@ -360,7 +361,7 @@ export class Communities extends Component<
   }
 }
 
-function handlePageChange(i: Communities, cursor?: DirectionalCursor) {
+function handlePageChange(i: Communities, cursor?: PaginationCursor) {
   i.updateUrl({ cursor });
 }
 

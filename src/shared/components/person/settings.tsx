@@ -26,7 +26,8 @@ import {
   CommentSortType,
   Community,
   GenerateTotpSecretResponse,
-  GetFederatedInstancesResponse,
+  PagedResponse,
+  FederatedInstanceView,
   GetSiteResponse,
   Instance,
   LemmyHttp,
@@ -84,14 +85,14 @@ import { NoOptionI18nKeys } from "i18next";
 import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
 
 type SettingsData = RouteDataResponse<{
-  instancesRes: GetFederatedInstancesResponse;
+  instancesRes: PagedResponse<FederatedInstanceView>;
 }>;
 
 interface SettingsState {
   saveRes: RequestState<SuccessResponse>;
   changePasswordRes: RequestState<LoginResponse>;
   deleteAccountRes: RequestState<SuccessResponse>;
-  instancesRes: RequestState<GetFederatedInstancesResponse>;
+  instancesRes: RequestState<PagedResponse<FederatedInstanceView>>;
   generateTotpRes: RequestState<GenerateTotpSecretResponse>;
   updateTotpRes: RequestState<UpdateTotpResponse>;
   // TODO redo these forms
@@ -1600,7 +1601,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
     if (this.state.instancesRes.state === "success") {
       searchInstanceOptions =
-        this.state.instancesRes.data.federated_instances
+        this.state.instancesRes.data.items
           ?.filter(view =>
             view.instance.domain.toLowerCase().includes(text.toLowerCase()),
           )
@@ -2250,9 +2251,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const mui = this.isoData.myUserInfo;
     if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
-        this.state.instancesRes.data.federated_instances.map(
-          view => view.instance,
-        ) ?? [];
+        this.state.instancesRes.data.items.map(view => view.instance) ?? [];
       updateInstanceCommunitiesBlock(blocked, id, linkedInstances, mui);
       this.setState({
         instanceCommunitiesBlocks: mui.instance_communities_blocks,
@@ -2264,9 +2263,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const mui = this.isoData.myUserInfo;
     if (mui && this.state.instancesRes.state === "success") {
       const linkedInstances =
-        this.state.instancesRes.data.federated_instances.map(
-          view => view.instance,
-        ) ?? [];
+        this.state.instancesRes.data.items.map(view => view.instance) ?? [];
       updateInstancePersonsBlock(blocked, id, linkedInstances, mui);
       this.setState({
         instancePersonsBlocks: mui.instance_persons_blocks,

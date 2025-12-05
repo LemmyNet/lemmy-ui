@@ -2,21 +2,22 @@ import { editMultiCommunity, setIsoData, showLocal } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
-  cursorComponents,
   resourcesSettled,
   numToSI,
 } from "@utils/helpers";
-import type { DirectionalCursor, QueryParams } from "@utils/types";
+import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
   LemmyHttp,
   ListMultiCommunities,
-  ListMultiCommunitiesResponse,
+  PagedResponse,
+  MultiCommunityView,
   MultiCommunityId,
   MultiCommunityListingType,
   MultiCommunityResponse,
   MultiCommunitySortType,
+  PaginationCursor,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService } from "@services/FirstLoadService";
@@ -45,11 +46,11 @@ import { MultiCommunityLink } from "./multi-community-link";
 import { MultiCommunityListingTypeSelect } from "@components/common/multi-community-listing-type-select";
 
 type MultiCommunitiesData = RouteDataResponse<{
-  listMultiCommunitiesRes: ListMultiCommunitiesResponse;
+  listMultiCommunitiesRes: PagedResponse<MultiCommunityView>;
 }>;
 
 interface State {
-  listMultiCommunitiesRes: RequestState<ListMultiCommunitiesResponse>;
+  listMultiCommunitiesRes: RequestState<PagedResponse<MultiCommunityView>>;
   searchText: string;
   isIsomorphic: boolean;
 }
@@ -57,7 +58,7 @@ interface State {
 interface Props {
   listingType: MultiCommunityListingType;
   sort: MultiCommunitySortType;
-  cursor?: DirectionalCursor;
+  cursor?: PaginationCursor;
 }
 
 function getListingTypeFromQuery(
@@ -160,37 +161,35 @@ export class MultiCommunities extends Component<RouteProps, State> {
               </div>
             </div>
             <TableHr />
-            {this.state.listMultiCommunitiesRes.data.multi_communities.map(
-              v => (
-                <>
-                  <div className="row" key={v.multi.id}>
-                    <div className={nameCols}>
-                      <MultiCommunityLink
-                        multiCommunity={v.multi}
-                        myUserInfo={this.isoData.myUserInfo}
-                      />
-                    </div>
-                    <div className={countCols}>
-                      {numToSI(v.multi.subscribers)}
-                    </div>
-                    <div className={countCols}>
-                      {numToSI(v.multi.communities)}
-                    </div>
-                    <div className={countCols}>
-                      <SubscribeButton
-                        followState={v.follow_state}
-                        apId={v.multi.ap_id}
-                        onFollow={() => handleFollow(this, v.multi.id, true)}
-                        onUnFollow={() => handleFollow(this, v.multi.id, false)}
-                        showRemoteFetch={!this.isoData.myUserInfo}
-                        isLink
-                      />
-                    </div>
+            {this.state.listMultiCommunitiesRes.data.items.map(v => (
+              <>
+                <div className="row" key={v.multi.id}>
+                  <div className={nameCols}>
+                    <MultiCommunityLink
+                      multiCommunity={v.multi}
+                      myUserInfo={this.isoData.myUserInfo}
+                    />
                   </div>
-                  <hr />
-                </>
-              ),
-            )}
+                  <div className={countCols}>
+                    {numToSI(v.multi.subscribers)}
+                  </div>
+                  <div className={countCols}>
+                    {numToSI(v.multi.communities)}
+                  </div>
+                  <div className={countCols}>
+                    <SubscribeButton
+                      followState={v.follow_state}
+                      apId={v.multi.ap_id}
+                      onFollow={() => handleFollow(this, v.multi.id, true)}
+                      onUnFollow={() => handleFollow(this, v.multi.id, false)}
+                      showRemoteFetch={!this.isoData.myUserInfo}
+                      isLink
+                    />
+                  </div>
+                </div>
+                <hr />
+              </>
+            ))}
           </div>
         );
       }
@@ -288,7 +287,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
       type_: listingType,
       sort,
       limit: multiCommunityLimit,
-      ...cursorComponents(cursor),
+      page_cursor: cursor,
     };
 
     return {
@@ -305,7 +304,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
         type_: listingType,
         sort: sort,
         limit: multiCommunityLimit,
-        ...cursorComponents(cursor),
+        page_cursor: cursor,
       });
     if (token === this.fetchToken) {
       this.setState({ listMultiCommunitiesRes });
@@ -318,9 +317,9 @@ export class MultiCommunities extends Component<RouteProps, State> {
         s.listMultiCommunitiesRes.state === "success" &&
         res.state === "success"
       ) {
-        s.listMultiCommunitiesRes.data.multi_communities = editMultiCommunity(
+        s.listMultiCommunitiesRes.data.items = editMultiCommunity(
           res.data.multi_community_view,
-          s.listMultiCommunitiesRes.data.multi_communities,
+          s.listMultiCommunitiesRes.data.items,
         );
       }
       return s;
@@ -328,7 +327,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
   }
 }
 
-function handlePageChange(i: MultiCommunities, cursor?: DirectionalCursor) {
+function handlePageChange(i: MultiCommunities, cursor?: PaginationCursor) {
   i.updateUrl({ cursor });
 }
 

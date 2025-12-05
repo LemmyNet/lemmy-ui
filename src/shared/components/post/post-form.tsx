@@ -821,7 +821,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       case "loading":
         return <Spinner />;
       case "success": {
-        const suggestedPosts = this.state.suggestedPostsRes.data.results.filter(
+        const suggestedPosts = this.state.suggestedPostsRes.data.search.filter(
           r => r.type_ === "post",
         );
 

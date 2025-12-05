@@ -106,12 +106,13 @@ function tippy(
     });
 
   const pct = calculateUpvotePct(counts.upvotes, counts.downvotes);
+  const pctStr = `${pct.toFixed(0)}%`;
 
   const upvotePctStr =
     showPercentage(localUser, localSite, type) &&
     I18NextService.i18n.t("upvote_percentage", {
       count: Number(pct),
-      formattedCount: Number(pct),
+      formattedCount: pctStr,
     });
 
   const upvoteStr =
