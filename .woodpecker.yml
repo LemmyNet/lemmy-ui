@@ -12,7 +12,7 @@ steps:
       - event: [pull_request, tag]
 
   prettier_check:
-    image: jauderho/prettier:3.7.3-alpine
+    image: jauderho/prettier:3.7.4-alpine
     commands:
       - prettier -c .
     when:
