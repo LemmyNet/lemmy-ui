@@ -5,10 +5,15 @@ import { UserBadges } from "@components/common/user-badges";
 import { CommunityLink } from "@components/community/community-link";
 import { PersonListing } from "@components/person/person-listing";
 import { I18NextService } from "@services/index";
-import { hideAnimatedImage, hideImages, linkTarget } from "@utils/app";
+import {
+  hideAnimatedImage,
+  hideImages,
+  linkTarget,
+  setIsoData,
+} from "@utils/app";
 import { relTags, torrentHelpUrl } from "@utils/config";
 import { formatRelativeDate } from "@utils/date";
-import { getExternalHost } from "@utils/env";
+import { httpFrontendUrl } from "@utils/env";
 import { mdToHtmlInline } from "@utils/markdown";
 import {
   isMagnetLink,
@@ -229,22 +234,24 @@ type UrlLineProps = {
   postView: PostView;
   myUserInfo: MyUserInfo | undefined;
 };
-export function UrlLine({ postView, myUserInfo }: UrlLineProps) {
+export function UrlLine({ postView, myUserInfo }: UrlLineProps, context: any) {
   const post = postView.post;
   const url = post.url;
 
   if (url) {
+    const localUrl =
+      hostname(url) === hostname(httpFrontendUrl("", setIsoData(context)));
     // If its a torrent link, extract the download name
     const linkName = isMagnetLink(url)
       ? extractMagnetLinkDownloadName(url)
-      : !(hostname(url) === getExternalHost())
+      : !localUrl
         ? hostname(url)
         : null;
 
     if (linkName) {
       return (
         url &&
-        !(hostname(url) === getExternalHost()) && (
+        !localUrl && (
           <>
             <a
               className="fst-italic text-body link-opacity-75 link-opacity-100-hover"

@@ -47,6 +47,9 @@ if (enableResponseBodyCompression) {
   server.use(compression());
 }
 
+// To get the frontend protocol and host from X-Forwarded-* header
+server.set("trust proxy", true);
+
 const serverPath = path.resolve("./dist");
 
 // In dev mode, don't use the maxAge and immutable, or it breaks live reload for dev

@@ -56,6 +56,7 @@ import {
 import { isBrowser } from "@utils/browser";
 import Toastify from "toastify-js";
 import { isAnimatedImage } from "./media";
+import { httpBackendUrl } from "./env";
 
 export function buildCommentsTree<T extends CommentSlimView>(
   comments: T[],
@@ -135,7 +136,9 @@ export function communityRSSUrl(community: Community, sort: string): string {
   // Only add the domain for non-local
   const domain = community.local ? "" : `@${hostname(community.ap_id)}`;
 
-  return `/feeds/c/${community.name}${domain}.xml${getQueryString({ sort })}`;
+  return httpBackendUrl(
+    `/feeds/c/${community.name}${domain}.xml${getQueryString({ sort })}`,
+  );
 }
 
 export function multiCommunityRSSUrl(
