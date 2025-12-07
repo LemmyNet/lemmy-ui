@@ -181,7 +181,7 @@ importers:
         version: 16.0.6(sass@1.94.2)(webpack@5.103.0)
       serialize-javascript:
         specifier: ^7.0.0
-        version: 7.0.1
+        version: 7.0.2
       service-worker-webpack:
         specifier: ^1.0.0
         version: 1.0.0(webpack@5.103.0)
@@ -4365,8 +4365,8 @@ packages:
   serialize-javascript@6.0.2:
     resolution: {integrity: sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==}
 
-  serialize-javascript@7.0.1:
-    resolution: {integrity: sha512-ZLk39cj/i4KVhAPoLcAbqq38U6GaJchno7g+GPTn6F4HYdCT4u4p41l+DvKQHOR+TkanbSOCkrHJW1Zp60LYkw==}
+  serialize-javascript@7.0.2:
+    resolution: {integrity: sha512-Y/agDAqbUWRYFWLF5pMT9Rb8wN5ERPMbQH7oq6R+4YgFdMNO4+ELo4PjFCW3H+2CbXirPr/XUgYT+3iXJfTbZQ==}
     engines: {node: '>=20.0.0'}
 
   serve-index@1.9.1:
@@ -9567,7 +9567,7 @@ snapshots:
     dependencies:
       randombytes: 2.1.0
 
-  serialize-javascript@7.0.1: {}
+  serialize-javascript@7.0.2: {}
 
   serve-index@1.9.1:
     dependencies:
