@@ -306,9 +306,6 @@ importers:
       rimraf:
         specifier: ^6.0.1
         version: 6.1.2
-      sort-package-json:
-        specifier: ^3.4.0
-        version: 3.5.0
       style-loader:
         specifier: ^4.0.0
         version: 4.0.0(webpack@5.103.0)
