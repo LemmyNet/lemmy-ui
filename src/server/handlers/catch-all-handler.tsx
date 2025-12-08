@@ -1,5 +1,9 @@
 import { isAuthPath } from "@utils/app";
-import { getHttpBaseInternal } from "@utils/env";
+import {
+  getBackendHostExternal,
+  getBaseUrl,
+  getHttpBaseInternal,
+} from "@utils/env";
 import { ErrorPageData, IsoDataOptionalSite } from "@utils/types";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
@@ -24,8 +28,12 @@ import { setForwardedHeaders } from "../utils/set-forwarded-headers";
 import { getJwtCookie } from "../utils/has-jwt-cookie";
 import { parsePath } from "history";
 import { getQueryString } from "@utils/helpers";
-import { adultConsentCookieKey, testHost } from "@utils/config";
+import { adultConsentCookieKey } from "@utils/config";
 import { loadLanguageInstances } from "@services/I18NextService";
+
+const specifiedFrontend = process.env.LEMMY_UI_FRONTEND
+  ? getBaseUrl(process.env.LEMMY_UI_FRONTEND)
+  : undefined;
 
 export default async (req: Request, res: Response) => {
   try {
@@ -140,14 +148,11 @@ export default async (req: Request, res: Response) => {
       myUserInfo,
       routeData,
       errorPageData,
-      lemmyExternalHost:
-        process.env.LEMMY_UI_BACKEND_REMOTE ??
-        process.env.LEMMY_UI_BACKEND_EXTERNAL ??
-        testHost,
+      lemmyBackend: getBackendHostExternal(),
+      lemmyFrontend: specifiedFrontend ?? `${req.protocol}://${req.host}`,
       showAdultConsentModal:
         !!siteRes?.site_view.site.content_warning &&
         !(myUserInfo || req.cookies[adultConsentCookieKey]),
-      forceHttps: process.env.LEMMY_UI_BACKEND_REMOTE !== undefined,
     };
 
     const interfaceLanguage =

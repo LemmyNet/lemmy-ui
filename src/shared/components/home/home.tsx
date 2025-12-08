@@ -97,7 +97,7 @@ import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
-import { getHttpBaseInternal } from "../../utils/env";
+import { getHttpBaseInternal, httpBackendUrl } from "@utils/env";
 import {
   CommentsLoadingSkeleton,
   PostsLoadingSkeleton,
@@ -147,16 +147,18 @@ function getRss(listingType: ListingType, sort: PostSortType) {
   const queryString = getQueryString({ sort });
   switch (listingType) {
     case "all": {
-      rss = "/feeds/all.xml" + queryString;
+      rss = httpBackendUrl("/feeds/all.xml" + queryString);
       break;
     }
     case "local": {
-      rss = "/feeds/local.xml" + queryString;
+      rss = httpBackendUrl("/feeds/local.xml" + queryString);
       break;
     }
     case "subscribed": {
       const auth = myAuth();
-      rss = auth ? `/feeds/front/${auth}.xml${queryString}` : undefined;
+      rss = auth
+        ? httpBackendUrl(`/feeds/front/${auth}.xml${queryString}`)
+        : undefined;
       break;
     }
   }

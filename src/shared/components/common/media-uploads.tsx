@@ -10,7 +10,7 @@ import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { MomentTime } from "./moment-time";
 import { PictrsImage } from "./pictrs-image";
-import { getHttpBase } from "@utils/env";
+import { httpBackendUrl } from "@utils/env";
 import { toast } from "@utils/app";
 import { TableHr } from "./tables";
 
@@ -111,5 +111,5 @@ export class MediaUploads extends Component<Props, any> {
 }
 
 function buildImageUrl(pictrsAlias: string): string {
-  return `${getHttpBase()}/api/v4/image/${pictrsAlias}`;
+  return httpBackendUrl(`/api/v4/image/${pictrsAlias}`);
 }

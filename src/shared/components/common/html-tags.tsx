@@ -1,9 +1,10 @@
-import { httpExternalPath } from "@utils/env";
+import { httpFrontendUrl } from "@utils/env";
 import { htmlToText } from "html-to-text";
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { md } from "@utils/markdown";
 import { I18NextService } from "../../services";
+import { setIsoData } from "@utils/app";
 
 interface HtmlTagsProps {
   title: string;
@@ -16,9 +17,8 @@ interface HtmlTagsProps {
 /// Taken from https://metatags.io/
 export class HtmlTags extends Component<HtmlTagsProps, any> {
   render() {
-    const url = httpExternalPath(this.props.path);
-    const canonicalUrl =
-      this.props.canonicalPath ?? httpExternalPath(this.props.path);
+    const url = httpFrontendUrl(this.props.path, setIsoData(this.context));
+    const canonicalUrl = this.props.canonicalPath ?? url;
     const desc = this.props.description;
     const image = this.props.image;
 
