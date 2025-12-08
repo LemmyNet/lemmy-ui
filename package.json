@@ -74,7 +74,7 @@
     "inferno-router": "^9.0.5",
     "inferno-server": "^9.0.5",
     "jwt-decode": "^4.0.0",
-    "lemmy-js-client": "1.0.0-rename-paged-response-data.0",
+    "lemmy-js-client": "1.0.0-post-comment-combined-view.0",
     "markdown-it": "^14.1.0",
     "markdown-it-bidi": "^0.2.0",
     "markdown-it-container": "^4.0.0",

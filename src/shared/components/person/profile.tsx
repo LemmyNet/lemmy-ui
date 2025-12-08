@@ -72,11 +72,9 @@ import {
   RegistrationApplicationResponse,
   MyUserInfo,
   CommunityId,
-  PersonSavedCombinedView,
-  PersonContentCombinedView,
+  PostCommentCombinedView,
   Person,
   MarkPostAsRead,
-  PersonLikedCombinedView,
   SearchSortType,
   NotePerson,
   PostView,
@@ -117,9 +115,9 @@ import { MultiCommunityLink } from "@components/multi-community/multi-community-
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
-  personContentRes: PagedResponse<PersonContentCombinedView>;
-  personSavedRes: PagedResponse<PersonSavedCombinedView>;
-  personLikedRes: PagedResponse<PersonLikedCombinedView>;
+  personContentRes: PagedResponse<PostCommentCombinedView>;
+  personSavedRes: PagedResponse<PostCommentCombinedView>;
+  personLikedRes: PagedResponse<PostCommentCombinedView>;
   personReadRes: PagedResponse<PostView>;
   personHiddenRes: PagedResponse<PostView>;
   uploadsRes: PagedResponse<LocalImageView>;
@@ -127,9 +125,9 @@ type ProfileData = RouteDataResponse<{
 
 interface ProfileState {
   personRes: RequestState<GetPersonDetailsResponse>;
-  personContentRes: RequestState<PagedResponse<PersonContentCombinedView>>;
-  personSavedRes: RequestState<PagedResponse<PersonSavedCombinedView>>;
-  personLikedRes: RequestState<PagedResponse<PersonLikedCombinedView>>;
+  personContentRes: RequestState<PagedResponse<PostCommentCombinedView>>;
+  personSavedRes: RequestState<PagedResponse<PostCommentCombinedView>>;
+  personLikedRes: RequestState<PagedResponse<PostCommentCombinedView>>;
   personReadRes: RequestState<PagedResponse<PostView>>;
   personHiddenRes: RequestState<PagedResponse<PostView>>;
   uploadsRes: RequestState<PagedResponse<LocalImageView>>;
@@ -658,14 +656,14 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             this.state.personLikedRes.state === "success" &&
             this.state.personLikedRes.data.items) ||
           undefined;
-        const readContent: PersonContentCombinedView[] | undefined =
+        const readContent: PostCommentCombinedView[] | undefined =
           (filter === "read" &&
             this.state.personReadRes.state === "success" &&
             this.state.personReadRes.data.items.map(
               postViewToPersonContentCombinedView,
             )) ||
           undefined;
-        const hiddenContent: PersonContentCombinedView[] | undefined =
+        const hiddenContent: PostCommentCombinedView[] | undefined =
           (filter === "hidden" &&
             this.state.personHiddenRes.state === "success" &&
             this.state.personHiddenRes.data.items.map(
@@ -1617,7 +1615,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   updateCurrentList(
-    mapFn: (c: PersonContentCombinedView) => PersonContentCombinedView,
+    mapFn: (c: PostCommentCombinedView) => PostCommentCombinedView,
   ) {
     if (this.props.filter === "saved") {
       this.setState(s => {
@@ -1664,7 +1662,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
-  editCombinedCurrent(data: PersonContentCombinedView) {
+  editCombinedCurrent(data: PostCommentCombinedView) {
     if (this.props.filter === "saved") {
       this.setState(s => {
         if (s.personSavedRes.state === "success") {

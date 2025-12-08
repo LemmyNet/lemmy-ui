@@ -18,7 +18,7 @@ import {
   CommunityReport,
   ReportCombinedView,
   Post,
-  PersonContentCombinedView,
+  PostCommentCombinedView,
   PersonId,
   PersonActions,
   Person,
@@ -359,7 +359,7 @@ export function getRecipientIdFromProps(
 type PersonContentCombined = Post | Comment;
 
 export function getUncombinedPersonContent(
-  content: PersonContentCombinedView,
+  content: PostCommentCombinedView,
 ): PersonContentCombined {
   switch (content.type_) {
     case "post":
@@ -783,7 +783,7 @@ export function calculateUpvotePct(upvotes: number, downvotes: number): number {
 
 export function postViewToPersonContentCombinedView(
   pv: PostView,
-): PersonContentCombinedView {
+): PostCommentCombinedView {
   return {
     type_: "post",
     ...pv,
@@ -792,7 +792,7 @@ export function postViewToPersonContentCombinedView(
 
 export function commentViewToPersonContentCombinedView(
   cv: CommentView,
-): PersonContentCombinedView {
+): PostCommentCombinedView {
   return {
     type_: "comment",
     ...cv,

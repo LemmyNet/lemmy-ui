@@ -33,7 +33,7 @@ import {
   PostSortType,
   TransferCommunity,
   MyUserInfo,
-  PersonContentCombinedView,
+  PostCommentCombinedView,
   LocalSite,
   NotePerson,
   LockComment,
@@ -45,7 +45,7 @@ import { RequestState } from "../../services/HttpService";
 import { commentToFlatNode } from "@utils/app";
 
 interface PersonDetailsProps {
-  content: PersonContentCombinedView[];
+  content: PostCommentCombinedView[];
   admins: PersonView[];
   allLanguages: Language[];
   siteLanguages: number[];
@@ -92,7 +92,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
     super(props, context);
   }
 
-  renderItemType(i: PersonContentCombinedView): InfernoNode {
+  renderItemType(i: PostCommentCombinedView): InfernoNode {
     switch (i.type_) {
       case "comment": {
         return (
@@ -182,7 +182,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
   }
 
   render(): InfernoNode {
-    const combined: PersonContentCombinedView[] = this.props.content;
+    const combined: PostCommentCombinedView[] = this.props.content;
 
     return (
       <div>
