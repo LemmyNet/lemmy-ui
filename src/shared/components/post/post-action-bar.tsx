@@ -3,12 +3,20 @@ import { Icon } from "@components/common/icon";
 import { BanUpdateForm } from "@components/common/modal/mod-action-form-modal";
 import { VoteButtonsCompact } from "@components/common/vote-buttons";
 import { I18NextService } from "@services/index";
-import { postIsInteractable, userNotLoggedInOrBanned } from "@utils/app";
+import {
+  postIsInteractable,
+  setIsoData,
+  userNotLoggedInOrBanned,
+} from "@utils/app";
 import { share } from "@utils/browser";
 import { futureDaysToUnixTime } from "@utils/date";
-import { getHttpBase } from "@utils/env";
+import { httpFrontendUrl } from "@utils/env";
 import { unreadCommentsCount } from "@utils/helpers";
-import { CrossPostParams, ShowBodyType } from "@utils/types";
+import {
+  CrossPostParams,
+  IsoDataOptionalSite,
+  ShowBodyType,
+} from "@utils/types";
 import { Link } from "inferno-router";
 import {
   PostView,
@@ -71,7 +79,7 @@ type PostActionBarProps = {
   onPersonNote(form: NotePerson): void;
 };
 
-export function PostActionBar(props: PostActionBarProps) {
+export function PostActionBar(props: PostActionBarProps, context: any) {
   const {
     postView,
     admins,
@@ -139,7 +147,9 @@ export function PostActionBar(props: PostActionBarProps) {
           onHidePost={() => handleHidePost(props)}
           onPersonNote={props.onPersonNote}
           onViewSource={props.onViewSource}
-          onSharePost={() => handleShare(props.postView.post)}
+          onSharePost={() =>
+            handleShare(props.postView.post, setIsoData(context))
+          }
           onMarkPostAsRead={() => handleMarkPostAsRead(props)}
         />
       </div>
@@ -243,12 +253,12 @@ function crossPostBody(
   return bodyOut;
 }
 
-function handleShare(post: Post) {
+function handleShare(post: Post, isoData: IsoDataOptionalSite) {
   const { name, body, id } = post;
   share({
     title: name,
     text: body?.slice(0, 50),
-    url: `${getHttpBase()}/post/${id}`,
+    url: httpFrontendUrl(`/post/${id}`, isoData),
   });
 }
 

@@ -38,6 +38,18 @@ const PRESET_OAUTH_PROVIDERS: ProviderToEdit[] = [
     account_linking_enabled: true,
     enabled: true,
   },
+  {
+    display_name: "Github",
+    issuer: "https://github.com/",
+    authorization_endpoint: "https://github.com/login/oauth/authorize",
+    token_endpoint: "https://github.com/login/oauth/access_token",
+    userinfo_endpoint: "https://api.github.com/user",
+    id_claim: "email",
+    scopes: "user:email",
+    auto_verify_email: true,
+    account_linking_enabled: true,
+    enabled: true,
+  },
   // additional preset providers can be added here
 ];
 

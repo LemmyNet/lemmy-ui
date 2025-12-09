@@ -18,7 +18,7 @@ import {
   CommunityReport,
   ReportCombinedView,
   Post,
-  PersonContentCombinedView,
+  PostCommentCombinedView,
   PersonId,
   PersonActions,
   Person,
@@ -56,6 +56,7 @@ import {
 import { isBrowser } from "@utils/browser";
 import Toastify from "toastify-js";
 import { isAnimatedImage } from "./media";
+import { httpBackendUrl } from "./env";
 
 export function buildCommentsTree<T extends CommentSlimView>(
   comments: T[],
@@ -135,7 +136,9 @@ export function communityRSSUrl(community: Community, sort: string): string {
   // Only add the domain for non-local
   const domain = community.local ? "" : `@${hostname(community.ap_id)}`;
 
-  return `/feeds/c/${community.name}${domain}.xml${getQueryString({ sort })}`;
+  return httpBackendUrl(
+    `/feeds/c/${community.name}${domain}.xml${getQueryString({ sort })}`,
+  );
 }
 
 export function multiCommunityRSSUrl(
@@ -356,7 +359,7 @@ export function getRecipientIdFromProps(
 type PersonContentCombined = Post | Comment;
 
 export function getUncombinedPersonContent(
-  content: PersonContentCombinedView,
+  content: PostCommentCombinedView,
 ): PersonContentCombined {
   switch (content.type_) {
     case "post":
@@ -780,7 +783,7 @@ export function calculateUpvotePct(upvotes: number, downvotes: number): number {
 
 export function postViewToPersonContentCombinedView(
   pv: PostView,
-): PersonContentCombinedView {
+): PostCommentCombinedView {
   return {
     type_: "post",
     ...pv,
@@ -789,7 +792,7 @@ export function postViewToPersonContentCombinedView(
 
 export function commentViewToPersonContentCombinedView(
   cv: CommentView,
-): PersonContentCombinedView {
+): PostCommentCombinedView {
   return {
     type_: "comment",
     ...cv,

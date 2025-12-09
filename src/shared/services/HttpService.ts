@@ -1,4 +1,4 @@
-import { getHttpBase } from "@utils/env";
+import { getBackendHostExternal } from "@utils/env";
 import { LemmyHttp } from "lemmy-js-client";
 
 export const EMPTY_REQUEST = {
@@ -84,7 +84,7 @@ export class HttpService {
   #client: WrappedLemmyHttp;
 
   private constructor() {
-    const lemmyHttp = new LemmyHttp(getHttpBase());
+    const lemmyHttp = new LemmyHttp(getBackendHostExternal());
     this.#client = wrapClient(lemmyHttp);
   }
 
