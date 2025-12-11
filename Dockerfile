@@ -43,6 +43,7 @@ COPY .git .git
 
 # Set UI version 
 # If the CI is the cron, then use nightly, otherwise use the tag.
+ARG CI_PIPELINE_EVENT
 RUN \
   VERSION_OUT=$([ "$CI_PIPELINE_EVENT" = "cron" ] && echo "nightly-$(date -u +"%Y-%m-%d")" || echo $(git describe --tag)); \
   echo "export const VERSION = '$VERSION_OUT';" > "src/shared/version.ts"
