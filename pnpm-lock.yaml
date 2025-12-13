@@ -93,25 +93,25 @@ importers:
         specifier: ^23.14.0
         version: 23.16.8
       inferno:
-        specifier: ^9.0.5
+        specifier: ^9.0.7
         version: 9.0.7
       inferno-create-element:
-        specifier: ^9.0.5
+        specifier: ^9.0.7
         version: 9.0.7
       inferno-helmet:
         specifier: ^5.2.1
         version: 5.2.1(inferno@9.0.7)
       inferno-hydrate:
-        specifier: ^9.0.5
+        specifier: ^9.0.7
         version: 9.0.7
       inferno-i18next-dess:
         specifier: 0.0.2
         version: 0.0.2
       inferno-router:
-        specifier: ^9.0.5
-        version: 9.0.5(history@5.3.0)
+        specifier: ^9.0.7
+        version: 9.0.7(history@5.3.0)
       inferno-server:
-        specifier: ^9.0.5
+        specifier: ^9.0.7
         version: 9.0.7
       jwt-decode:
         specifier: ^4.0.0
@@ -2968,8 +2968,8 @@ packages:
   inferno-i18next-dess@0.0.2:
     resolution: {integrity: sha512-TkpBTZzfqgK7O8gIJ7gLB9CvP1bEOfO8OA7vUfJpd2kgGom9eoj6xbAMUPk5BNH6nBN5Y+mCaG/dInQjW5Jkug==}
 
-  inferno-router@9.0.5:
-    resolution: {integrity: sha512-67pSObxIhO3bYc5ZephySt0b+QN1WOKxW/1u2PgtF0k0miNeumLW/BRsee0oyCYHgBTI9RGrSD7n8iSMCA/XOA==}
+  inferno-router@9.0.7:
+    resolution: {integrity: sha512-K/o1YaahfSjJuBXIrFkjlq9uWxf5zzUg6VOl+KNiiGFPl+ZKHjg/bHtFvomzT98E9Ymul7YsacRYfthqqGF9OA==}
     peerDependencies:
       history: ^5.3.0
 
@@ -2988,17 +2988,11 @@ packages:
   inferno-vnode-flags@8.2.3:
     resolution: {integrity: sha512-dfC0MIwFv9PCbZCUsuk9ISejFS3fKJODC0rZ/LjxxzE+OrCk+PMwPLsUnGU6O9/jbBnPACVz1BkACDf5LWgU5Q==}
 
-  inferno-vnode-flags@9.0.5:
-    resolution: {integrity: sha512-4gx7+L84dcDwThDzCV0TtOX3dkDKvy3MR6Kh7cpz/r/bHKKiJpgOnw6PActAQJkuwK1YpOla5tP7f0V3b4INRw==}
-
   inferno-vnode-flags@9.0.7:
     resolution: {integrity: sha512-NVSeZyO5OfAfLjf7weIsQMscFw6Y+ZLHIHt3hlXTY8+bXrMJbrYm3dZXNY+RlVj+mQMHUGA03TKnRL91lDbQ1g==}
 
   inferno@8.2.3:
     resolution: {integrity: sha512-LMeRlCe+RlXw8kHCLyOWRk2PsZ3Fo4jkESyAR1g4FfPT48N78i11YhTVXW2ukCx5MFjv+qrfa73JzJWU9sg4CQ==}
-
-  inferno@9.0.5:
-    resolution: {integrity: sha512-1SHFowNePgU3jLgHqHB9owv9AmNNaAVhAE9QAOMqUDiOPh2H3sAGuQ5/6UEkc6LJSPm/ZARcvKeNOy3o9NClSw==}
 
   inferno@9.0.7:
     resolution: {integrity: sha512-RbSxa3GQrmZfTb1Vzb8DvekMPXmdGrSMDGV9i/C9KFzKAPwYZ/Hoz/UMdmWiLvzDDgiS4pChzogVSppwoMuWgw==}
@@ -8321,10 +8315,10 @@ snapshots:
       inferno-shared: 8.2.3
       inferno-vnode-flags: 8.2.3
 
-  inferno-router@9.0.5(history@5.3.0):
+  inferno-router@9.0.7(history@5.3.0):
     dependencies:
       history: 5.3.0
-      inferno: 9.0.5
+      inferno: 9.0.7
       path-to-regexp: 1.9.0
 
   inferno-server@9.0.7:
@@ -8342,20 +8336,12 @@ snapshots:
 
   inferno-vnode-flags@8.2.3: {}
 
-  inferno-vnode-flags@9.0.5: {}
-
   inferno-vnode-flags@9.0.7: {}
 
   inferno@8.2.3:
     dependencies:
       csstype: 3.2.3
       inferno-vnode-flags: 8.2.3
-      opencollective-postinstall: 2.0.3
-
-  inferno@9.0.5:
-    dependencies:
-      csstype: 3.2.3
-      inferno-vnode-flags: 9.0.5
       opencollective-postinstall: 2.0.3
 
   inferno@9.0.7:
