@@ -202,7 +202,7 @@ importers:
         version: 5.103.0(webpack-cli@6.0.1)
       webpack-cli:
         specifier: ^6.0.0
-        version: 6.0.1(webpack-bundle-analyzer@5.0.1)(webpack-dev-server@5.2.2)(webpack@5.103.0)
+        version: 6.0.1(webpack-bundle-analyzer@5.1.0)(webpack-dev-server@5.2.2)(webpack@5.103.0)
       webpack-node-externals:
         specifier: ^3.0.0
         version: 3.0.0
@@ -326,7 +326,7 @@ importers:
         version: 1.0.0
       webpack-bundle-analyzer:
         specifier: ^5.0.0
-        version: 5.0.1
+        version: 5.1.0
       webpack-dev-server:
         specifier: 5.2.2
         version: 5.2.2(webpack-cli@6.0.1)(webpack@5.103.0)
@@ -1345,8 +1345,8 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@polka/url@1.0.0-next.28':
-    resolution: {integrity: sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==}
+  '@polka/url@1.0.0-next.29':
+    resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
 
   '@popperjs/core@2.11.8':
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
@@ -3598,8 +3598,8 @@ packages:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
 
-  mrmime@2.0.0:
-    resolution: {integrity: sha512-eu38+hdgojoyq63s+yTpN4XMBdt5l8HhMhc4VKLO9KM5caLIBvUm4thi7fFaxyTmCKeNnXZ5pAlBwCUnhA09uw==}
+  mrmime@2.0.1:
+    resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
     engines: {node: '>=10'}
 
   ms@2.0.0:
@@ -4880,8 +4880,8 @@ packages:
   webidl-conversions@4.0.2:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
 
-  webpack-bundle-analyzer@5.0.1:
-    resolution: {integrity: sha512-PUp3YFOHysSw8t+13rcF+8o5SGaP/AZ5KnIF3qJfFodv4xJkmixnfcyy+LOwNadpzvyrEKpaMlewAG2sFUfdpw==}
+  webpack-bundle-analyzer@5.1.0:
+    resolution: {integrity: sha512-WAWwIoIUx4yC2AEBqXbDkcmh/LzAaenv0+nISBflP5l+XIXO9/x6poWarGA3RTrfavk9H3oWQ64Wm0z26/UGKA==}
     engines: {node: '>= 20.9.0'}
     hasBin: true
 
@@ -6314,7 +6314,7 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
-  '@polka/url@1.0.0-next.28': {}
+  '@polka/url@1.0.0-next.29': {}
 
   '@popperjs/core@2.11.8': {}
 
@@ -6765,17 +6765,17 @@ snapshots:
   '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.103.0)':
     dependencies:
       webpack: 5.103.0(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-bundle-analyzer@5.0.1)(webpack-dev-server@5.2.2)(webpack@5.103.0)
+      webpack-cli: 6.0.1(webpack-bundle-analyzer@5.1.0)(webpack-dev-server@5.2.2)(webpack@5.103.0)
 
   '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)(webpack@5.103.0)':
     dependencies:
       webpack: 5.103.0(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-bundle-analyzer@5.0.1)(webpack-dev-server@5.2.2)(webpack@5.103.0)
+      webpack-cli: 6.0.1(webpack-bundle-analyzer@5.1.0)(webpack-dev-server@5.2.2)(webpack@5.103.0)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.2)(webpack@5.103.0)':
     dependencies:
       webpack: 5.103.0(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-bundle-analyzer@5.0.1)(webpack-dev-server@5.2.2)(webpack@5.103.0)
+      webpack-cli: 6.0.1(webpack-bundle-analyzer@5.1.0)(webpack-dev-server@5.2.2)(webpack@5.103.0)
     optionalDependencies:
       webpack-dev-server: 5.2.2(webpack-cli@6.0.1)(webpack@5.103.0)
 
@@ -8929,7 +8929,7 @@ snapshots:
 
   minipass@7.1.2: {}
 
-  mrmime@2.0.0: {}
+  mrmime@2.0.1: {}
 
   ms@2.0.0: {}
 
@@ -9730,8 +9730,8 @@ snapshots:
 
   sirv@2.0.4:
     dependencies:
-      '@polka/url': 1.0.0-next.28
-      mrmime: 2.0.0
+      '@polka/url': 1.0.0-next.29
+      mrmime: 2.0.1
       totalist: 3.0.1
 
   slash@4.0.0: {}
@@ -10194,7 +10194,7 @@ snapshots:
 
   webidl-conversions@4.0.2: {}
 
-  webpack-bundle-analyzer@5.0.1:
+  webpack-bundle-analyzer@5.1.0:
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
       acorn: 8.15.0
@@ -10211,7 +10211,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  webpack-cli@6.0.1(webpack-bundle-analyzer@5.0.1)(webpack-dev-server@5.2.2)(webpack@5.103.0):
+  webpack-cli@6.0.1(webpack-bundle-analyzer@5.1.0)(webpack-dev-server@5.2.2)(webpack@5.103.0):
     dependencies:
       '@discoveryjs/json-ext': 0.6.3
       '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.103.0)
@@ -10228,7 +10228,7 @@ snapshots:
       webpack: 5.103.0(webpack-cli@6.0.1)
       webpack-merge: 6.0.1
     optionalDependencies:
-      webpack-bundle-analyzer: 5.0.1
+      webpack-bundle-analyzer: 5.1.0
       webpack-dev-server: 5.2.2(webpack-cli@6.0.1)(webpack@5.103.0)
 
   webpack-dev-middleware@7.4.2(webpack@5.103.0):
@@ -10274,7 +10274,7 @@ snapshots:
       ws: 8.18.0
     optionalDependencies:
       webpack: 5.103.0(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-bundle-analyzer@5.0.1)(webpack-dev-server@5.2.2)(webpack@5.103.0)
+      webpack-cli: 6.0.1(webpack-bundle-analyzer@5.1.0)(webpack-dev-server@5.2.2)(webpack@5.103.0)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -10329,7 +10329,7 @@ snapshots:
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     optionalDependencies:
-      webpack-cli: 6.0.1(webpack-bundle-analyzer@5.0.1)(webpack-dev-server@5.2.2)(webpack@5.103.0)
+      webpack-cli: 6.0.1(webpack-bundle-analyzer@5.1.0)(webpack-dev-server@5.2.2)(webpack@5.103.0)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
