@@ -103,7 +103,7 @@ importers:
         version: 5.2.1(inferno@9.0.5)
       inferno-hydrate:
         specifier: ^9.0.5
-        version: 9.0.5
+        version: 9.0.7
       inferno-i18next-dess:
         specifier: 0.0.2
         version: 0.0.2
@@ -2965,8 +2965,8 @@ packages:
   inferno-helmet@5.2.1:
     resolution: {integrity: sha512-9xzUGENVoz8qk67s0UhHlGNGZKG9Ia0mk5KoCNgkkIcGNhk7mNIINm7jJ5OOigVetz2DwI94jHzouTggb49AJg==}
 
-  inferno-hydrate@9.0.5:
-    resolution: {integrity: sha512-Cc9hl51gg88a4Y82VP+DylkD87rZ4euYD+8diz61oJZxXP2Bxw0v2TBvTzUfv+/nqOWXglV8qePyZDUmbQPS9A==}
+  inferno-hydrate@9.0.7:
+    resolution: {integrity: sha512-w4pbd432+Q+IubAzdJ6ylf90p/mtakgt56lvhS+gLuvKuOKt5mzcJgfKlCHX+L80/4bctGZzbFDjjKoDUOK9hA==}
 
   inferno-i18next-dess@0.0.2:
     resolution: {integrity: sha512-TkpBTZzfqgK7O8gIJ7gLB9CvP1bEOfO8OA7vUfJpd2kgGom9eoj6xbAMUPk5BNH6nBN5Y+mCaG/dInQjW5Jkug==}
@@ -8313,9 +8313,9 @@ snapshots:
     transitivePeerDependencies:
       - inferno
 
-  inferno-hydrate@9.0.5:
+  inferno-hydrate@9.0.7:
     dependencies:
-      inferno: 9.0.5
+      inferno: 9.0.7
 
   inferno-i18next-dess@0.0.2:
     dependencies:
