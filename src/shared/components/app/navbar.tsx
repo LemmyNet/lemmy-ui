@@ -78,22 +78,22 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
       this.requestNotificationPermission();
       UnreadCounterService.Instance.configure(this.props.myUserInfo);
       this.unreadNotifsCountSubscription =
-        UnreadCounterService.Instance.unreadCountSubject.subscribe(
+        UnreadCounterService.Instance.notificationCount.subscribe(
           unreadNotifsCount => this.setState({ unreadNotifsCount }),
         );
       this.unreadReportCountSubscription =
-        UnreadCounterService.Instance.unreadReportCountSubject.subscribe(
+        UnreadCounterService.Instance.unreadReportCount.subscribe(
           unreadReportCount => this.setState({ unreadReportCount }),
         );
       if (moderatesSomething(this.props.myUserInfo)) {
         this.unreadApplicationCountSubscription =
-          UnreadCounterService.Instance.unreadApplicationCountSubject.subscribe(
+          UnreadCounterService.Instance.unreadApplicationCount.subscribe(
             unreadApplicationCount => this.setState({ unreadApplicationCount }),
           );
       }
       if (moderatesPrivateCommunity(this.props.myUserInfo)) {
         this.unreadPendingFollowsSubscription =
-          UnreadCounterService.Instance.pendingFollowCountSubject.subscribe(
+          UnreadCounterService.Instance.pendingFollowCount.subscribe(
             unreadPendingFollows =>
               this.setState({
                 unreadPendingFollowsCount: unreadPendingFollows,

@@ -80,7 +80,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
     i.props.history.replace("/");
   }
 
-  UnreadCounterService.Instance.updateAll();
+  UnreadCounterService.Instance.updateUnreadCounts();
 }
 
 async function handleLoginSubmit(i: Login, event: any) {
