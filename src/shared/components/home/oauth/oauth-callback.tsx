@@ -178,5 +178,5 @@ async function handleOAuthLoginSuccess(
     i.props.history.replace("/");
   }
 
-  UnreadCounterService.Instance.updateAll();
+  UnreadCounterService.Instance.updateUnreadCounts();
 }

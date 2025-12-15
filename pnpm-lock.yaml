@@ -117,8 +117,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-post-comment-combined-view.0
-        version: 1.0.0-post-comment-combined-view.0
+        specifier: 1.0.0-merge-count-endpoints.4
+        version: 1.0.0-merge-count-endpoints.4
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -3373,8 +3373,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  lemmy-js-client@1.0.0-post-comment-combined-view.0:
-    resolution: {integrity: sha512-X5c9sfGF+9Q3fqjFvTmAi3RkRtR1d8aDgWgKpKG35/lKBHfJC0ANJLZAUUVAwqmDwB1Jy+SBmAkm6KjXHxOYBQ==}
+  lemmy-js-client@1.0.0-merge-count-endpoints.4:
+    resolution: {integrity: sha512-W4rB81YYDEENF1ocbRP/3/Bhrp2JcLN4/eapCpb8qvI1RHYT8fickdIbY6R+C9A7SfY4LyBo8GtAV81RMT+DiA==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8697,7 +8697,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  lemmy-js-client@1.0.0-post-comment-combined-view.0:
+  lemmy-js-client@1.0.0-merge-count-endpoints.4:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:
