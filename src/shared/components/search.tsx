@@ -488,15 +488,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     this.search(nextProps);
   }
 
-  componentDidUpdate(prevProps: SearchRouteProps) {
-    if (
-      this.props.location.key !== prevProps.location.key &&
-      this.props.history.action !== "POP"
-    ) {
-      this.searchInput.current?.select();
-    }
-  }
-
   fetchDefaultCommunitiesToken?: symbol;
   async fetchDefaultCommunities({
     communityId,

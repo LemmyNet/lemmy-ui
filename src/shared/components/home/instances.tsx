@@ -116,15 +116,6 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     }
   }
 
-  componentDidUpdate(prevProps: InstancesRouteProps) {
-    if (
-      this.props.location.key !== prevProps.location.key &&
-      this.props.history.action !== "POP"
-    ) {
-      this.searchInput.current?.select();
-    }
-  }
-
   componentDidMount() {
     if (this.props.history.action !== "POP" || this.state.isIsomorphic) {
       this.searchInput.current?.select();
