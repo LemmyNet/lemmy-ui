@@ -1,6 +1,6 @@
 {
   "name": "lemmy-ui",
-  "version": "1.0.0-try-arm-build.0",
+  "version": "1.0.0-try-arm-build.1",
   "description": "An isomorphic UI for lemmy",
   "repository": "https://github.com/LemmyNet/lemmy-ui",
   "license": "AGPL-3.0",
