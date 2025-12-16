@@ -73,7 +73,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
     rm -f /etc/apt/apt.conf.d/docker-clean \
     && apt-get update \
     && apt-get -y --no-install-recommends install \
-          curl python3 gcc wget git libvips-dev pkg-config python3-pip make g++
+           curl
 
 COPY --from=builder --chown=node:node /usr/src/app/dist /app/dist
 COPY --from=builder --chown=node:node /usr/src/app/node_modules /app/node_modules
