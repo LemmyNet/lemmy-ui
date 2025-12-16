@@ -18,7 +18,7 @@ type BaseProps = {
   imageSrc?: string;
   rounded?: boolean;
   disabled: boolean;
-  onImageChange: (imageSrc?: string) => void;
+  onImageChange(imageSrc?: string): void;
   noConfirmation?: boolean;
 };
 
