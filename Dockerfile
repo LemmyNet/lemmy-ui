@@ -62,7 +62,7 @@ RUN rm -rf ./node_modules/import-sort-parser-typescript
 RUN rm -rf ./node_modules/typescript
 RUN rm -rf ./node_modules/npm
 
-FROM node:alpine AS runner
+FROM node:current-slim AS runner
 
 ARG TARGETARCH
 
