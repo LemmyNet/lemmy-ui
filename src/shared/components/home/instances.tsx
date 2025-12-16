@@ -262,7 +262,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
             className="form-control flex-initial"
             placeholder={`${I18NextService.i18n.t("search")}...`}
             aria-label={I18NextService.i18n.t("search")}
-            defaultValue={this.props.domain_filter}
+            defaultValue={this.props.domain_filter ?? ""}
             ref={this.searchInput}
           />
           <button type="submit" className="btn btn-outline-secondary ms-1">
