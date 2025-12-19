@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:alpine AS builder
+FROM node:current-slim AS builder
 
 ARG TARGETARCH
 
@@ -8,14 +8,17 @@ ARG TARGETARCH
 # Done for two reasons:
 # - libvips binaries are not available for ARM32
 # - It can break depending on the CPU (https://github.com/LemmyNet/lemmy-ui/issues/1566)
-RUN \
-  --mount=type=cache,target=/var/cache/apk,id=apk-${TARGETARCH},sharing=private \
-  set -x && apk update && apk upgrade && apk add curl python3 build-base gcc wget git vips-dev pkgconfig py3-pip make g++
+# Caching as per https://stackoverflow.com/a/72851168
+RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+    && apt-get update \
+    && apt-get -y --no-install-recommends install \
+          curl python3 gcc wget git libvips-dev pkg-config python3-pip make g++
 
 # Install node-gyp and corepack
-RUN \
-  --mount=type=cache,target=/root/.npm \
-  npm install -g -f node-gyp corepack
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g -f node-gyp corepack
 
 # Enable corepack to use pnpm
 RUN corepack enable
@@ -59,15 +62,18 @@ RUN rm -rf ./node_modules/import-sort-parser-typescript
 RUN rm -rf ./node_modules/typescript
 RUN rm -rf ./node_modules/npm
 
-FROM node:alpine AS runner
+FROM node:current-slim AS runner
 
 ARG TARGETARCH
 
 ENV NODE_ENV=production
 
-RUN \
-  --mount=type=cache,target=/var/cache/apk,id=apk-${TARGETARCH},sharing=private \
-  apk update && apk add curl vips-cpp
+RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+    && apt-get update \
+    && apt-get -y --no-install-recommends install \
+           curl
 
 COPY --from=builder --chown=node:node /usr/src/app/dist /app/dist
 COPY --from=builder --chown=node:node /usr/src/app/node_modules /app/node_modules
