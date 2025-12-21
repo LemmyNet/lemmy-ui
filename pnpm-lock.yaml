@@ -112,7 +112,7 @@ importers:
         version: 9.0.7(history@5.3.0)
       inferno-server:
         specifier: ^9.0.7
-        version: 9.0.9
+        version: 9.0.10
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
@@ -2962,8 +2962,8 @@ packages:
     peerDependencies:
       history: ^5.3.0
 
-  inferno-server@9.0.9:
-    resolution: {integrity: sha512-tVZ6EeR5/Qkw7I00HiE4/aGO95NkjOxyGQPK4fPPs5f8PAh9t4pX8c6SJk8RAL1VAmWBdNVFXz7Op2J+Hl7AOw==}
+  inferno-server@9.0.10:
+    resolution: {integrity: sha512-AJynDvv8bf0b+afoAbMU9SD6ve3wyADOUdfPcXsi/+m5Nc4vZU3DZjcVpalx3q0OXEFvk8vYEkBXW7s8Skc4LA==}
     engines: {node: '>=8'}
 
   inferno-shared@8.2.3:
@@ -2983,9 +2983,6 @@ packages:
   inferno-vnode-flags@9.0.7:
     resolution: {integrity: sha512-NVSeZyO5OfAfLjf7weIsQMscFw6Y+ZLHIHt3hlXTY8+bXrMJbrYm3dZXNY+RlVj+mQMHUGA03TKnRL91lDbQ1g==}
 
-  inferno-vnode-flags@9.0.9:
-    resolution: {integrity: sha512-t069PXXMO475VZo8F4Hx79D9o/NakvGN7u4VfmUviVvhI51W2YM0P6OprgT7jxrr0KCsfLYCpDwhAEi2m93sCg==}
-
   inferno@8.2.3:
     resolution: {integrity: sha512-LMeRlCe+RlXw8kHCLyOWRk2PsZ3Fo4jkESyAR1g4FfPT48N78i11YhTVXW2ukCx5MFjv+qrfa73JzJWU9sg4CQ==}
 
@@ -2994,9 +2991,6 @@ packages:
 
   inferno@9.0.7:
     resolution: {integrity: sha512-RbSxa3GQrmZfTb1Vzb8DvekMPXmdGrSMDGV9i/C9KFzKAPwYZ/Hoz/UMdmWiLvzDDgiS4pChzogVSppwoMuWgw==}
-
-  inferno@9.0.9:
-    resolution: {integrity: sha512-Xbh3JsbhoDibkz3Jd4f4ivp+HFj9//zfT8Rp8fA2BIzDBWVE1uk0ZhqCeoPAISFwR6fIEE8fWgC8TIIDVk1qEg==}
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
@@ -8297,9 +8291,9 @@ snapshots:
       inferno: 9.0.7
       path-to-regexp: 1.9.0
 
-  inferno-server@9.0.9:
+  inferno-server@9.0.10:
     dependencies:
-      inferno: 9.0.9
+      inferno: 9.0.10
 
   inferno-shared@8.2.3: {}
 
@@ -8315,8 +8309,6 @@ snapshots:
   inferno-vnode-flags@9.0.10: {}
 
   inferno-vnode-flags@9.0.7: {}
-
-  inferno-vnode-flags@9.0.9: {}
 
   inferno@8.2.3:
     dependencies:
@@ -8334,12 +8326,6 @@ snapshots:
     dependencies:
       csstype: 3.2.3
       inferno-vnode-flags: 9.0.7
-      opencollective-postinstall: 2.0.3
-
-  inferno@9.0.9:
-    dependencies:
-      csstype: 3.2.3
-      inferno-vnode-flags: 9.0.9
       opencollective-postinstall: 2.0.3
 
   inflight@1.0.6:
