@@ -7,6 +7,7 @@ import { relTags } from "@utils/config";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
 import { isCakeDay } from "@utils/date";
+import type { Badge } from "@utils/types";
 
 interface PersonListingProps {
   person: Person;
@@ -18,6 +19,7 @@ interface PersonListingProps {
   showApubName?: boolean;
   badgeForPostCreator?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  badges?: Badge[];
 }
 
 export function PersonListing({
@@ -29,6 +31,7 @@ export function PersonListing({
   hideAvatar,
   badgeForPostCreator,
   myUserInfo,
+  badges,
 }: PersonListingProps) {
   const name = useApubName ? person.name : (person.display_name ?? person.name);
   const { link, serverStr } = personLink(person, realLink);
@@ -66,6 +69,20 @@ export function PersonListing({
             myUserInfo={myUserInfo}
           />
         </a>
+      )}
+
+      {badges && badges.length > 0 && (
+        <span className="person-badges ms-2">
+          {badges.map(badge => (
+            <img
+              key={badge.id}
+              src={badge.image_url}
+              alt={badge.name}
+              title={badge.description || badge.name}
+              className="person-badge"
+            />
+          ))}
+        </span>
       )}
 
       {isCakeDay(person.published_at) && <CakeDay creatorName={name} />}

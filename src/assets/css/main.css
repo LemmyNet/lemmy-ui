@@ -515,3 +515,27 @@ em-emoji-picker {
   mask: var(--mask);
   max-height: 100px;
 }
+
+/* Badge styling */
+.person-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  vertical-align: middle;
+}
+
+.person-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  vertical-align: middle;
+  cursor: help;
+  object-fit: contain;
+}
+
+.badge-management .badge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+

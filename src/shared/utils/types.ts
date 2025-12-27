@@ -13,6 +13,61 @@ import {
 import { RequestState } from "@services/HttpService";
 import { Match } from "inferno-router/dist/Route";
 
+// Badge types - extending lemmy-js-client types
+export interface Badge {
+  id: number;
+  name: string;
+  description?: string;
+  image_url: string;
+  is_assignable_by_mods: boolean;
+  is_self_selectable: boolean;
+  published: string;
+  updated?: string;
+}
+
+export interface CreateBadge {
+  name: string;
+  description?: string;
+  image_url: string;
+  is_assignable_by_mods: boolean;
+  is_self_selectable: boolean;
+}
+
+export interface EditBadge {
+  id: number;
+  name?: string;
+  description?: string;
+  image_url?: string;
+  is_assignable_by_mods?: boolean;
+  is_self_selectable?: boolean;
+}
+
+export interface BadgeResponse {
+  badge: Badge;
+}
+
+export interface ListBadgesResponse {
+  badges: Badge[];
+}
+
+export interface AssignBadge {
+  person_id: number;
+  badge_id: number;
+}
+
+export interface RemoveBadge {
+  person_id: number;
+  badge_id: number;
+}
+
+export interface BadgeActionResponse {
+  success: boolean;
+}
+
+export interface PersonViewWithBadges extends PersonView {
+  badges?: Badge[];
+}
+
 /**
  * This contains serialized data, it needs to be deserialized before use.
  */

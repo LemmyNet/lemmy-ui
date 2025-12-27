@@ -1,5 +1,15 @@
 import { getBackendHostExternal } from "@utils/env";
 import { LemmyHttp } from "lemmy-js-client";
+import type {
+  Badge,
+  BadgeResponse,
+  ListBadgesResponse,
+  CreateBadge,
+  EditBadge,
+  AssignBadge,
+  RemoveBadge,
+  BadgeActionResponse,
+} from "@utils/types";
 
 export const EMPTY_REQUEST = {
   state: "empty",
@@ -94,5 +104,125 @@ export class HttpService {
 
   public static get client() {
     return this.#Instance.#client;
+  }
+
+  // Badge API methods
+  public static async listBadges(): Promise<RequestState<ListBadgesResponse>> {
+    try {
+      const response = await fetch(
+        `${getBackendHostExternal()}/api/v3/badge/list`,
+        {
+          method: "GET",
+          headers: this.#Instance.#getHeaders(),
+        },
+      );
+      const data = await response.json();
+      return { state: "success", data };
+    } catch (err) {
+      return { state: "failed", err: err as Error };
+    }
+  }
+
+  public static async createBadge(
+    form: CreateBadge,
+  ): Promise<RequestState<BadgeResponse>> {
+    try {
+      const response = await fetch(
+        `${getBackendHostExternal()}/api/v3/badge`,
+        {
+          method: "POST",
+          headers: this.#Instance.#getHeaders(),
+          body: JSON.stringify(form),
+        },
+      );
+      const data = await response.json();
+      return { state: "success", data };
+    } catch (err) {
+      return { state: "failed", err: err as Error };
+    }
+  }
+
+  public static async updateBadge(
+    form: EditBadge,
+  ): Promise<RequestState<BadgeResponse>> {
+    try {
+      const response = await fetch(
+        `${getBackendHostExternal()}/api/v3/badge`,
+        {
+          method: "PUT",
+          headers: this.#Instance.#getHeaders(),
+          body: JSON.stringify(form),
+        },
+      );
+      const data = await response.json();
+      return { state: "success", data };
+    } catch (err) {
+      return { state: "failed", err: err as Error };
+    }
+  }
+
+  public static async deleteBadge(
+    badge_id: number,
+  ): Promise<RequestState<BadgeActionResponse>> {
+    try {
+      const response = await fetch(
+        `${getBackendHostExternal()}/api/v3/badge`,
+        {
+          method: "DELETE",
+          headers: this.#Instance.#getHeaders(),
+          body: JSON.stringify({ id: badge_id }),
+        },
+      );
+      const data = await response.json();
+      return { state: "success", data };
+    } catch (err) {
+      return { state: "failed", err: err as Error };
+    }
+  }
+
+  public static async assignBadge(
+    person_id: number,
+    badge_id: number,
+  ): Promise<RequestState<BadgeActionResponse>> {
+    try {
+      const response = await fetch(
+        `${getBackendHostExternal()}/api/v3/badge/assign`,
+        {
+          method: "POST",
+          headers: this.#Instance.#getHeaders(),
+          body: JSON.stringify({ person_id, badge_id }),
+        },
+      );
+      const data = await response.json();
+      return { state: "success", data };
+    } catch (err) {
+      return { state: "failed", err: err as Error };
+    }
+  }
+
+  public static async removeBadge(
+    person_id: number,
+    badge_id: number,
+  ): Promise<RequestState<BadgeActionResponse>> {
+    try {
+      const response = await fetch(
+        `${getBackendHostExternal()}/api/v3/badge/remove`,
+        {
+          method: "POST",
+          headers: this.#Instance.#getHeaders(),
+          body: JSON.stringify({ person_id, badge_id }),
+        },
+      );
+      const data = await response.json();
+      return { state: "success", data };
+    } catch (err) {
+      return { state: "failed", err: err as Error };
+    }
+  }
+
+  #getHeaders(): HeadersInit {
+    return {
+      "Content-Type": "application/json",
+    };
   }
 }
