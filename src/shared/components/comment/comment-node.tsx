@@ -184,9 +184,24 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const node = this.props.node;
     const {
       comment_actions: { vote_is_upvote: myVoteIsUpvote } = {},
-      comment: { id, published_at, distinguished, updated_at, child_count },
+      comment: {
+        id,
+        creator_id,
+        published_at,
+        distinguished,
+        updated_at,
+        child_count,
+        deleted,
+      },
       comment,
     } = this.commentView;
+
+    // Hide deleted comment, unless it has children or was created by me.
+    const is_my_comment =
+      this.props.myUserInfo?.local_user_view.person.id === creator_id;
+    if (deleted && child_count === 0 && !is_my_comment) {
+      return;
+    }
 
     const moreRepliesBorderColor = node.view.depth
       ? colorList[node.view.depth % colorList.length]
