@@ -1,4 +1,5 @@
-const imageRegex = /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp))/;
+const imageRegex =
+  /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp|avif))/;
 
 export function isImage(url: string) {
   return imageRegex.test(url);
