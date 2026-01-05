@@ -71,7 +71,7 @@
     "inferno-helmet": "^5.2.1",
     "inferno-hydrate": "^9.0.7",
     "inferno-i18next-dess": "0.0.2",
-    "inferno-router": "^9.0.7",
+    "inferno-router": "^9.0.10",
     "inferno-server": "^9.0.7",
     "jwt-decode": "^4.0.0",
     "lemmy-js-client": "1.0.0-merge-count-endpoints.4",
