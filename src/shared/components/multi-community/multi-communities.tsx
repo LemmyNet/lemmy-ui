@@ -44,6 +44,7 @@ import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { TableHr } from "@components/common/tables";
 import { MultiCommunityLink } from "./multi-community-link";
 import { MultiCommunityListingTypeSelect } from "@components/common/multi-community-listing-type-select";
+import { CreateMultiCommunityButton } from "@components/common/content-actions/create-item-buttons";
 
 type MultiCommunitiesData = RouteDataResponse<{
   listMultiCommunitiesRes: PagedResponse<MultiCommunityView>;
@@ -198,6 +199,8 @@ export class MultiCommunities extends Component<RouteProps, State> {
 
   render() {
     const { listingType, sort } = this.props;
+    const myUserInfo = this.isoData.myUserInfo;
+
     return (
       <div className="multi-communities container-lg">
         <HtmlTags
@@ -214,15 +217,18 @@ export class MultiCommunities extends Component<RouteProps, State> {
                 type_={listingType}
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
-                myUserInfo={this.isoData.myUserInfo}
+                myUserInfo={myUserInfo}
                 onChange={val => handleListingTypeChange(this, val)}
               />
             </div>
-            <div className="col-auto me-auto">
+            <div className="col-auto">
               <MultiCommunitiesSortSelect
                 current={sort}
                 onChange={val => handleSortChange(this, val)}
               />
+            </div>
+            <div className="col-auto me-auto">
+              <CreateMultiCommunityButton myUserInfo={myUserInfo} />
             </div>
             <div className="col-auto">{this.searchForm()}</div>
           </div>
