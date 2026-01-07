@@ -46,6 +46,7 @@ import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { TableHr } from "@components/common/tables";
 import { NoOptionI18nKeys } from "i18next";
+import { CreateCommunityButton } from "@components/common/content-actions/create-item-buttons";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: PagedResponse<CommunityView>;
@@ -217,6 +218,9 @@ export class Communities extends Component<
 
   render() {
     const { listingType, sort } = this.props;
+    const myUserInfo = this.isoData.myUserInfo;
+    const localSite = this.isoData.siteRes.site_view.local_site;
+
     return (
       <div className="communities container-lg">
         <HtmlTags
@@ -233,17 +237,23 @@ export class Communities extends Component<
                 type_={listingType}
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
-                myUserInfo={this.isoData.myUserInfo}
+                myUserInfo={myUserInfo}
                 onChange={val => handleListingTypeChange(this, val)}
               />
             </div>
-            <div className="col-auto me-auto">
+            <div className="col-auto">
               <CommunitiesSortSelect
                 current={sort}
                 onChange={val => handleSortChange(this, val)}
               />
             </div>
-            <div className="col">
+            <div className="col-auto">
+              <CreateCommunityButton
+                localSite={localSite}
+                myUserInfo={myUserInfo}
+              />
+            </div>
+            <div className="col-auto me-auto">
               <button
                 className="btn btn-secondary"
                 onClick={() => handleVisitRandomCommunity(this)}

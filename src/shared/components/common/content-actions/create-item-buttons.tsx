@@ -52,13 +52,16 @@ export function CreatePostButton({ communityView }: CreatePostButtonProps) {
 type CreateCommunityButtonProps = {
   localSite?: LocalSite;
   myUserInfo: MyUserInfo | undefined;
+  blockButton?: boolean;
 };
 export function CreateCommunityButton({
   localSite,
   myUserInfo,
+  blockButton,
 }: CreateCommunityButtonProps) {
-  const classes = classNames("btn btn-secondary d-block mb-2 w-100", {
+  const classes = classNames("btn btn-secondary", {
     "no-click": !(localSite && canCreateCommunity(localSite, myUserInfo)),
+    "d-block mb-2 w-100": blockButton,
   });
 
   return (
@@ -70,12 +73,15 @@ export function CreateCommunityButton({
 
 type CreateMultiCommunityButtonProps = {
   myUserInfo: MyUserInfo | undefined;
+  blockButton?: boolean;
 };
 export function CreateMultiCommunityButton({
   myUserInfo,
+  blockButton,
 }: CreateMultiCommunityButtonProps) {
-  const classes = classNames("btn btn-secondary d-block mb-2 w-100", {
+  const classes = classNames("btn btn-secondary", {
     "no-click": userNotLoggedInOrBanned(myUserInfo),
+    "d-block mb-2 w-100": blockButton,
   });
 
   return (
