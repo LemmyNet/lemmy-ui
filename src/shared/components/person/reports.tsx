@@ -836,7 +836,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   }
 
   update() {
-    UnreadCounterService.Instance.updateReports();
+    UnreadCounterService.Instance.updateUnreadCounts();
     this.refetch();
   }
 }

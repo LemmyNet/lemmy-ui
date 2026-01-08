@@ -59,7 +59,7 @@ if (process.env["NODE_ENV"] === "development") {
   server.use(
     getStaticDir(),
     express.static(serverPath, {
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
       immutable: true,
     }),
   );

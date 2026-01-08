@@ -39,10 +39,6 @@ export function setCacheControl(
   res: Response,
   next: NextFunction,
 ) {
-  if (process.env.NODE_ENV !== "production") {
-    return next();
-  }
-
   let caching: string;
 
   // Only allow caching for success responses

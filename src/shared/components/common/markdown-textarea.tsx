@@ -625,21 +625,35 @@ export class MarkdownTextArea extends Component<
     this.simpleSurroundBeforeAfter(`${chars}`, "", "");
   }
 
+  simpleSurroundEscapeWords(chars: string) {
+    this.simpleSurroundBeforeAfter(chars, chars, "", true);
+  }
+
   simpleSurroundBeforeAfter(
     beforeChars: string,
     afterChars: string,
     emptyChars = "___",
+    escapeWords = false,
   ) {
     const content = this.state.content ?? "";
     if (!this.state.content) {
       this.setState({ content: "" });
     }
+
     const textarea: any = document.getElementById(this.id);
     const start: number = textarea.selectionStart;
     const end: number = textarea.selectionEnd;
 
+    let escapeSpaces = 0;
+
     if (start !== end) {
-      const selectedText = content?.substring(start, end);
+      let selectedText = content?.substring(start, end);
+
+      if (escapeWords) {
+        escapeSpaces = (selectedText.match(/ /g) || []).length;
+        selectedText = selectedText.replaceAll(" ", "\\ ");
+      }
+
       this.setState({
         content: `${content?.substring(
           0,
@@ -658,12 +672,12 @@ export class MarkdownTextArea extends Component<
     if (start !== end) {
       textarea.setSelectionRange(
         start + beforeChars.length,
-        end + afterChars.length,
+        end + afterChars.length + escapeSpaces,
       );
     } else {
       textarea.setSelectionRange(
         start + beforeChars.length,
-        end + emptyChars.length + afterChars.length,
+        end + emptyChars.length + afterChars.length + escapeSpaces,
       );
     }
 
@@ -713,12 +727,12 @@ export class MarkdownTextArea extends Component<
 
   handleInsertSubscript(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleSurround("~");
+    i.simpleSurroundEscapeWords("~");
   }
 
   handleInsertSuperscript(i: MarkdownTextArea, event: any) {
     event.preventDefault();
-    i.simpleSurround("^");
+    i.simpleSurroundEscapeWords("^");
   }
 
   simpleInsert(chars: string) {

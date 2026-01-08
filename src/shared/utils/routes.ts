@@ -301,6 +301,7 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     component: Instances,
     fetchInitialData: Instances.fetchInitialData,
     getQueryParams: getInstancesQueryParams,
+    mountedSameRouteNavKey: "instances",
   } as InstancesFetchConfig,
   { path: `/legal`, component: Legal },
   {
