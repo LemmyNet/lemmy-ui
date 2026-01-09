@@ -912,13 +912,8 @@ export class Post extends Component<PostRouteProps, PostState> {
           allLanguages={this.state.siteRes.all_languages}
           siteLanguages={this.state.siteRes.discussion_languages}
           myUserInfo={this.isoData.myUserInfo}
-          onDeleteCommunity={this.handleDeleteCommunityClick}
-          onLeaveModTeam={this.handleAddModToCommunity}
           onFollowCommunity={this.handleFollow}
-          onRemoveCommunity={this.handleModRemoveCommunity}
-          onPurgeCommunity={this.handlePurgeCommunity}
           onBlockCommunity={this.handleBlockCommunity}
-          onEditCommunity={this.handleEditCommunity}
           onUpdateCommunityNotifs={this.handleUpdateCommunityNotifs}
         />
       );
