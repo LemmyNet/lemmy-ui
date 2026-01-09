@@ -172,7 +172,7 @@ RBLIND THEME
   --bs-focus-ring-opacity: 0.25;
   --bs-focus-ring-color: var(--rblind-focus-indicator);
   --bs-form-valid-color: #f1641e;
-  --bs-form-valid-border-color: #f1641e;
+  --bs-form-valid-border-color: #00bc8c;
   --bs-form-invalid-color: #530d1a;
   --bs-form-invalid-border-color: #530d1a;
 }

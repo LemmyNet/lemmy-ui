@@ -172,7 +172,7 @@ hr.my-3 {
   --bs-focus-ring-opacity: 0.25;
   --bs-focus-ring-color: rgba(0, 123, 255, 0.25);
   --bs-form-valid-color: #f1641e;
-  --bs-form-valid-border-color: #f1641e;
+  --bs-form-valid-border-color: #00bc8c;
   --bs-form-invalid-color: #d8486a;
   --bs-form-invalid-border-color: #d8486a;
 }
