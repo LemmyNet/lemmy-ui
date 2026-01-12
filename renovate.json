@@ -3,5 +3,6 @@
   "extends": ["config:recommended"],
   "schedule": ["every weekend"],
   "automerge": true,
+  "rebaseWhen": "conflicted",
   "ignoreDeps": ["lemmy-js-client", "i18next"]
 }

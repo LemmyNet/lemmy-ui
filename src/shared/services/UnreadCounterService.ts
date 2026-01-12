@@ -2,34 +2,26 @@ import { HttpService } from "@services/index";
 import { updateUnreadCountsInterval } from "@utils/config";
 import { poll } from "@utils/helpers";
 import { myAuth } from "@utils/app";
-import { amAdmin, moderatesSomething } from "@utils/roles";
 import { BehaviorSubject } from "rxjs";
 import { MyUserInfo } from "lemmy-js-client";
 
 /**
- * Service to poll and keep track of unread messages / notifications.
+ * Service to poll and keep track of unread notifications count which is shown in the navbar.
  */
 export class UnreadCounterService {
-  // fetched by HttpService.getUnreadCount, appear in notifications
-  public unreadCountSubject: BehaviorSubject<number> =
+  public notificationCount: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
-  // fetched by HttpService.getReportCount, appear in report page
-  public unreadReportCountSubject: BehaviorSubject<number> =
+  public unreadReportCount: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
-  // fetched by HttpService.getUnreadRegistrationApplicationCount, appear in registration application page
-  public unreadApplicationCountSubject: BehaviorSubject<number> =
+  public unreadApplicationCount: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
-  // fetched by HttpService.getCommunityPendingFollowsCount, appear in pending follows page
-  public pendingFollowCountSubject: BehaviorSubject<number> =
+  public pendingFollowCount: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
   private enableUnreadCounts: boolean = false;
-  private enableReports: boolean = false;
-  private enableApplications: boolean = false;
-  private polling: boolean = false;
 
   static #instance: UnreadCounterService;
 
@@ -45,59 +37,26 @@ export class UnreadCounterService {
 
   public configure(myUserInfo: MyUserInfo | undefined) {
     this.enableUnreadCounts = !!myUserInfo;
-    this.enableReports = moderatesSomething(myUserInfo);
-    this.enableApplications = amAdmin(myUserInfo);
-    if (!this.polling) {
-      this.polling = true;
-      poll(async () => this.updateAll(), updateUnreadCountsInterval);
-    }
+    poll(async () => this.updateUnreadCounts(), updateUnreadCountsInterval);
   }
 
   public async updateUnreadCounts() {
     if (this.shouldUpdate && this.enableUnreadCounts) {
-      const unreadCountRes = await HttpService.client.getUnreadCount();
+      const unreadCountRes = await HttpService.client.getUnreadCounts();
       if (unreadCountRes.state === "success") {
-        this.unreadCountSubject.next(unreadCountRes.data.count);
+        const data = unreadCountRes.data;
+        this.notificationCount.next(data.notification_count);
+        if (data.report_count) {
+          this.unreadReportCount.next(data.report_count);
+        }
+        if (data.pending_follow_count) {
+          this.pendingFollowCount.next(data.pending_follow_count);
+        }
+        if (data.registration_application_count) {
+          this.unreadApplicationCount.next(data.registration_application_count);
+        }
       }
     }
-  }
-
-  public async updateReports() {
-    if (this.shouldUpdate && this.enableReports) {
-      const reportCountRes = await HttpService.client.getReportCount({});
-      if (reportCountRes.state === "success") {
-        this.unreadReportCountSubject.next(reportCountRes.data.count);
-      }
-    }
-  }
-
-  public async updateApplications() {
-    if (this.shouldUpdate && this.enableApplications) {
-      const unreadApplicationsRes =
-        await HttpService.client.getUnreadRegistrationApplicationCount();
-      if (unreadApplicationsRes.state === "success") {
-        this.unreadApplicationCountSubject.next(
-          unreadApplicationsRes.data.registration_applications,
-        );
-      }
-    }
-  }
-
-  public async updatePendingFollows() {
-    if (this.shouldUpdate) {
-      const pendingFollowsRes =
-        await HttpService.client.getCommunityPendingFollowsCount();
-      if (pendingFollowsRes.state === "success") {
-        this.pendingFollowCountSubject.next(pendingFollowsRes.data.count);
-      }
-    }
-  }
-
-  public async updateAll() {
-    this.updateUnreadCounts();
-    this.updateReports();
-    this.updateApplications();
-    this.updatePendingFollows();
   }
 
   static get Instance() {

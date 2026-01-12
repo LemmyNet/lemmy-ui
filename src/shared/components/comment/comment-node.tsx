@@ -184,9 +184,19 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     const node = this.props.node;
     const {
       comment_actions: { vote_is_upvote: myVoteIsUpvote } = {},
-      comment: { id, published_at, distinguished, updated_at, child_count },
+      comment: {
+        id,
+        published_at,
+        distinguished,
+        updated_at,
+        child_count,
+        deleted,
+      },
       comment,
     } = this.commentView;
+
+    // Hide deleted comment, unless it has children or was created by me.
+    const hideDeleted = deleted && child_count === 0 && !this.myComment;
 
     const moreRepliesBorderColor = node.view.depth
       ? colorList[node.view.depth % colorList.length]
@@ -204,199 +214,205 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     );
 
     return (
-      <li className="comment list-unstyled">
-        <article
-          id={`comment-${id}`}
-          className={classNames(`details comment-node py-2`, {
-            "border-top border-light": !this.props.noBorder,
-            mark: this.isCommentNew || distinguished,
-          })}
-        >
-          <div className="ms-2">
-            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
-            <div
-              className="row text-muted small"
-              onClick={linkEvent(this, handleCommentCollapse)}
-              aria-label={this.expandText}
-              role="group"
-            >
-              <div className="col flex-grow-1">
-                <CommentHeader
-                  node={this.props.node}
-                  showCommunity={this.props.showCommunity}
-                  showContext={this.props.showContext}
-                  isPostCreator={this.isPostCreator}
-                  allLanguages={this.props.allLanguages}
-                  myUserInfo={this.props.myUserInfo}
-                />
-              </div>
-
-              <div className="col-auto">
-                <MomentTime
-                  published={published_at}
-                  updated={updated_at}
-                  showAgo={false}
-                />
-              </div>
-            </div>
-            {/* end of user row */}
-            {this.state.showEdit && (
-              <CommentForm
-                node={node}
-                edit
-                onReplyCancel={() => handleReplyCancel(this)}
-                disabled={!this.enableCommentForm}
-                focus
-                allLanguages={this.props.allLanguages}
-                siteLanguages={this.props.siteLanguages}
-                containerClass="comment-comment-container"
-                myUserInfo={this.props.myUserInfo}
-                onEditComment={form => handleEditComment(this, form)}
-                onCreateComment={() => {}}
-              />
-            )}
-            {!this.state.showEdit && !this.state.collapsed && (
-              <>
-                <CommentContent
-                  comment={comment}
-                  viewSource={this.state.viewSource}
-                  hideImages={hideImages_}
-                />
-                <div className="comment-bottom-btns d-flex justify-content-end justify-content-md-start column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
-                  <>
-                    <VoteButtonsCompact
-                      voteContentType={"comment"}
-                      id={id}
-                      onVote={this.props.onCommentVote}
-                      myUserInfo={this.props.myUserInfo}
-                      localSite={this.props.localSite}
-                      subject={this.commentView.comment}
-                      myVoteIsUpvote={myVoteIsUpvote}
-                      disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
-                    />
-                    <CommentActionDropdown
-                      commentView={this.commentView}
-                      community={this.community}
-                      admins={this.props.admins}
-                      myUserInfo={this.props.myUserInfo}
-                      viewSource={this.state.viewSource}
-                      showContext={this.props.showContext}
-                      onReply={() => handleReplyClick(this)}
-                      onReport={reason => handleReportComment(this, reason)}
-                      onBlockPerson={() => handleBlockPerson(this)}
-                      onBlockCommunity={() => handleBlockCommunity(this)}
-                      onSave={() => handleSaveComment(this)}
-                      onEdit={() => handleEditClick(this)}
-                      onDelete={() => handleDeleteComment(this)}
-                      onDistinguish={() => handleDistinguishComment(this)}
-                      onRemove={reason => handleRemoveComment(this, reason)}
-                      onBanFromCommunity={form =>
-                        handleBanFromCommunity(this, form)
-                      }
-                      onAppointCommunityMod={() =>
-                        handleAppointCommunityMod(this)
-                      }
-                      onTransferCommunity={() => handleTransferCommunity(this)}
-                      onPurgeUser={reason => handlePurgePerson(this, reason)}
-                      onPurgeContent={reason =>
-                        handlePurgeComment(this, reason)
-                      }
-                      onBanFromSite={form => handleBanFromSite(this, form)}
-                      onAppointAdmin={() => handleAppointAdmin(this)}
-                      onPersonNote={form => handlePersonNote(this, form)}
-                      onLock={reason => handleModLock(this, reason)}
-                      onViewSource={() => handleToggleViewSource(this)}
-                    />
-                  </>
-                </div>
-              </>
-            )}
-          </div>
-        </article>
-        {showMoreChildren && (
-          <div
-            className={classNames("details ms-1 comment-node py-2", {
+      !hideDeleted && (
+        <li className="comment list-unstyled">
+          <article
+            id={`comment-${id}`}
+            className={classNames(`details comment-node py-2`, {
               "border-top border-light": !this.props.noBorder,
+              mark: this.isCommentNew || distinguished,
             })}
-            style={`border-left: var(--comment-border-width) ${moreRepliesBorderColor} solid !important`}
           >
-            <button
-              className="btn btn-sm btn-link text-muted"
-              onClick={() => handleFetchChildren(this)}
-            >
-              {this.state.fetchChildrenLoading ? (
-                <Spinner />
-              ) : (
+            <div className="ms-2">
+              {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
+              <div
+                className="row text-muted small"
+                onClick={linkEvent(this, handleCommentCollapse)}
+                aria-label={this.expandText}
+                role="group"
+              >
+                <div className="col flex-grow-1">
+                  <CommentHeader
+                    node={this.props.node}
+                    showCommunity={this.props.showCommunity}
+                    showContext={this.props.showContext}
+                    isPostCreator={this.isPostCreator}
+                    allLanguages={this.props.allLanguages}
+                    myUserInfo={this.props.myUserInfo}
+                  />
+                </div>
+
+                <div className="col-auto">
+                  <MomentTime
+                    published={published_at}
+                    updated={updated_at}
+                    showAgo={false}
+                  />
+                </div>
+              </div>
+              {/* end of user row */}
+              {this.state.showEdit && (
+                <CommentForm
+                  node={node}
+                  edit
+                  onReplyCancel={() => handleReplyCancel(this)}
+                  disabled={!this.enableCommentForm}
+                  focus
+                  allLanguages={this.props.allLanguages}
+                  siteLanguages={this.props.siteLanguages}
+                  containerClass="comment-comment-container"
+                  myUserInfo={this.props.myUserInfo}
+                  onEditComment={form => handleEditComment(this, form)}
+                  onCreateComment={() => {}}
+                />
+              )}
+              {!this.state.showEdit && !this.state.collapsed && (
                 <>
-                  {I18NextService.i18n.t("x_more_replies", {
-                    count: child_count,
-                    formattedCount: numToSI(child_count),
-                  })}{" "}
-                  ➔
+                  <CommentContent
+                    comment={comment}
+                    viewSource={this.state.viewSource}
+                    hideImages={hideImages_}
+                  />
+                  <div className="comment-bottom-btns d-flex justify-content-end justify-content-md-start column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
+                    <>
+                      <VoteButtonsCompact
+                        voteContentType={"comment"}
+                        id={id}
+                        onVote={this.props.onCommentVote}
+                        myUserInfo={this.props.myUserInfo}
+                        localSite={this.props.localSite}
+                        subject={this.commentView.comment}
+                        myVoteIsUpvote={myVoteIsUpvote}
+                        disabled={userNotLoggedInOrBanned(
+                          this.props.myUserInfo,
+                        )}
+                      />
+                      <CommentActionDropdown
+                        commentView={this.commentView}
+                        community={this.community}
+                        admins={this.props.admins}
+                        myUserInfo={this.props.myUserInfo}
+                        viewSource={this.state.viewSource}
+                        showContext={this.props.showContext}
+                        onReply={() => handleReplyClick(this)}
+                        onReport={reason => handleReportComment(this, reason)}
+                        onBlockPerson={() => handleBlockPerson(this)}
+                        onBlockCommunity={() => handleBlockCommunity(this)}
+                        onSave={() => handleSaveComment(this)}
+                        onEdit={() => handleEditClick(this)}
+                        onDelete={() => handleDeleteComment(this)}
+                        onDistinguish={() => handleDistinguishComment(this)}
+                        onRemove={reason => handleRemoveComment(this, reason)}
+                        onBanFromCommunity={form =>
+                          handleBanFromCommunity(this, form)
+                        }
+                        onAppointCommunityMod={() =>
+                          handleAppointCommunityMod(this)
+                        }
+                        onTransferCommunity={() =>
+                          handleTransferCommunity(this)
+                        }
+                        onPurgeUser={reason => handlePurgePerson(this, reason)}
+                        onPurgeContent={reason =>
+                          handlePurgeComment(this, reason)
+                        }
+                        onBanFromSite={form => handleBanFromSite(this, form)}
+                        onAppointAdmin={() => handleAppointAdmin(this)}
+                        onPersonNote={form => handlePersonNote(this, form)}
+                        onLock={reason => handleModLock(this, reason)}
+                        onViewSource={() => handleToggleViewSource(this)}
+                      />
+                    </>
+                  </div>
                 </>
               )}
-            </button>
-          </div>
-        )}
-        {this.state.showReply && (
-          <CommentForm
-            node={node}
-            onReplyCancel={() => handleReplyCancel(this)}
-            disabled={!this.enableCommentForm}
-            focus
-            allLanguages={this.props.allLanguages}
-            siteLanguages={this.props.siteLanguages}
-            containerClass="comment-comment-container"
-            myUserInfo={this.props.myUserInfo}
-            onCreateComment={form => handleCreateComment(this, form)}
-            onEditComment={() => {}}
-          />
-        )}
-        {!this.state.collapsed && node.view.children.length > 0 && (
-          <CommentNodes
-            nodes={buildNodeChildren(this.props.node)}
-            postCreatorId={this.postCreatorId}
-            community={this.community}
-            postLockedOrRemovedOrDeleted={
-              this.props.postLockedOrRemovedOrDeleted
-            }
-            showCommunity={this.props.showCommunity}
-            showContext={false}
-            admins={this.props.admins}
-            readCommentsAt={this.props.readCommentsAt}
-            viewType={this.props.viewType}
-            allLanguages={this.props.allLanguages}
-            siteLanguages={this.props.siteLanguages}
-            hideImages={this.props.hideImages}
-            isChild={!this.props.isTopLevel}
-            depth={this.props.node.view.depth + 1}
-            myUserInfo={this.props.myUserInfo}
-            localSite={this.props.localSite}
-            onCreateComment={this.props.onCreateComment}
-            onEditComment={this.props.onEditComment}
-            onCommentVote={this.props.onCommentVote}
-            onBlockPerson={this.props.onBlockPerson}
-            onBlockCommunity={this.props.onBlockCommunity}
-            onSaveComment={this.props.onSaveComment}
-            onDeleteComment={this.props.onDeleteComment}
-            onRemoveComment={this.props.onRemoveComment}
-            onDistinguishComment={this.props.onDistinguishComment}
-            onAddModToCommunity={this.props.onAddModToCommunity}
-            onAddAdmin={this.props.onAddAdmin}
-            onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
-            onBanPerson={this.props.onBanPerson}
-            onTransferCommunity={this.props.onTransferCommunity}
-            onFetchChildren={this.props.onFetchChildren}
-            onCommentReport={this.props.onCommentReport}
-            onPurgePerson={this.props.onPurgePerson}
-            onPurgeComment={this.props.onPurgeComment}
-            onPersonNote={this.props.onPersonNote}
-            onLockComment={this.props.onLockComment}
-          />
-        )}
-        {/* A collapsed clearfix */}
-        {this.state.collapsed && <div className="row col-12" />}
-      </li>
+            </div>
+          </article>
+          {showMoreChildren && (
+            <div
+              className={classNames("details ms-1 comment-node py-2", {
+                "border-top border-light": !this.props.noBorder,
+              })}
+              style={`border-left: var(--comment-border-width) ${moreRepliesBorderColor} solid !important`}
+            >
+              <button
+                className="btn btn-sm btn-link text-muted"
+                onClick={() => handleFetchChildren(this)}
+              >
+                {this.state.fetchChildrenLoading ? (
+                  <Spinner />
+                ) : (
+                  <>
+                    {I18NextService.i18n.t("x_more_replies", {
+                      count: child_count,
+                      formattedCount: numToSI(child_count),
+                    })}{" "}
+                    ➔
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+          {this.state.showReply && (
+            <CommentForm
+              node={node}
+              onReplyCancel={() => handleReplyCancel(this)}
+              disabled={!this.enableCommentForm}
+              focus
+              allLanguages={this.props.allLanguages}
+              siteLanguages={this.props.siteLanguages}
+              containerClass="comment-comment-container"
+              myUserInfo={this.props.myUserInfo}
+              onCreateComment={form => handleCreateComment(this, form)}
+              onEditComment={() => {}}
+            />
+          )}
+          {!this.state.collapsed && node.view.children.length > 0 && (
+            <CommentNodes
+              nodes={buildNodeChildren(this.props.node)}
+              postCreatorId={this.postCreatorId}
+              community={this.community}
+              postLockedOrRemovedOrDeleted={
+                this.props.postLockedOrRemovedOrDeleted
+              }
+              showCommunity={this.props.showCommunity}
+              showContext={false}
+              admins={this.props.admins}
+              readCommentsAt={this.props.readCommentsAt}
+              viewType={this.props.viewType}
+              allLanguages={this.props.allLanguages}
+              siteLanguages={this.props.siteLanguages}
+              hideImages={this.props.hideImages}
+              isChild={!this.props.isTopLevel}
+              depth={this.props.node.view.depth + 1}
+              myUserInfo={this.props.myUserInfo}
+              localSite={this.props.localSite}
+              onCreateComment={this.props.onCreateComment}
+              onEditComment={this.props.onEditComment}
+              onCommentVote={this.props.onCommentVote}
+              onBlockPerson={this.props.onBlockPerson}
+              onBlockCommunity={this.props.onBlockCommunity}
+              onSaveComment={this.props.onSaveComment}
+              onDeleteComment={this.props.onDeleteComment}
+              onRemoveComment={this.props.onRemoveComment}
+              onDistinguishComment={this.props.onDistinguishComment}
+              onAddModToCommunity={this.props.onAddModToCommunity}
+              onAddAdmin={this.props.onAddAdmin}
+              onBanPersonFromCommunity={this.props.onBanPersonFromCommunity}
+              onBanPerson={this.props.onBanPerson}
+              onTransferCommunity={this.props.onTransferCommunity}
+              onFetchChildren={this.props.onFetchChildren}
+              onCommentReport={this.props.onCommentReport}
+              onPurgePerson={this.props.onPurgePerson}
+              onPurgeComment={this.props.onPurgeComment}
+              onPersonNote={this.props.onPersonNote}
+              onLockComment={this.props.onLockComment}
+            />
+          )}
+          {/* A collapsed clearfix */}
+          {this.state.collapsed && <div className="row col-12" />}
+        </li>
+      )
     );
   }
 

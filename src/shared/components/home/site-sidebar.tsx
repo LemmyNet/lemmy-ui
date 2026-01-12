@@ -118,8 +118,12 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         <CreateCommunityButton
           localSite={this.props.localSite}
           myUserInfo={this.props.myUserInfo}
+          blockButton
         />
-        <CreateMultiCommunityButton myUserInfo={this.props.myUserInfo} />
+        <CreateMultiCommunityButton
+          myUserInfo={this.props.myUserInfo}
+          blockButton
+        />
         {this.props.localSite && (
           <LocalSiteBadges localSite={this.props.localSite} />
         )}

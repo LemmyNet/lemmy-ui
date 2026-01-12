@@ -97,7 +97,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.handleChange = this.handleChange.bind(this);
+    this.handleKindChange = this.handleKindChange.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
 
     // Only fetch the data if coming from another route
@@ -112,16 +112,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
 
   async componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.fetchInstances();
-    }
-  }
-
-  componentDidUpdate(prevProps: InstancesRouteProps) {
-    if (
-      this.props.location.key !== prevProps.location.key &&
-      this.props.history.action !== "POP"
-    ) {
-      this.searchInput.current?.select();
+      await this.fetchInstances(this.props);
     }
   }
 
@@ -131,16 +122,20 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     }
   }
 
-  async fetchInstances() {
+  componentWillReceiveProps(nextProps: InstancesRouteProps) {
+    this.fetchInstances(nextProps);
+  }
+
+  async fetchInstances(props: InstancesProps) {
     this.setState({
       instancesRes: LOADING_REQUEST,
     });
 
     this.setState({
       instancesRes: await HttpService.client.getFederatedInstances({
-        kind: this.props.kind,
-        domain_filter: this.props.domain_filter,
-        page_cursor: this.props.cursor,
+        kind: props.kind,
+        domain_filter: props.domain_filter,
+        page_cursor: props.cursor,
         limit: fetchLimit,
       }),
     });
@@ -209,17 +204,16 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     );
   }
 
-  handleChange(state: GetFederatedInstancesKind) {
-    this.updateUrl({ kind: state });
-    this.fetchInstances();
+  handleKindChange(kind: GetFederatedInstancesKind) {
+    this.updateUrl({ kind });
   }
 
   handlePageChange(cursor?: PaginationCursor) {
     this.updateUrl({ cursor });
   }
 
-  updateUrl(state: Partial<InstancesProps>) {
-    const { kind, cursor, domain_filter } = { ...this.props, ...state };
+  updateUrl(props: Partial<InstancesProps>) {
+    const { kind, cursor, domain_filter } = { ...this.props, ...props };
 
     const queryParams: QueryParams<InstancesProps> = {
       kind,
@@ -243,20 +237,23 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
           className="col-auto"
           allOptions={allStates}
           currentOption={this.props.kind}
-          onClick={this.handleChange}
+          onClick={this.handleKindChange}
         />
         <div className="col" />
         <form
           className="d-flex col-auto align-self-end"
           onSubmit={linkEvent(this, this.handleSearchSubmit)}
         >
+          {/* key is necessary for defaultValue to update when domain_filter
+            changes, e.g. back button. */}
           <input
+            key={this.context.router.history.location.key}
             name="q"
             type="search"
             className="form-control flex-initial"
             placeholder={`${I18NextService.i18n.t("search")}...`}
             aria-label={I18NextService.i18n.t("search")}
-            defaultValue={this.props.domain_filter}
+            defaultValue={this.props.domain_filter ?? ""}
             ref={this.searchInput}
           />
           <button type="submit" className="btn btn-outline-secondary ms-1">
@@ -266,15 +263,10 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
       </div>
     );
   }
+
   handleSearchSubmit(i: Instances, event: any) {
     event.preventDefault();
-    let domain_filter: string | undefined =
-      i.searchInput.current?.value ?? i.props.domain_filter;
-    if (domain_filter === "") {
-      domain_filter = undefined;
-    }
-    i.updateUrl({ domain_filter });
-    i.fetchInstances();
+    i.updateUrl({ domain_filter: i.searchInput.current?.value });
   }
 }
 
