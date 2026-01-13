@@ -458,13 +458,8 @@ export class CreatePost extends Component<
           siteLanguages={this.isoData.siteRes.discussion_languages}
           myUserInfo={this.isoData.myUserInfo}
           hideButtons
-          onDeleteCommunity={async () => {}}
-          onLeaveModTeam={async () => {}}
           onFollowCommunity={async () => {}}
-          onRemoveCommunity={async () => {}}
-          onPurgeCommunity={async () => {}}
           onBlockCommunity={async () => {}}
-          onEditCommunity={async () => {}}
           onUpdateCommunityNotifs={async () => {}}
         />
       );

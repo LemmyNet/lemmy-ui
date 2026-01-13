@@ -27,7 +27,8 @@ interface CommunityFormProps {
   onEditCommunity?(form: EditCommunity): void;
   onDeleteOrRestoreCommunity?(deleted: boolean): void;
   enableNsfw?: boolean;
-  loading?: boolean;
+  createOrEditLoading?: boolean;
+  deleteLoading?: boolean;
   myUserInfo: MyUserInfo | undefined;
 }
 
@@ -90,12 +91,9 @@ export class CommunityForm extends Component<
         <Prompt
           message={I18NextService.i18n.t("block_leaving")}
           when={
-            !this.props.loading &&
-            !!(
-              this.state.form.name ||
-              this.state.form.title ||
-              this.state.form.description
-            ) &&
+            !this.props.community_view &&
+            (!this.props.createOrEditLoading || !this.props.deleteLoading) &&
+            !!(this.state.form.name || this.state.form.title) &&
             !this.state.submitted
           }
         />
@@ -334,9 +332,9 @@ export class CommunityForm extends Component<
             <button
               type="submit"
               className="btn btn-secondary me-2"
-              disabled={this.props.loading}
+              disabled={this.props.createOrEditLoading}
             >
-              {this.props.loading ? (
+              {this.props.createOrEditLoading ? (
                 <Spinner />
               ) : this.props.community_view ? (
                 capitalizeFirstLetter(I18NextService.i18n.t("save"))
@@ -369,7 +367,7 @@ export class CommunityForm extends Component<
                     : I18NextService.i18n.t("restore")
                 }
               >
-                {this.props.loading ? (
+                {this.props.deleteLoading ? (
                   <Spinner />
                 ) : (
                   I18NextService.i18n.t(
