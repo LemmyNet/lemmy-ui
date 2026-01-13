@@ -51,7 +51,7 @@ export class CreateCommunity extends Component<
               allLanguages={this.isoData.siteRes?.all_languages}
               siteLanguages={this.isoData.siteRes?.discussion_languages}
               communityLanguages={this.isoData.siteRes?.discussion_languages}
-              loading={this.state.loading}
+              createOrEditLoading={this.state.loading}
               myUserInfo={this.isoData.myUserInfo}
             />
           </div>

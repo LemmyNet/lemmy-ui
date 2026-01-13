@@ -19,7 +19,7 @@ import { CommunityBadges } from "../common/badges";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
 import { SubscribeButton } from "../common/subscribe-button";
-import { CommunityLink } from "./community-link";
+import { CommunityLink, CommunitySettingsLink } from "./community-link";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
@@ -70,7 +70,9 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
   }
 
   render() {
+    const communityView = this.props.community_view;
     const {
+      community,
       community: {
         name,
         ap_id,
@@ -79,13 +81,14 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
         visibility,
       },
       community_actions: { received_ban_at } = {},
-    } = this.props.community_view;
+    } = communityView;
 
     const visibilityLabel = ("community_visibility_" +
       visibility) as NoOptionI18nKeys;
     const visibilityDescription = (visibilityLabel +
       "_desc") as NoOptionI18nKeys;
-    const canViewCommunity_ = canViewCommunity(this.props.community_view);
+    const canViewCommunity_ = canViewCommunity(communityView);
+
     return (
       <div className="community-sidebar">
         <aside className="mb-3">
@@ -117,19 +120,16 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     <>
                       <SubscribeButton
                         followState={
-                          this.props.community_view.community_actions
-                            ?.follow_state
+                          communityView.community_actions?.follow_state
                         }
-                        apId={this.props.community_view.community.ap_id}
+                        apId={community.ap_id}
                         onFollow={() => handleFollowCommunity(this, true)}
                         onUnFollow={() => handleFollowCommunity(this, false)}
                         loading={this.state.followCommunityLoading}
                         showRemoteFetch={!this.props.myUserInfo}
                       />
-                      {this.canPost && canViewCommunity_ && (
-                        <CreatePostButton
-                          communityView={this.props.community_view}
-                        />
+                      {this.canPost() && canViewCommunity_ && (
+                        <CreatePostButton communityView={communityView} />
                       )}
                     </>
                   )}
@@ -147,6 +147,9 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                       onCancel={() => handleHideCommunityReportModal(this)}
                       show={this.state.showCommunityReportModal}
                     />
+                  )}
+                  {this.amModOrAdmin() && (
+                    <CommunitySettingsLink community={community} />
                   )}
                   <>
                     {this.props.myUserInfo && this.blockCommunity()}
@@ -233,9 +236,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                   allLanguages={this.props.allLanguages}
                   languageIds={this.props.siteLanguages}
                 />
-                <CommunityBadges
-                  community={this.props.community_view.community}
-                />
+                <CommunityBadges community={communityView.community} />
                 {this.mods()}
               </div>
             </section>
@@ -340,12 +341,15 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  get canPost(): boolean {
+  canPost(): boolean {
     return (
       !this.props.community_view.community.posting_restricted_to_mods ||
-      amMod(this.props.community_view) ||
-      amAdmin(this.props.myUserInfo)
+      this.amModOrAdmin()
     );
+  }
+
+  amModOrAdmin(): boolean {
+    return amMod(this.props.community_view) || amAdmin(this.props.myUserInfo);
   }
 }
 

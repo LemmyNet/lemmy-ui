@@ -218,6 +218,15 @@ export class CommunitySettings extends Component<RouteProps, State> {
                           onEditCommunity={form =>
                             handleEditCommunity(this, form)
                           }
+                          createOrEditLoading={
+                            this.state.editCommunityRes.state === "loading"
+                          }
+                          onDeleteOrRestoreCommunity={() =>
+                            handleDeleteCommunity(this)
+                          }
+                          deleteLoading={
+                            this.state.deleteCommunityRes.state === "loading"
+                          }
                           enableNsfw={enableNsfw(siteRes)}
                           myUserInfo={myUserInfo}
                         />
@@ -564,9 +573,12 @@ export class CommunitySettings extends Component<RouteProps, State> {
 
 async function handleDeleteCommunity(i: CommunitySettings) {
   if (i.state.communityRes.state === "success") {
+    // Do the opposite of the current state
+    const deleted = !i.state.communityRes.data.community_view.community.deleted;
+
     const form: DeleteCommunity = {
       community_id: i.state.communityRes.data.community_view.community.id,
-      deleted: !i.state.communityRes.data.community_view.community.deleted,
+      deleted,
     };
     i.setState({ deleteCommunityRes: LOADING_REQUEST });
     i.setState({
@@ -574,7 +586,11 @@ async function handleDeleteCommunity(i: CommunitySettings) {
     });
 
     if (i.state.deleteCommunityRes.state === "success") {
-      toast(I18NextService.i18n.t("deleted"));
+      toast(
+        I18NextService.i18n.t(
+          deleted ? "deleted_community" : "restored_community",
+        ),
+      );
       i.updateCommunity(i.state.deleteCommunityRes);
     }
   }
@@ -601,6 +617,7 @@ async function handleEditCommunity(i: CommunitySettings, form: EditCommunity) {
 
   if (i.state.editCommunityRes.state === "success") {
     i.updateCommunity(i.state.editCommunityRes);
+    toast(I18NextService.i18n.t("saved"));
   }
 }
 
