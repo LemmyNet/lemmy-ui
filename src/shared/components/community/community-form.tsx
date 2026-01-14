@@ -23,9 +23,9 @@ interface CommunityFormProps {
   allLanguages?: Language[];
   siteLanguages?: number[];
   communityLanguages?: number[];
-  onCreateCommunity?(form: CreateCommunity): void;
-  onEditCommunity?(form: EditCommunity): void;
-  onDeleteOrRestoreCommunity?(deleted: boolean): void;
+  onCreate?(form: CreateCommunity): void;
+  onEdit?(form: EditCommunity): void;
+  onDelete?(deleted: boolean): void;
   enableNsfw?: boolean;
   createOrEditLoading?: boolean;
   deleteLoading?: boolean;
@@ -351,7 +351,7 @@ export class CommunityForm extends Component<
                     : "success"
                 }`}
                 onClick={() =>
-                  handleDeleteOrRestoreCommunity(
+                  handleDelete(
                     this,
                     !this.props.community_view!.community.deleted,
                   )
@@ -397,7 +397,7 @@ function handleCommunitySubmit(
 
   // If the community is given, its an edit
   if (cv) {
-    i.props.onEditCommunity?.({
+    i.props.onEdit?.({
       community_id: cv.community.id,
       title: cForm.title,
       sidebar: cForm.sidebar,
@@ -409,7 +409,7 @@ function handleCommunitySubmit(
     });
   } else {
     if (cForm.title && cForm.name) {
-      i.props.onCreateCommunity?.({
+      i.props.onCreate?.({
         name: cForm.name,
         title: cForm.title,
         description: cForm.description,
@@ -424,8 +424,8 @@ function handleCommunitySubmit(
   }
 }
 
-function handleDeleteOrRestoreCommunity(i: CommunityForm, deleted: boolean) {
-  i.props.onDeleteOrRestoreCommunity?.(deleted);
+function handleDelete(i: CommunityForm, deleted: boolean) {
+  i.props.onDelete?.(deleted);
 }
 
 function handleCommunityNameChange(

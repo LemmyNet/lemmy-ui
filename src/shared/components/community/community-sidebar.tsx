@@ -1,8 +1,9 @@
 import { getQueryString, hostname } from "@utils/helpers";
-import { amAdmin, amMod } from "@utils/roles";
+import { amAdmin, amMod, amTopMod } from "@utils/roles";
 import { Component, FormEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
+  AddModToCommunity,
   BlockCommunity,
   CommunityModeratorView,
   CommunityNotificationsMode,
@@ -11,6 +12,8 @@ import {
   Language,
   MyUserInfo,
   PersonView,
+  PurgeCommunity,
+  RemoveCommunity,
   UpdateCommunityNotifications,
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
@@ -28,9 +31,12 @@ import { LanguageList } from "@components/common/language-list";
 import { NoOptionI18nKeys } from "i18next";
 import { canViewCommunity } from "@utils/app";
 import { CreatePostButton } from "@components/common/content-actions/create-item-buttons";
+import ConfirmationModal from "@components/common/modal/confirmation-modal";
+import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
+import { Link } from "inferno-router";
 
 interface SidebarProps {
-  community_view: CommunityView;
+  communityView: CommunityView;
   moderators: CommunityModeratorView[];
   admins: PersonView[];
   allLanguages: Language[];
@@ -40,15 +46,24 @@ interface SidebarProps {
   showIcon?: boolean;
   hideButtons?: boolean;
   myUserInfo: MyUserInfo | undefined;
-  onFollowCommunity(form: FollowCommunity): void;
-  onBlockCommunity(form: BlockCommunity): void;
-  onUpdateCommunityNotifs(form: UpdateCommunityNotifications): void;
+  onRemove(form: RemoveCommunity): void;
+  onPurge(form: PurgeCommunity): void;
+  onLeaveModTeam(form: AddModToCommunity): void;
+  onFollow(form: FollowCommunity): void;
+  onBlock(form: BlockCommunity): void;
+  onUpdateNotifs(form: UpdateCommunityNotifications): void;
+  removeLoading: boolean;
+  purgeLoading: boolean;
+  followLoading: boolean;
+  leaveModTeamLoading: boolean;
 }
 
 interface SidebarState {
-  followCommunityLoading: boolean;
-  showCommunityReportModal: boolean;
-  renderCommunityReportModal: boolean;
+  showRemoveDialog: boolean;
+  removeExpires?: string;
+  showPurgeDialog: boolean;
+  showConfirmLeaveModTeam: boolean;
+  showReportModal: boolean;
   searchText: string;
   notifications: CommunityNotificationsMode;
 }
@@ -56,13 +71,14 @@ interface SidebarState {
 @tippyMixin
 export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
   state: SidebarState = {
-    followCommunityLoading: false,
-    showCommunityReportModal: false,
-    renderCommunityReportModal: false,
+    showReportModal: false,
     searchText: "",
     notifications:
-      this.props.community_view?.community_actions?.notifications ??
+      this.props.communityView?.community_actions?.notifications ??
       "replies_and_mentions",
+    showRemoveDialog: false,
+    showPurgeDialog: false,
+    showConfirmLeaveModTeam: false,
   };
 
   constructor(props: any, context: any) {
@@ -70,7 +86,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
   }
 
   render() {
-    const communityView = this.props.community_view;
+    const { communityView, myUserInfo, moderators } = this.props;
     const {
       community,
       community: {
@@ -123,9 +139,9 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                           communityView.community_actions?.follow_state
                         }
                         apId={community.ap_id}
-                        onFollow={() => handleFollowCommunity(this, true)}
-                        onUnFollow={() => handleFollowCommunity(this, false)}
-                        loading={this.state.followCommunityLoading}
+                        onFollow={() => handleFollow(this, true)}
+                        onUnFollow={() => handleFollow(this, false)}
+                        loading={this.props.followLoading}
                         showRemoteFetch={!this.props.myUserInfo}
                       />
                       {this.canPost() && canViewCommunity_ && (
@@ -135,21 +151,84 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                   )}
                   <button
                     className="btn btn-secondary d-block mb-2 w-100"
-                    onClick={() => handleShowCommunityReportModal(this)}
+                    onClick={() => handleShowReportModal(this)}
                   >
                     {I18NextService.i18n.t("create_report")}
                   </button>
-                  {this.state.renderCommunityReportModal && (
-                    <CommunityReportModal
-                      onSubmit={reason =>
-                        handleSubmitCommunityReport(this, reason)
-                      }
-                      onCancel={() => handleHideCommunityReportModal(this)}
-                      show={this.state.showCommunityReportModal}
-                    />
-                  )}
+                  <CommunityReportModal
+                    onSubmit={reason => handleSubmitReport(this, reason)}
+                    onCancel={() => handleHideReportModal(this)}
+                    show={this.state.showReportModal}
+                  />
+                  <Link
+                    className="btn btn-secondary d-block mb-2 w-100"
+                    to={`/modlog/${community.id}`}
+                  >
+                    {I18NextService.i18n.t("modlog")}
+                  </Link>
                   {this.amModOrAdmin() && (
                     <CommunitySettingsLink community={community} />
+                  )}
+                  {amMod(communityView) &&
+                    !amTopMod(moderators, myUserInfo) && (
+                      <>
+                        <button
+                          className="btn btn-secondary d-block mb-2 w-100"
+                          onClick={() =>
+                            handleToggleConfirmLeaveModTeamModal(this)
+                          }
+                        >
+                          {I18NextService.i18n.t("leave_mod_team")}
+                        </button>
+                        <ConfirmationModal
+                          message={I18NextService.i18n.t(
+                            "leave_mod_team_confirmation",
+                          )}
+                          loadingMessage={I18NextService.i18n.t(
+                            "leaving_mod_team",
+                          )}
+                          onNo={() =>
+                            handleToggleConfirmLeaveModTeamModal(this)
+                          }
+                          onYes={() => handleLeaveModTeam(this)}
+                          show={this.state.showConfirmLeaveModTeam}
+                        />
+                      </>
+                    )}
+                  {amAdmin(myUserInfo) && (
+                    <>
+                      <button
+                        className="btn btn-secondary d-block mb-2 w-100"
+                        onClick={() => handleShowRemoveDialog(this)}
+                      >
+                        {I18NextService.i18n.t(
+                          !communityView.community.removed
+                            ? "remove"
+                            : "restore",
+                        )}
+                      </button>
+                      <ModActionFormModal
+                        onSubmit={reason => handleRemove(this, reason)}
+                        modActionType="remove-community"
+                        isRemoved={communityView.community.removed}
+                        onCancel={() => handleHideRemoveDialog(this)}
+                        show={this.state.showRemoveDialog}
+                      />
+                      <button
+                        className="btn btn-secondary d-block mb-2 w-100"
+                        onClick={() => handleShowPurgeDialog(this)}
+                        aria-label={I18NextService.i18n.t("purge_community")}
+                      >
+                        {I18NextService.i18n.t("purge_community")}
+                      </button>
+                      <ModActionFormModal
+                        onSubmit={reason => handlePurge(this, reason)}
+                        modActionType="purge-community"
+                        community={communityView.community}
+                        onCancel={() => handleHidePurgeDialog(this)}
+                        show={this.state.showPurgeDialog}
+                      />
+                    </>
                   )}
                   <>
                     {this.props.myUserInfo && this.blockCommunity()}
@@ -247,7 +326,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
   }
 
   communityTitle() {
-    const community = this.props.community_view.community;
+    const community = this.props.communityView.community;
 
     return (
       <div>
@@ -313,13 +392,13 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
 
   blockCommunity() {
     const { community_actions: { follow_state: subscribed, blocked_at } = {} } =
-      this.props.community_view;
+      this.props.communityView;
 
     return (
       !subscribed && (
         <button
           className="btn btn-danger d-block mb-2 w-100"
-          onClick={() => handleBlockCommunity(this)}
+          onClick={() => handleBlock(this)}
         >
           {I18NextService.i18n.t(
             blocked_at ? "unblock_community" : "block_community",
@@ -330,7 +409,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
   }
 
   sidebarMarkdown() {
-    const { sidebar } = this.props.community_view.community;
+    const { sidebar } = this.props.communityView.community;
     return (
       sidebar && (
         <div
@@ -343,13 +422,13 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
 
   canPost(): boolean {
     return (
-      !this.props.community_view.community.posting_restricted_to_mods ||
+      !this.props.communityView.community.posting_restricted_to_mods ||
       this.amModOrAdmin()
     );
   }
 
   amModOrAdmin(): boolean {
-    return amMod(this.props.community_view) || amAdmin(this.props.myUserInfo);
+    return amMod(this.props.communityView) || amAdmin(this.props.myUserInfo);
   }
 }
 
@@ -367,32 +446,63 @@ function handleSearchSubmit(
   event.preventDefault();
   const searchParamEncoded = i.state.searchText;
   i.context.router.history.push(
-    `/search${getQueryString({ q: searchParamEncoded, communityId: i.props.community_view.community.id.toString() })}`,
+    `/search${getQueryString({ q: searchParamEncoded, communityId: i.props.communityView.community.id.toString() })}`,
   );
 }
 
-function handleShowCommunityReportModal(i: CommunitySidebar) {
-  i.setState({
-    showCommunityReportModal: true,
-    renderCommunityReportModal: true,
-  });
+function handleToggleConfirmLeaveModTeamModal(i: CommunitySidebar) {
+  i.setState({ showConfirmLeaveModTeam: !i.state.showConfirmLeaveModTeam });
 }
 
-async function handleSubmitCommunityReport(
-  i: CommunitySidebar,
-  reason: string,
-) {
+function handleShowReportModal(i: CommunitySidebar) {
+  i.setState({ showReportModal: true });
+}
+
+function handleHideReportModal(i: CommunitySidebar) {
+  i.setState({ showReportModal: false });
+}
+
+async function handleSubmitReport(i: CommunitySidebar, reason: string) {
   const res = await HttpService.client.createCommunityReport({
-    community_id: i.props.community_view.community.id,
+    community_id: i.props.communityView.community.id,
     reason,
   });
   if (res.state === "success") {
-    i.setState({ showCommunityReportModal: false });
+    i.setState({ showReportModal: false });
   }
 }
 
-function handleHideCommunityReportModal(i: CommunitySidebar) {
-  i.setState({ showCommunityReportModal: false });
+function handleShowRemoveDialog(i: CommunitySidebar) {
+  i.setState({ showRemoveDialog: true });
+}
+
+function handleHideRemoveDialog(i: CommunitySidebar) {
+  i.setState({ showRemoveDialog: false });
+}
+
+function handleRemove(i: CommunitySidebar, reason: string) {
+  i.setState({ showRemoveDialog: false });
+  i.props.onRemove({
+    community_id: i.props.communityView.community.id,
+    removed: !i.props.communityView.community.removed,
+    reason,
+  });
+}
+
+function handleShowPurgeDialog(i: CommunitySidebar) {
+  i.setState({ showPurgeDialog: true });
+}
+
+function handleHidePurgeDialog(i: CommunitySidebar) {
+  i.setState({ showPurgeDialog: false });
+}
+
+function handlePurge(i: CommunitySidebar, reason: string) {
+  i.props.onPurge({
+    community_id: i.props.communityView.community.id,
+    reason,
+  });
+  i.setState({ showPurgeDialog: false });
 }
 
 function handleNotificationChange(
@@ -401,26 +511,37 @@ function handleNotificationChange(
 ) {
   i.setState({ notifications: val });
   const form = {
-    community_id: i.props.community_view.community.id,
+    community_id: i.props.communityView.community.id,
     mode: i.state.notifications,
   };
-  i.props.onUpdateCommunityNotifs(form);
+  i.props.onUpdateNotifs(form);
 }
 
-function handleFollowCommunity(i: CommunitySidebar, follow: boolean) {
-  i.setState({ followCommunityLoading: true });
-  i.props.onFollowCommunity({
-    community_id: i.props.community_view.community.id,
+function handleFollow(i: CommunitySidebar, follow: boolean) {
+  i.props.onFollow({
+    community_id: i.props.communityView.community.id,
     follow,
   });
 }
 
-function handleBlockCommunity(i: CommunitySidebar) {
+function handleBlock(i: CommunitySidebar) {
   const { community, community_actions: { blocked_at } = {} } =
-    i.props.community_view;
+    i.props.communityView;
 
-  i.props.onBlockCommunity({
+  i.props.onBlock({
     community_id: community.id,
     block: !blocked_at,
   });
+}
+
+function handleLeaveModTeam(i: CommunitySidebar) {
+  const myId = i.props.myUserInfo?.local_user_view.person.id;
+  i.setState({ showConfirmLeaveModTeam: false });
+  if (myId) {
+    i.props.onLeaveModTeam({
+      community_id: i.props.communityView.community.id,
+      person_id: myId,
+      added: false,
+    });
+  }
 }

@@ -77,6 +77,8 @@ import {
   LockComment,
   PostListingMode,
   PaginationCursor,
+  PurgeCommunity,
+  RemoveCommunity,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -123,6 +125,10 @@ interface State {
   communityRes: RequestState<GetCommunityResponse>;
   postsRes: RequestState<PagedResponse<PostView>>;
   commentsRes: RequestState<PagedResponse<CommentView>>;
+  followCommunityRes: RequestState<CommunityResponse>;
+  removeCommunityRes: RequestState<CommunityResponse>;
+  addModToCommunityRes: RequestState<AddModToCommunityResponse>;
+  purgeCommunityRes: RequestState<SuccessResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
@@ -202,6 +208,10 @@ export class Community extends Component<CommunityRouteProps, State> {
     communityRes: EMPTY_REQUEST,
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
+    followCommunityRes: EMPTY_REQUEST,
+    removeCommunityRes: EMPTY_REQUEST,
+    addModToCommunityRes: EMPTY_REQUEST,
+    purgeCommunityRes: EMPTY_REQUEST,
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     isIsomorphic: false,
@@ -526,7 +536,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     return (
       <>
         <CommunitySidebar
-          community_view={res.community_view}
+          communityView={res.community_view}
           moderators={res.moderators}
           admins={siteRes.admins}
           enableNsfw={enableNsfw(siteRes)}
@@ -534,11 +544,18 @@ export class Community extends Component<CommunityRouteProps, State> {
           siteLanguages={siteRes.discussion_languages}
           communityLanguages={communityLangs}
           myUserInfo={this.isoData.myUserInfo}
-          onFollowCommunity={form => handleFollow(this, form, myUserInfo)}
-          onBlockCommunity={form =>
-            handleBlockCommunity(this, form, myUserInfo)
+          onFollow={form => handleFollow(this, form, myUserInfo)}
+          onBlock={form => handleBlockCommunity(this, form, myUserInfo)}
+          onUpdateNotifs={form => handleUpdateCommunityNotifs(form)}
+          onRemove={form => handleRemoveCommunity(this, form)}
+          onPurge={form => handlePurgeCommunity(this, form)}
+          onLeaveModTeam={form => handleAddModToCommunity(this, form)}
+          removeLoading={this.state.removeCommunityRes.state === "loading"}
+          purgeLoading={this.state.purgeCommunityRes.state === "loading"}
+          followLoading={this.state.followCommunityRes.state === "loading"}
+          leaveModTeamLoading={
+            this.state.addModToCommunityRes.state === "loading"
           }
-          onUpdateCommunityNotifs={form => handleUpdateCommunityNotifs(form)}
         />
         {!res.community_view.community.local && res.site && (
           <SiteSidebar site={res.site} myUserInfo={this.isoData.myUserInfo} />
@@ -835,9 +852,12 @@ function handleShowSidebarMobile(i: Community) {
 }
 
 async function handleAddModToCommunity(i: Community, form: AddModToCommunity) {
-  const addModRes = await HttpService.client.addModToCommunity(form);
-  updateModerators(i, addModRes);
-  if (addModRes.state === "success") {
+  i.setState({ addModToCommunityRes: LOADING_REQUEST });
+  const addModToCommunityRes = await HttpService.client.addModToCommunity(form);
+  i.setState({ addModToCommunityRes });
+
+  updateModerators(i, addModToCommunityRes);
+  if (addModToCommunityRes.state === "success") {
     toast(I18NextService.i18n.t(form.added ? "appointed_mod" : "removed_mod"));
   }
 }
@@ -847,7 +867,10 @@ async function handleFollow(
   form: FollowCommunity,
   myUserInfo: MyUserInfo | undefined,
 ) {
+  i.setState({ followCommunityRes: LOADING_REQUEST });
   const followCommunityRes = await HttpService.client.followCommunity(form);
+  i.setState({ followCommunityRes });
+
   updateCommunity(i, followCommunityRes);
 
   // Update myUserInfo
@@ -1119,6 +1142,20 @@ async function handleBanFromCommunity(i: Community, form: BanFromCommunity) {
 async function handleBanPerson(i: Community, form: BanPerson) {
   const banRes = await HttpService.client.banPerson(form);
   updateBan(i, banRes, form.ban);
+}
+
+async function handleRemoveCommunity(i: Community, form: RemoveCommunity) {
+  i.setState({ removeCommunityRes: LOADING_REQUEST });
+  const removeCommunityRes = await HttpService.client.removeCommunity(form);
+  i.setState({ removeCommunityRes });
+  updateCommunity(i, removeCommunityRes);
+}
+
+async function handlePurgeCommunity(i: Community, form: PurgeCommunity) {
+  i.setState({ purgeCommunityRes: LOADING_REQUEST });
+  const purgeCommunityRes = await HttpService.client.purgeCommunity(form);
+  i.setState({ purgeCommunityRes });
+  purgeItem(i, purgeCommunityRes);
 }
 
 function updateBanFromCommunity(
