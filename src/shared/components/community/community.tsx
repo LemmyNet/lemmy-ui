@@ -443,11 +443,32 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
     const canViewCommunity_ = res && canViewCommunity(res.community_view);
+    // Show a message to the moderator if this community is not federated yet (ie it has no
+    // remote followers).
+    const notFederated =
+      res &&
+      res.community_view.can_mod &&
+      res.community_view.community.subscribers ===
+        res.community_view.community.subscribers_local;
 
     return (
       <div className="community container-lg">
         <div className="row">
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
+            {notFederated && (
+              <div className="alert alert-warning text-bg-warning" role="alert">
+                <h4 className="alert-heading">Community not federated yet</h4>
+                <div className="card-text">
+                  Only users on example.com can currently view this comunity. To
+                  promote the community and get more followers, talk about it in
+                  other communities and include the link `!main@example.com`.
+                  You can also use the following: <br />-
+                  https://lemmy-federate.com <br />-
+                  https://lemmy.world/c/newcommunities <br />-
+                  https://communitypromo@lemmy.ca
+                </div>
+              </div>
+            )}
             {canViewCommunity_ ? (
               <>
                 {this.renderCommunity()}
@@ -465,14 +486,19 @@ export class Community extends Component<CommunityRouteProps, State> {
                 </div>
               </>
             ) : (
-              <div className="alert alert-danger text-bg-danger" role="alert">
-                <h4 className="alert-heading">
-                  {I18NextService.i18n.t("community_visibility_private")}
-                </h4>
-                <div className="card-text">
-                  {I18NextService.i18n.t("cant_view_private_community_message")}
+              // Check if res is set to avoid flashing the alert box on page load.
+              res && (
+                <div className="alert alert-danger text-bg-danger" role="alert">
+                  <h4 className="alert-heading">
+                    {I18NextService.i18n.t("community_visibility_private")}
+                  </h4>
+                  <div className="card-text">
+                    {I18NextService.i18n.t(
+                      "cant_view_private_community_message",
+                    )}
+                  </div>
                 </div>
-              </div>
+              )
             )}
           </div>
           <aside className="d-none d-md-block col-md-4 col-lg-3">
