@@ -14,7 +14,6 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   AddModToCommunity,
   AddModToCommunityResponse,
-  BanFromCommunity,
   CommunityResponse,
   DeleteCommunity,
   EditCommunity,
@@ -49,7 +48,7 @@ import { MomentTime } from "@components/common/moment-time";
 import ConfirmationModal from "@components/common/modal/confirmation-modal";
 import { UserBadges } from "@components/common/user-badges";
 import { Icon, Spinner } from "@components/common/icon";
-import { amTopMod, canRemoveModerator } from "@utils/roles";
+import { amTopMod, amHigherModerator, amTopModExcludeMe } from "@utils/roles";
 import { SearchableSelect } from "@components/common/searchable-select";
 
 type CommunitySettingsData = RouteDataResponse<{
@@ -67,12 +66,15 @@ interface State {
   isIsomorphic: boolean;
   showLeaveModTeamDialog: boolean;
   showRemoveModDialog: boolean;
+  showTransferDialog: boolean;
   addModSearchOptions: Choice[];
   addModSearchLoading: boolean;
 }
 
 // There are no url filters to this page, hence no props
-interface Props {}
+interface Props {
+  none: string;
+}
 
 type PathProps = { name: string };
 type RouteProps = RouteComponentProps<PathProps> & Props;
@@ -96,6 +98,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
     purgeCommunityRes: EMPTY_REQUEST,
     showLeaveModTeamDialog: false,
     showRemoveModDialog: false,
+    showTransferDialog: false,
     isIsomorphic: false,
     addModSearchOptions: [],
     addModSearchLoading: false,
@@ -322,7 +325,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                       myUserInfo={myUserInfo}
                       creator={m.moderator}
                     />
-                    {canRemoveModerator(res.moderators, m, myUserInfo) && (
+                    {amHigherModerator(res.moderators, m, myUserInfo) && (
                       <>
                         <button
                           className="btn btn-link"
@@ -358,8 +361,48 @@ export class CommunitySettings extends Component<RouteProps, State> {
                         />
                       </>
                     )}
+                    {amTopModExcludeMe(
+                      m.moderator.id,
+                      res.moderators,
+                      myUserInfo,
+                    ) && (
+                      <>
+                        <button
+                          className="btn btn-link"
+                          onClick={() =>
+                            this.setState({ showTransferDialog: true })
+                          }
+                          data-tippy-content={I18NextService.i18n.t(
+                            "transfer_community",
+                          )}
+                        >
+                          <Icon icon="transfer" classes="icon-inline" />
+                        </button>
+                        <ConfirmationModal
+                          show={this.state.showTransferDialog}
+                          message={I18NextService.i18n.t(
+                            "transfer_community_are_you_sure",
+                            {
+                              user: getApubName(m.moderator),
+                              community: getApubName(m.community),
+                            },
+                          )}
+                          loadingMessage={I18NextService.i18n.t(
+                            "transferring_community",
+                          )}
+                          onNo={() =>
+                            this.setState({ showTransferDialog: false })
+                          }
+                          onYes={() =>
+                            handleTransferCommunity(this, {
+                              community_id: res.community_view.community.id,
+                              person_id: m.moderator.id,
+                            })
+                          }
+                        />
+                      </>
+                    )}
                   </div>
-
                   <div className={dataCols}>
                     <MomentTime published={m.moderator.published_at} />
                   </div>
@@ -370,7 +413,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
               </>
             ))}
         </div>
-        <div className="row">
+        <div className="row mb-4">
           <div className="col-12 col-md-4">
             <SearchableSelect
               id="add-mod-to-community-select"
@@ -523,15 +566,15 @@ async function handleTransferCommunity(
 }
 
 // TODO this also needs some kind of smart user picker
-async function handleBanFromCommunity(
-  i: CommunitySettings,
-  form: BanFromCommunity,
-) {
-  const banRes = await HttpService.client.banFromCommunity(form);
+// async function handleBanFromCommunity(
+//   i: CommunitySettings,
+//   form: BanFromCommunity,
+// ) {
+//   const banRes = await HttpService.client.banFromCommunity(form);
 
-  // TODO
-  // i.updateBanFromCommunity(banRes, form.ban);
-}
+//   // TODO
+//   // i.updateBanFromCommunity(banRes, form.ban);
+// }
 
 async function handleLeaveModTeam(
   i: CommunitySettings,
@@ -550,7 +593,7 @@ async function handleLeaveModTeam(
     });
 
     if (i.state.leaveModTeamRes.state === "success") {
-      toast(I18NextService.i18n.t("left_admin_team"));
+      toast(I18NextService.i18n.t("left_mod_team"));
       i.setState({ showLeaveModTeamDialog: false });
       i.context.router.history.replace("/");
     }

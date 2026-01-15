@@ -12,7 +12,7 @@ import {
   PersonView,
   PostView,
 } from "lemmy-js-client";
-import { amAdmin, amCommunityCreator, amMod, canAdmin } from "@utils/roles";
+import { amAdmin, amTopModExcludeMe, amMod, canAdmin } from "@utils/roles";
 import ActionButton from "./action-button";
 import classNames from "classnames";
 import { Link } from "inferno-router";
@@ -642,7 +642,7 @@ export default class ContentActionDropdown extends Component<
                     </>
                   )}
                 {this.props.myUserInfo &&
-                  (amCommunityCreator(
+                  (amTopModExcludeMe(
                     creator.id,
                     moderators,
                     this.props.myUserInfo,
