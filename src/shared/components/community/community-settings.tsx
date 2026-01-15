@@ -14,6 +14,7 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   AddModToCommunity,
   AddModToCommunityResponse,
+  CommunityModeratorView,
   CommunityResponse,
   DeleteCommunity,
   EditCommunity,
@@ -65,8 +66,10 @@ interface State {
   purgeCommunityRes: RequestState<SuccessResponse>;
   isIsomorphic: boolean;
   showLeaveModTeamDialog: boolean;
-  showRemoveModDialog: boolean;
-  showTransferDialog: boolean;
+  // You need to filter by the specific mod id, since this is a jsx loop
+  // An undefined means hide the dialog
+  showRemoveModDialog: CommunityModeratorView | undefined;
+  showTransferDialog: CommunityModeratorView | undefined;
   addModSearchOptions: Choice[];
   addModSearchLoading: boolean;
 }
@@ -97,8 +100,8 @@ export class CommunitySettings extends Component<RouteProps, State> {
     leaveModTeamRes: EMPTY_REQUEST,
     purgeCommunityRes: EMPTY_REQUEST,
     showLeaveModTeamDialog: false,
-    showRemoveModDialog: false,
-    showTransferDialog: false,
+    showRemoveModDialog: undefined,
+    showTransferDialog: undefined,
     isIsomorphic: false,
     addModSearchOptions: [],
     addModSearchLoading: false,
@@ -330,7 +333,9 @@ export class CommunitySettings extends Component<RouteProps, State> {
                         <button
                           className="btn btn-link"
                           onClick={() =>
-                            this.setState({ showRemoveModDialog: true })
+                            this.setState({
+                              showRemoveModDialog: m,
+                            })
                           }
                           data-tippy-content={I18NextService.i18n.t(
                             "remove_as_mod",
@@ -339,7 +344,10 @@ export class CommunitySettings extends Component<RouteProps, State> {
                           <Icon icon="x" classes="icon-inline text-danger" />
                         </button>
                         <ConfirmationModal
-                          show={this.state.showRemoveModDialog}
+                          show={
+                            this.state.showRemoveModDialog?.moderator.id ===
+                            m.moderator.id
+                          }
                           message={I18NextService.i18n.t(
                             "remove_as_mod_are_you_sure",
                             {
@@ -349,7 +357,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                           )}
                           loadingMessage={I18NextService.i18n.t("removing_mod")}
                           onNo={() =>
-                            this.setState({ showRemoveModDialog: false })
+                            this.setState({ showRemoveModDialog: undefined })
                           }
                           onYes={() =>
                             handleAddMod(this, {
@@ -370,7 +378,9 @@ export class CommunitySettings extends Component<RouteProps, State> {
                         <button
                           className="btn btn-link"
                           onClick={() =>
-                            this.setState({ showTransferDialog: true })
+                            this.setState({
+                              showTransferDialog: m,
+                            })
                           }
                           data-tippy-content={I18NextService.i18n.t(
                             "transfer_community",
@@ -379,7 +389,10 @@ export class CommunitySettings extends Component<RouteProps, State> {
                           <Icon icon="transfer" classes="icon-inline" />
                         </button>
                         <ConfirmationModal
-                          show={this.state.showTransferDialog}
+                          show={
+                            this.state.showTransferDialog?.moderator.id ===
+                            m.moderator.id
+                          }
                           message={I18NextService.i18n.t(
                             "transfer_community_are_you_sure",
                             {
@@ -391,7 +404,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                             "transferring_community",
                           )}
                           onNo={() =>
-                            this.setState({ showTransferDialog: false })
+                            this.setState({ showTransferDialog: undefined })
                           }
                           onYes={() =>
                             handleTransferCommunity(this, {
@@ -531,7 +544,7 @@ async function handleAddMod(i: CommunitySettings, form: AddModToCommunity) {
   const addModRes = await HttpService.client.addModToCommunity(form);
   i.updateModerators(addModRes);
 
-  i.setState({ showRemoveModDialog: false });
+  i.setState({ showRemoveModDialog: undefined });
   if (addModRes.state === "success") {
     toast(I18NextService.i18n.t(form.added ? "appointed_mod" : "removed_mod"));
   }
