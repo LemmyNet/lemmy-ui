@@ -46,6 +46,22 @@ export function amTopMod(
   return mods.at(0)?.moderator.id === myUserInfo?.local_user_view.person.id;
 }
 
+export function canRemoveModerator(
+  mods: CommunityModeratorView[],
+  mod: CommunityModeratorView,
+  myUserInfo: MyUserInfo | undefined,
+): boolean {
+  const myPosition = mods.findIndex(
+    m => m.moderator.id === myUserInfo?.local_user_view.person.id,
+  );
+  const modPosition = mods.findIndex(m => m.moderator.id === mod.moderator.id);
+
+  return (
+    myPosition < modPosition ||
+    (myUserInfo?.local_user_view.local_user.admin ?? false)
+  );
+}
+
 export function canAdmin(
   creatorId: number,
   admins: PersonView[],

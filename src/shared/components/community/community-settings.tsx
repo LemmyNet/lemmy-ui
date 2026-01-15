@@ -1,11 +1,14 @@
-import { enableNsfw, setIsoData } from "@utils/app";
+import { enableNsfw, fetchUsers, personToChoice, setIsoData } from "@utils/app";
 import {
   resourcesSettled,
   bareRoutePush,
   capitalizeFirstLetter,
+  getIdFromString,
+  debounce,
+  getApubName,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { RouteDataResponse } from "@utils/types";
+import { Choice, RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -45,8 +48,9 @@ import { PersonListing } from "@components/person/person-listing";
 import { MomentTime } from "@components/common/moment-time";
 import ConfirmationModal from "@components/common/modal/confirmation-modal";
 import { UserBadges } from "@components/common/user-badges";
-import { Spinner } from "@components/common/icon";
-import { amTopMod } from "@utils/roles";
+import { Icon, Spinner } from "@components/common/icon";
+import { amTopMod, canRemoveModerator } from "@utils/roles";
+import { SearchableSelect } from "@components/common/searchable-select";
 
 type CommunitySettingsData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -61,7 +65,10 @@ interface State {
   leaveModTeamRes: RequestState<AddModToCommunityResponse>;
   purgeCommunityRes: RequestState<SuccessResponse>;
   isIsomorphic: boolean;
-  showConfirmLeaveModTeam: boolean;
+  showLeaveModTeamDialog: boolean;
+  showRemoveModDialog: boolean;
+  addModSearchOptions: Choice[];
+  addModSearchLoading: boolean;
 }
 
 // There are no url filters to this page, hence no props
@@ -87,8 +94,11 @@ export class CommunitySettings extends Component<RouteProps, State> {
     removeCommunityRes: EMPTY_REQUEST,
     leaveModTeamRes: EMPTY_REQUEST,
     purgeCommunityRes: EMPTY_REQUEST,
-    showConfirmLeaveModTeam: false,
+    showLeaveModTeamDialog: false,
+    showRemoveModDialog: false,
     isIsomorphic: false,
+    addModSearchOptions: [],
+    addModSearchLoading: false,
   };
 
   loadingSettled() {
@@ -265,9 +275,9 @@ export class CommunitySettings extends Component<RouteProps, State> {
   }
 
   moderatorsTab() {
-    const mods =
+    const res =
       this.state.communityRes.state === "success" &&
-      this.state.communityRes.data.moderators;
+      this.state.communityRes.data;
 
     const myUserInfo = this.isoData.myUserInfo;
 
@@ -295,8 +305,8 @@ export class CommunitySettings extends Component<RouteProps, State> {
             </div>
           </div>
           <TableHr />
-          {mods &&
-            mods.map(m => (
+          {res &&
+            res.moderators.map(m => (
               <>
                 <div className="row" key={m.moderator.id}>
                   <div className={nameCols}>
@@ -312,7 +322,44 @@ export class CommunitySettings extends Component<RouteProps, State> {
                       myUserInfo={myUserInfo}
                       creator={m.moderator}
                     />
+                    {canRemoveModerator(res.moderators, m, myUserInfo) && (
+                      <>
+                        <button
+                          className="btn btn-link"
+                          onClick={() =>
+                            this.setState({ showRemoveModDialog: true })
+                          }
+                          data-tippy-content={I18NextService.i18n.t(
+                            "remove_as_mod",
+                          )}
+                        >
+                          <Icon icon="x" classes="icon-inline text-danger" />
+                        </button>
+                        <ConfirmationModal
+                          show={this.state.showRemoveModDialog}
+                          message={I18NextService.i18n.t(
+                            "remove_as_mod_are_you_sure",
+                            {
+                              user: getApubName(m.moderator),
+                              community: getApubName(m.community),
+                            },
+                          )}
+                          loadingMessage={I18NextService.i18n.t("removing_mod")}
+                          onNo={() =>
+                            this.setState({ showRemoveModDialog: false })
+                          }
+                          onYes={() =>
+                            handleAddMod(this, {
+                              community_id: res.community_view.community.id,
+                              person_id: m.moderator.id,
+                              added: false,
+                            })
+                          }
+                        />
+                      </>
+                    )}
                   </div>
+
                   <div className={dataCols}>
                     <MomentTime published={m.moderator.published_at} />
                   </div>
@@ -323,7 +370,24 @@ export class CommunitySettings extends Component<RouteProps, State> {
               </>
             ))}
         </div>
-        {mods && !amTopMod(mods, myUserInfo) && (
+        <div className="row">
+          <div className="col-12 col-md-4">
+            <SearchableSelect
+              id="add-mod-to-community-select"
+              options={[
+                {
+                  label: I18NextService.i18n.t("appoint_mod"),
+                  value: "",
+                  disabled: true,
+                } as Choice,
+              ].concat(this.state.addModSearchOptions)}
+              loading={this.state.addModSearchLoading}
+              onChange={choice => handleAddModSelect(this, choice)}
+              onSearch={res => handleAddModSearch(this, res)}
+            />
+          </div>
+        </div>
+        {res && !amTopMod(res.moderators, myUserInfo) && (
           <>
             {this.leaveModTeam()}
             <ConfirmationModal
@@ -331,7 +395,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
               loadingMessage={I18NextService.i18n.t("leaving_mod_team")}
               onNo={() => handleToggleShowLeaveModTeamConfirmation(this)}
               onYes={() => handleLeaveModTeam(this, myUserInfo)}
-              show={this.state.showConfirmLeaveModTeam}
+              show={this.state.showLeaveModTeamDialog}
             />
           </>
         )}
@@ -408,13 +472,23 @@ async function handleDeleteCommunity(i: CommunitySettings, deleted: boolean) {
   }
 }
 
-// TODO need an abstracted user search dropdown for this
-async function handleAddModToCommunity(
-  i: CommunitySettings,
-  form: AddModToCommunity,
-) {
+function handleAddModSelect(i: CommunitySettings, choice: Choice) {
+  const person_id = getIdFromString(choice.value);
+  if (i.state.communityRes.state === "success" && person_id) {
+    const form: AddModToCommunity = {
+      person_id,
+      community_id: i.state.communityRes.data.community_view.community.id,
+      added: true,
+    };
+    handleAddMod(i, form);
+  }
+}
+
+async function handleAddMod(i: CommunitySettings, form: AddModToCommunity) {
   const addModRes = await HttpService.client.addModToCommunity(form);
   i.updateModerators(addModRes);
+
+  i.setState({ showRemoveModDialog: false });
   if (addModRes.state === "success") {
     toast(I18NextService.i18n.t(form.added ? "appointed_mod" : "removed_mod"));
   }
@@ -477,12 +551,45 @@ async function handleLeaveModTeam(
 
     if (i.state.leaveModTeamRes.state === "success") {
       toast(I18NextService.i18n.t("left_admin_team"));
-      i.setState({ showConfirmLeaveModTeam: false });
+      i.setState({ showLeaveModTeamDialog: false });
       i.context.router.history.replace("/");
     }
   }
 }
 
 function handleToggleShowLeaveModTeamConfirmation(i: CommunitySettings) {
-  i.setState({ showConfirmLeaveModTeam: !i.state.showConfirmLeaveModTeam });
+  i.setState({ showLeaveModTeamDialog: !i.state.showLeaveModTeamDialog });
 }
+
+const handleAddModSearch = debounce(
+  async (i: CommunitySettings, text: string) => {
+    const currentMods =
+      (i.state.communityRes.state === "success" &&
+        i.state.communityRes.data.moderators) ||
+      [];
+
+    i.setState({ addModSearchLoading: true });
+
+    const newOptions: Choice[] = [];
+
+    if (text.length > 0) {
+      newOptions.push(
+        ...(await fetchUsers(text))
+          // Filter out current mods
+          .filter(
+            pv =>
+              !currentMods.map(cc => cc.moderator.id).includes(pv.person.id),
+          )
+          .map(personToChoice),
+      );
+
+      i.setState({
+        addModSearchOptions: newOptions,
+      });
+    }
+
+    i.setState({
+      addModSearchLoading: false,
+    });
+  },
+);
