@@ -1179,12 +1179,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   handleTitleOnlyChange(i: Search, event: any) {
     const titleOnly = event.target.checked;
-    i.updateUrl({ titleOnly, q: i.getQ() });
+    // Don't allow post url and post title only to be checked at the same time
+    i.updateUrl({ titleOnly, q: i.getQ(), postUrlOnly: false });
   }
 
   handlePostUrlOnlyChange(i: Search, event: any) {
     const postUrlOnly = event.target.checked;
-    i.updateUrl({ postUrlOnly, q: i.getQ() });
+    // Don't allow post url and post title only to be checked at the same time
+    i.updateUrl({ postUrlOnly, q: i.getQ(), titleOnly: false });
   }
 
   handleTypeChange(i: Search, event: any) {
