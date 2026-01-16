@@ -245,9 +245,12 @@ export function getApubName({ name, ap_id }: { name: string; ap_id: string }) {
 }
 
 export function unreadCommentsCount(pv: PostView): number | undefined {
-  const unread_comments =
-    pv.post.comments - (pv.post_actions?.read_comments_amount ?? 0);
-  return unread_comments === pv.post.comments || unread_comments === 0
+  const postComments = pv.post.comments;
+  const readComments = pv.post_actions?.read_comments_amount ?? 0;
+
+  // Hide if you haven't read any, or if you've read all the post comments
+  // Use >= because a post might have a comment removed.
+  return readComments >= postComments || readComments === 0
     ? undefined
-    : unread_comments;
+    : postComments - readComments;
 }
