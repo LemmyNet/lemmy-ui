@@ -1,9 +1,8 @@
 import { getQueryString, hostname } from "@utils/helpers";
-import { amAdmin, amMod, amTopMod } from "@utils/roles";
+import { amAdmin, amMod } from "@utils/roles";
 import { Component, FormEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
-  AddModToCommunity,
   BlockCommunity,
   CommunityModeratorView,
   CommunityNotificationsMode,
@@ -31,7 +30,6 @@ import { LanguageList } from "@components/common/language-list";
 import { NoOptionI18nKeys } from "i18next";
 import { canViewCommunity } from "@utils/app";
 import { CreatePostButton } from "@components/common/content-actions/create-item-buttons";
-import ConfirmationModal from "@components/common/modal/confirmation-modal";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
 import { Link } from "inferno-router";
 
@@ -48,21 +46,18 @@ interface SidebarProps {
   myUserInfo: MyUserInfo | undefined;
   onRemove(form: RemoveCommunity): void;
   onPurge(form: PurgeCommunity): void;
-  onLeaveModTeam(form: AddModToCommunity): void;
   onFollow(form: FollowCommunity): void;
   onBlock(form: BlockCommunity): void;
   onUpdateNotifs(form: UpdateCommunityNotifications): void;
   removeLoading: boolean;
   purgeLoading: boolean;
   followLoading: boolean;
-  leaveModTeamLoading: boolean;
 }
 
 interface SidebarState {
   showRemoveDialog: boolean;
   removeExpires?: string;
   showPurgeDialog: boolean;
-  showConfirmLeaveModTeam: boolean;
   showReportModal: boolean;
   searchText: string;
   notifications: CommunityNotificationsMode;
@@ -78,7 +73,6 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
       "replies_and_mentions",
     showRemoveDialog: false,
     showPurgeDialog: false,
-    showConfirmLeaveModTeam: false,
   };
 
   constructor(props: any, context: any) {
@@ -86,7 +80,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
   }
 
   render() {
-    const { communityView, myUserInfo, moderators } = this.props;
+    const { communityView, myUserInfo } = this.props;
     const {
       community,
       community: {
@@ -169,32 +163,6 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                   {this.amModOrAdmin() && (
                     <CommunitySettingsLink community={community} />
                   )}
-                  {amMod(communityView) &&
-                    !amTopMod(moderators, myUserInfo) && (
-                      <>
-                        <button
-                          className="btn btn-secondary d-block mb-2 w-100"
-                          onClick={() =>
-                            handleToggleConfirmLeaveModTeamModal(this)
-                          }
-                        >
-                          {I18NextService.i18n.t("leave_mod_team")}
-                        </button>
-                        <ConfirmationModal
-                          message={I18NextService.i18n.t(
-                            "leave_mod_team_confirmation",
-                          )}
-                          loadingMessage={I18NextService.i18n.t(
-                            "leaving_mod_team",
-                          )}
-                          onNo={() =>
-                            handleToggleConfirmLeaveModTeamModal(this)
-                          }
-                          onYes={() => handleLeaveModTeam(this)}
-                          show={this.state.showConfirmLeaveModTeam}
-                        />
-                      </>
-                    )}
                   {amAdmin(myUserInfo) && (
                     <>
                       <button
@@ -450,10 +418,6 @@ function handleSearchSubmit(
   );
 }
 
-function handleToggleConfirmLeaveModTeamModal(i: CommunitySidebar) {
-  i.setState({ showConfirmLeaveModTeam: !i.state.showConfirmLeaveModTeam });
-}
-
 function handleShowReportModal(i: CommunitySidebar) {
   i.setState({ showReportModal: true });
 }
@@ -532,16 +496,4 @@ function handleBlock(i: CommunitySidebar) {
     community_id: community.id,
     block: !blocked_at,
   });
-}
-
-function handleLeaveModTeam(i: CommunitySidebar) {
-  const myId = i.props.myUserInfo?.local_user_view.person.id;
-  i.setState({ showConfirmLeaveModTeam: false });
-  if (myId) {
-    i.props.onLeaveModTeam({
-      community_id: i.props.communityView.community.id,
-      person_id: myId,
-      added: false,
-    });
-  }
 }

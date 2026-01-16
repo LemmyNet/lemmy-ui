@@ -925,13 +925,9 @@ export class Post extends Component<PostRouteProps, PostState> {
           onUpdateNotifs={this.handleUpdateCommunityNotifs}
           onRemove={form => this.handleModRemoveCommunity(form)}
           onPurge={form => this.handlePurgeCommunity(form)}
-          onLeaveModTeam={form => this.handleAddModToCommunity(form)}
           removeLoading={this.state.removeCommunityRes.state === "loading"}
           purgeLoading={this.state.purgeCommunityRes.state === "loading"}
           followLoading={this.state.followCommunityRes.state === "loading"}
-          leaveModTeamLoading={
-            this.state.addModToCommunityRes.state === "loading"
-          }
         />
       );
     }

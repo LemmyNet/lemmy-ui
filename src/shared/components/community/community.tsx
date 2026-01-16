@@ -549,13 +549,9 @@ export class Community extends Component<CommunityRouteProps, State> {
           onUpdateNotifs={form => handleUpdateCommunityNotifs(form)}
           onRemove={form => handleRemoveCommunity(this, form)}
           onPurge={form => handlePurgeCommunity(this, form)}
-          onLeaveModTeam={form => handleAddModToCommunity(this, form)}
           removeLoading={this.state.removeCommunityRes.state === "loading"}
           purgeLoading={this.state.purgeCommunityRes.state === "loading"}
           followLoading={this.state.followCommunityRes.state === "loading"}
-          leaveModTeamLoading={
-            this.state.addModToCommunityRes.state === "loading"
-          }
         />
         {!res.community_view.community.local && res.site && (
           <SiteSidebar site={res.site} myUserInfo={this.isoData.myUserInfo} />
