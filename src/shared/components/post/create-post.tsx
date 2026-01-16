@@ -463,11 +463,9 @@ export class CreatePost extends Component<
           onUpdateNotifs={() => {}}
           onRemove={() => {}}
           onPurge={() => {}}
-          onLeaveModTeam={() => {}}
           removeLoading={false}
           purgeLoading={false}
           followLoading={false}
-          leaveModTeamLoading={false}
         />
       );
     }
