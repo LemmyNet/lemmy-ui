@@ -60,6 +60,7 @@ You need to have [pnpm](https://pnpm.io/installation) installed. Then run the fo
 git clone https://github.com/LemmyNet/lemmy-ui.git
 cd lemmy-ui
 pnpm install
+pnpm translations:init
 LEMMY_UI_BACKEND=https://voyager.lemmy.ml pnpm dev
 ```
 
