@@ -19,6 +19,10 @@ import cookieParser from "cookie-parser";
 import { setupMarkdown } from "@utils/markdown";
 import compression from "compression";
 import { enableResponseBodyCompression } from "./utils/dev-env";
+import FrontPageFeedHandler from "./handlers/frontpage-feed-handler";
+import ProfileFeedHandler from "./handlers/profile-feed-handler";
+import CommunityFeedHandler from "./handlers/community-feed-handler";
+import MultiCommunityFeedHandler from "./handlers/multi-community-feed-handler";
 
 const server = express();
 server.use(cookieParser());
@@ -81,6 +85,10 @@ server.get("/manifest.webmanifest", ManifestHandler);
 server.get("/css/themes/:name", ThemeHandler);
 server.get("/css/code-themes/:name", CodeThemeHandler);
 server.get("/css/themelist", ThemesListHandler);
+server.get("/feed", FrontPageFeedHandler);
+server.get("/u/:name/feed", ProfileFeedHandler);
+server.get("/c/:name/feed", CommunityFeedHandler);
+server.get("/m/:name/feed", MultiCommunityFeedHandler);
 server.get("/{*splat}", CatchAllHandler);
 
 const listener = server.listen(Number(port), hostname, () => {
