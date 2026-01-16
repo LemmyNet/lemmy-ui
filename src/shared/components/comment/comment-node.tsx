@@ -3,7 +3,7 @@ import { numToSI } from "@utils/helpers";
 import { futureDaysToUnixTime } from "@utils/date";
 import classNames from "classnames";
 import { isBefore, parseISO, subMinutes } from "date-fns";
-import { Component, InfernoNode, InfernoMouseEvent, linkEvent } from "inferno";
+import { Component, InfernoMouseEvent, InfernoNode, linkEvent } from "inferno";
 import { Link } from "inferno-router";
 import {
   AddAdmin,
@@ -64,10 +64,6 @@ type CommentNodeState = {
   collapsed: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
-  createOrEditCommentLoading: boolean;
-  upvoteLoading: boolean;
-  downvoteLoading: boolean;
-  markLoading: boolean;
   fetchChildrenLoading: boolean;
 };
 
@@ -87,6 +83,8 @@ type CommentNodeProps = {
   hideImages: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
+  createLoading: CommentId | undefined;
+  editLoading: CommentId | undefined;
   onSaveComment(form: SaveComment): void;
   onCreateComment(form: CreateComment): void;
   onEditComment(form: EditComment): void;
@@ -118,10 +116,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     collapsed: this.initCommentCollapsed(),
     viewSource: false,
     showAdvanced: false,
-    createOrEditCommentLoading: false,
-    upvoteLoading: false,
-    downvoteLoading: false,
-    markLoading: false,
     fetchChildrenLoading: false,
   };
 
@@ -131,9 +125,20 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
 
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>,
-  ) {
-    if (this.props.node.view !== nextProps.node.view) {
-      this.setState({ markLoading: false });
+  ): void {
+    if (
+      this.props.editLoading === this.props.node.view.comment_view.comment.id &&
+      this.props.editLoading !== nextProps.editLoading
+    ) {
+      this.setState({ showEdit: false });
+    }
+
+    if (
+      this.props.createLoading ===
+        this.props.node.view.comment_view.comment.id &&
+      this.props.createLoading !== nextProps.createLoading
+    ) {
+      this.setState({ showReply: false });
     }
   }
 
@@ -264,6 +269,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   myUserInfo={this.props.myUserInfo}
                   onEditComment={form => handleEditComment(this, form)}
                   onCreateComment={() => {}}
+                  loading={this.props.editLoading === id}
                 />
               )}
               {!this.state.showEdit && !this.state.collapsed && (
@@ -365,10 +371,13 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               myUserInfo={this.props.myUserInfo}
               onCreateComment={form => handleCreateComment(this, form)}
               onEditComment={() => {}}
+              loading={this.props.createLoading === id}
             />
           )}
           {!this.state.collapsed && node.view.children.length > 0 && (
             <CommentNodes
+              createLoading={this.props.createLoading}
+              editLoading={this.props.editLoading}
               nodes={buildNodeChildren(this.props.node)}
               postCreatorId={this.postCreatorId}
               community={this.community}
@@ -488,12 +497,10 @@ function handleToggleViewSource(i: CommentNode) {
 
 function handleCreateComment(i: CommentNode, form: CreateComment) {
   i.props.onCreateComment(form);
-  i.setState({ showReply: false, showEdit: false });
 }
 
 function handleEditComment(i: CommentNode, form: EditComment) {
   i.props.onEditComment(form);
-  i.setState({ showReply: false, showEdit: false });
 }
 
 function handleCommentCollapse(i: CommentNode, event: InfernoMouseEvent<any>) {

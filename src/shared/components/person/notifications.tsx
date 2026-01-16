@@ -12,7 +12,11 @@ import {
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { RouteDataResponse } from "@utils/types";
+import {
+  CommentIdAndRes,
+  commentLoading,
+  RouteDataResponse,
+} from "@utils/types";
 import classNames from "classnames";
 import { Component, InfernoNode, linkEvent } from "inferno";
 import {
@@ -103,6 +107,9 @@ interface NotificationsState {
   messageType: NotificationDataType;
   notifsRes: RequestState<PagedResponse<NotificationView>>;
   markAllAsReadRes: RequestState<SuccessResponse>;
+  privateMessageRes: RequestState<PrivateMessageResponse>;
+  createCommentRes: CommentIdAndRes;
+  editCommentRes: CommentIdAndRes;
   cursor?: PaginationCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
@@ -132,6 +139,9 @@ export class Notifications extends Component<
     siteRes: this.isoData.siteRes,
     notifsRes: EMPTY_REQUEST,
     markAllAsReadRes: EMPTY_REQUEST,
+    privateMessageRes: EMPTY_REQUEST,
+    createCommentRes: { commentId: 0, res: EMPTY_REQUEST },
+    editCommentRes: { commentId: 0, res: EMPTY_REQUEST },
     isIsomorphic: false,
   };
 
@@ -345,6 +355,8 @@ export class Notifications extends Component<
           <CommentNode
             key={item.notification.id}
             node={commentToFlatNode(data)}
+            createLoading={commentLoading(this.state.createCommentRes)}
+            editLoading={commentLoading(this.state.editCommentRes)}
             viewType={"flat"}
             showCommunity
             showContext
@@ -387,6 +399,9 @@ export class Notifications extends Component<
             onEdit={this.handleEditMessage}
             read={item.notification.read}
             onMarkRead={this.handleMessageMarkAsRead}
+            createOrEditLoading={
+              this.state.privateMessageRes.state === "loading"
+            }
           />
         );
       case "post":
@@ -595,7 +610,19 @@ export class Notifications extends Component<
   }
 
   async handleCreateComment(form: CreateComment) {
+    this.setState({
+      createCommentRes: {
+        commentId: form.parent_id ?? 0,
+        res: LOADING_REQUEST,
+      },
+    });
     const res = await HttpService.client.createComment(form);
+    this.setState({
+      createCommentRes: {
+        commentId: form.parent_id ?? 0,
+        res,
+      },
+    });
 
     if (res.state === "success") {
       toast(I18NextService.i18n.t("reply_sent"));
@@ -606,7 +633,14 @@ export class Notifications extends Component<
   }
 
   async handleEditComment(form: EditComment) {
+    this.setState({
+      editCommentRes: { commentId: form.comment_id, res: LOADING_REQUEST },
+    });
+
     const res = await HttpService.client.editComment(form);
+    this.setState({
+      editCommentRes: { commentId: form.comment_id, res },
+    });
 
     if (res.state === "success") {
       toast(I18NextService.i18n.t("edit"));
@@ -726,7 +760,10 @@ export class Notifications extends Component<
   }
 
   async handleEditMessage(form: EditPrivateMessage): Promise<boolean> {
+    this.setState({ privateMessageRes: LOADING_REQUEST });
     const res = await HttpService.client.editPrivateMessage(form);
+    this.setState({ privateMessageRes: res });
+
     this.findAndUpdateMessage(res);
     if (res.state === "failed") {
       toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
@@ -760,7 +797,10 @@ export class Notifications extends Component<
   }
 
   async handleCreateMessage(form: CreatePrivateMessage): Promise<boolean> {
+    this.setState({ privateMessageRes: LOADING_REQUEST });
     const res = await HttpService.client.createPrivateMessage(form);
+    this.setState({ privateMessageRes: res });
+
     this.setState(s => {
       if (s.notifsRes.state === "success" && res.state === "success") {
         s.notifsRes.data.items.unshift({

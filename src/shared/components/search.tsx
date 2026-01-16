@@ -354,6 +354,8 @@ const commentListing = (
               key={c.comment.id}
               nodes={[commentToFlatNode(c)]}
               viewType={"flat"}
+              createLoading={undefined}
+              editLoading={undefined}
               viewOnly
               postLockedOrRemovedOrDeleted
               isTopLevel
@@ -938,6 +940,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       <CommentNodes
         nodes={commentsToFlatNodes(comments)}
         viewType={"flat"}
+        createLoading={undefined}
+        editLoading={undefined}
         viewOnly
         postLockedOrRemovedOrDeleted
         isTopLevel
