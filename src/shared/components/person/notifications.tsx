@@ -2,6 +2,7 @@ import {
   commentToFlatNode,
   enableNsfw,
   myAuth,
+  reportToast,
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
@@ -24,7 +25,6 @@ import {
   BlockCommunity,
   BlockPerson,
   CommentId,
-  CommentReportResponse,
   CommentResponse,
   CommunityId,
   CreateComment,
@@ -47,7 +47,6 @@ import {
   NotificationDataType,
   NotificationView,
   PrivateMessageId,
-  PrivateMessageReportResponse,
   PrivateMessageResponse,
   PurgeComment,
   PurgePerson,
@@ -658,7 +657,7 @@ export class Notifications extends Component<
 
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
-    this.reportToast(reportRes);
+    reportToast(reportRes);
   }
 
   async handleDistinguishComment(form: DistinguishComment) {
@@ -756,7 +755,7 @@ export class Notifications extends Component<
 
   async handleMessageReport(form: CreatePrivateMessageReport) {
     const res = await HttpService.client.createPrivateMessageReport(form);
-    this.reportToast(res);
+    reportToast(res);
   }
 
   async handleCreateMessage(form: CreatePrivateMessage): Promise<boolean> {
@@ -878,16 +877,6 @@ export class Notifications extends Component<
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
       this.context.router.history.push(`/`);
-    }
-  }
-
-  reportToast(
-    res: RequestState<PrivateMessageReportResponse | CommentReportResponse>,
-  ) {
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("report_created"));
-    } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
   }
 
