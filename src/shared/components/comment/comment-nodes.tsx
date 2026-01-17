@@ -8,6 +8,7 @@ import {
   BanPerson,
   BlockCommunity,
   BlockPerson,
+  CommentId,
   Community,
   CreateComment,
   CreateCommentLike,
@@ -59,6 +60,8 @@ interface CommentNodesProps {
   depth?: number;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
+  createLoading: CommentId | undefined;
+  editLoading: CommentId | undefined;
   onSaveComment(form: SaveComment): void;
   onCreateComment(form: CreateComment): void;
   onEditComment(form: EditComment): void;
@@ -116,6 +119,8 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               postLockedOrRemovedOrDeleted={
                 this.props.postLockedOrRemovedOrDeleted
               }
+              createLoading={this.props.createLoading}
+              editLoading={this.props.editLoading}
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
               showContext={this.props.showContext}

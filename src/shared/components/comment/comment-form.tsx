@@ -29,6 +29,7 @@ interface CommentFormProps {
   myUserInfo: MyUserInfo | undefined;
   onCreateComment(form: CreateComment): void;
   onEditComment(form: EditComment): void;
+  loading: boolean;
 }
 
 export class CommentForm extends Component<CommentFormProps, any> {
@@ -71,6 +72,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
             myUserInfo={this.props.myUserInfo}
+            loading={this.props.loading}
           />
         ) : (
           <div className="alert alert-warning" role="alert">

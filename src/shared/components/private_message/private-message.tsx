@@ -19,16 +19,6 @@ import ModActionFormModal from "../common/modal/mod-action-form-modal";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { mark_as_read_i18n } from "@utils/app";
 
-interface PrivateMessageState {
-  showReply: boolean;
-  showEdit: boolean;
-  collapsed: boolean;
-  viewSource: boolean;
-  showReportDialog: boolean;
-  deleteLoading: boolean;
-  readLoading: boolean;
-}
-
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
   myUserInfo: MyUserInfo | undefined;
@@ -38,6 +28,17 @@ interface PrivateMessageProps {
   onEdit(form: EditPrivateMessage): Promise<boolean>;
   read: boolean;
   onMarkRead(privateMessageId: PrivateMessageId, read: boolean): void;
+  createOrEditLoading: boolean;
+}
+
+interface PrivateMessageState {
+  showReply: boolean;
+  showEdit: boolean;
+  collapsed: boolean;
+  viewSource: boolean;
+  showReportDialog: boolean;
+  deleteLoading: boolean;
+  readLoading: boolean;
 }
 
 @tippyMixin
@@ -131,6 +132,7 @@ export class PrivateMessage extends Component<
               myUserInfo={this.props.myUserInfo}
               onEdit={this.handleEdit}
               onCancel={this.handleReplyCancel}
+              createOrEditLoading={this.props.createOrEditLoading}
             />
           )}
           {!this.state.showEdit && !this.state.collapsed && (
@@ -266,6 +268,7 @@ export class PrivateMessage extends Component<
                 myUserInfo={this.props.myUserInfo}
                 onCreate={this.handleCreate}
                 onCancel={this.handleReplyCancel}
+                createOrEditLoading={this.props.createOrEditLoading}
               />
             </div>
           </div>
