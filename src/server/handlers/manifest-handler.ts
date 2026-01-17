@@ -20,7 +20,7 @@ export default async (_req: Request, res: Response) => {
     }
   }
 
-  res.setHeader("content-type", "application/manifest+json");
+  res.type("application/manifest+json");
 
   res.send(manifest);
 };

@@ -449,7 +449,7 @@ export class CreatePost extends Component<
     if (this.state.selectedCommunity) {
       return (
         <CommunitySidebar
-          community_view={this.state.selectedCommunity}
+          communityView={this.state.selectedCommunity}
           moderators={[]} // TODO: fetch GetCommunityResponse?
           admins={this.isoData.siteRes.admins}
           enableNsfw={enableNsfw(this.isoData.siteRes)}
@@ -458,14 +458,14 @@ export class CreatePost extends Component<
           siteLanguages={this.isoData.siteRes.discussion_languages}
           myUserInfo={this.isoData.myUserInfo}
           hideButtons
-          onDeleteCommunity={async () => {}}
-          onLeaveModTeam={async () => {}}
-          onFollowCommunity={async () => {}}
-          onRemoveCommunity={async () => {}}
-          onPurgeCommunity={async () => {}}
-          onBlockCommunity={async () => {}}
-          onEditCommunity={async () => {}}
-          onUpdateCommunityNotifs={async () => {}}
+          onFollow={() => {}}
+          onBlock={() => {}}
+          onUpdateNotifs={() => {}}
+          onRemove={() => {}}
+          onPurge={() => {}}
+          removeLoading={false}
+          purgeLoading={false}
+          followLoading={false}
         />
       );
     }

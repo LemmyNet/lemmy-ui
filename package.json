@@ -112,7 +112,7 @@
     "@types/bootstrap": "^5.2.10",
     "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.7",
-    "@types/express": "^5.0.1",
+    "@types/express": "^5.0.6",
     "@types/html-to-text": "^9.0.4",
     "@types/markdown-it": "^14.1.2",
     "@types/markdown-it-container": "^2.0.10",
