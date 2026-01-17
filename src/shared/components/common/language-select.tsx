@@ -1,7 +1,7 @@
 import { selectableLanguages } from "@utils/app";
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component, FormEvent, InfernoMouseEvent, linkEvent } from "inferno";
 import { Language, MyUserInfo } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
@@ -38,8 +38,6 @@ export class LanguageSelect extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.handleCheckboxLanguageChange =
-      this.handleCheckboxLanguageChange.bind(this);
   }
 
   componentDidMount() {
@@ -177,7 +175,7 @@ export class LanguageSelect extends Component<
           className="form-control flex-initial  border border-0"
           placeholder={`${I18NextService.i18n.t("search")}...`}
           aria-label={I18NextService.i18n.t("search")}
-          onInput={linkEvent(this, this.handleSearchChange)}
+          onInput={e => handleSearchChange(this, e)}
           minLength={1}
           value={this.state.filter}
           autoComplete="off"
@@ -198,7 +196,7 @@ export class LanguageSelect extends Component<
               <button
                 type="button"
                 className="btn text-start w-100 rounded-0 language-item"
-                onClick={linkEvent(this, this.handleCheckboxLanguageChange)}
+                onClick={e => handleCheckboxLanguageChange(this, e)}
                 id={l.id.toString()}
               >
                 <input
@@ -220,24 +218,30 @@ export class LanguageSelect extends Component<
       </div>
     );
   }
+}
 
-  handleCheckboxLanguageChange(i: LanguageSelect, event: any) {
-    const id = Number(event.target.id);
-    if (!i.state.selected.includes(id)) {
-      i.state.selected.push(id);
-    } else {
-      // remove the item
-      const index = i.state.selected.indexOf(id);
-      if (index > -1) {
-        i.state.selected.splice(index, 1);
-      }
+function handleCheckboxLanguageChange(
+  i: LanguageSelect,
+  event: InfernoMouseEvent<HTMLButtonElement>,
+) {
+  const id = Number(event.target.id);
+  if (!i.state.selected.includes(id)) {
+    i.state.selected.push(id);
+  } else {
+    // remove the item
+    const index = i.state.selected.indexOf(id);
+    if (index > -1) {
+      i.state.selected.splice(index, 1);
     }
-    this.setState({ selected: i.state.selected });
-    i.props.onChange(i.state.selected);
   }
+  i.setState({ selected: i.state.selected });
+  i.props.onChange(i.state.selected);
+}
 
-  handleSearchChange(i: LanguageSelect, event: any) {
-    this.setState({ filter: event.target.value });
-    i.forceUpdate();
-  }
+function handleSearchChange(
+  i: LanguageSelect,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState({ filter: event.target.value });
+  i.forceUpdate();
 }
