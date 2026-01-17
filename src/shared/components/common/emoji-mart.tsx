@@ -13,21 +13,22 @@ export class EmojiMart extends Component<EmojiMartProps> {
     super(props, context);
 
     this.div = createRef();
-
-    this.handleEmojiClick = this.handleEmojiClick.bind(this);
   }
 
   componentDidMount() {
     this.div.current?.appendChild(
-      getEmojiMart(this.handleEmojiClick, this.props.pickerOptions) as any,
+      getEmojiMart(
+        e => handleEmojiClick(this, e),
+        this.props.pickerOptions,
+      ) as any,
     );
   }
 
   render() {
     return <div id="emoji-picker" ref={this.div} />;
   }
+}
 
-  handleEmojiClick(e: any) {
-    this.props.onEmojiClick?.(e);
-  }
+function handleEmojiClick(i: EmojiMart, e: any) {
+  i.props.onEmojiClick?.(e);
 }
