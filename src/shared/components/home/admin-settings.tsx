@@ -205,7 +205,7 @@ export class AdminSettings extends Component<
                     <div className="col-12 col-md-6">
                       <SiteForm
                         showLocal={showLocal(this.isoData)}
-                        onSaveSite={form => handleEditSite(this, form)}
+                        onEdit={form => handleEditSite(this, form)}
                         siteRes={this.isoData.siteRes}
                         themeList={this.state.themeList}
                         loading={this.state.loading}

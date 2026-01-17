@@ -32,7 +32,8 @@ import { PostListingModeSelect } from "@components/common/post-listing-mode-sele
 interface SiteFormProps {
   showLocal?: boolean;
   themeList?: string[];
-  onSaveSite(form: EditSite): void;
+  onCreate?(form: CreateSite): void;
+  onEdit?(form: EditSite): void;
   siteRes: GetSiteResponse;
   loading: boolean;
   myUserInfo: MyUserInfo | undefined;
@@ -104,7 +105,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   render() {
     const siteSetup = this.props.siteRes?.site_view.local_site.site_setup;
     return (
-      <form className="site-form" onSubmit={e => handleSaveSiteSubmit(this, e)}>
+      <form className="site-form" onSubmit={e => handleSubmit(this, e)}>
         <Prompt
           message={I18NextService.i18n.t("block_leaving")}
           when={
@@ -695,18 +696,17 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   }
 }
 
-function handleSaveSiteSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
+function handleSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
   i.setState({ submitted: true });
 
   const stateSiteForm = i.state.siteForm;
 
-  let form: EditSite | CreateSite;
-
   if (i.props.siteRes?.site_view.local_site.site_setup) {
-    form = stateSiteForm;
+    const form = stateSiteForm;
+    i.props.onEdit?.(form);
   } else {
-    form = {
+    const form: CreateSite = {
       name: stateSiteForm.name ?? "My site",
       sidebar: stateSiteForm.sidebar,
       description: stateSiteForm.description,
@@ -759,9 +759,8 @@ function handleSaveSiteSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
       captcha_difficulty: stateSiteForm.captcha_difficulty,
       discussion_languages: stateSiteForm.discussion_languages,
     };
+    i.props.onCreate?.(form);
   }
-
-  i.props.onSaveSite(form);
 }
 
 function handleSiteNameChange(i: SiteForm, event: FormEvent<HTMLInputElement>) {
