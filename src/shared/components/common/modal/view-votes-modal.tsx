@@ -1,4 +1,10 @@
-import { Component, InfernoNode, RefObject, createRef } from "inferno";
+import {
+  Component,
+  InfernoNode,
+  RefObject,
+  createRef,
+  linkEvent,
+} from "inferno";
 import { I18NextService } from "../../../services";
 import type { Modal } from "bootstrap";
 import { Icon, Spinner } from "../icon";
@@ -93,6 +99,9 @@ export default class ViewVotesModal extends Component<
 
     this.modalDivRef = createRef();
     this.yesButtonRef = createRef();
+
+    this.handleDismiss = this.handleDismiss.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
   }
 
   async componentWillMount() {
@@ -137,7 +146,7 @@ export default class ViewVotesModal extends Component<
               <button
                 type="button"
                 className="btn-close"
-                onClick={() => handleDismiss(this)}
+                onClick={linkEvent(this, this.handleDismiss)}
                 aria-label={I18NextService.i18n.t("cancel")}
               ></button>
             </header>
@@ -147,7 +156,7 @@ export default class ViewVotesModal extends Component<
               <PaginatorCursor
                 resource={this.currentRes}
                 current={this.state.cursor}
-                onPageChange={cursor => handlePageChange(this, cursor)}
+                onPageChange={this.handlePageChange}
               />
             </div>
           </div>
@@ -186,6 +195,20 @@ export default class ViewVotesModal extends Component<
     }
   }
 
+  handleShow() {
+    this.yesButtonRef.current?.focus();
+  }
+
+  handleDismiss() {
+    this.props.onCancel();
+    this.modal?.hide();
+  }
+
+  async handlePageChange(cursor?: PaginationCursor) {
+    this.setState({ cursor });
+    await this.refetch();
+  }
+
   async refetch() {
     const cursor = this.state.cursor;
     const limit = fetchLimit;
@@ -210,14 +233,4 @@ export default class ViewVotesModal extends Component<
       });
     }
   }
-}
-
-function handleDismiss(i: ViewVotesModal) {
-  i.props.onCancel();
-  i.modal?.hide();
-}
-
-async function handlePageChange(i: ViewVotesModal, cursor?: PaginationCursor) {
-  i.setState({ cursor });
-  await i.refetch();
 }
