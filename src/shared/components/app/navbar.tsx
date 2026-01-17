@@ -34,21 +34,6 @@ interface NavbarState {
   unreadPendingFollowsCount: number;
 }
 
-function handleCollapseClick(i: Navbar) {
-  if (
-    i.collapseButtonRef.current?.attributes &&
-    i.collapseButtonRef.current?.attributes.getNamedItem("aria-expanded")
-      ?.value === "true"
-  ) {
-    i.collapseButtonRef.current?.click();
-  }
-}
-
-function handleLogOut(i: Navbar) {
-  UserService.Instance.logout();
-  handleCollapseClick(i);
-}
-
 @tippyMixin
 export class Navbar extends Component<NavbarProps, NavbarState> {
   collapseButtonRef = createRef<HTMLButtonElement>();
@@ -67,8 +52,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handleOutsideMenuClick = this.handleOutsideMenuClick.bind(this);
   }
 
   async componentWillMount() {
@@ -101,12 +84,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           );
       }
 
-      document.addEventListener("mouseup", this.handleOutsideMenuClick);
+      document.addEventListener("mouseup", e =>
+        handleOutsideMenuClick(this, e),
+      );
     }
   }
 
   componentWillUnmount() {
-    document.removeEventListener("mouseup", this.handleOutsideMenuClick);
+    document.removeEventListener("mouseup", e =>
+      handleOutsideMenuClick(this, e),
+    );
     this.unreadNotifsCountSubscription.unsubscribe();
     this.unreadReportCountSubscription.unsubscribe();
     if (moderatesSomething(this.props.myUserInfo)) {
@@ -508,12 +495,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     );
   }
 
-  handleOutsideMenuClick(event: MouseEvent) {
-    if (!this.mobileMenuRef.current?.contains(event.target as Node | null)) {
-      handleCollapseClick(this);
-    }
-  }
-
   get currentLocation() {
     return this.context.router.history.location.pathname;
   }
@@ -530,5 +511,26 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           Notification.requestPermission();
       });
     }
+  }
+}
+
+function handleCollapseClick(i: Navbar) {
+  if (
+    i.collapseButtonRef.current?.attributes &&
+    i.collapseButtonRef.current?.attributes.getNamedItem("aria-expanded")
+      ?.value === "true"
+  ) {
+    i.collapseButtonRef.current?.click();
+  }
+}
+
+function handleLogOut(i: Navbar) {
+  UserService.Instance.logout();
+  handleCollapseClick(i);
+}
+
+function handleOutsideMenuClick(i: Navbar, event: MouseEvent) {
+  if (!i.mobileMenuRef.current?.contains(event.target as Node | null)) {
+    handleCollapseClick(i);
   }
 }
