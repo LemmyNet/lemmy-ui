@@ -386,6 +386,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         },
       },
     } = this.state;
+    const myUserInfo = this.isoData.myUserInfo;
 
     return (
       <div className="home container-lg">
@@ -396,12 +397,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         {site_setup && (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9">
-              <DonationDialog myUserInfo={this.isoData.myUserInfo} />
-              {this.isoData.myUserInfo?.local_user_view.banned && (
+              <DonationDialog
+                myUserInfo={myUserInfo}
+                onHideDialog={() => handleHideDonationDialog(myUserInfo)}
+              />
+              {myUserInfo?.local_user_view.banned && (
                 <BannedDialog
-                  expires={
-                    this.isoData.myUserInfo?.local_user_view.ban_expires_at
-                  }
+                  expires={myUserInfo?.local_user_view.ban_expires_at}
                 />
               )}
               {tagline && (
@@ -1386,6 +1388,16 @@ async function handleMarkPageAsRead(i: Home, myUserInfo?: MyUserInfo) {
       });
     } else {
       i.setState({ markPageAsReadLoading: false });
+    }
+  }
+}
+
+async function handleHideDonationDialog(myUserInfo?: MyUserInfo) {
+  const res = await HttpService.client.donationDialogShown();
+  if (res.state === "success") {
+    if (myUserInfo !== undefined) {
+      myUserInfo!.local_user_view.local_user.last_donation_notification_at =
+        new Date(0).toString();
     }
   }
 }

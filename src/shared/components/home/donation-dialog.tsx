@@ -1,11 +1,12 @@
 import { Component } from "inferno";
 import { MyUserInfo } from "lemmy-js-client";
-import { HttpService, I18NextService } from "../../services";
+import { I18NextService } from "../../services";
 import { T } from "inferno-i18next-dess";
 import { donateLemmyUrl } from "@utils/config";
 
 interface Props {
   myUserInfo?: MyUserInfo;
+  onHideDialog(): void;
 }
 
 interface State {
@@ -17,9 +18,6 @@ export class DonationDialog extends Component<Props, State> {
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.clickDonate = this.clickDonate.bind(this);
-    this.clickHide = this.clickHide.bind(this);
-    this.hideDialog = this.hideDialog.bind(this);
   }
 
   initializeShow(): boolean {
@@ -44,7 +42,7 @@ export class DonationDialog extends Component<Props, State> {
             <button
               type="button"
               className="btn-close position-relative"
-              onClick={this.clickHide}
+              onClick={() => handleClickHide(this)}
               aria-label={I18NextService.i18n.t("donation_dialog_button_hide")}
             ></button>
           </div>
@@ -54,7 +52,10 @@ export class DonationDialog extends Component<Props, State> {
             </T>
           </div>
           <div className="mt-3">
-            <button className="btn btn-info" onClick={this.clickDonate}>
+            <button
+              className="btn btn-info"
+              onClick={() => handleClickDonate(this)}
+            >
               {I18NextService.i18n.t("donation_dialog_button_donate")}
             </button>
           </div>
@@ -62,23 +63,18 @@ export class DonationDialog extends Component<Props, State> {
       );
     }
   }
+}
 
-  async clickDonate() {
-    window.open(donateLemmyUrl, "_blank")?.focus();
-    await this.hideDialog();
-  }
+function handleClickDonate(i: DonationDialog) {
+  handleHideDialog(i);
+  window.open(donateLemmyUrl, "_blank")?.focus();
+}
 
-  async clickHide() {
-    await this.hideDialog();
-  }
+function handleClickHide(i: DonationDialog) {
+  handleHideDialog(i);
+}
 
-  async hideDialog() {
-    await HttpService.client.donationDialogShown();
-    const my_user = this.props.myUserInfo;
-    if (my_user !== undefined) {
-      my_user!.local_user_view.local_user.last_donation_notification_at =
-        new Date(0).toString();
-    }
-    this.setState({ show: false });
-  }
+function handleHideDialog(i: DonationDialog) {
+  i.setState({ show: false });
+  i.props.onHideDialog();
 }
