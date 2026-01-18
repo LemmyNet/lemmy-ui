@@ -2,6 +2,7 @@ import {
   commentToFlatNode,
   enableNsfw,
   myAuth,
+  notificationsRSSUrl,
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
@@ -73,7 +74,7 @@ import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { PrivateMessage } from "../private_message/private-message";
-import { getHttpBaseInternal, httpBackendUrl } from "@utils/env";
+import { getHttpBaseInternal } from "@utils/env";
 import { CommentsLoadingSkeleton } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
@@ -212,9 +213,7 @@ export class Notifications extends Component<
 
   render() {
     const auth = myAuth();
-    const notifsRss = auth
-      ? httpBackendUrl(`/feeds/notifications/${auth}.xml`)
-      : undefined;
+    const notifsRss = auth ? notificationsRSSUrl(auth) : undefined;
     return (
       <div className="notifications container-lg">
         <div className="row">

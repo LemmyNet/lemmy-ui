@@ -1,15 +1,18 @@
 import {
+  allRSSUrl,
   commentsToFlatNodes,
   defaultPostListingMode,
   editComment,
   editPersonNotes,
   editPost,
   enableNsfw,
+  localRSSUrl,
   mixedToCommentSortType,
   mixedToPostSortType,
   myAuth,
   setIsoData,
   showLocal,
+  subscribedRSSUrl,
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
@@ -97,7 +100,7 @@ import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
-import { getHttpBaseInternal, httpBackendUrl } from "@utils/env";
+import { getHttpBaseInternal } from "@utils/env";
 import {
   CommentsLoadingSkeleton,
   PostsLoadingSkeleton,
@@ -147,18 +150,16 @@ function getRss(listingType: ListingType, sort: PostSortType) {
   const queryString = getQueryString({ sort });
   switch (listingType) {
     case "all": {
-      rss = httpBackendUrl("/feeds/all.xml" + queryString);
+      rss = allRSSUrl(queryString);
       break;
     }
     case "local": {
-      rss = httpBackendUrl("/feeds/local.xml" + queryString);
+      rss = localRSSUrl(queryString);
       break;
     }
     case "subscribed": {
       const auth = myAuth();
-      rss = auth
-        ? httpBackendUrl(`/feeds/front/${auth}.xml${queryString}`)
-        : undefined;
+      rss = auth ? subscribedRSSUrl(auth, queryString) : undefined;
       break;
     }
   }
