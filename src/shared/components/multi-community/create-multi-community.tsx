@@ -1,6 +1,9 @@
 import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
-import { CreateMultiCommunity as CreateMultiCommunityI } from "lemmy-js-client";
+import {
+  CreateMultiCommunity as CreateMultiCommunityI,
+  MyUserInfo,
+} from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 import { MultiCommunityForm } from "./multi-community-form";
@@ -25,7 +28,6 @@ export class CreateMultiCommunity extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.handleCreate = this.handleCreate.bind(this);
   }
 
   get documentTitle(): string {
@@ -35,6 +37,8 @@ export class CreateMultiCommunity extends Component<
   }
 
   render() {
+    const myUserInfo = this.isoData.myUserInfo;
+
     return (
       <div className="create-multi-community container-lg">
         <HtmlTags
@@ -47,27 +51,30 @@ export class CreateMultiCommunity extends Component<
               {I18NextService.i18n.t("create_multi_community")}
             </h1>
             <MultiCommunityForm
-              onCreate={this.handleCreate}
+              onCreate={form => handleCreate(this, form, myUserInfo)}
               loading={this.state.loading}
-              myUserInfo={this.isoData.myUserInfo}
+              myUserInfo={myUserInfo}
             />
           </div>
         </div>
       </div>
     );
   }
+}
+async function handleCreate(
+  i: CreateMultiCommunity,
+  form: CreateMultiCommunityI,
+  myUserInfo?: MyUserInfo,
+) {
+  i.setState({ loading: true });
 
-  async handleCreate(form: CreateMultiCommunityI) {
-    this.setState({ loading: true });
+  const res = await HttpService.client.createMultiCommunity(form);
 
-    const res = await HttpService.client.createMultiCommunity(form);
-
-    if (res.state === "success" && this.isoData.myUserInfo) {
-      const name = res.data.multi_community_view.multi.name;
-      this.props.history.replace(`/m/${name}`);
-    } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-    }
-    this.setState({ loading: false });
+  if (res.state === "success" && myUserInfo) {
+    const name = res.data.multi_community_view.multi.name;
+    i.props.history.replace(`/m/${name}`);
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
+  i.setState({ loading: false });
 }
