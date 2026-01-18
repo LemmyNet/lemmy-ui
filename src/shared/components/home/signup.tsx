@@ -463,12 +463,13 @@ async function handleRegisterSubmit(
 
   // oauth registration
   if (username && oauthProvider)
-    return handleUseOAuthProvider({
-      oauth_provider: oauthProvider,
+    return handleUseOAuthProvider(
+      oauthProvider,
+      undefined,
       username,
       answer,
       show_nsfw,
-    });
+    );
 
   // normal registration
   if (username && password && password_verify) {
