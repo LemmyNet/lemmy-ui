@@ -12,7 +12,7 @@ steps:
       - event: [pull_request, tag]
 
   prettier_check:
-    image: jauderho/prettier:3.7.4-alpine
+    image: jauderho/prettier:3.8.0-alpine
     commands:
       - prettier --no-config --arrow-parens avoid -c .
     when:
