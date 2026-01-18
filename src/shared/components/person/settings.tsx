@@ -19,7 +19,7 @@ import {
 import { capitalizeFirstLetter, debounce } from "@utils/helpers";
 import { Choice, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component, createRef, linkEvent } from "inferno";
+import { Component, createRef, FormEvent } from "inferno";
 import {
   CommunityResponse,
   PersonResponse,
@@ -40,6 +40,10 @@ import {
   SuccessResponse,
   UpdateTotpResponse,
   VoteShow,
+  InstanceId,
+  PersonId,
+  CommunityId,
+  MyUserInfo,
 } from "lemmy-js-client";
 import { matrixUrl, emDash, fetchLimit, relTags } from "@utils/config";
 import { FirstLoadService, UserService } from "../../services";
@@ -164,30 +168,6 @@ const Filter = ({
   </div>
 );
 
-async function handleGenerateTotp(i: Settings) {
-  i.setState({ generateTotpRes: LOADING_REQUEST });
-
-  const generateTotpRes = await HttpService.client.generateTotpSecret();
-
-  if (generateTotpRes.state === "failed") {
-    toast(generateTotpRes.err.name, "danger");
-  } else {
-    i.setState({ show2faModal: true });
-  }
-
-  i.setState({
-    generateTotpRes,
-  });
-}
-
-function handleShowTotpModal(i: Settings) {
-  i.setState({ show2faModal: true });
-}
-
-function handleClose2faModal(i: Settings) {
-  i.setState({ show2faModal: false });
-}
-
 type SettingsRouteProps = RouteComponentProps<Record<string, never>> &
   Record<string, never>;
 export type SettingsFetchConfig = IRoutePropsWithFetch<
@@ -233,37 +213,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handlePostSortTypeChange = this.handlePostSortTypeChange.bind(this);
-    this.handleCommentSortTypeChange =
-      this.handleCommentSortTypeChange.bind(this);
-    this.handlePostTimeRangeChange = this.handlePostTimeRangeChange.bind(this);
-    this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
-    this.handlePostListingModeChange =
-      this.handlePostListingModeChange.bind(this);
-    this.handleBioChange = this.handleBioChange.bind(this);
-    this.handleDiscussionLanguageChange =
-      this.handleDiscussionLanguageChange.bind(this);
-
-    this.handleAvatarChange = this.handleAvatarChange.bind(this);
-    this.handleBannerChange = this.handleBannerChange.bind(this);
-
-    this.userSettings = this.userSettings.bind(this);
-    this.blockCards = this.blockCards.bind(this);
-
-    this.handleBlockPerson = this.handleBlockPerson.bind(this);
-    this.handleBlockCommunity = this.handleBlockCommunity.bind(this);
-    this.handleBlockInstanceCommunities =
-      this.handleBlockInstanceCommunities.bind(this);
-    this.handleBlockInstancePersons =
-      this.handleBlockInstancePersons.bind(this);
-    this.handleBlockingKeywordsUpdate =
-      this.handleBlockingKeywordsUpdate.bind(this);
-
-    this.handleToggle2fa = this.handleToggle2fa.bind(this);
-    this.handleEnable2fa = this.handleEnable2fa.bind(this);
-    this.handleDisable2fa = this.handleDisable2fa.bind(this);
-    this.handleShowDownvotesChange = this.handleShowDownvotesChange.bind(this);
 
     const mui = this.isoData.myUserInfo;
     if (mui) {
@@ -533,12 +482,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     return (
       <>
         <h2 className="h5">{I18NextService.i18n.t("change_password")}</h2>
-        <form onSubmit={linkEvent(this, this.handleChangePasswordSubmit)}>
+        <form onSubmit={e => handleChangePasswordSubmit(this, e)}>
           <div className="mb-3">
             <PasswordInput
               id="new-password"
               value={this.state.changePasswordForm.new_password}
-              onInput={linkEvent(this, this.handleNewPasswordChange)}
+              onInput={e => handleNewPasswordChange(this, e)}
               showStrength
               label={I18NextService.i18n.t("new_password")}
               isNew
@@ -548,7 +497,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <PasswordInput
               id="verify-new-password"
               value={this.state.changePasswordForm.new_password_verify}
-              onInput={linkEvent(this, this.handleNewPasswordVerifyChange)}
+              onInput={e => handleNewPasswordVerifyChange(this, e)}
               label={I18NextService.i18n.t("verify_password")}
               isNew
             />
@@ -557,7 +506,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <PasswordInput
               id="user-old-password"
               value={this.state.changePasswordForm.old_password}
-              onInput={linkEvent(this, this.handleOldPasswordChange)}
+              onInput={e => handleOldPasswordChange(this, e)}
               label={I18NextService.i18n.t("old_password")}
               required={false}
             />
@@ -584,8 +533,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <Filter
           filterType="user"
           loading={searchPersonLoading}
-          onChange={this.handleBlockPerson}
-          onSearch={this.handlePersonSearch}
+          onChange={choice => handleBlockPerson(this, choice)}
+          onSearch={text => handlePersonSearch(this, text)}
           options={searchPersonOptions}
         />
         {this.blockedUsersList()}
@@ -607,10 +556,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
               <button
                 className="btn btn-sm"
-                onClick={linkEvent(
-                  { ctx: this, recipientId: p.id },
-                  this.handleUnblockPerson,
-                )}
+                onClick={() => handleUnblockPerson(this, p.id)}
                 data-tippy-content={I18NextService.i18n.t("unblock_user")}
               >
                 <Icon icon="x" classes="icon-inline" />
@@ -630,8 +576,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <Filter
           filterType="community"
           loading={searchCommunityLoading}
-          onChange={this.handleBlockCommunity}
-          onSearch={this.handleCommunitySearch}
+          onChange={choice => handleBlockCommunity(this, choice)}
+          onSearch={text => handleCommunitySearch(this, text)}
           options={searchCommunityOptions}
         />
         {this.blockedCommunitiesList()}
@@ -652,10 +598,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
               <button
                 className="btn btn-sm"
-                onClick={linkEvent(
-                  { ctx: this, communityId: c.id },
-                  this.handleUnblockCommunity,
-                )}
+                onClick={() => handleUnblockCommunity(this, c.id)}
                 data-tippy-content={I18NextService.i18n.t("unblock_community")}
               >
                 <Icon icon="x" classes="icon-inline" />
@@ -674,8 +617,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <div>
         <Filter
           filterType="instance"
-          onChange={this.handleBlockInstanceCommunities}
-          onSearch={this.handleInstanceSearch}
+          onChange={choice => handleBlockInstanceCommunities(this, choice)}
+          onSearch={text => handleInstanceSearch(this, text)}
           options={searchInstanceOptions}
         />
         {this.blockedInstanceCommunitiesList()}
@@ -690,8 +633,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <div>
         <Filter
           filterType="instance"
-          onChange={this.handleBlockInstancePersons}
-          onSearch={this.handleInstanceSearch}
+          onChange={choice => handleBlockInstancePersons(this, choice)}
+          onSearch={text => handleInstanceSearch(this, text)}
           options={searchInstanceOptions}
         />
         {this.blockedInstancePersonsList()}
@@ -713,10 +656,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               {i.domain}
               <button
                 className="btn btn-sm"
-                onClick={linkEvent(
-                  { ctx: this, instanceId: i.id },
-                  this.handleUnblockInstanceCommunities,
-                )}
+                onClick={() => handleUnblockInstanceCommunities(this, i.id)}
                 data-tippy-content={I18NextService.i18n.t("unblock_instance")}
               >
                 <Icon icon="x" classes="icon-inline" />
@@ -740,10 +680,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               {i.domain}
               <button
                 className="btn btn-sm"
-                onClick={linkEvent(
-                  { ctx: this, instanceId: i.id },
-                  this.handleUnblockInstancePersons,
-                )}
+                onClick={() => handleUnblockInstancePersons(this, i.id)}
                 data-tippy-content={I18NextService.i18n.t("unblock_instance")}
               >
                 <Icon icon="x" classes="icon-inline" />
@@ -769,7 +706,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           <>
             <button
               className="btn btn-secondary mb-4"
-              onClick={linkEvent(this, this.handleExportSettings)}
+              onClick={() => handleExportSettings(this)}
               type="button"
             >
               {I18NextService.i18n.t("export")}
@@ -780,11 +717,11 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 accept="application/json"
                 className="form-control"
                 aria-label="Import settings file input"
-                onChange={linkEvent(this, this.handleImportFileChange)}
+                onChange={e => handleImportFileChange(this, e)}
               />
               <button
                 className="btn btn-secondary mt-3"
-                onClick={linkEvent(this, this.handleImportSettings)}
+                onClick={() => handleImportSettings(this)}
                 type="button"
                 disabled={!this.state.settingsFile}
               >
@@ -810,11 +747,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   saveUserSettingsHtmlForm() {
     const selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
     const siteRes = this.state.siteRes;
+    const myUserInfo = this.isoData.myUserInfo;
 
     return (
       <>
         <h2 className="h5">{I18NextService.i18n.t("settings")}</h2>
-        <form onSubmit={linkEvent(this, this.handleSaveSettingsSubmit)}>
+        <form onSubmit={e => handleSaveSettingsSubmit(this, e)}>
           <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="display-name">
               {I18NextService.i18n.t("display_name")}
@@ -826,7 +764,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 className="form-control"
                 placeholder={I18NextService.i18n.t("optional")}
                 value={this.state.saveUserSettingsForm.display_name}
-                onInput={linkEvent(this, this.handleDisplayNameChange)}
+                onInput={e => handleDisplayNameChange(this, e)}
                 pattern="^(?!@)(.+)$"
                 minLength={3}
               />
@@ -839,12 +777,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="col-sm-9">
               <MarkdownTextArea
                 initialContent={this.state.saveUserSettingsForm.bio}
-                onContentChange={this.handleBioChange}
+                onContentChange={val => handleBioChange(this, val)}
                 maxLength={1000}
                 hideNavigationWarnings
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
-                myUserInfo={this.isoData.myUserInfo}
+                myUserInfo={myUserInfo}
               />
             </div>
           </div>
@@ -859,7 +797,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 className="form-control"
                 placeholder={I18NextService.i18n.t("optional")}
                 value={this.state.saveUserSettingsForm.email}
-                onInput={linkEvent(this, this.handleEmailChange)}
+                onInput={e => handleEmailChange(this, e)}
                 minLength={3}
               />
             </div>
@@ -877,7 +815,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 className="form-control"
                 placeholder="@user:example.com"
                 value={this.state.saveUserSettingsForm.matrix_user_id}
-                onInput={linkEvent(this, this.handleMatrixUserIdChange)}
+                onInput={e => handleMatrixUserIdChange(this, e)}
                 pattern="^@[A-Za-z0-9\x21-\x39\x3B-\x7F]+:[A-Za-z0-9.-]+(:[0-9]{2,5})?$"
               />
             </div>
@@ -892,9 +830,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 imageSrc={this.state.avatar}
                 uploadKey="uploadUserAvatar"
                 removeKey="deleteUserAvatar"
-                onImageChange={this.handleAvatarChange}
+                onImageChange={url => handleAvatarChange(this, myUserInfo, url)}
                 rounded
-                disabled={!this.isoData.myUserInfo}
+                disabled={!myUserInfo}
               />
             </div>
           </div>
@@ -907,9 +845,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 uploadTitle={I18NextService.i18n.t("upload_banner")}
                 uploadKey="uploadUserBanner"
                 removeKey="deleteUserBanner"
-                onImageChange={this.handleBannerChange}
+                onImageChange={url => handleBannerChange(this, myUserInfo, url)}
                 imageSrc={this.state.banner}
-                disabled={!this.isoData.myUserInfo}
+                disabled={!myUserInfo}
               />
             </div>
           </div>
@@ -921,7 +859,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <select
                 id="user-language"
                 value={this.state.saveUserSettingsForm.interface_language}
-                onChange={linkEvent(this, this.handleInterfaceLangChange)}
+                onChange={e => handleInterfaceLangChange(this, e)}
                 className="form-select d-inline-block w-auto"
               >
                 <option disabled aria-hidden="true" selected>
@@ -951,8 +889,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             showLanguageWarning
             showAll
             showSite
-            onChange={this.handleDiscussionLanguageChange}
-            myUserInfo={this.isoData.myUserInfo}
+            onChange={language =>
+              handleDiscussionLanguageChange(this, language)
+            }
+            myUserInfo={myUserInfo}
           />
           <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="user-theme">
@@ -962,7 +902,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <select
                 id="user-theme"
                 value={this.state.saveUserSettingsForm.theme}
-                onChange={linkEvent(this, this.handleThemeChange)}
+                onChange={e => handleThemeChange(this, e)}
                 className="form-select d-inline-block w-auto"
               >
                 <option disabled aria-hidden="true">
@@ -994,8 +934,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 }
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
-                myUserInfo={this.isoData.myUserInfo}
-                onChange={this.handleListingTypeChange}
+                myUserInfo={myUserInfo}
+                onChange={val => handleListingTypeChange(this, val)}
               />
             </div>
           </form>
@@ -1008,7 +948,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 current={
                   this.state.saveUserSettingsForm.post_listing_mode ?? "list"
                 }
-                onChange={this.handlePostListingModeChange}
+                onChange={val => handlePostListingModeChange(this, val)}
               />
             </div>
           </form>
@@ -1022,7 +962,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                   this.state.saveUserSettingsForm.default_post_sort_type ??
                   "active"
                 }
-                onChange={this.handlePostSortTypeChange}
+                onChange={val => handlePostSortTypeChange(this, val)}
               />
             </div>
           </form>
@@ -1036,7 +976,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                   this.state.saveUserSettingsForm.default_comment_sort_type ??
                   "hot"
                 }
-                onChange={this.handleCommentSortTypeChange}
+                onChange={val => handleCommentSortTypeChange(this, val)}
               />
             </div>
           </form>
@@ -1053,7 +993,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                   this.state.saveUserSettingsForm
                     .default_post_time_range_seconds
                 }
-                onChange={this.handlePostTimeRangeChange}
+                onChange={seconds => handlePostTimeRangeChange(this, seconds)}
               />
             </div>
           </form>
@@ -1067,7 +1007,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 type="number"
                 className="form-control"
                 value={this.state.saveUserSettingsForm.default_items_per_page}
-                onInput={linkEvent(this, this.handleItemsPerPageChange)}
+                onInput={e => handleItemsPerPageChange(this, e)}
                 min={1}
                 max={50}
               />
@@ -1075,7 +1015,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           </form>
           <BlockingKeywordsTextArea
             keywords={this.state.saveUserSettingsForm.blocking_keywords ?? []}
-            onUpdate={this.handleBlockingKeywordsUpdate}
+            onUpdate={keywords => handleBlockingKeywordsUpdate(this, keywords)}
           />
           <div className="input-group mb-3">
             <div className="form-check">
@@ -1084,7 +1024,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-show-nsfw"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_nsfw}
-                onChange={linkEvent(this, this.handleShowNsfwChange)}
+                onChange={e => handleShowNsfwChange(this, e)}
               />
               <label className="form-check-label" htmlFor="user-show-nsfw">
                 {I18NextService.i18n.t("show_nsfw")}
@@ -1102,7 +1042,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                   this.state.saveUserSettingsForm.blur_nsfw &&
                   this.state.saveUserSettingsForm.show_nsfw
                 }
-                onChange={linkEvent(this, this.handleBlurNsfwChange)}
+                onChange={e => handleBlurNsfwChange(this, e)}
               />
               <label className="form-check-label" htmlFor="user-blur-nsfw">
                 {I18NextService.i18n.t("blur_nsfw")}
@@ -1116,7 +1056,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-show-scores"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_score}
-                onChange={linkEvent(this, this.handleShowScoresChange)}
+                onChange={e => handleShowScoresChange(this, e, myUserInfo)}
               />
               <label className="form-check-label" htmlFor="user-show-scores">
                 {I18NextService.i18n.t("show_scores")}
@@ -1130,7 +1070,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-show-upvotes"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_upvotes}
-                onChange={linkEvent(this, this.handleShowUpvotesChange)}
+                onChange={e => handleShowUpvotesChange(this, e, myUserInfo)}
               />
               <label className="form-check-label" htmlFor="user-show-upvotes">
                 {I18NextService.i18n.t("show_upvotes")}
@@ -1147,7 +1087,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                   current={
                     this.state.saveUserSettingsForm.show_downvotes ?? "show"
                   }
-                  onChange={this.handleShowDownvotesChange}
+                  onChange={val => handleShowDownvotesChange(this, val)}
                 />
               </div>
             </form>
@@ -1159,10 +1099,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-show-upvote-percentage"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_upvote_percentage}
-                onChange={linkEvent(
-                  this,
-                  this.handleShowUpvotePercentageChange,
-                )}
+                onChange={e =>
+                  handleShowUpvotePercentageChange(this, e, myUserInfo)
+                }
               />
               <label
                 className="form-check-label"
@@ -1179,7 +1118,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-show-person-votes"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_person_votes}
-                onChange={linkEvent(this, this.handleShowPersonVotesChange)}
+                onChange={e => handleShowPersonVotesChange(this, e)}
               />
               <label
                 className="form-check-label"
@@ -1196,7 +1135,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-show-avatars"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_avatars}
-                onChange={linkEvent(this, this.handleShowAvatarsChange)}
+                onChange={e => handleShowAvatarsChange(this, e, myUserInfo)}
               />
               <label className="form-check-label" htmlFor="user-show-avatars">
                 {I18NextService.i18n.t("show_avatars")}
@@ -1210,10 +1149,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-enable-animated-images"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.enable_animated_images}
-                onChange={linkEvent(
-                  this,
-                  this.handleEnableAnimatedImagesChange,
-                )}
+                onChange={e =>
+                  handleEnableAnimatedImagesChange(this, e, myUserInfo)
+                }
               />
               <label
                 className="form-check-label"
@@ -1230,7 +1168,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-hide-media"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.hide_media}
-                onChange={linkEvent(this, this.handleHideMediaChange)}
+                onChange={e => handleHideMediaChange(this, e, myUserInfo)}
               />
               <label className="form-check-label" htmlFor="user-hide-media">
                 {I18NextService.i18n.t("hide_all_media")}
@@ -1244,7 +1182,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-bot-account"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.bot_account}
-                onChange={linkEvent(this, this.handleBotAccount)}
+                onChange={e => handleBotAccount(this, e)}
               />
               <label className="form-check-label" htmlFor="user-bot-account">
                 {I18NextService.i18n.t("bot_account")}
@@ -1258,7 +1196,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-show-bot-accounts"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_bot_accounts}
-                onChange={linkEvent(this, this.handleShowBotAccounts)}
+                onChange={e => handleShowBotAccounts(this, e)}
               />
               <label
                 className="form-check-label"
@@ -1275,7 +1213,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="collapse-bot-comments"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.collapse_bot_comments}
-                onChange={linkEvent(this, this.handleCollapseBotCommentsChange)}
+                onChange={e => handleCollapseBotCommentsChange(this, e)}
               />
               <label
                 className="form-check-label"
@@ -1292,7 +1230,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-show-read-posts"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.show_read_posts}
-                onChange={linkEvent(this, this.handleReadPosts)}
+                onChange={e => handleReadPosts(this, e)}
               />
               <label
                 className="form-check-label"
@@ -1312,10 +1250,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 checked={
                   this.state.saveUserSettingsForm.send_notifications_to_email
                 }
-                onChange={linkEvent(
-                  this,
-                  this.handleSendNotificationsToEmailChange,
-                )}
+                onChange={e => handleSendNotificationsToEmailChange(this, e)}
               />
               <label
                 className="form-check-label"
@@ -1332,7 +1267,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 id="user-open-links-in-new-tab"
                 type="checkbox"
                 checked={this.state.saveUserSettingsForm.open_links_in_new_tab}
-                onChange={linkEvent(this, this.handleOpenInNewTab)}
+                onChange={e => handleOpenInNewTab(this, e)}
               />
               <label
                 className="form-check-label"
@@ -1351,7 +1286,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 checked={
                   this.state.saveUserSettingsForm.enable_private_messages
                 }
-                onChange={linkEvent(this, this.handleEnablePrivateMessages)}
+                onChange={e => handleEnablePrivateMessages(this, e)}
               />
               <label
                 className="form-check-label"
@@ -1371,10 +1306,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                   this.state.saveUserSettingsForm
                     .auto_mark_fetched_posts_as_read
                 }
-                onChange={linkEvent(
-                  this,
-                  this.handleAutoMarkFetchedPostsAsRead,
-                )}
+                onChange={e => handleAutoMarkFetchedPostsAsRead(this, e)}
               />
               <label
                 className="form-check-label"
@@ -1402,14 +1334,11 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     return (
       <>
         <h2 className="h5">{I18NextService.i18n.t("delete_account")}</h2>
-        <form
-          className="mb-3"
-          onSubmit={linkEvent(this, this.handleDeleteAccount)}
-        >
+        <form className="mb-3" onSubmit={e => handleDeleteAccount(this, e)}>
           <button
             type="button"
             className="btn d-block btn-danger"
-            onClick={linkEvent(this, this.handleDeleteAccountShowConfirmToggle)}
+            onClick={() => handleDeleteAccountShowConfirmToggle(this)}
           >
             {I18NextService.i18n.t("delete_account")}
           </button>
@@ -1425,10 +1354,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <PasswordInput
                 id="password-delete-account"
                 value={this.state.deleteAccountForm.password}
-                onInput={linkEvent(
-                  this,
-                  this.handleDeleteAccountPasswordChange,
-                )}
+                onInput={e => handleDeleteAccountPasswordChange(this, e)}
                 className="my-2"
               />
               <div className="input-group mb-3">
@@ -1437,10 +1363,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                     id="delete-account-content"
                     type="checkbox"
                     className="form-check-input"
-                    onInput={linkEvent(
-                      this,
-                      this.handleDeleteAccountContentChange,
-                    )}
+                    onInput={e => handleDeleteAccountContentChange(this, e)}
                   />
                   <label
                     className="form-check-label"
@@ -1464,10 +1387,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <button
                 className="btn btn-secondary"
                 type="button"
-                onClick={linkEvent(
-                  this,
-                  this.handleDeleteAccountShowConfirmToggle,
-                )}
+                onClick={() => handleDeleteAccountShowConfirmToggle(this)}
               >
                 {I18NextService.i18n.t("cancel")}
               </button>
@@ -1483,6 +1403,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       !!this.isoData.myUserInfo?.local_user_view.local_user.totp_2fa_enabled;
     const { generateTotpRes } = this.state;
     const totpActionStr = totpEnabled ? "disable_totp" : "enable_totp";
+    const myUserInfo = this.isoData.myUserInfo;
 
     return (
       <>
@@ -1490,741 +1411,34 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <button
           type="button"
           className="btn btn-secondary my-2"
-          onClick={linkEvent(
-            this,
-            totpEnabled ? handleShowTotpModal : handleGenerateTotp,
-          )}
+          onClick={() =>
+            totpEnabled ? handleShowTotpModal(this) : handleGenerateTotp(this)
+          }
         >
           {I18NextService.i18n.t(totpActionStr)}
         </button>
         {totpEnabled ? (
           <TotpModal
             type="remove"
-            onSubmit={this.handleDisable2fa}
+            onSubmit={form => handleDisable2fa(this, form, myUserInfo)}
             show={this.state.show2faModal}
-            onClose={linkEvent(this, handleClose2faModal)}
+            onClose={() => handleClose2faModal(this)}
           />
         ) : (
           <TotpModal
             type="generate"
-            onSubmit={this.handleEnable2fa}
+            onSubmit={form => handleEnable2fa(this, form, myUserInfo)}
             secretUrl={
               generateTotpRes.state === "success"
                 ? generateTotpRes.data.totp_secret_url
                 : undefined
             }
             show={this.state.show2faModal}
-            onClose={linkEvent(this, handleClose2faModal)}
+            onClose={() => handleClose2faModal(this)}
           />
         )}
       </>
     );
-  }
-
-  async handleToggle2fa(totp: string, enabled: boolean) {
-    this.setState({ updateTotpRes: LOADING_REQUEST });
-
-    const updateTotpRes = await HttpService.client.updateTotp({
-      enabled,
-      totp_token: totp,
-    });
-
-    this.setState({ updateTotpRes });
-
-    const successful = updateTotpRes.state === "success";
-    if (successful) {
-      this.setState({ show2faModal: false });
-
-      const siteRes = await HttpService.client.getSite();
-
-      this.isoData.myUserInfo!.local_user_view.local_user.totp_2fa_enabled =
-        enabled;
-
-      if (siteRes.state === "success") {
-        this.setState({ siteRes: siteRes.data });
-      }
-
-      toast(
-        I18NextService.i18n.t(
-          enabled ? "enable_totp_success" : "disable_totp_success",
-        ),
-      );
-    } else {
-      toast(I18NextService.i18n.t("incorrect_totp_code"), "danger");
-    }
-
-    return successful;
-  }
-
-  handleEnable2fa(totp: string) {
-    return this.handleToggle2fa(totp, true);
-  }
-
-  handleDisable2fa(totp: string) {
-    return this.handleToggle2fa(totp, false);
-  }
-
-  handlePersonSearch = debounce(async (text: string) => {
-    this.setState({ searchPersonLoading: true });
-
-    const searchPersonOptions: Choice[] = [];
-
-    if (text.length > 0) {
-      searchPersonOptions.push(...(await fetchUsers(text)).map(personToChoice));
-    }
-
-    this.setState({
-      searchPersonLoading: false,
-      searchPersonOptions,
-    });
-  });
-
-  handleCommunitySearch = debounce(async (text: string) => {
-    this.setState({ searchCommunityLoading: true });
-
-    const searchCommunityOptions: Choice[] = [];
-
-    if (text.length > 0) {
-      searchCommunityOptions.push(
-        ...(await fetchCommunities(text)).map(communityToChoice),
-      );
-    }
-
-    this.setState({
-      searchCommunityLoading: false,
-      searchCommunityOptions,
-    });
-  });
-
-  handleInstanceSearch = debounce(async (text: string) => {
-    let searchInstanceOptions: Instance[] = [];
-
-    if (this.state.instancesRes.state === "success") {
-      searchInstanceOptions =
-        this.state.instancesRes.data.items
-          ?.filter(view =>
-            view.instance.domain.toLowerCase().includes(text.toLowerCase()),
-          )
-          .map(view => view.instance) ?? [];
-    }
-
-    this.setState({
-      searchInstanceOptions: searchInstanceOptions
-        .slice(0, fetchLimit)
-        .map(instanceToChoice),
-    });
-  });
-
-  async handleBlockPerson({ value }: Choice) {
-    const block = true;
-    if (value !== "0") {
-      const res = await HttpService.client.blockPerson({
-        person_id: Number(value),
-        block,
-      });
-      this.personBlock(res, block);
-    }
-  }
-
-  async handleUnblockPerson({
-    ctx,
-    recipientId,
-  }: {
-    ctx: Settings;
-    recipientId: number;
-  }) {
-    const block = false;
-    const res = await HttpService.client.blockPerson({
-      person_id: recipientId,
-      block,
-    });
-    ctx.personBlock(res, block);
-  }
-
-  async handleBlockCommunity({ value }: Choice) {
-    const block = true;
-    if (value !== "0") {
-      const res = await HttpService.client.blockCommunity({
-        community_id: Number(value),
-        block,
-      });
-      this.communityBlock(res, block);
-    }
-  }
-
-  async handleUnblockCommunity(i: { ctx: Settings; communityId: number }) {
-    const block = false;
-    if (myAuth()) {
-      const res = await HttpService.client.blockCommunity({
-        community_id: i.communityId,
-        block,
-      });
-      i.ctx.communityBlock(res, block);
-    }
-  }
-
-  async handleBlockInstanceCommunities({ value }: Choice) {
-    const block = true;
-    if (value !== "0") {
-      const id = Number(value);
-      const res = await HttpService.client.userBlockInstanceCommunities({
-        block,
-        instance_id: id,
-      });
-      if (res.state === "success") {
-        this.instanceCommunitiesBlock(id, block);
-      }
-    }
-  }
-
-  async handleUnblockInstanceCommunities({
-    ctx,
-    instanceId,
-  }: {
-    ctx: Settings;
-    instanceId: number;
-  }) {
-    const block = false;
-    const res = await HttpService.client.userBlockInstanceCommunities({
-      block,
-      instance_id: instanceId,
-    });
-    if (res.state === "success") {
-      ctx.instanceCommunitiesBlock(instanceId, block);
-    }
-  }
-
-  async handleBlockInstancePersons({ value }: Choice) {
-    const block = true;
-    if (value !== "0") {
-      const id = Number(value);
-      const res = await HttpService.client.userBlockInstancePersons({
-        block,
-        instance_id: id,
-      });
-      if (res.state === "success") {
-        this.instancePersonsBlock(id, block);
-      }
-    }
-  }
-
-  async handleUnblockInstancePersons({
-    ctx,
-    instanceId,
-  }: {
-    ctx: Settings;
-    instanceId: number;
-  }) {
-    const block = false;
-    const res = await HttpService.client.userBlockInstancePersons({
-      block,
-      instance_id: instanceId,
-    });
-    if (res.state === "success") {
-      ctx.instancePersonsBlock(instanceId, block);
-    }
-  }
-
-  handleShowNsfwChange(i: Settings, event: any) {
-    i.setState(
-      s => ((s.saveUserSettingsForm.show_nsfw = event.target.checked), s),
-    );
-  }
-
-  handleBlurNsfwChange(i: Settings, event: any) {
-    i.setState(
-      s => ((s.saveUserSettingsForm.blur_nsfw = event.target.checked), s),
-    );
-  }
-
-  handleShowAvatarsChange(i: Settings, event: any) {
-    const mui = i.isoData.myUserInfo;
-    if (mui) {
-      mui.local_user_view.local_user.show_avatars = event.target.checked;
-    }
-    i.setState(
-      s => ((s.saveUserSettingsForm.show_avatars = event.target.checked), s),
-    );
-  }
-
-  handleEnableAnimatedImagesChange(i: Settings, event: any) {
-    const mui = i.isoData.myUserInfo;
-    if (mui) {
-      mui.local_user_view.local_user.enable_animated_images =
-        event.target.checked;
-    }
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.enable_animated_images = event.target.checked),
-        s
-      ),
-    );
-  }
-
-  handleHideMediaChange(i: Settings, event: any) {
-    const mui = i.isoData.myUserInfo;
-    if (mui) {
-      mui.local_user_view.local_user.hide_media = event.target.checked;
-    }
-    i.setState(
-      s => ((s.saveUserSettingsForm.hide_media = event.target.checked), s),
-    );
-  }
-
-  handleBotAccount(i: Settings, event: any) {
-    i.setState(
-      s => ((s.saveUserSettingsForm.bot_account = event.target.checked), s),
-    );
-  }
-
-  handleShowBotAccounts(i: Settings, event: any) {
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.show_bot_accounts = event.target.checked),
-        s
-      ),
-    );
-  }
-
-  handleReadPosts(i: Settings, event: any) {
-    i.setState(
-      s => ((s.saveUserSettingsForm.show_read_posts = event.target.checked), s),
-    );
-  }
-
-  handleOpenInNewTab(i: Settings, event: any) {
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.open_links_in_new_tab = event.target.checked),
-        s
-      ),
-    );
-  }
-
-  handleEnablePrivateMessages(i: Settings, event: any) {
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.enable_private_messages = event.target.checked),
-        s
-      ),
-    );
-  }
-
-  handleAutoMarkFetchedPostsAsRead(i: Settings, event: any) {
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.auto_mark_fetched_posts_as_read =
-          event.target.checked),
-        s
-      ),
-    );
-  }
-
-  handleShowScoresChange(i: Settings, event: any) {
-    const mui = i.isoData.myUserInfo;
-    if (mui) {
-      mui.local_user_view.local_user.show_score = event.target.checked;
-    }
-    i.setState(
-      s => ((s.saveUserSettingsForm.show_score = event.target.checked), s),
-    );
-  }
-
-  handleShowUpvotesChange(i: Settings, event: any) {
-    const mui = i.isoData.myUserInfo;
-    if (mui) {
-      mui.local_user_view.local_user.show_upvotes = event.target.checked;
-    }
-    i.setState(
-      s => ((s.saveUserSettingsForm.show_upvotes = event.target.checked), s),
-    );
-  }
-
-  handleShowDownvotesChange(val: VoteShow) {
-    this.setState(s => ((s.saveUserSettingsForm.show_downvotes = val), s));
-  }
-
-  handleShowUpvotePercentageChange(i: Settings, event: any) {
-    const mui = i.isoData.myUserInfo;
-    if (mui) {
-      mui.local_user_view.local_user.show_upvote_percentage =
-        event.target.checked;
-    }
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.show_upvote_percentage = event.target.checked),
-        s
-      ),
-    );
-  }
-
-  handleShowPersonVotesChange(i: Settings, event: any) {
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.show_person_votes = event.target.checked),
-        s
-      ),
-    );
-  }
-
-  handleCollapseBotCommentsChange(i: Settings, event: any) {
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.collapse_bot_comments = event.target.checked),
-        s
-      ),
-    );
-  }
-
-  async handleGenerateTotp(i: Settings) {
-    i.setState({ generateTotpRes: LOADING_REQUEST });
-
-    i.setState({
-      generateTotpRes: await HttpService.client.generateTotpSecret(),
-    });
-  }
-
-  handleSendNotificationsToEmailChange(i: Settings, event: any) {
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.send_notifications_to_email =
-          event.target.checked),
-        s
-      ),
-    );
-  }
-
-  handleThemeChange(i: Settings, event: any) {
-    i.setState(s => ((s.saveUserSettingsForm.theme = event.target.value), s));
-    setThemeOverride(event.target.value);
-  }
-
-  handleInterfaceLangChange(i: Settings, event: any) {
-    const newLang = event.target.value ?? "browser";
-    I18NextService.reconfigure(navigator.languages, newLang);
-
-    i.setState(
-      s => (
-        (s.saveUserSettingsForm.interface_language = event.target.value),
-        s
-      ),
-    );
-  }
-
-  handleDiscussionLanguageChange(val: number[]) {
-    this.setState(
-      s => ((s.saveUserSettingsForm.discussion_languages = val), s),
-    );
-  }
-
-  handlePostListingModeChange(val: PostListingMode) {
-    this.setState(s => ((s.saveUserSettingsForm.post_listing_mode = val), s));
-  }
-
-  handlePostSortTypeChange(val: PostSortType) {
-    this.setState(
-      s => ((s.saveUserSettingsForm.default_post_sort_type = val), s),
-    );
-  }
-
-  handleCommentSortTypeChange(val: CommentSortType) {
-    this.setState(
-      s => ((s.saveUserSettingsForm.default_comment_sort_type = val), s),
-    );
-  }
-
-  handlePostTimeRangeChange(val: number) {
-    this.setState(
-      s => ((s.saveUserSettingsForm.default_post_time_range_seconds = val), s),
-    );
-  }
-
-  handleBlockingKeywordsUpdate(val: string[]) {
-    this.setState(s => ((s.saveUserSettingsForm.blocking_keywords = val), s));
-  }
-
-  handleListingTypeChange(val: ListingType) {
-    this.setState(
-      s => ((s.saveUserSettingsForm.default_listing_type = val), s),
-    );
-  }
-
-  handleItemsPerPageChange(i: Settings, event: any) {
-    const items = event.target.value ? Number(event.target.value) : undefined;
-    i.setState(
-      s => ((s.saveUserSettingsForm.default_items_per_page = items), s),
-    );
-  }
-
-  handleEmailChange(i: Settings, event: any) {
-    i.setState(s => ((s.saveUserSettingsForm.email = event.target.value), s));
-  }
-
-  handleBioChange(val: string) {
-    this.setState(s => ((s.saveUserSettingsForm.bio = val), s));
-  }
-
-  handleAvatarChange(url?: string) {
-    if (this.isoData.myUserInfo) {
-      this.isoData.myUserInfo.local_user_view.person.avatar = url;
-    }
-    this.setState({ avatar: url });
-  }
-
-  handleBannerChange(url?: string) {
-    if (this.isoData.myUserInfo) {
-      this.isoData.myUserInfo.local_user_view.person.banner = url;
-    }
-    this.setState({ banner: url });
-  }
-
-  handleDisplayNameChange(i: Settings, event: any) {
-    i.setState(
-      s => ((s.saveUserSettingsForm.display_name = event.target.value), s),
-    );
-  }
-
-  handleMatrixUserIdChange(i: Settings, event: any) {
-    i.setState(
-      s => ((s.saveUserSettingsForm.matrix_user_id = event.target.value), s),
-    );
-  }
-
-  handleNewPasswordChange(i: Settings, event: any) {
-    const newPass: string | undefined =
-      event.target.value === "" ? undefined : event.target.value;
-    i.setState(s => ((s.changePasswordForm.new_password = newPass), s));
-  }
-
-  handleNewPasswordVerifyChange(i: Settings, event: any) {
-    const newPassVerify: string | undefined =
-      event.target.value === "" ? undefined : event.target.value;
-    i.setState(
-      s => ((s.changePasswordForm.new_password_verify = newPassVerify), s),
-    );
-  }
-
-  handleOldPasswordChange(i: Settings, event: any) {
-    const oldPass: string | undefined =
-      event.target.value === "" ? undefined : event.target.value;
-    i.setState(s => ((s.changePasswordForm.old_password = oldPass), s));
-  }
-
-  async handleSaveSettingsSubmit(i: Settings, event: any) {
-    event.preventDefault();
-    i.setState({ saveRes: LOADING_REQUEST });
-
-    const saveRes = await HttpService.client.saveUserSettings({
-      ...i.state.saveUserSettingsForm,
-    });
-
-    if (saveRes.state === "success") {
-      const [siteRes, userRes] = await Promise.all([
-        HttpService.client.getSite(),
-        HttpService.client.getMyUser(),
-      ]);
-
-      if (siteRes.state === "success" && userRes.state === "success") {
-        i.setState({
-          siteRes: siteRes.data,
-        });
-
-        updateMyUserInfo(userRes.data);
-        I18NextService.reconfigure(
-          window.navigator.languages,
-          userRes.data.local_user_view.local_user.interface_language,
-        );
-      }
-
-      toast(I18NextService.i18n.t("saved"));
-
-      // You need to reload the page, to properly update the siteRes everywhere
-      setTimeout(() => location.reload(), 500);
-    } else if (saveRes.state === "failed") {
-      toast(
-        I18NextService.i18n.t(saveRes.err.name as NoOptionI18nKeys),
-        "danger",
-      );
-    }
-
-    setThemeOverride(undefined);
-    i.setState({ saveRes });
-  }
-
-  async handleChangePasswordSubmit(i: Settings, event: any) {
-    event.preventDefault();
-    const { new_password, new_password_verify, old_password } =
-      i.state.changePasswordForm;
-
-    if (new_password && new_password_verify) {
-      i.setState({ changePasswordRes: LOADING_REQUEST });
-      const changePasswordRes = await HttpService.client.changePassword({
-        new_password,
-        new_password_verify,
-        old_password: old_password || "",
-      });
-      if (changePasswordRes.state === "success") {
-        snapToTop();
-        toast(I18NextService.i18n.t("password_changed"));
-      }
-
-      i.setState({ changePasswordRes });
-    }
-  }
-
-  handleImportFileChange(i: Settings, event: any) {
-    i.setState({ settingsFile: event.target.files?.item(0) });
-  }
-
-  async handleExportSettings(i: Settings) {
-    i.setState({ exportSettingsRes: LOADING_REQUEST });
-    const res = await HttpService.client.exportSettings();
-
-    if (res.state === "success") {
-      i.exportSettingsLink.current!.href = `data:application/json,${encodeURIComponent(
-        JSON.stringify(res.data),
-      )}`;
-      i.exportSettingsLink.current?.click();
-    } else if (res.state === "failed") {
-      toast(
-        res.err.name === "rate_limit_error"
-          ? I18NextService.i18n.t("import_export_rate_limit_error")
-          : I18NextService.i18n.t("export_error"),
-        "danger",
-      );
-    }
-
-    i.setState({ exportSettingsRes: EMPTY_REQUEST });
-  }
-
-  async handleImportSettings(i: Settings) {
-    i.setState({ importSettingsRes: LOADING_REQUEST });
-
-    const res = await HttpService.client.importSettings(
-      JSON.parse(await i.state.settingsFile!.text()),
-    );
-
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("import_success"), "success");
-
-      const saveRes = i.state.saveRes;
-      i.setState({ saveRes: LOADING_REQUEST });
-
-      const [siteRes, userRes] = await Promise.all([
-        HttpService.client.getSite(),
-        HttpService.client.getMyUser(),
-      ]);
-      i.setState({ saveRes });
-
-      if (siteRes.state === "success" && userRes.state === "success") {
-        const {
-          local_user: {
-            show_nsfw,
-            blur_nsfw,
-            theme,
-            default_post_sort_type,
-            default_comment_sort_type,
-            default_listing_type,
-            default_items_per_page,
-            interface_language,
-            show_avatars,
-            show_bot_accounts,
-            show_read_posts,
-            send_notifications_to_email,
-            email,
-            open_links_in_new_tab,
-            enable_private_messages,
-            auto_mark_fetched_posts_as_read,
-          },
-          person: {
-            avatar,
-            banner,
-            display_name,
-            bot_account,
-            bio,
-            matrix_user_id,
-          },
-        } = userRes.data.local_user_view;
-
-        updateMyUserInfo(userRes.data);
-        refreshTheme();
-
-        i.setState(prev => ({
-          ...prev,
-          saveUserSettingsForm: {
-            ...prev.saveUserSettingsForm,
-            show_avatars,
-            show_bot_accounts,
-            show_nsfw,
-            teme: theme ?? "browser",
-            display_name,
-            bio,
-            matrix_user_id,
-            blur_nsfw,
-            bot_account,
-            default_listing_type,
-            default_items_per_page,
-            default_post_sort_type,
-            default_comment_sort_type,
-            discussion_languages: userRes.data.discussion_languages,
-            email,
-            interface_language,
-            open_links_in_new_tab,
-            send_notifications_to_email,
-            show_read_posts,
-            enable_private_messages,
-            auto_mark_fetched_posts_as_read,
-          },
-          avatar,
-          banner,
-        }));
-      }
-    } else if (res.state === "failed") {
-      toast(
-        res.err.name === "rate_limit_error"
-          ? I18NextService.i18n.t("import_export_rate_limit_error")
-          : I18NextService.i18n.t("import_error"),
-        "danger",
-      );
-    }
-
-    i.setState({ importSettingsRes: EMPTY_REQUEST, settingsFile: undefined });
-  }
-
-  handleDeleteAccountShowConfirmToggle(i: Settings) {
-    i.setState({ deleteAccountShowConfirm: !i.state.deleteAccountShowConfirm });
-  }
-
-  handleDeleteAccountContentChange(i: Settings, event: any) {
-    i.setState(
-      s => ((s.deleteAccountForm.delete_content = event.target.checked), s),
-    );
-  }
-
-  handleDeleteAccountPasswordChange(i: Settings, event: any) {
-    i.setState(s => ((s.deleteAccountForm.password = event.target.value), s));
-  }
-
-  async handleDeleteAccount(i: Settings, event: Event) {
-    event.preventDefault();
-    const password = i.state.deleteAccountForm.password;
-    if (password) {
-      i.setState({ deleteAccountRes: LOADING_REQUEST });
-      const deleteAccountRes = await HttpService.client.deleteAccount({
-        password,
-        delete_content: i.state.deleteAccountForm.delete_content || false,
-      });
-      if (deleteAccountRes.state === "success") {
-        UserService.Instance.logout();
-        i.context.router.history.replace("/");
-      }
-
-      i.setState({ deleteAccountRes });
-    }
-  }
-
-  handleSwitchTab(i: { ctx: Settings; tab: string }) {
-    i.ctx.setState({ currentTab: i.tab });
   }
 
   personBlock(res: RequestState<PersonResponse>, blocked: boolean) {
@@ -2269,5 +1483,789 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         instancePersonsBlocks: mui.instance_persons_blocks,
       });
     }
+  }
+}
+
+async function handleGenerateTotp(i: Settings) {
+  i.setState({ generateTotpRes: LOADING_REQUEST });
+
+  const generateTotpRes = await HttpService.client.generateTotpSecret();
+
+  if (generateTotpRes.state === "failed") {
+    toast(generateTotpRes.err.name, "danger");
+  } else {
+    i.setState({ show2faModal: true });
+  }
+
+  i.setState({
+    generateTotpRes,
+  });
+}
+
+function handleShowTotpModal(i: Settings) {
+  i.setState({ show2faModal: true });
+}
+
+function handleClose2faModal(i: Settings) {
+  i.setState({ show2faModal: false });
+}
+
+async function handleToggle2fa(
+  i: Settings,
+  totp: string,
+  enabled: boolean,
+  myUserInfo: MyUserInfo | undefined,
+) {
+  i.setState({ updateTotpRes: LOADING_REQUEST });
+
+  const updateTotpRes = await HttpService.client.updateTotp({
+    enabled,
+    totp_token: totp,
+  });
+
+  i.setState({ updateTotpRes });
+
+  const successful = updateTotpRes.state === "success";
+  if (successful && myUserInfo) {
+    i.setState({ show2faModal: false });
+
+    const siteRes = await HttpService.client.getSite();
+
+    myUserInfo.local_user_view.local_user.totp_2fa_enabled = enabled;
+
+    if (siteRes.state === "success") {
+      i.setState({ siteRes: siteRes.data });
+    }
+
+    toast(
+      I18NextService.i18n.t(
+        enabled ? "enable_totp_success" : "disable_totp_success",
+      ),
+    );
+  } else {
+    toast(I18NextService.i18n.t("incorrect_totp_code"), "danger");
+  }
+
+  return successful;
+}
+
+function handleEnable2fa(
+  i: Settings,
+  totp: string,
+  myUserInfo: MyUserInfo | undefined,
+) {
+  return handleToggle2fa(i, totp, true, myUserInfo);
+}
+
+function handleDisable2fa(
+  i: Settings,
+  totp: string,
+  myUserInfo: MyUserInfo | undefined,
+) {
+  return handleToggle2fa(i, totp, false, myUserInfo);
+}
+
+const handlePersonSearch = debounce(async (i: Settings, text: string) => {
+  i.setState({ searchPersonLoading: true });
+
+  const searchPersonOptions: Choice[] = [];
+
+  if (text.length > 0) {
+    searchPersonOptions.push(...(await fetchUsers(text)).map(personToChoice));
+  }
+
+  i.setState({
+    searchPersonLoading: false,
+    searchPersonOptions,
+  });
+});
+
+const handleCommunitySearch = debounce(async (i: Settings, text: string) => {
+  i.setState({ searchCommunityLoading: true });
+
+  const searchCommunityOptions: Choice[] = [];
+
+  if (text.length > 0) {
+    searchCommunityOptions.push(
+      ...(await fetchCommunities(text)).map(communityToChoice),
+    );
+  }
+
+  i.setState({
+    searchCommunityLoading: false,
+    searchCommunityOptions,
+  });
+});
+
+const handleInstanceSearch = debounce(async (i: Settings, text: string) => {
+  let searchInstanceOptions: Instance[] = [];
+
+  if (i.state.instancesRes.state === "success") {
+    searchInstanceOptions =
+      i.state.instancesRes.data.items
+        ?.filter(view =>
+          view.instance.domain.toLowerCase().includes(text.toLowerCase()),
+        )
+        .map(view => view.instance) ?? [];
+  }
+
+  i.setState({
+    searchInstanceOptions: searchInstanceOptions
+      .slice(0, fetchLimit)
+      .map(instanceToChoice),
+  });
+});
+
+async function handleBlockPerson(i: Settings, { value }: Choice) {
+  const block = true;
+  if (value !== "0") {
+    const res = await HttpService.client.blockPerson({
+      person_id: Number(value),
+      block,
+    });
+    i.personBlock(res, block);
+  }
+}
+
+async function handleUnblockPerson(i: Settings, recipientId: PersonId) {
+  const block = false;
+  const res = await HttpService.client.blockPerson({
+    person_id: recipientId,
+    block,
+  });
+  i.personBlock(res, block);
+}
+
+async function handleBlockCommunity(i: Settings, { value }: Choice) {
+  const block = true;
+  if (value !== "0") {
+    const res = await HttpService.client.blockCommunity({
+      community_id: Number(value),
+      block,
+    });
+    i.communityBlock(res, block);
+  }
+}
+
+async function handleUnblockCommunity(i: Settings, communityId: CommunityId) {
+  const block = false;
+  if (myAuth()) {
+    const res = await HttpService.client.blockCommunity({
+      community_id: communityId,
+      block,
+    });
+    i.communityBlock(res, block);
+  }
+}
+
+async function handleBlockInstanceCommunities(i: Settings, { value }: Choice) {
+  const block = true;
+  if (value !== "0") {
+    const id = Number(value);
+    const res = await HttpService.client.userBlockInstanceCommunities({
+      block,
+      instance_id: id,
+    });
+    if (res.state === "success") {
+      i.instanceCommunitiesBlock(id, block);
+    }
+  }
+}
+
+async function handleUnblockInstanceCommunities(
+  ctx: Settings,
+  instanceId: InstanceId,
+) {
+  const block = false;
+  const res = await HttpService.client.userBlockInstanceCommunities({
+    block,
+    instance_id: instanceId,
+  });
+  if (res.state === "success") {
+    ctx.instanceCommunitiesBlock(instanceId, block);
+  }
+}
+
+async function handleBlockInstancePersons(i: Settings, { value }: Choice) {
+  const block = true;
+  if (value !== "0") {
+    const id = Number(value);
+    const res = await HttpService.client.userBlockInstancePersons({
+      block,
+      instance_id: id,
+    });
+    if (res.state === "success") {
+      i.instancePersonsBlock(id, block);
+    }
+  }
+}
+
+async function handleUnblockInstancePersons(
+  ctx: Settings,
+  instanceId: InstanceId,
+) {
+  const block = false;
+  const res = await HttpService.client.userBlockInstancePersons({
+    block,
+    instance_id: instanceId,
+  });
+  if (res.state === "success") {
+    ctx.instancePersonsBlock(instanceId, block);
+  }
+}
+
+function handleShowNsfwChange(i: Settings, event: FormEvent<HTMLInputElement>) {
+  i.setState(
+    s => ((s.saveUserSettingsForm.show_nsfw = event.target.checked), s),
+  );
+}
+
+function handleBlurNsfwChange(i: Settings, event: FormEvent<HTMLInputElement>) {
+  i.setState(
+    s => ((s.saveUserSettingsForm.blur_nsfw = event.target.checked), s),
+  );
+}
+
+function handleShowAvatarsChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+  myUserInfo: MyUserInfo | undefined,
+) {
+  const mui = myUserInfo;
+  if (mui) {
+    mui.local_user_view.local_user.show_avatars = event.target.checked;
+  }
+  i.setState(
+    s => ((s.saveUserSettingsForm.show_avatars = event.target.checked), s),
+  );
+}
+
+function handleEnableAnimatedImagesChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+  myUserInfo: MyUserInfo | undefined,
+) {
+  const mui = myUserInfo;
+  if (mui) {
+    mui.local_user_view.local_user.enable_animated_images =
+      event.target.checked;
+  }
+  i.setState(
+    s => (
+      (s.saveUserSettingsForm.enable_animated_images = event.target.checked),
+      s
+    ),
+  );
+}
+
+function handleHideMediaChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+  myUserInfo: MyUserInfo | undefined,
+) {
+  const mui = myUserInfo;
+  if (mui) {
+    mui.local_user_view.local_user.hide_media = event.target.checked;
+  }
+  i.setState(
+    s => ((s.saveUserSettingsForm.hide_media = event.target.checked), s),
+  );
+}
+
+function handleBotAccount(i: Settings, event: FormEvent<HTMLInputElement>) {
+  i.setState(
+    s => ((s.saveUserSettingsForm.bot_account = event.target.checked), s),
+  );
+}
+
+function handleShowBotAccounts(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.saveUserSettingsForm.show_bot_accounts = event.target.checked), s),
+  );
+}
+
+function handleReadPosts(i: Settings, event: FormEvent<HTMLInputElement>) {
+  i.setState(
+    s => ((s.saveUserSettingsForm.show_read_posts = event.target.checked), s),
+  );
+}
+
+function handleOpenInNewTab(i: Settings, event: FormEvent<HTMLInputElement>) {
+  i.setState(
+    s => (
+      (s.saveUserSettingsForm.open_links_in_new_tab = event.target.checked),
+      s
+    ),
+  );
+}
+
+function handleEnablePrivateMessages(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => (
+      (s.saveUserSettingsForm.enable_private_messages = event.target.checked),
+      s
+    ),
+  );
+}
+
+function handleAutoMarkFetchedPostsAsRead(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => (
+      (s.saveUserSettingsForm.auto_mark_fetched_posts_as_read =
+        event.target.checked),
+      s
+    ),
+  );
+}
+
+function handleShowScoresChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+  myUserInfo: MyUserInfo | undefined,
+) {
+  const mui = myUserInfo;
+  if (mui) {
+    mui.local_user_view.local_user.show_score = event.target.checked;
+  }
+  i.setState(
+    s => ((s.saveUserSettingsForm.show_score = event.target.checked), s),
+  );
+}
+
+function handleShowUpvotesChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+  myUserInfo: MyUserInfo | undefined,
+) {
+  const mui = myUserInfo;
+  if (mui) {
+    mui.local_user_view.local_user.show_upvotes = event.target.checked;
+  }
+  i.setState(
+    s => ((s.saveUserSettingsForm.show_upvotes = event.target.checked), s),
+  );
+}
+
+function handleShowDownvotesChange(i: Settings, val: VoteShow) {
+  i.setState(s => ((s.saveUserSettingsForm.show_downvotes = val), s));
+}
+
+function handleShowUpvotePercentageChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+  myUserInfo: MyUserInfo | undefined,
+) {
+  const mui = myUserInfo;
+  if (mui) {
+    mui.local_user_view.local_user.show_upvote_percentage =
+      event.target.checked;
+  }
+  i.setState(
+    s => (
+      (s.saveUserSettingsForm.show_upvote_percentage = event.target.checked),
+      s
+    ),
+  );
+}
+
+function handleShowPersonVotesChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.saveUserSettingsForm.show_person_votes = event.target.checked), s),
+  );
+}
+
+function handleCollapseBotCommentsChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => (
+      (s.saveUserSettingsForm.collapse_bot_comments = event.target.checked),
+      s
+    ),
+  );
+}
+
+function handleSendNotificationsToEmailChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => (
+      (s.saveUserSettingsForm.send_notifications_to_email =
+        event.target.checked),
+      s
+    ),
+  );
+}
+
+function handleThemeChange(i: Settings, event: FormEvent<HTMLSelectElement>) {
+  i.setState(s => ((s.saveUserSettingsForm.theme = event.target.value), s));
+  setThemeOverride(event.target.value);
+}
+
+function handleInterfaceLangChange(
+  i: Settings,
+  event: FormEvent<HTMLSelectElement>,
+) {
+  const newLang = event.target.value ?? "browser";
+  I18NextService.reconfigure(navigator.languages, newLang);
+
+  i.setState(
+    s => ((s.saveUserSettingsForm.interface_language = event.target.value), s),
+  );
+}
+
+function handleDiscussionLanguageChange(i: Settings, val: number[]) {
+  i.setState(s => ((s.saveUserSettingsForm.discussion_languages = val), s));
+}
+
+function handlePostListingModeChange(i: Settings, val: PostListingMode) {
+  i.setState(s => ((s.saveUserSettingsForm.post_listing_mode = val), s));
+}
+
+function handlePostSortTypeChange(i: Settings, val: PostSortType) {
+  i.setState(s => ((s.saveUserSettingsForm.default_post_sort_type = val), s));
+}
+
+function handleCommentSortTypeChange(i: Settings, val: CommentSortType) {
+  i.setState(
+    s => ((s.saveUserSettingsForm.default_comment_sort_type = val), s),
+  );
+}
+
+function handlePostTimeRangeChange(i: Settings, val: number) {
+  i.setState(
+    s => ((s.saveUserSettingsForm.default_post_time_range_seconds = val), s),
+  );
+}
+
+function handleBlockingKeywordsUpdate(i: Settings, val: string[]) {
+  i.setState(s => ((s.saveUserSettingsForm.blocking_keywords = val), s));
+}
+
+function handleListingTypeChange(i: Settings, val: ListingType) {
+  i.setState(s => ((s.saveUserSettingsForm.default_listing_type = val), s));
+}
+
+function handleItemsPerPageChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  const items = event.target.value ? Number(event.target.value) : undefined;
+  i.setState(s => ((s.saveUserSettingsForm.default_items_per_page = items), s));
+}
+
+function handleEmailChange(i: Settings, event: FormEvent<HTMLInputElement>) {
+  i.setState(s => ((s.saveUserSettingsForm.email = event.target.value), s));
+}
+
+function handleBioChange(i: Settings, val: string) {
+  i.setState(s => ((s.saveUserSettingsForm.bio = val), s));
+}
+
+function handleAvatarChange(
+  i: Settings,
+  myUserInfo: MyUserInfo | undefined,
+  url?: string,
+) {
+  if (myUserInfo) {
+    myUserInfo.local_user_view.person.avatar = url;
+  }
+  i.setState({ avatar: url });
+}
+
+function handleBannerChange(
+  i: Settings,
+  myUserInfo: MyUserInfo | undefined,
+  url?: string,
+) {
+  if (myUserInfo) {
+    myUserInfo.local_user_view.person.banner = url;
+  }
+  i.setState({ banner: url });
+}
+
+function handleDisplayNameChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.saveUserSettingsForm.display_name = event.target.value), s),
+  );
+}
+
+function handleMatrixUserIdChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.saveUserSettingsForm.matrix_user_id = event.target.value), s),
+  );
+}
+
+function handleNewPasswordChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  const newPass: string | undefined =
+    event.target.value === "" ? undefined : event.target.value;
+  i.setState(s => ((s.changePasswordForm.new_password = newPass), s));
+}
+
+function handleNewPasswordVerifyChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  const newPassVerify: string | undefined =
+    event.target.value === "" ? undefined : event.target.value;
+  i.setState(
+    s => ((s.changePasswordForm.new_password_verify = newPassVerify), s),
+  );
+}
+
+function handleOldPasswordChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  const oldPass: string | undefined =
+    event.target.value === "" ? undefined : event.target.value;
+  i.setState(s => ((s.changePasswordForm.old_password = oldPass), s));
+}
+
+async function handleSaveSettingsSubmit(
+  i: Settings,
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+  i.setState({ saveRes: LOADING_REQUEST });
+
+  const saveRes = await HttpService.client.saveUserSettings({
+    ...i.state.saveUserSettingsForm,
+  });
+
+  if (saveRes.state === "success") {
+    const [siteRes, userRes] = await Promise.all([
+      HttpService.client.getSite(),
+      HttpService.client.getMyUser(),
+    ]);
+
+    if (siteRes.state === "success" && userRes.state === "success") {
+      i.setState({
+        siteRes: siteRes.data,
+      });
+
+      updateMyUserInfo(userRes.data);
+      I18NextService.reconfigure(
+        window.navigator.languages,
+        userRes.data.local_user_view.local_user.interface_language,
+      );
+    }
+
+    toast(I18NextService.i18n.t("saved"));
+
+    // You need to reload the page, to properly update the siteRes everywhere
+    setTimeout(() => location.reload(), 500);
+  } else if (saveRes.state === "failed") {
+    toast(
+      I18NextService.i18n.t(saveRes.err.name as NoOptionI18nKeys),
+      "danger",
+    );
+  }
+
+  setThemeOverride(undefined);
+  i.setState({ saveRes });
+}
+
+async function handleChangePasswordSubmit(
+  i: Settings,
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+  const { new_password, new_password_verify, old_password } =
+    i.state.changePasswordForm;
+
+  if (new_password && new_password_verify) {
+    i.setState({ changePasswordRes: LOADING_REQUEST });
+    const changePasswordRes = await HttpService.client.changePassword({
+      new_password,
+      new_password_verify,
+      old_password: old_password || "",
+    });
+    if (changePasswordRes.state === "success") {
+      snapToTop();
+      toast(I18NextService.i18n.t("password_changed"));
+    }
+
+    i.setState({ changePasswordRes });
+  }
+}
+
+function handleImportFileChange(i: Settings, event: any) {
+  i.setState({ settingsFile: event.target.files?.item(0) });
+}
+
+async function handleExportSettings(i: Settings) {
+  i.setState({ exportSettingsRes: LOADING_REQUEST });
+  const res = await HttpService.client.exportSettings();
+
+  if (res.state === "success") {
+    i.exportSettingsLink.current!.href = `data:application/json,${encodeURIComponent(
+      JSON.stringify(res.data),
+    )}`;
+    i.exportSettingsLink.current?.click();
+  } else if (res.state === "failed") {
+    toast(
+      res.err.name === "rate_limit_error"
+        ? I18NextService.i18n.t("import_export_rate_limit_error")
+        : I18NextService.i18n.t("export_error"),
+      "danger",
+    );
+  }
+
+  i.setState({ exportSettingsRes: EMPTY_REQUEST });
+}
+
+async function handleImportSettings(i: Settings) {
+  i.setState({ importSettingsRes: LOADING_REQUEST });
+
+  const res = await HttpService.client.importSettings(
+    JSON.parse(await i.state.settingsFile!.text()),
+  );
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("import_success"), "success");
+
+    const saveRes = i.state.saveRes;
+    i.setState({ saveRes: LOADING_REQUEST });
+
+    const [siteRes, userRes] = await Promise.all([
+      HttpService.client.getSite(),
+      HttpService.client.getMyUser(),
+    ]);
+    i.setState({ saveRes });
+
+    if (siteRes.state === "success" && userRes.state === "success") {
+      const {
+        local_user: {
+          show_nsfw,
+          blur_nsfw,
+          theme,
+          default_post_sort_type,
+          default_comment_sort_type,
+          default_listing_type,
+          default_items_per_page,
+          interface_language,
+          show_avatars,
+          show_bot_accounts,
+          show_read_posts,
+          send_notifications_to_email,
+          email,
+          open_links_in_new_tab,
+          enable_private_messages,
+          auto_mark_fetched_posts_as_read,
+        },
+        person: {
+          avatar,
+          banner,
+          display_name,
+          bot_account,
+          bio,
+          matrix_user_id,
+        },
+      } = userRes.data.local_user_view;
+
+      updateMyUserInfo(userRes.data);
+      refreshTheme();
+
+      i.setState(prev => ({
+        ...prev,
+        saveUserSettingsForm: {
+          ...prev.saveUserSettingsForm,
+          show_avatars,
+          show_bot_accounts,
+          show_nsfw,
+          teme: theme ?? "browser",
+          display_name,
+          bio,
+          matrix_user_id,
+          blur_nsfw,
+          bot_account,
+          default_listing_type,
+          default_items_per_page,
+          default_post_sort_type,
+          default_comment_sort_type,
+          discussion_languages: userRes.data.discussion_languages,
+          email,
+          interface_language,
+          open_links_in_new_tab,
+          send_notifications_to_email,
+          show_read_posts,
+          enable_private_messages,
+          auto_mark_fetched_posts_as_read,
+        },
+        avatar,
+        banner,
+      }));
+    }
+  } else if (res.state === "failed") {
+    toast(
+      res.err.name === "rate_limit_error"
+        ? I18NextService.i18n.t("import_export_rate_limit_error")
+        : I18NextService.i18n.t("import_error"),
+      "danger",
+    );
+  }
+
+  i.setState({ importSettingsRes: EMPTY_REQUEST, settingsFile: undefined });
+}
+
+function handleDeleteAccountShowConfirmToggle(i: Settings) {
+  i.setState({ deleteAccountShowConfirm: !i.state.deleteAccountShowConfirm });
+}
+
+function handleDeleteAccountContentChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.deleteAccountForm.delete_content = event.target.checked), s),
+  );
+}
+
+function handleDeleteAccountPasswordChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.deleteAccountForm.password = event.target.value), s));
+}
+
+async function handleDeleteAccount(i: Settings, event: Event) {
+  event.preventDefault();
+  const password = i.state.deleteAccountForm.password;
+  if (password) {
+    i.setState({ deleteAccountRes: LOADING_REQUEST });
+    const deleteAccountRes = await HttpService.client.deleteAccount({
+      password,
+      delete_content: i.state.deleteAccountForm.delete_content || false,
+    });
+    if (deleteAccountRes.state === "success") {
+      UserService.Instance.logout();
+      i.context.router.history.replace("/");
+    }
+
+    i.setState({ deleteAccountRes });
   }
 }
