@@ -1,7 +1,7 @@
 import type { Response } from "express";
 
 export default async ({ res }: { res: Response }) => {
-  res.setHeader("content-type", "text/plain; charset=utf-8");
+  res.type("text/plain; charset=utf-8");
 
   res.send(`User-Agent: *
 Disallow: /login

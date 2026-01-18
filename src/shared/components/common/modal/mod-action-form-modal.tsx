@@ -42,8 +42,14 @@ interface ModActionFormModalPropsPurgePerson {
   creator: Person;
 }
 
+interface ModActionFormModalPropsPurgeCommunity {
+  modActionType: "purge-community";
+  onSubmit(reason: string): void;
+  community: Community;
+}
+
 interface ModActionFormModalPropsRemove {
-  modActionType: "remove-post" | "remove-comment";
+  modActionType: "remove-post" | "remove-comment" | "remove-community";
   onSubmit(reason: string): void;
   isRemoved: boolean;
 }
@@ -69,6 +75,7 @@ type ModActionFormModalProps = (
   | ModActionFormModalPropsCommunityBan
   | ModActionFormModalPropsRest
   | ModActionFormModalPropsPurgePerson
+  | ModActionFormModalPropsPurgeCommunity
   | ModActionFormModalPropsRemove
   | ModActionFormModalPropsLock
 ) & { onCancel(): void; show: boolean; children?: InfernoNode };
@@ -360,6 +367,12 @@ export default class ModActionFormModal extends Component<
         });
       }
 
+      case "purge-community": {
+        return I18NextService.i18n.t("purge_community_with_name", {
+          community: getApubName(this.props.community),
+        });
+      }
+
       case "remove-post": {
         return I18NextService.i18n.t(
           this.props.isRemoved ? "restore_post" : "remove_post",
@@ -369,6 +382,12 @@ export default class ModActionFormModal extends Component<
       case "remove-comment": {
         return I18NextService.i18n.t(
           this.props.isRemoved ? "restore_comment" : "remove_comment",
+        );
+      }
+
+      case "remove-community": {
+        return I18NextService.i18n.t(
+          this.props.isRemoved ? "restore_community" : "remove_community",
         );
       }
 
@@ -405,11 +424,13 @@ export default class ModActionFormModal extends Component<
 
       case "purge-post":
       case "purge-comment":
+      case "purge-community":
       case "purge-person": {
         return I18NextService.i18n.t("purge");
       }
 
       case "remove-post":
+      case "remove-community":
       case "remove-comment": {
         return I18NextService.i18n.t(
           this.props.isRemoved ? "restore" : "remove",
@@ -450,12 +471,14 @@ export default class ModActionFormModal extends Component<
 
       case "purge-post":
       case "purge-comment":
+      case "purge-community":
       case "purge-person": {
         translation = "purging";
         break;
       }
 
       case "remove-post":
+      case "remove-community":
       case "remove-comment": {
         translation = this.props.isRemoved ? "restoring" : "removing";
         break;
