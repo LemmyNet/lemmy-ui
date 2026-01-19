@@ -2,6 +2,7 @@ import {
   commentToFlatNode,
   enableNsfw,
   myAuth,
+  reportToast,
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
@@ -12,7 +13,11 @@ import {
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { RouteDataResponse } from "@utils/types";
+import {
+  CommentIdAndRes,
+  commentLoading,
+  RouteDataResponse,
+} from "@utils/types";
 import classNames from "classnames";
 import { Component, FormEvent, InfernoNode } from "inferno";
 import {
@@ -23,7 +28,6 @@ import {
   PersonResponse,
   BlockCommunity,
   BlockPerson,
-  CommentReportResponse,
   CommentResponse,
   CommunityId,
   CreateComment,
@@ -46,7 +50,6 @@ import {
   NotificationDataType,
   NotificationView,
   PrivateMessageId,
-  PrivateMessageReportResponse,
   PrivateMessageResponse,
   PurgeComment,
   PurgePerson,
@@ -102,6 +105,9 @@ interface NotificationsState {
   messageType: NotificationDataType;
   notifsRes: RequestState<PagedResponse<NotificationView>>;
   markAllAsReadRes: RequestState<SuccessResponse>;
+  privateMessageRes: RequestState<PrivateMessageResponse>;
+  createCommentRes: CommentIdAndRes;
+  editCommentRes: CommentIdAndRes;
   cursor?: PaginationCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
@@ -131,6 +137,9 @@ export class Notifications extends Component<
     siteRes: this.isoData.siteRes,
     notifsRes: EMPTY_REQUEST,
     markAllAsReadRes: EMPTY_REQUEST,
+    privateMessageRes: EMPTY_REQUEST,
+    createCommentRes: { commentId: 0, res: EMPTY_REQUEST },
+    editCommentRes: { commentId: 0, res: EMPTY_REQUEST },
     isIsomorphic: false,
   };
 
@@ -313,6 +322,8 @@ export class Notifications extends Component<
           <CommentNode
             key={item.notification.id}
             node={commentToFlatNode(data)}
+            createLoading={commentLoading(this.state.createCommentRes)}
+            editLoading={commentLoading(this.state.editCommentRes)}
             viewType={"flat"}
             showCommunity
             showContext
@@ -328,7 +339,7 @@ export class Notifications extends Component<
             onDeleteComment={form => handleDeleteComment(this, form)}
             onRemoveComment={form => handleRemoveComment(this, form)}
             onCommentVote={form => handleCommentVote(this, form)}
-            onCommentReport={form => handleCommentReport(this, form)}
+            onCommentReport={form => handleCommentReport(form)}
             onDistinguishComment={form => handleDistinguishComment(this, form)}
             onAddModToCommunity={form => handleAddModToCommunity(form)}
             onAddAdmin={form => handleAddAdmin(this, form)}
@@ -339,7 +350,7 @@ export class Notifications extends Component<
               handleBanFromCommunity(this, form)
             }
             onBanPerson={form => handleBanPerson(this, form)}
-            onCreateComment={form => handleCreateComment(form)}
+            onCreateComment={form => handleCreateComment(this, form)}
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
@@ -353,10 +364,13 @@ export class Notifications extends Component<
             read={item.notification.read}
             myUserInfo={myUserInfo}
             onDelete={form => handleDeleteMessage(this, form)}
-            onReport={form => handleMessageReport(this, form)}
+            onReport={form => handleMessageReport(form)}
             onCreate={form => handleCreateMessage(this, form)}
             onEdit={form => handleEditMessage(this, form)}
             onMarkRead={(id, read) => handleMarkMessageAsRead(this, id, read)}
+            createOrEditLoading={
+              this.state.privateMessageRes.state === "loading"
+            }
           />
         );
       case "post":
@@ -574,16 +588,6 @@ export class Notifications extends Component<
     }
   }
 
-  reportToast(
-    res: RequestState<PrivateMessageReportResponse | CommentReportResponse>,
-  ) {
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("report_created"));
-    } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-    }
-  }
-
   // A weird case, since you have only replies and mentions, not comment responses
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
@@ -689,8 +693,20 @@ async function handleBlockCommunity(
   }
 }
 
-async function handleCreateComment(form: CreateComment) {
+async function handleCreateComment(i: Notifications, form: CreateComment) {
+  i.setState({
+    createCommentRes: {
+      commentId: form.parent_id ?? 0,
+      res: LOADING_REQUEST,
+    },
+  });
   const res = await HttpService.client.createComment(form);
+  i.setState({
+    createCommentRes: {
+      commentId: form.parent_id ?? 0,
+      res,
+    },
+  });
 
   if (res.state === "success") {
     toast(I18NextService.i18n.t("reply_sent"));
@@ -701,7 +717,14 @@ async function handleCreateComment(form: CreateComment) {
 }
 
 async function handleEditComment(i: Notifications, form: EditComment) {
+  i.setState({
+    editCommentRes: { commentId: form.comment_id, res: LOADING_REQUEST },
+  });
+
   const res = await HttpService.client.editComment(form);
+  i.setState({
+    editCommentRes: { commentId: form.comment_id, res },
+  });
 
   if (res.state === "success") {
     toast(I18NextService.i18n.t("edit"));
@@ -751,12 +774,9 @@ async function handleCommentVote(i: Notifications, form: CreateCommentLike) {
   i.findAndUpdateComment(res);
 }
 
-async function handleCommentReport(
-  i: Notifications,
-  form: CreateCommentReport,
-) {
+async function handleCommentReport(form: CreateCommentReport) {
   const reportRes = await HttpService.client.createCommentReport(form);
-  i.reportToast(reportRes);
+  reportToast(reportRes);
 }
 
 async function handleDistinguishComment(
@@ -842,7 +862,10 @@ async function handleEditMessage(
   i: Notifications,
   form: EditPrivateMessage,
 ): Promise<boolean> {
+  i.setState({ privateMessageRes: LOADING_REQUEST });
   const res = await HttpService.client.editPrivateMessage(form);
+  i.setState({ privateMessageRes: res });
+
   i.findAndUpdateMessage(res);
   if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
@@ -873,19 +896,19 @@ async function handleMarkNotificationAsRead(
   });
 }
 
-async function handleMessageReport(
-  i: Notifications,
-  form: CreatePrivateMessageReport,
-) {
+async function handleMessageReport(form: CreatePrivateMessageReport) {
   const res = await HttpService.client.createPrivateMessageReport(form);
-  i.reportToast(res);
+  reportToast(res);
 }
 
 async function handleCreateMessage(
   i: Notifications,
   form: CreatePrivateMessage,
 ): Promise<boolean> {
+  i.setState({ privateMessageRes: LOADING_REQUEST });
   const res = await HttpService.client.createPrivateMessage(form);
+  i.setState({ privateMessageRes: res });
+
   i.setState(s => {
     if (s.notifsRes.state === "success" && res.state === "success") {
       s.notifsRes.data.items.unshift({

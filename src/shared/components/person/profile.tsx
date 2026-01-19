@@ -7,6 +7,7 @@ import {
   enableNsfw,
   getUncombinedPersonContent,
   postViewToPersonContentCombinedView,
+  reportToast,
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
@@ -23,8 +24,8 @@ import {
   getApubName,
 } from "@utils/helpers";
 import { amAdmin, canAdmin } from "@utils/roles";
-import type { QueryParams } from "@utils/types";
-import { RouteDataResponse } from "@utils/types";
+import type { CommentIdAndRes, QueryParams } from "@utils/types";
+import { commentLoading, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { format } from "date-fns";
 import { NoOptionI18nKeys } from "i18next";
@@ -132,6 +133,8 @@ interface ProfileState {
   personHiddenRes: RequestState<PagedResponse<PostView>>;
   uploadsRes: RequestState<PagedResponse<LocalImageView>>;
   registrationRes: RequestState<RegistrationApplicationResponse>;
+  createCommentRes: CommentIdAndRes;
+  editCommentRes: CommentIdAndRes;
   personBlocked: boolean;
   banReason?: string;
   banExpireDays?: number;
@@ -312,6 +315,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     personHiddenRes: EMPTY_REQUEST,
     uploadsRes: EMPTY_REQUEST,
     registrationRes: EMPTY_REQUEST,
+    createCommentRes: { commentId: 0, res: EMPTY_REQUEST },
+    editCommentRes: { commentId: 0, res: EMPTY_REQUEST },
     personBlocked: false,
     siteRes: this.isoData.siteRes,
     showBanDialog: false,
@@ -678,6 +683,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     admins={siteRes.admins}
                     sort={sort}
                     limit={fetchLimit}
+                    createLoading={commentLoading(this.state.createCommentRes)}
+                    editLoading={commentLoading(this.state.editCommentRes)}
                     enableNsfw={enableNsfw(siteRes)}
                     showAdultConsentModal={this.isoData.showAdultConsentModal}
                     myUserInfo={myUserInfo}
@@ -1597,17 +1604,37 @@ async function handleBlockCommunity(
 }
 
 async function handleCreateComment(i: Profile, form: CreateComment) {
-  const createCommentRes = await HttpService.client.createComment(form);
-  i.createAndUpdateComments(createCommentRes);
+  i.setState({
+    createCommentRes: {
+      commentId: form.parent_id ?? 0,
+      res: LOADING_REQUEST,
+    },
+  });
+  const res = await HttpService.client.createComment(form);
+  i.setState({
+    createCommentRes: {
+      commentId: form.parent_id ?? 0,
+      res,
+    },
+  });
+  i.createAndUpdateComments(res);
 
-  return createCommentRes;
+  return res;
 }
 
 async function handleEditComment(i: Profile, form: EditComment) {
-  const editCommentRes = await HttpService.client.editComment(form);
-  i.findAndUpdateComment(editCommentRes);
+  i.setState({
+    editCommentRes: { commentId: form.comment_id, res: LOADING_REQUEST },
+  });
 
-  return editCommentRes;
+  const res = await HttpService.client.editComment(form);
+  i.setState({
+    editCommentRes: { commentId: form.comment_id, res },
+  });
+
+  i.findAndUpdateComment(res);
+
+  return res;
 }
 
 async function handleDeleteComment(i: Profile, form: DeleteComment) {
@@ -1669,16 +1696,12 @@ async function handlePostEdit(i: Profile, form: EditPost) {
 
 async function handleCommentReport(form: CreateCommentReport) {
   const reportRes = await HttpService.client.createCommentReport(form);
-  if (reportRes.state === "success") {
-    toast(I18NextService.i18n.t("report_created"));
-  }
+  reportToast(reportRes);
 }
 
 async function handlePostReport(form: CreatePostReport) {
   const reportRes = await HttpService.client.createPostReport(form);
-  if (reportRes.state === "success") {
-    toast(I18NextService.i18n.t("report_created"));
-  }
+  reportToast(reportRes);
 }
 
 async function handleLockPost(i: Profile, form: LockPost) {

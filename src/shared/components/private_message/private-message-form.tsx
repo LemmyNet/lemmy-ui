@@ -23,6 +23,7 @@ interface PrivateMessageFormProps {
   onCancel?(): any;
   onCreate?(form: CreatePrivateMessage, bypassNavWarning: () => void): void;
   onEdit?(form: EditPrivateMessage, bypassNavWarning: () => void): void;
+  createOrEditLoading: boolean;
 }
 
 interface PrivateMessageFormState {
@@ -127,6 +128,7 @@ export class PrivateMessageForm extends Component<
                   : capitalizeFirstLetter(I18NextService.i18n.t("send_message"))
               }
               myUserInfo={this.props.myUserInfo}
+              loading={this.props.createOrEditLoading}
             />
           </div>
         </div>

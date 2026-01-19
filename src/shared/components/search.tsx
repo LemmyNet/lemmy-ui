@@ -354,6 +354,8 @@ const commentListing = (
               key={c.comment.id}
               nodes={[commentToFlatNode(c)]}
               viewType={"flat"}
+              createLoading={undefined}
+              editLoading={undefined}
               viewOnly
               postLockedOrRemovedOrDeleted
               isTopLevel
@@ -862,7 +864,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           <Filter
             filterType="community"
             onChange={choice => handleCommunityFilterChange(this, choice)}
-            onSearch={this.handleCommunitySearch}
+            onSearch={text => handleCommunitySearch(this, text)}
             options={communitySearchOptions}
             value={communityId}
             loading={searchCommunitiesLoading}
@@ -870,7 +872,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           <Filter
             filterType="creator"
             onChange={choice => handleCreatorFilterChange(this, choice)}
-            onSearch={this.handleCreatorSearch}
+            onSearch={text => handleCreatorSearch(this, text)}
             options={creatorSearchOptions}
             value={creatorId}
             loading={searchCreatorLoading}
@@ -934,6 +936,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       <CommentNodes
         nodes={commentsToFlatNodes(comments)}
         viewType={"flat"}
+        createLoading={undefined}
+        editLoading={undefined}
         viewOnly
         postLockedOrRemovedOrDeleted
         isTopLevel
@@ -1127,44 +1131,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
-  handleCreatorSearch = debounce(async (text: string) => {
-    if (text.length > 0) {
-      const { creatorId } = this.props;
-      const { creatorSearchOptions } = this.state;
-
-      this.setState({ searchCreatorLoading: true });
-
-      const newOptions = creatorSearchOptions
-        .filter(choice => getIdFromString(choice.value) === creatorId)
-        .concat((await fetchUsers(text)).map(personToChoice));
-
-      this.setState({
-        searchCreatorLoading: false,
-        creatorSearchOptions: newOptions,
-      });
-    }
-  });
-
-  handleCommunitySearch = debounce(async (text: string) => {
-    if (text.length > 0) {
-      const { communityId } = this.props;
-      const { communitySearchOptions } = this.state;
-
-      this.setState({
-        searchCommunitiesLoading: true,
-      });
-
-      const newOptions = communitySearchOptions
-        .filter(choice => getIdFromString(choice.value) === communityId)
-        .concat((await fetchCommunities(text)).map(communityToChoice));
-
-      this.setState({
-        searchCommunitiesLoading: false,
-        communitySearchOptions: newOptions,
-      });
-    }
-  });
-
   getQ(): string | undefined {
     return this.searchInput.current?.value ?? this.props.q;
   }
@@ -1201,13 +1167,52 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 }
 
+const handleCreatorSearch = debounce(async (i: Search, text: string) => {
+  if (text.length > 0) {
+    const { creatorId } = i.props;
+    const { creatorSearchOptions } = i.state;
+
+    i.setState({ searchCreatorLoading: true });
+
+    const newOptions = creatorSearchOptions
+      .filter(choice => getIdFromString(choice.value) === creatorId)
+      .concat((await fetchUsers(text)).map(personToChoice));
+
+    i.setState({
+      searchCreatorLoading: false,
+      creatorSearchOptions: newOptions,
+    });
+  }
+});
+
+const handleCommunitySearch = debounce(async (i: Search, text: string) => {
+  if (text.length > 0) {
+    const { communityId } = i.props;
+    const { communitySearchOptions } = i.state;
+
+    i.setState({
+      searchCommunitiesLoading: true,
+    });
+
+    const newOptions = communitySearchOptions
+      .filter(choice => getIdFromString(choice.value) === communityId)
+      .concat((await fetchCommunities(text)).map(communityToChoice));
+
+    i.setState({
+      searchCommunitiesLoading: false,
+      communitySearchOptions: newOptions,
+    });
+  }
+});
+
 function handleSortChange(i: Search, sort: SearchSortType) {
   i.updateUrl({ sort, cursor: undefined, q: i.getQ() });
 }
 
 function handleTitleOnlyChange(i: Search, event: FormEvent<HTMLInputElement>) {
   const titleOnly = event.target.checked;
-  i.updateUrl({ titleOnly, q: i.getQ() });
+  // Don't allow post url and post title only to be checked at the same time
+  i.updateUrl({ titleOnly, q: i.getQ(), postUrlOnly: false });
 }
 
 function handlePostUrlOnlyChange(
@@ -1215,7 +1220,8 @@ function handlePostUrlOnlyChange(
   event: FormEvent<HTMLInputElement>,
 ) {
   const postUrlOnly = event.target.checked;
-  i.updateUrl({ postUrlOnly, q: i.getQ() });
+  // Don't allow post url and post title only to be checked at the same time
+  i.updateUrl({ postUrlOnly, q: i.getQ(), titleOnly: false });
 }
 
 function handleTypeChange(i: Search, event: FormEvent<HTMLSelectElement>) {

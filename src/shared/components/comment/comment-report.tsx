@@ -93,6 +93,8 @@ export class CommentReport extends Component<
           node={commentToFlatNode(comment_view)}
           admins={this.props.admins}
           viewType={"flat"}
+          createLoading={undefined}
+          editLoading={undefined}
           viewOnly
           showCommunity
           showContext={false}
