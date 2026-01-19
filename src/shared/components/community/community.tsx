@@ -9,6 +9,7 @@ import {
   enableNsfw,
   mixedToCommentSortType,
   mixedToPostSortType,
+  reportToast,
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
@@ -20,8 +21,8 @@ import {
   bareRoutePush,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type { QueryParams, StringBoolean } from "@utils/types";
-import { RouteDataResponse } from "@utils/types";
+import type { CommentIdAndRes, QueryParams, StringBoolean } from "@utils/types";
+import { commentLoading, RouteDataResponse } from "@utils/types";
 import {
   Component,
   InfernoNode,
@@ -133,6 +134,8 @@ interface State {
   communityRes: RequestState<GetCommunityResponse>;
   postsRes: RequestState<PagedResponse<PostView>>;
   commentsRes: RequestState<PagedResponse<CommentView>>;
+  createCommentRes: CommentIdAndRes;
+  editCommentRes: CommentIdAndRes;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
@@ -212,6 +215,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     communityRes: EMPTY_REQUEST,
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
+    createCommentRes: { commentId: 0, res: EMPTY_REQUEST },
+    editCommentRes: { commentId: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     isIsomorphic: false,
@@ -644,6 +649,8 @@ export class Community extends Component<CommunityRouteProps, State> {
             <CommentNodes
               nodes={commentsToFlatNodes(this.state.commentsRes.data.items)}
               viewType={"flat"}
+              createLoading={commentLoading(this.state.createCommentRes)}
+              editLoading={commentLoading(this.state.editCommentRes)}
               isTopLevel
               showContext
               showCommunity={false}
@@ -967,29 +974,43 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   async handleCreateComment(form: CreateComment) {
-    const createCommentRes = await HttpService.client.createComment(form);
-    this.createAndUpdateComments(createCommentRes);
+    this.setState({
+      createCommentRes: {
+        commentId: form.parent_id ?? 0,
+        res: LOADING_REQUEST,
+      },
+    });
+    const res = await HttpService.client.createComment(form);
+    this.setState({
+      createCommentRes: {
+        commentId: form.parent_id ?? 0,
+        res,
+      },
+    });
+    this.createAndUpdateComments(res);
 
-    if (createCommentRes.state === "failed") {
-      toast(
-        I18NextService.i18n.t(createCommentRes.err.name as NoOptionI18nKeys),
-        "danger",
-      );
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
-    return createCommentRes;
+    return res;
   }
 
   async handleEditComment(form: EditComment) {
-    const editCommentRes = await HttpService.client.editComment(form);
-    this.findAndUpdateCommentEdit(editCommentRes);
+    this.setState({
+      editCommentRes: { commentId: form.comment_id, res: LOADING_REQUEST },
+    });
 
-    if (editCommentRes.state === "failed") {
-      toast(
-        I18NextService.i18n.t(editCommentRes.err.name as NoOptionI18nKeys),
-        "danger",
-      );
+    const res = await HttpService.client.editComment(form);
+    this.setState({
+      editCommentRes: { commentId: form.comment_id, res },
+    });
+
+    this.findAndUpdateCommentEdit(res);
+
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
-    return editCommentRes;
+    return res;
   }
 
   async handleDeleteComment(form: DeleteComment) {
@@ -1070,16 +1091,12 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
-    if (reportRes.state === "success") {
-      toast(I18NextService.i18n.t("report_created"));
-    }
+    reportToast(reportRes);
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
-    if (reportRes.state === "success") {
-      toast(I18NextService.i18n.t("report_created"));
-    }
+    reportToast(reportRes);
   }
 
   async handleLockPost(form: LockPost) {

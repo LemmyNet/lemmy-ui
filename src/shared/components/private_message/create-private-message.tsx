@@ -6,6 +6,7 @@ import {
   GetPersonDetails,
   GetPersonDetailsResponse,
   LemmyHttp,
+  PrivateMessageResponse,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -34,6 +35,7 @@ type CreatePrivateMessageData = RouteDataResponse<{
 
 interface CreatePrivateMessageState {
   recipientRes: RequestState<GetPersonDetailsResponse>;
+  createMessageRes: RequestState<PrivateMessageResponse>;
   recipientId: number;
   isIsomorphic: boolean;
 }
@@ -55,6 +57,7 @@ export class CreatePrivateMessage extends Component<
   private isoData = setIsoData<CreatePrivateMessageData>(this.context);
   state: CreatePrivateMessageState = {
     recipientRes: EMPTY_REQUEST,
+    createMessageRes: EMPTY_REQUEST,
     recipientId: getRecipientIdFromProps(this.props),
     isIsomorphic: false,
   };
@@ -143,6 +146,9 @@ export class CreatePrivateMessage extends Component<
                 myUserInfo={this.isoData.myUserInfo}
                 onCreate={this.handlePrivateMessageCreate}
                 recipient={res.person_view.person}
+                createOrEditLoading={
+                  this.state.createMessageRes.state === "loading"
+                }
               />
             </div>
           </div>
@@ -167,7 +173,9 @@ export class CreatePrivateMessage extends Component<
     form: CreatePrivateMessageI,
     bypassNavWarning: () => void,
   ): Promise<boolean> {
+    this.setState({ createMessageRes: LOADING_REQUEST });
     const res = await HttpService.client.createPrivateMessage(form);
+    this.setState({ createMessageRes: res });
 
     if (res.state === "success") {
       toast(I18NextService.i18n.t("message_sent"));

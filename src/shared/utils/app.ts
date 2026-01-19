@@ -31,6 +31,10 @@ import {
   MultiCommunity,
   MultiCommunityView,
   SearchSortType,
+  CommentReportResponse,
+  PostReportResponse,
+  PrivateMessageReportResponse,
+  CommunityReportResponse,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -58,6 +62,8 @@ import { isBrowser } from "@utils/browser";
 import Toastify from "toastify-js";
 import { isAnimatedImage } from "./media";
 import { httpBackendUrl } from "./env";
+import { RequestState } from "@services/HttpService";
+import { NoOptionI18nKeys } from "i18next";
 
 export function buildCommentsTree<T extends CommentSlimView>(
   comments: T[],
@@ -705,6 +711,21 @@ export async function pictrsDeleteToast(filename: string) {
     });
 
     toast.showToast();
+  }
+}
+
+export function reportToast(
+  res: RequestState<
+    | CommentReportResponse
+    | PostReportResponse
+    | PrivateMessageReportResponse
+    | CommunityReportResponse
+  >,
+) {
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("report_created"));
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
 }
 
