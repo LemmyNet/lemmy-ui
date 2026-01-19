@@ -160,7 +160,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                   >
                     {I18NextService.i18n.t("modlog")}
                   </Link>
-                  {this.amModOrAdmin() && (
+                  {this.amModOrAdminAndLocal() && (
                     <CommunitySettingsLink community={community} />
                   )}
                   {amAdmin(myUserInfo) && (
@@ -397,6 +397,17 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
 
   amModOrAdmin(): boolean {
     return amMod(this.props.communityView) || amAdmin(this.props.myUserInfo);
+  }
+
+  /**
+   * Only allow viewing community sidebar if you're a mod, or you're an admin and its a local community
+   **/
+  amModOrAdminAndLocal(): boolean {
+    return (
+      amMod(this.props.communityView) ||
+      (amAdmin(this.props.myUserInfo) &&
+        this.props.communityView.community.local)
+    );
   }
 }
 
