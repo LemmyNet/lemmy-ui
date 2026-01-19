@@ -19,10 +19,12 @@ import cookieParser from "cookie-parser";
 import { setupMarkdown } from "@utils/markdown";
 import compression from "compression";
 import { enableResponseBodyCompression } from "./utils/dev-env";
-import FrontPageFeedHandler from "./handlers/frontpage-feed-handler";
-import ProfileFeedHandler from "./handlers/profile-feed-handler";
-import CommunityFeedHandler from "./handlers/community-feed-handler";
-import MultiCommunityFeedHandler from "./handlers/multi-community-feed-handler";
+import {
+  FrontPageFeedHandler,
+  ProfileFeedHandler,
+  CommunityFeedHandler,
+  MultiCommunityFeedHandler,
+} from "./handlers/feed-handler";
 
 const server = express();
 server.use(cookieParser());
