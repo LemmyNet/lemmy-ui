@@ -12,6 +12,7 @@ import {
   updatePersonBlock,
   editCommentsSlimLocked,
   linkTarget,
+  reportToast,
 } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import {
@@ -25,7 +26,13 @@ import {
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isImage } from "@utils/media";
-import { CommentNodeType, QueryParams, RouteDataResponse } from "@utils/types";
+import {
+  CommentIdAndRes,
+  commentLoading,
+  CommentNodeType,
+  QueryParams,
+  RouteDataResponse,
+} from "@utils/types";
 import classNames from "classnames";
 import { Component, createRef, linkEvent } from "inferno";
 import {
@@ -129,6 +136,8 @@ interface PostState {
   removeCommunityRes: RequestState<CommunityResponse>;
   addModToCommunityRes: RequestState<AddModToCommunityResponse>;
   purgeCommunityRes: RequestState<SuccessResponse>;
+  createCommentRes: CommentIdAndRes;
+  editCommentRes: CommentIdAndRes;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   maxCommentsShown: number;
@@ -259,6 +268,8 @@ export class Post extends Component<PostRouteProps, PostState> {
     followCommunityRes: EMPTY_REQUEST,
     removeCommunityRes: EMPTY_REQUEST,
     purgeCommunityRes: EMPTY_REQUEST,
+    createCommentRes: { commentId: 0, res: EMPTY_REQUEST },
+    editCommentRes: { commentId: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
@@ -675,6 +686,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   myUserInfo={this.isoData.myUserInfo}
                   onCreateComment={this.handleCreateToplevelComment}
                   onEditComment={() => {}}
+                  loading={commentLoading(this.state.createCommentRes) === 0}
                 />
               )}
               <div className="d-block d-md-none">
@@ -871,6 +883,8 @@ export class Post extends Component<PostRouteProps, PostState> {
             postLockedOrRemovedOrDeleted={postLockedDeletedOrRemoved(
               postRes.data.post_view,
             )}
+            createLoading={commentLoading(this.state.createCommentRes)}
+            editLoading={commentLoading(this.state.editCommentRes)}
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
@@ -991,6 +1005,8 @@ export class Post extends Component<PostRouteProps, PostState> {
             postLockedOrRemovedOrDeleted={postLockedDeletedOrRemoved(
               postRes.data.post_view,
             )}
+            createLoading={commentLoading(this.state.createCommentRes)}
+            editLoading={commentLoading(this.state.editCommentRes)}
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
@@ -1211,17 +1227,37 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async handleCreateComment(form: CreateComment) {
-    const createCommentRes = await HttpService.client.createComment(form);
-    this.createAndUpdateComments(createCommentRes);
+    this.setState({
+      createCommentRes: {
+        commentId: form.parent_id ?? 0,
+        res: LOADING_REQUEST,
+      },
+    });
+    const res = await HttpService.client.createComment(form);
+    this.setState({
+      createCommentRes: {
+        commentId: form.parent_id ?? 0,
+        res,
+      },
+    });
+    this.createAndUpdateComments(res);
 
-    return createCommentRes;
+    return res;
   }
 
   async handleEditComment(form: EditComment) {
-    const editCommentRes = await HttpService.client.editComment(form);
-    this.findAndUpdateCommentEdit(editCommentRes);
+    this.setState({
+      editCommentRes: { commentId: form.comment_id, res: LOADING_REQUEST },
+    });
 
-    return editCommentRes;
+    const res = await HttpService.client.editComment(form);
+    this.setState({
+      editCommentRes: { commentId: form.comment_id, res },
+    });
+
+    this.findAndUpdateCommentEdit(res);
+
+    return res;
   }
 
   async handlePersonNote(form: NotePerson) {
@@ -1357,16 +1393,12 @@ export class Post extends Component<PostRouteProps, PostState> {
 
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
-    if (reportRes.state === "success") {
-      toast(I18NextService.i18n.t("report_created"));
-    }
+    reportToast(reportRes);
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
-    if (reportRes.state === "success") {
-      toast(I18NextService.i18n.t("report_created"));
-    }
+    reportToast(reportRes);
   }
 
   async handleLockPost(form: LockPost) {

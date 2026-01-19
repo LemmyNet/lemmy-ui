@@ -8,6 +8,7 @@ import {
   mixedToCommentSortType,
   mixedToPostSortType,
   myAuth,
+  reportToast,
   setIsoData,
   showLocal,
   updateCommunityBlock,
@@ -19,8 +20,8 @@ import {
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type { QueryParams, StringBoolean } from "@utils/types";
-import { RouteDataResponse } from "@utils/types";
+import type { CommentIdAndRes, QueryParams, StringBoolean } from "@utils/types";
+import { commentLoading, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, InfernoNode, MouseEventHandler, linkEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -116,6 +117,8 @@ import { MultiCommunityLink } from "@components/multi-community/multi-community-
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
   commentsRes: RequestState<PagedResponse<CommentView>>;
+  createCommentRes: CommentIdAndRes;
+  editCommentRes: CommentIdAndRes;
   showSubscribedMobile: boolean;
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
@@ -267,6 +270,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   state: HomeState = {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
+    createCommentRes: { commentId: 0, res: EMPTY_REQUEST },
+    editCommentRes: { commentId: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSubscribedMobile: false,
     showSidebarMobile: false,
@@ -874,6 +879,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           return (
             <CommentNodes
               nodes={commentsToFlatNodes(comments)}
+              createLoading={commentLoading(this.state.createCommentRes)}
+              editLoading={commentLoading(this.state.editCommentRes)}
               viewType={"flat"}
               isTopLevel
               showCommunity
@@ -1124,29 +1131,43 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   async handleCreateComment(form: CreateComment) {
-    const createCommentRes = await HttpService.client.createComment(form);
-    this.createAndUpdateComments(createCommentRes);
+    this.setState({
+      createCommentRes: {
+        commentId: form.parent_id ?? 0,
+        res: LOADING_REQUEST,
+      },
+    });
+    const res = await HttpService.client.createComment(form);
+    this.setState({
+      createCommentRes: {
+        commentId: form.parent_id ?? 0,
+        res,
+      },
+    });
+    this.createAndUpdateComments(res);
 
-    if (createCommentRes.state === "failed") {
-      toast(
-        I18NextService.i18n.t(createCommentRes.err.name as NoOptionI18nKeys),
-        "danger",
-      );
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
-    return createCommentRes;
+    return res;
   }
 
   async handleEditComment(form: EditComment) {
-    const editCommentRes = await HttpService.client.editComment(form);
-    this.findAndUpdateCommentEdit(editCommentRes);
+    this.setState({
+      editCommentRes: { commentId: form.comment_id, res: LOADING_REQUEST },
+    });
 
-    if (editCommentRes.state === "failed") {
-      toast(
-        I18NextService.i18n.t(editCommentRes.err.name as NoOptionI18nKeys),
-        "danger",
-      );
+    const res = await HttpService.client.editComment(form);
+    this.setState({
+      editCommentRes: { commentId: form.comment_id, res },
+    });
+
+    this.findAndUpdateCommentEdit(res);
+
+    if (res.state === "failed") {
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
-    return editCommentRes;
+    return res;
   }
 
   async handlePersonNote(form: NotePerson) {
@@ -1254,16 +1275,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
-    if (reportRes.state === "success") {
-      toast(I18NextService.i18n.t("report_created"));
-    }
+    reportToast(reportRes);
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
-    if (reportRes.state === "success") {
-      toast(I18NextService.i18n.t("report_created"));
-    }
+    reportToast(reportRes);
   }
 
   async handleLockPost(form: LockPost) {

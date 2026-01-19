@@ -28,7 +28,7 @@ import CommunityReportModal from "@components/common/modal/community-report-moda
 import { CommunityNotificationSelect } from "@components/common/notification-select";
 import { LanguageList } from "@components/common/language-list";
 import { NoOptionI18nKeys } from "i18next";
-import { canViewCommunity } from "@utils/app";
+import { canViewCommunity, reportToast } from "@utils/app";
 import { CreatePostButton } from "@components/common/content-actions/create-item-buttons";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
 import { Link } from "inferno-router";
@@ -442,9 +442,7 @@ async function handleSubmitReport(i: CommunitySidebar, reason: string) {
     community_id: i.props.communityView.community.id,
     reason,
   });
-  if (res.state === "success") {
-    i.setState({ showReportModal: false });
-  }
+  reportToast(res);
 }
 
 function handleShowRemoveDialog(i: CommunitySidebar) {
