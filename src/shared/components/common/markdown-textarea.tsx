@@ -55,6 +55,7 @@ interface MarkdownTextAreaProps {
   siteLanguages?: LanguageId[];
   renderAsDiv?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  loading?: boolean;
 }
 
 interface ImageUploadStatus {
@@ -67,8 +68,6 @@ interface MarkdownTextAreaState {
   languageId?: number;
   previewMode: boolean;
   imageUploadStatus?: ImageUploadStatus;
-  loading: boolean;
-  submitted: boolean;
 }
 
 @tippyMixin
@@ -83,8 +82,6 @@ export class MarkdownTextArea extends Component<
     content: this.props.initialContent,
     languageId: this.props.initialLanguageId,
     previewMode: false,
-    loading: false,
-    submitted: false,
   };
 
   constructor(props: any, context: any) {
@@ -132,8 +129,7 @@ export class MarkdownTextArea extends Component<
           message={I18NextService.i18n.t("block_leaving")}
           when={
             !this.props.hideNavigationWarnings &&
-            ((!!this.state.content && !this.state.submitted) ||
-              this.state.loading)
+            (!!this.state.content || this.props.loading)
           }
         />
         <div className="mb-3 row">
@@ -271,7 +267,7 @@ export class MarkdownTextArea extends Component<
                 className="btn btn-sm btn-secondary ms-2"
                 disabled={this.isDisabled || !this.state.content}
               >
-                {this.state.loading && <Spinner className="me-1" />}
+                {this.props.loading && <Spinner className="me-1" />}
                 {this.props.buttonTitle}
               </button>
             )}
@@ -578,9 +574,7 @@ export class MarkdownTextArea extends Component<
   handleSubmit(i: MarkdownTextArea, event: any) {
     event.preventDefault();
     if (i.state.content) {
-      i.setState({ loading: true, submitted: true });
       i.props.onSubmit?.(i.state.content, i.state.languageId);
-      i.setState({ loading: false });
     }
   }
 
@@ -796,7 +790,7 @@ export class MarkdownTextArea extends Component<
 
   get isDisabled() {
     return (
-      this.state.loading ||
+      this.props.loading ||
       this.props.disabled ||
       !!this.state.imageUploadStatus
     );
