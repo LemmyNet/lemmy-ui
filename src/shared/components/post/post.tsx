@@ -132,6 +132,10 @@ type PostData = RouteDataResponse<{
 interface PostState {
   postRes: RequestState<GetPostResponse>;
   commentsRes: RequestState<PagedResponse<CommentSlimView>>;
+  followCommunityRes: RequestState<CommunityResponse>;
+  removeCommunityRes: RequestState<CommunityResponse>;
+  addModToCommunityRes: RequestState<AddModToCommunityResponse>;
+  purgeCommunityRes: RequestState<SuccessResponse>;
   createCommentRes: CommentIdAndRes;
   editCommentRes: CommentIdAndRes;
   siteRes: GetSiteResponse;
@@ -260,6 +264,10 @@ export class Post extends Component<PostRouteProps, PostState> {
   state: PostState = {
     postRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
+    addModToCommunityRes: EMPTY_REQUEST,
+    followCommunityRes: EMPTY_REQUEST,
+    removeCommunityRes: EMPTY_REQUEST,
+    purgeCommunityRes: EMPTY_REQUEST,
     createCommentRes: { commentId: 0, res: EMPTY_REQUEST },
     editCommentRes: { commentId: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
@@ -918,7 +926,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     if (res.state === "success") {
       return (
         <CommunitySidebar
-          community_view={res.data.community_view}
+          communityView={res.data.community_view}
           moderators={[]} // TODO: fetch GetCommunityResponse?
           admins={this.state.siteRes.admins}
           enableNsfw={enableNsfw(this.state.siteRes)}
@@ -926,14 +934,14 @@ export class Post extends Component<PostRouteProps, PostState> {
           allLanguages={this.state.siteRes.all_languages}
           siteLanguages={this.state.siteRes.discussion_languages}
           myUserInfo={this.isoData.myUserInfo}
-          onDeleteCommunity={this.handleDeleteCommunityClick}
-          onLeaveModTeam={this.handleAddModToCommunity}
-          onFollowCommunity={this.handleFollow}
-          onRemoveCommunity={this.handleModRemoveCommunity}
-          onPurgeCommunity={this.handlePurgeCommunity}
-          onBlockCommunity={this.handleBlockCommunity}
-          onEditCommunity={this.handleEditCommunity}
-          onUpdateCommunityNotifs={this.handleUpdateCommunityNotifs}
+          onFollow={this.handleFollow}
+          onBlock={this.handleBlockCommunity}
+          onUpdateNotifs={this.handleUpdateCommunityNotifs}
+          onRemove={form => this.handleModRemoveCommunity(form)}
+          onPurge={form => this.handlePurgeCommunity(form)}
+          removeLoading={this.state.removeCommunityRes.state === "loading"}
+          purgeLoading={this.state.purgeCommunityRes.state === "loading"}
+          followLoading={this.state.followCommunityRes.state === "loading"}
         />
       );
     }
@@ -1104,9 +1112,14 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async handleAddModToCommunity(form: AddModToCommunity) {
-    const addModRes = await HttpService.client.addModToCommunity(form);
-    this.updateModerators(addModRes);
-    if (addModRes.state === "success") {
+    this.setState({ addModToCommunityRes: LOADING_REQUEST });
+    const addModToCommunityRes =
+      await HttpService.client.addModToCommunity(form);
+
+    this.setState({ addModToCommunityRes });
+
+    this.updateModerators(addModToCommunityRes);
+    if (addModToCommunityRes.state === "success") {
       toast(
         I18NextService.i18n.t(form.added ? "appointed_mod" : "removed_mod"),
       );
@@ -1114,7 +1127,10 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async handleFollow(form: FollowCommunity) {
+    this.setState({ followCommunityRes: LOADING_REQUEST });
     const followCommunityRes = await HttpService.client.followCommunity(form);
+    this.setState({ followCommunityRes });
+
     this.updateCommunity(followCommunityRes);
 
     // Update myUserInfo
@@ -1128,7 +1144,10 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async handlePurgeCommunity(form: PurgeCommunity) {
+    this.setState({ purgeCommunityRes: LOADING_REQUEST });
     const purgeCommunityRes = await HttpService.client.purgeCommunity(form);
+    this.setState({ purgeCommunityRes });
+
     this.purgeItem(purgeCommunityRes);
   }
 
@@ -1179,7 +1198,9 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async handleModRemoveCommunity(form: RemoveCommunity) {
+    this.setState({ removeCommunityRes: LOADING_REQUEST });
     const removeCommunityRes = await HttpService.client.removeCommunity(form);
+    this.setState({ removeCommunityRes });
     this.updateCommunity(removeCommunityRes);
   }
 

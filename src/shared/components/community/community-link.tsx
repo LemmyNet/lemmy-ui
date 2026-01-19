@@ -5,6 +5,8 @@ import { Link } from "inferno-router";
 import { Community, MyUserInfo } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PictrsImage } from "../common/pictrs-image";
+import classNames from "classnames";
+import { I18NextService } from "@services/index";
 
 interface CommunityLinkProps {
   community: Community;
@@ -93,4 +95,23 @@ export function communityLink(
 
     return { link, serverStr };
   }
+}
+
+type CommunitySettingLinkProps = {
+  community: Community;
+};
+export function CommunitySettingsLink({
+  community,
+}: CommunitySettingLinkProps) {
+  const classes = classNames("btn btn-secondary d-block mb-2 w-100", {
+    "no-click": community.removed,
+  });
+
+  const link = `${communityLink(community).link}/settings`;
+
+  return (
+    <Link className={classes} to={link}>
+      {I18NextService.i18n.t("settings")}
+    </Link>
+  );
 }

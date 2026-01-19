@@ -12,7 +12,7 @@ import {
   PersonView,
   PostView,
 } from "lemmy-js-client";
-import { amAdmin, amCommunityCreator, amMod, canAdmin } from "@utils/roles";
+import { amAdmin, amTopModExcludeMe, amMod, canAdmin } from "@utils/roles";
 import ActionButton from "./action-button";
 import classNames from "classnames";
 import { Link } from "inferno-router";
@@ -278,7 +278,7 @@ export default class ContentActionDropdown extends Component<
             <Icon icon="more-vertical" inline />
           </button>
 
-          <ul className="dropdown-menu dropdown-menu-end" id={dropdownId}>
+          <ul className="dropdown-menu" id={dropdownId}>
             {this.state.dropdownOpenedOnce && (
               <>
                 {/* Links / fedilinks */}
@@ -642,7 +642,7 @@ export default class ContentActionDropdown extends Component<
                     </>
                   )}
                 {this.props.myUserInfo &&
-                  (amCommunityCreator(
+                  (amTopModExcludeMe(
                     creator.id,
                     moderators,
                     this.props.myUserInfo,

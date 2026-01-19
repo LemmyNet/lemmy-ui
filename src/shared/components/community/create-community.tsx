@@ -46,12 +46,12 @@ export class CreateCommunity extends Component<
               {I18NextService.i18n.t("create_community")}
             </h1>
             <CommunityForm
-              onUpsertCommunity={this.handleCommunityCreate}
+              onCreate={this.handleCommunityCreate}
               enableNsfw={enableNsfw(this.isoData.siteRes)}
               allLanguages={this.isoData.siteRes?.all_languages}
               siteLanguages={this.isoData.siteRes?.discussion_languages}
               communityLanguages={this.isoData.siteRes?.discussion_languages}
-              loading={this.state.loading}
+              createOrEditLoading={this.state.loading}
               myUserInfo={this.isoData.myUserInfo}
             />
           </div>
