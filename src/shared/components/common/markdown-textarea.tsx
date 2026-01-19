@@ -358,7 +358,7 @@ export class MarkdownTextArea extends Component<
 
   get isDisabled() {
     return (
-      this.state.loading ||
+      this.props.loading ||
       this.props.disabled ||
       !!this.state.imageUploadStatus
     );
