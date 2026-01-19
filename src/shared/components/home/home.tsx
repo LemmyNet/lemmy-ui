@@ -8,6 +8,7 @@ import {
   mixedToCommentSortType,
   mixedToPostSortType,
   myAuth,
+  reportToast,
   setIsoData,
   showLocal,
   updateCommunityBlock,
@@ -1254,16 +1255,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   async handleCommentReport(form: CreateCommentReport) {
     const reportRes = await HttpService.client.createCommentReport(form);
-    if (reportRes.state === "success") {
-      toast(I18NextService.i18n.t("report_created"));
-    }
+    reportToast(reportRes);
   }
 
   async handlePostReport(form: CreatePostReport) {
     const reportRes = await HttpService.client.createPostReport(form);
-    if (reportRes.state === "success") {
-      toast(I18NextService.i18n.t("report_created"));
-    }
+    reportToast(reportRes);
   }
 
   async handleLockPost(form: LockPost) {
