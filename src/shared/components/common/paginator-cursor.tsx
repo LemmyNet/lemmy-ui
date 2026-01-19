@@ -52,20 +52,22 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
   render() {
     return (
       <div className="paginator my-2">
-        <button
-          className="btn btn-secondary"
-          onClick={linkEvent(this, handlePrev)}
-          disabled={!this.prevPage}
-        >
-          {I18NextService.i18n.t("prev")}
-        </button>
-        <button
-          className="btn btn-secondary ms-2"
-          onClick={linkEvent(this, handleNext)}
-          disabled={!this.nextPage}
-        >
-          {I18NextService.i18n.t("next")}
-        </button>
+        {this.prevPage && (
+          <button
+            className="btn btn-secondary"
+            onClick={linkEvent(this, handlePrev)}
+          >
+            {I18NextService.i18n.t("prev")}
+          </button>
+        )}
+        {this.nextPage && (
+          <button
+            className="btn btn-secondary ms-2"
+            onClick={linkEvent(this, handleNext)}
+          >
+            {I18NextService.i18n.t("next")}
+          </button>
+        )}
         {!this.prevPage && !this.nextPage && this.props.current && (
           <button
             className="btn btn-secondary ms-2"
