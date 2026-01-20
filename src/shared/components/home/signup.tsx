@@ -2,7 +2,7 @@ import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { getQueryParams, resourcesSettled, validEmail } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { Component, linkEvent } from "inferno";
+import { Component, FormEvent } from "inferno";
 import {
   CaptchaResponse,
   GetCaptchaResponse,
@@ -71,7 +71,7 @@ export type SignupFetchConfig = IRoutePropsWithFetch<
 @scrollMixin
 export class Signup extends Component<SignupRouteProps, State> {
   public isoData = setIsoData(this.context);
-  private audio?: HTMLAudioElement;
+  public audio?: HTMLAudioElement;
 
   state: State = {
     registerRes: EMPTY_REQUEST,
@@ -92,8 +92,6 @@ export class Signup extends Component<SignupRouteProps, State> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handleAnswerChange = this.handleAnswerChange.bind(this);
   }
 
   async componentWillMount() {
@@ -155,7 +153,7 @@ export class Signup extends Component<SignupRouteProps, State> {
     return (
       <form
         className="was-validated"
-        onSubmit={linkEvent(this, this.handleRegisterSubmit)}
+        onSubmit={e => handleRegisterSubmit(this, e)}
       >
         <h1 className="h4 mb-4">{this.titleName(siteView)}</h1>
 
@@ -173,7 +171,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               id="register-username"
               className="form-control"
               value={this.state.form.username}
-              onInput={linkEvent(this, this.handleRegisterUsernameChange)}
+              onInput={e => handleRegisterUsernameChange(this, e)}
               required
               minLength={3}
               pattern={validActorRegexPattern}
@@ -204,7 +202,7 @@ export class Signup extends Component<SignupRouteProps, State> {
                     }
                     value={this.state.form.email}
                     autoComplete="email"
-                    onInput={linkEvent(this, this.handleRegisterEmailChange)}
+                    onInput={e => handleRegisterEmailChange(this, e)}
                     required={siteView?.local_site.require_email_verification}
                     minLength={3}
                   />
@@ -231,7 +229,7 @@ export class Signup extends Component<SignupRouteProps, State> {
                 <PasswordInput
                   id="register-password"
                   value={this.state.form.password}
-                  onInput={linkEvent(this, this.handleRegisterPasswordChange)}
+                  onInput={e => handleRegisterPasswordChange(this, e)}
                   showStrength
                   label={I18NextService.i18n.t("password")}
                   isNew
@@ -244,10 +242,7 @@ export class Signup extends Component<SignupRouteProps, State> {
                 <PasswordInput
                   id="register-verify-password"
                   value={this.state.form.password_verify}
-                  onInput={linkEvent(
-                    this,
-                    this.handleRegisterPasswordVerifyChange,
-                  )}
+                  onInput={e => handleRegisterPasswordVerifyChange(this, e)}
                   label={I18NextService.i18n.t("verify_password")}
                   isNew
                 />
@@ -286,7 +281,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               <div className="col-sm-10">
                 <MarkdownTextArea
                   initialContent=""
-                  onContentChange={this.handleAnswerChange}
+                  onContentChange={val => handleAnswerChange(this, val)}
                   hideNavigationWarnings
                   allLanguages={[]}
                   siteLanguages={[]}
@@ -323,7 +318,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               id="register-show-nsfw"
               type="checkbox"
               checked={this.state.form.show_nsfw}
-              onChange={linkEvent(this, this.handleRegisterShowNsfwChange)}
+              onChange={e => handleRegisterShowNsfwChange(this, e)}
             />
             <label className="form-check-label" htmlFor="register-show-nsfw">
               {I18NextService.i18n.t("show_nsfw")}
@@ -338,7 +333,7 @@ export class Signup extends Component<SignupRouteProps, State> {
           className="form-control honeypot"
           id="register-honey"
           value={this.state.form.honeypot}
-          onInput={linkEvent(this, this.handleHoneyPotChange)}
+          onInput={e => handleHoneyPotChange(this, e)}
         />
         <div className="input-group mb-3">
           <div className="form-check">
@@ -347,7 +342,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               id="register-stay-logged-in"
               type="checkbox"
               checked={this.state.form.stay_logged_in}
-              onChange={linkEvent(this, this.handleStayLoggedInChange)}
+              onChange={e => handleStayLoggedInChange(this, e)}
             />
             <label
               className="form-check-label"
@@ -392,7 +387,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={linkEvent(this, this.handleRegenCaptcha)}
+                onClick={() => handleRegenCaptcha(this)}
                 aria-label={I18NextService.i18n.t("captcha")}
               >
                 <Icon icon="refresh-cw" classes="icon-refresh-cw" />
@@ -405,10 +400,7 @@ export class Signup extends Component<SignupRouteProps, State> {
                 className="form-control"
                 id="register-captcha"
                 value={this.state.form.captcha_answer}
-                onInput={linkEvent(
-                  this,
-                  this.handleRegisterCaptchaAnswerChange,
-                )}
+                onInput={e => handleRegisterCaptchaAnswerChange(this, e)}
                 required
               />
             </div>
@@ -425,7 +417,7 @@ export class Signup extends Component<SignupRouteProps, State> {
         <>
           <img
             className="rounded-top img-fluid"
-            src={this.captchaPngSrc(captchaRes)}
+            src={captchaPngSrc(captchaRes)}
             style="border-bottom-right-radius: 0; border-bottom-left-radius: 0;"
             alt={I18NextService.i18n.t("captcha")}
           />
@@ -434,7 +426,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               className="rounded-bottom btn btn-sm btn-secondary d-block"
               style="border-top-right-radius: 0; border-top-left-radius: 0;"
               title={I18NextService.i18n.t("play_captcha_audio")}
-              onClick={linkEvent(this, this.handleCaptchaPlay)}
+              onClick={() => handleCaptchaPlay(this)}
               type="button"
               disabled={this.state.captchaPlaying}
             >
@@ -447,170 +439,195 @@ export class Signup extends Component<SignupRouteProps, State> {
       <></>
     );
   }
+}
 
-  async handleRegisterSubmit(i: Signup, event: any) {
-    event.preventDefault();
-    const {
-      show_nsfw,
+async function handleRegisterSubmit(
+  i: Signup,
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+  const {
+    show_nsfw,
+    answer,
+    captcha_answer,
+    captcha_uuid,
+    email,
+    honeypot,
+    password,
+    password_verify,
+    username,
+    stay_logged_in,
+  } = i.state.form;
+
+  const oauthProvider = getOAuthProvider(i);
+
+  // oauth registration
+  if (username && oauthProvider)
+    return handleUseOAuthProvider(
+      oauthProvider,
+      undefined,
+      username,
       answer,
-      captcha_answer,
-      captcha_uuid,
-      email,
-      honeypot,
+      show_nsfw,
+    );
+
+  // normal registration
+  if (username && password && password_verify) {
+    i.setState({ registerRes: LOADING_REQUEST });
+
+    const registerRes = await HttpService.client.register({
+      username,
       password,
       password_verify,
-      username,
+      email,
+      show_nsfw,
+      captcha_uuid,
+      captcha_answer,
+      honeypot,
+      answer,
       stay_logged_in,
-    } = i.state.form;
+    });
+    switch (registerRes.state) {
+      case "failed": {
+        toast(registerRes.err.name, "danger");
+        i.setState({ registerRes: EMPTY_REQUEST });
+        break;
+      }
 
-    const oauthProvider = getOAuthProvider(i);
+      case "success": {
+        const data = registerRes.data;
 
-    // oauth registration
-    if (username && oauthProvider)
-      return handleUseOAuthProvider({
-        oauth_provider: oauthProvider,
-        username,
-        answer,
-        show_nsfw,
-      });
+        // Only log them in if a jwt was set
+        if (data.jwt) {
+          UserService.Instance.login({
+            res: data,
+          });
 
-    // normal registration
-    if (username && password && password_verify) {
-      i.setState({ registerRes: LOADING_REQUEST });
+          const myUserRes = await HttpService.client.getMyUser();
 
-      const registerRes = await HttpService.client.register({
-        username,
-        password,
-        password_verify,
-        email,
-        show_nsfw,
-        captcha_uuid,
-        captcha_answer,
-        honeypot,
-        answer,
-        stay_logged_in,
-      });
-      switch (registerRes.state) {
-        case "failed": {
-          toast(registerRes.err.name, "danger");
-          i.setState({ registerRes: EMPTY_REQUEST });
-          break;
-        }
-
-        case "success": {
-          const data = registerRes.data;
-
-          // Only log them in if a jwt was set
-          if (data.jwt) {
-            UserService.Instance.login({
-              res: data,
-            });
-
-            const myUserRes = await HttpService.client.getMyUser();
-
-            if (myUserRes.state === "success") {
-              updateMyUserInfo(myUserRes.data);
-            }
-
-            i.props.history.replace("/communities");
-          } else {
-            if (data.verify_email_sent) {
-              toast(I18NextService.i18n.t("verify_email_sent"));
-            }
-            if (data.registration_created) {
-              toast(I18NextService.i18n.t("registration_application_sent"));
-            }
-            i.props.history.push("/");
+          if (myUserRes.state === "success") {
+            updateMyUserInfo(myUserRes.data);
           }
-          break;
+
+          i.props.history.replace("/communities");
+        } else {
+          if (data.verify_email_sent) {
+            toast(I18NextService.i18n.t("verify_email_sent"));
+          }
+          if (data.registration_created) {
+            toast(I18NextService.i18n.t("registration_application_sent"));
+          }
+          i.props.history.push("/");
         }
+        break;
       }
     }
-  }
-
-  handleRegisterUsernameChange(i: Signup, event: any) {
-    i.state.form.username = event.target.value.trim();
-    i.setState(i.state);
-  }
-
-  handleRegisterEmailChange(i: Signup, event: any) {
-    i.state.form.email = event.target.value;
-    if (i.state.form.email === "") {
-      i.state.form.email = undefined;
-    }
-    i.setState(i.state);
-  }
-
-  handleRegisterPasswordChange(i: Signup, event: any) {
-    i.state.form.password = event.target.value;
-    i.setState(i.state);
-  }
-
-  handleRegisterPasswordVerifyChange(i: Signup, event: any) {
-    i.state.form.password_verify = event.target.value;
-    i.setState(i.state);
-  }
-
-  handleRegisterShowNsfwChange(i: Signup, event: any) {
-    i.state.form.show_nsfw = event.target.checked;
-    i.setState(i.state);
-  }
-
-  handleStayLoggedInChange(i: Signup, event: any) {
-    i.state.form.stay_logged_in = event.target.checked;
-    i.setState(i.state);
-  }
-
-  handleRegisterCaptchaAnswerChange(i: Signup, event: any) {
-    i.state.form.captcha_answer = event.target.value;
-    i.setState(i.state);
-  }
-
-  handleAnswerChange(val: string) {
-    this.setState(s => ((s.form.answer = val), s));
-  }
-
-  handleHoneyPotChange(i: Signup, event: any) {
-    i.state.form.honeypot = event.target.value;
-    i.setState(i.state);
-  }
-
-  async handleRegenCaptcha(i: Signup) {
-    i.audio = undefined;
-    i.setState({ captchaPlaying: false });
-    await i.fetchCaptcha();
-  }
-
-  handleCaptchaPlay(i: Signup) {
-    // This was a bad bug, it should only build the new audio on a new file.
-    // Replays would stop prematurely if this was rebuilt every time.
-
-    if (i.state.captchaRes.state === "success" && i.state.captchaRes.data.ok) {
-      const captchaRes = i.state.captchaRes.data.ok;
-      if (!i.audio) {
-        const base64 = `data:audio/wav;base64,${captchaRes.wav}`;
-        i.audio = new Audio(base64);
-        i.audio.play();
-
-        i.setState({ captchaPlaying: true });
-
-        i.audio.addEventListener("ended", () => {
-          if (i.audio) {
-            i.audio.currentTime = 0;
-            i.setState({ captchaPlaying: false });
-          }
-        });
-      }
-    }
-  }
-
-  captchaPngSrc(captcha: CaptchaResponse) {
-    return `data:image/png;base64,${captcha.png}`;
   }
 }
 
-function getOAuthProvider(signup: Signup) {
-  return (signup.isoData.siteRes?.oauth_providers ?? []).find(
-    provider => provider.id === Number(signup.props?.sso_provider_id ?? -1),
+function handleRegisterUsernameChange(
+  i: Signup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.username = event.target.value.trim();
+  i.setState(i.state);
+}
+
+function handleRegisterEmailChange(
+  i: Signup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.email = event.target.value;
+  if (i.state.form.email === "") {
+    i.state.form.email = undefined;
+  }
+  i.setState(i.state);
+}
+
+function handleRegisterPasswordChange(
+  i: Signup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.password = event.target.value;
+  i.setState(i.state);
+}
+
+function handleRegisterPasswordVerifyChange(
+  i: Signup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.password_verify = event.target.value;
+  i.setState(i.state);
+}
+
+function handleRegisterShowNsfwChange(
+  i: Signup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.show_nsfw = event.target.checked;
+  i.setState(i.state);
+}
+
+function handleStayLoggedInChange(
+  i: Signup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.stay_logged_in = event.target.checked;
+  i.setState(i.state);
+}
+
+function handleRegisterCaptchaAnswerChange(
+  i: Signup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.captcha_answer = event.target.value;
+  i.setState(i.state);
+}
+
+function handleAnswerChange(i: Signup, val: string) {
+  i.setState(s => ((s.form.answer = val), s));
+}
+
+function handleHoneyPotChange(i: Signup, event: FormEvent<HTMLInputElement>) {
+  i.state.form.honeypot = event.target.value;
+  i.setState(i.state);
+}
+
+async function handleRegenCaptcha(i: Signup) {
+  i.audio = undefined;
+  i.setState({ captchaPlaying: false });
+  await i.fetchCaptcha();
+}
+
+function handleCaptchaPlay(i: Signup) {
+  // This was a bad bug, it should only build the new audio on a new file.
+  // Replays would stop prematurely if this was rebuilt every time.
+
+  if (i.state.captchaRes.state === "success" && i.state.captchaRes.data.ok) {
+    const captchaRes = i.state.captchaRes.data.ok;
+    if (!i.audio) {
+      const base64 = `data:audio/wav;base64,${captchaRes.wav}`;
+      i.audio = new Audio(base64);
+      i.audio.play();
+
+      i.setState({ captchaPlaying: true });
+
+      i.audio.addEventListener("ended", () => {
+        if (i.audio) {
+          i.audio.currentTime = 0;
+          i.setState({ captchaPlaying: false });
+        }
+      });
+    }
+  }
+}
+
+function getOAuthProvider(i: Signup) {
+  return (i.isoData.siteRes?.oauth_providers ?? []).find(
+    provider => provider.id === Number(i.props?.sso_provider_id ?? -1),
   );
+}
+
+function captchaPngSrc(captcha: CaptchaResponse) {
+  return `data:image/png;base64,${captcha.png}`;
 }

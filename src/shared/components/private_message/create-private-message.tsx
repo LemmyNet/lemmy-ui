@@ -68,8 +68,6 @@ export class CreatePrivateMessage extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.handlePrivateMessageCreate =
-      this.handlePrivateMessageCreate.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -144,7 +142,9 @@ export class CreatePrivateMessage extends Component<
               </h1>
               <PrivateMessageForm
                 myUserInfo={this.isoData.myUserInfo}
-                onCreate={this.handlePrivateMessageCreate}
+                onCreate={(form, bypass) =>
+                  handlePrivateMessageCreate(this, form, bypass)
+                }
                 recipient={res.person_view.person}
                 createOrEditLoading={
                   this.state.createMessageRes.state === "loading"
@@ -168,25 +168,26 @@ export class CreatePrivateMessage extends Component<
       </div>
     );
   }
+}
 
-  async handlePrivateMessageCreate(
-    form: CreatePrivateMessageI,
-    bypassNavWarning: () => void,
-  ): Promise<boolean> {
-    this.setState({ createMessageRes: LOADING_REQUEST });
-    const res = await HttpService.client.createPrivateMessage(form);
-    this.setState({ createMessageRes: res });
+async function handlePrivateMessageCreate(
+  i: CreatePrivateMessage,
+  form: CreatePrivateMessageI,
+  bypassNavWarning: () => void,
+) {
+  i.setState({ createMessageRes: LOADING_REQUEST });
+  const res = await HttpService.client.createPrivateMessage(form);
+  i.setState({ createMessageRes: res });
 
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("message_sent"));
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("message_sent"));
 
-      bypassNavWarning();
-      // Navigate to the front
-      this.context.router.history.push("/");
-    } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-    }
-
-    return res.state !== "failed";
+    bypassNavWarning();
+    // Navigate to the front
+    i.context.router.history.push("/");
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
+
+  return res.state !== "failed";
 }

@@ -21,7 +21,7 @@ import {
 } from "@utils/helpers";
 import type { IsoData, QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import { Component, linkEvent, createRef } from "inferno";
+import { Component, createRef, FormEvent } from "inferno";
 import {
   CommunityView,
   GetCommunity,
@@ -426,13 +426,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   constructor(props: SearchRouteProps, context: any) {
     super(props, context);
 
-    this.handleSortChange = this.handleSortChange.bind(this);
-    this.handleListingTypeChange = this.handleListingTypeChange.bind(this);
-    this.handlePageChange = this.handlePageChange.bind(this);
-    this.handleCommunityFilterChange =
-      this.handleCommunityFilterChange.bind(this);
-    this.handleCreatorFilterChange = this.handleCreatorFilterChange.bind(this);
-
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       const {
@@ -703,7 +696,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         <PaginatorCursor
           current={this.props.cursor}
           resource={this.state.searchRes}
-          onPageChange={this.handlePageChange}
+          onPageChange={cursor => handlePageChange(this, cursor)}
         />
       </div>
     );
@@ -753,7 +746,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     return (
       <form
         className="row gx-2 gy-3"
-        onSubmit={linkEvent(this, this.handleSearchSubmit)}
+        onSubmit={e => handleSearchSubmit(this, e)}
       >
         <div className="col-auto flex-grow-1 flex-sm-grow-0">
           {/* key is necessary for defaultValue to update when props.q changes,
@@ -806,7 +799,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           <div className="col">
             <select
               value={type}
-              onChange={linkEvent(this, this.handleTypeChange)}
+              onChange={e => handleTypeChange(this, e)}
               className="form-select d-inline-block w-auto"
               aria-label={I18NextService.i18n.t("type")}
             >
@@ -825,7 +818,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               type_={listingType}
               showLocal={showLocal(this.isoData)}
               showSubscribed
-              onChange={this.handleListingTypeChange}
+              onChange={type => handleListingTypeChange(this, type)}
               myUserInfo={this.isoData.myUserInfo}
             />
           </div>
@@ -837,7 +830,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   id="title-only"
                   type="checkbox"
                   checked={titleOnly}
-                  onChange={linkEvent(this, this.handleTitleOnlyChange)}
+                  onChange={e => handleTitleOnlyChange(this, e)}
                 />
                 <label
                   className="btn btn-outline-secondary"
@@ -852,7 +845,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                   id="url-only"
                   type="checkbox"
                   checked={postUrlOnly}
-                  onChange={linkEvent(this, this.handlePostUrlOnlyChange)}
+                  onChange={e => handlePostUrlOnlyChange(this, e)}
                 />
                 <label className="btn btn-outline-secondary" htmlFor="url-only">
                   {I18NextService.i18n.t("post_url_only")}
@@ -861,22 +854,25 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             </>
           )}
           <div className="col">
-            <SearchSortSelect current={sort} onChange={this.handleSortChange} />
+            <SearchSortSelect
+              current={sort}
+              onChange={val => handleSortChange(this, val)}
+            />
           </div>
         </div>
         <div className="row gy-2 gx-4 mb-3">
           <Filter
             filterType="community"
-            onChange={this.handleCommunityFilterChange}
-            onSearch={this.handleCommunitySearch}
+            onChange={choice => handleCommunityFilterChange(this, choice)}
+            onSearch={text => handleCommunitySearch(this, text)}
             options={communitySearchOptions}
             value={communityId}
             loading={searchCommunitiesLoading}
           />
           <Filter
             filterType="creator"
-            onChange={this.handleCreatorFilterChange}
-            onSearch={this.handleCreatorSearch}
+            onChange={choice => handleCreatorFilterChange(this, choice)}
+            onSearch={text => handleCreatorSearch(this, text)}
             options={creatorSearchOptions}
             value={creatorId}
             loading={searchCreatorLoading}
@@ -1135,109 +1131,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
-  handleCreatorSearch = debounce(async (text: string) => {
-    if (text.length > 0) {
-      const { creatorId } = this.props;
-      const { creatorSearchOptions } = this.state;
-
-      this.setState({ searchCreatorLoading: true });
-
-      const newOptions = creatorSearchOptions
-        .filter(choice => getIdFromString(choice.value) === creatorId)
-        .concat((await fetchUsers(text)).map(personToChoice));
-
-      this.setState({
-        searchCreatorLoading: false,
-        creatorSearchOptions: newOptions,
-      });
-    }
-  });
-
-  handleCommunitySearch = debounce(async (text: string) => {
-    if (text.length > 0) {
-      const { communityId } = this.props;
-      const { communitySearchOptions } = this.state;
-
-      this.setState({
-        searchCommunitiesLoading: true,
-      });
-
-      const newOptions = communitySearchOptions
-        .filter(choice => getIdFromString(choice.value) === communityId)
-        .concat((await fetchCommunities(text)).map(communityToChoice));
-
-      this.setState({
-        searchCommunitiesLoading: false,
-        communitySearchOptions: newOptions,
-      });
-    }
-  });
-
   getQ(): string | undefined {
     return this.searchInput.current?.value ?? this.props.q;
-  }
-
-  handleSortChange(sort: SearchSortType) {
-    this.updateUrl({ sort, cursor: undefined, q: this.getQ() });
-  }
-
-  handleTitleOnlyChange(i: Search, event: any) {
-    const titleOnly = event.target.checked;
-    // Don't allow post url and post title only to be checked at the same time
-    i.updateUrl({ titleOnly, q: i.getQ(), postUrlOnly: false });
-  }
-
-  handlePostUrlOnlyChange(i: Search, event: any) {
-    const postUrlOnly = event.target.checked;
-    // Don't allow post url and post title only to be checked at the same time
-    i.updateUrl({ postUrlOnly, q: i.getQ(), titleOnly: false });
-  }
-
-  handleTypeChange(i: Search, event: any) {
-    const type = event.target.value as SearchType;
-
-    i.updateUrl({
-      type,
-      cursor: undefined,
-      q: i.getQ(),
-    });
-  }
-
-  handlePageChange(cursor?: PaginationCursor) {
-    this.updateUrl({ cursor });
-  }
-
-  handleListingTypeChange(listingType: ListingType) {
-    this.updateUrl({
-      listingType,
-      cursor: undefined,
-      q: this.getQ(),
-    });
-  }
-
-  handleCommunityFilterChange({ value }: Choice) {
-    this.updateUrl({
-      communityId: getIdFromString(value),
-      cursor: undefined,
-      q: this.getQ(),
-    });
-  }
-
-  handleCreatorFilterChange({ value }: Choice) {
-    this.updateUrl({
-      creatorId: getIdFromString(value),
-      cursor: undefined,
-      q: this.getQ(),
-    });
-  }
-
-  handleSearchSubmit(i: Search, event: any) {
-    event.preventDefault();
-
-    i.updateUrl({
-      q: i.getQ(),
-      cursor: undefined,
-    });
   }
 
   async updateUrl(props: Partial<SearchProps>) {
@@ -1270,4 +1165,108 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     this.props.history.push(`/search${getQueryString(queryParams)}`);
   }
+}
+
+const handleCreatorSearch = debounce(async (i: Search, text: string) => {
+  if (text.length > 0) {
+    const { creatorId } = i.props;
+    const { creatorSearchOptions } = i.state;
+
+    i.setState({ searchCreatorLoading: true });
+
+    const newOptions = creatorSearchOptions
+      .filter(choice => getIdFromString(choice.value) === creatorId)
+      .concat((await fetchUsers(text)).map(personToChoice));
+
+    i.setState({
+      searchCreatorLoading: false,
+      creatorSearchOptions: newOptions,
+    });
+  }
+});
+
+const handleCommunitySearch = debounce(async (i: Search, text: string) => {
+  if (text.length > 0) {
+    const { communityId } = i.props;
+    const { communitySearchOptions } = i.state;
+
+    i.setState({
+      searchCommunitiesLoading: true,
+    });
+
+    const newOptions = communitySearchOptions
+      .filter(choice => getIdFromString(choice.value) === communityId)
+      .concat((await fetchCommunities(text)).map(communityToChoice));
+
+    i.setState({
+      searchCommunitiesLoading: false,
+      communitySearchOptions: newOptions,
+    });
+  }
+});
+
+function handleSortChange(i: Search, sort: SearchSortType) {
+  i.updateUrl({ sort, cursor: undefined, q: i.getQ() });
+}
+
+function handleTitleOnlyChange(i: Search, event: FormEvent<HTMLInputElement>) {
+  const titleOnly = event.target.checked;
+  // Don't allow post url and post title only to be checked at the same time
+  i.updateUrl({ titleOnly, q: i.getQ(), postUrlOnly: false });
+}
+
+function handlePostUrlOnlyChange(
+  i: Search,
+  event: FormEvent<HTMLInputElement>,
+) {
+  const postUrlOnly = event.target.checked;
+  // Don't allow post url and post title only to be checked at the same time
+  i.updateUrl({ postUrlOnly, q: i.getQ(), titleOnly: false });
+}
+
+function handleTypeChange(i: Search, event: FormEvent<HTMLSelectElement>) {
+  const type = event.target.value as SearchType;
+
+  i.updateUrl({
+    type,
+    cursor: undefined,
+    q: i.getQ(),
+  });
+}
+
+function handlePageChange(i: Search, cursor?: PaginationCursor) {
+  i.updateUrl({ cursor });
+}
+
+function handleListingTypeChange(i: Search, listingType: ListingType) {
+  i.updateUrl({
+    listingType,
+    cursor: undefined,
+    q: i.getQ(),
+  });
+}
+
+function handleCommunityFilterChange(i: Search, { value }: Choice) {
+  i.updateUrl({
+    communityId: getIdFromString(value),
+    cursor: undefined,
+    q: i.getQ(),
+  });
+}
+
+function handleCreatorFilterChange(i: Search, { value }: Choice) {
+  i.updateUrl({
+    creatorId: getIdFromString(value),
+    cursor: undefined,
+    q: i.getQ(),
+  });
+}
+
+function handleSearchSubmit(i: Search, event: FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+
+  i.updateUrl({
+    q: i.getQ(),
+    cursor: undefined,
+  });
 }

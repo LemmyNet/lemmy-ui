@@ -1,10 +1,4 @@
-import {
-  Component,
-  InfernoNode,
-  RefObject,
-  createRef,
-  linkEvent,
-} from "inferno";
+import { Component, InfernoNode, RefObject, createRef } from "inferno";
 import { I18NextService } from "../../../services";
 import type { Modal } from "bootstrap";
 import { Icon, Spinner } from "../icon";
@@ -101,7 +95,7 @@ export default class ViewVotesModal extends Component<
     this.yesButtonRef = createRef();
 
     this.handleDismiss = this.handleDismiss.bind(this);
-    this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleShow = this.handleShow.bind(this);
   }
 
   async componentWillMount() {
@@ -146,7 +140,7 @@ export default class ViewVotesModal extends Component<
               <button
                 type="button"
                 className="btn-close"
-                onClick={linkEvent(this, this.handleDismiss)}
+                onClick={() => this.handleDismiss()}
                 aria-label={I18NextService.i18n.t("cancel")}
               ></button>
             </header>
@@ -156,7 +150,7 @@ export default class ViewVotesModal extends Component<
               <PaginatorCursor
                 resource={this.currentRes}
                 current={this.state.cursor}
-                onPageChange={this.handlePageChange}
+                onPageChange={cursor => handlePageChange(this, cursor)}
               />
             </div>
           </div>
@@ -204,11 +198,6 @@ export default class ViewVotesModal extends Component<
     this.modal?.hide();
   }
 
-  async handlePageChange(cursor?: PaginationCursor) {
-    this.setState({ cursor });
-    await this.refetch();
-  }
-
   async refetch() {
     const cursor = this.state.cursor;
     const limit = fetchLimit;
@@ -233,4 +222,9 @@ export default class ViewVotesModal extends Component<
       });
     }
   }
+}
+
+async function handlePageChange(i: ViewVotesModal, cursor?: PaginationCursor) {
+  i.setState({ cursor });
+  await i.refetch();
 }

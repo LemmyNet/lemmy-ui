@@ -25,16 +25,6 @@ export function CommunityBadges({
         subject={community}
         lessBadges={lessBadges}
       />
-      {!lessBadges && (
-        <li className="list-inline-item">
-          <Link
-            className="badge text-bg-secondary"
-            to={`/modlog/${community.id}`}
-          >
-            {I18NextService.i18n.t("modlog")}
-          </Link>
-        </li>
-      )}
     </ul>
   );
 }

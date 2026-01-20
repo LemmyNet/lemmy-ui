@@ -11,7 +11,7 @@ export function setDefaultCsp({
 }) {
   res.locals.cspNonce = crypto.randomBytes(16).toString("hex");
 
-  res.setHeader(
+  res.set(
     "Content-Security-Policy",
     `default-src 'self';
      manifest-src *;
@@ -50,7 +50,7 @@ export function setCacheControl(
       // Static content gets cached publicly for a day
       caching = "public, max-age=86400";
     } else {
-      res.setHeader("Vary", "Cookie, Accept, Accept-Language");
+      res.set("Vary", "Cookie, Accept, Accept-Language");
       if (getJwtCookie(req.headers)) {
         caching = "private";
       } else {
@@ -58,7 +58,7 @@ export function setCacheControl(
       }
     }
 
-    res.setHeader("Cache-Control", caching);
+    res.set("Cache-Control", caching);
   }
 
   next();

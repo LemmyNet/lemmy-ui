@@ -12,7 +12,7 @@ import { scrollMixin } from "./mixins/scroll-mixin";
 import { amAdmin, amMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, FormEvent, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -639,9 +639,6 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   constructor(props: ModlogRouteProps, context: any) {
     super(props, context);
-    this.handlePageChange = this.handlePageChange.bind(this);
-    this.handleUserChange = this.handleUserChange.bind(this);
-    this.handleModChange = this.handleModChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -855,7 +852,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           <div className="col-sm-6">
             <select
               value={actionType}
-              onChange={linkEvent(this, this.handleFilterActionChange)}
+              onChange={e => handleFilterActionChange(this, e)}
               className="form-select"
               aria-label="action"
             >
@@ -908,8 +905,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
         <div className="row mb-2">
           <Filter
             filterType="user"
-            onChange={this.handleUserChange}
-            onSearch={this.handleSearchUsers}
+            onChange={choice => handleUserChange(this, choice)}
+            onSearch={text => handleSearchUsers(this, text)}
             value={userId}
             options={userSearchOptions}
             loading={loadingUserSearch}
@@ -917,8 +914,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           {this.amAdminOrMod && (
             <Filter
               filterType="mod"
-              onChange={this.handleModChange}
-              onSearch={this.handleSearchMods}
+              onChange={choice => handleModChange(this, choice)}
+              onSearch={text => handleSearchMods(this, text)}
               value={modId}
               options={modSearchOptions}
               loading={loadingModSearch}
@@ -959,7 +956,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             <PaginatorCursor
               current={this.props.cursor}
               resource={this.state.res}
-              onPageChange={this.handlePageChange}
+              onPageChange={cursor => handlePageChange(this, cursor)}
             />
           </>
         );
@@ -972,74 +969,6 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
     return res.state === "success" ? res.data.items.length : 0;
   }
-
-  handleFilterActionChange(i: Modlog, event: any) {
-    let val = event.target.value;
-    if (val === "all") {
-      val = undefined;
-    }
-    i.updateUrl({
-      actionType: val as ModlogKind,
-      cursor: undefined,
-    });
-  }
-
-  handlePageChange(cursor?: PaginationCursor) {
-    this.updateUrl({ cursor });
-  }
-
-  handleUserChange(option: Choice) {
-    this.updateUrl({
-      userId: getIdFromString(option.value),
-      cursor: undefined,
-    });
-  }
-
-  handleModChange(option: Choice) {
-    this.updateUrl({ modId: getIdFromString(option.value), cursor: undefined });
-  }
-
-  handleSearchUsers = debounce(async (text: string) => {
-    if (!text.length) {
-      return;
-    }
-
-    const { userId } = this.props;
-    const { userSearchOptions } = this.state;
-    this.setState({ loadingUserSearch: true });
-
-    const newOptions = await createNewOptions({
-      id: userId,
-      text,
-      oldOptions: userSearchOptions,
-    });
-
-    this.setState({
-      userSearchOptions: newOptions,
-      loadingUserSearch: false,
-    });
-  });
-
-  handleSearchMods = debounce(async (text: string) => {
-    if (!text.length) {
-      return;
-    }
-
-    const { modId } = this.props;
-    const { modSearchOptions } = this.state;
-    this.setState({ loadingModSearch: true });
-
-    const newOptions = await createNewOptions({
-      id: modId,
-      text,
-      oldOptions: modSearchOptions,
-    });
-
-    this.setState({
-      modSearchOptions: newOptions,
-      loadingModSearch: false,
-    });
-  });
 
   async updateUrl(props: Partial<ModlogProps>) {
     const {
@@ -1170,3 +1099,73 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     };
   }
 }
+
+function handleFilterActionChange(
+  i: Modlog,
+  event: FormEvent<HTMLSelectElement>,
+) {
+  const val = event.target.value;
+  const actionType = val === "all" ? undefined : (val as ModlogKind);
+
+  i.updateUrl({
+    actionType,
+    cursor: undefined,
+  });
+}
+
+function handlePageChange(i: Modlog, cursor?: PaginationCursor) {
+  i.updateUrl({ cursor });
+}
+
+function handleUserChange(i: Modlog, option: Choice) {
+  i.updateUrl({
+    userId: getIdFromString(option.value),
+    cursor: undefined,
+  });
+}
+
+function handleModChange(i: Modlog, option: Choice) {
+  i.updateUrl({ modId: getIdFromString(option.value), cursor: undefined });
+}
+
+const handleSearchUsers = debounce(async (i: Modlog, text: string) => {
+  if (!text.length) {
+    return;
+  }
+
+  const { userId } = i.props;
+  const { userSearchOptions } = i.state;
+  i.setState({ loadingUserSearch: true });
+
+  const newOptions = await createNewOptions({
+    id: userId,
+    text,
+    oldOptions: userSearchOptions,
+  });
+
+  i.setState({
+    userSearchOptions: newOptions,
+    loadingUserSearch: false,
+  });
+});
+
+const handleSearchMods = debounce(async (i: Modlog, text: string) => {
+  if (!text.length) {
+    return;
+  }
+
+  const { modId } = i.props;
+  const { modSearchOptions } = i.state;
+  i.setState({ loadingModSearch: true });
+
+  const newOptions = await createNewOptions({
+    id: modId,
+    text,
+    oldOptions: modSearchOptions,
+  });
+
+  i.setState({
+    modSearchOptions: newOptions,
+    loadingModSearch: false,
+  });
+});

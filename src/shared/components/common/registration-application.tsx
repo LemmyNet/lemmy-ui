@@ -1,4 +1,4 @@
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   ApproveRegistrationApplication,
@@ -38,7 +38,6 @@ export class RegistrationApplication extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.handleDenyReasonChange = this.handleDenyReasonChange.bind(this);
   }
   componentWillReceiveProps(
     nextProps: Readonly<
@@ -134,7 +133,7 @@ export class RegistrationApplication extends Component<
             <div className="col-sm-10">
               <MarkdownTextArea
                 initialContent={this.state.denyReason}
-                onContentChange={this.handleDenyReasonChange}
+                onContentChange={val => handleDenyReasonChange(this, val)}
                 hideNavigationWarnings
                 allLanguages={[]}
                 siteLanguages={[]}
@@ -146,7 +145,7 @@ export class RegistrationApplication extends Component<
         {(!ra.admin_id || (ra.admin_id && !accepted)) && (
           <button
             className="btn btn-secondary me-2 my-2"
-            onClick={linkEvent(this, this.handleApprove)}
+            onClick={() => handleApprove(this)}
             aria-label={I18NextService.i18n.t("approve")}
           >
             {this.state.approveLoading ? (
@@ -159,7 +158,7 @@ export class RegistrationApplication extends Component<
         {(!ra.admin_id || (ra.admin_id && accepted)) && (
           <button
             className="btn btn-secondary me-2"
-            onClick={linkEvent(this, this.handleDeny)}
+            onClick={() => handleDeny(this)}
             aria-label={I18NextService.i18n.t("deny")}
           >
             {this.state.denyLoading ? (
@@ -172,29 +171,29 @@ export class RegistrationApplication extends Component<
       </div>
     );
   }
+}
 
-  handleApprove(i: RegistrationApplication) {
-    i.setState({ denyExpanded: false, approveLoading: true });
+function handleApprove(i: RegistrationApplication) {
+  i.setState({ denyExpanded: false, approveLoading: true });
+  i.props.onApproveApplication({
+    id: i.props.application.registration_application.id,
+    approve: true,
+  });
+}
+
+function handleDeny(i: RegistrationApplication) {
+  if (i.state.denyExpanded) {
+    i.setState({ denyExpanded: false, denyLoading: true });
     i.props.onApproveApplication({
       id: i.props.application.registration_application.id,
-      approve: true,
+      approve: false,
+      deny_reason: i.state.denyReason,
     });
+  } else {
+    i.setState({ denyExpanded: true });
   }
+}
 
-  handleDeny(i: RegistrationApplication) {
-    if (i.state.denyExpanded) {
-      i.setState({ denyExpanded: false, denyLoading: true });
-      i.props.onApproveApplication({
-        id: i.props.application.registration_application.id,
-        approve: false,
-        deny_reason: i.state.denyReason,
-      });
-    } else {
-      i.setState({ denyExpanded: true });
-    }
-  }
-
-  handleDenyReasonChange(val: string) {
-    this.setState({ denyReason: val });
-  }
+function handleDenyReasonChange(i: RegistrationApplication, val: string) {
+  i.setState({ denyReason: val });
 }

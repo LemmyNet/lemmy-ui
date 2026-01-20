@@ -1,12 +1,12 @@
-import { LinkedEvent, FormEvent, Component } from "inferno";
+import { FormEvent, Component } from "inferno";
 import { FederationMode } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { NoOptionI18nKeys } from "i18next";
 
-interface FederationModeSelectProps<T> {
+interface FederationModeSelectProps {
   id: string;
   current: FederationMode;
-  onChange: LinkedEvent<T, FormEvent<HTMLSelectElement>> | null;
+  onChange(event: FormEvent<HTMLSelectElement>): void;
 }
 
 const modes: { value: FederationMode; i18nKey: NoOptionI18nKeys }[] = [
@@ -15,9 +15,7 @@ const modes: { value: FederationMode; i18nKey: NoOptionI18nKeys }[] = [
   { value: "disable", i18nKey: "disable" },
 ];
 
-export class FederationModeSelect<T> extends Component<
-  FederationModeSelectProps<T>
-> {
+export class FederationModeSelect extends Component<FederationModeSelectProps> {
   render() {
     return (
       <>

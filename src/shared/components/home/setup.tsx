@@ -1,5 +1,5 @@
 import { fetchThemeList, setIsoData } from "@utils/app";
-import { Component, linkEvent } from "inferno";
+import { Component, FormEvent } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { CreateSite, LoginResponse, Register } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
@@ -51,8 +51,6 @@ export class Setup extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handleCreateSite = this.handleCreateSite.bind(this);
   }
 
   async componentWillMount() {
@@ -79,7 +77,7 @@ export class Setup extends Component<
             ) : (
               <SiteForm
                 showLocal
-                onSaveSite={this.handleCreateSite}
+                onCreate={form => handleCreateSite(this, form)}
                 siteRes={this.isoData.siteRes}
                 themeList={this.state.themeList}
                 loading={false}
@@ -94,7 +92,7 @@ export class Setup extends Component<
 
   registerUser() {
     return (
-      <form onSubmit={linkEvent(this, this.handleRegisterSubmit)}>
+      <form onSubmit={e => handleRegisterSubmit(this, e)}>
         <h2 className="h5 mb-3">{I18NextService.i18n.t("setup_admin")}</h2>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="username">
@@ -106,7 +104,7 @@ export class Setup extends Component<
               className="form-control"
               id="username"
               value={this.state.form.username}
-              onInput={linkEvent(this, this.handleRegisterUsernameChange)}
+              onInput={e => handleRegisterUsernameChange(this, e)}
               required
               minLength={3}
               pattern="[a-zA-Z0-9_]+"
@@ -125,7 +123,7 @@ export class Setup extends Component<
               className="form-control"
               placeholder={I18NextService.i18n.t("optional")}
               value={this.state.form.email}
-              onInput={linkEvent(this, this.handleRegisterEmailChange)}
+              onInput={e => handleRegisterEmailChange(this, e)}
               minLength={3}
             />
           </div>
@@ -134,7 +132,7 @@ export class Setup extends Component<
           <PasswordInput
             id="password"
             value={this.state.form.password}
-            onInput={linkEvent(this, this.handleRegisterPasswordChange)}
+            onInput={e => handleRegisterPasswordChange(this, e)}
             label={I18NextService.i18n.t("password")}
             isNew
           />
@@ -143,7 +141,7 @@ export class Setup extends Component<
           <PasswordInput
             id="verify-password"
             value={this.state.form.password_verify}
-            onInput={linkEvent(this, this.handleRegisterPasswordVerifyChange)}
+            onInput={e => handleRegisterPasswordVerifyChange(this, e)}
             label={I18NextService.i18n.t("verify_password")}
             isNew
           />
@@ -162,72 +160,87 @@ export class Setup extends Component<
       </form>
     );
   }
+}
 
-  async handleRegisterSubmit(i: Setup, event: any) {
-    event.preventDefault();
-    i.setState({ registerRes: LOADING_REQUEST });
-    const {
+async function handleRegisterSubmit(
+  i: Setup,
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+  i.setState({ registerRes: LOADING_REQUEST });
+  const {
+    username,
+    password_verify,
+    password,
+    email,
+    show_nsfw,
+    captcha_uuid,
+    captcha_answer,
+    honeypot,
+    answer,
+  } = i.state.form;
+
+  if (username && password && password_verify) {
+    const form: Register = {
       username,
-      password_verify,
       password,
+      password_verify,
       email,
       show_nsfw,
       captcha_uuid,
       captcha_answer,
       honeypot,
       answer,
-    } = i.state.form;
+    };
+    i.setState({
+      registerRes: await HttpService.client.register(form),
+    });
 
-    if (username && password && password_verify) {
-      const form: Register = {
-        username,
-        password,
-        password_verify,
-        email,
-        show_nsfw,
-        captcha_uuid,
-        captcha_answer,
-        honeypot,
-        answer,
-      };
-      i.setState({
-        registerRes: await HttpService.client.register(form),
-      });
+    if (i.state.registerRes.state === "success") {
+      const data = i.state.registerRes.data;
 
-      if (i.state.registerRes.state === "success") {
-        const data = i.state.registerRes.data;
-
-        UserService.Instance.login({ res: data });
-        i.setState({ doneRegisteringUser: true });
-      }
+      UserService.Instance.login({ res: data });
+      i.setState({ doneRegisteringUser: true });
     }
   }
+}
 
-  async handleCreateSite(form: CreateSite) {
-    const createRes = await HttpService.client.createSite(form);
-    if (createRes.state === "success") {
-      this.props.history.replace("/");
-      location.reload();
-    }
+async function handleCreateSite(i: Setup, form: CreateSite) {
+  const createRes = await HttpService.client.createSite(form);
+  if (createRes.state === "success") {
+    i.props.history.replace("/");
+    location.reload();
   }
+}
 
-  handleRegisterUsernameChange(i: Setup, event: any) {
-    i.state.form.username = event.target.value.trim();
-    i.setState(i.state);
-  }
+function handleRegisterUsernameChange(
+  i: Setup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.username = event.target.value.trim();
+  i.setState(i.state);
+}
 
-  handleRegisterEmailChange(i: Setup, event: any) {
-    i.state.form.email = event.target.value;
-    i.setState(i.state);
-  }
+function handleRegisterEmailChange(
+  i: Setup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.email = event.target.value;
+  i.setState(i.state);
+}
 
-  handleRegisterPasswordChange(i: Setup, event: any) {
-    i.state.form.password = event.target.value;
-    i.setState(i.state);
-  }
+function handleRegisterPasswordChange(
+  i: Setup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.password = event.target.value;
+  i.setState(i.state);
+}
 
-  handleRegisterPasswordVerifyChange(i: Setup, event: any) {
-    i.state.form.password_verify = event.target.value;
-    i.setState(i.state);
-  }
+function handleRegisterPasswordVerifyChange(
+  i: Setup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.password_verify = event.target.value;
+  i.setState(i.state);
 }

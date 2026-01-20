@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { QueryParams, RouteDataResponse } from "@utils/types";
-import { Component } from "inferno";
+import { Component, FormEvent } from "inferno";
 import {
   GetFederatedInstancesKind,
   PagedResponse,
@@ -37,7 +37,6 @@ import {
   RadioOption,
   RadioButtonGroup,
 } from "@components/common/radio-button-group";
-import { linkEvent } from "inferno";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { createRef } from "inferno";
 
@@ -96,9 +95,6 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handleKindChange = this.handleKindChange.bind(this);
-    this.handlePageChange = this.handlePageChange.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -198,18 +194,10 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
         <PaginatorCursor
           current={this.props.cursor}
           resource={this.state.instancesRes}
-          onPageChange={this.handlePageChange}
+          onPageChange={cursor => handlePageChange(this, cursor)}
         />
       </div>
     );
-  }
-
-  handleKindChange(kind: GetFederatedInstancesKind) {
-    this.updateUrl({ kind });
-  }
-
-  handlePageChange(cursor?: PaginationCursor) {
-    this.updateUrl({ cursor });
   }
 
   updateUrl(props: Partial<InstancesProps>) {
@@ -237,12 +225,14 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
           className="col-auto"
           allOptions={allStates}
           currentOption={this.props.kind}
-          onClick={this.handleKindChange}
+          onClick={val =>
+            handleKindChange(this, val as GetFederatedInstancesKind)
+          }
         />
         <div className="col" />
         <form
           className="d-flex col-auto align-self-end"
-          onSubmit={linkEvent(this, this.handleSearchSubmit)}
+          onSubmit={e => handleSearchSubmit(this, e)}
         >
           {/* key is necessary for defaultValue to update when domain_filter
             changes, e.g. back button. */}
@@ -262,11 +252,6 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
         </form>
       </div>
     );
-  }
-
-  handleSearchSubmit(i: Instances, event: any) {
-    event.preventDefault();
-    i.updateUrl({ domain_filter: i.searchInput.current?.value });
   }
 }
 
@@ -340,4 +325,17 @@ export function InstanceList({
   ) : (
     !hideNoneFound && <div>{I18NextService.i18n.t("none_found")}</div>
   );
+}
+
+function handleSearchSubmit(i: Instances, event: FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+  i.updateUrl({ domain_filter: i.searchInput.current?.value });
+}
+
+function handleKindChange(i: Instances, kind: GetFederatedInstancesKind) {
+  i.updateUrl({ kind });
+}
+
+function handlePageChange(i: Instances, cursor?: PaginationCursor) {
+  i.updateUrl({ cursor });
 }
