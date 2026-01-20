@@ -554,7 +554,7 @@ function handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
       }
       case "Enter": {
         if (!i.isDisabled) {
-          handleSubmit(i);
+          handleSubmit(i, event);
         }
 
         break;
