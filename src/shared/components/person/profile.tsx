@@ -7,6 +7,7 @@ import {
   enableNsfw,
   getUncombinedPersonContent,
   postViewToPersonContentCombinedView,
+  profileRSSUrl,
   reportToast,
   setIsoData,
   updateCommunityBlock,
@@ -105,7 +106,7 @@ import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
-import { getHttpBaseInternal, httpBackendUrl } from "@utils/env";
+import { getHttpBaseInternal } from "@utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { MediaUploads } from "../common/media-uploads";
 import { cakeDate, futureDaysToUnixTime, nowBoolean } from "@utils/date";
@@ -867,9 +868,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const { sort, filter } = this.props;
     const { username } = this.props.match.params;
 
-    const profileRss = httpBackendUrl(
-      `/feeds/u/${username}.xml${getQueryString({ sort })}`,
-    );
+    const profileRss = profileRSSUrl(username, sort);
 
     return (
       <div className="row align-items-center mb-3 g-3">

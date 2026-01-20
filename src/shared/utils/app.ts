@@ -30,6 +30,7 @@ import {
   PostListingMode,
   MultiCommunity,
   MultiCommunityView,
+  SearchSortType,
   CommentReportResponse,
   PostReportResponse,
   PrivateMessageReportResponse,
@@ -138,7 +139,10 @@ export function commentToFlatNode(cv: CommentView): CommentNodeType {
   return { view: { comment_view: cv, children: [], depth: 0 } };
 }
 
-export function communityRSSUrl(community: Community, sort: string): string {
+export function communityRSSUrl(
+  community: Community,
+  sort: PostSortType = "new",
+): string {
   // Only add the domain for non-local
   const domain = community.local ? "" : `@${hostname(community.ap_id)}`;
 
@@ -147,9 +151,14 @@ export function communityRSSUrl(community: Community, sort: string): string {
   );
 }
 
+/** This is used for the /c/:name/feed endpoint only. **/
+export function communityRSSUrlLocal(communityName: string) {
+  return httpBackendUrl(`/feeds/c/${communityName}.xml`);
+}
+
 export function multiCommunityRSSUrl(
   multiCommunity: MultiCommunity,
-  sort: string,
+  sort: PostSortType = "new",
 ): string {
   // Only add the domain for non-local
   const domain = multiCommunity.local
@@ -157,6 +166,37 @@ export function multiCommunityRSSUrl(
     : `@${hostname(multiCommunity.ap_id)}`;
 
   return `/feeds/m/${multiCommunity.name}${domain}.xml${getQueryString({ sort })}`;
+}
+
+/** This is used for the /m/:name/feed endpoint only. **/
+export function multiCommunityRSSUrlLocal(multiCommunityName: string) {
+  return httpBackendUrl(`/feeds/m/${multiCommunityName}.xml`);
+}
+
+export function allRSSUrl(queryString: string = ""): string {
+  return httpBackendUrl("/feeds/all.xml" + queryString);
+}
+
+export function localRSSUrl(queryString: string = ""): string {
+  return httpBackendUrl("/feeds/local.xml" + queryString);
+}
+
+export function subscribedRSSUrl(
+  auth: string,
+  queryString: string = "",
+): string {
+  return httpBackendUrl(`/feeds/front/${auth}.xml${queryString}`);
+}
+
+export function profileRSSUrl(
+  username: string,
+  sort: SearchSortType = "new",
+): string {
+  return httpBackendUrl(`/feeds/u/${username}.xml${getQueryString({ sort })}`);
+}
+
+export function notificationsRSSUrl(auth: string): string {
+  return httpBackendUrl(`/feeds/notifications/${auth}.xml`);
 }
 
 export async function communitySearch(
