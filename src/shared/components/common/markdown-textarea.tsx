@@ -117,8 +117,8 @@ export class MarkdownTextArea extends Component<
       {
         className: "markdown-textarea",
         id: this.state.formId,
-        onSubmit: () =>
-          this.props.renderAsDiv ? undefined : handleSubmit(this),
+        onSubmit: (e: any) =>
+          this.props.renderAsDiv ? undefined : handleSubmit(this, e),
       },
       <>
         <Prompt
@@ -599,7 +599,8 @@ function handleLanguageChange(i: MarkdownTextArea, val: number[]) {
   i.setState({ languageId: val[0] });
 }
 
-function handleSubmit(i: MarkdownTextArea) {
+function handleSubmit(i: MarkdownTextArea, event: any) {
+  event.preventDefault();
   if (i.state.content) {
     i.props.onSubmit?.(i.state.content, i.state.languageId);
   }
