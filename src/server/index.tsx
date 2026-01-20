@@ -87,10 +87,10 @@ server.get("/manifest.webmanifest", ManifestHandler);
 server.get("/css/themes/:name", ThemeHandler);
 server.get("/css/code-themes/:name", CodeThemeHandler);
 server.get("/css/themelist", ThemesListHandler);
-server.get("/feed", FrontPageFeedHandler);
-server.get("/u/:name/feed", ProfileFeedHandler);
-server.get("/c/:name/feed", CommunityFeedHandler);
-server.get("/m/:name/feed", MultiCommunityFeedHandler);
+server.get(["/feed", "/.rss"], FrontPageFeedHandler);
+server.get(["/u/:name/feed", "/u/{:name}.rss"], ProfileFeedHandler);
+server.get(["/c/:name/feed", "/c/{:name}.rss"], CommunityFeedHandler);
+server.get(["/m/:name/feed", "/m/{:name}.rss"], MultiCommunityFeedHandler);
 server.get("/{*splat}", CatchAllHandler);
 
 const listener = server.listen(Number(port), hostname, () => {
