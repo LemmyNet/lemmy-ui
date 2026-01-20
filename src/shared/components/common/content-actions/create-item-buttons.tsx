@@ -30,11 +30,17 @@ export function CrossPostButton(props: CrossPostParams): InfernoNode {
 
 type CreatePostButtonProps = {
   communityView?: CommunityView;
+  myUserInfo: MyUserInfo | undefined;
 };
-export function CreatePostButton({ communityView }: CreatePostButtonProps) {
+export function CreatePostButton({
+  communityView,
+  myUserInfo,
+}: CreatePostButtonProps) {
   const classes = classNames("btn btn-secondary d-block mb-2 w-100", {
     "no-click":
-      communityView?.community.deleted || communityView?.community.removed,
+      communityView?.community.deleted ||
+      communityView?.community.removed ||
+      userNotLoggedInOrBanned(myUserInfo),
   });
 
   const link = communityView
