@@ -3,7 +3,7 @@ import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component } from "inferno";
+import { Component, FormEvent } from "inferno";
 import {
   AdminAllowInstanceParams,
   AdminBlockInstanceParams,
@@ -56,7 +56,6 @@ import OAuthProvidersTab from "./oauth/oauth-providers-tab";
 import { InstanceBlockForm } from "./instance-block-form";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { fetchLimit } from "@utils/config";
-import { linkEvent } from "inferno";
 import { UserBadges } from "@components/common/user-badges";
 import { MomentTime } from "@components/common/moment-time";
 import { TableHr } from "@components/common/tables";
@@ -129,27 +128,6 @@ export class AdminSettings extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handleEditSite = this.handleEditSite.bind(this);
-    this.handleUsersPageChange = this.handleUsersPageChange.bind(this);
-    this.handleUploadsPageChange = this.handleUploadsPageChange.bind(this);
-    this.handleTaglinesPageChange = this.handleTaglinesPageChange.bind(this);
-    this.handleToggleShowLeaveAdminConfirmation =
-      this.handleToggleShowLeaveAdminConfirmation.bind(this);
-    this.handleLeaveAdminTeam = this.handleLeaveAdminTeam.bind(this);
-    this.handleEditOAuthProvider = this.handleEditOAuthProvider.bind(this);
-    this.handleDeleteOAuthProvider = this.handleDeleteOAuthProvider.bind(this);
-    this.handleCreateOAuthProvider = this.handleCreateOAuthProvider.bind(this);
-    this.handleEditTagline = this.handleEditTagline.bind(this);
-    this.handleDeleteTagline = this.handleDeleteTagline.bind(this);
-    this.handleCreateTagline = this.handleCreateTagline.bind(this);
-    this.handleEditEmoji = this.handleEditEmoji.bind(this);
-    this.handleDeleteEmoji = this.handleDeleteEmoji.bind(this);
-    this.handleCreateEmoji = this.handleCreateEmoji.bind(this);
-    this.handleInstanceBlockCreate = this.handleInstanceBlockCreate.bind(this);
-    this.handleInstanceBlockRemove = this.handleInstanceBlockRemove.bind(this);
-    this.handleInstanceAllowCreate = this.handleInstanceAllowCreate.bind(this);
-    this.handleInstanceAllowRemove = this.handleInstanceAllowRemove.bind(this);
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
@@ -227,7 +205,7 @@ export class AdminSettings extends Component<
                     <div className="col-12 col-md-6">
                       <SiteForm
                         showLocal={showLocal(this.isoData)}
-                        onSaveSite={this.handleEditSite}
+                        onEdit={form => handleEditSite(this, form)}
                         siteRes={this.isoData.siteRes}
                         themeList={this.state.themeList}
                         loading={this.state.loading}
@@ -286,7 +264,7 @@ export class AdminSettings extends Component<
                     rateLimits={
                       this.isoData.siteRes?.site_view.local_site_rate_limit
                     }
-                    onSaveSite={this.handleEditSite}
+                    onSaveSite={form => handleEditSite(this, form)}
                     loading={this.state.loading}
                   />
                 </div>
@@ -352,9 +330,9 @@ export class AdminSettings extends Component<
                     oauthProviders={
                       this.isoData.siteRes?.admin_oauth_providers ?? []
                     }
-                    onCreate={this.handleCreateOAuthProvider}
-                    onDelete={this.handleDeleteOAuthProvider}
-                    onEdit={this.handleEditOAuthProvider}
+                    onCreate={form => handleCreateOAuthProvider(this, form)}
+                    onDelete={form => handleDeleteOAuthProvider(this, form)}
+                    onEdit={form => handleEditOAuthProvider(this, form)}
                   />
                 </div>
               ),
@@ -526,8 +504,8 @@ export class AdminSettings extends Component<
         <ConfirmationModal
           message={I18NextService.i18n.t("leave_admin_team_confirmation")}
           loadingMessage={I18NextService.i18n.t("leaving_admin_team")}
-          onNo={this.handleToggleShowLeaveAdminConfirmation}
-          onYes={this.handleLeaveAdminTeam}
+          onNo={() => handleToggleShowLeaveAdminConfirmation(this)}
+          onYes={() => handleLeaveAdminTeam(this)}
           show={this.state.showConfirmLeaveAdmin}
         />
       </>
@@ -537,7 +515,7 @@ export class AdminSettings extends Component<
   leaveAdmin() {
     return (
       <button
-        onClick={this.handleToggleShowLeaveAdminConfirmation}
+        onClick={() => handleToggleShowLeaveAdminConfirmation(this)}
         className="btn btn-danger mb-2"
       >
         {this.state.leaveAdminTeamRes.state === "loading" ? (
@@ -565,7 +543,7 @@ export class AdminSettings extends Component<
                 className="btn-check"
                 value="true"
                 checked={!this.state.usersBannedOnly}
-                onChange={linkEvent(this, this.handleUsersBannedOnlyChange)}
+                onChange={e => handleUsersBannedOnlyChange(this, e)}
               />
               <label
                 htmlFor={`users-all`}
@@ -581,7 +559,7 @@ export class AdminSettings extends Component<
                 className="btn-check"
                 value="false"
                 checked={this.state.usersBannedOnly}
-                onChange={linkEvent(this, this.handleUsersBannedOnlyChange)}
+                onChange={e => handleUsersBannedOnlyChange(this, e)}
               />
               <label
                 htmlFor={`users-banned-only`}
@@ -663,7 +641,7 @@ export class AdminSettings extends Component<
             <PaginatorCursor
               current={this.state.usersCursor}
               resource={this.state.usersRes}
-              onPageChange={this.handleUsersPageChange}
+              onPageChange={cursor => handleUsersPageChange(this, cursor)}
             />
           </div>
         );
@@ -691,7 +669,7 @@ export class AdminSettings extends Component<
             <PaginatorCursor
               current={this.state.uploadsCursor}
               resource={this.state.uploadsRes}
-              onPageChange={this.handleUploadsPageChange}
+              onPageChange={cursor => handleUploadsPageChange(this, cursor)}
             />
           </div>
         );
@@ -718,8 +696,8 @@ export class AdminSettings extends Component<
                 key={`tagline-form-${t.id}`}
                 tagline={t}
                 myUserInfo={this.isoData.myUserInfo}
-                onEdit={this.handleEditTagline}
-                onDelete={this.handleDeleteTagline}
+                onEdit={form => handleEditTagline(this, form)}
+                onDelete={form => handleDeleteTagline(this, form)}
               />
             ))}
             {this.emptyTaglineForm()}
@@ -727,7 +705,7 @@ export class AdminSettings extends Component<
               <PaginatorCursor
                 current={this.state.taglinesCursor}
                 resource={this.state.taglinesRes}
-                onPageChange={this.handleTaglinesPageChange}
+                onPageChange={cursor => handleTaglinesPageChange(this, cursor)}
               />
             )}
           </>
@@ -756,8 +734,8 @@ export class AdminSettings extends Component<
               <EmojiForm
                 key={`emoji-form-${e.custom_emoji.id}`}
                 emoji={e}
-                onEdit={this.handleEditEmoji}
-                onDelete={this.handleDeleteEmoji}
+                onEdit={form => handleEditEmoji(this, form)}
+                onDelete={form => handleDeleteEmoji(this, form)}
               />
             ))}
             {this.emptyEmojiForm()}
@@ -772,13 +750,13 @@ export class AdminSettings extends Component<
     return (
       <TaglineForm
         myUserInfo={this.isoData.myUserInfo}
-        onCreate={this.handleCreateTagline}
+        onCreate={form => handleCreateTagline(this, form)}
       />
     );
   }
 
   emptyEmojiForm() {
-    return <EmojiForm onCreate={this.handleCreateEmoji} />;
+    return <EmojiForm onCreate={form => handleCreateEmoji(this, form)} />;
   }
 
   instanceBlocksTab() {
@@ -799,9 +777,11 @@ export class AdminSettings extends Component<
             <InstanceList
               instances={instances.filter(view => view.blocked) ?? []}
               hideNoneFound
-              onRemove={this.handleInstanceBlockRemove}
+              onRemove={instance => handleInstanceBlockRemove(this, instance)}
             />
-            <InstanceBlockForm onCreate={this.handleInstanceBlockCreate} />
+            <InstanceBlockForm
+              onCreate={form => handleInstanceBlockCreate(this, form)}
+            />
             <hr />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("allowed_instances")}
@@ -809,274 +789,298 @@ export class AdminSettings extends Component<
             <InstanceList
               instances={instances.filter(view => view.allowed) ?? []}
               hideNoneFound
-              onRemove={this.handleInstanceAllowRemove}
+              onRemove={instance => handleInstanceAllowRemove(this, instance)}
             />
-            <InstanceAllowForm onCreate={this.handleInstanceAllowCreate} />
+            <InstanceAllowForm
+              onCreate={form => handleInstanceAllowCreate(this, form)}
+            />
           </div>
         );
       }
     }
   }
+}
 
-  async handleInstanceBlockCreate(form: AdminBlockInstanceParams) {
-    this.setState({ loading: true });
+async function handleInstanceBlockCreate(
+  i: AdminSettings,
+  form: AdminBlockInstanceParams,
+) {
+  i.setState({ loading: true });
 
-    const res = await HttpService.client.adminBlockInstance(form);
+  const res = await HttpService.client.adminBlockInstance(form);
 
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("blocked_x", { item: form.instance }));
-      await this.fetchInstancesOnly();
-    } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-    }
-
-    this.setState({ loading: false });
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("blocked_x", { item: form.instance }));
+    await i.fetchInstancesOnly();
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
 
-  async handleInstanceBlockRemove(instance: string) {
-    this.setState({ loading: true });
+  i.setState({ loading: false });
+}
 
-    const form: AdminBlockInstanceParams = {
-      instance,
-      block: false,
-      reason: "",
-    };
-    const res = await HttpService.client.adminBlockInstance(form);
+async function handleInstanceBlockRemove(i: AdminSettings, instance: string) {
+  i.setState({ loading: true });
 
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("unblocked_x", { item: form.instance }));
-      await this.fetchInstancesOnly();
-    } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-    }
+  const form: AdminBlockInstanceParams = {
+    instance,
+    block: false,
+    reason: "",
+  };
+  const res = await HttpService.client.adminBlockInstance(form);
 
-    this.setState({ loading: false });
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("unblocked_x", { item: form.instance }));
+    await i.fetchInstancesOnly();
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
 
-  async handleInstanceAllowCreate(form: AdminAllowInstanceParams) {
-    this.setState({ loading: true });
+  i.setState({ loading: false });
+}
 
-    const res = await HttpService.client.adminAllowInstance(form);
+async function handleInstanceAllowCreate(
+  i: AdminSettings,
+  form: AdminAllowInstanceParams,
+) {
+  i.setState({ loading: true });
 
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("allowed_x", { item: form.instance }));
-      await this.fetchInstancesOnly();
-    } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-    }
+  const res = await HttpService.client.adminAllowInstance(form);
 
-    this.setState({ loading: false });
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("allowed_x", { item: form.instance }));
+    await i.fetchInstancesOnly();
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
 
-  async handleInstanceAllowRemove(instance: string) {
-    this.setState({ loading: true });
+  i.setState({ loading: false });
+}
 
-    const form: AdminAllowInstanceParams = {
-      instance,
-      allow: false,
-      reason: "",
-    };
-    const res = await HttpService.client.adminAllowInstance(form);
+async function handleInstanceAllowRemove(i: AdminSettings, instance: string) {
+  i.setState({ loading: true });
 
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("disallowed_x", { item: form.instance }));
-      await this.fetchInstancesOnly();
-    } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-    }
+  const form: AdminAllowInstanceParams = {
+    instance,
+    allow: false,
+    reason: "",
+  };
+  const res = await HttpService.client.adminAllowInstance(form);
 
-    this.setState({ loading: false });
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("disallowed_x", { item: form.instance }));
+    await i.fetchInstancesOnly();
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
 
-  async handleEditSite(form: EditSite) {
-    this.setState({ loading: true });
+  i.setState({ loading: false });
+}
 
-    const editRes = await HttpService.client.editSite(form);
+async function handleEditSite(i: AdminSettings, form: EditSite) {
+  i.setState({ loading: true });
 
-    if (editRes.state === "success") {
-      this.forceUpdate();
-      toast(I18NextService.i18n.t("site_saved"));
+  const editRes = await HttpService.client.editSite(form);
 
-      // You need to reload the page, to properly update the siteRes everywhere
-      setTimeout(() => location.reload(), 500);
-    }
+  if (editRes.state === "success") {
+    i.forceUpdate();
+    toast(I18NextService.i18n.t("site_saved"));
 
-    this.setState({ loading: false });
-
-    return editRes;
+    // You need to reload the page, to properly update the siteRes everywhere
+    setTimeout(() => location.reload(), 500);
   }
 
-  handleToggleShowLeaveAdminConfirmation() {
-    this.setState(prev => ({
-      showConfirmLeaveAdmin: !prev.showConfirmLeaveAdmin,
-    }));
+  i.setState({ loading: false });
+
+  return editRes;
+}
+
+function handleToggleShowLeaveAdminConfirmation(i: AdminSettings) {
+  i.setState(prev => ({
+    showConfirmLeaveAdmin: !prev.showConfirmLeaveAdmin,
+  }));
+}
+
+async function handleLeaveAdminTeam(i: AdminSettings) {
+  i.setState({ leaveAdminTeamRes: LOADING_REQUEST });
+  i.setState({
+    leaveAdminTeamRes: await HttpService.client.leaveAdmin(),
+  });
+
+  if (i.state.leaveAdminTeamRes.state === "success") {
+    toast(I18NextService.i18n.t("left_admin_team"));
+    i.setState({ showConfirmLeaveAdmin: false });
+    i.context.router.history.replace("/");
+  }
+}
+
+async function handleUsersBannedOnlyChange(
+  i: AdminSettings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  const checked = event.target.value === "false";
+  i.setState({ usersBannedOnly: checked });
+  await i.fetchUsersOnly();
+}
+
+async function handleUsersPageChange(
+  i: AdminSettings,
+  cursor?: PaginationCursor,
+) {
+  i.setState({ usersCursor: cursor });
+  await i.fetchUsersOnly();
+}
+
+async function handleUploadsPageChange(
+  i: AdminSettings,
+  cursor?: PaginationCursor,
+) {
+  i.setState({ uploadsCursor: cursor });
+  snapToTop();
+  await i.fetchUploadsOnly();
+}
+
+async function handleTaglinesPageChange(
+  i: AdminSettings,
+  cursor?: PaginationCursor,
+) {
+  i.setState({ taglinesCursor: cursor });
+  snapToTop();
+  await i.fetchTaglinesOnly();
+}
+
+async function handleEditOAuthProvider(
+  i: AdminSettings,
+  form: EditOAuthProvider,
+) {
+  i.setState({ loading: true });
+
+  const res = await HttpService.client.editOAuthProvider(form);
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("site_saved"));
+
+    // You need to reload the page, to properly update the siteRes everywhere
+    setTimeout(() => location.reload(), 500);
+  } else {
+    toast(I18NextService.i18n.t("couldnt_edit_oauth_provider"), "danger");
   }
 
-  async handleLeaveAdminTeam() {
-    this.setState({ leaveAdminTeamRes: LOADING_REQUEST });
-    this.setState({
-      leaveAdminTeamRes: await HttpService.client.leaveAdmin(),
-    });
+  i.setState({ loading: false });
+}
 
-    if (this.state.leaveAdminTeamRes.state === "success") {
-      toast(I18NextService.i18n.t("left_admin_team"));
-      this.setState({ showConfirmLeaveAdmin: false });
-      this.context.router.history.replace("/");
-    }
+async function handleDeleteOAuthProvider(
+  i: AdminSettings,
+  form: DeleteOAuthProvider,
+) {
+  i.setState({ loading: true });
+
+  const res = await HttpService.client.deleteOAuthProvider(form);
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("site_saved"));
+
+    // You need to reload the page, to properly update the siteRes everywhere
+    setTimeout(() => location.reload(), 500);
+  } else {
+    toast(I18NextService.i18n.t("couldnt_delete_oauth_provider"), "danger");
   }
 
-  async handleUsersBannedOnlyChange(i: AdminSettings, event: any) {
-    const checked = event.target.value === "false";
-    i.setState({ usersBannedOnly: checked });
-    await i.fetchUsersOnly();
+  i.setState({ loading: false });
+}
+
+async function handleCreateOAuthProvider(
+  i: AdminSettings,
+  form: CreateOAuthProvider,
+) {
+  i.setState({ loading: true });
+
+  const res = await HttpService.client.createOAuthProvider(form);
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("site_saved"));
+
+    // You need to reload the page, to properly update the siteRes everywhere
+    setTimeout(() => location.reload(), 500);
+  } else {
+    toast(I18NextService.i18n.t("couldnt_create_oauth_provider"), "danger");
   }
 
-  async handleUsersPageChange(cursor: PaginationCursor) {
-    this.setState({ usersCursor: cursor });
-    await this.fetchUsersOnly();
+  i.setState({ loading: false });
+}
+
+async function handleCreateTagline(i: AdminSettings, form: CreateTagline) {
+  i.setState({ loading: true });
+  const res = await HttpService.client.createTagline(form);
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("tagline_created"));
+    await i.fetchTaglinesOnly();
+  } else {
+    toast(I18NextService.i18n.t("couldnt_create_tagline"), "danger");
   }
 
-  async handleUploadsPageChange(cursor: PaginationCursor) {
-    this.setState({ uploadsCursor: cursor });
-    snapToTop();
-    await this.fetchUploadsOnly();
+  i.setState({ loading: false });
+}
+
+async function handleDeleteTagline(i: AdminSettings, form: DeleteTagline) {
+  i.setState({ loading: true });
+  const res = await HttpService.client.deleteTagline(form);
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("tagline_deleted"));
+    await i.fetchTaglinesOnly();
+  } else {
+    toast(I18NextService.i18n.t("couldnt_delete_tagline"), "danger");
+  }
+  i.setState({ loading: false });
+}
+
+async function handleEditTagline(i: AdminSettings, form: UpdateTagline) {
+  i.setState({ loading: true });
+  const res = await HttpService.client.editTagline(form);
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("tagline_updated"));
+  } else {
+    toast(I18NextService.i18n.t("couldnt_update_tagline"), "danger");
+  }
+  i.setState({ loading: false });
+}
+
+async function handleCreateEmoji(i: AdminSettings, form: CreateCustomEmoji) {
+  const res = await HttpService.client.createCustomEmoji(form);
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("custom_emoji_created"));
+    await i.fetchEmojisOnly();
+  } else {
+    toast(I18NextService.i18n.t("couldnt_create_custom_emoji"), "danger");
   }
 
-  async handleTaglinesPageChange(cursor: PaginationCursor) {
-    this.setState({ taglinesCursor: cursor });
-    snapToTop();
-    await this.fetchTaglinesOnly();
+  i.setState({ loading: false });
+}
+
+async function handleDeleteEmoji(i: AdminSettings, form: DeleteCustomEmoji) {
+  i.setState({ loading: true });
+  const res = await HttpService.client.deleteCustomEmoji(form);
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("custom_emoji_deleted"));
+    await i.fetchEmojisOnly();
+  } else {
+    toast(I18NextService.i18n.t("couldnt_delete_custom_emoji"), "danger");
   }
+  i.setState({ loading: false });
+}
 
-  async handleEditOAuthProvider(form: EditOAuthProvider) {
-    this.setState({ loading: true });
+async function handleEditEmoji(i: AdminSettings, form: EditCustomEmoji) {
+  i.setState({ loading: true });
+  const res = await HttpService.client.editCustomEmoji(form);
 
-    const res = await HttpService.client.editOAuthProvider(form);
-
-    if (res.state === "success") {
-      const newOAuthProvider = res.data;
-      this.isoData.siteRes.oauth_providers =
-        this.isoData.siteRes.oauth_providers?.map(p => {
-          return p?.id === newOAuthProvider.id ? newOAuthProvider : p;
-        }) ?? [newOAuthProvider];
-      this.forceUpdate();
-      toast(I18NextService.i18n.t("site_saved"));
-    } else {
-      toast(I18NextService.i18n.t("couldnt_edit_oauth_provider"), "danger");
-    }
-
-    this.setState({ loading: false });
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("custom_emoji_updated"));
+  } else {
+    toast(I18NextService.i18n.t("couldnt_update_custom_emoji"), "danger");
   }
-
-  async handleDeleteOAuthProvider(form: DeleteOAuthProvider) {
-    this.setState({ loading: true });
-
-    const res = await HttpService.client.deleteOAuthProvider(form);
-
-    if (res.state === "success") {
-      this.isoData.siteRes.oauth_providers =
-        this.isoData.siteRes.oauth_providers?.filter(p => p.id !== form.id);
-      this.forceUpdate();
-      toast(I18NextService.i18n.t("site_saved"));
-    } else {
-      toast(I18NextService.i18n.t("couldnt_delete_oauth_provider"), "danger");
-    }
-
-    this.setState({ loading: false });
-  }
-
-  async handleCreateOAuthProvider(form: CreateOAuthProvider) {
-    this.setState({ loading: true });
-
-    const res = await HttpService.client.createOAuthProvider(form);
-    if (res.state === "success") {
-      this.isoData.siteRes.oauth_providers = [
-        ...(this.isoData.siteRes.oauth_providers ?? []),
-        res.data,
-      ];
-      this.forceUpdate();
-      toast(I18NextService.i18n.t("site_saved"));
-    } else {
-      toast(I18NextService.i18n.t("couldnt_create_oauth_provider"), "danger");
-    }
-
-    this.setState({ loading: false });
-  }
-
-  async handleCreateTagline(form: CreateTagline) {
-    this.setState({ loading: true });
-    const res = await HttpService.client.createTagline(form);
-
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("tagline_created"));
-      await this.fetchTaglinesOnly();
-    } else {
-      toast(I18NextService.i18n.t("couldnt_create_tagline"), "danger");
-    }
-
-    this.setState({ loading: false });
-  }
-
-  async handleDeleteTagline(form: DeleteTagline) {
-    this.setState({ loading: true });
-    const res = await HttpService.client.deleteTagline(form);
-
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("tagline_deleted"));
-      await this.fetchTaglinesOnly();
-    } else {
-      toast(I18NextService.i18n.t("couldnt_delete_tagline"), "danger");
-    }
-    this.setState({ loading: false });
-  }
-
-  async handleEditTagline(form: UpdateTagline) {
-    this.setState({ loading: true });
-    const res = await HttpService.client.editTagline(form);
-
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("tagline_updated"));
-    } else {
-      toast(I18NextService.i18n.t("couldnt_update_tagline"), "danger");
-    }
-    this.setState({ loading: false });
-  }
-
-  async handleCreateEmoji(form: CreateCustomEmoji) {
-    const res = await HttpService.client.createCustomEmoji(form);
-
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("custom_emoji_created"));
-      await this.fetchEmojisOnly();
-    } else {
-      toast(I18NextService.i18n.t("couldnt_create_custom_emoji"), "danger");
-    }
-
-    this.setState({ loading: false });
-  }
-
-  async handleDeleteEmoji(form: DeleteCustomEmoji) {
-    this.setState({ loading: true });
-    const res = await HttpService.client.deleteCustomEmoji(form);
-
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("custom_emoji_deleted"));
-      await this.fetchEmojisOnly();
-    } else {
-      toast(I18NextService.i18n.t("couldnt_delete_custom_emoji"), "danger");
-    }
-    this.setState({ loading: false });
-  }
-
-  async handleEditEmoji(form: EditCustomEmoji) {
-    this.setState({ loading: true });
-    const res = await HttpService.client.editCustomEmoji(form);
-
-    if (res.state === "success") {
-      toast(I18NextService.i18n.t("custom_emoji_updated"));
-    } else {
-      toast(I18NextService.i18n.t("couldnt_update_custom_emoji"), "danger");
-    }
-    this.setState({ loading: false });
-  }
+  i.setState({ loading: false });
 }

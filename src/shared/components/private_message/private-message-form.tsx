@@ -21,14 +21,8 @@ interface PrivateMessageFormProps {
   replyType?: boolean;
   myUserInfo: MyUserInfo | undefined;
   onCancel?(): any;
-  onCreate?(
-    form: CreatePrivateMessage,
-    bypassNavWarning: () => void,
-  ): Promise<boolean>;
-  onEdit?(
-    form: EditPrivateMessage,
-    bypassNavWarning: () => void,
-  ): Promise<boolean>;
+  onCreate?(form: CreatePrivateMessage, bypassNavWarning: () => void): void;
+  onEdit?(form: EditPrivateMessage, bypassNavWarning: () => void): void;
   createOrEditLoading: boolean;
 }
 
@@ -55,10 +49,6 @@ export class PrivateMessageForm extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handleContentChange = this.handleContentChange.bind(this);
-    this.handlePrivateMessageSubmit =
-      this.handlePrivateMessageSubmit.bind(this);
   }
 
   render() {
@@ -124,13 +114,13 @@ export class PrivateMessageForm extends Component<
           </label>
           <div className="col-sm-10">
             <MarkdownTextArea
-              onSubmit={this.handlePrivateMessageSubmit}
+              onSubmit={() => handlePrivateMessageSubmit(this)}
               initialContent={this.state.content}
-              onContentChange={this.handleContentChange}
+              onContentChange={val => handleContentChange(this, val)}
               allLanguages={[]}
               siteLanguages={[]}
               hideNavigationWarnings
-              onReplyCancel={() => this.handleCancel(this)}
+              onReplyCancel={() => handleCancel(this)}
               replyType={this.props.replyType}
               buttonTitle={
                 this.props.privateMessageView
@@ -145,47 +135,40 @@ export class PrivateMessageForm extends Component<
       </form>
     );
   }
+}
 
-  async handlePrivateMessageSubmit(): Promise<boolean> {
-    this.setState({ loading: true, submitted: true });
-    const pm = this.props.privateMessageView;
-    const content = this.state.content ?? "";
-    let success: boolean | undefined;
-    if (pm) {
-      success = await this.props.onEdit?.(
-        {
-          private_message_id: pm.private_message.id,
-          content,
-        },
-        () => {
-          this.setState({ bypassNavWarning: true });
-        },
-      );
-    } else {
-      success = await this.props.onCreate?.(
-        {
-          content,
-          recipient_id: this.props.recipient.id,
-        },
-        () => {
-          this.setState({ bypassNavWarning: true });
-        },
-      );
-    }
-    this.setState({ loading: false, submitted: success ?? true });
-    return success ?? true;
+function handlePrivateMessageSubmit(i: PrivateMessageForm) {
+  i.setState({ loading: true, submitted: true });
+  const pm = i.props.privateMessageView;
+  const content = i.state.content ?? "";
+  if (pm) {
+    i.props.onEdit?.(
+      {
+        private_message_id: pm.private_message.id,
+        content,
+      },
+      () => {
+        i.setState({ bypassNavWarning: true });
+      },
+    );
+  } else {
+    i.props.onCreate?.(
+      {
+        content,
+        recipient_id: i.props.recipient.id,
+      },
+      () => {
+        i.setState({ bypassNavWarning: true });
+      },
+    );
   }
+  i.setState({ loading: false, submitted: true });
+}
 
-  handleContentChange(val: string) {
-    this.setState({ content: val });
-  }
+function handleContentChange(i: PrivateMessageForm, val: string) {
+  i.setState({ content: val });
+}
 
-  handleCancel(i: PrivateMessageForm) {
-    i.props.onCancel?.();
-  }
-
-  handlePreviewToggle(i: PrivateMessageForm, event: any) {
-    event.preventDefault();
-    i.setState({ previewMode: !i.state.previewMode });
-  }
+function handleCancel(i: PrivateMessageForm) {
+  i.props.onCancel?.();
 }

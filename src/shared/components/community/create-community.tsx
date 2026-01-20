@@ -1,6 +1,9 @@
 import { enableNsfw, setIsoData } from "@utils/app";
 import { Component } from "inferno";
-import { CreateCommunity as CreateCommunityI } from "lemmy-js-client";
+import {
+  CreateCommunity as CreateCommunityI,
+  MyUserInfo,
+} from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
@@ -24,7 +27,6 @@ export class CreateCommunity extends Component<
   };
   constructor(props: any, context: any) {
     super(props, context);
-    this.handleCommunityCreate = this.handleCommunityCreate.bind(this);
   }
 
   get documentTitle(): string {
@@ -46,7 +48,9 @@ export class CreateCommunity extends Component<
               {I18NextService.i18n.t("create_community")}
             </h1>
             <CommunityForm
-              onCreate={this.handleCommunityCreate}
+              onCreate={form =>
+                handleCommunityCreate(this, form, this.isoData.myUserInfo)
+              }
               enableNsfw={enableNsfw(this.isoData.siteRes)}
               allLanguages={this.isoData.siteRes?.all_languages}
               siteLanguages={this.isoData.siteRes?.discussion_languages}
@@ -59,23 +63,26 @@ export class CreateCommunity extends Component<
       </div>
     );
   }
+}
 
-  async handleCommunityCreate(form: CreateCommunityI) {
-    this.setState({ loading: true });
+async function handleCommunityCreate(
+  i: CreateCommunity,
+  form: CreateCommunityI,
+  myUserInfo?: MyUserInfo,
+) {
+  i.setState({ loading: true });
 
-    const res = await HttpService.client.createCommunity(form);
+  const res = await HttpService.client.createCommunity(form);
 
-    if (res.state === "success" && this.isoData.myUserInfo) {
-      const myUserInfo = this.isoData.myUserInfo;
-      myUserInfo.moderates.push({
-        community: res.data.community_view.community,
-        moderator: myUserInfo.local_user_view.person,
-      });
-      const name = res.data.community_view.community.name;
-      this.props.history.replace(`/c/${name}`);
-    } else if (res.state === "failed") {
-      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-    }
-    this.setState({ loading: false });
+  if (res.state === "success" && myUserInfo) {
+    myUserInfo.moderates.push({
+      community: res.data.community_view.community,
+      moderator: myUserInfo.local_user_view.person,
+    });
+    const name = res.data.community_view.community.name;
+    i.props.history.replace(`/c/${name}`);
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
+  i.setState({ loading: false });
 }

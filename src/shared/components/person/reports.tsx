@@ -10,7 +10,7 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import { amAdmin } from "@utils/roles";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, FormEvent, InfernoNode } from "inferno";
 import {
   CommentReportResponse,
   GetSiteResponse,
@@ -118,26 +118,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.handlePageChange = this.handlePageChange.bind(this);
-    this.handleResolveCommentReport =
-      this.handleResolveCommentReport.bind(this);
-    this.handleResolvePostReport = this.handleResolvePostReport.bind(this);
-    this.handleResolvePrivateMessageReport =
-      this.handleResolvePrivateMessageReport.bind(this);
-    this.handleResolveCommunityReport =
-      this.handleResolveCommunityReport.bind(this);
-    this.handleRemovePost = this.handleRemovePost.bind(this);
-    this.handleRemoveComment = this.handleRemoveComment.bind(this);
-    this.handleAdminBan = this.handleAdminBan.bind(this);
-    this.handleModBanFromCommunity = this.handleModBanFromCommunity.bind(this);
-    this.handleSubmitBanFromCommunity =
-      this.handleSubmitBanFromCommunity.bind(this);
-    this.handleSubmitAdminBan = this.handleSubmitAdminBan.bind(this);
-    this.handleCloseModActionModals =
-      this.handleCloseModActionModals.bind(this);
-    this.handleClickshowCommunityReports =
-      this.handleClickshowCommunityReports.bind(this);
-
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       const { reportsRes } = this.isoData.routeData;
@@ -177,22 +157,22 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       <div className="person-reports container-lg">
         {banFromCommunityForm && (
           <ModActionFormModal
-            onSubmit={this.handleSubmitBanFromCommunity}
+            onSubmit={form => handleSubmitBanFromCommunity(this, form)}
             modActionType="community-ban"
             creator={banFromCommunityForm.person}
             community={banFromCommunityForm.community}
             isBanned={!banFromCommunityForm.ban}
-            onCancel={this.handleCloseModActionModals}
+            onCancel={() => handleCloseModActionModals(this)}
             show
           />
         )}
         {adminBanForm && (
           <ModActionFormModal
-            onSubmit={this.handleSubmitAdminBan}
+            onSubmit={form => handleSubmitAdminBan(this, form)}
             modActionType="site-ban"
             creator={adminBanForm.person}
             isBanned={!adminBanForm.ban}
-            onCancel={this.handleCloseModActionModals}
+            onCancel={() => handleCloseModActionModals(this)}
             show
           />
         )}
@@ -208,7 +188,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             <PaginatorCursor
               current={this.state.cursor}
               resource={this.state.reportsRes}
-              onPageChange={this.handlePageChange}
+              onPageChange={cursor => handlePageChange(this, cursor)}
             />
           </div>
         </div>
@@ -251,7 +231,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           className="btn-check"
           value={UnreadOrAll.Unread}
           checked={this.state.unreadOrAll === UnreadOrAll.Unread}
-          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+          onChange={e => handleUnreadOrAllChange(this, e)}
         />
         <label
           htmlFor={`${radioId}-unread`}
@@ -268,7 +248,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           className="btn-check"
           value={UnreadOrAll.All}
           checked={this.state.unreadOrAll === UnreadOrAll.All}
-          onChange={linkEvent(this, this.handleUnreadOrAllChange)}
+          onChange={e => handleUnreadOrAllChange(this, e)}
         />
         <label
           htmlFor={`${radioId}-all`}
@@ -293,7 +273,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           className="btn-check"
           value={"all"}
           checked={this.state.messageType === "all"}
-          onChange={linkEvent(this, this.handleMessageTypeChange)}
+          onChange={e => handleMessageTypeChange(this, e)}
         />
         <label
           htmlFor={`${radioId}-all`}
@@ -310,7 +290,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           className="btn-check"
           value={"comments"}
           checked={this.state.messageType === "comments"}
-          onChange={linkEvent(this, this.handleMessageTypeChange)}
+          onChange={e => handleMessageTypeChange(this, e)}
         />
         <label
           htmlFor={`${radioId}-comments`}
@@ -327,7 +307,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           className="btn-check"
           value={"posts"}
           checked={this.state.messageType === "posts"}
-          onChange={linkEvent(this, this.handleMessageTypeChange)}
+          onChange={e => handleMessageTypeChange(this, e)}
         />
         <label
           htmlFor={`${radioId}-posts`}
@@ -346,7 +326,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
               className="btn-check"
               value={"private_messages"}
               checked={this.state.messageType === "private_messages"}
-              onChange={linkEvent(this, this.handleMessageTypeChange)}
+              onChange={e => handleMessageTypeChange(this, e)}
             />
             <label
               htmlFor={`${radioId}-messages`}
@@ -363,7 +343,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
               className="btn-check"
               value={"communities"}
               checked={this.state.messageType === "communities"}
-              onChange={linkEvent(this, this.handleMessageTypeChange)}
+              onChange={e => handleMessageTypeChange(this, e)}
             />
             <label
               htmlFor={`${radioId}-communities`}
@@ -392,7 +372,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             >
               <button
                 className="btn btn-secondary"
-                onClick={this.handleClickshowCommunityReports}
+                onClick={() => handleClickshowCommunityReports(this)}
               >
                 {I18NextService.i18n.t(
                   this.state.showCommunityRuleViolations
@@ -418,10 +398,12 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             myUserInfo={this.isoData.myUserInfo}
             localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
-            onResolveReport={this.handleResolveCommentReport}
-            onRemoveComment={this.handleRemoveComment}
-            onAdminBan={this.handleAdminBan}
-            onModBanFromCommunity={this.handleModBanFromCommunity}
+            onResolveReport={form => handleResolveCommentReport(this, form)}
+            onRemoveComment={form => handleRemoveComment(this, form)}
+            onAdminBan={form => handleAdminBan(this, form)}
+            onModBanFromCommunity={form =>
+              handleModBanFromCommunity(this, form)
+            }
           />
         );
       case "post":
@@ -434,10 +416,12 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             myUserInfo={this.isoData.myUserInfo}
             localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
-            onResolveReport={this.handleResolvePostReport}
-            onRemovePost={this.handleRemovePost}
-            onAdminBan={this.handleAdminBan}
-            onModBanFromCommunity={this.handleModBanFromCommunity}
+            onResolveReport={form => handleResolvePostReport(this, form)}
+            onRemovePost={form => handleRemovePost(this, form)}
+            onAdminBan={form => handleAdminBan(this, form)}
+            onModBanFromCommunity={form =>
+              handleModBanFromCommunity(this, form)
+            }
           />
         );
       case "private_message":
@@ -445,7 +429,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <PrivateMessageReport
             key={i.type_ + i.private_message_report.id}
             report={i}
-            onResolveReport={this.handleResolvePrivateMessageReport}
+            onResolveReport={form =>
+              handleResolvePrivateMessageReport(this, form)
+            }
             myUserInfo={this.isoData.myUserInfo}
           />
         );
@@ -454,7 +440,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <CommunityReport
             key={i.type_ + i.community_report.id}
             report={i}
-            onResolveReport={this.handleResolveCommunityReport}
+            onResolveReport={form => handleResolveCommunityReport(this, form)}
             myUserInfo={this.isoData.myUserInfo}
           />
         );
@@ -506,10 +492,14 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   myUserInfo={this.isoData.myUserInfo}
                   localSite={siteRes.site_view.local_site}
                   admins={this.isoData.siteRes.admins}
-                  onResolveReport={this.handleResolveCommentReport}
-                  onRemoveComment={this.handleRemoveComment}
-                  onAdminBan={this.handleAdminBan}
-                  onModBanFromCommunity={this.handleModBanFromCommunity}
+                  onResolveReport={form =>
+                    handleResolveCommentReport(this, form)
+                  }
+                  onRemoveComment={form => handleRemoveComment(this, form)}
+                  onAdminBan={form => handleAdminBan(this, form)}
+                  onModBanFromCommunity={form =>
+                    handleModBanFromCommunity(this, form)
+                  }
                 />
               </>
             ))}
@@ -544,10 +534,12 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   myUserInfo={this.isoData.myUserInfo}
                   localSite={siteRes.site_view.local_site}
                   admins={this.isoData.siteRes.admins}
-                  onResolveReport={this.handleResolvePostReport}
-                  onRemovePost={this.handleRemovePost}
-                  onAdminBan={this.handleAdminBan}
-                  onModBanFromCommunity={this.handleModBanFromCommunity}
+                  onResolveReport={form => handleResolvePostReport(this, form)}
+                  onRemovePost={form => handleRemovePost(this, form)}
+                  onAdminBan={form => handleAdminBan(this, form)}
+                  onModBanFromCommunity={form =>
+                    handleModBanFromCommunity(this, form)
+                  }
                 />
               </>
             ))}
@@ -578,7 +570,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                 <PrivateMessageReport
                   key={pmr.private_message_report.id}
                   report={pmr}
-                  onResolveReport={this.handleResolvePrivateMessageReport}
+                  onResolveReport={form =>
+                    handleResolvePrivateMessageReport(this, form)
+                  }
                   myUserInfo={this.isoData.myUserInfo}
                 />
               </>
@@ -608,42 +602,15 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                 <CommunityReport
                   key={cr.community_report.id}
                   report={cr}
-                  onResolveReport={this.handleResolveCommunityReport}
+                  onResolveReport={form =>
+                    handleResolveCommunityReport(this, form)
+                  }
                   myUserInfo={this.isoData.myUserInfo}
                 />
               </>
             ))}
           </div>
         );
-      }
-    }
-  }
-
-  async handlePageChange(cursor?: PaginationCursor) {
-    this.setState({ cursor });
-    await this.refetch();
-  }
-
-  async handleUnreadOrAllChange(i: Reports, event: any) {
-    i.setState({
-      unreadOrAll: Number(event.target.value),
-      cursor: undefined,
-    });
-    await i.refetch();
-  }
-
-  async handleMessageTypeChange(i: Reports, event: any) {
-    switch (event.target.value) {
-      case "all":
-      case "comments":
-      case "posts":
-      case "private_messages":
-      case "communities": {
-        i.setState({
-          messageType: event.target.value,
-          cursor: undefined,
-        });
-        await i.refetch();
       }
     }
   }
@@ -692,93 +659,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       });
 
     await Promise.all([reportPromise]);
-  }
-
-  async handleResolveCommentReport(form: ResolveCommentReport) {
-    const res = await HttpService.client.resolveCommentReport(form);
-    this.findAndUpdateCommentReport(res);
-    this.update();
-  }
-
-  async handleResolvePostReport(form: ResolvePostReport) {
-    const res = await HttpService.client.resolvePostReport(form);
-    this.findAndUpdatePostReport(res);
-    this.update();
-  }
-
-  async handleRemovePost(form: RemovePost) {
-    await HttpService.client.removePost(form);
-    this.update();
-  }
-
-  async handleRemoveComment(form: RemoveComment) {
-    await HttpService.client.removeComment(form);
-    this.update();
-  }
-
-  handleModBanFromCommunity(form: BanFromCommunityData) {
-    this.setState({ banFromCommunityForm: form });
-  }
-
-  handleAdminBan(form: BanFromSiteData) {
-    this.setState({ adminBanForm: form });
-  }
-
-  async handleResolvePrivateMessageReport(form: ResolvePrivateMessageReport) {
-    const res = await HttpService.client.resolvePrivateMessageReport(form);
-    this.findAndUpdatePrivateMessageReport(res);
-
-    this.update();
-  }
-
-  async handleResolveCommunityReport(form: ResolveCommunityReport) {
-    const res = await HttpService.client.resolveCommunityReport(form);
-    toast("Not implemented");
-    this.findAndUpdateCommunityReport(res);
-    this.update();
-  }
-
-  async handleSubmitBanFromCommunity(form: BanUpdateForm) {
-    const banFromCommunityForm = this.state.banFromCommunityForm;
-    if (banFromCommunityForm) {
-      await HttpService.client.banFromCommunity({
-        person_id: banFromCommunityForm.person.id,
-        community_id: banFromCommunityForm.community.id,
-        ban: banFromCommunityForm.ban,
-        expires_at: futureDaysToUnixTime(form.daysUntilExpires),
-        reason: form.reason,
-      });
-      this.setState({ banFromCommunityForm: undefined });
-      this.update();
-    }
-  }
-
-  async handleSubmitAdminBan(form: BanUpdateForm) {
-    const adminBanForm = this.state.adminBanForm;
-    if (adminBanForm) {
-      await HttpService.client.banPerson({
-        person_id: adminBanForm.person.id,
-        ban: adminBanForm.ban,
-        expires_at: futureDaysToUnixTime(form.daysUntilExpires),
-        reason: form.reason,
-      });
-      this.setState({ adminBanForm: undefined });
-      this.update();
-    }
-  }
-
-  handleCloseModActionModals() {
-    this.setState({
-      adminBanForm: undefined,
-      banFromCommunityForm: undefined,
-    });
-  }
-
-  handleClickshowCommunityReports() {
-    this.setState({
-      showCommunityRuleViolations: !this.state.showCommunityRuleViolations,
-    });
-    this.update();
   }
 
   findAndUpdateCommentReport(res: RequestState<CommentReportResponse>) {
@@ -839,4 +719,135 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     UnreadCounterService.Instance.updateUnreadCounts();
     this.refetch();
   }
+}
+
+async function handlePageChange(i: Reports, cursor?: PaginationCursor) {
+  i.setState({ cursor });
+  await i.refetch();
+}
+
+async function handleUnreadOrAllChange(
+  i: Reports,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState({
+    unreadOrAll: Number(event.target.value),
+    cursor: undefined,
+  });
+  await i.refetch();
+}
+
+async function handleMessageTypeChange(
+  i: Reports,
+  event: FormEvent<HTMLInputElement>,
+) {
+  switch (event.target.value) {
+    case "all":
+    case "comments":
+    case "posts":
+    case "private_messages":
+    case "communities": {
+      i.setState({
+        messageType: event.target.value,
+        cursor: undefined,
+      });
+      await i.refetch();
+    }
+  }
+}
+
+async function handleResolveCommentReport(
+  i: Reports,
+  form: ResolveCommentReport,
+) {
+  const res = await HttpService.client.resolveCommentReport(form);
+  i.findAndUpdateCommentReport(res);
+  i.update();
+}
+
+async function handleResolvePostReport(i: Reports, form: ResolvePostReport) {
+  const res = await HttpService.client.resolvePostReport(form);
+  i.findAndUpdatePostReport(res);
+  i.update();
+}
+
+async function handleRemovePost(i: Reports, form: RemovePost) {
+  await HttpService.client.removePost(form);
+  i.update();
+}
+
+async function handleRemoveComment(i: Reports, form: RemoveComment) {
+  await HttpService.client.removeComment(form);
+  i.update();
+}
+
+function handleModBanFromCommunity(i: Reports, form: BanFromCommunityData) {
+  i.setState({ banFromCommunityForm: form });
+}
+
+function handleAdminBan(i: Reports, form: BanFromSiteData) {
+  i.setState({ adminBanForm: form });
+}
+
+async function handleResolvePrivateMessageReport(
+  i: Reports,
+  form: ResolvePrivateMessageReport,
+) {
+  const res = await HttpService.client.resolvePrivateMessageReport(form);
+  i.findAndUpdatePrivateMessageReport(res);
+
+  i.update();
+}
+
+async function handleResolveCommunityReport(
+  i: Reports,
+  form: ResolveCommunityReport,
+) {
+  const res = await HttpService.client.resolveCommunityReport(form);
+  toast("Not implemented");
+  i.findAndUpdateCommunityReport(res);
+  i.update();
+}
+
+async function handleSubmitBanFromCommunity(i: Reports, form: BanUpdateForm) {
+  const banFromCommunityForm = i.state.banFromCommunityForm;
+  if (banFromCommunityForm) {
+    await HttpService.client.banFromCommunity({
+      person_id: banFromCommunityForm.person.id,
+      community_id: banFromCommunityForm.community.id,
+      ban: banFromCommunityForm.ban,
+      expires_at: futureDaysToUnixTime(form.daysUntilExpires),
+      reason: form.reason,
+    });
+    i.setState({ banFromCommunityForm: undefined });
+    i.update();
+  }
+}
+
+async function handleSubmitAdminBan(i: Reports, form: BanUpdateForm) {
+  const adminBanForm = i.state.adminBanForm;
+  if (adminBanForm) {
+    await HttpService.client.banPerson({
+      person_id: adminBanForm.person.id,
+      ban: adminBanForm.ban,
+      expires_at: futureDaysToUnixTime(form.daysUntilExpires),
+      reason: form.reason,
+    });
+    i.setState({ adminBanForm: undefined });
+    i.update();
+  }
+}
+
+function handleCloseModActionModals(i: Reports) {
+  i.setState({
+    adminBanForm: undefined,
+    banFromCommunityForm: undefined,
+  });
+}
+
+function handleClickshowCommunityReports(i: Reports) {
+  i.setState({
+    showCommunityRuleViolations: !i.state.showCommunityRuleViolations,
+  });
+  i.update();
 }

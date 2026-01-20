@@ -128,19 +128,6 @@ export class CreatePost extends Component<
   constructor(props: CreatePostRouteProps, context: any) {
     super(props, context);
 
-    this.handlePostCreate = this.handlePostCreate.bind(this);
-    this.handleSelectedCommunityChange =
-      this.handleSelectedCommunityChange.bind(this);
-    this.handleTitleBlur = this.handleTitleBlur.bind(this);
-    this.handleUrlBlur = this.handleUrlBlur.bind(this);
-    this.handleBodyBlur = this.handleBodyBlur.bind(this);
-    this.handleLanguageChange = this.handleLanguageChange.bind(this);
-    this.handleNsfwChange = this.handleNsfwChange.bind(this);
-    this.handleThumbnailUrlBlur = this.handleThumbnailUrlBlur.bind(this);
-    this.handleAltTextBlur = this.handleAltTextBlur.bind(this);
-    this.handleCopySuggestedTitle = this.handleCopySuggestedTitle.bind(this);
-    this.handleShowSidebarMobile = this.handleShowSidebarMobile.bind(this);
-
     // Only fetch the data if coming from another routeupdate
     if (FirstLoadService.isFirstLoad) {
       const { communityResponse: communityRes, initialCommunitiesRes } =
@@ -273,14 +260,18 @@ export class CreatePost extends Component<
             <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>
             <PostForm
               key={this.state.resetCounter}
-              onCreate={this.handlePostCreate}
+              onCreate={(form, bypassNav) =>
+                handlePostCreate(this, form, bypassNav)
+              }
               params={params}
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
               allLanguages={siteRes?.all_languages}
               siteLanguages={siteRes?.discussion_languages}
               selectedCommunityChoice={selectedCommunityChoice}
-              onSelectCommunity={this.handleSelectedCommunityChange}
+              onSelectCommunity={form =>
+                handleSelectedCommunityChange(this, form)
+              }
               initialCommunities={
                 this.state.initialCommunitiesRes.state === "success"
                   ? filterCommunitySelection(
@@ -293,21 +284,25 @@ export class CreatePost extends Component<
               myUserInfo={this.isoData.myUserInfo}
               localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
-              onBodyBlur={this.handleBodyBlur}
-              onLanguageChange={this.handleLanguageChange}
-              onTitleBlur={this.handleTitleBlur}
-              onUrlBlur={this.handleUrlBlur}
-              onThumbnailUrlBlur={this.handleThumbnailUrlBlur}
-              onNsfwChange={this.handleNsfwChange}
-              onAltTextBlur={this.handleAltTextBlur}
-              onCopySuggestedTitle={this.handleCopySuggestedTitle}
+              onBodyBlur={form => handleBodyBlur(this, form)}
+              onLanguageChange={languangeId =>
+                handleLanguageChange(this, languangeId)
+              }
+              onTitleBlur={form => handleTitleBlur(this, form)}
+              onUrlBlur={form => handleUrlBlur(this, form)}
+              onThumbnailUrlBlur={form => handleThumbnailUrlBlur(this, form)}
+              onNsfwChange={form => handleNsfwChange(this, form)}
+              onAltTextBlur={form => handleAltTextBlur(this, form)}
+              onCopySuggestedTitle={(url, title) =>
+                handleCopySuggestedTitle(this, url, title)
+              }
               isNsfwCommunity={selectedCommunityIsNsfw}
             />
           </div>
           <div className="d-block d-md-none">
             <button
               className="btn btn-secondary d-inline-block mb-2 me-3"
-              onClick={this.handleShowSidebarMobile}
+              onClick={() => handleShowSidebarMobile(this)}
             >
               {I18NextService.i18n.t("sidebar")}{" "}
               <Icon
@@ -361,60 +356,6 @@ export class CreatePost extends Component<
     await this.fetchCommunity({ communityId });
   }
 
-  handleSelectedCommunityChange(choice: Choice) {
-    this.updateUrl({
-      communityId: getIdFromString(choice?.value),
-    });
-  }
-
-  handleTitleBlur(title: string) {
-    this.updateUrl({ title });
-  }
-
-  handleUrlBlur(url: string) {
-    this.updateUrl({ url });
-  }
-
-  handleBodyBlur(body: string) {
-    this.updateUrl({ body });
-  }
-
-  handleLanguageChange(languageId: number) {
-    this.updateUrl({ languageId });
-  }
-
-  handleNsfwChange(nsfw: StringBoolean) {
-    this.updateUrl({ nsfw });
-  }
-
-  handleThumbnailUrlBlur(customThumbnailUrl: string) {
-    this.updateUrl({ customThumbnailUrl });
-  }
-
-  handleAltTextBlur(altText: string) {
-    this.updateUrl({ altText });
-  }
-
-  handleCopySuggestedTitle(url: string, title: string) {
-    this.updateUrl({ url, title });
-  }
-
-  async handlePostCreate(form: CreatePostI, bypassNavWarning: () => void) {
-    this.setState({ loading: true });
-    const res = await HttpService.client.createPost(form);
-
-    if (res.state === "success") {
-      const postId = res.data.post_view.post.id;
-      bypassNavWarning();
-      this.props.history.replace(`/post/${postId}`);
-    } else if (res.state === "failed") {
-      this.setState({
-        loading: false,
-      });
-      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-    }
-  }
-
   static async fetchInitialData({
     headers,
     query: { communityId },
@@ -439,10 +380,6 @@ export class CreatePost extends Component<
     }
 
     return data;
-  }
-
-  handleShowSidebarMobile() {
-    this.setState({ showSidebarMobile: !this.state.showSidebarMobile });
   }
 
   sidebar() {
@@ -470,4 +407,66 @@ export class CreatePost extends Component<
       );
     }
   }
+}
+
+function handleSelectedCommunityChange(i: CreatePost, choice: Choice) {
+  i.updateUrl({
+    communityId: getIdFromString(choice?.value),
+  });
+}
+
+function handleTitleBlur(i: CreatePost, title: string) {
+  i.updateUrl({ title });
+}
+
+function handleUrlBlur(i: CreatePost, url: string) {
+  i.updateUrl({ url });
+}
+
+function handleBodyBlur(i: CreatePost, body: string) {
+  i.updateUrl({ body });
+}
+
+function handleLanguageChange(i: CreatePost, languageId: number | undefined) {
+  i.updateUrl({ languageId });
+}
+
+function handleNsfwChange(i: CreatePost, nsfw: StringBoolean) {
+  i.updateUrl({ nsfw });
+}
+
+function handleThumbnailUrlBlur(i: CreatePost, customThumbnailUrl: string) {
+  i.updateUrl({ customThumbnailUrl });
+}
+
+function handleAltTextBlur(i: CreatePost, altText: string) {
+  i.updateUrl({ altText });
+}
+
+function handleCopySuggestedTitle(i: CreatePost, url: string, title: string) {
+  i.updateUrl({ url, title });
+}
+
+async function handlePostCreate(
+  i: CreatePost,
+  form: CreatePostI,
+  bypassNavWarning: () => void,
+) {
+  i.setState({ loading: true });
+  const res = await HttpService.client.createPost(form);
+
+  if (res.state === "success") {
+    const postId = res.data.post_view.post.id;
+    bypassNavWarning();
+    i.props.history.replace(`/post/${postId}`);
+  } else if (res.state === "failed") {
+    i.setState({
+      loading: false,
+    });
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
+  }
+}
+
+function handleShowSidebarMobile(i: CreatePost) {
+  i.setState({ showSidebarMobile: !i.state.showSidebarMobile });
 }

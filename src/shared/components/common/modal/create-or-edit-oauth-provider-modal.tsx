@@ -1,5 +1,6 @@
 import {
   Component,
+  FormEvent,
   FormEventHandler,
   MouseEventHandler,
   RefObject,
@@ -25,9 +26,7 @@ interface CreateOrEditOAuthProviderModalProps {
   onClose: MouseEventHandler<HTMLButtonElement>;
   show: boolean;
   data: CreateOrEditOAuthProviderModalData;
-  onSubmit: (
-    provider: CreateOAuthProvider | EditOAuthProvider,
-  ) => Promise<void>;
+  onSubmit(provider: CreateOAuthProvider | EditOAuthProvider): void;
 }
 
 interface CreateOrEditOAuthProviderModalState {
@@ -60,41 +59,6 @@ interface ProviderCheckboxFieldProps extends ProviderFieldProps {
 }
 
 const FORM_ID = "create-or-edit-oauth-provider-form-id";
-
-function handleTextPropertyChange(
-  {
-    modal,
-    property,
-  }: {
-    modal: CreateOrEditOAuthProviderModal;
-    property: Exclude<keyof CreateOAuthProvider, ProviderBooleanProperties>;
-  },
-  event: any,
-) {
-  modal.setState(prevState => ({
-    changed: true,
-    provider: {
-      ...prevState.provider,
-      [property]: event.target.value,
-    },
-  }));
-}
-
-function handleBooleanPropertyChange({
-  modal,
-  property,
-}: {
-  modal: CreateOrEditOAuthProviderModal;
-  property: Extract<keyof ProviderToEdit, ProviderBooleanProperties>;
-}) {
-  modal.setState(prevState => ({
-    changed: true,
-    provider: {
-      ...prevState.provider,
-      [property]: !prevState.provider[property],
-    },
-  }));
-}
 
 function ProviderTextField({
   id,
@@ -165,8 +129,6 @@ export default class CreateOrEditOAuthProviderModal extends Component<
     super(props, context);
 
     this.modalDivRef = createRef();
-
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidUpdate(prevProps: Readonly<CreateOrEditOAuthProviderModalProps>) {
@@ -212,7 +174,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
               <form
                 id={FORM_ID}
                 className="container"
-                onSubmit={this.handleSubmit}
+                onSubmit={e => handleSubmit(this, e)}
               >
                 <div className="row row-cols-1 mb-3 gy-2">
                   <ProviderTextField
@@ -376,12 +338,50 @@ export default class CreateOrEditOAuthProviderModal extends Component<
       </div>
     );
   }
+}
 
-  async handleSubmit(event) {
-    event.preventDefault();
+async function handleSubmit(
+  i: CreateOrEditOAuthProviderModal,
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
 
-    this.setState({ loading: true });
-    await this.props.onSubmit(this.state.provider as CreateOAuthProvider);
-    this.setState({ loading: false, changed: false, provider: {} });
-  }
+  i.setState({ loading: true });
+  i.props.onSubmit(i.state.provider as CreateOAuthProvider);
+  i.setState({ loading: false, changed: false, provider: {} });
+}
+
+function handleTextPropertyChange(
+  {
+    modal,
+    property,
+  }: {
+    modal: CreateOrEditOAuthProviderModal;
+    property: Exclude<keyof CreateOAuthProvider, ProviderBooleanProperties>;
+  },
+  event: any,
+) {
+  modal.setState(prevState => ({
+    changed: true,
+    provider: {
+      ...prevState.provider,
+      [property]: event.target.value,
+    },
+  }));
+}
+
+function handleBooleanPropertyChange({
+  modal,
+  property,
+}: {
+  modal: CreateOrEditOAuthProviderModal;
+  property: Extract<keyof ProviderToEdit, ProviderBooleanProperties>;
+}) {
+  modal.setState(prevState => ({
+    changed: true,
+    provider: {
+      ...prevState.provider,
+      [property]: !prevState.provider[property],
+    },
+  }));
 }

@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component, FormEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
   CreateMultiCommunity,
@@ -43,8 +43,6 @@ export class MultiCommunityForm extends Component<Props, State> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
   }
 
   initForm() {
@@ -63,7 +61,7 @@ export class MultiCommunityForm extends Component<Props, State> {
     return (
       <form
         className="multi-community-form"
-        onSubmit={linkEvent(this, this.handleSubmit)}
+        onSubmit={e => handleSubmit(this, e)}
       >
         <Prompt
           message={I18NextService.i18n.t("block_leaving")}
@@ -97,7 +95,7 @@ export class MultiCommunityForm extends Component<Props, State> {
                 id="multi-community-name"
                 className="form-control"
                 value={this.state.form.name}
-                onInput={linkEvent(this, this.handleNameChange)}
+                onInput={e => handleNameChange(this, e)}
                 required
                 minLength={3}
                 pattern={validActorRegexPattern}
@@ -124,7 +122,7 @@ export class MultiCommunityForm extends Component<Props, State> {
               type="text"
               id="multi-community-title"
               value={this.state.form.title}
-              onInput={linkEvent(this, this.handleTitleChange)}
+              onInput={e => handleTitleChange(this, e)}
               className="form-control"
               required
               minLength={3}
@@ -140,7 +138,7 @@ export class MultiCommunityForm extends Component<Props, State> {
             <MarkdownTextArea
               initialContent={this.state.form.description}
               placeholder={I18NextService.i18n.t("description") ?? undefined}
-              onContentChange={this.handleDescriptionChange}
+              onContentChange={val => handleDescriptionChange(this, val)}
               hideNavigationWarnings
               allLanguages={[]}
               siteLanguages={[]}
@@ -169,7 +167,7 @@ export class MultiCommunityForm extends Component<Props, State> {
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={linkEvent(this, this.handleCancel)}
+                onClick={() => handleCancel(this)}
               >
                 {I18NextService.i18n.t("cancel")}
               </button>
@@ -179,44 +177,53 @@ export class MultiCommunityForm extends Component<Props, State> {
       </form>
     );
   }
+}
 
-  handleSubmit(i: MultiCommunityForm, event: any) {
-    event.preventDefault();
-    i.setState({ submitted: true });
-    const cForm = i.state.form;
+function handleSubmit(
+  i: MultiCommunityForm,
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+  i.setState({ submitted: true });
+  const cForm = i.state.form;
 
-    const mv = i.props.multiCommunityView;
+  const mv = i.props.multiCommunityView;
 
-    if (mv) {
-      i.props.onEdit?.({
-        id: mv.multi.id,
+  if (mv) {
+    i.props.onEdit?.({
+      id: mv.multi.id,
+      title: cForm.title,
+      description: cForm.description,
+    });
+  } else {
+    if (cForm.name) {
+      i.props.onCreate?.({
+        name: cForm.name,
         title: cForm.title,
         description: cForm.description,
       });
-    } else {
-      if (cForm.name) {
-        i.props.onCreate?.({
-          name: cForm.name,
-          title: cForm.title,
-          description: cForm.description,
-        });
-      }
     }
   }
+}
 
-  handleNameChange(i: MultiCommunityForm, event: any) {
-    i.setState(s => ((s.form.name = event.target.value), s));
-  }
+function handleNameChange(
+  i: MultiCommunityForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.form.name = event.target.value), s));
+}
 
-  handleTitleChange(i: MultiCommunityForm, event: any) {
-    i.setState(s => ((s.form.title = event.target.value), s));
-  }
+function handleTitleChange(
+  i: MultiCommunityForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.form.title = event.target.value), s));
+}
 
-  handleDescriptionChange(val: string) {
-    this.setState(s => ((s.form.description = val), s));
-  }
+function handleDescriptionChange(i: MultiCommunityForm, val: string) {
+  i.setState(s => ((s.form.description = val), s));
+}
 
-  handleCancel(i: MultiCommunityForm) {
-    i.props.onCancel?.();
-  }
+function handleCancel(i: MultiCommunityForm) {
+  i.props.onCancel?.();
 }

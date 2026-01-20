@@ -1,7 +1,7 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { isBrowser, refreshTheme } from "@utils/browser";
 import { getQueryParams, validEmail } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component, FormEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   GetSiteResponse,
@@ -53,6 +53,189 @@ interface State {
   showResendVerificationEmailBtn: boolean;
 }
 
+type LoginRouteProps = RouteComponentProps<Record<string, never>> & LoginProps;
+export type LoginFetchConfig = IRoutePropsWithFetch<
+  RouteData,
+  Record<string, never>,
+  LoginProps
+>;
+
+@simpleScrollMixin
+export class Login extends Component<LoginRouteProps, State> {
+  private isoData = setIsoData(this.context);
+
+  state: State = {
+    loginRes: EMPTY_REQUEST,
+    form: {
+      username_or_email: "",
+      password: "",
+      stay_logged_in: false,
+    },
+    siteRes: this.isoData.siteRes,
+    show2faModal: false,
+    showOAuthModal: false,
+    showResendVerificationEmailBtn: false,
+  };
+
+  constructor(props: any, context: any) {
+    super(props, context);
+  }
+
+  get documentTitle(): string {
+    return `${I18NextService.i18n.t("login")} - ${
+      this.state.siteRes.site_view.site.name
+    }`;
+  }
+
+  get isLemmyMl(): boolean {
+    return isBrowser() && window.location.hostname === "lemmy.ml";
+  }
+
+  render() {
+    return (
+      <div className="login container-lg">
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
+        <TotpModal
+          type="login"
+          onSubmit={totp => handleSubmitTotp(this, totp)}
+          show={this.state.show2faModal}
+          onClose={() => handleClose2faModal(this)}
+        />
+        <div className="row">
+          <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
+        </div>
+        {(this.state.siteRes.oauth_providers?.length || 0) > 0 && (
+          <>
+            <div className="row mt-3 mb-2">
+              <div className="col-12 col-lg-6 offset-lg-3">
+                {I18NextService.i18n.t("or")}
+              </div>
+            </div>
+            <div className="row">
+              <div className="col col-12 col-lgl6 offset-lg-3">
+                <h2 className="h4 mb-3">
+                  {I18NextService.i18n.t("oauth_login_with_provider")}
+                </h2>
+                {(this.state.siteRes.oauth_providers ?? []).map(
+                  (provider: PublicOAuthProvider) => (
+                    <button
+                      className="btn btn-primary my-2 d-block"
+                      onClick={() => handleLoginWithProvider(this, provider)}
+                    >
+                      {provider.display_name}
+                    </button>
+                  ),
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  loginForm() {
+    return (
+      <div>
+        <form onSubmit={e => handleLoginSubmit(this, e)}>
+          <h1 className="h4 mb-4">{I18NextService.i18n.t("login")}</h1>
+          <div className="mb-3 row">
+            <label
+              className="col-sm-2 col-form-label"
+              htmlFor="login-email-or-username"
+            >
+              {I18NextService.i18n.t("email_or_username")}
+            </label>
+            <div className="col-sm-10">
+              <input
+                type="text"
+                className="form-control"
+                id="login-email-or-username"
+                value={this.state.form.username_or_email}
+                onInput={e => handleLoginUsernameChange(this, e)}
+                autoComplete="email"
+                required
+                minLength={3}
+              />
+              {this.state.showResendVerificationEmailBtn &&
+                validEmail(this.state.form.username_or_email) && (
+                  <button
+                    className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
+                    onClick={() => handleResendVerificationEmail(this)}
+                  >
+                    {I18NextService.i18n.t("resend_verification_email")}
+                  </button>
+                )}
+            </div>
+          </div>
+          <div className="mb-3">
+            <PasswordInput
+              id="login-password"
+              value={this.state.form.password}
+              onInput={e => handleLoginPasswordChange(this, e)}
+              label={I18NextService.i18n.t("password")}
+              showForgotLink
+            />
+          </div>
+          <div className="input-group mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="stay-logged-in"
+                type="checkbox"
+                checked={this.state.form.stay_logged_in}
+                onChange={e => handleStayLoggedInChange(this, e)}
+              />
+              <label className="form-check-label" htmlFor="stay-logged-in">
+                {I18NextService.i18n.t("stay_logged_in")}
+              </label>
+            </div>
+          </div>
+          <div className="mb-3 row">
+            <div className="col-sm-10">
+              <button type="submit" className="btn btn-secondary">
+                {this.state.loginRes.state === "loading" ? (
+                  <Spinner />
+                ) : (
+                  I18NextService.i18n.t("login")
+                )}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    );
+  }
+}
+
+async function handleSubmitTotp(i: Login, totp: string) {
+  const loginRes = await HttpService.client.login({
+    password: i.state.form.password,
+    username_or_email: i.state.form.username_or_email,
+    totp_2fa_token: totp,
+  });
+
+  const successful = loginRes.state === "success";
+  if (successful) {
+    i.setState({ show2faModal: false });
+    handleLoginSuccess(i, loginRes.data);
+  } else {
+    toast(I18NextService.i18n.t("incorrect_totp_code"), "danger");
+  }
+
+  return successful;
+}
+
+async function handleLoginWithProvider(
+  i: Login,
+  oauth_provider: OAuthProvider,
+) {
+  handleUseOAuthProvider(oauth_provider, i.props.prev ?? "/");
+}
+
 async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
   UserService.Instance.login({
     res: loginRes,
@@ -83,7 +266,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
   UnreadCounterService.Instance.updateUnreadCounts();
 }
 
-async function handleLoginSubmit(i: Login, event: any) {
+async function handleLoginSubmit(i: Login, event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
   const { password, username_or_email, stay_logged_in } = i.state.form;
 
@@ -131,23 +314,23 @@ async function handleLoginSubmit(i: Login, event: any) {
   }
 }
 
-export async function handleUseOAuthProvider(params: {
-  oauth_provider: OAuthProvider;
-  username?: string;
-  prev?: string;
-  answer?: string;
-  show_nsfw?: boolean;
-}) {
+export async function handleUseOAuthProvider(
+  oauth_provider: OAuthProvider,
+  prev?: string,
+  username?: string,
+  answer?: string,
+  show_nsfw?: boolean,
+) {
   const redirectUri = `${window.location.origin}/oauth/callback`;
 
   const state = crypto.randomUUID();
   const requestUri =
-    params.oauth_provider.authorization_endpoint +
+    oauth_provider.authorization_endpoint +
     "?" +
     [
-      `client_id=${encodeURIComponent(params.oauth_provider.client_id)}`,
+      `client_id=${encodeURIComponent(oauth_provider.client_id)}`,
       `response_type=code`,
-      `scope=${encodeURIComponent(params.oauth_provider.scopes)}`,
+      `scope=${encodeURIComponent(oauth_provider.scopes)}`,
       `redirect_uri=${encodeURIComponent(redirectUri)}`,
       `state=${state}`,
     ].join("&");
@@ -157,12 +340,12 @@ export async function handleUseOAuthProvider(params: {
     "oauth_state",
     JSON.stringify({
       state,
-      oauth_provider_id: params.oauth_provider.id,
+      oauth_provider_id: oauth_provider.id,
       redirect_uri: redirectUri,
-      prev: params.prev ?? "/",
-      username: params.username,
-      answer: params.answer,
-      show_nsfw: params.show_nsfw,
+      prev: prev ?? "/",
+      username: username,
+      answer: answer,
+      show_nsfw: show_nsfw,
       expires_at: Date.now() + 5 * 60_000,
     }),
   );
@@ -170,20 +353,25 @@ export async function handleUseOAuthProvider(params: {
   window.location.assign(requestUri);
 }
 
-function handleLoginUsernameChange(i: Login, event: any) {
-  i.setState(
-    prevState => (prevState.form.username_or_email = event.target.value.trim()),
-  );
+function handleLoginUsernameChange(
+  i: Login,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.form.username_or_email = event.target.value.trim()), s));
 }
 
-function handleLoginPasswordChange(i: Login, event: any) {
-  i.setState(prevState => (prevState.form.password = event.target.value));
+function handleLoginPasswordChange(
+  i: Login,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.form.password = event.target.value), s));
 }
 
-function handleStayLoggedInChange(i: Login, event: any) {
-  i.setState(
-    prevState => (prevState.form.stay_logged_in = event.target.checked),
-  );
+function handleStayLoggedInChange(
+  i: Login,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.form.stay_logged_in = event.target.checked), s));
 }
 
 function handleClose2faModal(i: Login) {
@@ -205,193 +393,4 @@ async function handleResendVerificationEmail(i: Login) {
   i.setState({ showResendVerificationEmailBtn: false });
 
   return successful;
-}
-
-type LoginRouteProps = RouteComponentProps<Record<string, never>> & LoginProps;
-export type LoginFetchConfig = IRoutePropsWithFetch<
-  RouteData,
-  Record<string, never>,
-  LoginProps
->;
-
-@simpleScrollMixin
-export class Login extends Component<LoginRouteProps, State> {
-  private isoData = setIsoData(this.context);
-
-  state: State = {
-    loginRes: EMPTY_REQUEST,
-    form: {
-      username_or_email: "",
-      password: "",
-      stay_logged_in: false,
-    },
-    siteRes: this.isoData.siteRes,
-    show2faModal: false,
-    showOAuthModal: false,
-    showResendVerificationEmailBtn: false,
-  };
-
-  constructor(props: any, context: any) {
-    super(props, context);
-
-    this.handleSubmitTotp = this.handleSubmitTotp.bind(this);
-    this.handleLoginWithProvider = this.handleLoginWithProvider.bind(this);
-  }
-
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("login")} - ${
-      this.state.siteRes.site_view.site.name
-    }`;
-  }
-
-  get isLemmyMl(): boolean {
-    return isBrowser() && window.location.hostname === "lemmy.ml";
-  }
-
-  render() {
-    return (
-      <div className="login container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
-        <TotpModal
-          type="login"
-          onSubmit={this.handleSubmitTotp}
-          show={this.state.show2faModal}
-          onClose={linkEvent(this, handleClose2faModal)}
-        />
-        <div className="row">
-          <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
-        </div>
-        {(this.state.siteRes.oauth_providers?.length || 0) > 0 && (
-          <>
-            <div className="row mt-3 mb-2">
-              <div className="col-12 col-lg-6 offset-lg-3">
-                {I18NextService.i18n.t("or")}
-              </div>
-            </div>
-            <div className="row">
-              <div className="col col-12 col-lgl6 offset-lg-3">
-                <h2 className="h4 mb-3">
-                  {I18NextService.i18n.t("oauth_login_with_provider")}
-                </h2>
-                {(this.state.siteRes.oauth_providers ?? []).map(
-                  (provider: PublicOAuthProvider) => (
-                    <button
-                      className="btn btn-primary my-2 d-block"
-                      onClick={linkEvent(
-                        { oauth_provider: provider },
-                        this.handleLoginWithProvider,
-                      )}
-                    >
-                      {provider.display_name}
-                    </button>
-                  ),
-                )}
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
-
-  async handleSubmitTotp(totp: string) {
-    const loginRes = await HttpService.client.login({
-      password: this.state.form.password,
-      username_or_email: this.state.form.username_or_email,
-      totp_2fa_token: totp,
-    });
-
-    const successful = loginRes.state === "success";
-    if (successful) {
-      this.setState({ show2faModal: false });
-      handleLoginSuccess(this, loginRes.data);
-    } else {
-      toast(I18NextService.i18n.t("incorrect_totp_code"), "danger");
-    }
-
-    return successful;
-  }
-
-  async handleLoginWithProvider(params: { oauth_provider: OAuthProvider }) {
-    handleUseOAuthProvider({
-      oauth_provider: params.oauth_provider,
-      prev: this.props.prev ?? "/",
-    });
-  }
-
-  loginForm() {
-    return (
-      <div>
-        <form onSubmit={linkEvent(this, handleLoginSubmit)}>
-          <h1 className="h4 mb-4">{I18NextService.i18n.t("login")}</h1>
-          <div className="mb-3 row">
-            <label
-              className="col-sm-2 col-form-label"
-              htmlFor="login-email-or-username"
-            >
-              {I18NextService.i18n.t("email_or_username")}
-            </label>
-            <div className="col-sm-10">
-              <input
-                type="text"
-                className="form-control"
-                id="login-email-or-username"
-                value={this.state.form.username_or_email}
-                onInput={linkEvent(this, handleLoginUsernameChange)}
-                autoComplete="email"
-                required
-                minLength={3}
-              />
-              {this.state.showResendVerificationEmailBtn &&
-                validEmail(this.state.form.username_or_email) && (
-                  <button
-                    className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
-                    onClick={linkEvent(this, handleResendVerificationEmail)}
-                  >
-                    {I18NextService.i18n.t("resend_verification_email")}
-                  </button>
-                )}
-            </div>
-          </div>
-          <div className="mb-3">
-            <PasswordInput
-              id="login-password"
-              value={this.state.form.password}
-              onInput={linkEvent(this, handleLoginPasswordChange)}
-              label={I18NextService.i18n.t("password")}
-              showForgotLink
-            />
-          </div>
-          <div className="input-group mb-3">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="stay-logged-in"
-                type="checkbox"
-                checked={this.state.form.stay_logged_in}
-                onChange={linkEvent(this, handleStayLoggedInChange)}
-              />
-              <label className="form-check-label" htmlFor="stay-logged-in">
-                {I18NextService.i18n.t("stay_logged_in")}
-              </label>
-            </div>
-          </div>
-          <div className="mb-3 row">
-            <div className="col-sm-10">
-              <button type="submit" className="btn btn-secondary">
-                {this.state.loginRes.state === "loading" ? (
-                  <Spinner />
-                ) : (
-                  I18NextService.i18n.t("login")
-                )}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    );
-  }
 }
