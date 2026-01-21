@@ -115,3 +115,7 @@ export function CommunitySettingsLink({
     </Link>
   );
 }
+
+export function communityName(community: Community): string {
+  return `!${community.name}@${hostname(community.ap_id)}`;
+}

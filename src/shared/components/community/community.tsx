@@ -14,6 +14,7 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
+import { T } from "inferno-i18next-dess";
 import {
   getQueryParams,
   getQueryString,
@@ -115,6 +116,7 @@ import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
 import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
+import { communityName } from "./community-link";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -459,11 +461,37 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
     const canViewCommunity_ = res && canViewCommunity(res.community_view);
+    // Show a message to the moderator if this community is not federated yet (ie it has no
+    // remote followers).
+    const notFederated =
+      res &&
+      res.community_view.can_mod &&
+      res.community_view.community.subscribers ===
+        res.community_view.community.subscribers_local &&
+      res.community_view.community.visibility !== "local_only_public" &&
+      res.community_view.community.visibility !== "local_only_private";
+    const communityName_ = res && communityName(res.community_view.community);
 
     return (
       <div className="community container-lg">
         <div className="row">
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
+            {notFederated && (
+              <div className="alert alert-warning text-bg-warning" role="alert">
+                <h4 className="alert-heading">
+                  {I18NextService.i18n.t("community_not_federated_title")}
+                </h4>
+                <div className="card-text">
+                  <T
+                    className="d-inline"
+                    i18nKey="community_not_federated_message"
+                  >
+                    #{communityName_}
+                    <a href="https://lemmy-federate.com">#</a>
+                  </T>
+                </div>
+              </div>
+            )}
             {canViewCommunity_ ? (
               <>
                 {this.renderCommunity()}
@@ -483,14 +511,19 @@ export class Community extends Component<CommunityRouteProps, State> {
                 </div>
               </>
             ) : (
-              <div className="alert alert-danger text-bg-danger" role="alert">
-                <h4 className="alert-heading">
-                  {I18NextService.i18n.t("community_visibility_private")}
-                </h4>
-                <div className="card-text">
-                  {I18NextService.i18n.t("cant_view_private_community_message")}
+              // Check if res is set to avoid flashing the alert box on page load.
+              res && (
+                <div className="alert alert-danger text-bg-danger" role="alert">
+                  <h4 className="alert-heading">
+                    {I18NextService.i18n.t("community_visibility_private")}
+                  </h4>
+                  <div className="card-text">
+                    {I18NextService.i18n.t(
+                      "cant_view_private_community_message",
+                    )}
+                  </div>
                 </div>
-              </div>
+              )
             )}
           </div>
           <aside className="d-none d-md-block col-md-4 col-lg-3">
