@@ -116,7 +116,7 @@ export class Login extends Component<LoginRouteProps, State> {
               </div>
             </div>
             <div className="row">
-              <div className="col col-12 col-lgl6 offset-lg-3">
+              <div className="col col-12 col-lg-6 offset-lg-3">
                 <h2 className="h4 mb-3">
                   {I18NextService.i18n.t("oauth_login_with_provider")}
                 </h2>
