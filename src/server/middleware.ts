@@ -1,6 +1,6 @@
-import * as crypto from "crypto";
 import type { NextFunction, Request, Response } from "express";
 import { getJwtCookie } from "./utils/has-jwt-cookie";
+import { v4 as uuidv4 } from "uuid";
 
 export function setDefaultCsp({
   res,
@@ -9,7 +9,7 @@ export function setDefaultCsp({
   res: Response;
   next: NextFunction;
 }) {
-  res.locals.cspNonce = crypto.randomBytes(16).toString("hex");
+  res.locals.cspNonce = uuidv4();
 
   res.set(
     "Content-Security-Policy",

@@ -26,6 +26,7 @@ import { RouteData } from "@utils/types";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { NoOptionI18nKeys } from "i18next";
+import { v4 as uuidv4 } from "uuid";
 
 interface LoginProps {
   prev?: string;
@@ -115,7 +116,7 @@ export class Login extends Component<LoginRouteProps, State> {
               </div>
             </div>
             <div className="row">
-              <div className="col col-12 col-lgl6 offset-lg-3">
+              <div className="col col-12 col-lg-6 offset-lg-3">
                 <h2 className="h4 mb-3">
                   {I18NextService.i18n.t("oauth_login_with_provider")}
                 </h2>
@@ -322,8 +323,7 @@ export async function handleUseOAuthProvider(
   show_nsfw?: boolean,
 ) {
   const redirectUri = `${window.location.origin}/oauth/callback`;
-
-  const state = crypto.randomUUID();
+  const state = uuidv4();
   const requestUri =
     oauth_provider.authorization_endpoint +
     "?" +
