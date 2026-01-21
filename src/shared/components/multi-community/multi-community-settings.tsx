@@ -5,9 +5,11 @@ import { RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
+  CommunityId,
   GetMultiCommunity,
   GetMultiCommunityResponse,
   LemmyHttp,
+  MultiCommunityId,
   MultiCommunityResponse,
   UpdateMultiCommunity,
 } from "lemmy-js-client";
@@ -27,6 +29,10 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { HtmlTags } from "@components/common/html-tags";
 import { MultiCommunityForm } from "./multi-community-form";
+import {
+  MultiCommunityEntryForm,
+  MultiCommunityEntryList,
+} from "./multi-community-entry-form";
 
 type MultiCommunitySettingsData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
@@ -161,11 +167,9 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
             title={this.documentTitle}
             path={this.context.router.route.match.url}
           />
-          <h1 className="row justify-content-md-center h4 mb-4">
-            {I18NextService.i18n.t("settings")}
-          </h1>
-          <div className="row justify-content-md-center">
+          <div className="row">
             <div className="col-12 col-md-6">
+              <h1 className="h4 mb-4">{I18NextService.i18n.t("settings")}</h1>
               <MultiCommunityForm
                 multiCommunityView={getMultiRes.multi_community_view}
                 onEdit={form => handleEditMultiCommunity(this, form)}
@@ -174,6 +178,36 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
                 onDelete={deleted => handleDeleteMultiCommunity(this, deleted)}
                 myUserInfo={this.isoData.myUserInfo}
               />
+            </div>
+            <div className="col-12 col-md-6">
+              <h1 className="h4 mb-4">
+                {I18NextService.i18n.t("communities")}
+              </h1>
+              <MultiCommunityEntryList
+                communities={getMultiRes.communities}
+                isCreator={this.amCreator}
+                onDelete={communityId =>
+                  handleDeleteMultiCommunityEntry(
+                    this,
+                    getMultiRes.multi_community_view.multi.id,
+                    communityId,
+                  )
+                }
+                myUserInfo={this.isoData.myUserInfo}
+              />
+              {this.amCreator && (
+                <MultiCommunityEntryForm
+                  currentCommunities={getMultiRes.communities}
+                  onCreate={communityId =>
+                    handleCreateMultiCommunityEntry(
+                      this,
+                      getMultiRes.multi_community_view.multi.id,
+                      communityId,
+                    )
+                  }
+                  myUserInfo={this.isoData.myUserInfo}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -185,17 +219,6 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
     this.setState(s => {
       if (s.multiRes.state === "success" && res.state === "success") {
         s.multiRes.data.multi_community_view = res.data.multi_community_view;
-      }
-      return s;
-    });
-  }
-
-  // TODO is this one necessary?
-  updateCommunityFull(res: RequestState<GetMultiCommunityResponse>) {
-    this.setState(s => {
-      if (s.multiRes.state === "success" && res.state === "success") {
-        s.multiRes.data.multi_community_view = res.data.multi_community_view;
-        s.multiRes.data.communities = res.data.communities;
       }
       return s;
     });
@@ -241,4 +264,39 @@ async function handleEditMultiCommunity(
     i.updateMultiCommunity(i.state.editRes);
     toast(I18NextService.i18n.t("saved"));
   }
+}
+
+async function handleCreateMultiCommunityEntry(
+  i: MultiCommunitySettings,
+  id: MultiCommunityId,
+  community_id: CommunityId,
+) {
+  const res = await HttpService.client.createMultiCommunityEntry({
+    id,
+    community_id,
+  });
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("community_added"));
+  }
+
+  // Refetch to rebuild the community list
+  i.fetchMultiCommunity(i.props);
+}
+
+async function handleDeleteMultiCommunityEntry(
+  i: MultiCommunitySettings,
+  id: MultiCommunityId,
+  community_id: CommunityId,
+) {
+  const res = await HttpService.client.deleteMultiCommunityEntry({
+    id,
+    community_id,
+  });
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("community_removed"), "danger");
+  }
+
+  i.fetchMultiCommunity(i.props);
 }

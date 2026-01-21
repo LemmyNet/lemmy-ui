@@ -57,9 +57,6 @@ import {
   FollowMultiCommunity,
   PostListingMode,
   MultiCommunityResponse,
-  CommunityId,
-  MultiCommunityId,
-  CommunityView,
   PaginationCursor,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
@@ -90,8 +87,7 @@ import { TimeIntervalSelect } from "@components/common/time-interval-select";
 import { LoadingEllipses } from "@components/common/loading-ellipses";
 import { MultiCommunityLink } from "./multi-community-link";
 import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
-import { MultiCommunityEntryForm } from "./multi-community-entry-form";
-import { CommunityLink } from "@components/community/community-link";
+import { MultiCommunityEntryList } from "./multi-community-entry-form";
 
 type MultiCommunityData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
@@ -391,42 +387,31 @@ export class MultiCommunity extends Component<RouteProps, State> {
     );
   }
 
-  // TODO this should probably get moved to settings?
   communities() {
-    if (this.state.multiCommunityRes.state !== "success") {
-      return undefined;
-    }
-    const res = this.state.multiCommunityRes.data;
-    const multiId = res.multi_community_view.multi.id;
-    const communities = res.communities;
+    const res =
+      this.state.multiCommunityRes.state === "success" &&
+      this.state.multiCommunityRes.data;
 
     const isCreator =
+      res &&
       this.isoData.myUserInfo?.local_user_view.person.id ===
-      res.multi_community_view.owner.id;
+        res.multi_community_view.owner.id;
 
     return (
-      <div className="card mb-3">
-        <div className="card-body">
-          <h5 className="card-title">{I18NextService.i18n.t("communities")}</h5>
-          <MultiCommunityEntryList
-            communities={communities}
-            isCreator={isCreator}
-            onDelete={communityId =>
-              handleDeleteMultiCommunityEntry(this, multiId, communityId)
-            }
-            myUserInfo={this.isoData.myUserInfo}
-          />
-          {isCreator && (
-            <MultiCommunityEntryForm
-              currentCommunities={communities}
-              onCreate={communityId =>
-                handleCreateMultiCommunityEntry(this, multiId, communityId)
-              }
+      res && (
+        <div className="card mb-3">
+          <div className="card-body">
+            <h5 className="card-title">
+              {I18NextService.i18n.t("communities")}
+            </h5>
+            <MultiCommunityEntryList
+              communities={res.communities}
+              isCreator={isCreator}
               myUserInfo={this.isoData.myUserInfo}
             />
-          )}
+          </div>
         </div>
-      </div>
+      )
     );
   }
 
@@ -605,87 +590,6 @@ export class MultiCommunity extends Component<RouteProps, State> {
       this.setState({ postsRes });
     }
   }
-}
-
-interface MultiCommunityEntryListProps {
-  communities: CommunityView[];
-  isCreator: boolean;
-  onDelete(communityId: CommunityId): void;
-  myUserInfo: MyUserInfo | undefined;
-}
-
-function MultiCommunityEntryList({
-  communities,
-  isCreator,
-  onDelete,
-  myUserInfo,
-}: MultiCommunityEntryListProps) {
-  return (
-    communities.length > 0 && (
-      <div id="multi-community-entry-table">
-        {communities.map(c => (
-          <>
-            <div
-              key={`multi-community-entry-${c.community.id}`}
-              className="row"
-            >
-              <div className="col-12">
-                <CommunityLink
-                  community={c.community}
-                  myUserInfo={myUserInfo}
-                />
-                {isCreator && (
-                  <button
-                    className="btn btn-sm btn-link"
-                    onClick={() => onDelete(c.community.id)}
-                  >
-                    <Icon icon={"x"} classes="icon-inline text-danger" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </>
-        ))}
-      </div>
-    )
-  );
-}
-
-async function handleCreateMultiCommunityEntry(
-  i: MultiCommunity,
-  id: MultiCommunityId,
-  community_id: CommunityId,
-) {
-  const res = await HttpService.client.createMultiCommunityEntry({
-    id,
-    community_id,
-  });
-
-  if (res.state === "success") {
-    toast(I18NextService.i18n.t("community_added"));
-  }
-
-  // Refetch to rebuild the community list
-  i.fetchMultiCommunity(i.props);
-  i.fetchData(i.props);
-}
-
-async function handleDeleteMultiCommunityEntry(
-  i: MultiCommunity,
-  id: MultiCommunityId,
-  community_id: CommunityId,
-) {
-  const res = await HttpService.client.deleteMultiCommunityEntry({
-    id,
-    community_id,
-  });
-
-  if (res.state === "success") {
-    toast(I18NextService.i18n.t("community_removed"), "danger");
-  }
-
-  i.fetchMultiCommunity(i.props);
-  i.fetchData(i.props);
 }
 
 async function handleAddModToCommunity(form: AddModToCommunity) {
