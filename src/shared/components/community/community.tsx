@@ -14,6 +14,7 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
+import { T } from "inferno-i18next-dess";
 import {
   getQueryParams,
   getQueryString,
@@ -115,6 +116,7 @@ import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
 import { TimeIntervalSelect } from "@components/common/time-interval-select";
 import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
+import { communityName } from "./community-link";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -465,7 +467,10 @@ export class Community extends Component<CommunityRouteProps, State> {
       res &&
       res.community_view.can_mod &&
       res.community_view.community.subscribers ===
-        res.community_view.community.subscribers_local;
+        res.community_view.community.subscribers_local &&
+      res.community_view.community.visibility !== "local_only_public" &&
+      res.community_view.community.visibility !== "local_only_private";
+    const communityName_ = res && communityName(res.community_view.community);
 
     return (
       <div className="community container-lg">
@@ -473,15 +478,17 @@ export class Community extends Component<CommunityRouteProps, State> {
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
             {notFederated && (
               <div className="alert alert-warning text-bg-warning" role="alert">
-                <h4 className="alert-heading">Community not federated yet</h4>
+                <h4 className="alert-heading">
+                  {I18NextService.i18n.t("community_not_federated_title")}
+                </h4>
                 <div className="card-text">
-                  Only users on example.com can currently view this comunity. To
-                  promote the community and get more followers, talk about it in
-                  other communities and include the link `!main@example.com`.
-                  You can also use the following: <br />-
-                  https://lemmy-federate.com <br />-
-                  https://lemmy.world/c/newcommunities <br />-
-                  https://communitypromo@lemmy.ca{" "}
+                  <T
+                    className="d-inline"
+                    i18nKey="community_not_federated_message"
+                  >
+                    #{communityName_}
+                    <a href="https://lemmy-federate.com">#</a>
+                  </T>
                 </div>
               </div>
             )}

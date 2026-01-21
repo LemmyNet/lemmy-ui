@@ -2,10 +2,13 @@ import { Icon } from "@components/common/icon";
 import { MomentTime } from "@components/common/moment-time";
 import { UserBadges } from "@components/common/user-badges";
 import { VoteButtons } from "@components/common/vote-buttons";
-import { CommunityLink } from "@components/community/community-link";
+import {
+  CommunityLink,
+  communityName,
+} from "@components/community/community-link";
 import { PersonListing } from "@components/person/person-listing";
 import { I18NextService } from "@services/index";
-import { hostname, unreadCommentsCount } from "@utils/helpers";
+import { unreadCommentsCount } from "@utils/helpers";
 import { mdToHtmlInline } from "@utils/markdown";
 import { ShowCrossPostsType } from "@utils/types";
 import { Link } from "inferno-router";
@@ -52,9 +55,7 @@ function SmallCrossPosts({ crossPosts }: SmallCrossPostsProps) {
         {crossPosts.map(pv => (
           <li key={pv.post.id} className="list-inline-item me-2">
             <Link to={`/post/${pv.post.id}`}>
-              {pv.community.local
-                ? pv.community.name
-                : `${pv.community.name}@${hostname(pv.community.ap_id)}`}
+              {communityName(pv.community)}
             </Link>
           </li>
         ))}
