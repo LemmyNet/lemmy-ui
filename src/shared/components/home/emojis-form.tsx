@@ -58,6 +58,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
 
       return {
         id: custom_emoji.id,
+        shortcode: custom_emoji.shortcode,
         category: custom_emoji.category,
         image_url: custom_emoji.image_url,
         alt_text: custom_emoji.alt_text,
