@@ -57,7 +57,7 @@ You can find more information in the [Backend Repository](https://github.com/Lem
 You need to have [pnpm](https://pnpm.io/installation) installed. Then run the following:
 
 ```bash
-git clone https://github.com/LemmyNet/lemmy-ui.git
+git clone https://github.com/LemmyNet/lemmy-ui.git --recursive
 cd lemmy-ui
 pnpm install
 LEMMY_UI_BACKEND=https://voyager.lemmy.ml pnpm dev

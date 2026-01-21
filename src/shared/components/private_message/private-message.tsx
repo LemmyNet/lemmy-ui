@@ -1,4 +1,4 @@
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   CreatePrivateMessage,
   CreatePrivateMessageReport,
@@ -19,6 +19,18 @@ import ModActionFormModal from "../common/modal/mod-action-form-modal";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { mark_as_read_i18n } from "@utils/app";
 
+interface PrivateMessageProps {
+  private_message_view: PrivateMessageView;
+  myUserInfo: MyUserInfo | undefined;
+  onDelete(form: DeletePrivateMessage): void;
+  onReport(form: CreatePrivateMessageReport): void;
+  onCreate(form: CreatePrivateMessage): void;
+  onEdit(form: EditPrivateMessage): void;
+  read: boolean;
+  onMarkRead(privateMessageId: PrivateMessageId, read: boolean): void;
+  createOrEditLoading: boolean;
+}
+
 interface PrivateMessageState {
   showReply: boolean;
   showEdit: boolean;
@@ -27,17 +39,6 @@ interface PrivateMessageState {
   showReportDialog: boolean;
   deleteLoading: boolean;
   readLoading: boolean;
-}
-
-interface PrivateMessageProps {
-  private_message_view: PrivateMessageView;
-  myUserInfo: MyUserInfo | undefined;
-  onDelete(form: DeletePrivateMessage): void;
-  onReport(form: CreatePrivateMessageReport): void;
-  onCreate(form: CreatePrivateMessage): Promise<boolean>;
-  onEdit(form: EditPrivateMessage): Promise<boolean>;
-  read: boolean;
-  onMarkRead(privateMessageId: PrivateMessageId, read: boolean): void;
 }
 
 @tippyMixin
@@ -57,11 +58,6 @@ export class PrivateMessage extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
-    this.handleReplyCancel = this.handleReplyCancel.bind(this);
-    this.handleReportSubmit = this.handleReportSubmit.bind(this);
-    this.hideReportDialog = this.hideReportDialog.bind(this);
-    this.handleCreate = this.handleCreate.bind(this);
-    this.handleEdit = this.handleEdit.bind(this);
   }
 
   componentWillReceiveProps(
@@ -114,7 +110,7 @@ export class PrivateMessage extends Component<
               <button
                 type="button"
                 className="pointer text-monospace p-0 bg-transparent border-0 d-block"
-                onClick={linkEvent(this, this.handleMessageCollapse)}
+                onClick={() => handleMessageCollapse(this)}
               >
                 {this.state.collapsed ? (
                   <Icon icon="plus-square" />
@@ -129,8 +125,9 @@ export class PrivateMessage extends Component<
               recipient={otherPerson}
               privateMessageView={message_view}
               myUserInfo={this.props.myUserInfo}
-              onEdit={this.handleEdit}
-              onCancel={this.handleReplyCancel}
+              onEdit={form => handleEdit(this, form)}
+              onCancel={() => handleReplyCancel(this)}
+              createOrEditLoading={this.props.createOrEditLoading}
             />
           )}
           {!this.state.showEdit && !this.state.collapsed && (
@@ -154,7 +151,7 @@ export class PrivateMessage extends Component<
                         <button
                           type="button"
                           className="btn btn-link btn-animate text-muted"
-                          onClick={linkEvent(this, this.handleMarkRead)}
+                          onClick={() => handleMarkRead(this)}
                           data-tippy-content={mark_as_read_i18n(
                             this.props.read,
                           )}
@@ -178,7 +175,7 @@ export class PrivateMessage extends Component<
                       <button
                         type="button"
                         className="btn btn-link btn-animate text-muted"
-                        onClick={linkEvent(this, this.handleReplyClick)}
+                        onClick={() => handleReplyClick(this)}
                         data-tippy-content={I18NextService.i18n.t("reply")}
                         aria-label={I18NextService.i18n.t("reply")}
                       >
@@ -193,7 +190,7 @@ export class PrivateMessage extends Component<
                       <button
                         type="button"
                         className="btn btn-link btn-animate text-muted"
-                        onClick={linkEvent(this, this.handleEditClick)}
+                        onClick={() => handleEditClick(this)}
                         data-tippy-content={I18NextService.i18n.t("edit")}
                         aria-label={I18NextService.i18n.t("edit")}
                       >
@@ -204,7 +201,7 @@ export class PrivateMessage extends Component<
                       <button
                         type="button"
                         className="btn btn-link btn-animate text-muted"
-                        onClick={linkEvent(this, this.handleDeleteClick)}
+                        onClick={() => handleDeleteClick(this)}
                         data-tippy-content={
                           !message_view.private_message.deleted
                             ? I18NextService.i18n.t("delete")
@@ -235,7 +232,7 @@ export class PrivateMessage extends Component<
                   <button
                     type="button"
                     className="btn btn-link btn-animate text-muted"
-                    onClick={linkEvent(this, this.handleViewSource)}
+                    onClick={() => handleViewSource(this)}
                     data-tippy-content={I18NextService.i18n.t("view_source")}
                     aria-label={I18NextService.i18n.t("view_source")}
                   >
@@ -252,9 +249,9 @@ export class PrivateMessage extends Component<
           )}
         </div>
         <ModActionFormModal
-          onSubmit={this.handleReportSubmit}
+          onSubmit={reason => handleReportSubmit(this, reason)}
           modActionType="report-message"
-          onCancel={this.hideReportDialog}
+          onCancel={() => handleHideReportDialog(this)}
           show={this.state.showReportDialog}
         />
         {this.state.showReply && (
@@ -264,8 +261,8 @@ export class PrivateMessage extends Component<
                 replyType
                 recipient={otherPerson}
                 myUserInfo={this.props.myUserInfo}
-                onCreate={this.handleCreate}
-                onCancel={this.handleReplyCancel}
+                onCreate={form => handleCreate(this, form)}
+                createOrEditLoading={this.props.createOrEditLoading}
               />
             </div>
           </div>
@@ -281,7 +278,7 @@ export class PrivateMessage extends Component<
       <button
         type="button"
         className="btn btn-link btn-animate text-muted py-0"
-        onClick={linkEvent(this, this.handleShowReportDialog)}
+        onClick={() => handleShowReportDialog(this)}
         data-tippy-content={I18NextService.i18n.t("show_report_dialog")}
         aria-label={I18NextService.i18n.t("show_report_dialog")}
       >
@@ -296,75 +293,69 @@ export class PrivateMessage extends Component<
       ? `*${I18NextService.i18n.t("deleted")}*`
       : message.content;
   }
+}
 
-  handleReplyClick(i: PrivateMessage) {
-    i.setState({ showReply: true });
-  }
+function handleReplyClick(i: PrivateMessage) {
+  i.setState({ showReply: true });
+}
 
-  handleEditClick(i: PrivateMessage) {
-    i.setState({ showEdit: true });
-  }
+function handleEditClick(i: PrivateMessage) {
+  i.setState({ showEdit: true });
+}
 
-  handleDeleteClick(i: PrivateMessage) {
-    i.setState({ deleteLoading: true });
-    i.props.onDelete({
-      private_message_id: i.props.private_message_view.private_message.id,
-      deleted: !i.props.private_message_view.private_message.deleted,
-    });
-  }
+function handleDeleteClick(i: PrivateMessage) {
+  i.setState({ deleteLoading: true });
+  i.props.onDelete({
+    private_message_id: i.props.private_message_view.private_message.id,
+    deleted: !i.props.private_message_view.private_message.deleted,
+  });
+}
 
-  handleReplyCancel() {
-    this.setState({ showReply: false, showEdit: false });
-  }
+function handleReplyCancel(i: PrivateMessage) {
+  i.setState({ showReply: false, showEdit: false });
+}
 
-  async handleCreate(form: CreatePrivateMessage): Promise<boolean> {
-    const success = await this.props.onCreate(form);
-    if (success) {
-      this.setState({ showReply: false });
-    }
-    return success;
-  }
+function handleCreate(i: PrivateMessage, form: CreatePrivateMessage) {
+  i.props.onCreate(form);
+  i.setState({ showReply: false });
+}
 
-  async handleEdit(form: EditPrivateMessage): Promise<boolean> {
-    const success = await this.props.onEdit(form);
-    if (success) {
-      this.setState({ showEdit: false });
-    }
-    return success;
-  }
+function handleEdit(i: PrivateMessage, form: EditPrivateMessage) {
+  i.props.onEdit(form);
+  i.setState({ showEdit: false });
+}
 
-  handleMarkRead(i: PrivateMessage) {
-    i.setState({ readLoading: true });
-    i.props.onMarkRead(
-      i.props.private_message_view.private_message.id,
-      !i.props.read,
-    );
-  }
+function handleMarkRead(i: PrivateMessage) {
+  i.setState({ readLoading: true });
+  i.props.onMarkRead(
+    i.props.private_message_view.private_message.id,
+    !i.props.read,
+  );
+}
 
-  handleMessageCollapse(i: PrivateMessage) {
-    i.setState({ collapsed: !i.state.collapsed });
-  }
+function handleMessageCollapse(i: PrivateMessage) {
+  i.setState({ collapsed: !i.state.collapsed });
+}
 
-  handleViewSource(i: PrivateMessage) {
-    i.setState({ viewSource: !i.state.viewSource });
-  }
+function handleViewSource(i: PrivateMessage) {
+  i.setState({ viewSource: !i.state.viewSource });
+}
 
-  handleShowReportDialog(i: PrivateMessage) {
-    i.setState({ showReportDialog: true });
-  }
+function handleShowReportDialog(i: PrivateMessage) {
+  i.setState({ showReportDialog: true });
+}
 
-  hideReportDialog() {
-    this.setState({
-      showReportDialog: false,
-    });
-  }
+function handleHideReportDialog(i: PrivateMessage) {
+  i.setState({
+    showReportDialog: false,
+  });
+}
 
-  async handleReportSubmit(reason: string) {
-    this.props.onReport({
-      private_message_id: this.props.private_message_view.private_message.id,
-      reason,
-    });
+function handleReportSubmit(i: PrivateMessage, reason: string) {
+  i.props.onReport({
+    private_message_id: i.props.private_message_view.private_message.id,
+    reason,
+  });
 
-    this.hideReportDialog();
-  }
+  handleHideReportDialog(i);
 }

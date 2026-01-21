@@ -38,6 +38,7 @@ import {
   NotePerson,
   LockComment,
   BlockCommunity,
+  CommentId,
 } from "lemmy-js-client";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
@@ -55,6 +56,8 @@ interface PersonDetailsProps {
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
+  createLoading: CommentId | undefined;
+  editLoading: CommentId | undefined;
   onSaveComment(form: SaveComment): Promise<void>;
   onCreateComment(form: CreateComment): Promise<RequestState<CommentResponse>>;
   onEditComment(form: EditComment): Promise<RequestState<CommentResponse>>;
@@ -104,6 +107,8 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             noBorder
             showCommunity
             showContext
+            createLoading={this.props.createLoading}
+            editLoading={this.props.editLoading}
             hideImages={false}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}

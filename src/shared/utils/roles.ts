@@ -14,14 +14,38 @@ export function amAdmin(myUserInfo: MyUserInfo | undefined): boolean {
   return myUserInfo?.local_user_view.local_user.admin ?? false;
 }
 
-export function amCommunityCreator(
-  creator_id: number,
+export function amTopMod(
   mods: CommunityModeratorView[] | undefined,
   myUserInfo: MyUserInfo | undefined,
 ): boolean {
   const myId = myUserInfo?.local_user_view.person.id;
+  return myId === mods?.at(0)?.moderator.id;
+}
+
+export function amTopModExcludeMe(
+  creator_id: number,
+  mods: CommunityModeratorView[] | undefined,
+  myUserInfo: MyUserInfo | undefined,
+): boolean {
   // Don't allow mod actions on yourself
-  return myId === mods?.at(0)?.moderator.id && myId !== creator_id;
+  const myId = myUserInfo?.local_user_view.person.id;
+  return amTopMod(mods, myUserInfo) && myId !== creator_id;
+}
+
+export function amHigherModerator(
+  mods: CommunityModeratorView[],
+  mod: CommunityModeratorView,
+  myUserInfo: MyUserInfo | undefined,
+): boolean {
+  const myPosition = mods.findIndex(
+    m => m.moderator.id === myUserInfo?.local_user_view.person.id,
+  );
+  const modPosition = mods.findIndex(m => m.moderator.id === mod.moderator.id);
+
+  return (
+    myPosition < modPosition ||
+    (myUserInfo?.local_user_view.local_user.admin ?? false)
+  );
 }
 
 export function amMod(
@@ -37,13 +61,6 @@ export function amSiteCreator(
 ): boolean {
   const myId = myUserInfo?.local_user_view.person.id;
   return myId === admins?.at(0)?.person.id && myId !== creator_id;
-}
-
-export function amTopMod(
-  mods: CommunityModeratorView[],
-  myUserInfo: MyUserInfo | undefined,
-): boolean {
-  return mods.at(0)?.moderator.id === myUserInfo?.local_user_view.person.id;
 }
 
 export function canAdmin(

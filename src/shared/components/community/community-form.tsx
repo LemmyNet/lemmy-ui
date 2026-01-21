@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component, FormEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
   CommunityView,
@@ -23,11 +23,12 @@ interface CommunityFormProps {
   allLanguages?: Language[];
   siteLanguages?: number[];
   communityLanguages?: number[];
-  onCancel?(): any;
-  // TODO get rid of this, use onCreate and onEdit
-  onUpsertCommunity(form: CreateCommunity | EditCommunity): void;
+  onCreate?(form: CreateCommunity): void;
+  onEdit?(form: EditCommunity): void;
+  onDelete?(deleted: boolean): void;
   enableNsfw?: boolean;
-  loading?: boolean;
+  createOrEditLoading?: boolean;
+  deleteLoading?: boolean;
   myUserInfo: MyUserInfo | undefined;
 }
 
@@ -42,7 +43,7 @@ interface CommunityFormState {
     nsfw?: boolean;
     posting_restricted_to_mods?: boolean;
     discussion_languages?: number[];
-    visibilty?: CommunityVisibility;
+    visibility?: CommunityVisibility;
   };
   submitted: boolean;
 }
@@ -61,15 +62,6 @@ export class CommunityForm extends Component<
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    this.handleCommunitySidebarChange =
-      this.handleCommunitySidebarChange.bind(this);
-
-    this.handleIconChange = this.handleIconChange.bind(this);
-    this.handleBannerChange = this.handleBannerChange.bind(this);
-
-    this.handleDiscussionLanguageChange =
-      this.handleDiscussionLanguageChange.bind(this);
   }
 
   initCommunityForm() {
@@ -94,17 +86,14 @@ export class CommunityForm extends Component<
     return (
       <form
         className="community-form"
-        onSubmit={linkEvent(this, this.handleCreateCommunitySubmit)}
+        onSubmit={e => handleCommunitySubmit(this, e)}
       >
         <Prompt
           message={I18NextService.i18n.t("block_leaving")}
           when={
-            !this.props.loading &&
-            !!(
-              this.state.form.name ||
-              this.state.form.title ||
-              this.state.form.description
-            ) &&
+            !this.props.community_view &&
+            (!this.props.createOrEditLoading || !this.props.deleteLoading) &&
+            !!(this.state.form.name || this.state.form.title) &&
             !this.state.submitted
           }
         />
@@ -128,7 +117,7 @@ export class CommunityForm extends Component<
                 id="community-name"
                 className="form-control"
                 value={this.state.form.name}
-                onInput={linkEvent(this, this.handleCommunityNameChange)}
+                onInput={e => handleCommunityNameChange(this, e)}
                 required
                 minLength={3}
                 pattern={validActorRegexPattern}
@@ -155,7 +144,7 @@ export class CommunityForm extends Component<
               type="text"
               id="community-title"
               value={this.state.form.title}
-              onInput={linkEvent(this, this.handleCommunityTitleChange)}
+              onInput={e => handleCommunityTitleChange(this, e)}
               className="form-control"
               required
               minLength={3}
@@ -168,6 +157,7 @@ export class CommunityForm extends Component<
             {I18NextService.i18n.t("icon")}
           </label>
           <div className="col-12 col-sm-10">
+            {/* TODO What is going on here, why are there two upload forms with different keys? */}
             {this.props.community_view && (
               <ImageUploadForm
                 uploadTitle={I18NextService.i18n.t("upload_icon")}
@@ -175,7 +165,7 @@ export class CommunityForm extends Component<
                 uploadKey="uploadCommunityIcon"
                 removeKey="deleteCommunityIcon"
                 communityId={this.props.community_view.community.id}
-                onImageChange={this.handleIconChange}
+                onImageChange={src => handleIconChange(this, src)}
                 rounded
                 disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
               />
@@ -186,7 +176,7 @@ export class CommunityForm extends Component<
                 imageSrc={this.state.form.icon}
                 uploadKey="uploadImage"
                 removeKey="deleteMedia"
-                onImageChange={this.handleIconChange}
+                onImageChange={src => handleIconChange(this, src)}
                 rounded
                 disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
                 noConfirmation
@@ -206,7 +196,7 @@ export class CommunityForm extends Component<
                 uploadKey="uploadCommunityBanner"
                 removeKey="deleteCommunityBanner"
                 communityId={this.props.community_view.community.id}
-                onImageChange={this.handleBannerChange}
+                onImageChange={src => handleBannerChange(this, src)}
                 disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
               />
             )}
@@ -216,7 +206,7 @@ export class CommunityForm extends Component<
                 imageSrc={this.state.form.banner}
                 uploadKey="uploadImage"
                 removeKey="deleteMedia"
-                onImageChange={this.handleBannerChange}
+                onImageChange={src => handleBannerChange(this, src)}
                 disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
                 noConfirmation
               />
@@ -236,7 +226,7 @@ export class CommunityForm extends Component<
               className="form-control"
               id="community-description"
               value={this.state.form.description}
-              onInput={linkEvent(this, this.handleCommunityDescriptionChange)}
+              onInput={e => handleCommunityDescriptionChange(this, e)}
               maxLength={150}
             />
           </div>
@@ -249,7 +239,7 @@ export class CommunityForm extends Component<
             <MarkdownTextArea
               initialContent={this.state.form.sidebar}
               placeholder={I18NextService.i18n.t("sidebar") ?? undefined}
-              onContentChange={this.handleCommunitySidebarChange}
+              onContentChange={val => handleCommunitySidebarChange(this, val)}
               hideNavigationWarnings
               allLanguages={[]}
               siteLanguages={[]}
@@ -270,7 +260,7 @@ export class CommunityForm extends Component<
                   id="community-nsfw"
                   type="checkbox"
                   checked={this.state.form.nsfw}
-                  onChange={linkEvent(this, this.handleCommunityNsfwChange)}
+                  onChange={e => handleCommunityNsfwChange(this, e)}
                 />
               </div>
             </div>
@@ -284,8 +274,8 @@ export class CommunityForm extends Component<
             <select
               className="form-select position-static"
               id="community-visibility"
-              onChange={linkEvent(this, this.handleCommunityVisibilityChange)}
-              value={this.state.form.visibilty ?? "public"}
+              onChange={e => handleCommunityVisibilityChange(this, e)}
+              value={this.state.form.visibility ?? "public"}
             >
               <option value="public">
                 {I18NextService.i18n.t("community_visibility_public")}
@@ -323,10 +313,7 @@ export class CommunityForm extends Component<
                 id="community-only-mods-can-post"
                 type="checkbox"
                 checked={this.state.form.posting_restricted_to_mods}
-                onChange={linkEvent(
-                  this,
-                  this.handleCommunityPostingRestrictedToMods,
-                )}
+                onChange={e => handleCommunityPostingRestrictedToMods(this, e)}
               />
             </div>
           </div>
@@ -337,7 +324,7 @@ export class CommunityForm extends Component<
           showSite
           selectedLanguageIds={this.state.form.discussion_languages}
           multiple
-          onChange={this.handleDiscussionLanguageChange}
+          onChange={val => handleDiscussionLanguageChange(this, val)}
           myUserInfo={this.props.myUserInfo}
         />
         <div className="mb-3 row">
@@ -345,9 +332,9 @@ export class CommunityForm extends Component<
             <button
               type="submit"
               className="btn btn-secondary me-2"
-              disabled={this.props.loading}
+              disabled={this.props.createOrEditLoading}
             >
-              {this.props.loading ? (
+              {this.props.createOrEditLoading ? (
                 <Spinner />
               ) : this.props.community_view ? (
                 capitalizeFirstLetter(I18NextService.i18n.t("save"))
@@ -358,10 +345,37 @@ export class CommunityForm extends Component<
             {this.props.community_view && (
               <button
                 type="button"
-                className="btn btn-secondary"
-                onClick={linkEvent(this, this.handleCancel)}
+                className={`me-2 btn btn-${
+                  !this.props.community_view.community.deleted
+                    ? "danger"
+                    : "success"
+                }`}
+                onClick={() =>
+                  handleDelete(
+                    this,
+                    !this.props.community_view!.community.deleted,
+                  )
+                }
+                data-tippy-content={
+                  !this.props.community_view.community.deleted
+                    ? I18NextService.i18n.t("delete")
+                    : I18NextService.i18n.t("restore")
+                }
+                aria-label={
+                  !this.props.community_view.community.deleted
+                    ? I18NextService.i18n.t("delete")
+                    : I18NextService.i18n.t("restore")
+                }
               >
-                {I18NextService.i18n.t("cancel")}
+                {this.props.deleteLoading ? (
+                  <Spinner />
+                ) : (
+                  I18NextService.i18n.t(
+                    !this.props.community_view.community.deleted
+                      ? "delete"
+                      : "restore",
+                  )
+                )}
               </button>
             )}
           </div>
@@ -369,87 +383,109 @@ export class CommunityForm extends Component<
       </form>
     );
   }
+}
 
-  handleCreateCommunitySubmit(i: CommunityForm, event: any) {
-    event.preventDefault();
-    i.setState({ submitted: true });
-    const cForm = i.state.form;
+function handleCommunitySubmit(
+  i: CommunityForm,
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+  i.setState({ submitted: true });
+  const cForm = i.state.form;
 
-    const cv = i.props.community_view;
+  const cv = i.props.community_view;
 
-    if (cv) {
-      i.props.onUpsertCommunity({
-        community_id: cv.community.id,
+  // If the community is given, its an edit
+  if (cv) {
+    i.props.onEdit?.({
+      community_id: cv.community.id,
+      title: cForm.title,
+      sidebar: cForm.sidebar,
+      description: cForm.description,
+      nsfw: cForm.nsfw,
+      posting_restricted_to_mods: cForm.posting_restricted_to_mods,
+      discussion_languages: cForm.discussion_languages,
+      visibility: cForm.visibility,
+    });
+  } else {
+    if (cForm.title && cForm.name) {
+      i.props.onCreate?.({
+        name: cForm.name,
         title: cForm.title,
-        sidebar: cForm.sidebar,
         description: cForm.description,
         icon: cForm.icon,
         banner: cForm.banner,
         nsfw: cForm.nsfw,
         posting_restricted_to_mods: cForm.posting_restricted_to_mods,
         discussion_languages: cForm.discussion_languages,
-        visibility: cForm.visibilty,
+        visibility: cForm.visibility,
       });
-    } else {
-      if (cForm.title && cForm.name) {
-        i.props.onUpsertCommunity({
-          name: cForm.name,
-          title: cForm.title,
-          description: cForm.description,
-          icon: cForm.icon,
-          banner: cForm.banner,
-          nsfw: cForm.nsfw,
-          posting_restricted_to_mods: cForm.posting_restricted_to_mods,
-          discussion_languages: cForm.discussion_languages,
-          visibility: cForm.visibilty,
-        });
-      }
     }
   }
+}
 
-  handleCommunityNameChange(i: CommunityForm, event: any) {
-    i.setState(s => ((s.form.name = event.target.value), s));
-  }
+function handleDelete(i: CommunityForm, deleted: boolean) {
+  i.props.onDelete?.(deleted);
+}
 
-  handleCommunityTitleChange(i: CommunityForm, event: any) {
-    i.setState(s => ((s.form.title = event.target.value), s));
-  }
+function handleCommunityNameChange(
+  i: CommunityForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.form.name = event.target.value), s));
+}
 
-  handleCommunityDescriptionChange(i: CommunityForm, event: any) {
-    i.setState(s => ((s.form.description = event.target.value), s));
-  }
+function handleCommunityTitleChange(
+  i: CommunityForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.form.title = event.target.value), s));
+}
 
-  handleCommunitySidebarChange(val: string) {
-    this.setState(s => ((s.form.sidebar = val), s));
-  }
+function handleCommunityDescriptionChange(
+  i: CommunityForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.form.description = event.target.value), s));
+}
 
-  handleCommunityNsfwChange(i: CommunityForm, event: any) {
-    i.setState(s => ((s.form.nsfw = event.target.checked), s));
-  }
+function handleCommunitySidebarChange(i: CommunityForm, val: string) {
+  i.setState(s => ((s.form.sidebar = val), s));
+}
 
-  handleCommunityPostingRestrictedToMods(i: CommunityForm, event: any) {
-    i.setState(
-      s => ((s.form.posting_restricted_to_mods = event.target.checked), s),
-    );
-  }
+function handleCommunityNsfwChange(
+  i: CommunityForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.form.nsfw = event.target.checked), s));
+}
 
-  handleCommunityVisibilityChange(i: CommunityForm, event: any) {
-    i.setState(s => ((s.form.visibilty = event.target.value), s));
-  }
+function handleCommunityPostingRestrictedToMods(
+  i: CommunityForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.form.posting_restricted_to_mods = event.target.checked), s),
+  );
+}
 
-  handleCancel(i: CommunityForm) {
-    i.props.onCancel?.();
-  }
+function handleCommunityVisibilityChange(
+  i: CommunityForm,
+  event: FormEvent<HTMLSelectElement>,
+) {
+  i.setState(
+    s => ((s.form.visibility = event.target.value as CommunityVisibility), s),
+  );
+}
 
-  handleIconChange(url?: string) {
-    this.setState(s => ((s.form.icon = url), s));
-  }
+function handleIconChange(i: CommunityForm, url?: string) {
+  i.setState(s => ((s.form.icon = url), s));
+}
 
-  handleBannerChange(url: string) {
-    this.setState(s => ((s.form.banner = url), s));
-  }
+function handleBannerChange(i: CommunityForm, url?: string) {
+  i.setState(s => ((s.form.banner = url), s));
+}
 
-  handleDiscussionLanguageChange(val: number[]) {
-    this.setState(s => ((s.form.discussion_languages = val), s));
-  }
+function handleDiscussionLanguageChange(i: CommunityForm, val: number[]) {
+  i.setState(s => ((s.form.discussion_languages = val), s));
 }

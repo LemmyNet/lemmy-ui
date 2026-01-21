@@ -104,11 +104,6 @@ export class RegistrationApplications extends Component<
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.handlePageChange = this.handlePageChange.bind(this);
-    this.handleApproveApplication = this.handleApproveApplication.bind(this);
-    this.handleRegistrationStateChange =
-      this.handleRegistrationStateChange.bind(this);
-
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       this.state = {
@@ -166,7 +161,7 @@ export class RegistrationApplications extends Component<
               <PaginatorCursor
                 current={this.props.cursor}
                 resource={this.state.appsRes}
-                onPageChange={this.handlePageChange}
+                onPageChange={cursor => handlePageChange(this, cursor)}
               />
             </>
           ) : (
@@ -195,7 +190,7 @@ export class RegistrationApplications extends Component<
         <span className="me-3">
           <RegistrationStateRadios
             state={this.props.view}
-            onClick={this.handleRegistrationStateChange}
+            onClick={val => handleRegistrationStateChange(this, val)}
           />
         </span>
       </div>
@@ -214,21 +209,15 @@ export class RegistrationApplications extends Component<
             <RegistrationApplication
               key={ra.registration_application.id}
               application={ra}
-              onApproveApplication={this.handleApproveApplication}
+              onApproveApplication={form =>
+                handleApproveApplication(this, form)
+              }
               myUserInfo={this.isoData.myUserInfo}
             />
           </>
         ))}
       </div>
     );
-  }
-
-  handleRegistrationStateChange(val: RegistrationState) {
-    this.updateUrl({ view: val, cursor: undefined });
-  }
-
-  handlePageChange(cursor?: PaginationCursor) {
-    this.updateUrl({ cursor });
   }
 
   static async fetchInitialData({
@@ -283,18 +272,34 @@ export class RegistrationApplications extends Component<
       `/registration_applications${getQueryString(queryParams)}`,
     );
   }
+}
 
-  async handleApproveApplication(form: ApproveRegistrationApplication) {
-    const approveRes =
-      await HttpService.client.approveRegistrationApplication(form);
-    this.setState(s => {
-      if (s.appsRes.state === "success" && approveRes.state === "success") {
-        s.appsRes.data.items = editRegistrationApplication(
-          approveRes.data.registration_application,
-          s.appsRes.data.items,
-        );
-      }
-      return s;
-    });
-  }
+function handleRegistrationStateChange(
+  i: RegistrationApplications,
+  val: RegistrationState,
+) {
+  i.updateUrl({ view: val, cursor: undefined });
+}
+
+function handlePageChange(
+  i: RegistrationApplications,
+  cursor?: PaginationCursor,
+) {
+  i.updateUrl({ cursor });
+}
+async function handleApproveApplication(
+  i: RegistrationApplications,
+  form: ApproveRegistrationApplication,
+) {
+  const approveRes =
+    await HttpService.client.approveRegistrationApplication(form);
+  i.setState(s => {
+    if (s.appsRes.state === "success" && approveRes.state === "success") {
+      s.appsRes.data.items = editRegistrationApplication(
+        approveRes.data.registration_application,
+        s.appsRes.data.items,
+      );
+    }
+    return s;
+  });
 }

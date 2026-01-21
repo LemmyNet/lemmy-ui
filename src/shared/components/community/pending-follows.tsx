@@ -103,11 +103,6 @@ export class PendingFollows extends Component<
   constructor(props: any, context: any) {
     super(props, context);
 
-    this.handlePageChange = this.handlePageChange.bind(this);
-    this.handleApproveFollower = this.handleApproveFollower.bind(this);
-    this.handlePendingFollowsStateChange =
-      this.handlePendingFollowsStateChange.bind(this);
-
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
       this.state = {
@@ -162,7 +157,7 @@ export class PendingFollows extends Component<
                 <PaginatorCursor
                   current={this.props.cursor}
                   resource={this.state.appsRes}
-                  onPageChange={this.handlePageChange}
+                  onPageChange={cursor => handlePageChange(this, cursor)}
                 />
               </>
             ) : (
@@ -183,7 +178,7 @@ export class PendingFollows extends Component<
       <div className="mb-2">
         <RegistrationStateRadios
           state={this.props.viewState}
-          onClick={this.handlePendingFollowsStateChange}
+          onClick={val => handlePendingFollowsStateChange(this, val)}
         />
       </div>
     );
@@ -201,20 +196,12 @@ export class PendingFollows extends Component<
             <PendingFollow
               pending_follow={pending_follow}
               myUserInfo={this.isoData.myUserInfo}
-              onApproveFollower={this.handleApproveFollower}
+              onApproveFollower={form => handleApproveFollower(this, form)}
             />
           </>
         ))}
       </div>
     );
-  }
-
-  handlePendingFollowsStateChange(val: RegistrationState) {
-    this.updateUrl({ viewState: val, cursor: undefined });
-  }
-
-  handlePageChange(cursor?: PaginationCursor) {
-    this.updateUrl({ cursor });
   }
 
   static async fetchInitialData({
@@ -269,15 +256,29 @@ export class PendingFollows extends Component<
 
     this.props.history.push(`/pending_follows${getQueryString(queryParams)}`);
   }
+}
 
-  async handleApproveFollower(form: ApproveCommunityPendingFollower) {
-    const approveRes =
-      await HttpService.client.approveCommunityPendingFollow(form);
-    this.setState(s => {
-      if (s.appsRes.state === "success" && approveRes.state === "success") {
-        this.refetch(this.props);
-      }
-      return s;
-    });
-  }
+async function handleApproveFollower(
+  i: PendingFollows,
+  form: ApproveCommunityPendingFollower,
+) {
+  const approveRes =
+    await HttpService.client.approveCommunityPendingFollow(form);
+  i.setState(s => {
+    if (s.appsRes.state === "success" && approveRes.state === "success") {
+      i.refetch(i.props);
+    }
+    return s;
+  });
+}
+
+function handlePendingFollowsStateChange(
+  i: PendingFollows,
+  val: RegistrationState,
+) {
+  i.updateUrl({ viewState: val, cursor: undefined });
+}
+
+function handlePageChange(i: PendingFollows, cursor?: PaginationCursor) {
+  i.updateUrl({ cursor });
 }

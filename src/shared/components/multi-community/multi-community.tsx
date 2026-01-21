@@ -5,6 +5,7 @@ import {
   enableNsfw,
   mixedToPostSortType,
   multiCommunityRSSUrl,
+  reportToast,
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
@@ -795,9 +796,7 @@ async function handlePostVote(i: MultiCommunity, form: CreatePostLike) {
 
 async function handlePostReport(form: CreatePostReport) {
   const reportRes = await HttpService.client.createPostReport(form);
-  if (reportRes.state === "success") {
-    toast(I18NextService.i18n.t("report_created"));
-  }
+  reportToast(reportRes);
 }
 
 async function handleLockPost(i: MultiCommunity, form: LockPost) {
