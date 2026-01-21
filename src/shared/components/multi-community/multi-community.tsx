@@ -55,7 +55,6 @@ import {
   GetMultiCommunityResponse,
   GetMultiCommunity,
   FollowMultiCommunity,
-  UpdateMultiCommunity,
   PostListingMode,
   MultiCommunityResponse,
   CommunityId,
@@ -102,6 +101,7 @@ type MultiCommunityData = RouteDataResponse<{
 interface State {
   multiCommunityRes: RequestState<GetMultiCommunityResponse>;
   postsRes: RequestState<PagedResponse<PostView>>;
+  followRes: RequestState<MultiCommunityResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
@@ -173,6 +173,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
   state: State = {
     multiCommunityRes: EMPTY_REQUEST,
     postsRes: EMPTY_REQUEST,
+    followRes: EMPTY_REQUEST,
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     isIsomorphic: false,
@@ -383,14 +384,14 @@ export class MultiCommunity extends Component<RouteProps, State> {
     return (
       <MultiCommunitySidebar
         multiCommunityView={res.multi_community_view}
-        editable
         myUserInfo={this.isoData.myUserInfo}
         onFollow={form => handleFollow(this, form)}
-        onEdit={form => handleEditMultiCommunity(this, form)}
+        followLoading={this.state.followRes.state === "loading"}
       />
     );
   }
 
+  // TODO this should probably get moved to settings?
   communities() {
     if (this.state.multiCommunityRes.state !== "success") {
       return undefined;
@@ -695,8 +696,10 @@ async function handleAddModToCommunity(form: AddModToCommunity) {
 }
 
 async function handleFollow(i: MultiCommunity, form: FollowMultiCommunity) {
-  const res = await HttpService.client.followMultiCommunity(form);
-  updateMultiCommunity(i, res);
+  i.setState({ followRes: LOADING_REQUEST });
+  const followRes = await HttpService.client.followMultiCommunity(form);
+  i.setState({ followRes });
+  updateMultiCommunity(i, followRes);
 }
 
 async function handlePurgePerson(i: MultiCommunity, form: PurgePerson) {
@@ -727,16 +730,6 @@ async function handleBlockPerson(
   if (blockPersonRes.state === "success") {
     updatePersonBlock(blockPersonRes.data, form.block, myUserInfo);
   }
-}
-
-async function handleEditMultiCommunity(
-  i: MultiCommunity,
-  form: UpdateMultiCommunity,
-) {
-  const res = await HttpService.client.updateMultiCommunity(form);
-  updateMultiCommunity(i, res);
-
-  return res;
 }
 
 async function handleDeletePost(i: MultiCommunity, form: DeletePost) {

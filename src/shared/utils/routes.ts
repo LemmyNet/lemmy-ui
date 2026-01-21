@@ -112,6 +112,10 @@ import {
   CommunitySettings,
   CommunitySettingsFetchConfig,
 } from "@components/community/community-settings";
+import {
+  MultiCommunitySettings,
+  MultiCommunitySettingsFetchConfig,
+} from "@components/multi-community/multi-community-settings";
 
 export interface IRoutePropsWithFetch<
   DataT extends RouteData,
@@ -226,13 +230,11 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
     getQueryParams: getMultiCommunityQueryParams,
     mountedSameRouteNavKey: "multi_community",
   } as MultiCommunityFetchConfig,
-  // TODO
-  // {
-  //   path: `/m/:name/settings`,
-  //   component: MultiCommunitySettings,
-  //   fetchInitialData: MultiCommunitySettings.fetchInitialData,
-  //   getQueryParams: getMultiCommunitySettingsQueryParams,
-  // } as MultiCommunitySettingsFetchConfig,
+  {
+    path: `/m/:name/settings`,
+    component: MultiCommunitySettings,
+    fetchInitialData: MultiCommunitySettings.fetchInitialData,
+  } as MultiCommunitySettingsFetchConfig,
   {
     path: `/u/:username`,
     component: Profile,
