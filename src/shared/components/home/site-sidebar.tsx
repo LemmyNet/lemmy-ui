@@ -21,6 +21,8 @@ import {
   CreateMultiCommunityButton,
   CreatePostButton,
 } from "@components/common/content-actions/create-item-buttons";
+import { Link } from "inferno-router";
+import { amAdmin } from "@utils/roles";
 
 interface SiteSidebarProps {
   site: Site;
@@ -104,7 +106,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
   }
 
   siteInfo() {
-    const { site, activePlugins } = this.props;
+    const { site, activePlugins, myUserInfo } = this.props;
 
     return (
       <div>
@@ -114,16 +116,21 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           allLanguages={this.props.allLanguages}
           languageIds={this.props.siteLanguages}
         />
-        <CreatePostButton />
+        <CreatePostButton myUserInfo={myUserInfo} />
         <CreateCommunityButton
           localSite={this.props.localSite}
-          myUserInfo={this.props.myUserInfo}
+          myUserInfo={myUserInfo}
           blockButton
         />
-        <CreateMultiCommunityButton
-          myUserInfo={this.props.myUserInfo}
-          blockButton
-        />
+        <CreateMultiCommunityButton myUserInfo={myUserInfo} blockButton />
+        <Link className="btn btn-secondary d-block mb-2 w-100" to="/modlog">
+          {I18NextService.i18n.t("modlog")}
+        </Link>
+        {amAdmin(myUserInfo) && (
+          <Link className="btn btn-secondary d-block mb-2 w-100" to="/admin">
+            {I18NextService.i18n.t("settings")}
+          </Link>
+        )}
         {this.props.localSite && (
           <LocalSiteBadges localSite={this.props.localSite} />
         )}

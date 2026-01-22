@@ -139,7 +139,10 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                         showRemoteFetch={!this.props.myUserInfo}
                       />
                       {this.canPost() && canViewCommunity_ && (
-                        <CreatePostButton communityView={communityView} />
+                        <CreatePostButton
+                          communityView={communityView}
+                          myUserInfo={myUserInfo}
+                        />
                       )}
                     </>
                   )}
