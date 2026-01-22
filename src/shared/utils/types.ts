@@ -9,8 +9,6 @@ import {
   CommentSlimView,
   PersonId,
   Community,
-  CommentId,
-  CommentResponse,
 } from "lemmy-js-client";
 import { RequestState } from "@services/HttpService";
 import { Match } from "inferno-router/dist/Route";
@@ -113,20 +111,18 @@ export function isCommentNodeFull(
 
 /** A helper type to set which comment is loading
  *
- * For creates, the comment id is the parent (or zero)
+ * For comment creates, the comment id is the parent (or zero)
  **/
-export type CommentIdAndRes = {
-  commentId: CommentId;
-  res: RequestState<CommentResponse>;
+export type ItemIdAndRes<IdType, Response> = {
+  id: IdType;
+  res: RequestState<Response>;
 };
 
-/** Determines if the comment is loading **/
-export function commentLoading(
-  commentIdAndRes: CommentIdAndRes,
-): number | undefined {
-  return commentIdAndRes.res.state === "loading"
-    ? commentIdAndRes.commentId
-    : undefined;
+/** Determines if the item is loading **/
+export function itemLoading<IdType, Response>(
+  idAndRes: ItemIdAndRes<IdType, Response>,
+): IdType | undefined {
+  return idAndRes.res.state === "loading" ? idAndRes.id : undefined;
 }
 
 export type RouteData = Record<string, RequestState<any>>;
