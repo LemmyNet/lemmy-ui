@@ -15,6 +15,7 @@ import { Prompt } from "inferno-router";
 import { Spinner } from "@components/common/icon";
 import { MarkdownTextArea } from "@components/common/markdown-textarea";
 import { validActorRegexPattern } from "@utils/config";
+import { CommunityTag } from "./community-tag";
 
 type CommunityTagGenericForm = {
   tag_id?: TagId;
@@ -126,7 +127,7 @@ export class CommunityTagForm extends Component<
                 />
               </>
             ) : (
-              <div>{this.props.tag.name}</div>
+              <CommunityTag tag={this.props.tag} useName />
             )}
           </div>
           <div className="col-12">

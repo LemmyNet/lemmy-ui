@@ -19,7 +19,7 @@ interface UserBadgesProps {
   showCounts?: boolean;
 }
 
-function RoleLabelPill({
+export function RoleLabelPill({
   label,
   tooltip,
   classes,
