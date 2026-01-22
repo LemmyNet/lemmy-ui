@@ -1,4 +1,4 @@
 [submodule "lemmy-translations"]
 	path = lemmy-translations
 	url = https://github.com/lemmynet/lemmy-translations
-	branch = community_settings_1
+	branch = main

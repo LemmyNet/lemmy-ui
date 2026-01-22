@@ -2,6 +2,7 @@ import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import {
   CreateMultiCommunity as CreateMultiCommunityI,
+  MultiCommunityResponse,
   MyUserInfo,
 } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
@@ -11,9 +12,14 @@ import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { toast } from "@utils/app";
 import { NoOptionI18nKeys } from "i18next";
+import {
+  EMPTY_REQUEST,
+  LOADING_REQUEST,
+  RequestState,
+} from "@services/HttpService";
 
 interface State {
-  loading: boolean;
+  createRes: RequestState<MultiCommunityResponse>;
 }
 
 @simpleScrollMixin
@@ -22,9 +28,7 @@ export class CreateMultiCommunity extends Component<
   State
 > {
   private isoData = setIsoData(this.context);
-  state: State = {
-    loading: false,
-  };
+  state: State = { createRes: EMPTY_REQUEST };
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -52,7 +56,7 @@ export class CreateMultiCommunity extends Component<
             </h1>
             <MultiCommunityForm
               onCreate={form => handleCreate(this, form, myUserInfo)}
-              loading={this.state.loading}
+              createOrEditLoading={this.state.createRes.state === "loading"}
               myUserInfo={myUserInfo}
             />
           </div>
@@ -66,15 +70,17 @@ async function handleCreate(
   form: CreateMultiCommunityI,
   myUserInfo?: MyUserInfo,
 ) {
-  i.setState({ loading: true });
+  i.setState({ createRes: LOADING_REQUEST });
+  const createRes = await HttpService.client.createMultiCommunity(form);
+  i.setState({ createRes });
 
-  const res = await HttpService.client.createMultiCommunity(form);
-
-  if (res.state === "success" && myUserInfo) {
-    const name = res.data.multi_community_view.multi.name;
+  if (createRes.state === "success" && myUserInfo) {
+    const name = createRes.data.multi_community_view.multi.name;
     i.props.history.replace(`/m/${name}`);
-  } else if (res.state === "failed") {
-    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
+  } else if (createRes.state === "failed") {
+    toast(
+      I18NextService.i18n.t(createRes.err.name as NoOptionI18nKeys),
+      "danger",
+    );
   }
-  i.setState({ loading: false });
 }

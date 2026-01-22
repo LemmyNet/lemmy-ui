@@ -61,7 +61,6 @@ interface State {
   editCommunityRes: RequestState<CommunityResponse>;
   transferCommunityRes: RequestState<GetCommunityResponse>;
   deleteCommunityRes: RequestState<CommunityResponse>;
-  removeCommunityRes: RequestState<CommunityResponse>;
   leaveModTeamRes: RequestState<AddModToCommunityResponse>;
   purgeCommunityRes: RequestState<SuccessResponse>;
   isIsomorphic: boolean;
@@ -96,7 +95,6 @@ export class CommunitySettings extends Component<RouteProps, State> {
     editCommunityRes: EMPTY_REQUEST,
     transferCommunityRes: EMPTY_REQUEST,
     deleteCommunityRes: EMPTY_REQUEST,
-    removeCommunityRes: EMPTY_REQUEST,
     leaveModTeamRes: EMPTY_REQUEST,
     purgeCommunityRes: EMPTY_REQUEST,
     showLeaveModTeamDialog: false,
@@ -215,7 +213,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                     <div className="row justify-content-md-center">
                       <div className="col-12 col-md-6">
                         <CommunityForm
-                          community_view={getCommunityRes.community_view}
+                          communityView={getCommunityRes.community_view}
                           allLanguages={siteRes.all_languages}
                           siteLanguages={siteRes.discussion_languages}
                           communityLanguages={

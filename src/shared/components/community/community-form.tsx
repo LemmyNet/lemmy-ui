@@ -19,7 +19,7 @@ import { validActorRegexPattern } from "@utils/config";
 import { userNotLoggedInOrBanned } from "@utils/app";
 
 interface CommunityFormProps {
-  community_view?: CommunityView; // If a community is given, that means this is an edit
+  communityView?: CommunityView; // If a community is given, that means this is an edit
   allLanguages?: Language[];
   siteLanguages?: number[];
   communityLanguages?: number[];
@@ -65,7 +65,7 @@ export class CommunityForm extends Component<
   }
 
   initCommunityForm() {
-    const cv = this.props.community_view;
+    const cv = this.props.communityView;
     return cv
       ? {
           name: cv.community.name,
@@ -83,6 +83,8 @@ export class CommunityForm extends Component<
   }
 
   render() {
+    const cv = this.props.communityView;
+
     return (
       <form
         className="community-form"
@@ -91,13 +93,13 @@ export class CommunityForm extends Component<
         <Prompt
           message={I18NextService.i18n.t("block_leaving")}
           when={
-            !this.props.community_view &&
+            !cv &&
             (!this.props.createOrEditLoading || !this.props.deleteLoading) &&
             !!(this.state.form.name || this.state.form.title) &&
             !this.state.submitted
           }
         />
-        {!this.props.community_view && (
+        {!cv && (
           <div className="mb-3 row">
             <label
               className="col-12 col-sm-2 col-form-label"
@@ -158,19 +160,19 @@ export class CommunityForm extends Component<
           </label>
           <div className="col-12 col-sm-10">
             {/* TODO What is going on here, why are there two upload forms with different keys? */}
-            {this.props.community_view && (
+            {cv && (
               <ImageUploadForm
                 uploadTitle={I18NextService.i18n.t("upload_icon")}
                 imageSrc={this.state.form.icon}
                 uploadKey="uploadCommunityIcon"
                 removeKey="deleteCommunityIcon"
-                communityId={this.props.community_view.community.id}
+                communityId={cv.community.id}
                 onImageChange={src => handleIconChange(this, src)}
                 rounded
                 disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
               />
             )}
-            {!this.props.community_view && (
+            {!cv && (
               <ImageUploadForm
                 uploadTitle={I18NextService.i18n.t("upload_icon")}
                 imageSrc={this.state.form.icon}
@@ -189,18 +191,18 @@ export class CommunityForm extends Component<
             {I18NextService.i18n.t("banner")}
           </label>
           <div className="col-12 col-sm-10">
-            {this.props.community_view && (
+            {cv && (
               <ImageUploadForm
                 uploadTitle={I18NextService.i18n.t("upload_banner")}
                 imageSrc={this.state.form.banner}
                 uploadKey="uploadCommunityBanner"
                 removeKey="deleteCommunityBanner"
-                communityId={this.props.community_view.community.id}
+                communityId={cv.community.id}
                 onImageChange={src => handleBannerChange(this, src)}
                 disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
               />
             )}
-            {!this.props.community_view && (
+            {!cv && (
               <ImageUploadForm
                 uploadTitle={I18NextService.i18n.t("upload_banner")}
                 imageSrc={this.state.form.banner}
@@ -336,33 +338,26 @@ export class CommunityForm extends Component<
             >
               {this.props.createOrEditLoading ? (
                 <Spinner />
-              ) : this.props.community_view ? (
+              ) : cv ? (
                 capitalizeFirstLetter(I18NextService.i18n.t("save"))
               ) : (
                 capitalizeFirstLetter(I18NextService.i18n.t("create"))
               )}
             </button>
-            {this.props.community_view && (
+            {cv && (
               <button
                 type="button"
                 className={`me-2 btn btn-${
-                  !this.props.community_view.community.deleted
-                    ? "danger"
-                    : "success"
+                  !cv.community.deleted ? "danger" : "success"
                 }`}
-                onClick={() =>
-                  handleDelete(
-                    this,
-                    !this.props.community_view!.community.deleted,
-                  )
-                }
+                onClick={() => handleDelete(this, !cv!.community.deleted)}
                 data-tippy-content={
-                  !this.props.community_view.community.deleted
+                  !cv.community.deleted
                     ? I18NextService.i18n.t("delete")
                     : I18NextService.i18n.t("restore")
                 }
                 aria-label={
-                  !this.props.community_view.community.deleted
+                  !cv.community.deleted
                     ? I18NextService.i18n.t("delete")
                     : I18NextService.i18n.t("restore")
                 }
@@ -371,9 +366,7 @@ export class CommunityForm extends Component<
                   <Spinner />
                 ) : (
                   I18NextService.i18n.t(
-                    !this.props.community_view.community.deleted
-                      ? "delete"
-                      : "restore",
+                    !cv.community.deleted ? "delete" : "restore",
                   )
                 )}
               </button>
@@ -393,7 +386,7 @@ function handleCommunitySubmit(
   i.setState({ submitted: true });
   const cForm = i.state.form;
 
-  const cv = i.props.community_view;
+  const cv = i.props.communityView;
 
   // If the community is given, its an edit
   if (cv) {
