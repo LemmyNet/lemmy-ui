@@ -6,8 +6,12 @@ type CommunityTagProps = {
   useName: boolean;
 };
 export function CommunityTag({ tag, useName }: CommunityTagProps) {
-  const label = useName ? tag.name : (tag.display_name ?? tag.name);
+  const label = useName ? tag.name : communityTagName(tag);
   const tooltip = tag.name;
 
   return <RoleLabelPill label={label} tooltip={tooltip} />;
+}
+
+export function communityTagName(tag: Tag): string {
+  return tag.display_name ?? tag.name;
 }

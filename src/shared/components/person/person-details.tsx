@@ -144,6 +144,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             postView={i}
             showCrossPosts="show_separately"
             admins={this.props.admins}
+            communityTags={[]}
             postListingMode="small_card"
             showCommunity
             crossPosts={[]}

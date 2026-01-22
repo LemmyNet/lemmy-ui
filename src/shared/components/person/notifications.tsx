@@ -378,6 +378,7 @@ export class Notifications extends Component<
               showCrossPosts="show_separately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
+              communityTags={[]}
               allLanguages={[]}
               siteLanguages={[]}
               hideImage

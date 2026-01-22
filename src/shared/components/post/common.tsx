@@ -21,10 +21,11 @@ import {
   isImage,
 } from "@utils/media";
 import { Link } from "inferno-router";
-import { Post, PostView, MyUserInfo, Language } from "lemmy-js-client";
+import { Post, PostView, MyUserInfo, Language, Tag } from "lemmy-js-client";
 import { T } from "inferno-i18next-dess";
 import { hostname } from "@utils/helpers";
 import { ShowBodyType } from "@utils/types";
+import { CommunityTag } from "@components/community/community-tag";
 
 type PostNameProps = {
   post: Post;
@@ -56,13 +57,19 @@ export function PostName({ post, showBody }: PostNameProps) {
 
 type PostBadgesProps = {
   post: Post;
+  tags: Tag[];
   allLanguages: Language[];
 };
-export function PostBadges({ post, allLanguages }: PostBadgesProps) {
+export function PostBadges({ post, tags, allLanguages }: PostBadgesProps) {
   return (
     <>
+      {tags.map(tag => (
+        <span className="me-1">
+          <CommunityTag tag={tag} useName={false} />
+        </span>
+      ))}
       {post.language_id !== 0 && (
-        <span className="mx-1 badge text-bg-light">
+        <span className="me-1 badge text-bg-light">
           {allLanguages.find(lang => lang.id === post.language_id)?.name}
         </span>
       )}{" "}
@@ -74,13 +81,13 @@ export function PostBadges({ post, allLanguages }: PostBadgesProps) {
         </span>
       )}
       {post.removed && (
-        <small className="ms-2 badge text-bg-light">
+        <small className="me-2 badge text-bg-light">
           {I18NextService.i18n.t("removed")}
         </small>
       )}
       {post.deleted && (
         <small
-          className="unselectable pointer ms-2 text-muted fst-italic"
+          className="unselectable pointer me-2 text-muted fst-italic"
           data-tippy-content={I18NextService.i18n.t("deleted")}
         >
           <Icon icon="trash" classes="icon-inline text-danger" />
@@ -88,7 +95,7 @@ export function PostBadges({ post, allLanguages }: PostBadgesProps) {
       )}
       {post.locked && (
         <small
-          className="unselectable pointer ms-2 text-muted fst-italic"
+          className="unselectable pointer me-2 text-muted fst-italic"
           data-tippy-content={I18NextService.i18n.t("locked")}
         >
           <Icon icon="lock" classes="icon-inline text-danger" />
@@ -96,7 +103,7 @@ export function PostBadges({ post, allLanguages }: PostBadgesProps) {
       )}
       {post.featured_community && (
         <small
-          className="unselectable pointer ms-2 text-muted fst-italic"
+          className="unselectable pointer me-2 text-muted fst-italic"
           data-tippy-content={I18NextService.i18n.t("featured_in_community")}
           aria-label={I18NextService.i18n.t("featured_in_community")}
         >
@@ -105,7 +112,7 @@ export function PostBadges({ post, allLanguages }: PostBadgesProps) {
       )}
       {post.featured_local && (
         <small
-          className="unselectable pointer ms-2 text-muted fst-italic"
+          className="unselectable pointer me-2 text-muted fst-italic"
           data-tippy-content={I18NextService.i18n.t("featured_in_local")}
           aria-label={I18NextService.i18n.t("featured_in_local")}
         >
@@ -113,7 +120,7 @@ export function PostBadges({ post, allLanguages }: PostBadgesProps) {
         </small>
       )}
       {post.nsfw && (
-        <small className="ms-2 badge text-bg-danger">
+        <small className="badge text-bg-danger">
           {I18NextService.i18n.t("nsfw")}
         </small>
       )}
@@ -175,7 +182,11 @@ export function PostCreatedLine({
         personActions={postView.person_actions}
       />
       {showPostBadges && (
-        <PostBadges post={postView.post} allLanguages={allLanguages} />
+        <PostBadges
+          post={postView.post}
+          tags={postView.tags}
+          allLanguages={allLanguages}
+        />
       )}
       {showUrlLine && postView.post.url && (
         <>
