@@ -8,7 +8,12 @@ import {
   getApubName,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { Choice, RouteDataResponse } from "@utils/types";
+import {
+  Choice,
+  ItemIdAndRes,
+  itemLoading,
+  RouteDataResponse,
+} from "@utils/types";
 import { Component, InfernoNode } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -16,14 +21,19 @@ import {
   AddModToCommunityResponse,
   CommunityModeratorView,
   CommunityResponse,
+  CreateCommunityTag,
   DeleteCommunity,
+  DeleteCommunityTag,
   EditCommunity,
   GetCommunity,
   GetCommunityResponse,
   LemmyHttp,
   MyUserInfo,
   SuccessResponse,
+  Tag,
+  TagId,
   TransferCommunity,
+  UpdateCommunityTag,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -51,6 +61,8 @@ import { UserBadges } from "@components/common/user-badges";
 import { Icon, Spinner } from "@components/common/icon";
 import { amTopMod, amHigherModerator, amTopModExcludeMe } from "@utils/roles";
 import { SearchableSelect } from "@components/common/searchable-select";
+import { CommunityTagForm } from "./community-tag-form";
+import { NoOptionI18nKeys } from "i18next";
 
 type CommunitySettingsData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -64,6 +76,8 @@ interface State {
   removeCommunityRes: RequestState<CommunityResponse>;
   leaveModTeamRes: RequestState<AddModToCommunityResponse>;
   purgeCommunityRes: RequestState<SuccessResponse>;
+  createOrUpdateTagRes: ItemIdAndRes<TagId, Tag>;
+  deleteTagRes: ItemIdAndRes<TagId, Tag>;
   isIsomorphic: boolean;
   showLeaveModTeamDialog: boolean;
   // You need to filter by the specific mod id, since this is a jsx loop
@@ -99,6 +113,8 @@ export class CommunitySettings extends Component<RouteProps, State> {
     removeCommunityRes: EMPTY_REQUEST,
     leaveModTeamRes: EMPTY_REQUEST,
     purgeCommunityRes: EMPTY_REQUEST,
+    createOrUpdateTagRes: { id: 0, res: EMPTY_REQUEST },
+    deleteTagRes: { id: 0, res: EMPTY_REQUEST },
     showLeaveModTeamDialog: false,
     showRemoveModDialog: undefined,
     showTransferDialog: undefined,
@@ -190,28 +206,28 @@ export class CommunitySettings extends Component<RouteProps, State> {
       this.state.communityRes.data;
 
     return (
-      getCommunityRes && (
-        <div className="community-settings container">
-          <HtmlTags
-            title={this.documentTitle}
-            path={this.context.router.route.match.url}
-          />
-          <Tabs
-            tabs={[
-              {
-                key: "community",
-                label: I18NextService.i18n.t("community"),
-                getNode: isSelected => (
-                  <div
-                    className={classNames("tab-pane show", {
-                      active: isSelected,
-                    })}
-                    role="tabpanel"
-                    id="community-tab-pane"
-                  >
-                    <h1 className="row justify-content-md-center h4 mb-4">
-                      {I18NextService.i18n.t("settings")}
-                    </h1>
+      <div className="community-settings container">
+        <HtmlTags
+          title={this.documentTitle}
+          path={this.context.router.route.match.url}
+        />
+        <Tabs
+          tabs={[
+            {
+              key: "community",
+              label: I18NextService.i18n.t("community"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane show", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="community-tab-pane"
+                >
+                  <h1 className="row justify-content-md-center h4 mb-4">
+                    {I18NextService.i18n.t("settings")}
+                  </h1>
+                  {getCommunityRes && (
                     <div className="row justify-content-md-center">
                       <div className="col-12 col-md-6">
                         <CommunityForm
@@ -236,48 +252,83 @@ export class CommunitySettings extends Component<RouteProps, State> {
                         />
                       </div>
                     </div>
-                  </div>
-                ),
-              },
-              {
-                key: "moderators",
-                label: I18NextService.i18n.t("mods"),
-                getNode: isSelected => (
-                  <div
-                    className={classNames("tab-pane", {
-                      active: isSelected,
-                    })}
-                    role="tabpanel"
-                    id="users-tab-pane"
-                  >
-                    {this.moderatorsTab()}
-                  </div>
-                ),
-              },
-              {
-                key: "tags",
-                label: I18NextService.i18n.t("tags"),
-                getNode: isSelected => (
-                  <div
-                    className={classNames("tab-pane", {
-                      active: isSelected,
-                    })}
-                    role="tabpanel"
-                    id="taglines-tab-pane"
-                  >
-                    {this.tagsTab()}
-                  </div>
-                ),
-              },
-            ]}
-          />
-        </div>
-      )
+                  )}
+                </div>
+              ),
+            },
+            {
+              key: "moderators",
+              label: I18NextService.i18n.t("mods"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="users-tab-pane"
+                >
+                  {this.moderatorsTab()}
+                </div>
+              ),
+            },
+            {
+              key: "tags",
+              label: I18NextService.i18n.t("tags"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="taglines-tab-pane"
+                >
+                  {this.tagsTab()}
+                </div>
+              ),
+            },
+          ]}
+        />
+      </div>
     );
   }
 
   tagsTab() {
-    // TODO
+    const tags =
+      (this.state.communityRes.state === "success" &&
+        this.state.communityRes.data.community_view.post_tags) ||
+      [];
+    const communityId =
+      (this.state.communityRes.state === "success" &&
+        this.state.communityRes.data.community_view.community.id) ||
+      undefined;
+
+    return (
+      <>
+        <h1 className="h4 mb-4">{I18NextService.i18n.t("tags")}</h1>
+        {tags.map(t => (
+          <CommunityTagForm
+            key={`community-tag-form-${t.id}`}
+            tag={t}
+            onUpdate={form => handleUpdateTag(this, form)}
+            onDelete={form => handleDeleteTag(this, form)}
+            createOrUpdateLoading={
+              itemLoading(this.state.createOrUpdateTagRes) === t.id
+            }
+            deleteLoading={itemLoading(this.state.deleteTagRes) === t.id}
+            myUserInfo={this.isoData.myUserInfo}
+          />
+        ))}
+        {/** The create or empty tag form **/}
+        <CommunityTagForm
+          onCreate={form => handleCreateTag(this, form)}
+          communityId={communityId}
+          createOrUpdateLoading={
+            itemLoading(this.state.createOrUpdateTagRes) === 0
+          }
+          myUserInfo={this.isoData.myUserInfo}
+        />
+      </>
+    );
   }
 
   moderatorsTab() {
@@ -575,6 +626,55 @@ async function handleTransferCommunity(
   if (i.state.transferCommunityRes.state === "success") {
     toast(I18NextService.i18n.t("transfer_community"));
     i.updateCommunityFull(i.state.transferCommunityRes);
+  }
+}
+
+async function handleCreateTag(i: CommunitySettings, form: CreateCommunityTag) {
+  i.setState({ createOrUpdateTagRes: { id: 0, res: LOADING_REQUEST } });
+  const res = await HttpService.client.createCommunityTag(form);
+  i.setState({
+    createOrUpdateTagRes: {
+      id: 0,
+      res,
+    },
+  });
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("community_tag_created"));
+    // Need to refetch community to update tags
+    await i.fetchCommunity(i.props);
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
+  }
+}
+
+async function handleUpdateTag(i: CommunitySettings, form: UpdateCommunityTag) {
+  i.setState({
+    createOrUpdateTagRes: { id: form.tag_id, res: LOADING_REQUEST },
+  });
+  const res = await HttpService.client.updateCommunityTag(form);
+  i.setState({
+    createOrUpdateTagRes: { id: form.tag_id, res },
+  });
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("community_tag_updated"));
+    // Need to refetch community to update tags
+    await i.fetchCommunity(i.props);
+  }
+}
+
+async function handleDeleteTag(i: CommunitySettings, form: DeleteCommunityTag) {
+  i.setState({ deleteTagRes: { id: form.tag_id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.deleteCommunityTag(form);
+  i.setState({
+    deleteTagRes: { id: form.tag_id, res },
+  });
+
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("community_tag_deleted"));
+    // Need to refetch community to update tags
+    await i.fetchCommunity(i.props);
   }
 }
 
