@@ -237,17 +237,17 @@ function handleSubmit(i: CommunityTagForm, event: FormEvent<HTMLFormElement>) {
   if (isUpdateForm(form)) {
     i.props.onUpdate?.(form);
   } else if (isCreateForm(form)) {
+    i.props.onCreate?.(form);
     // Clear the markdown
     i.setState({ clearMarkdown: true });
     i.setState({
       clearMarkdown: false,
       form: {
-        ...i.state.form,
+        community_id: undefined,
         description: undefined,
         name: undefined,
         display_name: undefined,
       },
     });
-    i.props.onCreate?.(form);
   }
 }

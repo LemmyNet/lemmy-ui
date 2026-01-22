@@ -540,32 +540,33 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </div>
           </div>
         )}
-        {this.props.selectedCommunityTags && (
-          <div className="mb-3 row">
-            <label className="col-sm-2 col-form-label" htmlFor="post-tags">
-              {I18NextService.i18n.t("tags")}
-            </label>
-            <div className="col-sm-10">
-              <select
-                id="post-tags"
-                className="form-select"
-                multiple
-                aria-label={I18NextService.i18n.t("tags")}
-                onChange={e => handleTagsChange(this, e)}
-              >
-                {this.props.selectedCommunityTags.map(tag => (
-                  <option
-                    key={tag.id}
-                    value={tag.id}
-                    selected={(this.state.form.tags ?? []).includes(tag.id)}
-                  >
-                    {communityTagName(tag)}
-                  </option>
-                ))}
-              </select>
+        {this.props.selectedCommunityTags &&
+          this.props.selectedCommunityTags.length > 0 && (
+            <div className="mb-3 row">
+              <label className="col-sm-2 col-form-label" htmlFor="post-tags">
+                {I18NextService.i18n.t("tags")}
+              </label>
+              <div className="col-sm-10">
+                <select
+                  id="post-tags"
+                  className="form-select"
+                  multiple
+                  aria-label={I18NextService.i18n.t("tags")}
+                  onChange={e => handleTagsChange(this, e)}
+                >
+                  {this.props.selectedCommunityTags.map(tag => (
+                    <option
+                      key={tag.id}
+                      value={tag.id}
+                      selected={(this.state.form.tags ?? []).includes(tag.id)}
+                    >
+                      {communityTagName(tag)}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
-        )}
+          )}
         <input
           tabIndex={-1}
           autoComplete="false"

@@ -291,41 +291,38 @@ export class CommunitySettings extends Component<RouteProps, State> {
   }
 
   tagsTab() {
-    const tags =
-      (this.state.communityRes.state === "success" &&
-        this.state.communityRes.data.community_view.post_tags) ||
-      [];
-    const communityId =
-      (this.state.communityRes.state === "success" &&
-        this.state.communityRes.data.community_view.community.id) ||
-      undefined;
+    const res =
+      this.state.communityRes.state === "success" &&
+      this.state.communityRes.data;
 
     return (
-      <>
-        <h1 className="h4 mb-4">{I18NextService.i18n.t("tags")}</h1>
-        {tags.map(t => (
+      res && (
+        <>
+          <h1 className="h4 mb-4">{I18NextService.i18n.t("tags")}</h1>
+          {res.community_view.post_tags.map(t => (
+            <CommunityTagForm
+              key={`community-tag-form-${t.id}`}
+              tag={t}
+              onUpdate={form => handleUpdateTag(this, form)}
+              onDelete={form => handleDeleteTag(this, form)}
+              createOrUpdateLoading={
+                itemLoading(this.state.createOrUpdateTagRes) === t.id
+              }
+              deleteLoading={itemLoading(this.state.deleteTagRes) === t.id}
+              myUserInfo={this.isoData.myUserInfo}
+            />
+          ))}
+          {/** The create or empty tag form **/}
           <CommunityTagForm
-            key={`community-tag-form-${t.id}`}
-            tag={t}
-            onUpdate={form => handleUpdateTag(this, form)}
-            onDelete={form => handleDeleteTag(this, form)}
+            onCreate={form => handleCreateTag(this, form)}
+            communityId={res.community_view.community.id}
             createOrUpdateLoading={
-              itemLoading(this.state.createOrUpdateTagRes) === t.id
+              itemLoading(this.state.createOrUpdateTagRes) === 0
             }
-            deleteLoading={itemLoading(this.state.deleteTagRes) === t.id}
             myUserInfo={this.isoData.myUserInfo}
           />
-        ))}
-        {/** The create or empty tag form **/}
-        <CommunityTagForm
-          onCreate={form => handleCreateTag(this, form)}
-          communityId={communityId}
-          createOrUpdateLoading={
-            itemLoading(this.state.createOrUpdateTagRes) === 0
-          }
-          myUserInfo={this.isoData.myUserInfo}
-        />
-      </>
+        </>
+      )
     );
   }
 
