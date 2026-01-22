@@ -263,21 +263,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </span>
                 </NavLink>
               </li>
-              {amAdmin(this.props.myUserInfo) && (
-                <li id="navAdmin" className="nav-item">
-                  <NavLink
-                    to="/admin"
-                    className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                    title={I18NextService.i18n.t("admin_settings")}
-                    onMouseUp={linkEvent(this, handleCollapseClick)}
-                  >
-                    <Icon icon="settings" />
-                    <span className="d-inline ms-1 d-md-none ms-md-0">
-                      {I18NextService.i18n.t("admin_settings")}
-                    </span>
-                  </NavLink>
-                </li>
-              )}
               {person ? (
                 <>
                   <li id="navMessages" className="nav-item">

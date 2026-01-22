@@ -1,5 +1,4 @@
 import { numToSI } from "@utils/helpers";
-import { Link } from "inferno-router";
 import { Community, LocalSite, MultiCommunity } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import classNames from "classnames";
@@ -88,11 +87,6 @@ export function LocalSiteBadges({
               count: Number(localSite.communities),
               formattedCount: numToSI(localSite.communities),
             })}
-          </li>
-          <li className="list-inline-item">
-            <Link className="badge text-bg-secondary" to="/modlog">
-              {I18NextService.i18n.t("modlog")}
-            </Link>
           </li>
         </>
       )}
