@@ -58,7 +58,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
     return {
       name: site?.name,
-      sidebar: site?.sidebar,
+      summary: site?.summary,
       description: site?.description,
       registration_mode: ls?.registration_mode,
       oauth_registration: ls?.oauth_registration,
@@ -113,9 +113,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             !siteSetup &&
             !!(
               this.state.siteForm.name ||
-              this.state.siteForm.sidebar ||
+              this.state.siteForm.description ||
               this.state.siteForm.application_question ||
-              this.state.siteForm.description
+              this.state.siteForm.summary
             ) &&
             !this.state.submitted
           }
@@ -174,28 +174,28 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="mb-3 row">
-          <label className="col-12 col-form-label" htmlFor="site-desc">
-            {I18NextService.i18n.t("description")}
+          <label className="col-12 col-form-label" htmlFor="site-summary">
+            {I18NextService.i18n.t("summary")}
           </label>
           <div className="col-12">
             <input
               type="text"
               className="form-control"
-              id="site-desc"
-              value={this.state.siteForm.description}
-              onInput={e => handleSiteDescChange(this, e)}
+              id="site-summary"
+              value={this.state.siteForm.summary}
+              onInput={e => handleSiteSummaryChange(this, e)}
               maxLength={150}
             />
           </div>
         </div>
         <div className="mb-3 row">
           <label className="col-12 col-form-label">
-            {I18NextService.i18n.t("sidebar")}
+            {I18NextService.i18n.t("description")}
           </label>
           <div className="col-12">
             <MarkdownTextArea
-              initialContent={this.state.siteForm.sidebar}
-              onContentChange={val => handleSiteSidebarChange(this, val)}
+              initialContent={this.state.siteForm.description}
+              onContentChange={val => handleSiteDescriptionChange(this, val)}
               hideNavigationWarnings
               allLanguages={[]}
               siteLanguages={[]}
@@ -708,7 +708,7 @@ function handleSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
   } else {
     const form: CreateSite = {
       name: stateSiteForm.name ?? "My site",
-      sidebar: stateSiteForm.sidebar,
+      summary: stateSiteForm.summary,
       description: stateSiteForm.description,
       community_creation_admin_only:
         stateSiteForm.community_creation_admin_only,
@@ -767,8 +767,8 @@ function handleSiteNameChange(i: SiteForm, event: FormEvent<HTMLInputElement>) {
   i.setState(s => ((s.siteForm.name = event.target.value), s));
 }
 
-function handleSiteSidebarChange(i: SiteForm, val: string) {
-  i.setState(s => ((s.siteForm.sidebar = val), s));
+function handleSiteDescriptionChange(i: SiteForm, val: string) {
+  i.setState(s => ((s.siteForm.description = val), s));
 }
 
 function handleSiteLegalInfoChange(i: SiteForm, val: string) {
@@ -788,8 +788,11 @@ function handleSiteApplicationQuestionChange(i: SiteForm, val: string) {
   i.setState(s => ((s.siteForm.application_question = val), s));
 }
 
-function handleSiteDescChange(i: SiteForm, event: FormEvent<HTMLInputElement>) {
-  i.setState(s => ((s.siteForm.description = event.target.value), s));
+function handleSiteSummaryChange(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.siteForm.summary = event.target.value), s));
 }
 
 function handleSiteEnableNsfwChange(

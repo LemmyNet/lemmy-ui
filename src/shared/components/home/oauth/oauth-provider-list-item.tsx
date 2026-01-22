@@ -1,11 +1,11 @@
-import { OAuthProvider } from "lemmy-js-client";
+import { AdminOAuthProvider } from "lemmy-js-client";
 import { I18NextService } from "../../../services/I18NextService";
 import { Icon } from "../../common/icon";
 import { MouseEventHandler } from "inferno";
 import { NoOptionI18nKeys } from "i18next";
 
 type OAuthProviderListItemProps = {
-  provider: OAuthProvider;
+  provider: AdminOAuthProvider;
   onEdit: MouseEventHandler<HTMLButtonElement>;
   onDelete: MouseEventHandler<HTMLButtonElement>;
 };

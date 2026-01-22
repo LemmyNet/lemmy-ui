@@ -110,8 +110,15 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
 
     return (
       <div>
-        {site.description && <h6>{site.description}</h6>}
-        {site.sidebar && this.siteSidebar(site.sidebar)}
+        {site.summary && <h6>{site.summary}</h6>}
+        {site.description && (
+          <div
+            className="md-div mb-2"
+            dangerouslySetInnerHTML={mdToHtml(site.description, () =>
+              this.forceUpdate(),
+            )}
+          />
+        )}
         <LanguageList
           allLanguages={this.props.allLanguages}
           languageIds={this.props.siteLanguages}
@@ -137,15 +144,6 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         {this.props.admins && this.admins(this.props.admins)}
         {activePlugins && this.plugins(activePlugins)}
       </div>
-    );
-  }
-
-  siteSidebar(sidebar: string) {
-    return (
-      <div
-        className="md-div mb-2"
-        dangerouslySetInnerHTML={mdToHtml(sidebar, () => this.forceUpdate())}
-      />
     );
   }
 

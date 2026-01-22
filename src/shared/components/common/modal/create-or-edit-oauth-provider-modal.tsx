@@ -13,14 +13,14 @@ import { I18NextService } from "../../../services/I18NextService";
 import {
   CreateOAuthProvider,
   EditOAuthProvider,
-  OAuthProvider,
+  PublicOAuthProvider,
 } from "lemmy-js-client";
 import { ProviderToEdit } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 
 export type CreateOrEditOAuthProviderModalData =
   | { type: "add"; provider?: ProviderToEdit }
-  | { type: "edit" | "add"; provider: OAuthProvider };
+  | { type: "edit" | "add"; provider: PublicOAuthProvider };
 
 interface CreateOrEditOAuthProviderModalProps {
   onClose: MouseEventHandler<HTMLButtonElement>;

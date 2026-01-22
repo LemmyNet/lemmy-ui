@@ -1,10 +1,10 @@
 import { Component } from "inferno";
 import { I18NextService } from "../../../services/I18NextService";
 import {
+  AdminOAuthProvider,
   CreateOAuthProvider,
   DeleteOAuthProvider,
   EditOAuthProvider,
-  OAuthProvider,
 } from "lemmy-js-client";
 import OAuthProviderListItem from "./oauth-provider-list-item";
 import CreateOrEditOAuthProviderModal, {
@@ -14,14 +14,14 @@ import ConfirmationModal from "../../common/modal/confirmation-modal";
 import { ProviderToEdit } from "@utils/types";
 
 type OAuthProvidersTabProps = {
-  oauthProviders: OAuthProvider[];
+  oauthProviders: AdminOAuthProvider[];
   onEdit(form: EditOAuthProvider): void;
   onCreate(form: CreateOAuthProvider): void;
   onDelete(form: DeleteOAuthProvider): void;
 };
 
 type OAuthProvidersTabState = {
-  providerToDelete?: OAuthProvider;
+  providerToDelete?: AdminOAuthProvider;
   createOrEditModalData?: CreateOrEditOAuthProviderModalData;
 };
 
@@ -189,7 +189,7 @@ function handleCloseCreateOrEditModal(i: OAuthProvidersTab) {
 
 function handleTryDeleteOauthProvider(
   i: OAuthProvidersTab,
-  provider: OAuthProvider,
+  provider: AdminOAuthProvider,
 ) {
   i.setState({ providerToDelete: provider });
 }
