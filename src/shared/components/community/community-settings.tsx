@@ -657,8 +657,6 @@ async function handleUpdateTag(i: CommunitySettings, form: UpdateCommunityTag) {
 
   if (res.state === "success") {
     toast(I18NextService.i18n.t("community_tag_updated"));
-    // Need to refetch community to update tags
-    await i.fetchCommunity(i.props);
   }
 }
 
