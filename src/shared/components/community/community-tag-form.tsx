@@ -111,10 +111,10 @@ export class CommunityTagForm extends Component<
             {!this.props.tag ? (
               <>
                 <label className="visually-hidden" htmlFor={`name-${id}`}>
-                  {I18NextService.i18n.t("column_shortcode")}
+                  {I18NextService.i18n.t("name")}
                 </label>
                 <input
-                  id={`name--${id}`}
+                  id={`name-${id}`}
                   type="text"
                   placeholder={I18NextService.i18n.t("name")}
                   className="form-control"
@@ -131,7 +131,7 @@ export class CommunityTagForm extends Component<
           </div>
           <div className="col-12">
             <label className="visually-hidden" htmlFor={`display-name-${id}`}>
-              {I18NextService.i18n.t("column_category")}
+              {I18NextService.i18n.t("display_name")}
             </label>{" "}
             <input
               id={`display-name-${id}`}
