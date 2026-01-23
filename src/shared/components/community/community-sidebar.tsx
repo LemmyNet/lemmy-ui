@@ -86,7 +86,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
       community: {
         name,
         ap_id,
-        description,
+        summary,
         posting_restricted_to_mods,
         visibility,
       },
@@ -107,7 +107,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
               <section id="sidebarMain" className="card mb-3">
                 <div className="card-body">
                   {this.communityTitle()}
-                  {description && <h6>{description}</h6>}
+                  {summary && <h6>{summary}</h6>}
                   {received_ban_at && (
                     <div
                       className="alert alert-danger text-sm-start text-xs-center mt-2"
@@ -270,7 +270,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     </T>
                   </div>
                 )}
-                {this.sidebarMarkdown()}
+                {this.descriptionMarkdown()}
                 <div>
                   <div className="fw-semibold mb-1">
                     <span className="align-middle">
@@ -379,13 +379,15 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  sidebarMarkdown() {
-    const { sidebar } = this.props.communityView.community;
+  descriptionMarkdown() {
+    const { description } = this.props.communityView.community;
     return (
-      sidebar && (
+      description && (
         <div
           className="md-div"
-          dangerouslySetInnerHTML={mdToHtml(sidebar, () => this.forceUpdate())}
+          dangerouslySetInnerHTML={mdToHtml(description, () =>
+            this.forceUpdate(),
+          )}
         />
       )
     );

@@ -6,7 +6,6 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   GetSiteResponse,
   LoginResponse,
-  OAuthProvider,
   PublicOAuthProvider,
 } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
@@ -232,7 +231,7 @@ async function handleSubmitTotp(i: Login, totp: string) {
 
 async function handleLoginWithProvider(
   i: Login,
-  oauth_provider: OAuthProvider,
+  oauth_provider: PublicOAuthProvider,
 ) {
   handleUseOAuthProvider(oauth_provider, i.props.prev ?? "/");
 }
@@ -316,7 +315,7 @@ async function handleLoginSubmit(i: Login, event: FormEvent<HTMLFormElement>) {
 }
 
 export async function handleUseOAuthProvider(
-  oauth_provider: OAuthProvider,
+  oauth_provider: PublicOAuthProvider,
   prev?: string,
   username?: string,
   answer?: string,

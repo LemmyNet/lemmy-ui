@@ -36,7 +36,7 @@ interface CommunityFormState {
   form: {
     name?: string;
     title?: string;
-    sidebar?: string;
+    summary?: string;
     description?: string;
     icon?: string;
     banner?: string;
@@ -70,7 +70,7 @@ export class CommunityForm extends Component<
       ? {
           name: cv.community.name,
           title: cv.community.title,
-          sidebar: cv.community.sidebar,
+          summary: cv.community.summary,
           description: cv.community.description,
           nsfw: cv.community.nsfw,
           icon: cv.community.icon,
@@ -218,30 +218,32 @@ export class CommunityForm extends Component<
         <div className="mb-3 row">
           <label
             className="col-12 col-sm-2 col-form-label"
-            htmlFor="community-description"
+            htmlFor="community-summary"
           >
-            {I18NextService.i18n.t("description")}
+            {I18NextService.i18n.t("summary")}
           </label>
           <div className="col-12 col-sm-10">
             <input
               type="text"
               className="form-control"
-              id="community-description"
-              value={this.state.form.description}
-              onInput={e => handleCommunityDescriptionChange(this, e)}
+              id="community-summary"
+              value={this.state.form.summary}
+              onInput={e => handleCommunitySummaryChange(this, e)}
               maxLength={150}
             />
           </div>
         </div>
         <div className="mb-3 row">
           <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
-            {I18NextService.i18n.t("sidebar")}
+            {I18NextService.i18n.t("description")}
           </label>
           <div className="col-12 col-sm-10">
             <MarkdownTextArea
-              initialContent={this.state.form.sidebar}
-              placeholder={I18NextService.i18n.t("sidebar") ?? undefined}
-              onContentChange={val => handleCommunitySidebarChange(this, val)}
+              initialContent={this.state.form.description}
+              placeholder={I18NextService.i18n.t("description") ?? undefined}
+              onContentChange={val =>
+                handleCommunityDescriptionChange(this, val)
+              }
               hideNavigationWarnings
               allLanguages={[]}
               siteLanguages={[]}
@@ -393,7 +395,7 @@ function handleCommunitySubmit(
     i.props.onEdit?.({
       community_id: cv.community.id,
       title: cForm.title,
-      sidebar: cForm.sidebar,
+      summary: cForm.summary,
       description: cForm.description,
       nsfw: cForm.nsfw,
       posting_restricted_to_mods: cForm.posting_restricted_to_mods,
@@ -405,6 +407,7 @@ function handleCommunitySubmit(
       i.props.onCreate?.({
         name: cForm.name,
         title: cForm.title,
+        summary: cForm.summary,
         description: cForm.description,
         icon: cForm.icon,
         banner: cForm.banner,
@@ -435,15 +438,15 @@ function handleCommunityTitleChange(
   i.setState(s => ((s.form.title = event.target.value), s));
 }
 
-function handleCommunityDescriptionChange(
+function handleCommunitySummaryChange(
   i: CommunityForm,
   event: FormEvent<HTMLInputElement>,
 ) {
-  i.setState(s => ((s.form.description = event.target.value), s));
+  i.setState(s => ((s.form.summary = event.target.value), s));
 }
 
-function handleCommunitySidebarChange(i: CommunityForm, val: string) {
-  i.setState(s => ((s.form.sidebar = val), s));
+function handleCommunityDescriptionChange(i: CommunityForm, val: string) {
+  i.setState(s => ((s.form.description = val), s));
 }
 
 function handleCommunityNsfwChange(
