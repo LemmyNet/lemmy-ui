@@ -100,7 +100,7 @@ export class CommunityTagForm extends Component<
           }
         />
         <form
-          className="row row-cols-md-auto g-3 mb-3 align-items-top"
+          className="row row-cols-md-auto g-3 mb-3 align-items-center"
           onSubmit={e => handleSubmit(this, e)}
         >
           {/** Only show the name input if it hasn't been created **/}
