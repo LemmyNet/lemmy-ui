@@ -13,7 +13,6 @@ import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Prompt } from "inferno-router";
 import { Spinner } from "@components/common/icon";
-import { MarkdownTextArea } from "@components/common/markdown-textarea";
 import { validActorRegexPattern } from "@utils/config";
 import { CommunityTag } from "./community-tag";
 
@@ -39,8 +38,6 @@ interface CommunityTagFormProps {
 interface CommunityTagFormState {
   form: CommunityTagGenericForm;
   bypassNavWarning: boolean;
-  // Necessary since markdown doesn't clear after a create submit
-  clearMarkdown: boolean;
 }
 
 function isUpdateForm(
@@ -63,7 +60,6 @@ export class CommunityTagForm extends Component<
   state: CommunityTagFormState = {
     form: this.createFormFromProps(),
     bypassNavWarning: true,
-    clearMarkdown: false,
   };
 
   createFormFromProps(): CommunityTagGenericForm {
@@ -146,17 +142,19 @@ export class CommunityTagForm extends Component<
             />
           </div>
           <div className="col-12">
-            {!this.state.clearMarkdown && (
-              <MarkdownTextArea
-                initialContent={this.state.form.description}
-                placeholder={I18NextService.i18n.t("description") ?? undefined}
-                onContentChange={s => handleDescriptionChange(this, s)}
-                hideNavigationWarnings
-                allLanguages={[]}
-                siteLanguages={[]}
-                myUserInfo={this.props.myUserInfo}
-              />
-            )}
+            {/** TODO This will no longer be a description / markdown field soon **/}
+            <label className="visually-hidden" htmlFor={`description-${id}`}>
+              {I18NextService.i18n.t("description")}
+            </label>{" "}
+            <input
+              id={`description-${id}`}
+              type="text"
+              placeholder={I18NextService.i18n.t("description")}
+              className="form-control"
+              value={this.state.form.description}
+              maxLength={150}
+              onInput={e => handleDescriptionChange(this, e)}
+            />
           </div>
           <div className="col-12">
             <button
@@ -209,9 +207,12 @@ function handleDisplayNameChange(
   });
 }
 
-function handleDescriptionChange(i: CommunityTagForm, description: string) {
+function handleDescriptionChange(
+  i: CommunityTagForm,
+  event: FormEvent<HTMLInputElement>,
+) {
   i.setState({
-    form: { ...i.state.form, description },
+    form: { ...i.state.form, description: event.target.value },
     bypassNavWarning: false,
   });
 }
@@ -238,16 +239,5 @@ function handleSubmit(i: CommunityTagForm, event: FormEvent<HTMLFormElement>) {
     i.props.onUpdate?.(form);
   } else if (isCreateForm(form)) {
     i.props.onCreate?.(form);
-    // Clear the markdown
-    i.setState({ clearMarkdown: true });
-    i.setState({
-      clearMarkdown: false,
-      form: {
-        community_id: undefined,
-        description: undefined,
-        name: undefined,
-        display_name: undefined,
-      },
-    });
   }
 }
