@@ -16,6 +16,8 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { EMPTY_REQUEST, RequestState } from "@services/HttpService";
 import { SearchableSelect } from "@components/common/searchable-select";
 import { Choice } from "@utils/types";
+import { CommunityLink } from "@components/community/community-link";
+import { Icon } from "@components/common/icon";
 
 interface Props {
   currentCommunities: CommunityView[];
@@ -109,3 +111,47 @@ const handleCommunitySearch = debounce(
     });
   },
 );
+
+interface MultiCommunityEntryListProps {
+  communities: CommunityView[];
+  isCreator: boolean;
+  onDelete?(communityId: CommunityId): void;
+  myUserInfo: MyUserInfo | undefined;
+}
+
+export function MultiCommunityEntryList({
+  communities,
+  isCreator,
+  onDelete,
+  myUserInfo,
+}: MultiCommunityEntryListProps) {
+  return (
+    communities.length > 0 && (
+      <div id="multi-community-entry-table">
+        {communities.map(c => (
+          <>
+            <div
+              key={`multi-community-entry-${c.community.id}`}
+              className="row"
+            >
+              <div className="col-12">
+                <CommunityLink
+                  community={c.community}
+                  myUserInfo={myUserInfo}
+                />
+                {isCreator && onDelete && (
+                  <button
+                    className="btn btn-sm btn-link"
+                    onClick={() => onDelete?.(c.community.id)}
+                  >
+                    <Icon icon={"x"} classes="icon-inline text-danger" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
+        ))}
+      </div>
+    )
+  );
+}

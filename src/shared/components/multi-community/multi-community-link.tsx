@@ -1,9 +1,10 @@
-// TODO this should probably be combined with community-link and person-link
 import { hostname } from "@utils/helpers";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
 import { MultiCommunity, MyUserInfo } from "lemmy-js-client";
 import { relTags } from "@utils/config";
+import classNames from "classnames";
+import { I18NextService } from "@services/I18NextService";
 
 interface Props {
   multiCommunity: MultiCommunity;
@@ -74,4 +75,21 @@ export function multiCommunityLink(
 
     return { link, serverStr };
   }
+}
+
+type MultiCommunitySettingLinkProps = {
+  multi: MultiCommunity;
+};
+export function MultiCommunitySettingsLink({
+  multi,
+}: MultiCommunitySettingLinkProps) {
+  const classes = classNames("btn btn-secondary d-block mb-2 w-100");
+
+  const link = `${multiCommunityLink(multi).link}/settings`;
+
+  return (
+    <Link className={classes} to={link}>
+      {I18NextService.i18n.t("settings")}
+    </Link>
+  );
 }

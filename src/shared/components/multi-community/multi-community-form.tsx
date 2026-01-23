@@ -15,10 +15,11 @@ import { validActorRegexPattern } from "@utils/config";
 
 interface Props {
   multiCommunityView?: MultiCommunityView; // If a multi-community is given, that means this is an edit
-  onCancel?(): any;
   onCreate?(form: CreateMultiCommunity): void;
   onEdit?(form: UpdateMultiCommunity): void;
-  loading?: boolean;
+  onDelete?(deleted: boolean): void;
+  createOrEditLoading?: boolean;
+  deleteLoading?: boolean;
   myUserInfo: MyUserInfo | undefined;
 }
 
@@ -58,6 +59,8 @@ export class MultiCommunityForm extends Component<Props, State> {
   }
 
   render() {
+    const mv = this.props.multiCommunityView;
+
     return (
       <form
         className="multi-community-form"
@@ -66,16 +69,13 @@ export class MultiCommunityForm extends Component<Props, State> {
         <Prompt
           message={I18NextService.i18n.t("block_leaving")}
           when={
-            !this.props.loading &&
-            !!(
-              this.state.form.name ||
-              this.state.form.title ||
-              this.state.form.description
-            ) &&
+            !mv &&
+            (!this.props.createOrEditLoading || !this.props.deleteLoading) &&
+            !!(this.state.form.name || this.state.form.title) &&
             !this.state.submitted
           }
         />
-        {!this.props.multiCommunityView && (
+        {!mv && (
           <div className="mb-3 row">
             <label
               className="col-12 col-sm-2 col-form-label"
@@ -146,30 +146,46 @@ export class MultiCommunityForm extends Component<Props, State> {
             />
           </div>
         </div>
-        {/* TODO add a delete /restore button for the creator */}
-
         <div className="mb-3 row">
           <div className="col-12">
             <button
               type="submit"
               className="btn btn-secondary me-2"
-              disabled={this.props.loading}
+              disabled={this.props.createOrEditLoading}
             >
-              {this.props.loading ? (
+              {this.props.createOrEditLoading ? (
                 <Spinner />
-              ) : this.props.multiCommunityView ? (
+              ) : mv ? (
                 capitalizeFirstLetter(I18NextService.i18n.t("save"))
               ) : (
                 capitalizeFirstLetter(I18NextService.i18n.t("create"))
               )}
             </button>
-            {this.props.multiCommunityView && (
+            {mv && (
               <button
                 type="button"
-                className="btn btn-secondary"
-                onClick={() => handleCancel(this)}
+                className={`me-2 btn btn-${
+                  !mv.multi.deleted ? "danger" : "success"
+                }`}
+                onClick={() => handleDelete(this, !mv.multi.deleted)}
+                data-tippy-content={
+                  !mv.multi.deleted
+                    ? I18NextService.i18n.t("delete")
+                    : I18NextService.i18n.t("restore")
+                }
+                aria-label={
+                  !mv.multi.deleted
+                    ? I18NextService.i18n.t("delete")
+                    : I18NextService.i18n.t("restore")
+                }
               >
-                {I18NextService.i18n.t("cancel")}
+                {this.props.deleteLoading ? (
+                  <Spinner />
+                ) : (
+                  I18NextService.i18n.t(
+                    !mv.multi.deleted ? "delete" : "restore",
+                  )
+                )}
               </button>
             )}
           </div>
@@ -224,6 +240,6 @@ function handleDescriptionChange(i: MultiCommunityForm, val: string) {
   i.setState(s => ((s.form.description = val), s));
 }
 
-function handleCancel(i: MultiCommunityForm) {
-  i.props.onCancel?.();
+function handleDelete(i: MultiCommunityForm, deleted: boolean) {
+  i.props.onDelete?.(deleted);
 }
