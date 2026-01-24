@@ -116,7 +116,7 @@
     "@types/express": "^5.0.6",
     "@types/html-to-text": "^9.0.4",
     "@types/markdown-it": "^14.1.2",
-    "@types/markdown-it-container": "^2.0.10",
+    "@types/markdown-it-container": "^4.0.0",
     "@types/masonry-layout": "^4.2.8",
     "@types/node": "^24.0.0",
     "@types/path-browserify": "^1.0.3",
