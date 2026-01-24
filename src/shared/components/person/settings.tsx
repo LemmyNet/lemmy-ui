@@ -214,6 +214,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   constructor(props: any, context: any) {
     super(props, context);
 
+    this.userSettings = this.userSettings.bind(this);
+    this.blockCards = this.blockCards.bind(this);
+
     const mui = this.isoData.myUserInfo;
     if (mui) {
       const {
