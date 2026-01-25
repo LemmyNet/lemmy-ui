@@ -65,9 +65,10 @@ export function CreateCommunityButton({
   myUserInfo,
   blockButton,
 }: CreateCommunityButtonProps) {
-  const classes = classNames("btn btn-secondary", {
+  const classes = classNames({
     "no-click": !(localSite && canCreateCommunity(localSite, myUserInfo)),
-    "d-block mb-2 w-100": blockButton,
+    "btn btn-secondary d-block mb-2 w-100": blockButton,
+    "btn btn-sm btn-light border-light-subtle": !blockButton,
   });
 
   return (

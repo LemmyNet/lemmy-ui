@@ -28,9 +28,9 @@ export function FilterChipDropdown<T extends string>({
     <div className="dropdown">
       <button
         className={classNames(
-          "btn btn-sm btn-light dropdown-toggle",
+          "btn btn-sm btn-light border-light-subtle dropdown-toggle",
           className,
-          { active: currentOption },
+          // { active: currentOption },
         )}
         type="button"
         aria-expanded={false}
@@ -70,32 +70,5 @@ function filterOptioni18nStr<T extends string>(
 ): string {
   return I18NextService.i18n.t(
     option.i18n ?? (option.value as NoOptionI18nKeys),
-  );
-}
-
-export type UnreadOrAll = "unread" | "all";
-
-const unreadOrAllOptions: FilterOption<UnreadOrAll>[] = [
-  { value: "unread", i18n: "unread" },
-  { value: "all", i18n: "all" },
-];
-
-type UnreadOrAllDropdownProps = {
-  currentOption: UnreadOrAll | undefined;
-  onSelect(val: UnreadOrAll): void;
-  className?: string;
-};
-export function UnreadOrAllDropdown({
-  currentOption,
-  onSelect,
-  className,
-}: UnreadOrAllDropdownProps) {
-  return (
-    <FilterChipDropdown
-      allOptions={unreadOrAllOptions}
-      currentOption={unreadOrAllOptions.find(t => t.value === currentOption)}
-      onSelect={onSelect}
-      className={className}
-    />
   );
 }
