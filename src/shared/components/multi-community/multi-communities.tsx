@@ -227,7 +227,10 @@ export class MultiCommunities extends Component<RouteProps, State> {
               />
             </div>
             <div className="col me-auto">
-              <CreateMultiCommunityButton myUserInfo={myUserInfo} />
+              <CreateMultiCommunityButton
+                myUserInfo={myUserInfo}
+                blockButton={false}
+              />
             </div>
             <div className="col">{this.searchForm()}</div>
           </div>
