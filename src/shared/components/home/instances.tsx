@@ -227,7 +227,6 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
             allOptions={filterOptions}
             currentOption={filterOptions.find(t => t.value === this.props.kind)}
             onSelect={val => handleKindChange(this, val)}
-            className="col"
           />
         </div>
         <form
@@ -246,7 +245,10 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
             defaultValue={this.props.domain_filter ?? ""}
             ref={this.searchInput}
           />
-          <button type="submit" className="btn btn-outline-secondary ms-1">
+          <button
+            type="submit"
+            className="btn btn-light border-light-subtle ms-1"
+          >
             <Icon icon="search" />
           </button>
         </form>
