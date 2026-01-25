@@ -52,7 +52,7 @@ export class TimeIntervalFilter extends Component<Props, State> {
       <div className="input-group input-group-sm">
         <input
           type="number"
-          className="form-control interval-filter-input"
+          className="form-control interval-filter-input border-light-subtle"
           aria-label={I18NextService.i18n.t("time_interval")}
           value={num}
           onInput={linkEvent(this, handleTimeIntervalNumChange)}

@@ -251,6 +251,7 @@ export class Communities extends Component<
               <CreateCommunityButton
                 localSite={localSite}
                 myUserInfo={myUserInfo}
+                blockButton={false}
               />
             </div>
             <div className="col me-auto">
