@@ -138,7 +138,7 @@ interface HomeProps {
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
-  showHidden: boolean;
+  showHidden?: boolean;
   cursor?: PaginationCursor;
 }
 
@@ -684,7 +684,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       cursor,
       sort,
       postTimeRange: postTimeRange.toString(),
-      showHidden: showHidden.toString(),
+      showHidden: showHidden?.toString(),
     };
 
     this.props.history.push({
@@ -868,7 +868,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           <div className="col">
             <FilterChipCheckbox
               option={"show_hidden_posts"}
-              isChecked={showHidden}
+              isChecked={showHidden ?? false}
               onCheck={hidden => handleShowHiddenChange(this, hidden)}
             />
           </div>
