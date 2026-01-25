@@ -85,9 +85,11 @@ import { NotificationModlogItem } from "./notification-modlog-item";
 import {
   FilterChipDropdown,
   FilterOption,
+} from "@components/common/filter-chip-dropdown";
+import {
   UnreadOrAll,
   UnreadOrAllDropdown,
-} from "@components/common/filter-chip-dropdown";
+} from "@components/common/unread-or-all-dropdown";
 
 const messageTypeOptions: FilterOption<NotificationDataType>[] = [
   { value: "all", i18n: "all" },
@@ -241,9 +243,6 @@ export class Notifications extends Component<
   selects() {
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-2">
-        {this.hasUnreads && (
-          <div className="col">{this.markAllAsReadBtn()}</div>
-        )}
         <div className="col">
           <UnreadOrAllDropdown
             currentOption={this.state.unreadOrAll}
@@ -251,6 +250,9 @@ export class Notifications extends Component<
           />
         </div>
         <div className="col">{this.messageTypeFilters()}</div>
+        {this.hasUnreads && (
+          <div className="col">{this.markAllAsReadBtn()}</div>
+        )}
       </div>
     );
   }
@@ -258,7 +260,7 @@ export class Notifications extends Component<
   markAllAsReadBtn() {
     return (
       <button
-        className="btn btn-sm btn-secondary"
+        className="btn btn-sm btn-light border-light-subtle"
         onClick={() => handleMarkAllAsRead(this)}
       >
         {this.state.markAllAsReadRes.state === "loading" ? (
