@@ -2,7 +2,6 @@ import { I18NextService } from "@services/index";
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Icon } from "./icon";
 
 export type FilterOption<T extends string> = {
   value: T;
@@ -36,12 +35,7 @@ export function FilterChipDropdown<T extends string>({
         aria-expanded={false}
         data-bs-toggle="dropdown"
       >
-        {currentOption && (
-          <>
-            <Icon icon="check" classes={"icon-inline me-1"} />
-            {filterOptioni18nStr(currentOption)}
-          </>
-        )}
+        {currentOption && filterOptioni18nStr(currentOption)}
       </button>
       <ul className="dropdown-menu">
         {allOptions.map(opt => (

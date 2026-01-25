@@ -23,7 +23,7 @@ import {
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type { CommentIdAndRes, QueryParams, StringBoolean } from "@utils/types";
+import type { CommentIdAndRes, QueryParams } from "@utils/types";
 import { commentLoading, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, InfernoNode, MouseEventHandler } from "inferno";
@@ -92,11 +92,10 @@ import {
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
-import { PostOrCommentTypeSelect } from "../common/post-or-comment-type-select";
+import { PostOrCommentTypeDropdown } from "../common/post-or-comment-type-dropdown";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import { ListingTypeSelect } from "../common/listing-type-select";
-import { CommentSortSelect, PostSortSelect } from "../common/sort-select";
+import { CommentSortDropdown, PostSortDropdown } from "../common/sort-dropdown";
 import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
@@ -108,14 +107,15 @@ import {
 } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
-import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
 import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
-import { TimeIntervalSelect } from "@components/common/time-interval-select";
+import { TimeIntervalFilter } from "@components/common/time-interval-filter";
 import { BannedDialog } from "./banned-dialog";
-import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
+import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { MultiCommunityLink } from "@components/multi-community/multi-community-link";
+import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
+import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
@@ -138,8 +138,8 @@ interface HomeProps {
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
+  showHidden: boolean;
   cursor?: PaginationCursor;
-  showHidden?: StringBoolean;
 }
 
 type HomeData = RouteDataResponse<{
@@ -204,6 +204,10 @@ function getPostTimeRangeFromQuery(
   return type ? Number(type) : fallback;
 }
 
+function getShowHiddenFromQuery(hidden: string | undefined): boolean {
+  return hidden === "true";
+}
+
 type Fallbacks = {
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
@@ -224,7 +228,7 @@ export function getHomeQueryParams(
       listingType: getListingTypeFromQuery,
       cursor: (cursor?: string) => cursor,
       postOrCommentType: getPostOrCommentTypeFromQuery,
-      showHidden: (include?: StringBoolean) => include,
+      showHidden: getShowHiddenFromQuery,
     },
     source,
     {
@@ -353,7 +357,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         page_cursor: cursor,
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
-        show_hidden: showHidden === "true",
+        show_hidden: showHidden,
       };
 
       postsFetch = client.getPosts(getPostsForm);
@@ -680,7 +684,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       cursor,
       sort,
       postTimeRange: postTimeRange.toString(),
-      showHidden,
+      showHidden: showHidden.toString(),
     };
 
     this.props.history.push({
@@ -853,65 +857,65 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       this.props;
 
     return (
-      <div className="row align-items-center mb-3 g-3">
-        <div className="col-auto">
-          <PostOrCommentTypeSelect
-            type_={postOrCommentType}
-            onChange={val => handlePostOrCommentTypeChange(this, val)}
+      <div className="row row-cols-auto align-items-center g-3 mb-3">
+        <div className="col">
+          <PostOrCommentTypeDropdown
+            currentOption={postOrCommentType}
+            onSelect={val => handlePostOrCommentTypeChange(this, val)}
           />
         </div>
         {postOrCommentType === "post" && this.isoData.myUserInfo && (
-          <div className="col-auto">
-            <PostHiddenSelect
-              showHidden={showHidden}
-              onShowHiddenChange={hidden =>
-                handleShowHiddenChange(this, hidden)
-              }
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_hidden_posts"}
+              isChecked={showHidden}
+              onCheck={hidden => handleShowHiddenChange(this, hidden)}
             />
           </div>
         )}
-        <div className="col-auto">
-          <ListingTypeSelect
-            type_={
+        {/** TODO add show read posts also **/}
+        <div className="col">
+          <ListingTypeDropdown
+            currentOption={
               listingType ??
               this.state.siteRes.site_view.local_site.default_post_listing_type
             }
             showLocal={showLocal(this.isoData)}
             showSubscribed
             myUserInfo={this.isoData.myUserInfo}
-            onChange={val => handleListingTypeChange(this, val)}
+            onSelect={val => handleListingTypeChange(this, val)}
           />
         </div>
-        <div className="col-auto">
-          <PostListingModeSelect
-            current={this.state.postListingMode}
-            onChange={val => handlePostListingModeChange(this, val)}
+        <div className="col">
+          <PostListingModeDropdown
+            currentOption={this.state.postListingMode}
+            onSelect={val => handlePostListingModeChange(this, val)}
           />
         </div>
         {this.props.postOrCommentType === "post" ? (
           <>
-            <div className="col-auto">
-              <PostSortSelect
-                current={mixedToPostSortType(sort)}
-                onChange={val => handleSortChange(this, val)}
+            <div className="col">
+              <PostSortDropdown
+                currentOption={mixedToPostSortType(sort)}
+                onSelect={val => handleSortChange(this, val)}
               />
             </div>
-            <div className="col-6 col-md-3">
-              <TimeIntervalSelect
+            <div className="col">
+              <TimeIntervalFilter
                 currentSeconds={postTimeRange}
                 onChange={seconds => handlePostTimeRangeChange(this, seconds)}
               />
             </div>
           </>
         ) : (
-          <div className="col-auto">
-            <CommentSortSelect
-              current={mixedToCommentSortType(sort)}
-              onChange={val => handleCommentSortChange(this, val)}
+          <div className="col">
+            <CommentSortDropdown
+              currentOption={mixedToCommentSortType(sort)}
+              onSelect={val => handleCommentSortChange(this, val)}
             />
           </div>
         )}
-        <div className="col-auto ps-0">
+        <div className="col">
           {getRss(
             listingType ??
               this.state.siteRes.site_view.local_site.default_post_listing_type,
@@ -939,7 +943,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         type_: listingType,
-        show_hidden: showHidden === "true",
+        show_hidden: showHidden,
       });
       if (token === this.fetchDataToken) {
         this.setState({ postsRes });
@@ -1112,9 +1116,9 @@ function handlePostOrCommentTypeChange(i: Home, val: PostOrCommentType) {
   i.updateUrl({ postOrCommentType: val, cursor: undefined });
 }
 
-function handleShowHiddenChange(i: Home, show?: StringBoolean) {
+function handleShowHiddenChange(i: Home, showHidden: boolean) {
   i.updateUrl({
-    showHidden: show,
+    showHidden,
     cursor: undefined,
   });
 }
