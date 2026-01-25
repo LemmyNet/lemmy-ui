@@ -35,7 +35,7 @@ export function PostSortDropdown({
   className,
 }: SortDropdownProps<PostSortType>) {
   return (
-    <>
+    <div className="d-flex align-items-center">
       <FilterChipDropdown
         allOptions={postSortOptions}
         currentOption={postSortOptions.find(t => t.value === currentOption)}
@@ -43,7 +43,7 @@ export function PostSortDropdown({
         className={classNames("d-inline-block me-2", className)}
       />
       <SortingHelp />
-    </>
+    </div>
   );
 }
 
@@ -60,7 +60,7 @@ export function CommentSortDropdown({
   className,
 }: SortDropdownProps<CommentSortType>) {
   return (
-    <>
+    <div className="d-flex align-items-center">
       <FilterChipDropdown
         allOptions={commentSortOptions}
         currentOption={commentSortOptions.find(t => t.value === currentOption)}
@@ -68,7 +68,7 @@ export function CommentSortDropdown({
         className={classNames("d-inline-block me-2", className)}
       />
       <SortingHelp />
-    </>
+    </div>
   );
 }
 
@@ -122,7 +122,7 @@ export function MultiCommunitiesSortDropdown({
   className,
 }: SortDropdownProps<MultiCommunitySortType>) {
   return (
-    <>
+    <div className="d-flex align-items-center">
       <FilterChipDropdown
         allOptions={multiCommunitiesSortOptions}
         currentOption={multiCommunitiesSortOptions.find(
@@ -132,7 +132,7 @@ export function MultiCommunitiesSortDropdown({
         className={classNames("d-inline-block me-2", className)}
       />
       <SortingHelp />
-    </>
+    </div>
   );
 }
 
@@ -147,7 +147,7 @@ export function SearchSortDropdown({
   className,
 }: SortDropdownProps<SearchSortType>) {
   return (
-    <>
+    <div className="d-flex align-items-center">
       <FilterChipDropdown
         allOptions={searchSortOptions}
         currentOption={searchSortOptions.find(t => t.value === currentOption)}
@@ -155,7 +155,7 @@ export function SearchSortDropdown({
         className={classNames("d-inline-block me-2", className)}
       />
       <SortingHelp />
-    </>
+    </div>
   );
 }
 

@@ -86,9 +86,10 @@ export function CreateMultiCommunityButton({
   myUserInfo,
   blockButton,
 }: CreateMultiCommunityButtonProps) {
-  const classes = classNames("btn btn-secondary", {
+  const classes = classNames({
     "no-click": userNotLoggedInOrBanned(myUserInfo),
     "d-block mb-2 w-100": blockButton,
+    "btn btn-sm btn-light border-light-subtle": !blockButton,
   });
 
   return (
