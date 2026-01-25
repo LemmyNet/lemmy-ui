@@ -58,9 +58,11 @@ import { futureDaysToUnixTime } from "@utils/date";
 import {
   FilterChipDropdown,
   FilterOption,
+} from "@components/common/filter-chip-dropdown";
+import {
   UnreadOrAll,
   UnreadOrAllDropdown,
-} from "@components/common/filter-chip-dropdown";
+} from "@components/common/unread-or-all-dropdown";
 
 type ReportsData = RouteDataResponse<{
   reportsRes: PagedResponse<ReportCombinedView>;
