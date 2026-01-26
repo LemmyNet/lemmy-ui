@@ -48,6 +48,7 @@ export function FilterChipDropdown<T extends string>({
               })}
               id={`${id}-${opt.value}`}
               value={opt.value}
+              type="button"
               role="option"
               aria-selected={currentOption?.value === opt.value}
               onClick={() => onSelect(opt.value)}
