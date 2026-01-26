@@ -51,7 +51,7 @@ export class SearchableSelect extends Component<Props, State> {
     const { searchText, selectedIndex } = this.state;
 
     return (
-      <div className="searchable-select dropdown col-12 col-sm-auto flex-grow-1">
+      <div className="searchable-select dropdown flex-grow-1">
         <button
           id={id}
           type="button"
@@ -67,7 +67,7 @@ export class SearchableSelect extends Component<Props, State> {
         >
           {loading ? <Spinner /> : options[selectedIndex].label}
         </button>
-        <div className="modlog-choices-font-size dropdown-menu w-100 p-2">
+        <div className="modlog-choices-font-size dropdown-menu w-auto p-2">
           <div className="input-group">
             <span className="input-group-text">
               {loading ? <Spinner /> : <Icon icon="search" />}
