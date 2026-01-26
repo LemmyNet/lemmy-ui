@@ -401,7 +401,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <form className="mb-3 row">
+        <div className="mb-3 row">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("default_theme")}
           </label>
@@ -413,9 +413,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               onSelect={val => handleSiteDefaultTheme(this, val)}
             />
           </div>
-        </form>
+        </div>
         {this.props.showLocal && (
-          <form className="mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("listing_type")}
             </label>
@@ -430,9 +430,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 onSelect={val => handleDefaultPostListingTypeChange(this, val)}
               />
             </div>
-          </form>
+          </div>
         )}
-        <form className="mb-3 row">
+        <div className="mb-3 row">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("listing_mode")}
           </label>
@@ -444,8 +444,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               onSelect={val => handlePostListingModeChange(this, val)}
             />
           </div>
-        </form>
-        <form className="mb-3 row">
+        </div>
+        <div className="mb-3 row">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("post_sort_type")}
           </label>
@@ -457,8 +457,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               onSelect={val => handlePostSortTypeChange(this, val)}
             />
           </div>
-        </form>
-        <form className="mb-3 row">
+        </div>
+        <div className="mb-3 row">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("comment_sort_type")}
           </label>
@@ -470,8 +470,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               onSelect={val => handleCommentSortTypeChange(this, val)}
             />
           </div>
-        </form>
-        <form className="mb-3 row">
+        </div>
+        <div className="mb-3 row">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("post_time_range")}
           </label>
@@ -483,7 +483,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               onChange={seconds => handlePostTimeRangeChange(this, seconds)}
             />
           </div>
-        </form>
+        </div>
         <div className="mb-3 row">
           <label
             className="col-12 col-form-label"
@@ -535,7 +535,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         {this.state.siteForm.captcha_enabled && (
-          <form className="mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("captcha_difficulty")}
             </label>
@@ -547,7 +547,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 onSelect={val => handleSiteCaptchaDifficulty(this, val)}
               />
             </div>
-          </form>
+          </div>
         )}
         <div className="mb-3 row">
           <div className="col-12">

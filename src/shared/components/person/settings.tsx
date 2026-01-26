@@ -899,7 +899,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </div>
-          <form className="mb-3 row">
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("type")}
             </label>
@@ -915,8 +915,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 onSelect={val => handleListingTypeChange(this, val)}
               />
             </div>
-          </form>
-          <form className="mb-3 row">
+          </div>
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("listing_mode")}
             </label>
@@ -928,8 +928,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 onSelect={val => handlePostListingModeChange(this, val)}
               />
             </div>
-          </form>
-          <form className="mb-3 row">
+          </div>
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("post_sort_type")}
             </label>
@@ -942,8 +942,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 onSelect={val => handlePostSortTypeChange(this, val)}
               />
             </div>
-          </form>
-          <form className="mb-3 row">
+          </div>
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("comment_sort_type")}
             </label>
@@ -956,8 +956,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 onSelect={val => handleCommentSortTypeChange(this, val)}
               />
             </div>
-          </form>
-          <form className="mb-3 row">
+          </div>
+          <div className="mb-3 row">
             <label
               className="col-sm-3 col-form-label"
               htmlFor="post-time-range"
@@ -973,8 +973,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 onChange={seconds => handlePostTimeRangeChange(this, seconds)}
               />
             </div>
-          </form>
-          <form className="mb-3 row">
+          </div>
+          <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="items-per-page">
               {I18NextService.i18n.t("posts_per_page")}
             </label>
@@ -989,7 +989,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 max={50}
               />
             </div>
-          </form>
+          </div>
           <BlockingKeywordsTextArea
             keywords={this.state.saveUserSettingsForm.blocking_keywords ?? []}
             onUpdate={keywords => handleBlockingKeywordsUpdate(this, keywords)}
@@ -1037,7 +1037,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </div>
           </div>
           {enableDownvotes(siteRes) && (
-            <form className="mb-3 row">
+            <div className="mb-3 row">
               <label className="col-sm-3 col-form-label">
                 {I18NextService.i18n.t("show_downvotes")}
               </label>
@@ -1049,7 +1049,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                   onSelect={val => handleShowDownvotesChange(this, val)}
                 />
               </div>
-            </form>
+            </div>
           )}
           <div className="row mb-3">
             <div className="col">
