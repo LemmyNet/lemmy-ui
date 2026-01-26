@@ -403,7 +403,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         id="settings-tab-pane"
       >
         <div className="row">
-          {!userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
+          {!userNotLoggedInOrBanned(this?.isoData?.myUserInfo) && (
             <div className="col-12 col-md-6">
               <div className="card border-secondary mb-3">
                 <div className="card-body">
