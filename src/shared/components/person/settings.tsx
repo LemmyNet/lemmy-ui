@@ -884,7 +884,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             }
             myUserInfo={myUserInfo}
           />
-          <div className="mb-3 row">
+          <div className="mb-3 row align-items-center">
             <label className="col-sm-3 col-form-label" htmlFor="user-theme">
               {I18NextService.i18n.t("theme")}
             </label>
@@ -899,7 +899,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </div>
-          <div className="mb-3 row">
+          <div className="mb-3 row align-items-center">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("type")}
             </label>
@@ -916,7 +916,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </div>
-          <div className="mb-3 row">
+          <div className="mb-3 row align-items-center">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("listing_mode")}
             </label>
@@ -929,7 +929,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </div>
-          <div className="mb-3 row">
+          <div className="mb-3 row align-items-center">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("post_sort_type")}
             </label>
@@ -943,7 +943,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </div>
-          <div className="mb-3 row">
+          <div className="mb-3 row align-items-center">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("comment_sort_type")}
             </label>
@@ -957,7 +957,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </div>
-          <div className="mb-3 row">
+          <div className="mb-3 row align-items-center">
             <label
               className="col-sm-3 col-form-label"
               htmlFor="post-time-range"
@@ -1016,7 +1016,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </div>
-          <div className="row mb-3">
+          <div className="row mb-3 align-items-center">
             <div className="col">
               <FilterChipCheckbox
                 option={"show_scores"}
@@ -1037,7 +1037,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </div>
           </div>
           {enableDownvotes(siteRes) && (
-            <div className="mb-3 row">
+            <div className="mb-3 row align-items-center">
               <label className="col-sm-3 col-form-label">
                 {I18NextService.i18n.t("show_downvotes")}
               </label>

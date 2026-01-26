@@ -244,7 +244,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="mb-3 row">
+        <div className="mb-3 row align-items-center">
           {(
             [
               { kind: "post_upvotes", i18nKey: "post_upvote_federation" },
@@ -401,7 +401,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="mb-3 row">
+        <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("default_theme")}
           </label>
@@ -415,7 +415,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         {this.props.showLocal && (
-          <div className="mb-3 row">
+          <div className="mb-3 row align-items-center">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("listing_type")}
             </label>
@@ -432,7 +432,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         )}
-        <div className="mb-3 row">
+        <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("listing_mode")}
           </label>
@@ -445,7 +445,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="mb-3 row">
+        <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("post_sort_type")}
           </label>
@@ -458,7 +458,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="mb-3 row">
+        <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("comment_sort_type")}
           </label>
@@ -471,7 +471,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="mb-3 row">
+        <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("post_time_range")}
           </label>
