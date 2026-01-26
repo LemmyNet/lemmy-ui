@@ -891,6 +891,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             <div className="col-sm-9">
               <ThemeDropdown
                 themeList={this.state.themeList}
+                includeInstanceDefaults
                 currentOption={
                   this.state.saveUserSettingsForm.theme ?? "instance"
                 }
