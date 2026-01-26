@@ -36,12 +36,15 @@ export function CreatePostButton({
   communityView,
   myUserInfo,
 }: CreatePostButtonProps) {
-  const classes = classNames("btn btn-secondary d-block mb-2 w-100", {
-    "no-click":
-      communityView?.community.deleted ||
-      communityView?.community.removed ||
-      userNotLoggedInOrBanned(myUserInfo),
-  });
+  const classes = classNames(
+    "btn btn-light border-light-subtle d-block mb-2 w-100",
+    {
+      "no-click":
+        communityView?.community.deleted ||
+        communityView?.community.removed ||
+        userNotLoggedInOrBanned(myUserInfo),
+    },
+  );
 
   const link = communityView
     ? "/create_post" +
@@ -67,7 +70,7 @@ export function CreateCommunityButton({
 }: CreateCommunityButtonProps) {
   const classes = classNames({
     "no-click": !(localSite && canCreateCommunity(localSite, myUserInfo)),
-    "btn btn-secondary d-block mb-2 w-100": blockButton,
+    "btn btn-light border-light-subtle d-block mb-2 w-100": blockButton,
     "btn btn-sm btn-light border-light-subtle": !blockButton,
   });
 
@@ -88,7 +91,7 @@ export function CreateMultiCommunityButton({
 }: CreateMultiCommunityButtonProps) {
   const classes = classNames({
     "no-click": userNotLoggedInOrBanned(myUserInfo),
-    "btn btn-secondary d-block mb-2 w-100": blockButton,
+    "btn btn-light border-light-subtle d-block mb-2 w-100": blockButton,
     "btn btn-sm btn-light border-light-subtle": !blockButton,
   });
 

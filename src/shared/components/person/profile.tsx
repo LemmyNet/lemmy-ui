@@ -919,7 +919,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     {amAdmin(this.isoData.myUserInfo) && (
                       <Link
                         className={
-                          "d-flex align-self-start btn btn-secondary me-2"
+                          "d-flex align-self-start btn btn-light border-light-subtle me-2"
                         }
                         to={`/modlog?userId=${pv.person.id}`}
                       >
@@ -930,7 +930,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     )}
                     {pv.person.matrix_user_id && (
                       <a
-                        className={`d-flex align-self-start btn btn-secondary me-2`}
+                        className={`d-flex align-self-start btn btn-light border-light-subtle me-2`}
                         rel={relTags}
                         href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
                       >
@@ -939,7 +939,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     )}
                     <Link
                       className={
-                        "d-flex align-self-start btn btn-secondary me-2"
+                        "d-flex align-self-start btn btn-light border-light-subtle me-2"
                       }
                       to={`/create_private_message/${pv.person.id}`}
                     >
@@ -948,7 +948,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     {personBlocked ? (
                       <button
                         className={
-                          "d-flex align-self-start btn btn-secondary me-2"
+                          "d-flex align-self-start btn btn-light border-light-subtle me-2"
                         }
                         onClick={() =>
                           handleUnblockPerson(this, pv.person.id, myUserInfo)
@@ -959,7 +959,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     ) : (
                       <button
                         className={
-                          "d-flex align-self-start btn btn-secondary me-2"
+                          "d-flex align-self-start btn btn-light border-light-subtle me-2"
                         }
                         onClick={() =>
                           handleBlockPerson(this, pv.person.id, myUserInfo)
@@ -977,7 +977,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   (!pv.banned ? (
                     <button
                       className={
-                        "d-flex align-self-start btn btn-secondary me-2"
+                        "d-flex align-self-start btn btn-light border-light-subtle me-2"
                       }
                       onClick={() => handleModBanShow(this)}
                       aria-label={I18NextService.i18n.t("ban")}
@@ -987,7 +987,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   ) : (
                     <button
                       className={
-                        "d-flex align-self-start btn btn-secondary me-2"
+                        "d-flex align-self-start btn btn-light border-light-subtle me-2"
                       }
                       onClick={e => handleModBanSubmit(this, e)}
                       aria-label={I18NextService.i18n.t("unban")}
@@ -999,7 +999,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   <>
                     <button
                       className={
-                        "d-flex registration-self-start btn btn-secondary me-2"
+                        "d-flex registration-self-start btn btn-light border-light-subtle me-2"
                       }
                       aria-label={I18NextService.i18n.t("view_registration")}
                       onClick={() => handleRegistrationShow(this)}
@@ -1146,7 +1146,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           <div className="mb-3 row">
             <button
               type="reset"
-              className="btn btn-secondary me-2"
+              className="btn btn-light border-light-subtle me-2"
               aria-label={I18NextService.i18n.t("cancel")}
               onClick={() => handleModBanSubmitCancel(this)}
             >
@@ -1156,7 +1156,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           <div className="mb-3 row">
             <button
               type="submit"
-              className="btn btn-secondary"
+              className="btn btn-light border-light-subtle"
               aria-label={I18NextService.i18n.t("ban")}
             >
               {I18NextService.i18n.t("ban", { name: pv.person.name })}

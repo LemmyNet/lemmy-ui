@@ -764,7 +764,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           />
         </div>
         <div className="col-auto">
-          <button type="submit" className="btn btn-secondary mb-2">
+          <button
+            type="submit"
+            className="btn btn-light border-light-subtle mb-2"
+          >
             {this.state.searchRes.state === "loading" ? (
               <Spinner />
             ) : (

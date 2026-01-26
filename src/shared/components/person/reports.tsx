@@ -264,7 +264,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
               role="group"
             >
               <button
-                className="btn btn-secondary"
+                className="btn btn-light border-light-subtle"
                 onClick={() => handleClickshowCommunityReports(this)}
               >
                 {I18NextService.i18n.t(

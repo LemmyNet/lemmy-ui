@@ -252,7 +252,7 @@ const MobileButton = ({
   onClick: MouseEventHandler<HTMLButtonElement>;
 }) => (
   <button
-    className="btn btn-secondary d-inline-block mb-2 me-3"
+    className="btn btn-light border-light-subtle d-inline-block mb-2 me-3"
     onClick={onClick}
   >
     {I18NextService.i18n.t(textKey)}{" "}
@@ -729,7 +729,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     return (
       <div className="my-2">
         <button
-          className="btn btn-secondary"
+          className="btn btn-light border-light-subtle"
           onClick={() => handleMarkPageAsRead(this)}
         >
           {I18NextService.i18n.t("mark_page_as_read")}

@@ -559,7 +559,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 this.state.submitted
               }
               type="submit"
-              className="btn btn-secondary me-2"
+              className="btn btn-light border-light-subtle me-2"
             >
               {this.props.loading ? (
                 <Spinner />
@@ -572,7 +572,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             {this.props.post_view && (
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-light border-light-subtle"
                 onClick={() => handleCancel(this)}
               >
                 {I18NextService.i18n.t("cancel")}

@@ -307,7 +307,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
         {this.multiCommunityInfo()}
         <div className="d-block d-md-none">
           <button
-            className="btn btn-secondary d-inline-block mb-2 me-3"
+            className="btn btn-light border-light-subtle d-inline-block mb-2 me-3"
             onClick={() => handleShowSidebarMobile(this)}
           >
             {I18NextService.i18n.t("sidebar")}{" "}
@@ -366,7 +366,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     return (
       <div className="my-2">
         <button
-          className="btn btn-secondary"
+          className="btn btn-light border-light-subtle"
           onClick={() => handleMarkPageAsRead(this, this.isoData.myUserInfo)}
         >
           {I18NextService.i18n.t("mark_page_as_read")}

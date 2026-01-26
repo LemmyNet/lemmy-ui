@@ -147,7 +147,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     </>
                   )}
                   <button
-                    className="btn btn-secondary d-block mb-2 w-100"
+                    className="btn btn-light border-light-subtle d-block mb-2 w-100"
                     onClick={() => handleShowReportModal(this)}
                   >
                     {I18NextService.i18n.t("create_report")}
@@ -158,7 +158,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     show={this.state.showReportModal}
                   />
                   <Link
-                    className="btn btn-secondary d-block mb-2 w-100"
+                    className="btn btn-light border-light-subtle d-block mb-2 w-100"
                     to={`/modlog/${community.id}`}
                   >
                     {I18NextService.i18n.t("modlog")}
@@ -169,7 +169,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                   {amAdmin(myUserInfo) && (
                     <>
                       <button
-                        className="btn btn-secondary d-block mb-2 w-100"
+                        className="btn btn-light border-light-subtle d-block mb-2 w-100"
                         onClick={() => handleShowRemoveDialog(this)}
                       >
                         {I18NextService.i18n.t(
@@ -186,7 +186,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                         show={this.state.showRemoveDialog}
                       />
                       <button
-                        className="btn btn-secondary d-block mb-2 w-100"
+                        className="btn btn-light border-light-subtle d-block mb-2 w-100"
                         onClick={() => handleShowPurgeDialog(this)}
                         aria-label={I18NextService.i18n.t("purge_community")}
                       >

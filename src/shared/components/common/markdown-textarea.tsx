@@ -265,7 +265,7 @@ export class MarkdownTextArea extends Component<
             {this.props.buttonTitle && (
               <button
                 type="submit"
-                className="btn btn-sm btn-secondary ms-2"
+                className="btn btn-sm btn-light border-light-subtle ms-2"
                 disabled={this.isDisabled || !this.state.content}
               >
                 {this.props.loading && <Spinner className="me-1" />}
@@ -275,9 +275,12 @@ export class MarkdownTextArea extends Component<
             <button
               type="button"
               disabled={!this.state.content}
-              className={classNames("btn btn-sm btn-secondary ms-2", {
-                active: this.state.previewMode,
-              })}
+              className={classNames(
+                "btn btn-sm btn-light border-light-subtle ms-2",
+                {
+                  active: this.state.previewMode,
+                },
+              )}
               onClick={() => handlePreviewToggle(this)}
             >
               {this.state.previewMode
@@ -287,7 +290,7 @@ export class MarkdownTextArea extends Component<
             {this.props.replyType && (
               <button
                 type="button"
-                className="btn btn-sm btn-secondary ms-2"
+                className="btn btn-sm btn-light border-light-subtle ms-2"
                 onClick={() => handleReplyCancel(this)}
               >
                 {I18NextService.i18n.t("cancel")}
