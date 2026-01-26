@@ -8,19 +8,23 @@ const allOptions: FilterOption<RegistrationState>[] = [
   { value: "denied", i18n: "denied" },
 ];
 
-interface RegistrationStateDropdownProps {
-  state: RegistrationState;
-  onClick(val: RegistrationState): void;
-}
+type RegistrationStateDropdownProps = {
+  currentOption: RegistrationState;
+  onSelect(val: RegistrationState): void;
+  className?: string;
+};
 
-export function RegistrationStateDropdown(
-  props: RegistrationStateDropdownProps,
-) {
+export function RegistrationStateDropdown({
+  currentOption,
+  onSelect,
+  className,
+}: RegistrationStateDropdownProps) {
   return (
     <FilterChipDropdown
       allOptions={allOptions}
-      currentOption={allOptions.find(t => t.value === this.props.state)}
-      onSelect={props.onClick}
+      currentOption={allOptions.find(t => t.value === currentOption)}
+      onSelect={onSelect}
+      className={className}
     />
   );
 }

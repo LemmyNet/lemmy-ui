@@ -193,6 +193,7 @@ export interface CrossPostParams {
   customThumbnailUrl?: string;
 }
 
+// TODO get rid
 export type StringBoolean = "true" | "false";
 
 export type ProviderToEdit = Omit<
