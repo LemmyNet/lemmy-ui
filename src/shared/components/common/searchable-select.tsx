@@ -1,82 +1,33 @@
 import { Choice } from "@utils/types";
 import classNames from "classnames";
-import {
-  ChangeEvent,
-  Component,
-  createRef,
-  linkEvent,
-  RefObject,
-} from "inferno";
+import { Component, createRef, FormEvent, RefObject } from "inferno";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "./icon";
-import { LoadingEllipses } from "./loading-ellipses";
 
-interface SearchableSelectProps {
+type Props = {
   id: string;
   value?: number | string;
   options: Choice[];
   onChange?: (option: Choice) => void;
   onSearch?: (text: string) => void;
   loading?: boolean;
-}
+};
 
-interface SearchableSelectState {
+type State = {
   selectedIndex: number;
   searchText: string;
-}
+};
 
-function handleSearch(i: SearchableSelect, e: ChangeEvent<HTMLInputElement>) {
-  const { onSearch } = i.props;
-  const searchText = e.target.value;
-
-  if (onSearch) {
-    onSearch(searchText);
-  }
-
-  i.setState({
-    searchText,
-  });
-}
-
-function focusSearch(i: SearchableSelect) {
-  if (i.toggleButtonRef.current?.ariaExpanded === "true") {
-    i.searchInputRef.current?.focus();
-
-    if (i.props.onSearch) {
-      i.props.onSearch("");
-    }
-
-    i.setState({
-      searchText: "",
-    });
-  }
-}
-
-function handleChange({ option, i }: { option: Choice; i: SearchableSelect }) {
-  const { onChange, value } = i.props;
-
-  if (option.value !== value?.toString()) {
-    if (onChange) {
-      onChange(option);
-    }
-
-    i.setState({ searchText: "" });
-  }
-}
-
-export class SearchableSelect extends Component<
-  SearchableSelectProps,
-  SearchableSelectState
-> {
+export class SearchableSelect extends Component<Props, State> {
   searchInputRef: RefObject<HTMLInputElement> = createRef();
   toggleButtonRef: RefObject<HTMLButtonElement> = createRef();
 
-  state: SearchableSelectState = {
+  state: State = {
     selectedIndex: 0,
     searchText: "",
   };
 
-  constructor(props: SearchableSelectProps, context: any) {
+  constructor(props: Props, context: any) {
     super(props, context);
 
     if (props.value) {
@@ -105,23 +56,16 @@ export class SearchableSelect extends Component<
           id={id}
           type="button"
           role="combobox"
-          className="form-select d-inline-block text-start"
+          className="btn btn-sm btn-light border-light-subtle"
           aria-haspopup="listbox"
           aria-controls="searchable-select-input"
           aria-activedescendant={options[selectedIndex].label}
           aria-expanded={false}
           data-bs-toggle="dropdown"
-          onClick={linkEvent(this, focusSearch)}
+          onClick={() => focusSearch(this)}
           ref={this.toggleButtonRef}
         >
-          {loading ? (
-            <>
-              {I18NextService.i18n.t("loading")}
-              <LoadingEllipses />
-            </>
-          ) : (
-            options[selectedIndex].label
-          )}
+          {loading ? <Spinner /> : options[selectedIndex].label}
         </button>
         <div className="modlog-choices-font-size dropdown-menu w-100 p-2">
           <div className="input-group">
@@ -133,7 +77,7 @@ export class SearchableSelect extends Component<
               id="searchable-select-input"
               className="form-control"
               ref={this.searchInputRef}
-              onInput={linkEvent(this, handleSearch)}
+              onInput={e => handleSearch(this, e)}
               value={searchText}
               placeholder={`${I18NextService.i18n.t("search")}...`}
             />
@@ -155,7 +99,7 @@ export class SearchableSelect extends Component<
                 aria-disabled={option.disabled}
                 disabled={option.disabled}
                 aria-selected={selectedIndex === index}
-                onClick={linkEvent({ i: this, option }, handleChange)}
+                onClick={() => handleChange(this, option)}
                 type="button"
               >
                 {option.label}
@@ -166,10 +110,7 @@ export class SearchableSelect extends Component<
     );
   }
 
-  static getDerivedStateFromProps({
-    value,
-    options,
-  }: SearchableSelectProps): Partial<SearchableSelectState> {
+  static getDerivedStateFromProps({ value, options }: Props): Partial<State> {
     let selectedIndex =
       value || value === 0
         ? options.findIndex(option => option.value === value.toString())
@@ -182,5 +123,44 @@ export class SearchableSelect extends Component<
     return {
       selectedIndex,
     };
+  }
+}
+
+function handleSearch(i: SearchableSelect, e: FormEvent<HTMLInputElement>) {
+  const { onSearch } = i.props;
+  const searchText = e.target.value;
+
+  if (onSearch) {
+    onSearch(searchText);
+  }
+
+  i.setState({
+    searchText,
+  });
+}
+
+function focusSearch(i: SearchableSelect) {
+  if (i.toggleButtonRef.current?.ariaExpanded === "true") {
+    i.searchInputRef.current?.focus();
+
+    if (i.props.onSearch) {
+      i.props.onSearch("");
+    }
+
+    i.setState({
+      searchText: "",
+    });
+  }
+}
+
+function handleChange(i: SearchableSelect, option: Choice) {
+  const { onChange, value } = i.props;
+
+  if (option.value !== value?.toString()) {
+    if (onChange) {
+      onChange(option);
+    }
+
+    i.setState({ searchText: "" });
   }
 }
