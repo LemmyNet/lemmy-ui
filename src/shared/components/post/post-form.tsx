@@ -485,7 +485,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         )}
         {!this.props.post_view && (
-          <div className="mb-3 row">
+          <div className="mb-3 row align-items-center">
             <label className="col-sm-2 col-form-label" htmlFor="post-community">
               {I18NextService.i18n.t("community")}
             </label>
