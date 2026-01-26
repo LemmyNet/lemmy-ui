@@ -88,7 +88,7 @@ import {
   SavePost,
   SuccessResponse,
   TransferCommunity,
-  UpdateCommunityNotifications,
+  EditCommunityNotifications,
   CommentSlimView,
   PersonId,
   Community,
@@ -909,7 +909,7 @@ export class Post extends Component<PostRouteProps, PostState> {
           myUserInfo={this.isoData.myUserInfo}
           onFollow={form => handleFollow(this, form, myUserInfo)}
           onBlock={form => handleBlockCommunity(this, form, myUserInfo)}
-          onUpdateNotifs={form => handleUpdateCommunityNotifs(form)}
+          onEditNotifs={form => handleEditCommunityNotifs(form)}
           onRemove={form => handleModRemoveCommunity(this, form)}
           onPurge={form => handlePurgeCommunity(this, form)}
           removeLoading={this.state.removeCommunityRes.state === "loading"}
@@ -1323,8 +1323,8 @@ async function handleModRemoveCommunity(i: Post, form: RemoveCommunity) {
   i.updateCommunity(removeCommunityRes);
 }
 
-async function handleUpdateCommunityNotifs(form: UpdateCommunityNotifications) {
-  const res = await HttpService.client.updateCommunityNotifications(form);
+async function handleEditCommunityNotifs(form: EditCommunityNotifications) {
+  const res = await HttpService.client.editCommunityNotifications(form);
   if (res.state === "success") {
     toast(I18NextService.i18n.t("notifications_updated"));
   }
@@ -1647,7 +1647,7 @@ async function handleNotificationChange(i: Post, val: PostNotificationsMode) {
       mode: val,
     };
     i.setState({ notifications: form.mode });
-    const res = await HttpService.client.updatePostNotifications(form);
+    const res = await HttpService.client.editPostNotifications(form);
     if (res.state === "success") {
       toast(I18NextService.i18n.t("notifications_updated"));
     }

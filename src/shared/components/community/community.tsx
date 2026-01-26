@@ -75,7 +75,7 @@ import {
   MyUserInfo,
   MarkPostAsRead,
   NotePerson,
-  UpdateCommunityNotifications,
+  EditCommunityNotifications,
   LockComment,
   PostListingMode,
   PaginationCursor,
@@ -584,7 +584,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           myUserInfo={this.isoData.myUserInfo}
           onFollow={form => handleFollow(this, form, myUserInfo)}
           onBlock={form => handleBlockCommunity(this, form, myUserInfo)}
-          onUpdateNotifs={form => handleUpdateCommunityNotifs(form)}
+          onEditNotifs={form => handleEditCommunityNotifs(form)}
           onRemove={form => handleRemoveCommunity(this, form)}
           onPurge={form => handlePurgeCommunity(this, form)}
           removeLoading={this.state.removeCommunityRes.state === "loading"}
@@ -964,8 +964,8 @@ async function handleBlockPerson(
   }
 }
 
-async function handleUpdateCommunityNotifs(form: UpdateCommunityNotifications) {
-  const res = await HttpService.client.updateCommunityNotifications(form);
+async function handleEditCommunityNotifs(form: EditCommunityNotifications) {
+  const res = await HttpService.client.editCommunityNotifications(form);
   if (res.state === "success") {
     toast(I18NextService.i18n.t("notifications_updated"));
   }
