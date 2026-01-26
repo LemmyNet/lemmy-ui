@@ -6,6 +6,8 @@ import { NoOptionI18nKeys } from "i18next";
 export type FilterOption<T extends string> = {
   value: T;
   i18n?: NoOptionI18nKeys;
+  // Use this to override i18n
+  noI18n?: string;
 };
 
 type FilterChipDropdownProps<T extends string> = {
@@ -62,7 +64,7 @@ export function FilterChipDropdown<T extends string>({
 function filterOptioni18nStr<T extends string>(
   option: FilterOption<T>,
 ): string {
-  return I18NextService.i18n.t(
-    option.i18n ?? (option.value as NoOptionI18nKeys),
-  );
+  return option.noI18n
+    ? option.noI18n
+    : I18NextService.i18n.t(option.i18n ?? (option.value as NoOptionI18nKeys));
 }

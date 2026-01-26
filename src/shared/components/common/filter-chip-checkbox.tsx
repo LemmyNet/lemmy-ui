@@ -9,6 +9,7 @@ type FilterChipCheckboxProps = {
   isChecked: boolean;
   onCheck(checked: boolean): void;
   className?: string;
+  disabled?: boolean;
 };
 
 export function FilterChipCheckbox({
@@ -16,15 +17,17 @@ export function FilterChipCheckbox({
   option,
   isChecked,
   onCheck,
+  disabled,
 }: FilterChipCheckboxProps) {
   const id = randomStr();
   return (
     <>
       <input
         type="checkbox"
-        className={"visually-hidden"}
+        className={"btn-check visually-hidden"}
         id={`filter-check-${id}`}
         checked={isChecked}
+        disabled={disabled}
         onChange={e => onCheck(e.target.checked)}
       />
       <label
