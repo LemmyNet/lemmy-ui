@@ -63,6 +63,7 @@ import {
   UnreadOrAll,
   UnreadOrAllDropdown,
 } from "@components/common/unread-or-all-dropdown";
+import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 
 type ReportsData = RouteDataResponse<{
   reportsRes: PagedResponse<ReportCombinedView>;
@@ -259,21 +260,11 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         <div className="col">{this.reportTypeFilters()}</div>
         {this.isoData.myUserInfo?.local_user_view.local_user.admin && (
           <div className="col">
-            <div
-              className="btn-group btn-group-toggle flex-wrap mb-2"
-              role="group"
-            >
-              <button
-                className="btn btn-light border-light-subtle"
-                onClick={() => handleClickshowCommunityReports(this)}
-              >
-                {I18NextService.i18n.t(
-                  this.state.showCommunityRuleViolations
-                    ? "hide_community_reports"
-                    : "show_community_reports",
-                )}
-              </button>
-            </div>
+            <FilterChipCheckbox
+              option={"show_community_reports"}
+              isChecked={this.state.showCommunityRuleViolations ?? false}
+              onCheck={val => handleClickshowCommunityReports(this, val)}
+            />
           </div>
         )}
       </div>
@@ -724,9 +715,9 @@ function handleCloseModActionModals(i: Reports) {
   });
 }
 
-function handleClickshowCommunityReports(i: Reports) {
+function handleClickshowCommunityReports(i: Reports, val: boolean) {
   i.setState({
-    showCommunityRuleViolations: !i.state.showCommunityRuleViolations,
+    showCommunityRuleViolations: val,
   });
   i.update();
 }
