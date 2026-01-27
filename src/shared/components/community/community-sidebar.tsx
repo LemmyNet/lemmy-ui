@@ -25,7 +25,7 @@ import { CommunityLink, CommunitySettingsLink } from "./community-link";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
-import { CommunityNotificationSelect } from "@components/common/notification-select";
+import { CommunityNotificationsDropdown } from "@components/common/notifications-dropdown";
 import { LanguageList } from "@components/common/language-list";
 import { NoOptionI18nKeys } from "i18next";
 import { canViewCommunity, reportToast } from "@utils/app";
@@ -205,12 +205,13 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     {this.props.myUserInfo && this.blockCommunity()}
                     {canViewCommunity_ && (
                       <>
-                        <div className="mb-2 d-flex">
-                          <CommunityNotificationSelect
-                            current={this.state.notifications}
-                            onChange={val =>
+                        <div className="d-block mb-2">
+                          <CommunityNotificationsDropdown
+                            currentOption={this.state.notifications}
+                            onSelect={val =>
                               handleNotificationChange(this, val)
                             }
+                            className="btn btn-light border-light-subtle d-block w-100 text-truncate"
                           />
                         </div>
                         <form

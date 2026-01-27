@@ -117,7 +117,7 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { compareAsc, compareDesc } from "date-fns";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
-import { PostNotificationSelect } from "@components/common/notification-select";
+import { PostNotificationsDropdown } from "@components/common/notifications-dropdown";
 import { Link } from "inferno-router";
 
 const commentsShownInterval = 15;
@@ -672,13 +672,14 @@ export class Post extends Component<PostRouteProps, PostState> {
                 </button>
                 {this.state.showSidebarMobile && this.sidebar()}
               </div>
-              <div className="col-12 d-flex flex-wrap">
+              <div className="col-12 d-flex flex-wrap align-items-center">
                 {this.sortRadios()}
                 <div className="flex-grow-1"></div>
                 <div className="btn-group w-auto mb-2" role="group">
-                  <PostNotificationSelect
-                    current={this.state.notifications}
-                    onChange={val => handleNotificationChange(this, val)}
+                  <Icon icon="bell" classes="me-2" />
+                  <PostNotificationsDropdown
+                    currentOption={this.state.notifications}
+                    onSelect={val => handleNotificationChange(this, val)}
                   />
                 </div>
               </div>

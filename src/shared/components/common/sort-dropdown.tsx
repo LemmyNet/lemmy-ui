@@ -9,7 +9,6 @@ import {
   SearchSortType,
 } from "lemmy-js-client";
 import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
-import classNames from "classnames";
 
 type SortDropdownProps<T extends string> = {
   currentOption: T;
@@ -40,7 +39,7 @@ export function PostSortDropdown({
         allOptions={postSortOptions}
         currentOption={postSortOptions.find(t => t.value === currentOption)}
         onSelect={onSelect}
-        className={classNames("d-inline-block me-2", className)}
+        className={className}
       />
       <SortingHelp />
     </div>
@@ -65,7 +64,7 @@ export function CommentSortDropdown({
         allOptions={commentSortOptions}
         currentOption={commentSortOptions.find(t => t.value === currentOption)}
         onSelect={onSelect}
-        className={classNames("d-inline-block me-2", className)}
+        className={className}
       />
       <SortingHelp />
     </div>
@@ -100,7 +99,7 @@ export function CommunitiesSortDropdown({
           t => t.value === currentOption,
         )}
         onSelect={onSelect}
-        className={classNames("me-2", className)}
+        className={className}
       />
       <SortingHelp />
     </div>
@@ -129,7 +128,7 @@ export function MultiCommunitiesSortDropdown({
           t => t.value === currentOption,
         )}
         onSelect={onSelect}
-        className={classNames("d-inline-block me-2", className)}
+        className={className}
       />
       <SortingHelp />
     </div>
@@ -152,7 +151,7 @@ export function SearchSortDropdown({
         allOptions={searchSortOptions}
         currentOption={searchSortOptions.find(t => t.value === currentOption)}
         onSelect={onSelect}
-        className={classNames("d-inline-block me-2", className)}
+        className={className}
       />
       <SortingHelp />
     </div>
@@ -162,7 +161,7 @@ export function SearchSortDropdown({
 function SortingHelp() {
   return (
     <a
-      className="sort-select-icon text-muted"
+      className="sort-select-icon text-muted ms-2"
       href={sortingHelpUrl}
       rel={relTags}
       title={I18NextService.i18n.t("sorting_help")}

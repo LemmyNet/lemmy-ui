@@ -24,13 +24,17 @@ export function FilterChipDropdown<T extends string>({
   onSelect,
 }: FilterChipDropdownProps<T>) {
   const id = randomStr();
+
   // TODO I kind of hate how strong active is
   return (
     <div className="dropdown">
       <button
         className={classNames(
-          "btn btn-sm btn-light border-light-subtle dropdown-toggle",
+          "dropdown-toggle",
           className,
+          {
+            "btn btn-sm btn-light border-light-subtle": className === undefined,
+          },
           // { active: currentOption },
         )}
         type="button"
