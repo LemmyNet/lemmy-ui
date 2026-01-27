@@ -222,7 +222,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                   role="tabpanel"
                   id="community-tab-pane"
                 >
-                  <h1 className="row justify-content-md-center h4 mb-4">
+                  <h1 className="justify-content-md-center h4 mb-4">
                     {I18NextService.i18n.t("settings")}
                   </h1>
                   {getCommunityRes && (
