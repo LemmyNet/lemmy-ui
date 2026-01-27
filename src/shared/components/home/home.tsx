@@ -252,7 +252,7 @@ const MobileButton = ({
   onClick: MouseEventHandler<HTMLButtonElement>;
 }) => (
   <button
-    className="btn btn-light border-light-subtle d-inline-block mb-2 me-3"
+    className="btn btn-sm btn-light border-light-subtle d-inline-block mb-2 me-3"
     onClick={onClick}
   >
     {I18NextService.i18n.t(textKey)}{" "}
