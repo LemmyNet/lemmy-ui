@@ -5,9 +5,7 @@ import { Component, FormEvent } from "inferno";
 import {
   CaptchaResponse,
   GetCaptchaResponse,
-  GetSiteResponse,
   LoginResponse,
-  PublicOAuthProvider,
   SiteView,
 } from "lemmy-js-client";
 import { validActorRegexPattern } from "@utils/config";
@@ -24,15 +22,14 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
-import { handleUseOAuthProvider } from "./login";
 import { secondsDurationToAlertClass, secondsDurationToStr } from "@utils/date";
 import { scrollMixin } from "@components/mixins/scroll-mixin";
 import { RouteData } from "@utils/types";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
+import OauthLogin from "./oauth/oauth-login";
 
 interface State {
-  siteRes: GetSiteResponse;
   registerRes: RequestState<LoginResponse>;
   captchaRes: RequestState<GetCaptchaResponse>;
   form: {
@@ -63,7 +60,6 @@ export class Signup extends Component<SignupRouteProps, State> {
   public audio?: HTMLAudioElement;
 
   state: State = {
-    siteRes: this.isoData.siteRes,
     registerRes: EMPTY_REQUEST,
     captchaRes: EMPTY_REQUEST,
     form: {
@@ -130,32 +126,7 @@ export class Signup extends Component<SignupRouteProps, State> {
             {this.registerForm()}
           </div>
         </div>
-        {(this.state.siteRes.oauth_providers?.length || 0) > 0 && (
-          <>
-            <div className="row mt-3 mb-2">
-              <div className="col-12 col-lg-6 offset-lg-3">
-                {I18NextService.i18n.t("or")}
-              </div>
-            </div>
-            <div className="row">
-              <div className="col col-12 col-lg-6 offset-lg-3">
-                <h2 className="h4 mb-3">
-                  {I18NextService.i18n.t("oauth_register_with_provider")}
-                </h2>
-                {(this.state.siteRes.oauth_providers ?? []).map(
-                  (provider: PublicOAuthProvider) => (
-                    <button
-                      className="btn btn-primary my-2 d-block"
-                      onClick={() => handleLoginWithProvider(provider)}
-                    >
-                      {provider.display_name}
-                    </button>
-                  ),
-                )}
-              </div>
-            </div>
-          </>
-        )}
+        <OauthLogin title="oauth_register_with_provider" />
       </div>
     );
   }
@@ -601,8 +572,4 @@ function handleCaptchaPlay(i: Signup) {
 
 function captchaPngSrc(captcha: CaptchaResponse) {
   return `data:image/png;base64,${captcha.png}`;
-}
-
-async function handleLoginWithProvider(oauth_provider: PublicOAuthProvider) {
-  handleUseOAuthProvider(oauth_provider, "/");
 }
