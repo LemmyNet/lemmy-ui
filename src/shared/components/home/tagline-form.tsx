@@ -4,7 +4,7 @@ import {
   DeleteTagline,
   MyUserInfo,
   Tagline,
-  UpdateTagline,
+  EditTagline,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { MarkdownTextArea } from "../common/markdown-textarea";
@@ -15,7 +15,7 @@ interface TaglineFormProps {
   tagline?: Tagline; // If a tagline is given, that means this is an edit
   myUserInfo: MyUserInfo | undefined;
   onCreate?(form: CreateTagline): void;
-  onEdit?(form: UpdateTagline): void;
+  onEdit?(form: EditTagline): void;
   onDelete?(form: DeleteTagline): void;
 }
 

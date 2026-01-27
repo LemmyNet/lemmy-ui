@@ -11,7 +11,7 @@ import {
   LemmyHttp,
   MultiCommunityId,
   MultiCommunityResponse,
-  UpdateMultiCommunity,
+  EditMultiCommunity,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -230,13 +230,13 @@ async function handleDeleteMultiCommunity(
   deleted: boolean,
 ) {
   if (i.state.multiRes.state === "success") {
-    const form: UpdateMultiCommunity = {
+    const form: EditMultiCommunity = {
       id: i.state.multiRes.data.multi_community_view.multi.id,
       deleted,
     };
     i.setState({ deleteRes: LOADING_REQUEST });
     i.setState({
-      deleteRes: await HttpService.client.updateMultiCommunity(form),
+      deleteRes: await HttpService.client.editMultiCommunity(form),
     });
 
     if (i.state.deleteRes.state === "success") {
@@ -252,12 +252,12 @@ async function handleDeleteMultiCommunity(
 
 async function handleEditMultiCommunity(
   i: MultiCommunitySettings,
-  form: UpdateMultiCommunity,
+  form: EditMultiCommunity,
 ) {
   i.setState({ editRes: LOADING_REQUEST });
 
   i.setState({
-    editRes: await HttpService.client.updateMultiCommunity(form),
+    editRes: await HttpService.client.editMultiCommunity(form),
   });
 
   if (i.state.editRes.state === "success") {

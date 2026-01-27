@@ -397,7 +397,7 @@ export class CreatePost extends Component<
           hideButtons
           onFollow={() => {}}
           onBlock={() => {}}
-          onUpdateNotifs={() => {}}
+          onEditNotifs={() => {}}
           onRemove={() => {}}
           onPurge={() => {}}
           removeLoading={false}
