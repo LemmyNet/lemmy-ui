@@ -7,7 +7,7 @@ import {
   MyUserInfo,
   Tag,
   TagId,
-  UpdateCommunityTag,
+  EditCommunityTag,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -27,11 +27,11 @@ type CommunityTagGenericForm = {
 interface CommunityTagFormProps {
   tag?: Tag; // If an tag is given, this means its an edit.
   communityId?: CommunityId; // Required if its a create.
-  createOrUpdateLoading: boolean;
+  createOrEditLoading: boolean;
   deleteLoading?: boolean;
   myUserInfo: MyUserInfo | undefined;
   onCreate?(form: CreateCommunityTag): void;
-  onUpdate?(form: UpdateCommunityTag): void;
+  onEdit?(form: EditCommunityTag): void;
   onDelete?(form: DeleteCommunityTag): void;
 }
 
@@ -40,9 +40,7 @@ interface CommunityTagFormState {
   bypassNavWarning: boolean;
 }
 
-function isUpdateForm(
-  form: CommunityTagGenericForm,
-): form is UpdateCommunityTag {
+function isEditForm(form: CommunityTagGenericForm): form is EditCommunityTag {
   return form.tag_id !== undefined;
 }
 
@@ -162,7 +160,7 @@ export class CommunityTagForm extends Component<
               type="submit"
               disabled={!this.enableForm}
             >
-              {this.props.createOrUpdateLoading ? <Spinner /> : submitTitle}
+              {this.props.createOrEditLoading ? <Spinner /> : submitTitle}
             </button>
             {this.props.tag && (
               <button
@@ -235,8 +233,8 @@ function handleSubmit(i: CommunityTagForm, event: FormEvent<HTMLFormElement>) {
   i.setState({ bypassNavWarning: true });
 
   const form = i.state.form;
-  if (isUpdateForm(form)) {
-    i.props.onUpdate?.(form);
+  if (isEditForm(form)) {
+    i.props.onEdit?.(form);
   } else if (isCreateForm(form)) {
     i.props.onCreate?.(form);
   }

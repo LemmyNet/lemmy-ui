@@ -33,7 +33,7 @@ import {
   Tag,
   TagId,
   TransferCommunity,
-  UpdateCommunityTag,
+  EditCommunityTag,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -75,7 +75,7 @@ interface State {
   deleteCommunityRes: RequestState<CommunityResponse>;
   leaveModTeamRes: RequestState<AddModToCommunityResponse>;
   purgeCommunityRes: RequestState<SuccessResponse>;
-  createOrUpdateTagRes: ItemIdAndRes<TagId, Tag>;
+  createOrEditTagRes: ItemIdAndRes<TagId, Tag>;
   deleteTagRes: ItemIdAndRes<TagId, Tag>;
   isIsomorphic: boolean;
   showLeaveModTeamDialog: boolean;
@@ -111,7 +111,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
     deleteCommunityRes: EMPTY_REQUEST,
     leaveModTeamRes: EMPTY_REQUEST,
     purgeCommunityRes: EMPTY_REQUEST,
-    createOrUpdateTagRes: { id: 0, res: EMPTY_REQUEST },
+    createOrEditTagRes: { id: 0, res: EMPTY_REQUEST },
     deleteTagRes: { id: 0, res: EMPTY_REQUEST },
     showLeaveModTeamDialog: false,
     showRemoveModDialog: undefined,
@@ -303,10 +303,10 @@ export class CommunitySettings extends Component<RouteProps, State> {
             <CommunityTagForm
               key={`community-tag-form-${t.id}`}
               tag={t}
-              onUpdate={form => handleUpdateTag(this, form)}
+              onEdit={form => handleEditTag(this, form)}
               onDelete={form => handleDeleteTag(this, form)}
-              createOrUpdateLoading={
-                itemLoading(this.state.createOrUpdateTagRes) === t.id
+              createOrEditLoading={
+                itemLoading(this.state.createOrEditTagRes) === t.id
               }
               deleteLoading={itemLoading(this.state.deleteTagRes) === t.id}
               myUserInfo={this.isoData.myUserInfo}
@@ -316,8 +316,8 @@ export class CommunitySettings extends Component<RouteProps, State> {
           <CommunityTagForm
             onCreate={form => handleCreateTag(this, form)}
             communityId={res.community_view.community.id}
-            createOrUpdateLoading={
-              itemLoading(this.state.createOrUpdateTagRes) === 0
+            createOrEditLoading={
+              itemLoading(this.state.createOrEditTagRes) === 0
             }
             myUserInfo={this.isoData.myUserInfo}
           />
@@ -625,10 +625,10 @@ async function handleTransferCommunity(
 }
 
 async function handleCreateTag(i: CommunitySettings, form: CreateCommunityTag) {
-  i.setState({ createOrUpdateTagRes: { id: 0, res: LOADING_REQUEST } });
+  i.setState({ createOrEditTagRes: { id: 0, res: LOADING_REQUEST } });
   const res = await HttpService.client.createCommunityTag(form);
   i.setState({
-    createOrUpdateTagRes: {
+    createOrEditTagRes: {
       id: 0,
       res,
     },
@@ -643,17 +643,17 @@ async function handleCreateTag(i: CommunitySettings, form: CreateCommunityTag) {
   }
 }
 
-async function handleUpdateTag(i: CommunitySettings, form: UpdateCommunityTag) {
+async function handleEditTag(i: CommunitySettings, form: EditCommunityTag) {
   i.setState({
-    createOrUpdateTagRes: { id: form.tag_id, res: LOADING_REQUEST },
+    createOrEditTagRes: { id: form.tag_id, res: LOADING_REQUEST },
   });
-  const res = await HttpService.client.updateCommunityTag(form);
+  const res = await HttpService.client.editCommunityTag(form);
   i.setState({
-    createOrUpdateTagRes: { id: form.tag_id, res },
+    createOrEditTagRes: { id: form.tag_id, res },
   });
 
   if (res.state === "success") {
-    toast(I18NextService.i18n.t("community_tag_updated"));
+    toast(I18NextService.i18n.t("community_tag_edited"));
   }
 }
 
