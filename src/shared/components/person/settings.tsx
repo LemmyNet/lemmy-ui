@@ -717,7 +717,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             >
               {I18NextService.i18n.t("export")}
             </button>
-            <fieldset className="border rounded p-3 bg-dark bg-opacity-25">
+            <fieldset className="border rounded p-3 bg-secondary bg-opacity-25">
               <input
                 type="file"
                 accept="application/json"
