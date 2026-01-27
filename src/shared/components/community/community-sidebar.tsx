@@ -13,7 +13,7 @@ import {
   PersonView,
   PurgeCommunity,
   RemoveCommunity,
-  UpdateCommunityNotifications,
+  EditCommunityNotifications,
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { HttpService, I18NextService } from "../../services";
@@ -48,7 +48,7 @@ interface SidebarProps {
   onPurge(form: PurgeCommunity): void;
   onFollow(form: FollowCommunity): void;
   onBlock(form: BlockCommunity): void;
-  onUpdateNotifs(form: UpdateCommunityNotifications): void;
+  onEditNotifs(form: EditCommunityNotifications): void;
   removeLoading: boolean;
   purgeLoading: boolean;
   followLoading: boolean;
@@ -492,7 +492,7 @@ function handleNotificationChange(
     community_id: i.props.communityView.community.id,
     mode: i.state.notifications,
   };
-  i.props.onUpdateNotifs(form);
+  i.props.onEditNotifs(form);
 }
 
 function handleFollow(i: CommunitySidebar, follow: boolean) {

@@ -5,7 +5,7 @@ import {
   CreateMultiCommunity,
   MultiCommunityView,
   MyUserInfo,
-  UpdateMultiCommunity,
+  EditMultiCommunity,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
@@ -16,7 +16,7 @@ import { validActorRegexPattern } from "@utils/config";
 interface Props {
   multiCommunityView?: MultiCommunityView; // If a multi-community is given, that means this is an edit
   onCreate?(form: CreateMultiCommunity): void;
-  onEdit?(form: UpdateMultiCommunity): void;
+  onEdit?(form: EditMultiCommunity): void;
   onDelete?(deleted: boolean): void;
   createOrEditLoading?: boolean;
   deleteLoading?: boolean;
