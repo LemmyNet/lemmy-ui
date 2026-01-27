@@ -72,6 +72,7 @@ import { MultiCommunityLink } from "./multi-community/multi-community-link";
 import { ListingTypeDropdown } from "./common/listing-type-dropdown";
 import { SearchTypeDropdown } from "./common/search-type-dropdown";
 import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
+import { NoOptionI18nKeys } from "i18next";
 
 interface SearchProps {
   q?: string;
@@ -148,6 +149,7 @@ const getPostUrlOnlyFromQuery = (postUrlOnly?: string): boolean =>
 
 const Filter = ({
   filterType,
+  title,
   options,
   onChange,
   onSearch,
@@ -155,6 +157,7 @@ const Filter = ({
   loading,
 }: {
   filterType: FilterType;
+  title: NoOptionI18nKeys;
   options: Choice[];
   onSearch: (text: string) => void;
   onChange: (choice: Choice) => void;
@@ -166,7 +169,7 @@ const Filter = ({
       id={`${filterType}-filter`}
       options={[
         {
-          label: I18NextService.i18n.t(filterType) as string,
+          label: I18NextService.i18n.t(title) as string,
           value: "0",
         },
       ].concat(dedupByProperty(options, option => option.value))}
@@ -829,6 +832,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           <div className="col">
             <Filter
               filterType="community"
+              title="all_communities"
               onChange={choice => handleCommunityFilterChange(this, choice)}
               onSearch={text => handleCommunitySearch(this, text)}
               options={communitySearchOptions}
@@ -839,6 +843,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           <div className="col">
             <Filter
               filterType="creator"
+              title="all_creators"
               onChange={choice => handleCreatorFilterChange(this, choice)}
               onSearch={text => handleCreatorSearch(this, text)}
               options={creatorSearchOptions}
