@@ -8,7 +8,8 @@ export function CommunityTag({ tag, useName }: CommunityTagProps) {
   const { name, description } = tag;
   const label = useName ? name : communityTagName(tag);
 
-  const tooltip = `${name}${description && ` - ${description}`}`;
+  const descriptionStr = description ? ` - ${description}` : "";
+  const tooltip = `${name}${descriptionStr}`;
 
   return (
     <span
