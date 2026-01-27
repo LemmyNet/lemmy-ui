@@ -24,7 +24,7 @@ import {
   ListCustomEmojisResponse,
   LocalImageView,
   Tagline,
-  UpdateTagline,
+  EditTagline,
   PaginationCursor,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
@@ -1035,7 +1035,7 @@ async function handleDeleteTagline(i: AdminSettings, form: DeleteTagline) {
   i.setState({ loading: false });
 }
 
-async function handleEditTagline(i: AdminSettings, form: UpdateTagline) {
+async function handleEditTagline(i: AdminSettings, form: EditTagline) {
   i.setState({ loading: true });
   const res = await HttpService.client.editTagline(form);
 
