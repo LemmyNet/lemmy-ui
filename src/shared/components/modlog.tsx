@@ -12,7 +12,7 @@ import { scrollMixin } from "./mixins/scroll-mixin";
 import { amAdmin, amMod } from "@utils/roles";
 import type { QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import { Component, FormEvent, InfernoNode } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -25,7 +25,6 @@ import {
   GetPersonDetails,
   GetPersonDetailsResponse,
   LemmyHttp,
-  ModlogKind,
   MyUserInfo,
   Person,
   Modlog as Modlog_,
@@ -53,6 +52,12 @@ import { isBrowser } from "@utils/browser";
 import { LoadingEllipses } from "./common/loading-ellipses";
 import { PaginatorCursor } from "./common/paginator-cursor";
 import { TableHr } from "./common/tables";
+import { NoOptionI18nKeys } from "i18next";
+import {
+  ModlogKindDropdown,
+  ModlogKindOrAll,
+  modlogKindOrAllToModlogKind,
+} from "./common/modlog-kind-dropdown";
 
 const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";
@@ -95,13 +100,13 @@ interface ModlogProps {
   cursor?: PaginationCursor;
   userId?: number;
   modId?: number;
-  actionType?: ModlogKind;
+  actionType: ModlogKindOrAll;
   postId?: number;
   commentId?: number;
 }
 
-function getActionFromString(action?: string): ModlogKind | undefined {
-  return action as ModlogKind;
+function getActionFromString(action?: string): ModlogKindOrAll {
+  return (action as ModlogKindOrAll) ?? "all";
 }
 
 interface ModlogEntry {
@@ -558,6 +563,7 @@ export function processModlogEntry(
 
 const Filter = ({
   filterType,
+  title,
   onChange,
   value,
   onSearch,
@@ -565,30 +571,26 @@ const Filter = ({
   loading,
 }: {
   filterType: FilterType;
+  title: NoOptionI18nKeys;
   onChange: (option: Choice) => void;
   value?: number | null;
   onSearch: (text: string) => void;
   options: Choice[];
   loading: boolean;
 }) => (
-  <div className="col-sm-6 mb-3">
-    <label className="mb-2" htmlFor={`filter-${filterType}`}>
-      {I18NextService.i18n.t(`filter_by_${filterType}`)}
-    </label>
-    <SearchableSelect
-      id={`filter-${filterType}`}
-      value={value ?? 0}
-      options={[
-        {
-          label: I18NextService.i18n.t("all") as string,
-          value: "0",
-        },
-      ].concat(options)}
-      onChange={onChange}
-      onSearch={onSearch}
-      loading={loading}
-    />
-  </div>
+  <SearchableSelect
+    id={`filter-${filterType}`}
+    value={value ?? 0}
+    options={[
+      {
+        label: I18NextService.i18n.t(title) as string,
+        value: "0",
+      },
+    ].concat(options)}
+    onChange={onChange}
+    onSearch={onSearch}
+    loading={loading}
+  />
 );
 
 async function createNewOptions({
@@ -848,78 +850,36 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             )}
           </h5>
         )}
-        <div className="row mb-2">
-          <div className="col-sm-6">
-            <select
-              value={actionType}
-              onChange={e => handleFilterActionChange(this, e)}
-              className="form-select"
-              aria-label="action"
-            >
-              <option disabled aria-hidden="true">
-                {I18NextService.i18n.t("filter_by_action")}
-              </option>
-              <option value={"all"}>{I18NextService.i18n.t("all")}</option>
-              <option value={"mod_remove_post"}>Removing Posts</option>
-              <option value={"mod_lock_post"}>Locking Posts</option>
-              <option value={"mod_lock_comment"}>Locking Comments</option>
-              <option value={"mod_feature_post_community"}>
-                Featuring Posts in Community
-              </option>
-              <option value={"admin_feature_post_site"}>
-                Featuring Posts for local Instance
-              </option>
-              <option value={"mod_remove_comment"}>Removing Comments</option>
-              <option value={"admin_remove_community"}>
-                Removing Communities
-              </option>
-              <option value={"admin_ban"}>Banning From Site</option>
-              <option value={"mod_ban_from_community"}>
-                Banning From Communities
-              </option>
-              <option value={"mod_add_to_community"}>
-                Adding Mod to Community
-              </option>
-              <option value={"mod_transfer_community"}>
-                Transferring Communities
-              </option>
-              <option value={"mod_change_community_visibility"}>
-                Changing Community visibility
-              </option>
-              <option value={"admin_add"}>Adding Admin to Site</option>
-              <option value={"admin_block_instance"}>
-                Blocking a federated Instance
-              </option>
-              <option value={"admin_allow_instance"}>
-                Allowing a federated Instance
-              </option>
-              <option value={"admin_purge_person"}>Purging a Person</option>
-              <option value={"admin_purge_community"}>
-                Purging a Community
-              </option>
-              <option value={"admin_purge_post"}>Purging a Post</option>
-              <option value={"admin_purge_comment"}>Purging a Comment</option>
-            </select>
-          </div>
-        </div>
-        <div className="row mb-2">
-          <Filter
-            filterType="user"
-            onChange={choice => handleUserChange(this, choice)}
-            onSearch={text => handleSearchUsers(this, text)}
-            value={userId}
-            options={userSearchOptions}
-            loading={loadingUserSearch}
-          />
-          {this.amAdminOrMod && (
-            <Filter
-              filterType="mod"
-              onChange={choice => handleModChange(this, choice)}
-              onSearch={text => handleSearchMods(this, text)}
-              value={modId}
-              options={modSearchOptions}
-              loading={loadingModSearch}
+        <div className="row row-cols-auto align-items-center g-3 mb-2">
+          <div className="col">
+            <ModlogKindDropdown
+              currentOption={actionType}
+              onSelect={val => handleFilterActionChange(this, val)}
             />
+          </div>
+          <div className="col">
+            <Filter
+              filterType="user"
+              title="all_users"
+              onChange={choice => handleUserChange(this, choice)}
+              onSearch={text => handleSearchUsers(this, text)}
+              value={userId}
+              options={userSearchOptions}
+              loading={loadingUserSearch}
+            />
+          </div>
+          {this.amAdminOrMod && (
+            <div className="col">
+              <Filter
+                filterType="mod"
+                title="all_mods"
+                onChange={choice => handleModChange(this, choice)}
+                onSearch={text => handleSearchMods(this, text)}
+                value={modId}
+                options={modSearchOptions}
+                loading={loadingModSearch}
+              />
+            </div>
           )}
         </div>
         {this.renderModlogTable()}
@@ -1006,7 +966,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const res = await HttpService.client.getModlog({
       community_id: communityId,
       limit: fetchLimit,
-      type_: actionType,
+      type_: modlogKindOrAllToModlogKind(actionType),
       other_person_id: userId,
       mod_person_id: modId,
       comment_id: commentId,
@@ -1054,7 +1014,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       page_cursor: cursor,
       limit: fetchLimit,
       community_id: communityId,
-      type_: actionType,
+      type_: modlogKindOrAllToModlogKind(actionType),
       mod_person_id: modId,
       other_person_id: userId,
       comment_id: commentId,
@@ -1100,13 +1060,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   }
 }
 
-function handleFilterActionChange(
-  i: Modlog,
-  event: FormEvent<HTMLSelectElement>,
-) {
-  const val = event.target.value;
-  const actionType = val === "all" ? undefined : (val as ModlogKind);
-
+function handleFilterActionChange(i: Modlog, actionType: ModlogKindOrAll) {
   i.updateUrl({
     actionType,
     cursor: undefined,
