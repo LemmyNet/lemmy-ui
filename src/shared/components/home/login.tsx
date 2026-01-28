@@ -21,7 +21,7 @@ import { RouteData } from "@utils/types";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { NoOptionI18nKeys } from "i18next";
-import OauthLogin from "./oauth/oauth-login";
+import { OAuthLogin } from "./oauth/oauth-login";
 
 interface LoginProps {
   prev?: string;
@@ -97,7 +97,7 @@ export class Login extends Component<LoginRouteProps, State> {
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
-        <OauthLogin title="oauth_login_with_provider" />
+        <OAuthLogin oauth_providers={this.isoData.siteRes.oauth_providers} />
       </div>
     );
   }

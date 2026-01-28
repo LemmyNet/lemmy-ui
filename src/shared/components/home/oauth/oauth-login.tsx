@@ -1,34 +1,26 @@
 import { I18NextService } from "@services/I18NextService";
-import { setIsoData } from "@utils/app";
-import { NoOptionI18nKeys } from "i18next";
 import { Component } from "inferno";
 import { PublicOAuthProvider } from "lemmy-js-client";
 import { v4 as uuidv4 } from "uuid";
 
-type OAuthLoginProps = { title: NoOptionI18nKeys };
+type OAuthLoginProps = { oauth_providers: PublicOAuthProvider[] };
 
-export default class OAuthLogin extends Component<OAuthLoginProps, object> {
-  public isoData = setIsoData(this.context);
-
+export class OAuthLogin extends Component<OAuthLoginProps, object> {
   constructor(props: OAuthLoginProps, context: any) {
     super(props, context);
   }
 
   render() {
     return (
-      (this.isoData.siteRes.oauth_providers?.length || 0) > 0 && (
+      (this.props.oauth_providers?.length || 0) > 0 && (
         <>
-          <div className="row mt-3 mb-2">
-            <div className="col-12 col-lg-6 offset-lg-3">
-              {I18NextService.i18n.t("or")}
-            </div>
-          </div>
+          <div className="row mt-3 mb-2"></div>
           <div className="row">
             <div className="col col-12 col-lg-6 offset-lg-3">
               <h2 className="h4 mb-3">
-                {I18NextService.i18n.t(this.props.title)}
+                {I18NextService.i18n.t("oauth_use_external_provider")}
               </h2>
-              {(this.isoData.siteRes.oauth_providers ?? []).map(
+              {(this.props.oauth_providers ?? []).map(
                 (provider: PublicOAuthProvider) => (
                   <button
                     className="btn btn-primary my-2 d-block"
@@ -46,7 +38,7 @@ export default class OAuthLogin extends Component<OAuthLoginProps, object> {
   }
 }
 
-export async function handleLoginWithProvider(
+function handleLoginWithProvider(
   oauth_provider: PublicOAuthProvider,
   prev?: string,
   username?: string,

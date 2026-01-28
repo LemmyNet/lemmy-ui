@@ -27,7 +27,7 @@ import { scrollMixin } from "@components/mixins/scroll-mixin";
 import { RouteData } from "@utils/types";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
-import OauthLogin from "./oauth/oauth-login";
+import { OAuthLogin } from "./oauth/oauth-login";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -126,7 +126,7 @@ export class Signup extends Component<SignupRouteProps, State> {
             {this.registerForm()}
           </div>
         </div>
-        <OauthLogin title="oauth_register_with_provider" />
+        <OAuthLogin oauth_providers={this.isoData.siteRes.oauth_providers} />
       </div>
     );
   }
