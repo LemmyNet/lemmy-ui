@@ -379,9 +379,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get documentTitle(): string {
-    const { name, description } = this.state.siteRes.site_view.site;
+    const { name, summary } = this.state.siteRes.site_view.site;
 
-    return description ? `${name} - ${description}` : name;
+    return summary ? `${name} - ${summary}` : name;
   }
 
   render() {

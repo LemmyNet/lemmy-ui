@@ -579,7 +579,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               <PostListing
                 postView={res.post_view}
                 crossPosts={res.cross_posts}
-                communityTags={res.community_view.post_tags}
+                communityTags={res.community_view.tags}
                 showCrossPosts="expanded"
                 showBody="full"
                 showCommunity

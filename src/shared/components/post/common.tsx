@@ -21,7 +21,13 @@ import {
   isImage,
 } from "@utils/media";
 import { Link } from "inferno-router";
-import { Post, PostView, MyUserInfo, Language, Tag } from "lemmy-js-client";
+import {
+  Post,
+  PostView,
+  MyUserInfo,
+  Language,
+  CommunityTag as CommunityTagI,
+} from "lemmy-js-client";
 import { T } from "inferno-i18next-dess";
 import { hostname } from "@utils/helpers";
 import { ShowBodyType } from "@utils/types";
@@ -57,7 +63,7 @@ export function PostName({ post, showBody }: PostNameProps) {
 
 type PostBadgesProps = {
   post: Post;
-  tags: Tag[];
+  tags: CommunityTagI[];
   allLanguages: Language[];
 };
 export function PostBadges({ post, tags, allLanguages }: PostBadgesProps) {

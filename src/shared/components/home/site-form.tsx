@@ -59,7 +59,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     return {
       name: site?.name,
       summary: site?.summary,
-      description: site?.description,
+      sidebar: site?.sidebar,
       registration_mode: ls?.registration_mode,
       oauth_registration: ls?.oauth_registration,
       community_creation_admin_only: ls?.community_creation_admin_only,
@@ -113,7 +113,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             !siteSetup &&
             !!(
               this.state.siteForm.name ||
-              this.state.siteForm.description ||
+              this.state.siteForm.sidebar ||
               this.state.siteForm.application_question ||
               this.state.siteForm.summary
             ) &&
@@ -190,12 +190,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         </div>
         <div className="mb-3 row">
           <label className="col-12 col-form-label">
-            {I18NextService.i18n.t("description")}
+            {I18NextService.i18n.t("sidebar")}
           </label>
           <div className="col-12">
             <MarkdownTextArea
-              initialContent={this.state.siteForm.description}
-              onContentChange={val => handleSiteDescriptionChange(this, val)}
+              initialContent={this.state.siteForm.sidebar}
+              onContentChange={val => handleSiteSidebarChange(this, val)}
               hideNavigationWarnings
               allLanguages={[]}
               siteLanguages={[]}
@@ -709,7 +709,7 @@ function handleSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
     const form: CreateSite = {
       name: stateSiteForm.name ?? "My site",
       summary: stateSiteForm.summary,
-      description: stateSiteForm.description,
+      sidebar: stateSiteForm.sidebar,
       community_creation_admin_only:
         stateSiteForm.community_creation_admin_only,
       post_upvotes: stateSiteForm.post_upvotes,
@@ -767,8 +767,8 @@ function handleSiteNameChange(i: SiteForm, event: FormEvent<HTMLInputElement>) {
   i.setState(s => ((s.siteForm.name = event.target.value), s));
 }
 
-function handleSiteDescriptionChange(i: SiteForm, val: string) {
-  i.setState(s => ((s.siteForm.description = val), s));
+function handleSiteSidebarChange(i: SiteForm, val: string) {
+  i.setState(s => ((s.siteForm.sidebar = val), s));
 }
 
 function handleSiteLegalInfoChange(i: SiteForm, val: string) {

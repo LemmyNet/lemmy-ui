@@ -296,7 +296,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
             title={this.documentTitle}
             path={this.context.router.route.match.url}
             canonicalPath={res.multi_community_view.multi.ap_id}
-            description={res.multi_community_view.multi.description}
+            description={res.multi_community_view.multi.summary}
           />
         )}
 

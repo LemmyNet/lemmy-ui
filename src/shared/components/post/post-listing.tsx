@@ -25,7 +25,7 @@ import {
   PurgePost,
   RemovePost,
   SavePost,
-  Tag,
+  CommunityTag,
   TransferCommunity,
 } from "lemmy-js-client";
 import { ShowBodyType, ShowCrossPostsType } from "@utils/types";
@@ -45,7 +45,7 @@ type PostListingProps = {
   crossPosts: PostView[];
   admins: PersonView[];
   allLanguages: Language[];
-  communityTags: Tag[];
+  communityTags: CommunityTag[];
   siteLanguages: number[];
   showCommunity: boolean;
   showBody: ShowBodyType;
