@@ -1,13 +1,9 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
-import { isBrowser, refreshTheme } from "@utils/browser";
+import { refreshTheme } from "@utils/browser";
 import { getQueryParams, validEmail } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import {
-  GetSiteResponse,
-  LoginResponse,
-  PublicOAuthProvider,
-} from "lemmy-js-client";
+import { LoginResponse } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -25,7 +21,7 @@ import { RouteData } from "@utils/types";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { NoOptionI18nKeys } from "i18next";
-import { v4 as uuidv4 } from "uuid";
+import { OAuthLogin } from "./oauth/oauth-login";
 
 interface LoginProps {
   prev?: string;
@@ -47,7 +43,6 @@ interface State {
     password: string;
     stay_logged_in: boolean;
   };
-  siteRes: GetSiteResponse;
   show2faModal: boolean;
   showOAuthModal: boolean;
   showResendVerificationEmailBtn: boolean;
@@ -71,7 +66,6 @@ export class Login extends Component<LoginRouteProps, State> {
       password: "",
       stay_logged_in: false,
     },
-    siteRes: this.isoData.siteRes,
     show2faModal: false,
     showOAuthModal: false,
     showResendVerificationEmailBtn: false,
@@ -83,12 +77,8 @@ export class Login extends Component<LoginRouteProps, State> {
 
   get documentTitle(): string {
     return `${I18NextService.i18n.t("login")} - ${
-      this.state.siteRes.site_view.site.name
+      this.isoData.siteRes.site_view.site.name
     }`;
-  }
-
-  get isLemmyMl(): boolean {
-    return isBrowser() && window.location.hostname === "lemmy.ml";
   }
 
   render() {
@@ -107,32 +97,7 @@ export class Login extends Component<LoginRouteProps, State> {
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
-        {(this.state.siteRes.oauth_providers?.length || 0) > 0 && (
-          <>
-            <div className="row mt-3 mb-2">
-              <div className="col-12 col-lg-6 offset-lg-3">
-                {I18NextService.i18n.t("or")}
-              </div>
-            </div>
-            <div className="row">
-              <div className="col col-12 col-lg-6 offset-lg-3">
-                <h2 className="h4 mb-3">
-                  {I18NextService.i18n.t("oauth_login_with_provider")}
-                </h2>
-                {(this.state.siteRes.oauth_providers ?? []).map(
-                  (provider: PublicOAuthProvider) => (
-                    <button
-                      className="btn btn-primary my-2 d-block"
-                      onClick={() => handleLoginWithProvider(this, provider)}
-                    >
-                      {provider.display_name}
-                    </button>
-                  ),
-                )}
-              </div>
-            </div>
-          </>
-        )}
+        <OAuthLogin oauth_providers={this.isoData.siteRes.oauth_providers} />
       </div>
     );
   }
@@ -229,13 +194,6 @@ async function handleSubmitTotp(i: Login, totp: string) {
   return successful;
 }
 
-async function handleLoginWithProvider(
-  i: Login,
-  oauth_provider: PublicOAuthProvider,
-) {
-  handleUseOAuthProvider(oauth_provider, i.props.prev ?? "/");
-}
-
 async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
   UserService.Instance.login({
     res: loginRes,
@@ -312,44 +270,6 @@ async function handleLoginSubmit(i: Login, event: FormEvent<HTMLFormElement>) {
       }
     }
   }
-}
-
-export async function handleUseOAuthProvider(
-  oauth_provider: PublicOAuthProvider,
-  prev?: string,
-  username?: string,
-  answer?: string,
-  show_nsfw?: boolean,
-) {
-  const redirectUri = `${window.location.origin}/oauth/callback`;
-  const state = uuidv4();
-  const requestUri =
-    oauth_provider.authorization_endpoint +
-    "?" +
-    [
-      `client_id=${encodeURIComponent(oauth_provider.client_id)}`,
-      `response_type=code`,
-      `scope=${encodeURIComponent(oauth_provider.scopes)}`,
-      `redirect_uri=${encodeURIComponent(redirectUri)}`,
-      `state=${state}`,
-    ].join("&");
-
-  // store state in local storage
-  localStorage.setItem(
-    "oauth_state",
-    JSON.stringify({
-      state,
-      oauth_provider_id: oauth_provider.id,
-      redirect_uri: redirectUri,
-      prev: prev ?? "/",
-      username: username,
-      answer: answer,
-      show_nsfw: show_nsfw,
-      expires_at: Date.now() + 5 * 60_000,
-    }),
-  );
-
-  window.location.assign(requestUri);
 }
 
 function handleLoginUsernameChange(
