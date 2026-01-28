@@ -547,6 +547,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 {I18NextService.i18n.t("tags")}
               </label>
               <div className="col-sm-10">
+                {/** TODO This should use an abstracted FilterChipMultiDropdown **/}
                 <select
                   id="post-tags"
                   className="form-select"
