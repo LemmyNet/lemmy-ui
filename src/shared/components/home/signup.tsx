@@ -1,7 +1,6 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { isBrowser } from "@utils/browser";
-import { getQueryParams, resourcesSettled, validEmail } from "@utils/helpers";
-import { scrollMixin } from "../mixins/scroll-mixin";
+import { resourcesSettled, validEmail } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
 import {
   CaptchaResponse,
@@ -23,15 +22,12 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
-import { RouteComponentProps } from "inferno-router/dist/Route";
-import { RouteData } from "@utils/types";
-import { IRoutePropsWithFetch } from "@utils/routes";
-import { handleUseOAuthProvider } from "./login";
 import { secondsDurationToAlertClass, secondsDurationToStr } from "@utils/date";
-
-interface SignupProps {
-  sso_provider_id?: string;
-}
+import { scrollMixin } from "@components/mixins/scroll-mixin";
+import { RouteData } from "@utils/types";
+import { RouteComponentProps } from "inferno-router/dist/Route";
+import { IRoutePropsWithFetch } from "@utils/routes";
+import { OAuthLogin } from "./oauth/oauth-login";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -51,21 +47,11 @@ interface State {
   captchaPlaying: boolean;
 }
 
-export function getSignupQueryParams(source?: string): SignupProps {
-  return getQueryParams<SignupProps>(
-    {
-      sso_provider_id: (param?: string) => param,
-    },
-    source,
-  );
-}
-
-type SignupRouteProps = RouteComponentProps<Record<string, never>> &
-  SignupProps;
+type SignupRouteProps = RouteComponentProps<Record<string, never>>;
 export type SignupFetchConfig = IRoutePropsWithFetch<
   RouteData,
   Record<string, never>,
-  SignupProps
+  object
 >;
 
 @scrollMixin
@@ -140,13 +126,13 @@ export class Signup extends Component<SignupRouteProps, State> {
             {this.registerForm()}
           </div>
         </div>
+        <OAuthLogin oauth_providers={this.isoData.siteRes.oauth_providers} />
       </div>
     );
   }
 
   registerForm() {
     const siteView = this.isoData.siteRes?.site_view;
-    const oauth_provider = getOAuthProvider(this);
     const lastApplicationDurationSeconds =
       this.isoData.siteRes.last_application_duration_seconds;
 
@@ -180,76 +166,55 @@ export class Signup extends Component<SignupRouteProps, State> {
           </div>
         </div>
 
-        {!oauth_provider && (
-          <>
-            {
-              <div className="mb-3 row">
-                <label
-                  className="col-sm-2 col-form-label"
-                  htmlFor="register-email"
-                >
-                  {I18NextService.i18n.t("email")}
-                </label>
-                <div className="col-sm-10">
-                  <input
-                    type="email"
-                    id="register-email"
-                    className="form-control"
-                    placeholder={
-                      siteView?.local_site.require_email_verification
-                        ? I18NextService.i18n.t("required")
-                        : I18NextService.i18n.t("optional")
-                    }
-                    value={this.state.form.email}
-                    autoComplete="email"
-                    onInput={e => handleRegisterEmailChange(this, e)}
-                    required={siteView?.local_site.require_email_verification}
-                    minLength={3}
-                  />
-                  {!siteView?.local_site.require_email_verification &&
-                    this.state.form.email &&
-                    !validEmail(this.state.form.email) && (
-                      <div
-                        className="mt-2 mb-0 alert alert-warning"
-                        role="alert"
-                      >
-                        <Icon
-                          icon="alert-triangle"
-                          classes="icon-inline me-2"
-                        />
-                        {I18NextService.i18n.t("no_password_reset")}
-                      </div>
-                    )}
+        <div className="mb-3 row">
+          <label className="col-sm-2 col-form-label" htmlFor="register-email">
+            {I18NextService.i18n.t("email")}
+          </label>
+          <div className="col-sm-10">
+            <input
+              type="email"
+              id="register-email"
+              className="form-control"
+              placeholder={
+                siteView?.local_site.require_email_verification
+                  ? I18NextService.i18n.t("required")
+                  : I18NextService.i18n.t("optional")
+              }
+              value={this.state.form.email}
+              autoComplete="email"
+              onInput={e => handleRegisterEmailChange(this, e)}
+              required={siteView?.local_site.require_email_verification}
+              minLength={3}
+            />
+            {!siteView?.local_site.require_email_verification &&
+              this.state.form.email &&
+              !validEmail(this.state.form.email) && (
+                <div className="mt-2 mb-0 alert alert-warning" role="alert">
+                  <Icon icon="alert-triangle" classes="icon-inline me-2" />
+                  {I18NextService.i18n.t("no_password_reset")}
                 </div>
-              </div>
-            }
-
-            {
-              <div className="mb-3">
-                <PasswordInput
-                  id="register-password"
-                  value={this.state.form.password}
-                  onInput={e => handleRegisterPasswordChange(this, e)}
-                  showStrength
-                  label={I18NextService.i18n.t("password")}
-                  isNew
-                />
-              </div>
-            }
-
-            {
-              <div className="mb-3">
-                <PasswordInput
-                  id="register-verify-password"
-                  value={this.state.form.password_verify}
-                  onInput={e => handleRegisterPasswordVerifyChange(this, e)}
-                  label={I18NextService.i18n.t("verify_password")}
-                  isNew
-                />
-              </div>
-            }
-          </>
-        )}
+              )}
+          </div>
+        </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="register-password"
+            value={this.state.form.password}
+            onInput={e => handleRegisterPasswordChange(this, e)}
+            showStrength
+            label={I18NextService.i18n.t("password")}
+            isNew
+          />
+        </div>
+        <div className="mb-3">
+          <PasswordInput
+            id="register-verify-password"
+            value={this.state.form.password_verify}
+            onInput={e => handleRegisterPasswordVerifyChange(this, e)}
+            label={I18NextService.i18n.t("verify_password")}
+            isNew
+          />
+        </div>
 
         {siteView?.local_site.registration_mode === "require_application" && (
           <>
@@ -358,12 +323,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               {this.state.registerRes.state === "loading" ? (
                 <Spinner />
               ) : (
-                [
-                  this.titleName(siteView),
-                  ...(oauth_provider
-                    ? [`(${oauth_provider.display_name})`]
-                    : []),
-                ].join(" ")
+                this.titleName(siteView)
               )}
             </button>
           </div>
@@ -458,18 +418,6 @@ async function handleRegisterSubmit(
     username,
     stay_logged_in,
   } = i.state.form;
-
-  const oauthProvider = getOAuthProvider(i);
-
-  // oauth registration
-  if (username && oauthProvider)
-    return handleUseOAuthProvider(
-      oauthProvider,
-      undefined,
-      username,
-      answer,
-      show_nsfw,
-    );
 
   // normal registration
   if (username && password && password_verify) {
@@ -620,12 +568,6 @@ function handleCaptchaPlay(i: Signup) {
       });
     }
   }
-}
-
-function getOAuthProvider(i: Signup) {
-  return (i.isoData.siteRes?.oauth_providers ?? []).find(
-    provider => provider.id === Number(i.props?.sso_provider_id ?? -1),
-  );
 }
 
 function captchaPngSrc(captcha: CaptchaResponse) {

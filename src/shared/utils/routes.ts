@@ -32,11 +32,7 @@ import {
 } from "@components/home/login";
 import { LoginReset } from "@components/home/login-reset";
 import { Setup } from "@components/home/setup";
-import {
-  Signup,
-  SignupFetchConfig,
-  getSignupQueryParams,
-} from "@components/home/signup";
+import { Signup, SignupFetchConfig } from "@components/home/signup";
 import {
   Modlog,
   ModlogFetchConfig,
@@ -157,7 +153,6 @@ export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
   },
   {
     path: `/signup`,
-    getQueryParams: getSignupQueryParams,
     component: Signup,
   } as SignupFetchConfig,
   {
