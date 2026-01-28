@@ -25,6 +25,7 @@ import {
   PurgePost,
   RemovePost,
   SavePost,
+  Tag,
   TransferCommunity,
 } from "lemmy-js-client";
 import { ShowBodyType, ShowCrossPostsType } from "@utils/types";
@@ -44,6 +45,7 @@ type PostListingProps = {
   crossPosts: PostView[];
   admins: PersonView[];
   allLanguages: Language[];
+  communityTags: Tag[];
   siteLanguages: number[];
   showCommunity: boolean;
   showBody: ShowBodyType;
@@ -114,6 +116,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
         ) : (
           <PostForm
             post_view={p.postView}
+            selectedCommunityTags={this.props.communityTags}
             crossPosts={p.crossPosts}
             admins={p.admins}
             enableNsfw={p.enableNsfw}

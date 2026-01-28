@@ -35,6 +35,8 @@ import {
   PersonView,
   PostView,
   SearchResponse,
+  Tag,
+  TagId,
   UploadImageResponse,
 } from "lemmy-js-client";
 import {
@@ -65,6 +67,7 @@ import {
   getUnixTime,
   unixTimeToLocalDateStr,
 } from "@utils/date";
+import { communityTagName } from "@components/community/community-tag";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -80,6 +83,7 @@ interface PostFormProps {
   enableNsfw: boolean;
   showAdultConsentModal: boolean;
   selectedCommunityChoice?: Choice;
+  selectedCommunityTags?: Tag[];
   isNsfwCommunity: boolean;
   onSelectCommunity?(choice: Choice): void;
   initialCommunities?: CommunityView[];
@@ -108,6 +112,7 @@ interface PostFormState {
     honeypot?: string;
     custom_thumbnail?: string;
     alt_text?: string;
+    tags?: TagId[];
     // Javascript treats this field as a string, that can't have timezone info.
     scheduled_publish_time_at?: string;
   };
@@ -157,6 +162,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           language_id: post_view.post.language_id,
           custom_thumbnail: post_view.post.thumbnail_url,
           alt_text: post_view.post.alt_text,
+          tags: post_view.tags.map(t => t.id),
           scheduled_publish_time_at,
         },
       };
@@ -295,7 +301,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             {this.renderSuggestedPosts()}
           </div>
         </div>
-
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="post-url">
             {I18NextService.i18n.t("url")}
@@ -339,7 +344,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             )}
           </div>
         </div>
-
         <div className="mb-3 row">
           <label htmlFor="file-upload" className={"col-sm-2 col-form-label"}>
             {capitalizeFirstLetter(I18NextService.i18n.t("image"))}
@@ -415,7 +419,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </>
           )}
         </div>
-
         {!isImage(url || "") && (
           <div className="mb-3 row">
             <label
@@ -437,7 +440,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </div>
           </div>
         )}
-
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label">
             {I18NextService.i18n.t("body")}
@@ -521,7 +523,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </label>
           </div>
         )}
-
         {!this.props.post_view && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-schedule">
@@ -539,7 +540,33 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </div>
           </div>
         )}
-
+        {this.props.selectedCommunityTags &&
+          this.props.selectedCommunityTags.length > 0 && (
+            <div className="mb-3 row">
+              <label className="col-sm-2 col-form-label" htmlFor="post-tags">
+                {I18NextService.i18n.t("tags")}
+              </label>
+              <div className="col-sm-10">
+                <select
+                  id="post-tags"
+                  className="form-select"
+                  multiple
+                  aria-label={I18NextService.i18n.t("tags")}
+                  onChange={e => handleTagsChange(this, e)}
+                >
+                  {this.props.selectedCommunityTags.map(tag => (
+                    <option
+                      key={tag.id}
+                      value={tag.id}
+                      selected={(this.state.form.tags ?? []).includes(tag.id)}
+                    >
+                      {communityTagName(tag)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         <input
           tabIndex={-1}
           autoComplete="false"
@@ -744,6 +771,7 @@ function handlePostSubmit(i: PostForm, event: FormEvent<HTMLFormElement>) {
         language_id: pForm.language_id,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
+        tags: pForm.tags,
         scheduled_publish_time_at,
       },
       () => {
@@ -762,6 +790,7 @@ function handlePostSubmit(i: PostForm, event: FormEvent<HTMLFormElement>) {
         honeypot: pForm.honeypot,
         custom_thumbnail: pForm.custom_thumbnail,
         alt_text: pForm.alt_text,
+        tags: pForm.tags,
         scheduled_publish_time_at,
       },
       () => {
@@ -936,6 +965,15 @@ function handleImageUpload(i: PostForm, event: any) {
       i.setState({ imageLoading: false });
     }
   });
+}
+
+function handleTagsChange(i: PostForm, event: FormEvent<HTMLSelectElement>) {
+  const options: HTMLOptionElement[] = Array.from(event.target.options);
+  const tagIdsSelected: number[] = options
+    .filter(o => o.selected)
+    .map(o => Number(o.value));
+
+  i.setState(s => ((s.form.tags = tagIdsSelected), s));
 }
 
 function handlePostNameChange(

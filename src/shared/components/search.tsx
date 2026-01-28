@@ -294,6 +294,7 @@ const postListing = (
               postListingMode="list"
               viewOnly
               crossPosts={[]}
+              communityTags={[]}
               showBody={"hidden"}
               hideImage={false}
               markable={false}
@@ -974,6 +975,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 postListingMode="list"
                 showBody={"hidden"}
                 crossPosts={[]}
+                communityTags={[]}
                 hideImage={false}
                 markable={false}
                 disableAutoMarkAsRead={false}
