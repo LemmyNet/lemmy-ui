@@ -3,7 +3,7 @@ import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component, FormEvent } from "inferno";
+import { Component } from "inferno";
 import {
   AdminAllowInstanceParams,
   AdminBlockInstanceParams,
@@ -62,6 +62,10 @@ import { TableHr } from "@components/common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { InstanceList } from "./instances";
 import { InstanceAllowForm } from "./instance-allow-form";
+import {
+  AllOrBanned,
+  AllOrBannedDropdown,
+} from "@components/common/all-or-banned-dropdown";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: PagedResponse<LocalUserView>;
@@ -75,7 +79,7 @@ interface AdminSettingsState {
   instancesRes: RequestState<PagedResponse<FederatedInstanceView>>;
   usersRes: RequestState<PagedResponse<LocalUserView>>;
   usersCursor?: PaginationCursor;
-  usersBannedOnly: boolean;
+  allOrBanned: AllOrBanned;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<PagedResponse<LocalImageView>>;
@@ -104,7 +108,7 @@ export class AdminSettings extends Component<
   private isoData = setIsoData<AdminSettingsData>(this.context);
   state: AdminSettingsState = {
     usersRes: EMPTY_REQUEST,
-    usersBannedOnly: false,
+    allOrBanned: "all",
     instancesRes: EMPTY_REQUEST,
     leaveAdminTeamRes: EMPTY_REQUEST,
     showConfirmLeaveAdmin: false,
@@ -362,7 +366,7 @@ export class AdminSettings extends Component<
       themeList,
     ] = await Promise.all([
       HttpService.client.listUsers({
-        banned_only: this.state.usersBannedOnly,
+        banned_only: this.state.allOrBanned === "banned",
         page_cursor: this.state.usersCursor,
         limit: fetchLimit,
       }),
@@ -395,7 +399,7 @@ export class AdminSettings extends Component<
     });
     const usersRes = await HttpService.client.listUsers({
       page_cursor: this.state.usersCursor,
-      banned_only: this.state.usersBannedOnly,
+      banned_only: this.state.allOrBanned === "banned",
       limit: fetchLimit,
     });
 
@@ -531,45 +535,12 @@ export class AdminSettings extends Component<
     return (
       <>
         <h1 className="h4 mb-4">{I18NextService.i18n.t("users")}</h1>
-        <div className="row align-items-center mb-3 g-3">
-          <div className="col-auto">
-            <div
-              className="data-type-select btn-group btn-group-toggle flex-wrap"
-              role="group"
-            >
-              <input
-                id={`users-all`}
-                type="radio"
-                className="btn-check"
-                value="true"
-                checked={!this.state.usersBannedOnly}
-                onChange={e => handleUsersBannedOnlyChange(this, e)}
-              />
-              <label
-                htmlFor={`users-all`}
-                className={classNames("pointer btn btn-outline-secondary", {
-                  active: !this.state.usersBannedOnly,
-                })}
-              >
-                {I18NextService.i18n.t("all")}
-              </label>
-              <input
-                id={`users-banned-only`}
-                type="radio"
-                className="btn-check"
-                value="false"
-                checked={this.state.usersBannedOnly}
-                onChange={e => handleUsersBannedOnlyChange(this, e)}
-              />
-              <label
-                htmlFor={`users-banned-only`}
-                className={classNames("pointer btn btn-outline-secondary", {
-                  active: this.state.usersBannedOnly,
-                })}
-              >
-                {I18NextService.i18n.t("banned")}
-              </label>
-            </div>
+        <div className="row row-cols-auto align-items-center mb-3 g-3">
+          <div className="col">
+            <AllOrBannedDropdown
+              currentOption={this.state.allOrBanned}
+              onSelect={val => handleUsersAllOrBannedChange(this, val)}
+            />
           </div>
         </div>
       </>
@@ -914,12 +885,11 @@ async function handleLeaveAdminTeam(i: AdminSettings) {
   }
 }
 
-async function handleUsersBannedOnlyChange(
+async function handleUsersAllOrBannedChange(
   i: AdminSettings,
-  event: FormEvent<HTMLInputElement>,
+  allOrBanned: AllOrBanned,
 ) {
-  const checked = event.target.value === "false";
-  i.setState({ usersBannedOnly: checked });
+  i.setState({ allOrBanned });
   await i.fetchUsersOnly();
 }
 
