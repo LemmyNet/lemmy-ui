@@ -148,7 +148,7 @@ export class Setup extends Component<
         </div>
         <div className="mb-3 row">
           <div className="col-sm-10">
-            <button type="submit" className="btn btn-secondary">
+            <button type="submit" className="btn btn-light border-light-subtle">
               {this.state.registerRes.state === "loading" ? (
                 <Spinner />
               ) : (

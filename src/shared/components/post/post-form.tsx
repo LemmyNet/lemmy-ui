@@ -487,7 +487,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         )}
         {!this.props.post_view && (
-          <div className="mb-3 row">
+          <div className="mb-3 row align-items-center">
             <label className="col-sm-2 col-form-label" htmlFor="post-community">
               {I18NextService.i18n.t("community")}
             </label>
@@ -547,6 +547,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 {I18NextService.i18n.t("tags")}
               </label>
               <div className="col-sm-10">
+                {/** TODO This should use an abstracted FilterChipMultiDropdown **/}
                 <select
                   id="post-tags"
                   className="form-select"
@@ -586,7 +587,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 this.state.submitted
               }
               type="submit"
-              className="btn btn-secondary me-2"
+              className="btn btn-light border-light-subtle me-2"
             >
               {this.props.loading ? (
                 <Spinner />
@@ -599,7 +600,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             {this.props.post_view && (
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-light border-light-subtle"
                 onClick={() => handleCancel(this)}
               >
                 {I18NextService.i18n.t("cancel")}

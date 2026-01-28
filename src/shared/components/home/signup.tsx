@@ -319,7 +319,7 @@ export class Signup extends Component<SignupRouteProps, State> {
         </div>
         <div className="mb-3 row">
           <div className="col-sm-10">
-            <button type="submit" className="btn btn-secondary">
+            <button type="submit" className="btn btn-light border-light-subtle">
               {this.state.registerRes.state === "loading" ? (
                 <Spinner />
               ) : (
@@ -346,7 +346,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               </span>
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-light border-light-subtle"
                 onClick={() => handleRegenCaptcha(this)}
                 aria-label={I18NextService.i18n.t("captcha")}
               >
@@ -383,7 +383,7 @@ export class Signup extends Component<SignupRouteProps, State> {
           />
           {captchaRes.wav && (
             <button
-              className="rounded-bottom btn btn-sm btn-secondary d-block"
+              className="rounded-bottom btn btn-sm btn-light border-light-subtle d-block"
               style="border-top-right-radius: 0; border-top-left-radius: 0;"
               title={I18NextService.i18n.t("play_captcha_audio")}
               onClick={() => handleCaptchaPlay(this)}

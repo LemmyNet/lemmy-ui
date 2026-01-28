@@ -302,7 +302,7 @@ export class CreatePost extends Component<
           </div>
           <div className="d-block d-md-none">
             <button
-              className="btn btn-secondary d-inline-block mb-2 me-3"
+              className="btn btn-light border-light-subtle d-inline-block mb-2 me-3"
               onClick={() => handleShowSidebarMobile(this)}
             >
               {I18NextService.i18n.t("sidebar")}{" "}

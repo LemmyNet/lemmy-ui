@@ -106,7 +106,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
           )}
           <div className="col-12">
             <label
-              className="btn btn-secondary pointer"
+              className="btn btn-light border-light-subtle pointer"
               htmlFor={`file-uploader-${id}`}
               data-tippy-content={I18NextService.i18n.t("upload_image")}
             >
@@ -201,7 +201,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
               </button>
             )}
             <button
-              className="btn btn-secondary"
+              className="btn btn-light border-light-subtle"
               type="submit"
               disabled={!this.enableForm}
               onClick={e => handleSubmitEmoji(this, e)}
