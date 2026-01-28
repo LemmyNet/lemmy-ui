@@ -196,7 +196,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
           title={this.documentTitle}
           path={this.context.router.route.match.url}
         />
-        {this.renderRadios()}
+        {this.renderFilters()}
         {this.renderInstances()}
         <PaginatorCursor
           current={this.props.cursor}
@@ -219,7 +219,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     this.props.history.push(`/instances${getQueryString(queryParams)}`);
   }
 
-  renderRadios() {
+  renderFilters() {
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-2">
         <div className="col me-auto">
