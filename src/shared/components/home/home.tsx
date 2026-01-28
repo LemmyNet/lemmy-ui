@@ -23,8 +23,8 @@ import {
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type { CommentIdAndRes, QueryParams, StringBoolean } from "@utils/types";
-import { commentLoading, RouteDataResponse } from "@utils/types";
+import type { ItemIdAndRes, QueryParams, StringBoolean } from "@utils/types";
+import { itemLoading, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, InfernoNode, MouseEventHandler } from "inferno";
 import { T } from "inferno-i18next-dess";
@@ -77,6 +77,7 @@ import {
   PostListingMode,
   PagedResponse,
   PaginationCursor,
+  CommentId,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -120,8 +121,8 @@ import { MultiCommunityLink } from "@components/multi-community/multi-community-
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
   commentsRes: RequestState<PagedResponse<CommentView>>;
-  createCommentRes: CommentIdAndRes;
-  editCommentRes: CommentIdAndRes;
+  createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   showSubscribedMobile: boolean;
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
@@ -271,8 +272,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   state: HomeState = {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
-    createCommentRes: { commentId: 0, res: EMPTY_REQUEST },
-    editCommentRes: { commentId: 0, res: EMPTY_REQUEST },
+    createCommentRes: { id: 0, res: EMPTY_REQUEST },
+    editCommentRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSubscribedMobile: false,
     showSidebarMobile: false,
@@ -806,8 +807,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           return (
             <CommentNodes
               nodes={commentsToFlatNodes(comments)}
-              createLoading={commentLoading(this.state.createCommentRes)}
-              editLoading={commentLoading(this.state.editCommentRes)}
+              createLoading={itemLoading(this.state.createCommentRes)}
+              editLoading={itemLoading(this.state.editCommentRes)}
               viewType={"flat"}
               isTopLevel
               showCommunity
@@ -1161,14 +1162,14 @@ async function handleBlockCommunity(
 async function handleCreateComment(i: Home, form: CreateComment) {
   i.setState({
     createCommentRes: {
-      commentId: form.parent_id ?? 0,
+      id: form.parent_id ?? 0,
       res: LOADING_REQUEST,
     },
   });
   const res = await HttpService.client.createComment(form);
   i.setState({
     createCommentRes: {
-      commentId: form.parent_id ?? 0,
+      id: form.parent_id ?? 0,
       res,
     },
   });
@@ -1182,12 +1183,12 @@ async function handleCreateComment(i: Home, form: CreateComment) {
 
 async function handleEditComment(i: Home, form: EditComment) {
   i.setState({
-    editCommentRes: { commentId: form.comment_id, res: LOADING_REQUEST },
+    editCommentRes: { id: form.comment_id, res: LOADING_REQUEST },
   });
 
   const res = await HttpService.client.editComment(form);
   i.setState({
-    editCommentRes: { commentId: form.comment_id, res },
+    editCommentRes: { id: form.comment_id, res },
   });
 
   i.findAndUpdateCommentEdit(res);

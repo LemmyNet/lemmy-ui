@@ -272,6 +272,7 @@ export class CreatePost extends Component<
               onSelectCommunity={form =>
                 handleSelectedCommunityChange(this, form)
               }
+              selectedCommunityTags={this.state.selectedCommunity?.post_tags}
               initialCommunities={
                 this.state.initialCommunitiesRes.state === "success"
                   ? filterCommunitySelection(
@@ -397,7 +398,7 @@ export class CreatePost extends Component<
           hideButtons
           onFollow={() => {}}
           onBlock={() => {}}
-          onUpdateNotifs={() => {}}
+          onEditNotifs={() => {}}
           onRemove={() => {}}
           onPurge={() => {}}
           removeLoading={false}

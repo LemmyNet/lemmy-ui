@@ -142,6 +142,7 @@ export class PostListingCard extends Component<
                 <span> </span>
                 <PostBadges
                   post={p.postView.post}
+                  tags={p.postView.tags}
                   allLanguages={p.allLanguages}
                 />
               </div>

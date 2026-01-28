@@ -38,7 +38,7 @@ import {
   PostSortType,
   SaveUserSettings,
   SuccessResponse,
-  UpdateTotpResponse,
+  EditTotpResponse,
   VoteShow,
   InstanceId,
   PersonId,
@@ -98,7 +98,7 @@ interface SettingsState {
   deleteAccountRes: RequestState<SuccessResponse>;
   instancesRes: RequestState<PagedResponse<FederatedInstanceView>>;
   generateTotpRes: RequestState<GenerateTotpSecretResponse>;
-  updateTotpRes: RequestState<UpdateTotpResponse>;
+  editTotpRes: RequestState<EditTotpResponse>;
   // TODO redo these forms
   saveUserSettingsForm: SaveUserSettings;
   changePasswordForm: {
@@ -205,7 +205,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     searchInstanceOptions: [],
     isIsomorphic: false,
     generateTotpRes: EMPTY_REQUEST,
-    updateTotpRes: EMPTY_REQUEST,
+    editTotpRes: EMPTY_REQUEST,
     show2faModal: false,
     importSettingsRes: EMPTY_REQUEST,
     exportSettingsRes: EMPTY_REQUEST,
@@ -1516,14 +1516,14 @@ async function handleToggle2fa(
   enabled: boolean,
   myUserInfo: MyUserInfo | undefined,
 ) {
-  i.setState({ updateTotpRes: LOADING_REQUEST });
+  i.setState({ editTotpRes: LOADING_REQUEST });
 
-  const updateTotpRes = await HttpService.client.updateTotp({
+  const updateTotpRes = await HttpService.client.editTotp({
     enabled,
     totp_token: totp,
   });
 
-  i.setState({ updateTotpRes });
+  i.setState({ editTotpRes: updateTotpRes });
 
   const successful = updateTotpRes.state === "success";
   if (successful && myUserInfo) {

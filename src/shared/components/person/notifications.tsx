@@ -14,11 +14,7 @@ import {
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import {
-  CommentIdAndRes,
-  commentLoading,
-  RouteDataResponse,
-} from "@utils/types";
+import { ItemIdAndRes, itemLoading, RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
 import { Component, FormEvent, InfernoNode } from "inferno";
 import {
@@ -60,6 +56,7 @@ import {
   TransferCommunity,
   PaginationCursor,
   MyUserInfo,
+  CommentId,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -107,8 +104,8 @@ interface NotificationsState {
   notifsRes: RequestState<PagedResponse<NotificationView>>;
   markAllAsReadRes: RequestState<SuccessResponse>;
   privateMessageRes: RequestState<PrivateMessageResponse>;
-  createCommentRes: CommentIdAndRes;
-  editCommentRes: CommentIdAndRes;
+  createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   cursor?: PaginationCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
@@ -139,8 +136,8 @@ export class Notifications extends Component<
     notifsRes: EMPTY_REQUEST,
     markAllAsReadRes: EMPTY_REQUEST,
     privateMessageRes: EMPTY_REQUEST,
-    createCommentRes: { commentId: 0, res: EMPTY_REQUEST },
-    editCommentRes: { commentId: 0, res: EMPTY_REQUEST },
+    createCommentRes: { id: 0, res: EMPTY_REQUEST },
+    editCommentRes: { id: 0, res: EMPTY_REQUEST },
     isIsomorphic: false,
   };
 
@@ -321,8 +318,8 @@ export class Notifications extends Component<
           <CommentNode
             key={item.notification.id}
             node={commentToFlatNode(data)}
-            createLoading={commentLoading(this.state.createCommentRes)}
-            editLoading={commentLoading(this.state.editCommentRes)}
+            createLoading={itemLoading(this.state.createCommentRes)}
+            editLoading={itemLoading(this.state.editCommentRes)}
             viewType={"flat"}
             showCommunity
             showContext
@@ -381,6 +378,7 @@ export class Notifications extends Component<
               showCrossPosts="show_separately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
+              communityTags={[]}
               allLanguages={[]}
               siteLanguages={[]}
               hideImage
@@ -695,14 +693,14 @@ async function handleBlockCommunity(
 async function handleCreateComment(i: Notifications, form: CreateComment) {
   i.setState({
     createCommentRes: {
-      commentId: form.parent_id ?? 0,
+      id: form.parent_id ?? 0,
       res: LOADING_REQUEST,
     },
   });
   const res = await HttpService.client.createComment(form);
   i.setState({
     createCommentRes: {
-      commentId: form.parent_id ?? 0,
+      id: form.parent_id ?? 0,
       res,
     },
   });
@@ -717,12 +715,12 @@ async function handleCreateComment(i: Notifications, form: CreateComment) {
 
 async function handleEditComment(i: Notifications, form: EditComment) {
   i.setState({
-    editCommentRes: { commentId: form.comment_id, res: LOADING_REQUEST },
+    editCommentRes: { id: form.comment_id, res: LOADING_REQUEST },
   });
 
   const res = await HttpService.client.editComment(form);
   i.setState({
-    editCommentRes: { commentId: form.comment_id, res },
+    editCommentRes: { id: form.comment_id, res },
   });
 
   if (res.state === "success") {
