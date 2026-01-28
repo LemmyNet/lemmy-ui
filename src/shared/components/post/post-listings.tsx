@@ -101,6 +101,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                   viewOnly={this.props.viewOnly}
                   allLanguages={this.props.allLanguages}
                   siteLanguages={this.props.siteLanguages}
+                  communityTags={[]}
                   myUserInfo={this.props.myUserInfo}
                   localSite={this.props.localSite}
                   admins={this.props.admins}

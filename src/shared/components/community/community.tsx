@@ -22,8 +22,8 @@ import {
   bareRoutePush,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type { CommentIdAndRes, QueryParams, StringBoolean } from "@utils/types";
-import { commentLoading, RouteDataResponse } from "@utils/types";
+import type { ItemIdAndRes, QueryParams, StringBoolean } from "@utils/types";
+import { itemLoading, RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode, RefObject, createRef } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -81,6 +81,7 @@ import {
   PaginationCursor,
   PurgeCommunity,
   RemoveCommunity,
+  CommentId,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -132,8 +133,8 @@ interface State {
   removeCommunityRes: RequestState<CommunityResponse>;
   addModToCommunityRes: RequestState<AddModToCommunityResponse>;
   purgeCommunityRes: RequestState<SuccessResponse>;
-  createCommentRes: CommentIdAndRes;
-  editCommentRes: CommentIdAndRes;
+  createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
@@ -217,8 +218,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     removeCommunityRes: EMPTY_REQUEST,
     addModToCommunityRes: EMPTY_REQUEST,
     purgeCommunityRes: EMPTY_REQUEST,
-    createCommentRes: { commentId: 0, res: EMPTY_REQUEST },
-    editCommentRes: { commentId: 0, res: EMPTY_REQUEST },
+    createCommentRes: { id: 0, res: EMPTY_REQUEST },
+    editCommentRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     isIsomorphic: false,
@@ -664,8 +665,8 @@ export class Community extends Component<CommunityRouteProps, State> {
             <CommentNodes
               nodes={commentsToFlatNodes(this.state.commentsRes.data.items)}
               viewType={"flat"}
-              createLoading={commentLoading(this.state.createCommentRes)}
-              editLoading={commentLoading(this.state.editCommentRes)}
+              createLoading={itemLoading(this.state.createCommentRes)}
+              editLoading={itemLoading(this.state.editCommentRes)}
               isTopLevel
               showContext
               showCommunity={false}
@@ -974,14 +975,14 @@ async function handleEditCommunityNotifs(form: EditCommunityNotifications) {
 async function handleCreateComment(i: Community, form: CreateComment) {
   i.setState({
     createCommentRes: {
-      commentId: form.parent_id ?? 0,
+      id: form.parent_id ?? 0,
       res: LOADING_REQUEST,
     },
   });
   const res = await HttpService.client.createComment(form);
   i.setState({
     createCommentRes: {
-      commentId: form.parent_id ?? 0,
+      id: form.parent_id ?? 0,
       res,
     },
   });
@@ -995,12 +996,12 @@ async function handleCreateComment(i: Community, form: CreateComment) {
 
 async function handleEditComment(i: Community, form: EditComment) {
   i.setState({
-    editCommentRes: { commentId: form.comment_id, res: LOADING_REQUEST },
+    editCommentRes: { id: form.comment_id, res: LOADING_REQUEST },
   });
 
   const res = await HttpService.client.editComment(form);
   i.setState({
-    editCommentRes: { commentId: form.comment_id, res },
+    editCommentRes: { id: form.comment_id, res },
   });
 
   findAndUpdateCommentEdit(i, res);

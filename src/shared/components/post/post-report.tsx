@@ -100,6 +100,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           viewOnly
           allLanguages={[]}
           siteLanguages={[]}
+          communityTags={[]}
           hideImage
           myUserInfo={this.props.myUserInfo}
           localSite={this.props.localSite}
