@@ -39,12 +39,12 @@ import {
   EditPrivateMessage,
   GetSiteResponse,
   LemmyHttp,
+  NotificationTypeFilter,
   PagedResponse,
   LockComment,
   MarkNotificationAsRead,
   MarkPostAsRead,
   NotePerson,
-  NotificationDataType,
   NotificationView,
   PrivateMessageId,
   PrivateMessageResponse,
@@ -100,7 +100,7 @@ type NotificationsData = RouteDataResponse<{
 
 interface NotificationsState {
   unreadOrAll: UnreadOrAll;
-  messageType: NotificationDataType;
+  messageType: NotificationTypeFilter;
   notifsRes: RequestState<PagedResponse<NotificationView>>;
   markAllAsReadRes: RequestState<SuccessResponse>;
   privateMessageRes: RequestState<PrivateMessageResponse>;
@@ -624,7 +624,7 @@ async function handleUnreadOrAllChange(
 
 async function handleMessageTypeChange(i: Notifications, val: string) {
   i.setState({
-    messageType: val as NotificationDataType,
+    messageType: val as NotificationTypeFilter,
     cursor: undefined,
   });
   i.refetch();

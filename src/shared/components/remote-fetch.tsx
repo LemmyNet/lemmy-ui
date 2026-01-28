@@ -198,9 +198,9 @@ export class RemoteFetch extends Component<
                     myUserInfo={this.isoData.myUserInfo}
                   />
                 </h2>
-                {communityView.community.description && (
+                {communityView.community.sidebar && (
                   <div className="card-text mb-3 preview-lines">
-                    {communityView.community.description}
+                    {communityView.community.sidebar}
                   </div>
                 )}
                 <SubscribeButton

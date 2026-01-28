@@ -1,4 +1,4 @@
-import { capitalizeFirstLetter, randomStr } from "@utils/helpers";
+import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
 import { Prompt } from "inferno-router";
 import {
@@ -9,7 +9,6 @@ import {
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
-import { MarkdownTextArea } from "../common/markdown-textarea";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { validActorRegexPattern } from "@utils/config";
 
@@ -27,7 +26,7 @@ interface State {
   form: {
     name?: string;
     title?: string;
-    description?: string;
+    summary?: string;
     deleted?: boolean;
   };
   submitted: boolean;
@@ -35,8 +34,6 @@ interface State {
 
 @tippyMixin
 export class MultiCommunityForm extends Component<Props, State> {
-  private id = `multi-community-form-${randomStr()}`;
-
   state: State = {
     form: this.initForm(),
     submitted: false,
@@ -52,7 +49,7 @@ export class MultiCommunityForm extends Component<Props, State> {
       ? {
           name: mv.multi.name,
           title: mv.multi.title,
-          description: mv.multi.description,
+          summary: mv.multi.summary,
           deleted: mv.multi.deleted,
         }
       : {};
@@ -129,20 +126,14 @@ export class MultiCommunityForm extends Component<Props, State> {
               maxLength={100}
             />
           </div>
-        </div>
-        <div className="mb-3 row">
-          <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
-            {I18NextService.i18n.t("description")}
-          </label>
           <div className="col-12 col-sm-10">
-            <MarkdownTextArea
-              initialContent={this.state.form.description}
-              placeholder={I18NextService.i18n.t("description") ?? undefined}
-              onContentChange={val => handleDescriptionChange(this, val)}
-              hideNavigationWarnings
-              allLanguages={[]}
-              siteLanguages={[]}
-              myUserInfo={this.props.myUserInfo}
+            <input
+              type="text"
+              id="multi-community-summary"
+              value={this.state.form.summary}
+              onInput={e => handleSummaryChange(this, e)}
+              className="form-control"
+              maxLength={150}
             />
           </div>
         </div>
@@ -209,14 +200,14 @@ function handleSubmit(
     i.props.onEdit?.({
       id: mv.multi.id,
       title: cForm.title,
-      description: cForm.description,
+      summary: cForm.summary,
     });
   } else {
     if (cForm.name) {
       i.props.onCreate?.({
         name: cForm.name,
         title: cForm.title,
-        description: cForm.description,
+        summary: cForm.summary,
       });
     }
   }
@@ -236,8 +227,11 @@ function handleTitleChange(
   i.setState(s => ((s.form.title = event.target.value), s));
 }
 
-function handleDescriptionChange(i: MultiCommunityForm, val: string) {
-  i.setState(s => ((s.form.description = val), s));
+function handleSummaryChange(
+  i: MultiCommunityForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(s => ((s.form.summary = event.target.value), s));
 }
 
 function handleDelete(i: MultiCommunityForm, deleted: boolean) {

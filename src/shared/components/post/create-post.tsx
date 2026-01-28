@@ -272,7 +272,7 @@ export class CreatePost extends Component<
               onSelectCommunity={form =>
                 handleSelectedCommunityChange(this, form)
               }
-              selectedCommunityTags={this.state.selectedCommunity?.post_tags}
+              selectedCommunityTags={this.state.selectedCommunity?.tags}
               initialCommunities={
                 this.state.initialCommunitiesRes.state === "success"
                   ? filterCommunitySelection(

@@ -35,8 +35,8 @@ import {
   PersonView,
   PostView,
   SearchResponse,
-  Tag,
-  TagId,
+  CommunityTag,
+  CommunityTagId,
   UploadImageResponse,
 } from "lemmy-js-client";
 import {
@@ -83,7 +83,7 @@ interface PostFormProps {
   enableNsfw: boolean;
   showAdultConsentModal: boolean;
   selectedCommunityChoice?: Choice;
-  selectedCommunityTags?: Tag[];
+  selectedCommunityTags?: CommunityTag[];
   isNsfwCommunity: boolean;
   onSelectCommunity?(choice: Choice): void;
   initialCommunities?: CommunityView[];
@@ -112,7 +112,7 @@ interface PostFormState {
     honeypot?: string;
     custom_thumbnail?: string;
     alt_text?: string;
-    tags?: TagId[];
+    tags?: CommunityTagId[];
     // Javascript treats this field as a string, that can't have timezone info.
     scheduled_publish_time_at?: string;
   };

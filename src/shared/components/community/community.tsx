@@ -432,7 +432,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             title={this.documentTitle}
             path={this.context.router.route.match.url}
             canonicalPath={res.community_view.community.ap_id}
-            description={res.community_view.community.description}
+            description={res.community_view.community.summary}
             image={res.community_view.community.icon}
           />
         )}

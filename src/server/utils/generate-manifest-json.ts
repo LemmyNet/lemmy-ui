@@ -52,7 +52,7 @@ export default async function (site: Site) {
 
   return {
     name: site.name,
-    description: site.description ?? "A link aggregator for the fediverse",
+    sidebar: site.sidebar ?? "A link aggregator for the fediverse",
     start_url: "/",
     scope: "/",
     display: "standalone",

@@ -1,15 +1,15 @@
-import { Tag } from "lemmy-js-client";
+import { CommunityTag as CommunityTagI } from "lemmy-js-client";
 
 type CommunityTagProps = {
-  tag: Tag;
+  tag: CommunityTagI;
   useName: boolean;
 };
 export function CommunityTag({ tag, useName }: CommunityTagProps) {
-  const { name, description } = tag;
+  const { name, summary } = tag;
   const label = useName ? name : communityTagName(tag);
 
-  const descriptionStr = description ? ` - ${description}` : "";
-  const tooltip = `${name}${descriptionStr}`;
+  const summaryStr = summary ? ` - ${summary}` : "";
+  const tooltip = `${name}${summaryStr}`;
 
   return (
     <span
@@ -23,6 +23,6 @@ export function CommunityTag({ tag, useName }: CommunityTagProps) {
   );
 }
 
-export function communityTagName(tag: Tag): string {
+export function communityTagName(tag: CommunityTagI): string {
   return tag.display_name ?? tag.name;
 }
