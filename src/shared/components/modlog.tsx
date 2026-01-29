@@ -29,6 +29,7 @@ import {
   Person,
   Modlog as Modlog_,
   PaginationCursor,
+  ModlogKindFilter,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -53,11 +54,7 @@ import { LoadingEllipses } from "./common/loading-ellipses";
 import { PaginatorCursor } from "./common/paginator-cursor";
 import { TableHr } from "./common/tables";
 import { NoOptionI18nKeys } from "i18next";
-import {
-  ModlogKindDropdown,
-  ModlogKindOrAll,
-  modlogKindOrAllToModlogKind,
-} from "./common/modlog-kind-dropdown";
+import { ModlogKindFilterDropdown } from "./common/modlog-kind-filter-dropdown";
 
 const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";
@@ -100,13 +97,13 @@ interface ModlogProps {
   cursor?: PaginationCursor;
   userId?: number;
   modId?: number;
-  actionType: ModlogKindOrAll;
+  actionType: ModlogKindFilter;
   postId?: number;
   commentId?: number;
 }
 
-function getActionFromString(action?: string): ModlogKindOrAll {
-  return (action as ModlogKindOrAll) ?? "all";
+function getActionFromString(action?: string): ModlogKindFilter {
+  return (action as ModlogKindFilter) ?? "all";
 }
 
 interface ModlogEntry {
@@ -852,7 +849,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
         )}
         <div className="row row-cols-auto align-items-center g-3 mb-2">
           <div className="col">
-            <ModlogKindDropdown
+            <ModlogKindFilterDropdown
               currentOption={actionType}
               onSelect={val => handleFilterActionChange(this, val)}
             />
@@ -966,7 +963,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const res = await HttpService.client.getModlog({
       community_id: communityId,
       limit: fetchLimit,
-      type_: modlogKindOrAllToModlogKind(actionType),
+      type_: actionType,
       other_person_id: userId,
       mod_person_id: modId,
       comment_id: commentId,
@@ -1014,7 +1011,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       page_cursor: cursor,
       limit: fetchLimit,
       community_id: communityId,
-      type_: modlogKindOrAllToModlogKind(actionType),
+      type_: actionType,
       mod_person_id: modId,
       other_person_id: userId,
       comment_id: commentId,
@@ -1060,7 +1057,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   }
 }
 
-function handleFilterActionChange(i: Modlog, actionType: ModlogKindOrAll) {
+function handleFilterActionChange(i: Modlog, actionType: ModlogKindFilter) {
   i.updateUrl({
     actionType,
     cursor: undefined,

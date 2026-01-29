@@ -1,10 +1,7 @@
-import { ModlogKind } from "lemmy-js-client";
+import { ModlogKindFilter } from "lemmy-js-client";
 import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
 
-// TODO get rid of this after backend PR
-export type ModlogKindOrAll = ModlogKind | "all";
-
-const options: FilterOption<ModlogKindOrAll>[] = [
+const options: FilterOption<ModlogKindFilter>[] = [
   { value: "all", i18n: "all" },
   { value: "mod_remove_post", i18n: "removing_posts" },
   { value: "mod_lock_post", i18n: "locking_posts" },
@@ -33,16 +30,16 @@ const options: FilterOption<ModlogKindOrAll>[] = [
   { value: "admin_purge_comment", i18n: "purging_a_comment" },
 ];
 
-type ModlogKindDropdownProps = {
-  currentOption: ModlogKindOrAll | undefined;
-  onSelect(val: ModlogKindOrAll): void;
+type ModlogKindFilterDropdownProps = {
+  currentOption: ModlogKindFilter | undefined;
+  onSelect(val: ModlogKindFilter): void;
   className?: string;
 };
-export function ModlogKindDropdown({
+export function ModlogKindFilterDropdown({
   currentOption,
   onSelect,
   className,
-}: ModlogKindDropdownProps) {
+}: ModlogKindFilterDropdownProps) {
   return (
     <FilterChipDropdown
       allOptions={options}
@@ -51,11 +48,4 @@ export function ModlogKindDropdown({
       className={className}
     />
   );
-}
-
-// TODO this should be got rid of.
-export function modlogKindOrAllToModlogKind(
-  t: ModlogKindOrAll,
-): ModlogKind | undefined {
-  return t === "all" ? undefined : t;
 }
