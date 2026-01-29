@@ -1,5 +1,5 @@
 import { randomStr } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { relTags, sortingHelpUrl } from "@utils/config";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
@@ -37,10 +37,6 @@ class SortSelect<SortT extends string> extends Component<
 > {
   private id = `sort-select-${randomStr()}`;
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <>
@@ -48,7 +44,7 @@ class SortSelect<SortT extends string> extends Component<
           id={this.id}
           name={this.id}
           value={this.props.current}
-          onChange={linkEvent(this, this.handleSortChange)}
+          onChange={e => this.handleSortChange(this, e)}
           className="sort-select form-select d-inline-block w-auto me-2"
           aria-label={I18NextService.i18n.t("sort_type")}
         >

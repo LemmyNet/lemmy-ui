@@ -88,10 +88,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showEdit: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   unlisten = () => {};
 
   componentWillMount(): void {

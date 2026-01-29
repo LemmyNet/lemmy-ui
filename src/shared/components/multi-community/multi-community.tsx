@@ -236,11 +236,14 @@ export class MultiCommunity extends Component<RouteProps, State> {
     this.fetchData(nextProps);
   }
 
-  static async fetchInitialData({
-    headers,
-    query: { cursor, sort, postTimeRange, showHidden },
-    match: { params: props },
-  }: InitialFetchRequest<PathProps, Props>): Promise<MultiCommunityData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      query: { cursor, sort, postTimeRange, showHidden },
+      match: { params: props },
+    }: InitialFetchRequest<PathProps, Props>,
+  ): Promise<MultiCommunityData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -549,7 +552,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     );
   }
 
-  async updateUrl(props: Partial<Props>) {
+  updateUrl(props: Partial<Props>) {
     const {
       cursor,
       sort,

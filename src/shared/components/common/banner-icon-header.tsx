@@ -7,10 +7,6 @@ interface BannerIconHeaderProps {
 }
 
 export class BannerIconHeader extends Component<BannerIconHeaderProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const banner = this.props.banner;
     const icon = this.props.icon;

@@ -1,4 +1,4 @@
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   Community,
@@ -37,10 +37,6 @@ export class CommunityReport extends Component<Props, State> {
   state: State = {
     loading: false, // when resolving
   };
-
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
 
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & Props>,
@@ -115,7 +111,7 @@ export class CommunityReport extends Component<Props, State> {
         )}
         <button
           className="btn btn-link btn-animate text-muted py-0"
-          onClick={linkEvent(this, this.handleResolveReport)}
+          onClick={_ => this.handleResolveReport(this)}
           data-tippy-content={tippyContent}
           aria-label={tippyContent}
         >

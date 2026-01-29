@@ -305,7 +305,7 @@ export class Communities extends Component<
     );
   }
 
-  async updateUrl(props: Partial<CommunitiesProps>) {
+  updateUrl(props: Partial<CommunitiesProps>) {
     const { listingType, sort } = { ...this.props, ...props };
 
     const queryParams: QueryParams<CommunitiesProps> = {
@@ -316,13 +316,13 @@ export class Communities extends Component<
     this.props.history.push(`/communities${getQueryString(queryParams)}`);
   }
 
-  static async fetchInitialData({
-    headers,
-    query: { listingType, sort, cursor },
-  }: InitialFetchRequest<
-    CommunitiesPathProps,
-    CommunitiesProps
-  >): Promise<CommunitiesData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      query: { listingType, sort, cursor },
+    }: InitialFetchRequest<CommunitiesPathProps, CommunitiesProps>,
+  ): Promise<CommunitiesData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

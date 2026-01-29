@@ -1,7 +1,7 @@
 import { selectableLanguages } from "@utils/app";
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, FormEvent, InfernoMouseEvent, linkEvent } from "inferno";
+import { Component, FormEvent, InfernoMouseEvent } from "inferno";
 import { Language, MyUserInfo } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
@@ -35,10 +35,6 @@ export class LanguageSelect extends Component<
     filter: "",
     selected: this.props.selectedLanguageIds ?? [],
   };
-
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
 
   componentDidMount() {
     if (!this.props.multiple) {
@@ -108,7 +104,7 @@ export class LanguageSelect extends Component<
           "d-inline-block": !this.props.iconVersion,
         })}
         id={this.id}
-        onChange={linkEvent(this, this.handleSelectLanguageChange)}
+        onChange={e => this.handleSelectLanguageChange(this, e)}
         aria-label={I18NextService.i18n.t("language_select_placeholder")}
         aria-describedby={
           this.props.multiple && this.props.showLanguageWarning

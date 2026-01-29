@@ -270,7 +270,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
     );
   }
 
-  async updateUrl(props: Partial<Props>) {
+  updateUrl(props: Partial<Props>) {
     const { listingType, sort } = { ...this.props, ...props };
 
     const queryParams: QueryParams<Props> = {
@@ -281,10 +281,13 @@ export class MultiCommunities extends Component<RouteProps, State> {
     this.props.history.push(`/multi_communities${getQueryString(queryParams)}`);
   }
 
-  static async fetchInitialData({
-    headers,
-    query: { listingType, sort, cursor },
-  }: InitialFetchRequest<PathProps, Props>): Promise<MultiCommunitiesData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      query: { listingType, sort, cursor },
+    }: InitialFetchRequest<PathProps, Props>,
+  ): Promise<MultiCommunitiesData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

@@ -28,10 +28,6 @@ class NotificationSelect<T extends string> extends Component<
   NotificationSelectProps<T>,
   any
 > {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <>

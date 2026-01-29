@@ -1,6 +1,6 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { PostOrCommentType } from "@utils/types";
 import { I18NextService } from "../../services";
 
@@ -23,10 +23,6 @@ export class PostOrCommentTypeSelect extends Component<
     type_: this.props.type_,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   // Necessary in case the props change
   static getDerivedStateFromProps(props: any): PostOrCommentTypeSelectProps {
     return {
@@ -46,7 +42,7 @@ export class PostOrCommentTypeSelect extends Component<
           className="btn-check"
           value={"post"}
           checked={this.state.type_ === "post"}
-          onChange={linkEvent(this, this.handleTypeChange)}
+          onChange={e => this.handleTypeChange(this, e)}
         />
         <label
           htmlFor={`${this.id}-posts`}
@@ -63,7 +59,7 @@ export class PostOrCommentTypeSelect extends Component<
           className="btn-check"
           value={"comment"}
           checked={this.state.type_ === "comment"}
-          onChange={linkEvent(this, this.handleTypeChange)}
+          onChange={e => this.handleTypeChange(this, e)}
         />
         <label
           htmlFor={`${this.id}-comments`}

@@ -1,6 +1,6 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
 import {
@@ -40,10 +40,6 @@ export class PasswordChange extends Component<
     },
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get documentTitle(): string {
     return `${I18NextService.i18n.t("password_change")} - ${
       this.state.siteRes.site_view.site.name
@@ -71,12 +67,12 @@ export class PasswordChange extends Component<
 
   passwordChangeForm() {
     return (
-      <form onSubmit={linkEvent(this, this.handlePasswordChangeSubmit)}>
+      <form onSubmit={e => this.handlePasswordChangeSubmit(this, e)}>
         <div className="mb-3">
           <PasswordInput
             id="new-password"
             value={this.state.form.password}
-            onInput={linkEvent(this, this.handlePasswordChange)}
+            onInput={e => this.handlePasswordChange(this, e)}
             showStrength
             label={I18NextService.i18n.t("new_password")}
             isNew
@@ -86,7 +82,7 @@ export class PasswordChange extends Component<
           <PasswordInput
             id="password"
             value={this.state.form.password_verify}
-            onInput={linkEvent(this, this.handleVerifyPasswordChange)}
+            onInput={e => this.handleVerifyPasswordChange(this, e)}
             label={I18NextService.i18n.t("verify_password")}
           />
         </div>

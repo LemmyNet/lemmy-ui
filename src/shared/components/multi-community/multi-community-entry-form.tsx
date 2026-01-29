@@ -40,10 +40,6 @@ export class MultiCommunityEntryForm extends Component<Props, State> {
     communitySearchLoading: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const id = randomStr();
 
@@ -115,7 +111,7 @@ const handleCommunitySearch = debounce(
 interface MultiCommunityEntryListProps {
   communities: CommunityView[];
   isCreator: boolean;
-  onDelete?(communityId: CommunityId): void;
+  onDelete?(this: void, communityId: CommunityId): void;
   myUserInfo: MyUserInfo | undefined;
 }
 

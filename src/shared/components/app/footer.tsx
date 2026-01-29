@@ -10,10 +10,6 @@ interface FooterProps {
 }
 
 export class Footer extends Component<FooterProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <footer className="app-footer container-lg navbar navbar-expand-md navbar-light navbar-bg p-3">

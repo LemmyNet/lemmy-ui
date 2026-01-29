@@ -39,10 +39,6 @@ export class MultiCommunityForm extends Component<Props, State> {
     submitted: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   initForm() {
     const mv = this.props.multiCommunityView;
     return mv

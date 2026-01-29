@@ -10,10 +10,6 @@ interface AuthGuardProps extends RouteComponentProps<Record<string, string>> {
 }
 
 export default class AuthGuard extends Component<AuthGuardProps, any> {
-  constructor(props: AuthGuardProps, context: any) {
-    super(props, context);
-  }
-
   hasAuth() {
     return this.props.myUserInfo;
   }

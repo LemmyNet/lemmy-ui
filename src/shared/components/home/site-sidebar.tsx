@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import {
   Language,
   LocalSite,
@@ -45,10 +45,6 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     collapsed: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <div className="site-sidebar accordion">
@@ -78,7 +74,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           <button
             type="button"
             className="btn btn-sm"
-            onClick={linkEvent(this, this.handleCollapseSidebar)}
+            onClick={_ => this.handleCollapseSidebar(this)}
             aria-label={
               this.state.collapsed
                 ? I18NextService.i18n.t("expand")

@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter, validEmail } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { HttpService, I18NextService } from "../../services";
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
@@ -29,10 +29,6 @@ export class LoginReset extends Component<
     },
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get documentTitle(): string {
     return `${capitalizeFirstLetter(
       I18NextService.i18n.t("forgot_password"),
@@ -55,7 +51,7 @@ export class LoginReset extends Component<
 
   loginResetForm() {
     return (
-      <form onSubmit={linkEvent(this, this.handlePasswordReset)}>
+      <form onSubmit={e => this.handlePasswordReset(this, e)}>
         <h1 className="h4 mb-4">
           {capitalizeFirstLetter(I18NextService.i18n.t("forgot_password"))}
         </h1>
@@ -80,7 +76,7 @@ export class LoginReset extends Component<
               className="form-control"
               id="login-reset-email"
               value={this.state.form.email}
-              onInput={linkEvent(this, this.handleEmailInputChange)}
+              onInput={e => this.handleEmailInputChange(this, e)}
               autoComplete="email"
               required
               minLength={3}
@@ -92,7 +88,7 @@ export class LoginReset extends Component<
           <div className="col-sm-10">
             <button
               type="button"
-              onClick={linkEvent(this, this.handlePasswordReset)}
+              onClick={e => this.handlePasswordReset(this, e)}
               className="btn btn-secondary"
               disabled={
                 !validEmail(this.state.form.email) || this.state.form.loading

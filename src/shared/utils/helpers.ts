@@ -1,6 +1,7 @@
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { RequestState } from "@services/HttpService";
 import { PostView } from "lemmy-js-client";
+import { Action } from "history";
 
 // Intended to allow reloading all the data of the current page by clicking the
 // navigation link of the current page.
@@ -11,7 +12,7 @@ export function bareRoutePush<P extends RouteComponentProps<any>>(
   return (
     prevProps.location.pathname === nextProps.location.pathname &&
     !nextProps.location.search &&
-    nextProps.history.action === "PUSH"
+    nextProps.history.action === Action.Push
   );
 }
 

@@ -443,10 +443,10 @@ export class Notifications extends Component<
     }
   }
 
-  static async fetchInitialData({
-    headers,
-    myUserInfo,
-  }: InitialFetchRequest): Promise<NotificationsData> {
+  static async fetchInitialData(
+    this: void,
+    { headers, myUserInfo }: InitialFetchRequest,
+  ): Promise<NotificationsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -627,7 +627,7 @@ async function handleMessageTypeChange(i: Notifications, val: string) {
     messageType: val as NotificationTypeFilter,
     cursor: undefined,
   });
-  i.refetch();
+  await i.refetch();
 }
 
 async function handleMarkAllAsRead(i: Notifications) {
@@ -657,7 +657,7 @@ async function handleMarkAllAsRead(i: Notifications) {
 
 async function handleAddModToCommunity(form: AddModToCommunity) {
   // TODO not sure what to do here
-  HttpService.client.addModToCommunity(form);
+  await HttpService.client.addModToCommunity(form);
 }
 
 async function handlePurgePerson(i: Notifications, form: PurgePerson) {

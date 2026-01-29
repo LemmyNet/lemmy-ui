@@ -76,10 +76,6 @@ export class Signup extends Component<SignupRouteProps, State> {
     );
   }
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   async componentWillMount() {
     if (
       this.isoData.siteRes?.site_view.local_site.captcha_enabled &&

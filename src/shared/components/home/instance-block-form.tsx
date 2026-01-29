@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { AdminBlockInstanceParams } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { randomStr, validInstanceTLD } from "@utils/helpers";
@@ -26,10 +26,6 @@ export class InstanceBlockForm extends Component<Props, State> {
     bypassNavWarning: true,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const form = this.state.form;
     const id = randomStr();
@@ -51,7 +47,7 @@ export class InstanceBlockForm extends Component<Props, State> {
               placeholder="instance.tld"
               className="form-control"
               value={form.instance}
-              onInput={linkEvent(this, this.handleDomainTextChange)}
+              onInput={e => this.handleDomainTextChange(this, e)}
             />
           </div>
           <div className="col-12">
@@ -64,7 +60,7 @@ export class InstanceBlockForm extends Component<Props, State> {
               placeholder={I18NextService.i18n.t("reason")}
               className="form-control"
               value={form.reason}
-              onInput={linkEvent(this, this.handleReasonChange)}
+              onInput={e => this.handleReasonChange(this, e)}
             />
           </div>
           <div className="col-12">
@@ -81,7 +77,7 @@ export class InstanceBlockForm extends Component<Props, State> {
               placeholder={I18NextService.i18n.t("days_until_expiration")}
               min={1}
               value={form.daysUntilExpire}
-              onInput={linkEvent(this, this.handleExpiryChange)}
+              onInput={e => this.handleExpiryChange(this, e)}
               required
             />
           </div>
@@ -90,7 +86,7 @@ export class InstanceBlockForm extends Component<Props, State> {
               className="btn btn-secondary"
               type="submit"
               disabled={!this.formValid()}
-              onClick={linkEvent(this, this.handleSubmit)}
+              onClick={e => this.handleSubmit(this, e)}
             >
               {I18NextService.i18n.t("create")}
             </button>

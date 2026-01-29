@@ -24,10 +24,6 @@ export class MultiCommunityListingTypeSelect extends Component<Props, State> {
     type_: this.props.type_,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   static getDerivedStateFromProps(props: Props): State {
     return {
       type_: props.type_,

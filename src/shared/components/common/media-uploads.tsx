@@ -1,4 +1,4 @@
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   LocalImage,
   LocalImageView,
@@ -22,10 +22,6 @@ interface Props {
 
 @tippyMixin
 export class MediaUploads extends Component<Props, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & Props>,
   ): void {
@@ -82,7 +78,7 @@ export class MediaUploads extends Component<Props, any> {
   deleteImageBtn(image: LocalImage) {
     return (
       <button
-        onClick={linkEvent(image, this.handleDeleteImage)}
+        onClick={_ => this.handleDeleteImage(image)}
         className="btn btn-danger"
       >
         {I18NextService.i18n.t("delete")}

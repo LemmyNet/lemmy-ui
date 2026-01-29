@@ -23,8 +23,8 @@ type Props = {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   showCrossPosts: ShowCrossPostsType;
-  onPostVote(form: CreatePostLike): void;
-  onScrollIntoCommentsClick(e: MouseEvent): void;
+  onPostVote(this: void, form: CreatePostLike): void;
+  onScrollIntoCommentsClick(this: void, e: MouseEvent): void;
 };
 
 export function PostListingList({

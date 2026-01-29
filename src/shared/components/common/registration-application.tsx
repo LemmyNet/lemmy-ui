@@ -36,9 +36,6 @@ export class RegistrationApplication extends Component<
     denyLoading: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
   componentWillReceiveProps(
     nextProps: Readonly<
       { children?: InfernoNode } & RegistrationApplicationProps

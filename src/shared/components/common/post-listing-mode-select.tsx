@@ -1,5 +1,5 @@
 import { randomStr } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { PostListingMode } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { NoOptionI18nKeys } from "i18next";
@@ -23,17 +23,13 @@ const choices: Choice[] = [
 export class PostListingModeSelect extends Component<Props, any> {
   private id = `post-listing-mode-select-${randomStr()}`;
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <select
         id={this.id}
         name={this.id}
         value={this.props.current}
-        onChange={linkEvent(this, this.handleChange)}
+        onChange={e => this.handleChange(this, e)}
         className="sort-select form-select d-inline-block w-auto me-2"
         aria-label={I18NextService.i18n.t("listing_mode")}
       >

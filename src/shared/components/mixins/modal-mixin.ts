@@ -6,8 +6,8 @@ export function modalMixin<
   S,
   Base extends new (...args: any[]) => Component<P, S> & {
     readonly modalDivRef: RefObject<HTMLDivElement>;
-    handleShow?(): void;
-    handleHide?(): void;
+    handleShow?(this: void): void;
+    handleHide?(this: void): void;
   },
 >(base: Base, _context?: ClassDecoratorContext<Base>) {
   return class extends base {
@@ -46,7 +46,7 @@ export function modalMixin<
           this.addModalListener("shown.bs.modal", this.handleShow);
           this.addModalListener("hidden.bs.modal", this.handleHide);
 
-          this.modal = new Modal(this.modalDivRef.current!);
+          this.modal = new Modal(this.modalDivRef.current);
 
           if (this.props.show) {
             this.modal.show();

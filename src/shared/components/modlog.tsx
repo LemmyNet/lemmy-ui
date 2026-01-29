@@ -970,7 +970,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     return res.state === "success" ? res.data.items.length : 0;
   }
 
-  async updateUrl(props: Partial<ModlogProps>) {
+  updateUrl(props: Partial<ModlogProps>) {
     const {
       actionType,
       modId,
@@ -1038,13 +1038,16 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     }
   }
 
-  static async fetchInitialData({
-    headers,
-    query: { cursor, userId, modId, actionType, commentId, postId },
-    match: {
-      params: { communityId: urlCommunityId },
-    },
-  }: InitialFetchRequest<ModlogPathProps, ModlogProps>): Promise<ModlogData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      query: { cursor, userId, modId, actionType, commentId, postId },
+      match: {
+        params: { communityId: urlCommunityId },
+      },
+    }: InitialFetchRequest<ModlogPathProps, ModlogProps>,
+  ): Promise<ModlogData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
