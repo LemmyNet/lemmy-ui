@@ -103,9 +103,12 @@ type CommunitySettingLinkProps = {
 export function CommunitySettingsLink({
   community,
 }: CommunitySettingLinkProps) {
-  const classes = classNames("btn btn-secondary d-block mb-2 w-100", {
-    "no-click": community.removed,
-  });
+  const classes = classNames(
+    "btn btn-light border-light-subtle d-block mb-2 w-100",
+    {
+      "no-click": community.removed,
+    },
+  );
 
   const link = `${communityLink(community).link}/settings`;
 

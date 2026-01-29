@@ -4,6 +4,7 @@ interface LoadingEllipsesState {
   ellipses: string;
 }
 
+// TODO get rid
 export class LoadingEllipses extends Component<any, LoadingEllipsesState> {
   state: LoadingEllipsesState = {
     ellipses: "...",

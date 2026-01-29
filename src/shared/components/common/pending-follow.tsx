@@ -66,7 +66,7 @@ export class PendingFollow extends Component<
           {p.follow_state === "approval_required" && (
             <>
               <button
-                className="btn btn-secondary me-2 my-2"
+                className="btn btn-light border-light-subtle me-2 my-2"
                 onClick={linkEvent(this, this.handleApprove)}
                 aria-label={I18NextService.i18n.t("approve")}
               >
@@ -77,7 +77,7 @@ export class PendingFollow extends Component<
                 )}
               </button>
               <button
-                className="btn btn-secondary me-2"
+                className="btn btn-light border-light-subtle me-2"
                 onClick={linkEvent(this, this.handleDeny)}
                 aria-label={I18NextService.i18n.t("deny")}
               >
