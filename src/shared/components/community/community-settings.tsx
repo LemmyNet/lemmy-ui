@@ -6,6 +6,7 @@ import {
   getIdFromString,
   debounce,
   getApubName,
+  lowerCaseFirstLetter,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import {
@@ -63,6 +64,7 @@ import { amTopMod, amHigherModerator, amTopModExcludeMe } from "@utils/roles";
 import { SearchableSelect } from "@components/common/searchable-select";
 import { CommunityTagForm } from "./community-tag-form";
 import { NoOptionI18nKeys } from "i18next";
+import { CommunityLink } from "./community-link";
 
 type CommunitySettingsData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -222,34 +224,44 @@ export class CommunitySettings extends Component<RouteProps, State> {
                   role="tabpanel"
                   id="community-tab-pane"
                 >
-                  <h1 className="justify-content-md-center h4 mb-4">
-                    {I18NextService.i18n.t("settings")}
-                  </h1>
                   {getCommunityRes && (
-                    <div className="row justify-content-md-center">
-                      <div className="col-12 col-md-6">
-                        <CommunityForm
-                          communityView={getCommunityRes.community_view}
-                          allLanguages={siteRes.all_languages}
-                          siteLanguages={siteRes.discussion_languages}
-                          communityLanguages={
-                            getCommunityRes.discussion_languages
-                          }
-                          onEdit={form => handleEditCommunity(this, form)}
-                          createOrEditLoading={
-                            this.state.editCommunityRes.state === "loading"
-                          }
-                          onDelete={deleted =>
-                            handleDeleteCommunity(this, deleted)
-                          }
-                          deleteLoading={
-                            this.state.deleteCommunityRes.state === "loading"
-                          }
-                          enableNsfw={enableNsfw(siteRes)}
-                          myUserInfo={myUserInfo}
-                        />
+                    <>
+                      <div className="row justify-content-md-center">
+                        <h1 className="col-12 col-md-6 h4 mb-4">
+                          <CommunityLink
+                            community={getCommunityRes.community_view.community}
+                            myUserInfo={myUserInfo}
+                          />{" "}
+                          {lowerCaseFirstLetter(
+                            I18NextService.i18n.t("settings"),
+                          )}
+                        </h1>
                       </div>
-                    </div>
+                      <div className="row justify-content-md-center">
+                        <div className="col-12 col-md-6">
+                          <CommunityForm
+                            communityView={getCommunityRes.community_view}
+                            allLanguages={siteRes.all_languages}
+                            siteLanguages={siteRes.discussion_languages}
+                            communityLanguages={
+                              getCommunityRes.discussion_languages
+                            }
+                            onEdit={form => handleEditCommunity(this, form)}
+                            createOrEditLoading={
+                              this.state.editCommunityRes.state === "loading"
+                            }
+                            onDelete={deleted =>
+                              handleDeleteCommunity(this, deleted)
+                            }
+                            deleteLoading={
+                              this.state.deleteCommunityRes.state === "loading"
+                            }
+                            enableNsfw={enableNsfw(siteRes)}
+                            myUserInfo={myUserInfo}
+                          />
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
               ),
