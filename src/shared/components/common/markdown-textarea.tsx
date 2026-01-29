@@ -128,7 +128,7 @@ export class MarkdownTextArea extends Component<
             (!!this.state.content || this.props.loading)
           }
         />
-        <div className="mb-3 row">
+        <div className="row mb-2">
           <div className="col-12">
             <div className="rounded bg-light border">
               {!this.state.previewMode && (
@@ -260,44 +260,52 @@ export class MarkdownTextArea extends Component<
               </label>
             </div>
           </div>
+        </div>
 
-          <div className="col-12 d-flex align-items-center flex-wrap mt-2">
-            {this.props.buttonTitle && (
+        <div className="row row-cols-auto align-items-center g-2 g-sm-3 mb-2 mb-sm-2">
+          {this.props.buttonTitle && (
+            <div className="col">
               <button
                 type="submit"
-                className="btn btn-sm btn-secondary ms-2"
+                className="btn btn-sm btn-light border-light-subtle"
                 disabled={this.isDisabled || !this.state.content}
               >
                 {this.props.loading && <Spinner className="me-1" />}
                 {this.props.buttonTitle}
               </button>
-            )}
+            </div>
+          )}
+          <div className="col">
             <button
               type="button"
               disabled={!this.state.content}
-              className={classNames("btn btn-sm btn-secondary ms-2", {
-                active: this.state.previewMode,
-              })}
+              className={classNames(
+                "btn btn-sm btn-light border-light-subtle",
+                {
+                  active: this.state.previewMode,
+                },
+              )}
               onClick={() => handlePreviewToggle(this)}
             >
               {this.state.previewMode
                 ? I18NextService.i18n.t("edit")
                 : I18NextService.i18n.t("preview")}
             </button>
-            {this.props.replyType && (
+          </div>
+          {this.props.replyType && (
+            <div className="col">
               <button
                 type="button"
-                className="btn btn-sm btn-secondary ms-2"
+                className="btn btn-sm btn-light border-light-subtle"
                 onClick={() => handleReplyCancel(this)}
               >
                 {I18NextService.i18n.t("cancel")}
               </button>
-            )}
+            </div>
+          )}
 
-            {/* A flex expander */}
-            <div className="flex-grow-1"></div>
-
-            {this.props.showLanguage && (
+          {this.props.showLanguage && (
+            <div className="col ms-auto">
               <LanguageSelect
                 iconVersion
                 allLanguages={this.props.allLanguages}
@@ -309,8 +317,8 @@ export class MarkdownTextArea extends Component<
                 disabled={this.isDisabled}
                 myUserInfo={this.props.myUserInfo}
               />
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </>,
     );

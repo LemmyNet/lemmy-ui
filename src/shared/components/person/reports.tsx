@@ -5,12 +5,11 @@ import {
   setIsoData,
   toast,
 } from "@utils/app";
-import { randomStr, resourcesSettled } from "@utils/helpers";
+import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { amAdmin } from "@utils/roles";
 import { RouteDataResponse } from "@utils/types";
-import classNames from "classnames";
-import { Component, FormEvent, InfernoNode } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   CommentReportResponse,
   GetSiteResponse,
@@ -56,11 +55,15 @@ import ModActionFormModal, {
   BanUpdateForm,
 } from "@components/common/modal/mod-action-form-modal";
 import { futureDaysToUnixTime } from "@utils/date";
-
-enum UnreadOrAll {
-  Unread,
-  All,
-}
+import {
+  FilterChipDropdown,
+  FilterOption,
+} from "@components/common/filter-chip-dropdown";
+import {
+  UnreadOrAll,
+  UnreadOrAllDropdown,
+} from "@components/common/unread-or-all-dropdown";
+import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 
 type ReportsData = RouteDataResponse<{
   reportsRes: PagedResponse<ReportCombinedView>;
@@ -69,7 +72,7 @@ type ReportsData = RouteDataResponse<{
 interface ReportsState {
   reportsRes: RequestState<PagedResponse<ReportCombinedView>>;
   unreadOrAll: UnreadOrAll;
-  messageType: ReportType;
+  reportType: ReportType;
   siteRes: GetSiteResponse;
   cursor?: PaginationCursor;
   isIsomorphic: boolean;
@@ -85,6 +88,14 @@ export type ReportsFetchConfig = IRoutePropsWithFetch<
   Record<string, never>,
   Record<string, never>
 >;
+
+const reportTypeOptions: FilterOption<ReportType>[] = [
+  { value: "all", i18n: "all" },
+  { value: "posts", i18n: "posts" },
+  { value: "comments", i18n: "comments" },
+  { value: "private_messages", i18n: "messages" },
+  { value: "communities", i18n: "communities" },
+];
 
 // These are needed because ModActionFormModal requires full Person/Community, but the api forms
 // (BanFromCommunity) only contain PersonId/CommunityId.
@@ -104,8 +115,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   private isoData = setIsoData<ReportsData>(this.context);
   state: ReportsState = {
     reportsRes: EMPTY_REQUEST,
-    unreadOrAll: UnreadOrAll.Unread,
-    messageType: "all",
+    unreadOrAll: "unread",
+    reportType: "all",
     siteRes: this.isoData.siteRes,
     isIsomorphic: false,
     showCommunityRuleViolations: false,
@@ -197,7 +208,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   }
 
   get section() {
-    switch (this.state.messageType) {
+    switch (this.state.reportType) {
       case "all": {
         return this.all();
       }
@@ -220,168 +231,41 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  unreadOrAllRadios() {
-    const radioId = randomStr();
+  reportTypeFilters() {
+    // Only show communities and private messages if you're an admin.
+    const options = amAdmin(this.isoData.myUserInfo)
+      ? reportTypeOptions
+      : reportTypeOptions.filter(
+          v => !["private_messages", "communities"].includes(v.value),
+        );
 
     return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
-        <input
-          id={`${radioId}-unread`}
-          type="radio"
-          className="btn-check"
-          value={UnreadOrAll.Unread}
-          checked={this.state.unreadOrAll === UnreadOrAll.Unread}
-          onChange={e => handleUnreadOrAllChange(this, e)}
-        />
-        <label
-          htmlFor={`${radioId}-unread`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.unreadOrAll === UnreadOrAll.Unread,
-          })}
-        >
-          {I18NextService.i18n.t("unread")}
-        </label>
-
-        <input
-          id={`${radioId}-all`}
-          type="radio"
-          className="btn-check"
-          value={UnreadOrAll.All}
-          checked={this.state.unreadOrAll === UnreadOrAll.All}
-          onChange={e => handleUnreadOrAllChange(this, e)}
-        />
-        <label
-          htmlFor={`${radioId}-all`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.unreadOrAll === UnreadOrAll.All,
-          })}
-        >
-          {I18NextService.i18n.t("all")}
-        </label>
-      </div>
-    );
-  }
-
-  messageTypeRadios() {
-    const radioId = randomStr();
-
-    return (
-      <div className="btn-group btn-group-toggle flex-wrap mb-2" role="group">
-        <input
-          id={`${radioId}-all`}
-          type="radio"
-          className="btn-check"
-          value={"all"}
-          checked={this.state.messageType === "all"}
-          onChange={e => handleMessageTypeChange(this, e)}
-        />
-        <label
-          htmlFor={`${radioId}-all`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "all",
-          })}
-        >
-          {I18NextService.i18n.t("all")}
-        </label>
-
-        <input
-          id={`${radioId}-comments`}
-          type="radio"
-          className="btn-check"
-          value={"comments"}
-          checked={this.state.messageType === "comments"}
-          onChange={e => handleMessageTypeChange(this, e)}
-        />
-        <label
-          htmlFor={`${radioId}-comments`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "comments",
-          })}
-        >
-          {I18NextService.i18n.t("comments")}
-        </label>
-
-        <input
-          id={`${radioId}-posts`}
-          type="radio"
-          className="btn-check"
-          value={"posts"}
-          checked={this.state.messageType === "posts"}
-          onChange={e => handleMessageTypeChange(this, e)}
-        />
-        <label
-          htmlFor={`${radioId}-posts`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.messageType === "posts",
-          })}
-        >
-          {I18NextService.i18n.t("posts")}
-        </label>
-
-        {amAdmin(this.isoData.myUserInfo) && (
-          <>
-            <input
-              id={`${radioId}-messages`}
-              type="radio"
-              className="btn-check"
-              value={"private_messages"}
-              checked={this.state.messageType === "private_messages"}
-              onChange={e => handleMessageTypeChange(this, e)}
-            />
-            <label
-              htmlFor={`${radioId}-messages`}
-              className={classNames("btn btn-outline-secondary pointer", {
-                active: this.state.messageType === "private_messages",
-              })}
-            >
-              {I18NextService.i18n.t("messages")}
-            </label>
-
-            <input
-              id={`${radioId}-communities`}
-              type="radio"
-              className="btn-check"
-              value={"communities"}
-              checked={this.state.messageType === "communities"}
-              onChange={e => handleMessageTypeChange(this, e)}
-            />
-            <label
-              htmlFor={`${radioId}-communities`}
-              className={classNames("btn btn-outline-secondary pointer", {
-                active: this.state.messageType === "communities",
-              })}
-            >
-              {I18NextService.i18n.t("communities")}
-            </label>
-          </>
-        )}
-      </div>
+      <FilterChipDropdown
+        allOptions={options}
+        currentOption={options.find(t => t.value === this.state.reportType)}
+        onSelect={val => handleReportTypeChange(this, val)}
+      />
     );
   }
 
   selects() {
     return (
-      <div className="mb-2">
-        <span className="me-3">{this.unreadOrAllRadios()}</span>
-        <span className="me-3">{this.messageTypeRadios()}</span>
+      <div className="row row-cols-auto align-items-center g-3 mb-2">
+        <div className="col">
+          <UnreadOrAllDropdown
+            currentOption={this.state.unreadOrAll}
+            onSelect={val => handleUnreadOrAllChange(this, val)}
+          />
+        </div>
+        <div className="col">{this.reportTypeFilters()}</div>
         {this.isoData.myUserInfo?.local_user_view.local_user.admin && (
-          <span className="me-3">
-            <div
-              className="btn-group btn-group-toggle flex-wrap mb-2"
-              role="group"
-            >
-              <button
-                className="btn btn-secondary"
-                onClick={() => handleClickshowCommunityReports(this)}
-              >
-                {I18NextService.i18n.t(
-                  this.state.showCommunityRuleViolations
-                    ? "hide_community_reports"
-                    : "show_community_reports",
-                )}
-              </button>
-            </div>
-          </span>
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_community_reports"}
+              isChecked={this.state.showCommunityRuleViolations ?? false}
+              onCheck={val => handleClickshowCommunityReports(this, val)}
+            />
+          </div>
         )}
       </div>
     );
@@ -636,7 +520,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   refetchToken?: symbol;
   async refetch() {
     const token = (this.refetchToken = Symbol());
-    const unresolved_only = this.state.unreadOrAll === UnreadOrAll.Unread;
+    const unresolved_only = this.state.unreadOrAll === "unread";
     const cursor = this.state.cursor;
 
     this.setState({
@@ -645,7 +529,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
     const form: ListReports = {
       unresolved_only,
-      type_: this.state.messageType,
+      type_: this.state.reportType,
       show_community_rule_violations: this.state.showCommunityRuleViolations,
       page_cursor: cursor,
     };
@@ -726,34 +610,20 @@ async function handlePageChange(i: Reports, cursor?: PaginationCursor) {
   await i.refetch();
 }
 
-async function handleUnreadOrAllChange(
-  i: Reports,
-  event: FormEvent<HTMLInputElement>,
-) {
+async function handleUnreadOrAllChange(i: Reports, val: UnreadOrAll) {
   i.setState({
-    unreadOrAll: Number(event.target.value),
+    unreadOrAll: val,
     cursor: undefined,
   });
   await i.refetch();
 }
 
-async function handleMessageTypeChange(
-  i: Reports,
-  event: FormEvent<HTMLInputElement>,
-) {
-  switch (event.target.value) {
-    case "all":
-    case "comments":
-    case "posts":
-    case "private_messages":
-    case "communities": {
-      i.setState({
-        messageType: event.target.value,
-        cursor: undefined,
-      });
-      await i.refetch();
-    }
-  }
+async function handleReportTypeChange(i: Reports, val: ReportType) {
+  i.setState({
+    reportType: val,
+    cursor: undefined,
+  });
+  await i.refetch();
 }
 
 async function handleResolveCommentReport(
@@ -845,9 +715,9 @@ function handleCloseModActionModals(i: Reports) {
   });
 }
 
-function handleClickshowCommunityReports(i: Reports) {
+function handleClickshowCommunityReports(i: Reports, val: boolean) {
   i.setState({
-    showCommunityRuleViolations: !i.state.showCommunityRuleViolations,
+    showCommunityRuleViolations: val,
   });
   i.update();
 }

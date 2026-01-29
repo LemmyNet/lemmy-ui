@@ -17,7 +17,7 @@ import {
   bareRoutePush,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type { QueryParams, StringBoolean } from "@utils/types";
+import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode, RefObject, createRef } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -73,21 +73,21 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import { PostSortSelect } from "../common/sort-select";
+import { PostSortDropdown } from "../common/sort-dropdown";
 import { PostListings } from "../post/post-listings";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
 import { PostsLoadingSkeleton } from "../common/loading-skeleton";
 import { MultiCommunitySidebar } from "./multi-community-sidebar";
 import { IRoutePropsWithFetch } from "@utils/routes";
-import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
 import { nowBoolean } from "@utils/date";
-import { TimeIntervalSelect } from "@components/common/time-interval-select";
+import { TimeIntervalFilter } from "@components/common/time-interval-filter";
 import { LoadingEllipses } from "@components/common/loading-ellipses";
 import { MultiCommunityLink } from "./multi-community-link";
-import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
+import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { MultiCommunityEntryList } from "./multi-community-entry-form";
+import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 
 type MultiCommunityData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
@@ -109,7 +109,7 @@ interface Props {
   sort: PostSortType;
   postTimeRange: number;
   cursor?: PaginationCursor;
-  showHidden?: StringBoolean;
+  showHidden?: boolean;
 }
 
 type Fallbacks = {
@@ -129,7 +129,7 @@ export function getMultiCommunityQueryParams(
       cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
       postTimeRange: getPostTimeRangeFromQuery,
-      showHidden: (include?: StringBoolean) => include,
+      showHidden: getShowHiddenFromQuery,
     },
     source,
     {
@@ -152,6 +152,10 @@ function getPostTimeRangeFromQuery(
   fallback: number,
 ): number {
   return type ? Number(type) : fallback;
+}
+
+function getShowHiddenFromQuery(hidden: string | undefined): boolean {
+  return hidden === "true";
 }
 
 type PathProps = { name: string };
@@ -255,7 +259,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
       sort: mixedToPostSortType(sort),
       time_range_seconds: postTimeRange,
       type_: "all",
-      show_hidden: showHidden === "true",
+      show_hidden: showHidden,
       page_cursor: cursor,
     };
 
@@ -303,7 +307,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
         {this.multiCommunityInfo()}
         <div className="d-block d-md-none">
           <button
-            className="btn btn-secondary d-inline-block mb-2 me-3"
+            className="btn btn-light border-light-subtle d-inline-block mb-2 me-3"
             onClick={() => handleShowSidebarMobile(this)}
           >
             {I18NextService.i18n.t("sidebar")}{" "}
@@ -362,7 +366,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     return (
       <div className="my-2">
         <button
-          className="btn btn-secondary"
+          className="btn btn-light border-light-subtle"
           onClick={() => handleMarkPageAsRead(this, this.isoData.myUserInfo)}
         >
           {I18NextService.i18n.t("mark_page_as_read")}
@@ -506,35 +510,36 @@ export class MultiCommunity extends Component<RouteProps, State> {
       : undefined;
 
     return (
-      <div className="row align-items-center mb-3 g-3">
+      <div className="row row-cols-auto align-items-center g-3 mb-3">
         {this.isoData.myUserInfo && (
-          <div className="col-auto">
-            <PostHiddenSelect
-              showHidden={showHidden}
-              onShowHiddenChange={show => handleShowHiddenChange(this, show)}
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_hidden_posts"}
+              isChecked={showHidden ?? false}
+              onCheck={hidden => handleShowHiddenChange(this, hidden)}
             />
           </div>
         )}
-        <div className="col-auto">
-          <PostListingModeSelect
-            current={this.state.postListingMode}
-            onChange={val => handlePostListingModeChange(this, val, myUserInfo)}
+        <div className="col">
+          <PostListingModeDropdown
+            currentOption={this.state.postListingMode}
+            onSelect={val => handlePostListingModeChange(this, val, myUserInfo)}
           />
         </div>
-        <div className="col-auto">
-          <PostSortSelect
-            current={mixedToPostSortType(sort)}
-            onChange={val => handleSortChange(this, val)}
+        <div className="col">
+          <PostSortDropdown
+            currentOption={mixedToPostSortType(sort)}
+            onSelect={val => handleSortChange(this, val)}
           />
         </div>
-        <div className="col-6 col-md-3">
-          <TimeIntervalSelect
+        <div className="col">
+          <TimeIntervalFilter
             currentSeconds={postTimeRange}
             onChange={seconds => handlePostTimeRangeChange(this, seconds)}
           />
         </div>
         {multiCommunityRss && (
-          <>
+          <div className="col">
             <a href={multiCommunityRss} title="RSS" rel={relTags}>
               <Icon icon="rss" classes="text-muted small" />
             </a>
@@ -543,7 +548,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
               type="application/atom+xml"
               href={multiCommunityRss}
             />
-          </>
+          </div>
         )}
       </div>
     );
@@ -565,7 +570,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     const queryParams: QueryParams<Props> = {
       cursor,
       sort,
-      showHidden: showHidden,
+      showHidden: showHidden?.toString(),
     };
 
     this.props.history.push(`/m/${name}${getQueryString(queryParams)}`);
@@ -584,7 +589,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
       time_range_seconds: postTimeRange,
       type_: "all",
       multi_community_name,
-      show_hidden: showHidden === "true",
+      show_hidden: showHidden,
     });
     if (token === this.fetchDataToken) {
       this.setState({ postsRes });
@@ -871,9 +876,9 @@ function handlePostTimeRangeChange(i: MultiCommunity, val: number) {
   i.updateUrl({ postTimeRange: val, cursor: undefined });
 }
 
-function handleShowHiddenChange(i: MultiCommunity, show?: StringBoolean) {
+function handleShowHiddenChange(i: MultiCommunity, showHidden: boolean) {
   i.updateUrl({
-    showHidden: show,
+    showHidden,
     cursor: undefined,
   });
 }

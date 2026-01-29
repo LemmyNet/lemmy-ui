@@ -144,7 +144,7 @@ export class RegistrationApplication extends Component<
         )}
         {(!ra.admin_id || (ra.admin_id && !accepted)) && (
           <button
-            className="btn btn-secondary me-2 my-2"
+            className="btn btn-light border-light-subtle me-2 my-2"
             onClick={() => handleApprove(this)}
             aria-label={I18NextService.i18n.t("approve")}
           >
@@ -157,7 +157,7 @@ export class RegistrationApplication extends Component<
         )}
         {(!ra.admin_id || (ra.admin_id && accepted)) && (
           <button
-            className="btn btn-secondary me-2"
+            className="btn btn-light border-light-subtle me-2"
             onClick={() => handleDeny(this)}
             aria-label={I18NextService.i18n.t("deny")}
           >
