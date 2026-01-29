@@ -27,7 +27,7 @@ const reportElements = [
   "name",
   "title",
   "summary",
-  "description",
+  "sidebar",
   "icon",
   "banner",
 ] as const;
@@ -71,10 +71,10 @@ export class CommunityReport extends Component<Props, State> {
           myUserInfo={this.props.myUserInfo}
         />
         {mergedCommunity.summary && <div>{mergedCommunity.summary}</div>}
-        {mergedCommunity.description && (
+        {mergedCommunity.sidebar && (
           <div
             className="md-div"
-            dangerouslySetInnerHTML={mdToHtml(mergedCommunity.description, () =>
+            dangerouslySetInnerHTML={mdToHtml(mergedCommunity.sidebar, () =>
               this.forceUpdate(),
             )}
           />

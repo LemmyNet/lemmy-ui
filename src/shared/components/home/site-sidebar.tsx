@@ -111,10 +111,10 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     return (
       <div>
         {site.summary && <h6>{site.summary}</h6>}
-        {site.description && (
+        {site.sidebar && (
           <div
             className="md-div mb-2"
-            dangerouslySetInnerHTML={mdToHtml(site.description, () =>
+            dangerouslySetInnerHTML={mdToHtml(site.sidebar, () =>
               this.forceUpdate(),
             )}
           />

@@ -34,12 +34,12 @@ import {
   EditPrivateMessage,
   GetSiteResponse,
   LemmyHttp,
+  NotificationTypeFilter,
   PagedResponse,
   LockComment,
   MarkNotificationAsRead,
   MarkPostAsRead,
   NotePerson,
-  NotificationDataType,
   NotificationView,
   PrivateMessageId,
   PrivateMessageResponse,
@@ -88,7 +88,7 @@ import {
   UnreadOrAllDropdown,
 } from "@components/common/unread-or-all-dropdown";
 
-const messageTypeOptions: FilterOption<NotificationDataType>[] = [
+const messageTypeOptions: FilterOption<NotificationTypeFilter>[] = [
   { value: "all", i18n: "all" },
   { value: "reply", i18n: "replies" },
   { value: "mention", i18n: "mentions" },
@@ -102,7 +102,7 @@ type NotificationsData = RouteDataResponse<{
 
 interface NotificationsState {
   unreadOrAll: UnreadOrAll;
-  messageType: NotificationDataType;
+  messageType: NotificationTypeFilter;
   notifsRes: RequestState<PagedResponse<NotificationView>>;
   markAllAsReadRes: RequestState<SuccessResponse>;
   privateMessageRes: RequestState<PrivateMessageResponse>;
@@ -584,7 +584,7 @@ async function handleUnreadOrAllChange(i: Notifications, val: string) {
 
 async function handleMessageTypeChange(
   i: Notifications,
-  val: NotificationDataType,
+  val: NotificationTypeFilter,
 ) {
   i.setState({
     messageType: val,

@@ -38,7 +38,7 @@ interface CommunityFormState {
     name?: string;
     title?: string;
     summary?: string;
-    description?: string;
+    sidebar?: string;
     icon?: string;
     banner?: string;
     nsfw?: boolean;
@@ -72,7 +72,7 @@ export class CommunityForm extends Component<
           name: cv.community.name,
           title: cv.community.title,
           summary: cv.community.summary,
-          description: cv.community.description,
+          sidebar: cv.community.sidebar,
           nsfw: cv.community.nsfw,
           icon: cv.community.icon,
           banner: cv.community.banner,
@@ -236,15 +236,13 @@ export class CommunityForm extends Component<
         </div>
         <div className="mb-3 row">
           <label className="col-12 col-sm-2 col-form-label" htmlFor={this.id}>
-            {I18NextService.i18n.t("description")}
+            {I18NextService.i18n.t("sidebar")}
           </label>
           <div className="col-12 col-sm-10">
             <MarkdownTextArea
-              initialContent={this.state.form.description}
-              placeholder={I18NextService.i18n.t("description") ?? undefined}
-              onContentChange={val =>
-                handleCommunityDescriptionChange(this, val)
-              }
+              initialContent={this.state.form.sidebar}
+              placeholder={I18NextService.i18n.t("sidebar") ?? undefined}
+              onContentChange={val => handleCommunitySidebarChange(this, val)}
               hideNavigationWarnings
               allLanguages={[]}
               siteLanguages={[]}
@@ -375,7 +373,7 @@ function handleCommunitySubmit(
       community_id: cv.community.id,
       title: cForm.title,
       summary: cForm.summary,
-      description: cForm.description,
+      sidebar: cForm.sidebar,
       nsfw: cForm.nsfw,
       posting_restricted_to_mods: cForm.posting_restricted_to_mods,
       discussion_languages: cForm.discussion_languages,
@@ -387,7 +385,7 @@ function handleCommunitySubmit(
         name: cForm.name,
         title: cForm.title,
         summary: cForm.summary,
-        description: cForm.description,
+        sidebar: cForm.sidebar,
         icon: cForm.icon,
         banner: cForm.banner,
         nsfw: cForm.nsfw,
@@ -424,8 +422,8 @@ function handleCommunitySummaryChange(
   i.setState(s => ((s.form.summary = event.target.value), s));
 }
 
-function handleCommunityDescriptionChange(i: CommunityForm, val: string) {
-  i.setState(s => ((s.form.description = val), s));
+function handleCommunitySidebarChange(i: CommunityForm, val: string) {
+  i.setState(s => ((s.form.sidebar = val), s));
 }
 
 function handleCommunityNsfwChange(

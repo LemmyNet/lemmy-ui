@@ -4,7 +4,6 @@ import {
   MultiCommunityView,
   MyUserInfo,
 } from "lemmy-js-client";
-import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -34,22 +33,28 @@ export class MultiCommunitySidebar extends Component<Props, any> {
   }
 
   sidebar() {
-    const mv = this.props.multiCommunityView;
+    const {
+      multiCommunityView: mv,
+      hideButtons,
+      followLoading,
+      myUserInfo,
+    } = this.props;
+
     return (
       <aside className="mb-3">
         <div id="sidebarContainer">
-          {!this.props.hideButtons && (
+          {!hideButtons && (
             <section id="sidebarMain" className="card mb-3">
               <div className="card-body">
                 {this.multiCommunityTitle()}
-
+                {mv.multi.summary && <h6>{mv.multi.summary}</h6>}
                 <SubscribeButton
                   followState={mv.follow_state}
                   apId={mv.multi.ap_id}
                   onFollow={() => handleFollowMultiCommunity(this, true)}
                   onUnFollow={() => handleFollowMultiCommunity(this, false)}
-                  loading={this.props.followLoading}
-                  showRemoteFetch={!this.props.myUserInfo}
+                  loading={followLoading}
+                  showRemoteFetch={!myUserInfo}
                 />
                 {this.amCreator && (
                   <MultiCommunitySettingsLink multi={mv.multi} />
@@ -59,7 +64,6 @@ export class MultiCommunitySidebar extends Component<Props, any> {
           )}
           <section id="sidebarInfo" className="card mb-3">
             <div className="card-body">
-              {this.sidebarMarkdown()}
               <MultiCommunityBadges multiCommunity={mv.multi} />
               {this.creator()}
             </div>
@@ -114,18 +118,6 @@ export class MultiCommunitySidebar extends Component<Props, any> {
           />
         </li>
       </ul>
-    );
-  }
-
-  sidebarMarkdown() {
-    const sidebar = this.props.multiCommunityView.multi.description;
-    return (
-      sidebar && (
-        <div
-          className="md-div"
-          dangerouslySetInnerHTML={mdToHtml(sidebar, () => this.forceUpdate())}
-        />
-      )
     );
   }
 

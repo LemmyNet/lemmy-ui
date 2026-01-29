@@ -5,8 +5,8 @@ import {
   CreateCommunityTag,
   DeleteCommunityTag,
   MyUserInfo,
-  Tag,
-  TagId,
+  CommunityTag as CommunityTagI,
+  CommunityTagId,
   EditCommunityTag,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
@@ -17,22 +17,22 @@ import { validActorRegexPattern } from "@utils/config";
 import { CommunityTag } from "./community-tag";
 
 type CommunityTagGenericForm = {
-  tag_id?: TagId;
+  tag_id?: CommunityTagId;
   community_id?: CommunityId;
   name?: string;
   display_name?: string;
-  description?: string;
+  summary?: string;
 };
 
 interface CommunityTagFormProps {
-  tag?: Tag; // If an tag is given, this means its an edit.
+  tag?: CommunityTagI; // If an tag is given, this means its an edit.
   communityId?: CommunityId; // Required if its a create.
   createOrEditLoading: boolean;
-  deleteLoading?: boolean;
+  deleteOrRestoreLoading?: boolean;
   myUserInfo: MyUserInfo | undefined;
   onCreate?(form: CreateCommunityTag): void;
   onEdit?(form: EditCommunityTag): void;
-  onDelete?(form: DeleteCommunityTag): void;
+  onDeleteOrRestore?(form: DeleteCommunityTag): void;
 }
 
 interface CommunityTagFormState {
@@ -67,7 +67,7 @@ export class CommunityTagForm extends Component<
         tag_id: tag.id,
         name: tag.name,
         display_name: tag.display_name,
-        description: tag.description,
+        summary: tag.summary,
       };
     } else {
       return { community_id: this.props.communityId };
@@ -93,7 +93,7 @@ export class CommunityTagForm extends Component<
             !!(
               this.state.form.name ||
               this.state.form.display_name ||
-              this.state.form.description
+              this.state.form.summary
             ) && !this.state.bypassNavWarning
           }
         />
@@ -140,18 +140,17 @@ export class CommunityTagForm extends Component<
             />
           </div>
           <div className="col-12">
-            {/** TODO This will no longer be a description / markdown field soon **/}
             <label className="visually-hidden" htmlFor={`description-${id}`}>
-              {I18NextService.i18n.t("description")}
+              {I18NextService.i18n.t("summary")}
             </label>{" "}
             <input
-              id={`description-${id}`}
+              id={`summary-${id}`}
               type="text"
-              placeholder={I18NextService.i18n.t("description")}
+              placeholder={I18NextService.i18n.t("summary")}
               className="form-control"
-              value={this.state.form.description}
+              value={this.state.form.summary}
               maxLength={150}
-              onInput={e => handleDescriptionChange(this, e)}
+              onInput={e => handleSummaryChange(this, e)}
             />
           </div>
           <div className="col-12">
@@ -164,13 +163,15 @@ export class CommunityTagForm extends Component<
             </button>
             {this.props.tag && (
               <button
-                className="btn btn-danger"
-                onClick={e => handleDelete(this, e)}
+                className={`btn ${this.props.tag.deleted ? "btn-success" : "btn-danger"}`}
+                onClick={e => handleDeleteOrRestore(this, e)}
               >
-                {this.props.deleteLoading ? (
+                {this.props.deleteOrRestoreLoading ? (
                   <Spinner />
                 ) : (
-                  I18NextService.i18n.t("delete")
+                  I18NextService.i18n.t(
+                    this.props.tag.deleted ? "restore" : "delete",
+                  )
                 )}
               </button>
             )}
@@ -205,25 +206,26 @@ function handleDisplayNameChange(
   });
 }
 
-function handleDescriptionChange(
+function handleSummaryChange(
   i: CommunityTagForm,
   event: FormEvent<HTMLInputElement>,
 ) {
   i.setState({
-    form: { ...i.state.form, description: event.target.value },
+    form: { ...i.state.form, summary: event.target.value },
     bypassNavWarning: false,
   });
 }
 
-function handleDelete(
+function handleDeleteOrRestore(
   i: CommunityTagForm,
   event: InfernoMouseEvent<HTMLButtonElement>,
 ) {
   event.preventDefault();
   const tag_id = i.props.tag?.id;
+  const delete_ = !i.props.tag?.deleted;
   if (tag_id) {
     i.setState({ bypassNavWarning: true });
-    i.props.onDelete?.({ tag_id });
+    i.props.onDeleteOrRestore?.({ tag_id, delete: delete_ });
   }
 }
 
