@@ -30,8 +30,8 @@ import {
   LemmyHttp,
   MyUserInfo,
   SuccessResponse,
-  Tag,
-  TagId,
+  CommunityTag,
+  CommunityTagId,
   TransferCommunity,
   EditCommunityTag,
 } from "lemmy-js-client";
@@ -75,8 +75,8 @@ interface State {
   deleteCommunityRes: RequestState<CommunityResponse>;
   leaveModTeamRes: RequestState<AddModToCommunityResponse>;
   purgeCommunityRes: RequestState<SuccessResponse>;
-  createOrEditTagRes: ItemIdAndRes<TagId, Tag>;
-  deleteTagRes: ItemIdAndRes<TagId, Tag>;
+  createOrEditTagRes: ItemIdAndRes<CommunityTagId, CommunityTag>;
+  deleteTagRes: ItemIdAndRes<CommunityTagId, CommunityTag>;
   isIsomorphic: boolean;
   showLeaveModTeamDialog: boolean;
   // You need to filter by the specific mod id, since this is a jsx loop
@@ -299,16 +299,18 @@ export class CommunitySettings extends Component<RouteProps, State> {
       res && (
         <>
           <h1 className="h4 mb-4">{I18NextService.i18n.t("tags")}</h1>
-          {res.community_view.post_tags.map(t => (
+          {res.community_view.tags.map(t => (
             <CommunityTagForm
               key={`community-tag-form-${t.id}`}
               tag={t}
               onEdit={form => handleEditTag(this, form)}
-              onDelete={form => handleDeleteTag(this, form)}
+              onDeleteOrRestore={form => handleDeleteTag(this, form)}
               createOrEditLoading={
                 itemLoading(this.state.createOrEditTagRes) === t.id
               }
-              deleteLoading={itemLoading(this.state.deleteTagRes) === t.id}
+              deleteOrRestoreLoading={
+                itemLoading(this.state.deleteTagRes) === t.id
+              }
               myUserInfo={this.isoData.myUserInfo}
             />
           ))}

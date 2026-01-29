@@ -120,7 +120,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           <NavLink
             id="navTitle"
             to="/"
-            title={siteView?.site.description ?? siteView?.site.name}
+            title={siteView?.site.summary ?? siteView?.site.name}
             className="d-flex align-items-center navbar-brand me-md-3"
             onMouseUp={linkEvent(this, handleCollapseClick)}
           >

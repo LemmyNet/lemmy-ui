@@ -84,7 +84,7 @@ export class CommentReport extends Component<
       can_mod: true, // TODO: ?
       creator_banned: r.creator_banned,
       creator_banned_from_community: r.creator_banned_from_community,
-      post_tags: [],
+      tags: [],
     };
 
     return (

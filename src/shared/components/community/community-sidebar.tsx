@@ -270,7 +270,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     </T>
                   </div>
                 )}
-                {this.descriptionMarkdown()}
+                {this.sidebarMarkdown()}
                 <div>
                   <div className="fw-semibold mb-1">
                     <span className="align-middle">
@@ -379,15 +379,13 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  descriptionMarkdown() {
-    const { description } = this.props.communityView.community;
+  sidebarMarkdown() {
+    const { sidebar } = this.props.communityView.community;
     return (
-      description && (
+      sidebar && (
         <div
           className="md-div"
-          dangerouslySetInnerHTML={mdToHtml(description, () =>
-            this.forceUpdate(),
-          )}
+          dangerouslySetInnerHTML={mdToHtml(sidebar, () => this.forceUpdate())}
         />
       )
     );
