@@ -7,10 +7,6 @@ import { HtmlTags } from "../common/html-tags";
 export class Legal extends Component<any, any> {
   private isoData = setIsoData(this.context);
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get documentTitle(): string {
     return I18NextService.i18n.t("legal_information");
   }

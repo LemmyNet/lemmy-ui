@@ -30,10 +30,6 @@ export class VerifyEmail extends Component<
     verifyRes: EMPTY_REQUEST,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   async verify() {
     this.setState({
       verifyRes: LOADING_REQUEST,

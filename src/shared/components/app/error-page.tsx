@@ -8,10 +8,6 @@ import { I18NextService } from "../../services";
 export class ErrorPage extends Component<any, any> {
   private isoData: IsoData = setIsoData(this.context);
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const { errorPageData } = this.isoData;
 

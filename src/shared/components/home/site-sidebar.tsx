@@ -45,10 +45,6 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     collapsed: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <div className="site-sidebar accordion">

@@ -27,10 +27,6 @@ export class ListingTypeSelect extends Component<
     type_: this.props.type_,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   static getDerivedStateFromProps(
     props: ListingTypeSelectProps,
   ): ListingTypeSelectState {

@@ -35,9 +35,12 @@ export class UnreadCounterService {
     return true;
   }
 
-  public configure(myUserInfo: MyUserInfo | undefined) {
+  public async configure(myUserInfo: MyUserInfo | undefined) {
     this.enableUnreadCounts = !!myUserInfo;
-    poll(async () => this.updateUnreadCounts(), updateUnreadCountsInterval);
+    await poll(
+      async () => await this.updateUnreadCounts(),
+      updateUnreadCountsInterval,
+    );
   }
 
   public async updateUnreadCounts() {

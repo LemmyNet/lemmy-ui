@@ -18,10 +18,6 @@ interface CommunityLinkProps {
 }
 
 export class CommunityLink extends Component<CommunityLinkProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const { community, useApubName } = this.props;
 

@@ -1,7 +1,7 @@
 import type { Response } from "express";
 import path from "path";
 
-export default async ({ res }: { res: Response }) => {
+export default ({ res }: { res: Response }) => {
   res
     .setHeader("Content-Type", "application/javascript")
     .sendFile(

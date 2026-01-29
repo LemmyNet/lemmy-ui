@@ -36,10 +36,6 @@ export class LanguageSelect extends Component<
     selected: this.props.selectedLanguageIds ?? [],
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentDidMount() {
     if (!this.props.multiple) {
       this.setSelectedValues();

@@ -8,10 +8,6 @@ interface AnonymousGuardProps {
 }
 
 class AnonymousGuard extends Component<AnonymousGuardProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   hasAuth() {
     return this.props.myUserInfo;
   }

@@ -9,10 +9,6 @@ interface MetadataCardProps {
 }
 
 export class MetadataCard extends Component<MetadataCardProps> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const post = this.props.post;
 

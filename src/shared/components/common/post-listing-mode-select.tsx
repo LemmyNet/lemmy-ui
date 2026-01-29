@@ -23,10 +23,6 @@ const choices: Choice[] = [
 export class PostListingModeSelect extends Component<Props, any> {
   private id = `post-listing-mode-select-${randomStr()}`;
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <select

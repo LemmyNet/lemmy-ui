@@ -119,6 +119,7 @@ import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
 import { PostNotificationSelect } from "@components/common/notification-select";
 import { Link } from "inferno-router";
+import { Action } from "history";
 
 const commentsShownInterval = 15;
 
@@ -461,7 +462,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       nextComment &&
       newOrder &&
       !nextProps.location.search &&
-      nextProps.history.action === "PUSH"
+      nextProps.history.action === Action.Push
     ) {
       this.updateUrl({ match: nextProps.match }, true);
       return;
@@ -503,7 +504,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   maybeScrollToComments() {
     if (this.shouldScrollToComments) {
       this.shouldScrollToComments = false;
-      if (this.props.history.action !== "POP" || this.state.isIsomorphic) {
+      if (this.props.history.action !== Action.Pop || this.state.isIsomorphic) {
         this.scrollIntoCommentSection();
       }
     }
@@ -1162,10 +1163,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 }
 
-async function handleCommentSortChange(
-  i: Post,
-  event: FormEvent<HTMLInputElement>,
-) {
+function handleCommentSortChange(i: Post, event: FormEvent<HTMLInputElement>) {
   const sort = event.target.value as CommentSortType;
   const flattenable = sort === "new" || sort === "old";
   if (flattenable || i.props.view !== "flat") {

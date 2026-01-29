@@ -37,10 +37,6 @@ class SortSelect<SortT extends string> extends Component<
 > {
   private id = `sort-select-${randomStr()}`;
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <>

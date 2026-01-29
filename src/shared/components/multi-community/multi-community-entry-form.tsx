@@ -40,10 +40,6 @@ export class MultiCommunityEntryForm extends Component<Props, State> {
     communitySearchLoading: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const id = randomStr();
 

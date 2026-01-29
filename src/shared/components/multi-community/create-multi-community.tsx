@@ -30,10 +30,6 @@ export class CreateMultiCommunity extends Component<
   private isoData = setIsoData(this.context);
   state: State = { createRes: EMPTY_REQUEST };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get documentTitle(): string {
     return `${I18NextService.i18n.t("create_multi_community")} - ${
       this.isoData.siteRes?.site_view.site.name

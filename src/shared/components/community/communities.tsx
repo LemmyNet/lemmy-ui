@@ -305,7 +305,7 @@ export class Communities extends Component<
     );
   }
 
-  async updateUrl(props: Partial<CommunitiesProps>) {
+  updateUrl(props: Partial<CommunitiesProps>) {
     const { listingType, sort } = { ...this.props, ...props };
 
     const queryParams: QueryParams<CommunitiesProps> = {

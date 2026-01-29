@@ -70,6 +70,7 @@ import { UserBadges } from "./common/user-badges";
 import { CommunityBadges, MultiCommunityBadges } from "./common/badges";
 import { CommunityLink } from "./community/community-link";
 import { MultiCommunityLink } from "./multi-community/multi-community-link";
+import { Action } from "history";
 
 interface SearchProps {
   q?: string;
@@ -369,25 +370,25 @@ const commentListing = (
               showContext={false}
               hideImages={false}
               // All of these are unused, since its viewonly
-              onSaveComment={async () => {}}
-              onBlockPerson={async () => {}}
-              onBlockCommunity={async () => {}}
-              onDeleteComment={async () => {}}
-              onRemoveComment={async () => {}}
-              onCommentVote={async () => {}}
-              onCommentReport={async () => {}}
-              onDistinguishComment={async () => {}}
-              onAddModToCommunity={async () => {}}
-              onAddAdmin={async () => {}}
-              onTransferCommunity={async () => {}}
-              onPurgeComment={async () => {}}
-              onPurgePerson={async () => {}}
-              onBanPersonFromCommunity={async () => {}}
-              onBanPerson={async () => {}}
-              onCreateComment={async () => EMPTY_REQUEST}
-              onEditComment={async () => EMPTY_REQUEST}
-              onPersonNote={async () => {}}
-              onLockComment={async () => {}}
+              onSaveComment={() => {}}
+              onBlockPerson={() => {}}
+              onBlockCommunity={() => {}}
+              onDeleteComment={() => {}}
+              onRemoveComment={() => {}}
+              onCommentVote={() => {}}
+              onCommentReport={() => {}}
+              onDistinguishComment={() => {}}
+              onAddModToCommunity={() => {}}
+              onAddAdmin={() => {}}
+              onTransferCommunity={() => {}}
+              onPurgeComment={() => {}}
+              onPurgePerson={() => {}}
+              onBanPersonFromCommunity={() => {}}
+              onBanPerson={() => {}}
+              onCreateComment={() => EMPTY_REQUEST}
+              onEditComment={() => EMPTY_REQUEST}
+              onPersonNote={() => {}}
+              onLockComment={() => {}}
             />
           </div>
         ))}
@@ -469,7 +470,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   componentDidMount() {
-    if (this.props.history.action !== "POP" || this.state.isIsomorphic) {
+    if (this.props.history.action !== Action.Pop || this.state.isIsomorphic) {
       this.searchInput.current?.select();
     }
   }
@@ -951,25 +952,25 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         showContext={false}
         hideImages={false}
         // All of these are unused, since its viewonly
-        onSaveComment={async () => {}}
-        onBlockPerson={async () => {}}
-        onBlockCommunity={async () => {}}
-        onDeleteComment={async () => {}}
-        onRemoveComment={async () => {}}
-        onCommentVote={async () => {}}
-        onCommentReport={async () => {}}
-        onDistinguishComment={async () => {}}
-        onAddModToCommunity={async () => {}}
-        onAddAdmin={async () => {}}
-        onTransferCommunity={async () => {}}
-        onPurgeComment={async () => {}}
-        onPurgePerson={async () => {}}
-        onBanPersonFromCommunity={async () => {}}
-        onBanPerson={async () => {}}
-        onCreateComment={async () => EMPTY_REQUEST}
-        onEditComment={async () => EMPTY_REQUEST}
-        onPersonNote={async () => {}}
-        onLockComment={async () => {}}
+        onSaveComment={() => {}}
+        onBlockPerson={() => {}}
+        onBlockCommunity={() => {}}
+        onDeleteComment={() => {}}
+        onRemoveComment={() => {}}
+        onCommentVote={() => {}}
+        onCommentReport={() => {}}
+        onDistinguishComment={() => {}}
+        onAddModToCommunity={() => {}}
+        onAddAdmin={() => {}}
+        onTransferCommunity={() => {}}
+        onPurgeComment={() => {}}
+        onPurgePerson={() => {}}
+        onBanPersonFromCommunity={() => {}}
+        onBanPerson={() => {}}
+        onCreateComment={() => EMPTY_REQUEST}
+        onEditComment={() => EMPTY_REQUEST}
+        onPersonNote={() => {}}
+        onLockComment={() => {}}
       />
     );
   }
@@ -1137,7 +1138,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     return this.searchInput.current?.value ?? this.props.q;
   }
 
-  async updateUrl(props: Partial<SearchProps>) {
+  updateUrl(props: Partial<SearchProps>) {
     const {
       q,
       type,

@@ -74,10 +74,6 @@ export class CommunityTagForm extends Component<
     }
   }
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const submitTitle = I18NextService.i18n.t(
       this.props.tag ? "save" : "create",

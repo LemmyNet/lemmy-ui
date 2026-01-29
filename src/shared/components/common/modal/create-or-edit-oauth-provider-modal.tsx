@@ -340,7 +340,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
   }
 }
 
-async function handleSubmit(
+function handleSubmit(
   i: CreateOrEditOAuthProviderModal,
   event: FormEvent<HTMLFormElement>,
 ) {

@@ -24,10 +24,6 @@ interface Props {
 
 @tippyMixin
 export class MultiCommunitySidebar extends Component<Props, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return <div className="multi-community-sidebar">{this.sidebar()}</div>;
   }

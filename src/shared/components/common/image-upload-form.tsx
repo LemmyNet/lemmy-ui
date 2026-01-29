@@ -72,10 +72,6 @@ export class ImageUploadForm extends Component<
     loading: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <form className="image-upload-form d-inline">
@@ -128,7 +124,7 @@ export class ImageUploadForm extends Component<
     );
   }
 
-  async guardedImageUpload(i: ImageUploadForm, event: any) {
+  guardedImageUpload(i: ImageUploadForm, event: any) {
     const image = event.target.files[0] as File;
     i.setState({ pendingUpload: image });
     if (i.props.noConfirmation) {

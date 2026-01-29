@@ -38,10 +38,6 @@ export class CommunityReport extends Component<Props, State> {
     loading: false, // when resolving
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & Props>,
   ): void {

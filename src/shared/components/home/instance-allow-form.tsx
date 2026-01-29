@@ -24,10 +24,6 @@ export class InstanceAllowForm extends Component<Props, State> {
     bypassNavWarning: true,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const form = this.state.form;
     const id = randomStr();

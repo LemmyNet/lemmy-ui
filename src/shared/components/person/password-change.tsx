@@ -40,10 +40,6 @@ export class PasswordChange extends Component<
     },
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get documentTitle(): string {
     return `${I18NextService.i18n.t("password_change")} - ${
       this.state.siteRes.site_view.site.name

@@ -22,10 +22,6 @@ interface Props {
 
 @tippyMixin
 export class MediaUploads extends Component<Props, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & Props>,
   ): void {

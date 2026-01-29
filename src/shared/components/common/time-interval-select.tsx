@@ -44,9 +44,6 @@ export class TimeIntervalSelect extends Component<
       ? secondsToLargestInterval(this.props.currentSeconds)
       : { num: undefined, unit: "days" },
   };
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
 
   render() {
     const { num, unit } = this.state.interval;

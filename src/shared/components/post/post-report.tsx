@@ -47,10 +47,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     showRemovePostDialog: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & PostReportProps>,
   ): void {
@@ -234,7 +230,7 @@ function handleResolveReport(i: PostReport) {
   });
 }
 
-async function handleRemovePost(i: PostReport, reason: string) {
+function handleRemovePost(i: PostReport, reason: string) {
   i.props.onRemovePost({
     post_id: i.props.report.post.id,
     removed: !i.props.report.post.removed,

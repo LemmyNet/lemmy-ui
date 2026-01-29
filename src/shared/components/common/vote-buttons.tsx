@@ -181,10 +181,6 @@ export class VoteButtonsCompact extends Component<
     downvoteLoading: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(
     nextProps: VoteButtonsProps & { children?: InfernoNode },
   ) {
@@ -304,10 +300,6 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
     upvoteLoading: false,
     downvoteLoading: false,
   };
-
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
 
   componentWillReceiveProps(
     nextProps: VoteButtonsProps & { children?: InfernoNode },

@@ -31,10 +31,6 @@ function handleFirstPage(i: PaginatorCursor) {
 }
 
 export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get nextPage(): PaginationCursor | undefined {
     return this.props.resource.state === "success"
       ? this.props.resource.data.next_page
