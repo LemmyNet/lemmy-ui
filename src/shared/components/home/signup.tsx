@@ -28,6 +28,7 @@ import { RouteData } from "@utils/types";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { OAuthLogin } from "./oauth/oauth-login";
+import { Link } from "inferno-router";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -276,6 +277,26 @@ export class Signup extends Component<SignupRouteProps, State> {
           </>
         )}
         {this.renderCaptcha()}
+        {siteView.local_site.legal_information && (
+          <div className="mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                id="register-accept-legal"
+                type="checkbox"
+                required
+              />
+              <label
+                className="form-check-label"
+                htmlFor="register-accept-legal"
+              >
+                <Link to="/legal" target="_blank">
+                  {I18NextService.i18n.t("read_terms_and_conditions")}
+                </Link>
+              </label>
+            </div>
+          </div>
+        )}
         <div className="mb-3">
           <div className="form-check">
             <input
