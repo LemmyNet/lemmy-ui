@@ -488,15 +488,15 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
-  static async fetchInitialData({
-    headers,
-    query: { view, cursor, filter },
-    match: { params: props },
-    myUserInfo,
-  }: InitialFetchRequest<
-    ProfilePathProps,
-    ProfileProps
-  >): Promise<ProfileData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      query: { view, cursor, filter },
+      match: { params: props },
+      myUserInfo,
+    }: InitialFetchRequest<ProfilePathProps, ProfileProps>,
+  ): Promise<ProfileData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

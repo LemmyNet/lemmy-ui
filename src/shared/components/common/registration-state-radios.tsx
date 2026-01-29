@@ -17,7 +17,7 @@ export function RegistrationStateRadios(props: RegistrationStateRadiosProps) {
     <RadioButtonGroup
       allOptions={allStates}
       currentOption={props.state}
-      onClick={props.onClick}
+      onClick={_ => props.onClick(this.props.state)}
     />
   );
 }

@@ -443,10 +443,10 @@ export class Notifications extends Component<
     }
   }
 
-  static async fetchInitialData({
-    headers,
-    myUserInfo,
-  }: InitialFetchRequest): Promise<NotificationsData> {
+  static async fetchInitialData(
+    this: void,
+    { headers, myUserInfo }: InitialFetchRequest,
+  ): Promise<NotificationsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

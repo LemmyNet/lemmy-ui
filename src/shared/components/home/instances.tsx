@@ -138,13 +138,13 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     });
   }
 
-  static async fetchInitialData({
-    headers,
-    query: { kind, cursor, domain_filter },
-  }: InitialFetchRequest<
-    Record<string, never>,
-    InstancesProps
-  >): Promise<InstancesData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      query: { kind, cursor, domain_filter },
+    }: InitialFetchRequest<Record<string, never>, InstancesProps>,
+  ): Promise<InstancesData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -259,7 +259,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
 interface InstanceListProps {
   instances: FederatedInstanceView[];
   hideNoneFound?: boolean;
-  onRemove?(instance: string): void;
+  onRemove?(this: void, instance: string): void;
   cursor?: PaginationCursor;
 }
 

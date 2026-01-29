@@ -220,15 +220,18 @@ export class RegistrationApplications extends Component<
     );
   }
 
-  static async fetchInitialData({
-    headers,
-    match: {
-      params: { view, cursor },
-    },
-  }: InitialFetchRequest<
-    Record<string, never>,
-    RegistrationApplicationsProps
-  >): Promise<RegistrationApplicationsData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      match: {
+        params: { view, cursor },
+      },
+    }: InitialFetchRequest<
+      Record<string, never>,
+      RegistrationApplicationsProps
+    >,
+  ): Promise<RegistrationApplicationsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

@@ -111,7 +111,7 @@ const handleCommunitySearch = debounce(
 interface MultiCommunityEntryListProps {
   communities: CommunityView[];
   isCreator: boolean;
-  onDelete?(communityId: CommunityId): void;
+  onDelete?(this: void, communityId: CommunityId): void;
   myUserInfo: MyUserInfo | undefined;
 }
 

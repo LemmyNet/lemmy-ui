@@ -328,17 +328,20 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.fetchData(nextProps);
   }
 
-  static async fetchInitialData({
-    query: {
-      listingType,
-      postOrCommentType,
-      sort,
-      postTimeRange,
-      cursor,
-      showHidden,
-    },
-    headers,
-  }: InitialFetchRequest<HomePathProps, HomeProps>): Promise<HomeData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      query: {
+        listingType,
+        postOrCommentType,
+        sort,
+        postTimeRange,
+        cursor,
+        showHidden,
+      },
+      headers,
+    }: InitialFetchRequest<HomePathProps, HomeProps>,
+  ): Promise<HomeData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

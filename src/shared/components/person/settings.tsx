@@ -340,9 +340,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     setThemeOverride(undefined);
   }
 
-  static async fetchInitialData({
-    headers,
-  }: InitialFetchRequest): Promise<SettingsData> {
+  static async fetchInitialData(
+    this: void,
+    { headers }: InitialFetchRequest,
+  ): Promise<SettingsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
