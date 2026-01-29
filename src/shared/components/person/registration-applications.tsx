@@ -260,7 +260,7 @@ export class RegistrationApplications extends Component<
     }
   }
 
-  async updateUrl(props: Partial<RegistrationApplicationsProps>) {
+  updateUrl(props: Partial<RegistrationApplicationsProps>) {
     const { cursor, view: state } = { ...this.props, ...props };
 
     const queryParams: QueryParams<RegistrationApplicationsProps> = {

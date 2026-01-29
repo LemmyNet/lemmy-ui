@@ -128,7 +128,7 @@ export class ImageUploadForm extends Component<
     );
   }
 
-  async guardedImageUpload(i: ImageUploadForm, event: any) {
+  guardedImageUpload(i: ImageUploadForm, event: any) {
     const image = event.target.files[0] as File;
     i.setState({ pendingUpload: image });
     if (i.props.noConfirmation) {

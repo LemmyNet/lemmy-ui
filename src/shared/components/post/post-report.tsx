@@ -234,7 +234,7 @@ function handleResolveReport(i: PostReport) {
   });
 }
 
-async function handleRemovePost(i: PostReport, reason: string) {
+function handleRemovePost(i: PostReport, reason: string) {
   i.props.onRemovePost({
     post_id: i.props.report.post.id,
     removed: !i.props.report.post.removed,

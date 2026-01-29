@@ -331,7 +331,7 @@ export default class ContentActionDropdown extends Component<
                   ) && (
                     <>
                       <li>
-                        <CrossPostButton {...this.props.crossPostParams!} />
+                        <CrossPostButton {...this.props.crossPostParams} />
                       </li>
                       {this.props.markable && (
                         <li>

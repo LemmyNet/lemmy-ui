@@ -22,6 +22,7 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { NoOptionI18nKeys } from "i18next";
 import { OAuthLogin } from "./oauth/oauth-login";
+import { Action } from "history";
 
 interface LoginProps {
   prev?: string;
@@ -215,7 +216,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
 
   if (prev) {
     i.props.history.replace(prev);
-  } else if (i.props.history.action === "PUSH") {
+  } else if (i.props.history.action === Action.Push) {
     i.props.history.back();
   } else {
     i.props.history.replace("/");

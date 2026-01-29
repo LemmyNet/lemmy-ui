@@ -1203,7 +1203,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
-  async updateUrl(props: Partial<ProfileRouteProps>) {
+  updateUrl(props: Partial<ProfileRouteProps>) {
     const {
       cursor,
       sort,
