@@ -151,10 +151,6 @@ export default class ContentActionDropdown extends Component<
     dropdownOpenedOnce: false,
   };
 
-  constructor(props: ContentActionDropdownProps, context: any) {
-    super(props, context);
-  }
-
   render() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     const { onSave, type, onDelete, onBlockPerson, onEdit, moderators } =

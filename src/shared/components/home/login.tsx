@@ -72,10 +72,6 @@ export class Login extends Component<LoginRouteProps, State> {
     showResendVerificationEmailBtn: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get documentTitle(): string {
     return `${I18NextService.i18n.t("login")} - ${
       this.isoData.siteRes.site_view.site.name

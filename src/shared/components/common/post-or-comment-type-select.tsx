@@ -23,10 +23,6 @@ export class PostOrCommentTypeSelect extends Component<
     type_: this.props.type_,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   // Necessary in case the props change
   static getDerivedStateFromProps(props: any): PostOrCommentTypeSelectProps {
     return {

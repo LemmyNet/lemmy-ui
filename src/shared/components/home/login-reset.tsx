@@ -29,10 +29,6 @@ export class LoginReset extends Component<
     },
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get documentTitle(): string {
     return `${capitalizeFirstLetter(
       I18NextService.i18n.t("forgot_password"),

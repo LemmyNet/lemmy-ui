@@ -47,10 +47,6 @@ export class PrivateMessageForm extends Component<
     submitted: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <form className="private-message-form">

@@ -62,6 +62,7 @@ export default [
       "@typescript-eslint/no-misused-promises": 0,
       "@typescript-eslint/no-floating-promises": 0,
       "no-console": ["error", { allow: ["warn", "error", "debug", "assert"] }],
+      "@typescript-eslint/no-useless-constructor": "error",
       "inferno/jsx-boolean-value": "error",
       "inferno/jsx-props-class-name": "error",
       "@typescript-eslint/no-unused-vars": [

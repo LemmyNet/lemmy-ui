@@ -47,10 +47,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     showRemovePostDialog: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & PostReportProps>,
   ): void {

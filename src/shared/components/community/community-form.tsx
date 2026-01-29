@@ -60,10 +60,6 @@ export class CommunityForm extends Component<
     submitted: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   initCommunityForm() {
     const cv = this.props.communityView;
     return cv

@@ -69,10 +69,6 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
     }
   }
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const submitTitle = I18NextService.i18n.t(
       this.props.emoji ? "save" : "create",

@@ -72,10 +72,6 @@ export class ImageUploadForm extends Component<
     loading: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <form className="image-upload-form d-inline">

@@ -50,10 +50,6 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
     siteRes: this.isoData.siteRes,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   async componentDidMount() {
     // store state in local storage
     const local_oauth_state = JSON.parse(

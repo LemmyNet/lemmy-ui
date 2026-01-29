@@ -85,10 +85,6 @@ export class MarkdownTextArea extends Component<
     previewMode: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   async componentDidMount() {
     if (isBrowser()) {
       const tribute = await setupTribute();

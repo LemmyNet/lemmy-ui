@@ -59,10 +59,6 @@ export default class OAuthProvidersTab extends Component<
 > {
   state: OAuthProvidersTabState = {};
 
-  constructor(props: OAuthProvidersTabProps, context: any) {
-    super(props, context);
-  }
-
   render(
     { oauthProviders }: Readonly<OAuthProvidersTabProps>,
     {

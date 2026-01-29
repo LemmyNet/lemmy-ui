@@ -15,10 +15,6 @@ interface Props {
 }
 
 export class MultiCommunityLink extends Component<Props, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const { multiCommunity, useApubName } = this.props;
 
