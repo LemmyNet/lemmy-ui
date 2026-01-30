@@ -224,7 +224,7 @@ export class CreatePost extends Component<
     const {
       selectedCommunity,
       selectedCommunityIsNsfw,
-      createPostRes: postRes,
+      createPostRes,
       showSidebarMobile,
       resetCounter,
       initialCommunitiesRes,
@@ -288,7 +288,7 @@ export class CreatePost extends Component<
                     )
                   : []
               }
-              loading={postRes.state === "loading"}
+              loading={createPostRes.state === "loading"}
               myUserInfo={myUserInfo}
               localSite={siteRes.site_view.local_site}
               admins={siteRes.admins}
