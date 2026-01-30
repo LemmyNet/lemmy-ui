@@ -7,6 +7,7 @@ import { relTags } from "@utils/config";
 import { PictrsImage } from "../common/pictrs-image";
 import classNames from "classnames";
 import { I18NextService } from "@services/index";
+import { Icon } from "@components/common/icon";
 
 interface CommunityLinkProps {
   community: Community;
@@ -111,6 +112,7 @@ export function CommunitySettingsLink({
 
   return (
     <Link className={classes} to={link}>
+      <Icon icon="settings" classes="me-1" />
       {I18NextService.i18n.t("settings")}
     </Link>
   );

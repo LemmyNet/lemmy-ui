@@ -36,7 +36,7 @@ export function CreatePostButton({
   communityView,
   myUserInfo,
 }: CreatePostButtonProps) {
-  const classes = classNames("btn btn-secondary d-block mb-2 w-100", {
+  const classes = classNames("btn btn-primary d-block mb-2 w-100", {
     "no-click":
       communityView?.community.deleted ||
       communityView?.community.removed ||
@@ -50,6 +50,7 @@ export function CreatePostButton({
 
   return (
     <Link className={classes} to={link}>
+      <Icon icon="edit" classes="me-1" />
       {I18NextService.i18n.t("create_post")}
     </Link>
   );
@@ -65,13 +66,14 @@ export function CreateCommunityButton({
   myUserInfo,
   blockButton,
 }: CreateCommunityButtonProps) {
-  const classes = classNames("btn btn-secondary", {
+  const classes = classNames("btn btn-outline-primary", {
     "no-click": !(localSite && canCreateCommunity(localSite, myUserInfo)),
     "d-block mb-2 w-100": blockButton,
   });
 
   return (
     <Link className={classes} to="/create_community">
+      <Icon icon="edit" classes="me-1" />
       {I18NextService.i18n.t("create_community")}
     </Link>
   );
@@ -85,13 +87,14 @@ export function CreateMultiCommunityButton({
   myUserInfo,
   blockButton,
 }: CreateMultiCommunityButtonProps) {
-  const classes = classNames("btn btn-secondary", {
+  const classes = classNames("btn btn-outline-primary", {
     "no-click": userNotLoggedInOrBanned(myUserInfo),
     "d-block mb-2 w-100": blockButton,
   });
 
   return (
     <Link className={classes} to="/create_multi_community">
+      <Icon icon="edit" classes="me-1" />
       {I18NextService.i18n.t("create_multi_community")}
     </Link>
   );

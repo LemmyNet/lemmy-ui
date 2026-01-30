@@ -13,7 +13,7 @@ import {
   PersonView,
   PurgeCommunity,
   RemoveCommunity,
-  EditCommunityNotifications,
+  UpdateCommunityNotifications,
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { HttpService, I18NextService } from "../../services";
@@ -48,7 +48,7 @@ interface SidebarProps {
   onPurge(form: PurgeCommunity): void;
   onFollow(form: FollowCommunity): void;
   onBlock(form: BlockCommunity): void;
-  onEditNotifs(form: EditCommunityNotifications): void;
+  onUpdateNotifs(form: UpdateCommunityNotifications): void;
   removeLoading: boolean;
   purgeLoading: boolean;
   followLoading: boolean;
@@ -150,6 +150,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     className="btn btn-secondary d-block mb-2 w-100"
                     onClick={() => handleShowReportModal(this)}
                   >
+                    <Icon icon="flag" classes="me-1" />
                     {I18NextService.i18n.t("create_report")}
                   </button>
                   <CommunityReportModal
@@ -161,6 +162,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     className="btn btn-secondary d-block mb-2 w-100"
                     to={`/modlog/${community.id}`}
                   >
+                    <Icon icon="history" classes="me-1" />
                     {I18NextService.i18n.t("modlog")}
                   </Link>
                   {this.amModOrAdminAndLocal() && (
@@ -169,9 +171,10 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                   {amAdmin(myUserInfo) && (
                     <>
                       <button
-                        className="btn btn-secondary d-block mb-2 w-100"
+                        className="btn btn-outline-danger d-block mb-2 w-100"
                         onClick={() => handleShowRemoveDialog(this)}
                       >
+                        <Icon icon="x" classes="me-1" />
                         {I18NextService.i18n.t(
                           !communityView.community.removed
                             ? "remove"
@@ -186,10 +189,11 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                         show={this.state.showRemoveDialog}
                       />
                       <button
-                        className="btn btn-secondary d-block mb-2 w-100"
+                        className="btn btn-outline-danger d-block mb-2 w-100"
                         onClick={() => handleShowPurgeDialog(this)}
                         aria-label={I18NextService.i18n.t("purge_community")}
                       >
+                        <Icon icon="purge" classes="me-1" />
                         {I18NextService.i18n.t("purge_community")}
                       </button>
                       <ModActionFormModal
@@ -270,7 +274,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     </T>
                   </div>
                 )}
-                {this.sidebarMarkdown()}
+                {this.descriptionMarkdown()}
                 <div>
                   <div className="fw-semibold mb-1">
                     <span className="align-middle">
@@ -368,9 +372,10 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     return (
       !subscribed && (
         <button
-          className="btn btn-danger d-block mb-2 w-100"
+          className="btn btn-outline-danger d-block mb-2 w-100"
           onClick={() => handleBlock(this)}
         >
+          <Icon icon="slash" classes="me-1" />
           {I18NextService.i18n.t(
             blocked_at ? "unblock_community" : "block_community",
           )}
@@ -379,13 +384,15 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     );
   }
 
-  sidebarMarkdown() {
-    const { sidebar } = this.props.communityView.community;
+  descriptionMarkdown() {
+    const { description } = this.props.communityView.community;
     return (
-      sidebar && (
+      description && (
         <div
           className="md-div"
-          dangerouslySetInnerHTML={mdToHtml(sidebar, () => this.forceUpdate())}
+          dangerouslySetInnerHTML={mdToHtml(description, () =>
+            this.forceUpdate(),
+          )}
         />
       )
     );
@@ -490,7 +497,7 @@ function handleNotificationChange(
     community_id: i.props.communityView.community.id,
     mode: i.state.notifications,
   };
-  i.props.onEditNotifs(form);
+  i.props.onUpdateNotifs(form);
 }
 
 function handleFollow(i: CommunitySidebar, follow: boolean) {

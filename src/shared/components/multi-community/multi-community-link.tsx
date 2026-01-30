@@ -5,6 +5,7 @@ import { MultiCommunity, MyUserInfo } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import classNames from "classnames";
 import { I18NextService } from "@services/I18NextService";
+import { Icon } from "@components/common/icon";
 
 interface Props {
   multiCommunity: MultiCommunity;
@@ -89,6 +90,7 @@ export function MultiCommunitySettingsLink({
 
   return (
     <Link className={classes} to={link}>
+      <Icon icon="settings" classes="me-1" />
       {I18NextService.i18n.t("settings")}
     </Link>
   );

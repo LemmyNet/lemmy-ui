@@ -131,10 +131,12 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         />
         <CreateMultiCommunityButton myUserInfo={myUserInfo} blockButton />
         <Link className="btn btn-secondary d-block mb-2 w-100" to="/modlog">
+          <Icon icon="history" classes="me-1" />
           {I18NextService.i18n.t("modlog")}
         </Link>
         {amAdmin(myUserInfo) && (
           <Link className="btn btn-secondary d-block mb-2 w-100" to="/admin">
+            <Icon icon="settings" classes="me-1" />
             {I18NextService.i18n.t("settings")}
           </Link>
         )}
