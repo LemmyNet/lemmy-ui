@@ -97,7 +97,7 @@ importers:
         version: 9.0.10
       inferno-create-element:
         specifier: ^9.0.7
-        version: 9.0.10
+        version: 9.0.11
       inferno-helmet:
         specifier: ^5.2.1
         version: 5.2.1(inferno@9.0.10)
@@ -2970,8 +2970,8 @@ packages:
   inferno-create-element@8.2.3:
     resolution: {integrity: sha512-YEwX4OiFlgeTutvE16uCGxkaSVwZ1DklpAPX8okjVsGaLIWQrM8QIQFxn3mTLWSu70Uea+afQfKL5wE4hxn39Q==}
 
-  inferno-create-element@9.0.10:
-    resolution: {integrity: sha512-f9jKqQlNw8zFViRruqsh2ixQuWSQX+ls8vDYumlzfuUZBHwJKSEDbwfvrh0zEkDPh8hWs9tLOw6Y52fN7U/XYw==}
+  inferno-create-element@9.0.11:
+    resolution: {integrity: sha512-aGzbUEaeBYT5XiHupW0Qg8eAnaNCF3zYl2+8w78qqhFfwvNIBjw4O83e4N+AOz0N1p6BTgTBL3jEqHjrAkoiLQ==}
 
   inferno-helmet@5.2.1:
     resolution: {integrity: sha512-9xzUGENVoz8qk67s0UhHlGNGZKG9Ia0mk5KoCNgkkIcGNhk7mNIINm7jJ5OOigVetz2DwI94jHzouTggb49AJg==}
@@ -3005,11 +3005,17 @@ packages:
   inferno-vnode-flags@9.0.10:
     resolution: {integrity: sha512-buCd6XnWbz2/LDwYk/BZcz0WvFN3xx3sVESpuFvMZJjZtzB0J7OucPTflR0vMHJBxrkitdP3AZXY7KhIp3X4ww==}
 
+  inferno-vnode-flags@9.0.11:
+    resolution: {integrity: sha512-KDkNjaRxHAcETrz+Lcj6TdKIH2XJJFjLzhFnhNKgYMt/uDEGW9I52qzJSIa92aFk3cABP9FKT4M8ycAxOxGnJQ==}
+
   inferno@8.2.3:
     resolution: {integrity: sha512-LMeRlCe+RlXw8kHCLyOWRk2PsZ3Fo4jkESyAR1g4FfPT48N78i11YhTVXW2ukCx5MFjv+qrfa73JzJWU9sg4CQ==}
 
   inferno@9.0.10:
     resolution: {integrity: sha512-w+dh3/tZvs3406Wxb857ufv1U++8f3yqbuerIoajNW0Vicv43TCpJpYOHPQNe0KpIgxGIqTc6VMJEqlSMxjyQg==}
+
+  inferno@9.0.11:
+    resolution: {integrity: sha512-Ul+QryiTL1MC8VkvtUmDoKAQQjPPqNJsJtiAYSB18dc79kkE/b+bppE0bVWYFz/uLxt1bu0fO636t3bPNIxy3w==}
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
@@ -8343,9 +8349,9 @@ snapshots:
     dependencies:
       inferno: 8.2.3
 
-  inferno-create-element@9.0.10:
+  inferno-create-element@9.0.11:
     dependencies:
-      inferno: 9.0.10
+      inferno: 9.0.11
 
   inferno-helmet@5.2.1(inferno@9.0.10):
     dependencies:
@@ -8391,6 +8397,8 @@ snapshots:
 
   inferno-vnode-flags@9.0.10: {}
 
+  inferno-vnode-flags@9.0.11: {}
+
   inferno@8.2.3:
     dependencies:
       csstype: 3.2.3
@@ -8401,6 +8409,12 @@ snapshots:
     dependencies:
       csstype: 3.2.3
       inferno-vnode-flags: 9.0.10
+      opencollective-postinstall: 2.0.3
+
+  inferno@9.0.11:
+    dependencies:
+      csstype: 3.2.3
+      inferno-vnode-flags: 9.0.11
       opencollective-postinstall: 2.0.3
 
   inflight@1.0.6:
