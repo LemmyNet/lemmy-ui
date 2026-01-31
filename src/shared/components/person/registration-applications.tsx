@@ -35,8 +35,8 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { InfernoNode } from "inferno";
 import {
   RegistrationState,
-  RegistrationStateRadios,
-} from "@components/common/registration-state-radios";
+  RegistrationStateDropdown,
+} from "@components/common/registration-state-dropdown";
 
 type RegistrationApplicationsData = RouteDataResponse<{
   listRegistrationApplicationsResponse: PagedResponse<RegistrationApplicationView>;
@@ -188,9 +188,9 @@ export class RegistrationApplications extends Component<
     return (
       <div className="mb-2">
         <span className="me-3">
-          <RegistrationStateRadios
-            state={this.props.view}
-            onClick={val => handleRegistrationStateChange(this, val)}
+          <RegistrationStateDropdown
+            currentOption={this.props.view}
+            onSelect={val => handleRegistrationStateChange(this, val)}
           />
         </span>
       </div>

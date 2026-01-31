@@ -78,7 +78,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
             )}
             {isChanged && (
               <button
-                className="btn btn-secondary"
+                className="btn btn-light border-light-subtle"
                 type="submit"
                 onClick={linkEvent(this, this.handleSubmitTagline)}
               >

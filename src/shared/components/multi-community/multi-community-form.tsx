@@ -141,7 +141,7 @@ export class MultiCommunityForm extends Component<Props, State> {
           <div className="col-12">
             <button
               type="submit"
-              className="btn btn-secondary me-2"
+              className="btn btn-light border-light-subtle me-2"
               disabled={this.props.createOrEditLoading}
             >
               {this.props.createOrEditLoading ? (

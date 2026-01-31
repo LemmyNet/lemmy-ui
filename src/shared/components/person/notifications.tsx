@@ -8,15 +8,10 @@ import {
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
-import {
-  capitalizeFirstLetter,
-  randomStr,
-  resourcesSettled,
-} from "@utils/helpers";
+import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { ItemIdAndRes, itemLoading, RouteDataResponse } from "@utils/types";
-import classNames from "classnames";
-import { Component, FormEvent, InfernoNode } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -85,14 +80,21 @@ import { CommentNode } from "@components/comment/comment-node";
 import { PostListing } from "@components/post/post-listing";
 import { NotificationModlogItem } from "./notification-modlog-item";
 import {
-  RadioButtonGroup,
-  RadioOption,
-} from "@components/common/radio-button-group";
+  FilterChipDropdown,
+  FilterOption,
+} from "@components/common/filter-chip-dropdown";
+import {
+  UnreadOrAll,
+  UnreadOrAllDropdown,
+} from "@components/common/unread-or-all-dropdown";
 
-enum UnreadOrAll {
-  Unread,
-  All,
-}
+const messageTypeOptions: FilterOption<NotificationTypeFilter>[] = [
+  { value: "all", i18n: "all" },
+  { value: "reply", i18n: "replies" },
+  { value: "mention", i18n: "mentions" },
+  { value: "private_message", i18n: "messages" },
+  { value: "mod_action", i18n: "modlog" },
+];
 
 type NotificationsData = RouteDataResponse<{
   notifsRes: PagedResponse<NotificationView>;
@@ -130,7 +132,7 @@ export class Notifications extends Component<
 > {
   private isoData = setIsoData<NotificationsData>(this.context);
   state: NotificationsState = {
-    unreadOrAll: UnreadOrAll.Unread,
+    unreadOrAll: "unread",
     messageType: "all",
     siteRes: this.isoData.siteRes,
     notifsRes: EMPTY_REQUEST,
@@ -176,7 +178,7 @@ export class Notifications extends Component<
   }
 
   get hasUnreads(): boolean {
-    if (this.state.unreadOrAll === UnreadOrAll.Unread) {
+    if (this.state.unreadOrAll === "unread") {
       const { notifsRes } = this.state;
       return notifsRes.state === "success" && notifsRes.data.items.length > 0;
     } else {
@@ -210,20 +212,6 @@ export class Notifications extends Component<
                 </small>
               )}
             </h1>
-            {this.hasUnreads && (
-              <button
-                className="btn btn-secondary mb-2 mb-sm-3"
-                onClick={() => handleMarkAllAsRead(this)}
-              >
-                {this.state.markAllAsReadRes.state === "loading" ? (
-                  <Spinner />
-                ) : (
-                  capitalizeFirstLetter(
-                    I18NextService.i18n.t("mark_all_as_read"),
-                  )
-                )}
-              </button>
-            )}
             {this.selects()}
             {this.all()}
             <PaginatorCursor
@@ -237,72 +225,47 @@ export class Notifications extends Component<
     );
   }
 
-  unreadOrAllRadios() {
-    const radioId = randomStr();
-
+  messageTypeFilters() {
     return (
-      <div className="btn-group btn-group-toggle flex-wrap" role="group">
-        <input
-          id={`${radioId}-unread`}
-          type="radio"
-          className="btn-check"
-          value={UnreadOrAll.Unread}
-          checked={this.state.unreadOrAll === UnreadOrAll.Unread}
-          onChange={e => handleUnreadOrAllChange(this, e)}
-        />
-        <label
-          htmlFor={`${radioId}-unread`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.unreadOrAll === UnreadOrAll.Unread,
-          })}
-        >
-          {I18NextService.i18n.t("unread")}
-        </label>
-
-        <input
-          id={`${radioId}-all`}
-          type="radio"
-          className="btn-check"
-          value={UnreadOrAll.All}
-          checked={this.state.unreadOrAll === UnreadOrAll.All}
-          onChange={e => handleUnreadOrAllChange(this, e)}
-        />
-        <label
-          htmlFor={`${radioId}-all`}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active: this.state.unreadOrAll === UnreadOrAll.All,
-          })}
-        >
-          {I18NextService.i18n.t("all")}
-        </label>
-      </div>
-    );
-  }
-
-  messageTypeRadios() {
-    const allStates: RadioOption[] = [
-      { value: "all" },
-      { value: "reply", i18n: "replies" },
-      { value: "mention", i18n: "mentions" },
-      { value: "private_message", i18n: "messages" },
-      { value: "mod_action", i18n: "modlog" },
-    ];
-
-    return (
-      <RadioButtonGroup
-        allOptions={allStates}
-        currentOption={this.state.messageType}
-        onClick={val => handleMessageTypeChange(this, val)}
+      <FilterChipDropdown
+        allOptions={messageTypeOptions}
+        currentOption={messageTypeOptions.find(
+          t => t.value === this.state.messageType,
+        )}
+        onSelect={val => handleMessageTypeChange(this, val)}
       />
     );
   }
 
   selects() {
     return (
-      <div className="row row-cols-auto g-2 g-sm-3 mb-2 mb-sm-3">
-        <div className="col">{this.unreadOrAllRadios()}</div>
-        <div className="col">{this.messageTypeRadios()}</div>
+      <div className="row row-cols-auto align-items-center g-3 mb-2">
+        <div className="col">
+          <UnreadOrAllDropdown
+            currentOption={this.state.unreadOrAll}
+            onSelect={val => handleUnreadOrAllChange(this, val)}
+          />
+        </div>
+        <div className="col">{this.messageTypeFilters()}</div>
+        {this.hasUnreads && (
+          <div className="col">{this.markAllAsReadBtn()}</div>
+        )}
       </div>
+    );
+  }
+
+  markAllAsReadBtn() {
+    return (
+      <button
+        className="btn btn-sm btn-light border-light-subtle"
+        onClick={() => handleMarkAllAsRead(this)}
+      >
+        {this.state.markAllAsReadRes.state === "loading" ? (
+          <Spinner />
+        ) : (
+          capitalizeFirstLetter(I18NextService.i18n.t("mark_all_as_read"))
+        )}
+      </button>
     );
   }
 
@@ -467,7 +430,7 @@ export class Notifications extends Component<
   refetchToken?: symbol;
   async refetch() {
     const token = (this.refetchToken = Symbol());
-    const unread_only = this.state.unreadOrAll === UnreadOrAll.Unread;
+    const unread_only = this.state.unreadOrAll === "unread";
     const cursor = this.state.cursor;
 
     this.setState({
@@ -614,17 +577,17 @@ async function handlePageChange(i: Notifications, cursor?: PaginationCursor) {
   await i.refetch();
 }
 
-async function handleUnreadOrAllChange(
-  i: Notifications,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.setState({ unreadOrAll: Number(event.target.value), cursor: undefined });
+async function handleUnreadOrAllChange(i: Notifications, val: string) {
+  i.setState({ unreadOrAll: val as UnreadOrAll, cursor: undefined });
   await i.refetch();
 }
 
-async function handleMessageTypeChange(i: Notifications, val: string) {
+async function handleMessageTypeChange(
+  i: Notifications,
+  val: NotificationTypeFilter,
+) {
   i.setState({
-    messageType: val as NotificationTypeFilter,
+    messageType: val,
     cursor: undefined,
   });
   i.refetch();

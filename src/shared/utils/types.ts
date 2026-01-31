@@ -71,7 +71,7 @@ export type PostOrCommentType = "post" | "comment";
 
 export type BanType = "community" | "site";
 
-export type PersonDetailsView = "uploads" | PersonContentType;
+export type PersonDetailsContentType = "uploads" | PersonContentType;
 
 export type PurgeType = "person" | "community" | "post" | "comment";
 
@@ -189,6 +189,7 @@ export interface CrossPostParams {
   customThumbnailUrl?: string;
 }
 
+// TODO get rid
 export type StringBoolean = "true" | "false";
 
 export type ProviderToEdit = Omit<

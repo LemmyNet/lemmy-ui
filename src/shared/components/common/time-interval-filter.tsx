@@ -26,20 +26,17 @@ const presets: Preset[] = [
   { key: "one_year", interval: { num: 1, unit: "years" } },
 ];
 
-interface TimeIntervalSelectProps {
+type Props = {
   onChange(seconds: number): void;
   currentSeconds: number | undefined;
-}
+};
 
-interface TimeIntervalSelectState {
+type State = {
   interval: Interval;
-}
+};
 
-export class TimeIntervalSelect extends Component<
-  TimeIntervalSelectProps,
-  TimeIntervalSelectState
-> {
-  state: TimeIntervalSelectState = {
+export class TimeIntervalFilter extends Component<Props, State> {
+  state: State = {
     interval: this.props.currentSeconds
       ? secondsToLargestInterval(this.props.currentSeconds)
       : { num: undefined, unit: "days" },
@@ -52,16 +49,16 @@ export class TimeIntervalSelect extends Component<
     const { num, unit } = this.state.interval;
 
     return (
-      <div className="input-group">
+      <div className="input-group input-group-sm">
         <input
           type="number"
-          className="form-control"
+          className="form-control interval-filter-input border-light-subtle"
           aria-label={I18NextService.i18n.t("time_interval")}
           value={num}
           onInput={linkEvent(this, handleTimeIntervalNumChange)}
         />
         <button
-          className="btn btn-outline-secondary dropdown-toggle"
+          className="btn btn-light border-light-subtle dropdown-toggle"
           data-tippy-content={I18NextService.i18n.t("time_interval")}
           data-bs-toggle="dropdown"
           aria-expanded="false"
@@ -107,7 +104,7 @@ export class TimeIntervalSelect extends Component<
   }
 }
 
-function handleTimeIntervalNumChange(i: TimeIntervalSelect, event: any) {
+function handleTimeIntervalNumChange(i: TimeIntervalFilter, event: any) {
   const interval = {
     num: Number(event.target.value),
     unit: i.state.interval.unit,
@@ -117,7 +114,7 @@ function handleTimeIntervalNumChange(i: TimeIntervalSelect, event: any) {
 }
 
 function handleTimeIntervalUnitChange(
-  i: TimeIntervalSelect,
+  i: TimeIntervalFilter,
   unit: IntervalUnit,
 ) {
   const interval = { num: i.state.interval.num, unit };
@@ -125,13 +122,13 @@ function handleTimeIntervalUnitChange(
   handleTimeIntervalChange(i, interval);
 }
 
-function handlePresetSelect(i: TimeIntervalSelect, preset: Preset) {
+function handlePresetSelect(i: TimeIntervalFilter, preset: Preset) {
   const interval = preset.interval;
 
   handleTimeIntervalChange(i, interval);
 }
 
-function handleTimeIntervalChange(i: TimeIntervalSelect, interval: Interval) {
+function handleTimeIntervalChange(i: TimeIntervalFilter, interval: Interval) {
   i.setState({ interval });
 
   const num = interval.num ?? 0;

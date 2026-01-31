@@ -32,8 +32,7 @@ import {
 } from "@services/HttpService";
 import { HtmlTags } from "@components/common/html-tags";
 import { Spinner } from "@components/common/icon";
-import { ListingTypeSelect } from "@components/common/listing-type-select";
-import { CommunitiesSortSelect } from "@components/common/sort-select";
+import { CommunitiesSortDropdown } from "@components/common/sort-dropdown";
 import { SubscribeButton } from "@components/common/subscribe-button";
 import { Icon } from "@components/common/icon";
 import { communityLink, CommunityLink } from "./community-link";
@@ -47,6 +46,7 @@ import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { TableHr } from "@components/common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { CreateCommunityButton } from "@components/common/content-actions/create-item-buttons";
+import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: PagedResponse<CommunityView>;
@@ -69,7 +69,7 @@ function getListingTypeFromQuery(listingType?: string): ListingType {
 }
 
 function getSortTypeFromQuery(type?: string): CommunitySortType {
-  return type ? (type as CommunitySortType) : "hot";
+  return type ? (type as CommunitySortType) : "active_monthly";
 }
 
 export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
@@ -231,31 +231,32 @@ export class Communities extends Component<
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("list_of_communities")}
           </h1>
-          <div className="row g-3 align-items-center mb-2">
-            <div className="col-auto">
-              <ListingTypeSelect
-                type_={listingType}
+          <div className="row row-cols-auto align-items-center g-3 mb-2">
+            <div className="col">
+              <ListingTypeDropdown
+                currentOption={listingType}
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
                 myUserInfo={myUserInfo}
-                onChange={val => handleListingTypeChange(this, val)}
+                onSelect={val => handleListingTypeChange(this, val)}
               />
             </div>
-            <div className="col-auto">
-              <CommunitiesSortSelect
-                current={sort}
-                onChange={val => handleSortChange(this, val)}
+            <div className="col">
+              <CommunitiesSortDropdown
+                currentOption={sort}
+                onSelect={val => handleSortChange(this, val)}
               />
             </div>
-            <div className="col-auto">
+            <div className="col">
               <CreateCommunityButton
                 localSite={localSite}
                 myUserInfo={myUserInfo}
+                blockButton={false}
               />
             </div>
-            <div className="col-auto me-auto">
+            <div className="col me-auto">
               <button
-                className="btn btn-secondary"
+                className="btn btn-sm btn-light border-outline-subtle"
                 onClick={() => handleVisitRandomCommunity(this)}
                 aria-label={I18NextService.i18n.t("visit_random_community")}
                 data-tippy-content={I18NextService.i18n.t(
@@ -265,7 +266,7 @@ export class Communities extends Component<
                 <Icon icon="shuffle" />
               </button>
             </div>
-            <div className="col-auto">{this.searchForm()}</div>
+            <div className="col">{this.searchForm()}</div>
           </div>
           <div>{this.renderListingsTable()}</div>
           <PaginatorCursor
@@ -280,27 +281,26 @@ export class Communities extends Component<
 
   searchForm() {
     return (
-      <form className="row" onSubmit={e => handleSearchSubmit(this, e)}>
-        <div className="col-auto">
-          <input
-            type="text"
-            id="communities-search"
-            className="form-control"
-            value={this.state.searchText}
-            placeholder={`${I18NextService.i18n.t("search")}...`}
-            onInput={e => handleSearchChange(this, e)}
-            required
-            minLength={3}
-          />
-        </div>
-        <div className="col-auto">
-          <label className="visually-hidden" htmlFor="communities-search">
-            {I18NextService.i18n.t("search")}
-          </label>
-          <button type="submit" className="btn btn-secondary">
-            <span>{I18NextService.i18n.t("search")}</span>
-          </button>
-        </div>
+      <form className="d-flex col" onSubmit={e => handleSearchSubmit(this, e)}>
+        <input
+          type="text"
+          id="communities-search"
+          className="form-control"
+          value={this.state.searchText}
+          placeholder={`${I18NextService.i18n.t("search")}...`}
+          onInput={e => handleSearchChange(this, e)}
+          required
+          minLength={3}
+        />
+        <label className="visually-hidden" htmlFor="communities-search">
+          {I18NextService.i18n.t("search")}
+        </label>
+        <button
+          type="submit"
+          className="btn btn-light border-light-subtle ms-1"
+        >
+          <Icon icon="search" />
+        </button>
       </form>
     );
   }

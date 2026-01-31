@@ -19,7 +19,6 @@ import {
   getQueryParams,
   getQueryString,
   numToSI,
-  randomStr,
   resourcesSettled,
   bareRoutePush,
   getApubName,
@@ -27,7 +26,6 @@ import {
 import { amAdmin, canAdmin } from "@utils/roles";
 import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
-import classNames from "classnames";
 import { format } from "date-fns";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, FormEvent, InfernoMouseEvent } from "inferno";
@@ -87,7 +85,7 @@ import {
   CommentId,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
-import { InitialFetchRequest, PersonDetailsView } from "@utils/types";
+import { InitialFetchRequest, PersonDetailsContentType } from "@utils/types";
 import { mdToHtml } from "@utils/markdown";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
@@ -102,7 +100,7 @@ import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
-import { SearchSortSelect } from "../common/sort-select";
+import { SearchSortDropdown } from "../common/sort-dropdown";
 import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
@@ -115,6 +113,10 @@ import { isBrowser } from "@utils/browser";
 import DisplayModal from "../common/modal/display-modal";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { MultiCommunityLink } from "@components/multi-community/multi-community-link";
+import {
+  FilterChipDropdown,
+  FilterOption,
+} from "@components/common/filter-chip-dropdown";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
@@ -148,22 +150,36 @@ interface ProfileState {
   pageBack?: boolean;
 }
 
-type Filter = "saved" | "liked" | "read" | "hidden" | "none";
+const contentTypeOptions: FilterOption<PersonDetailsContentType>[] = [
+  { value: "all", i18n: "all" },
+  { value: "comments", i18n: "comments" },
+  { value: "posts", i18n: "posts" },
+  { value: "uploads", i18n: "uploads" },
+];
+
+type ViewType = "saved" | "liked" | "read" | "hidden" | "all";
+const viewTypeOptions: FilterOption<ViewType>[] = [
+  { value: "all", i18n: "all" },
+  { value: "saved", i18n: "saved" },
+  { value: "liked", i18n: "liked" },
+  { value: "read", i18n: "read" },
+  { value: "hidden", i18n: "hidden" },
+];
 
 interface ProfileProps {
-  view: PersonDetailsView;
+  contentType: PersonDetailsContentType;
   sort: SearchSortType;
   cursor?: PaginationCursor;
-  filter: Filter;
+  viewType: ViewType;
 }
 
 export function getProfileQueryParams(source?: string): ProfileProps {
   return getQueryParams<ProfileProps>(
     {
-      view: getViewFromProps,
+      contentType: getContentTypeFromQuery,
       cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
-      filter: getFilterFromQuery,
+      viewType: getViewTypeFromQuery,
     },
     source,
   );
@@ -173,28 +189,30 @@ function getSortTypeFromQuery(sort?: string): SearchSortType {
   return sort ? (sort as SearchSortType) : "new";
 }
 
-function getViewFromProps(view?: string): PersonDetailsView {
-  switch (view) {
+function getContentTypeFromQuery(
+  contentType?: string,
+): PersonDetailsContentType {
+  switch (contentType) {
     case "uploads":
     case "all":
     case "posts":
     case "comments":
-      return view;
+      return contentType;
     default:
       return "all";
   }
 }
 
-function getFilterFromQuery(filter?: string): Filter {
-  switch (filter) {
-    case "none":
+function getViewTypeFromQuery(viewType?: string): ViewType {
+  switch (viewType) {
+    case "all":
     case "saved":
     case "read":
     case "hidden":
     case "liked":
-      return filter;
+      return viewType;
     default:
-      return "none";
+      return "all";
   }
 }
 
@@ -372,10 +390,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       nextProps.match.params.username !== this.props.match.params.username;
 
     if (
-      nextProps.view !== this.props.view ||
+      nextProps.contentType !== this.props.contentType ||
       nextProps.sort !== this.props.sort ||
       nextProps.cursor !== this.props.cursor ||
-      nextProps.filter !== this.props.filter ||
+      nextProps.viewType !== this.props.viewType ||
       newUsername ||
       reload
     ) {
@@ -388,8 +406,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const token = (this.fetchUserDataToken = Symbol());
     const {
       cursor,
-      view,
-      filter,
+      contentType: view,
+      viewType: filter,
       match: { params: props },
     } = props_;
     const username = decodeURIComponent(props.username);
@@ -490,7 +508,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   static async fetchInitialData({
     headers,
-    query: { view, cursor, filter },
+    query: { contentType: view, cursor, viewType: filter },
     match: { params: props },
     myUserInfo,
   }: InitialFetchRequest<
@@ -608,7 +626,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       case "success": {
         const siteRes = this.state.siteRes;
         const personRes = this.state.personRes.data;
-        const { sort, view, filter } = this.props;
+        const { sort, contentType: view, viewType: filter } = this.props;
         const myUserInfo = this.isoData.myUserInfo;
 
         const savedContent =
@@ -617,7 +635,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             this.state.personSavedRes.data.items) ||
           undefined;
         const content =
-          (filter === "none" &&
+          (filter === "all" &&
             this.state.personContentRes.state === "success" &&
             this.state.personContentRes.data.items) ||
           undefined;
@@ -769,10 +787,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   get currentRes() {
-    if (this.props.view === "uploads") {
+    if (this.props.contentType === "uploads") {
       return this.state.uploadsRes;
     } else {
-      switch (this.props.filter) {
+      switch (this.props.viewType) {
         case "saved":
           return this.state.personSavedRes;
         case "liked":
@@ -781,109 +799,56 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           return this.state.personReadRes;
         case "hidden":
           return this.state.personHiddenRes;
-        case "none":
+        case "all":
           return this.state.personContentRes;
       }
     }
   }
 
-  get viewRadios() {
-    return (
-      <div className="btn-group btn-group-toggle flex-wrap" role="group">
-        {this.getRadio("all")}
-        {this.getRadio("comments")}
-        {this.getRadio("posts")}
-        {this.amCurrentUser && this.getRadio("uploads")}
-      </div>
-    );
-  }
-
-  get filterRadios() {
-    return (
-      <div className="btn-group btn-group-toggle flex-wrap" role="group">
-        {this.amCurrentUser && this.getFilterRadio("saved")}
-        {this.amCurrentUser && this.getFilterRadio("liked")}
-        {this.amCurrentUser && this.getFilterRadio("read")}
-        {this.amCurrentUser && this.getFilterRadio("hidden")}
-        {this.amCurrentUser && this.getFilterRadio("none")}
-      </div>
-    );
-  }
-
-  getRadio(view: PersonDetailsView) {
-    const { view: urlView } = this.props;
-    const active = view === urlView;
-    const radioId = randomStr();
-
-    return (
-      <>
-        <input
-          id={radioId}
-          type="radio"
-          className="btn-check"
-          value={view}
-          checked={active}
-          onChange={e => handleViewChange(this, e)}
-        />
-        <label
-          htmlFor={radioId}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active,
-          })}
-        >
-          {I18NextService.i18n.t(view.toLowerCase())}
-        </label>
-      </>
-    );
-  }
-
-  getFilterRadio(filter: Filter) {
-    const { view, filter: urlFilter } = this.props;
-    const active = filter === urlFilter;
-    const radioId = randomStr();
-
-    return (
-      <>
-        <input
-          id={radioId}
-          type="radio"
-          className="btn-check"
-          value={filter}
-          checked={active}
-          onChange={e => handleFilterChange(this, e)}
-          disabled={view === "uploads"}
-        />
-        <label
-          htmlFor={radioId}
-          className={classNames("btn btn-outline-secondary pointer", {
-            active,
-          })}
-        >
-          {I18NextService.i18n.t(filter.toLowerCase())}
-        </label>
-      </>
-    );
-  }
-
   get selects() {
-    const { sort, filter } = this.props;
+    const { sort, viewType, contentType } = this.props;
     const { username } = this.props.match.params;
 
     const profileRss = profileRSSUrl(username, sort);
 
+    let filteredContentTypeOptions = contentTypeOptions;
+
+    // Hide uploads for others
+    if (!this.amCurrentUser) {
+      filteredContentTypeOptions = filteredContentTypeOptions.filter(
+        o => "uploads" !== o.value,
+      );
+    }
+
     return (
-      <div className="row align-items-center mb-3 g-3">
-        <div className="col-auto">{this.viewRadios}</div>
-        <div className="col-auto">{this.filterRadios}</div>
-        <div className="col-auto">
-          <SearchSortSelect
-            current={sort}
-            onChange={val => handleSortChange(this, val)}
+      <div className="row row-cols-auto align-items-center g-3 mb-2">
+        <div className="col">
+          <FilterChipDropdown
+            allOptions={filteredContentTypeOptions}
+            currentOption={filteredContentTypeOptions.find(
+              t => t.value === contentType,
+            )}
+            onSelect={val => handleContentTypeChange(this, val)}
+          />
+        </div>
+        {this.amCurrentUser && (
+          <div className="col">
+            <FilterChipDropdown
+              allOptions={viewTypeOptions}
+              currentOption={viewTypeOptions.find(t => t.value === viewType)}
+              onSelect={val => handleViewChange(this, val)}
+            />
+          </div>
+        )}
+        <div className="col">
+          <SearchSortDropdown
+            currentOption={sort}
+            onSelect={val => handleSortChange(this, val)}
           />
         </div>
         {/* TODO: Rss feed for the Saved, Uploads, and Upvoted */}
-        {filter === "none" && (
-          <div className="col-auto">
+        {viewType === "all" && (
+          <div className="col">
             <a href={profileRss} rel={relTags} title="RSS">
               <Icon icon="rss" classes="text-muted small ps-0" />
             </a>
@@ -955,7 +920,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     {amAdmin(this.isoData.myUserInfo) && (
                       <Link
                         className={
-                          "d-flex align-self-start btn btn-secondary me-2"
+                          "d-flex align-self-start btn btn-light border-light-subtle me-2"
                         }
                         to={`/modlog?userId=${pv.person.id}`}
                       >
@@ -966,7 +931,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     )}
                     {pv.person.matrix_user_id && (
                       <a
-                        className={`d-flex align-self-start btn btn-secondary me-2`}
+                        className={`d-flex align-self-start btn btn-light border-light-subtle me-2`}
                         rel={relTags}
                         href={`https://matrix.to/#/${pv.person.matrix_user_id}`}
                       >
@@ -975,7 +940,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     )}
                     <Link
                       className={
-                        "d-flex align-self-start btn btn-secondary me-2"
+                        "d-flex align-self-start btn btn-light border-light-subtle me-2"
                       }
                       to={`/create_private_message/${pv.person.id}`}
                     >
@@ -984,7 +949,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     {personBlocked ? (
                       <button
                         className={
-                          "d-flex align-self-start btn btn-secondary me-2"
+                          "d-flex align-self-start btn btn-light border-light-subtle me-2"
                         }
                         onClick={() =>
                           handleUnblockPerson(this, pv.person.id, myUserInfo)
@@ -995,7 +960,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     ) : (
                       <button
                         className={
-                          "d-flex align-self-start btn btn-secondary me-2"
+                          "d-flex align-self-start btn btn-light border-light-subtle me-2"
                         }
                         onClick={() =>
                           handleBlockPerson(this, pv.person.id, myUserInfo)
@@ -1013,7 +978,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   (!pv.banned ? (
                     <button
                       className={
-                        "d-flex align-self-start btn btn-secondary me-2"
+                        "d-flex align-self-start btn btn-light border-light-subtle me-2"
                       }
                       onClick={() => handleModBanShow(this)}
                       aria-label={I18NextService.i18n.t("ban")}
@@ -1023,7 +988,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   ) : (
                     <button
                       className={
-                        "d-flex align-self-start btn btn-secondary me-2"
+                        "d-flex align-self-start btn btn-light border-light-subtle me-2"
                       }
                       onClick={e => handleModBanSubmit(this, e)}
                       aria-label={I18NextService.i18n.t("unban")}
@@ -1035,7 +1000,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                   <>
                     <button
                       className={
-                        "d-flex registration-self-start btn btn-secondary me-2"
+                        "d-flex registration-self-start btn btn-light border-light-subtle me-2"
                       }
                       aria-label={I18NextService.i18n.t("view_registration")}
                       onClick={() => handleRegistrationShow(this)}
@@ -1182,7 +1147,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           <div className="mb-3 row">
             <button
               type="reset"
-              className="btn btn-secondary me-2"
+              className="btn btn-light border-light-subtle me-2"
               aria-label={I18NextService.i18n.t("cancel")}
               onClick={() => handleModBanSubmitCancel(this)}
             >
@@ -1192,7 +1157,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           <div className="mb-3 row">
             <button
               type="submit"
-              className="btn btn-secondary"
+              className="btn btn-light border-light-subtle"
               aria-label={I18NextService.i18n.t("ban")}
             >
               {I18NextService.i18n.t("ban", { name: pv.person.name })}
@@ -1207,8 +1172,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const {
       cursor,
       sort,
-      view,
-      filter,
+      contentType: view,
+      viewType: filter,
       match: {
         params: { username },
       },
@@ -1217,8 +1182,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     const queryParams: QueryParams<ProfileProps> = {
       cursor,
       sort,
-      view: view !== getViewFromProps(undefined) ? view : undefined,
-      filter: filter !== getFilterFromQuery(undefined) ? filter : undefined,
+      contentType:
+        view !== getContentTypeFromQuery(undefined) ? view : undefined,
+      viewType: filter !== getViewTypeFromQuery(undefined) ? filter : undefined,
     };
 
     this.props.history.push(`/u/${username}${getQueryString(queryParams)}`);
@@ -1248,21 +1214,21 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   updateCurrentList(
     mapFn: (c: PostCommentCombinedView) => PostCommentCombinedView,
   ) {
-    if (this.props.filter === "saved") {
+    if (this.props.viewType === "saved") {
       this.setState(s => {
         if (s.personSavedRes.state === "success") {
           s.personSavedRes.data.items = s.personSavedRes.data.items.map(mapFn);
         }
         return { personSavedRes: s.personSavedRes };
       });
-    } else if (this.props.filter === "liked") {
+    } else if (this.props.viewType === "liked") {
       this.setState(s => {
         if (s.personLikedRes.state === "success") {
           s.personLikedRes.data.items = s.personLikedRes.data.items.map(mapFn);
         }
         return { personLikedRes: s.personLikedRes };
       });
-    } else if (this.props.filter === "read") {
+    } else if (this.props.viewType === "read") {
       this.setState(s => {
         if (s.personReadRes.state === "success") {
           s.personReadRes.data.items = s.personReadRes.data.items
@@ -1272,7 +1238,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         }
         return { personReadRes: s.personReadRes };
       });
-    } else if (this.props.filter === "hidden") {
+    } else if (this.props.viewType === "hidden") {
       this.setState(s => {
         if (s.personHiddenRes.state === "success") {
           s.personHiddenRes.data.items = s.personHiddenRes.data.items
@@ -1294,7 +1260,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   editCombinedCurrent(data: PostCommentCombinedView) {
-    if (this.props.filter === "saved") {
+    if (this.props.viewType === "saved") {
       this.setState(s => {
         if (s.personSavedRes.state === "success") {
           s.personSavedRes.data.items = editCombined(
@@ -1305,7 +1271,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         }
         return { personSavedRes: s.personSavedRes };
       });
-    } else if (this.props.filter === "liked") {
+    } else if (this.props.viewType === "liked") {
       this.setState(s => {
         if (s.personLikedRes.state === "success") {
           s.personLikedRes.data.items = editCombined(
@@ -1316,7 +1282,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         }
         return { personLikedRes: s.personLikedRes };
       });
-    } else if (this.props.filter === "read") {
+    } else if (this.props.viewType === "read") {
       this.setState(s => {
         if (s.personReadRes.state === "success" && data.type_ === "post") {
           s.personReadRes.data.items = editPost(
@@ -1326,7 +1292,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         }
         return { personReadRes: s.personReadRes };
       });
-    } else if (this.props.filter === "hidden") {
+    } else if (this.props.viewType === "hidden") {
       this.setState(s => {
         if (s.personHiddenRes.state === "success" && data.type_ === "post") {
           s.personHiddenRes.data.items = editPost(
@@ -1428,18 +1394,24 @@ function handleSortChange(i: Profile, sort: SearchSortType) {
   i.updateUrl({ sort, cursor: undefined });
 }
 
-function handleViewChange(i: Profile, event: FormEvent<HTMLInputElement>) {
-  const view = getViewFromProps(event.target.value);
-  if (view === "uploads") {
-    i.updateUrl({ view, cursor: undefined, filter: undefined });
+function handleContentTypeChange(
+  i: Profile,
+  contentType: PersonDetailsContentType,
+) {
+  if (contentType === "uploads") {
+    i.updateUrl({
+      contentType,
+      cursor: undefined,
+      viewType: undefined,
+    });
   } else {
-    i.updateUrl({ view, cursor: undefined });
+    i.updateUrl({ contentType, cursor: undefined });
   }
 }
 
-function handleFilterChange(i: Profile, event?: any) {
+function handleViewChange(i: Profile, viewType: ViewType) {
   i.updateUrl({
-    filter: getFilterFromQuery(event.target.value),
+    viewType,
     cursor: undefined,
   });
 }

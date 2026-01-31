@@ -155,7 +155,7 @@ export class CommunityTagForm extends Component<
           </div>
           <div className="col-12">
             <button
-              className="btn btn-secondary me-2"
+              className="btn btn-light border-light-subtle me-2"
               type="submit"
               disabled={!this.enableForm}
             >

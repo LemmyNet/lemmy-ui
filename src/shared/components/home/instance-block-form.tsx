@@ -87,7 +87,7 @@ export class InstanceBlockForm extends Component<Props, State> {
           </div>
           <div className="col-12">
             <button
-              className="btn btn-secondary"
+              className="btn btn-light border-light-subtle"
               type="submit"
               disabled={!this.formValid()}
               onClick={linkEvent(this, this.handleSubmit)}

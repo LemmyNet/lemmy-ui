@@ -360,19 +360,21 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             </div>
           )}
           {this.state.showReply && (
-            <CommentForm
-              node={node}
-              onReplyCancel={() => handleReplyCancel(this)}
-              disabled={!this.enableCommentForm}
-              focus
-              allLanguages={this.props.allLanguages}
-              siteLanguages={this.props.siteLanguages}
-              containerClass="comment-comment-container"
-              myUserInfo={this.props.myUserInfo}
-              onCreateComment={form => handleCreateComment(this, form)}
-              onEditComment={() => {}}
-              loading={this.props.createLoading === id}
-            />
+            <div className="ms-2">
+              <CommentForm
+                node={node}
+                onReplyCancel={() => handleReplyCancel(this)}
+                disabled={!this.enableCommentForm}
+                focus
+                allLanguages={this.props.allLanguages}
+                siteLanguages={this.props.siteLanguages}
+                containerClass="comment-comment-container"
+                myUserInfo={this.props.myUserInfo}
+                onCreateComment={form => handleCreateComment(this, form)}
+                onEditComment={() => {}}
+                loading={this.props.createLoading === id}
+              />
+            </div>
           )}
           {!this.state.collapsed && node.view.children.length > 0 && (
             <CommentNodes
