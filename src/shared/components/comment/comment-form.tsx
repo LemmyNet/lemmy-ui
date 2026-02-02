@@ -33,10 +33,6 @@ interface CommentFormProps {
 }
 
 export class CommentForm extends Component<CommentFormProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const initialContent =
       typeof this.props.node !== "number"

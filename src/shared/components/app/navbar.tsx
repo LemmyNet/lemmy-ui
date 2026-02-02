@@ -50,11 +50,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     unreadPendingFollowsCount: 0,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
-  async componentWillMount() {
+  componentWillMount() {
     // Subscribe to jwt changes
     if (isBrowser()) {
       // On the first load, check the unreads

@@ -33,10 +33,6 @@ export class NotificationModlogItem extends Component<
     readLoading: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(
     nextProps: Readonly<
       { children?: InfernoNode } & NotificationModlogItemProps

@@ -108,7 +108,7 @@ export async function verifyTranslationImports(): Promise<ImportReport> {
         if (x && x["translation"]) {
           report.success.push(lang.code);
         } else {
-          throw "unexpected format";
+          throw new Error("unexpected format");
         }
       })
       .catch(err => report.error.push({ id: lang.code, error: err })),
@@ -151,7 +151,7 @@ export async function verifyDateFnsImports(): Promise<ImportReport> {
         if (x && x.code === (locale.datefns_resource ?? locale.resource)) {
           report.success.push(locale.code);
         } else {
-          throw "unexpected format";
+          throw new Error("unexpected format");
         }
       })
       .catch(err => report.error.push({ id: locale.code, error: err })),
@@ -218,7 +218,7 @@ export async function loadLanguageInstances(
     saveMissingTo: "all",
   };
   const i18n = i18next.createInstance(options);
-  i18n.init();
+  await i18n.init();
   i18n.on("missingKey", missingKeyHandler); // called on first use of missing key
 
   await Promise.all(
@@ -293,7 +293,9 @@ export class I18NextService {
   public static set i18n(i18n: typeof i18next) {
     if (isBrowser() && this.#Instance.#i18n && this.#Instance.#i18n !== i18n) {
       // In SSR this is ok, because it only ever renders once.
-      throw "<Provider /> doesn't support switching between i18next instances";
+      throw new Error(
+        "<Provider /> doesn't support switching between i18next instances",
+      );
     }
     this.#Instance.#i18n = i18n;
   }

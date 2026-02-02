@@ -46,7 +46,7 @@ export function modalMixin<
           this.addModalListener("shown.bs.modal", this.handleShow);
           this.addModalListener("hidden.bs.modal", this.handleHide);
 
-          this.modal = new Modal(this.modalDivRef.current!);
+          this.modal = new Modal(this.modalDivRef.current);
 
           if (this.props.show) {
             this.modal.show();

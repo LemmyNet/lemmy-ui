@@ -5,7 +5,7 @@ import path from "path";
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
-export default async (req: Request, res: Response) => {
+export default (req: Request, res: Response) => {
   res.contentType("text/css");
 
   const theme = req.params.name;

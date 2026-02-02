@@ -1480,7 +1480,7 @@ const handleCommunitySearch = debounce(async (i: Settings, text: string) => {
   });
 });
 
-const handleInstanceSearch = debounce(async (i: Settings, text: string) => {
+const handleInstanceSearch = debounce((i: Settings, text: string) => {
   let searchInstanceOptions: Instance[] = [];
 
   if (i.state.instancesRes.state === "success") {

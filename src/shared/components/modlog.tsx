@@ -927,7 +927,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     return res.state === "success" ? res.data.items.length : 0;
   }
 
-  async updateUrl(props: Partial<ModlogProps>) {
+  updateUrl(props: Partial<ModlogProps>) {
     const {
       actionType,
       modId,

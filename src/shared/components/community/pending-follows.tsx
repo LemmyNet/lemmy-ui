@@ -246,7 +246,7 @@ export class PendingFollows extends Component<
     }
   }
 
-  async updateUrl(props: Partial<PendingFollowsProps>) {
+  updateUrl(props: Partial<PendingFollowsProps>) {
     const { cursor, viewState: state } = { ...this.props, ...props };
 
     const queryParams: QueryParams<PendingFollowsProps> = {

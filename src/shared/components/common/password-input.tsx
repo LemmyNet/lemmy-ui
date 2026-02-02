@@ -64,10 +64,6 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
     show: false,
   };
 
-  constructor(props: PasswordInputProps, context: any) {
-    super(props, context);
-  }
-
   render() {
     const {
       props: {

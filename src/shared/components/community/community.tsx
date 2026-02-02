@@ -371,7 +371,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     };
   }
 
-  async updateUrl(props: Partial<CommunityProps>) {
+  updateUrl(props: Partial<CommunityProps>) {
     const {
       postOrCommentType,
       cursor,

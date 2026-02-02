@@ -16,10 +16,6 @@ interface State {
 export class DonationDialog extends Component<Props, State> {
   state: State = { show: this.initializeShow() };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   initializeShow(): boolean {
     const lastNotifDate = new Date(
       this.props.myUserInfo?.local_user_view.local_user

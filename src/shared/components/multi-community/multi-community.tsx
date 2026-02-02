@@ -554,7 +554,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     );
   }
 
-  async updateUrl(props: Partial<Props>) {
+  updateUrl(props: Partial<Props>) {
     const {
       cursor,
       sort,
