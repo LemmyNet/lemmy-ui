@@ -4,15 +4,12 @@ interface LoadingEllipsesState {
   ellipses: string;
 }
 
+// TODO get rid
 export class LoadingEllipses extends Component<any, LoadingEllipsesState> {
   state: LoadingEllipsesState = {
     ellipses: "...",
   };
   #interval?: NodeJS.Timeout;
-
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
 
   render() {
     return this.state.ellipses;

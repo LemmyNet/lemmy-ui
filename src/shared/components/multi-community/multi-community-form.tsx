@@ -39,10 +39,6 @@ export class MultiCommunityForm extends Component<Props, State> {
     submitted: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   initForm() {
     const mv = this.props.multiCommunityView;
     return mv
@@ -147,7 +143,7 @@ export class MultiCommunityForm extends Component<Props, State> {
           <div className="col-12">
             <button
               type="submit"
-              className="btn btn-secondary me-2"
+              className="btn btn-light border-light-subtle me-2"
               disabled={this.props.createOrEditLoading}
             >
               {this.props.createOrEditLoading ? (

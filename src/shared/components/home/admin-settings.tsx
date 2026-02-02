@@ -3,7 +3,7 @@ import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component, FormEvent } from "inferno";
+import { Component } from "inferno";
 import {
   AdminAllowInstanceParams,
   AdminBlockInstanceParams,
@@ -26,6 +26,7 @@ import {
   Tagline,
   EditTagline,
   PaginationCursor,
+  GetFederatedInstancesKind,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -38,7 +39,7 @@ import {
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
-import { Spinner } from "../common/icon";
+import { Icon, Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
 import { EmojiForm } from "./emojis-form";
@@ -62,6 +63,12 @@ import { TableHr } from "@components/common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { InstanceList } from "./instances";
 import { InstanceAllowForm } from "./instance-allow-form";
+import {
+  AllOrBanned,
+  AllOrBannedDropdown,
+} from "@components/common/all-or-banned-dropdown";
+import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
+import { FormEvent } from "inferno";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: PagedResponse<LocalUserView>;
@@ -74,8 +81,11 @@ type AdminSettingsData = RouteDataResponse<{
 interface AdminSettingsState {
   instancesRes: RequestState<PagedResponse<FederatedInstanceView>>;
   usersRes: RequestState<PagedResponse<LocalUserView>>;
+  instancesKind: GetFederatedInstancesKind;
+  instancesCursor?: PaginationCursor;
+  instancesDomainFilter?: string;
   usersCursor?: PaginationCursor;
-  usersBannedOnly: boolean;
+  allOrBanned: AllOrBanned;
   leaveAdminTeamRes: RequestState<GetSiteResponse>;
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<PagedResponse<LocalImageView>>;
@@ -104,8 +114,9 @@ export class AdminSettings extends Component<
   private isoData = setIsoData<AdminSettingsData>(this.context);
   state: AdminSettingsState = {
     usersRes: EMPTY_REQUEST,
-    usersBannedOnly: false,
+    allOrBanned: "all",
     instancesRes: EMPTY_REQUEST,
+    instancesKind: "all",
     leaveAdminTeamRes: EMPTY_REQUEST,
     showConfirmLeaveAdmin: false,
     uploadsRes: EMPTY_REQUEST,
@@ -362,7 +373,7 @@ export class AdminSettings extends Component<
       themeList,
     ] = await Promise.all([
       HttpService.client.listUsers({
-        banned_only: this.state.usersBannedOnly,
+        banned_only: this.state.allOrBanned === "banned",
         page_cursor: this.state.usersCursor,
         limit: fetchLimit,
       }),
@@ -395,7 +406,7 @@ export class AdminSettings extends Component<
     });
     const usersRes = await HttpService.client.listUsers({
       page_cursor: this.state.usersCursor,
-      banned_only: this.state.usersBannedOnly,
+      banned_only: this.state.allOrBanned === "banned",
       limit: fetchLimit,
     });
 
@@ -440,7 +451,9 @@ export class AdminSettings extends Component<
       instancesRes: LOADING_REQUEST,
     });
     const instancesRes = await HttpService.client.getFederatedInstances({
-      kind: "all",
+      kind: this.state.instancesKind,
+      domain_filter: this.state.instancesDomainFilter,
+      page_cursor: this.state.instancesCursor,
     });
 
     this.setState({ instancesRes });
@@ -531,45 +544,12 @@ export class AdminSettings extends Component<
     return (
       <>
         <h1 className="h4 mb-4">{I18NextService.i18n.t("users")}</h1>
-        <div className="row align-items-center mb-3 g-3">
-          <div className="col-auto">
-            <div
-              className="data-type-select btn-group btn-group-toggle flex-wrap"
-              role="group"
-            >
-              <input
-                id={`users-all`}
-                type="radio"
-                className="btn-check"
-                value="true"
-                checked={!this.state.usersBannedOnly}
-                onChange={e => handleUsersBannedOnlyChange(this, e)}
-              />
-              <label
-                htmlFor={`users-all`}
-                className={classNames("pointer btn btn-outline-secondary", {
-                  active: !this.state.usersBannedOnly,
-                })}
-              >
-                {I18NextService.i18n.t("all")}
-              </label>
-              <input
-                id={`users-banned-only`}
-                type="radio"
-                className="btn-check"
-                value="false"
-                checked={this.state.usersBannedOnly}
-                onChange={e => handleUsersBannedOnlyChange(this, e)}
-              />
-              <label
-                htmlFor={`users-banned-only`}
-                className={classNames("pointer btn btn-outline-secondary", {
-                  active: this.state.usersBannedOnly,
-                })}
-              >
-                {I18NextService.i18n.t("banned")}
-              </label>
-            </div>
+        <div className="row row-cols-auto align-items-center mb-3 g-3">
+          <div className="col">
+            <AllOrBannedDropdown
+              currentOption={this.state.allOrBanned}
+              onSelect={val => handleUsersAllOrBannedChange(this, val)}
+            />
           </div>
         </div>
       </>
@@ -769,28 +749,68 @@ export class AdminSettings extends Component<
         );
       case "success": {
         const instances = this.state.instancesRes.data.items;
+
         return (
           <div>
-            <h1 className="h4 mb-4">
-              {I18NextService.i18n.t("blocked_instances")}
-            </h1>
+            <h1 className="h4">{I18NextService.i18n.t("instances")}</h1>
+            <div className="row row-cols-auto align-items-center g-3 mb-2">
+              <div className="col me-auto">
+                <InstancesKindDropdown
+                  currentOption={this.state.instancesKind}
+                  onSelect={val => handleInstancesKindChange(this, val)}
+                />
+              </div>
+              <form
+                className="d-flex col"
+                onSubmit={e => handleInstancesDomainSearchSubmit(this, e)}
+              >
+                <input
+                  name="q"
+                  type="search"
+                  className="form-control"
+                  placeholder={`${I18NextService.i18n.t("search")}...`}
+                  aria-label={I18NextService.i18n.t("search")}
+                  value={this.state.instancesDomainFilter}
+                  onInput={e => handleInstancesDomainFilterChange(this, e)}
+                />
+                <button
+                  type="submit"
+                  className="btn btn-light border-light-subtle ms-1"
+                >
+                  <Icon icon="search" />
+                </button>
+              </form>
+            </div>
             <InstanceList
-              instances={instances.filter(view => view.blocked) ?? []}
+              instances={instances}
               hideNoneFound
-              onRemove={instance => handleInstanceBlockRemove(this, instance)}
+              showRemove={["blocked", "allowed"].includes(
+                this.state.instancesKind,
+              )}
+              onRemove={instance => {
+                if (this.state.instancesKind === "blocked") {
+                  handleInstanceBlockRemove(this, instance);
+                } else if (this.state.instancesKind === "allowed") {
+                  handleInstanceAllowRemove(this, instance);
+                }
+              }}
             />
+            <PaginatorCursor
+              current={this.state.instancesCursor}
+              resource={this.state.instancesRes}
+              onPageChange={cursor => handleInstancesPageChange(this, cursor)}
+            />
+            <hr />
+            <h1 className="h4 mb-4">
+              {I18NextService.i18n.t("block_instance")}
+            </h1>
             <InstanceBlockForm
               onCreate={form => handleInstanceBlockCreate(this, form)}
             />
             <hr />
             <h1 className="h4 mb-4">
-              {I18NextService.i18n.t("allowed_instances")}
+              {I18NextService.i18n.t("allow_instance")}
             </h1>
-            <InstanceList
-              instances={instances.filter(view => view.allowed) ?? []}
-              hideNoneFound
-              onRemove={instance => handleInstanceAllowRemove(this, instance)}
-            />
             <InstanceAllowForm
               onCreate={form => handleInstanceAllowCreate(this, form)}
             />
@@ -914,12 +934,11 @@ async function handleLeaveAdminTeam(i: AdminSettings) {
   }
 }
 
-async function handleUsersBannedOnlyChange(
+async function handleUsersAllOrBannedChange(
   i: AdminSettings,
-  event: FormEvent<HTMLInputElement>,
+  allOrBanned: AllOrBanned,
 ) {
-  const checked = event.target.value === "false";
-  i.setState({ usersBannedOnly: checked });
+  i.setState({ allOrBanned, usersCursor: undefined });
   await i.fetchUsersOnly();
 }
 
@@ -947,6 +966,40 @@ async function handleTaglinesPageChange(
   i.setState({ taglinesCursor: cursor });
   snapToTop();
   await i.fetchTaglinesOnly();
+}
+
+async function handleInstancesKindChange(
+  i: AdminSettings,
+  instancesKind: GetFederatedInstancesKind,
+) {
+  i.setState({ instancesKind, instancesCursor: undefined });
+  await i.fetchInstancesOnly();
+}
+
+async function handleInstancesPageChange(
+  i: AdminSettings,
+  instancesCursor?: PaginationCursor,
+) {
+  i.setState({ instancesCursor });
+  await i.fetchInstancesOnly();
+}
+
+function handleInstancesDomainFilterChange(
+  i: AdminSettings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState({
+    instancesDomainFilter: event.target.value,
+    instancesCursor: undefined,
+  });
+}
+
+async function handleInstancesDomainSearchSubmit(
+  i: AdminSettings,
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+  await i.fetchInstancesOnly();
 }
 
 async function handleEditOAuthProvider(

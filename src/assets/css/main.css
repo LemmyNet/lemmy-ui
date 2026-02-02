@@ -515,3 +515,7 @@ em-emoji-picker {
   mask: var(--mask);
   max-height: 100px;
 }
+
+.interval-filter-input {
+  max-width: 50px;
+}

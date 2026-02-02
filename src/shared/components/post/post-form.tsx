@@ -123,7 +123,6 @@ interface PostFormState {
   communitySearchLoading: boolean;
   communitySearchOptions: Choice[];
   previewMode: boolean;
-  submitted: boolean;
   bypassNavWarning: boolean;
 }
 
@@ -137,7 +136,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     communitySearchLoading: false,
     previewMode: false,
     communitySearchOptions: [],
-    submitted: false,
     bypassNavWarning: false,
   };
 
@@ -244,7 +242,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       });
     }
     if (this.props.loading && !nextProps.loading) {
-      this.setState({ submitted: false, bypassNavWarning: false });
+      this.setState({ bypassNavWarning: false });
     }
     if (this.props.params !== nextProps.params && nextProps.params) {
       const params = nextProps.params;
@@ -487,7 +485,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
           </div>
         )}
         {!this.props.post_view && (
-          <div className="mb-3 row">
+          <div className="mb-3 row align-items-center">
             <label className="col-sm-2 col-form-label" htmlFor="post-community">
               {I18NextService.i18n.t("community")}
             </label>
@@ -547,6 +545,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 {I18NextService.i18n.t("tags")}
               </label>
               <div className="col-sm-10">
+                {/** TODO This should use an abstracted FilterChipMultiDropdown **/}
                 <select
                   id="post-tags"
                   className="form-select"
@@ -580,13 +579,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button
-              disabled={
-                !this.state.form.community_id ||
-                this.props.loading ||
-                this.state.submitted
-              }
+              disabled={!this.state.form.community_id || this.props.loading}
               type="submit"
-              className="btn btn-secondary me-2"
+              className="btn btn-light border-light-subtle me-2"
             >
               {this.props.loading ? (
                 <Spinner />
@@ -599,7 +594,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             {this.props.post_view && (
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-light border-light-subtle"
                 onClick={() => handleCancel(this)}
               >
                 {I18NextService.i18n.t("cancel")}
@@ -750,9 +745,6 @@ function handlePostSubmit(i: PostForm, event: FormEvent<HTMLFormElement>) {
   if ((i.state.form.url ?? "") === "") {
     i.setState(s => ((s.form.url = undefined), s));
   }
-  // This forces `props.loading` to become true, then false, to enable the
-  // submit button again.
-  i.setState({ submitted: true });
 
   const pForm = i.state.form;
   const pv = i.props.post_view;

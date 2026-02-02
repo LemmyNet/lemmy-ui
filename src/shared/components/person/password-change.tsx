@@ -40,10 +40,6 @@ export class PasswordChange extends Component<
     },
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get documentTitle(): string {
     return `${I18NextService.i18n.t("password_change")} - ${
       this.state.siteRes.site_view.site.name
@@ -92,7 +88,7 @@ export class PasswordChange extends Component<
         </div>
         <div className="mb-3 row">
           <div className="col-sm-10">
-            <button type="submit" className="btn btn-secondary">
+            <button type="submit" className="btn btn-light border-light-subtle">
               {this.state.passwordChangeRes.state === "loading" ? (
                 <Spinner />
               ) : (

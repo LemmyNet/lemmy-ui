@@ -31,10 +31,6 @@ function handleFirstPage(i: PaginatorCursor) {
 }
 
 export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get nextPage(): PaginationCursor | undefined {
     return this.props.resource.state === "success"
       ? this.props.resource.data.next_page
@@ -54,7 +50,7 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
       <div className="paginator my-2">
         {this.prevPage && (
           <button
-            className="btn btn-secondary"
+            className="btn btn-light border-light-subtle"
             onClick={linkEvent(this, handlePrev)}
           >
             {I18NextService.i18n.t("prev")}
@@ -62,7 +58,7 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
         )}
         {this.nextPage && (
           <button
-            className="btn btn-secondary ms-2"
+            className="btn btn-light border-light-subtle ms-2"
             onClick={linkEvent(this, handleNext)}
           >
             {I18NextService.i18n.t("next")}
@@ -70,7 +66,7 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
         )}
         {!this.prevPage && !this.nextPage && this.props.current && (
           <button
-            className="btn btn-secondary ms-2"
+            className="btn btn-light border-light-subtle ms-2"
             onClick={linkEvent(this, handleFirstPage)}
           >
             {I18NextService.i18n.t("back_to_first_page")}

@@ -6,10 +6,6 @@ import { v4 as uuidv4 } from "uuid";
 type OAuthLoginProps = { oauth_providers: PublicOAuthProvider[] };
 
 export class OAuthLogin extends Component<OAuthLoginProps, object> {
-  constructor(props: OAuthLoginProps, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       (this.props.oauth_providers?.length || 0) > 0 && (

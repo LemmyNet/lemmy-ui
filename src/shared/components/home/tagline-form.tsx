@@ -34,10 +34,6 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     bypassNavWarning: true,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const submitTitle = I18NextService.i18n.t(
       this.props.tagline ? "save" : "create",
@@ -78,7 +74,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
             )}
             {isChanged && (
               <button
-                className="btn btn-secondary"
+                className="btn btn-light border-light-subtle"
                 type="submit"
                 onClick={linkEvent(this, this.handleSubmitTagline)}
               >

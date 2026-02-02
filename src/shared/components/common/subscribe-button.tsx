@@ -30,7 +30,7 @@ export function SubscribeButton({
 }: SubscribeButtonProps) {
   const buttonClass = classNames("btn", {
     "btn-link p-0": isLink,
-    [`btn-secondary d-block mb-2 w-100 btn-${followState === "pending" ? "warning" : "secondary"}`]:
+    [`btn-light border-light-subtle d-block mb-2 w-100 btn-${followState === "pending" ? "warning" : "secondary"}`]:
       !isLink,
   });
 
@@ -144,10 +144,6 @@ class RemoteFetchModal extends Component<
 
   modalDivRef = createRef<HTMLDivElement>();
   inputRef = createRef<HTMLInputElement>();
-
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
 
   handleShow() {
     this.inputRef.current?.focus();

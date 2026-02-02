@@ -24,10 +24,6 @@ export class InstanceAllowForm extends Component<Props, State> {
     bypassNavWarning: true,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const form = this.state.form;
     const id = randomStr();
@@ -67,7 +63,7 @@ export class InstanceAllowForm extends Component<Props, State> {
           </div>
           <div className="col-12">
             <button
-              className="btn btn-secondary"
+              className="btn btn-light border-light-subtle"
               type="submit"
               disabled={!this.formValid()}
               onClick={linkEvent(this, this.handleSubmit)}

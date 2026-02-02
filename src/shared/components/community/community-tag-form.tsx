@@ -74,10 +74,6 @@ export class CommunityTagForm extends Component<
     }
   }
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const submitTitle = I18NextService.i18n.t(
       this.props.tag ? "save" : "create",
@@ -155,7 +151,7 @@ export class CommunityTagForm extends Component<
           </div>
           <div className="col-12">
             <button
-              className="btn btn-secondary me-2"
+              className="btn btn-light border-light-subtle me-2"
               type="submit"
               disabled={!this.enableForm}
             >

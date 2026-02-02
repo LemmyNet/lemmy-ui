@@ -36,8 +36,8 @@ import { InfernoNode } from "inferno";
 import { PendingFollow } from "@components/common/pending-follow";
 import {
   RegistrationState,
-  RegistrationStateRadios,
-} from "@components/common/registration-state-radios";
+  RegistrationStateDropdown,
+} from "@components/common/registration-state-dropdown";
 
 type PendingFollowsData = RouteDataResponse<{
   listPendingFollowsResponse: PagedResponse<PendingFollowerView>;
@@ -176,9 +176,9 @@ export class PendingFollows extends Component<
   selects() {
     return (
       <div className="mb-2">
-        <RegistrationStateRadios
-          state={this.props.viewState}
-          onClick={val => handlePendingFollowsStateChange(this, val)}
+        <RegistrationStateDropdown
+          currentOption={this.props.viewState}
+          onSelect={val => handlePendingFollowsStateChange(this, val)}
         />
       </div>
     );
@@ -246,7 +246,7 @@ export class PendingFollows extends Component<
     }
   }
 
-  async updateUrl(props: Partial<PendingFollowsProps>) {
+  updateUrl(props: Partial<PendingFollowsProps>) {
     const { cursor, viewState: state } = { ...this.props, ...props };
 
     const queryParams: QueryParams<PendingFollowsProps> = {

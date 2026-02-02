@@ -15,10 +15,6 @@ interface Props {
 }
 
 export class MultiCommunityLink extends Component<Props, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const { multiCommunity, useApubName } = this.props;
 
@@ -83,7 +79,9 @@ type MultiCommunitySettingLinkProps = {
 export function MultiCommunitySettingsLink({
   multi,
 }: MultiCommunitySettingLinkProps) {
-  const classes = classNames("btn btn-secondary d-block mb-2 w-100");
+  const classes = classNames(
+    "btn btn-light border-light-subtle d-block mb-2 w-100",
+  );
 
   const link = `${multiCommunityLink(multi).link}/settings`;
 

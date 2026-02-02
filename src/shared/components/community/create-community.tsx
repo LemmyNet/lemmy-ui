@@ -25,9 +25,6 @@ export class CreateCommunity extends Component<
   state: CreateCommunityState = {
     loading: false,
   };
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
 
   get documentTitle(): string {
     return `${I18NextService.i18n.t("create_community")} - ${

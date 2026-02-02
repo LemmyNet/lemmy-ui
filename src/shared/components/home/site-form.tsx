@@ -17,17 +17,24 @@ import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
-import { ListingTypeSelect } from "../common/listing-type-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import UrlListTextarea from "../common/url-list-textarea";
 import { FormEvent } from "inferno";
-import { FederationModeSelect } from "./federation-mode-select";
+import { FederationModeDropdown } from "./federation-mode-dropdown";
 import {
-  CommentSortSelect,
-  PostSortSelect,
-} from "@components/common/sort-select";
-import { TimeIntervalSelect } from "@components/common/time-interval-select";
-import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
+  CommentSortDropdown,
+  PostSortDropdown,
+} from "@components/common/sort-dropdown";
+import { TimeIntervalFilter } from "@components/common/time-interval-filter";
+import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
+import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
+import { RegistrationModeDropdown } from "@components/common/registration-mode-dropdown";
+import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { ThemeDropdown } from "@components/common/theme-dropdown";
+import {
+  CaptchaDifficulty,
+  CaptchaDifficultyDropdown,
+} from "@components/common/captcha-difficulty-dropdown";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -237,7 +244,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="mb-3 row">
+        <div className="mb-3 row align-items-center">
           {(
             [
               { kind: "post_upvotes", i18nKey: "post_upvote_federation" },
@@ -249,38 +256,30 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               },
             ] as const
           ).map(vote => (
-            <div className="col-12">
-              <label className="form-check-label me-2" htmlFor={vote.kind}>
+            <>
+              <label className="col-sm-3 col-form-label" htmlFor={vote.kind}>
                 {I18NextService.i18n.t(vote.i18nKey)}
               </label>
-              <FederationModeSelect
-                id={vote.kind}
-                current={this.state.siteForm[vote.kind] ?? "all"}
-                onChange={e => handleSiteVoteModeChange(this, e, vote.kind)}
-              />
-            </div>
+              <div className="col-sm-9">
+                <FederationModeDropdown
+                  currentOption={this.state.siteForm[vote.kind] ?? "all"}
+                  onSelect={val =>
+                    handleSiteVoteModeChange(this, val, vote.kind)
+                  }
+                />
+              </div>
+            </>
           ))}
         </div>
-        <div className="mb-3 row">
-          <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-enable-nsfw"
-                type="checkbox"
-                checked={this.state.siteForm.disallow_nsfw_content}
-                onChange={e => handleSiteEnableNsfwChange(this, e)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-enable-nsfw"
-              >
-                {I18NextService.i18n.t("disallow_nsfw_content")}
-              </label>
-            </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"disallow_nsfw_content"}
+              isChecked={this.state.siteForm.disallow_nsfw_content ?? false}
+              onCheck={val => handleSiteEnableNsfwChange(this, val)}
+            />
           </div>
         </div>
-
         {!this.state.siteForm.disallow_nsfw_content && (
           <div className="mb-3 row">
             <div className="alert small alert-info" role="alert">
@@ -306,28 +305,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         )}
         <div className="mb-3 row">
           <div className="col-12">
-            <label
-              className="form-check-label me-2"
-              htmlFor="create-site-registration-mode"
-            >
-              {I18NextService.i18n.t("registration_mode")}
-            </label>
-            <select
-              id="create-site-registration-mode"
-              value={this.state.siteForm.registration_mode}
-              onChange={e => handleSiteRegistrationModeChange(this, e)}
-              className="form-select d-inline-block w-auto"
-            >
-              <option value={"require_application"}>
-                {I18NextService.i18n.t("require_registration_application")}
-              </option>
-              <option value={"open"}>
-                {I18NextService.i18n.t("open_registration")}
-              </option>
-              <option value={"closed"}>
-                {I18NextService.i18n.t("close_registration")}
-              </option>
-            </select>
+            <RegistrationModeDropdown
+              currentOption={
+                this.state.siteForm.registration_mode ?? "require_application"
+              }
+              onSelect={val => handleSiteRegistrationModeChange(this, val)}
+            />
           </div>
         </div>
         {this.state.siteForm.registration_mode === "require_application" && (
@@ -351,225 +334,154 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         )}
         <div className="mb-3 row">
           <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-oauth-registration"
-                type="checkbox"
-                checked={this.state.siteForm.oauth_registration}
-                onChange={e => handleSiteOauthRegistration(this, e)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-oauth-registration"
-              >
-                {I18NextService.i18n.t("oauth_registration")}
-              </label>
-            </div>
+            <FilterChipCheckbox
+              option={"oauth_registration"}
+              isChecked={this.state.siteForm.oauth_registration ?? false}
+              onCheck={val => handleSiteOauthRegistration(this, val)}
+            />
           </div>
         </div>
         <div className="mb-3 row">
           <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-community-creation-admin-only"
-                type="checkbox"
-                checked={this.state.siteForm.community_creation_admin_only}
-                onChange={e => handleSiteCommunityCreationAdminOnly(this, e)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-community-creation-admin-only"
-              >
-                {I18NextService.i18n.t("community_creation_admin_only")}
-              </label>
-            </div>
+            <FilterChipCheckbox
+              option={"community_creation_admin_only"}
+              isChecked={
+                this.state.siteForm.community_creation_admin_only ?? false
+              }
+              onCheck={val => handleSiteCommunityCreationAdminOnly(this, val)}
+            />
           </div>
         </div>
         <div className="mb-3 row">
           <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="disable-email-notifications"
-                type="checkbox"
-                checked={this.state.siteForm.disable_email_notifications}
-                onChange={e => handleSiteDisableEmailNotifications(this, e)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="disable-email-notifications"
-              >
-                {I18NextService.i18n.t("disable_email_notifications")}
-              </label>
-            </div>
+            <FilterChipCheckbox
+              option={"disable_email_notifications"}
+              isChecked={
+                this.state.siteForm.disable_email_notifications ?? false
+              }
+              onCheck={val => handleSiteDisableEmailNotifications(this, val)}
+            />
           </div>
         </div>
         <div className="mb-3 row">
           <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-require-email-verification"
-                type="checkbox"
-                checked={this.state.siteForm.require_email_verification}
-                onChange={e => handleSiteRequireEmailVerification(this, e)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-require-email-verification"
-              >
-                {I18NextService.i18n.t("require_email_verification")}
-              </label>
-            </div>
+            <FilterChipCheckbox
+              option={"require_email_verification"}
+              isChecked={
+                this.state.siteForm.require_email_verification ?? false
+              }
+              onCheck={val => handleSiteRequireEmailVerification(this, val)}
+            />
           </div>
         </div>
         <div className="mb-3 row">
           <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-application-email-admins"
-                type="checkbox"
-                checked={this.state.siteForm.application_email_admins}
-                onChange={e => handleSiteApplicationEmailAdmins(this, e)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-email-admins"
-              >
-                {I18NextService.i18n.t("application_email_admins")}
-              </label>
-            </div>
+            <FilterChipCheckbox
+              option={"application_email_admins"}
+              isChecked={this.state.siteForm.application_email_admins ?? false}
+              onCheck={val => handleSiteApplicationEmailAdmins(this, val)}
+            />
           </div>
         </div>
         <div className="mb-3 row">
           <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-reports-email-admins"
-                type="checkbox"
-                checked={this.state.siteForm.reports_email_admins}
-                onChange={e => handleSiteReportsEmailAdmins(this, e)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-reports-email-admins"
-              >
-                {I18NextService.i18n.t("reports_email_admins")}
-              </label>
-            </div>
+            <FilterChipCheckbox
+              option={"reports_email_admins"}
+              isChecked={this.state.siteForm.reports_email_admins ?? false}
+              onCheck={val => handleSiteReportsEmailAdmins(this, val)}
+            />
           </div>
         </div>
         <div className="mb-3 row">
           <div className="col-12">
-            <label
-              className="form-check-label me-2"
-              htmlFor="create-site-default-theme"
-            >
-              {I18NextService.i18n.t("theme")}
-            </label>
-            <select
-              id="create-site-default-theme"
-              value={this.state.siteForm.default_theme}
-              onChange={e => handleSiteDefaultTheme(this, e)}
-              className="form-select d-inline-block w-auto"
-            >
-              <option value="instance">
-                {I18NextService.i18n.t("theme_instance_default")}
-              </option>
-              <option value="instance-compact">
-                {I18NextService.i18n.t("theme_instance_default_compact")}
-              </option>
-              {this.props.themeList?.map(theme => (
-                <option key={theme} value={theme}>
-                  {theme}
-                </option>
-              ))}
-            </select>
+            <FilterChipCheckbox
+              option={"private_instance"}
+              isChecked={this.state.siteForm.private_instance ?? false}
+              onCheck={val => handleSitePrivateInstance(this, val)}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("default_theme")}
+          </label>
+          <div className="col-sm-9">
+            <ThemeDropdown
+              currentOption={this.state.siteForm.default_theme ?? "litely"}
+              themeList={this.props.themeList ?? []}
+              includeInstanceDefaults={false}
+              onSelect={val => handleSiteDefaultTheme(this, val)}
+            />
           </div>
         </div>
         {this.props.showLocal && (
-          <form className="mb-3 row">
+          <div className="mb-3 row align-items-center">
             <label className="col-sm-3 col-form-label">
               {I18NextService.i18n.t("listing_type")}
             </label>
             <div className="col-sm-9">
-              <ListingTypeSelect
-                type_={this.state.siteForm.default_post_listing_type ?? "local"}
+              <ListingTypeDropdown
+                currentOption={
+                  this.state.siteForm.default_post_listing_type ?? "local"
+                }
                 showLocal
                 showSubscribed={false}
                 myUserInfo={this.props.myUserInfo}
-                onChange={val => handleDefaultPostListingTypeChange(this, val)}
+                onSelect={val => handleDefaultPostListingTypeChange(this, val)}
               />
             </div>
-          </form>
+          </div>
         )}
-        <form className="mb-3 row">
+        <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("listing_mode")}
           </label>
           <div className="col-sm-9">
-            <PostListingModeSelect
-              current={this.state.siteForm.default_post_listing_mode ?? "list"}
-              onChange={val => handlePostListingModeChange(this, val)}
+            <PostListingModeDropdown
+              currentOption={
+                this.state.siteForm.default_post_listing_mode ?? "list"
+              }
+              onSelect={val => handlePostListingModeChange(this, val)}
             />
           </div>
-        </form>
-        <form className="mb-3 row">
+        </div>
+        <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("post_sort_type")}
           </label>
           <div className="col-sm-9">
-            <PostSortSelect
-              current={this.state.siteForm.default_post_sort_type ?? "active"}
-              onChange={val => handlePostSortTypeChange(this, val)}
+            <PostSortDropdown
+              currentOption={
+                this.state.siteForm.default_post_sort_type ?? "active"
+              }
+              onSelect={val => handlePostSortTypeChange(this, val)}
             />
           </div>
-        </form>
-        <form className="mb-3 row">
+        </div>
+        <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("comment_sort_type")}
           </label>
           <div className="col-sm-9">
-            <CommentSortSelect
-              current={this.state.siteForm.default_comment_sort_type ?? "hot"}
-              onChange={val => handleCommentSortTypeChange(this, val)}
+            <CommentSortDropdown
+              currentOption={
+                this.state.siteForm.default_comment_sort_type ?? "hot"
+              }
+              onSelect={val => handleCommentSortTypeChange(this, val)}
             />
           </div>
-        </form>
-        <form className="mb-3 row">
+        </div>
+        <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("post_time_range")}
           </label>
           <div className="col-sm-9">
-            <TimeIntervalSelect
+            <TimeIntervalFilter
               currentSeconds={
                 this.state.siteForm.default_post_time_range_seconds
               }
               onChange={seconds => handlePostTimeRangeChange(this, seconds)}
             />
-          </div>
-        </form>
-        <div className="mb-3 row">
-          <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-private-instance"
-                type="checkbox"
-                checked={this.state.siteForm.private_instance}
-                onChange={e => handleSitePrivateInstance(this, e)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-private-instance"
-              >
-                {I18NextService.i18n.t("private_instance")}
-              </label>
-            </div>
           </div>
         </div>
         <div className="mb-3 row">
@@ -605,72 +517,35 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           onUpdate={urls => handleBlockedUrlsUpdate(this, urls)}
         />
         <div className="mb-3 row">
-          <label
-            className="col-12 col-form-label"
-            htmlFor="create-site-actor-name"
-          >
-            {I18NextService.i18n.t("actor_name_max_length")}
-          </label>
-        </div>
-        <div className="mb-3 row">
           <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-federation-enabled"
-                type="checkbox"
-                checked={this.state.siteForm.federation_enabled}
-                onChange={e => handleSiteFederationEnabled(this, e)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-federation-enabled"
-              >
-                {I18NextService.i18n.t("federation_enabled")}
-              </label>
-            </div>
+            <FilterChipCheckbox
+              option={"federation_enabled"}
+              isChecked={this.state.siteForm.federation_enabled ?? false}
+              onCheck={val => handleSiteFederationEnabled(this, val)}
+            />
           </div>
         </div>
         <div className="mb-3 row">
           <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="create-site-captcha-enabled"
-                type="checkbox"
-                checked={this.state.siteForm.captcha_enabled}
-                onChange={e => handleSiteCaptchaEnabled(this, e)}
-              />
-              <label
-                className="form-check-label"
-                htmlFor="create-site-captcha-enabled"
-              >
-                {I18NextService.i18n.t("captcha_enabled")}
-              </label>
-            </div>
+            <FilterChipCheckbox
+              option={"captcha_enabled"}
+              isChecked={this.state.siteForm.captcha_enabled ?? false}
+              onCheck={val => handleSiteCaptchaEnabled(this, val)}
+            />
           </div>
         </div>
         {this.state.siteForm.captcha_enabled && (
           <div className="mb-3 row">
-            <div className="col-12">
-              <label
-                className="form-check-label me-2"
-                htmlFor="create-site-captcha-difficulty"
-              >
-                {I18NextService.i18n.t("captcha_difficulty")}
-              </label>
-              <select
-                id="create-site-captcha-difficulty"
-                value={this.state.siteForm.captcha_difficulty}
-                onChange={e => handleSiteCaptchaDifficulty(this, e)}
-                className="form-select d-inline-block w-auto"
-              >
-                <option value="easy">{I18NextService.i18n.t("easy")}</option>
-                <option value="medium">
-                  {I18NextService.i18n.t("medium")}
-                </option>
-                <option value="hard">{I18NextService.i18n.t("hard")}</option>
-              </select>
+            <label className="col-sm-3 col-form-label">
+              {I18NextService.i18n.t("captcha_difficulty")}
+            </label>
+            <div className="col-sm-9">
+              <CaptchaDifficultyDropdown
+                currentOption={
+                  this.state.siteForm.captcha_difficulty as CaptchaDifficulty
+                }
+                onSelect={val => handleSiteCaptchaDifficulty(this, val)}
+              />
             </div>
           </div>
         )}
@@ -678,7 +553,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div className="col-12">
             <button
               type="submit"
-              className="btn btn-secondary me-2"
+              className="btn btn-light border-light-subtle me-2"
               disabled={this.props.loading}
             >
               {this.props.loading ? (
@@ -795,104 +670,59 @@ function handleSiteSummaryChange(
   i.setState(s => ((s.siteForm.summary = event.target.value), s));
 }
 
-function handleSiteEnableNsfwChange(
-  i: SiteForm,
-  event: FormEvent<HTMLInputElement>,
-) {
+function handleSiteEnableNsfwChange(i: SiteForm, val: boolean) {
   const newState = i.state;
-  newState.siteForm.disallow_nsfw_content = event.target.checked;
-  if (event.target.checked) {
+  newState.siteForm.disallow_nsfw_content = val;
+  if (val) {
     newState.siteForm.content_warning = "";
   }
   i.setState(newState);
 }
 
-function handleSiteRegistrationModeChange(
-  i: SiteForm,
-  event: FormEvent<HTMLSelectElement>,
-) {
-  i.setState(
-    s => (
-      (s.siteForm.registration_mode = event.target.value as RegistrationMode),
-      s
-    ),
-  );
+function handleSiteRegistrationModeChange(i: SiteForm, val: RegistrationMode) {
+  i.setState(s => ((s.siteForm.registration_mode = val), s));
 }
 
-function handleSiteOauthRegistration(
-  i: SiteForm,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.setState(s => ((s.siteForm.oauth_registration = event.target.checked), s));
+function handleSiteOauthRegistration(i: SiteForm, val: boolean) {
+  i.setState(s => ((s.siteForm.oauth_registration = val), s));
 }
 
-function handleSiteCommunityCreationAdminOnly(
-  i: SiteForm,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.setState(
-    s => ((s.siteForm.community_creation_admin_only = event.target.checked), s),
-  );
+function handleSiteCommunityCreationAdminOnly(i: SiteForm, val: boolean) {
+  i.setState(s => ((s.siteForm.community_creation_admin_only = val), s));
 }
 
 function handleSiteVoteModeChange(
   i: SiteForm,
-  event: FormEvent<HTMLSelectElement>,
+  val: FederationMode,
   voteKind: `${"post" | "comment"}_${"upvotes" | "downvotes"}`,
 ) {
   const newState = i.state;
-  newState.siteForm[voteKind] = event.target.value as FederationMode;
+  newState.siteForm[voteKind] = val;
   i.setState(newState);
 }
 
-function handleSiteRequireEmailVerification(
-  i: SiteForm,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.setState(
-    s => ((s.siteForm.require_email_verification = event.target.checked), s),
-  );
+function handleSiteRequireEmailVerification(i: SiteForm, val: boolean) {
+  i.setState(s => ((s.siteForm.require_email_verification = val), s));
 }
 
-function handleSiteApplicationEmailAdmins(
-  i: SiteForm,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.setState(
-    s => ((s.siteForm.application_email_admins = event.target.checked), s),
-  );
+function handleSiteApplicationEmailAdmins(i: SiteForm, val: boolean) {
+  i.setState(s => ((s.siteForm.application_email_admins = val), s));
 }
 
-function handleSiteDisableEmailNotifications(
-  i: SiteForm,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.setState(
-    s => ((s.siteForm.disable_email_notifications = event.target.checked), s),
-  );
+function handleSiteDisableEmailNotifications(i: SiteForm, val: boolean) {
+  i.setState(s => ((s.siteForm.disable_email_notifications = val), s));
 }
 
-function handleSiteReportsEmailAdmins(
-  i: SiteForm,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.setState(
-    s => ((s.siteForm.reports_email_admins = event.target.checked), s),
-  );
+function handleSiteReportsEmailAdmins(i: SiteForm, val: boolean) {
+  i.setState(s => ((s.siteForm.reports_email_admins = val), s));
 }
 
-function handleSitePrivateInstance(
-  i: SiteForm,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.setState(s => ((s.siteForm.private_instance = event.target.checked), s));
+function handleSitePrivateInstance(i: SiteForm, val: boolean) {
+  i.setState(s => ((s.siteForm.private_instance = val), s));
 }
 
-function handleSiteDefaultTheme(
-  i: SiteForm,
-  event: FormEvent<HTMLSelectElement>,
-) {
-  i.setState(s => ((s.siteForm.default_theme = event.target.value), s));
+function handleSiteDefaultTheme(i: SiteForm, val: string) {
+  i.setState(s => ((s.siteForm.default_theme = val), s));
 }
 
 function handleIconChange(i: SiteForm, url?: string) {
@@ -910,25 +740,16 @@ function handleSiteSlurFilterRegex(
   i.setState(s => ((s.siteForm.slur_filter_regex = event.target.value), s));
 }
 
-function handleSiteFederationEnabled(
-  i: SiteForm,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.setState(s => ((s.siteForm.federation_enabled = event.target.checked), s));
+function handleSiteFederationEnabled(i: SiteForm, val: boolean) {
+  i.setState(s => ((s.siteForm.federation_enabled = val), s));
 }
 
-function handleSiteCaptchaEnabled(
-  i: SiteForm,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.setState(s => ((s.siteForm.captcha_enabled = event.target.checked), s));
+function handleSiteCaptchaEnabled(i: SiteForm, val: boolean) {
+  i.setState(s => ((s.siteForm.captcha_enabled = val), s));
 }
 
-function handleSiteCaptchaDifficulty(
-  i: SiteForm,
-  event: FormEvent<HTMLSelectElement>,
-) {
-  i.setState(s => ((s.siteForm.captcha_difficulty = event.target.value), s));
+function handleSiteCaptchaDifficulty(i: SiteForm, val: CaptchaDifficulty) {
+  i.setState(s => ((s.siteForm.captcha_difficulty = val), s));
 }
 
 function handleDiscussionLanguageChange(i: SiteForm, val: number[]) {

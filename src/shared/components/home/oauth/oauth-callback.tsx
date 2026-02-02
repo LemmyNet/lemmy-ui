@@ -12,6 +12,7 @@ import { UnreadCounterService } from "../../../services";
 import { HttpService } from "../../../services/HttpService";
 import { toast } from "@utils/app";
 import { NoOptionI18nKeys } from "i18next";
+import { Action } from "history";
 
 interface OAuthCallbackProps {
   code?: string;
@@ -48,10 +49,6 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
   state: State = {
     siteRes: this.isoData.siteRes,
   };
-
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
 
   async componentDidMount() {
     // store state in local storage
@@ -172,7 +169,7 @@ async function handleOAuthLoginSuccess(
 
   if (prev) {
     i.props.history.replace(prev);
-  } else if (i.props.history.action === "PUSH") {
+  } else if (i.props.history.action === Action.Push) {
     i.props.history.back();
   } else {
     i.props.history.replace("/");

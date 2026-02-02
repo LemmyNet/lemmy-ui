@@ -74,10 +74,6 @@ interface PostListingsProps {
 export class PostListings extends Component<PostListingsProps, any> {
   duplicatesMap = new Map<number, PostView[]>();
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get posts() {
     return this.props.showCrossPosts !== "show_separately"
       ? this.removeDuplicates()

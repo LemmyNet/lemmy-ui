@@ -18,10 +18,6 @@ interface CommunityLinkProps {
 }
 
 export class CommunityLink extends Component<CommunityLinkProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const { community, useApubName } = this.props;
 
@@ -103,9 +99,12 @@ type CommunitySettingLinkProps = {
 export function CommunitySettingsLink({
   community,
 }: CommunitySettingLinkProps) {
-  const classes = classNames("btn btn-secondary d-block mb-2 w-100", {
-    "no-click": community.removed,
-  });
+  const classes = classNames(
+    "btn btn-light border-light-subtle d-block mb-2 w-100",
+    {
+      "no-click": community.removed,
+    },
+  );
 
   const link = `${communityLink(community).link}/settings`;
 

@@ -29,10 +29,6 @@ export class LoginReset extends Component<
     },
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   get documentTitle(): string {
     return `${capitalizeFirstLetter(
       I18NextService.i18n.t("forgot_password"),
@@ -93,7 +89,7 @@ export class LoginReset extends Component<
             <button
               type="button"
               onClick={linkEvent(this, this.handlePasswordReset)}
-              className="btn btn-secondary"
+              className="btn btn-light border-light-subtle"
               disabled={
                 !validEmail(this.state.form.email) || this.state.form.loading
               }

@@ -49,10 +49,6 @@ export class Setup extends Component<
     doneRegisteringUser: !!this.isoData.myUserInfo,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   async componentWillMount() {
     if (isBrowser()) {
       this.setState({ themeList: await fetchThemeList() });
@@ -148,7 +144,7 @@ export class Setup extends Component<
         </div>
         <div className="mb-3 row">
           <div className="col-sm-10">
-            <button type="submit" className="btn btn-secondary">
+            <button type="submit" className="btn btn-light border-light-subtle">
               {this.state.registerRes.state === "loading" ? (
                 <Spinner />
               ) : (

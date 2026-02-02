@@ -45,10 +45,6 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     collapsed: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <div className="site-sidebar accordion">
@@ -130,11 +126,17 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           blockButton
         />
         <CreateMultiCommunityButton myUserInfo={myUserInfo} blockButton />
-        <Link className="btn btn-secondary d-block mb-2 w-100" to="/modlog">
+        <Link
+          className="btn btn-light border-light-subtle d-block mb-2 w-100"
+          to="/modlog"
+        >
           {I18NextService.i18n.t("modlog")}
         </Link>
         {amAdmin(myUserInfo) && (
-          <Link className="btn btn-secondary d-block mb-2 w-100" to="/admin">
+          <Link
+            className="btn btn-light border-light-subtle d-block mb-2 w-100"
+            to="/admin"
+          >
             {I18NextService.i18n.t("settings")}
           </Link>
         )}
