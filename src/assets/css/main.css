@@ -515,3 +515,7 @@ em-emoji-picker {
   mask: var(--mask);
   max-height: 100px;
 }
+
+.legal-info-box {
+  max-height: 200px;
+}

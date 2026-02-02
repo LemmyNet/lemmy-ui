@@ -278,7 +278,14 @@ export class Signup extends Component<SignupRouteProps, State> {
         )}
         {this.renderCaptcha()}
         {siteView.local_site.legal_information && (
-          <div className="mb-3">
+          <div className="mb-3 card card-body ">
+            <div
+              className="mb-2 legal-info-box overflow-y-scroll md-div"
+              dangerouslySetInnerHTML={mdToHtml(
+                siteView.local_site.legal_information,
+                () => this.forceUpdate(),
+              )}
+            />
             <div className="form-check">
               <input
                 className="form-check-input"
