@@ -293,7 +293,7 @@ export default class ModActionFormModal extends Component<
             <footer className="modal-footer">
               <button
                 type="submit"
-                className="btn btn-secondary me-3"
+                className="btn btn-light border-light-subtle me-3"
                 form={formId}
                 disabled={loading}
               >

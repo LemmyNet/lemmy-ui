@@ -36,12 +36,15 @@ export function CreatePostButton({
   communityView,
   myUserInfo,
 }: CreatePostButtonProps) {
-  const classes = classNames("btn btn-secondary d-block mb-2 w-100", {
-    "no-click":
-      communityView?.community.deleted ||
-      communityView?.community.removed ||
-      userNotLoggedInOrBanned(myUserInfo),
-  });
+  const classes = classNames(
+    "btn btn-light border-light-subtle d-block mb-2 w-100",
+    {
+      "no-click":
+        communityView?.community.deleted ||
+        communityView?.community.removed ||
+        userNotLoggedInOrBanned(myUserInfo),
+    },
+  );
 
   const link = communityView
     ? "/create_post" +
@@ -58,16 +61,17 @@ export function CreatePostButton({
 type CreateCommunityButtonProps = {
   localSite?: LocalSite;
   myUserInfo: MyUserInfo | undefined;
-  blockButton?: boolean;
+  blockButton: boolean;
 };
 export function CreateCommunityButton({
   localSite,
   myUserInfo,
   blockButton,
 }: CreateCommunityButtonProps) {
-  const classes = classNames("btn btn-secondary", {
+  const classes = classNames({
     "no-click": !(localSite && canCreateCommunity(localSite, myUserInfo)),
-    "d-block mb-2 w-100": blockButton,
+    "btn btn-light border-light-subtle d-block mb-2 w-100": blockButton,
+    "btn btn-sm btn-light border-light-subtle": !blockButton,
   });
 
   return (
@@ -79,15 +83,16 @@ export function CreateCommunityButton({
 
 type CreateMultiCommunityButtonProps = {
   myUserInfo: MyUserInfo | undefined;
-  blockButton?: boolean;
+  blockButton: boolean;
 };
 export function CreateMultiCommunityButton({
   myUserInfo,
   blockButton,
 }: CreateMultiCommunityButtonProps) {
-  const classes = classNames("btn btn-secondary", {
+  const classes = classNames({
     "no-click": userNotLoggedInOrBanned(myUserInfo),
-    "d-block mb-2 w-100": blockButton,
+    "btn btn-light border-light-subtle d-block mb-2 w-100": blockButton,
+    "btn btn-sm btn-light border-light-subtle": !blockButton,
   });
 
   return (

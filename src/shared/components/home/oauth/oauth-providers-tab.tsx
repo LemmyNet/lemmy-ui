@@ -99,7 +99,7 @@ export default class OAuthProvidersTab extends Component<
         )}
         <button
           type="button"
-          className="btn btn-secondary btn-small mt-3"
+          className="btn btn-light border-light-subtle btn-small mt-3"
           onClick={() =>
             handleShowCreateOrEditProviderModal(this, {
               type: "add",
@@ -122,7 +122,7 @@ export default class OAuthProvidersTab extends Component<
                 return (
                   <li key={provider.issuer}>
                     <button
-                      className="btn btn-secondary btn-small"
+                      className="btn btn-light border-light-subtle btn-small"
                       disabled={isAlreadyUsed}
                       onClick={() =>
                         handleShowCreateOrEditProviderModal(this, {

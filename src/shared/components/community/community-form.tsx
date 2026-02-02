@@ -17,6 +17,7 @@ import { MarkdownTextArea } from "../common/markdown-textarea";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { validActorRegexPattern } from "@utils/config";
 import { userNotLoggedInOrBanned } from "@utils/app";
+import { CommunityVisibilityDropdown } from "@components/common/community-visibility-dropdown";
 
 interface CommunityFormProps {
   communityView?: CommunityView; // If a community is given, that means this is an edit
@@ -268,37 +269,15 @@ export class CommunityForm extends Component<
             </div>
           </div>
         )}
-        <div className="mb-3 row">
-          <legend className="col-form-label col-6 pt-0">
+        <div className="mb-3 row align-items-center">
+          <legend className="col-form-label col-sm-3">
             {I18NextService.i18n.t("community_visibility")}
           </legend>
-          <div className="col-6">
-            <select
-              className="form-select position-static"
-              id="community-visibility"
-              onChange={e => handleCommunityVisibilityChange(this, e)}
-              value={this.state.form.visibility ?? "public"}
-            >
-              <option value="public">
-                {I18NextService.i18n.t("community_visibility_public")}
-              </option>
-              <option value="unlisted">
-                {I18NextService.i18n.t("community_visibility_unlisted")}
-              </option>
-              <option value="local_only_public">
-                {I18NextService.i18n.t(
-                  "community_visibility_local_only_public",
-                )}
-              </option>
-              <option value="local_only_private">
-                {I18NextService.i18n.t(
-                  "community_visibility_local_only_private",
-                )}
-              </option>
-              <option value="private">
-                {I18NextService.i18n.t("community_visibility_private")}
-              </option>
-            </select>
+          <div className="col-sm-9">
+            <CommunityVisibilityDropdown
+              currentOption={this.state.form.visibility ?? "public"}
+              onSelect={val => handleCommunityVisibilityChange(this, val)}
+            />
           </div>
         </div>
         <div className="mb-3 row">
@@ -333,7 +312,7 @@ export class CommunityForm extends Component<
           <div className="col-12">
             <button
               type="submit"
-              className="btn btn-secondary me-2"
+              className="btn btn-light border-light-subtle me-2"
               disabled={this.props.createOrEditLoading}
             >
               {this.props.createOrEditLoading ? (
@@ -465,11 +444,9 @@ function handleCommunityPostingRestrictedToMods(
 
 function handleCommunityVisibilityChange(
   i: CommunityForm,
-  event: FormEvent<HTMLSelectElement>,
+  val: CommunityVisibility,
 ) {
-  i.setState(
-    s => ((s.form.visibility = event.target.value as CommunityVisibility), s),
-  );
+  i.setState(s => ((s.form.visibility = val), s));
 }
 
 function handleIconChange(i: CommunityForm, url?: string) {

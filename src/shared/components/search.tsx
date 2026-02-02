@@ -11,7 +11,6 @@ import {
 } from "@utils/app";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import {
-  capitalizeFirstLetter,
   debounce,
   dedupByProperty,
   getIdFromString,
@@ -42,6 +41,7 @@ import {
   MyUserInfo,
   CommentView,
   MultiCommunityView,
+  CommunitySortType,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -55,8 +55,7 @@ import {
 } from "../services/HttpService";
 import { CommentNodes } from "./comment/comment-nodes";
 import { HtmlTags } from "./common/html-tags";
-import { Spinner } from "./common/icon";
-import { ListingTypeSelect } from "./common/listing-type-select";
+import { Icon, Spinner } from "./common/icon";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
@@ -64,12 +63,16 @@ import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "./common/paginator-cursor";
-import { SearchSortSelect } from "./common/sort-select";
+import { SearchSortDropdown } from "./common/sort-dropdown";
 import { SearchableSelect } from "./common/searchable-select";
 import { UserBadges } from "./common/user-badges";
 import { CommunityBadges, MultiCommunityBadges } from "./common/badges";
 import { CommunityLink } from "./community/community-link";
 import { MultiCommunityLink } from "./multi-community/multi-community-link";
+import { ListingTypeDropdown } from "./common/listing-type-dropdown";
+import { SearchTypeDropdown } from "./common/search-type-dropdown";
+import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
+import { NoOptionI18nKeys } from "i18next";
 
 interface SearchProps {
   q?: string;
@@ -102,19 +105,10 @@ interface SearchState {
   isIsomorphic: boolean;
 }
 
-const defaultSearchType = "all";
-const defaultSearchSortType = "top";
-const defaultListingType = "all";
-const defaultCommunitySortType = "hot";
-
-const searchTypes = [
-  "all",
-  "comments",
-  "posts",
-  "communities",
-  "users",
-  "multi_communities",
-];
+const defaultSearchType: SearchType = "all";
+const defaultSearchSortType: SearchSortType = "top";
+const defaultListingType: ListingType = "all";
+const defaultCommunitySortType: CommunitySortType = "hot";
 
 export function getSearchQueryParams(source?: string): SearchProps {
   return getQueryParams<SearchProps>(
@@ -155,6 +149,7 @@ const getPostUrlOnlyFromQuery = (postUrlOnly?: string): boolean =>
 
 const Filter = ({
   filterType,
+  title,
   options,
   onChange,
   onSearch,
@@ -162,6 +157,7 @@ const Filter = ({
   loading,
 }: {
   filterType: FilterType;
+  title: NoOptionI18nKeys;
   options: Choice[];
   onSearch: (text: string) => void;
   onChange: (choice: Choice) => void;
@@ -169,24 +165,19 @@ const Filter = ({
   loading: boolean;
 }) => {
   return (
-    <div className="col-sm-6">
-      <label className="mb-1" htmlFor={`${filterType}-filter`}>
-        {capitalizeFirstLetter(I18NextService.i18n.t(filterType))}
-      </label>
-      <SearchableSelect
-        id={`${filterType}-filter`}
-        options={[
-          {
-            label: I18NextService.i18n.t("all") as string,
-            value: "0",
-          },
-        ].concat(dedupByProperty(options, option => option.value))}
-        value={value ?? 0}
-        onSearch={onSearch}
-        onChange={onChange}
-        loading={loading}
-      />
-    </div>
+    <SearchableSelect
+      id={`${filterType}-filter`}
+      options={[
+        {
+          label: I18NextService.i18n.t(title) as string,
+          value: "0",
+        },
+      ].concat(dedupByProperty(options, option => option.value))}
+      value={value ?? 0}
+      onSearch={onSearch}
+      onChange={onChange}
+      loading={loading}
+    />
   );
 };
 
@@ -765,11 +756,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           />
         </div>
         <div className="col-auto">
-          <button type="submit" className="btn btn-secondary mb-2">
+          <button
+            type="submit"
+            className="btn btn-light border-light-subtle mb-2"
+          >
             {this.state.searchRes.state === "loading" ? (
               <Spinner />
             ) : (
-              <span>{I18NextService.i18n.t("search")}</span>
+              <Icon icon="search" />
             )}
           </button>
         </div>
@@ -796,88 +790,68 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     return (
       <>
-        <div className="row row-cols-auto g-2 g-sm-3 mb-2 mb-sm-3">
+        <div className="row row-cols-auto align-items-center g-2 g-sm-3 mb-2 mb-sm-3">
           <div className="col">
-            <select
-              value={type}
-              onChange={e => handleTypeChange(this, e)}
-              className="form-select d-inline-block w-auto"
-              aria-label={I18NextService.i18n.t("type")}
-            >
-              <option disabled aria-hidden="true">
-                {I18NextService.i18n.t("type")}
-              </option>
-              {searchTypes.map((option: SearchType) => (
-                <option value={option} key={option}>
-                  {I18NextService.i18n.t(option.toLowerCase())}
-                </option>
-              ))}
-            </select>
+            <SearchTypeDropdown
+              currentOption={type}
+              onSelect={val => handleTypeChange(this, val)}
+            />
           </div>
           <div className="col">
-            <ListingTypeSelect
-              type_={listingType}
+            <ListingTypeDropdown
+              currentOption={listingType}
               showLocal={showLocal(this.isoData)}
               showSubscribed
-              onChange={type => handleListingTypeChange(this, type)}
+              onSelect={type => handleListingTypeChange(this, type)}
               myUserInfo={this.isoData.myUserInfo}
             />
           </div>
           {(type === "all" || type === "posts") && (
             <>
               <div className="col">
-                <input
-                  className="btn-check"
-                  id="title-only"
-                  type="checkbox"
-                  checked={titleOnly}
-                  onChange={e => handleTitleOnlyChange(this, e)}
+                <FilterChipCheckbox
+                  option={"post_title_only"}
+                  isChecked={titleOnly}
+                  onCheck={val => handleTitleOnlyChange(this, val)}
                 />
-                <label
-                  className="btn btn-outline-secondary"
-                  htmlFor="title-only"
-                >
-                  {I18NextService.i18n.t("post_title_only")}
-                </label>
               </div>
               <div className="col">
-                <input
-                  className="btn-check"
-                  id="url-only"
-                  type="checkbox"
-                  checked={postUrlOnly}
-                  onChange={e => handlePostUrlOnlyChange(this, e)}
+                <FilterChipCheckbox
+                  option={"post_url_only"}
+                  isChecked={postUrlOnly}
+                  onCheck={val => handlePostUrlOnlyChange(this, val)}
                 />
-                <label className="btn btn-outline-secondary" htmlFor="url-only">
-                  {I18NextService.i18n.t("post_url_only")}
-                </label>
               </div>
             </>
           )}
           <div className="col">
-            <SearchSortSelect
-              current={sort}
-              onChange={val => handleSortChange(this, val)}
+            <SearchSortDropdown
+              currentOption={sort}
+              onSelect={val => handleSortChange(this, val)}
             />
           </div>
-        </div>
-        <div className="row gy-2 gx-4 mb-3">
-          <Filter
-            filterType="community"
-            onChange={choice => handleCommunityFilterChange(this, choice)}
-            onSearch={text => handleCommunitySearch(this, text)}
-            options={communitySearchOptions}
-            value={communityId}
-            loading={searchCommunitiesLoading}
-          />
-          <Filter
-            filterType="creator"
-            onChange={choice => handleCreatorFilterChange(this, choice)}
-            onSearch={text => handleCreatorSearch(this, text)}
-            options={creatorSearchOptions}
-            value={creatorId}
-            loading={searchCreatorLoading}
-          />
+          <div className="col">
+            <Filter
+              filterType="community"
+              title="all_communities"
+              onChange={choice => handleCommunityFilterChange(this, choice)}
+              onSearch={text => handleCommunitySearch(this, text)}
+              options={communitySearchOptions}
+              value={communityId}
+              loading={searchCommunitiesLoading}
+            />
+          </div>
+          <div className="col">
+            <Filter
+              filterType="creator"
+              title="all_creators"
+              onChange={choice => handleCreatorFilterChange(this, choice)}
+              onSearch={text => handleCreatorSearch(this, text)}
+              options={creatorSearchOptions}
+              value={creatorId}
+              loading={searchCreatorLoading}
+            />
+          </div>
         </div>
       </>
     );
@@ -1211,24 +1185,17 @@ function handleSortChange(i: Search, sort: SearchSortType) {
   i.updateUrl({ sort, cursor: undefined, q: i.getQ() });
 }
 
-function handleTitleOnlyChange(i: Search, event: FormEvent<HTMLInputElement>) {
-  const titleOnly = event.target.checked;
+function handleTitleOnlyChange(i: Search, titleOnly: boolean) {
   // Don't allow post url and post title only to be checked at the same time
   i.updateUrl({ titleOnly, q: i.getQ(), postUrlOnly: false });
 }
 
-function handlePostUrlOnlyChange(
-  i: Search,
-  event: FormEvent<HTMLInputElement>,
-) {
-  const postUrlOnly = event.target.checked;
+function handlePostUrlOnlyChange(i: Search, postUrlOnly: boolean) {
   // Don't allow post url and post title only to be checked at the same time
   i.updateUrl({ postUrlOnly, q: i.getQ(), titleOnly: false });
 }
 
-function handleTypeChange(i: Search, event: FormEvent<HTMLSelectElement>) {
-  const type = event.target.value as SearchType;
-
+function handleTypeChange(i: Search, type: SearchType) {
   i.updateUrl({
     type,
     cursor: undefined,

@@ -106,7 +106,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 title={I18NextService.i18n.t("invalid_password")}
               />
               <button
-                className="btn btn-outline-dark"
+                className="btn btn-light border-light-subtle"
                 type="button"
                 id={id}
                 onClick={linkEvent(this, handleToggleShow)}

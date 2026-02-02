@@ -20,7 +20,6 @@ import {
   getApubName,
   getQueryParams,
   getQueryString,
-  randomStr,
   resourcesSettled,
   bareRoutePush,
 } from "@utils/helpers";
@@ -33,8 +32,7 @@ import {
   QueryParams,
   RouteDataResponse,
 } from "@utils/types";
-import classNames from "classnames";
-import { Component, createRef, FormEvent } from "inferno";
+import { Component, createRef } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -117,8 +115,10 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { compareAsc, compareDesc } from "date-fns";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
-import { PostNotificationSelect } from "@components/common/notification-select";
+import { PostNotificationsDropdown } from "@components/common/notifications-dropdown";
 import { Link } from "inferno-router";
+import { CommentSortDropdown } from "@components/common/sort-dropdown";
+import { CommentViewTypeDropdown } from "@components/common/comment-view-type-dropdown";
 
 const commentsShownInterval = 15;
 
@@ -658,7 +658,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               )}
               <div className="d-block d-md-none">
                 <button
-                  className="btn btn-secondary d-inline-block mb-2 me-3"
+                  className="btn btn-light border-light-subtle d-inline-block mb-2 me-3"
                   onClick={() => handleShowSidebarMobile(this)}
                 >
                   {I18NextService.i18n.t("sidebar")}{" "}
@@ -673,14 +673,28 @@ export class Post extends Component<PostRouteProps, PostState> {
                 </button>
                 {this.state.showSidebarMobile && this.sidebar()}
               </div>
-              <div className="col-12 d-flex flex-wrap">
-                {this.sortRadios()}
-                <div className="flex-grow-1"></div>
-                <div className="btn-group w-auto mb-2" role="group">
-                  <PostNotificationSelect
-                    current={this.state.notifications}
-                    onChange={val => handleNotificationChange(this, val)}
+              <hr />
+              <div className="row row-cols-auto align-items-center g-2 g-sm-3 mb-2 mb-sm-3">
+                <div className="col">
+                  <CommentSortDropdown
+                    currentOption={this.props.sort}
+                    onSelect={val => handleCommentSortChange(this, val)}
                   />
+                </div>
+                <div className="col me-auto">
+                  <CommentViewTypeDropdown
+                    currentOption={this.props.view}
+                    onSelect={val => handleCommentViewTypeChange(this, val)}
+                  />
+                </div>
+                <div className="col">
+                  <div className="btn-group w-auto mb-2" role="group">
+                    <Icon icon="bell" classes="me-2" />
+                    <PostNotificationsDropdown
+                      currentOption={this.state.notifications}
+                      onSelect={val => handleNotificationChange(this, val)}
+                    />
+                  </div>
                 </div>
               </div>
               {this.props.view === "tree" && this.commentsTree()}
@@ -697,124 +711,6 @@ export class Post extends Component<PostRouteProps, PostState> {
 
   render() {
     return <div className="post container-lg">{this.renderPostRes()}</div>;
-  }
-
-  sortRadios() {
-    const radioId =
-      this.state.postRes.state === "success"
-        ? this.state.postRes.data.post_view.post.id
-        : randomStr();
-
-    return (
-      <>
-        <div
-          className="btn-group btn-group-toggle flex-wrap me-3 mb-2"
-          role="group"
-        >
-          <input
-            id={`${radioId}-hot`}
-            type="radio"
-            className="btn-check"
-            value={"hot"}
-            checked={this.props.sort === "hot"}
-            onChange={e => handleCommentSortChange(this, e)}
-          />
-          <label
-            htmlFor={`${radioId}-hot`}
-            className={classNames("btn btn-outline-secondary pointer", {
-              active: this.props.sort === "hot",
-            })}
-          >
-            {I18NextService.i18n.t("hot")}
-          </label>
-          <input
-            id={`${radioId}-top`}
-            type="radio"
-            className="btn-check"
-            value={"top"}
-            checked={this.props.sort === "top"}
-            onChange={e => handleCommentSortChange(this, e)}
-          />
-          <label
-            htmlFor={`${radioId}-top`}
-            className={classNames("btn btn-outline-secondary pointer", {
-              active: this.props.sort === "top",
-            })}
-          >
-            {I18NextService.i18n.t("top")}
-          </label>
-          <input
-            id={`${radioId}-controversial`}
-            type="radio"
-            className="btn-check"
-            value={"controversial"}
-            checked={this.props.sort === "controversial"}
-            onChange={e => handleCommentSortChange(this, e)}
-          />
-          <label
-            htmlFor={`${radioId}-controversial`}
-            className={classNames("btn btn-outline-secondary pointer", {
-              active: this.props.sort === "controversial",
-            })}
-          >
-            {I18NextService.i18n.t("controversial")}
-          </label>
-          <input
-            id={`${radioId}-new`}
-            type="radio"
-            className="btn-check"
-            value={"new"}
-            checked={this.props.sort === "new"}
-            onChange={e => handleCommentSortChange(this, e)}
-          />
-          <label
-            htmlFor={`${radioId}-new`}
-            className={classNames("btn btn-outline-secondary pointer", {
-              active: this.props.sort === "new",
-            })}
-          >
-            {I18NextService.i18n.t("new")}
-          </label>
-          <input
-            id={`${radioId}-old`}
-            type="radio"
-            className="btn-check"
-            value={"old"}
-            checked={this.props.sort === "old"}
-            onChange={e => handleCommentSortChange(this, e)}
-          />
-          <label
-            htmlFor={`${radioId}-old`}
-            className={classNames("btn btn-outline-secondary pointer", {
-              active: this.props.sort === "old",
-            })}
-          >
-            {I18NextService.i18n.t("old")}
-          </label>
-        </div>
-        <div
-          className="btn-group btn-group-toggle flex-wrap mb-2 me-3"
-          role="group"
-        >
-          <input
-            id={`${radioId}-chat`}
-            type="radio"
-            className="btn-check"
-            value={"flat"}
-            checked={this.props.view === "flat"}
-            onChange={e => handleCommentViewTypeChange(this, e)}
-          />
-          <label
-            htmlFor={`${radioId}-chat`}
-            className={classNames("btn btn-outline-secondary pointer", {
-              active: this.props.view === "flat",
-            })}
-          >
-            {I18NextService.i18n.t("chat")}
-          </label>
-        </div>
-      </>
-    );
   }
 
   commentsFlat() {
@@ -1162,11 +1058,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 }
 
-async function handleCommentSortChange(
-  i: Post,
-  event: FormEvent<HTMLInputElement>,
-) {
-  const sort = event.target.value as CommentSortType;
+async function handleCommentSortChange(i: Post, sort: CommentSortType) {
   const flattenable = sort === "new" || sort === "old";
   if (flattenable || i.props.view !== "flat") {
     i.updateUrl({ sort });
@@ -1175,12 +1067,8 @@ async function handleCommentSortChange(
   }
 }
 
-function handleCommentViewTypeChange(
-  i: Post,
-  event: FormEvent<HTMLInputElement>,
-) {
+function handleCommentViewTypeChange(i: Post, view: CommentViewType) {
   const flattenable = i.props.sort === "new" || i.props.sort === "old";
-  const view = event.target.value as CommentViewType;
   if (flattenable || view !== "flat") {
     i.updateUrl({ view });
   } else {
