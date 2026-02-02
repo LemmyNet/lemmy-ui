@@ -39,7 +39,9 @@ const [hostname, port] = (() => {
 
   const lastIndex = host.lastIndexOf(":");
   if (lastIndex === -1) {
-    throw "LEMMY_UI_HOST must contain hostname and port (e.g. `0.0.0.0:1234`)";
+    throw new Error(
+      "LEMMY_UI_HOST must contain hostname and port (e.g. `0.0.0.0:1234`)",
+    );
   } else {
     const hostname = host.slice(0, lastIndex);
     const port = host.slice(lastIndex + 1);

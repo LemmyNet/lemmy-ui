@@ -43,14 +43,14 @@ export class UserService {
     }
   }
 
-  public logout() {
+  public async logout() {
     this.authInfo = undefined;
 
     if (isBrowser()) {
       clearAuthCookie();
     }
 
-    HttpService.client.logout();
+    await HttpService.client.logout();
 
     if (isAuthPath(location.pathname)) {
       location.replace("/");
@@ -77,12 +77,14 @@ export class UserService {
     }
   }
 
-  #setAuthInfo() {
+  async #setAuthInfo() {
     if (isBrowser()) {
       const auth = cookie.parse(document.cookie)[authCookieName];
 
       if (auth) {
-        HttpService.client.setHeaders({ Authorization: `Bearer ${auth}` });
+        await HttpService.client.setHeaders({
+          Authorization: `Bearer ${auth}`,
+        });
         this.authInfo = { auth, claims: jwtDecode(auth) };
       }
     }

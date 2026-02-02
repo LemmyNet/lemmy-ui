@@ -56,10 +56,6 @@ export class PrivateMessage extends Component<
     readLoading: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>,
   ) {

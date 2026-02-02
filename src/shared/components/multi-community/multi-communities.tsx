@@ -271,7 +271,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
     );
   }
 
-  async updateUrl(props: Partial<Props>) {
+  updateUrl(props: Partial<Props>) {
     const { listingType, sort } = { ...this.props, ...props };
 
     const queryParams: QueryParams<Props> = {
