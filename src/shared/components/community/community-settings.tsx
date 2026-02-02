@@ -6,7 +6,6 @@ import {
   getIdFromString,
   debounce,
   getApubName,
-  lowerCaseFirstLetter,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import {
@@ -38,6 +37,7 @@ import {
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
+import { T } from "inferno-i18next-dess";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -228,13 +228,14 @@ export class CommunitySettings extends Component<RouteProps, State> {
                     <>
                       <div className="row justify-content-md-center">
                         <h1 className="col-12 col-md-6 h4 mb-4">
-                          <CommunityLink
-                            community={getCommunityRes.community_view.community}
-                            myUserInfo={myUserInfo}
-                          />{" "}
-                          {lowerCaseFirstLetter(
-                            I18NextService.i18n.t("settings"),
-                          )}
+                          <T i18nKey="x_settings">
+                            <CommunityLink
+                              community={
+                                getCommunityRes.community_view.community
+                              }
+                              myUserInfo={myUserInfo}
+                            />
+                          </T>
                         </h1>
                       </div>
                       <div className="row justify-content-md-center">

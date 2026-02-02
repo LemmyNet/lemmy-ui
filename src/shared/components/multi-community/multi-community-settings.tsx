@@ -1,9 +1,5 @@
 import { setIsoData } from "@utils/app";
-import {
-  resourcesSettled,
-  bareRoutePush,
-  lowerCaseFirstLetter,
-} from "@utils/helpers";
+import { resourcesSettled, bareRoutePush } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode } from "inferno";
@@ -19,6 +15,7 @@ import {
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
+import { T } from "inferno-i18next-dess";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -176,11 +173,12 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
           <div className="row">
             <div className="col-12 col-md-6">
               <h1 className="h4 mb-4">
-                <MultiCommunityLink
-                  multiCommunity={getMultiRes.multi_community_view.multi}
-                  myUserInfo={myUserInfo}
-                />{" "}
-                {lowerCaseFirstLetter(I18NextService.i18n.t("settings"))}
+                <T i18nKey="x_settings">
+                  <MultiCommunityLink
+                    multiCommunity={getMultiRes.multi_community_view.multi}
+                    myUserInfo={myUserInfo}
+                  />
+                </T>
               </h1>
               <MultiCommunityForm
                 multiCommunityView={getMultiRes.multi_community_view}
