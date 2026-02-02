@@ -104,7 +104,7 @@ export function setAuthCookie(jwt: string) {
   });
 }
 
-export async function setThemeOverride(theme?: string) {
+export function setThemeOverride(theme?: string) {
   if (!isBrowser()) {
     return;
   }
@@ -113,9 +113,9 @@ export async function setThemeOverride(theme?: string) {
   );
 }
 
-export function share(shareData: ShareData) {
+export async function share(shareData: ShareData) {
   if (isBrowser()) {
-    navigator.share(shareData);
+    await navigator.share(shareData);
   }
 }
 

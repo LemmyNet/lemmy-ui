@@ -75,10 +75,6 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     showPurgeDialog: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const { communityView, myUserInfo } = this.props;
     const {

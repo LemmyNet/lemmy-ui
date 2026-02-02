@@ -91,10 +91,6 @@ interface PersonDetailsProps {
 }
 
 export class PersonDetails extends Component<PersonDetailsProps, any> {
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   renderItemType(i: PostCommentCombinedView): InfernoNode {
     switch (i.type_) {
       case "comment": {

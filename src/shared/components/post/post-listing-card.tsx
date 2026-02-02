@@ -101,10 +101,6 @@ export class PostListingCard extends Component<
     viewSource: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     const p = this.props;
 

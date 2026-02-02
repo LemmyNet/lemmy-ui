@@ -46,10 +46,6 @@ export default class ActionButton extends Component<
     loading: false,
   };
 
-  constructor(props: ActionButtonProps, context: any) {
-    super(props, context);
-  }
-
   render() {
     const { label, icon, iconClass, inline, inlineWithText } = this.props;
 

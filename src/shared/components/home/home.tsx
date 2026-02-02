@@ -667,7 +667,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     );
   }
 
-  async updateUrl(props: Partial<HomeProps>) {
+  updateUrl(props: Partial<HomeProps>) {
     const {
       postOrCommentType,
       listingType,
@@ -1419,7 +1419,7 @@ async function handleHideDonationDialog(myUserInfo?: MyUserInfo) {
   const res = await HttpService.client.donationDialogShown();
   if (res.state === "success") {
     if (myUserInfo !== undefined) {
-      myUserInfo!.local_user_view.local_user.last_donation_notification_at =
+      myUserInfo.local_user_view.local_user.last_donation_notification_at =
         new Date(0).toString();
     }
   }

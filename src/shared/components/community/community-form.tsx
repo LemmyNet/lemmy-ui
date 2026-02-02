@@ -61,10 +61,6 @@ export class CommunityForm extends Component<
     submitted: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   initCommunityForm() {
     const cv = this.props.communityView;
     return cv
@@ -329,7 +325,7 @@ export class CommunityForm extends Component<
                 className={`me-2 btn btn-${
                   !cv.community.deleted ? "danger" : "success"
                 }`}
-                onClick={() => handleDelete(this, !cv!.community.deleted)}
+                onClick={() => handleDelete(this, !cv.community.deleted)}
                 data-tippy-content={
                   !cv.community.deleted
                     ? I18NextService.i18n.t("delete")

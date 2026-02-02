@@ -35,6 +35,7 @@ import { formatRelativeDate, isWeekOld } from "@utils/date";
 import { TableHr } from "@components/common/tables";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { createRef } from "inferno";
+import { Action } from "history";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
 
 function getKindFromQuery(kind?: string): GetFederatedInstancesKind {
@@ -110,7 +111,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   }
 
   componentDidMount() {
-    if (this.props.history.action !== "POP" || this.state.isIsomorphic) {
+    if (this.props.history.action !== Action.Pop || this.state.isIsomorphic) {
       this.searchInput.current?.select();
     }
   }

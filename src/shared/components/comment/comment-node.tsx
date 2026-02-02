@@ -119,10 +119,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     fetchChildrenLoading: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>,
   ): void {

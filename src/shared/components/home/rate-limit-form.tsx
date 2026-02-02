@@ -123,10 +123,6 @@ export default class RateLimitsForm extends Component<
   state: RateLimitFormState = {
     form: this.props.rateLimits,
   };
-  constructor(props: RateLimitFormProps, context: any) {
-    super(props, context);
-  }
-
   render() {
     return (
       <form

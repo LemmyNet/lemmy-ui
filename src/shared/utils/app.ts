@@ -674,7 +674,7 @@ export function toast(text: string, background: ThemeColor = "success") {
   }
 }
 
-export async function pictrsDeleteToast(filename: string) {
+export function pictrsDeleteToast(filename: string) {
   if (isBrowser()) {
     const clickToDeleteText = I18NextService.i18n.t("click_to_delete_picture", {
       filename,

@@ -27,10 +27,6 @@ export class PrivateMessageReport extends Component<Props, State> {
     loading: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & Props>,
   ): void {

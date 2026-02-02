@@ -85,10 +85,6 @@ interface CommentNodesProps {
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
-  constructor(props: CommentNodesProps, context: any) {
-    super(props, context);
-  }
-
   render() {
     const maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
 

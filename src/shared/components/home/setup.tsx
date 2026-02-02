@@ -49,10 +49,6 @@ export class Setup extends Component<
     doneRegisteringUser: !!this.isoData.myUserInfo,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   async componentWillMount() {
     if (isBrowser()) {
       this.setState({ themeList: await fetchThemeList() });
