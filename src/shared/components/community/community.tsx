@@ -787,9 +787,9 @@ export class Community extends Component<CommunityRouteProps, State> {
             </div>
             <div className="col">
               <FilterChipCheckbox
-                option={"show_read_posts"}
-                isChecked={showRead ?? false}
-                onCheck={hidden => handleShowReadChange(this, hidden)}
+                option={"hide_read_posts"}
+                isChecked={!(showRead ?? false)}
+                onCheck={hideRead => handleHideReadChange(this, hideRead)}
               />
             </div>
           </>
@@ -925,9 +925,9 @@ function handleShowHiddenChange(i: Community, showHidden: boolean) {
   });
 }
 
-function handleShowReadChange(i: Community, showRead: boolean) {
+function handleHideReadChange(i: Community, hideRead: boolean) {
   i.updateUrl({
-    showRead,
+    showRead: !hideRead,
     cursor: undefined,
   });
 }

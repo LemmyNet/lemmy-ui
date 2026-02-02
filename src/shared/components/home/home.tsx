@@ -897,9 +897,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             </div>
             <div className="col">
               <FilterChipCheckbox
-                option={"show_read_posts"}
-                isChecked={showRead ?? false}
-                onCheck={hidden => handleShowReadChange(this, hidden)}
+                option={"hide_read_posts"}
+                isChecked={!(showRead ?? false)}
+                onCheck={hideRead => handleHideReadChange(this, hideRead)}
               />
             </div>
           </>
@@ -1156,9 +1156,9 @@ function handleShowHiddenChange(i: Home, showHidden: boolean) {
   });
 }
 
-function handleShowReadChange(i: Home, showRead: boolean) {
+function handleHideReadChange(i: Home, hideRead: boolean) {
   i.updateUrl({
-    showRead,
+    showRead: !hideRead,
     cursor: undefined,
   });
 }
