@@ -31,8 +31,8 @@ import {
   wrapClient,
 } from "@services/HttpService";
 import { HtmlTags } from "@components/common/html-tags";
-import { Spinner } from "@components/common/icon";
-import { MultiCommunitiesSortSelect } from "@components/common/sort-select";
+import { Icon, Spinner } from "@components/common/icon";
+import { MultiCommunitiesSortDropdown } from "@components/common/sort-dropdown";
 import { SubscribeButton } from "@components/common/subscribe-button";
 import { multiCommunityLimit } from "@utils/config";
 import { getHttpBaseInternal } from "@utils/env";
@@ -43,7 +43,7 @@ import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { TableHr } from "@components/common/tables";
 import { MultiCommunityLink } from "./multi-community-link";
-import { MultiCommunityListingTypeSelect } from "@components/common/multi-community-listing-type-select";
+import { MultiCommunityListingTypeDropdown } from "@components/common/multi-community-listing-type-dropdown";
 import { CreateMultiCommunityButton } from "@components/common/content-actions/create-item-buttons";
 
 type MultiCommunitiesData = RouteDataResponse<{
@@ -211,26 +211,28 @@ export class MultiCommunities extends Component<RouteProps, State> {
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("multi_communities")}
           </h1>
-          <div className="row g-3 align-items-center mb-2">
-            <div className="col-auto">
-              <MultiCommunityListingTypeSelect
-                type_={listingType}
+          <div className="row row-cols-auto align-items-center g-3 mb-2">
+            <div className="col">
+              <MultiCommunityListingTypeDropdown
+                currentOption={listingType}
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
+                onSelect={val => handleListingTypeChange(this, val)}
+              />
+            </div>
+            <div className="col">
+              <MultiCommunitiesSortDropdown
+                currentOption={sort}
+                onSelect={val => handleSortChange(this, val)}
+              />
+            </div>
+            <div className="col me-auto">
+              <CreateMultiCommunityButton
                 myUserInfo={myUserInfo}
-                onChange={val => handleListingTypeChange(this, val)}
+                blockButton={false}
               />
             </div>
-            <div className="col-auto">
-              <MultiCommunitiesSortSelect
-                current={sort}
-                onChange={val => handleSortChange(this, val)}
-              />
-            </div>
-            <div className="col-auto me-auto">
-              <CreateMultiCommunityButton myUserInfo={myUserInfo} />
-            </div>
-            <div className="col-auto">{this.searchForm()}</div>
+            <div className="col">{this.searchForm()}</div>
           </div>
           <div>{this.renderListingsTable()}</div>
           <PaginatorCursor
@@ -245,27 +247,26 @@ export class MultiCommunities extends Component<RouteProps, State> {
 
   searchForm() {
     return (
-      <form className="row" onSubmit={e => handleSearchSubmit(this, e)}>
-        <div className="col-auto">
-          <input
-            type="text"
-            id="communities-search"
-            className="form-control"
-            value={this.state.searchText}
-            placeholder={`${I18NextService.i18n.t("search")}...`}
-            onInput={e => handleSearchChange(this, e)}
-            required
-            minLength={3}
-          />
-        </div>
-        <div className="col-auto">
-          <label className="visually-hidden" htmlFor="communities-search">
-            {I18NextService.i18n.t("search")}
-          </label>
-          <button type="submit" className="btn btn-secondary">
-            <span>{I18NextService.i18n.t("search")}</span>
-          </button>
-        </div>
+      <form className="d-flex col" onSubmit={e => handleSearchSubmit(this, e)}>
+        <input
+          type="text"
+          id="communities-search"
+          className="form-control"
+          value={this.state.searchText}
+          placeholder={`${I18NextService.i18n.t("search")}...`}
+          onInput={e => handleSearchChange(this, e)}
+          required
+          minLength={3}
+        />
+        <label className="visually-hidden" htmlFor="communities-search">
+          {I18NextService.i18n.t("search")}
+        </label>
+        <button
+          type="submit"
+          className="btn btn-light border-light-subtle ms-1"
+        >
+          <Icon icon="search" />
+        </button>
       </form>
     );
   }

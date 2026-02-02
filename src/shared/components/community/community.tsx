@@ -22,7 +22,7 @@ import {
   bareRoutePush,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type { ItemIdAndRes, QueryParams, StringBoolean } from "@utils/types";
+import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode, RefObject, createRef } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -96,10 +96,10 @@ import {
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
-import { PostOrCommentTypeSelect } from "../common/post-or-comment-type-select";
+import { PostOrCommentTypeDropdown } from "../common/post-or-comment-type-dropdown";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import { PostSortSelect, CommentSortSelect } from "../common/sort-select";
+import { PostSortDropdown, CommentSortDropdown } from "../common/sort-dropdown";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { PaginatorCursor } from "../common/paginator-cursor";
@@ -110,14 +110,14 @@ import {
 } from "../common/loading-skeleton";
 import { CommunitySidebar } from "./community-sidebar";
 import { IRoutePropsWithFetch } from "@utils/routes";
-import PostHiddenSelect from "../common/post-hidden-select";
 import { isBrowser } from "@utils/browser";
 import { CommunityHeader } from "./community-header";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
-import { TimeIntervalSelect } from "@components/common/time-interval-select";
-import { PostListingModeSelect } from "@components/common/post-listing-mode-select";
+import { TimeIntervalFilter } from "@components/common/time-interval-filter";
+import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { communityName } from "./community-link";
+import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -147,7 +147,7 @@ interface CommunityProps {
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
   cursor?: PaginationCursor;
-  showHidden?: StringBoolean;
+  showHidden?: boolean;
 }
 
 type Fallbacks = {
@@ -168,7 +168,7 @@ export function getCommunityQueryParams(
       cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
       postTimeRange: getPostTimeRangeFromQuery,
-      showHidden: (include?: StringBoolean) => include,
+      showHidden: getShowHiddenFromQuery,
     },
     source,
     {
@@ -195,6 +195,10 @@ function getPostTimeRangeFromQuery(
   fallback: number,
 ): number {
   return type ? Number(type) : fallback;
+}
+
+function getShowHiddenFromQuery(hidden: string | undefined): boolean {
+  return hidden === "true";
 }
 
 type CommunityPathProps = { name: string };
@@ -317,7 +321,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         type_: "all",
-        show_hidden: showHidden === "true",
+        show_hidden: showHidden,
         page_cursor: cursor,
       };
 
@@ -366,7 +370,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       postOrCommentType: postOrCommentType ?? "post",
       cursor,
       sort,
-      showHidden: showHidden,
+      showHidden: showHidden?.toString(),
     };
 
     this.props.history.push(`/c/${name}${getQueryString(queryParams)}`);
@@ -387,7 +391,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         time_range_seconds: postTimeRange,
         type_: "all",
         community_name: name,
-        show_hidden: showHidden === "true",
+        show_hidden: showHidden,
       });
       if (token === this.fetchDataToken) {
         this.setState({ postsRes });
@@ -440,7 +444,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         {this.communityInfo()}
         <div className="d-block d-md-none">
           <button
-            className="btn btn-secondary d-inline-block mb-2 me-3"
+            className="btn btn-sm btn-light border-light-subtle d-inline-block mb-2 me-3"
             onClick={() => handleShowSidebarMobile(this)}
           >
             {I18NextService.i18n.t("sidebar")}{" "}
@@ -551,7 +555,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     return (
       <div className="my-2">
         <button
-          className="btn btn-secondary"
+          className="btn btn-light border-light-subtle"
           onClick={() => handleMarkPageAsRead(this, myUserInfo)}
         >
           {I18NextService.i18n.t("mark_page_as_read")}
@@ -736,52 +740,53 @@ export class Community extends Component<CommunityRouteProps, State> {
     const myUserInfo = this.isoData.myUserInfo;
 
     return (
-      <div className="row align-items-center mb-3 g-3">
-        <div className="col-auto">
-          <PostOrCommentTypeSelect
-            type_={postOrCommentType}
-            onChange={val => handlePostOrCommentTypeChange(this, val)}
+      <div className="row row-cols-auto align-items-center g-3 mb-3">
+        <div className="col">
+          <PostOrCommentTypeDropdown
+            currentOption={postOrCommentType}
+            onSelect={val => handlePostOrCommentTypeChange(this, val)}
           />
         </div>
         {postOrCommentType === "post" && myUserInfo && (
-          <div className="col-auto">
-            <PostHiddenSelect
-              showHidden={showHidden}
-              onShowHiddenChange={val => handleShowHiddenChange(this, val)}
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_hidden_posts"}
+              isChecked={showHidden ?? false}
+              onCheck={hidden => handleShowHiddenChange(this, hidden)}
             />
           </div>
         )}
-        <div className="col-auto">
-          <PostListingModeSelect
-            current={this.state.postListingMode}
-            onChange={val => handlePostListingModeChange(this, val, myUserInfo)}
+        <div className="col">
+          <PostListingModeDropdown
+            currentOption={this.state.postListingMode}
+            onSelect={val => handlePostListingModeChange(this, val, myUserInfo)}
           />
         </div>
         {this.props.postOrCommentType === "post" ? (
           <>
-            <div className="col-auto">
-              <PostSortSelect
-                current={mixedToPostSortType(sort)}
-                onChange={val => handleSortChange(this, val)}
+            <div className="col">
+              <PostSortDropdown
+                currentOption={mixedToPostSortType(sort)}
+                onSelect={val => handleSortChange(this, val)}
               />
             </div>
-            <div className="col-6 col-md-3">
-              <TimeIntervalSelect
+            <div className="col">
+              <TimeIntervalFilter
                 currentSeconds={postTimeRange}
                 onChange={val => handlePostTimeRangeChange(this, val)}
               />
             </div>
           </>
         ) : (
-          <div className="col-auto">
-            <CommentSortSelect
-              current={mixedToCommentSortType(sort)}
-              onChange={val => handleCommentSortChange(this, val)}
+          <div className="col">
+            <CommentSortDropdown
+              currentOption={mixedToCommentSortType(sort)}
+              onSelect={val => handleCommentSortChange(this, val)}
             />
           </div>
         )}
         {communityRss && (
-          <div className="col-auto">
+          <div className="col">
             <a href={communityRss} title="RSS" rel={relTags}>
               <Icon icon="rss" classes="text-muted small" />
             </a>
@@ -875,9 +880,9 @@ async function handlePostListingModeChange(
   }
 }
 
-function handleShowHiddenChange(i: Community, show?: StringBoolean) {
+function handleShowHiddenChange(i: Community, showHidden: boolean) {
   i.updateUrl({
-    showHidden: show,
+    showHidden,
     cursor: undefined,
   });
 }
