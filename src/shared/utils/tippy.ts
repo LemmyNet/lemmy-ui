@@ -28,7 +28,7 @@ const tippyDelegateOptions: Partial<TippyProps> & { target: string } = {
   onDestroy(i: TippyInstance<TippyProps>) {
     // Tippy doesn't remove its onDocumentPress listener when destroyed.
     // Instead the listener removes itself after calling hide for hideOnClick.
-    const origHide = i.hide;
+    const origHide = () => i.hide();
     // This silences the first warning when hiding a destroyed tippy instance.
     // hide() is otherwise a noop for destroyed instances.
     i.hide = () => {
