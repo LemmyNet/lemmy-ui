@@ -26,12 +26,14 @@ import {
   GetCommunityResponse,
   LemmyHttp,
   PagedResponse,
+  PostResponse,
 } from "lemmy-js-client";
 import { InitialFetchRequest, PostFormParams } from "@utils/types";
 import { FirstLoadService, I18NextService } from "@services/index";
 import {
   EMPTY_REQUEST,
   HttpService,
+  LOADING_REQUEST,
   RequestState,
   WrappedLemmyHttp,
   wrapClient,
@@ -92,7 +94,7 @@ function stringAsQueryParam(param?: string) {
 }
 
 interface CreatePostState {
-  loading: boolean;
+  createPostRes: RequestState<PostResponse>;
   selectedCommunity?: CommunityView;
   selectedCommunityIsNsfw: boolean;
   initialCommunitiesRes: RequestState<PagedResponse<CommunityView>>;
@@ -117,7 +119,7 @@ export class CreatePost extends Component<
 > {
   private isoData = setIsoData<CreatePostData>(this.context);
   state: CreatePostState = {
-    loading: false,
+    createPostRes: EMPTY_REQUEST,
     initialCommunitiesRes: EMPTY_REQUEST,
     isIsomorphic: false,
     resetCounter: 0,
@@ -135,7 +137,6 @@ export class CreatePost extends Component<
 
       this.state = {
         ...this.state,
-        loading: false,
         initialCommunitiesRes,
         isIsomorphic: true,
       };
@@ -158,7 +159,6 @@ export class CreatePost extends Component<
         this.setState({
           selectedCommunity: res.data.community_view,
           selectedCommunityIsNsfw: res.data.community_view.community.nsfw,
-          loading: false,
         });
       }
     }
@@ -184,7 +184,6 @@ export class CreatePost extends Component<
       } else if (!communityId) {
         this.setState({
           selectedCommunity: undefined,
-          loading: false,
         });
       }
 
@@ -222,7 +221,14 @@ export class CreatePost extends Component<
   }
 
   render() {
-    const { selectedCommunity, selectedCommunityIsNsfw, loading } = this.state;
+    const {
+      selectedCommunity,
+      selectedCommunityIsNsfw,
+      createPostRes,
+      showSidebarMobile,
+      resetCounter,
+      initialCommunitiesRes,
+    } = this.state;
     const {
       body,
       communityId,
@@ -245,7 +251,8 @@ export class CreatePost extends Component<
       alt_text: altText,
     };
 
-    const siteRes = this.isoData.siteRes;
+    const { siteRes, myUserInfo, showAdultConsentModal } = this.isoData;
+
     const selectedCommunityChoice = selectedCommunity
       ? communityToChoice(selectedCommunity)
       : undefined;
@@ -259,32 +266,32 @@ export class CreatePost extends Component<
           <div id="createPostForm" className="col-12 col-lg-6 offset-lg-2 mb-4">
             <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>
             <PostForm
-              key={this.state.resetCounter}
+              key={resetCounter}
               onCreate={(form, bypassNav) =>
                 handlePostCreate(this, form, bypassNav)
               }
               params={params}
               enableNsfw={enableNsfw(siteRes)}
-              showAdultConsentModal={this.isoData.showAdultConsentModal}
+              showAdultConsentModal={showAdultConsentModal}
               allLanguages={siteRes?.all_languages}
               siteLanguages={siteRes?.discussion_languages}
               selectedCommunityChoice={selectedCommunityChoice}
               onSelectCommunity={form =>
                 handleSelectedCommunityChange(this, form)
               }
-              selectedCommunityTags={this.state.selectedCommunity?.tags}
+              selectedCommunityTags={selectedCommunity?.tags}
               initialCommunities={
-                this.state.initialCommunitiesRes.state === "success"
+                initialCommunitiesRes.state === "success"
                   ? filterCommunitySelection(
-                      this.state.initialCommunitiesRes.data.items,
-                      this.isoData.myUserInfo,
+                      initialCommunitiesRes.data.items,
+                      myUserInfo,
                     )
                   : []
               }
-              loading={loading}
-              myUserInfo={this.isoData.myUserInfo}
+              loading={createPostRes.state === "loading"}
+              myUserInfo={myUserInfo}
               localSite={siteRes.site_view.local_site}
-              admins={this.isoData.siteRes.admins}
+              admins={siteRes.admins}
               onBodyBlur={form => handleBodyBlur(this, form)}
               onLanguageChange={languangeId =>
                 handleLanguageChange(this, languangeId)
@@ -302,18 +309,16 @@ export class CreatePost extends Component<
           </div>
           <div className="d-block d-md-none">
             <button
-              className="btn btn-secondary d-inline-block mb-2 me-3"
+              className="btn btn-light border-light-subtle d-inline-block mb-2 me-3"
               onClick={() => handleShowSidebarMobile(this)}
             >
               {I18NextService.i18n.t("sidebar")}{" "}
               <Icon
-                icon={
-                  this.state.showSidebarMobile ? `minus-square` : `plus-square`
-                }
+                icon={showSidebarMobile ? `minus-square` : `plus-square`}
                 classes="icon-inline"
               />
             </button>
-            {this.state.showSidebarMobile && this.sidebar()}
+            {showSidebarMobile && this.sidebar()}
           </div>
           <aside className="d-none d-md-block col-md-4 col-lg-3">
             {this.sidebar()}
@@ -453,17 +458,15 @@ async function handlePostCreate(
   form: CreatePostI,
   bypassNavWarning: () => void,
 ) {
-  i.setState({ loading: true });
+  i.setState({ createPostRes: LOADING_REQUEST });
   const res = await HttpService.client.createPost(form);
+  i.setState({ createPostRes: res });
 
   if (res.state === "success") {
     const postId = res.data.post_view.post.id;
     bypassNavWarning();
     i.props.history.replace(`/post/${postId}`);
   } else if (res.state === "failed") {
-    i.setState({
-      loading: false,
-    });
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
 }

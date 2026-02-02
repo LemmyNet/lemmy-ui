@@ -102,37 +102,57 @@ export class LanguageSelect extends Component<
       this.props.myUserInfo,
     );
 
+    const selectedLangsNames = filteredLangs
+      .filter(l => selectedLangs?.includes(l.id))
+      .map(l => languageName(l))
+      .join(",");
+
     return (
-      <select
-        className={classNames("form-select w-auto", {
-          "d-inline-block": !this.props.iconVersion,
-        })}
-        id={this.id}
-        onChange={linkEvent(this, this.handleSelectLanguageChange)}
-        aria-label={I18NextService.i18n.t("language_select_placeholder")}
-        aria-describedby={
-          this.props.multiple && this.props.showLanguageWarning
-            ? "lang-warning"
-            : ""
-        }
-        multiple={this.props.multiple}
-        disabled={this.props.disabled}
-      >
-        {!this.props.multiple && (
-          <option selected disabled hidden>
-            {I18NextService.i18n.t("language_select_placeholder")}
-          </option>
-        )}
-        {filteredLangs.map(l => (
-          <option
-            key={l.id}
-            value={l.id}
-            selected={selectedLangs?.includes(l.id)}
-          >
-            {languageName(l)}
-          </option>
-        ))}
-      </select>
+      <div className="dropdown">
+        <button
+          className={classNames(
+            "dropdown-toggle btn btn-sm btn-light border-light-subtle",
+            {
+              "d-inline-block": !this.props.iconVersion,
+            },
+          )}
+          id={this.id}
+          type="button"
+          aria-expanded={false}
+          data-bs-toggle="dropdown"
+          onChange={linkEvent(this, this.handleSelectLanguageChange)}
+          aria-label={I18NextService.i18n.t("language_select_placeholder")}
+          aria-describedby={
+            this.props.multiple && this.props.showLanguageWarning
+              ? "lang-warning"
+              : ""
+          }
+          disabled={this.props.disabled}
+        >
+          {selectedLangsNames
+            ? selectedLangsNames
+            : I18NextService.i18n.t("language_select_placeholder")}
+        </button>
+        <ul className="dropdown-menu">
+          {filteredLangs.map(l => (
+            <li>
+              <button
+                className={classNames("dropdown-item", {
+                  "fw-bold": selectedLangs?.includes(l.id),
+                })}
+                id={`language-option-{l.id}`}
+                value={l.id}
+                type="button"
+                role="option"
+                aria-selected={selectedLangs?.includes(l.id)}
+                onClick={() => this.props.onChange([l.id])}
+              >
+                {languageName(l)}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
 

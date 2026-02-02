@@ -128,7 +128,7 @@ export default class TotpModal extends Component<
               {type === "generate" && (
                 <div>
                   <a
-                    className="btn btn-secondary mx-auto d-block totp-link"
+                    className="btn btn-light border-light-subtle mx-auto d-block totp-link"
                     href={secretUrl}
                   >
                     {I18NextService.i18n.t("totp_link")}
@@ -173,7 +173,7 @@ export default class TotpModal extends Component<
             <footer className="modal-footer">
               <button
                 type="submit"
-                className="btn btn-success"
+                className="btn btn-light border-light-subtle"
                 form="totp-form"
                 disabled={totp.length !== TOTP_LENGTH || pending}
               >
@@ -181,7 +181,7 @@ export default class TotpModal extends Component<
               </button>
               <button
                 type="button"
-                className="btn btn-danger"
+                className="btn btn-light border-light-subtle"
                 onClick={onClose}
               >
                 {I18NextService.i18n.t("cancel")}
