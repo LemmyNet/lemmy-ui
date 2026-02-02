@@ -123,7 +123,6 @@ interface PostFormState {
   communitySearchLoading: boolean;
   communitySearchOptions: Choice[];
   previewMode: boolean;
-  submitted: boolean;
   bypassNavWarning: boolean;
 }
 
@@ -137,7 +136,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     communitySearchLoading: false,
     previewMode: false,
     communitySearchOptions: [],
-    submitted: false,
     bypassNavWarning: false,
   };
 
@@ -244,7 +242,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       });
     }
     if (this.props.loading && !nextProps.loading) {
-      this.setState({ submitted: false, bypassNavWarning: false });
+      this.setState({ bypassNavWarning: false });
     }
     if (this.props.params !== nextProps.params && nextProps.params) {
       const params = nextProps.params;
@@ -581,11 +579,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button
-              disabled={
-                !this.state.form.community_id ||
-                this.props.loading ||
-                this.state.submitted
-              }
+              disabled={!this.state.form.community_id || this.props.loading}
               type="submit"
               className="btn btn-light border-light-subtle me-2"
             >
@@ -751,9 +745,6 @@ function handlePostSubmit(i: PostForm, event: FormEvent<HTMLFormElement>) {
   if ((i.state.form.url ?? "") === "") {
     i.setState(s => ((s.form.url = undefined), s));
   }
-  // This forces `props.loading` to become true, then false, to enable the
-  // submit button again.
-  i.setState({ submitted: true });
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
