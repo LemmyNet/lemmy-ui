@@ -1,7 +1,11 @@
 import { tippyMixin } from "@components/mixins/tippy-mixin";
 import { mdToHtml } from "@utils/markdown";
 import { isAudio, isImage, isMagnetLink, isVideo } from "@utils/media";
-import { ShowBodyType, ShowCrossPostsType } from "@utils/types";
+import {
+  ShowBodyType,
+  ShowCrossPostsType,
+  ShowMarkReadType,
+} from "@utils/types";
 import { Component } from "inferno";
 import {
   AddAdmin,
@@ -65,7 +69,7 @@ type PostListingCardProps = {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   showCrossPosts: ShowCrossPostsType;
-  markable: boolean;
+  showMarkRead: ShowMarkReadType;
   disableAutoMarkAsRead: boolean;
   editLoading: boolean;
   onEditClick(): void;
@@ -174,7 +178,7 @@ export class PostListingCard extends Component<
             postView={p.postView}
             admins={p.admins}
             showBody={p.showBody}
-            markable={p.markable}
+            showMarkRead={p.showMarkRead}
             viewOnly={p.viewOnly}
             viewSource={this.state.viewSource}
             myUserInfo={p.myUserInfo}

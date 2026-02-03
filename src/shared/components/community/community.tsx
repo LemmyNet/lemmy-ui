@@ -616,7 +616,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             <PostListings
               posts={this.state.postsRes.data.items}
               showCrossPosts="show_separately"
-              markable
+              showMarkRead="dropdown"
               showCommunity={false}
               viewOnly={false}
               enableNsfw={enableNsfw(siteRes)}
@@ -675,6 +675,8 @@ export class Community extends Component<CommunityRouteProps, State> {
               showContext
               showCommunity={false}
               hideImages={false}
+              showMarkRead={"hide"}
+              markReadLoading={undefined}
               admins={siteRes.admins}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
@@ -705,6 +707,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onEditComment={form => handleEditComment(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               onLockComment={form => handleLockComment(this, form)}
+              onMarkRead={async () => {}}
             />
           );
       }
