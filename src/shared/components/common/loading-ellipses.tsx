@@ -11,10 +11,6 @@ export class LoadingEllipses extends Component<any, LoadingEllipsesState> {
   };
   #interval?: NodeJS.Timeout;
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   render() {
     return this.state.ellipses;
   }

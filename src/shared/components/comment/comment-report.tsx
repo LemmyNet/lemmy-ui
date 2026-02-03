@@ -49,10 +49,6 @@ export class CommentReport extends Component<
     showRemoveCommentDialog: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & CommentReportProps>,
   ): void {

@@ -35,10 +35,8 @@ import { formatRelativeDate, isWeekOld } from "@utils/date";
 import { TableHr } from "@components/common/tables";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { createRef } from "inferno";
-import {
-  FilterChipDropdown,
-  FilterOption,
-} from "@components/common/filter-chip-dropdown";
+import { Action } from "history";
+import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
 
 function getKindFromQuery(kind?: string): GetFederatedInstancesKind {
   return kind ? (kind as GetFederatedInstancesKind) : "all";
@@ -79,13 +77,6 @@ export type InstancesFetchConfig = IRoutePropsWithFetch<
   InstancesProps
 >;
 
-const filterOptions: FilterOption<GetFederatedInstancesKind>[] = [
-  { value: "all", i18n: "all" },
-  { value: "linked", i18n: "linked_instances" },
-  { value: "allowed", i18n: "allowed_instances" },
-  { value: "blocked", i18n: "blocked_instances" },
-];
-
 @scrollMixin
 export class Instances extends Component<InstancesRouteProps, InstancesState> {
   private isoData = setIsoData<InstancesData>(this.context);
@@ -120,7 +111,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   }
 
   componentDidMount() {
-    if (this.props.history.action !== "POP" || this.state.isIsomorphic) {
+    if (this.props.history.action !== Action.Pop || this.state.isIsomorphic) {
       this.searchInput.current?.select();
     }
   }
@@ -181,7 +172,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
       case "success": {
         const instances = this.state.instancesRes.data.items;
         return instances ? (
-          <InstanceList instances={instances} />
+          <InstanceList instances={instances} showRemove={false} />
         ) : (
           <h5>No linked instance</h5>
         );
@@ -223,9 +214,8 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-2">
         <div className="col me-auto">
-          <FilterChipDropdown
-            allOptions={filterOptions}
-            currentOption={filterOptions.find(t => t.value === this.props.kind)}
+          <InstancesKindDropdown
+            currentOption={this.props.kind}
             onSelect={val => handleKindChange(this, val)}
           />
         </div>
@@ -261,6 +251,7 @@ interface InstanceListProps {
   instances: FederatedInstanceView[];
   hideNoneFound?: boolean;
   onRemove?(instance: string): void;
+  showRemove: boolean;
   cursor?: PaginationCursor;
 }
 
@@ -268,6 +259,7 @@ export function InstanceList({
   instances,
   hideNoneFound,
   onRemove,
+  showRemove,
 }: InstanceListProps) {
   const nameCols = "col-12 col-md-6";
   const otherCols = "col-4 col-md-2";
@@ -300,7 +292,7 @@ export function InstanceList({
               ) : (
                 <span>{i.instance.domain}</span>
               )}
-              {onRemove !== undefined && (
+              {showRemove && onRemove && (
                 <button
                   className="btn btn-link"
                   onClick={() => onRemove(i.instance.domain)}

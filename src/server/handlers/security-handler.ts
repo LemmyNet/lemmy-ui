@@ -2,7 +2,7 @@ import type { Response } from "express";
 import { BUILD_DATE_ISO8601 } from "../../shared/build-date";
 import { parseISO } from "date-fns";
 
-export default async ({ res }: { res: Response }) => {
+export default ({ res }: { res: Response }) => {
   const buildDatePlusYear = parseISO(BUILD_DATE_ISO8601);
 
   // Add a year to the build date

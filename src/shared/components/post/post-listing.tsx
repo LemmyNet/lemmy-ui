@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -88,10 +88,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     showEdit: false,
   };
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   unlisten = () => {};
 
   componentWillMount(): void {
@@ -105,6 +101,15 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentWillUnmount(): void {
     this.unlisten();
+  }
+
+  componentWillReceiveProps(
+    nextProps: Readonly<{ children?: InfernoNode } & PostListingProps>,
+  ): void {
+    // Close the post edit form if it goes from loading to not.
+    if (this.props.editLoading && !nextProps.editLoading) {
+      this.setState({ showEdit: false });
+    }
   }
 
   render() {

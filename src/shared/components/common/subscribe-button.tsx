@@ -145,10 +145,6 @@ class RemoteFetchModal extends Component<
   modalDivRef = createRef<HTMLDivElement>();
   inputRef = createRef<HTMLInputElement>();
 
-  constructor(props: any, context: any) {
-    super(props, context);
-  }
-
   handleShow() {
     this.inputRef.current?.focus();
   }
