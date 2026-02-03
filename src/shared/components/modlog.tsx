@@ -580,7 +580,7 @@ const Filter = ({
     value={value ?? 0}
     options={[
       {
-        label: I18NextService.i18n.t(title),
+        label: I18NextService.i18n.t(title) as string,
         value: "0",
       },
     ].concat(options)}

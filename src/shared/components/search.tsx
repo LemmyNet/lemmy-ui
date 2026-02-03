@@ -170,7 +170,7 @@ const Filter = ({
       id={`${filterType}-filter`}
       options={[
         {
-          label: I18NextService.i18n.t(title),
+          label: I18NextService.i18n.t(title) as string,
           value: "0",
         },
       ].concat(dedupByProperty(options, option => option.value))}
