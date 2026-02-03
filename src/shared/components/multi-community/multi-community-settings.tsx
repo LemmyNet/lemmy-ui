@@ -15,6 +15,7 @@ import {
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
+import { T } from "inferno-i18next-dess";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -33,6 +34,7 @@ import {
   MultiCommunityEntryForm,
   MultiCommunityEntryList,
 } from "./multi-community-entry-form";
+import { MultiCommunityLink } from "./multi-community-link";
 
 type MultiCommunitySettingsData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
@@ -159,6 +161,7 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
   render() {
     const getMultiRes =
       this.state.multiRes.state === "success" && this.state.multiRes.data;
+    const myUserInfo = this.isoData.myUserInfo;
 
     return (
       getMultiRes && (
@@ -169,14 +172,21 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
           />
           <div className="row">
             <div className="col-12 col-md-6">
-              <h1 className="h4 mb-4">{I18NextService.i18n.t("settings")}</h1>
+              <h1 className="h4 mb-4">
+                <T i18nKey="x_settings">
+                  <MultiCommunityLink
+                    multiCommunity={getMultiRes.multi_community_view.multi}
+                    myUserInfo={myUserInfo}
+                  />
+                </T>
+              </h1>
               <MultiCommunityForm
                 multiCommunityView={getMultiRes.multi_community_view}
                 onEdit={form => handleEditMultiCommunity(this, form)}
                 createOrEditLoading={this.state.editRes.state === "loading"}
                 deleteLoading={this.state.deleteRes.state === "loading"}
                 onDelete={deleted => handleDeleteMultiCommunity(this, deleted)}
-                myUserInfo={this.isoData.myUserInfo}
+                myUserInfo={myUserInfo}
               />
             </div>
             <div className="col-12 col-md-6">
@@ -193,7 +203,7 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
                     communityId,
                   )
                 }
-                myUserInfo={this.isoData.myUserInfo}
+                myUserInfo={myUserInfo}
               />
               {this.amCreator && (
                 <MultiCommunityEntryForm
@@ -205,7 +215,7 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
                       communityId,
                     )
                   }
-                  myUserInfo={this.isoData.myUserInfo}
+                  myUserInfo={myUserInfo}
                 />
               )}
             </div>
