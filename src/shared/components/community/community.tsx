@@ -201,6 +201,11 @@ function getShowHiddenFromQuery(hidden: string | undefined): boolean {
   return hidden === "true";
 }
 
+interface Warning {
+  title: NoOptionI18nKeys;
+  body; // TODO: type view
+}
+
 type CommunityPathProps = { name: string };
 type CommunityRouteProps = RouteComponentProps<CommunityPathProps> &
   CommunityProps;
@@ -466,35 +471,18 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
     const canViewCommunity_ = res && canViewCommunity(res.community_view);
-    // Show a message to the moderator if this community is not federated yet (ie it has no
-    // remote followers).
-    const notFederated =
-      res &&
-      res.community_view.can_mod &&
-      res.community_view.community.subscribers ===
-        res.community_view.community.subscribers_local &&
-      res.community_view.community.visibility !== "local_only_public" &&
-      res.community_view.community.visibility !== "local_only_private";
-    const communityName_ = res && communityName(res.community_view.community);
+    const warning = res && this.checkShowWarning(res);
 
     return (
       <div className="community container-lg">
         <div className="row">
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
-            {notFederated && (
+            {warning && (
               <div className="alert alert-warning text-bg-warning" role="alert">
                 <h4 className="alert-heading">
-                  {I18NextService.i18n.t("community_not_federated_title")}
+                  {I18NextService.i18n.t(warning.title)}
                 </h4>
-                <div className="card-text">
-                  <T
-                    className="d-inline"
-                    i18nKey="community_not_federated_message"
-                  >
-                    #{communityName_}
-                    <a href="https://lemmy-federate.com">#</a>
-                  </T>
-                </div>
+                <div className="card-text">{warning.body}</div>
               </div>
             )}
             {canViewCommunity_ ? (
@@ -537,6 +525,40 @@ export class Community extends Component<CommunityRouteProps, State> {
         </div>
       </div>
     );
+  }
+
+  checkShowWarning(res: GetCommunityResponse): Warning | undefined {
+    const community = res.community_view.community;
+    const local = res.community_view.community.local;
+    // Show a message to the moderator if this community is not federated yet (ie it has no
+    // remote followers).
+    const notFederated =
+      res.community_view.can_mod &&
+      community.subscribers === community.subscribers_local &&
+      community.visibility !== "local_only_public" &&
+      community.visibility !== "local_only_private";
+    if (local && notFederated) {
+      return {
+        title: "community_not_federated_title",
+        body: (
+          <T className="d-inline" i18nKey="community_not_federated_message">
+            #{communityName(community)}
+            <a href="https://lemmy-federate.com">#</a>
+          </T>
+        ),
+      };
+    }
+
+    const oneWeekAgo = new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
+    const deadInstance =
+      res.site && new Date(res.site?.last_refreshed_at) < oneWeekAgo;
+    if (!local && deadInstance) {
+      return {
+        title: "comunity_dead_instance_title",
+        body: I18NextService.i18n.t("comunity_dead_instance_body"),
+      };
+    }
+    return undefined;
   }
 
   get markPageAsReadButton(): InfernoNode {
