@@ -1,7 +1,7 @@
 import { selectableLanguages } from "@utils/app";
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, FormEvent, InfernoMouseEvent, linkEvent } from "inferno";
+import { Component, FormEvent, InfernoMouseEvent } from "inferno";
 import { Language, MyUserInfo } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
@@ -116,7 +116,7 @@ export class LanguageSelect extends Component<
           type="button"
           aria-expanded={false}
           data-bs-toggle="dropdown"
-          onChange={linkEvent(this, this.handleSelectLanguageChange)}
+          onChange={event => this.handleSelectLanguageChange(this, event)}
           aria-label={I18NextService.i18n.t("language_select_placeholder")}
           aria-describedby={
             this.props.multiple && this.props.showLanguageWarning

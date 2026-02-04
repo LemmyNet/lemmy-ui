@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { AdminAllowInstanceParams } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { randomStr, validInstanceTLD } from "@utils/helpers";
@@ -45,7 +45,7 @@ export class InstanceAllowForm extends Component<Props, State> {
               placeholder="instance.tld"
               className="form-control"
               value={form.instance}
-              onInput={linkEvent(this, this.handleDomainTextChange)}
+              onInput={event => this.handleDomainTextChange(this, event)}
             />
           </div>
           <div className="col-12">
@@ -58,7 +58,7 @@ export class InstanceAllowForm extends Component<Props, State> {
               placeholder={I18NextService.i18n.t("reason")}
               className="form-control"
               value={form.reason}
-              onInput={linkEvent(this, this.handleReasonChange)}
+              onInput={event => this.handleReasonChange(this, event)}
             />
           </div>
           <div className="col-12">
@@ -66,7 +66,7 @@ export class InstanceAllowForm extends Component<Props, State> {
               className="btn btn-light border-light-subtle"
               type="submit"
               disabled={!this.formValid()}
-              onClick={linkEvent(this, this.handleSubmit)}
+              onClick={event => this.handleSubmit(this, event)}
             >
               {I18NextService.i18n.t("create")}
             </button>

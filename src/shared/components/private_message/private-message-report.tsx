@@ -1,4 +1,4 @@
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   MyUserInfo,
@@ -98,7 +98,7 @@ export class PrivateMessageReport extends Component<Props, State> {
         )}
         <button
           className="btn btn-link btn-animate text-muted py-0"
-          onClick={linkEvent(this, this.handleResolveReport)}
+          onClick={() => this.handleResolveReport(this)}
           data-tippy-content={tippyContent}
           aria-label={tippyContent}
         >
