@@ -15,7 +15,6 @@ import {
   UserService,
   UnreadCounterService,
 } from "../../services";
-import { toast } from "@utils/app";
 import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 import { Subscription } from "rxjs";
@@ -54,7 +53,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     // Subscribe to jwt changes
     if (isBrowser()) {
       // On the first load, check the unreads
-      this.requestNotificationPermission();
       UnreadCounterService.Instance.configure(this.props.myUserInfo);
       this.unreadNotifsCountSubscription =
         UnreadCounterService.Instance.notificationCount.subscribe(
@@ -478,20 +476,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
   get currentLocation() {
     return this.context.router.history.location.pathname;
-  }
-
-  requestNotificationPermission() {
-    if (this.props.myUserInfo) {
-      document.addEventListener("lemmy-hydrated", function () {
-        if (!Notification) {
-          toast(I18NextService.i18n.t("notifications_error"), "danger");
-          return;
-        }
-
-        if (Notification.permission !== "granted")
-          Notification.requestPermission();
-      });
-    }
   }
 }
 
