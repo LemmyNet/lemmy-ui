@@ -124,7 +124,7 @@ export function snapToTop() {
 }
 
 export async function masonryUpdate() {
-  if (isBrowser()) {
+  if (isBrowser() && document.getElementsByClassName("post-listings-grid")) {
     const Masonry = (await import("masonry-layout")).default;
     new Masonry(".post-listings-grid", {
       percentPosition: true,
