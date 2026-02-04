@@ -1332,13 +1332,12 @@ function updateModerators(
   });
 }
 
-const ShowWarning = res => {
-  if (!res) {
+const ShowWarning = ({ res }: { res: GetCommunityResponse }) => {
+  if (!res || !res.community_view) {
     return;
   }
 
   const community = res.community_view.community;
-  const local = res.community_view.community.local;
   // Show a message to the moderator if this community is not federated yet (ie it has no
   // remote followers).
   const notFederated =
@@ -1348,7 +1347,7 @@ const ShowWarning = res => {
     community.visibility !== "local_only_private";
   let title: NoOptionI18nKeys | undefined;
   let body: InfernoNode;
-  if (local && notFederated) {
+  if (community.local && notFederated) {
     title = "community_not_federated_title";
     body = (
       <T className="d-inline" i18nKey="community_not_federated_message">
@@ -1361,7 +1360,7 @@ const ShowWarning = res => {
   const oneWeekAgo = new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
   const deadInstance =
     res.site && new Date(res.site?.last_refreshed_at) < oneWeekAgo;
-  if (!local && deadInstance) {
+  if (!community.local && deadInstance) {
     title = "community_dead_instance_title";
     body = I18NextService.i18n.t("community_dead_instance_body");
   }
