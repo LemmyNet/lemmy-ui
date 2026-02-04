@@ -1142,7 +1142,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           {/* TODO hold off on expires until later */}
           {/* <div class="mb-3 row"> */}
           {/*   <label class="col-form-label">Expires</label> */}
-          {/*   <input type="date" class="form-control me-2" placeholder={I18NextService.i18n.t('expires')} value={this.state.banExpires} onInput={linkEvent(this, this.handleModBanExpiresChange)} /> */}
+          {/*   <input type="date" class="form-control me-2" placeholder={I18NextService.i18n.t('expires')} value={this.state.banExpires} onInput={(event) => this.handleModBanExpiresChange(this, event)} /> */}
           {/* </div> */}
           <div className="mb-3 row">
             <button

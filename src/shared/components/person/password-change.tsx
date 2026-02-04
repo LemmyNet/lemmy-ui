@@ -1,6 +1,6 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
 import {
@@ -67,12 +67,12 @@ export class PasswordChange extends Component<
 
   passwordChangeForm() {
     return (
-      <form onSubmit={linkEvent(this, this.handlePasswordChangeSubmit)}>
+      <form onSubmit={event => this.handlePasswordChangeSubmit(this, event)}>
         <div className="mb-3">
           <PasswordInput
             id="new-password"
             value={this.state.form.password}
-            onInput={linkEvent(this, this.handlePasswordChange)}
+            onInput={event => this.handlePasswordChange(this, event)}
             showStrength
             label={I18NextService.i18n.t("new_password")}
             isNew
@@ -82,7 +82,7 @@ export class PasswordChange extends Component<
           <PasswordInput
             id="password"
             value={this.state.form.password_verify}
-            onInput={linkEvent(this, this.handleVerifyPasswordChange)}
+            onInput={event => this.handleVerifyPasswordChange(this, event)}
             label={I18NextService.i18n.t("verify_password")}
           />
         </div>

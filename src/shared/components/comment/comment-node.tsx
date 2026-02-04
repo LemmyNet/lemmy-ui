@@ -820,7 +820,7 @@ function CommentContent({
 //     this.props.markable && (
 //       <button
 //         className="btn btn-sm btn-link btn-animate text-muted"
-//         onClick={linkEvent(this, this.handleMarkAsRead)}
+//         onClick={() => this.handleMarkAsRead(this)}
 //         data-tippy-content={
 //           this.props.read
 //             ? I18NextService.i18n.t("mark_as_unread")
