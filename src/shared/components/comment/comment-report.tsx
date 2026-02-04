@@ -91,6 +91,7 @@ export class CommentReport extends Component<
           viewType={"flat"}
           createLoading={undefined}
           editLoading={undefined}
+          markReadLoading={undefined}
           viewOnly
           showCommunity
           showContext={false}
@@ -99,6 +100,7 @@ export class CommentReport extends Component<
           hideImages
           myUserInfo={this.props.myUserInfo}
           localSite={this.props.localSite}
+          showMarkRead={"hide"}
           // All of these are unused, since its viewonly
           onSaveComment={async () => {}}
           onBlockPerson={async () => {}}
@@ -119,6 +121,7 @@ export class CommentReport extends Component<
           onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
           onPersonNote={async () => {}}
           onLockComment={async () => {}}
+          onMarkRead={async () => {}}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}

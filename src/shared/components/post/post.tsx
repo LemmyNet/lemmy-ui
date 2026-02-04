@@ -624,7 +624,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onScrollIntoCommentsClick={e =>
                   handleScrollIntoCommentsClick(this, e)
                 }
-                markable
+                showMarkRead="dropdown"
                 onMarkPostAsRead={form =>
                   handleMarkPostAsRead(this, form, myUserInfo)
                 }
@@ -740,6 +740,8 @@ export class Post extends Component<PostRouteProps, PostState> {
               this.props.sort,
             )}
             showCommunity={false}
+            showMarkRead={"hide"}
+            markReadLoading={undefined}
             postCreatorId={postRes.data.post_view.post.creator_id}
             community={postRes.data.community_view.community}
             viewType={this.props.view}
@@ -784,6 +786,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
+            onMarkRead={async () => {}}
           />
         </div>
       );
@@ -869,6 +872,8 @@ export class Post extends Component<PostRouteProps, PostState> {
               commentIdFromProps,
             )}
             showCommunity={false}
+            showMarkRead={"hide"}
+            markReadLoading={undefined}
             postCreatorId={postRes.data.post_view.post.creator_id}
             community={postRes.data.community_view.community}
             viewType={this.props.view}
@@ -912,6 +917,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
+            onMarkRead={async () => {}}
           />
         </div>
       )

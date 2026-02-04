@@ -37,6 +37,7 @@ interface PrivateMessageState {
   collapsed: boolean;
   viewSource: boolean;
   showReportDialog: boolean;
+  // TODO get rid of these inner states
   deleteLoading: boolean;
   readLoading: boolean;
 }
