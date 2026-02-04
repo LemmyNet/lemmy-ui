@@ -75,7 +75,7 @@ function handleCommunitySelect(i: MultiCommunityEntryForm, choice: Choice) {
   }
 }
 
-const handleCommunitySearch = debounce(
+export const handleCommunitySearch = debounce(
   async (i: MultiCommunityEntryForm, text: string) => {
     i.setState({ communitySearchLoading: true });
 
