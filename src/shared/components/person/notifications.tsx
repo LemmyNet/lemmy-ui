@@ -617,6 +617,8 @@ async function handleMarkAllAsRead(i: Notifications) {
           return a;
         });
       }
+      // Refetch to reload the data
+      i.refetch();
       return { notifsRes: s.notifsRes, markAllAsReadRes };
     });
   } else {
