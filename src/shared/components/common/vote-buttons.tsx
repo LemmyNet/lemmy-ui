@@ -1,6 +1,6 @@
 import { calculateUpvotePct, newVoteIsUpvote } from "@utils/app";
 import { numToSI } from "@utils/helpers";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   Comment,
   CreateCommentLike,
@@ -233,7 +233,7 @@ export class VoteButtonsCompact extends Component<
               creator_id,
             )}
             disabled={this.props.disabled}
-            onClick={linkEvent(this, handleUpvote)}
+            onClick={() => handleUpvote(this)}
             aria-label={I18NextService.i18n.t("upvote")}
             aria-pressed={this.props.myVoteIsUpvote === true}
           >
@@ -258,7 +258,7 @@ export class VoteButtonsCompact extends Component<
               this.props.myVoteIsUpvote === false ? "text-danger" : "text-muted"
             }`}
             disabled={this.props.disabled}
-            onClick={linkEvent(this, handleDownvote)}
+            onClick={() => handleDownvote(this)}
             data-tippy-content={tippy(
               localUser,
               localSite,
@@ -329,7 +329,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
               this.props.myVoteIsUpvote === true ? "text-primary" : "text-muted"
             }`}
             disabled={this.props.disabled}
-            onClick={linkEvent(this, handleUpvote)}
+            onClick={() => handleUpvote(this)}
             data-tippy-content={tippy(
               localUser,
               localSite,
@@ -370,7 +370,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
               this.props.myVoteIsUpvote === false ? "text-danger" : "text-muted"
             }`}
             disabled={this.props.disabled}
-            onClick={linkEvent(this, handleDownvote)}
+            onClick={() => handleDownvote(this)}
             data-tippy-content={tippy(
               localUser,
               localSite,

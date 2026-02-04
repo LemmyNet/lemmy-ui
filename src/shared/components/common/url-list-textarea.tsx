@@ -1,4 +1,4 @@
-import { linkEvent, Component } from "inferno";
+import { Component } from "inferno";
 import { I18NextService } from "../../services/I18NextService";
 
 interface UrlListTextareaProps {
@@ -72,8 +72,8 @@ export default class UrlListTextarea extends Component<
             className="form-control"
             placeholder={I18NextService.i18n.t("block_urls_placeholder")}
             value={this.state.text}
-            onInput={linkEvent(this, handleTextChange)}
-            onBlur={linkEvent(this, handleTextBlur)}
+            onInput={event => handleTextChange(this, event)}
+            onBlur={event => handleTextBlur(this, event)}
             rows={4}
           />
         </div>
