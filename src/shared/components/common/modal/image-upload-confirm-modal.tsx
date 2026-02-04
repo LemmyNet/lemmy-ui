@@ -1,4 +1,4 @@
-import { Component, RefObject, createRef, linkEvent } from "inferno";
+import { Component, RefObject, createRef } from "inferno";
 import { Modal } from "bootstrap";
 import { modalMixin } from "@components/mixins/modal-mixin";
 import { I18NextService } from "@services/I18NextService";
@@ -64,14 +64,14 @@ export default class ImageUploadConfirmModalModal extends Component<
                 type="button"
                 className="btn btn-success"
                 ref={this.okButtonRef}
-                onClick={linkEvent(this, this.props.onConfirm)}
+                onClick={() => this.props.onConfirm()}
               >
                 {I18NextService.i18n.t("yes")}
               </button>
               <button
                 type="button"
                 className="btn btn-danger"
-                onClick={linkEvent(this, this.props.onCancel)}
+                onClick={() => this.props.onCancel()}
               >
                 {I18NextService.i18n.t("no")}
               </button>

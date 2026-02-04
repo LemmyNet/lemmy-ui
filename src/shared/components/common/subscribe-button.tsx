@@ -1,7 +1,7 @@
 import { getQueryString, validInstanceTLD } from "@utils/helpers";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, MouseEventHandler, createRef, linkEvent } from "inferno";
+import { Component, MouseEventHandler, createRef } from "inferno";
 import { CommunityFollowerState, DbUrl } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { VERSION } from "../../version";
@@ -175,7 +175,7 @@ class RemoteFetchModal extends Component<
             <form
               id="remote-fetch-form"
               className="modal-body d-flex flex-column justify-content-center"
-              onSubmit={linkEvent(this, submitRemoteFollow)}
+              onSubmit={event => submitRemoteFollow(this, event)}
             >
               <label className="form-label" htmlFor="remoteFetchInstance">
                 {I18NextService.i18n.t("remote_follow_prompt")}
@@ -186,7 +186,7 @@ class RemoteFetchModal extends Component<
                 className="form-control"
                 name="instance"
                 value={this.state.instanceText}
-                onInput={linkEvent(this, handleInput)}
+                onInput={event => handleInput(this, event)}
                 required
                 enterKeyHint="go"
                 inputMode="url"

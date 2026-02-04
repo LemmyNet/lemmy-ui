@@ -1,10 +1,4 @@
-import {
-  Component,
-  InfernoNode,
-  RefObject,
-  createRef,
-  linkEvent,
-} from "inferno";
+import { Component, InfernoNode, RefObject, createRef } from "inferno";
 import { I18NextService } from "@services/I18NextService";
 import { Spinner } from "@components/common/icon";
 import type { Modal } from "bootstrap";
@@ -81,7 +75,7 @@ export default class PersonNoteModal extends Component<
             <div className="modal-body text-center align-middle text-body">
               <form
                 id={formId}
-                onSubmit={linkEvent(this, handleSubmit)}
+                onSubmit={event => handleSubmit(this, event)}
                 className="mb-3"
               >
                 <input
@@ -89,7 +83,7 @@ export default class PersonNoteModal extends Component<
                   className="form-control"
                   placeholder={I18NextService.i18n.t("create_user_note")}
                   value={this.state.note}
-                  onInput={linkEvent(this, handleNoteChange)}
+                  onInput={event => handleNoteChange(this, event)}
                 />
               </form>
             </div>

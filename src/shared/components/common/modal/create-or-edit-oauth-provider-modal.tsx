@@ -5,7 +5,6 @@ import {
   MouseEventHandler,
   RefObject,
   createRef,
-  linkEvent,
 } from "inferno";
 import type { Modal } from "bootstrap";
 import { modalMixin } from "../../mixins/modal-mixin";
@@ -181,19 +180,23 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                     id="display-name"
                     i18nKey="oauth_display_name"
                     value={provider?.display_name}
-                    onInput={linkEvent(
-                      { modal: this, property: "display_name" },
-                      handleTextPropertyChange,
-                    )}
+                    onInput={event =>
+                      handleTextPropertyChange(
+                        { modal: this, property: "display_name" },
+                        event,
+                      )
+                    }
                   />
                   <ProviderTextField
                     id="issuer"
                     i18nKey="oauth_issuer"
                     value={provider?.issuer}
-                    onInput={linkEvent(
-                      { modal: this, property: "issuer" },
-                      handleTextPropertyChange,
-                    )}
+                    onInput={event =>
+                      handleTextPropertyChange(
+                        { modal: this, property: "issuer" },
+                        event,
+                      )
+                    }
                     type="url"
                     disabled={data.type === "edit"}
                   />
@@ -201,58 +204,70 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                     id="authorization-endpoint"
                     i18nKey="oauth_authorization_endpoint"
                     value={provider?.authorization_endpoint}
-                    onInput={linkEvent(
-                      { modal: this, property: "authorization_endpoint" },
-                      handleTextPropertyChange,
-                    )}
+                    onInput={event =>
+                      handleTextPropertyChange(
+                        { modal: this, property: "authorization_endpoint" },
+                        event,
+                      )
+                    }
                     type="url"
                   />
                   <ProviderTextField
                     id="token-endpoint"
                     i18nKey="oauth_token_endpoint"
                     value={provider?.token_endpoint}
-                    onInput={linkEvent(
-                      { modal: this, property: "token_endpoint" },
-                      handleTextPropertyChange,
-                    )}
+                    onInput={event =>
+                      handleTextPropertyChange(
+                        { modal: this, property: "token_endpoint" },
+                        event,
+                      )
+                    }
                     type="url"
                   />
                   <ProviderTextField
                     id="userinfo-endpoint"
                     i18nKey="oauth_userinfo_endpoint"
                     value={provider?.userinfo_endpoint}
-                    onInput={linkEvent(
-                      { modal: this, property: "userinfo_endpoint" },
-                      handleTextPropertyChange,
-                    )}
+                    onInput={event =>
+                      handleTextPropertyChange(
+                        { modal: this, property: "userinfo_endpoint" },
+                        event,
+                      )
+                    }
                     type="url"
                   />
                   <ProviderTextField
                     id="id-claim"
                     i18nKey="oauth_id_claim"
                     value={provider?.id_claim}
-                    onInput={linkEvent(
-                      { modal: this, property: "id_claim" },
-                      handleTextPropertyChange,
-                    )}
+                    onInput={event =>
+                      handleTextPropertyChange(
+                        { modal: this, property: "id_claim" },
+                        event,
+                      )
+                    }
                   />
                   <ProviderTextField
                     id="client-id"
                     i18nKey="oauth_client_id"
                     value={provider?.client_id}
                     disabled={data.type === "edit"}
-                    onInput={linkEvent(
-                      { modal: this, property: "client_id" },
-                      handleTextPropertyChange,
-                    )}
+                    onInput={event =>
+                      handleTextPropertyChange(
+                        { modal: this, property: "client_id" },
+                        event,
+                      )
+                    }
                   />
                   <ProviderTextField
                     id="client-secret"
                     i18nKey="oauth_client_secret"
-                    onInput={linkEvent(
-                      { modal: this, property: "client_secret" },
-                      handleTextPropertyChange,
-                    )}
+                    onInput={event =>
+                      handleTextPropertyChange(
+                        { modal: this, property: "client_secret" },
+                        event,
+                      )
+                    }
                     type="password"
                     placeholder={
                       data.type === "edit"
@@ -268,10 +283,12 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                     id="scopes"
                     i18nKey="oauth_scopes"
                     value={provider?.scopes}
-                    onInput={linkEvent(
-                      { modal: this, property: "scopes" },
-                      handleTextPropertyChange,
-                    )}
+                    onInput={event =>
+                      handleTextPropertyChange(
+                        { modal: this, property: "scopes" },
+                        event,
+                      )
+                    }
                   />
                 </div>
                 <div className="row">
@@ -280,37 +297,34 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                       id="auto-verfiy-email"
                       i18nKey="oauth_auto_verify_email"
                       checked={provider?.auto_verify_email}
-                      onInput={linkEvent(
-                        {
+                      onInput={() =>
+                        handleBooleanPropertyChange({
                           modal: this,
                           property: "auto_verify_email",
-                        },
-                        handleBooleanPropertyChange,
-                      )}
+                        })
+                      }
                     />
                     <ProviderCheckboxField
                       id="account-linking-enabled"
                       i18nKey="oauth_account_linking_enabled"
                       checked={provider?.account_linking_enabled}
-                      onInput={linkEvent(
-                        {
+                      onInput={() =>
+                        handleBooleanPropertyChange({
                           modal: this,
                           property: "account_linking_enabled",
-                        },
-                        handleBooleanPropertyChange,
-                      )}
+                        })
+                      }
                     />
                     <ProviderCheckboxField
                       id="oauth-enabled"
                       i18nKey="oauth_enabled"
                       checked={provider?.enabled ?? true}
-                      onInput={linkEvent(
-                        {
+                      onInput={() =>
+                        handleBooleanPropertyChange({
                           modal: this,
                           property: "enabled",
-                        },
-                        handleBooleanPropertyChange,
-                      )}
+                        })
+                      }
                     />
                   </div>
                 </div>

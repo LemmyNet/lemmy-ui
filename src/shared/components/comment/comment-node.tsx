@@ -3,7 +3,7 @@ import { numToSI } from "@utils/helpers";
 import { futureDaysToUnixTime } from "@utils/date";
 import classNames from "classnames";
 import { isBefore, parseISO, subMinutes } from "date-fns";
-import { Component, InfernoMouseEvent, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoMouseEvent, InfernoNode } from "inferno";
 import { Link } from "inferno-router";
 import {
   AddAdmin,
@@ -228,7 +228,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
               <div
                 className="row text-muted small"
-                onClick={linkEvent(this, handleCommentCollapse)}
+                onClick={event => handleCommentCollapse(this, event)}
                 aria-label={this.expandText}
                 role="group"
               >
@@ -820,7 +820,7 @@ function CommentContent({
 //     this.props.markable && (
 //       <button
 //         className="btn btn-sm btn-link btn-animate text-muted"
-//         onClick={linkEvent(this, this.handleMarkAsRead)}
+//         onClick={() => this.handleMarkAsRead(this)}
 //         data-tippy-content={
 //           this.props.read
 //             ? I18NextService.i18n.t("mark_as_unread")

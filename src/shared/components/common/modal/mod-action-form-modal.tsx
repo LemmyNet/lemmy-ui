@@ -1,10 +1,4 @@
-import {
-  Component,
-  InfernoNode,
-  RefObject,
-  createRef,
-  linkEvent,
-} from "inferno";
+import { Component, InfernoNode, RefObject, createRef } from "inferno";
 import { I18NextService } from "../../../services/I18NextService";
 import { PurgeWarning, Spinner } from "../icon";
 import { getApubName, randomStr } from "@utils/helpers";
@@ -208,7 +202,7 @@ export default class ModActionFormModal extends Component<
                 </>
               ) : (
                 <form
-                  onSubmit={linkEvent(this, handleSubmit)}
+                  onSubmit={event => handleSubmit(this, event)}
                   className="p-3 w-100 container"
                   id={formId}
                 >
@@ -229,7 +223,7 @@ export default class ModActionFormModal extends Component<
                         placeholder={I18NextService.i18n.t("reason")}
                         required
                         value={reason}
-                        onInput={linkEvent(this, handleReasonChange)}
+                        onInput={event => handleReasonChange(this, event)}
                         ref={this.reasonRef}
                       />
                     </div>
@@ -247,7 +241,7 @@ export default class ModActionFormModal extends Component<
                           )}
                           min={1}
                           value={daysUntilExpire}
-                          onInput={linkEvent(this, handleExpiryChange)}
+                          onInput={event => handleExpiryChange(this, event)}
                           required
                         />
                       </div>
@@ -265,7 +259,7 @@ export default class ModActionFormModal extends Component<
                               className="form-check-input user-select-none"
                               type="checkbox"
                               checked={shouldRemoveOrRestoreData}
-                              onChange={linkEvent(this, handleToggleRemove)}
+                              onChange={() => handleToggleRemove(this)}
                             />
                             {I18NextService.i18n.t("remove_content")}
                           </label>
@@ -278,7 +272,7 @@ export default class ModActionFormModal extends Component<
                             <input
                               className="form-check-input"
                               type="checkbox"
-                              onChange={linkEvent(this, handleTogglePermaBan)}
+                              onChange={() => handleTogglePermaBan(this)}
                               checked={shouldPermaBan}
                             />
                             {I18NextService.i18n.t("permanently_ban")}

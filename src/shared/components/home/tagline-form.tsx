@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import {
   CreateTagline,
   DeleteTagline,
@@ -67,7 +67,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
               <button
                 className="btn btn-danger me-2"
                 type="submit"
-                onClick={linkEvent(this, this.handleDeleteTagline)}
+                onClick={event => this.handleDeleteTagline(this, event)}
               >
                 {I18NextService.i18n.t("delete")}
               </button>
@@ -76,7 +76,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
               <button
                 className="btn btn-light border-light-subtle"
                 type="submit"
-                onClick={linkEvent(this, this.handleSubmitTagline)}
+                onClick={event => this.handleSubmitTagline(this, event)}
               >
                 {submitTitle}
               </button>

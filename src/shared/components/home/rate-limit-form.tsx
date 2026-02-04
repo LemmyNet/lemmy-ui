@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, FormEventHandler, linkEvent } from "inferno";
+import { Component, FormEventHandler } from "inferno";
 import { EditSite, LocalSiteRateLimit } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
@@ -127,7 +127,7 @@ export default class RateLimitsForm extends Component<
     return (
       <form
         className="rate-limit-form"
-        onSubmit={linkEvent(this, submitRateLimitForm)}
+        onSubmit={event => submitRateLimitForm(this, event)}
       >
         <h1 className="h4 mb-4">
           {I18NextService.i18n.t("rate_limit_header")}
@@ -145,14 +145,15 @@ export default class RateLimitsForm extends Component<
                 className={classNames("tab-pane show", {
                   active: isSelected,
                 })}
-                handleRateLimit={linkEvent(
-                  { rateLimitType, ctx: this },
-                  handleMaxRequestsChange,
-                )}
-                handleRateLimitIntervalSeconds={linkEvent(
-                  { rateLimitType, ctx: this },
-                  handleIntervalSecondsChange,
-                )}
+                handleRateLimit={event =>
+                  handleMaxRequestsChange({ rateLimitType, ctx: this }, event)
+                }
+                handleRateLimitIntervalSeconds={event =>
+                  handleIntervalSecondsChange(
+                    { rateLimitType, ctx: this },
+                    event,
+                  )
+                }
                 rateLimitValue={
                   this.state.form[`${rateLimitType}_max_requests`]
                 }

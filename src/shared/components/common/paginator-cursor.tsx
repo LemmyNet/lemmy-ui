@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { PaginationCursor } from "lemmy-js-client";
 import { RequestState } from "@services/HttpService";
@@ -51,7 +51,7 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
         {this.prevPage && (
           <button
             className="btn btn-light border-light-subtle"
-            onClick={linkEvent(this, handlePrev)}
+            onClick={() => handlePrev(this)}
           >
             {I18NextService.i18n.t("prev")}
           </button>
@@ -59,7 +59,7 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
         {this.nextPage && (
           <button
             className="btn btn-light border-light-subtle ms-2"
-            onClick={linkEvent(this, handleNext)}
+            onClick={() => handleNext(this)}
           >
             {I18NextService.i18n.t("next")}
           </button>
@@ -67,7 +67,7 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, any> {
         {!this.prevPage && !this.nextPage && this.props.current && (
           <button
             className="btn btn-light border-light-subtle ms-2"
-            onClick={linkEvent(this, handleFirstPage)}
+            onClick={() => handleFirstPage(this)}
           >
             {I18NextService.i18n.t("back_to_first_page")}
           </button>

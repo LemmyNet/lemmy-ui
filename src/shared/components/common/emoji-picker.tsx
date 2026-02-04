@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { EmojiMart } from "./emoji-mart";
 import { Icon } from "./icon";
@@ -39,7 +39,7 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
           data-tippy-content={I18NextService.i18n.t("emoji")}
           aria-label={I18NextService.i18n.t("emoji")}
           disabled={this.props.disabled}
-          onClick={linkEvent(this, this.togglePicker)}
+          onClick={e => this.togglePicker(this, e)}
         >
           <Icon icon="smile" classes="icon-inline" />
         </button>
@@ -55,7 +55,7 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
               </div>
               {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
               <div
-                onClick={linkEvent(this, this.togglePicker)}
+                onClick={e => this.togglePicker(this, e)}
                 className="click-away-container"
               />
             </div>
