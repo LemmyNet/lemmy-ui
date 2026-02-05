@@ -1360,9 +1360,10 @@ const ShowWarning = ({ res }: { res: GetCommunityResponse }) => {
   const oneWeekAgo = new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
   const deadInstance =
     res.site && new Date(res.site?.last_refreshed_at) < oneWeekAgo;
-  if (!community.local && deadInstance) {
-    title = "community_dead_instance_title";
-    body = I18NextService.i18n.t("community_dead_instance_body");
+  const deadCommunity = new Date(community.last_refreshed_at) < oneWeekAgo;
+  if (!community.local && (deadInstance || deadCommunity)) {
+    title = "dead_community_title";
+    body = I18NextService.i18n.t("dead_community_body");
   }
 
   if (title && body) {
