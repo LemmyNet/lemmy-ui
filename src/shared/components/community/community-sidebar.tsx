@@ -143,9 +143,10 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     </>
                   )}
                   <button
-                    className="btn btn-light border-light-subtle d-block mb-2 w-100"
+                    className="btn btn-light border-light-subtle d-flex gap-1 mb-2 w-100"
                     onClick={() => handleShowReportModal(this)}
                   >
+                    <Icon icon="flag" />{" "}
                     {I18NextService.i18n.t("create_report")}
                   </button>
                   <CommunityReportModal
@@ -154,10 +155,10 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     show={this.state.showReportModal}
                   />
                   <Link
-                    className="btn btn-light border-light-subtle d-block mb-2 w-100"
+                    className="btn btn-light border-light-subtle d-flex gap-1 mb-2 w-100"
                     to={`/modlog/${community.id}`}
                   >
-                    {I18NextService.i18n.t("modlog")}
+                    <Icon icon="history" /> {I18NextService.i18n.t("modlog")}
                   </Link>
                   {this.amModOrAdminAndLocal() && (
                     <CommunitySettingsLink community={community} />
@@ -165,9 +166,10 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                   {amAdmin(myUserInfo) && (
                     <>
                       <button
-                        className="btn btn-light border-light-subtle d-block mb-2 w-100"
+                        className="btn btn-outline-danger d-flex gap-1 mb-2 w-100"
                         onClick={() => handleShowRemoveDialog(this)}
                       >
+                        <Icon icon="x" />
                         {I18NextService.i18n.t(
                           !communityView.community.removed
                             ? "remove"
@@ -182,10 +184,11 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                         show={this.state.showRemoveDialog}
                       />
                       <button
-                        className="btn btn-light border-light-subtle d-block mb-2 w-100"
+                        className="btn btn-outline-danger d-flex gap-1 mb-2 w-100"
                         onClick={() => handleShowPurgeDialog(this)}
                         aria-label={I18NextService.i18n.t("purge_community")}
                       >
+                        <Icon icon="purge" />
                         {I18NextService.i18n.t("purge_community")}
                       </button>
                       <ModActionFormModal
@@ -365,9 +368,10 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     return (
       !subscribed && (
         <button
-          className="btn btn-danger d-block mb-2 w-100"
+          className="btn btn-outline-danger d-flex gap-1 mb-2 w-100"
           onClick={() => handleBlock(this)}
         >
+          <Icon icon="slash" />
           {I18NextService.i18n.t(
             blocked_at ? "unblock_community" : "block_community",
           )}

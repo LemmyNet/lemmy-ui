@@ -80,13 +80,14 @@ export function MultiCommunitySettingsLink({
   multi,
 }: MultiCommunitySettingLinkProps) {
   const classes = classNames(
-    "btn btn-light border-light-subtle d-block mb-2 w-100",
+    "btn btn-light border-light-subtle d-flex gap-1 mb-2 w-100",
   );
 
   const link = `${multiCommunityLink(multi).link}/settings`;
 
   return (
     <Link className={classes} to={link}>
+      <Icon icon="settings" />
       {I18NextService.i18n.t("settings")}
     </Link>
   );

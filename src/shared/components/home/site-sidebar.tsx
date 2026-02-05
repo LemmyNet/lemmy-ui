@@ -127,16 +127,20 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         />
         <CreateMultiCommunityButton myUserInfo={myUserInfo} blockButton />
         <Link
-          className="btn btn-light border-light-subtle d-block mb-2 w-100"
+          className="btn btn-light border-light-subtle d-flex gap-1 mb-2 w-100"
           to="/modlog"
         >
+          {" "}
+          <Icon icon="history" />
           {I18NextService.i18n.t("modlog")}
         </Link>
         {amAdmin(myUserInfo) && (
           <Link
-            className="btn btn-light border-light-subtle d-block mb-2 w-100"
+            className="btn btn-light border-light-subtle d-flex gap-1 mb-2 w-100"
             to="/admin"
           >
+            {" "}
+            <Icon icon="settings" />
             {I18NextService.i18n.t("settings")}
           </Link>
         )}

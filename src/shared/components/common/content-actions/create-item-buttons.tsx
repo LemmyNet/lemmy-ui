@@ -37,7 +37,7 @@ export function CreatePostButton({
   myUserInfo,
 }: CreatePostButtonProps) {
   const classes = classNames(
-    "btn btn-light border-light-subtle d-block mb-2 w-100",
+    "btn btn-secondary border-secondary-subtle d-flex gap-1 mb-2 w-100",
     {
       "no-click":
         communityView?.community.deleted ||
@@ -53,7 +53,7 @@ export function CreatePostButton({
 
   return (
     <Link className={classes} to={link}>
-      {I18NextService.i18n.t("create_post")}
+      <Icon icon="edit" /> {I18NextService.i18n.t("create_post")}
     </Link>
   );
 }
@@ -70,13 +70,14 @@ export function CreateCommunityButton({
 }: CreateCommunityButtonProps) {
   const classes = classNames({
     "no-click": !(localSite && canCreateCommunity(localSite, myUserInfo)),
-    "btn btn-light border-light-subtle d-block mb-2 w-100": blockButton,
-    "btn btn-sm btn-light border-light-subtle": !blockButton,
+    "btn btn-outline-secondary border-secondary-subtle d-flex gap-1 mb-2 w-100":
+      blockButton,
+    "btn btn-sm btn-outline-secondary border-secondary-subtle": !blockButton,
   });
 
   return (
     <Link className={classes} to="/create_community">
-      {I18NextService.i18n.t("create_community")}
+      <Icon icon="edit" /> {I18NextService.i18n.t("create_community")}
     </Link>
   );
 }
@@ -91,13 +92,14 @@ export function CreateMultiCommunityButton({
 }: CreateMultiCommunityButtonProps) {
   const classes = classNames({
     "no-click": userNotLoggedInOrBanned(myUserInfo),
-    "btn btn-light border-light-subtle d-block mb-2 w-100": blockButton,
-    "btn btn-sm btn-light border-light-subtle": !blockButton,
+    "btn btn-outline-secondary border-secondary-subtle d-flex gap-1 mb-2 w-100":
+      blockButton,
+    "btn btn-sm btn-outline-secondary border-secondary-subtle": !blockButton,
   });
 
   return (
     <Link className={classes} to="/create_multi_community">
-      {I18NextService.i18n.t("create_multi_community")}
+      <Icon icon="edit" /> {I18NextService.i18n.t("create_multi_community")}
     </Link>
   );
 }
