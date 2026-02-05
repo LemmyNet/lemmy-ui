@@ -677,6 +677,15 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           userSearchOptions: [personToChoice(userResponse.data.person_view)],
         };
       }
+
+      if (communityRes.state === "success") {
+        this.state = {
+          ...this.state,
+          communitySearchOptions: [
+            communityToChoice(communityRes.data.community_view),
+          ],
+        };
+      }
     }
   }
 
@@ -709,6 +718,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   fetchUserToken?: symbol;
   async fetchUser(props: ModlogRouteProps) {
+    // TODO
     const token = (this.fetchUserToken = Symbol());
     const { userId } = props;
 
@@ -1007,6 +1017,14 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       });
       if (token === this.fetchCommunityToken) {
         this.setState({ communityRes });
+
+        if (communityRes.state === "success") {
+          this.setState({
+            communitySearchOptions: [
+              communityToChoice(communityRes.data.community_view),
+            ],
+          });
+        }
       }
     } else {
       this.setState({ communityRes: EMPTY_REQUEST });
