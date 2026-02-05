@@ -52,6 +52,7 @@ import {
   PaginationCursor,
   MyUserInfo,
   CommentId,
+  PostId,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -109,6 +110,7 @@ interface NotificationsState {
   createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   markCommentReadLoadingRes: ItemIdAndRes<CommentId, SuccessResponse>;
+  markPostReadLoadingRes: ItemIdAndRes<PostId, SuccessResponse>;
   cursor?: PaginationCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
@@ -142,6 +144,7 @@ export class Notifications extends Component<
     createCommentRes: { id: 0, res: EMPTY_REQUEST },
     editCommentRes: { id: 0, res: EMPTY_REQUEST },
     markCommentReadLoadingRes: { id: 0, res: EMPTY_REQUEST },
+    markPostReadLoadingRes: { id: 0, res: EMPTY_REQUEST },
     isIsomorphic: false,
   };
 
@@ -343,6 +346,10 @@ export class Notifications extends Component<
           myUserInfo && (
             <PostListing
               postView={data}
+              notificationRead={item.notification.read}
+              markReadLoading={
+                itemLoading(this.state.markPostReadLoadingRes) === data.post.id
+              }
               showCommunity
               showCrossPosts="show_separately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
@@ -912,9 +919,15 @@ async function handleMarkPostAsRead(i: Notifications, form: MarkPostAsRead) {
     n => n.data.type_ === "post" && n.data.post.id === form.post_id,
   );
   if (notification) {
-    await handleMarkNotificationAsRead(i, {
+    i.setState({
+      markPostReadLoadingRes: { id: form.post_id, res: LOADING_REQUEST },
+    });
+    const res = await handleMarkNotificationAsRead(i, {
       notification_id: notification.notification.id,
       read: form.read,
+    });
+    i.setState({
+      markPostReadLoadingRes: { id: form.post_id, res },
     });
   }
 }
