@@ -155,7 +155,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                   />
                   <Link
                     className="btn btn-light border-light-subtle d-block mb-2 w-100"
-                    to={`/modlog/${community.id}`}
+                    to={`/modlog?communityId=${community.id}`}
                   >
                     {I18NextService.i18n.t("modlog")}
                   </Link>
