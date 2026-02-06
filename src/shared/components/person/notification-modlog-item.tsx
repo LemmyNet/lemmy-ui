@@ -1,4 +1,4 @@
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   ModlogView,
   MyUserInfo,
@@ -73,7 +73,7 @@ export class NotificationModlogItem extends Component<
             <button
               type="button"
               className="btn btn-link btn-animate text-muted"
-              onClick={linkEvent(this, this.handleMarkAsRead)}
+              onClick={() => this.handleMarkAsRead(this)}
               data-tippy-content={mark_as_read_i18n(
                 this.props.notification.read,
               )}

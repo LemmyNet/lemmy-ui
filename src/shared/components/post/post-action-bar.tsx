@@ -16,6 +16,7 @@ import {
   CrossPostParams,
   IsoDataOptionalSite,
   ShowBodyType,
+  ShowMarkReadType,
 } from "@utils/types";
 import { Link } from "inferno-router";
 import {
@@ -49,7 +50,7 @@ type PostActionBarProps = {
   postView: PostView;
   admins: PersonView[];
   showBody: ShowBodyType;
-  markable: boolean;
+  showMarkRead: ShowMarkReadType;
   viewOnly: boolean;
   viewSource: boolean;
   myUserInfo: MyUserInfo | undefined;
@@ -90,7 +91,7 @@ export function PostActionBar(props: PostActionBarProps, context: any) {
     viewSource,
     myUserInfo,
     localSite,
-    markable,
+    showMarkRead,
   } = props;
   const { id } = postView.post;
 
@@ -126,7 +127,7 @@ export function PostActionBar(props: PostActionBarProps, context: any) {
           viewSource={viewSource}
           showBody={showBody}
           viewOnly={viewOnly}
-          markable={markable}
+          showMarkRead={showMarkRead}
           onSave={() => handleSavePost(props)}
           onReport={reason => handleReport(props, reason)}
           onBlockPerson={() => handleBlockPerson(props)}
@@ -264,8 +265,6 @@ function handleShare(post: Post, isoData: IsoDataOptionalSite) {
 
 // TODO All these handlers should not have to exist. The PostActionsDropdown should push up the forms directly
 function handleMarkPostAsRead(props: PostActionBarProps) {
-  if (!props.markable) return;
-
   // Toggle the read, based on the existence of read_at
   const read = !props.postView.post_actions?.read_at;
 

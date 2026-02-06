@@ -32,7 +32,7 @@ import {
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { PostListing } from "./post-listing";
-import { ShowCrossPostsType } from "@utils/types";
+import { ShowCrossPostsType, ShowMarkReadType } from "@utils/types";
 
 interface PostListingsProps {
   posts: PostView[];
@@ -40,7 +40,7 @@ interface PostListingsProps {
   siteLanguages: LanguageId[];
   showCommunity: boolean;
   showCrossPosts: ShowCrossPostsType;
-  markable: boolean;
+  showMarkRead: ShowMarkReadType;
   enableNsfw: boolean;
   showAdultConsentModal: boolean;
   viewOnly: boolean;
@@ -123,7 +123,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                   onAddAdmin={this.props.onAddAdmin}
                   onTransferCommunity={this.props.onTransferCommunity}
                   onHidePost={this.props.onHidePost}
-                  markable={this.props.markable}
+                  showMarkRead={this.props.showMarkRead}
                   onMarkPostAsRead={this.props.onMarkPostAsRead}
                   onPersonNote={this.props.onPersonNote}
                   postListingMode={this.props.postListingMode}

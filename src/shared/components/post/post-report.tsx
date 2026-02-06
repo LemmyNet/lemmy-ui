@@ -103,7 +103,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           admins={this.props.admins}
           postListingMode="small_card"
           showBody={"full"}
-          markable={false}
+          showMarkRead="hide"
           disableAutoMarkAsRead={false}
           editLoading={false}
           // All of these are unused, since its view only

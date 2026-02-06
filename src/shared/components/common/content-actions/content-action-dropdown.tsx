@@ -26,6 +26,7 @@ import {
   CrossPostParams,
   PurgeType,
   ShowBodyType,
+  ShowMarkReadType,
 } from "@utils/types";
 import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";
@@ -79,7 +80,7 @@ export type ContentPostProps = {
   postView: PostView;
   crossPostParams: CrossPostParams;
   showBody: ShowBodyType;
-  markable: boolean;
+  showMarkRead: ShowMarkReadType;
   viewOnly: boolean;
   onFeatureLocal(): void;
   onFeatureCommunity(): void;
@@ -329,7 +330,7 @@ export default class ContentActionDropdown extends Component<
                       <li>
                         <CrossPostButton {...this.props.crossPostParams} />
                       </li>
-                      {this.props.markable && (
+                      {this.props.showMarkRead === "dropdown" && (
                         <li>
                           <ActionButton
                             icon="check"

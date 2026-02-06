@@ -1,6 +1,6 @@
 import { Options, passwordStrength } from "check-password-strength";
 import classNames from "classnames";
-import { Component, FormEventHandler, linkEvent } from "inferno";
+import { Component, FormEventHandler } from "inferno";
 import { NavLink } from "inferno-router";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
@@ -105,7 +105,7 @@ class PasswordInput extends Component<PasswordInputProps, PasswordInputState> {
                 className="btn btn-light border-light-subtle"
                 type="button"
                 id={id}
-                onClick={linkEvent(this, handleToggleShow)}
+                onClick={() => handleToggleShow(this)}
                 aria-label={I18NextService.i18n.t(
                   `${show ? "show" : "hide"}_password`,
                 )}

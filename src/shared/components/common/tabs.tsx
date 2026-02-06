@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 
 interface TabItem {
   key: string;
@@ -39,7 +39,7 @@ export default class Tabs extends Component<TabsProps, TabsState> {
                 className={classNames("nav-link", {
                   active: this.state?.currentTab === key,
                 })}
-                onClick={linkEvent({ ctx: this, tab: key }, handleSwitchTab)}
+                onClick={() => handleSwitchTab({ ctx: this, tab: key })}
                 aria-controls={`${key}-tab-pane`}
                 {...(this.state?.currentTab === key && {
                   ...{

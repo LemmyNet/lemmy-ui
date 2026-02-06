@@ -1,4 +1,4 @@
-import { Component, RefObject, createRef, linkEvent } from "inferno";
+import { Component, RefObject, createRef } from "inferno";
 import { I18NextService } from "../../../services";
 import type { Modal } from "bootstrap";
 import { Spinner } from "../icon";
@@ -81,7 +81,7 @@ export default class ConfirmationModal extends Component<
               <button
                 type="button"
                 className="btn btn-success"
-                onClick={linkEvent(this, handleYes)}
+                onClick={() => handleYes(this)}
                 ref={this.yesButtonRef}
                 disabled={loading}
               >

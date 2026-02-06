@@ -122,6 +122,12 @@ export class MultiCommunityForm extends Component<Props, State> {
               maxLength={100}
             />
           </div>
+          <label
+            className="col-12 col-sm-2 col-form-label"
+            htmlFor="multi-community-summary"
+          >
+            {I18NextService.i18n.t("summary")}
+          </label>
           <div className="col-12 col-sm-10">
             <input
               type="text"

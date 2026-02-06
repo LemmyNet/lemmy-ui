@@ -103,6 +103,8 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             noBorder
             showCommunity
             showContext
+            showMarkRead={"hide"}
+            markReadLoading={undefined}
             createLoading={this.props.createLoading}
             editLoading={this.props.editLoading}
             hideImages={false}
@@ -130,6 +132,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onPurgeComment={this.props.onPurgeComment}
             onPersonNote={this.props.onPersonNote}
             onLockComment={this.props.onLockComment}
+            onMarkRead={async () => {}}
           />
         );
       }
@@ -173,7 +176,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onAddAdmin={this.props.onAddAdmin}
             onTransferCommunity={this.props.onTransferCommunity}
             onHidePost={async () => {}}
-            markable
+            showMarkRead="dropdown"
             onMarkPostAsRead={this.props.onMarkPostAsRead}
             onPersonNote={this.props.onPersonNote}
             onScrollIntoCommentsClick={() => {}}

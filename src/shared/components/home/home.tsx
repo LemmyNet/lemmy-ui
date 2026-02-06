@@ -765,7 +765,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               posts={posts}
               showCommunity
               showCrossPosts="small"
-              markable
+              showMarkRead="dropdown"
               viewOnly={false}
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}
@@ -817,6 +817,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               isTopLevel
               showCommunity
               showContext
+              showMarkRead={"hide"}
+              markReadLoading={undefined}
               hideImages={false}
               allLanguages={siteRes.all_languages}
               siteLanguages={siteRes.discussion_languages}
@@ -846,6 +848,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onEditComment={form => handleEditComment(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               onLockComment={form => handleLockComment(this, form)}
+              onMarkRead={async () => {}}
             />
           );
         }

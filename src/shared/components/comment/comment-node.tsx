@@ -3,7 +3,7 @@ import { numToSI } from "@utils/helpers";
 import { futureDaysToUnixTime } from "@utils/date";
 import classNames from "classnames";
 import { isBefore, parseISO, subMinutes } from "date-fns";
-import { Component, InfernoMouseEvent, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoMouseEvent, InfernoNode } from "inferno";
 import { Link } from "inferno-router";
 import {
   AddAdmin,
@@ -42,6 +42,7 @@ import {
   CommentViewType,
   isCommentNodeFull,
   CommentNodeType,
+  ShowMarkReadType,
 } from "@utils/types";
 import { mdToHtml, mdToHtmlNoImages } from "@utils/markdown";
 import { I18NextService } from "../../services";
@@ -64,6 +65,7 @@ type CommentNodeState = {
   collapsed: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
+  // TODO get rid
   fetchChildrenLoading: boolean;
 };
 
@@ -78,6 +80,8 @@ type CommentNodeProps = {
   showContext: boolean;
   showCommunity: boolean;
   viewType: CommentViewType;
+  showMarkRead: ShowMarkReadType;
+  read?: boolean;
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages: boolean;
@@ -85,6 +89,8 @@ type CommentNodeProps = {
   localSite: LocalSite;
   createLoading: CommentId | undefined;
   editLoading: CommentId | undefined;
+  markReadLoading: CommentId | undefined;
+  onMarkRead(commentId: CommentId, read: boolean): void;
   onSaveComment(form: SaveComment): void;
   onCreateComment(form: CreateComment): void;
   onEditComment(form: EditComment): void;
@@ -182,7 +188,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   render() {
-    const node = this.props.node;
+    const { node, read, showMarkRead } = this.props;
     const {
       comment_actions: { vote_is_upvote: myVoteIsUpvote } = {},
       comment: {
@@ -228,7 +234,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
               <div
                 className="row text-muted small"
-                onClick={linkEvent(this, handleCommentCollapse)}
+                onClick={event => handleCommentCollapse(this, event)}
                 aria-label={this.expandText}
                 role="group"
               >
@@ -277,6 +283,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   />
                   <div className="comment-bottom-btns d-flex justify-content-end justify-content-md-start column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
                     <>
+                      {showMarkRead === "main_bar" && (
+                        <CommentMarkReadButton
+                          comment={comment}
+                          read={read ?? false}
+                          loading={this.props.markReadLoading === id}
+                          onMarkRead={this.props.onMarkRead}
+                        />
+                      )}
                       <VoteButtonsCompact
                         voteContentType={"comment"}
                         id={id}
@@ -376,6 +390,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
             <CommentNodes
               createLoading={this.props.createLoading}
               editLoading={this.props.editLoading}
+              markReadLoading={this.props.markReadLoading}
               nodes={buildNodeChildren(this.props.node)}
               postCreatorId={this.postCreatorId}
               community={this.community}
@@ -384,6 +399,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               }
               showCommunity={this.props.showCommunity}
               showContext={false}
+              showMarkRead={this.props.showMarkRead}
+              read={this.props.read}
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
               viewType={this.props.viewType}
@@ -414,6 +431,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               onPurgeComment={this.props.onPurgeComment}
               onPersonNote={this.props.onPersonNote}
               onLockComment={this.props.onLockComment}
+              onMarkRead={this.props.onMarkRead}
             />
           )}
           {/* A collapsed clearfix */}
@@ -814,33 +832,38 @@ function CommentContent({
   );
 }
 
-// TODO this is currently unused, but the code may be useful for the notifications screen, when that gets fully added.
-// function markAsRead() {
-//   return (
-//     this.props.markable && (
-//       <button
-//         className="btn btn-sm btn-link btn-animate text-muted"
-//         onClick={linkEvent(this, this.handleMarkAsRead)}
-//         data-tippy-content={
-//           this.props.read
-//             ? I18NextService.i18n.t("mark_as_unread")
-//             : I18NextService.i18n.t("mark_as_read")
-//         }
-//         aria-label={
-//           this.props.read
-//             ? I18NextService.i18n.t("mark_as_unread")
-//             : I18NextService.i18n.t("mark_as_read")
-//         }
-//       >
-//         {this.state.markLoading ? (
-//           <Spinner />
-//         ) : (
-//           <Icon
-//             icon="check"
-//             classes={`icon-inline ${this.props.read && "text-success"}`}
-//           />
-//         )}
-//       </button>
-//     )
-//   );
-// }
+type CommentMarkReadButtonProps = {
+  comment: Comment;
+  read: boolean;
+  loading: boolean;
+  onMarkRead(commentId: CommentId, read: boolean): void;
+};
+function CommentMarkReadButton({
+  comment,
+  read,
+  loading,
+  onMarkRead,
+}: CommentMarkReadButtonProps) {
+  return (
+    <button
+      className="btn btn-sm btn-link btn-animate text-muted"
+      onClick={() => onMarkRead(comment.id, !read)}
+      data-tippy-content={
+        read
+          ? I18NextService.i18n.t("mark_as_unread")
+          : I18NextService.i18n.t("mark_as_read")
+      }
+      aria-label={
+        read
+          ? I18NextService.i18n.t("mark_as_unread")
+          : I18NextService.i18n.t("mark_as_read")
+      }
+    >
+      {loading ? (
+        <Spinner />
+      ) : (
+        <Icon icon="check" classes={`icon-inline ${read && "text-success"}`} />
+      )}
+    </button>
+  );
+}
