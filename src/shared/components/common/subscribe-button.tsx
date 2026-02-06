@@ -30,7 +30,7 @@ export function SubscribeButton({
 }: SubscribeButtonProps) {
   const buttonClass = classNames("btn", {
     "btn-link p-0": isLink,
-    [`btn-light border-light-subtle d-block mb-2 w-100 btn-${followState === "pending" ? "warning" : "secondary"}`]:
+    [`btn-light border-light-subtle d-flex gap-1 mb-2 w-100 btn-${followState === "pending" ? "warning" : "secondary"}`]:
       !isLink,
   });
 
@@ -43,6 +43,7 @@ export function SubscribeButton({
           data-bs-toggle="modal"
           data-bs-target="#remoteFetchModal"
         >
+          <Icon icon="bookmark" />
           {I18NextService.i18n.t("subscribe")}
         </button>
         <RemoteFetchModal apId={apId} />

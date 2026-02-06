@@ -7,6 +7,7 @@ import { relTags } from "@utils/config";
 import { PictrsImage } from "../common/pictrs-image";
 import classNames from "classnames";
 import { I18NextService } from "@services/index";
+import { Icon } from "@components/common/icon";
 
 interface CommunityLinkProps {
   community: Community;
@@ -99,18 +100,20 @@ type CommunitySettingLinkProps = {
 export function CommunitySettingsLink({
   community,
 }: CommunitySettingLinkProps) {
-  const classes = classNames(
-    "btn btn-light border-light-subtle d-block mb-2 w-100",
-    {
-      "no-click": community.removed,
-    },
-  );
+  const classes = classNames("btn btn-light border-light-subtle mb-2 w-100", {
+    "no-click": community.removed,
+  });
 
   const link = `${communityLink(community).link}/settings`;
 
   return (
-    <Link className={classes} to={link}>
-      {I18NextService.i18n.t("settings")}
+    <Link
+      className={classes}
+      to={link}
+      aria-label={I18NextService.i18n.t("settings")}
+      title={I18NextService.i18n.t("settings")}
+    >
+      <Icon icon="settings" />
     </Link>
   );
 }
