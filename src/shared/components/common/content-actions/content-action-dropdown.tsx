@@ -229,7 +229,7 @@ export default class ContentActionDropdown extends Component<
       <>
         <div className="dropdown">
           <button
-            className="btn btn-light border-light-subtle btn-animate text-muted"
+            className="btn btn-sm btn-light border-light-subtle btn-animate text-muted"
             data-tippy-content={I18NextService.i18n.t("more")}
             data-bs-toggle="dropdown"
             aria-expanded="false"

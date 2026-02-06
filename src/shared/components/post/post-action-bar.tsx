@@ -196,7 +196,7 @@ export function CommentsButton({
 
   return (
     <Link
-      className={classNames("btn text-muted", {
+      className={classNames("btn btn-sm text-muted", {
         "btn-light border-light-subtle": type_ === "icon",
         "btn-link ps-0 py-0": type_ === "text",
       })}
@@ -234,7 +234,7 @@ function PostMarkReadButton({
 }: PostMarkReadButtonProps) {
   return (
     <button
-      className="btn btn-light border-light-subtle btn-animate text-muted"
+      className="btn btn-sm btn-light border-light-subtle btn-animate text-muted"
       onClick={() => onMarkRead({ post_id: post.id, read: !read })}
       data-tippy-content={
         read

@@ -73,7 +73,7 @@ export class NotificationModlogItem extends Component<
           <div className="col">
             <button
               type="button"
-              className="btn btn-light border-light-subtle btn-animate text-muted"
+              className="btn btn-sm btn-light border-light-subtle btn-animate text-muted"
               onClick={() => this.handleMarkAsRead(this)}
               data-tippy-content={mark_as_read_i18n(
                 this.props.notification.read,

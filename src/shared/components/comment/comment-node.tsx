@@ -377,7 +377,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               style={`border-left: var(--comment-border-width) ${moreRepliesBorderColor} solid !important`}
             >
               <button
-                className="btn btn-light border-light-subtle text-muted"
+                className="btn btn-sm btn-light border-light-subtle text-muted"
                 onClick={() => handleFetchChildren(this)}
               >
                 {this.state.fetchChildrenLoading ? (
@@ -871,7 +871,7 @@ function CommentMarkReadButton({
 }: CommentMarkReadButtonProps) {
   return (
     <button
-      className="btn btn-light border-light-subtle btn-animate text-muted"
+      className="btn btn-sm btn-light border-light-subtle btn-animate text-muted"
       onClick={() => onMarkRead(comment.id, !read)}
       data-tippy-content={
         read

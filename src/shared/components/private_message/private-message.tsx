@@ -148,7 +148,7 @@ export class PrivateMessage extends Component<
                       <div className="col">
                         <button
                           type="button"
-                          className="btn btn-light border-light-subtle btn-animate text-muted"
+                          className="btn btn-sm btn-light border-light-subtle btn-animate text-muted"
                           onClick={() => handleMarkRead(this)}
                           data-tippy-content={mark_as_read_i18n(
                             this.props.read,
@@ -172,7 +172,7 @@ export class PrivateMessage extends Component<
                     <div className="col">
                       <button
                         type="button"
-                        className="btn btn-light border-light-subtle btn-animate text-muted"
+                        className="btn btn-sm btn-light border-light-subtle btn-animate text-muted"
                         onClick={() => handleReplyClick(this)}
                         data-tippy-content={I18NextService.i18n.t("reply")}
                         aria-label={I18NextService.i18n.t("reply")}
@@ -187,7 +187,7 @@ export class PrivateMessage extends Component<
                     <div className="col">
                       <button
                         type="button"
-                        className="btn btn-light border-light-subtle btn-animate text-muted"
+                        className="btn btn-sm btn-light border-light-subtle btn-animate text-muted"
                         onClick={() => handleEditClick(this)}
                         data-tippy-content={I18NextService.i18n.t("edit")}
                         aria-label={I18NextService.i18n.t("edit")}
@@ -198,7 +198,7 @@ export class PrivateMessage extends Component<
                     <div className="col">
                       <button
                         type="button"
-                        className="btn btn-light border-light-subtle btn-animate text-muted"
+                        className="btn btn-sm btn-light border-light-subtle btn-animate text-muted"
                         onClick={() => handleDeleteClick(this)}
                         data-tippy-content={
                           !message_view.private_message.deleted
@@ -229,7 +229,7 @@ export class PrivateMessage extends Component<
                 <div className="col">
                   <button
                     type="button"
-                    className="btn btn-light border-light-subtle btn-animate text-muted"
+                    className="btn btn-sm btn-light border-light-subtle btn-animate text-muted"
                     onClick={() => handleViewSource(this)}
                     data-tippy-content={I18NextService.i18n.t("view_source")}
                     aria-label={I18NextService.i18n.t("view_source")}
