@@ -516,6 +516,10 @@ em-emoji-picker {
   max-height: 100px;
 }
 
+.legal-info-box {
+  max-height: 200px;
+}
+
 .interval-filter-input {
   max-width: 50px;
 }
