@@ -1,4 +1,4 @@
-import { Component, InfernoNode } from "inferno";
+import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   MyUserInfo,
@@ -14,27 +14,12 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 interface Props {
   report: PrivateMessageReportView;
   myUserInfo: MyUserInfo | undefined;
+  loading: boolean;
   onResolveReport(form: ResolvePrivateMessageReport): void;
 }
 
-interface State {
-  loading: boolean;
-}
-
 @tippyMixin
-export class PrivateMessageReport extends Component<Props, State> {
-  state: State = {
-    loading: false,
-  };
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & Props>,
-  ): void {
-    if (this.props !== nextProps) {
-      this.setState({ loading: false });
-    }
-  }
-
+export class PrivateMessageReport extends Component<Props, object> {
   render() {
     const r = this.props.report;
     const pmr = r.private_message_report;
@@ -102,7 +87,7 @@ export class PrivateMessageReport extends Component<Props, State> {
           data-tippy-content={tippyContent}
           aria-label={tippyContent}
         >
-          {this.state.loading ? (
+          {this.props.loading ? (
             <Spinner />
           ) : (
             <Icon

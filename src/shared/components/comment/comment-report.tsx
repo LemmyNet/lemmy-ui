@@ -1,4 +1,4 @@
-import { Component, InfernoNode } from "inferno";
+import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   CommentReportView,
@@ -27,6 +27,7 @@ interface CommentReportProps {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   admins: PersonView[];
+  loading: boolean;
   onResolveReport(form: ResolveCommentReport): void;
   onRemoveComment(form: RemoveComment): void;
   onModBanFromCommunity(form: BanFromCommunityData): void;
@@ -34,7 +35,6 @@ interface CommentReportProps {
 }
 
 interface CommentReportState {
-  loading: boolean;
   showRemoveCommentDialog: boolean;
 }
 
@@ -44,17 +44,8 @@ export class CommentReport extends Component<
   CommentReportState
 > {
   state: CommentReportState = {
-    loading: false,
     showRemoveCommentDialog: false,
   };
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & CommentReportProps>,
-  ): void {
-    if (this.props !== nextProps) {
-      this.setState({ loading: false });
-    }
-  }
 
   render() {
     const r = this.props.report;
@@ -164,7 +155,7 @@ export class CommentReport extends Component<
           data-tippy-content={tippyContent}
           aria-label={tippyContent}
         >
-          {this.state.loading ? (
+          {this.props.loading ? (
             <Spinner />
           ) : (
             <Icon
@@ -224,7 +215,6 @@ export class CommentReport extends Component<
 }
 
 function handleResolveReport(i: CommentReport) {
-  i.setState({ loading: true });
   i.props.onResolveReport({
     report_id: i.props.report.comment_report.id,
     resolved: !i.props.report.comment_report.resolved,
@@ -241,7 +231,6 @@ function handleRemoveComment(i: CommentReport, reason: string) {
 }
 
 function handleModBanFromCommunity(i: CommentReport) {
-  i.setState({ loading: true });
   i.props.onModBanFromCommunity({
     person: i.props.report.comment_creator,
     community: i.props.report.community,
@@ -250,7 +239,6 @@ function handleModBanFromCommunity(i: CommentReport) {
 }
 
 function handleAdminBan(i: CommentReport) {
-  i.setState({ loading: true });
   i.props.onAdminBan({
     person: i.props.report.comment_creator,
     ban: !i.props.report.creator_banned,
