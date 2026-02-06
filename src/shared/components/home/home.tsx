@@ -813,6 +813,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               nodes={commentsToFlatNodes(comments)}
               createLoading={itemLoading(this.state.createCommentRes)}
               editLoading={itemLoading(this.state.editCommentRes)}
+              fetchChildrenLoading={undefined}
               viewType={"flat"}
               isTopLevel
               showCommunity
@@ -848,7 +849,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onEditComment={form => handleEditComment(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               onLockComment={form => handleLockComment(this, form)}
-              onMarkRead={async () => {}}
+              onMarkRead={() => {}}
+              onFetchChildren={() => {}}
             />
           );
         }

@@ -13,7 +13,6 @@ import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
-import { EMPTY_REQUEST } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import ActionButton from "@components/common/content-actions/action-button";
 import {
@@ -92,6 +91,7 @@ export class CommentReport extends Component<
           createLoading={undefined}
           editLoading={undefined}
           markReadLoading={undefined}
+          fetchChildrenLoading={undefined}
           viewOnly
           showCommunity
           showContext={false}
@@ -102,26 +102,27 @@ export class CommentReport extends Component<
           localSite={this.props.localSite}
           showMarkRead={"hide"}
           // All of these are unused, since its viewonly
-          onSaveComment={async () => {}}
-          onBlockPerson={async () => {}}
-          onBlockCommunity={async () => {}}
-          onDeleteComment={async () => {}}
-          onRemoveComment={async () => {}}
-          onCommentVote={async () => {}}
-          onCommentReport={async () => {}}
-          onDistinguishComment={async () => {}}
-          onAddModToCommunity={async () => {}}
-          onAddAdmin={async () => {}}
-          onTransferCommunity={async () => {}}
-          onPurgeComment={async () => {}}
-          onPurgePerson={async () => {}}
-          onBanPersonFromCommunity={async () => {}}
-          onBanPerson={async () => {}}
-          onCreateComment={async () => Promise.resolve(EMPTY_REQUEST)}
-          onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
-          onPersonNote={async () => {}}
-          onLockComment={async () => {}}
-          onMarkRead={async () => {}}
+          onSaveComment={() => {}}
+          onBlockPerson={() => {}}
+          onBlockCommunity={() => {}}
+          onDeleteComment={() => {}}
+          onRemoveComment={() => {}}
+          onCommentVote={() => {}}
+          onCommentReport={() => {}}
+          onDistinguishComment={() => {}}
+          onAddModToCommunity={() => {}}
+          onAddAdmin={() => {}}
+          onTransferCommunity={() => {}}
+          onPurgeComment={() => {}}
+          onPurgePerson={() => {}}
+          onBanPersonFromCommunity={() => {}}
+          onBanPerson={() => {}}
+          onCreateComment={() => {}}
+          onEditComment={() => {}}
+          onPersonNote={() => {}}
+          onLockComment={() => {}}
+          onMarkRead={() => {}}
+          onFetchChildren={() => {}}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}

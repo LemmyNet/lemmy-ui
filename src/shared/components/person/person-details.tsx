@@ -72,7 +72,7 @@ interface PersonDetailsProps {
   onBanPersonFromCommunity(form: BanFromCommunity): Promise<void>;
   onBanPerson(form: BanPerson): Promise<void>;
   onTransferCommunity(form: TransferCommunity): Promise<void>;
-  onFetchChildren?(form: GetComments): void;
+  onFetchChildren(form: GetComments): void;
   onCommentReport(form: CreateCommentReport): Promise<void>;
   onPurgePerson(form: PurgePerson): Promise<void>;
   onPurgeComment(form: PurgeComment): Promise<void>;
@@ -105,6 +105,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             showContext
             showMarkRead={"hide"}
             markReadLoading={undefined}
+            fetchChildrenLoading={undefined}
             createLoading={this.props.createLoading}
             editLoading={this.props.editLoading}
             hideImages={false}

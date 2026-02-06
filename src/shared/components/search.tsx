@@ -351,6 +351,7 @@ const commentListing = (
               createLoading={undefined}
               editLoading={undefined}
               markReadLoading={undefined}
+              fetchChildrenLoading={undefined}
               viewOnly
               postLockedOrRemovedOrDeleted
               isTopLevel
@@ -378,11 +379,12 @@ const commentListing = (
               onPurgePerson={() => {}}
               onBanPersonFromCommunity={() => {}}
               onBanPerson={() => {}}
-              onCreateComment={() => EMPTY_REQUEST}
-              onEditComment={() => EMPTY_REQUEST}
+              onCreateComment={() => {}}
+              onEditComment={() => {}}
               onPersonNote={() => {}}
               onLockComment={() => {}}
               onMarkRead={() => {}}
+              onFetchChildren={() => {}}
             />
           </div>
         ))}
@@ -917,6 +919,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         viewType={"flat"}
         createLoading={undefined}
         editLoading={undefined}
+        fetchChildrenLoading={undefined}
         viewOnly
         postLockedOrRemovedOrDeleted
         isTopLevel
@@ -951,6 +954,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onPersonNote={() => {}}
         onLockComment={() => {}}
         onMarkRead={() => {}}
+        onFetchChildren={() => {}}
       />
     );
   }

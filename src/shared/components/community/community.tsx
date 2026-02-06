@@ -671,6 +671,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               viewType={"flat"}
               createLoading={itemLoading(this.state.createCommentRes)}
               editLoading={itemLoading(this.state.editCommentRes)}
+              fetchChildrenLoading={undefined}
               isTopLevel
               showContext
               showCommunity={false}
@@ -707,7 +708,8 @@ export class Community extends Component<CommunityRouteProps, State> {
               onEditComment={form => handleEditComment(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               onLockComment={form => handleLockComment(this, form)}
-              onMarkRead={async () => {}}
+              onMarkRead={() => {}}
+              onFetchChildren={() => {}}
             />
           );
       }

@@ -137,6 +137,7 @@ interface PostState {
   purgeCommunityRes: RequestState<SuccessResponse>;
   createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  fetchChildrenRes: ItemIdAndRes<CommentId, PagedResponse<CommentSlimView>>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   maxCommentsShown: number;
@@ -269,6 +270,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     purgeCommunityRes: EMPTY_REQUEST,
     createCommentRes: { id: 0, res: EMPTY_REQUEST },
     editCommentRes: { id: 0, res: EMPTY_REQUEST },
+    fetchChildrenRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
@@ -752,6 +754,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             )}
             createLoading={itemLoading(this.state.createCommentRes)}
             editLoading={itemLoading(this.state.editCommentRes)}
+            fetchChildrenLoading={itemLoading(this.state.fetchChildrenRes)}
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
@@ -883,6 +886,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             )}
             createLoading={itemLoading(this.state.createCommentRes)}
             editLoading={itemLoading(this.state.editCommentRes)}
+            fetchChildrenLoading={itemLoading(this.state.fetchChildrenRes)}
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
@@ -1447,7 +1451,14 @@ async function handleTransferCommunity(i: Post, form: TransferCommunity) {
 }
 
 async function handleFetchChildren(i: Post, form: GetComments) {
+  i.setState({
+    fetchChildrenRes: { id: form.parent_id ?? 0, res: LOADING_REQUEST },
+  });
   const moreCommentsRes = await HttpService.client.getCommentsSlim(form);
+  i.setState({
+    fetchChildrenRes: { id: form.parent_id ?? 0, res: moreCommentsRes },
+  });
+
   if (
     i.state.commentsRes.state === "success" &&
     moreCommentsRes.state === "success"
