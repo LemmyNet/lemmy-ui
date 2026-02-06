@@ -28,7 +28,6 @@ import { RouteData } from "@utils/types";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { OAuthLogin } from "./oauth/oauth-login";
-import { Link } from "inferno-router";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -293,9 +292,7 @@ export class Signup extends Component<SignupRouteProps, State> {
                 className="form-check-label"
                 htmlFor="register-accept-legal"
               >
-                <Link to="/legal" target="_blank">
-                  {I18NextService.i18n.t("read_terms_and_conditions")}
-                </Link>
+                {I18NextService.i18n.t("read_terms_and_conditions")}
               </label>
             </div>
           </div>
