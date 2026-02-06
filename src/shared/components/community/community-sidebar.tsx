@@ -142,64 +142,69 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                       )}
                     </>
                   )}
-                  <button
-                    className="btn btn-light border-light-subtle d-flex gap-1 mb-2 w-100"
-                    onClick={() => handleShowReportModal(this)}
-                  >
-                    <Icon icon="flag" />{" "}
-                    {I18NextService.i18n.t("create_report")}
-                  </button>
-                  <CommunityReportModal
-                    onSubmit={reason => handleSubmitReport(this, reason)}
-                    onCancel={() => handleHideReportModal(this)}
-                    show={this.state.showReportModal}
-                  />
-                  <Link
-                    className="btn btn-light border-light-subtle d-flex gap-1 mb-2 w-100"
-                    to={`/modlog/${community.id}`}
-                  >
-                    <Icon icon="history" /> {I18NextService.i18n.t("modlog")}
-                  </Link>
-                  {this.amModOrAdminAndLocal() && (
-                    <CommunitySettingsLink community={community} />
-                  )}
-                  {amAdmin(myUserInfo) && (
-                    <>
-                      <button
-                        className="btn btn-outline-danger d-flex gap-1 mb-2 w-100"
-                        onClick={() => handleShowRemoveDialog(this)}
-                      >
-                        <Icon icon="x" />
-                        {I18NextService.i18n.t(
-                          !communityView.community.removed
-                            ? "remove"
-                            : "restore",
-                        )}
-                      </button>
-                      <ModActionFormModal
-                        onSubmit={reason => handleRemove(this, reason)}
-                        modActionType="remove-community"
-                        isRemoved={communityView.community.removed}
-                        onCancel={() => handleHideRemoveDialog(this)}
-                        show={this.state.showRemoveDialog}
-                      />
-                      <button
-                        className="btn btn-outline-danger d-flex gap-1 mb-2 w-100"
-                        onClick={() => handleShowPurgeDialog(this)}
-                        aria-label={I18NextService.i18n.t("purge_community")}
-                      >
-                        <Icon icon="purge" />
-                        {I18NextService.i18n.t("purge_community")}
-                      </button>
-                      <ModActionFormModal
-                        onSubmit={reason => handlePurge(this, reason)}
-                        modActionType="purge-community"
-                        community={communityView.community}
-                        onCancel={() => handleHidePurgeDialog(this)}
-                        show={this.state.showPurgeDialog}
-                      />
-                    </>
-                  )}
+                  <div className={"d-flex gap-1"}>
+                    <button
+                      className="btn btn-light border-light-subtle mb-2 w-100"
+                      onClick={() => handleShowReportModal(this)}
+                      aria-label={I18NextService.i18n.t("create_report")}
+                      title={I18NextService.i18n.t("create_report")}
+                    >
+                      <Icon icon="flag" />{" "}
+                    </button>
+                    <CommunityReportModal
+                      onSubmit={reason => handleSubmitReport(this, reason)}
+                      onCancel={() => handleHideReportModal(this)}
+                      show={this.state.showReportModal}
+                    />
+                    <Link
+                      className="btn btn-light border-light-subtle mb-2 w-100"
+                      to={`/modlog/${community.id}`}
+                      aria-label={I18NextService.i18n.t("modlog")}
+                      title={I18NextService.i18n.t("modlog")}
+                    >
+                      <Icon icon="history" />
+                    </Link>
+                    {this.amModOrAdminAndLocal() && (
+                      <CommunitySettingsLink community={community} />
+                    )}
+                    {amAdmin(myUserInfo) && (
+                      <>
+                        <button
+                          className="btn btn-light mb-2 w-100"
+                          onClick={() => handleShowRemoveDialog(this)}
+                          title={I18NextService.i18n.t(
+                            !communityView.community.removed
+                              ? "remove"
+                              : "restore",
+                          )}
+                        >
+                          <Icon icon="x" />
+                        </button>
+                        <ModActionFormModal
+                          onSubmit={reason => handleRemove(this, reason)}
+                          modActionType="remove-community"
+                          isRemoved={communityView.community.removed}
+                          onCancel={() => handleHideRemoveDialog(this)}
+                          show={this.state.showRemoveDialog}
+                        />
+                        <button
+                          className="btn btn-light mb-2 w-100"
+                          onClick={() => handleShowPurgeDialog(this)}
+                          aria-label={I18NextService.i18n.t("purge_community")}
+                          title={I18NextService.i18n.t("purge_community")}
+                        >
+                          <Icon icon="purge" />
+                        </button>
+                        <ModActionFormModal
+                          onSubmit={reason => handlePurge(this, reason)}
+                          modActionType="purge-community"
+                          community={communityView.community}
+                          onCancel={() => handleHidePurgeDialog(this)}
+                          show={this.state.showPurgeDialog}
+                        />
+                      </>
+                    )}
+                  </div>
                   <>
                     {this.props.myUserInfo && this.blockCommunity()}
                     {canViewCommunity_ && (
@@ -368,7 +373,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     return (
       !subscribed && (
         <button
-          className="btn btn-outline-danger d-flex gap-1 mb-2 w-100"
+          className="btn btn-outline-danger mb-2 w-100"
           onClick={() => handleBlock(this)}
         >
           <Icon icon="slash" />

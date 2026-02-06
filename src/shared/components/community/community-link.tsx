@@ -100,19 +100,20 @@ type CommunitySettingLinkProps = {
 export function CommunitySettingsLink({
   community,
 }: CommunitySettingLinkProps) {
-  const classes = classNames(
-    "btn btn-light border-light-subtle d-flex gap-1 mb-2 w-100",
-    {
-      "no-click": community.removed,
-    },
-  );
+  const classes = classNames("btn btn-light border-light-subtle mb-2 w-100", {
+    "no-click": community.removed,
+  });
 
   const link = `${communityLink(community).link}/settings`;
 
   return (
-    <Link className={classes} to={link}>
-      <Icon icon="settings" classes="me-1" />
-      {I18NextService.i18n.t("settings")}
+    <Link
+      className={classes}
+      to={link}
+      aria-label={I18NextService.i18n.t("settings")}
+      title={I18NextService.i18n.t("settings")}
+    >
+      <Icon icon="settings" />
     </Link>
   );
 }

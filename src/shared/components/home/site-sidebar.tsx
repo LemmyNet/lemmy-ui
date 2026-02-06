@@ -126,24 +126,26 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
           blockButton
         />
         <CreateMultiCommunityButton myUserInfo={myUserInfo} blockButton />
-        <Link
-          className="btn btn-light border-light-subtle d-flex gap-1 mb-2 w-100"
-          to="/modlog"
-        >
-          {" "}
-          <Icon icon="history" />
-          {I18NextService.i18n.t("modlog")}
-        </Link>
-        {amAdmin(myUserInfo) && (
+        <div className={"d-flex gap-1"}>
           <Link
-            className="btn btn-light border-light-subtle d-flex gap-1 mb-2 w-100"
-            to="/admin"
+            className="btn btn-light border-light-subtle mb-2 w-100"
+            to="/modlog"
+            aria-label={I18NextService.i18n.t("modlog")}
+            title={I18NextService.i18n.t("modlog")}
           >
-            {" "}
-            <Icon icon="settings" />
-            {I18NextService.i18n.t("settings")}
+            <Icon icon="history" />
           </Link>
-        )}
+          {amAdmin(myUserInfo) && (
+            <Link
+              className="btn btn-light border-light-subtle mb-2 w-100"
+              to="/admin"
+              aria-label={I18NextService.i18n.t("settings")}
+              title={I18NextService.i18n.t("settings")}
+            >
+              <Icon icon="settings" />
+            </Link>
+          )}
+        </div>
         {this.props.localSite && (
           <LocalSiteBadges localSite={this.props.localSite} />
         )}
