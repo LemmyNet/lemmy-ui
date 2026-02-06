@@ -72,6 +72,8 @@ type PostListingCardProps = {
   showMarkRead: ShowMarkReadType;
   disableAutoMarkAsRead: boolean;
   editLoading: boolean;
+  notificationRead?: boolean;
+  markReadLoading: boolean;
   onEditClick(): void;
   onPostEdit(form: EditPost): void;
   onPostVote(form: CreatePostLike): void;
@@ -183,6 +185,8 @@ export class PostListingCard extends Component<
             viewSource={this.state.viewSource}
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
+            notificationRead={p.notificationRead}
+            markReadLoading={p.markReadLoading}
             onPostVote={p.onPostVote}
             onScrollIntoCommentsClick={p.onScrollIntoCommentsClick}
             onViewSource={() => handleViewSource(this)}

@@ -301,6 +301,7 @@ const postListing = (
               showMarkRead="hide"
               disableAutoMarkAsRead={false}
               editLoading={false}
+              markReadLoading={false}
               // All of these are unused, since its view only
               onPostEdit={() => EMPTY_REQUEST}
               onPostVote={() => EMPTY_REQUEST}
@@ -987,6 +988,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 showMarkRead="hide"
                 disableAutoMarkAsRead={false}
                 editLoading={false}
+                markReadLoading={false}
                 // All of these are unused, since its view only
                 onPostEdit={() => EMPTY_REQUEST}
                 onPostVote={() => EMPTY_REQUEST}

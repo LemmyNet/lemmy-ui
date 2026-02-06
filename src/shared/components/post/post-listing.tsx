@@ -63,6 +63,8 @@ type PostListingProps = {
   showMarkRead: ShowMarkReadType;
   disableAutoMarkAsRead: boolean;
   editLoading: boolean;
+  notificationRead?: boolean;
+  markReadLoading: boolean;
   onPostEdit(form: EditPost): void;
   onPostVote(form: CreatePostLike): void;
   onPostReport(form: CreatePostReport): void;
@@ -185,6 +187,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             showMarkRead={p.showMarkRead}
             disableAutoMarkAsRead={p.disableAutoMarkAsRead}
             editLoading={p.editLoading}
+            notificationRead={p.notificationRead}
+            markReadLoading={p.markReadLoading}
             onEditClick={() => handleEditClick(this)}
             onPostEdit={p.onPostEdit}
             onPostVote={p.onPostVote}
