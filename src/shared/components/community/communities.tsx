@@ -237,6 +237,10 @@ export class Communities extends Component<
                 currentOption={listingType}
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
+                showSuggested={
+                  !!this.isoData.siteRes.site_view.local_site
+                    .suggested_communities
+                }
                 myUserInfo={myUserInfo}
                 onSelect={val => handleListingTypeChange(this, val)}
               />

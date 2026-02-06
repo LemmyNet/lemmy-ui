@@ -13,6 +13,7 @@ type ListingTypeDropdownProps = {
   currentOption: ListingType;
   showLocal: boolean;
   showSubscribed: boolean;
+  showSuggested: boolean;
   myUserInfo: MyUserInfo | undefined;
   onSelect(val: ListingType): void;
   className?: string;
@@ -22,6 +23,7 @@ export function ListingTypeDropdown({
   currentOption,
   showLocal,
   showSubscribed,
+  showSuggested,
   myUserInfo,
   onSelect,
   className,
@@ -40,6 +42,10 @@ export function ListingTypeDropdown({
 
   if (!showSubscribed) {
     filteredOptions = filteredOptions.filter(o => "subscribed" !== o.value);
+  }
+
+  if (!showSuggested) {
+    filteredOptions = filteredOptions.filter(o => "suggested" !== o.value);
   }
 
   return (

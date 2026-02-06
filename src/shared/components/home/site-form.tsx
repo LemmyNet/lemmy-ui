@@ -426,6 +426,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 }
                 showLocal
                 showSubscribed={false}
+                showSuggested
                 myUserInfo={this.props.myUserInfo}
                 onSelect={val => handleDefaultPostListingTypeChange(this, val)}
               />

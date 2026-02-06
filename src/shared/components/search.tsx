@@ -806,6 +806,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               currentOption={listingType}
               showLocal={showLocal(this.isoData)}
               showSubscribed
+              showSuggested={
+                !!this.isoData.siteRes.site_view.local_site
+                  .suggested_communities
+              }
               onSelect={type => handleListingTypeChange(this, type)}
               myUserInfo={this.isoData.myUserInfo}
             />
