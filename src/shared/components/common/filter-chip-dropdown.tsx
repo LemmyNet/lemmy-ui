@@ -13,55 +13,58 @@ export type FilterOption<T extends string> = {
 type FilterChipDropdownProps<T extends string> = {
   allOptions: FilterOption<T>[];
   currentOption: FilterOption<T> | undefined;
+  label?: NoOptionI18nKeys;
   onSelect(val: T): void;
   className?: string;
 };
 
 export function FilterChipDropdown<T extends string>({
-  className,
   allOptions,
   currentOption,
+  label,
   onSelect,
+  className,
 }: FilterChipDropdownProps<T>) {
   const id = randomStr();
 
-  // TODO I kind of hate how strong active is
   return (
     <div className="dropdown">
-      <button
-        className={classNames(
-          "dropdown-toggle",
-          className,
-          {
-            "btn btn-sm btn-light border-light-subtle": className === undefined,
-          },
-          // { active: currentOption },
+      <div className="btn-group">
+        {label && (
+          <button className="btn btn-sm btn-light border-light-subtle">
+            {I18NextService.i18n.t(label)}
+          </button>
         )}
-        type="button"
-        aria-expanded={false}
-        data-bs-toggle="dropdown"
-      >
-        {currentOption && filterOptioni18nStr(currentOption)}
-      </button>
-      <ul className="dropdown-menu">
-        {allOptions.map(opt => (
-          <li>
-            <button
-              className={classNames("dropdown-item", {
-                "fw-bold": currentOption?.value === opt.value,
-              })}
-              id={`${id}-${opt.value}`}
-              value={opt.value}
-              type="button"
-              role="option"
-              aria-selected={currentOption?.value === opt.value}
-              onClick={() => onSelect(opt.value)}
-            >
-              {filterOptioni18nStr(opt)}
-            </button>
-          </li>
-        ))}
-      </ul>
+        <button
+          className={classNames("dropdown-toggle", className, {
+            "btn btn-sm btn-light border-light-subtle": className === undefined,
+          })}
+          type="button"
+          aria-expanded={false}
+          data-bs-toggle="dropdown"
+        >
+          {currentOption && filterOptioni18nStr(currentOption)}
+        </button>
+        <ul className="dropdown-menu">
+          {allOptions.map(opt => (
+            <li>
+              <button
+                className={classNames("dropdown-item", {
+                  "fw-bold": currentOption?.value === opt.value,
+                })}
+                id={`${id}-${opt.value}`}
+                value={opt.value}
+                type="button"
+                role="option"
+                aria-selected={currentOption?.value === opt.value}
+                onClick={() => onSelect(opt.value)}
+              >
+                {filterOptioni18nStr(opt)}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

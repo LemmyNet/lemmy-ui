@@ -36,6 +36,7 @@ export function PostSortDropdown({
   return (
     <div className="d-flex align-items-center">
       <FilterChipDropdown
+        label={"sort"}
         allOptions={postSortOptions}
         currentOption={postSortOptions.find(t => t.value === currentOption)}
         onSelect={onSelect}
@@ -61,6 +62,7 @@ export function CommentSortDropdown({
   return (
     <div className="d-flex align-items-center">
       <FilterChipDropdown
+        label={"sort"}
         allOptions={commentSortOptions}
         currentOption={commentSortOptions.find(t => t.value === currentOption)}
         onSelect={onSelect}
@@ -94,6 +96,7 @@ export function CommunitiesSortDropdown({
   return (
     <div className="d-flex align-items-center">
       <FilterChipDropdown
+        label={"sort"}
         allOptions={communitiesSortOptions}
         currentOption={communitiesSortOptions.find(
           t => t.value === currentOption,
@@ -123,6 +126,7 @@ export function MultiCommunitiesSortDropdown({
   return (
     <div className="d-flex align-items-center">
       <FilterChipDropdown
+        label={"sort"}
         allOptions={multiCommunitiesSortOptions}
         currentOption={multiCommunitiesSortOptions.find(
           t => t.value === currentOption,
@@ -148,6 +152,7 @@ export function SearchSortDropdown({
   return (
     <div className="d-flex align-items-center">
       <FilterChipDropdown
+        label={"sort"}
         allOptions={searchSortOptions}
         currentOption={searchSortOptions.find(t => t.value === currentOption)}
         onSelect={onSelect}
