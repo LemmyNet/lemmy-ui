@@ -373,7 +373,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     return (
       !subscribed && (
         <button
-          className="btn btn-outline-danger mb-2 w-100"
+          className="btn btn-outline-danger d-flex gap-1 mb-2 w-100"
           onClick={() => handleBlock(this)}
         >
           <Icon icon="slash" />
