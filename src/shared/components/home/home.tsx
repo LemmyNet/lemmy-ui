@@ -886,6 +886,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             }
             showLocal={showLocal(this.isoData)}
             showSubscribed
+            showSuggested={
+              !!this.isoData.siteRes.site_view.local_site.suggested_communities
+            }
             myUserInfo={this.isoData.myUserInfo}
             onSelect={val => handleListingTypeChange(this, val)}
           />
