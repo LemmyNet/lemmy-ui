@@ -285,6 +285,7 @@ export class Notifications extends Component<
             node={commentToFlatNode(data)}
             createLoading={itemLoading(this.state.createCommentRes)}
             editLoading={itemLoading(this.state.editCommentRes)}
+            fetchChildrenLoading={undefined}
             viewType={"flat"}
             showCommunity
             showContext
@@ -319,6 +320,7 @@ export class Notifications extends Component<
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
             onMarkRead={(id, read) => handleMarkCommentAsRead(this, id, read)}
+            onFetchChildren={() => {}}
           />
         );
       case "private_message":

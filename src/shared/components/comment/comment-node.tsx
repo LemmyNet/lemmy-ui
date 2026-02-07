@@ -65,8 +65,6 @@ type CommentNodeState = {
   collapsed: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
-  // TODO get rid
-  fetchChildrenLoading: boolean;
 };
 
 type CommentNodeProps = {
@@ -90,6 +88,7 @@ type CommentNodeProps = {
   createLoading: CommentId | undefined;
   editLoading: CommentId | undefined;
   markReadLoading: CommentId | undefined;
+  fetchChildrenLoading: CommentId | undefined;
   onMarkRead(commentId: CommentId, read: boolean): void;
   onSaveComment(form: SaveComment): void;
   onCreateComment(form: CreateComment): void;
@@ -105,7 +104,7 @@ type CommentNodeProps = {
   onBanPersonFromCommunity(form: BanFromCommunity): void;
   onBanPerson(form: BanPerson): void;
   onTransferCommunity(form: TransferCommunity): void;
-  onFetchChildren?(form: GetComments): void;
+  onFetchChildren(form: GetComments): void;
   onCommentReport(form: CreateCommentReport): void;
   onPurgePerson(form: PurgePerson): void;
   onPurgeComment(form: PurgeComment): void;
@@ -122,7 +121,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     collapsed: this.initCommentCollapsed(),
     viewSource: false,
     showAdvanced: false,
-    fetchChildrenLoading: false,
   };
 
   componentWillReceiveProps(
@@ -355,7 +353,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 className="btn btn-sm btn-link text-muted"
                 onClick={() => handleFetchChildren(this)}
               >
-                {this.state.fetchChildrenLoading ? (
+                {this.props.fetchChildrenLoading === id ? (
                   <Spinner />
                 ) : (
                   <>
@@ -391,6 +389,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               createLoading={this.props.createLoading}
               editLoading={this.props.editLoading}
               markReadLoading={this.props.markReadLoading}
+              fetchChildrenLoading={this.props.fetchChildrenLoading}
               nodes={buildNodeChildren(this.props.node)}
               postCreatorId={this.postCreatorId}
               community={this.community}
@@ -674,8 +673,8 @@ function handleTransferCommunity(i: CommentNode) {
 }
 
 function handleFetchChildren(i: CommentNode) {
-  i.setState({ fetchChildrenLoading: true });
   i.props.onFetchChildren?.({
+    sort: "old",
     parent_id: i.commentId,
     max_depth: commentTreeMaxDepth,
     limit: 999, // TODO

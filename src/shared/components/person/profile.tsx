@@ -750,6 +750,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     }
                     onPersonNote={form => handlePersonNote(this, form)}
                     onLockComment={form => handleLockComment(this, form)}
+                    onFetchChildren={() => {}}
                   />
                 ))}
               <PaginatorCursor
