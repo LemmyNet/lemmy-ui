@@ -26,15 +26,13 @@ export function FilterChipDropdown<T extends string>({
   className,
 }: FilterChipDropdownProps<T>) {
   const id = randomStr();
+  const labelTitle = label ? `${I18NextService.i18n.t(label)}: ` : "";
+  const buttonTitle =
+    labelTitle + (currentOption && filterOptioni18nStr(currentOption));
 
   return (
     <div className="dropdown">
       <div className="btn-group">
-        {label && (
-          <button className="btn btn-sm btn-light border-light-subtle">
-            {I18NextService.i18n.t(label)}
-          </button>
-        )}
         <button
           className={classNames("dropdown-toggle", className, {
             "btn btn-sm btn-light border-light-subtle": className === undefined,
@@ -43,7 +41,7 @@ export function FilterChipDropdown<T extends string>({
           aria-expanded={false}
           data-bs-toggle="dropdown"
         >
-          {currentOption && filterOptioni18nStr(currentOption)}
+          {buttonTitle}
         </button>
         <ul className="dropdown-menu">
           {allOptions.map(opt => (
