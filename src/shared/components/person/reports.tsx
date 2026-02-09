@@ -241,6 +241,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
     return (
       <FilterChipDropdown
+        label={"type"}
         allOptions={options}
         currentOption={options.find(t => t.value === this.state.reportType)}
         onSelect={val => handleReportTypeChange(this, val)}

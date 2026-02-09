@@ -230,6 +230,7 @@ export class Notifications extends Component<
   messageTypeFilters() {
     return (
       <FilterChipDropdown
+        label={"type"}
         allOptions={messageTypeOptions}
         currentOption={messageTypeOptions.find(
           t => t.value === this.state.messageType,
