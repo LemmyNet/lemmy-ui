@@ -174,7 +174,7 @@ export class Communities extends Component<
             <TableHr />
             {this.state.listCommunitiesResponse.data.items.map(cv => (
               <>
-                <div className="row" key={cv.community.id}>
+                <div className="row">
                   <div className={nameCols}>
                     <CommunityLink
                       community={cv.community}
