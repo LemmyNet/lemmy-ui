@@ -53,6 +53,7 @@ import {
   PagedResponse,
   CommentView,
   GetCommunity,
+  Community as CommunityI,
   GetCommunityResponse,
   GetPosts,
   PostView,
@@ -1343,33 +1344,48 @@ function ShowWarning({ res }: ShowWarningProps) {
     community.subscribers === community.subscribers_local &&
     community.visibility !== "local_only_public" &&
     community.visibility !== "local_only_private";
-  let title: NoOptionI18nKeys | undefined;
-  let body: InfernoNode;
-  if (community.local && notFederated) {
-    title = "community_not_federated_title";
-    body = (
-      <T className="d-inline" i18nKey="community_not_federated_message">
-        #{communityName(community)}
-        <a href="https://lemmy-federate.com">#</a>
-      </T>
-    );
-  }
 
   const oneWeekAgo = new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
   const deadInstance =
     res.site && new Date(res.site?.last_refreshed_at) < oneWeekAgo;
   const deadCommunity = new Date(community.last_refreshed_at) < oneWeekAgo;
-  if (!community.local && (deadInstance || deadCommunity)) {
-    title = "dead_community_title";
-    body = I18NextService.i18n.t("dead_community_body");
-  }
 
-  if (title && body) {
-    return (
-      <div className="alert alert-warning text-bg-warning" role="alert">
-        <h4 className="alert-heading">{I18NextService.i18n.t(title)}</h4>
-        <div className="card-text">{body}</div>
-      </div>
-    );
+  if (community.local && notFederated) {
+    return <NotFederatedWarning community={community} />;
+  } else if (!community.local && (deadInstance || deadCommunity)) {
+    return <DeadInstanceOrCommunityWarning />;
+  } else {
+    return <></>;
   }
+}
+
+type NotFederatedWarningProps = { community: CommunityI };
+
+function NotFederatedWarning({ community }: NotFederatedWarningProps) {
+  return (
+    <div className="alert alert-warning text-bg-warning" role="alert">
+      <h4 className="alert-heading">
+        {I18NextService.i18n.t("community_not_federated_title")}
+      </h4>
+      <div className="card-text">
+        <T className="d-inline" i18nKey="community_not_federated_message">
+          #{communityName(community)}
+          <a href="https://lemmy-federate.com">#</a>
+        </T>
+      </div>
+    </div>
+  );
+}
+
+function DeadInstanceOrCommunityWarning() {
+  return (
+    <div className="alert alert-warning text-bg-warning" role="alert">
+      <h4 className="alert-heading">
+        {I18NextService.i18n.t("dead_community_title")}
+      </h4>
+      <div className="card-text">
+        {I18NextService.i18n.t("dead_community_body")}
+      </div>
+    </div>
+  );
 }
