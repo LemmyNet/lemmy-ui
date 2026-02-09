@@ -19,6 +19,7 @@ export function PostListingModeDropdown({
 }: PostListingModeDropdownProps) {
   return (
     <FilterChipDropdown
+      label={"view"}
       allOptions={options}
       currentOption={options.find(t => t.value === currentOption)}
       onSelect={onSelect}
