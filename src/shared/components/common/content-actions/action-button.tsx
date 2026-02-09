@@ -52,7 +52,7 @@ export default class ActionButton extends Component<
     return (
       <button
         className={classNames(
-          "btn btn-sm btn-light border-light-subtle",
+          "btn btn-sm border-light-subtle",
           inline || inlineWithText
             ? "btn-animate text-body"
             : "d-flex align-items-center rounded-0 dropdown-item",

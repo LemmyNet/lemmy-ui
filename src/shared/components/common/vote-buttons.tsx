@@ -223,7 +223,7 @@ export class VoteButtonsCompact extends Component<
         {enableUpvotes(localSite, voteContentType) && (
           <button
             type="button"
-            className={`btn btn-sm btn-animate btn-light border-light-subtle ${
+            className={`btn btn-sm btn-animate border-light-subtle ${
               this.props.myVoteIsUpvote === true ? "text-primary" : "text-muted"
             }`}
             data-tippy-content={tippy(
@@ -255,7 +255,7 @@ export class VoteButtonsCompact extends Component<
         {enableDownvotes(localSite, voteContentType) && (
           <button
             type="button"
-            className={`btn btn-sm btn-light border-light-subtle btn-animate ${
+            className={`btn btn-sm border-light-subtle btn-animate ${
               this.props.myVoteIsUpvote === false ? "text-danger" : "text-muted"
             }`}
             disabled={this.props.disabled}
@@ -410,7 +410,7 @@ function Score({ myVoteIsUpvote, score }: ScoreProps) {
   return (
     <button
       className={classNames(
-        "btn btn-sm btn-animate btn-light border-light-subtle py-0",
+        "btn btn-sm btn-animate border-light-subtle py-0",
         scoreColor(myVoteIsUpvote),
       )}
       aria-label={scoreTippy}
@@ -440,7 +440,7 @@ function UpvotePct(props: UpvotePctProps) {
   return (
     thresholdCheck && (
       <button
-        className={"btn btn-sm btn-animate btn-light border-light-subtle py-0"}
+        className={"btn btn-sm btn-animate border-light-subtle py-0"}
         aria-label={upvotesPctTippy}
         data-tippy-content={upvotesPctTippy}
       >
