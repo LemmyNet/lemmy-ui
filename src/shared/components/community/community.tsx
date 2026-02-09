@@ -471,7 +471,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       <div className="community container-lg">
         <div className="row">
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
-            <ShowWarning res={res} />
+            {res && <ShowWarning res={res} />}
             {canViewCommunity_ ? (
               <>
                 {this.renderCommunity()}
@@ -1332,11 +1332,9 @@ function updateModerators(
   });
 }
 
-const ShowWarning = ({ res }: { res: GetCommunityResponse }) => {
-  if (!res || !res.community_view) {
-    return;
-  }
+type ShowWarningProps = { res: GetCommunityResponse };
 
+function ShowWarning({ res }: ShowWarningProps) {
   const community = res.community_view.community;
   // Show a message to the moderator if this community is not federated yet (ie it has no
   // remote followers).
@@ -1374,4 +1372,4 @@ const ShowWarning = ({ res }: { res: GetCommunityResponse }) => {
       </div>
     );
   }
-};
+}
