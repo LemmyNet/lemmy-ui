@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { Icon, Spinner } from "../icon";
 import classNames from "classnames";
 import { tippyMixin } from "../../mixins/tippy-mixin";
@@ -57,7 +57,7 @@ export default class ActionButton extends Component<
             ? "btn-animate text-body py-0 px-1 ms-2 me-0"
             : "d-flex align-items-center rounded-0 dropdown-item",
         )}
-        onClick={linkEvent(this, handleClick)}
+        onClick={() => handleClick(this)}
         aria-label={label}
         data-tippy-content={inline ? label : undefined}
         disabled={this.state.loading || this.props.disabled}

@@ -28,7 +28,11 @@ import {
   CommunityTag,
   TransferCommunity,
 } from "lemmy-js-client";
-import { ShowBodyType, ShowCrossPostsType } from "@utils/types";
+import {
+  ShowBodyType,
+  ShowCrossPostsType,
+  ShowMarkReadType,
+} from "@utils/types";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { PostForm } from "./post-form";
 import { PostListingList } from "./post-listing-list";
@@ -56,7 +60,7 @@ type PostListingProps = {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   showCrossPosts: ShowCrossPostsType;
-  markable: boolean;
+  showMarkRead: ShowMarkReadType;
   disableAutoMarkAsRead: boolean;
   editLoading: boolean;
   onPostEdit(form: EditPost): void;
@@ -178,7 +182,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
             showCrossPosts={p.showCrossPosts}
-            markable={p.markable}
+            showMarkRead={p.showMarkRead}
             disableAutoMarkAsRead={p.disableAutoMarkAsRead}
             editLoading={p.editLoading}
             onEditClick={() => handleEditClick(this)}

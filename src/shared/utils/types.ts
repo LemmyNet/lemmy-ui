@@ -206,3 +206,8 @@ export type ShowCrossPostsType = "small" | "expanded" | "show_separately";
  * Whether the body is hidden, preview (for card view lists), or full.
  **/
 export type ShowBodyType = "hidden" | "preview" | "full";
+
+/**
+ * Determines whether to show the mark read in the actions dropdown, or the main bar (for notifications).
+ **/
+export type ShowMarkReadType = "hide" | "dropdown" | "main_bar";

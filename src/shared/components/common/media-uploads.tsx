@@ -1,4 +1,4 @@
-import { Component, InfernoNode, linkEvent } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   LocalImage,
   LocalImageView,
@@ -78,7 +78,7 @@ export class MediaUploads extends Component<Props, any> {
   deleteImageBtn(image: LocalImage) {
     return (
       <button
-        onClick={linkEvent(image, this.handleDeleteImage)}
+        onClick={() => this.handleDeleteImage(image)}
         className="btn btn-danger"
       >
         {I18NextService.i18n.t("delete")}

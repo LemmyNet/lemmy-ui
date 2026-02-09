@@ -2,7 +2,7 @@ import { setIsoData } from "@utils/app";
 import { getQueryParams, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { CommunityView, LemmyHttp, SearchResponse } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, HttpService, I18NextService } from "../services";
@@ -206,8 +206,8 @@ export class RemoteFetch extends Component<
                 <SubscribeButton
                   followState={communityView.community_actions?.follow_state}
                   apId={communityView.community.ap_id}
-                  onFollow={linkEvent(this, handleFollow)}
-                  onUnFollow={linkEvent(this, handleUnfollow)}
+                  onFollow={() => handleFollow(this)}
+                  onUnFollow={() => handleUnfollow(this)}
                   loading={this.state.followCommunityLoading}
                   showRemoteFetch={!this.isoData.myUserInfo}
                 />
