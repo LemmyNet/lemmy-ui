@@ -824,6 +824,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       <div className="row row-cols-auto align-items-center g-3 mb-2">
         <div className="col">
           <FilterChipDropdown
+            label={"type"}
             allOptions={filteredContentTypeOptions}
             currentOption={filteredContentTypeOptions.find(
               t => t.value === contentType,
@@ -834,6 +835,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         {this.amCurrentUser && (
           <div className="col">
             <FilterChipDropdown
+              label={"view"}
               allOptions={viewTypeOptions}
               currentOption={viewTypeOptions.find(t => t.value === viewType)}
               onSelect={val => handleViewChange(this, val)}
