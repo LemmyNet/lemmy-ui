@@ -16,6 +16,7 @@ type ListingTypeDropdownProps = {
   showSuggested: boolean;
   myUserInfo: MyUserInfo | undefined;
   onSelect(val: ListingType): void;
+  showLabel: boolean;
   className?: string;
 };
 
@@ -26,6 +27,7 @@ export function ListingTypeDropdown({
   showSuggested,
   myUserInfo,
   onSelect,
+  showLabel,
   className,
 }: ListingTypeDropdownProps) {
   let filteredOptions = options;
@@ -50,7 +52,7 @@ export function ListingTypeDropdown({
 
   return (
     <FilterChipDropdown
-      label={"type"}
+      label={showLabel ? "type" : undefined}
       allOptions={filteredOptions}
       currentOption={filteredOptions.find(t => t.value === currentOption)}
       onSelect={onSelect}

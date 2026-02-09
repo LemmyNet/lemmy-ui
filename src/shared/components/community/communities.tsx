@@ -242,6 +242,7 @@ export class Communities extends Component<
                     .suggested_communities
                 }
                 myUserInfo={myUserInfo}
+                showLabel
                 onSelect={val => handleListingTypeChange(this, val)}
               />
             </div>
@@ -249,6 +250,7 @@ export class Communities extends Component<
               <CommunitiesSortDropdown
                 currentOption={sort}
                 onSelect={val => handleSortChange(this, val)}
+                showLabel
               />
             </div>
             <div className="col">

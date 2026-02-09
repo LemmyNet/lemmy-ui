@@ -889,6 +889,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             showSuggested={
               !!this.isoData.siteRes.site_view.local_site.suggested_communities
             }
+            showLabel
             myUserInfo={this.isoData.myUserInfo}
             onSelect={val => handleListingTypeChange(this, val)}
           />
@@ -897,6 +898,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           <PostListingModeDropdown
             currentOption={this.state.postListingMode}
             onSelect={val => handlePostListingModeChange(this, val)}
+            showLabel
           />
         </div>
         {this.props.postOrCommentType === "post" ? (
@@ -905,6 +907,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               <PostSortDropdown
                 currentOption={mixedToPostSortType(sort)}
                 onSelect={val => handleSortChange(this, val)}
+                showLabel
               />
             </div>
             <div className="col">
@@ -919,6 +922,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <CommentSortDropdown
               currentOption={mixedToCommentSortType(sort)}
               onSelect={val => handleCommentSortChange(this, val)}
+              showLabel
             />
           </div>
         )}

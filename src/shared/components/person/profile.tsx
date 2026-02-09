@@ -846,6 +846,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           <SearchSortDropdown
             currentOption={sort}
             onSelect={val => handleSortChange(this, val)}
+            showLabel
           />
         </div>
         {/* TODO: Rss feed for the Saved, Uploads, and Upvoted */}

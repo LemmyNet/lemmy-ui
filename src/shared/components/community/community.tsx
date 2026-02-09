@@ -763,6 +763,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           <PostListingModeDropdown
             currentOption={this.state.postListingMode}
             onSelect={val => handlePostListingModeChange(this, val, myUserInfo)}
+            showLabel
           />
         </div>
         {this.props.postOrCommentType === "post" ? (
@@ -771,6 +772,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               <PostSortDropdown
                 currentOption={mixedToPostSortType(sort)}
                 onSelect={val => handleSortChange(this, val)}
+                showLabel
               />
             </div>
             <div className="col">
@@ -785,6 +787,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             <CommentSortDropdown
               currentOption={mixedToCommentSortType(sort)}
               onSelect={val => handleCommentSortChange(this, val)}
+              showLabel
             />
           </div>
         )}

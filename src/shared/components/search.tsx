@@ -812,6 +812,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               }
               onSelect={type => handleListingTypeChange(this, type)}
               myUserInfo={this.isoData.myUserInfo}
+              showLabel
             />
           </div>
           {(type === "all" || type === "posts") && (
@@ -836,6 +837,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             <SearchSortDropdown
               currentOption={sort}
               onSelect={val => handleSortChange(this, val)}
+              showLabel
             />
           </div>
           <div className="col">

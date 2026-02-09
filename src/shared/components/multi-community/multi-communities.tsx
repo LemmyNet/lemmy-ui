@@ -224,6 +224,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
               <MultiCommunitiesSortDropdown
                 currentOption={sort}
                 onSelect={val => handleSortChange(this, val)}
+                showLabel
               />
             </div>
             <div className="col me-auto">
