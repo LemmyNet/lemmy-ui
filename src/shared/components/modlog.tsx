@@ -718,7 +718,6 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   fetchUserToken?: symbol;
   async fetchUser(props: ModlogRouteProps) {
-    // TODO
     const token = (this.fetchUserToken = Symbol());
     const { userId } = props;
 
