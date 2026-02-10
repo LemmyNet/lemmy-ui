@@ -9,7 +9,7 @@ const options: FilterOption<UnreadOrAll>[] = [
 
 type UnreadOrAllDropdownProps = {
   currentOption: UnreadOrAll;
-  onSelect(val: UnreadOrAll): void;
+  onSelect(this: void, val: UnreadOrAll): void;
   className?: string;
 };
 export function UnreadOrAllDropdown({

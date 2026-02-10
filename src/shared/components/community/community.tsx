@@ -304,21 +304,21 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.fetchData(nextProps);
   }
 
-  static async fetchInitialData({
-    headers,
-    query: {
-      postOrCommentType,
-      cursor,
-      sort,
-      postTimeRange,
-      showHidden,
-      showRead,
-    },
-    match: { params: props },
-  }: InitialFetchRequest<
-    CommunityPathProps,
-    CommunityProps
-  >): Promise<CommunityData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      query: {
+        postOrCommentType,
+        cursor,
+        sort,
+        postTimeRange,
+        showHidden,
+        showRead,
+      },
+      match: { params: props },
+    }: InitialFetchRequest<CommunityPathProps, CommunityProps>,
+  ): Promise<CommunityData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

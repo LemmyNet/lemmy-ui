@@ -389,11 +389,14 @@ export class Post extends Component<PostRouteProps, PostState> {
     return { pathname, search: getQueryString(query) };
   }
 
-  static async fetchInitialData({
-    headers,
-    match,
-    query: { sort },
-  }: InitialFetchRequest<PostPathProps, PostProps>): Promise<PostData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      match,
+      query: { sort },
+    }: InitialFetchRequest<PostPathProps, PostProps>,
+  ): Promise<PostData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

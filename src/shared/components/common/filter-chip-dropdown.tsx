@@ -13,7 +13,7 @@ export type FilterOption<T extends string> = {
 type FilterChipDropdownProps<T extends string> = {
   allOptions: FilterOption<T>[];
   currentOption: FilterOption<T> | undefined;
-  onSelect(val: T): void;
+  onSelect(this: void, val: T): void;
   className?: string;
 };
 

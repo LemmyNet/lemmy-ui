@@ -9,7 +9,7 @@ const options: FilterOption<AllOrBanned>[] = [
 
 type AllOrBannedDropdownProps = {
   currentOption: AllOrBanned;
-  onSelect(val: AllOrBanned): void;
+  onSelect(this: void, val: AllOrBanned): void;
   className?: string;
 };
 export function AllOrBannedDropdown({

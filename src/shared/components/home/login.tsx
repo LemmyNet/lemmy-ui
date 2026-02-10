@@ -28,7 +28,7 @@ interface LoginProps {
   prev?: string;
 }
 
-export function getLoginQueryParams(source?: string): LoginProps {
+export function getLoginQueryParams(this: void, source?: string): LoginProps {
   return getQueryParams<LoginProps>(
     {
       prev: (param?: string) => param,

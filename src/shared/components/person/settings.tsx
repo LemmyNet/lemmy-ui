@@ -346,9 +346,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     setThemeOverride(undefined);
   }
 
-  static async fetchInitialData({
-    headers,
-  }: InitialFetchRequest): Promise<SettingsData> {
+  static async fetchInitialData(
+    this: void,
+    { headers }: InitialFetchRequest,
+  ): Promise<SettingsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -399,7 +400,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     /* eslint-enable jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid */
   }
 
-  userSettings(isSelected: boolean) {
+  userSettings = (isSelected: boolean) => {
     return (
       <div
         className={classNames("tab-pane show", {
@@ -441,9 +442,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         </div>
       </div>
     );
-  }
+  };
 
-  blockCards(isSelected: boolean) {
+  blockCards = (isSelected: boolean) => {
     return (
       !userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
         <div
@@ -482,7 +483,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         </div>
       )
     );
-  }
+  };
 
   changePasswordHtmlForm() {
     return (

@@ -12,7 +12,7 @@ import { UserBadges } from "./user-badges";
 interface PendingFollowProps {
   pending_follow: PendingFollowView;
   myUserInfo: MyUserInfo | undefined;
-  onApproveFollower(form: ApproveCommunityPendingFollower): void;
+  onApproveFollower(this: void, form: ApproveCommunityPendingFollower): void;
 }
 
 interface PendingFollowState {

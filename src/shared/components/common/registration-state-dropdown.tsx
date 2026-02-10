@@ -10,7 +10,7 @@ const allOptions: FilterOption<RegistrationState>[] = [
 
 type RegistrationStateDropdownProps = {
   currentOption: RegistrationState;
-  onSelect(val: RegistrationState): void;
+  onSelect(this: void, val: RegistrationState): void;
   className?: string;
 };
 

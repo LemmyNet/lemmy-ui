@@ -157,9 +157,10 @@ export class AdminSettings extends Component<
     }
   }
 
-  static async fetchInitialData({
-    headers,
-  }: InitialFetchRequest): Promise<AdminSettingsData> {
+  static async fetchInitialData(
+    this: void,
+    { headers }: InitialFetchRequest,
+  ): Promise<AdminSettingsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

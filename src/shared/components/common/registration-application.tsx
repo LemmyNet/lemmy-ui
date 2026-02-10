@@ -15,7 +15,7 @@ import { MomentTime } from "./moment-time";
 interface RegistrationApplicationProps {
   application: RegistrationApplicationView;
   myUserInfo: MyUserInfo | undefined;
-  onApproveApplication(form: ApproveRegistrationApplication): void;
+  onApproveApplication(this: void, form: ApproveRegistrationApplication): void;
 }
 
 interface RegistrationApplicationState {

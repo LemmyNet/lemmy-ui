@@ -85,10 +85,10 @@ export class CreatePrivateMessage extends Component<
     }
   }
 
-  static async fetchInitialData({
-    headers,
-    match,
-  }: InitialFetchRequest<CreatePrivateMessagePathProps>): Promise<CreatePrivateMessageData> {
+  static async fetchInitialData(
+    this: void,
+    { headers, match }: InitialFetchRequest<CreatePrivateMessagePathProps>,
+  ): Promise<CreatePrivateMessageData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

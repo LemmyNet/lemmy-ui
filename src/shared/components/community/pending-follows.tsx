@@ -204,15 +204,15 @@ export class PendingFollows extends Component<
     );
   }
 
-  static async fetchInitialData({
-    headers,
-    match: {
-      params: { viewState, cursor },
-    },
-  }: InitialFetchRequest<
-    Record<string, never>,
-    PendingFollowsProps
-  >): Promise<PendingFollowsData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      match: {
+        params: { viewState, cursor },
+      },
+    }: InitialFetchRequest<Record<string, never>, PendingFollowsProps>,
+  ): Promise<PendingFollowsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

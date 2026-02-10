@@ -499,9 +499,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  static async fetchInitialData({
-    headers,
-  }: InitialFetchRequest): Promise<ReportsData> {
+  static async fetchInitialData(
+    this: void,
+    { headers }: InitialFetchRequest,
+  ): Promise<ReportsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

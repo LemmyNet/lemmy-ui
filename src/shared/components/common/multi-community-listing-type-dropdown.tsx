@@ -11,7 +11,7 @@ type MultiCommunityListingTypeDropdownProps = {
   currentOption: MultiCommunityListingType;
   showLocal: boolean;
   showSubscribed: boolean;
-  onSelect(val: MultiCommunityListingType): void;
+  onSelect(this: void, val: MultiCommunityListingType): void;
   className?: string;
 };
 

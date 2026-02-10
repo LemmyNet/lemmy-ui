@@ -588,20 +588,23 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     ]);
   }
 
-  static async fetchInitialData({
-    headers,
-    query: {
-      q: query,
-      type: searchType,
-      sort,
-      listingType: listing_type,
-      titleOnly: title_only,
-      postUrlOnly: post_url_only,
-      communityId: community_id,
-      creatorId: creator_id,
-      cursor,
-    },
-  }: InitialFetchRequest<SearchPathProps, SearchProps>): Promise<SearchData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      query: {
+        q: query,
+        type: searchType,
+        sort,
+        listingType: listing_type,
+        titleOnly: title_only,
+        postUrlOnly: post_url_only,
+        communityId: community_id,
+        creatorId: creator_id,
+        cursor,
+      },
+    }: InitialFetchRequest<SearchPathProps, SearchProps>,
+  ): Promise<SearchData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

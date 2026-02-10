@@ -506,15 +506,15 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
-  static async fetchInitialData({
-    headers,
-    query: { contentType: view, cursor, viewType: filter },
-    match: { params: props },
-    myUserInfo,
-  }: InitialFetchRequest<
-    ProfilePathProps,
-    ProfileProps
-  >): Promise<ProfileData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      query: { contentType: view, cursor, viewType: filter },
+      match: { params: props },
+      myUserInfo,
+    }: InitialFetchRequest<ProfilePathProps, ProfileProps>,
+  ): Promise<ProfileData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );

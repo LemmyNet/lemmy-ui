@@ -14,7 +14,7 @@ type ListingTypeDropdownProps = {
   showLocal: boolean;
   showSubscribed: boolean;
   myUserInfo: MyUserInfo | undefined;
-  onSelect(val: ListingType): void;
+  onSelect(this: void, val: ListingType): void;
   className?: string;
 };
 

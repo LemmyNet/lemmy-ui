@@ -12,7 +12,7 @@ import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
 
 type SortDropdownProps<T extends string> = {
   currentOption: T;
-  onSelect(val: T): void;
+  onSelect(this: void, val: T): void;
   className?: string;
 };
 

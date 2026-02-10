@@ -861,7 +861,7 @@ type CommentMarkReadButtonProps = {
   comment: Comment;
   read: boolean;
   loading: boolean;
-  onMarkRead(commentId: CommentId, read: boolean): void;
+  onMarkRead(this: void, commentId: CommentId, read: boolean): void;
 };
 function CommentMarkReadButton({
   comment,

@@ -119,9 +119,11 @@ export interface IRoutePropsWithFetch<
   QueryPropsT extends Record<string, any>,
 > extends IRouteProps {
   fetchInitialData?(
+    this: void,
     req: InitialFetchRequest<PathPropsT, QueryPropsT>,
   ): Promise<DataT>;
   getQueryParams?(
+    this: void,
     source: string | undefined,
     siteRes: GetSiteResponse,
     myUserInfo?: MyUserInfo,

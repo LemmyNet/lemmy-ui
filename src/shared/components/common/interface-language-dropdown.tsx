@@ -15,7 +15,7 @@ const options: FilterOption<string>[] = [
 
 type InterfaceLanguageDropdownProps = {
   currentOption: string;
-  onSelect(val: string): void;
+  onSelect(this: void, val: string): void;
   className?: string;
 };
 export function InterfaceLanguageDropdown({

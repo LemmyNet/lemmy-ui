@@ -120,13 +120,13 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
     }
   }
 
-  static async fetchInitialData({
-    headers,
-    match: { params: props },
-  }: InitialFetchRequest<
-    PathProps,
-    Props
-  >): Promise<MultiCommunitySettingsData> {
+  static async fetchInitialData(
+    this: void,
+    {
+      headers,
+      match: { params: props },
+    }: InitialFetchRequest<PathProps, Props>,
+  ): Promise<MultiCommunitySettingsData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
