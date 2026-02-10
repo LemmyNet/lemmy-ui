@@ -1,4 +1,4 @@
 [submodule "lemmy-translations"]
 	path = lemmy-translations
 	url = https://github.com/lemmynet/lemmy-translations
-	branch = terms_and_conditions
+	branch = hide_read_posts

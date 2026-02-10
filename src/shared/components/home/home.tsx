@@ -140,6 +140,7 @@ interface HomeProps {
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
   showHidden?: boolean;
+  showRead?: boolean;
   cursor?: PaginationCursor;
 }
 
@@ -209,10 +210,18 @@ function getShowHiddenFromQuery(hidden: string | undefined): boolean {
   return hidden === "true";
 }
 
+function getShowReadFromQuery(
+  showRead: string | undefined,
+  fallback: boolean,
+): boolean {
+  return showRead ? showRead === "true" : fallback;
+}
+
 type Fallbacks = {
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
   listingType: ListingType;
+  showRead: boolean;
 };
 
 export function getHomeQueryParams(
@@ -230,6 +239,7 @@ export function getHomeQueryParams(
       cursor: (cursor?: string) => cursor,
       postOrCommentType: getPostOrCommentTypeFromQuery,
       showHidden: getShowHiddenFromQuery,
+      showRead: getShowReadFromQuery,
     },
     source,
     {
@@ -239,6 +249,7 @@ export function getHomeQueryParams(
         local_user?.default_listing_type ??
         local_site.default_post_listing_type,
       postTimeRange: local_user?.default_post_time_range_seconds ?? 0,
+      showRead: local_user?.show_read_posts ?? true,
     },
   );
 }
@@ -340,6 +351,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       postTimeRange,
       cursor,
       showHidden,
+      showRead,
     },
     headers,
   }: InitialFetchRequest<HomePathProps, HomeProps>): Promise<HomeData> {
@@ -359,6 +371,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         sort: mixedToPostSortType(sort),
         time_range_seconds: postTimeRange,
         show_hidden: showHidden,
+        show_read: showRead,
       };
 
       postsFetch = client.getPosts(getPostsForm);
@@ -675,6 +688,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       sort,
       postTimeRange,
       showHidden,
+      showRead,
     } = {
       ...this.props,
       ...props,
@@ -686,6 +700,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       sort,
       postTimeRange: postTimeRange.toString(),
       showHidden: showHidden?.toString(),
+      showRead: showRead?.toString(),
     };
 
     this.props.history.push({
@@ -857,8 +872,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get selects() {
-    const { listingType, postOrCommentType, sort, postTimeRange, showHidden } =
-      this.props;
+    const {
+      listingType,
+      postOrCommentType,
+      sort,
+      postTimeRange,
+      showHidden,
+      showRead,
+    } = this.props;
 
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-3">
@@ -869,13 +890,22 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           />
         </div>
         {postOrCommentType === "post" && this.isoData.myUserInfo && (
-          <div className="col">
-            <FilterChipCheckbox
-              option={"show_hidden_posts"}
-              isChecked={showHidden ?? false}
-              onCheck={hidden => handleShowHiddenChange(this, hidden)}
-            />
-          </div>
+          <>
+            <div className="col">
+              <FilterChipCheckbox
+                option={"show_hidden_posts"}
+                isChecked={showHidden ?? false}
+                onCheck={hidden => handleShowHiddenChange(this, hidden)}
+              />
+            </div>
+            <div className="col">
+              <FilterChipCheckbox
+                option={"hide_read_posts"}
+                isChecked={!(showRead ?? false)}
+                onCheck={hideRead => handleHideReadChange(this, hideRead)}
+              />
+            </div>
+          </>
         )}
         {/** TODO add show read posts also **/}
         <div className="col">
@@ -938,6 +968,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     sort,
     postTimeRange,
     showHidden,
+    showRead,
   }: HomeProps) {
     const token = (this.fetchDataToken = Symbol());
     if (postOrCommentType === "post") {
@@ -948,6 +979,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         time_range_seconds: postTimeRange,
         type_: listingType,
         show_hidden: showHidden,
+        show_read: showRead,
       });
       if (token === this.fetchDataToken) {
         this.setState({ postsRes });
@@ -1123,6 +1155,13 @@ function handlePostOrCommentTypeChange(i: Home, val: PostOrCommentType) {
 function handleShowHiddenChange(i: Home, showHidden: boolean) {
   i.updateUrl({
     showHidden,
+    cursor: undefined,
+  });
+}
+
+function handleHideReadChange(i: Home, hideRead: boolean) {
+  i.updateUrl({
+    showRead: !hideRead,
     cursor: undefined,
   });
 }
