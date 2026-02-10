@@ -120,6 +120,7 @@ import { Link } from "inferno-router";
 import { Action } from "history";
 import { CommentSortDropdown } from "@components/common/sort-dropdown";
 import { CommentViewTypeDropdown } from "@components/common/comment-view-type-dropdown";
+import { RouterContext } from "inferno-router/dist/Router";
 
 const commentsShownInterval = 15;
 
@@ -665,7 +666,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   onCreateComment={form =>
                     handleCreateToplevelComment(this, form)
                   }
-                  onEditComment={() => {}}
+              onEditComment={() => { }}
                   loading={itemLoading(this.state.createCommentRes) === 0}
                 />
               )}
@@ -801,7 +802,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
-            onMarkRead={async () => {}}
+            onMarkRead={async () => { }}
           />
         </div>
       );
@@ -934,7 +935,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
-            onMarkRead={async () => {}}
+            onMarkRead={async () => { }}
           />
         </div>
       )
@@ -1019,7 +1020,8 @@ export class Post extends Component<PostRouteProps, PostState> {
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      this.context.router.history.push(`/`);
+      const context: RouterContext = this.context;
+      context.router.history.push(`/`);
     }
   }
 

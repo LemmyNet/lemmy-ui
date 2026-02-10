@@ -935,9 +935,12 @@ function handleImageUploadPaste(
   }
 }
 
-function handleImageUpload(i: PostForm, event: any) {
+function handleImageUpload(
+  i: PostForm,
+  event: File | FormEvent<HTMLInputElement>,
+) {
   let file: any;
-  if (event.target) {
+  if (event instanceof Event) {
     event.preventDefault();
     file = event.target.files?.[0];
   } else {

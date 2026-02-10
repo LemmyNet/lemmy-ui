@@ -2,6 +2,7 @@ import { Component } from "inferno";
 import { Spinner } from "./icon";
 import { isBrowser } from "@utils/browser";
 import { MyUserInfo } from "lemmy-js-client";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface AnonymousGuardProps {
   myUserInfo: MyUserInfo | undefined;
@@ -14,7 +15,8 @@ class AnonymousGuard extends Component<AnonymousGuardProps, any> {
 
   componentWillMount() {
     if (this.hasAuth() && isBrowser()) {
-      this.context.router.history.replace(`/`);
+      const context: RouterContext = this.context;
+      context.router.history.replace(`/`);
     }
   }
 

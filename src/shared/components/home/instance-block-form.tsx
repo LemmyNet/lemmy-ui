@@ -129,7 +129,7 @@ export class InstanceBlockForm extends Component<Props, State> {
     });
   }
 
-  handleSubmit(i: InstanceBlockForm, event: any) {
+  handleSubmit(i: InstanceBlockForm, event: Event) {
     event.preventDefault();
 
     const form = i.state.form;

@@ -306,25 +306,25 @@ const postListing = (
               // All of these are unused, since its view only
               onPostEdit={() => EMPTY_REQUEST}
               onPostVote={() => EMPTY_REQUEST}
-              onPostReport={() => {}}
-              onBlockPerson={() => {}}
-              onBlockCommunity={() => {}}
-              onLockPost={() => {}}
-              onDeletePost={() => {}}
-              onRemovePost={() => {}}
-              onSavePost={() => {}}
-              onFeaturePost={() => {}}
-              onPurgePerson={() => {}}
-              onPurgePost={() => {}}
-              onBanPersonFromCommunity={() => {}}
-              onBanPerson={() => {}}
-              onAddModToCommunity={() => {}}
-              onAddAdmin={() => {}}
-              onTransferCommunity={() => {}}
-              onMarkPostAsRead={() => {}}
-              onHidePost={() => {}}
-              onPersonNote={() => {}}
-              onScrollIntoCommentsClick={() => {}}
+              onPostReport={() => { }}
+              onBlockPerson={() => { }}
+              onBlockCommunity={() => { }}
+              onLockPost={() => { }}
+              onDeletePost={() => { }}
+              onRemovePost={() => { }}
+              onSavePost={() => { }}
+              onFeaturePost={() => { }}
+              onPurgePerson={() => { }}
+              onPurgePost={() => { }}
+              onBanPersonFromCommunity={() => { }}
+              onBanPerson={() => { }}
+              onAddModToCommunity={() => { }}
+              onAddAdmin={() => { }}
+              onTransferCommunity={() => { }}
+              onMarkPostAsRead={() => { }}
+              onHidePost={() => { }}
+              onPersonNote={() => { }}
+              onScrollIntoCommentsClick={() => { }}
             />
           </div>
         ))}
@@ -1011,25 +1011,25 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 // All of these are unused, since its view only
                 onPostEdit={() => EMPTY_REQUEST}
                 onPostVote={() => EMPTY_REQUEST}
-                onPostReport={() => {}}
-                onBlockPerson={() => {}}
-                onBlockCommunity={() => {}}
-                onLockPost={() => {}}
-                onDeletePost={() => {}}
-                onRemovePost={() => {}}
-                onSavePost={() => {}}
-                onFeaturePost={() => {}}
-                onPurgePerson={() => {}}
-                onPurgePost={() => {}}
-                onBanPersonFromCommunity={() => {}}
-                onBanPerson={() => {}}
-                onAddModToCommunity={() => {}}
-                onAddAdmin={() => {}}
-                onTransferCommunity={() => {}}
-                onMarkPostAsRead={() => {}}
-                onHidePost={() => {}}
-                onPersonNote={() => {}}
-                onScrollIntoCommentsClick={() => {}}
+                onPostReport={() => { }}
+                onBlockPerson={() => { }}
+                onBlockCommunity={() => { }}
+                onLockPost={() => { }}
+                onDeletePost={() => { }}
+                onRemovePost={() => { }}
+                onSavePost={() => { }}
+                onFeaturePost={() => { }}
+                onPurgePerson={() => { }}
+                onPurgePost={() => { }}
+                onBanPersonFromCommunity={() => { }}
+                onBanPerson={() => { }}
+                onAddModToCommunity={() => { }}
+                onAddAdmin={() => { }}
+                onTransferCommunity={() => { }}
+                onMarkPostAsRead={() => { }}
+                onHidePost={() => { }}
+                onPersonNote={() => { }}
+                onScrollIntoCommentsClick={() => { }}
               />
             </div>
           </div>

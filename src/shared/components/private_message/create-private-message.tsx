@@ -28,6 +28,7 @@ import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { NoOptionI18nKeys } from "i18next";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type CreatePrivateMessageData = RouteDataResponse<{
   recipientDetailsResponse: GetPersonDetailsResponse;
@@ -184,7 +185,8 @@ async function handlePrivateMessageCreate(
 
     bypassNavWarning();
     // Navigate to the front
-    i.context.router.history.push("/");
+    const context: RouterContext = i.context;
+    context.router.history.push("/");
   } else if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }

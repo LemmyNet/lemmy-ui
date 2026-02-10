@@ -7,6 +7,7 @@ import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface State {
   form: {
@@ -106,11 +107,16 @@ export class LoginReset extends Component<
     );
   }
 
-  handleEmailInputChange(i: LoginReset, event: any) {
-    i.setState(s => ((s.form.email = event.target.value.trim()), s));
+  handleEmailInputChange(i: LoginReset, event: Event) {
+    i.setState(
+      s => (
+        (s.form.email = (event.target as HTMLInputElement).value.trim()),
+        s
+      ),
+    );
   }
 
-  async handlePasswordReset(i: LoginReset, event: any) {
+  async handlePasswordReset(i: LoginReset, event: Event) {
     event.preventDefault();
 
     const email = i.state.form.email;
@@ -122,7 +128,8 @@ export class LoginReset extends Component<
 
       if (res.state === "success") {
         toast(I18NextService.i18n.t("reset_password_mail_sent"));
-        i.context.router.history.push("/login");
+        const context: RouterContext = i.context;
+        context.router.history.push("/login");
       }
 
       i.setState(s => ((s.form.loading = false), s));

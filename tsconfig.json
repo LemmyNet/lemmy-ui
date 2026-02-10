@@ -24,7 +24,14 @@
       "@utils/*": ["shared/utils/*"],
       "@services/*": ["shared/services/*"],
       "@components/*": ["shared/components/*"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "@manuth/typescript-eslint-plugin",
+        "ignoreJavaScript": true,
+        "configFile": "custom.eslintrc.js"
+      }
+    ]
   },
   "include": [
     "src/shared/build-config.d.ts",

@@ -103,7 +103,7 @@ function handleIntervalSecondsChange(
   }));
 }
 
-function submitRateLimitForm(i: RateLimitsForm, event: any) {
+function submitRateLimitForm(i: RateLimitsForm, event: Event) {
   event.preventDefault();
   const form: EditSite = Object.entries(i.state.form).reduce(
     (acc, [key, val]) => {

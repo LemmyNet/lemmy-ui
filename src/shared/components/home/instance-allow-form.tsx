@@ -99,7 +99,7 @@ export class InstanceAllowForm extends Component<Props, State> {
     });
   }
 
-  handleSubmit(i: InstanceAllowForm, event: any) {
+  handleSubmit(i: InstanceAllowForm, event: Event) {
     event.preventDefault();
 
     const form = i.state.form;

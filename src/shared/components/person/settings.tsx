@@ -90,6 +90,7 @@ import { VoteShowDropdown } from "@components/common/vote-show-dropdown";
 import { InterfaceLanguageDropdown } from "@components/common/interface-language-dropdown";
 import { ThemeDropdown } from "@components/common/theme-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: PagedResponse<FederatedInstanceView>;
@@ -1925,8 +1926,11 @@ async function handleChangePasswordSubmit(
   }
 }
 
-function handleImportFileChange(i: Settings, event: any) {
-  i.setState({ settingsFile: event.target.files?.item(0) });
+function handleImportFileChange(i: Settings, event: Event) {
+  i.setState({
+    settingsFile:
+      (event.target as HTMLInputElement).files?.item(0) ?? undefined,
+  });
 }
 
 async function handleExportSettings(i: Settings) {
@@ -2070,7 +2074,8 @@ async function handleDeleteAccount(i: Settings, event: Event) {
     });
     if (deleteAccountRes.state === "success") {
       UserService.Instance.logout();
-      i.context.router.history.replace("/");
+      const context: RouterContext = i.context;
+      context.router.history.replace("/");
     }
 
     i.setState({ deleteAccountRes });
