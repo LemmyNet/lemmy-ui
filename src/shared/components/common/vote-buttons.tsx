@@ -176,6 +176,7 @@ export class VoteButtonsCompact extends Component<
   VoteButtonsProps,
   VoteButtonsState
 > {
+  // TODO get rid
   state: VoteButtonsState = {
     upvoteLoading: false,
     downvoteLoading: false,
@@ -214,7 +215,7 @@ export class VoteButtonsCompact extends Component<
     const hideScore = !showScore_ || (showUpvotes_ && score === upvotes);
 
     return (
-      <>
+      <div className="btn-group" role="group">
         {showScore_ && !hideScore && (
           <Score myVoteIsUpvote={this.props.myVoteIsUpvote} score={score} />
         )}
@@ -222,7 +223,7 @@ export class VoteButtonsCompact extends Component<
         {enableUpvotes(localSite, voteContentType) && (
           <button
             type="button"
-            className={`btn btn-animate btn-sm btn-link py-0 px-1 ${
+            className={`btn btn-sm btn-animate border-light-subtle ${
               this.props.myVoteIsUpvote === true ? "text-primary" : "text-muted"
             }`}
             data-tippy-content={tippy(
@@ -254,7 +255,7 @@ export class VoteButtonsCompact extends Component<
         {enableDownvotes(localSite, voteContentType) && (
           <button
             type="button"
-            className={`ms-2 btn btn-sm btn-link btn-animate btn py-0 px-1 ${
+            className={`btn btn-sm border-light-subtle btn-animate ${
               this.props.myVoteIsUpvote === false ? "text-danger" : "text-muted"
             }`}
             disabled={this.props.disabled}
@@ -289,7 +290,7 @@ export class VoteButtonsCompact extends Component<
             )}
           </button>
         )}
-      </>
+      </div>
     );
   }
 }
@@ -297,6 +298,7 @@ export class VoteButtonsCompact extends Component<
 @tippyMixin
 export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
   state: VoteButtonsState = {
+    // TODO get rid
     upvoteLoading: false,
     downvoteLoading: false,
   };
@@ -408,7 +410,7 @@ function Score({ myVoteIsUpvote, score }: ScoreProps) {
   return (
     <button
       className={classNames(
-        "btn btn-animate btn-sm btn-link py-0 px-1",
+        "btn btn-sm btn-animate border-light-subtle py-0",
         scoreColor(myVoteIsUpvote),
       )}
       aria-label={scoreTippy}
@@ -438,7 +440,7 @@ function UpvotePct(props: UpvotePctProps) {
   return (
     thresholdCheck && (
       <button
-        className={"btn btn-animate btn-sm btn-link py-0 px-1"}
+        className={"btn btn-sm btn-animate border-light-subtle py-0"}
         aria-label={upvotesPctTippy}
         data-tippy-content={upvotesPctTippy}
       >

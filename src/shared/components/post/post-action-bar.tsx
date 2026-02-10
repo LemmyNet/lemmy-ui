@@ -1,5 +1,5 @@
 import PostActionDropdown from "@components/common/content-actions/post-action-dropdown";
-import { Icon } from "@components/common/icon";
+import { Icon, Spinner } from "@components/common/icon";
 import { BanUpdateForm } from "@components/common/modal/mod-action-form-modal";
 import { VoteButtonsCompact } from "@components/common/vote-buttons";
 import { I18NextService } from "@services/index";
@@ -18,6 +18,7 @@ import {
   ShowBodyType,
   ShowMarkReadType,
 } from "@utils/types";
+import classNames from "classnames";
 import { Link } from "inferno-router";
 import {
   PostView,
@@ -55,6 +56,8 @@ type PostActionBarProps = {
   viewSource: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
+  notificationRead?: boolean;
+  markReadLoading: boolean;
   onPostVote(form: CreatePostLike): void;
   onScrollIntoCommentsClick(e: MouseEvent): void;
   onViewSource(): void;
@@ -92,20 +95,33 @@ export function PostActionBar(props: PostActionBarProps, context: any) {
     myUserInfo,
     localSite,
     showMarkRead,
+    notificationRead,
+    onMarkPostAsRead,
+    markReadLoading,
   } = props;
   const { id } = postView.post;
 
   return (
-    <div className="row">
-      <div className="col flex-grow-1 text-muted">
+    <div className="row row-cols-auto align-items-center g-3 mb-2 justify-content-end justify-content-md-start">
+      {showMarkRead === "main_bar" && (
+        <div className="col">
+          <PostMarkReadButton
+            post={postView.post}
+            read={notificationRead ?? false}
+            loading={markReadLoading}
+            onMarkRead={form => onMarkPostAsRead(form)}
+          />
+        </div>
+      )}
+      <div className="col text-muted">
         <CommentsButton
           postView={postView}
           type_="icon"
           onScrollIntoCommentsClick={onScrollIntoCommentsClick}
         />
       </div>
-      <div className="col-auto d-flex">
-        {postIsInteractable(postView, viewOnly) && (
+      {postIsInteractable(postView, viewOnly) && (
+        <div className="col">
           <VoteButtonsCompact
             voteContentType={"post"}
             id={id}
@@ -116,8 +132,9 @@ export function PostActionBar(props: PostActionBarProps, context: any) {
             localSite={localSite}
             disabled={userNotLoggedInOrBanned(myUserInfo)}
           />
-        )}
-
+        </div>
+      )}
+      <div className="col">
         <PostActionDropdown
           postView={postView}
           community={postView.community}
@@ -179,7 +196,10 @@ export function CommentsButton({
 
   return (
     <Link
-      className="btn btn-sm btn-link text-muted ps-0 py-0"
+      className={classNames("btn btn-sm text-muted", {
+        "border-light-subtle": type_ === "icon",
+        "btn-link ps-0 py-0": type_ === "text",
+      })}
       title={title}
       to={`/post/${postView.post.id}?scrollToComments=true`}
       data-tippy-content={title}
@@ -197,6 +217,42 @@ export function CommentsButton({
         <span className="ms-2 badge text-bg-light">+{unreadCount}</span>
       )}
     </Link>
+  );
+}
+
+type PostMarkReadButtonProps = {
+  post: Post;
+  read: boolean;
+  loading: boolean;
+  onMarkRead(form: MarkPostAsRead): void;
+};
+function PostMarkReadButton({
+  post,
+  read,
+  loading,
+  onMarkRead,
+}: PostMarkReadButtonProps) {
+  return (
+    <button
+      className="btn btn-sm border-light-subtle btn-animate text-muted"
+      onClick={() => onMarkRead({ post_id: post.id, read: !read })}
+      data-tippy-content={
+        read
+          ? I18NextService.i18n.t("mark_as_unread")
+          : I18NextService.i18n.t("mark_as_read")
+      }
+      aria-label={
+        read
+          ? I18NextService.i18n.t("mark_as_unread")
+          : I18NextService.i18n.t("mark_as_read")
+      }
+    >
+      {loading ? (
+        <Spinner />
+      ) : (
+        <Icon icon="check" classes={`icon-inline ${read && "text-success"}`} />
+      )}
+    </button>
   );
 }
 
