@@ -52,9 +52,9 @@ export default class ActionButton extends Component<
     return (
       <button
         className={classNames(
-          "btn btn-link",
+          "btn btn-sm border-light-subtle",
           inline || inlineWithText
-            ? "btn-animate text-body py-0 px-1 ms-2 me-0"
+            ? "btn-animate text-body"
             : "d-flex align-items-center rounded-0 dropdown-item",
         )}
         onClick={() => handleClick(this)}

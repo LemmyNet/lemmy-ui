@@ -58,6 +58,7 @@ import { CommentNodes } from "./comment-nodes";
 import { BanUpdateForm } from "../common/modal/mod-action-form-modal";
 import CommentActionDropdown from "../common/content-actions/comment-action-dropdown";
 import { canAdmin } from "@utils/roles";
+import ActionButton from "@components/common/content-actions/action-button";
 
 type CommentNodeState = {
   showReply: boolean;
@@ -230,7 +231,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               mark: this.isCommentNew || distinguished,
             })}
           >
-            <div className="ms-2">
+            <div
+              className={classNames({ "ms-2": this.props.viewType === "tree" })}
+            >
               {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
               <div
                 className="row text-muted small"
@@ -281,63 +284,85 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     viewSource={this.state.viewSource}
                     hideImages={hideImages_}
                   />
-                  <div className="comment-bottom-btns d-flex justify-content-end justify-content-md-start column-gap-1.5 flex-wrap text-muted fw-bold mt-1 align-items-center">
+                  <div className="row row-cols-auto align-items-center justify-content-end justify-content-md-start g-3 mb-2 text-muted fw-bold mt-1">
                     <>
                       {showMarkRead === "main_bar" && (
-                        <CommentMarkReadButton
-                          comment={comment}
-                          read={read ?? false}
-                          loading={this.props.markReadLoading === id}
-                          onMarkRead={this.props.onMarkRead}
-                        />
+                        <div className="col">
+                          <CommentMarkReadButton
+                            comment={comment}
+                            read={read ?? false}
+                            loading={this.props.markReadLoading === id}
+                            onMarkRead={this.props.onMarkRead}
+                          />
+                        </div>
                       )}
-                      <VoteButtonsCompact
-                        voteContentType={"comment"}
-                        id={id}
-                        onVote={this.props.onCommentVote}
-                        myUserInfo={this.props.myUserInfo}
-                        localSite={this.props.localSite}
-                        subject={this.commentView.comment}
-                        myVoteIsUpvote={myVoteIsUpvote}
-                        disabled={userNotLoggedInOrBanned(
-                          this.props.myUserInfo,
-                        )}
-                      />
-                      <CommentActionDropdown
-                        commentView={this.commentView}
-                        community={this.community}
-                        admins={this.props.admins}
-                        myUserInfo={this.props.myUserInfo}
-                        viewSource={this.state.viewSource}
-                        showContext={this.props.showContext}
-                        onReply={() => handleReplyClick(this)}
-                        onReport={reason => handleReportComment(this, reason)}
-                        onBlockPerson={() => handleBlockPerson(this)}
-                        onBlockCommunity={() => handleBlockCommunity(this)}
-                        onSave={() => handleSaveComment(this)}
-                        onEdit={() => handleEditClick(this)}
-                        onDelete={() => handleDeleteComment(this)}
-                        onDistinguish={() => handleDistinguishComment(this)}
-                        onRemove={reason => handleRemoveComment(this, reason)}
-                        onBanFromCommunity={form =>
-                          handleBanFromCommunity(this, form)
-                        }
-                        onAppointCommunityMod={() =>
-                          handleAppointCommunityMod(this)
-                        }
-                        onTransferCommunity={() =>
-                          handleTransferCommunity(this)
-                        }
-                        onPurgeUser={reason => handlePurgePerson(this, reason)}
-                        onPurgeContent={reason =>
-                          handlePurgeComment(this, reason)
-                        }
-                        onBanFromSite={form => handleBanFromSite(this, form)}
-                        onAppointAdmin={() => handleAppointAdmin(this)}
-                        onPersonNote={form => handlePersonNote(this, form)}
-                        onLock={reason => handleModLock(this, reason)}
-                        onViewSource={() => handleToggleViewSource(this)}
-                      />
+                      <div className="col">
+                        <VoteButtonsCompact
+                          voteContentType={"comment"}
+                          id={id}
+                          onVote={this.props.onCommentVote}
+                          myUserInfo={this.props.myUserInfo}
+                          localSite={this.props.localSite}
+                          subject={this.commentView.comment}
+                          myVoteIsUpvote={myVoteIsUpvote}
+                          disabled={userNotLoggedInOrBanned(
+                            this.props.myUserInfo,
+                          )}
+                        />
+                      </div>
+                      <div className="col">
+                        <ActionButton
+                          onClick={() => handleReplyClick(this)}
+                          icon="reply1"
+                          iconClass="text-muted"
+                          inline
+                          label={I18NextService.i18n.t("reply")}
+                          noLoading
+                          disabled={
+                            this.commentView.comment.deleted ||
+                            this.commentView.comment.removed ||
+                            this.commentView.comment.locked
+                          }
+                        />
+                      </div>
+                      <div className="col">
+                        <CommentActionDropdown
+                          commentView={this.commentView}
+                          community={this.community}
+                          admins={this.props.admins}
+                          myUserInfo={this.props.myUserInfo}
+                          viewSource={this.state.viewSource}
+                          showContext={this.props.showContext}
+                          onReport={reason => handleReportComment(this, reason)}
+                          onBlockPerson={() => handleBlockPerson(this)}
+                          onBlockCommunity={() => handleBlockCommunity(this)}
+                          onSave={() => handleSaveComment(this)}
+                          onEdit={() => handleEditClick(this)}
+                          onDelete={() => handleDeleteComment(this)}
+                          onDistinguish={() => handleDistinguishComment(this)}
+                          onRemove={reason => handleRemoveComment(this, reason)}
+                          onBanFromCommunity={form =>
+                            handleBanFromCommunity(this, form)
+                          }
+                          onAppointCommunityMod={() =>
+                            handleAppointCommunityMod(this)
+                          }
+                          onTransferCommunity={() =>
+                            handleTransferCommunity(this)
+                          }
+                          onPurgeUser={reason =>
+                            handlePurgePerson(this, reason)
+                          }
+                          onPurgeContent={reason =>
+                            handlePurgeComment(this, reason)
+                          }
+                          onBanFromSite={form => handleBanFromSite(this, form)}
+                          onAppointAdmin={() => handleAppointAdmin(this)}
+                          onPersonNote={form => handlePersonNote(this, form)}
+                          onLock={reason => handleModLock(this, reason)}
+                          onViewSource={() => handleToggleViewSource(this)}
+                        />
+                      </div>
                     </>
                   </div>
                 </>
@@ -352,7 +377,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               style={`border-left: var(--comment-border-width) ${moreRepliesBorderColor} solid !important`}
             >
               <button
-                className="btn btn-sm btn-link text-muted"
+                className="btn btn-sm border-light-subtle text-muted"
                 onClick={() => handleFetchChildren(this)}
               >
                 {this.state.fetchChildrenLoading ? (
@@ -846,7 +871,7 @@ function CommentMarkReadButton({
 }: CommentMarkReadButtonProps) {
   return (
     <button
-      className="btn btn-sm btn-link btn-animate text-muted"
+      className="btn btn-sm border-light-subtle btn-animate text-muted"
       onClick={() => onMarkRead(comment.id, !read)}
       data-tippy-content={
         read
