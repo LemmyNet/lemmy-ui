@@ -1,4 +1,4 @@
-import { Component, LinkedEvent, createRef, linkEvent } from "inferno";
+import { Component, createRef } from "inferno";
 import { modalMixin } from "../../mixins/modal-mixin";
 import { adultConsentCookieKey } from "@utils/config";
 import { mdToHtml } from "@utils/markdown";
@@ -10,8 +10,8 @@ import { setIsoData } from "@utils/app";
 interface AdultConsentModalProps {
   contentWarning: string;
   show: boolean;
-  onContinue: LinkedEvent<any, Event> | null;
-  onBack: LinkedEvent<any, Event> | null;
+  onContinue: (() => void) | null;
+  onBack: (() => void) | null;
   redirectCountdown: number;
 }
 
@@ -134,8 +134,8 @@ export default class AdultConsentModal extends Component<
         contentWarning={this.props.contentWarning}
         show={show}
         redirectCountdown={redirectCountdown}
-        onBack={linkEvent(this, handleAdultConsentGoBack)}
-        onContinue={linkEvent(this, handleAdultConsent)}
+        onBack={() => handleAdultConsentGoBack(this)}
+        onContinue={() => handleAdultConsent(this)}
       />
     );
   }

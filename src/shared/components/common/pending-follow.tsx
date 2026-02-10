@@ -8,7 +8,6 @@ import { I18NextService } from "../../services";
 import { PersonListing } from "../person/person-listing";
 import { Spinner } from "./icon";
 import { UserBadges } from "./user-badges";
-import { linkEvent } from "inferno";
 
 interface PendingFollowProps {
   pending_follow: PendingFollowView;
@@ -64,7 +63,7 @@ export class PendingFollow extends Component<
             <>
               <button
                 className="btn btn-light border-light-subtle me-2 my-2"
-                onClick={linkEvent(this, this.handleApprove)}
+                onClick={() => this.handleApprove(this)}
                 aria-label={I18NextService.i18n.t("approve")}
               >
                 {this.state.approveLoading ? (
@@ -75,7 +74,7 @@ export class PendingFollow extends Component<
               </button>
               <button
                 className="btn btn-light border-light-subtle me-2"
-                onClick={linkEvent(this, this.handleDeny)}
+                onClick={() => this.handleDeny(this)}
                 aria-label={I18NextService.i18n.t("deny")}
               >
                 {this.state.denyLoading ? (

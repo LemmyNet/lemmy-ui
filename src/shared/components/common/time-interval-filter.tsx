@@ -1,4 +1,4 @@
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { NoOptionI18nKeys } from "i18next";
 
@@ -52,7 +52,7 @@ export class TimeIntervalFilter extends Component<Props, State> {
           className="form-control interval-filter-input border-light-subtle"
           aria-label={I18NextService.i18n.t("time_interval")}
           value={num}
-          onInput={linkEvent(this, handleTimeIntervalNumChange)}
+          onInput={event => handleTimeIntervalNumChange(this, event)}
         />
         <button
           className="btn btn-light border-light-subtle dropdown-toggle"

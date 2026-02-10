@@ -1,4 +1,4 @@
-import { linkEvent, Component } from "inferno";
+import { Component } from "inferno";
 import { I18NextService } from "../../services/I18NextService";
 
 interface Props {
@@ -50,8 +50,8 @@ export default class BlockingKeywordsTextArea extends Component<Props, State> {
             className="form-control"
             placeholder={I18NextService.i18n.t("keyword_blocks_placeholder")}
             value={this.state.text}
-            onInput={linkEvent(this, handleTextChange)}
-            onBlur={linkEvent(this, handleTextBlur)}
+            onInput={event => handleTextChange(this, event)}
+            onBlur={event => handleTextBlur(this, event)}
             rows={4}
           />
         </div>

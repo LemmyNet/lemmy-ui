@@ -30,7 +30,11 @@ import {
   SaveComment,
   TransferCommunity,
 } from "lemmy-js-client";
-import { CommentViewType, CommentNodeType } from "@utils/types";
+import {
+  CommentViewType,
+  CommentNodeType,
+  ShowMarkReadType,
+} from "@utils/types";
 import { CommentNode } from "./comment-node";
 
 interface CommentNodesProps {
@@ -53,6 +57,8 @@ interface CommentNodesProps {
   showContext: boolean;
   showCommunity: boolean;
   viewType: CommentViewType;
+  showMarkRead: ShowMarkReadType;
+  read?: boolean;
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages: boolean;
@@ -62,6 +68,7 @@ interface CommentNodesProps {
   localSite: LocalSite;
   createLoading: CommentId | undefined;
   editLoading: CommentId | undefined;
+  markReadLoading: CommentId | undefined;
   onSaveComment(form: SaveComment): void;
   onCreateComment(form: CreateComment): void;
   onEditComment(form: EditComment): void;
@@ -82,6 +89,7 @@ interface CommentNodesProps {
   onPurgeComment(form: PurgeComment): void;
   onPersonNote(form: NotePerson): void;
   onLockComment(form: LockComment): void;
+  onMarkRead(commentId: CommentId, read: boolean): void;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -115,8 +123,11 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               postLockedOrRemovedOrDeleted={
                 this.props.postLockedOrRemovedOrDeleted
               }
+              showMarkRead={"hide"}
+              read={this.props.read}
               createLoading={this.props.createLoading}
               editLoading={this.props.editLoading}
+              markReadLoading={this.props.markReadLoading}
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
               showContext={this.props.showContext}
@@ -147,6 +158,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               onPurgeComment={this.props.onPurgeComment}
               onPersonNote={this.props.onPersonNote}
               onLockComment={this.props.onLockComment}
+              onMarkRead={this.props.onMarkRead}
             />
           ))}
         </ul>

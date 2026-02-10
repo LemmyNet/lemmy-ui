@@ -52,6 +52,7 @@ import {
   PaginationCursor,
   MyUserInfo,
   CommentId,
+  PostId,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -108,6 +109,8 @@ interface NotificationsState {
   privateMessageRes: RequestState<PrivateMessageResponse>;
   createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  markCommentReadLoadingRes: ItemIdAndRes<CommentId, SuccessResponse>;
+  markPostReadLoadingRes: ItemIdAndRes<PostId, SuccessResponse>;
   cursor?: PaginationCursor;
   siteRes: GetSiteResponse;
   isIsomorphic: boolean;
@@ -140,6 +143,8 @@ export class Notifications extends Component<
     privateMessageRes: EMPTY_REQUEST,
     createCommentRes: { id: 0, res: EMPTY_REQUEST },
     editCommentRes: { id: 0, res: EMPTY_REQUEST },
+    markCommentReadLoadingRes: { id: 0, res: EMPTY_REQUEST },
+    markPostReadLoadingRes: { id: 0, res: EMPTY_REQUEST },
     isIsomorphic: false,
   };
 
@@ -287,6 +292,9 @@ export class Notifications extends Component<
             showCommunity
             showContext
             hideImages={false}
+            read={item.notification.read}
+            showMarkRead="main_bar"
+            markReadLoading={itemLoading(this.state.markCommentReadLoadingRes)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={myUserInfo}
@@ -313,6 +321,7 @@ export class Notifications extends Component<
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
+            onMarkRead={(id, read) => handleMarkCommentAsRead(this, id, read)}
           />
         );
       case "private_message":
@@ -337,6 +346,10 @@ export class Notifications extends Component<
           myUserInfo && (
             <PostListing
               postView={data}
+              notificationRead={item.notification.read}
+              markReadLoading={
+                itemLoading(this.state.markPostReadLoadingRes) === data.post.id
+              }
               showCommunity
               showCrossPosts="show_separately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
@@ -371,7 +384,7 @@ export class Notifications extends Component<
               onAddAdmin={() => {}}
               onTransferCommunity={() => {}}
               onHidePost={() => {}}
-              markable
+              showMarkRead="main_bar"
               disableAutoMarkAsRead
               onMarkPostAsRead={form => handleMarkPostAsRead(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
@@ -611,6 +624,8 @@ async function handleMarkAllAsRead(i: Notifications) {
           return a;
         });
       }
+      // Refetch to reload the data
+      i.refetch();
       return { notifsRes: s.notifsRes, markAllAsReadRes };
     });
   } else {
@@ -760,23 +775,26 @@ async function handleTransferCommunity(form: TransferCommunity) {
   toast(I18NextService.i18n.t("transfer_community"));
 }
 
-// TODO Marking comments as read is currently broken?
-// async function handleMarkCommentAsRead(
-//   i: Notifications,
-//   comment_id: CommentId,
-//   read: boolean,
-// ) {
-//   if (i.state.notifsRes.state !== "success") return;
-//   const notification = i.state.notifsRes.data.items.find(
-//     n => n.data.type_ === "comment" && n.data.comment.id === comment_id,
-//   );
-//   if (notification) {
-//     await handleMarkNotificationAsRead(i, {
-//       notification_id: notification.notification.id,
-//       read,
-//     });
-//   }
-// }
+async function handleMarkCommentAsRead(
+  i: Notifications,
+  commentId: CommentId,
+  read: boolean,
+) {
+  if (i.state.notifsRes.state !== "success") return;
+  const notification = i.state.notifsRes.data.items.find(
+    n => n.data.type_ === "comment" && n.data.comment.id === commentId,
+  );
+  if (notification) {
+    i.setState({
+      markCommentReadLoadingRes: { id: commentId, res: LOADING_REQUEST },
+    });
+    const res = await handleMarkNotificationAsRead(i, {
+      notification_id: notification.notification.id,
+      read,
+    });
+    i.setState({ markCommentReadLoadingRes: { id: commentId, res } });
+  }
+}
 
 async function handleMarkMessageAsRead(
   i: Notifications,
@@ -854,6 +872,7 @@ async function handleMarkNotificationAsRead(
     }
     return { notifsRes: s.notifsRes };
   });
+  return res;
 }
 
 async function handleMessageReport(form: CreatePrivateMessageReport) {
@@ -900,9 +919,15 @@ async function handleMarkPostAsRead(i: Notifications, form: MarkPostAsRead) {
     n => n.data.type_ === "post" && n.data.post.id === form.post_id,
   );
   if (notification) {
-    await handleMarkNotificationAsRead(i, {
+    i.setState({
+      markPostReadLoadingRes: { id: form.post_id, res: LOADING_REQUEST },
+    });
+    const res = await handleMarkNotificationAsRead(i, {
       notification_id: notification.notification.id,
       read: form.read,
+    });
+    i.setState({
+      markPostReadLoadingRes: { id: form.post_id, res },
     });
   }
 }

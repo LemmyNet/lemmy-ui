@@ -380,7 +380,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <PostListings
                 showCommunity
                 viewOnly
-                markable={false}
+                showMarkRead="hide"
                 posts={this.props.crossPosts}
                 showCrossPosts="show_separately"
                 enableNsfw={this.props.enableNsfw}
@@ -650,7 +650,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               <PostListings
                 showCommunity
                 viewOnly
-                markable={false}
+                showMarkRead="hide"
                 posts={suggestedPosts}
                 showCrossPosts="show_separately"
                 enableNsfw={this.props.enableNsfw}

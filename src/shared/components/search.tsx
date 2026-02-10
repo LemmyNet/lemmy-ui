@@ -298,9 +298,10 @@ const postListing = (
               communityTags={[]}
               showBody={"hidden"}
               hideImage={false}
-              markable={false}
+              showMarkRead="hide"
               disableAutoMarkAsRead={false}
               editLoading={false}
+              markReadLoading={false}
               // All of these are unused, since its view only
               onPostEdit={() => EMPTY_REQUEST}
               onPostVote={() => EMPTY_REQUEST}
@@ -347,8 +348,10 @@ const commentListing = (
               key={c.comment.id}
               nodes={[commentToFlatNode(c)]}
               viewType={"flat"}
+              showMarkRead={"hide"}
               createLoading={undefined}
               editLoading={undefined}
+              markReadLoading={undefined}
               viewOnly
               postLockedOrRemovedOrDeleted
               isTopLevel
@@ -380,6 +383,7 @@ const commentListing = (
               onEditComment={() => EMPTY_REQUEST}
               onPersonNote={() => {}}
               onLockComment={() => {}}
+              onMarkRead={() => {}}
             />
           </div>
         ))}
@@ -918,6 +922,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         postLockedOrRemovedOrDeleted
         isTopLevel
         showCommunity
+        showMarkRead={"hide"}
+        markReadLoading={undefined}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
         myUserInfo={this.isoData.myUserInfo}
@@ -941,10 +947,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onPurgePerson={() => {}}
         onBanPersonFromCommunity={() => {}}
         onBanPerson={() => {}}
-        onCreateComment={() => EMPTY_REQUEST}
-        onEditComment={() => EMPTY_REQUEST}
+        onCreateComment={() => {}}
+        onEditComment={() => {}}
         onPersonNote={() => {}}
         onLockComment={() => {}}
+        onMarkRead={() => {}}
       />
     );
   }
@@ -978,9 +985,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 crossPosts={[]}
                 communityTags={[]}
                 hideImage={false}
-                markable={false}
+                showMarkRead="hide"
                 disableAutoMarkAsRead={false}
                 editLoading={false}
+                markReadLoading={false}
                 // All of these are unused, since its view only
                 onPostEdit={() => EMPTY_REQUEST}
                 onPostVote={() => EMPTY_REQUEST}

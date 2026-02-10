@@ -4,7 +4,6 @@ import {
   MouseEventHandler,
   RefObject,
   createRef,
-  linkEvent,
 } from "inferno";
 import { I18NextService } from "../../../services";
 import { toast } from "@utils/app";
@@ -160,8 +159,8 @@ export default class TotpModal extends Component<
                     maxLength={TOTP_LENGTH}
                     id="totp-input"
                     className="form-control form-control-lg mx-2 p-1 p-md-2 text-center"
-                    onInput={linkEvent(this, handleInput)}
-                    onPaste={linkEvent(this, handlePaste)}
+                    onInput={event => handleInput(this, event)}
+                    onPaste={event => handlePaste(this, event)}
                     ref={this.inputRef}
                     enterKeyHint="done"
                     value={totp}

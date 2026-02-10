@@ -1,7 +1,7 @@
 // @ts-expect-error has a weird import error
 import { lazyLoad } from "unlazy";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 
 import { setIsoData } from "@utils/app";
 import { IsoData } from "@utils/types";
@@ -123,7 +123,7 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
               "card-img-top": cardTop,
             })}
             onLoad={() => masonryUpdate()}
-            onError={linkEvent(this, handleImgLoadError)}
+            onError={() => handleImgLoadError(this)}
           />
         </picture>
       )

@@ -433,7 +433,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
             showCommunity
             viewOnly={false}
             postListingMode={this.state.postListingMode}
-            markable
+            showMarkRead="dropdown"
             enableNsfw={enableNsfw(siteRes)}
             showAdultConsentModal={this.isoData.showAdultConsentModal}
             allLanguages={siteRes.all_languages}

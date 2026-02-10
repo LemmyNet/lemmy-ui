@@ -1,6 +1,6 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { HttpService, I18NextService } from "../../services";
 import { toast } from "@utils/app";
 import { Icon, Spinner } from "./icon";
@@ -94,7 +94,7 @@ export class ImageUploadForm extends Component<
               <button
                 className="position-absolute d-block p-0 end-0 border-0 top-0 bg-transparent text-white"
                 type="button"
-                onClick={linkEvent(this, this.handleRemoveImage)}
+                onClick={() => this.handleRemoveImage(this)}
                 aria-label={I18NextService.i18n.t("remove")}
               >
                 <Icon icon="x" classes="mini-overlay" />
@@ -118,7 +118,7 @@ export class ImageUploadForm extends Component<
           className="small form-control"
           name={this.id}
           disabled={this.props.disabled}
-          onChange={linkEvent(this, this.guardedImageUpload)}
+          onChange={event => this.guardedImageUpload(this, event)}
         />
       </form>
     );

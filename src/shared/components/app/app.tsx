@@ -1,5 +1,5 @@
 import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
-import { Component, createRef, linkEvent } from "inferno";
+import { Component, createRef } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
 import { IsoDataOptionalSite } from "@utils/types";
@@ -137,7 +137,7 @@ export default class App extends Component<AppProps, any> {
             <button
               type="button"
               className="btn skip-link bg-light position-absolute start-0 z-3"
-              onClick={linkEvent(this, handleJumpToContent)}
+              onClick={event => handleJumpToContent(this, event)}
             >
               {I18NextService.i18n.t("jump_to_content", "Jump to content")}
             </button>

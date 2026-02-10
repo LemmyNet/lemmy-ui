@@ -1,10 +1,4 @@
-import {
-  Component,
-  InfernoNode,
-  RefObject,
-  createRef,
-  linkEvent,
-} from "inferno";
+import { Component, InfernoNode, RefObject, createRef } from "inferno";
 import { Modal } from "bootstrap";
 import { modalMixin } from "@components/mixins/modal-mixin";
 import { I18NextService } from "@services/I18NextService";
@@ -71,7 +65,7 @@ export default class CommunityReportModal extends Component<
             </header>
             <div className="modal-body text-center align-middle text-body">
               <form
-                onSubmit={linkEvent(this, handleSubmit)}
+                onSubmit={event => handleSubmit(this, event)}
                 className="p-3 w-100 container"
                 id="community-report-form"
               >
@@ -99,7 +93,7 @@ export default class CommunityReportModal extends Component<
               <button
                 type="button"
                 className="btn btn-success"
-                onClick={linkEvent(this, handleSubmit)}
+                onClick={event => handleSubmit(this, event)}
                 disabled={this.state.loading}
               >
                 {I18NextService.i18n.t("create_report")}
@@ -107,7 +101,7 @@ export default class CommunityReportModal extends Component<
               <button
                 type="button"
                 className="btn btn-danger"
-                onClick={linkEvent(this, this.props.onCancel)}
+                onClick={() => this.props.onCancel()}
               >
                 {I18NextService.i18n.t("cancel")}
               </button>

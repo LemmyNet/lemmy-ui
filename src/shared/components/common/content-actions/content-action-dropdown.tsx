@@ -26,6 +26,7 @@ import {
   CrossPostParams,
   PurgeType,
   ShowBodyType,
+  ShowMarkReadType,
 } from "@utils/types";
 import { getApubName, hostname } from "@utils/helpers";
 import { tippyMixin } from "../../mixins/tippy-mixin";
@@ -70,7 +71,6 @@ export type ContentCommentProps = {
   type: "comment";
   commentView: CommentView | CommentSlimView;
   showContext: boolean;
-  onReply(): void;
   onDistinguish(): void;
 } & ContentActionDropdownPropsBase;
 
@@ -79,7 +79,7 @@ export type ContentPostProps = {
   postView: PostView;
   crossPostParams: CrossPostParams;
   showBody: ShowBodyType;
-  markable: boolean;
+  showMarkRead: ShowMarkReadType;
   viewOnly: boolean;
   onFeatureLocal(): void;
   onFeatureCommunity(): void;
@@ -227,24 +227,9 @@ export default class ContentActionDropdown extends Component<
 
     return (
       <>
-        {type === "comment" && (
-          <ActionButton
-            onClick={this.props.onReply}
-            icon="reply1"
-            iconClass="text-muted"
-            inline
-            label={I18NextService.i18n.t("reply")}
-            noLoading
-            disabled={
-              this.props.commentView.comment.deleted ||
-              this.props.commentView.comment.removed ||
-              this.props.commentView.comment.locked
-            }
-          />
-        )}
         <div className="dropdown">
           <button
-            className="btn btn-link btn-animate text-muted py-0 ps-2 pe-0"
+            className="btn btn-sm border-light-subtle btn-animate text-muted"
             data-tippy-content={I18NextService.i18n.t("more")}
             data-bs-toggle="dropdown"
             aria-expanded="false"
@@ -261,7 +246,7 @@ export default class ContentActionDropdown extends Component<
                 {/* Links / fedilinks */}
                 <li>
                   <Link
-                    className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+                    className="btn btn-light border-light-subtle d-flex align-items-center rounded-0 dropdown-item"
                     to={link}
                     title={linkTitle}
                   >
@@ -271,7 +256,7 @@ export default class ContentActionDropdown extends Component<
                 </li>
                 <li>
                   <a
-                    className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+                    className="btn btn-light border-light-subtle d-flex align-items-center rounded-0 dropdown-item"
                     title={I18NextService.i18n.t("fedilink")}
                     href={apId}
                     target={linkTarget(this.props.myUserInfo)}
@@ -329,7 +314,7 @@ export default class ContentActionDropdown extends Component<
                       <li>
                         <CrossPostButton {...this.props.crossPostParams} />
                       </li>
-                      {this.props.markable && (
+                      {this.props.showMarkRead === "dropdown" && (
                         <li>
                           <ActionButton
                             icon="check"
@@ -384,7 +369,7 @@ export default class ContentActionDropdown extends Component<
                       {type === "comment" && (
                         <li>
                           <Link
-                            className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+                            className="btn btn-light border-light-subtle btn-sm d-flex align-items-center rounded-0 dropdown-item"
                             to={`/create_private_message/${creator.id}`}
                             title={I18NextService.i18n.t("message")}
                             aria-label={I18NextService.i18n.t("message")}
@@ -509,7 +494,7 @@ export default class ContentActionDropdown extends Component<
                   )}
                 <li>
                   <Link
-                    className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+                    className="btn btn-light border-light-subtle btn-sm d-flex align-items-center rounded-0 dropdown-item"
                     to={`/modlog?userId=${creator.id}`}
                     title={modHistoryUserTranslation}
                     aria-label={modHistoryUserTranslation}
@@ -521,7 +506,7 @@ export default class ContentActionDropdown extends Component<
                 </li>
                 <li>
                   <Link
-                    className="btn btn-link btn-sm d-flex align-items-center rounded-0 dropdown-item"
+                    className="btn btn-light border-light-subtle btn-sm d-flex align-items-center rounded-0 dropdown-item"
                     to={modHistoryItemLink}
                     title={modHistoryItemTranslation}
                     aria-label={modHistoryItemTranslation}
