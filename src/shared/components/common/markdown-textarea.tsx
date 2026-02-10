@@ -85,10 +85,10 @@ export class MarkdownTextArea extends Component<
     previewMode: false,
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     if (isBrowser()) {
-      const tribute = await setupTribute();
-      const textarea: any = document.getElementById(this.state.id);
+      const tribute = setupTribute();
+      const textarea: HTMLTextAreaElement| null = document.getElementById(this.state.id) as HTMLTextAreaElement;
       if (textarea) {
         autosize(textarea);
         tribute.attach(textarea);
@@ -603,7 +603,7 @@ function handleLanguageChange(i: MarkdownTextArea, val: number[]) {
   i.setState({ languageId: val[0] });
 }
 
-function handleSubmit(i: MarkdownTextArea, event: any) {
+function handleSubmit(i: MarkdownTextArea, event: Event) {
   event.preventDefault();
   if (i.state.content) {
     i.props.onSubmit?.(i.state.content, i.state.languageId);
@@ -615,7 +615,7 @@ function handleReplyCancel(i: MarkdownTextArea) {
 }
 
 function handleInsertLink(i: MarkdownTextArea) {
-  const textarea: any = document.getElementById(i.state.id);
+  const textarea: HTMLTextAreaElement = document.getElementById(i.state.id) as HTMLTextAreaElement;
   const start: number = textarea.selectionStart;
   const end: number = textarea.selectionEnd;
 
@@ -665,7 +665,7 @@ function handleSimpleSurroundBeforeAfter(
     i.setState({ content: "" });
   }
 
-  const textarea: any = document.getElementById(i.state.id);
+  const textarea: HTMLTextAreaElement = document.getElementById(i.state.id) as HTMLTextAreaElement;
   const start: number = textarea.selectionStart;
   const end: number = textarea.selectionEnd;
 

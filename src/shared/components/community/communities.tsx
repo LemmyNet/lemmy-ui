@@ -386,11 +386,11 @@ function handleListingTypeChange(i: Communities, val: ListingType) {
   });
 }
 
-function handleSearchChange(i: Communities, event: any) {
-  i.setState({ searchText: event.target.value });
+function handleSearchChange(i: Communities, event: Event) {
+  i.setState({ searchText: (event.target as HTMLInputElement).value });
 }
 
-function handleSearchSubmit(i: Communities, event: any) {
+function handleSearchSubmit(i: Communities, event: Event) {
   event.preventDefault();
   const searchParamEncoded = i.state.searchText;
   const { listingType } = i.props;

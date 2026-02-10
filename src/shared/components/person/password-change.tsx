@@ -101,17 +101,17 @@ export class PasswordChange extends Component<
     );
   }
 
-  handlePasswordChange(i: PasswordChange, event: any) {
-    i.state.form.password = event.target.value;
+  handlePasswordChange(i: PasswordChange, event: Event) {
+    i.state.form.password = (event.target as HTMLInputElement).value;
     i.setState(i.state);
   }
 
-  handleVerifyPasswordChange(i: PasswordChange, event: any) {
-    i.state.form.password_verify = event.target.value;
+  handleVerifyPasswordChange(i: PasswordChange, event: Event) {
+    i.state.form.password_verify = (event.target as HTMLInputElement).value;
     i.setState(i.state);
   }
 
-  async handlePasswordChangeSubmit(i: PasswordChange, event: any) {
+  async handlePasswordChangeSubmit(i: PasswordChange, event: Event) {
     event.preventDefault();
     i.setState({ passwordChangeRes: LOADING_REQUEST });
 

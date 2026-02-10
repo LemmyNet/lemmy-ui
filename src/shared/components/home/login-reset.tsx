@@ -106,11 +106,11 @@ export class LoginReset extends Component<
     );
   }
 
-  handleEmailInputChange(i: LoginReset, event: any) {
-    i.setState(s => ((s.form.email = event.target.value.trim()), s));
+  handleEmailInputChange(i: LoginReset, event: Event) {
+    i.setState(s => ((s.form.email = (event.target as HTMLInputElement).value.trim()), s));
   }
 
-  async handlePasswordReset(i: LoginReset, event: any) {
+  async handlePasswordReset(i: LoginReset, event: Event) {
     event.preventDefault();
 
     const email = i.state.form.email;

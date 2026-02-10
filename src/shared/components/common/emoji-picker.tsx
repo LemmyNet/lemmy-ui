@@ -69,7 +69,7 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
     document.removeEventListener("keyup", e => closeEmojiMartOnEsc(this, e));
   }
 
-  togglePicker(i: EmojiPicker, e: any) {
+  togglePicker(i: EmojiPicker, e: Event) {
     e.preventDefault();
     i.setState({ showPicker: !i.state.showPicker });
 

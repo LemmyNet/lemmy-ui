@@ -121,11 +121,11 @@ export default class PersonNoteModal extends Component<
   }
 }
 
-function handleNoteChange(i: PersonNoteModal, event: any) {
-  i.setState({ note: event.target.value });
+function handleNoteChange(i: PersonNoteModal, event: Event) {
+  i.setState({ note: (event.target as HTMLInputElement).value });
 }
 
-function handleSubmit(i: PersonNoteModal, event: any) {
+function handleSubmit(i: PersonNoteModal, event: Event) {
   event.preventDefault();
 
   i.setState({ loading: true });

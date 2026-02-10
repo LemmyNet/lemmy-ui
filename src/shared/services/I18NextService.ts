@@ -82,7 +82,7 @@ export const allLanguages: TranslationDesc[] = [
 
 type FoundTranslation = [TranslationDesc] | [TranslationDesc, TranslationDesc];
 
-const languageByCode = allLanguages.reduce((acc, l) => {
+const languageByCode: Record<string, TranslationDesc> = allLanguages.reduce((acc, l) => {
   acc[l.code] = l;
   return acc;
 }, {});
@@ -259,7 +259,7 @@ export async function updateLanguageInstances(
  * i18next *
  ***********/
 
-export function format(value: any, format: any): any {
+export function format(value: string, format: string): string {
   return format === "uppercase" ? value.toUpperCase() : value;
 }
 

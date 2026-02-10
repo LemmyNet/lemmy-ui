@@ -1918,8 +1918,8 @@ async function handleChangePasswordSubmit(
   }
 }
 
-function handleImportFileChange(i: Settings, event: any) {
-  i.setState({ settingsFile: event.target.files?.item(0) });
+function handleImportFileChange(i: Settings, event: Event) {
+  i.setState({ settingsFile: (event.target as HTMLInputElement).files?.item(0) ?? undefined });
 }
 
 async function handleExportSettings(i: Settings) {

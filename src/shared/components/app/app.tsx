@@ -19,7 +19,7 @@ import { Locale, setDefaultOptions } from "date-fns";
 import { i18n } from "i18next";
 import { setupEmojiDataModel } from "@utils/markdown";
 
-function handleJumpToContent(app: App, event: any) {
+function handleJumpToContent(app: App, event: Event) {
   event.preventDefault();
   app.contentRef.current?.focus();
 }
@@ -29,12 +29,12 @@ interface AppProps {
   i18n: i18n;
 }
 
-export default class App extends Component<AppProps, any> {
+export default class App extends Component<AppProps, object> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
   private readonly rootRef = createRef<HTMLDivElement>();
   readonly contentRef = createRef<HTMLDivElement>();
 
-  constructor(props: AppProps, context: any) {
+  constructor(props: AppProps, context: object) {
     super(props, context);
 
     I18NextService.i18n = this.props.i18n;
@@ -87,7 +87,7 @@ export default class App extends Component<AppProps, any> {
 
           // When key is location.key the component will be recreated when
           // navigating to itself. This is usesful to e.g. reset forms.
-          const key = mountedSameRouteNavKey ?? routeProps.location.key;
+          const key:string = mountedSameRouteNavKey ?? routeProps.location.key;
 
           return (
             <ErrorGuard>
