@@ -284,7 +284,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     viewSource={this.state.viewSource}
                     hideImages={hideImages_}
                   />
-                  <div className="row row-cols-auto align-items-center justify-content-end justify-content-md-start g-3 mb-2 text-muted fw-bold mt-1">
+                  <div className="row row-cols-auto align-items-center justify-content-end justify-content-md-start g-3 text-muted fw-bold mt-1">
                     <>
                       {showMarkRead === "main_bar" && (
                         <div className="col">
