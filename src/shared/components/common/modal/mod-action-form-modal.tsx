@@ -1,4 +1,10 @@
-import { Component, InfernoNode, RefObject, createRef } from "inferno";
+import {
+  Component,
+  FormEvent,
+  InfernoNode,
+  RefObject,
+  createRef,
+} from "inferno";
 import { I18NextService } from "../../../services/I18NextService";
 import { PurgeWarning, Spinner } from "../icon";
 import { getApubName, randomStr } from "@utils/helpers";
@@ -72,21 +78,31 @@ type ModActionFormModalProps = (
   | ModActionFormModalPropsPurgeCommunity
   | ModActionFormModalPropsRemove
   | ModActionFormModalPropsLock
-) & { onCancel(): void; show: boolean; children?: InfernoNode };
+) & {
+  onCancel(): void;
+  show: boolean;
+  loading: boolean;
+  children?: InfernoNode;
+};
 
 interface ModActionFormFormState {
-  loading: boolean;
   reason: string;
   daysUntilExpire?: number;
   shouldRemoveOrRestoreData?: boolean;
   shouldPermaBan?: boolean;
 }
 
-function handleReasonChange(i: ModActionFormModal, event: any) {
+function handleReasonChange(
+  i: ModActionFormModal,
+  event: FormEvent<HTMLInputElement>,
+) {
   i.setState({ reason: event.target.value });
 }
 
-function handleExpiryChange(i: ModActionFormModal, event: any) {
+function handleExpiryChange(
+  i: ModActionFormModal,
+  event: FormEvent<HTMLInputElement>,
+) {
   i.setState({ daysUntilExpire: parseInt(event.target.value, 10) });
 }
 
@@ -105,9 +121,11 @@ function handleTogglePermaBan(i: ModActionFormModal) {
   }));
 }
 
-function handleSubmit(i: ModActionFormModal, event: any) {
+function handleSubmit(
+  i: ModActionFormModal,
+  event: FormEvent<HTMLFormElement>,
+) {
   event.preventDefault();
-  i.setState({ loading: true });
 
   if (i.isBanModal) {
     i.props.onSubmit({
@@ -120,7 +138,6 @@ function handleSubmit(i: ModActionFormModal, event: any) {
   }
 
   i.setState({
-    loading: false,
     reason: "",
   });
 }
@@ -134,7 +151,6 @@ export default class ModActionFormModal extends Component<
   private reasonRef: RefObject<HTMLInputElement>;
   modal?: Modal;
   state: ModActionFormFormState = {
-    loading: false,
     reason: "",
   };
 
@@ -150,7 +166,6 @@ export default class ModActionFormModal extends Component<
 
   render() {
     const {
-      loading,
       reason,
       daysUntilExpire,
       shouldRemoveOrRestoreData,
@@ -158,7 +173,7 @@ export default class ModActionFormModal extends Component<
     } = this.state;
     const reasonId = `mod-form-reason-${randomStr()}`;
     const expiresId = `mod-form-expires-${randomStr()}`;
-    const { modActionType, onCancel } = this.props;
+    const { modActionType, onCancel, loading } = this.props;
 
     const formId = `mod-action-form-${randomStr()}`;
 
