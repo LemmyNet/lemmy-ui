@@ -207,6 +207,7 @@ export class CommentReport extends Component<
             isRemoved={comment_view.comment.removed}
             onCancel={() => this.setState({ showRemoveCommentDialog: false })}
             show
+            loading={false}
           />
         )}
       </div>
