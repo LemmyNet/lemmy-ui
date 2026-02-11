@@ -433,8 +433,8 @@ function UpvotePct(props: UpvotePctProps) {
   const thresholdCheck = pct < UPVOTE_PCT_THRESHOLD;
 
   const upvotesPctTippy = I18NextService.i18n.t("upvote_percentage", {
-    count: Number(pct),
-    formattedCount: Number(pct),
+    count: pct,
+    formattedCount: pctStr,
   });
 
   return (
@@ -444,7 +444,6 @@ function UpvotePct(props: UpvotePctProps) {
         aria-label={upvotesPctTippy}
         data-tippy-content={upvotesPctTippy}
       >
-        <Icon icon="smile" classes="me-1 icon-inline small" />
         {pctStr}
       </button>
     )
