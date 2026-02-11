@@ -1,4 +1,10 @@
-import { fetchUsers, personToChoice, setIsoData } from "@utils/app";
+import {
+  communityToChoice,
+  fetchCommunities,
+  fetchUsers,
+  personToChoice,
+  setIsoData,
+} from "@utils/app";
 import {
   debounce,
   getIdFromString,
@@ -60,7 +66,7 @@ const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";
 const ACTION_COLS = "col-12 col-md-6";
 
-type FilterType = "mod" | "user";
+type FilterType = "mod" | "user" | "community";
 
 type ModlogData = RouteDataResponse<{
   res: PagedResponse<ModlogView>;
@@ -77,6 +83,7 @@ export function getModlogQueryParams(source?: string): ModlogProps {
       userId: getIdFromString,
       commentId: getIdFromString,
       postId: getIdFromString,
+      communityId: getIdFromString,
       cursor: (cursor?: string) => cursor,
     },
     source,
@@ -88,8 +95,11 @@ interface ModlogState {
   communityRes: RequestState<GetCommunityResponse>;
   loadingModSearch: boolean;
   loadingUserSearch: boolean;
+  loadingCommunitySearch: boolean;
   modSearchOptions: Choice[];
   userSearchOptions: Choice[];
+  communitySearchOptions: Choice[];
+
   isIsomorphic: boolean;
 }
 
@@ -100,6 +110,7 @@ interface ModlogProps {
   actionType: ModlogKindFilter;
   postId?: number;
   commentId?: number;
+  communityId?: number;
 }
 
 function getActionFromString(action?: string): ModlogKindFilter {
@@ -610,7 +621,7 @@ async function createNewOptions({
   }
 }
 
-type ModlogPathProps = { communityId?: string };
+type ModlogPathProps = Record<string, never>;
 type ModlogRouteProps = RouteComponentProps<ModlogPathProps> & ModlogProps;
 export type ModlogFetchConfig = IRoutePropsWithFetch<
   ModlogData,
@@ -627,8 +638,10 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     communityRes: EMPTY_REQUEST,
     loadingModSearch: false,
     loadingUserSearch: false,
+    loadingCommunitySearch: false,
     userSearchOptions: [],
     modSearchOptions: [],
+    communitySearchOptions: [],
     isIsomorphic: false,
   };
 
@@ -664,6 +677,15 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           userSearchOptions: [personToChoice(userResponse.data.person_view)],
         };
       }
+
+      if (communityRes.state === "success") {
+        this.state = {
+          ...this.state,
+          communitySearchOptions: [
+            communityToChoice(communityRes.data.community_view),
+          ],
+        };
+      }
     }
   }
 
@@ -689,11 +711,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     if (nextProps.userId !== this.props.userId || reload) {
       this.fetchUser(nextProps);
     }
-    if (
-      nextProps.match.params.communityId !==
-        this.props.match.params.communityId ||
-      reload
-    ) {
+    if (nextProps.communityId !== this.props.communityId || reload) {
       this.fetchCommunity(nextProps);
     }
   }
@@ -791,11 +809,12 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const {
       loadingModSearch,
       loadingUserSearch,
+      loadingCommunitySearch,
       userSearchOptions,
       modSearchOptions,
+      communitySearchOptions,
     } = this.state;
-    const { actionType, modId, userId } = this.props;
-    const { communityId } = this.props.match.params;
+    const { actionType, modId, userId, communityId } = this.props;
 
     const communityState = this.state.communityRes.state;
     const communityResp =
@@ -865,6 +884,17 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               loading={loadingUserSearch}
             />
           </div>
+          <div className="col">
+            <Filter
+              filterType="community"
+              title="all_communities"
+              onChange={choice => handleCommunityChange(this, choice)}
+              onSearch={text => handleSearchCommunities(this, text)}
+              value={communityId}
+              options={communitySearchOptions}
+              loading={loadingCommunitySearch}
+            />
+          </div>
           {this.amAdminOrMod && (
             <div className="col">
               <Filter
@@ -928,36 +958,34 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   }
 
   updateUrl(props: Partial<ModlogProps>) {
-    const {
-      actionType,
-      modId,
-      cursor,
-      userId,
-      match: {
-        params: { communityId },
-      },
-    } = { ...this.props, ...props };
+    const { actionType, modId, cursor, userId, communityId } = {
+      ...this.props,
+      ...props,
+    };
 
     const queryParams: QueryParams<ModlogProps> = {
       cursor,
       actionType,
       modId: modId?.toString(),
       userId: userId?.toString(),
+      communityId: communityId?.toString(),
     };
 
-    this.props.history.push(
-      `/modlog${communityId ? `/${communityId}` : ""}${getQueryString(
-        queryParams,
-      )}`,
-    );
+    this.props.history.push(`/modlog${getQueryString(queryParams)}`);
   }
 
   fetchModlogToken?: symbol;
   async fetchModlog(props: ModlogRouteProps) {
     const token = (this.fetchModlogToken = Symbol());
-    const { actionType, cursor, modId, userId, postId, commentId } = props;
-    const { communityId: urlCommunityId } = props.match.params;
-    const communityId = getIdFromString(urlCommunityId);
+    const {
+      actionType,
+      cursor,
+      modId,
+      userId,
+      postId,
+      commentId,
+      communityId,
+    } = props;
 
     this.setState({ res: LOADING_REQUEST });
     const res = await HttpService.client.getModlog({
@@ -979,8 +1007,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   fetchCommunityToken?: symbol;
   async fetchCommunity(props: ModlogRouteProps) {
     const token = (this.fetchCommunityToken = Symbol());
-    const { communityId: urlCommunityId } = props.match.params;
-    const communityId = getIdFromString(urlCommunityId);
+    const { communityId } = props;
 
     if (communityId) {
       this.setState({ communityRes: LOADING_REQUEST });
@@ -989,6 +1016,14 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       });
       if (token === this.fetchCommunityToken) {
         this.setState({ communityRes });
+
+        if (communityRes.state === "success") {
+          this.setState({
+            communitySearchOptions: [
+              communityToChoice(communityRes.data.community_view),
+            ],
+          });
+        }
       }
     } else {
       this.setState({ communityRes: EMPTY_REQUEST });
@@ -997,15 +1032,19 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
   static async fetchInitialData({
     headers,
-    query: { cursor, userId, modId, actionType, commentId, postId },
-    match: {
-      params: { communityId: urlCommunityId },
+    query: {
+      cursor,
+      userId,
+      modId,
+      actionType,
+      commentId,
+      postId,
+      communityId,
     },
   }: InitialFetchRequest<ModlogPathProps, ModlogProps>): Promise<ModlogData> {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
-    const communityId = getIdFromString(urlCommunityId);
 
     const modlogForm: GetModlog = {
       page_cursor: cursor,
@@ -1075,6 +1114,13 @@ function handleUserChange(i: Modlog, option: Choice) {
   });
 }
 
+function handleCommunityChange(i: Modlog, option: Choice) {
+  i.updateUrl({
+    communityId: getIdFromString(option.value),
+    cursor: undefined,
+  });
+}
+
 function handleModChange(i: Modlog, option: Choice) {
   i.updateUrl({ modId: getIdFromString(option.value), cursor: undefined });
 }
@@ -1097,6 +1143,29 @@ const handleSearchUsers = debounce(async (i: Modlog, text: string) => {
   i.setState({
     userSearchOptions: newOptions,
     loadingUserSearch: false,
+  });
+});
+
+const handleSearchCommunities = debounce(async (i: Modlog, text: string) => {
+  if (!text.length) {
+    return;
+  }
+
+  const { communityId } = i.props;
+  const { communitySearchOptions } = i.state;
+  i.setState({ loadingCommunitySearch: true });
+
+  const newOptions = communitySearchOptions
+    .filter(choice => parseInt(choice.value, 10) === communityId)
+    .concat(
+      (await fetchCommunities(text))
+        .slice(0, fetchLimit)
+        .map(communityToChoice),
+    );
+
+  i.setState({
+    communitySearchOptions: newOptions,
+    loadingCommunitySearch: false,
   });
 });
 

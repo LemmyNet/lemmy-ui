@@ -29,6 +29,7 @@ export class NotificationModlogItem extends Component<
   NotificationModlogItemProps,
   NotificationModlogItemState
 > {
+  // TODO get rid
   state: NotificationModlogItemState = {
     readLoading: false,
   };
@@ -50,9 +51,9 @@ export class NotificationModlogItem extends Component<
       data,
     } = processModlogEntry(this.props.modlog_view, this.props.myUserInfo);
     return (
-      <div className="ms-2">
-        <div className="row text-muted small " role="group">
-          <div className="col flex-grow-1 ">
+      <div className="border-top border-light">
+        <div className="row text-muted small" role="group">
+          <div className="col flex-grow-1">
             {moderator ? (
               <PersonListing
                 person={moderator}
@@ -68,11 +69,11 @@ export class NotificationModlogItem extends Component<
           </div>
         </div>
         <span>{data}</span>
-        <ul className="list-inline mb-0 text-muted fw-bold">
-          <li className="list-inline-item">
+        <div className="row row-cols-auto align-items-center g-3 mb-2 mt-1 justify-content-end justify-content-md-start">
+          <div className="col">
             <button
               type="button"
-              className="btn btn-link btn-animate text-muted"
+              className="btn btn-sm border-light-subtle btn-animate text-muted"
               onClick={() => this.handleMarkAsRead(this)}
               data-tippy-content={mark_as_read_i18n(
                 this.props.notification.read,
@@ -90,8 +91,8 @@ export class NotificationModlogItem extends Component<
                 />
               )}
             </button>
-          </li>
-        </ul>
+          </div>
+        </div>
       </div>
     );
   }
