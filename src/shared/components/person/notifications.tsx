@@ -84,10 +84,7 @@ import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
-import {
-  UnreadOrAll,
-  UnreadOrAllDropdown,
-} from "@components/common/unread-or-all-dropdown";
+import { ShowUnreadOnlyCheckbox } from "@components/common/show-unread-only-checkbox";
 
 const messageTypeOptions: FilterOption<NotificationTypeFilter>[] = [
   { value: "all", i18n: "all" },
@@ -102,7 +99,7 @@ type NotificationsData = RouteDataResponse<{
 }>;
 
 interface NotificationsState {
-  unreadOrAll: UnreadOrAll;
+  showUnreadOnly: boolean;
   messageType: NotificationTypeFilter;
   notifsRes: RequestState<PagedResponse<NotificationView>>;
   markAllAsReadRes: RequestState<SuccessResponse>;
@@ -135,7 +132,7 @@ export class Notifications extends Component<
 > {
   private isoData = setIsoData<NotificationsData>(this.context);
   state: NotificationsState = {
-    unreadOrAll: "unread",
+    showUnreadOnly: true,
     messageType: "all",
     siteRes: this.isoData.siteRes,
     notifsRes: EMPTY_REQUEST,
@@ -183,7 +180,7 @@ export class Notifications extends Component<
   }
 
   get hasUnreads(): boolean {
-    if (this.state.unreadOrAll === "unread") {
+    if (this.state.showUnreadOnly) {
       const { notifsRes } = this.state;
       return notifsRes.state === "success" && notifsRes.data.items.length > 0;
     } else {
@@ -233,6 +230,7 @@ export class Notifications extends Component<
   messageTypeFilters() {
     return (
       <FilterChipDropdown
+        label={"type"}
         allOptions={messageTypeOptions}
         currentOption={messageTypeOptions.find(
           t => t.value === this.state.messageType,
@@ -246,9 +244,9 @@ export class Notifications extends Component<
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-2">
         <div className="col">
-          <UnreadOrAllDropdown
-            currentOption={this.state.unreadOrAll}
-            onSelect={val => handleUnreadOrAllChange(this, val)}
+          <ShowUnreadOnlyCheckbox
+            isChecked={this.state.showUnreadOnly}
+            onCheck={val => handleShowUnreadOnlyChange(this, val)}
           />
         </div>
         <div className="col">{this.messageTypeFilters()}</div>
@@ -443,7 +441,6 @@ export class Notifications extends Component<
   refetchToken?: symbol;
   async refetch() {
     const token = (this.refetchToken = Symbol());
-    const unread_only = this.state.unreadOrAll === "unread";
     const cursor = this.state.cursor;
 
     this.setState({
@@ -452,7 +449,7 @@ export class Notifications extends Component<
     await HttpService.client
       .listNotifications({
         type_: this.state.messageType,
-        unread_only,
+        unread_only: this.state.showUnreadOnly,
         page_cursor: cursor,
         limit: fetchLimit,
       })
@@ -590,8 +587,11 @@ async function handlePageChange(i: Notifications, cursor?: PaginationCursor) {
   await i.refetch();
 }
 
-async function handleUnreadOrAllChange(i: Notifications, val: string) {
-  i.setState({ unreadOrAll: val as UnreadOrAll, cursor: undefined });
+async function handleShowUnreadOnlyChange(
+  i: Notifications,
+  showUnreadOnly: boolean,
+) {
+  i.setState({ showUnreadOnly, cursor: undefined });
   await i.refetch();
 }
 

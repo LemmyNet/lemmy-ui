@@ -685,6 +685,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   <CommentSortDropdown
                     currentOption={this.props.sort}
                     onSelect={val => handleCommentSortChange(this, val)}
+                    showLabel
                   />
                 </div>
                 <div className="col me-auto">

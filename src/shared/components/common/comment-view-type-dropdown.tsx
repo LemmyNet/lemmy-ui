@@ -18,6 +18,7 @@ export function CommentViewTypeDropdown({
 }: CommentViewTypeDropdownProps) {
   return (
     <FilterChipDropdown
+      label={"view"}
       allOptions={options}
       currentOption={options.find(t => t.value === currentOption)}
       onSelect={onSelect}

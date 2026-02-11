@@ -807,8 +807,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               currentOption={listingType}
               showLocal={showLocal(this.isoData)}
               showSubscribed
+              showSuggested={
+                !!this.isoData.siteRes.site_view.local_site
+                  .suggested_communities
+              }
               onSelect={type => handleListingTypeChange(this, type)}
               myUserInfo={this.isoData.myUserInfo}
+              showLabel
             />
           </div>
           {(type === "all" || type === "posts") && (
@@ -833,6 +838,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             <SearchSortDropdown
               currentOption={sort}
               onSelect={val => handleSortChange(this, val)}
+              showLabel
             />
           </div>
           <div className="col">

@@ -911,7 +911,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 }
                 showLocal={showLocal(this.isoData)}
                 showSubscribed
+                showSuggested={
+                  !!this.isoData.siteRes.site_view.local_site
+                    .suggested_communities
+                }
                 myUserInfo={myUserInfo}
+                showLabel={false}
                 onSelect={val => handleListingTypeChange(this, val)}
               />
             </div>
@@ -926,6 +931,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                   this.state.saveUserSettingsForm.post_listing_mode ?? "list"
                 }
                 onSelect={val => handlePostListingModeChange(this, val)}
+                showLabel={false}
               />
             </div>
           </div>
@@ -940,6 +946,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                   "active"
                 }
                 onSelect={val => handlePostSortTypeChange(this, val)}
+                showLabel={false}
               />
             </div>
           </div>
@@ -954,6 +961,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                   "hot"
                 }
                 onSelect={val => handleCommentSortTypeChange(this, val)}
+                showLabel={false}
               />
             </div>
           </div>

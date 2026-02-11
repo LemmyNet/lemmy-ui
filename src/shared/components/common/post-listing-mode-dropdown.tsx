@@ -10,15 +10,18 @@ const options: FilterOption<PostListingMode>[] = [
 type PostListingModeDropdownProps = {
   currentOption: PostListingMode;
   onSelect(val: PostListingMode): void;
+  showLabel: boolean;
   className?: string;
 };
 export function PostListingModeDropdown({
   currentOption,
   onSelect,
+  showLabel,
   className,
 }: PostListingModeDropdownProps) {
   return (
     <FilterChipDropdown
+      label={showLabel ? "view" : undefined}
       allOptions={options}
       currentOption={options.find(t => t.value === currentOption)}
       onSelect={onSelect}

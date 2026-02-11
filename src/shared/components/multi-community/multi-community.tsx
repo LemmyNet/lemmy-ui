@@ -524,12 +524,14 @@ export class MultiCommunity extends Component<RouteProps, State> {
           <PostListingModeDropdown
             currentOption={this.state.postListingMode}
             onSelect={val => handlePostListingModeChange(this, val, myUserInfo)}
+            showLabel
           />
         </div>
         <div className="col">
           <PostSortDropdown
             currentOption={mixedToPostSortType(sort)}
             onSelect={val => handleSortChange(this, val)}
+            showLabel
           />
         </div>
         <div className="col">

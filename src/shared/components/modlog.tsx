@@ -757,14 +757,14 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
     return combined.map(i => {
       const {
-        modlog: { id, published_at },
+        modlog: { published_at },
         moderator,
         data,
       } = processModlogEntry(i, myUserInfo);
 
       return (
         <>
-          <div className="row" key={id}>
+          <div className="row">
             <div className={TIME_COLS}>
               <MomentTime published={published_at} />
             </div>

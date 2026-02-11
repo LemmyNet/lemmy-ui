@@ -13,6 +13,7 @@ import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
 type SortDropdownProps<T extends string> = {
   currentOption: T;
   onSelect(val: T): void;
+  showLabel: boolean;
   className?: string;
 };
 
@@ -31,11 +32,13 @@ const postSortOptions: FilterOption<PostSortType>[] = [
 export function PostSortDropdown({
   currentOption,
   onSelect,
+  showLabel,
   className,
 }: SortDropdownProps<PostSortType>) {
   return (
     <div className="d-flex align-items-center">
       <FilterChipDropdown
+        label={showLabel ? "sort" : undefined}
         allOptions={postSortOptions}
         currentOption={postSortOptions.find(t => t.value === currentOption)}
         onSelect={onSelect}
@@ -56,11 +59,13 @@ const commentSortOptions: FilterOption<CommentSortType>[] = [
 export function CommentSortDropdown({
   currentOption,
   onSelect,
+  showLabel,
   className,
 }: SortDropdownProps<CommentSortType>) {
   return (
     <div className="d-flex align-items-center">
       <FilterChipDropdown
+        label={showLabel ? "sort" : undefined}
         allOptions={commentSortOptions}
         currentOption={commentSortOptions.find(t => t.value === currentOption)}
         onSelect={onSelect}
@@ -89,11 +94,13 @@ const communitiesSortOptions: FilterOption<CommunitySortType>[] = [
 export function CommunitiesSortDropdown({
   currentOption,
   onSelect,
+  showLabel,
   className,
 }: SortDropdownProps<CommunitySortType>) {
   return (
     <div className="d-flex align-items-center">
       <FilterChipDropdown
+        label={showLabel ? "sort" : undefined}
         allOptions={communitiesSortOptions}
         currentOption={communitiesSortOptions.find(
           t => t.value === currentOption,
@@ -118,11 +125,13 @@ const multiCommunitiesSortOptions: FilterOption<MultiCommunitySortType>[] = [
 export function MultiCommunitiesSortDropdown({
   currentOption,
   onSelect,
+  showLabel,
   className,
 }: SortDropdownProps<MultiCommunitySortType>) {
   return (
     <div className="d-flex align-items-center">
       <FilterChipDropdown
+        label={showLabel ? "sort" : undefined}
         allOptions={multiCommunitiesSortOptions}
         currentOption={multiCommunitiesSortOptions.find(
           t => t.value === currentOption,
@@ -143,11 +152,13 @@ const searchSortOptions: FilterOption<SearchSortType>[] = [
 export function SearchSortDropdown({
   currentOption,
   onSelect,
+  showLabel,
   className,
 }: SortDropdownProps<SearchSortType>) {
   return (
     <div className="d-flex align-items-center">
       <FilterChipDropdown
+        label={showLabel ? "sort" : undefined}
         allOptions={searchSortOptions}
         currentOption={searchSortOptions.find(t => t.value === currentOption)}
         onSelect={onSelect}
