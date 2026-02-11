@@ -1,4 +1,3 @@
-import { Component, InfernoNode } from "inferno";
 import {
   ApproveCommunityPendingFollower,
   MyUserInfo,
@@ -12,99 +11,65 @@ import { UserBadges } from "./user-badges";
 interface PendingFollowProps {
   pending_follow: PendingFollowView;
   myUserInfo: MyUserInfo | undefined;
+  loading: boolean;
   onApproveFollower(form: ApproveCommunityPendingFollower): void;
 }
 
-interface PendingFollowState {
-  approveLoading: boolean;
-  denyLoading: boolean;
+export function PendingFollow(props: PendingFollowProps) {
+  const p = props.pending_follow;
+
+  return (
+    <div className="mb-3 row align-items-center">
+      <span className="col col-md-3">
+        <PersonListing
+          person={p.person}
+          banned={false}
+          showApubName
+          myUserInfo={props.myUserInfo}
+        />
+        <UserBadges
+          classNames="ms-1"
+          myUserInfo={props.myUserInfo}
+          creator={p.person}
+          showCounts
+        />
+      </span>
+      <span className="col">
+        {p.follow_state === "approval_required" && (
+          <>
+            <button
+              className="btn btn-light border-light-subtle me-2 my-2"
+              onClick={() => handleApprove(props)}
+              aria-label={I18NextService.i18n.t("approve")}
+            >
+              {props.loading ? <Spinner /> : I18NextService.i18n.t("approve")}
+            </button>
+            <button
+              className="btn btn-light border-light-subtle me-2"
+              onClick={() => handleDeny(props)}
+              aria-label={I18NextService.i18n.t("deny")}
+            >
+              {props.loading ? <Spinner /> : I18NextService.i18n.t("deny")}
+            </button>
+          </>
+        )}
+      </span>
+    </div>
+  );
 }
 
-export class PendingFollow extends Component<
-  PendingFollowProps,
-  PendingFollowState
-> {
-  state: PendingFollowState = {
-    approveLoading: false,
-    denyLoading: false,
-  };
+function handleApprove(i: PendingFollowProps) {
+  i.onApproveFollower({
+    follower_id: i.pending_follow.person.id,
+    community_id: i.pending_follow.community.id,
+    approve: true,
+  });
+}
 
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PendingFollowProps>,
-  ): void {
-    if (this.props !== nextProps) {
-      this.setState({
-        approveLoading: false,
-        denyLoading: false,
-      });
-    }
-  }
-
-  render() {
-    const p = this.props.pending_follow;
-    return (
-      <div className="mb-3 row align-items-center">
-        <span className="col col-md-3">
-          <PersonListing
-            person={p.person}
-            banned={false}
-            showApubName
-            myUserInfo={this.props.myUserInfo}
-          />
-          <UserBadges
-            classNames="ms-1"
-            myUserInfo={this.props.myUserInfo}
-            creator={p.person}
-            showCounts
-          />
-        </span>
-        <span className="col">
-          {p.follow_state === "approval_required" && (
-            <>
-              <button
-                className="btn btn-light border-light-subtle me-2 my-2"
-                onClick={() => this.handleApprove(this)}
-                aria-label={I18NextService.i18n.t("approve")}
-              >
-                {this.state.approveLoading ? (
-                  <Spinner />
-                ) : (
-                  I18NextService.i18n.t("approve")
-                )}
-              </button>
-              <button
-                className="btn btn-light border-light-subtle me-2"
-                onClick={() => this.handleDeny(this)}
-                aria-label={I18NextService.i18n.t("deny")}
-              >
-                {this.state.denyLoading ? (
-                  <Spinner />
-                ) : (
-                  I18NextService.i18n.t("deny")
-                )}
-              </button>
-            </>
-          )}
-        </span>
-      </div>
-    );
-  }
-
-  handleApprove(i: PendingFollow) {
-    i.setState({ approveLoading: true });
-    i.props.onApproveFollower({
-      follower_id: i.props.pending_follow.person.id,
-      community_id: i.props.pending_follow.community.id,
-      approve: true,
-    });
-  }
-
-  handleDeny(i: PendingFollow) {
-    i.setState({ denyLoading: true });
-    i.props.onApproveFollower({
-      follower_id: i.props.pending_follow.person.id,
-      community_id: i.props.pending_follow.community.id,
-      approve: false,
-    });
-  }
+function handleDeny(i: PendingFollowProps) {
+  i.onApproveFollower({
+    follower_id: i.pending_follow.person.id,
+    community_id: i.pending_follow.community.id,
+    approve: false,
+  });
 }
