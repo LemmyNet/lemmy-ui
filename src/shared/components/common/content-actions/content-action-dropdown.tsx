@@ -899,6 +899,7 @@ export default class ContentActionDropdown extends Component<
               handleHideAllDialogs(this);
               onPersonNote(form);
             }}
+            loading={false}
             onCancel={() => handleHideAllDialogs(this)}
           />
         )}
