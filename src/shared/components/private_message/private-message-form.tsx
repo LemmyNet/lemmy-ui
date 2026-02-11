@@ -28,9 +28,7 @@ interface PrivateMessageFormProps {
 
 interface PrivateMessageFormState {
   content?: string;
-  loading: boolean;
   previewMode: boolean;
-  submitted: boolean;
   bypassNavWarning?: boolean;
 }
 
@@ -39,12 +37,10 @@ export class PrivateMessageForm extends Component<
   PrivateMessageFormState
 > {
   state: PrivateMessageFormState = {
-    loading: false,
     previewMode: false,
     content: this.props.privateMessageView
       ? this.props.privateMessageView.private_message.content
       : undefined,
-    submitted: false,
   };
 
   render() {
@@ -54,8 +50,7 @@ export class PrivateMessageForm extends Component<
           message={I18NextService.i18n.t("block_leaving")}
           when={
             !this.state.bypassNavWarning &&
-            ((!!this.state.content && !this.state.submitted) ||
-              this.state.loading)
+            (!!this.state.content || this.props.createOrEditLoading)
           }
         />
         {!this.props.privateMessageView && (
@@ -134,7 +129,6 @@ export class PrivateMessageForm extends Component<
 }
 
 function handlePrivateMessageSubmit(i: PrivateMessageForm) {
-  i.setState({ loading: true, submitted: true });
   const pm = i.props.privateMessageView;
   const content = i.state.content ?? "";
   if (pm) {
@@ -158,7 +152,6 @@ function handlePrivateMessageSubmit(i: PrivateMessageForm) {
       },
     );
   }
-  i.setState({ loading: false, submitted: true });
 }
 
 function handleContentChange(i: PrivateMessageForm, val: string) {
