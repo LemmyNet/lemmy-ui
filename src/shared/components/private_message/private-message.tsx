@@ -18,6 +18,7 @@ import { PrivateMessageForm } from "./private-message-form";
 import ModActionFormModal from "../common/modal/mod-action-form-modal";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { mark_as_read_i18n } from "@utils/app";
+import ActionButton from "@components/common/content-actions/action-button";
 
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
@@ -140,14 +141,14 @@ export class PrivateMessage extends Component<
                   )}
                 />
               )}
-              <ul className="list-inline mb-0 text-muted fw-bold">
+              <div className="row row-cols-auto align-items-center justify-content-end justify-content-md-start g-3 mb-2 mt-1 text-muted fw-bold">
                 {!this.mine && (
                   <>
                     {
-                      <li className="list-inline-item">
+                      <div className="col">
                         <button
                           type="button"
-                          className="btn btn-link btn-animate text-muted"
+                          className="btn btn-sm border-light-subtle btn-animate text-muted"
                           onClick={() => handleMarkRead(this)}
                           data-tippy-content={mark_as_read_i18n(
                             this.props.read,
@@ -165,39 +166,39 @@ export class PrivateMessage extends Component<
                             />
                           )}
                         </button>
-                      </li>
+                      </div>
                     }
-                    <li className="list-inline-item">{this.reportButton}</li>
-                    <li className="list-inline-item">
+                    <div className="col">{this.reportButton}</div>
+                    <div className="col">
                       <button
                         type="button"
-                        className="btn btn-link btn-animate text-muted"
+                        className="btn btn-sm border-light-subtle btn-animate text-muted"
                         onClick={() => handleReplyClick(this)}
                         data-tippy-content={I18NextService.i18n.t("reply")}
                         aria-label={I18NextService.i18n.t("reply")}
                       >
                         <Icon icon="reply1" classes="icon-inline" />
                       </button>
-                    </li>
+                    </div>
                   </>
                 )}
                 {this.mine && (
                   <>
-                    <li className="list-inline-item">
+                    <div className="col">
                       <button
                         type="button"
-                        className="btn btn-link btn-animate text-muted"
+                        className="btn btn-sm border-light-subtle btn-animate text-muted"
                         onClick={() => handleEditClick(this)}
                         data-tippy-content={I18NextService.i18n.t("edit")}
                         aria-label={I18NextService.i18n.t("edit")}
                       >
                         <Icon icon="edit" classes="icon-inline" />
                       </button>
-                    </li>
-                    <li className="list-inline-item">
+                    </div>
+                    <div className="col">
                       <button
                         type="button"
-                        className="btn btn-link btn-animate text-muted"
+                        className="btn btn-sm border-light-subtle btn-animate text-muted"
                         onClick={() => handleDeleteClick(this)}
                         data-tippy-content={
                           !message_view.private_message.deleted
@@ -222,13 +223,13 @@ export class PrivateMessage extends Component<
                           />
                         )}
                       </button>
-                    </li>
+                    </div>
                   </>
                 )}
-                <li className="list-inline-item">
+                <div className="col">
                   <button
                     type="button"
-                    className="btn btn-link btn-animate text-muted"
+                    className="btn btn-sm border-light-subtle btn-animate text-muted"
                     onClick={() => handleViewSource(this)}
                     data-tippy-content={I18NextService.i18n.t("view_source")}
                     aria-label={I18NextService.i18n.t("view_source")}
@@ -240,8 +241,8 @@ export class PrivateMessage extends Component<
                       }`}
                     />
                   </button>
-                </li>
-              </ul>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -272,15 +273,14 @@ export class PrivateMessage extends Component<
 
   get reportButton() {
     return (
-      <button
-        type="button"
-        className="btn btn-link btn-animate text-muted py-0"
+      <ActionButton
         onClick={() => handleShowReportDialog(this)}
-        data-tippy-content={I18NextService.i18n.t("show_report_dialog")}
-        aria-label={I18NextService.i18n.t("show_report_dialog")}
-      >
-        <Icon icon="flag" inline />
-      </button>
+        icon="flag"
+        iconClass="text-muted"
+        inline
+        label={I18NextService.i18n.t("show_report_dialog")}
+        noLoading
+      />
     );
   }
 

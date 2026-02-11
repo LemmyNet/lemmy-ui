@@ -63,10 +63,7 @@ import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
-import {
-  UnreadOrAll,
-  UnreadOrAllDropdown,
-} from "@components/common/unread-or-all-dropdown";
+import { ShowUnreadOnlyCheckbox } from "@components/common/show-unread-only-checkbox";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 
 type ReportsData = RouteDataResponse<{
@@ -82,7 +79,7 @@ interface ReportsState {
     PrivateMessageReportResponse
   >;
   communityResolveRes: ItemIdAndRes<CommunityReportId, CommunityReportResponse>;
-  unreadOrAll: UnreadOrAll;
+  showUnreadOnly: boolean;
   reportType: ReportType;
   siteRes: GetSiteResponse;
   cursor?: PaginationCursor;
@@ -130,7 +127,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     postResolveRes: { id: 0, res: EMPTY_REQUEST },
     pmResolveRes: { id: 0, res: EMPTY_REQUEST },
     communityResolveRes: { id: 0, res: EMPTY_REQUEST },
-    unreadOrAll: "unread",
+    showUnreadOnly: true,
     reportType: "all",
     siteRes: this.isoData.siteRes,
     isIsomorphic: false,
@@ -256,6 +253,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
 
     return (
       <FilterChipDropdown
+        label={"type"}
         allOptions={options}
         currentOption={options.find(t => t.value === this.state.reportType)}
         onSelect={val => handleReportTypeChange(this, val)}
@@ -267,9 +265,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-2">
         <div className="col">
-          <UnreadOrAllDropdown
-            currentOption={this.state.unreadOrAll}
-            onSelect={val => handleUnreadOrAllChange(this, val)}
+          <ShowUnreadOnlyCheckbox
+            isChecked={this.state.showUnreadOnly}
+            onCheck={val => handleShowUnreadOnlyChange(this, val)}
           />
         </div>
         <div className="col">{this.reportTypeFilters()}</div>
@@ -564,7 +562,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   refetchToken?: symbol;
   async refetch() {
     const token = (this.refetchToken = Symbol());
-    const unresolved_only = this.state.unreadOrAll === "unread";
     const cursor = this.state.cursor;
 
     this.setState({
@@ -572,7 +569,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     });
 
     const form: ListReports = {
-      unresolved_only,
+      unresolved_only: this.state.showUnreadOnly,
       type_: this.state.reportType,
       show_community_rule_violations: this.state.showCommunityRuleViolations,
       page_cursor: cursor,
@@ -654,9 +651,9 @@ async function handlePageChange(i: Reports, cursor?: PaginationCursor) {
   await i.refetch();
 }
 
-async function handleUnreadOrAllChange(i: Reports, val: UnreadOrAll) {
+async function handleShowUnreadOnlyChange(i: Reports, showUnreadOnly: boolean) {
   i.setState({
-    unreadOrAll: val,
+    showUnreadOnly,
     cursor: undefined,
   });
   await i.refetch();

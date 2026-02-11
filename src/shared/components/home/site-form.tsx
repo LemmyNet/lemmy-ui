@@ -426,6 +426,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 }
                 showLocal
                 showSubscribed={false}
+                showSuggested
+                showLabel={false}
                 myUserInfo={this.props.myUserInfo}
                 onSelect={val => handleDefaultPostListingTypeChange(this, val)}
               />
@@ -442,6 +444,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 this.state.siteForm.default_post_listing_mode ?? "list"
               }
               onSelect={val => handlePostListingModeChange(this, val)}
+              showLabel={false}
             />
           </div>
         </div>
@@ -455,6 +458,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 this.state.siteForm.default_post_sort_type ?? "active"
               }
               onSelect={val => handlePostSortTypeChange(this, val)}
+              showLabel={false}
             />
           </div>
         </div>
@@ -468,6 +472,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 this.state.siteForm.default_comment_sort_type ?? "hot"
               }
               onSelect={val => handleCommentSortTypeChange(this, val)}
+              showLabel={false}
             />
           </div>
         </div>

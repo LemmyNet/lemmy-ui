@@ -13,8 +13,10 @@ type ListingTypeDropdownProps = {
   currentOption: ListingType;
   showLocal: boolean;
   showSubscribed: boolean;
+  showSuggested: boolean;
   myUserInfo: MyUserInfo | undefined;
   onSelect(val: ListingType): void;
+  showLabel: boolean;
   className?: string;
 };
 
@@ -22,8 +24,10 @@ export function ListingTypeDropdown({
   currentOption,
   showLocal,
   showSubscribed,
+  showSuggested,
   myUserInfo,
   onSelect,
+  showLabel,
   className,
 }: ListingTypeDropdownProps) {
   let filteredOptions = options;
@@ -42,8 +46,13 @@ export function ListingTypeDropdown({
     filteredOptions = filteredOptions.filter(o => "subscribed" !== o.value);
   }
 
+  if (!showSuggested) {
+    filteredOptions = filteredOptions.filter(o => "suggested" !== o.value);
+  }
+
   return (
     <FilterChipDropdown
+      label={showLabel ? "type" : undefined}
       allOptions={filteredOptions}
       currentOption={filteredOptions.find(t => t.value === currentOption)}
       onSelect={onSelect}

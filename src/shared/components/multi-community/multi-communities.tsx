@@ -164,7 +164,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
             <TableHr />
             {this.state.listMultiCommunitiesRes.data.items.map(v => (
               <>
-                <div className="row" key={v.multi.id}>
+                <div className="row">
                   <div className={nameCols}>
                     <MultiCommunityLink
                       multiCommunity={v.multi}
@@ -224,6 +224,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
               <MultiCommunitiesSortDropdown
                 currentOption={sort}
                 onSelect={val => handleSortChange(this, val)}
+                showLabel
               />
             </div>
             <div className="col me-auto">

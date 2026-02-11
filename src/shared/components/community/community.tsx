@@ -53,6 +53,7 @@ import {
   PagedResponse,
   CommentView,
   GetCommunity,
+  Community as CommunityI,
   GetCommunityResponse,
   GetPosts,
   PostView,
@@ -148,11 +149,13 @@ interface CommunityProps {
   postTimeRange: number;
   cursor?: PaginationCursor;
   showHidden?: boolean;
+  showRead?: boolean;
 }
 
 type Fallbacks = {
   sort: PostSortType | CommentSortType;
   postTimeRange: number;
+  showRead: boolean;
 };
 
 export function getCommunityQueryParams(
@@ -169,12 +172,14 @@ export function getCommunityQueryParams(
       sort: getSortTypeFromQuery,
       postTimeRange: getPostTimeRangeFromQuery,
       showHidden: getShowHiddenFromQuery,
+      showRead: getShowReadFromQuery,
     },
     source,
     {
       sort:
         local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
       postTimeRange: local_user?.default_post_time_range_seconds ?? 0,
+      showRead: local_user?.show_read_posts ?? true,
     },
   );
 }
@@ -199,6 +204,13 @@ function getPostTimeRangeFromQuery(
 
 function getShowHiddenFromQuery(hidden: string | undefined): boolean {
   return hidden === "true";
+}
+
+function getShowReadFromQuery(
+  showRead: string | undefined,
+  fallback: boolean,
+): boolean {
+  return showRead ? showRead === "true" : fallback;
 }
 
 type CommunityPathProps = { name: string };
@@ -295,7 +307,14 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   static async fetchInitialData({
     headers,
-    query: { postOrCommentType, cursor, sort, postTimeRange, showHidden },
+    query: {
+      postOrCommentType,
+      cursor,
+      sort,
+      postTimeRange,
+      showHidden,
+      showRead,
+    },
     match: { params: props },
   }: InitialFetchRequest<
     CommunityPathProps,
@@ -322,6 +341,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         time_range_seconds: postTimeRange,
         type_: "all",
         show_hidden: showHidden,
+        show_read: showRead,
         page_cursor: cursor,
       };
 
@@ -358,6 +378,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       cursor,
       sort,
       showHidden,
+      showRead,
       match: {
         params: { name },
       },
@@ -371,6 +392,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       cursor,
       sort,
       showHidden: showHidden?.toString(),
+      showRead: showRead?.toString(),
     };
 
     this.props.history.push(`/c/${name}${getQueryString(queryParams)}`);
@@ -379,8 +401,14 @@ export class Community extends Component<CommunityRouteProps, State> {
   fetchDataToken?: symbol;
   async fetchData(props: CommunityRouteProps) {
     const token = (this.fetchDataToken = Symbol());
-    const { postOrCommentType, cursor, sort, postTimeRange, showHidden } =
-      props;
+    const {
+      postOrCommentType,
+      cursor,
+      sort,
+      postTimeRange,
+      showHidden,
+      showRead,
+    } = props;
     const name = decodeURIComponent(props.match.params.name);
 
     if (postOrCommentType === "post") {
@@ -392,6 +420,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         type_: "all",
         community_name: name,
         show_hidden: showHidden,
+        show_read: showRead,
       });
       if (token === this.fetchDataToken) {
         this.setState({ postsRes });
@@ -466,37 +495,12 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
     const canViewCommunity_ = res && canViewCommunity(res.community_view);
-    // Show a message to the moderator if this community is not federated yet (ie it has no
-    // remote followers).
-    const notFederated =
-      res &&
-      res.community_view.can_mod &&
-      res.community_view.community.subscribers ===
-        res.community_view.community.subscribers_local &&
-      res.community_view.community.visibility !== "local_only_public" &&
-      res.community_view.community.visibility !== "local_only_private";
-    const communityName_ = res && communityName(res.community_view.community);
 
     return (
       <div className="community container-lg">
         <div className="row">
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
-            {notFederated && (
-              <div className="alert alert-warning text-bg-warning" role="alert">
-                <h4 className="alert-heading">
-                  {I18NextService.i18n.t("community_not_federated_title")}
-                </h4>
-                <div className="card-text">
-                  <T
-                    className="d-inline"
-                    i18nKey="community_not_federated_message"
-                  >
-                    #{communityName_}
-                    <a href="https://lemmy-federate.com">#</a>
-                  </T>
-                </div>
-              </div>
-            )}
+            {res && <ShowWarning res={res} />}
             {canViewCommunity_ ? (
               <>
                 {this.renderCommunity()}
@@ -737,7 +741,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     const res =
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
-    const { postOrCommentType, sort, postTimeRange, showHidden } = this.props;
+    const { postOrCommentType, sort, postTimeRange, showHidden, showRead } =
+      this.props;
     const communityRss = res
       ? communityRSSUrl(res.community_view.community, sort)
       : undefined;
@@ -753,18 +758,28 @@ export class Community extends Component<CommunityRouteProps, State> {
           />
         </div>
         {postOrCommentType === "post" && myUserInfo && (
-          <div className="col">
-            <FilterChipCheckbox
-              option={"show_hidden_posts"}
-              isChecked={showHidden ?? false}
-              onCheck={hidden => handleShowHiddenChange(this, hidden)}
-            />
-          </div>
+          <>
+            <div className="col">
+              <FilterChipCheckbox
+                option={"show_hidden_posts"}
+                isChecked={showHidden ?? false}
+                onCheck={hidden => handleShowHiddenChange(this, hidden)}
+              />
+            </div>
+            <div className="col">
+              <FilterChipCheckbox
+                option={"hide_read_posts"}
+                isChecked={!(showRead ?? false)}
+                onCheck={hideRead => handleHideReadChange(this, hideRead)}
+              />
+            </div>
+          </>
         )}
         <div className="col">
           <PostListingModeDropdown
             currentOption={this.state.postListingMode}
             onSelect={val => handlePostListingModeChange(this, val, myUserInfo)}
+            showLabel
           />
         </div>
         {this.props.postOrCommentType === "post" ? (
@@ -773,6 +788,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               <PostSortDropdown
                 currentOption={mixedToPostSortType(sort)}
                 onSelect={val => handleSortChange(this, val)}
+                showLabel
               />
             </div>
             <div className="col">
@@ -787,6 +803,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             <CommentSortDropdown
               currentOption={mixedToCommentSortType(sort)}
               onSelect={val => handleCommentSortChange(this, val)}
+              showLabel
             />
           </div>
         )}
@@ -888,6 +905,13 @@ async function handlePostListingModeChange(
 function handleShowHiddenChange(i: Community, showHidden: boolean) {
   i.updateUrl({
     showHidden,
+    cursor: undefined,
+  });
+}
+
+function handleHideReadChange(i: Community, hideRead: boolean) {
+  i.updateUrl({
+    showRead: !hideRead,
     cursor: undefined,
   });
 }
@@ -1360,4 +1384,61 @@ function updateModerators(
     }
     return s;
   });
+}
+
+type ShowWarningProps = { res: GetCommunityResponse };
+
+function ShowWarning({ res }: ShowWarningProps) {
+  const community = res.community_view.community;
+  // Show a message to the moderator if this community is not federated yet (ie it has no
+  // remote followers).
+  const notFederated =
+    res.community_view.can_mod &&
+    community.subscribers === community.subscribers_local &&
+    community.visibility !== "local_only_public" &&
+    community.visibility !== "local_only_private";
+
+  const oneWeekAgo = new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
+  const deadInstance =
+    res.site && new Date(res.site?.last_refreshed_at) < oneWeekAgo;
+  const deadCommunity = new Date(community.last_refreshed_at) < oneWeekAgo;
+
+  if (community.local && notFederated) {
+    return <NotFederatedWarning community={community} />;
+  } else if (!community.local && (deadInstance || deadCommunity)) {
+    return <DeadInstanceOrCommunityWarning />;
+  } else {
+    return <></>;
+  }
+}
+
+type NotFederatedWarningProps = { community: CommunityI };
+
+function NotFederatedWarning({ community }: NotFederatedWarningProps) {
+  return (
+    <div className="alert alert-warning text-bg-warning" role="alert">
+      <h4 className="alert-heading">
+        {I18NextService.i18n.t("community_not_federated_title")}
+      </h4>
+      <div className="card-text">
+        <T className="d-inline" i18nKey="community_not_federated_message">
+          #{communityName(community)}
+          <a href="https://lemmy-federate.com">#</a>
+        </T>
+      </div>
+    </div>
+  );
+}
+
+function DeadInstanceOrCommunityWarning() {
+  return (
+    <div className="alert alert-warning text-bg-warning" role="alert">
+      <h4 className="alert-heading">
+        {I18NextService.i18n.t("dead_community_title")}
+      </h4>
+      <div className="card-text">
+        {I18NextService.i18n.t("dead_community_body")}
+      </div>
+    </div>
+  );
 }

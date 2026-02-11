@@ -105,6 +105,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                   hideImage={false}
                   disableAutoMarkAsRead={false}
                   editLoading={false}
+                  markReadLoading={false}
                   onPostEdit={this.props.onPostEdit}
                   onPostVote={this.props.onPostVote}
                   onPostReport={this.props.onPostReport}
@@ -131,7 +132,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                     this.props.onScrollIntoCommentsClick
                   }
                 />
-                {idx + 1 !== this.posts.length && <hr className="my-3" />}
+                {idx + 1 !== this.posts.length && <hr className="my-2" />}
               </div>
             ))}
           </div>

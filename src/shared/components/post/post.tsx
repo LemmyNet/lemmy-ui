@@ -138,13 +138,14 @@ interface PostState {
   createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   fetchChildrenRes: ItemIdAndRes<CommentId, PagedResponse<CommentSlimView>>;
+  editPostRes: RequestState<PostResponse>;
+  markPostAsReadRes: RequestState<PostResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   maxCommentsShown: number;
   isIsomorphic: boolean;
   lastCreatedCommentId?: CommentId;
   notifications: PostNotificationsMode;
-  editLoading: boolean;
 }
 
 function getCommentSortTypeFromQuery(
@@ -268,6 +269,8 @@ export class Post extends Component<PostRouteProps, PostState> {
     followCommunityRes: EMPTY_REQUEST,
     removeCommunityRes: EMPTY_REQUEST,
     purgeCommunityRes: EMPTY_REQUEST,
+    editPostRes: EMPTY_REQUEST,
+    markPostAsReadRes: EMPTY_REQUEST,
     createCommentRes: { id: 0, res: EMPTY_REQUEST },
     editCommentRes: { id: 0, res: EMPTY_REQUEST },
     fetchChildrenRes: { id: 0, res: EMPTY_REQUEST },
@@ -276,7 +279,6 @@ export class Post extends Component<PostRouteProps, PostState> {
     maxCommentsShown: commentsShownInterval,
     isIsomorphic: false,
     notifications: "replies_and_mentions",
-    editLoading: false,
   };
 
   loadingSettled() {
@@ -596,7 +598,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 hideImage={false}
                 viewOnly={false}
                 disableAutoMarkAsRead={false}
-                editLoading={this.state.editLoading}
+                editLoading={this.state.editPostRes.state === "loading"}
                 onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
                 onBlockCommunity={form =>
                   handleBlockCommunity(this, form, myUserInfo)
@@ -627,6 +629,9 @@ export class Post extends Component<PostRouteProps, PostState> {
                   handleScrollIntoCommentsClick(this, e)
                 }
                 showMarkRead="dropdown"
+                markReadLoading={
+                  this.state.markPostAsReadRes.state === "loading"
+                }
                 onMarkPostAsRead={form =>
                   handleMarkPostAsRead(this, form, myUserInfo)
                 }
@@ -682,6 +687,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   <CommentSortDropdown
                     currentOption={this.props.sort}
                     onSelect={val => handleCommentSortChange(this, val)}
+                    showLabel
                   />
                 </div>
                 <div className="col me-auto">
@@ -1389,13 +1395,14 @@ async function handlePostVote(i: Post, form: CreatePostLike) {
 }
 
 async function handlePostEdit(i: Post, form: EditPost) {
-  i.setState({ editLoading: true });
+  i.setState({ editPostRes: LOADING_REQUEST });
   const res = await HttpService.client.editPost(form);
+  i.setState({ editPostRes: res });
+
   i.updatePost(res);
   if (res.state === "success") {
     toast(I18NextService.i18n.t("edited_post"));
   }
-  i.setState({ editLoading: false });
   return res;
 }
 
@@ -1477,7 +1484,9 @@ async function handleMarkPostAsRead(
   form: MarkPostAsRead,
   myUserInfo: MyUserInfo | undefined,
 ) {
+  i.setState({ markPostAsReadRes: EMPTY_REQUEST });
   const res = await HttpService.client.markPostAsRead(form);
+  i.setState({ markPostAsReadRes: res });
   if (res.state === "success") {
     i.setState(s => {
       if (s.postRes.state === "success" && myUserInfo) {
