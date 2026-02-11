@@ -102,7 +102,7 @@ export function PostActionBar(props: PostActionBarProps, context: any) {
   const { id } = postView.post;
 
   return (
-    <div className="row row-cols-auto align-items-center g-3 mb-2 justify-content-end justify-content-md-start">
+    <div className="row row-cols-auto align-items-center g-3 justify-content-end justify-content-md-start">
       {showMarkRead === "main_bar" && (
         <div className="col">
           <PostMarkReadButton
