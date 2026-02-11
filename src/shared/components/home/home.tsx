@@ -900,7 +900,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             </div>
             <div className="col">
               <FilterChipCheckbox
-                option={"show_read_posts"}
+                option={"hide_read_posts"}
                 isChecked={!(showRead ?? false)}
                 onCheck={hideRead => handleHideReadChange(this, hideRead)}
               />
