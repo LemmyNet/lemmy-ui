@@ -766,7 +766,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             </div>
             <div className="col">
               <FilterChipCheckbox
-                option={"show_read_posts"}
+                option={"hide_read_posts"}
                 isChecked={!(showRead ?? false)}
                 onCheck={hideRead => handleHideReadChange(this, hideRead)}
               />
