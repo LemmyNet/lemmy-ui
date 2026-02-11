@@ -10,9 +10,7 @@ interface CommunityReportModalProps {
   children?: InfernoNode;
 }
 
-interface CommunityReportModalState {
-  loading: boolean;
-}
+type CommunityReportModalState = object;
 
 async function handleSubmit(i: CommunityReportModal, event?: Event) {
   if (i.state.loading || !i.reasonRef.current?.value) {
