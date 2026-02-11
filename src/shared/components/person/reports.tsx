@@ -187,6 +187,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             isBanned={!banFromCommunityForm.ban}
             onCancel={() => handleCloseModActionModals(this)}
             show
+            loading={false}
           />
         )}
         {adminBanForm && (
@@ -197,6 +198,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             isBanned={!adminBanForm.ban}
             onCancel={() => handleCloseModActionModals(this)}
             show
+            loading={false}
           />
         )}
         <div className="row">

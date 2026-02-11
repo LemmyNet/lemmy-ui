@@ -207,6 +207,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             isRemoved={pv.post.removed}
             onCancel={() => this.setState({ showRemovePostDialog: false })}
             show
+            loading={false}
           />
         )}
       </div>

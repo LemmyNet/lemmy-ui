@@ -240,6 +240,7 @@ export class PrivateMessage extends Component<
           modActionType="report-message"
           onCancel={() => handleHideReportDialog(this)}
           show={this.state.showReportDialog}
+          loading={false}
         />
         {this.state.showReply && (
           <div className="row">
