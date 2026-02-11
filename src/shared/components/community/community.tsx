@@ -53,6 +53,7 @@ import {
   PagedResponse,
   CommentView,
   GetCommunity,
+  Community as CommunityI,
   GetCommunityResponse,
   GetPosts,
   PostView,
@@ -494,37 +495,12 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
     const canViewCommunity_ = res && canViewCommunity(res.community_view);
-    // Show a message to the moderator if this community is not federated yet (ie it has no
-    // remote followers).
-    const notFederated =
-      res &&
-      res.community_view.can_mod &&
-      res.community_view.community.subscribers ===
-        res.community_view.community.subscribers_local &&
-      res.community_view.community.visibility !== "local_only_public" &&
-      res.community_view.community.visibility !== "local_only_private";
-    const communityName_ = res && communityName(res.community_view.community);
 
     return (
       <div className="community container-lg">
         <div className="row">
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
-            {notFederated && (
-              <div className="alert alert-warning text-bg-warning" role="alert">
-                <h4 className="alert-heading">
-                  {I18NextService.i18n.t("community_not_federated_title")}
-                </h4>
-                <div className="card-text">
-                  <T
-                    className="d-inline"
-                    i18nKey="community_not_federated_message"
-                  >
-                    #{communityName_}
-                    <a href="https://lemmy-federate.com">#</a>
-                  </T>
-                </div>
-              </div>
-            )}
+            {res && <ShowWarning res={res} />}
             {canViewCommunity_ ? (
               <>
                 {this.renderCommunity()}
@@ -1403,4 +1379,61 @@ function updateModerators(
     }
     return s;
   });
+}
+
+type ShowWarningProps = { res: GetCommunityResponse };
+
+function ShowWarning({ res }: ShowWarningProps) {
+  const community = res.community_view.community;
+  // Show a message to the moderator if this community is not federated yet (ie it has no
+  // remote followers).
+  const notFederated =
+    res.community_view.can_mod &&
+    community.subscribers === community.subscribers_local &&
+    community.visibility !== "local_only_public" &&
+    community.visibility !== "local_only_private";
+
+  const oneWeekAgo = new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
+  const deadInstance =
+    res.site && new Date(res.site?.last_refreshed_at) < oneWeekAgo;
+  const deadCommunity = new Date(community.last_refreshed_at) < oneWeekAgo;
+
+  if (community.local && notFederated) {
+    return <NotFederatedWarning community={community} />;
+  } else if (!community.local && (deadInstance || deadCommunity)) {
+    return <DeadInstanceOrCommunityWarning />;
+  } else {
+    return <></>;
+  }
+}
+
+type NotFederatedWarningProps = { community: CommunityI };
+
+function NotFederatedWarning({ community }: NotFederatedWarningProps) {
+  return (
+    <div className="alert alert-warning text-bg-warning" role="alert">
+      <h4 className="alert-heading">
+        {I18NextService.i18n.t("community_not_federated_title")}
+      </h4>
+      <div className="card-text">
+        <T className="d-inline" i18nKey="community_not_federated_message">
+          #{communityName(community)}
+          <a href="https://lemmy-federate.com">#</a>
+        </T>
+      </div>
+    </div>
+  );
+}
+
+function DeadInstanceOrCommunityWarning() {
+  return (
+    <div className="alert alert-warning text-bg-warning" role="alert">
+      <h4 className="alert-heading">
+        {I18NextService.i18n.t("dead_community_title")}
+      </h4>
+      <div className="card-text">
+        {I18NextService.i18n.t("dead_community_body")}
+      </div>
+    </div>
+  );
 }
