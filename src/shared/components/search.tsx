@@ -302,6 +302,7 @@ const postListing = (
               disableAutoMarkAsRead={false}
               editLoading={false}
               markReadLoading={false}
+              voteLoading={false}
               // All of these are unused, since its view only
               onPostEdit={() => EMPTY_REQUEST}
               onPostVote={() => EMPTY_REQUEST}
@@ -353,6 +354,7 @@ const commentListing = (
               editLoading={undefined}
               markReadLoading={undefined}
               fetchChildrenLoading={undefined}
+              voteLoading={undefined}
               viewOnly
               postLockedOrRemovedOrDeleted
               isTopLevel
@@ -927,6 +929,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         createLoading={undefined}
         editLoading={undefined}
         fetchChildrenLoading={undefined}
+        voteLoading={undefined}
         viewOnly
         postLockedOrRemovedOrDeleted
         isTopLevel
@@ -999,6 +1002,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 disableAutoMarkAsRead={false}
                 editLoading={false}
                 markReadLoading={false}
+                voteLoading={false}
                 // All of these are unused, since its view only
                 onPostEdit={() => EMPTY_REQUEST}
                 onPostVote={() => EMPTY_REQUEST}

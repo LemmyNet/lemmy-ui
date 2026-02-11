@@ -74,6 +74,7 @@ type PostListingCardProps = {
   editLoading: boolean;
   notificationRead?: boolean;
   markReadLoading: boolean;
+  voteLoading: boolean;
   onEditClick(): void;
   onPostEdit(form: EditPost): void;
   onPostVote(form: CreatePostLike): void;
@@ -187,6 +188,7 @@ export class PostListingCard extends Component<
             localSite={p.localSite}
             notificationRead={p.notificationRead}
             markReadLoading={p.markReadLoading}
+            voteLoading={p.voteLoading}
             onPostVote={p.onPostVote}
             onScrollIntoCommentsClick={p.onScrollIntoCommentsClick}
             onViewSource={() => handleViewSource(this)}

@@ -39,6 +39,7 @@ import {
   LockComment,
   BlockCommunity,
   CommentId,
+  PostId,
 } from "lemmy-js-client";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
@@ -56,8 +57,10 @@ interface PersonDetailsProps {
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
-  createLoading: CommentId | undefined;
-  editLoading: CommentId | undefined;
+  createCommentLoading: CommentId | undefined;
+  editCommentLoading: CommentId | undefined;
+  voteCommentLoading: CommentId | undefined;
+  votePostLoading: PostId | undefined;
   onSaveComment(form: SaveComment): Promise<void>;
   onCreateComment(form: CreateComment): Promise<RequestState<CommentResponse>>;
   onEditComment(form: EditComment): Promise<RequestState<CommentResponse>>;
@@ -106,8 +109,9 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             showMarkRead={"hide"}
             markReadLoading={undefined}
             fetchChildrenLoading={undefined}
-            createLoading={this.props.createLoading}
-            editLoading={this.props.editLoading}
+            createLoading={this.props.createCommentLoading}
+            editLoading={this.props.editCommentLoading}
+            voteLoading={this.props.voteCommentLoading}
             hideImages={false}
             allLanguages={this.props.allLanguages}
             siteLanguages={this.props.siteLanguages}
@@ -154,6 +158,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             disableAutoMarkAsRead={false}
             editLoading={false}
             markReadLoading={false}
+            voteLoading={this.props.votePostLoading === i.post.id}
             enableNsfw={this.props.enableNsfw}
             showAdultConsentModal={this.props.showAdultConsentModal}
             allLanguages={this.props.allLanguages}

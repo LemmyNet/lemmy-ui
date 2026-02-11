@@ -98,6 +98,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           disableAutoMarkAsRead={false}
           editLoading={false}
           markReadLoading={false}
+          voteLoading={false}
           // All of these are unused, since its view only
           onPostEdit={() => EMPTY_REQUEST}
           onPostVote={() => EMPTY_REQUEST}

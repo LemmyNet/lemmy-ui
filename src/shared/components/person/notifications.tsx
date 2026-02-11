@@ -112,6 +112,7 @@ interface NotificationsState {
   createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   markCommentReadLoadingRes: ItemIdAndRes<CommentId, SuccessResponse>;
+  voteCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   markPostReadLoadingRes: ItemIdAndRes<PostId, SuccessResponse>;
   cursor?: PaginationCursor;
   siteRes: GetSiteResponse;
@@ -147,6 +148,7 @@ export class Notifications extends Component<
     privateMessageReadRes: { id: 0, res: EMPTY_REQUEST },
     createCommentRes: { id: 0, res: EMPTY_REQUEST },
     editCommentRes: { id: 0, res: EMPTY_REQUEST },
+    voteCommentRes: { id: 0, res: EMPTY_REQUEST },
     markCommentReadLoadingRes: { id: 0, res: EMPTY_REQUEST },
     markPostReadLoadingRes: { id: 0, res: EMPTY_REQUEST },
     isIsomorphic: false,
@@ -293,6 +295,7 @@ export class Notifications extends Component<
             node={commentToFlatNode(data)}
             createLoading={itemLoading(this.state.createCommentRes)}
             editLoading={itemLoading(this.state.editCommentRes)}
+            voteLoading={itemLoading(this.state.voteCommentRes)}
             fetchChildrenLoading={undefined}
             viewType={"flat"}
             showCommunity
@@ -366,6 +369,7 @@ export class Notifications extends Component<
               markReadLoading={
                 itemLoading(this.state.markPostReadLoadingRes) === data.post.id
               }
+              voteLoading={false}
               showCommunity
               showCrossPosts="show_separately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
@@ -763,7 +767,9 @@ async function handleSaveComment(i: Notifications, form: SaveComment) {
 }
 
 async function handleCommentVote(i: Notifications, form: CreateCommentLike) {
+  i.setState({ voteCommentRes: { id: form.comment_id, res: LOADING_REQUEST } });
   const res = await HttpService.client.likeComment(form);
+  i.setState({ voteCommentRes: { id: form.comment_id, res } });
   i.findAndUpdateComment(res);
 }
 

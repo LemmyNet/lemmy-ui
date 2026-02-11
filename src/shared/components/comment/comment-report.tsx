@@ -83,6 +83,7 @@ export class CommentReport extends Component<
           editLoading={undefined}
           markReadLoading={undefined}
           fetchChildrenLoading={undefined}
+          voteLoading={undefined}
           viewOnly
           showCommunity
           showContext={false}

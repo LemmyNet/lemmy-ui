@@ -391,6 +391,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 localSite={this.props.localSite}
                 admins={this.props.admins}
                 postListingMode="list"
+                voteLoading={undefined}
                 // All of these are unused, since its view only
                 onPostEdit={() => EMPTY_REQUEST}
                 onPostVote={() => EMPTY_REQUEST}
@@ -661,6 +662,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 localSite={this.props.localSite}
                 admins={this.props.admins}
                 postListingMode="list"
+                voteLoading={undefined}
                 // All of these are unused, since its view only
                 onPostEdit={() => EMPTY_REQUEST}
                 onPostVote={() => EMPTY_REQUEST}

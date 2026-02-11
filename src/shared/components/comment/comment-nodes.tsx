@@ -70,6 +70,7 @@ interface CommentNodesProps {
   editLoading: CommentId | undefined;
   markReadLoading: CommentId | undefined;
   fetchChildrenLoading: CommentId | undefined;
+  voteLoading: CommentId | undefined;
   onSaveComment(form: SaveComment): void;
   onCreateComment(form: CreateComment): void;
   onEditComment(form: EditComment): void;
@@ -130,6 +131,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               editLoading={this.props.editLoading}
               markReadLoading={this.props.markReadLoading}
               fetchChildrenLoading={this.props.fetchChildrenLoading}
+              voteLoading={this.props.voteLoading}
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
               showContext={this.props.showContext}

@@ -22,6 +22,7 @@ import {
   MyUserInfo,
   NotePerson,
   PersonView,
+  PostId,
   PostListingMode,
   PostView,
   PurgePerson,
@@ -48,6 +49,7 @@ interface PostListingsProps {
   localSite: LocalSite;
   admins: PersonView[];
   postListingMode: PostListingMode;
+  voteLoading: PostId | undefined;
   onPostEdit(form: EditPost): void;
   onPostVote(form: CreatePostLike): void;
   onPostReport(form: CreatePostReport): void;
@@ -106,6 +108,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                   disableAutoMarkAsRead={false}
                   editLoading={false}
                   markReadLoading={false}
+                  voteLoading={this.props.voteLoading === postView.post.id}
                   onPostEdit={this.props.onPostEdit}
                   onPostVote={this.props.onPostVote}
                   onPostReport={this.props.onPostReport}

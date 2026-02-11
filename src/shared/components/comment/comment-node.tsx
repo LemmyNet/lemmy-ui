@@ -90,6 +90,7 @@ type CommentNodeProps = {
   editLoading: CommentId | undefined;
   markReadLoading: CommentId | undefined;
   fetchChildrenLoading: CommentId | undefined;
+  voteLoading: CommentId | undefined;
   onMarkRead(commentId: CommentId, read: boolean): void;
   onSaveComment(form: SaveComment): void;
   onCreateComment(form: CreateComment): void;
@@ -306,6 +307,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           disabled={userNotLoggedInOrBanned(
                             this.props.myUserInfo,
                           )}
+                          loading={this.props.voteLoading === id}
                         />
                       </div>
                       <div className="col">
@@ -415,6 +417,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               editLoading={this.props.editLoading}
               markReadLoading={this.props.markReadLoading}
               fetchChildrenLoading={this.props.fetchChildrenLoading}
+              voteLoading={this.props.voteLoading}
               nodes={buildNodeChildren(this.props.node)}
               postCreatorId={this.postCreatorId}
               community={this.community}
