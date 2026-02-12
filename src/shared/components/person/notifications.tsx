@@ -103,10 +103,16 @@ interface NotificationsState {
   messageType: NotificationTypeFilter;
   notifsRes: RequestState<PagedResponse<NotificationView>>;
   markAllAsReadRes: RequestState<SuccessResponse>;
-  privateMessageRes: RequestState<PrivateMessageResponse>;
+  privateMessageRes: ItemIdAndRes<PrivateMessageId, PrivateMessageResponse>;
+  privateMessageDeleteRes: ItemIdAndRes<
+    PrivateMessageId,
+    PrivateMessageResponse
+  >;
+  privateMessageReadRes: ItemIdAndRes<PrivateMessageId, SuccessResponse>;
   createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   markCommentReadLoadingRes: ItemIdAndRes<CommentId, SuccessResponse>;
+  voteCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   markPostReadLoadingRes: ItemIdAndRes<PostId, SuccessResponse>;
   cursor?: PaginationCursor;
   siteRes: GetSiteResponse;
@@ -137,9 +143,12 @@ export class Notifications extends Component<
     siteRes: this.isoData.siteRes,
     notifsRes: EMPTY_REQUEST,
     markAllAsReadRes: EMPTY_REQUEST,
-    privateMessageRes: EMPTY_REQUEST,
+    privateMessageRes: { id: 0, res: EMPTY_REQUEST },
+    privateMessageDeleteRes: { id: 0, res: EMPTY_REQUEST },
+    privateMessageReadRes: { id: 0, res: EMPTY_REQUEST },
     createCommentRes: { id: 0, res: EMPTY_REQUEST },
     editCommentRes: { id: 0, res: EMPTY_REQUEST },
+    voteCommentRes: { id: 0, res: EMPTY_REQUEST },
     markCommentReadLoadingRes: { id: 0, res: EMPTY_REQUEST },
     markPostReadLoadingRes: { id: 0, res: EMPTY_REQUEST },
     isIsomorphic: false,
@@ -286,6 +295,8 @@ export class Notifications extends Component<
             node={commentToFlatNode(data)}
             createLoading={itemLoading(this.state.createCommentRes)}
             editLoading={itemLoading(this.state.editCommentRes)}
+            voteLoading={itemLoading(this.state.voteCommentRes)}
+            fetchChildrenLoading={undefined}
             viewType={"flat"}
             showCommunity
             showContext
@@ -320,6 +331,7 @@ export class Notifications extends Component<
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
             onMarkRead={(id, read) => handleMarkCommentAsRead(this, id, read)}
+            onFetchChildren={() => {}}
           />
         );
       case "private_message":
@@ -335,7 +347,16 @@ export class Notifications extends Component<
             onEdit={form => handleEditMessage(this, form)}
             onMarkRead={(id, read) => handleMarkMessageAsRead(this, id, read)}
             createOrEditLoading={
-              this.state.privateMessageRes.state === "loading"
+              itemLoading(this.state.privateMessageRes) ===
+              data.private_message.id
+            }
+            deleteLoading={
+              itemLoading(this.state.privateMessageDeleteRes) ===
+              data.private_message.id
+            }
+            readLoading={
+              itemLoading(this.state.privateMessageReadRes) ===
+              data.private_message.id
             }
           />
         );
@@ -348,6 +369,7 @@ export class Notifications extends Component<
               markReadLoading={
                 itemLoading(this.state.markPostReadLoadingRes) === data.post.id
               }
+              voteLoading={false}
               showCommunity
               showCrossPosts="show_separately"
               enableNsfw={enableNsfw(this.isoData.siteRes)}
@@ -745,7 +767,9 @@ async function handleSaveComment(i: Notifications, form: SaveComment) {
 }
 
 async function handleCommentVote(i: Notifications, form: CreateCommentLike) {
+  i.setState({ voteCommentRes: { id: form.comment_id, res: LOADING_REQUEST } });
   const res = await HttpService.client.likeComment(form);
+  i.setState({ voteCommentRes: { id: form.comment_id, res } });
   i.findAndUpdateComment(res);
 }
 
@@ -801,17 +825,23 @@ async function handleMarkMessageAsRead(
   privateMessageId: PrivateMessageId,
   read: boolean,
 ) {
-  if (i.state.notifsRes.state !== "success") return;
-  const notification = i.state.notifsRes.data.items.find(
-    n =>
-      n.data.type_ === "private_message" &&
-      n.data.private_message.id === privateMessageId,
-  );
+  const notification =
+    i.state.notifsRes.state === "success" &&
+    i.state.notifsRes.data.items.find(
+      n =>
+        n.data.type_ === "private_message" &&
+        n.data.private_message.id === privateMessageId,
+    );
+
   if (notification) {
-    await handleMarkNotificationAsRead(i, {
+    i.setState({
+      privateMessageReadRes: { id: privateMessageId, res: LOADING_REQUEST },
+    });
+    const res = await handleMarkNotificationAsRead(i, {
       notification_id: notification.notification.id,
       read,
     });
+    i.setState({ privateMessageReadRes: { id: privateMessageId, res } });
   }
 }
 
@@ -832,7 +862,14 @@ async function handleDeleteMessage(
   i: Notifications,
   form: DeletePrivateMessage,
 ) {
+  i.setState({
+    privateMessageDeleteRes: {
+      id: form.private_message_id,
+      res: LOADING_REQUEST,
+    },
+  });
   const res = await HttpService.client.deletePrivateMessage(form);
+  i.setState({ privateMessageDeleteRes: { id: form.private_message_id, res } });
   i.findAndUpdateMessage(res);
 }
 
@@ -840,9 +877,11 @@ async function handleEditMessage(
   i: Notifications,
   form: EditPrivateMessage,
 ): Promise<boolean> {
-  i.setState({ privateMessageRes: LOADING_REQUEST });
+  i.setState({
+    privateMessageRes: { id: form.private_message_id, res: LOADING_REQUEST },
+  });
   const res = await HttpService.client.editPrivateMessage(form);
-  i.setState({ privateMessageRes: res });
+  i.setState({ privateMessageRes: { id: form.private_message_id, res } });
 
   i.findAndUpdateMessage(res);
   if (res.state === "failed") {
@@ -884,9 +923,9 @@ async function handleCreateMessage(
   i: Notifications,
   form: CreatePrivateMessage,
 ): Promise<boolean> {
-  i.setState({ privateMessageRes: LOADING_REQUEST });
+  i.setState({ privateMessageRes: { id: 0, res: LOADING_REQUEST } });
   const res = await HttpService.client.createPrivateMessage(form);
-  i.setState({ privateMessageRes: res });
+  i.setState({ privateMessageRes: { id: 0, res } });
 
   i.setState(s => {
     if (s.notifsRes.state === "success" && res.state === "success") {

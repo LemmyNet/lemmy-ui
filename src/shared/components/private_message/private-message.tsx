@@ -1,4 +1,4 @@
-import { Component, InfernoNode } from "inferno";
+import { Component } from "inferno";
 import {
   CreatePrivateMessage,
   CreatePrivateMessageReport,
@@ -30,6 +30,8 @@ interface PrivateMessageProps {
   read: boolean;
   onMarkRead(privateMessageId: PrivateMessageId, read: boolean): void;
   createOrEditLoading: boolean;
+  deleteLoading: boolean;
+  readLoading: boolean;
 }
 
 interface PrivateMessageState {
@@ -38,9 +40,6 @@ interface PrivateMessageState {
   collapsed: boolean;
   viewSource: boolean;
   showReportDialog: boolean;
-  // TODO get rid of these inner states
-  deleteLoading: boolean;
-  readLoading: boolean;
 }
 
 @tippyMixin
@@ -54,17 +53,7 @@ export class PrivateMessage extends Component<
     collapsed: false,
     viewSource: false,
     showReportDialog: false,
-    deleteLoading: false,
-    readLoading: false,
   };
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PrivateMessageProps>,
-  ) {
-    if (this.props.private_message_view !== nextProps.private_message_view) {
-      this.setState({ readLoading: false });
-    }
-  }
 
   get mine(): boolean {
     return (
@@ -155,7 +144,7 @@ export class PrivateMessage extends Component<
                           )}
                           aria-label={mark_as_read_i18n(this.props.read)}
                         >
-                          {this.state.readLoading ? (
+                          {this.props.readLoading ? (
                             <Spinner />
                           ) : (
                             <Icon
@@ -211,7 +200,7 @@ export class PrivateMessage extends Component<
                             : I18NextService.i18n.t("restore")
                         }
                       >
-                        {this.state.deleteLoading ? (
+                        {this.props.deleteLoading ? (
                           <Spinner />
                         ) : (
                           <Icon
@@ -251,6 +240,7 @@ export class PrivateMessage extends Component<
           modActionType="report-message"
           onCancel={() => handleHideReportDialog(this)}
           show={this.state.showReportDialog}
+          loading={false}
         />
         {this.state.showReply && (
           <div className="row">
@@ -301,7 +291,6 @@ function handleEditClick(i: PrivateMessage) {
 }
 
 function handleDeleteClick(i: PrivateMessage) {
-  i.setState({ deleteLoading: true });
   i.props.onDelete({
     private_message_id: i.props.private_message_view.private_message.id,
     deleted: !i.props.private_message_view.private_message.deleted,
@@ -323,7 +312,6 @@ function handleEdit(i: PrivateMessage, form: EditPrivateMessage) {
 }
 
 function handleMarkRead(i: PrivateMessage) {
-  i.setState({ readLoading: true });
   i.props.onMarkRead(
     i.props.private_message_view.private_message.id,
     !i.props.read,

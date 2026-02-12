@@ -83,6 +83,7 @@ import {
   MultiCommunityView,
   PaginationCursor,
   CommentId,
+  PostId,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsContentType } from "@utils/types";
@@ -139,6 +140,8 @@ interface ProfileState {
   registrationRes: RequestState<RegistrationApplicationResponse>;
   createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  voteCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  votePostRes: ItemIdAndRes<PostId, PostResponse>;
   personBlocked: boolean;
   banReason?: string;
   banExpireDays?: number;
@@ -337,6 +340,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     registrationRes: EMPTY_REQUEST,
     createCommentRes: { id: 0, res: EMPTY_REQUEST },
     editCommentRes: { id: 0, res: EMPTY_REQUEST },
+    voteCommentRes: { id: 0, res: EMPTY_REQUEST },
+    votePostRes: { id: 0, res: EMPTY_REQUEST },
     personBlocked: false,
     siteRes: this.isoData.siteRes,
     showBanDialog: false,
@@ -703,8 +708,12 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     admins={siteRes.admins}
                     sort={sort}
                     limit={fetchLimit}
-                    createLoading={itemLoading(this.state.createCommentRes)}
-                    editLoading={itemLoading(this.state.editCommentRes)}
+                    createCommentLoading={itemLoading(
+                      this.state.createCommentRes,
+                    )}
+                    editCommentLoading={itemLoading(this.state.editCommentRes)}
+                    voteCommentLoading={itemLoading(this.state.voteCommentRes)}
+                    votePostLoading={itemLoading(this.state.votePostRes)}
                     enableNsfw={enableNsfw(siteRes)}
                     showAdultConsentModal={this.isoData.showAdultConsentModal}
                     myUserInfo={myUserInfo}
@@ -750,6 +759,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     }
                     onPersonNote={form => handlePersonNote(this, form)}
                     onLockComment={form => handleLockComment(this, form)}
+                    onFetchChildren={() => {}}
                   />
                 ))}
               <PaginatorCursor
@@ -1653,14 +1663,19 @@ async function handleFeaturePost(i: Profile, form: FeaturePost) {
 }
 
 async function handleCommentVote(i: Profile, form: CreateCommentLike) {
-  const voteRes = await HttpService.client.likeComment(form);
-  i.findAndUpdateComment(voteRes);
+  i.setState({ voteCommentRes: { id: form.comment_id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.likeComment(form);
+  i.setState({ voteCommentRes: { id: form.comment_id, res } });
+
+  i.findAndUpdateComment(res);
 }
 
 async function handlePostVote(i: Profile, form: CreatePostLike) {
-  const voteRes = await HttpService.client.likePost(form);
-  i.findAndUpdatePost(voteRes);
-  return voteRes;
+  i.setState({ votePostRes: { id: form.post_id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.likePost(form);
+  i.setState({ votePostRes: { id: form.post_id, res } });
+  i.findAndUpdatePost(res);
+  return res;
 }
 
 async function handlePostEdit(i: Profile, form: EditPost) {

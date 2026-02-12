@@ -759,6 +759,7 @@ export default class ContentActionDropdown extends Component<
             isRemoved={removed}
             onCancel={() => handleHideAllDialogs(this)}
             show={showRemoveDialog}
+            loading={false}
           />
         )}
         {renderBanDialog && (
@@ -785,6 +786,7 @@ export default class ContentActionDropdown extends Component<
             }
             community={community}
             show={showBanDialog}
+            loading={false}
           />
         )}
         {renderReportDialog && (
@@ -798,6 +800,7 @@ export default class ContentActionDropdown extends Component<
             }
             onCancel={() => handleHideAllDialogs(this)}
             show={showReportDialog}
+            loading={false}
           />
         )}
         {renderPurgeDialog && (
@@ -820,6 +823,7 @@ export default class ContentActionDropdown extends Component<
             creator={creator}
             onCancel={() => handleHideAllDialogs(this)}
             show={showPurgeDialog}
+            loading={false}
           />
         )}
         {renderTransferCommunityDialog && (
@@ -899,6 +903,7 @@ export default class ContentActionDropdown extends Component<
               handleHideAllDialogs(this);
               onPersonNote(form);
             }}
+            loading={false}
             onCancel={() => handleHideAllDialogs(this)}
           />
         )}
@@ -911,6 +916,7 @@ export default class ContentActionDropdown extends Component<
             modActionType={type === "post" ? "lock-post" : "lock-comment"}
             onCancel={() => handleHideAllDialogs(this)}
             show={showLockDialog}
+            loading={false}
             isLocked={locked}
           />
         )}

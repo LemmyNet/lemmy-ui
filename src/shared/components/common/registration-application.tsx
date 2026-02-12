@@ -16,13 +16,12 @@ interface RegistrationApplicationProps {
   application: RegistrationApplicationView;
   myUserInfo: MyUserInfo | undefined;
   onApproveApplication(form: ApproveRegistrationApplication): void;
+  loading: boolean;
 }
 
 interface RegistrationApplicationState {
   denyReason?: string;
   denyExpanded: boolean;
-  approveLoading: boolean;
-  denyLoading: boolean;
 }
 
 export class RegistrationApplication extends Component<
@@ -32,8 +31,6 @@ export class RegistrationApplication extends Component<
   state: RegistrationApplicationState = {
     denyReason: this.props.application.registration_application.deny_reason,
     denyExpanded: false,
-    approveLoading: false,
-    denyLoading: false,
   };
 
   componentWillReceiveProps(
@@ -44,8 +41,6 @@ export class RegistrationApplication extends Component<
     if (this.props !== nextProps) {
       this.setState({
         denyExpanded: false,
-        approveLoading: false,
-        denyLoading: false,
       });
     }
   }
@@ -145,7 +140,7 @@ export class RegistrationApplication extends Component<
             onClick={() => handleApprove(this)}
             aria-label={I18NextService.i18n.t("approve")}
           >
-            {this.state.approveLoading ? (
+            {this.props.loading ? (
               <Spinner />
             ) : (
               I18NextService.i18n.t("approve")
@@ -158,11 +153,7 @@ export class RegistrationApplication extends Component<
             onClick={() => handleDeny(this)}
             aria-label={I18NextService.i18n.t("deny")}
           >
-            {this.state.denyLoading ? (
-              <Spinner />
-            ) : (
-              I18NextService.i18n.t("deny")
-            )}
+            {this.props.loading ? <Spinner /> : I18NextService.i18n.t("deny")}
           </button>
         )}
       </div>
@@ -171,7 +162,7 @@ export class RegistrationApplication extends Component<
 }
 
 function handleApprove(i: RegistrationApplication) {
-  i.setState({ denyExpanded: false, approveLoading: true });
+  i.setState({ denyExpanded: false });
   i.props.onApproveApplication({
     id: i.props.application.registration_application.id,
     approve: true,
@@ -180,7 +171,7 @@ function handleApprove(i: RegistrationApplication) {
 
 function handleDeny(i: RegistrationApplication) {
   if (i.state.denyExpanded) {
-    i.setState({ denyExpanded: false, denyLoading: true });
+    i.setState({ denyExpanded: false });
     i.props.onApproveApplication({
       id: i.props.application.registration_application.id,
       approve: false,

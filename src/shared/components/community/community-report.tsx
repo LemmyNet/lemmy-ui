@@ -1,4 +1,4 @@
-import { Component, InfernoNode } from "inferno";
+import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   Community,
@@ -16,11 +16,8 @@ import { CommunityHeader } from "./community-header";
 interface Props {
   report: CommunityReportView;
   myUserInfo: MyUserInfo | undefined;
-  onResolveReport(form: ResolveCommunityReport): void;
-}
-
-interface State {
   loading: boolean;
+  onResolveReport(form: ResolveCommunityReport): void;
 }
 
 const reportElements = [
@@ -33,19 +30,7 @@ const reportElements = [
 ] as const;
 
 @tippyMixin
-export class CommunityReport extends Component<Props, State> {
-  state: State = {
-    loading: false, // when resolving
-  };
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & Props>,
-  ): void {
-    if (this.props !== nextProps) {
-      this.setState({ loading: false });
-    }
-  }
-
+export class CommunityReport extends Component<Props, object> {
   render() {
     const r = this.props.report;
     const cr = r.community_report;
@@ -115,7 +100,7 @@ export class CommunityReport extends Component<Props, State> {
           data-tippy-content={tippyContent}
           aria-label={tippyContent}
         >
-          {this.state.loading ? (
+          {this.props.loading ? (
             <Spinner />
           ) : (
             <Icon
@@ -131,7 +116,6 @@ export class CommunityReport extends Component<Props, State> {
   }
 
   handleResolveReport(i: CommunityReport) {
-    i.setState({ loading: true });
     const cr = i.props.report.community_report;
     i.props.onResolveReport({
       report_id: cr.id,

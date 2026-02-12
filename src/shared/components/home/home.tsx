@@ -78,6 +78,7 @@ import {
   PagedResponse,
   PaginationCursor,
   CommentId,
+  PostId,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -123,6 +124,8 @@ interface HomeState {
   commentsRes: RequestState<PagedResponse<CommentView>>;
   createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  voteCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  votePostRes: ItemIdAndRes<PostId, PostResponse>;
   showSubscribedMobile: boolean;
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
@@ -289,6 +292,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     commentsRes: EMPTY_REQUEST,
     createCommentRes: { id: 0, res: EMPTY_REQUEST },
     editCommentRes: { id: 0, res: EMPTY_REQUEST },
+    voteCommentRes: { id: 0, res: EMPTY_REQUEST },
+    votePostRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSubscribedMobile: false,
     showSidebarMobile: false,
@@ -789,6 +794,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               myUserInfo={this.isoData.myUserInfo}
               localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
+              voteLoading={itemLoading(this.state.votePostRes)}
               onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
               onBlockCommunity={form => handleBlockCommunity(form, myUserInfo)}
               onPostEdit={form => handlePostEdit(this, form)}
@@ -828,6 +834,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               nodes={commentsToFlatNodes(comments)}
               createLoading={itemLoading(this.state.createCommentRes)}
               editLoading={itemLoading(this.state.editCommentRes)}
+              voteLoading={itemLoading(this.state.voteCommentRes)}
+              fetchChildrenLoading={undefined}
               viewType={"flat"}
               isTopLevel
               showCommunity
@@ -863,7 +871,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onEditComment={form => handleEditComment(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               onLockComment={form => handleLockComment(this, form)}
-              onMarkRead={async () => {}}
+              onMarkRead={() => {}}
+              onFetchChildren={() => {}}
             />
           );
         }
@@ -1341,8 +1350,11 @@ async function handleMarkPostAsRead(
 }
 
 async function handleCommentVote(i: Home, form: CreateCommentLike) {
-  const voteRes = await HttpService.client.likeComment(form);
-  i.findAndUpdateComment(voteRes);
+  i.setState({ voteCommentRes: { id: form.comment_id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.likeComment(form);
+  i.setState({ voteCommentRes: { id: form.comment_id, res } });
+
+  i.findAndUpdateComment(res);
 }
 
 async function handlePostEdit(i: Home, form: EditPost) {
@@ -1352,9 +1364,12 @@ async function handlePostEdit(i: Home, form: EditPost) {
 }
 
 async function handlePostVote(i: Home, form: CreatePostLike) {
-  const voteRes = await HttpService.client.likePost(form);
-  i.findAndUpdatePost(voteRes);
-  return voteRes;
+  i.setState({ votePostRes: { id: form.post_id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.likePost(form);
+  i.setState({ votePostRes: { id: form.post_id, res } });
+
+  i.findAndUpdatePost(res);
+  return res;
 }
 
 async function handleCommentReport(form: CreateCommentReport) {

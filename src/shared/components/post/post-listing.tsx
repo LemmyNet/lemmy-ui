@@ -65,6 +65,7 @@ type PostListingProps = {
   editLoading: boolean;
   notificationRead?: boolean;
   markReadLoading: boolean;
+  voteLoading: boolean;
   onPostEdit(form: EditPost): void;
   onPostVote(form: CreatePostLike): void;
   onPostReport(form: CreatePostReport): void;
@@ -161,6 +162,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
             showCrossPosts={p.showCrossPosts}
+            voteLoading={p.voteLoading}
             onPostVote={p.onPostVote}
             onScrollIntoCommentsClick={p.onScrollIntoCommentsClick}
           />
@@ -189,6 +191,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             editLoading={p.editLoading}
             notificationRead={p.notificationRead}
             markReadLoading={p.markReadLoading}
+            voteLoading={p.voteLoading}
             onEditClick={() => handleEditClick(this)}
             onPostEdit={p.onPostEdit}
             onPostVote={p.onPostVote}

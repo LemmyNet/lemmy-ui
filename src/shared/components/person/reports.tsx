@@ -8,7 +8,7 @@ import {
 import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { amAdmin } from "@utils/roles";
-import { RouteDataResponse } from "@utils/types";
+import { ItemIdAndRes, itemLoading, RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode } from "inferno";
 import {
   CommentReportResponse,
@@ -30,6 +30,10 @@ import {
   RemoveComment,
   Person,
   Community,
+  CommentReportId,
+  PostReportId,
+  PrivateMessageReportId,
+  CommunityReportId,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, HttpService, I18NextService } from "../../services";
@@ -68,6 +72,13 @@ type ReportsData = RouteDataResponse<{
 
 interface ReportsState {
   reportsRes: RequestState<PagedResponse<ReportCombinedView>>;
+  commentResolveRes: ItemIdAndRes<CommentReportId, CommentReportResponse>;
+  postResolveRes: ItemIdAndRes<PostReportId, PostReportResponse>;
+  pmResolveRes: ItemIdAndRes<
+    PrivateMessageReportId,
+    PrivateMessageReportResponse
+  >;
+  communityResolveRes: ItemIdAndRes<CommunityReportId, CommunityReportResponse>;
   showUnreadOnly: boolean;
   reportType: ReportType;
   siteRes: GetSiteResponse;
@@ -112,6 +123,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   private isoData = setIsoData<ReportsData>(this.context);
   state: ReportsState = {
     reportsRes: EMPTY_REQUEST,
+    commentResolveRes: { id: 0, res: EMPTY_REQUEST },
+    postResolveRes: { id: 0, res: EMPTY_REQUEST },
+    pmResolveRes: { id: 0, res: EMPTY_REQUEST },
+    communityResolveRes: { id: 0, res: EMPTY_REQUEST },
     showUnreadOnly: true,
     reportType: "all",
     siteRes: this.isoData.siteRes,
@@ -172,6 +187,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             isBanned={!banFromCommunityForm.ban}
             onCancel={() => handleCloseModActionModals(this)}
             show
+            loading={false}
           />
         )}
         {adminBanForm && (
@@ -182,6 +198,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             isBanned={!adminBanForm.ban}
             onCancel={() => handleCloseModActionModals(this)}
             show
+            loading={false}
           />
         )}
         <div className="row">
@@ -280,6 +297,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             myUserInfo={this.isoData.myUserInfo}
             localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
+            loading={
+              itemLoading(this.state.commentResolveRes) === i.comment_report.id
+            }
             onResolveReport={form => handleResolveCommentReport(this, form)}
             onRemoveComment={form => handleRemoveComment(this, form)}
             onAdminBan={form => handleAdminBan(this, form)}
@@ -298,6 +318,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             myUserInfo={this.isoData.myUserInfo}
             localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
+            loading={
+              itemLoading(this.state.postResolveRes) === i.post_report.id
+            }
             onResolveReport={form => handleResolvePostReport(this, form)}
             onRemovePost={form => handleRemovePost(this, form)}
             onAdminBan={form => handleAdminBan(this, form)}
@@ -314,6 +337,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             onResolveReport={form =>
               handleResolvePrivateMessageReport(this, form)
             }
+            loading={
+              itemLoading(this.state.pmResolveRes) ===
+              i.private_message_report.id
+            }
             myUserInfo={this.isoData.myUserInfo}
           />
         );
@@ -322,6 +349,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <CommunityReport
             key={i.type_ + i.community_report.id}
             report={i}
+            loading={
+              itemLoading(this.state.communityResolveRes) ===
+              i.community_report.id
+            }
             onResolveReport={form => handleResolveCommunityReport(this, form)}
             myUserInfo={this.isoData.myUserInfo}
           />
@@ -374,6 +405,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   myUserInfo={this.isoData.myUserInfo}
                   localSite={siteRes.site_view.local_site}
                   admins={this.isoData.siteRes.admins}
+                  loading={
+                    itemLoading(this.state.commentResolveRes) ===
+                    cr.comment_report.id
+                  }
                   onResolveReport={form =>
                     handleResolveCommentReport(this, form)
                   }
@@ -416,6 +451,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                   myUserInfo={this.isoData.myUserInfo}
                   localSite={siteRes.site_view.local_site}
                   admins={this.isoData.siteRes.admins}
+                  loading={
+                    itemLoading(this.state.postResolveRes) === pr.post_report.id
+                  }
                   onResolveReport={form => handleResolvePostReport(this, form)}
                   onRemovePost={form => handleRemovePost(this, form)}
                   onAdminBan={form => handleAdminBan(this, form)}
@@ -452,6 +490,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                 <PrivateMessageReport
                   key={pmr.private_message_report.id}
                   report={pmr}
+                  loading={
+                    itemLoading(this.state.pmResolveRes) ===
+                    pmr.private_message_report.id
+                  }
                   onResolveReport={form =>
                     handleResolvePrivateMessageReport(this, form)
                   }
@@ -484,6 +526,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                 <CommunityReport
                   key={cr.community_report.id}
                   report={cr}
+                  loading={
+                    itemLoading(this.state.communityResolveRes) ===
+                    cr.community_report.id
+                  }
                   onResolveReport={form =>
                     handleResolveCommunityReport(this, form)
                   }
@@ -627,13 +673,23 @@ async function handleResolveCommentReport(
   i: Reports,
   form: ResolveCommentReport,
 ) {
+  i.setState({
+    commentResolveRes: { id: form.report_id, res: LOADING_REQUEST },
+  });
   const res = await HttpService.client.resolveCommentReport(form);
+  i.setState({ commentResolveRes: { id: form.report_id, res } });
   i.findAndUpdateCommentReport(res);
   i.update();
 }
 
 async function handleResolvePostReport(i: Reports, form: ResolvePostReport) {
+  i.setState({
+    postResolveRes: { id: form.report_id, res: LOADING_REQUEST },
+  });
   const res = await HttpService.client.resolvePostReport(form);
+  i.setState({
+    postResolveRes: { id: form.report_id, res },
+  });
   i.findAndUpdatePostReport(res);
   i.update();
 }
@@ -660,7 +716,13 @@ async function handleResolvePrivateMessageReport(
   i: Reports,
   form: ResolvePrivateMessageReport,
 ) {
+  i.setState({
+    pmResolveRes: { id: form.report_id, res: LOADING_REQUEST },
+  });
   const res = await HttpService.client.resolvePrivateMessageReport(form);
+  i.setState({
+    pmResolveRes: { id: form.report_id, res },
+  });
   i.findAndUpdatePrivateMessageReport(res);
 
   i.update();
@@ -670,7 +732,14 @@ async function handleResolveCommunityReport(
   i: Reports,
   form: ResolveCommunityReport,
 ) {
+  i.setState({
+    communityResolveRes: { id: form.report_id, res: LOADING_REQUEST },
+  });
   const res = await HttpService.client.resolveCommunityReport(form);
+  i.setState({
+    communityResolveRes: { id: form.report_id, res },
+  });
+  // TODO
   toast("Not implemented");
   i.findAndUpdateCommunityReport(res);
   i.update();

@@ -100,6 +100,7 @@ function ExpandedCrossPosts({
                 localSite={localSite}
                 disabled
                 onVote={() => null}
+                loading={false}
               />
               <div className="col">
                 <div className="post-title">

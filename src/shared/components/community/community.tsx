@@ -83,6 +83,7 @@ import {
   PurgeCommunity,
   RemoveCommunity,
   CommentId,
+  PostId,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -136,6 +137,8 @@ interface State {
   purgeCommunityRes: RequestState<SuccessResponse>;
   createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  voteCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  votePostRes: ItemIdAndRes<PostId, PostResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
@@ -236,6 +239,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     purgeCommunityRes: EMPTY_REQUEST,
     createCommentRes: { id: 0, res: EMPTY_REQUEST },
     editCommentRes: { id: 0, res: EMPTY_REQUEST },
+    voteCommentRes: { id: 0, res: EMPTY_REQUEST },
+    votePostRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     isIsomorphic: false,
@@ -634,6 +639,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onBlockCommunity={form =>
                 handleBlockCommunity(this, form, myUserInfo)
               }
+              voteLoading={itemLoading(this.state.votePostRes)}
               onPostEdit={form => handlePostEdit(this, form)}
               onPostVote={form => handlePostVote(this, form)}
               onPostReport={form => handlePostReport(form)}
@@ -675,6 +681,8 @@ export class Community extends Component<CommunityRouteProps, State> {
               viewType={"flat"}
               createLoading={itemLoading(this.state.createCommentRes)}
               editLoading={itemLoading(this.state.editCommentRes)}
+              voteLoading={itemLoading(this.state.voteCommentRes)}
+              fetchChildrenLoading={undefined}
               isTopLevel
               showContext
               showCommunity={false}
@@ -711,7 +719,8 @@ export class Community extends Component<CommunityRouteProps, State> {
               onEditComment={form => handleEditComment(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               onLockComment={form => handleLockComment(this, form)}
-              onMarkRead={async () => {}}
+              onMarkRead={() => {}}
+              onFetchChildren={() => {}}
             />
           );
       }
@@ -1108,8 +1117,11 @@ async function handleMarkPostAsRead(
 }
 
 async function handleCommentVote(i: Community, form: CreateCommentLike) {
-  const voteRes = await HttpService.client.likeComment(form);
-  findAndUpdateComment(i, voteRes);
+  i.setState({ voteCommentRes: { id: form.comment_id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.likeComment(form);
+  i.setState({ voteCommentRes: { id: form.comment_id, res } });
+
+  findAndUpdateComment(i, res);
 }
 
 async function handlePostEdit(i: Community, form: EditPost) {
@@ -1119,9 +1131,12 @@ async function handlePostEdit(i: Community, form: EditPost) {
 }
 
 async function handlePostVote(i: Community, form: CreatePostLike) {
-  const voteRes = await HttpService.client.likePost(form);
-  findAndUpdatePost(i, voteRes);
-  return voteRes;
+  i.setState({ votePostRes: { id: form.post_id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.likePost(form);
+  i.setState({ votePostRes: { id: form.post_id, res } });
+
+  findAndUpdatePost(i, res);
+  return res;
 }
 
 async function handleCommentReport(form: CreateCommentReport) {

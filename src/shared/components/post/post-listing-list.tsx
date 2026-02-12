@@ -23,6 +23,7 @@ type Props = {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   showCrossPosts: ShowCrossPostsType;
+  voteLoading: boolean;
   onPostVote(form: CreatePostLike): void;
   onScrollIntoCommentsClick(e: MouseEvent): void;
 };
@@ -39,6 +40,7 @@ export function PostListingList({
   showCrossPosts,
   onPostVote,
   onScrollIntoCommentsClick,
+  voteLoading,
 }: Props) {
   return (
     <div>
@@ -54,6 +56,7 @@ export function PostListingList({
               subject={postView.post}
               myVoteIsUpvote={postView.post_actions?.vote_is_upvote}
               disabled={userNotLoggedInOrBanned(myUserInfo)}
+              loading={voteLoading}
             />
           </div>
         )}

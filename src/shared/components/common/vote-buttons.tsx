@@ -1,6 +1,6 @@
 import { calculateUpvotePct, newVoteIsUpvote } from "@utils/app";
 import { numToSI } from "@utils/helpers";
-import { Component, InfernoNode } from "inferno";
+import { Component } from "inferno";
 import {
   Comment,
   CreateCommentLike,
@@ -19,7 +19,7 @@ import classNames from "classnames";
 
 const UPVOTE_PCT_THRESHOLD = 90;
 
-interface VoteButtonsProps {
+type VoteButtonsProps = {
   voteContentType: PostOrCommentType;
   id: number;
   onVote: (i: CreateCommentLike | CreatePostLike) => void;
@@ -28,12 +28,10 @@ interface VoteButtonsProps {
   localSite: LocalSite;
   myVoteIsUpvote?: boolean;
   disabled: boolean;
-}
+  loading: boolean;
+};
 
-interface VoteButtonsState {
-  upvoteLoading: boolean;
-  downvoteLoading: boolean;
-}
+type VoteButtonsState = object;
 
 function showUpvotes(
   localUser: LocalUser | undefined,
@@ -135,8 +133,6 @@ function tippy(
 }
 
 function handleUpvote(i: VoteButtons | VoteButtonsCompact) {
-  i.setState({ upvoteLoading: true });
-
   switch (i.props.voteContentType) {
     case "comment":
       i.props.onVote({
@@ -154,7 +150,6 @@ function handleUpvote(i: VoteButtons | VoteButtonsCompact) {
 }
 
 function handleDownvote(i: VoteButtons | VoteButtonsCompact) {
-  i.setState({ downvoteLoading: true });
   switch (i.props.voteContentType) {
     case "comment":
       i.props.onVote({
@@ -176,23 +171,6 @@ export class VoteButtonsCompact extends Component<
   VoteButtonsProps,
   VoteButtonsState
 > {
-  // TODO get rid
-  state: VoteButtonsState = {
-    upvoteLoading: false,
-    downvoteLoading: false,
-  };
-
-  componentWillReceiveProps(
-    nextProps: VoteButtonsProps & { children?: InfernoNode },
-  ) {
-    if (this.props !== nextProps) {
-      this.setState({
-        upvoteLoading: false,
-        downvoteLoading: false,
-      });
-    }
-  }
-
   render() {
     const localUser = this.props.myUserInfo?.local_user_view.local_user;
     const {
@@ -216,64 +194,68 @@ export class VoteButtonsCompact extends Component<
 
     return (
       <div className="btn-group" role="group">
-        {showScore_ && !hideScore && (
-          <Score myVoteIsUpvote={this.props.myVoteIsUpvote} score={score} />
-        )}
-        {showPct && <UpvotePct subject={subject} />}
-        {enableUpvotes(localSite, voteContentType) && (
+        {this.props.loading ? (
           <button
+            className="btn btn-sm border-light-subtle"
             type="button"
-            className={`btn btn-sm btn-animate border-light-subtle ${
-              this.props.myVoteIsUpvote === true ? "text-primary" : "text-muted"
-            }`}
-            data-tippy-content={tippy(
-              localUser,
-              localSite,
-              subject,
-              voteContentType,
-              creator_id,
-            )}
-            disabled={this.props.disabled}
-            onClick={() => handleUpvote(this)}
-            aria-label={I18NextService.i18n.t("upvote")}
-            aria-pressed={this.props.myVoteIsUpvote === true}
+            disabled
           >
-            {this.state.upvoteLoading ? (
-              <Spinner />
-            ) : (
-              <>
+            <Spinner />
+          </button>
+        ) : (
+          <>
+            {showScore_ && !hideScore && (
+              <Score myVoteIsUpvote={this.props.myVoteIsUpvote} score={score} />
+            )}
+            {showPct && <UpvotePct subject={subject} />}
+            {enableUpvotes(localSite, voteContentType) && (
+              <button
+                type="button"
+                className={`btn btn-sm btn-animate border-light-subtle ${
+                  this.props.myVoteIsUpvote === true
+                    ? "text-primary"
+                    : "text-muted"
+                }`}
+                data-tippy-content={tippy(
+                  localUser,
+                  localSite,
+                  subject,
+                  voteContentType,
+                  creator_id,
+                )}
+                disabled={this.props.disabled || this.props.loading}
+                onClick={() => handleUpvote(this)}
+                aria-label={I18NextService.i18n.t("upvote")}
+                aria-pressed={this.props.myVoteIsUpvote === true}
+              >
                 <Icon icon="arrow-up1" classes="icon-inline small" />
                 {showUpvotes(localUser, localSite, voteContentType) && (
                   <span className="ms-2">
                     {numToSI(this.props.subject.upvotes)}
                   </span>
                 )}
-              </>
+              </button>
             )}
-          </button>
-        )}
-        {enableDownvotes(localSite, voteContentType) && (
-          <button
-            type="button"
-            className={`btn btn-sm border-light-subtle btn-animate ${
-              this.props.myVoteIsUpvote === false ? "text-danger" : "text-muted"
-            }`}
-            disabled={this.props.disabled}
-            onClick={() => handleDownvote(this)}
-            data-tippy-content={tippy(
-              localUser,
-              localSite,
-              subject,
-              voteContentType,
-              creator_id,
-            )}
-            aria-label={I18NextService.i18n.t("downvote")}
-            aria-pressed={this.props.myVoteIsUpvote === false}
-          >
-            {this.state.downvoteLoading ? (
-              <Spinner />
-            ) : (
-              <>
+            {enableDownvotes(localSite, voteContentType) && (
+              <button
+                type="button"
+                className={`btn btn-sm border-light-subtle btn-animate ${
+                  this.props.myVoteIsUpvote === false
+                    ? "text-danger"
+                    : "text-muted"
+                }`}
+                disabled={this.props.disabled || this.props.loading}
+                onClick={() => handleDownvote(this)}
+                data-tippy-content={tippy(
+                  localUser,
+                  localSite,
+                  subject,
+                  voteContentType,
+                  creator_id,
+                )}
+                aria-label={I18NextService.i18n.t("downvote")}
+                aria-pressed={this.props.myVoteIsUpvote === false}
+              >
                 <Icon icon="arrow-down1" classes="icon-inline small" />
                 {showDownvotes(
                   localUser,
@@ -286,9 +268,9 @@ export class VoteButtonsCompact extends Component<
                       {numToSI(this.props.subject.downvotes)}
                     </span>
                   )}
-              </>
+              </button>
             )}
-          </button>
+          </>
         )}
       </div>
     );
@@ -297,23 +279,6 @@ export class VoteButtonsCompact extends Component<
 
 @tippyMixin
 export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
-  state: VoteButtonsState = {
-    // TODO get rid
-    upvoteLoading: false,
-    downvoteLoading: false,
-  };
-
-  componentWillReceiveProps(
-    nextProps: VoteButtonsProps & { children?: InfernoNode },
-  ) {
-    if (this.props !== nextProps) {
-      this.setState({
-        upvoteLoading: false,
-        downvoteLoading: false,
-      });
-    }
-  }
-
   render() {
     const localUser = this.props.myUserInfo?.local_user_view.local_user;
     const {
@@ -330,7 +295,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             className={`btn-animate btn btn-link p-0 ${
               this.props.myVoteIsUpvote === true ? "text-primary" : "text-muted"
             }`}
-            disabled={this.props.disabled}
+            disabled={this.props.disabled || this.props.loading}
             onClick={() => handleUpvote(this)}
             data-tippy-content={tippy(
               localUser,
@@ -342,11 +307,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             aria-label={I18NextService.i18n.t("upvote")}
             aria-pressed={this.props.myVoteIsUpvote === true}
           >
-            {this.state.upvoteLoading ? (
-              <Spinner />
-            ) : (
-              <Icon icon="arrow-up1" classes="upvote" />
-            )}
+            <Icon icon="arrow-up1" classes="upvote" />
           </button>
         )}
         {showScore(localUser) ? (
@@ -360,7 +321,11 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
               creator_id,
             )}
           >
-            {numToSI(this.props.subject.score)}
+            {this.props.loading ? (
+              <Spinner />
+            ) : (
+              numToSI(this.props.subject.score)
+            )}
           </div>
         ) : (
           <div className="p-1"></div>
@@ -371,7 +336,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             className={`btn-animate btn btn-link p-0 ${
               this.props.myVoteIsUpvote === false ? "text-danger" : "text-muted"
             }`}
-            disabled={this.props.disabled}
+            disabled={this.props.disabled || this.props.loading}
             onClick={() => handleDownvote(this)}
             data-tippy-content={tippy(
               localUser,
@@ -383,11 +348,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             aria-label={I18NextService.i18n.t("downvote")}
             aria-pressed={this.props.myVoteIsUpvote === false}
           >
-            {this.state.downvoteLoading ? (
-              <Spinner />
-            ) : (
-              <Icon icon="arrow-down1" classes="downvote" />
-            )}
+            <Icon icon="arrow-down1" classes="downvote" />
           </button>
         )}
       </div>

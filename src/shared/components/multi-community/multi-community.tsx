@@ -17,8 +17,8 @@ import {
   bareRoutePush,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import type { QueryParams } from "@utils/types";
-import { RouteDataResponse } from "@utils/types";
+import type { ItemIdAndRes, QueryParams } from "@utils/types";
+import { itemLoading, RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode, RefObject, createRef } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -58,6 +58,7 @@ import {
   PostListingMode,
   MultiCommunityResponse,
   PaginationCursor,
+  PostId,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -94,16 +95,17 @@ type MultiCommunityData = RouteDataResponse<{
   postsRes: PagedResponse<PostView>;
 }>;
 
-interface State {
+type State = {
   multiCommunityRes: RequestState<GetMultiCommunityResponse>;
   postsRes: RequestState<PagedResponse<PostView>>;
   followRes: RequestState<MultiCommunityResponse>;
+  votePostRes: ItemIdAndRes<PostId, PostResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
   postListingMode: PostListingMode;
-}
+};
 
 interface Props {
   sort: PostSortType;
@@ -174,6 +176,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     multiCommunityRes: EMPTY_REQUEST,
     postsRes: EMPTY_REQUEST,
     followRes: EMPTY_REQUEST,
+    votePostRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     isIsomorphic: false,
@@ -441,6 +444,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
             myUserInfo={myUserInfo}
             localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
+            voteLoading={itemLoading(this.state.votePostRes)}
             onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
             onBlockCommunity={form => handleBlockCommunity(form, myUserInfo)}
             onPostEdit={form => handlePostEdit(this, form)}
@@ -693,9 +697,12 @@ async function handlePostEdit(i: MultiCommunity, form: EditPost) {
 }
 
 async function handlePostVote(i: MultiCommunity, form: CreatePostLike) {
-  const voteRes = await HttpService.client.likePost(form);
-  findAndUpdatePost(i, voteRes);
-  return voteRes;
+  i.setState({ votePostRes: { id: form.post_id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.likePost(form);
+  i.setState({ votePostRes: { id: form.post_id, res } });
+  findAndUpdatePost(i, res);
+
+  return res;
 }
 
 async function handlePostReport(form: CreatePostReport) {
