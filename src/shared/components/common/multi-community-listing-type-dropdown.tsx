@@ -34,6 +34,7 @@ export function MultiCommunityListingTypeDropdown({
 
   return (
     <FilterChipDropdown
+      label={"type"}
       allOptions={filteredOptions}
       currentOption={filteredOptions.find(t => t.value === currentOption)}
       onSelect={onSelect}

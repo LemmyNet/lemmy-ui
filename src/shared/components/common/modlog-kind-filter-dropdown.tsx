@@ -42,6 +42,7 @@ export function ModlogKindFilterDropdown({
 }: ModlogKindFilterDropdownProps) {
   return (
     <FilterChipDropdown
+      label={"type"}
       allOptions={options}
       currentOption={options.find(t => t.value === currentOption)}
       onSelect={onSelect}

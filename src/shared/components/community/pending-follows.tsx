@@ -5,15 +5,23 @@ import {
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { QueryParams, RouteDataResponse } from "@utils/types";
+import {
+  ItemIdAndRes,
+  itemLoading,
+  QueryParams,
+  RouteDataResponse,
+} from "@utils/types";
 import { Component } from "inferno";
 import {
   ApproveCommunityPendingFollower,
+  CommunityId,
   LemmyHttp,
   PagedResponse,
   PaginationCursor,
   PendingFollowerView,
   PendingFollow as PendingFollowView,
+  PersonId,
+  SuccessResponse,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -43,8 +51,14 @@ type PendingFollowsData = RouteDataResponse<{
   listPendingFollowsResponse: PagedResponse<PendingFollowerView>;
 }>;
 
+type CommunityAndPerson = {
+  communityId: CommunityId;
+  personId: PersonId;
+};
+
 interface PendingFollowsState {
   appsRes: RequestState<PagedResponse<PendingFollowerView>>;
+  approveRes: ItemIdAndRes<CommunityAndPerson, SuccessResponse>;
   isIsomorphic: boolean;
 }
 
@@ -93,6 +107,7 @@ export class PendingFollows extends Component<
   private isoData = setIsoData<PendingFollowsData>(this.context);
   state: PendingFollowsState = {
     appsRes: EMPTY_REQUEST,
+    approveRes: { id: { communityId: 0, personId: 0 }, res: EMPTY_REQUEST },
     isIsomorphic: false,
   };
 
@@ -190,12 +205,18 @@ export class PendingFollows extends Component<
     }
     return (
       <div>
-        {pending.map(pending_follow => (
+        {pending.map(pendingFollow => (
           <>
             <hr />
             <PendingFollow
-              pending_follow={pending_follow}
+              pending_follow={pendingFollow}
               myUserInfo={this.isoData.myUserInfo}
+              loading={
+                itemLoading(this.state.approveRes)?.communityId ===
+                  pendingFollow.community.id &&
+                itemLoading(this.state.approveRes)?.personId ===
+                  pendingFollow.person.id
+              }
               onApproveFollower={form => handleApproveFollower(this, form)}
             />
           </>
@@ -262,10 +283,21 @@ async function handleApproveFollower(
   i: PendingFollows,
   form: ApproveCommunityPendingFollower,
 ) {
-  const approveRes =
-    await HttpService.client.approveCommunityPendingFollow(form);
+  i.setState({
+    approveRes: {
+      id: { communityId: form.community_id, personId: form.follower_id },
+      res: LOADING_REQUEST,
+    },
+  });
+  const res = await HttpService.client.approveCommunityPendingFollow(form);
+  i.setState({
+    approveRes: {
+      id: { communityId: form.community_id, personId: form.follower_id },
+      res,
+    },
+  });
   i.setState(s => {
-    if (s.appsRes.state === "success" && approveRes.state === "success") {
+    if (s.appsRes.state === "success" && res.state === "success") {
       i.refetch(i.props);
     }
     return s;

@@ -3,7 +3,12 @@ import { getQueryParams, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
-import { CommunityView, LemmyHttp, SearchResponse } from "lemmy-js-client";
+import {
+  CommunityResponse,
+  CommunityView,
+  LemmyHttp,
+  SearchResponse,
+} from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, HttpService, I18NextService } from "../services";
 import {
@@ -33,8 +38,8 @@ type RemoteFetchData = RouteDataResponse<{
 
 interface RemoteFetchState {
   resolveObjectRes: RequestState<SearchResponse>;
+  followRes: RequestState<CommunityResponse>;
   isIsomorphic: boolean;
-  followCommunityLoading: boolean;
 }
 
 const getUriFromQuery = (uri?: string): string | undefined => uri;
@@ -57,31 +62,26 @@ function uriToQuery(uri: string) {
 async function handleToggleFollow(i: RemoteFetch, follow: boolean) {
   const { community } = i;
   if (community) {
-    i.setState({
-      followCommunityLoading: true,
-    });
+    i.setState({ followRes: LOADING_REQUEST });
 
-    const communityRes = await HttpService.client.followCommunity({
+    const followRes = await HttpService.client.followCommunity({
       community_id: community.community.id,
       follow,
     });
+    i.setState({ followRes });
 
     i.setState(prev => {
-      if (communityRes.state === "success") {
+      if (followRes.state === "success") {
         community.community_actions =
-          communityRes.data.community_view.community_actions;
+          followRes.data.community_view.community_actions;
       }
 
       return {
         ...prev,
-        followCommunityLoading: false,
       };
     });
   }
 }
-
-const handleFollow = (i: RemoteFetch) => handleToggleFollow(i, true);
-const handleUnfollow = (i: RemoteFetch) => handleToggleFollow(i, false);
 
 type RemoteFetchPathProps = Record<string, never>;
 type RemoteFetchRouteProps = RouteComponentProps<RemoteFetchPathProps> &
@@ -100,8 +100,8 @@ export class RemoteFetch extends Component<
   private isoData = setIsoData<RemoteFetchData>(this.context);
   state: RemoteFetchState = {
     resolveObjectRes: EMPTY_REQUEST,
+    followRes: EMPTY_REQUEST,
     isIsomorphic: false,
-    followCommunityLoading: false,
   };
 
   loadingSettled() {
@@ -206,9 +206,9 @@ export class RemoteFetch extends Component<
                 <SubscribeButton
                   followState={communityView.community_actions?.follow_state}
                   apId={communityView.community.ap_id}
-                  onFollow={() => handleFollow(this)}
-                  onUnFollow={() => handleUnfollow(this)}
-                  loading={this.state.followCommunityLoading}
+                  onFollow={() => handleToggleFollow(this, true)}
+                  onUnFollow={() => handleToggleFollow(this, false)}
+                  loading={this.state.followRes.state === "loading"}
                   showRemoteFetch={!this.isoData.myUserInfo}
                 />
               </div>

@@ -58,6 +58,7 @@ type PostActionBarProps = {
   localSite: LocalSite;
   notificationRead?: boolean;
   markReadLoading: boolean;
+  voteLoading: boolean;
   onPostVote(this: void, form: CreatePostLike): void;
   onScrollIntoCommentsClick(this: void, e: MouseEvent): void;
   onViewSource(this: void): void;
@@ -98,11 +99,12 @@ export function PostActionBar(props: PostActionBarProps, context: any) {
     notificationRead,
     onMarkPostAsRead,
     markReadLoading,
+    voteLoading,
   } = props;
   const { id } = postView.post;
 
   return (
-    <div className="row row-cols-auto align-items-center g-3 mb-2 justify-content-end justify-content-md-start">
+    <div className="row row-cols-auto align-items-center g-3 justify-content-end justify-content-md-start">
       {showMarkRead === "main_bar" && (
         <div className="col">
           <PostMarkReadButton
@@ -131,6 +133,7 @@ export function PostActionBar(props: PostActionBarProps, context: any) {
             myUserInfo={myUserInfo}
             localSite={localSite}
             disabled={userNotLoggedInOrBanned(myUserInfo)}
+            loading={voteLoading}
           />
         </div>
       )}

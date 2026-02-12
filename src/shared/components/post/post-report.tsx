@@ -1,4 +1,4 @@
-import { Component, InfernoNode } from "inferno";
+import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   LocalSite,
@@ -29,6 +29,7 @@ interface PostReportProps {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   admins: PersonView[];
+  loading: boolean;
   onResolveReport(form: ResolvePostReport): void;
   onRemovePost(form: RemovePost): void;
   onModBanFromCommunity(form: BanFromCommunityData): void;
@@ -36,24 +37,14 @@ interface PostReportProps {
 }
 
 interface PostReportState {
-  loading: boolean;
   showRemovePostDialog: boolean;
 }
 
 @tippyMixin
 export class PostReport extends Component<PostReportProps, PostReportState> {
   state: PostReportState = {
-    loading: false,
     showRemovePostDialog: false,
   };
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & PostReportProps>,
-  ): void {
-    if (this.props !== nextProps) {
-      this.setState({ loading: false });
-    }
-  }
 
   render() {
     const r = this.props.report;
@@ -107,6 +98,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           disableAutoMarkAsRead={false}
           editLoading={false}
           markReadLoading={false}
+          voteLoading={false}
           // All of these are unused, since its view only
           onPostEdit={() => EMPTY_REQUEST}
           onPostVote={() => EMPTY_REQUEST}
@@ -170,7 +162,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           data-tippy-content={tippyContent}
           aria-label={tippyContent}
         >
-          {this.state.loading ? (
+          {this.props.loading ? (
             <Spinner />
           ) : (
             <Icon
@@ -216,6 +208,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             isRemoved={pv.post.removed}
             onCancel={() => this.setState({ showRemovePostDialog: false })}
             show
+            loading={false}
           />
         )}
       </div>
@@ -224,7 +217,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
 }
 
 function handleResolveReport(i: PostReport) {
-  i.setState({ loading: true });
   i.props.onResolveReport({
     report_id: i.props.report.post_report.id,
     resolved: !i.props.report.post_report.resolved,
@@ -241,7 +233,6 @@ function handleRemovePost(i: PostReport, reason: string) {
 }
 
 function handleModBanFromCommunity(i: PostReport) {
-  i.setState({ loading: true });
   i.props.onModBanFromCommunity({
     person: i.props.report.post_creator,
     community: i.props.report.community,
@@ -250,7 +241,6 @@ function handleModBanFromCommunity(i: PostReport) {
 }
 
 function handleAdminBan(i: PostReport) {
-  i.setState({ loading: true });
   i.props.onAdminBan({
     person: i.props.report.post_creator,
     ban: !i.props.report.creator_banned,

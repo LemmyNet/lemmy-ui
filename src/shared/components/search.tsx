@@ -302,6 +302,7 @@ const postListing = (
               disableAutoMarkAsRead={false}
               editLoading={false}
               markReadLoading={false}
+              voteLoading={false}
               // All of these are unused, since its view only
               onPostEdit={() => EMPTY_REQUEST}
               onPostVote={() => EMPTY_REQUEST}
@@ -352,6 +353,8 @@ const commentListing = (
               createLoading={undefined}
               editLoading={undefined}
               markReadLoading={undefined}
+              fetchChildrenLoading={undefined}
+              voteLoading={undefined}
               viewOnly
               postLockedOrRemovedOrDeleted
               isTopLevel
@@ -379,11 +382,12 @@ const commentListing = (
               onPurgePerson={() => {}}
               onBanPersonFromCommunity={() => {}}
               onBanPerson={() => {}}
-              onCreateComment={() => EMPTY_REQUEST}
-              onEditComment={() => EMPTY_REQUEST}
+              onCreateComment={() => {}}
+              onEditComment={() => {}}
               onPersonNote={() => {}}
               onLockComment={() => {}}
               onMarkRead={() => {}}
+              onFetchChildren={() => {}}
             />
           </div>
         ))}
@@ -810,8 +814,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               currentOption={listingType}
               showLocal={showLocal(this.isoData)}
               showSubscribed
+              showSuggested={
+                !!this.isoData.siteRes.site_view.local_site
+                  .suggested_communities
+              }
               onSelect={type => handleListingTypeChange(this, type)}
               myUserInfo={this.isoData.myUserInfo}
+              showLabel
             />
           </div>
           {(type === "all" || type === "posts") && (
@@ -836,6 +845,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             <SearchSortDropdown
               currentOption={sort}
               onSelect={val => handleSortChange(this, val)}
+              showLabel
             />
           </div>
           <div className="col">
@@ -921,6 +931,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         viewType={"flat"}
         createLoading={undefined}
         editLoading={undefined}
+        fetchChildrenLoading={undefined}
+        voteLoading={undefined}
         viewOnly
         postLockedOrRemovedOrDeleted
         isTopLevel
@@ -955,6 +967,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onPersonNote={() => {}}
         onLockComment={() => {}}
         onMarkRead={() => {}}
+        onFetchChildren={() => {}}
       />
     );
   }
@@ -992,6 +1005,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 disableAutoMarkAsRead={false}
                 editLoading={false}
                 markReadLoading={false}
+                voteLoading={false}
                 // All of these are unused, since its view only
                 onPostEdit={() => EMPTY_REQUEST}
                 onPostVote={() => EMPTY_REQUEST}

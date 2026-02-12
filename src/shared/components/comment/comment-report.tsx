@@ -1,4 +1,4 @@
-import { Component, InfernoNode } from "inferno";
+import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
 import {
   CommentReportView,
@@ -13,7 +13,6 @@ import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
-import { EMPTY_REQUEST } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import ActionButton from "@components/common/content-actions/action-button";
 import {
@@ -28,6 +27,7 @@ interface CommentReportProps {
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   admins: PersonView[];
+  loading: boolean;
   onResolveReport(form: ResolveCommentReport): void;
   onRemoveComment(form: RemoveComment): void;
   onModBanFromCommunity(form: BanFromCommunityData): void;
@@ -35,7 +35,6 @@ interface CommentReportProps {
 }
 
 interface CommentReportState {
-  loading: boolean;
   showRemoveCommentDialog: boolean;
 }
 
@@ -45,17 +44,8 @@ export class CommentReport extends Component<
   CommentReportState
 > {
   state: CommentReportState = {
-    loading: false,
     showRemoveCommentDialog: false,
   };
-
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & CommentReportProps>,
-  ): void {
-    if (this.props !== nextProps) {
-      this.setState({ loading: false });
-    }
-  }
 
   render() {
     const r = this.props.report;
@@ -92,6 +82,8 @@ export class CommentReport extends Component<
           createLoading={undefined}
           editLoading={undefined}
           markReadLoading={undefined}
+          fetchChildrenLoading={undefined}
+          voteLoading={undefined}
           viewOnly
           showCommunity
           showContext={false}
@@ -102,26 +94,27 @@ export class CommentReport extends Component<
           localSite={this.props.localSite}
           showMarkRead={"hide"}
           // All of these are unused, since its viewonly
-          onSaveComment={async () => {}}
-          onBlockPerson={async () => {}}
-          onBlockCommunity={async () => {}}
-          onDeleteComment={async () => {}}
-          onRemoveComment={async () => {}}
-          onCommentVote={async () => {}}
-          onCommentReport={async () => {}}
-          onDistinguishComment={async () => {}}
-          onAddModToCommunity={async () => {}}
-          onAddAdmin={async () => {}}
-          onTransferCommunity={async () => {}}
-          onPurgeComment={async () => {}}
-          onPurgePerson={async () => {}}
-          onBanPersonFromCommunity={async () => {}}
-          onBanPerson={async () => {}}
-          onCreateComment={async () => Promise.resolve(EMPTY_REQUEST)}
-          onEditComment={() => Promise.resolve(EMPTY_REQUEST)}
-          onPersonNote={async () => {}}
-          onLockComment={async () => {}}
-          onMarkRead={async () => {}}
+          onSaveComment={() => {}}
+          onBlockPerson={() => {}}
+          onBlockCommunity={() => {}}
+          onDeleteComment={() => {}}
+          onRemoveComment={() => {}}
+          onCommentVote={() => {}}
+          onCommentReport={() => {}}
+          onDistinguishComment={() => {}}
+          onAddModToCommunity={() => {}}
+          onAddAdmin={() => {}}
+          onTransferCommunity={() => {}}
+          onPurgeComment={() => {}}
+          onPurgePerson={() => {}}
+          onBanPersonFromCommunity={() => {}}
+          onBanPerson={() => {}}
+          onCreateComment={() => {}}
+          onEditComment={() => {}}
+          onPersonNote={() => {}}
+          onLockComment={() => {}}
+          onMarkRead={() => {}}
+          onFetchChildren={() => {}}
         />
         <div>
           {I18NextService.i18n.t("reporter")}:{" "}
@@ -163,7 +156,7 @@ export class CommentReport extends Component<
           data-tippy-content={tippyContent}
           aria-label={tippyContent}
         >
-          {this.state.loading ? (
+          {this.props.loading ? (
             <Spinner />
           ) : (
             <Icon
@@ -215,6 +208,7 @@ export class CommentReport extends Component<
             isRemoved={comment_view.comment.removed}
             onCancel={() => this.setState({ showRemoveCommentDialog: false })}
             show
+            loading={false}
           />
         )}
       </div>
@@ -223,7 +217,6 @@ export class CommentReport extends Component<
 }
 
 function handleResolveReport(i: CommentReport) {
-  i.setState({ loading: true });
   i.props.onResolveReport({
     report_id: i.props.report.comment_report.id,
     resolved: !i.props.report.comment_report.resolved,
@@ -240,7 +233,6 @@ function handleRemoveComment(i: CommentReport, reason: string) {
 }
 
 function handleModBanFromCommunity(i: CommentReport) {
-  i.setState({ loading: true });
   i.props.onModBanFromCommunity({
     person: i.props.report.comment_creator,
     community: i.props.report.community,
@@ -249,7 +241,6 @@ function handleModBanFromCommunity(i: CommentReport) {
 }
 
 function handleAdminBan(i: CommentReport) {
-  i.setState({ loading: true });
   i.props.onAdminBan({
     person: i.props.report.comment_creator,
     ban: !i.props.report.creator_banned,
