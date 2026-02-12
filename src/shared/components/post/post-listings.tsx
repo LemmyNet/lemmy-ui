@@ -50,27 +50,27 @@ interface PostListingsProps {
   admins: PersonView[];
   postListingMode: PostListingMode;
   voteLoading: PostId | undefined;
-  onPostEdit(form: EditPost): void;
-  onPostVote(form: CreatePostLike): void;
-  onPostReport(form: CreatePostReport): void;
-  onBlockPerson(form: BlockPerson): void;
-  onBlockCommunity(form: BlockCommunity): void;
-  onLockPost(form: LockPost): void;
-  onDeletePost(form: DeletePost): void;
-  onRemovePost(form: RemovePost): void;
-  onSavePost(form: SavePost): void;
-  onFeaturePost(form: FeaturePost): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgePost(form: PurgePost): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onTransferCommunity(form: TransferCommunity): void;
-  onMarkPostAsRead(form: MarkPostAsRead): void;
-  onHidePost(form: HidePost): void;
-  onPersonNote(form: NotePerson): void;
-  onScrollIntoCommentsClick(): void;
+  onPostEdit: (form: EditPost) => void;
+  onPostVote: (form: CreatePostLike) => void;
+  onPostReport: (form: CreatePostReport) => void;
+  onBlockPerson: (form: BlockPerson) => void;
+  onBlockCommunity: (form: BlockCommunity) => void;
+  onLockPost: (form: LockPost) => void;
+  onDeletePost: (form: DeletePost) => void;
+  onRemovePost: (form: RemovePost) => void;
+  onSavePost: (form: SavePost) => void;
+  onFeaturePost: (form: FeaturePost) => void;
+  onPurgePerson: (form: PurgePerson) => void;
+  onPurgePost: (form: PurgePost) => void;
+  onBanPersonFromCommunity: (form: BanFromCommunity) => void;
+  onBanPerson: (form: BanPerson) => void;
+  onAddModToCommunity: (form: AddModToCommunity) => void;
+  onAddAdmin: (form: AddAdmin) => void;
+  onTransferCommunity: (form: TransferCommunity) => void;
+  onMarkPostAsRead: (form: MarkPostAsRead) => void;
+  onHidePost: (form: HidePost) => void;
+  onPersonNote: (form: NotePerson) => void;
+  onScrollIntoCommentsClick: () => void;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {

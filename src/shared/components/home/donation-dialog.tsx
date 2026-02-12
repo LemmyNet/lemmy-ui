@@ -6,7 +6,7 @@ import { donateLemmyUrl } from "@utils/config";
 
 interface Props {
   myUserInfo?: MyUserInfo;
-  onHideDialog(): void;
+  onHideDialog: () => void;
 }
 
 interface State {

@@ -66,27 +66,27 @@ type PostListingProps = {
   notificationRead?: boolean;
   markReadLoading: boolean;
   voteLoading: boolean;
-  onPostEdit(form: EditPost): void;
-  onPostVote(form: CreatePostLike): void;
-  onPostReport(form: CreatePostReport): void;
-  onBlockPerson(form: BlockPerson): void;
-  onBlockCommunity(form: BlockCommunity): void;
-  onLockPost(form: LockPost): void;
-  onDeletePost(form: DeletePost): void;
-  onRemovePost(form: RemovePost): void;
-  onSavePost(form: SavePost): void;
-  onFeaturePost(form: FeaturePost): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgePost(form: PurgePost): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onTransferCommunity(form: TransferCommunity): void;
-  onHidePost(form: HidePost): void;
-  onPersonNote(form: NotePerson): void;
-  onScrollIntoCommentsClick(e: MouseEvent): void;
-  onMarkPostAsRead(form: MarkPostAsRead): void;
+  onPostEdit: (form: EditPost) => void;
+  onPostVote: (form: CreatePostLike) => void;
+  onPostReport: (form: CreatePostReport) => void;
+  onBlockPerson: (form: BlockPerson) => void;
+  onBlockCommunity: (form: BlockCommunity) => void;
+  onLockPost: (form: LockPost) => void;
+  onDeletePost: (form: DeletePost) => void;
+  onRemovePost: (form: RemovePost) => void;
+  onSavePost: (form: SavePost) => void;
+  onFeaturePost: (form: FeaturePost) => void;
+  onPurgePerson: (form: PurgePerson) => void;
+  onPurgePost: (form: PurgePost) => void;
+  onBanPersonFromCommunity: (form: BanFromCommunity) => void;
+  onBanPerson: (form: BanPerson) => void;
+  onAddModToCommunity: (form: AddModToCommunity) => void;
+  onAddAdmin: (form: AddAdmin) => void;
+  onTransferCommunity: (form: TransferCommunity) => void;
+  onHidePost: (form: HidePost) => void;
+  onPersonNote: (form: NotePerson) => void;
+  onScrollIntoCommentsClick: (e: MouseEvent) => void;
+  onMarkPostAsRead: (form: MarkPostAsRead) => void;
 };
 
 @tippyMixin
@@ -97,7 +97,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   unlisten = () => {};
 
-  componentWillMount(): void {
+  componentWillMount() {
     // Leave edit mode on navigation
     this.unlisten = this.context.router.history.listen(() => {
       if (this.state.showEdit) {
@@ -106,13 +106,13 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     });
   }
 
-  componentWillUnmount(): void {
+  componentWillUnmount() {
     this.unlisten();
   }
 
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & PostListingProps>,
-  ): void {
+  ) {
     // Close the post edit form if it goes from loading to not.
     if (this.props.editLoading && !nextProps.editLoading) {
       this.setState({ showEdit: false });

@@ -395,14 +395,11 @@ export class Post extends Component<PostRouteProps, PostState> {
     return { pathname, search: getQueryString(query) };
   }
 
-  static async fetchInitialData(
-    this: void,
-    {
-      headers,
-      match,
-      query: { sort },
-    }: InitialFetchRequest<PostPathProps, PostProps>,
-  ): Promise<PostData> {
+  static fetchInitialData = async ({
+    headers,
+    match,
+    query: { sort },
+  }: InitialFetchRequest<PostPathProps, PostProps>): Promise<PostData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -431,7 +428,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       postRes,
       commentsRes,
     };
-  }
+  };
 
   componentWillUnmount() {
     document.removeEventListener("scroll", this.commentScrollDebounced);
@@ -458,7 +455,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: PostRouteProps): void {
+  componentWillReceiveProps(nextProps: PostRouteProps) {
     const { post_id: nextPost, comment_id: nextComment } =
       nextProps.match.params;
     const { post_id: prevPost, comment_id: prevComment } =
@@ -502,7 +499,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  componentDidUpdate(): void {
+  componentDidUpdate() {
     if (
       this.commentSectionRef.current &&
       this.state.postRes.state === "success" &&

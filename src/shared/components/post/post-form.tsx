@@ -77,28 +77,28 @@ interface PostFormProps {
   allLanguages: Language[];
   siteLanguages: number[];
   params?: PostFormParams;
-  onCancel?(): void;
-  onCreate?(form: CreatePost, bypassNavWarning: () => void): void;
-  onEdit?(form: EditPost, bypassNavWarning: () => void): void;
   enableNsfw: boolean;
   showAdultConsentModal: boolean;
   selectedCommunityChoice?: Choice;
   selectedCommunityTags?: CommunityTag[];
   isNsfwCommunity: boolean;
-  onSelectCommunity?(choice: Choice): void;
   initialCommunities?: CommunityView[];
   loading: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   admins: PersonView[];
-  onTitleBlur?(title: string): void;
-  onUrlBlur?(url: string): void;
-  onBodyBlur?(body: string): void;
-  onLanguageChange?(languageId?: number): void;
-  onNsfwChange?(nsfw: StringBoolean): void;
-  onThumbnailUrlBlur?(thumbnailUrl: string): void;
-  onAltTextBlur?(altText: string): void;
-  onCopySuggestedTitle?(url: string, title: string): void;
+  onCancel?: () => void;
+  onCreate?: (form: CreatePost, bypassNavWarning: () => void) => void;
+  onEdit?: (form: EditPost, bypassNavWarning: () => void) => void;
+  onSelectCommunity?: (choice: Choice) => void;
+  onTitleBlur?: (title: string) => void;
+  onUrlBlur?: (url: string) => void;
+  onBodyBlur?: (body: string) => void;
+  onLanguageChange?: (languageId?: number) => void;
+  onNsfwChange?: (nsfw: StringBoolean) => void;
+  onThumbnailUrlBlur?: (thumbnailUrl: string) => void;
+  onAltTextBlur?: (altText: string) => void;
+  onCopySuggestedTitle?: (url: string, title: string) => void;
 }
 
 interface PostFormState {
@@ -210,7 +210,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & PostFormProps>,
-  ): void {
+  ) {
     if (
       this.props.selectedCommunityChoice?.value !==
         nextProps.selectedCommunityChoice?.value &&

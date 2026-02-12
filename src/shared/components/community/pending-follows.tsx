@@ -136,7 +136,7 @@ export class PendingFollows extends Component<
 
   componentWillReceiveProps(
     nextProps: PendingFollowsRouteProps & { children?: InfernoNode },
-  ): void {
+  ) {
     if (
       nextProps.viewState !== this.props.viewState ||
       nextProps.cursor !== this.props.cursor
@@ -225,15 +225,15 @@ export class PendingFollows extends Component<
     );
   }
 
-  static async fetchInitialData(
-    this: void,
-    {
-      headers,
-      match: {
-        params: { viewState, cursor },
-      },
-    }: InitialFetchRequest<Record<string, never>, PendingFollowsProps>,
-  ): Promise<PendingFollowsData> {
+  static fetchInitialData = async ({
+    headers,
+    match: {
+      params: { viewState, cursor },
+    },
+  }: InitialFetchRequest<
+    Record<string, never>,
+    PendingFollowsProps
+  >): Promise<PendingFollowsData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -248,7 +248,7 @@ export class PendingFollows extends Component<
           })
         : EMPTY_REQUEST,
     };
-  }
+  };
 
   refetchToken?: symbol;
   async refetch(props: PendingFollowsProps) {

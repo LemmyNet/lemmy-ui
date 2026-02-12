@@ -9,7 +9,7 @@ const options: FilterOption<PostListingMode>[] = [
 
 type PostListingModeDropdownProps = {
   currentOption: PostListingMode;
-  onSelect(this: void, val: PostListingMode): void;
+  onSelect: (val: PostListingMode) => void;
   showLabel: boolean;
   className?: string;
 };

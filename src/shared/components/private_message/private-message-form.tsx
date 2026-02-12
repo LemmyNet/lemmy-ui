@@ -20,10 +20,10 @@ interface PrivateMessageFormProps {
   privateMessageView?: PrivateMessageView; // If a pm is given, that means this is an edit
   replyType?: boolean;
   myUserInfo: MyUserInfo | undefined;
-  onCancel?(): any;
-  onCreate?(form: CreatePrivateMessage, bypassNavWarning: () => void): void;
-  onEdit?(form: EditPrivateMessage, bypassNavWarning: () => void): void;
   createOrEditLoading: boolean;
+  onCancel?: () => void;
+  onCreate?: (form: CreatePrivateMessage, bypassNavWarning: () => void) => void;
+  onEdit?: (form: EditPrivateMessage, bypassNavWarning: () => void) => void;
 }
 
 interface PrivateMessageFormState {

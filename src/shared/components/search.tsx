@@ -592,23 +592,25 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     ]);
   }
 
-  static async fetchInitialData(
-    this: void,
-    {
-      headers,
-      query: {
-        q: query,
-        type: searchType,
-        sort,
-        listingType: listing_type,
-        titleOnly: title_only,
-        postUrlOnly: post_url_only,
-        communityId: community_id,
-        creatorId: creator_id,
-        cursor,
-      },
-    }: InitialFetchRequest<SearchPathProps, SearchProps>,
-  ): Promise<SearchData> {
+  static test: (t: boolean) => 52;
+
+  static fetchInitialData = async ({
+    headers,
+    query: {
+      q: query,
+      type: searchType,
+      sort,
+      listingType: listing_type,
+      titleOnly: title_only,
+      postUrlOnly: post_url_only,
+      communityId: community_id,
+      creatorId: creator_id,
+      cursor,
+    },
+  }: InitialFetchRequest<
+    SearchPathProps,
+    SearchProps
+  >): Promise<SearchData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -662,7 +664,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       listCommunitiesResponse,
       searchResponse,
     };
-  }
+  };
 
   get getNextPage(): PaginationCursor | undefined {
     const { searchRes: res } = this.state;

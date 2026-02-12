@@ -348,21 +348,18 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     this.fetchData(nextProps);
   }
 
-  static async fetchInitialData(
-    this: void,
-    {
-      query: {
-        listingType,
-        postOrCommentType,
-        sort,
-        postTimeRange,
-        cursor,
-        showHidden,
-        showRead,
-      },
-      headers,
-    }: InitialFetchRequest<HomePathProps, HomeProps>,
-  ): Promise<HomeData> {
+  static fetchInitialData = async ({
+    query: {
+      listingType,
+      postOrCommentType,
+      sort,
+      postTimeRange,
+      cursor,
+      showHidden,
+      showRead,
+    },
+    headers,
+  }: InitialFetchRequest<HomePathProps, HomeProps>): Promise<HomeData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -401,7 +398,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       commentsRes,
       postsRes,
     };
-  }
+  };
 
   get documentTitle(): string {
     const { name, summary } = this.state.siteRes.site_view.site;

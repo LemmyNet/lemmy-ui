@@ -310,21 +310,21 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.fetchData(nextProps);
   }
 
-  static async fetchInitialData(
-    this: void,
-    {
-      headers,
-      query: {
-        postOrCommentType,
-        cursor,
-        sort,
-        postTimeRange,
-        showHidden,
-        showRead,
-      },
-      match: { params: props },
-    }: InitialFetchRequest<CommunityPathProps, CommunityProps>,
-  ): Promise<CommunityData> {
+  static fetchInitialData = async ({
+    headers,
+    query: {
+      postOrCommentType,
+      cursor,
+      sort,
+      postTimeRange,
+      showHidden,
+      showRead,
+    },
+    match: { params: props },
+  }: InitialFetchRequest<
+    CommunityPathProps,
+    CommunityProps
+  >): Promise<CommunityData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -375,7 +375,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       commentsRes,
       postsRes,
     };
-  }
+  };
 
   updateUrl(props: Partial<CommunityProps>) {
     const {

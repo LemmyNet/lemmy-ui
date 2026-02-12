@@ -362,13 +362,13 @@ export class CreatePost extends Component<
     await this.fetchCommunity({ communityId });
   }
 
-  static async fetchInitialData(
-    this: void,
-    {
-      headers,
-      query: { communityId },
-    }: InitialFetchRequest<CreatePostPathProps, CreatePostProps>,
-  ): Promise<CreatePostData> {
+  static fetchInitialData = async ({
+    headers,
+    query: { communityId },
+  }: InitialFetchRequest<
+    CreatePostPathProps,
+    CreatePostProps
+  >): Promise<CreatePostData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -386,7 +386,7 @@ export class CreatePost extends Component<
     }
 
     return data;
-  }
+  };
 
   sidebar() {
     if (this.state.selectedCommunity) {

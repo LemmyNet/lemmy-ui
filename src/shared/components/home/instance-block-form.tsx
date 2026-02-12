@@ -12,7 +12,7 @@ type BlockForm = {
 };
 
 interface Props {
-  onCreate(form: AdminBlockInstanceParams): void;
+  onCreate: (form: AdminBlockInstanceParams) => void;
 }
 
 interface State {

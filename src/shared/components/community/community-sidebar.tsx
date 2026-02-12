@@ -44,14 +44,14 @@ interface SidebarProps {
   showIcon?: boolean;
   hideButtons?: boolean;
   myUserInfo: MyUserInfo | undefined;
-  onRemove(form: RemoveCommunity): void;
-  onPurge(form: PurgeCommunity): void;
-  onFollow(form: FollowCommunity): void;
-  onBlock(form: BlockCommunity): void;
-  onEditNotifs(form: EditCommunityNotifications): void;
   removeLoading: boolean;
   purgeLoading: boolean;
   followLoading: boolean;
+  onRemove: (form: RemoveCommunity) => void;
+  onPurge: (form: PurgeCommunity) => void;
+  onFollow: (form: FollowCommunity) => void;
+  onBlock: (form: BlockCommunity) => void;
+  onEditNotifs: (form: EditCommunityNotifications) => void;
 }
 
 interface SidebarState {

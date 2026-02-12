@@ -3,7 +3,7 @@ import { I18NextService } from "../../services/I18NextService";
 
 interface Props {
   keywords: string[];
-  onUpdate(keywords: string[]): void;
+  onUpdate: (keywords: string[]) => void;
 }
 
 interface State {
