@@ -13,7 +13,7 @@ interface EmojiPickerState {
   showPicker: boolean;
 }
 
-function closeEmojiMartOnEsc(i: EmojiPicker, event: KeyboardEvent): void {
+function closeEmojiMartOnEsc(i: EmojiPicker, event: KeyboardEvent) {
   if (event.key === "Escape") {
     i.setState({ showPicker: false });
   }

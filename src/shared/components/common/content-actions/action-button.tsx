@@ -10,6 +10,7 @@ interface ActionButtonPropsBase {
   inline?: boolean;
   inlineWithText?: boolean;
   noLoading?: boolean;
+  loading?: boolean;
   disabled?: boolean;
 }
 
@@ -25,17 +26,7 @@ interface ActionButtonPropsNoLoading extends ActionButtonPropsBase {
 
 type ActionButtonProps = ActionButtonPropsLoading | ActionButtonPropsNoLoading;
 
-interface ActionButtonState {
-  loading: boolean;
-}
-
-function handleClick(i: ActionButton) {
-  if (!i.props.noLoading) {
-    i.setState({ loading: true });
-  }
-  i.props.onClick();
-  i.setState({ loading: false });
-}
+type ActionButtonState = object;
 
 @tippyMixin
 export default class ActionButton extends Component<
@@ -47,7 +38,8 @@ export default class ActionButton extends Component<
   };
 
   render() {
-    const { label, icon, iconClass, inline, inlineWithText } = this.props;
+    const { label, icon, iconClass, inline, inlineWithText, onClick } =
+      this.props;
 
     return (
       <button
@@ -57,12 +49,12 @@ export default class ActionButton extends Component<
             ? "btn-animate text-body"
             : "d-flex align-items-center rounded-0 dropdown-item",
         )}
-        onClick={() => handleClick(this)}
+        onClick={onClick}
         aria-label={label}
         data-tippy-content={inline ? label : undefined}
-        disabled={this.state.loading || this.props.disabled}
+        disabled={this.props.loading || this.props.disabled}
       >
-        {this.state.loading ? (
+        {this.props.loading ? (
           <Spinner />
         ) : (
           <Icon

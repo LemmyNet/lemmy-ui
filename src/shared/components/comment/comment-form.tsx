@@ -22,14 +22,14 @@ interface CommentFormProps {
   edit?: boolean;
   disabled?: boolean;
   focus?: boolean;
-  onReplyCancel?(): void;
   allLanguages: Language[];
   siteLanguages: number[];
   containerClass?: string;
   myUserInfo: MyUserInfo | undefined;
-  onCreateComment(form: CreateComment): void;
-  onEditComment(form: EditComment): void;
   loading: boolean;
+  onCreateComment: (form: CreateComment) => void;
+  onEditComment: (form: EditComment) => void;
+  onReplyCancel?: () => void;
 }
 
 export class CommentForm extends Component<CommentFormProps, any> {

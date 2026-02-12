@@ -47,10 +47,10 @@ interface MarkdownTextAreaProps {
    */
   showLanguage?: boolean;
   hideNavigationWarnings?: boolean;
-  onContentChange?(this: void, val: string): void;
-  onContentBlur?(this: void, val: string): void;
-  onReplyCancel?(this: void): void;
-  onSubmit?(this: void, content: string, languageId?: number): void;
+  onContentChange?: (val: string) => void;
+  onContentBlur?: (val: string) => void;
+  onReplyCancel?: () => void;
+  onSubmit?: (content: string, languageId?: number) => void;
   allLanguages?: Language[];
   siteLanguages?: LanguageId[];
   renderAsDiv?: boolean;

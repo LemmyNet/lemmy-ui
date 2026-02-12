@@ -10,7 +10,7 @@ type AllowForm = {
 };
 
 interface Props {
-  onCreate(form: AdminAllowInstanceParams): void;
+  onCreate: (form: AdminAllowInstanceParams) => void;
 }
 
 interface State {

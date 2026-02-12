@@ -3,7 +3,7 @@ import { Component, InfernoNode } from "inferno";
 
 interface TabItem {
   key: string;
-  getNode: (this: void, isSelected: boolean) => InfernoNode;
+  getNode: (isSelected: boolean) => InfernoNode;
   label: string;
 }
 

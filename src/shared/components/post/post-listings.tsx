@@ -22,6 +22,7 @@ import {
   MyUserInfo,
   NotePerson,
   PersonView,
+  PostId,
   PostListingMode,
   PostView,
   PurgePerson,
@@ -48,27 +49,28 @@ interface PostListingsProps {
   localSite: LocalSite;
   admins: PersonView[];
   postListingMode: PostListingMode;
-  onPostEdit(form: EditPost): void;
-  onPostVote(form: CreatePostLike): void;
-  onPostReport(form: CreatePostReport): void;
-  onBlockPerson(form: BlockPerson): void;
-  onBlockCommunity(form: BlockCommunity): void;
-  onLockPost(form: LockPost): void;
-  onDeletePost(form: DeletePost): void;
-  onRemovePost(form: RemovePost): void;
-  onSavePost(form: SavePost): void;
-  onFeaturePost(form: FeaturePost): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgePost(form: PurgePost): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onTransferCommunity(form: TransferCommunity): void;
-  onMarkPostAsRead(form: MarkPostAsRead): void;
-  onHidePost(form: HidePost): void;
-  onPersonNote(form: NotePerson): void;
-  onScrollIntoCommentsClick(): void;
+  voteLoading: PostId | undefined;
+  onPostEdit: (form: EditPost) => void;
+  onPostVote: (form: CreatePostLike) => void;
+  onPostReport: (form: CreatePostReport) => void;
+  onBlockPerson: (form: BlockPerson) => void;
+  onBlockCommunity: (form: BlockCommunity) => void;
+  onLockPost: (form: LockPost) => void;
+  onDeletePost: (form: DeletePost) => void;
+  onRemovePost: (form: RemovePost) => void;
+  onSavePost: (form: SavePost) => void;
+  onFeaturePost: (form: FeaturePost) => void;
+  onPurgePerson: (form: PurgePerson) => void;
+  onPurgePost: (form: PurgePost) => void;
+  onBanPersonFromCommunity: (form: BanFromCommunity) => void;
+  onBanPerson: (form: BanPerson) => void;
+  onAddModToCommunity: (form: AddModToCommunity) => void;
+  onAddAdmin: (form: AddAdmin) => void;
+  onTransferCommunity: (form: TransferCommunity) => void;
+  onMarkPostAsRead: (form: MarkPostAsRead) => void;
+  onHidePost: (form: HidePost) => void;
+  onPersonNote: (form: NotePerson) => void;
+  onScrollIntoCommentsClick: () => void;
 }
 
 export class PostListings extends Component<PostListingsProps, any> {
@@ -106,6 +108,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                   disableAutoMarkAsRead={false}
                   editLoading={false}
                   markReadLoading={false}
+                  voteLoading={this.props.voteLoading === postView.post.id}
                   onPostEdit={this.props.onPostEdit}
                   onPostVote={this.props.onPostVote}
                   onPostReport={this.props.onPostReport}
@@ -132,7 +135,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                     this.props.onScrollIntoCommentsClick
                   }
                 />
-                {idx + 1 !== this.posts.length && <hr className="my-3" />}
+                {idx + 1 !== this.posts.length && <hr className="my-2" />}
               </div>
             ))}
           </div>

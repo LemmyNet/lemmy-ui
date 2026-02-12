@@ -24,7 +24,7 @@ interface Props {
 export class MediaUploads extends Component<Props, any> {
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & Props>,
-  ): void {
+  ) {
     if (this.props !== nextProps) {
       this.setState({ loading: false });
     }

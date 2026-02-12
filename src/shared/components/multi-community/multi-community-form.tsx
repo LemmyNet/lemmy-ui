@@ -14,12 +14,12 @@ import { validActorRegexPattern } from "@utils/config";
 
 interface Props {
   multiCommunityView?: MultiCommunityView; // If a multi-community is given, that means this is an edit
-  onCreate?(form: CreateMultiCommunity): void;
-  onEdit?(form: EditMultiCommunity): void;
-  onDelete?(deleted: boolean): void;
   createOrEditLoading?: boolean;
   deleteLoading?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  onCreate?: (form: CreateMultiCommunity) => void;
+  onEdit?: (form: EditMultiCommunity) => void;
+  onDelete?: (deleted: boolean) => void;
 }
 
 interface State {

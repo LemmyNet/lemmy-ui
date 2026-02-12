@@ -8,7 +8,7 @@ const options: FilterOption<CommentViewType>[] = [
 
 type CommentViewTypeDropdownProps = {
   currentOption: CommentViewType;
-  onSelect(this: void, val: CommentViewType): void;
+  onSelect: (val: CommentViewType) => void;
   className?: string;
 };
 export function CommentViewTypeDropdown({
@@ -18,6 +18,7 @@ export function CommentViewTypeDropdown({
 }: CommentViewTypeDropdownProps) {
   return (
     <FilterChipDropdown
+      label={"view"}
       allOptions={options}
       currentOption={options.find(t => t.value === currentOption)}
       onSelect={onSelect}

@@ -6,8 +6,8 @@ export function modalMixin<
   S,
   Base extends new (...args: any[]) => Component<P, S> & {
     readonly modalDivRef: RefObject<HTMLDivElement>;
-    handleShow?(this: void): void;
-    handleHide?(this: void): void;
+    handleShow?: () => void;
+    handleHide?: () => void;
   },
 >(base: Base, _context?: ClassDecoratorContext<Base>) {
   return class extends base {

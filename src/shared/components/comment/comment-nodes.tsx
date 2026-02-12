@@ -69,27 +69,29 @@ interface CommentNodesProps {
   createLoading: CommentId | undefined;
   editLoading: CommentId | undefined;
   markReadLoading: CommentId | undefined;
-  onSaveComment(form: SaveComment): void;
-  onCreateComment(form: CreateComment): void;
-  onEditComment(form: EditComment): void;
-  onCommentVote(form: CreateCommentLike): void;
-  onBlockPerson(form: BlockPerson): void;
-  onBlockCommunity(form: BlockCommunity): void;
-  onDeleteComment(form: DeleteComment): void;
-  onRemoveComment(form: RemoveComment): void;
-  onDistinguishComment(form: DistinguishComment): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onTransferCommunity(form: TransferCommunity): void;
-  onFetchChildren?(form: GetComments): void;
-  onCommentReport(form: CreateCommentReport): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgeComment(form: PurgeComment): void;
-  onPersonNote(form: NotePerson): void;
-  onLockComment(form: LockComment): void;
-  onMarkRead(commentId: CommentId, read: boolean): void;
+  fetchChildrenLoading: CommentId | undefined;
+  voteLoading: CommentId | undefined;
+  onSaveComment: (form: SaveComment) => void;
+  onCreateComment: (form: CreateComment) => void;
+  onEditComment: (form: EditComment) => void;
+  onCommentVote: (form: CreateCommentLike) => void;
+  onBlockPerson: (form: BlockPerson) => void;
+  onBlockCommunity: (form: BlockCommunity) => void;
+  onDeleteComment: (form: DeleteComment) => void;
+  onRemoveComment: (form: RemoveComment) => void;
+  onDistinguishComment: (form: DistinguishComment) => void;
+  onAddModToCommunity: (form: AddModToCommunity) => void;
+  onAddAdmin: (form: AddAdmin) => void;
+  onBanPersonFromCommunity: (form: BanFromCommunity) => void;
+  onBanPerson: (form: BanPerson) => void;
+  onTransferCommunity: (form: TransferCommunity) => void;
+  onFetchChildren: (form: GetComments) => void;
+  onCommentReport: (form: CreateCommentReport) => void;
+  onPurgePerson: (form: PurgePerson) => void;
+  onPurgeComment: (form: PurgeComment) => void;
+  onPersonNote: (form: NotePerson) => void;
+  onLockComment: (form: LockComment) => void;
+  onMarkRead: (commentId: CommentId, read: boolean) => void;
 }
 
 export class CommentNodes extends Component<CommentNodesProps, any> {
@@ -128,6 +130,8 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
               createLoading={this.props.createLoading}
               editLoading={this.props.editLoading}
               markReadLoading={this.props.markReadLoading}
+              fetchChildrenLoading={this.props.fetchChildrenLoading}
+              voteLoading={this.props.voteLoading}
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
               showContext={this.props.showContext}

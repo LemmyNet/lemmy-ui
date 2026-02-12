@@ -9,7 +9,7 @@ const voteShowOptions: FilterOption<VoteShow>[] = [
 
 type VoteShowDropdownProps = {
   currentOption: VoteShow;
-  onSelect(this: void, val: VoteShow): void;
+  onSelect: (val: VoteShow) => void;
   className?: string;
 };
 

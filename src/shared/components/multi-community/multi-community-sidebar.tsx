@@ -18,8 +18,8 @@ interface Props {
   multiCommunityView: MultiCommunityView;
   hideButtons?: boolean;
   myUserInfo: MyUserInfo | undefined;
-  onFollow(form: FollowMultiCommunity): void;
   followLoading: boolean;
+  onFollow: (form: FollowMultiCommunity) => void;
 }
 
 @tippyMixin

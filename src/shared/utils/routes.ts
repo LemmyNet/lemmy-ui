@@ -118,16 +118,14 @@ export interface IRoutePropsWithFetch<
   PathPropsT extends Record<string, string>,
   QueryPropsT extends Record<string, any>,
 > extends IRouteProps {
-  fetchInitialData?(
-    this: void,
+  fetchInitialData?: (
     req: InitialFetchRequest<PathPropsT, QueryPropsT>,
-  ): Promise<DataT>;
-  getQueryParams?(
-    this: void,
+  ) => Promise<DataT>;
+  getQueryParams?: (
     source: string | undefined,
     siteRes: GetSiteResponse,
     myUserInfo?: MyUserInfo,
-  ): QueryPropsT;
+  ) => QueryPropsT;
   mountedSameRouteNavKey?: string;
   component: typeof Component<
     RouteComponentProps<PathPropsT> & QueryPropsT,

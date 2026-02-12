@@ -5,13 +5,20 @@ import {
   resourcesSettled,
 } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
-import { QueryParams, RouteDataResponse } from "@utils/types";
+import {
+  ItemIdAndRes,
+  itemLoading,
+  QueryParams,
+  RouteDataResponse,
+} from "@utils/types";
 import { Component } from "inferno";
 import {
   ApproveRegistrationApplication,
   LemmyHttp,
   PagedResponse,
   PaginationCursor,
+  RegistrationApplicationId,
+  RegistrationApplicationResponse,
   RegistrationApplicationView,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
@@ -44,6 +51,10 @@ type RegistrationApplicationsData = RouteDataResponse<{
 
 interface RegistrationApplicationsState {
   appsRes: RequestState<PagedResponse<RegistrationApplicationView>>;
+  approveRes: ItemIdAndRes<
+    RegistrationApplicationId,
+    RegistrationApplicationResponse
+  >;
   isIsomorphic: boolean;
 }
 
@@ -94,6 +105,7 @@ export class RegistrationApplications extends Component<
   private isoData = setIsoData<RegistrationApplicationsData>(this.context);
   state: RegistrationApplicationsState = {
     appsRes: EMPTY_REQUEST,
+    approveRes: { id: 0, res: LOADING_REQUEST },
     isIsomorphic: false,
   };
 
@@ -122,7 +134,7 @@ export class RegistrationApplications extends Component<
 
   componentWillReceiveProps(
     nextProps: RegistrationApplicationsRouteProps & { children?: InfernoNode },
-  ): void {
+  ) {
     if (
       nextProps.view !== this.props.view ||
       nextProps.cursor !== this.props.cursor
@@ -212,6 +224,10 @@ export class RegistrationApplications extends Component<
               onApproveApplication={form =>
                 handleApproveApplication(this, form)
               }
+              loading={
+                itemLoading(this.state.approveRes) ===
+                ra.registration_application.id
+              }
               myUserInfo={this.isoData.myUserInfo}
             />
           </>
@@ -220,18 +236,15 @@ export class RegistrationApplications extends Component<
     );
   }
 
-  static async fetchInitialData(
-    this: void,
-    {
-      headers,
-      match: {
-        params: { view, cursor },
-      },
-    }: InitialFetchRequest<
-      Record<string, never>,
-      RegistrationApplicationsProps
-    >,
-  ): Promise<RegistrationApplicationsData> {
+  static fetchInitialData = async ({
+    headers,
+    match: {
+      params: { view, cursor },
+    },
+  }: InitialFetchRequest<
+    Record<string, never>,
+    RegistrationApplicationsProps
+  >): Promise<RegistrationApplicationsData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -244,7 +257,7 @@ export class RegistrationApplications extends Component<
           })
         : EMPTY_REQUEST,
     };
-  }
+  };
 
   refetchToken?: symbol;
   async refetch(props: RegistrationApplicationsProps) {
@@ -290,16 +303,19 @@ function handlePageChange(
 ) {
   i.updateUrl({ cursor });
 }
+
 async function handleApproveApplication(
   i: RegistrationApplications,
   form: ApproveRegistrationApplication,
 ) {
-  const approveRes =
-    await HttpService.client.approveRegistrationApplication(form);
+  i.setState({ approveRes: { id: form.id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.approveRegistrationApplication(form);
+  i.setState({ approveRes: { id: form.id, res } });
+
   i.setState(s => {
-    if (s.appsRes.state === "success" && approveRes.state === "success") {
+    if (s.appsRes.state === "success" && res.state === "success") {
       s.appsRes.data.items = editRegistrationApplication(
-        approveRes.data.registration_application,
+        res.data.registration_application,
         s.appsRes.data.items,
       );
     }

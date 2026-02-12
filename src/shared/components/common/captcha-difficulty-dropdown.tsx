@@ -10,7 +10,7 @@ const options: FilterOption<CaptchaDifficulty>[] = [
 
 type CaptchaDifficultyDropdownProps = {
   currentOption: CaptchaDifficulty;
-  onSelect(this: void, val: CaptchaDifficulty): void;
+  onSelect: (val: CaptchaDifficulty) => void;
   className?: string;
 };
 export function CaptchaDifficultyDropdown({

@@ -5,7 +5,7 @@ import { ErrorPage } from "../app/error-page";
 class ErrorGuard extends Component<any, any> {
   private isoData = setIsoData(this.context);
 
-  componentWillUnmount(): void {
+  componentWillUnmount() {
     const { errorPageData, siteRes } = this.isoData;
     if (errorPageData || !siteRes) {
       // Without reload the error data is still present at the new route

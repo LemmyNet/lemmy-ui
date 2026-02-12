@@ -21,7 +21,7 @@ interface NotificationModlogItemProps {
   myUserInfo: MyUserInfo | undefined;
   notification: Notification;
   modlog_view: ModlogView;
-  onMarkRead(form: MarkNotificationAsRead): void;
+  onMarkRead: (form: MarkNotificationAsRead) => void;
 }
 
 @tippyMixin

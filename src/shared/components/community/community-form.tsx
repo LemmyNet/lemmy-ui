@@ -24,13 +24,13 @@ interface CommunityFormProps {
   allLanguages?: Language[];
   siteLanguages?: number[];
   communityLanguages?: number[];
-  onCreate?(form: CreateCommunity): void;
-  onEdit?(form: EditCommunity): void;
-  onDelete?(deleted: boolean): void;
   enableNsfw?: boolean;
   createOrEditLoading?: boolean;
   deleteLoading?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  onCreate?: (form: CreateCommunity) => void;
+  onEdit?: (form: EditCommunity) => void;
+  onDelete?: (deleted: boolean) => void;
 }
 
 interface CommunityFormState {

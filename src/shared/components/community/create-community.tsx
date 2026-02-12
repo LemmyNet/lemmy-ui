@@ -1,6 +1,7 @@
 import { enableNsfw, setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import {
+  CommunityResponse,
   CreateCommunity as CreateCommunityI,
   MyUserInfo,
 } from "lemmy-js-client";
@@ -11,9 +12,14 @@ import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { toast } from "@utils/app";
 import { NoOptionI18nKeys } from "i18next";
+import {
+  EMPTY_REQUEST,
+  LOADING_REQUEST,
+  RequestState,
+} from "@services/HttpService";
 
 interface CreateCommunityState {
-  loading: boolean;
+  createCommunityRes: RequestState<CommunityResponse>;
 }
 
 @simpleScrollMixin
@@ -23,7 +29,7 @@ export class CreateCommunity extends Component<
 > {
   private isoData = setIsoData(this.context);
   state: CreateCommunityState = {
-    loading: false,
+    createCommunityRes: EMPTY_REQUEST,
   };
 
   get documentTitle(): string {
@@ -52,7 +58,9 @@ export class CreateCommunity extends Component<
               allLanguages={this.isoData.siteRes?.all_languages}
               siteLanguages={this.isoData.siteRes?.discussion_languages}
               communityLanguages={this.isoData.siteRes?.discussion_languages}
-              createOrEditLoading={this.state.loading}
+              createOrEditLoading={
+                this.state.createCommunityRes.state === "loading"
+              }
               myUserInfo={this.isoData.myUserInfo}
             />
           </div>
@@ -67,9 +75,9 @@ async function handleCommunityCreate(
   form: CreateCommunityI,
   myUserInfo?: MyUserInfo,
 ) {
-  i.setState({ loading: true });
-
+  i.setState({ createCommunityRes: LOADING_REQUEST });
   const res = await HttpService.client.createCommunity(form);
+  i.setState({ createCommunityRes: res });
 
   if (res.state === "success" && myUserInfo) {
     myUserInfo.moderates.push({
@@ -81,5 +89,4 @@ async function handleCommunityCreate(
   } else if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
-  i.setState({ loading: false });
 }

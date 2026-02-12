@@ -12,7 +12,7 @@ const options: FilterOption<SearchType>[] = [
 
 type SearchTypeDropdownProps = {
   currentOption: SearchType;
-  onSelect(this: void, val: SearchType): void;
+  onSelect: (val: SearchType) => void;
   className?: string;
 };
 export function SearchTypeDropdown({
