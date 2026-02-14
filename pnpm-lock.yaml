@@ -121,7 +121,7 @@ importers:
         version: 1.0.0-refreshed-at-api.0
       markdown-it:
         specifier: ^14.1.0
-        version: 14.1.0
+        version: 14.1.1
       markdown-it-bidi:
         specifier: ^0.2.0
         version: 0.2.0
@@ -3468,8 +3468,8 @@ packages:
   markdown-it-sup@2.0.0:
     resolution: {integrity: sha512-5VgmdKlkBd8sgXuoDoxMpiU+BiEt3I49GItBzzw7Mxq9CxvnhE/k09HFli09zgfFDRixDQDfDxi0mgBCXtaTvA==}
 
-  markdown-it@14.1.0:
-    resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
+  markdown-it@14.1.1:
+    resolution: {integrity: sha512-BuU2qnTti9YKgK5N+IeMubp14ZUKUUw7yeJbkjtosvHiP0AZ5c8IAgEMk79D0eC8F23r4Ac/q8cAIFdm2FtyoA==}
     hasBin: true
 
   markdown-it@8.4.2:
@@ -8805,7 +8805,7 @@ snapshots:
 
   markdown-it-sup@2.0.0: {}
 
-  markdown-it@14.1.0:
+  markdown-it@14.1.1:
     dependencies:
       argparse: 2.0.1
       entities: 4.5.0
