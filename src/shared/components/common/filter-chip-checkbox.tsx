@@ -7,7 +7,7 @@ import { I18NextService } from "@services/I18NextService";
 type FilterChipCheckboxProps = {
   option: NoOptionI18nKeys;
   isChecked: boolean;
-  onCheck(checked: boolean): void;
+  onCheck: (checked: boolean) => void;
   className?: string;
   disabled?: boolean;
 };

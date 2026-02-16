@@ -22,13 +22,13 @@ const UPVOTE_PCT_THRESHOLD = 90;
 type VoteButtonsProps = {
   voteContentType: PostOrCommentType;
   id: number;
-  onVote: (i: CreateCommentLike | CreatePostLike) => void;
   subject: Post | Comment;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   myVoteIsUpvote?: boolean;
   disabled: boolean;
   loading: boolean;
+  onVote: (i: CreateCommentLike | CreatePostLike) => void;
 };
 
 type VoteButtonsState = object;

@@ -39,11 +39,11 @@ import {
 interface SiteFormProps {
   showLocal?: boolean;
   themeList?: string[];
-  onCreate?(form: CreateSite): void;
-  onEdit?(form: EditSite): void;
   siteRes: GetSiteResponse;
   loading: boolean;
   myUserInfo: MyUserInfo | undefined;
+  onCreate?: (form: CreateSite) => void;
+  onEdit?: (form: EditSite) => void;
 }
 
 interface SiteFormState {

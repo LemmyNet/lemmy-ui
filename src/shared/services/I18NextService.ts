@@ -263,11 +263,7 @@ export function format(value: any, format: any): any {
   return format === "uppercase" ? value.toUpperCase() : value;
 }
 
-function missingKeyHandler(
-  _: readonly string[],
-  __: string,
-  key: string,
-): void {
+function missingKeyHandler(_: readonly string[], __: string, key: string) {
   const msg = `Missing i18n key: ${key}`;
   toast(`${msg}`, "info");
   let stack = new Error().stack?.split("\n") ?? [];

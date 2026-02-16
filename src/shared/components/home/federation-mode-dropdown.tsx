@@ -12,7 +12,7 @@ const options: FilterOption<FederationMode>[] = [
 
 type FederationModeDropdownProps = {
   currentOption: FederationMode;
-  onSelect(val: FederationMode): void;
+  onSelect: (val: FederationMode) => void;
   className?: string;
 };
 export function FederationModeDropdown({

@@ -21,8 +21,8 @@ import { Icon } from "@components/common/icon";
 
 interface Props {
   currentCommunities: CommunityView[];
-  onCreate(id: CommunityId): void;
   myUserInfo: MyUserInfo | undefined;
+  onCreate: (id: CommunityId) => void;
 }
 
 interface State {
@@ -111,7 +111,7 @@ const handleCommunitySearch = debounce(
 interface MultiCommunityEntryListProps {
   communities: CommunityView[];
   isCreator: boolean;
-  onDelete?(communityId: CommunityId): void;
+  onDelete?: (communityId: CommunityId) => void;
   myUserInfo: MyUserInfo | undefined;
 }
 

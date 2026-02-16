@@ -10,7 +10,7 @@ const options: FilterOption<GetFederatedInstancesKind>[] = [
 
 type InstancesKindDropdownProps = {
   currentOption: GetFederatedInstancesKind;
-  onSelect(val: GetFederatedInstancesKind): void;
+  onSelect: (val: GetFederatedInstancesKind) => void;
   className?: string;
 };
 export function InstancesKindDropdown({

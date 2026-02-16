@@ -17,7 +17,7 @@ const options: FilterOption<CommunityVisibility>[] = [
 
 type CommunityVisibilityDropdownProps = {
   currentOption: CommunityVisibility;
-  onSelect(val: CommunityVisibility): void;
+  onSelect: (val: CommunityVisibility) => void;
   className?: string;
 };
 export function CommunityVisibilityDropdown({

@@ -11,7 +11,7 @@ interface PaginatedResource {
 interface PaginatorCursorProps {
   current: PaginationCursor | undefined;
   resource: RequestState<PaginatedResource>;
-  onPageChange(cursor?: PaginationCursor): void;
+  onPageChange: (cursor?: PaginationCursor) => void;
 }
 
 function handleNext(i: PaginatorCursor) {

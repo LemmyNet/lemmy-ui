@@ -25,9 +25,9 @@ type EmojiGenericForm = {
 
 interface EmojiFormProps {
   emoji?: CustomEmojiView; // If an emoji is given, this means its an edit.
-  onCreate?(form: CreateCustomEmoji): void;
-  onEdit?(form: EditCustomEmoji): void;
-  onDelete?(form: DeleteCustomEmoji): void;
+  onCreate?: (form: CreateCustomEmoji) => void;
+  onEdit?: (form: EditCustomEmoji) => void;
+  onDelete?: (form: DeleteCustomEmoji) => void;
 }
 
 interface EmojiFormState {

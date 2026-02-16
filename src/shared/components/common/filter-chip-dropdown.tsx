@@ -14,7 +14,7 @@ type FilterChipDropdownProps<T extends string> = {
   allOptions: FilterOption<T>[];
   currentOption: FilterOption<T> | undefined;
   label?: NoOptionI18nKeys;
-  onSelect(val: T): void;
+  onSelect: (val: T) => void;
   className?: string;
 };
 

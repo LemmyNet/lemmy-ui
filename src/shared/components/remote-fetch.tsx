@@ -255,13 +255,13 @@ export class RemoteFetch extends Component<
     }${name}`;
   }
 
-  static async fetchInitialData({
+  static fetchInitialData = async ({
     headers,
     query: { uri },
   }: InitialFetchRequest<
     RemoteFetchPathProps,
     RemoteFetchProps
-  >): Promise<RemoteFetchData> {
+  >): Promise<RemoteFetchData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -274,5 +274,5 @@ export class RemoteFetch extends Component<
     }
 
     return data;
-  }
+  };
 }

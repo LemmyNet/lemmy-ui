@@ -47,31 +47,31 @@ interface ContentActionDropdownPropsBase {
   community: Community;
   viewSource: boolean;
   myUserInfo: MyUserInfo | undefined;
-  onSave(): void;
-  onEdit(): void;
-  onDelete(): void;
+  onSave: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
   // TODO These should be pushing up the specific forms, rather than bare reasons.
-  onReport(reason: string): void;
-  onBlockPerson(): void;
-  onBlockCommunity(): void;
-  onRemove(reason: string): void;
-  onBanFromCommunity(form: BanUpdateForm): void;
-  onAppointCommunityMod(): void;
-  onTransferCommunity(): void;
-  onBanFromSite(form: BanUpdateForm): void;
-  onPurgeContent(reason: string): void;
-  onPurgeUser(reason: string): void;
-  onAppointAdmin(): void;
-  onPersonNote(form: NotePerson): void;
-  onLock(reason: string): void;
-  onViewSource(): void;
+  onReport: (reason: string) => void;
+  onBlockPerson: () => void;
+  onBlockCommunity: () => void;
+  onRemove: (reason: string) => void;
+  onBanFromCommunity: (form: BanUpdateForm) => void;
+  onAppointCommunityMod: () => void;
+  onTransferCommunity: () => void;
+  onBanFromSite: (form: BanUpdateForm) => void;
+  onPurgeContent: (reason: string) => void;
+  onPurgeUser: (reason: string) => void;
+  onAppointAdmin: () => void;
+  onPersonNote: (form: NotePerson) => void;
+  onLock: (reason: string) => void;
+  onViewSource: () => void;
 }
 
 export type ContentCommentProps = {
   type: "comment";
   commentView: CommentView | CommentSlimView;
   showContext: boolean;
-  onDistinguish(): void;
+  onDistinguish: () => void;
 } & ContentActionDropdownPropsBase;
 
 export type ContentPostProps = {
@@ -81,11 +81,11 @@ export type ContentPostProps = {
   showBody: ShowBodyType;
   showMarkRead: ShowMarkReadType;
   viewOnly: boolean;
-  onFeatureLocal(): void;
-  onFeatureCommunity(): void;
-  onHidePost(): void;
-  onSharePost(): void;
-  onMarkPostAsRead(): void;
+  onFeatureLocal: () => void;
+  onFeatureCommunity: () => void;
+  onHidePost: () => void;
+  onSharePost: () => void;
+  onMarkPostAsRead: () => void;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;

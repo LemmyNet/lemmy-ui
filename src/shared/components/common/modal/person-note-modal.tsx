@@ -18,8 +18,8 @@ interface PersonNoteModalProps {
   personId: PersonId;
   show: boolean;
   loading: boolean;
-  onSubmit(form: NotePerson): void;
-  onCancel(): void;
+  onSubmit: (form: NotePerson) => void;
+  onCancel: () => void;
 }
 
 interface PersonNoteModalState {

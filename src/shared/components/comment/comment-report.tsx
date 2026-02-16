@@ -28,10 +28,10 @@ interface CommentReportProps {
   localSite: LocalSite;
   admins: PersonView[];
   loading: boolean;
-  onResolveReport(form: ResolveCommentReport): void;
-  onRemoveComment(form: RemoveComment): void;
-  onModBanFromCommunity(form: BanFromCommunityData): void;
-  onAdminBan(form: BanFromSiteData): void;
+  onResolveReport: (form: ResolveCommentReport) => void;
+  onRemoveComment: (form: RemoveComment) => void;
+  onModBanFromCommunity: (form: BanFromCommunityData) => void;
+  onAdminBan: (form: BanFromSiteData) => void;
 }
 
 interface CommentReportState {

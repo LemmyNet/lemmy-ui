@@ -9,7 +9,7 @@ const options: FilterOption<RegistrationMode>[] = [
 
 type RegistrationModeDropdownProps = {
   currentOption: RegistrationMode;
-  onSelect(val: RegistrationMode): void;
+  onSelect: (val: RegistrationMode) => void;
   className?: string;
 };
 export function RegistrationModeDropdown({

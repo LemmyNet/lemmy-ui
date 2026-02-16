@@ -439,10 +439,10 @@ export class Notifications extends Component<
     }
   }
 
-  static async fetchInitialData({
+  static fetchInitialData = async ({
     headers,
     myUserInfo,
-  }: InitialFetchRequest): Promise<NotificationsData> {
+  }: InitialFetchRequest): Promise<NotificationsData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -458,7 +458,7 @@ export class Notifications extends Component<
     } else {
       return { notifsRes: EMPTY_REQUEST };
     }
-  }
+  };
 
   refetchToken?: symbol;
   async refetch() {

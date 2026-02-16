@@ -4,7 +4,7 @@ import { modalMixin } from "@components/mixins/modal-mixin";
 import { I18NextService } from "@services/I18NextService";
 
 interface CommunityReportModalProps {
-  onSubmit: (reason: string) => Promise<void>;
+  onSubmit: (reason: string) => void;
   onCancel: () => void;
   show?: boolean;
   children?: InfernoNode;
@@ -12,14 +12,14 @@ interface CommunityReportModalProps {
 
 type CommunityReportModalState = object;
 
-async function handleSubmit(i: CommunityReportModal, event?: Event) {
+function handleSubmit(i: CommunityReportModal, event?: Event) {
   if (i.state.loading || !i.reasonRef.current?.value) {
     event?.preventDefault();
     return;
   }
 
   i.setState({ loading: true });
-  await i.props.onSubmit(i.reasonRef.current.value);
+  i.props.onSubmit(i.reasonRef.current.value);
   i.setState({ loading: false });
 }
 

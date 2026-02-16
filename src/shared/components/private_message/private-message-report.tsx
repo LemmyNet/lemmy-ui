@@ -15,7 +15,7 @@ interface Props {
   report: PrivateMessageReportView;
   myUserInfo: MyUserInfo | undefined;
   loading: boolean;
-  onResolveReport(form: ResolvePrivateMessageReport): void;
+  onResolveReport: (form: ResolvePrivateMessageReport) => void;
 }
 
 @tippyMixin

@@ -27,8 +27,8 @@ const presets: Preset[] = [
 ];
 
 type Props = {
-  onChange(seconds: number): void;
   currentSeconds: number | undefined;
+  onChange: (seconds: number) => void;
 };
 
 type State = {

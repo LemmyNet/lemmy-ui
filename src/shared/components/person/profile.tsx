@@ -511,7 +511,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     );
   }
 
-  static async fetchInitialData({
+  static fetchInitialData = async ({
     headers,
     query: { contentType: view, cursor, viewType: filter },
     match: { params: props },
@@ -519,7 +519,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }: InitialFetchRequest<
     ProfilePathProps,
     ProfileProps
-  >): Promise<ProfileData> {
+  >): Promise<ProfileData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -588,7 +588,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
         personHiddenRes: personHiddenRes || EMPTY_REQUEST,
       };
     });
-  }
+  };
 
   get documentTitle(): string {
     const siteName = this.state.siteRes.site_view.site.name;

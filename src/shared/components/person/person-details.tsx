@@ -5,7 +5,6 @@ import {
   BanFromCommunity,
   BanPerson,
   BlockPerson,
-  CommentResponse,
   CreateComment,
   CreateCommentLike,
   CreateCommentReport,
@@ -22,7 +21,6 @@ import {
   LockPost,
   MarkPostAsRead,
   PersonView,
-  PostResponse,
   PurgeComment,
   PurgePerson,
   PurgePost,
@@ -43,7 +41,6 @@ import {
 } from "lemmy-js-client";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
-import { RequestState } from "../../services/HttpService";
 import { commentToFlatNode } from "@utils/app";
 
 interface PersonDetailsProps {
@@ -61,36 +58,36 @@ interface PersonDetailsProps {
   editCommentLoading: CommentId | undefined;
   voteCommentLoading: CommentId | undefined;
   votePostLoading: PostId | undefined;
-  onSaveComment(form: SaveComment): Promise<void>;
-  onCreateComment(form: CreateComment): Promise<RequestState<CommentResponse>>;
-  onEditComment(form: EditComment): Promise<RequestState<CommentResponse>>;
-  onCommentVote(form: CreateCommentLike): Promise<void>;
-  onBlockPerson(form: BlockPerson): Promise<void>;
-  onBlockCommunity(form: BlockCommunity): Promise<void>;
-  onDeleteComment(form: DeleteComment): Promise<void>;
-  onRemoveComment(form: RemoveComment): Promise<void>;
-  onDistinguishComment(form: DistinguishComment): Promise<void>;
-  onAddModToCommunity(form: AddModToCommunity): Promise<void>;
-  onAddAdmin(form: AddAdmin): Promise<void>;
-  onBanPersonFromCommunity(form: BanFromCommunity): Promise<void>;
-  onBanPerson(form: BanPerson): Promise<void>;
-  onTransferCommunity(form: TransferCommunity): Promise<void>;
-  onFetchChildren(form: GetComments): void;
-  onCommentReport(form: CreateCommentReport): Promise<void>;
-  onPurgePerson(form: PurgePerson): Promise<void>;
-  onPurgeComment(form: PurgeComment): Promise<void>;
-  onPostEdit(form: EditPost): Promise<RequestState<PostResponse>>;
-  onPostVote(form: CreatePostLike): Promise<RequestState<PostResponse>>;
-  onPostReport(form: CreatePostReport): Promise<void>;
-  onLockPost(form: LockPost): Promise<void>;
-  onDeletePost(form: DeletePost): Promise<void>;
-  onRemovePost(form: RemovePost): Promise<void>;
-  onSavePost(form: SavePost): Promise<void>;
-  onFeaturePost(form: FeaturePost): Promise<void>;
-  onPurgePost(form: PurgePost): Promise<void>;
-  onMarkPostAsRead(form: MarkPostAsRead): Promise<void>;
-  onPersonNote(form: NotePerson): Promise<void>;
-  onLockComment(form: LockComment): Promise<void>;
+  onSaveComment: (form: SaveComment) => void;
+  onCreateComment: (form: CreateComment) => void;
+  onEditComment: (form: EditComment) => void;
+  onCommentVote: (form: CreateCommentLike) => void;
+  onBlockPerson: (form: BlockPerson) => void;
+  onBlockCommunity: (form: BlockCommunity) => void;
+  onDeleteComment: (form: DeleteComment) => void;
+  onRemoveComment: (form: RemoveComment) => void;
+  onDistinguishComment: (form: DistinguishComment) => void;
+  onAddModToCommunity: (form: AddModToCommunity) => void;
+  onAddAdmin: (form: AddAdmin) => void;
+  onBanPersonFromCommunity: (form: BanFromCommunity) => void;
+  onBanPerson: (form: BanPerson) => void;
+  onTransferCommunity: (form: TransferCommunity) => void;
+  onFetchChildren: (form: GetComments) => void;
+  onCommentReport: (form: CreateCommentReport) => void;
+  onPurgePerson: (form: PurgePerson) => void;
+  onPurgeComment: (form: PurgeComment) => void;
+  onPostEdit: (form: EditPost) => void;
+  onPostVote: (form: CreatePostLike) => void;
+  onPostReport: (form: CreatePostReport) => void;
+  onLockPost: (form: LockPost) => void;
+  onDeletePost: (form: DeletePost) => void;
+  onRemovePost: (form: RemovePost) => void;
+  onSavePost: (form: SavePost) => void;
+  onFeaturePost: (form: FeaturePost) => void;
+  onPurgePost: (form: PurgePost) => void;
+  onMarkPostAsRead: (form: MarkPostAsRead) => void;
+  onPersonNote: (form: NotePerson) => void;
+  onLockComment: (form: LockComment) => void;
 }
 
 export class PersonDetails extends Component<PersonDetailsProps, any> {

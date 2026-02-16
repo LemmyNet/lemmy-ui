@@ -25,7 +25,7 @@ interface CreateOrEditOAuthProviderModalProps {
   onClose: MouseEventHandler<HTMLButtonElement>;
   show: boolean;
   data: CreateOrEditOAuthProviderModalData;
-  onSubmit(provider: CreateOAuthProvider | EditOAuthProvider): void;
+  onSubmit: (provider: CreateOAuthProvider | EditOAuthProvider) => void;
 }
 
 interface CreateOrEditOAuthProviderModalState {

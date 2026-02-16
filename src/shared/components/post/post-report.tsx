@@ -30,10 +30,10 @@ interface PostReportProps {
   localSite: LocalSite;
   admins: PersonView[];
   loading: boolean;
-  onResolveReport(form: ResolvePostReport): void;
-  onRemovePost(form: RemovePost): void;
-  onModBanFromCommunity(form: BanFromCommunityData): void;
-  onAdminBan(form: BanFromSiteData): void;
+  onResolveReport: (form: ResolvePostReport) => void;
+  onRemovePost: (form: RemovePost) => void;
+  onModBanFromCommunity: (form: BanFromCommunityData) => void;
+  onAdminBan: (form: BanFromSiteData) => void;
 }
 
 interface PostReportState {

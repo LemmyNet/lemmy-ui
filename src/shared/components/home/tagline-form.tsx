@@ -14,9 +14,9 @@ import { Prompt } from "inferno-router";
 interface TaglineFormProps {
   tagline?: Tagline; // If a tagline is given, that means this is an edit
   myUserInfo: MyUserInfo | undefined;
-  onCreate?(form: CreateTagline): void;
-  onEdit?(form: EditTagline): void;
-  onDelete?(form: DeleteTagline): void;
+  onCreate?: (form: CreateTagline) => void;
+  onEdit?: (form: EditTagline) => void;
+  onDelete?: (form: DeleteTagline) => void;
 }
 
 interface TaglineFormState {

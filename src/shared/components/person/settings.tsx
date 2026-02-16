@@ -337,7 +337,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
   }
 
-  componentWillUnmount(): void {
+  componentWillUnmount() {
     // In case `interface_language` change wasn't saved.
     I18NextService.reconfigure(
       window.navigator.languages,
@@ -346,16 +346,16 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     setThemeOverride(undefined);
   }
 
-  static async fetchInitialData({
+  static fetchInitialData = async ({
     headers,
-  }: InitialFetchRequest): Promise<SettingsData> {
+  }: InitialFetchRequest): Promise<SettingsData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
       instancesRes: await client.getFederatedInstances({ kind: "linked" }),
     };
-  }
+  };
 
   get documentTitle(): string {
     return I18NextService.i18n.t("settings");
@@ -399,7 +399,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     /* eslint-enable jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid */
   }
 
-  userSettings(isSelected: boolean) {
+  userSettings = (isSelected: boolean) => {
     return (
       <div
         className={classNames("tab-pane show", {
@@ -441,9 +441,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         </div>
       </div>
     );
-  }
+  };
 
-  blockCards(isSelected: boolean) {
+  blockCards = (isSelected: boolean) => {
     return (
       !userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
         <div
@@ -482,7 +482,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         </div>
       )
     );
-  }
+  };
 
   changePasswordHtmlForm() {
     return (

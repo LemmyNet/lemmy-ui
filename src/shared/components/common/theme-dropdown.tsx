@@ -3,7 +3,7 @@ import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
 type ThemeDropdownProps = {
   currentOption: string;
   themeList: string[];
-  onSelect(val: string): void;
+  onSelect: (val: string) => void;
   includeInstanceDefaults: boolean;
   className?: string;
 };

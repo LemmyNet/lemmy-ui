@@ -23,15 +23,15 @@ import ActionButton from "@components/common/content-actions/action-button";
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
   myUserInfo: MyUserInfo | undefined;
-  onDelete(form: DeletePrivateMessage): void;
-  onReport(form: CreatePrivateMessageReport): void;
-  onCreate(form: CreatePrivateMessage): void;
-  onEdit(form: EditPrivateMessage): void;
   read: boolean;
-  onMarkRead(privateMessageId: PrivateMessageId, read: boolean): void;
   createOrEditLoading: boolean;
   deleteLoading: boolean;
   readLoading: boolean;
+  onDelete: (form: DeletePrivateMessage) => void;
+  onReport: (form: CreatePrivateMessageReport) => void;
+  onCreate: (form: CreatePrivateMessage) => void;
+  onEdit: (form: EditPrivateMessage) => void;
+  onMarkRead: (privateMessageId: PrivateMessageId, read: boolean) => void;
 }
 
 interface PrivateMessageState {

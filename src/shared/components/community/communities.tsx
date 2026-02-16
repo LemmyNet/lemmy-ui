@@ -322,13 +322,13 @@ export class Communities extends Component<
     this.props.history.push(`/communities${getQueryString(queryParams)}`);
   }
 
-  static async fetchInitialData({
+  static fetchInitialData = async ({
     headers,
     query: { listingType, sort, cursor },
   }: InitialFetchRequest<
     CommunitiesPathProps,
     CommunitiesProps
-  >): Promise<CommunitiesData> {
+  >): Promise<CommunitiesData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -344,7 +344,7 @@ export class Communities extends Component<
       listCommunitiesResponse:
         await client.listCommunities(listCommunitiesForm),
     };
-  }
+  };
 
   fetchToken?: symbol;
   async refetch({ listingType, sort, cursor }: CommunitiesProps) {
