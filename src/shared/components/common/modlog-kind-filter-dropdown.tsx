@@ -32,7 +32,7 @@ const options: FilterOption<ModlogKindFilter>[] = [
 
 type ModlogKindFilterDropdownProps = {
   currentOption: ModlogKindFilter | undefined;
-  onSelect(this: void, val: ModlogKindFilter): void;
+  onSelect: (val: ModlogKindFilter) => void;
   className?: string;
 };
 export function ModlogKindFilterDropdown({
@@ -42,6 +42,7 @@ export function ModlogKindFilterDropdown({
 }: ModlogKindFilterDropdownProps) {
   return (
     <FilterChipDropdown
+      label={"type"}
       allOptions={options}
       currentOption={options.find(t => t.value === currentOption)}
       onSelect={onSelect}

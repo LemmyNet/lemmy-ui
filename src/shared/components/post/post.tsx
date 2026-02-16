@@ -137,8 +137,11 @@ interface PostState {
   purgeCommunityRes: RequestState<SuccessResponse>;
   createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  fetchChildrenRes: ItemIdAndRes<CommentId, PagedResponse<CommentSlimView>>;
+  voteCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editPostRes: RequestState<PostResponse>;
   markPostAsReadRes: RequestState<PostResponse>;
+  votePostRes: RequestState<PostResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   maxCommentsShown: number;
@@ -270,8 +273,11 @@ export class Post extends Component<PostRouteProps, PostState> {
     purgeCommunityRes: EMPTY_REQUEST,
     editPostRes: EMPTY_REQUEST,
     markPostAsReadRes: EMPTY_REQUEST,
+    votePostRes: EMPTY_REQUEST,
     createCommentRes: { id: 0, res: EMPTY_REQUEST },
     editCommentRes: { id: 0, res: EMPTY_REQUEST },
+    fetchChildrenRes: { id: 0, res: EMPTY_REQUEST },
+    voteCommentRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     maxCommentsShown: commentsShownInterval,
@@ -389,14 +395,11 @@ export class Post extends Component<PostRouteProps, PostState> {
     return { pathname, search: getQueryString(query) };
   }
 
-  static async fetchInitialData(
-    this: void,
-    {
-      headers,
-      match,
-      query: { sort },
-    }: InitialFetchRequest<PostPathProps, PostProps>,
-  ): Promise<PostData> {
+  static fetchInitialData = async ({
+    headers,
+    match,
+    query: { sort },
+  }: InitialFetchRequest<PostPathProps, PostProps>): Promise<PostData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -425,7 +428,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       postRes,
       commentsRes,
     };
-  }
+  };
 
   componentWillUnmount() {
     document.removeEventListener("scroll", this.commentScrollDebounced);
@@ -452,7 +455,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: PostRouteProps): void {
+  componentWillReceiveProps(nextProps: PostRouteProps) {
     const { post_id: nextPost, comment_id: nextComment } =
       nextProps.match.params;
     const { post_id: prevPost, comment_id: prevComment } =
@@ -496,7 +499,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  componentDidUpdate(): void {
+  componentDidUpdate() {
     if (
       this.commentSectionRef.current &&
       this.state.postRes.state === "success" &&
@@ -600,6 +603,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 viewOnly={false}
                 disableAutoMarkAsRead={false}
                 editLoading={this.state.editPostRes.state === "loading"}
+                voteLoading={this.state.votePostRes.state === "loading"}
                 onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
                 onBlockCommunity={form =>
                   handleBlockCommunity(this, form, myUserInfo)
@@ -688,6 +692,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   <CommentSortDropdown
                     currentOption={this.props.sort}
                     onSelect={val => handleCommentSortChange(this, val)}
+                    showLabel
                   />
                 </div>
                 <div className="col me-auto">
@@ -760,6 +765,8 @@ export class Post extends Component<PostRouteProps, PostState> {
             )}
             createLoading={itemLoading(this.state.createCommentRes)}
             editLoading={itemLoading(this.state.editCommentRes)}
+            fetchChildrenLoading={itemLoading(this.state.fetchChildrenRes)}
+            voteLoading={itemLoading(this.state.voteCommentRes)}
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
@@ -891,6 +898,8 @@ export class Post extends Component<PostRouteProps, PostState> {
             )}
             createLoading={itemLoading(this.state.createCommentRes)}
             editLoading={itemLoading(this.state.editCommentRes)}
+            fetchChildrenLoading={itemLoading(this.state.fetchChildrenRes)}
+            voteLoading={itemLoading(this.state.voteCommentRes)}
             admins={siteRes.admins}
             readCommentsAt={
               postRes.data.post_view.post_actions?.read_comments_at
@@ -1382,14 +1391,20 @@ async function handleFeaturePost(i: Post, form: FeaturePost) {
 }
 
 async function handleCommentVote(i: Post, form: CreateCommentLike) {
-  const voteRes = await HttpService.client.likeComment(form);
-  i.findAndUpdateComment(voteRes);
+  i.setState({ voteCommentRes: { id: form.comment_id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.likeComment(form);
+  i.setState({ voteCommentRes: { id: form.comment_id, res } });
+
+  i.findAndUpdateComment(res);
 }
 
 async function handlePostVote(i: Post, form: CreatePostLike) {
-  const voteRes = await HttpService.client.likePost(form);
-  i.updatePost(voteRes);
-  return voteRes;
+  i.setState({ votePostRes: LOADING_REQUEST });
+  const votePostRes = await HttpService.client.likePost(form);
+  i.setState({ votePostRes });
+
+  i.updatePost(votePostRes);
+  return votePostRes;
 }
 
 async function handlePostEdit(i: Post, form: EditPost) {
@@ -1456,7 +1471,14 @@ async function handleTransferCommunity(i: Post, form: TransferCommunity) {
 }
 
 async function handleFetchChildren(i: Post, form: GetComments) {
+  i.setState({
+    fetchChildrenRes: { id: form.parent_id ?? 0, res: LOADING_REQUEST },
+  });
   const moreCommentsRes = await HttpService.client.getCommentsSlim(form);
+  i.setState({
+    fetchChildrenRes: { id: form.parent_id ?? 0, res: moreCommentsRes },
+  });
+
   if (
     i.state.commentsRes.state === "success" &&
     moreCommentsRes.state === "success"

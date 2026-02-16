@@ -757,14 +757,14 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
     return combined.map(i => {
       const {
-        modlog: { id, published_at },
+        modlog: { published_at },
         moderator,
         data,
       } = processModlogEntry(i, myUserInfo);
 
       return (
         <>
-          <div className="row" key={id}>
+          <div className="row">
             <div className={TIME_COLS}>
               <MomentTime published={published_at} />
             </div>
@@ -1030,21 +1030,21 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     }
   }
 
-  static async fetchInitialData(
-    this: void,
-    {
-      headers,
-      query: {
-        cursor,
-        userId,
-        modId,
-        actionType,
-        commentId,
-        postId,
-        communityId,
-      },
-    }: InitialFetchRequest<ModlogPathProps, ModlogProps>,
-  ): Promise<ModlogData> {
+  static fetchInitialData = async ({
+    headers,
+    query: {
+      cursor,
+      userId,
+      modId,
+      actionType,
+      commentId,
+      postId,
+      communityId,
+    },
+  }: InitialFetchRequest<
+    ModlogPathProps,
+    ModlogProps
+  >): Promise<ModlogData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -1096,7 +1096,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       modUserResponse,
       userResponse,
     };
-  }
+  };
 }
 
 function handleFilterActionChange(i: Modlog, actionType: ModlogKindFilter) {

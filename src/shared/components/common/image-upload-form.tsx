@@ -18,8 +18,8 @@ type BaseProps = {
   imageSrc?: string;
   rounded?: boolean;
   disabled: boolean;
-  onImageChange(imageSrc?: string): void;
   noConfirmation?: boolean;
+  onImageChange: (imageSrc?: string) => void;
 };
 
 type SimpleUploadKeys = keyof Pick<

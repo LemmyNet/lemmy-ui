@@ -66,8 +66,6 @@ type CommentNodeState = {
   collapsed: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
-  // TODO get rid
-  fetchChildrenLoading: boolean;
 };
 
 type CommentNodeProps = {
@@ -91,27 +89,29 @@ type CommentNodeProps = {
   createLoading: CommentId | undefined;
   editLoading: CommentId | undefined;
   markReadLoading: CommentId | undefined;
-  onMarkRead(commentId: CommentId, read: boolean): void;
-  onSaveComment(form: SaveComment): void;
-  onCreateComment(form: CreateComment): void;
-  onEditComment(form: EditComment): void;
-  onCommentVote(form: CreateCommentLike): void;
-  onBlockPerson(form: BlockPerson): void;
-  onBlockCommunity(form: BlockCommunity): void;
-  onDeleteComment(form: DeleteComment): void;
-  onRemoveComment(form: RemoveComment): void;
-  onDistinguishComment(form: DistinguishComment): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onTransferCommunity(form: TransferCommunity): void;
-  onFetchChildren?(form: GetComments): void;
-  onCommentReport(form: CreateCommentReport): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgeComment(form: PurgeComment): void;
-  onPersonNote(form: NotePerson): void;
-  onLockComment(form: LockComment): void;
+  fetchChildrenLoading: CommentId | undefined;
+  voteLoading: CommentId | undefined;
+  onMarkRead: (commentId: CommentId, read: boolean) => void;
+  onSaveComment: (form: SaveComment) => void;
+  onCreateComment: (form: CreateComment) => void;
+  onEditComment: (form: EditComment) => void;
+  onCommentVote: (form: CreateCommentLike) => void;
+  onBlockPerson: (form: BlockPerson) => void;
+  onBlockCommunity: (form: BlockCommunity) => void;
+  onDeleteComment: (form: DeleteComment) => void;
+  onRemoveComment: (form: RemoveComment) => void;
+  onDistinguishComment: (form: DistinguishComment) => void;
+  onAddModToCommunity: (form: AddModToCommunity) => void;
+  onAddAdmin: (form: AddAdmin) => void;
+  onBanPersonFromCommunity: (form: BanFromCommunity) => void;
+  onBanPerson: (form: BanPerson) => void;
+  onTransferCommunity: (form: TransferCommunity) => void;
+  onFetchChildren: (form: GetComments) => void;
+  onCommentReport: (form: CreateCommentReport) => void;
+  onPurgePerson: (form: PurgePerson) => void;
+  onPurgeComment: (form: PurgeComment) => void;
+  onPersonNote: (form: NotePerson) => void;
+  onLockComment: (form: LockComment) => void;
 };
 
 @tippyMixin
@@ -123,12 +123,11 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     collapsed: this.initCommentCollapsed(),
     viewSource: false,
     showAdvanced: false,
-    fetchChildrenLoading: false,
   };
 
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>,
-  ): void {
+  ) {
     if (
       this.props.editLoading === this.props.node.view.comment_view.comment.id &&
       this.props.editLoading !== nextProps.editLoading
@@ -284,7 +283,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     viewSource={this.state.viewSource}
                     hideImages={hideImages_}
                   />
-                  <div className="row row-cols-auto align-items-center justify-content-end justify-content-md-start g-3 mb-2 text-muted fw-bold mt-1">
+                  <div className="row row-cols-auto align-items-center justify-content-end justify-content-md-start g-3 text-muted fw-bold mt-1">
                     <>
                       {showMarkRead === "main_bar" && (
                         <div className="col">
@@ -308,6 +307,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                           disabled={userNotLoggedInOrBanned(
                             this.props.myUserInfo,
                           )}
+                          loading={this.props.voteLoading === id}
                         />
                       </div>
                       <div className="col">
@@ -380,7 +380,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 className="btn btn-sm border-light-subtle text-muted"
                 onClick={() => handleFetchChildren(this)}
               >
-                {this.state.fetchChildrenLoading ? (
+                {this.props.fetchChildrenLoading === id ? (
                   <Spinner />
                 ) : (
                   <>
@@ -416,6 +416,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               createLoading={this.props.createLoading}
               editLoading={this.props.editLoading}
               markReadLoading={this.props.markReadLoading}
+              fetchChildrenLoading={this.props.fetchChildrenLoading}
+              voteLoading={this.props.voteLoading}
               nodes={buildNodeChildren(this.props.node)}
               postCreatorId={this.postCreatorId}
               community={this.community}
@@ -699,8 +701,8 @@ function handleTransferCommunity(i: CommentNode) {
 }
 
 function handleFetchChildren(i: CommentNode) {
-  i.setState({ fetchChildrenLoading: true });
   i.props.onFetchChildren?.({
+    sort: "old",
     parent_id: i.commentId,
     max_depth: commentTreeMaxDepth,
     limit: 999, // TODO
@@ -861,7 +863,7 @@ type CommentMarkReadButtonProps = {
   comment: Comment;
   read: boolean;
   loading: boolean;
-  onMarkRead(this: void, commentId: CommentId, read: boolean): void;
+  onMarkRead: (commentId: CommentId, read: boolean) => void;
 };
 function CommentMarkReadButton({
   comment,

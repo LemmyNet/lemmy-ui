@@ -15,9 +15,9 @@ import { ProviderToEdit } from "@utils/types";
 
 type OAuthProvidersTabProps = {
   oauthProviders: AdminOAuthProvider[];
-  onEdit(form: EditOAuthProvider): void;
-  onCreate(form: CreateOAuthProvider): void;
-  onDelete(form: DeleteOAuthProvider): void;
+  onEdit: (form: EditOAuthProvider) => void;
+  onCreate: (form: CreateOAuthProvider) => void;
+  onDelete: (form: DeleteOAuthProvider) => void;
 };
 
 type OAuthProvidersTabState = {

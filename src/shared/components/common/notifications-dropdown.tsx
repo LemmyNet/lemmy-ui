@@ -20,7 +20,7 @@ const postNotifOptions: FilterOption<PostNotificationsMode>[] = [
 ];
 type PostNotificationDropdownProps = {
   currentOption: PostNotificationsMode;
-  onSelect(this: void, val: PostNotificationsMode): void;
+  onSelect: (val: PostNotificationsMode) => void;
   className?: string;
 };
 export function PostNotificationsDropdown({
@@ -59,7 +59,7 @@ const communityNotifOptions: FilterOption<CommunityNotificationsMode>[] = [
 
 type CommunityNotificationDropdownProps = {
   currentOption: CommunityNotificationsMode;
-  onSelect(this: void, val: CommunityNotificationsMode): void;
+  onSelect: (val: CommunityNotificationsMode) => void;
   className?: string;
 };
 export function CommunityNotificationsDropdown({

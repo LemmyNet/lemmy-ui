@@ -58,29 +58,29 @@ type PostActionBarProps = {
   localSite: LocalSite;
   notificationRead?: boolean;
   markReadLoading: boolean;
-  onPostVote(this: void, form: CreatePostLike): void;
-  onScrollIntoCommentsClick(this: void, e: MouseEvent): void;
-  onViewSource(this: void): void;
-  onMarkPostAsRead(this: void, form: MarkPostAsRead): void;
-  onEditClick(this: void): void;
-  onPostVote(this: void, form: CreatePostLike): void;
-  onPostReport(this: void, form: CreatePostReport): void;
-  onBlockPerson(this: void, form: BlockPerson): void;
-  onBlockCommunity(this: void, form: BlockCommunity): void;
-  onLockPost(this: void, form: LockPost): void;
-  onDeletePost(this: void, form: DeletePost): void;
-  onRemovePost(this: void, form: RemovePost): void;
-  onSavePost(this: void, form: SavePost): void;
-  onFeaturePost(this: void, form: FeaturePost): void;
-  onPurgePerson(this: void, form: PurgePerson): void;
-  onPurgePost(this: void, form: PurgePost): void;
-  onBanPersonFromCommunity(this: void, form: BanFromCommunity): void;
-  onBanPerson(this: void, form: BanPerson): void;
-  onAddModToCommunity(this: void, form: AddModToCommunity): void;
-  onAddAdmin(this: void, form: AddAdmin): void;
-  onTransferCommunity(this: void, form: TransferCommunity): void;
-  onHidePost(this: void, form: HidePost): void;
-  onPersonNote(this: void, form: NotePerson): void;
+  voteLoading: boolean;
+  onPostVote: (form: CreatePostLike) => void;
+  onScrollIntoCommentsClick: (e: MouseEvent) => void;
+  onViewSource: () => void;
+  onMarkPostAsRead: (form: MarkPostAsRead) => void;
+  onEditClick: () => void;
+  onPostReport: (form: CreatePostReport) => void;
+  onBlockPerson: (form: BlockPerson) => void;
+  onBlockCommunity: (form: BlockCommunity) => void;
+  onLockPost: (form: LockPost) => void;
+  onDeletePost: (form: DeletePost) => void;
+  onRemovePost: (form: RemovePost) => void;
+  onSavePost: (form: SavePost) => void;
+  onFeaturePost: (form: FeaturePost) => void;
+  onPurgePerson: (form: PurgePerson) => void;
+  onPurgePost: (form: PurgePost) => void;
+  onBanPersonFromCommunity: (form: BanFromCommunity) => void;
+  onBanPerson: (form: BanPerson) => void;
+  onAddModToCommunity: (form: AddModToCommunity) => void;
+  onAddAdmin: (form: AddAdmin) => void;
+  onTransferCommunity: (form: TransferCommunity) => void;
+  onHidePost: (form: HidePost) => void;
+  onPersonNote: (form: NotePerson) => void;
 };
 
 export function PostActionBar(props: PostActionBarProps, context: any) {
@@ -98,11 +98,12 @@ export function PostActionBar(props: PostActionBarProps, context: any) {
     notificationRead,
     onMarkPostAsRead,
     markReadLoading,
+    voteLoading,
   } = props;
   const { id } = postView.post;
 
   return (
-    <div className="row row-cols-auto align-items-center g-3 mb-2 justify-content-end justify-content-md-start">
+    <div className="row row-cols-auto align-items-center g-3 justify-content-end justify-content-md-start">
       {showMarkRead === "main_bar" && (
         <div className="col">
           <PostMarkReadButton
@@ -131,6 +132,7 @@ export function PostActionBar(props: PostActionBarProps, context: any) {
             myUserInfo={myUserInfo}
             localSite={localSite}
             disabled={userNotLoggedInOrBanned(myUserInfo)}
+            loading={voteLoading}
           />
         </div>
       )}
@@ -179,7 +181,7 @@ type CommentsButtonTextOrIcon = "text" | "icon";
 type CommentsButtonProps = {
   postView: PostView;
   type_: CommentsButtonTextOrIcon;
-  onScrollIntoCommentsClick(this: void, e: MouseEvent): void;
+  onScrollIntoCommentsClick: (e: MouseEvent) => void;
 };
 export function CommentsButton({
   postView,
@@ -224,7 +226,7 @@ type PostMarkReadButtonProps = {
   post: Post;
   read: boolean;
   loading: boolean;
-  onMarkRead(this: void, form: MarkPostAsRead): void;
+  onMarkRead: (form: MarkPostAsRead) => void;
 };
 function PostMarkReadButton({
   post,

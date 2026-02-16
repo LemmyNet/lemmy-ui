@@ -164,7 +164,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
             <TableHr />
             {this.state.listMultiCommunitiesRes.data.items.map(v => (
               <>
-                <div className="row" key={v.multi.id}>
+                <div className="row">
                   <div className={nameCols}>
                     <MultiCommunityLink
                       multiCommunity={v.multi}
@@ -224,6 +224,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
               <MultiCommunitiesSortDropdown
                 currentOption={sort}
                 onSelect={val => handleSortChange(this, val)}
+                showLabel
               />
             </div>
             <div className="col me-auto">
@@ -282,13 +283,10 @@ export class MultiCommunities extends Component<RouteProps, State> {
     this.props.history.push(`/multi_communities${getQueryString(queryParams)}`);
   }
 
-  static async fetchInitialData(
-    this: void,
-    {
-      headers,
-      query: { listingType, sort, cursor },
-    }: InitialFetchRequest<PathProps, Props>,
-  ): Promise<MultiCommunitiesData> {
+  static fetchInitialData = async ({
+    headers,
+    query: { listingType, sort, cursor },
+  }: InitialFetchRequest<PathProps, Props>): Promise<MultiCommunitiesData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -303,7 +301,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
     return {
       listMultiCommunitiesRes: await client.listMultiCommunities(form),
     };
-  }
+  };
 
   fetchToken?: symbol;
   async refetch({ listingType, sort, cursor }: Props) {

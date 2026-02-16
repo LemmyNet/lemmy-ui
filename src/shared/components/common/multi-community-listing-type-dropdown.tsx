@@ -11,7 +11,7 @@ type MultiCommunityListingTypeDropdownProps = {
   currentOption: MultiCommunityListingType;
   showLocal: boolean;
   showSubscribed: boolean;
-  onSelect(this: void, val: MultiCommunityListingType): void;
+  onSelect: (val: MultiCommunityListingType) => void;
   className?: string;
 };
 
@@ -34,6 +34,7 @@ export function MultiCommunityListingTypeDropdown({
 
   return (
     <FilterChipDropdown
+      label={"type"}
       allOptions={filteredOptions}
       currentOption={filteredOptions.find(t => t.value === currentOption)}
       onSelect={onSelect}

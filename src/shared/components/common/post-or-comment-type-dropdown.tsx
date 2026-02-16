@@ -8,7 +8,7 @@ const options: FilterOption<PostOrCommentType>[] = [
 
 type PostOrCommentTypeDropdownProps = {
   currentOption: PostOrCommentType;
-  onSelect(this: void, val: PostOrCommentType): void;
+  onSelect: (val: PostOrCommentType) => void;
   className?: string;
 };
 export function PostOrCommentTypeDropdown({
@@ -18,6 +18,7 @@ export function PostOrCommentTypeDropdown({
 }: PostOrCommentTypeDropdownProps) {
   return (
     <FilterChipDropdown
+      label={"type"}
       allOptions={options}
       currentOption={options.find(t => t.value === currentOption)}
       onSelect={onSelect}

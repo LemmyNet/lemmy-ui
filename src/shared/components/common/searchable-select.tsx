@@ -8,8 +8,8 @@ type Props = {
   id: string;
   value?: number | string;
   options: Choice[];
-  onChange?: (this: void, option: Choice) => void;
-  onSearch?: (this: void, text: string) => void;
+  onChange?: (option: Choice) => void;
+  onSearch?: (text: string) => void;
   loading?: boolean;
 };
 

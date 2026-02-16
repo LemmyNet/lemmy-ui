@@ -44,14 +44,14 @@ interface SidebarProps {
   showIcon?: boolean;
   hideButtons?: boolean;
   myUserInfo: MyUserInfo | undefined;
-  onRemove(form: RemoveCommunity): void;
-  onPurge(form: PurgeCommunity): void;
-  onFollow(form: FollowCommunity): void;
-  onBlock(form: BlockCommunity): void;
-  onEditNotifs(form: EditCommunityNotifications): void;
   removeLoading: boolean;
   purgeLoading: boolean;
   followLoading: boolean;
+  onRemove: (form: RemoveCommunity) => void;
+  onPurge: (form: PurgeCommunity) => void;
+  onFollow: (form: FollowCommunity) => void;
+  onBlock: (form: BlockCommunity) => void;
+  onEditNotifs: (form: EditCommunityNotifications) => void;
 }
 
 interface SidebarState {
@@ -180,6 +180,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                         isRemoved={communityView.community.removed}
                         onCancel={() => handleHideRemoveDialog(this)}
                         show={this.state.showRemoveDialog}
+                        loading={false}
                       />
                       <button
                         className="btn btn-light border-light-subtle d-block mb-2 w-100"
@@ -194,6 +195,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                         community={communityView.community}
                         onCancel={() => handleHidePurgeDialog(this)}
                         show={this.state.showPurgeDialog}
+                        loading={false}
                       />
                     </>
                   )}

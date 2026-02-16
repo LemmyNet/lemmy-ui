@@ -53,6 +53,7 @@ import {
   PagedResponse,
   CommentView,
   GetCommunity,
+  Community as CommunityI,
   GetCommunityResponse,
   GetPosts,
   PostView,
@@ -82,6 +83,7 @@ import {
   PurgeCommunity,
   RemoveCommunity,
   CommentId,
+  PostId,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -135,6 +137,8 @@ interface State {
   purgeCommunityRes: RequestState<SuccessResponse>;
   createCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  voteCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
+  votePostRes: ItemIdAndRes<PostId, PostResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
   isIsomorphic: boolean;
@@ -235,6 +239,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     purgeCommunityRes: EMPTY_REQUEST,
     createCommentRes: { id: 0, res: EMPTY_REQUEST },
     editCommentRes: { id: 0, res: EMPTY_REQUEST },
+    voteCommentRes: { id: 0, res: EMPTY_REQUEST },
+    votePostRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
     isIsomorphic: false,
@@ -304,21 +310,21 @@ export class Community extends Component<CommunityRouteProps, State> {
     this.fetchData(nextProps);
   }
 
-  static async fetchInitialData(
-    this: void,
-    {
-      headers,
-      query: {
-        postOrCommentType,
-        cursor,
-        sort,
-        postTimeRange,
-        showHidden,
-        showRead,
-      },
-      match: { params: props },
-    }: InitialFetchRequest<CommunityPathProps, CommunityProps>,
-  ): Promise<CommunityData> {
+  static fetchInitialData = async ({
+    headers,
+    query: {
+      postOrCommentType,
+      cursor,
+      sort,
+      postTimeRange,
+      showHidden,
+      showRead,
+    },
+    match: { params: props },
+  }: InitialFetchRequest<
+    CommunityPathProps,
+    CommunityProps
+  >): Promise<CommunityData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -369,7 +375,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       commentsRes,
       postsRes,
     };
-  }
+  };
 
   updateUrl(props: Partial<CommunityProps>) {
     const {
@@ -494,37 +500,12 @@ export class Community extends Component<CommunityRouteProps, State> {
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
     const canViewCommunity_ = res && canViewCommunity(res.community_view);
-    // Show a message to the moderator if this community is not federated yet (ie it has no
-    // remote followers).
-    const notFederated =
-      res &&
-      res.community_view.can_mod &&
-      res.community_view.community.subscribers ===
-        res.community_view.community.subscribers_local &&
-      res.community_view.community.visibility !== "local_only_public" &&
-      res.community_view.community.visibility !== "local_only_private";
-    const communityName_ = res && communityName(res.community_view.community);
 
     return (
       <div className="community container-lg">
         <div className="row">
           <div className="col-12 col-md-8 col-lg-9" ref={this.mainContentRef}>
-            {notFederated && (
-              <div className="alert alert-warning text-bg-warning" role="alert">
-                <h4 className="alert-heading">
-                  {I18NextService.i18n.t("community_not_federated_title")}
-                </h4>
-                <div className="card-text">
-                  <T
-                    className="d-inline"
-                    i18nKey="community_not_federated_message"
-                  >
-                    #{communityName_}
-                    <a href="https://lemmy-federate.com">#</a>
-                  </T>
-                </div>
-              </div>
-            )}
+            {res && <ShowWarning res={res} />}
             {canViewCommunity_ ? (
               <>
                 {this.renderCommunity()}
@@ -658,6 +639,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onBlockCommunity={form =>
                 handleBlockCommunity(this, form, myUserInfo)
               }
+              voteLoading={itemLoading(this.state.votePostRes)}
               onPostEdit={form => handlePostEdit(this, form)}
               onPostVote={form => handlePostVote(this, form)}
               onPostReport={form => handlePostReport(form)}
@@ -699,6 +681,8 @@ export class Community extends Component<CommunityRouteProps, State> {
               viewType={"flat"}
               createLoading={itemLoading(this.state.createCommentRes)}
               editLoading={itemLoading(this.state.editCommentRes)}
+              voteLoading={itemLoading(this.state.voteCommentRes)}
+              fetchChildrenLoading={undefined}
               isTopLevel
               showContext
               showCommunity={false}
@@ -735,7 +719,8 @@ export class Community extends Component<CommunityRouteProps, State> {
               onEditComment={form => handleEditComment(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               onLockComment={form => handleLockComment(this, form)}
-              onMarkRead={async () => {}}
+              onMarkRead={() => {}}
+              onFetchChildren={() => {}}
             />
           );
       }
@@ -801,6 +786,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           <PostListingModeDropdown
             currentOption={this.state.postListingMode}
             onSelect={val => handlePostListingModeChange(this, val, myUserInfo)}
+            showLabel
           />
         </div>
         {this.props.postOrCommentType === "post" ? (
@@ -809,6 +795,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               <PostSortDropdown
                 currentOption={mixedToPostSortType(sort)}
                 onSelect={val => handleSortChange(this, val)}
+                showLabel
               />
             </div>
             <div className="col">
@@ -823,6 +810,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             <CommentSortDropdown
               currentOption={mixedToCommentSortType(sort)}
               onSelect={val => handleCommentSortChange(this, val)}
+              showLabel
             />
           </div>
         )}
@@ -1129,8 +1117,11 @@ async function handleMarkPostAsRead(
 }
 
 async function handleCommentVote(i: Community, form: CreateCommentLike) {
-  const voteRes = await HttpService.client.likeComment(form);
-  findAndUpdateComment(i, voteRes);
+  i.setState({ voteCommentRes: { id: form.comment_id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.likeComment(form);
+  i.setState({ voteCommentRes: { id: form.comment_id, res } });
+
+  findAndUpdateComment(i, res);
 }
 
 async function handlePostEdit(i: Community, form: EditPost) {
@@ -1140,9 +1131,12 @@ async function handlePostEdit(i: Community, form: EditPost) {
 }
 
 async function handlePostVote(i: Community, form: CreatePostLike) {
-  const voteRes = await HttpService.client.likePost(form);
-  findAndUpdatePost(i, voteRes);
-  return voteRes;
+  i.setState({ votePostRes: { id: form.post_id, res: LOADING_REQUEST } });
+  const res = await HttpService.client.likePost(form);
+  i.setState({ votePostRes: { id: form.post_id, res } });
+
+  findAndUpdatePost(i, res);
+  return res;
 }
 
 async function handleCommentReport(form: CreateCommentReport) {
@@ -1403,4 +1397,61 @@ function updateModerators(
     }
     return s;
   });
+}
+
+type ShowWarningProps = { res: GetCommunityResponse };
+
+function ShowWarning({ res }: ShowWarningProps) {
+  const community = res.community_view.community;
+  // Show a message to the moderator if this community is not federated yet (ie it has no
+  // remote followers).
+  const notFederated =
+    res.community_view.can_mod &&
+    community.subscribers === community.subscribers_local &&
+    community.visibility !== "local_only_public" &&
+    community.visibility !== "local_only_private";
+
+  const oneWeekAgo = new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
+  const deadInstance =
+    res.site && new Date(res.site?.last_refreshed_at) < oneWeekAgo;
+  const deadCommunity = new Date(community.last_refreshed_at) < oneWeekAgo;
+
+  if (community.local && notFederated) {
+    return <NotFederatedWarning community={community} />;
+  } else if (!community.local && (deadInstance || deadCommunity)) {
+    return <DeadInstanceOrCommunityWarning />;
+  } else {
+    return <></>;
+  }
+}
+
+type NotFederatedWarningProps = { community: CommunityI };
+
+function NotFederatedWarning({ community }: NotFederatedWarningProps) {
+  return (
+    <div className="alert alert-warning text-bg-warning" role="alert">
+      <h4 className="alert-heading">
+        {I18NextService.i18n.t("community_not_federated_title")}
+      </h4>
+      <div className="card-text">
+        <T className="d-inline" i18nKey="community_not_federated_message">
+          #{communityName(community)}
+          <a href="https://lemmy-federate.com">#</a>
+        </T>
+      </div>
+    </div>
+  );
+}
+
+function DeadInstanceOrCommunityWarning() {
+  return (
+    <div className="alert alert-warning text-bg-warning" role="alert">
+      <h4 className="alert-heading">
+        {I18NextService.i18n.t("dead_community_title")}
+      </h4>
+      <div className="card-text">
+        {I18NextService.i18n.t("dead_community_body")}
+      </div>
+    </div>
+  );
 }

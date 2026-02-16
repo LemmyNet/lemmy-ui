@@ -1,4 +1,10 @@
-import { Component, InfernoNode, RefObject, createRef } from "inferno";
+import {
+  Component,
+  FormEvent,
+  InfernoNode,
+  RefObject,
+  createRef,
+} from "inferno";
 import { I18NextService } from "../../../services/I18NextService";
 import { PurgeWarning, Spinner } from "../icon";
 import { getApubName, randomStr } from "@utils/helpers";
@@ -17,41 +23,41 @@ export interface BanUpdateForm {
 
 interface ModActionFormModalPropsSiteBan {
   modActionType: "site-ban";
-  onSubmit(form: BanUpdateForm): void;
   creator: Person;
   isBanned: boolean;
+  onSubmit: (form: BanUpdateForm) => void;
 }
 
 interface ModActionFormModalPropsCommunityBan {
   modActionType: "community-ban";
-  onSubmit(form: BanUpdateForm): void;
   creator: Person;
   community?: Community;
   isBanned: boolean;
+  onSubmit: (form: BanUpdateForm) => void;
 }
 
 interface ModActionFormModalPropsPurgePerson {
   modActionType: "purge-person";
-  onSubmit(reason: string): void;
   creator: Person;
+  onSubmit: (reason: string) => void;
 }
 
 interface ModActionFormModalPropsPurgeCommunity {
   modActionType: "purge-community";
-  onSubmit(reason: string): void;
   community: Community;
+  onSubmit: (reason: string) => void;
 }
 
 interface ModActionFormModalPropsRemove {
   modActionType: "remove-post" | "remove-comment" | "remove-community";
-  onSubmit(reason: string): void;
   isRemoved: boolean;
+  onSubmit: (reason: string) => void;
 }
 
 interface ModActionFormModalPropsLock {
   modActionType: "lock-post" | "lock-comment";
-  onSubmit(reason: string): void;
   isLocked: boolean;
+  onSubmit: (reason: string) => void;
 }
 
 interface ModActionFormModalPropsRest {
@@ -61,7 +67,7 @@ interface ModActionFormModalPropsRest {
     | "report-message"
     | "purge-post"
     | "purge-comment";
-  onSubmit(reason: string): void;
+  onSubmit: (reason: string) => void;
 }
 
 type ModActionFormModalProps = (
@@ -72,21 +78,31 @@ type ModActionFormModalProps = (
   | ModActionFormModalPropsPurgeCommunity
   | ModActionFormModalPropsRemove
   | ModActionFormModalPropsLock
-) & { onCancel(): void; show: boolean; children?: InfernoNode };
+) & {
+  onCancel: () => void;
+  show: boolean;
+  loading: boolean;
+  children?: InfernoNode;
+};
 
 interface ModActionFormFormState {
-  loading: boolean;
   reason: string;
   daysUntilExpire?: number;
   shouldRemoveOrRestoreData?: boolean;
   shouldPermaBan?: boolean;
 }
 
-function handleReasonChange(i: ModActionFormModal, event: any) {
+function handleReasonChange(
+  i: ModActionFormModal,
+  event: FormEvent<HTMLInputElement>,
+) {
   i.setState({ reason: event.target.value });
 }
 
-function handleExpiryChange(i: ModActionFormModal, event: any) {
+function handleExpiryChange(
+  i: ModActionFormModal,
+  event: FormEvent<HTMLInputElement>,
+) {
   i.setState({ daysUntilExpire: parseInt(event.target.value, 10) });
 }
 
@@ -105,9 +121,11 @@ function handleTogglePermaBan(i: ModActionFormModal) {
   }));
 }
 
-function handleSubmit(i: ModActionFormModal, event: any) {
+function handleSubmit(
+  i: ModActionFormModal,
+  event: FormEvent<HTMLFormElement>,
+) {
   event.preventDefault();
-  i.setState({ loading: true });
 
   if (i.isBanModal) {
     i.props.onSubmit({
@@ -120,7 +138,6 @@ function handleSubmit(i: ModActionFormModal, event: any) {
   }
 
   i.setState({
-    loading: false,
     reason: "",
   });
 }
@@ -134,7 +151,6 @@ export default class ModActionFormModal extends Component<
   private reasonRef: RefObject<HTMLInputElement>;
   modal?: Modal;
   state: ModActionFormFormState = {
-    loading: false,
     reason: "",
   };
 
@@ -150,7 +166,6 @@ export default class ModActionFormModal extends Component<
 
   render() {
     const {
-      loading,
       reason,
       daysUntilExpire,
       shouldRemoveOrRestoreData,
@@ -158,7 +173,7 @@ export default class ModActionFormModal extends Component<
     } = this.state;
     const reasonId = `mod-form-reason-${randomStr()}`;
     const expiresId = `mod-form-expires-${randomStr()}`;
-    const { modActionType, onCancel } = this.props;
+    const { modActionType, onCancel, loading } = this.props;
 
     const formId = `mod-action-form-${randomStr()}`;
 

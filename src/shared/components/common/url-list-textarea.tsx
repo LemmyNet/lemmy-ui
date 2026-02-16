@@ -3,7 +3,7 @@ import { I18NextService } from "../../services/I18NextService";
 
 interface UrlListTextareaProps {
   urls: string[];
-  onUpdate(urls: string[]): void;
+  onUpdate: (urls: string[]) => void;
 }
 
 interface UrlListTextareaState {
