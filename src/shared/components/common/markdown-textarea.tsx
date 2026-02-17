@@ -86,9 +86,9 @@ export class MarkdownTextArea extends Component<
     previewMode: false,
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     if (isBrowser()) {
-      const tribute = setupTribute();
+      const tribute = await setupTribute();
       const textarea: HTMLTextAreaElement | null = document.getElementById(
         this.state.id,
       ) as HTMLTextAreaElement;
