@@ -508,8 +508,8 @@ export class AdminSettings extends Component<
                 </div>
                 <div className={dataCols}>{admin.person.post_count}</div>
                 <div className={dataCols}>{admin.person.comment_count}</div>
+                <hr />
               </div>
-              <hr />
             </>
           ))}
         </div>
@@ -614,8 +614,8 @@ export class AdminSettings extends Component<
                   <div className={dataCols}>
                     {local_user.person.comment_count}
                   </div>
+                  <hr />
                 </div>
-                <hr />
               </>
             ))}
             <PaginatorCursor

@@ -311,8 +311,8 @@ export function InstanceList({
                 new Date(i.instance.updated_at ?? i.instance.published_at),
               ) && " 💀"}
             </div>
+            <hr />
           </div>
-          <hr />
         </>
       ))}
     </div>
