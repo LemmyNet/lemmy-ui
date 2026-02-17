@@ -217,7 +217,6 @@ export class MarkdownTextArea extends Component<
                   )}
                   value={this.state.content}
                   onInput={e => handleContentChange(this, e)}
-                  onBlur={e => handleContentBlur(this, e)}
                   onPaste={e => handlePaste(this, e)}
                   onKeyDown={e => handleKeyBinds(this, e)}
                   required
@@ -551,10 +550,6 @@ function handleContentChange(
 ) {
   i.setState({ content: event.target.value });
   handleSubmitContentChange(i);
-}
-
-function handleContentBlur(i: MarkdownTextArea, event: any) {
-  i.props.onContentBlur?.(event.target.value);
 }
 
 // Keybind handler
