@@ -30,9 +30,9 @@ interface CommunityTagFormProps {
   createOrEditLoading: boolean;
   deleteOrRestoreLoading?: boolean;
   myUserInfo: MyUserInfo | undefined;
-  onCreate?(form: CreateCommunityTag): void;
-  onEdit?(form: EditCommunityTag): void;
-  onDeleteOrRestore?(form: DeleteCommunityTag): void;
+  onCreate?: (form: CreateCommunityTag) => void;
+  onEdit?: (form: EditCommunityTag) => void;
+  onDeleteOrRestore?: (form: DeleteCommunityTag) => void;
 }
 
 interface CommunityTagFormState {

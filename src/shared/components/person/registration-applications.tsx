@@ -134,7 +134,7 @@ export class RegistrationApplications extends Component<
 
   componentWillReceiveProps(
     nextProps: RegistrationApplicationsRouteProps & { children?: InfernoNode },
-  ): void {
+  ) {
     if (
       nextProps.view !== this.props.view ||
       nextProps.cursor !== this.props.cursor
@@ -236,7 +236,7 @@ export class RegistrationApplications extends Component<
     );
   }
 
-  static async fetchInitialData({
+  static fetchInitialData = async ({
     headers,
     match: {
       params: { view, cursor },
@@ -244,7 +244,7 @@ export class RegistrationApplications extends Component<
   }: InitialFetchRequest<
     Record<string, never>,
     RegistrationApplicationsProps
-  >): Promise<RegistrationApplicationsData> {
+  >): Promise<RegistrationApplicationsData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -257,7 +257,7 @@ export class RegistrationApplications extends Component<
           })
         : EMPTY_REQUEST,
     };
-  }
+  };
 
   refetchToken?: symbol;
   async refetch(props: RegistrationApplicationsProps) {

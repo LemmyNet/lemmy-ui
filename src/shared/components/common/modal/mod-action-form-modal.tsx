@@ -23,41 +23,41 @@ export interface BanUpdateForm {
 
 interface ModActionFormModalPropsSiteBan {
   modActionType: "site-ban";
-  onSubmit(form: BanUpdateForm): void;
   creator: Person;
   isBanned: boolean;
+  onSubmit: (form: BanUpdateForm) => void;
 }
 
 interface ModActionFormModalPropsCommunityBan {
   modActionType: "community-ban";
-  onSubmit(form: BanUpdateForm): void;
   creator: Person;
   community?: Community;
   isBanned: boolean;
+  onSubmit: (form: BanUpdateForm) => void;
 }
 
 interface ModActionFormModalPropsPurgePerson {
   modActionType: "purge-person";
-  onSubmit(reason: string): void;
   creator: Person;
+  onSubmit: (reason: string) => void;
 }
 
 interface ModActionFormModalPropsPurgeCommunity {
   modActionType: "purge-community";
-  onSubmit(reason: string): void;
   community: Community;
+  onSubmit: (reason: string) => void;
 }
 
 interface ModActionFormModalPropsRemove {
   modActionType: "remove-post" | "remove-comment" | "remove-community";
-  onSubmit(reason: string): void;
   isRemoved: boolean;
+  onSubmit: (reason: string) => void;
 }
 
 interface ModActionFormModalPropsLock {
   modActionType: "lock-post" | "lock-comment";
-  onSubmit(reason: string): void;
   isLocked: boolean;
+  onSubmit: (reason: string) => void;
 }
 
 interface ModActionFormModalPropsRest {
@@ -67,7 +67,7 @@ interface ModActionFormModalPropsRest {
     | "report-message"
     | "purge-post"
     | "purge-comment";
-  onSubmit(reason: string): void;
+  onSubmit: (reason: string) => void;
 }
 
 type ModActionFormModalProps = (
@@ -79,7 +79,7 @@ type ModActionFormModalProps = (
   | ModActionFormModalPropsRemove
   | ModActionFormModalPropsLock
 ) & {
-  onCancel(): void;
+  onCancel: () => void;
   show: boolean;
   loading: boolean;
   children?: InfernoNode;

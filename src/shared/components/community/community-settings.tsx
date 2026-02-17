@@ -172,10 +172,10 @@ export class CommunitySettings extends Component<RouteProps, State> {
     }
   }
 
-  static async fetchInitialData({
+  static fetchInitialData = async ({
     headers,
     match: { params: props },
-  }: InitialFetchRequest<PathProps, Props>): Promise<CommunitySettingsData> {
+  }: InitialFetchRequest<PathProps, Props>): Promise<CommunitySettingsData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -190,7 +190,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
     return {
       communityRes,
     };
-  }
+  };
 
   get documentTitle(): string {
     const cRes = this.state.communityRes;

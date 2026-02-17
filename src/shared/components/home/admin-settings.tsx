@@ -157,9 +157,9 @@ export class AdminSettings extends Component<
     }
   }
 
-  static async fetchInitialData({
+  static fetchInitialData = async ({
     headers,
-  }: InitialFetchRequest): Promise<AdminSettingsData> {
+  }: InitialFetchRequest): Promise<AdminSettingsData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -170,7 +170,7 @@ export class AdminSettings extends Component<
       taglinesRes: await client.listTaglines({ limit: fetchLimit }),
       emojisRes: await client.listCustomEmojis({}),
     };
-  }
+  };
 
   async componentWillMount() {
     if (isBrowser()) {

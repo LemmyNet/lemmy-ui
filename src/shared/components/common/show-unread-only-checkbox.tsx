@@ -2,7 +2,7 @@ import { FilterChipCheckbox } from "./filter-chip-checkbox";
 
 type ShowUnreadOnlyCheckboxProps = {
   isChecked: boolean;
-  onCheck(checked: boolean): void;
+  onCheck: (checked: boolean) => void;
   className?: string;
 };
 export function ShowUnreadOnlyCheckbox({

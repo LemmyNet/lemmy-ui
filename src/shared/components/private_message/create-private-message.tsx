@@ -85,10 +85,10 @@ export class CreatePrivateMessage extends Component<
     }
   }
 
-  static async fetchInitialData({
+  static fetchInitialData = async ({
     headers,
     match,
-  }: InitialFetchRequest<CreatePrivateMessagePathProps>): Promise<CreatePrivateMessageData> {
+  }: InitialFetchRequest<CreatePrivateMessagePathProps>): Promise<CreatePrivateMessageData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -101,7 +101,7 @@ export class CreatePrivateMessage extends Component<
     return {
       recipientDetailsResponse: await client.getPersonDetails(form),
     };
-  }
+  };
 
   async fetchPersonDetails() {
     this.setState({

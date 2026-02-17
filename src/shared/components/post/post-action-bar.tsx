@@ -59,29 +59,28 @@ type PostActionBarProps = {
   notificationRead?: boolean;
   markReadLoading: boolean;
   voteLoading: boolean;
-  onPostVote(form: CreatePostLike): void;
-  onScrollIntoCommentsClick(e: MouseEvent): void;
-  onViewSource(): void;
-  onMarkPostAsRead(form: MarkPostAsRead): void;
-  onEditClick(): void;
-  onPostVote(form: CreatePostLike): void;
-  onPostReport(form: CreatePostReport): void;
-  onBlockPerson(form: BlockPerson): void;
-  onBlockCommunity(form: BlockCommunity): void;
-  onLockPost(form: LockPost): void;
-  onDeletePost(form: DeletePost): void;
-  onRemovePost(form: RemovePost): void;
-  onSavePost(form: SavePost): void;
-  onFeaturePost(form: FeaturePost): void;
-  onPurgePerson(form: PurgePerson): void;
-  onPurgePost(form: PurgePost): void;
-  onBanPersonFromCommunity(form: BanFromCommunity): void;
-  onBanPerson(form: BanPerson): void;
-  onAddModToCommunity(form: AddModToCommunity): void;
-  onAddAdmin(form: AddAdmin): void;
-  onTransferCommunity(form: TransferCommunity): void;
-  onHidePost(form: HidePost): void;
-  onPersonNote(form: NotePerson): void;
+  onPostVote: (form: CreatePostLike) => void;
+  onScrollIntoCommentsClick: (e: MouseEvent) => void;
+  onViewSource: () => void;
+  onMarkPostAsRead: (form: MarkPostAsRead) => void;
+  onEditClick: () => void;
+  onPostReport: (form: CreatePostReport) => void;
+  onBlockPerson: (form: BlockPerson) => void;
+  onBlockCommunity: (form: BlockCommunity) => void;
+  onLockPost: (form: LockPost) => void;
+  onDeletePost: (form: DeletePost) => void;
+  onRemovePost: (form: RemovePost) => void;
+  onSavePost: (form: SavePost) => void;
+  onFeaturePost: (form: FeaturePost) => void;
+  onPurgePerson: (form: PurgePerson) => void;
+  onPurgePost: (form: PurgePost) => void;
+  onBanPersonFromCommunity: (form: BanFromCommunity) => void;
+  onBanPerson: (form: BanPerson) => void;
+  onAddModToCommunity: (form: AddModToCommunity) => void;
+  onAddAdmin: (form: AddAdmin) => void;
+  onTransferCommunity: (form: TransferCommunity) => void;
+  onHidePost: (form: HidePost) => void;
+  onPersonNote: (form: NotePerson) => void;
 };
 
 export function PostActionBar(props: PostActionBarProps, context: any) {
@@ -182,7 +181,7 @@ type CommentsButtonTextOrIcon = "text" | "icon";
 type CommentsButtonProps = {
   postView: PostView;
   type_: CommentsButtonTextOrIcon;
-  onScrollIntoCommentsClick(e: MouseEvent): void;
+  onScrollIntoCommentsClick: (e: MouseEvent) => void;
 };
 export function CommentsButton({
   postView,
@@ -227,7 +226,7 @@ type PostMarkReadButtonProps = {
   post: Post;
   read: boolean;
   loading: boolean;
-  onMarkRead(form: MarkPostAsRead): void;
+  onMarkRead: (form: MarkPostAsRead) => void;
 };
 function PostMarkReadButton({
   post,

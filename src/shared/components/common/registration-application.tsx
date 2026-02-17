@@ -15,7 +15,7 @@ import { MomentTime } from "./moment-time";
 interface RegistrationApplicationProps {
   application: RegistrationApplicationView;
   myUserInfo: MyUserInfo | undefined;
-  onApproveApplication(form: ApproveRegistrationApplication): void;
+  onApproveApplication: (form: ApproveRegistrationApplication) => void;
   loading: boolean;
 }
 
@@ -37,7 +37,7 @@ export class RegistrationApplication extends Component<
     nextProps: Readonly<
       { children?: InfernoNode } & RegistrationApplicationProps
     >,
-  ): void {
+  ) {
     if (this.props !== nextProps) {
       this.setState({
         denyExpanded: false,

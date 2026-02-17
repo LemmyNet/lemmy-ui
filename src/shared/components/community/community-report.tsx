@@ -17,7 +17,7 @@ interface Props {
   report: CommunityReportView;
   myUserInfo: MyUserInfo | undefined;
   loading: boolean;
-  onResolveReport(form: ResolveCommunityReport): void;
+  onResolveReport: (form: ResolveCommunityReport) => void;
 }
 
 const reportElements = [

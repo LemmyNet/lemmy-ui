@@ -12,7 +12,7 @@ interface PendingFollowProps {
   pending_follow: PendingFollowView;
   myUserInfo: MyUserInfo | undefined;
   loading: boolean;
-  onApproveFollower(form: ApproveCommunityPendingFollower): void;
+  onApproveFollower: (form: ApproveCommunityPendingFollower) => void;
 }
 
 export function PendingFollow(props: PendingFollowProps) {

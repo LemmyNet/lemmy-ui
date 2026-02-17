@@ -592,7 +592,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     ]);
   }
 
-  static async fetchInitialData({
+  static test: (t: boolean) => 52;
+
+  static fetchInitialData = async ({
     headers,
     query: {
       q: query,
@@ -605,7 +607,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       creatorId: creator_id,
       cursor,
     },
-  }: InitialFetchRequest<SearchPathProps, SearchProps>): Promise<SearchData> {
+  }: InitialFetchRequest<
+    SearchPathProps,
+    SearchProps
+  >): Promise<SearchData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -659,7 +664,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       listCommunitiesResponse,
       searchResponse,
     };
-  }
+  };
 
   get getNextPage(): PaginationCursor | undefined {
     const { searchRes: res } = this.state;

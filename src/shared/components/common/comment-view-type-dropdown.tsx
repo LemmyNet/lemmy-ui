@@ -8,7 +8,7 @@ const options: FilterOption<CommentViewType>[] = [
 
 type CommentViewTypeDropdownProps = {
   currentOption: CommentViewType;
-  onSelect(val: CommentViewType): void;
+  onSelect: (val: CommentViewType) => void;
   className?: string;
 };
 export function CommentViewTypeDropdown({

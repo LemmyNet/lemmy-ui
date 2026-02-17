@@ -57,7 +57,6 @@ export default [
       "@typescript-eslint/no-unsafe-member-access": 0,
       "@typescript-eslint/no-unsafe-argument": 0,
       "@typescript-eslint/no-unsafe-return": 0,
-      "@typescript-eslint/unbound-method": 0,
       // TODO: the following is caused by calling async functions from sync functions
       "@typescript-eslint/no-misused-promises": 0,
       "@typescript-eslint/no-floating-promises": 0,

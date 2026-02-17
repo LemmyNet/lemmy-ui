@@ -28,14 +28,14 @@ interface LoginProps {
   prev?: string;
 }
 
-export function getLoginQueryParams(source?: string): LoginProps {
+export const getLoginQueryParams = (source?: string): LoginProps => {
   return getQueryParams<LoginProps>(
     {
       prev: (param?: string) => param,
     },
     source,
   );
-}
+};
 
 interface State {
   loginRes: RequestState<LoginResponse>;

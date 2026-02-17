@@ -120,13 +120,13 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
     }
   }
 
-  static async fetchInitialData({
+  static fetchInitialData = async ({
     headers,
     match: { params: props },
   }: InitialFetchRequest<
     PathProps,
     Props
-  >): Promise<MultiCommunitySettingsData> {
+  >): Promise<MultiCommunitySettingsData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
@@ -141,7 +141,7 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
     return {
       multiCommunityRes: multiRes,
     };
-  }
+  };
 
   get documentTitle(): string {
     const cRes = this.state.multiRes;

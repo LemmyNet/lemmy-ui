@@ -47,7 +47,7 @@ export class Theme extends Component<Props, State> {
     }
   };
 
-  componentWillUnmount(): void {
+  componentWillUnmount() {
     if (isBrowser()) {
       window.removeEventListener("refresh-theme", this.eventListener);
       this.lightQuery?.removeEventListener("change", this.eventListener);
