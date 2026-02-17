@@ -867,12 +867,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-3">
-        <div className="col">
-          <PostOrCommentTypeDropdown
-            currentOption={postOrCommentType}
-            onSelect={val => handlePostOrCommentTypeChange(this, val)}
-          />
-        </div>
         {/* Only show these two selects on mobile */}
         {this.hasFollows && (
           <div className="d-block d-md-none col">
@@ -888,6 +882,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             option="show_sidebar"
             isChecked={showSidebarMobile}
             onCheck={show => handleShowSidebarMobile(this, show)}
+          />
+        </div>
+        <div className="col">
+          <PostOrCommentTypeDropdown
+            currentOption={postOrCommentType}
+            onSelect={val => handlePostOrCommentTypeChange(this, val)}
           />
         </div>
         {postOrCommentType === "post" && this.isoData.myUserInfo && (

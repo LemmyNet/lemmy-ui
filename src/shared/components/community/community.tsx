@@ -756,17 +756,17 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-3">
-        <div className="col">
-          <PostOrCommentTypeDropdown
-            currentOption={postOrCommentType}
-            onSelect={val => handlePostOrCommentTypeChange(this, val)}
-          />
-        </div>
         <div className="d-block d-md-none col">
           <FilterChipCheckbox
             option="show_sidebar"
             isChecked={showSidebarMobile}
             onCheck={show => handleShowSidebarMobile(this, show)}
+          />
+        </div>
+        <div className="col">
+          <PostOrCommentTypeDropdown
+            currentOption={postOrCommentType}
+            onSelect={val => handlePostOrCommentTypeChange(this, val)}
           />
         </div>
         {postOrCommentType === "post" && myUserInfo && (
