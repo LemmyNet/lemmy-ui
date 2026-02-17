@@ -1,5 +1,5 @@
 import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
-import { Component, createRef } from "inferno";
+import { Component, createRef, InfernoMouseEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
 import { IsoDataOptionalSite } from "@utils/types";
@@ -19,7 +19,10 @@ import { Locale, setDefaultOptions } from "date-fns";
 import { i18n } from "i18next";
 import { setupEmojiDataModel } from "@utils/markdown";
 
-function handleJumpToContent(app: App, event: Event) {
+function handleJumpToContent(
+  app: App,
+  event: InfernoMouseEvent<HTMLButtonElement>,
+) {
   event.preventDefault();
   app.contentRef.current?.focus();
 }

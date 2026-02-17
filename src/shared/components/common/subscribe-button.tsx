@@ -103,7 +103,7 @@ function handleInput(i: RemoteFetchModal, event: any) {
 
 function submitRemoteFollow(
   { state: { instanceText }, props: { apId } }: RemoteFetchModal,
-  event: Event,
+  event: { preventDefault: () => void },
 ) {
   event.preventDefault();
   instanceText = instanceText.trim();

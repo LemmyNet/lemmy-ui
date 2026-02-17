@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, FormEventHandler } from "inferno";
+import { Component, FormEvent, FormEventHandler } from "inferno";
 import { EditSite, LocalSiteRateLimit } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
@@ -103,7 +103,10 @@ function handleIntervalSecondsChange(
   }));
 }
 
-function submitRateLimitForm(i: RateLimitsForm, event: Event) {
+function submitRateLimitForm(
+  i: RateLimitsForm,
+  event: FormEvent<HTMLFormElement>,
+) {
   event.preventDefault();
   const form: EditSite = Object.entries(i.state.form).reduce(
     (acc, [key, val]) => {

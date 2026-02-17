@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter, validEmail } from "@utils/helpers";
-import { Component } from "inferno";
+import { Component, FormEvent, InfernoMouseEvent } from "inferno";
 import { HttpService, I18NextService } from "../../services";
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
@@ -107,16 +107,14 @@ export class LoginReset extends Component<
     );
   }
 
-  handleEmailInputChange(i: LoginReset, event: Event) {
-    i.setState(
-      s => (
-        (s.form.email = (event.target as HTMLInputElement).value.trim()),
-        s
-      ),
-    );
+  handleEmailInputChange(i: LoginReset, event: FormEvent<HTMLInputElement>) {
+    i.setState(s => ((s.form.email = event.target.value.trim()), s));
   }
 
-  async handlePasswordReset(i: LoginReset, event: Event) {
+  async handlePasswordReset(
+    i: LoginReset,
+    event: InfernoMouseEvent<HTMLButtonElement> | FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
     const email = i.state.form.email;

@@ -23,6 +23,7 @@ import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 import ProgressBar from "./progress-bar";
 import { validURL } from "@utils/helpers";
+
 interface MarkdownTextAreaProps {
   /**
    * Initial content inside the textarea
@@ -432,7 +433,10 @@ function handleUrlPaste(
   }
 }
 
-function handleImageUpload(i: MarkdownTextArea, event: Event | File) {
+function handleImageUpload(
+  i: MarkdownTextArea,
+  event: File | FormEvent<HTMLInputElement>,
+) {
   const files: File[] = [];
   if (event instanceof Event && event.target) {
     event.preventDefault();
@@ -609,7 +613,7 @@ function handleLanguageChange(i: MarkdownTextArea, val: number[]) {
   i.setState({ languageId: val[0] });
 }
 
-function handleSubmit(i: MarkdownTextArea, event: Event) {
+function handleSubmit(i: MarkdownTextArea, event: KeyboardEvent) {
   event.preventDefault();
   if (i.state.content) {
     i.props.onSubmit?.(i.state.content, i.state.languageId);

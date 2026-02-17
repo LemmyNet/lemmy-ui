@@ -666,7 +666,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   onCreateComment={form =>
                     handleCreateToplevelComment(this, form)
                   }
-              onEditComment={() => { }}
+                  onEditComment={() => {}}
                   loading={itemLoading(this.state.createCommentRes) === 0}
                 />
               )}
@@ -802,7 +802,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
-            onMarkRead={async () => { }}
+            onMarkRead={async () => {}}
           />
         </div>
       );
@@ -935,7 +935,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
-            onMarkRead={async () => { }}
+            onMarkRead={async () => {}}
           />
         </div>
       )

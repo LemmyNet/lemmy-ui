@@ -20,7 +20,8 @@ import markdown_it_sup from "markdown-it-sup";
 import markdown_it_highlightjs from "markdown-it-highlightjs/core";
 import { getStaticDir } from "./env";
 import mila from "markdown-it-link-attributes";
-import Tribute from "tributejs";
+
+let Tribute: any;
 
 export let md: MarkdownIt = new MarkdownIt();
 
@@ -299,8 +300,12 @@ export function getEmojiMart(
   };
   return new Picker(pickerOptions);
 }
-
-export function setupTribute(): Tribute<object> {
+export async function setupTribute() {
+  // eslint-disable-next-line eqeqeq
+  if (Tribute == null) {
+    console.debug("Tribute is null, importing...");
+    Tribute = (await import("tributejs")).default;
+  }
   return new Tribute({
     noMatchTemplate: function () {
       return "";

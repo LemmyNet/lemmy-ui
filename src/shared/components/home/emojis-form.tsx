@@ -297,7 +297,10 @@ function handleSubmitEmoji(
   }
 }
 
-function handleImageUpload(i: EmojiForm, event: Event | File) {
+function handleImageUpload(
+  i: EmojiForm,
+  event: FormEvent<HTMLInputElement> | File | undefined,
+) {
   let file: File | undefined = undefined;
   if (event instanceof Event && event.target) {
     event.preventDefault();

@@ -7,7 +7,7 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component } from "inferno";
+import { Component, FormEvent } from "inferno";
 import {
   LemmyHttp,
   ListMultiCommunities,
@@ -358,7 +358,10 @@ function handleSearchChange(i: MultiCommunities, event: any) {
   i.setState({ searchText: event.target.value });
 }
 
-function handleSearchSubmit(i: MultiCommunities, event: Event) {
+function handleSearchSubmit(
+  i: MultiCommunities,
+  event: FormEvent<HTMLFormElement>,
+) {
   event.preventDefault();
   const searchParamEncoded = i.state.searchText;
   const { listingType } = i.props;

@@ -1926,10 +1926,12 @@ async function handleChangePasswordSubmit(
   }
 }
 
-function handleImportFileChange(i: Settings, event: Event) {
+function handleImportFileChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
   i.setState({
-    settingsFile:
-      (event.target as HTMLInputElement).files?.item(0) ?? undefined,
+    settingsFile: event.target.files?.item(0) ?? undefined,
   });
 }
 
@@ -2063,7 +2065,10 @@ function handleDeleteAccountPasswordChange(
   i.setState(s => ((s.deleteAccountForm.password = event.target.value), s));
 }
 
-async function handleDeleteAccount(i: Settings, event: Event) {
+async function handleDeleteAccount(
+  i: Settings,
+  event: FormEvent<HTMLFormElement>,
+) {
   event.preventDefault();
   const password = i.state.deleteAccountForm.password;
   if (password) {

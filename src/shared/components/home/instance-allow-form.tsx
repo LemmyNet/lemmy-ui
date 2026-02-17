@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component, InfernoMouseEvent } from "inferno";
 import { AdminAllowInstanceParams } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { randomStr, validInstanceTLD } from "@utils/helpers";
@@ -99,7 +99,10 @@ export class InstanceAllowForm extends Component<Props, State> {
     });
   }
 
-  handleSubmit(i: InstanceAllowForm, event: Event) {
+  handleSubmit(
+    i: InstanceAllowForm,
+    event: InfernoMouseEvent<HTMLButtonElement>,
+  ) {
     event.preventDefault();
 
     const form = i.state.form;

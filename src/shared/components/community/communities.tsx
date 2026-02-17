@@ -7,7 +7,7 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component } from "inferno";
+import { Component, FormEvent } from "inferno";
 import {
   CommunityResponse,
   CommunitySortType,
@@ -393,11 +393,14 @@ function handleListingTypeChange(i: Communities, val: ListingType) {
   });
 }
 
-function handleSearchChange(i: Communities, event: Event) {
+function handleSearchChange(
+  i: Communities,
+  event: FormEvent<HTMLInputElement>,
+) {
   i.setState({ searchText: (event.target as HTMLInputElement).value });
 }
 
-function handleSearchSubmit(i: Communities, event: Event) {
+function handleSearchSubmit(i: Communities, event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
   const searchParamEncoded = i.state.searchText;
   const { listingType } = i.props;
