@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component, FocusEvent, FormEvent } from "inferno";
 import { I18NextService } from "../../services/I18NextService";
 
 interface Props {
@@ -10,11 +10,17 @@ interface State {
   text: string;
 }
 
-function handleTextChange(i: BlockingKeywordsTextArea, event: any) {
+function handleTextChange(
+  i: BlockingKeywordsTextArea,
+  event: FormEvent<HTMLTextAreaElement>,
+) {
   i.setState({ text: event.target.value });
 }
 
-function handleTextBlur(i: BlockingKeywordsTextArea, _event: any) {
+function handleTextBlur(
+  i: BlockingKeywordsTextArea,
+  _event: FocusEvent<HTMLTextAreaElement>,
+) {
   const keywords = fromText(i.state.text);
   i.props.onUpdate(keywords);
 }

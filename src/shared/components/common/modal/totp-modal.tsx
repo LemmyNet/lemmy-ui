@@ -1,5 +1,6 @@
 import {
   Component,
+  FormEvent,
   InfernoNode,
   MouseEventHandler,
   RefObject,
@@ -39,11 +40,7 @@ async function handleSubmit(i: TotpModal, totp: string) {
   }
 }
 
-function handleInput(i: TotpModal, event: any) {
-  if (isNaN(event.target.value)) {
-    return;
-  }
-
+function handleInput(i: TotpModal, event: FormEvent<HTMLInputElement>) {
   i.setState({
     totp: event.target.value,
   });

@@ -152,7 +152,10 @@ export class LanguageSelect extends Component<
     );
   }
 
-  handleSelectLanguageChange(i: LanguageSelect, event: any) {
+  handleSelectLanguageChange(
+    i: LanguageSelect,
+    event: FormEvent<HTMLButtonElement>,
+  ) {
     const options: HTMLOptionElement[] = Array.from(event.target.options);
     const selected: number[] = options
       .filter(o => o.selected)

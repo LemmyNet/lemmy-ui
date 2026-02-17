@@ -354,7 +354,10 @@ function handleListingTypeChange(
   });
 }
 
-function handleSearchChange(i: MultiCommunities, event: any) {
+function handleSearchChange(
+  i: MultiCommunities,
+  event: FormEvent<HTMLInputElement>,
+) {
   i.setState({ searchText: event.target.value });
 }
 
