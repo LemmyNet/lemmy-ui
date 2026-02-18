@@ -45,6 +45,7 @@ export async function createSsrHtml(
   }.css" />`;
 
   const customHtmlHeaderScriptTag = new RegExp("<script", "g");
+
   const customHtmlHeaderWithNonce = customHtmlHeader.replace(
     customHtmlHeaderScriptTag,
     `<script nonce="${cspNonce}"`,
@@ -88,17 +89,29 @@ export async function createSsrHtml(
       )
     : "";
 
-  const helmet = Helmet.renderStatic();
-
   const lazyScripts = findLanguageChunkNames(languages, interfaceLanguage)
     .filter(x => x !== undefined)
     .map(x => `${getStaticDir()}/js/${x}.client.js`)
     .map(x => `<link rel="preload" as="script" href="${x}" />`)
     .join("");
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const helmet = Helmet.renderStatic();
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const helmetAttr = helmet.htmlAttributes.toString();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const helmetTitle = helmet.title.toString();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const helmetMeta = helmet.meta.toString();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const helmetLink = helmet.link.toString();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const helmetBodyAttr = helmet.bodyAttributes.toString();
+
   return `
     <!DOCTYPE html>
-    <html ${helmet.htmlAttributes.toString()}>
+    <html ${helmetAttr}>
     <head>
     <script nonce="${cspNonce}">
     window.isoData = ${serialize(isoData)};
@@ -113,8 +126,8 @@ export async function createSsrHtml(
     <!-- Custom injected script -->
     ${customHtmlHeaderWithNonce}
   
-    ${helmet.title.toString()}
-    ${helmet.meta.toString()}
+    ${helmetTitle}
+    ${helmetMeta}
   
     <style>
     #app[data-adult-consent] {
@@ -147,11 +160,11 @@ export async function createSsrHtml(
     <link rel="stylesheet" type="text/css" href="${getStaticDir()}/styles/styles.css" />
   
     <!-- Current theme and more -->
-    ${helmet.link.toString() || fallbackTheme}
+    ${helmetLink || fallbackTheme}
     
     </head>
   
-    <body ${helmet.bodyAttributes.toString()}>
+    <body ${helmetBodyAttr}>
       <noscript>
         <div class="alert alert-danger rounded-0" role="alert">
           <b>Javascript is disabled. Actions will not work.</b>

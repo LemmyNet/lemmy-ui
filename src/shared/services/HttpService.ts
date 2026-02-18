@@ -56,6 +56,7 @@ class WrappedLemmyHttpClient {
       if (key !== "constructor") {
         this[key] = async (...args: any[]) => {
           try {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const res = await this.rawClient[key](...args);
 
             return {

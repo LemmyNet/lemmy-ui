@@ -373,7 +373,7 @@ function handleTextPropertyChange(
     modal: CreateOrEditOAuthProviderModal;
     property: Exclude<keyof CreateOAuthProvider, ProviderBooleanProperties>;
   },
-  event: any,
+  event: FormEvent<HTMLInputElement>,
 ) {
   modal.setState(prevState => ({
     changed: true,

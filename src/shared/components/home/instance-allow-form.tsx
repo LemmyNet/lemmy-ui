@@ -1,4 +1,4 @@
-import { Component, InfernoMouseEvent } from "inferno";
+import { Component, FormEvent, InfernoMouseEvent } from "inferno";
 import { AdminAllowInstanceParams } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { randomStr, validInstanceTLD } from "@utils/helpers";
@@ -85,14 +85,17 @@ export class InstanceAllowForm extends Component<Props, State> {
     );
   }
 
-  handleDomainTextChange(i: InstanceAllowForm, event: any) {
+  handleDomainTextChange(
+    i: InstanceAllowForm,
+    event: FormEvent<HTMLInputElement>,
+  ) {
     i.setState({
       form: { ...i.state.form, instance: event.target.value },
       bypassNavWarning: false,
     });
   }
 
-  handleReasonChange(i: InstanceAllowForm, event: any) {
+  handleReasonChange(i: InstanceAllowForm, event: FormEvent<HTMLInputElement>) {
     i.setState({
       form: { ...i.state.form, reason: event.target.value },
       bypassNavWarning: false,

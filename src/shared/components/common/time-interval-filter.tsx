@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component, FormEvent } from "inferno";
 import { I18NextService } from "../../services";
 import { NoOptionI18nKeys } from "i18next";
 
@@ -101,7 +101,10 @@ export class TimeIntervalFilter extends Component<Props, State> {
   }
 }
 
-function handleTimeIntervalNumChange(i: TimeIntervalFilter, event: any) {
+function handleTimeIntervalNumChange(
+  i: TimeIntervalFilter,
+  event: FormEvent<HTMLInputElement>,
+) {
   const interval = {
     num: Number(event.target.value),
     unit: i.state.interval.unit,

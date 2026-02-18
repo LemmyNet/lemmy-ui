@@ -21,8 +21,6 @@ import markdown_it_highlightjs from "markdown-it-highlightjs/core";
 import { getStaticDir } from "./env";
 import mila from "markdown-it-link-attributes";
 
-let Tribute: any;
-
 export let md: MarkdownIt = new MarkdownIt();
 
 export let mdNoImages: MarkdownIt = new MarkdownIt();
@@ -300,12 +298,10 @@ export function getEmojiMart(
   };
   return new Picker(pickerOptions);
 }
+
 export async function setupTribute() {
-  // eslint-disable-next-line eqeqeq
-  if (Tribute == null) {
-    console.debug("Tribute is null, importing...");
-    Tribute = (await import("tributejs")).default;
-  }
+  const Tribute = (await import("tributejs")).default;
+
   return new Tribute({
     noMatchTemplate: function () {
       return "";
@@ -349,7 +345,7 @@ export async function setupTribute() {
           const it: PersonTribute = item.original;
           return it.key;
         },
-        values: debounce(async (text: string, cb: any) => {
+        values: debounce(async (text: string, cb) => {
           cb(await personSearch(text));
         }),
         allowSpaces: false,
@@ -366,7 +362,7 @@ export async function setupTribute() {
           const it: CommunityTribute = item.original;
           return it.key;
         },
-        values: debounce(async (text: string, cb: any) => {
+        values: debounce(async (text: string, cb) => {
           cb(await communitySearch(text));
         }),
         allowSpaces: false,
