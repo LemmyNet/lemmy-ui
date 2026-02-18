@@ -787,11 +787,11 @@ export class AdminSettings extends Component<
               showRemove={["blocked", "allowed"].includes(
                 this.state.instancesKind,
               )}
-              onRemove={instance => {
+              onRemove={async instance => {
                 if (this.state.instancesKind === "blocked") {
-                  handleInstanceBlockRemove(this, instance);
+                  await handleInstanceBlockRemove(this, instance);
                 } else if (this.state.instancesKind === "allowed") {
-                  handleInstanceAllowRemove(this, instance);
+                  await handleInstanceAllowRemove(this, instance);
                 }
               }}
             />

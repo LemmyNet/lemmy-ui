@@ -480,8 +480,8 @@ export function isPostBlocked(
 /**
  * Warning, do not use this in fetchInitialData
  */
-export function myAuth(): string | undefined {
-  return UserService.Instance.auth();
+export async function myAuth(): Promise<string | undefined> {
+  return (await UserService.getInstance()).auth();
 }
 
 export function newVoteIsUpvote(
@@ -631,11 +631,11 @@ export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   } else return context.router.staticContext;
 }
 
-export function updateMyUserInfo(myUserInfo: MyUserInfo | undefined) {
+export async function updateMyUserInfo(myUserInfo: MyUserInfo | undefined) {
   if (isBrowser()) {
     if (window.isoData) {
       window.isoData.myUserInfo = myUserInfo;
-      UnreadCounterService.Instance.configure(myUserInfo);
+      await UnreadCounterService.Instance.configure(myUserInfo);
     }
   }
 }

@@ -197,8 +197,8 @@ export class Notifications extends Component<
     }
   }
 
-  render() {
-    const auth = myAuth();
+  async render() {
+    const auth = await myAuth();
     const notifsRss = auth ? notificationsRSSUrl(auth) : undefined;
     return (
       <div className="notifications container-lg">
@@ -482,7 +482,7 @@ export class Notifications extends Component<
           });
         }
       });
-    UnreadCounterService.Instance.updateUnreadCounts();
+    await UnreadCounterService.Instance.updateUnreadCounts();
   }
 
   findAndUpdateMessage(res: RequestState<PrivateMessageResponse>) {

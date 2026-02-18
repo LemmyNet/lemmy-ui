@@ -312,9 +312,9 @@ function crossPostBody(
   return bodyOut;
 }
 
-function handleShare(post: Post, isoData: IsoDataOptionalSite) {
+async function handleShare(post: Post, isoData: IsoDataOptionalSite) {
   const { name, body, id } = post;
-  share({
+  await share({
     title: name,
     text: body?.slice(0, 50),
     url: httpFrontendUrl(`/post/${id}`, isoData),

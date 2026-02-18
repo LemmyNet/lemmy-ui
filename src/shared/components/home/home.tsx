@@ -152,7 +152,7 @@ type HomeData = RouteDataResponse<{
   commentsRes: PagedResponse<CommentView>;
 }>;
 
-function getRss(listingType: ListingType, sort: PostSortType) {
+async function getRss(listingType: ListingType, sort: PostSortType) {
   let rss: string | undefined = undefined;
 
   const queryString = getQueryString({ sort });
@@ -166,7 +166,7 @@ function getRss(listingType: ListingType, sort: PostSortType) {
       break;
     }
     case "subscribed": {
-      const auth = myAuth();
+      const auth = await myAuth();
       rss = auth ? subscribedRSSUrl(auth, queryString) : undefined;
       break;
     }
@@ -342,10 +342,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: HomeRouteProps & { children?: InfernoNode },
   ) {
-    this.fetchData(nextProps);
+    await this.fetchData(nextProps);
   }
 
   static fetchInitialData = async ({

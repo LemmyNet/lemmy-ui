@@ -380,13 +380,13 @@ function handleEmoji(i: MarkdownTextArea, e: any) {
   handleInsertAtCursor(i, value);
 }
 
-function handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
+async function handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
   if (!event.clipboardData) return;
 
   // check clipboard files
   const image = event.clipboardData.files[0];
   if (image) {
-    handleImageUpload(i, image);
+    await handleImageUpload(i, image);
     return;
   }
 
@@ -430,7 +430,7 @@ function handleUrlPaste(
   }
 }
 
-function handleImageUpload(i: MarkdownTextArea, event: any) {
+async function handleImageUpload(i: MarkdownTextArea, event: any) {
   const files: File[] = [];
   if (event.target) {
     event.preventDefault();
@@ -452,7 +452,7 @@ function handleImageUpload(i: MarkdownTextArea, event: any) {
       imageUploadStatus: { total: files.length, uploaded: 0 },
     });
 
-    handleUploadImages(i, files).then(() => {
+    await handleUploadImages(i, files).then(() => {
       i.setState({ imageUploadStatus: undefined });
     });
   }

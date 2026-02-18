@@ -49,11 +49,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     unreadPendingFollowsCount: 0,
   };
 
-  componentWillMount() {
+  async componentWillMount() {
     // Subscribe to jwt changes
     if (isBrowser()) {
       // On the first load, check the unreads
-      UnreadCounterService.Instance.configure(this.props.myUserInfo);
+      await UnreadCounterService.Instance.configure(this.props.myUserInfo);
       this.unreadNotifsCountSubscription =
         UnreadCounterService.Instance.notificationCount.subscribe(
           unreadNotifsCount => this.setState({ unreadNotifsCount }),
@@ -489,8 +489,8 @@ function handleCollapseClick(i: Navbar) {
   }
 }
 
-function handleLogOut(i: Navbar) {
-  UserService.Instance.logout();
+async function handleLogOut(i: Navbar) {
+  await (await UserService.getInstance()).logout();
   handleCollapseClick(i);
 }
 

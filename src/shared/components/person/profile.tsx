@@ -388,7 +388,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: ProfileRouteProps) {
+  async componentWillReceiveProps(nextProps: ProfileRouteProps) {
     const reload = bareRoutePush(this.props, nextProps);
 
     const newUsername =
@@ -402,7 +402,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       newUsername ||
       reload
     ) {
-      this.fetchUserData(nextProps, reload || newUsername);
+      await this.fetchUserData(nextProps, reload || newUsername);
     }
   }
 
@@ -1458,7 +1458,7 @@ function handleModBanSubmitCancel(i: Profile) {
   i.setState({ showBanDialog: false });
 }
 
-function handleRegistrationShow(i: Profile) {
+async function handleRegistrationShow(i: Profile) {
   if (i.state.registrationRes.state !== "success") {
     i.setState({ registrationRes: LOADING_REQUEST });
   }
@@ -1466,7 +1466,7 @@ function handleRegistrationShow(i: Profile) {
   i.setState({ showRegistrationDialog: true });
 
   if (i.state.personRes.state === "success") {
-    HttpService.client
+    await HttpService.client
       .getRegistrationApplication({
         person_id: i.state.personRes.data.person_view.person.id,
       })
@@ -1530,20 +1530,20 @@ async function handleToggleBlockPerson(
   }
 }
 
-function handleUnblockPerson(
+async function handleUnblockPerson(
   i: Profile,
   personId: number,
   myUserInfo: MyUserInfo | undefined,
 ) {
-  handleToggleBlockPerson(i, personId, false, myUserInfo);
+  await handleToggleBlockPerson(i, personId, false, myUserInfo);
 }
 
-function handleBlockPerson(
+async function handleBlockPerson(
   i: Profile,
   personId: number,
   myUserInfo: MyUserInfo | undefined,
 ) {
-  handleToggleBlockPerson(i, personId, true, myUserInfo);
+  await handleToggleBlockPerson(i, personId, true, myUserInfo);
 }
 
 async function handleAddModToCommunity(form: AddModToCommunity) {

@@ -337,9 +337,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     // In case `interface_language` change wasn't saved.
-    I18NextService.reconfigure(
+    await I18NextService.reconfigure(
       window.navigator.languages,
       this.isoData.myUserInfo?.local_user_view.local_user.interface_language,
     );
@@ -1540,7 +1540,7 @@ async function handleBlockCommunity(i: Settings, { value }: Choice) {
 
 async function handleUnblockCommunity(i: Settings, communityId: CommunityId) {
   const block = false;
-  if (myAuth()) {
+  if (await myAuth()) {
     const res = await HttpService.client.blockCommunity({
       community_id: communityId,
       block,
@@ -1734,8 +1734,8 @@ function handleThemeChange(i: Settings, theme: string) {
   setThemeOverride(theme);
 }
 
-function handleInterfaceLangChange(i: Settings, newLang: string) {
-  I18NextService.reconfigure(navigator.languages, newLang);
+async function handleInterfaceLangChange(i: Settings, newLang: string) {
+  await I18NextService.reconfigure(navigator.languages, newLang);
 
   i.setState(s => ((s.saveUserSettingsForm.interface_language = newLang), s));
 }
@@ -1879,8 +1879,8 @@ async function handleSaveSettingsSubmit(
         siteRes: siteRes.data,
       });
 
-      updateMyUserInfo(userRes.data);
-      I18NextService.reconfigure(
+      await updateMyUserInfo(userRes.data);
+      await I18NextService.reconfigure(
         window.navigator.languages,
         userRes.data.local_user_view.local_user.interface_language,
       );
@@ -1999,7 +1999,7 @@ async function handleImportSettings(i: Settings) {
         },
       } = userRes.data.local_user_view;
 
-      updateMyUserInfo(userRes.data);
+      await updateMyUserInfo(userRes.data);
       refreshTheme();
 
       i.setState(prev => ({
@@ -2069,7 +2069,7 @@ async function handleDeleteAccount(i: Settings, event: Event) {
       delete_content: i.state.deleteAccountForm.delete_content || false,
     });
     if (deleteAccountRes.state === "success") {
-      UserService.Instance.logout();
+      await (await UserService.getInstance()).logout();
       i.context.router.history.replace("/");
     }
 

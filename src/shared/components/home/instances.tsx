@@ -116,8 +116,8 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: InstancesRouteProps) {
-    this.fetchInstances(nextProps);
+  async componentWillReceiveProps(nextProps: InstancesRouteProps) {
+    await this.fetchInstances(nextProps);
   }
 
   async fetchInstances(props: InstancesProps) {

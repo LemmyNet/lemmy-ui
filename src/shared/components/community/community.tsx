@@ -298,16 +298,16 @@ export class Community extends Component<CommunityRouteProps, State> {
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: CommunityRouteProps & { children?: InfernoNode },
   ) {
     if (
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      this.fetchCommunity(nextProps);
+      await this.fetchCommunity(nextProps);
     }
-    this.fetchData(nextProps);
+    await this.fetchData(nextProps);
   }
 
   static fetchInitialData = async ({

@@ -23,11 +23,9 @@ export class UserService {
   static #instance: UserService;
   public authInfo?: AuthInfo;
 
-  private constructor() {
-    this.#setAuthInfo();
-  }
+  private constructor() {}
 
-  public login({
+  public async login({
     res,
     showToast = true,
   }: {
@@ -39,7 +37,7 @@ export class UserService {
         toast(I18NextService.i18n.t("logged_in"));
       }
       setAuthCookie(res.jwt);
-      this.#setAuthInfo();
+      await this.#setAuthInfo();
     }
   }
 
@@ -90,7 +88,11 @@ export class UserService {
     }
   }
 
-  public static get Instance() {
-    return this.#instance || (this.#instance = new this());
+  public static async getInstance() {
+    if (!this.#instance) {
+      this.#instance = new this();
+      await this.#instance.#setAuthInfo();
+    }
+    return this.#instance;
   }
 }

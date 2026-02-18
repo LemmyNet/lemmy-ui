@@ -134,14 +134,14 @@ export class PendingFollows extends Component<
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: PendingFollowsRouteProps & { children?: InfernoNode },
   ) {
     if (
       nextProps.viewState !== this.props.viewState ||
       nextProps.cursor !== this.props.cursor
     ) {
-      this.refetch(nextProps);
+      await this.refetch(nextProps);
     }
   }
 

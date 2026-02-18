@@ -700,19 +700,19 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: ModlogRouteProps) {
-    this.fetchModlog(nextProps);
+  async componentWillReceiveProps(nextProps: ModlogRouteProps) {
+    await this.fetchModlog(nextProps);
 
     const reload = bareRoutePush(this.props, nextProps);
 
     if (nextProps.modId !== this.props.modId || reload) {
-      this.fetchMod(nextProps);
+      await this.fetchMod(nextProps);
     }
     if (nextProps.userId !== this.props.userId || reload) {
-      this.fetchUser(nextProps);
+      await this.fetchUser(nextProps);
     }
     if (nextProps.communityId !== this.props.communityId || reload) {
-      this.fetchCommunity(nextProps);
+      await this.fetchCommunity(nextProps);
     }
   }
 

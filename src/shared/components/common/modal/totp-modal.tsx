@@ -39,7 +39,7 @@ async function handleSubmit(i: TotpModal, totp: string) {
   }
 }
 
-function handleInput(i: TotpModal, event: any) {
+async function handleInput(i: TotpModal, event: any) {
   if (isNaN(event.target.value)) {
     return;
   }
@@ -50,11 +50,11 @@ function handleInput(i: TotpModal, event: any) {
 
   const { totp } = i.state;
   if (totp.length >= TOTP_LENGTH) {
-    handleSubmit(i, totp);
+    await handleSubmit(i, totp);
   }
 }
 
-function handlePaste(i: TotpModal, event: any) {
+async function handlePaste(i: TotpModal, event: any) {
   event.preventDefault();
   const text: string = event.clipboardData.getData("text")?.trim();
 
@@ -65,7 +65,7 @@ function handlePaste(i: TotpModal, event: any) {
     i.setState({ totp: text });
 
     if (text.length === TOTP_LENGTH) {
-      handleSubmit(i, text);
+      await handleSubmit(i, text);
     }
   }
 }
