@@ -152,7 +152,7 @@ type HomeData = RouteDataResponse<{
   commentsRes: PagedResponse<CommentView>;
 }>;
 
-async function getRss(listingType: ListingType, sort: PostSortType) {
+function getRss(listingType: ListingType, sort: PostSortType) {
   let rss: string | undefined = undefined;
 
   const queryString = getQueryString({ sort });
@@ -166,7 +166,7 @@ async function getRss(listingType: ListingType, sort: PostSortType) {
       break;
     }
     case "subscribed": {
-      const auth = await myAuth();
+      const auth = myAuth();
       rss = auth ? subscribedRSSUrl(auth, queryString) : undefined;
       break;
     }

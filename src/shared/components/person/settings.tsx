@@ -1540,7 +1540,7 @@ async function handleBlockCommunity(i: Settings, { value }: Choice) {
 
 async function handleUnblockCommunity(i: Settings, communityId: CommunityId) {
   const block = false;
-  if (await myAuth()) {
+  if (myAuth()) {
     const res = await HttpService.client.blockCommunity({
       community_id: communityId,
       block,
@@ -2069,7 +2069,7 @@ async function handleDeleteAccount(i: Settings, event: Event) {
       delete_content: i.state.deleteAccountForm.delete_content || false,
     });
     if (deleteAccountRes.state === "success") {
-      await (await UserService.getInstance()).logout();
+      await UserService.Instance.logout();
       i.context.router.history.replace("/");
     }
 

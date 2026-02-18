@@ -197,8 +197,8 @@ export class Notifications extends Component<
     }
   }
 
-  async render() {
-    const auth = await myAuth();
+  render() {
+    const auth = myAuth();
     const notifsRss = auth ? notificationsRSSUrl(auth) : undefined;
     return (
       <div className="notifications container-lg">

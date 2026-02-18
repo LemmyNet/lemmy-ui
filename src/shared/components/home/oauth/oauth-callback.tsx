@@ -154,9 +154,7 @@ async function handleOAuthLoginSuccess(
   prev: string,
   loginRes: LoginResponse,
 ) {
-  await (
-    await UserService.getInstance()
-  ).login({
+  await UserService.Instance.login({
     res: loginRes,
   });
   const [site, myUser] = await Promise.all([

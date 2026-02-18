@@ -480,8 +480,8 @@ export function isPostBlocked(
 /**
  * Warning, do not use this in fetchInitialData
  */
-export async function myAuth(): Promise<string | undefined> {
-  return (await UserService.getInstance()).auth();
+export function myAuth(): string | undefined {
+  return UserService.Instance.auth();
 }
 
 export function newVoteIsUpvote(

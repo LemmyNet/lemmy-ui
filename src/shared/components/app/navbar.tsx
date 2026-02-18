@@ -490,7 +490,7 @@ function handleCollapseClick(i: Navbar) {
 }
 
 async function handleLogOut(i: Navbar) {
-  await (await UserService.getInstance()).logout();
+  await UserService.Instance.logout();
   handleCollapseClick(i);
 }
 

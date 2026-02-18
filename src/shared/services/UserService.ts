@@ -20,10 +20,15 @@ interface AuthInfo {
 }
 
 export class UserService {
-  static #instance: UserService;
   public authInfo?: AuthInfo;
 
   private constructor() {}
+
+  static async init() {
+    const s = new this();
+    await s.#setAuthInfo();
+    return s;
+  }
 
   public async login({
     res,
@@ -88,11 +93,9 @@ export class UserService {
     }
   }
 
-  public static async getInstance() {
-    if (!this.#instance) {
-      this.#instance = new this();
-      await this.#instance.#setAuthInfo();
-    }
-    return this.#instance;
+  public static get Instance() {
+    return instance;
   }
 }
+
+const instance: UserService = await UserService.init();
