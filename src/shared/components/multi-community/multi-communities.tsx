@@ -7,7 +7,7 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component } from "inferno";
+import { Component, FormEvent } from "inferno";
 import {
   LemmyHttp,
   ListMultiCommunities,
@@ -45,6 +45,7 @@ import { TableHr } from "@components/common/tables";
 import { MultiCommunityLink } from "./multi-community-link";
 import { MultiCommunityListingTypeDropdown } from "@components/common/multi-community-listing-type-dropdown";
 import { CreateMultiCommunityButton } from "@components/common/content-actions/create-item-buttons";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type MultiCommunitiesData = RouteDataResponse<{
   listMultiCommunitiesRes: PagedResponse<MultiCommunityView>;
@@ -353,15 +354,22 @@ function handleListingTypeChange(
   });
 }
 
-function handleSearchChange(i: MultiCommunities, event: any) {
+function handleSearchChange(
+  i: MultiCommunities,
+  event: FormEvent<HTMLInputElement>,
+) {
   i.setState({ searchText: event.target.value });
 }
 
-function handleSearchSubmit(i: MultiCommunities, event: any) {
+function handleSearchSubmit(
+  i: MultiCommunities,
+  event: FormEvent<HTMLFormElement>,
+) {
   event.preventDefault();
   const searchParamEncoded = i.state.searchText;
   const { listingType } = i.props;
-  i.context.router.history.push(
+  const context: RouterContext = i.context;
+  context.router.history.push(
     `/search${getQueryString({ q: searchParamEncoded, type: "multi_communities", listingType })}`,
   );
 }

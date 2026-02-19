@@ -67,8 +67,8 @@ export class MediaUploads extends Component<Props, any> {
                 <PictrsImage src={buildImageUrl(i.local_image.pictrs_alias)} />
               </div>
               <div className={cols}>{this.deleteImageBtn(i.local_image)}</div>
+              <hr />
             </div>
-            <hr />
           </>
         ))}
       </div>

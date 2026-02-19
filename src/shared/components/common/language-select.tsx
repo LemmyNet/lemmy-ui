@@ -116,7 +116,6 @@ export class LanguageSelect extends Component<
           type="button"
           aria-expanded={false}
           data-bs-toggle="dropdown"
-          onChange={event => this.handleSelectLanguageChange(this, event)}
           aria-label={I18NextService.i18n.t("language_select_placeholder")}
           aria-describedby={
             this.props.multiple && this.props.showLanguageWarning
@@ -150,15 +149,6 @@ export class LanguageSelect extends Component<
         </ul>
       </div>
     );
-  }
-
-  handleSelectLanguageChange(i: LanguageSelect, event: any) {
-    const options: HTMLOptionElement[] = Array.from(event.target.options);
-    const selected: number[] = options
-      .filter(o => o.selected)
-      .map(o => Number(o.value));
-
-    i.props.onChange(selected);
   }
 
   get multiSelectBtn() {

@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component, FormEvent, InfernoMouseEvent } from "inferno";
 import { AdminBlockInstanceParams } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { randomStr, validInstanceTLD } from "@utils/helpers";
@@ -105,21 +105,24 @@ export class InstanceBlockForm extends Component<Props, State> {
     );
   }
 
-  handleDomainTextChange(i: InstanceBlockForm, event: any) {
+  handleDomainTextChange(
+    i: InstanceBlockForm,
+    event: FormEvent<HTMLInputElement>,
+  ) {
     i.setState({
       form: { ...i.state.form, instance: event.target.value },
       bypassNavWarning: false,
     });
   }
 
-  handleReasonChange(i: InstanceBlockForm, event: any) {
+  handleReasonChange(i: InstanceBlockForm, event: FormEvent<HTMLInputElement>) {
     i.setState({
       form: { ...i.state.form, reason: event.target.value },
       bypassNavWarning: false,
     });
   }
 
-  handleExpiryChange(i: InstanceBlockForm, event: any) {
+  handleExpiryChange(i: InstanceBlockForm, event: FormEvent<HTMLInputElement>) {
     i.setState({
       form: {
         ...i.state.form,
@@ -129,7 +132,10 @@ export class InstanceBlockForm extends Component<Props, State> {
     });
   }
 
-  handleSubmit(i: InstanceBlockForm, event: any) {
+  handleSubmit(
+    i: InstanceBlockForm,
+    event: InfernoMouseEvent<HTMLButtonElement>,
+  ) {
     event.preventDefault();
 
     const form = i.state.form;

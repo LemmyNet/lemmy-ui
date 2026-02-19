@@ -297,26 +297,34 @@ function handleSubmitEmoji(
   }
 }
 
-function handleImageUpload(i: EmojiForm, event: any) {
-  let file: File;
-  if (event.target) {
+function handleImageUpload(
+  i: EmojiForm,
+  event: FormEvent<HTMLInputElement> | File | undefined,
+) {
+  let file: File | undefined = undefined;
+  if (event instanceof Event && event.target) {
     event.preventDefault();
-    file = event.target.files[0];
-  } else {
+    const target = event.target as HTMLInputElement;
+    if (target?.files) {
+      file = target.files[0];
+    }
+  } else if (event instanceof File) {
     file = event;
   }
 
-  i.setState({ loadingImage: true });
+  if (file) {
+    i.setState({ loadingImage: true });
 
-  HttpService.client.uploadImage({ image: file }).then(res => {
-    if (res.state === "success") {
-      pictrsDeleteToast(res.data.filename);
-      i.setState({
-        form: { ...i.state.form, image_url: res.data.image_url },
-      });
-    } else if (res.state === "failed") {
-      toast(res.err.name, "danger");
-    }
-    i.setState({ loadingImage: false });
-  });
+    HttpService.client.uploadImage({ image: file }).then(res => {
+      if (res.state === "success") {
+        pictrsDeleteToast(res.data.filename);
+        i.setState({
+          form: { ...i.state.form, image_url: res.data.image_url },
+        });
+      } else if (res.state === "failed") {
+        toast(res.err.name, "danger");
+      }
+      i.setState({ loadingImage: false });
+    });
+  }
 }

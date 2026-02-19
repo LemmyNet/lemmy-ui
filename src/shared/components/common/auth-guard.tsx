@@ -4,6 +4,7 @@ import { Spinner } from "./icon";
 import { getQueryString } from "@utils/helpers";
 import { isBrowser } from "@utils/browser";
 import { MyUserInfo } from "lemmy-js-client";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface AuthGuardProps extends RouteComponentProps<Record<string, string>> {
   myUserInfo: MyUserInfo | undefined;
@@ -17,7 +18,8 @@ export default class AuthGuard extends Component<AuthGuardProps, any> {
   componentWillMount() {
     if (!this.hasAuth() && isBrowser()) {
       const { pathname, search } = this.props.location;
-      this.context.router.history.replace(
+      const context: RouterContext = this.context;
+      context.router.history.replace(
         `/login${getQueryString({ prev: pathname + search })}`,
       );
     }

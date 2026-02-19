@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import classNames from "classnames";
-import { Component, FormEventHandler } from "inferno";
+import { Component, FormEvent, FormEventHandler } from "inferno";
 import { EditSite, LocalSiteRateLimit } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
@@ -15,6 +15,8 @@ const rateLimitTypes = [
   "search",
   "import_user_settings",
 ] as const;
+
+export type RateLimitType = (typeof rateLimitTypes)[number];
 
 interface RateLimitsProps {
   handleRateLimit: FormEventHandler<HTMLInputElement>;
@@ -74,14 +76,12 @@ function RateLimits({
 }
 
 function handleMaxRequestsChange(
-  {
-    rateLimitType,
-    ctx,
-  }: { rateLimitType: (typeof rateLimitTypes)[any]; ctx: RateLimitsForm },
-  event: any,
+  i: RateLimitsForm,
+  rateLimitType: RateLimitType,
+  event: FormEvent<HTMLInputElement>,
 ) {
   const limit: keyof RateLimitFormState["form"] = `${rateLimitType}_max_requests`;
-  ctx.setState(prev => ({
+  i.setState(prev => ({
     ...prev,
     form: {
       ...prev.form,
@@ -91,10 +91,11 @@ function handleMaxRequestsChange(
 }
 
 function handleIntervalSecondsChange(
-  { rateLimitType, ctx }: { rateLimitType: string; ctx: RateLimitsForm },
-  event: any,
+  i: RateLimitsForm,
+  rateLimitType: RateLimitType,
+  event: FormEvent<HTMLInputElement>,
 ) {
-  ctx.setState(prev => ({
+  i.setState(prev => ({
     ...prev,
     form: {
       ...prev.form,
@@ -103,7 +104,10 @@ function handleIntervalSecondsChange(
   }));
 }
 
-function submitRateLimitForm(i: RateLimitsForm, event: any) {
+function submitRateLimitForm(
+  i: RateLimitsForm,
+  event: FormEvent<HTMLFormElement>,
+) {
   event.preventDefault();
   const form: EditSite = Object.entries(i.state.form).reduce(
     (acc, [key, val]) => {
@@ -146,13 +150,10 @@ export default class RateLimitsForm extends Component<
                   active: isSelected,
                 })}
                 handleRateLimit={event =>
-                  handleMaxRequestsChange({ rateLimitType, ctx: this }, event)
+                  handleMaxRequestsChange(this, rateLimitType, event)
                 }
                 handleRateLimitIntervalSeconds={event =>
-                  handleIntervalSecondsChange(
-                    { rateLimitType, ctx: this },
-                    event,
-                  )
+                  handleIntervalSecondsChange(this, rateLimitType, event)
                 }
                 rateLimitValue={
                   this.state.form[`${rateLimitType}_max_requests`]

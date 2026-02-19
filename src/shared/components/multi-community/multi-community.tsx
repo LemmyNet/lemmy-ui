@@ -89,6 +89,7 @@ import { MultiCommunityLink } from "./multi-community-link";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { MultiCommunityEntryList } from "./multi-community-entry-form";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type MultiCommunityData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
@@ -857,7 +858,8 @@ function updateMultiCommunity(
 function purgeItem(i: MultiCommunity, purgeRes: RequestState<SuccessResponse>) {
   if (purgeRes.state === "success") {
     toast(I18NextService.i18n.t("purge_success"));
-    i.context.router.history.push(`/`);
+    const context: RouterContext = i.context;
+    context.router.history.push(`/`);
   }
 }
 
