@@ -23,6 +23,7 @@ import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 import ProgressBar from "./progress-bar";
 import { validURL } from "@utils/helpers";
+
 interface MarkdownTextAreaProps {
   /**
    * Initial content inside the textarea
@@ -88,7 +89,9 @@ export class MarkdownTextArea extends Component<
   async componentDidMount() {
     if (isBrowser()) {
       const tribute = await setupTribute();
-      const textarea: any = document.getElementById(this.state.id);
+      const textarea: HTMLTextAreaElement | null = document.getElementById(
+        this.state.id,
+      ) as HTMLTextAreaElement;
       if (textarea) {
         autosize(textarea);
         tribute.attach(textarea);
@@ -214,7 +217,6 @@ export class MarkdownTextArea extends Component<
                   )}
                   value={this.state.content}
                   onInput={e => handleContentChange(this, e)}
-                  onBlur={e => handleContentBlur(this, e)}
                   onPaste={e => handlePaste(this, e)}
                   onKeyDown={e => handleKeyBinds(this, e)}
                   required
@@ -430,12 +432,19 @@ function handleUrlPaste(
   }
 }
 
-function handleImageUpload(i: MarkdownTextArea, event: any) {
+function handleImageUpload(
+  i: MarkdownTextArea,
+  event: File | FormEvent<HTMLInputElement>,
+) {
   const files: File[] = [];
-  if (event.target) {
+  if (event instanceof Event && event.target) {
     event.preventDefault();
-    files.push(...event.target.files);
-  } else {
+    const target = event.target as HTMLInputElement;
+    const f = target.files;
+    if (f) {
+      files.push(...Array.from(f));
+    }
+  } else if (event instanceof File) {
     files.push(event);
   }
 
@@ -543,10 +552,6 @@ function handleContentChange(
   handleSubmitContentChange(i);
 }
 
-function handleContentBlur(i: MarkdownTextArea, event: any) {
-  i.props.onContentBlur?.(event.target.value);
-}
-
 // Keybind handler
 // Keybinds inspired by github comment area
 function handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
@@ -603,7 +608,7 @@ function handleLanguageChange(i: MarkdownTextArea, val: number[]) {
   i.setState({ languageId: val[0] });
 }
 
-function handleSubmit(i: MarkdownTextArea, event: any) {
+function handleSubmit(i: MarkdownTextArea, event: KeyboardEvent) {
   event.preventDefault();
   if (i.state.content) {
     i.props.onSubmit?.(i.state.content, i.state.languageId);
@@ -615,7 +620,9 @@ function handleReplyCancel(i: MarkdownTextArea) {
 }
 
 function handleInsertLink(i: MarkdownTextArea) {
-  const textarea: any = document.getElementById(i.state.id);
+  const textarea: HTMLTextAreaElement = document.getElementById(
+    i.state.id,
+  ) as HTMLTextAreaElement;
   const start: number = textarea.selectionStart;
   const end: number = textarea.selectionEnd;
 
@@ -665,7 +672,9 @@ function handleSimpleSurroundBeforeAfter(
     i.setState({ content: "" });
   }
 
-  const textarea: any = document.getElementById(i.state.id);
+  const textarea: HTMLTextAreaElement = document.getElementById(
+    i.state.id,
+  ) as HTMLTextAreaElement;
   const start: number = textarea.selectionStart;
   const end: number = textarea.selectionEnd;
 

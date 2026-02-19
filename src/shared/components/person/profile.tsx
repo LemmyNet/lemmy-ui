@@ -118,6 +118,7 @@ import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
@@ -1367,7 +1368,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      this.context.router.history.push(`/`);
+      const context: RouterContext = this.context;
+      context.router.history.push(`/`);
     }
   }
 

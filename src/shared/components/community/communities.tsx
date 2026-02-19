@@ -7,7 +7,7 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component } from "inferno";
+import { Component, FormEvent } from "inferno";
 import {
   CommunityResponse,
   CommunitySortType,
@@ -47,6 +47,7 @@ import { TableHr } from "@components/common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { CreateCommunityButton } from "@components/common/content-actions/create-item-buttons";
 import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: PagedResponse<CommunityView>;
@@ -392,15 +393,19 @@ function handleListingTypeChange(i: Communities, val: ListingType) {
   });
 }
 
-function handleSearchChange(i: Communities, event: any) {
-  i.setState({ searchText: event.target.value });
+function handleSearchChange(
+  i: Communities,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState({ searchText: (event.target as HTMLInputElement).value });
 }
 
-function handleSearchSubmit(i: Communities, event: any) {
+function handleSearchSubmit(i: Communities, event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
   const searchParamEncoded = i.state.searchText;
   const { listingType } = i.props;
-  i.context.router.history.push(
+  const context: RouterContext = i.context;
+  context.router.history.push(
     `/search${getQueryString({ q: searchParamEncoded, type: "communities", listingType })}`,
   );
 }
@@ -414,7 +419,8 @@ async function handleVisitRandomCommunity(i: Communities) {
 
   if (res.state === "success") {
     const link = communityLink(res.data.community_view.community).link;
-    i.context.router.history.push(link);
+    const context: RouterContext = i.context;
+    context.router.history.push(link);
   }
 }
 

@@ -38,6 +38,7 @@ import { PostForm } from "./post-form";
 import { PostListingList } from "./post-listing-list";
 import { PostListingCard } from "./post-listing-card";
 import { masonryUpdate } from "@utils/browser";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type PostListingState = {
   showEdit: boolean;
@@ -99,7 +100,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentWillMount() {
     // Leave edit mode on navigation
-    this.unlisten = this.context.router.history.listen(() => {
+    const context: RouterContext = this.context;
+    this.unlisten = context.router.history.listen(() => {
       if (this.state.showEdit) {
         this.setState({ showEdit: false });
       }

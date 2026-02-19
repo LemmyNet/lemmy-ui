@@ -157,7 +157,7 @@ export function sleep(millis: number): Promise<void> {
 /**
  * Polls / repeatedly runs a promise, every X milliseconds
  */
-export async function poll(promiseFn: any, millis: number) {
+export async function poll(promiseFn: () => Promise<void>, millis: number) {
   if (window.document.visibilityState !== "hidden") {
     await promiseFn();
   }
