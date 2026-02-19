@@ -296,12 +296,9 @@ async function handleApproveFollower(
       res,
     },
   });
-  i.setState(s => {
-    if (s.appsRes.state === "success" && res.state === "success") {
-      i.refetch(i.props);
-    }
-    return s;
-  });
+  if (i.state.appsRes.state === "success" && res.state === "success") {
+    await i.refetch(i.props);
+  }
 }
 
 function handlePendingFollowsStateChange(
