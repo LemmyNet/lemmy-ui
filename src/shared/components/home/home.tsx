@@ -117,7 +117,10 @@ import { BannedDialog } from "./banned-dialog";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { MultiCommunityLink } from "@components/multi-community/multi-community-link";
 import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
-import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import {
+  ExpandChipCheckbox,
+  FilterChipCheckbox,
+} from "@components/common/filter-chip-checkbox";
 
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
@@ -870,7 +873,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         {/* Only show these two selects on mobile */}
         {this.hasFollows && (
           <div className="d-block d-md-none col">
-            <FilterChipCheckbox
+            <ExpandChipCheckbox
               option="show_subscribed"
               isChecked={showSubscribedMobile}
               onCheck={show => handleShowSubscribedMobile(this, show)}
@@ -878,7 +881,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           </div>
         )}
         <div className="d-block d-md-none col">
-          <FilterChipCheckbox
+          <ExpandChipCheckbox
             option="show_sidebar"
             isChecked={showSidebarMobile}
             onCheck={show => handleShowSidebarMobile(this, show)}

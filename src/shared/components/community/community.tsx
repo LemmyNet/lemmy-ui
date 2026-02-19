@@ -119,7 +119,10 @@ import { NoOptionI18nKeys } from "i18next";
 import { TimeIntervalFilter } from "@components/common/time-interval-filter";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { communityName } from "./community-link";
-import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import {
+  ExpandChipCheckbox,
+  FilterChipCheckbox,
+} from "@components/common/filter-chip-checkbox";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -757,7 +760,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-3">
         <div className="d-block d-md-none col">
-          <FilterChipCheckbox
+          <ExpandChipCheckbox
             option="show_sidebar"
             isChecked={showSidebarMobile}
             onCheck={show => handleShowSidebarMobile(this, show)}
