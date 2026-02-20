@@ -10,7 +10,6 @@ import {
   ResolvePostReport,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
-import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { PostListing } from "./post-listing";
 import { EMPTY_REQUEST } from "../../services/HttpService";
@@ -122,7 +121,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           onPersonNote={() => {}}
           onScrollIntoCommentsClick={() => {}}
         />
-        <div>
+        <div className="mt-2">
           {I18NextService.i18n.t("reporter")}:{" "}
           <PersonListing
             person={r.creator}
@@ -156,51 +155,59 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             )}
           </div>
         )}
-        <button
-          className="btn btn-link btn-animate text-muted py-0"
-          onClick={() => handleResolveReport(this)}
-          data-tippy-content={tippyContent}
-          aria-label={tippyContent}
-        >
-          {this.props.loading ? (
-            <Spinner />
-          ) : (
-            <Icon
-              icon="check"
-              classes={`icon-inline ${
-                r.post_report.resolved ? "text-success" : "text-danger"
-              }`}
+        <div className="row row-cols-auto align-items-center gx-3 my-2">
+          <div className="col">
+            <ActionButton
+              label={tippyContent}
+              icon={r.post_report.resolved ? "check" : "x"}
+              loading={this.props.loading}
+              inlineWithText
+              onClick={() => handleResolveReport(this)}
+              iconClass={`text-${r.post_report.resolved ? "success" : "danger"}`}
             />
+          </div>
+          <div className="col">
+            <ActionButton
+              label={I18NextService.i18n.t(
+                pv.post.removed ? "restore_post" : "remove_post",
+              )}
+              icon={pv.post.removed ? "restore" : "x"}
+              noLoading
+              inlineWithText
+              onClick={() => this.setState({ showRemovePostDialog: true })}
+              iconClass={`text-${pv.post.removed ? "success" : "danger"}`}
+            />
+          </div>
+          <div className="col">
+            <ActionButton
+              label={I18NextService.i18n.t(
+                pv.creator_banned
+                  ? "unban_from_community"
+                  : "ban_from_community",
+              )}
+              icon={pv.creator_banned ? "unban" : "ban"}
+              noLoading
+              inlineWithText
+              onClick={() => handleModBanFromCommunity(this)}
+              iconClass={`text-${pv.creator_banned ? "success" : "danger"}`}
+            />
+          </div>
+          {this.props.myUserInfo?.local_user_view.local_user.admin && (
+            <div className="col">
+              <ActionButton
+                label={I18NextService.i18n.t(
+                  pv.creator_banned ? "unban" : "ban",
+                )}
+                inline
+                icon={pv.creator_banned ? "unban" : "ban"}
+                noLoading
+                inlineWithText
+                onClick={() => handleAdminBan(this)}
+                iconClass={`text-${pv.creator_banned ? "success" : "danger"}`}
+              />
+            </div>
           )}
-        </button>
-        <ActionButton
-          label={I18NextService.i18n.t(
-            pv.post.removed ? "restore_post" : "remove_post",
-          )}
-          icon={pv.post.removed ? "restore" : "x"}
-          noLoading
-          onClick={() => this.setState({ showRemovePostDialog: true })}
-          iconClass={`text-${pv.post.removed ? "success" : "danger"}`}
-        />
-        <ActionButton
-          label={I18NextService.i18n.t(
-            pv.creator_banned ? "unban_from_community" : "ban_from_community",
-          )}
-          icon={pv.creator_banned ? "unban_from_site" : "ban_from_site"}
-          noLoading
-          onClick={() => handleModBanFromCommunity(this)}
-          iconClass={`text-${pv.creator_banned ? "success" : "danger"}`}
-        />
-        {this.props.myUserInfo?.local_user_view.local_user.admin && (
-          <ActionButton
-            label={I18NextService.i18n.t(pv.creator_banned ? "unban" : "ban")}
-            inline
-            icon={pv.creator_banned ? "unban" : "ban"}
-            noLoading
-            onClick={() => handleAdminBan(this)}
-            iconClass={`text-${pv.creator_banned ? "success" : "danger"}`}
-          />
-        )}
+        </div>
         {this.state.showRemovePostDialog && (
           <ModActionFormModal
             onSubmit={reason => handleRemovePost(this, reason)}

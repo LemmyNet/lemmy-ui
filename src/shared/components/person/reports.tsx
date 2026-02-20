@@ -63,7 +63,6 @@ import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
-import { ShowUnreadOnlyCheckbox } from "@components/common/show-unread-only-checkbox";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 
 type ReportsData = RouteDataResponse<{
@@ -79,7 +78,7 @@ interface ReportsState {
     PrivateMessageReportResponse
   >;
   communityResolveRes: ItemIdAndRes<CommunityReportId, CommunityReportResponse>;
-  showUnreadOnly: boolean;
+  showUnresolvedOnly: boolean;
   reportType: ReportType;
   siteRes: GetSiteResponse;
   cursor?: PaginationCursor;
@@ -127,7 +126,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     postResolveRes: { id: 0, res: EMPTY_REQUEST },
     pmResolveRes: { id: 0, res: EMPTY_REQUEST },
     communityResolveRes: { id: 0, res: EMPTY_REQUEST },
-    showUnreadOnly: true,
+    showUnresolvedOnly: true,
     reportType: "all",
     siteRes: this.isoData.siteRes,
     isIsomorphic: false,
@@ -267,9 +266,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-2">
         <div className="col">
-          <ShowUnreadOnlyCheckbox
-            isChecked={this.state.showUnreadOnly}
-            onCheck={val => handleShowUnreadOnlyChange(this, val)}
+          <FilterChipCheckbox
+            option={"show_unresolved_only"}
+            isChecked={this.state.showUnresolvedOnly}
+            onCheck={val => handleShowUnresolvedOnlyChange(this, val)}
           />
         </div>
         <div className="col">{this.reportTypeFilters()}</div>
@@ -571,7 +571,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     });
 
     const form: ListReports = {
-      unresolved_only: this.state.showUnreadOnly,
+      unresolved_only: this.state.showUnresolvedOnly,
       type_: this.state.reportType,
       show_community_rule_violations: this.state.showCommunityRuleViolations,
       page_cursor: cursor,
@@ -653,9 +653,12 @@ async function handlePageChange(i: Reports, cursor?: PaginationCursor) {
   await i.refetch();
 }
 
-async function handleShowUnreadOnlyChange(i: Reports, showUnreadOnly: boolean) {
+async function handleShowUnresolvedOnlyChange(
+  i: Reports,
+  showUnresolvedOnly: boolean,
+) {
   i.setState({
-    showUnreadOnly,
+    showUnresolvedOnly,
     cursor: undefined,
   });
   await i.refetch();
