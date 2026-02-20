@@ -37,7 +37,6 @@ interface PrivateMessageProps {
 interface PrivateMessageState {
   showReply: boolean;
   showEdit: boolean;
-  collapsed: boolean;
   viewSource: boolean;
   showReportDialog: boolean;
 }
@@ -50,7 +49,6 @@ export class PrivateMessage extends Component<
   state: PrivateMessageState = {
     showReply: false,
     showEdit: false,
-    collapsed: false,
     viewSource: false,
     showReportDialog: false,
   };
@@ -69,44 +67,29 @@ export class PrivateMessage extends Component<
       : message_view.creator;
 
     return (
-      <div className="private-message border-top border-light">
+      <div className="private-message border-top border-light-subtle">
+        <div className="row row-cols-auto align-items-center g-1 mb-2">
+          <div className="col text-muted small">
+            {this.mine
+              ? I18NextService.i18n.t("to")
+              : I18NextService.i18n.t("from")}
+          </div>
+          <div className="col small me-auto">
+            <PersonListing
+              person={otherPerson}
+              banned={false}
+              myUserInfo={this.props.myUserInfo}
+            />
+          </div>
+          <div className="col text-muted small">
+            <MomentTime
+              published={message_view.private_message.published_at}
+              updated={message_view.private_message.updated_at}
+              showAgo={false}
+            />
+          </div>
+        </div>
         <div>
-          <ul className="list-inline mb-0 text-muted small">
-            {/* TODO refactor this */}
-            <li className="list-inline-item">
-              {this.mine
-                ? I18NextService.i18n.t("to")
-                : I18NextService.i18n.t("from")}
-            </li>
-            <li className="list-inline-item">
-              <PersonListing
-                person={otherPerson}
-                banned={false}
-                myUserInfo={this.props.myUserInfo}
-              />
-            </li>
-            <li className="list-inline-item">
-              <span>
-                <MomentTime
-                  published={message_view.private_message.published_at}
-                  updated={message_view.private_message.updated_at}
-                />
-              </span>
-            </li>
-            <li className="list-inline-item">
-              <button
-                type="button"
-                className="pointer text-monospace p-0 bg-transparent border-0 d-block"
-                onClick={() => handleMessageCollapse(this)}
-              >
-                {this.state.collapsed ? (
-                  <Icon icon="plus-square" />
-                ) : (
-                  <Icon icon="minus-square" />
-                )}
-              </button>
-            </li>
-          </ul>
           {this.state.showEdit && (
             <PrivateMessageForm
               recipient={otherPerson}
@@ -117,7 +100,7 @@ export class PrivateMessage extends Component<
               createOrEditLoading={this.props.createOrEditLoading}
             />
           )}
-          {!this.state.showEdit && !this.state.collapsed && (
+          {!this.state.showEdit && (
             <div>
               {this.state.viewSource ? (
                 <pre>{this.messageUnlessRemoved}</pre>
@@ -255,8 +238,6 @@ export class PrivateMessage extends Component<
             </div>
           </div>
         )}
-        {/* A collapsed clearfix */}
-        {this.state.collapsed && <div className="row col-12"></div>}
       </div>
     );
   }
@@ -316,10 +297,6 @@ function handleMarkRead(i: PrivateMessage) {
     i.props.private_message_view.private_message.id,
     !i.props.read,
   );
-}
-
-function handleMessageCollapse(i: PrivateMessage) {
-  i.setState({ collapsed: !i.state.collapsed });
 }
 
 function handleViewSource(i: PrivateMessage) {

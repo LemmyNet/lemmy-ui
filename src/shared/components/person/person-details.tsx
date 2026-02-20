@@ -100,7 +100,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             nodes={[commentToFlatNode(i)]}
             viewType={"flat"}
             admins={this.props.admins}
-            noBorder
             showCommunity
             showContext
             showMarkRead={"hide"}
@@ -148,6 +147,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             communityTags={[]}
             postListingMode="small_card"
             showCommunity
+            topBorder
             crossPosts={[]}
             showBody={"preview"}
             hideImage={false}
@@ -193,13 +193,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
   render(): InfernoNode {
     const combined: PostCommentCombinedView[] = this.props.content;
 
-    return (
-      <div>
-        {combined.map(i => [
-          this.renderItemType(i),
-          <hr key={i.type_} className="my-3" />,
-        ])}
-      </div>
-    );
+    return <div>{combined.map(i => [this.renderItemType(i)])}</div>;
   }
 }

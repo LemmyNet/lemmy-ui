@@ -51,7 +51,7 @@ export class NotificationModlogItem extends Component<
       data,
     } = processModlogEntry(this.props.modlog_view, this.props.myUserInfo);
     return (
-      <div className="border-top border-light">
+      <div className="border-top border-light-subtle">
         <div className="row text-muted small" role="group">
           <div className="col flex-grow-1">
             {moderator ? (

@@ -294,6 +294,7 @@ const postListing = (
               admins={isoData.siteRes.admins}
               postListingMode="list"
               viewOnly
+              topBorder={false}
               crossPosts={[]}
               communityTags={[]}
               showBody={"hidden"}
@@ -358,6 +359,7 @@ const commentListing = (
               viewOnly
               postLockedOrRemovedOrDeleted
               isTopLevel
+              noBorder
               showCommunity
               myUserInfo={isoData.myUserInfo}
               localSite={isoData.siteRes.site_view.local_site}
@@ -995,6 +997,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 viewOnly
+                topBorder={false}
                 myUserInfo={this.isoData.myUserInfo}
                 localSite={siteRes.site_view.local_site}
                 admins={this.isoData.siteRes.admins}

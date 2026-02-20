@@ -107,7 +107,7 @@ export class CommentNodes extends Component<CommentNodesProps, any> {
         <ul
           className={classNames("comments", {
             "ms-1": this.props.depth && this.props.depth > 1,
-            "border-top border-light": !this.props.noBorder,
+            "border-top border-light-subtle": !this.props.noBorder,
           })}
           style={
             this.props.isChild
