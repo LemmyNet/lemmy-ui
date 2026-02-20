@@ -4,22 +4,31 @@ import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { I18NextService } from "@services/I18NextService";
 
-type FilterChipCheckboxProps = {
+type ChipCheckboxProps = {
   option: NoOptionI18nKeys;
   isChecked: boolean;
   onCheck: (checked: boolean) => void;
+  expander: boolean;
   className?: string;
   disabled?: boolean;
 };
 
-export function FilterChipCheckbox({
-  className,
+function ChipCheckbox({
   option,
   isChecked,
   onCheck,
+  expander,
+  className,
   disabled,
-}: FilterChipCheckboxProps) {
+}: ChipCheckboxProps) {
   const id = randomStr();
+  const icon = isChecked
+    ? expander
+      ? "minus-square"
+      : "check"
+    : expander
+      ? "plus-square"
+      : "x";
   return (
     <>
       <input
@@ -37,9 +46,62 @@ export function FilterChipCheckbox({
         )}
         for={`filter-check-${id}`}
       >
-        <Icon icon={isChecked ? "check" : "x"} classes="icon-inline me-1" />
+        <Icon icon={icon} classes="icon-inline me-1" />
         {I18NextService.i18n.t(option)}
       </label>
     </>
+  );
+}
+
+type FilterChipCheckboxProps = {
+  option: NoOptionI18nKeys;
+  isChecked: boolean;
+  onCheck: (checked: boolean) => void;
+  className?: string;
+  disabled?: boolean;
+};
+
+export function FilterChipCheckbox({
+  option,
+  isChecked,
+  className,
+  onCheck,
+  disabled,
+}: FilterChipCheckboxProps) {
+  return (
+    <ChipCheckbox
+      option={option}
+      isChecked={isChecked}
+      onCheck={onCheck}
+      expander={false}
+      disabled={disabled}
+      className={className}
+    />
+  );
+}
+
+type ExpandChipCheckboxProps = {
+  option: NoOptionI18nKeys;
+  isChecked: boolean;
+  onCheck: (checked: boolean) => void;
+  className?: string;
+  disabled?: boolean;
+};
+export function ExpandChipCheckbox({
+  option,
+  isChecked,
+  className,
+  onCheck,
+  disabled,
+}: ExpandChipCheckboxProps) {
+  return (
+    <ChipCheckbox
+      option={option}
+      isChecked={isChecked}
+      onCheck={onCheck}
+      expander
+      disabled={disabled}
+      className={className}
+    />
   );
 }
