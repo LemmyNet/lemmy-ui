@@ -226,7 +226,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           <article
             id={`comment-${id}`}
             className={classNames(`details comment-node py-2`, {
-              "border-top border-light": !this.props.noBorder,
+              "border-top border-light-subtle": !this.props.noBorder,
               mark: this.isCommentNew || distinguished,
             })}
           >
@@ -283,88 +283,96 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     viewSource={this.state.viewSource}
                     hideImages={hideImages_}
                   />
-                  <div className="row row-cols-auto align-items-center justify-content-end justify-content-md-start g-3 text-muted fw-bold mt-1">
-                    <>
-                      {showMarkRead === "main_bar" && (
+                  {!this.props.viewOnly && (
+                    <div className="row row-cols-auto align-items-center justify-content-end justify-content-md-start g-3 text-muted fw-bold mt-1">
+                      <>
+                        {showMarkRead === "main_bar" && (
+                          <div className="col">
+                            <CommentMarkReadButton
+                              comment={comment}
+                              read={read ?? false}
+                              loading={this.props.markReadLoading === id}
+                              onMarkRead={this.props.onMarkRead}
+                            />
+                          </div>
+                        )}
                         <div className="col">
-                          <CommentMarkReadButton
-                            comment={comment}
-                            read={read ?? false}
-                            loading={this.props.markReadLoading === id}
-                            onMarkRead={this.props.onMarkRead}
+                          <VoteButtonsCompact
+                            voteContentType={"comment"}
+                            id={id}
+                            onVote={this.props.onCommentVote}
+                            myUserInfo={this.props.myUserInfo}
+                            localSite={this.props.localSite}
+                            subject={this.commentView.comment}
+                            myVoteIsUpvote={myVoteIsUpvote}
+                            disabled={userNotLoggedInOrBanned(
+                              this.props.myUserInfo,
+                            )}
+                            loading={this.props.voteLoading === id}
                           />
                         </div>
-                      )}
-                      <div className="col">
-                        <VoteButtonsCompact
-                          voteContentType={"comment"}
-                          id={id}
-                          onVote={this.props.onCommentVote}
-                          myUserInfo={this.props.myUserInfo}
-                          localSite={this.props.localSite}
-                          subject={this.commentView.comment}
-                          myVoteIsUpvote={myVoteIsUpvote}
-                          disabled={userNotLoggedInOrBanned(
-                            this.props.myUserInfo,
-                          )}
-                          loading={this.props.voteLoading === id}
-                        />
-                      </div>
-                      <div className="col">
-                        <ActionButton
-                          onClick={() => handleReplyClick(this)}
-                          icon="reply1"
-                          iconClass="text-muted"
-                          inline
-                          label={I18NextService.i18n.t("reply")}
-                          noLoading
-                          disabled={
-                            this.commentView.comment.deleted ||
-                            this.commentView.comment.removed ||
-                            this.commentView.comment.locked
-                          }
-                        />
-                      </div>
-                      <div className="col">
-                        <CommentActionDropdown
-                          commentView={this.commentView}
-                          community={this.community}
-                          admins={this.props.admins}
-                          myUserInfo={this.props.myUserInfo}
-                          viewSource={this.state.viewSource}
-                          showContext={this.props.showContext}
-                          onReport={reason => handleReportComment(this, reason)}
-                          onBlockPerson={() => handleBlockPerson(this)}
-                          onBlockCommunity={() => handleBlockCommunity(this)}
-                          onSave={() => handleSaveComment(this)}
-                          onEdit={() => handleEditClick(this)}
-                          onDelete={() => handleDeleteComment(this)}
-                          onDistinguish={() => handleDistinguishComment(this)}
-                          onRemove={reason => handleRemoveComment(this, reason)}
-                          onBanFromCommunity={form =>
-                            handleBanFromCommunity(this, form)
-                          }
-                          onAppointCommunityMod={() =>
-                            handleAppointCommunityMod(this)
-                          }
-                          onTransferCommunity={() =>
-                            handleTransferCommunity(this)
-                          }
-                          onPurgeUser={reason =>
-                            handlePurgePerson(this, reason)
-                          }
-                          onPurgeContent={reason =>
-                            handlePurgeComment(this, reason)
-                          }
-                          onBanFromSite={form => handleBanFromSite(this, form)}
-                          onAppointAdmin={() => handleAppointAdmin(this)}
-                          onPersonNote={form => handlePersonNote(this, form)}
-                          onLock={reason => handleModLock(this, reason)}
-                          onViewSource={() => handleToggleViewSource(this)}
-                        />
-                      </div>
-                    </>
-                  </div>
+                        <div className="col">
+                          <ActionButton
+                            onClick={() => handleReplyClick(this)}
+                            icon="reply1"
+                            iconClass="text-muted"
+                            inline
+                            label={I18NextService.i18n.t("reply")}
+                            noLoading
+                            disabled={
+                              this.commentView.comment.deleted ||
+                              this.commentView.comment.removed ||
+                              this.commentView.comment.locked
+                            }
+                          />
+                        </div>
+                        <div className="col">
+                          <CommentActionDropdown
+                            commentView={this.commentView}
+                            community={this.community}
+                            admins={this.props.admins}
+                            myUserInfo={this.props.myUserInfo}
+                            viewSource={this.state.viewSource}
+                            showContext={this.props.showContext}
+                            onReport={reason =>
+                              handleReportComment(this, reason)
+                            }
+                            onBlockPerson={() => handleBlockPerson(this)}
+                            onBlockCommunity={() => handleBlockCommunity(this)}
+                            onSave={() => handleSaveComment(this)}
+                            onEdit={() => handleEditClick(this)}
+                            onDelete={() => handleDeleteComment(this)}
+                            onDistinguish={() => handleDistinguishComment(this)}
+                            onRemove={reason =>
+                              handleRemoveComment(this, reason)
+                            }
+                            onBanFromCommunity={form =>
+                              handleBanFromCommunity(this, form)
+                            }
+                            onAppointCommunityMod={() =>
+                              handleAppointCommunityMod(this)
+                            }
+                            onTransferCommunity={() =>
+                              handleTransferCommunity(this)
+                            }
+                            onPurgeUser={reason =>
+                              handlePurgePerson(this, reason)
+                            }
+                            onPurgeContent={reason =>
+                              handlePurgeComment(this, reason)
+                            }
+                            onBanFromSite={form =>
+                              handleBanFromSite(this, form)
+                            }
+                            onAppointAdmin={() => handleAppointAdmin(this)}
+                            onPersonNote={form => handlePersonNote(this, form)}
+                            onLock={reason => handleModLock(this, reason)}
+                            onViewSource={() => handleToggleViewSource(this)}
+                          />
+                        </div>
+                      </>
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -372,7 +380,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           {showMoreChildren && (
             <div
               className={classNames("details ms-1 comment-node py-2", {
-                "border-top border-light": !this.props.noBorder,
+                "border-top border-light-subtle": !this.props.noBorder,
               })}
               style={`border-left: var(--comment-border-width) ${moreRepliesBorderColor} solid !important`}
             >

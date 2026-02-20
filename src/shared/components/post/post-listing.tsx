@@ -67,6 +67,7 @@ type PostListingProps = {
   notificationRead?: boolean;
   markReadLoading: boolean;
   voteLoading: boolean;
+  topBorder: boolean;
   onPostEdit: (form: EditPost) => void;
   onPostVote: (form: CreatePostLike) => void;
   onPostReport: (form: CreatePostReport) => void;
@@ -124,7 +125,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   render() {
     const p = this.props;
     return (
-      <div className="post-listing mt-2">
+      <div className="post-listing my-2">
         {!this.state.showEdit ? (
           this.renderListingMode()
         ) : (
@@ -184,6 +185,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             hideImage={p.hideImage}
             enableNsfw={p.enableNsfw}
             viewOnly={p.viewOnly}
+            topBorder={p.topBorder}
             showAdultConsentModal={p.showAdultConsentModal}
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
