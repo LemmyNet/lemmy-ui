@@ -20,14 +20,17 @@ interface AuthInfo {
 }
 
 export class UserService {
-  static #instance: UserService;
   public authInfo?: AuthInfo;
 
-  private constructor() {
-    this.#setAuthInfo();
+  private constructor() {}
+
+  static async init() {
+    const s = new this();
+    await s.#setAuthInfo();
+    return s;
   }
 
-  public login({
+  public async login({
     res,
     showToast = true,
   }: {
@@ -39,7 +42,7 @@ export class UserService {
         toast(I18NextService.i18n.t("logged_in"));
       }
       setAuthCookie(res.jwt);
-      this.#setAuthInfo();
+      await this.#setAuthInfo();
     }
   }
 
@@ -91,6 +94,8 @@ export class UserService {
   }
 
   public static get Instance() {
-    return this.#instance || (this.#instance = new this());
+    return instance;
   }
 }
+
+const instance: UserService = await UserService.init();

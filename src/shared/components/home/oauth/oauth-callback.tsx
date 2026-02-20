@@ -82,7 +82,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
       switch (loginRes.state) {
         case "success": {
           if (loginRes.data.jwt) {
-            handleOAuthLoginSuccess(
+            await handleOAuthLoginSuccess(
               this,
               local_oauth_state.prev,
               loginRes.data,
@@ -154,7 +154,7 @@ async function handleOAuthLoginSuccess(
   prev: string,
   loginRes: LoginResponse,
 ) {
-  UserService.Instance.login({
+  await UserService.Instance.login({
     res: loginRes,
   });
   const [site, myUser] = await Promise.all([
@@ -163,7 +163,7 @@ async function handleOAuthLoginSuccess(
   ]);
 
   if (site.state === "success" && myUser.state === "success") {
-    updateMyUserInfo(myUser.data);
+    await updateMyUserInfo(myUser.data);
     refreshTheme();
   }
 
@@ -175,5 +175,5 @@ async function handleOAuthLoginSuccess(
     i.props.history.replace("/");
   }
 
-  UnreadCounterService.Instance.updateUnreadCounts();
+  await UnreadCounterService.Instance.updateUnreadCounts();
 }

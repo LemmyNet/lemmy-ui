@@ -130,8 +130,8 @@ export class Communities extends Component<
     }
   }
 
-  componentWillReceiveProps(nextProps: CommunitiesRouteProps) {
-    this.refetch(nextProps);
+  async componentWillReceiveProps(nextProps: CommunitiesRouteProps) {
+    await this.refetch(nextProps);
   }
 
   get documentTitle(): string {

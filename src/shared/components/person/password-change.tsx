@@ -141,7 +141,7 @@ export class PasswordChange extends Component<
           HttpService.client.getMyUser(),
         ]);
         if (site.state === "success" && myUser.state === "success") {
-          updateMyUserInfo(myUser.data);
+          await updateMyUserInfo(myUser.data);
         }
 
         i.props.history.replace("/");

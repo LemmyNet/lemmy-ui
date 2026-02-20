@@ -67,7 +67,7 @@ export default async (req: Request, res: Response) => {
       console.error(
         "Incorrect JWT token, skipping auth so frontend can remove jwt cookie",
       );
-      client.setHeaders({});
+      await client.setHeaders({});
       tryUser = await client.getMyUser();
     }
 

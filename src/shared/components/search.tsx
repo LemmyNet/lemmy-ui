@@ -462,9 +462,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      this.fetchAll(this.props);
+      await this.fetchAll(this.props);
     }
   }
 
@@ -474,14 +474,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: SearchRouteProps) {
+  async componentWillReceiveProps(nextProps: SearchRouteProps) {
     if (nextProps.communityId !== this.props.communityId) {
-      this.fetchSelectedCommunity(nextProps);
+      await this.fetchSelectedCommunity(nextProps);
     }
     if (nextProps.creatorId !== this.props.creatorId) {
-      this.fetchSelectedCreator(nextProps);
+      await this.fetchSelectedCreator(nextProps);
     }
-    this.search(nextProps);
+    await this.search(nextProps);
   }
 
   fetchDefaultCommunitiesToken?: symbol;

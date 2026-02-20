@@ -186,7 +186,7 @@ async function handleSubmitTotp(i: Login, totp: string) {
   const successful = loginRes.state === "success";
   if (successful) {
     i.setState({ show2faModal: false });
-    handleLoginSuccess(i, loginRes.data);
+    await handleLoginSuccess(i, loginRes.data);
   } else {
     toast(I18NextService.i18n.t("incorrect_totp_code"), "danger");
   }
@@ -195,7 +195,7 @@ async function handleSubmitTotp(i: Login, totp: string) {
 }
 
 async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
-  UserService.Instance.login({
+  await UserService.Instance.login({
     res: loginRes,
   });
   const [site, myUser] = await Promise.all([
@@ -205,7 +205,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
 
   if (site.state === "success" && myUser.state === "success") {
     const isoData = setIsoData(i.context);
-    updateMyUserInfo(myUser.data);
+    await updateMyUserInfo(myUser.data);
     isoData.siteRes.oauth_providers = site.data.oauth_providers;
     isoData.siteRes.admin_oauth_providers = site.data.admin_oauth_providers;
     refreshTheme();
@@ -221,7 +221,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
     i.props.history.replace("/");
   }
 
-  UnreadCounterService.Instance.updateUnreadCounts();
+  await UnreadCounterService.Instance.updateUnreadCounts();
 }
 
 async function handleLoginSubmit(i: Login, event: FormEvent<HTMLFormElement>) {
@@ -265,7 +265,7 @@ async function handleLoginSubmit(i: Login, event: FormEvent<HTMLFormElement>) {
       }
 
       case "success": {
-        handleLoginSuccess(i, loginRes.data);
+        await handleLoginSuccess(i, loginRes.data);
         break;
       }
     }

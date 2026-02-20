@@ -468,14 +468,14 @@ async function handleRegisterSubmit(
 
         // Only log them in if a jwt was set
         if (data.jwt) {
-          UserService.Instance.login({
+          await UserService.Instance.login({
             res: data,
           });
 
           const myUserRes = await HttpService.client.getMyUser();
 
           if (myUserRes.state === "success") {
-            updateMyUserInfo(myUserRes.data);
+            await updateMyUserInfo(myUserRes.data);
           }
 
           i.props.history.replace("/communities");
@@ -568,7 +568,7 @@ async function handleRegenCaptcha(i: Signup) {
   await i.fetchCaptcha();
 }
 
-function handleCaptchaPlay(i: Signup) {
+async function handleCaptchaPlay(i: Signup) {
   // This was a bad bug, it should only build the new audio on a new file.
   // Replays would stop prematurely if this was rebuilt every time.
 
@@ -577,7 +577,7 @@ function handleCaptchaPlay(i: Signup) {
     if (!i.audio) {
       const base64 = `data:audio/wav;base64,${captchaRes.wav}`;
       i.audio = new Audio(base64);
-      i.audio.play();
+      await i.audio.play();
 
       i.setState({ captchaPlaying: true });
 

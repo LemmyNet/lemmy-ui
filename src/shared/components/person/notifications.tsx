@@ -483,7 +483,7 @@ export class Notifications extends Component<
           });
         }
       });
-    UnreadCounterService.Instance.updateUnreadCounts();
+    await UnreadCounterService.Instance.updateUnreadCounts();
   }
 
   findAndUpdateMessage(res: RequestState<PrivateMessageResponse>) {
@@ -649,9 +649,9 @@ async function handleMarkAllAsRead(i: Notifications) {
         });
       }
       // Refetch to reload the data
-      i.refetch();
       return { notifsRes: s.notifsRes, markAllAsReadRes };
     });
+    await i.refetch();
   } else {
     i.setState({ markAllAsReadRes });
   }

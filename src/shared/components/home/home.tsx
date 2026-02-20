@@ -343,10 +343,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: HomeRouteProps & { children?: InfernoNode },
   ) {
-    this.fetchData(nextProps);
+    await this.fetchData(nextProps);
   }
 
   static fetchInitialData = async ({

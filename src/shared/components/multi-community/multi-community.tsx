@@ -232,16 +232,16 @@ export class MultiCommunity extends Component<RouteProps, State> {
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: RouteProps & { children?: InfernoNode },
   ) {
     if (
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      this.fetchMultiCommunity(nextProps);
+      await this.fetchMultiCommunity(nextProps);
     }
-    this.fetchData(nextProps);
+    await this.fetchData(nextProps);
   }
 
   static fetchInitialData = async ({

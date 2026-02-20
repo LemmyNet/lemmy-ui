@@ -30,9 +30,9 @@ export function modalMixin<
       }
     }
 
-    componentDidMount() {
+    async componentDidMount() {
       // Keeping this sync to allow the super implementation to be sync
-      import("bootstrap/js/dist/modal").then(
+      await import("bootstrap/js/dist/modal").then(
         (res: { default: typeof Modal }) => {
           if (!this.modalDivRef.current) {
             return;

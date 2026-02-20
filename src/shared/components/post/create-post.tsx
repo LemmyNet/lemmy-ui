@@ -191,7 +191,7 @@ export class CreatePost extends Component<
         | CrossPostParams
         | undefined;
       if (locationState) {
-        this.updateUrl({
+        await this.updateUrl({
           title: locationState.name,
           url: locationState.url,
           body: locationState.body,
@@ -205,12 +205,12 @@ export class CreatePost extends Component<
     }
   }
 
-  componentWillReceiveProps(nextProps: CreatePostRouteProps) {
+  async componentWillReceiveProps(nextProps: CreatePostRouteProps) {
     if (bareRoutePush(this.props, nextProps)) {
       this.setState(s => ({ resetCounter: s.resetCounter + 1 }));
     }
     if (this.props.communityId !== nextProps.communityId) {
-      this.fetchCommunity(nextProps);
+      await this.fetchCommunity(nextProps);
     }
   }
 
@@ -415,42 +415,52 @@ export class CreatePost extends Component<
   }
 }
 
-function handleSelectedCommunityChange(i: CreatePost, choice: Choice) {
-  i.updateUrl({
+async function handleSelectedCommunityChange(i: CreatePost, choice: Choice) {
+  await i.updateUrl({
     communityId: getIdFromString(choice?.value),
   });
 }
 
-function handleTitleBlur(i: CreatePost, title: string) {
-  i.updateUrl({ title });
+async function handleTitleBlur(i: CreatePost, title: string) {
+  await i.updateUrl({ title });
 }
 
-function handleUrlBlur(i: CreatePost, url: string) {
-  i.updateUrl({ url });
+async function handleUrlBlur(i: CreatePost, url: string) {
+  await i.updateUrl({ url });
 }
 
-function handleBodyBlur(i: CreatePost, body: string) {
-  i.updateUrl({ body });
+async function handleBodyBlur(i: CreatePost, body: string) {
+  await i.updateUrl({ body });
 }
 
-function handleLanguageChange(i: CreatePost, languageId: number | undefined) {
-  i.updateUrl({ languageId });
+async function handleLanguageChange(
+  i: CreatePost,
+  languageId: number | undefined,
+) {
+  await i.updateUrl({ languageId });
 }
 
-function handleNsfwChange(i: CreatePost, nsfw: StringBoolean) {
-  i.updateUrl({ nsfw });
+async function handleNsfwChange(i: CreatePost, nsfw: StringBoolean) {
+  await i.updateUrl({ nsfw });
 }
 
-function handleThumbnailUrlBlur(i: CreatePost, customThumbnailUrl: string) {
-  i.updateUrl({ customThumbnailUrl });
+async function handleThumbnailUrlBlur(
+  i: CreatePost,
+  customThumbnailUrl: string,
+) {
+  await i.updateUrl({ customThumbnailUrl });
 }
 
-function handleAltTextBlur(i: CreatePost, altText: string) {
-  i.updateUrl({ altText });
+async function handleAltTextBlur(i: CreatePost, altText: string) {
+  await i.updateUrl({ altText });
 }
 
-function handleCopySuggestedTitle(i: CreatePost, url: string, title: string) {
-  i.updateUrl({ url, title });
+async function handleCopySuggestedTitle(
+  i: CreatePost,
+  url: string,
+  title: string,
+) {
+  await i.updateUrl({ url, title });
 }
 
 async function handlePostCreate(

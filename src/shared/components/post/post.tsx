@@ -456,7 +456,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: PostRouteProps) {
+  async componentWillReceiveProps(nextProps: PostRouteProps) {
     const { post_id: nextPost, comment_id: nextComment } =
       nextProps.match.params;
     const { post_id: prevPost, comment_id: prevComment } =
@@ -486,10 +486,10 @@ export class Post extends Component<PostRouteProps, PostState> {
       nextProps.sort !== this.props.sort;
 
     if (needPost) {
-      this.fetchPost(nextProps);
+      await this.fetchPost(nextProps);
     }
     if (needComments) {
-      this.fetchComments(nextProps);
+      await this.fetchComments(nextProps);
     }
 
     if (
