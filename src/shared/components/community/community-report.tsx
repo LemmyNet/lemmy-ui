@@ -8,10 +8,10 @@ import {
 } from "lemmy-js-client";
 import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
-import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { CommunityHeader } from "./community-header";
+import ActionButton from "@components/common/content-actions/action-button";
 
 interface Props {
   report: CommunityReportView;
@@ -94,32 +94,25 @@ export class CommunityReport extends Component<Props, object> {
             )}
           </div>
         )}
-        <button
-          className="btn btn-link btn-animate text-muted py-0"
-          onClick={() => this.handleResolveReport(this)}
-          data-tippy-content={tippyContent}
-          aria-label={tippyContent}
-        >
-          {this.props.loading ? (
-            <Spinner />
-          ) : (
-            <Icon
-              icon="check"
-              classes={`icon-inline ${
-                cr.resolved ? "text-success" : "text-danger"
-              }`}
-            />
-          )}
-        </button>
+        <div className="mt-2">
+          <ActionButton
+            label={tippyContent}
+            icon={r.community_report.resolved ? "check" : "x"}
+            loading={this.props.loading}
+            inlineWithText
+            onClick={() => handleResolveReport(this)}
+            iconClass={`text-${r.community_report.resolved ? "success" : "danger"}`}
+          />
+        </div>
       </div>
     );
   }
+}
 
-  handleResolveReport(i: CommunityReport) {
-    const cr = i.props.report.community_report;
-    i.props.onResolveReport({
-      report_id: cr.id,
-      resolved: !cr.resolved,
-    });
-  }
+function handleResolveReport(i: CommunityReport) {
+  const cr = i.props.report.community_report;
+  i.props.onResolveReport({
+    report_id: cr.id,
+    resolved: !cr.resolved,
+  });
 }

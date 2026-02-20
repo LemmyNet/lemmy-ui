@@ -219,7 +219,6 @@ export class RegistrationApplications extends Component<
           <>
             <hr />
             <RegistrationApplication
-              key={ra.registration_application.id}
               application={ra}
               onApproveApplication={form =>
                 handleApproveApplication(this, form)

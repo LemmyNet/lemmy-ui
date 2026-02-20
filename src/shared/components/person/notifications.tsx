@@ -84,8 +84,8 @@ import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
-import { ShowUnreadOnlyCheckbox } from "@components/common/show-unread-only-checkbox";
 import { RouterContext } from "inferno-router/dist/Router";
+import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 
 const messageTypeOptions: FilterOption<NotificationTypeFilter>[] = [
   { value: "all", i18n: "all" },
@@ -254,7 +254,8 @@ export class Notifications extends Component<
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-2">
         <div className="col">
-          <ShowUnreadOnlyCheckbox
+          <FilterChipCheckbox
+            option={"show_unread_only"}
             isChecked={this.state.showUnreadOnly}
             onCheck={val => handleShowUnreadOnlyChange(this, val)}
           />
