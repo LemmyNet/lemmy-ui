@@ -6,11 +6,13 @@ import { lazyLoad } from "unlazy";
 
 // document.body doesn't exist yet
 window.requestAnimationFrame(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const cleanup = lazyLoad('img[loading="lazy"]');
   // The timeout gives enough time to display the blurred image and to start
   // loading the images, the Pictrs component creates a new lazyLoad instance
   // that will handle the actual display of loaded image.
   setTimeout(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     cleanup();
   });
 });

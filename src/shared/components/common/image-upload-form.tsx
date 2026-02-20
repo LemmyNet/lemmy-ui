@@ -1,6 +1,6 @@
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
-import { Component } from "inferno";
+import { Component, FormEvent } from "inferno";
 import { HttpService, I18NextService } from "../../services";
 import { toast } from "@utils/app";
 import { Icon, Spinner } from "./icon";
@@ -124,8 +124,11 @@ export class ImageUploadForm extends Component<
     );
   }
 
-  async guardedImageUpload(i: ImageUploadForm, event: any) {
-    const image = event.target.files[0] as File;
+  async guardedImageUpload(
+    i: ImageUploadForm,
+    event: FormEvent<HTMLInputElement>,
+  ) {
+    const image = event.target.files?.[0];
     i.setState({ pendingUpload: image });
     if (i.props.noConfirmation) {
       await i.performImageUpload(i);

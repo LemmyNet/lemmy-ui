@@ -1,5 +1,6 @@
 import {
   Component,
+  FormEvent,
   InfernoNode,
   MouseEventHandler,
   RefObject,
@@ -39,11 +40,7 @@ async function handleSubmit(i: TotpModal, totp: string) {
   }
 }
 
-async function handleInput(i: TotpModal, event: any) {
-  if (isNaN(event.target.value)) {
-    return;
-  }
-
+async function handleInput(i: TotpModal, event: FormEvent<HTMLInputElement>) {
   i.setState({
     totp: event.target.value,
   });
@@ -54,9 +51,12 @@ async function handleInput(i: TotpModal, event: any) {
   }
 }
 
-async function handlePaste(i: TotpModal, event: any) {
+async function handlePaste(i: TotpModal, event: ClipboardEvent) {
   event.preventDefault();
-  const text: string = event.clipboardData.getData("text")?.trim();
+  const text = event.clipboardData?.getData("text")?.trim();
+  if (!text) {
+    return;
+  }
 
   if (text.length > TOTP_LENGTH || isNaN(Number(text))) {
     toast(I18NextService.i18n.t("invalid_totp_code"), "danger");

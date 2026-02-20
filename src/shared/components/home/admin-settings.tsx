@@ -69,6 +69,7 @@ import {
 } from "@components/common/all-or-banned-dropdown";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
 import { FormEvent } from "inferno";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: PagedResponse<LocalUserView>;
@@ -930,7 +931,8 @@ async function handleLeaveAdminTeam(i: AdminSettings) {
   if (i.state.leaveAdminTeamRes.state === "success") {
     toast(I18NextService.i18n.t("left_admin_team"));
     i.setState({ showConfirmLeaveAdmin: false });
-    i.context.router.history.replace("/");
+    const context: RouterContext = i.context;
+    context.router.history.replace("/");
   }
 }
 

@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component, InfernoMouseEvent } from "inferno";
 import {
   CreateTagline,
   DeleteTagline,
@@ -91,7 +91,10 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     i.setState({ content, bypassNavWarning: false });
   }
 
-  handleDeleteTagline(i: TaglineForm, event: any) {
+  handleDeleteTagline(
+    i: TaglineForm,
+    event: InfernoMouseEvent<HTMLButtonElement>,
+  ) {
     event.preventDefault();
     const id = i.props.tagline?.id;
     if (id) {
@@ -100,7 +103,10 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     }
   }
 
-  handleSubmitTagline(i: TaglineForm, event: any) {
+  handleSubmitTagline(
+    i: TaglineForm,
+    event: InfernoMouseEvent<HTMLButtonElement>,
+  ) {
     event.preventDefault();
 
     const content = i.state.content ?? "";

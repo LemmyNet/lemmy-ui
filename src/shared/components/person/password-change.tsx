@@ -1,6 +1,6 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
-import { Component } from "inferno";
+import { Component, FormEvent } from "inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
 import {
@@ -101,17 +101,23 @@ export class PasswordChange extends Component<
     );
   }
 
-  handlePasswordChange(i: PasswordChange, event: any) {
+  handlePasswordChange(i: PasswordChange, event: FormEvent<HTMLInputElement>) {
     i.state.form.password = event.target.value;
     i.setState(i.state);
   }
 
-  handleVerifyPasswordChange(i: PasswordChange, event: any) {
+  handleVerifyPasswordChange(
+    i: PasswordChange,
+    event: FormEvent<HTMLInputElement>,
+  ) {
     i.state.form.password_verify = event.target.value;
     i.setState(i.state);
   }
 
-  async handlePasswordChangeSubmit(i: PasswordChange, event: any) {
+  async handlePasswordChangeSubmit(
+    i: PasswordChange,
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
     i.setState({ passwordChangeRes: LOADING_REQUEST });
 

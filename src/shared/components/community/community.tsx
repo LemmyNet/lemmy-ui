@@ -120,6 +120,7 @@ import { TimeIntervalFilter } from "@components/common/time-interval-filter";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { communityName } from "./community-link";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -1328,7 +1329,8 @@ function updateCommunityFull(
 function purgeItem(i: Community, purgeRes: RequestState<SuccessResponse>) {
   if (purgeRes.state === "success") {
     toast(I18NextService.i18n.t("purge_success"));
-    i.context.router.history.push(`/`);
+    const context: RouterContext = i.context;
+    context.router.history.push(`/`);
   }
 }
 

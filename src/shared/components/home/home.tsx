@@ -118,6 +118,7 @@ import { PostListingModeDropdown } from "@components/common/post-listing-mode-dr
 import { MultiCommunityLink } from "@components/multi-community/multi-community-link";
 import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
@@ -1061,7 +1062,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      this.context.router.history.push(`/`);
+      const context: RouterContext = this.context;
+      context.router.history.push(`/`);
     }
   }
 

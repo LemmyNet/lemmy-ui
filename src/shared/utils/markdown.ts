@@ -21,8 +21,6 @@ import markdown_it_highlightjs from "markdown-it-highlightjs/core";
 import { getStaticDir } from "./env";
 import mila from "markdown-it-link-attributes";
 
-let Tribute: any;
-
 export let md: MarkdownIt = new MarkdownIt();
 
 export let mdNoImages: MarkdownIt = new MarkdownIt();
@@ -59,9 +57,9 @@ const spoilerConfig = {
     return params.trim().match(/^spoiler\s+(.*)$/);
   },
 
-  render: (tokens: any, idx: any) => {
+  render: (tokens: Token[], idx: number) => {
     const m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
-    if (tokens[idx].nesting === 1) {
+    if (tokens[idx].nesting === 1 && m) {
       // opening tag
       const summary = mdToHtmlInline(m[1]).__html;
       return `<details><summary> ${summary} </summary>\n`;
@@ -213,7 +211,7 @@ export function setupMarkdown() {
   ) {
     //Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
     const item = tokens[idx] as any;
-    const title = item.attrs.length > 2 ? item.attrs[2][1] : "";
+    const title: string = item.attrs.length > 2 ? item.attrs[2][1] : "";
     const splitTitle = title.split(/ (.*)/, 2);
     const isEmoji = splitTitle[0] === "emoji";
     const imgElement =
@@ -302,11 +300,7 @@ export function getEmojiMart(
 }
 
 export async function setupTribute() {
-  // eslint-disable-next-line eqeqeq
-  if (Tribute == null) {
-    console.debug("Tribute is null, importing...");
-    Tribute = (await import("tributejs")).default;
-  }
+  const Tribute = (await import("tributejs")).default;
 
   return new Tribute({
     noMatchTemplate: function () {
@@ -351,7 +345,7 @@ export async function setupTribute() {
           const it: PersonTribute = item.original;
           return it.key;
         },
-        values: debounce(async (text: string, cb: any) => {
+        values: debounce(async (text: string, cb) => {
           cb(await personSearch(text));
         }),
         allowSpaces: false,
@@ -368,7 +362,7 @@ export async function setupTribute() {
           const it: CommunityTribute = item.original;
           return it.key;
         },
-        values: debounce(async (text: string, cb: any) => {
+        values: debounce(async (text: string, cb) => {
           cb(await communitySearch(text));
         }),
         allowSpaces: false,
