@@ -331,7 +331,7 @@ export function enableDownvotes(siteRes: GetSiteResponse): boolean {
 }
 
 export function enableNsfw(siteRes?: GetSiteResponse): boolean {
-  return !!siteRes?.site_view.site.content_warning;
+  return !siteRes?.site_view.local_site.disallow_nsfw_content;
 }
 
 export async function fetchCommunities(q: string) {
