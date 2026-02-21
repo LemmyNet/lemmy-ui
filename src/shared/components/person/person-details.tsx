@@ -38,6 +38,7 @@ import {
   BlockCommunity,
   CommentId,
   PostId,
+  ModEditPost,
 } from "lemmy-js-client";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
@@ -77,6 +78,7 @@ interface PersonDetailsProps {
   onPurgePerson: (form: PurgePerson) => void;
   onPurgeComment: (form: PurgeComment) => void;
   onPostEdit: (form: EditPost) => void;
+  onPostModEdit: (form: ModEditPost) => void;
   onPostVote: (form: CreatePostLike) => void;
   onPostReport: (form: CreatePostReport) => void;
   onLockPost: (form: LockPost) => void;
@@ -163,6 +165,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             myUserInfo={this.props.myUserInfo}
             localSite={this.props.localSite}
             onPostEdit={this.props.onPostEdit}
+            onPostModEdit={this.props.onPostModEdit}
             onPostVote={this.props.onPostVote}
             onPostReport={this.props.onPostReport}
             onBlockPerson={this.props.onBlockPerson}

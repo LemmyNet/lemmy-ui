@@ -90,6 +90,7 @@ import {
   CommentSlimView,
   PersonId,
   Community,
+  ModEditPost,
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "@utils/config";
 import { CommentViewType, InitialFetchRequest } from "@utils/types";
@@ -610,6 +611,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   handleBlockCommunity(this, form, myUserInfo)
                 }
                 onPostEdit={form => handlePostEdit(this, form)}
+                onPostModEdit={form => handlePostModEdit(this, form)}
                 onPostVote={form => handlePostVote(this, form)}
                 onPostReport={form => handlePostReport(form)}
                 onLockPost={form => handleLockPost(this, form)}
@@ -1412,6 +1414,18 @@ async function handlePostVote(i: Post, form: CreatePostLike) {
 async function handlePostEdit(i: Post, form: EditPost) {
   i.setState({ editPostRes: LOADING_REQUEST });
   const res = await HttpService.client.editPost(form);
+  i.setState({ editPostRes: res });
+
+  i.updatePost(res);
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("edited_post"));
+  }
+  return res;
+}
+
+async function handlePostModEdit(i: Post, form: ModEditPost) {
+  i.setState({ editPostRes: LOADING_REQUEST });
+  const res = await HttpService.client.modEditPost(form);
   i.setState({ editPostRes: res });
 
   i.updatePost(res);
