@@ -38,6 +38,7 @@ import {
   CommunityTag,
   CommunityTagId,
   UploadImageResponse,
+  ModEditPost,
 } from "lemmy-js-client";
 import {
   archiveTodayUrl,
@@ -90,6 +91,7 @@ interface PostFormProps {
   onCancel?: () => void;
   onCreate?: (form: CreatePost, bypassNavWarning: () => void) => void;
   onEdit?: (form: EditPost, bypassNavWarning: () => void) => void;
+  onModEdit?: (form: ModEditPost, bypassNavWarning: () => void) => void;
   onSelectCommunity?: (choice: Choice) => void;
   onTitleBlur?: (title: string) => void;
   onUrlBlur?: (url: string) => void;
@@ -125,6 +127,8 @@ interface PostFormState {
   previewMode: boolean;
   bypassNavWarning: boolean;
 }
+
+type EditorType = "creator" | "mod_or_admin" | "none";
 
 export class PostForm extends Component<PostFormProps, PostFormState> {
   state: PostFormState = {
@@ -254,6 +258,23 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
+  get editorType(): EditorType {
+    const p = this.props;
+    let type_: EditorType;
+
+    if (
+      !p.post_view ||
+      p.post_view?.creator.id === p.myUserInfo?.local_user_view.person.id
+    ) {
+      type_ = "creator";
+    } else if (p.post_view?.can_mod) {
+      type_ = "mod_or_admin";
+    } else {
+      type_ = "none";
+    }
+    return type_;
+  }
+
   render() {
     const firstLang = this.state.form.language_id;
     const selectedLangs = firstLang ? Array.of(firstLang) : undefined;
@@ -272,237 +293,251 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             ) && !this.state.bypassNavWarning
           }
         />
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="post-title">
-            {I18NextService.i18n.t("title")}
-          </label>
-          <div className="col-sm-10">
-            <textarea
-              value={this.state.form.name}
-              id="post-title"
-              onInput={e => handlePostNameChange(this, e)}
-              className={`form-control ${
-                !validTitle(this.state.form.name) && "is-invalid"
-              }`}
-              required
-              rows={1}
-              minLength={3}
-              maxLength={MAX_POST_TITLE_LENGTH}
-              ref={this.postTitleRef}
-            />
-            {!validTitle(this.state.form.name) && (
-              <div className="invalid-feedback">
-                {I18NextService.i18n.t("invalid_post_title")}
+        {this.editorType === "creator" && (
+          <>
+            <div className="mb-3 row">
+              <label className="col-sm-2 col-form-label" htmlFor="post-title">
+                {I18NextService.i18n.t("title")}
+              </label>
+              <div className="col-sm-10">
+                <textarea
+                  value={this.state.form.name}
+                  id="post-title"
+                  onInput={e => handlePostNameChange(this, e)}
+                  className={`form-control ${
+                    !validTitle(this.state.form.name) && "is-invalid"
+                  }`}
+                  required
+                  rows={1}
+                  minLength={3}
+                  maxLength={MAX_POST_TITLE_LENGTH}
+                  ref={this.postTitleRef}
+                />
+                {!validTitle(this.state.form.name) && (
+                  <div className="invalid-feedback">
+                    {I18NextService.i18n.t("invalid_post_title")}
+                  </div>
+                )}
+                {this.renderSuggestedPosts()}
               </div>
-            )}
-            {this.renderSuggestedPosts()}
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label" htmlFor="post-url">
-            {I18NextService.i18n.t("url")}
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="url"
-              placeholder={I18NextService.i18n.t("optional")}
-              id="post-url"
-              className="form-control mb-3"
-              value={url}
-              onInput={e => handlePostUrlChange(this, e)}
-              onPaste={e => handleImageUploadPaste(this, e)}
-            />
-            {this.renderSuggestedTitleCopy()}
-            {url && validURL(url) && (
-              <div>
-                <a
-                  href={`${webArchiveUrl}/save/${encodeURIComponent(url)}`}
-                  className="me-2 d-inline-block float-right text-muted small fw-bold"
-                  rel={relTags}
-                >
-                  archive.org {I18NextService.i18n.t("archive_link")}
-                </a>
-                <a
-                  href={`${ghostArchiveUrl}/search${getQueryString({ term: url })}`}
-                  className="me-2 d-inline-block float-right text-muted small fw-bold"
-                  rel={relTags}
-                >
-                  ghostarchive.org {I18NextService.i18n.t("archive_link")}
-                </a>
-                <a
-                  href={`${archiveTodayUrl}/${getQueryString({ run: "1", url })}`}
-                  className="me-2 d-inline-block float-right text-muted small fw-bold"
-                  rel={relTags}
-                >
-                  archive.today {I18NextService.i18n.t("archive_link")}
-                </a>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <label htmlFor="file-upload" className={"col-sm-2 col-form-label"}>
-            {capitalizeFirstLetter(I18NextService.i18n.t("image"))}
-            <Icon icon="image" classes="icon-inline ms-1" />
-          </label>
-          <div className="col-sm-10">
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/*,video/*"
-              name="file"
-              className="small col-sm-10 form-control"
-              disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
-              onChange={e => handleImageUpload(this, e)}
-            />
-            {this.state.imageLoading && <Spinner />}
-            {url && isImage(url) && (
-              <img src={url} className="img-fluid mt-2" alt="" />
-            )}
-            {this.state.uploadedImage && (
-              <button
-                className="btn btn-danger btn-sm mt-2"
-                onClick={() => handleImageDelete(this)}
-              >
-                <Icon icon="x" classes="icon-inline me-1" />
-                {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
-              </button>
-            )}
-          </div>
-
-          {this.props.crossPosts && this.props.crossPosts.length > 0 && (
-            <>
-              <div className="my-1 text-muted small fw-bold">
-                {I18NextService.i18n.t("cross_posts")}
-              </div>
-              <PostListings
-                showCommunity
-                viewOnly
-                showMarkRead="hide"
-                posts={this.props.crossPosts}
-                showCrossPosts="show_separately"
-                enableNsfw={this.props.enableNsfw}
-                showAdultConsentModal={this.props.showAdultConsentModal}
-                allLanguages={this.props.allLanguages}
-                siteLanguages={this.props.siteLanguages}
-                myUserInfo={this.props.myUserInfo}
-                localSite={this.props.localSite}
-                admins={this.props.admins}
-                postListingMode="list"
-                voteLoading={undefined}
-                // All of these are unused, since its view only
-                onPostEdit={() => EMPTY_REQUEST}
-                onPostVote={() => EMPTY_REQUEST}
-                onPostReport={() => {}}
-                onBlockPerson={() => {}}
-                onBlockCommunity={() => {}}
-                onLockPost={() => {}}
-                onDeletePost={() => {}}
-                onRemovePost={() => {}}
-                onSavePost={() => {}}
-                onFeaturePost={() => {}}
-                onPurgePerson={() => {}}
-                onPurgePost={() => {}}
-                onBanPersonFromCommunity={() => {}}
-                onBanPerson={() => {}}
-                onAddModToCommunity={() => {}}
-                onAddAdmin={() => {}}
-                onTransferCommunity={() => {}}
-                onMarkPostAsRead={() => {}}
-                onHidePost={() => {}}
-                onPersonNote={() => {}}
-                onScrollIntoCommentsClick={() => {}}
-              />
-            </>
-          )}
-        </div>
-        {!isImage(url || "") && (
-          <div className="mb-3 row">
-            <label
-              className="col-sm-2 col-form-label"
-              htmlFor="post-custom-thumbnail"
-            >
-              {I18NextService.i18n.t("custom_thumbnail_url")}
-            </label>
-            <div className="col-sm-10">
-              <input
-                type="url"
-                id="post-custom-thumbnail"
-                placeholder={I18NextService.i18n.t("optional")}
-                className="form-control mb-3"
-                value={this.state.form.custom_thumbnail}
-                onInput={e => handleCustomThumbnailChange(this, e)}
-              />
             </div>
-          </div>
-        )}
-        <div className="mb-3 row">
-          <label className="col-sm-2 col-form-label">
-            {I18NextService.i18n.t("body")}
-          </label>
-          <div className="col-sm-10">
-            <MarkdownTextArea
-              initialContent={this.state.form.body}
-              placeholder={I18NextService.i18n.t("optional")}
-              onContentChange={val => handlePostBodyChange(this, val)}
-              onContentBlur={val => handlePostBodyBlur(this, val)}
+            <div className="mb-3 row">
+              <label className="col-sm-2 col-form-label" htmlFor="post-url">
+                {I18NextService.i18n.t("url")}
+              </label>
+              <div className="col-sm-10">
+                <input
+                  type="url"
+                  placeholder={I18NextService.i18n.t("optional")}
+                  id="post-url"
+                  className="form-control mb-3"
+                  value={url}
+                  onInput={e => handlePostUrlChange(this, e)}
+                  onPaste={e => handleImageUploadPaste(this, e)}
+                />
+                {this.renderSuggestedTitleCopy()}
+                {url && validURL(url) && (
+                  <div>
+                    <a
+                      href={`${webArchiveUrl}/save/${encodeURIComponent(url)}`}
+                      className="me-2 d-inline-block float-right text-muted small fw-bold"
+                      rel={relTags}
+                    >
+                      archive.org {I18NextService.i18n.t("archive_link")}
+                    </a>
+                    <a
+                      href={`${ghostArchiveUrl}/search${getQueryString({ term: url })}`}
+                      className="me-2 d-inline-block float-right text-muted small fw-bold"
+                      rel={relTags}
+                    >
+                      ghostarchive.org {I18NextService.i18n.t("archive_link")}
+                    </a>
+                    <a
+                      href={`${archiveTodayUrl}/${getQueryString({ run: "1", url })}`}
+                      className="me-2 d-inline-block float-right text-muted small fw-bold"
+                      rel={relTags}
+                    >
+                      archive.today {I18NextService.i18n.t("archive_link")}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="mb-3 row">
+              <label
+                htmlFor="file-upload"
+                className={"col-sm-2 col-form-label"}
+              >
+                {capitalizeFirstLetter(I18NextService.i18n.t("image"))}
+                <Icon icon="image" classes="icon-inline ms-1" />
+              </label>
+              <div className="col-sm-10">
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept="image/*,video/*"
+                  name="file"
+                  className="small col-sm-10 form-control"
+                  disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
+                  onChange={e => handleImageUpload(this, e)}
+                />
+                {this.state.imageLoading && <Spinner />}
+                {url && isImage(url) && (
+                  <img src={url} className="img-fluid mt-2" alt="" />
+                )}
+                {this.state.uploadedImage && (
+                  <button
+                    className="btn btn-danger btn-sm mt-2"
+                    onClick={() => handleImageDelete(this)}
+                  >
+                    <Icon icon="x" classes="icon-inline me-1" />
+                    {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
+                  </button>
+                )}
+              </div>
+
+              {this.props.crossPosts && this.props.crossPosts.length > 0 && (
+                <>
+                  <div className="my-1 text-muted small fw-bold">
+                    {I18NextService.i18n.t("cross_posts")}
+                  </div>
+                  <PostListings
+                    showCommunity
+                    viewOnly
+                    showMarkRead="hide"
+                    posts={this.props.crossPosts}
+                    showCrossPosts="show_separately"
+                    enableNsfw={this.props.enableNsfw}
+                    showAdultConsentModal={this.props.showAdultConsentModal}
+                    allLanguages={this.props.allLanguages}
+                    siteLanguages={this.props.siteLanguages}
+                    myUserInfo={this.props.myUserInfo}
+                    localSite={this.props.localSite}
+                    admins={this.props.admins}
+                    postListingMode="list"
+                    voteLoading={undefined}
+                    // All of these are unused, since its view only
+                    onPostEdit={() => {}}
+                    onPostModEdit={() => {}}
+                    onPostVote={() => {}}
+                    onPostReport={() => {}}
+                    onBlockPerson={() => {}}
+                    onBlockCommunity={() => {}}
+                    onLockPost={() => {}}
+                    onDeletePost={() => {}}
+                    onRemovePost={() => {}}
+                    onSavePost={() => {}}
+                    onFeaturePost={() => {}}
+                    onPurgePerson={() => {}}
+                    onPurgePost={() => {}}
+                    onBanPersonFromCommunity={() => {}}
+                    onBanPerson={() => {}}
+                    onAddModToCommunity={() => {}}
+                    onAddAdmin={() => {}}
+                    onTransferCommunity={() => {}}
+                    onMarkPostAsRead={() => {}}
+                    onHidePost={() => {}}
+                    onPersonNote={() => {}}
+                    onScrollIntoCommentsClick={() => {}}
+                  />
+                </>
+              )}
+            </div>
+            {!isImage(url || "") && (
+              <div className="mb-3 row">
+                <label
+                  className="col-sm-2 col-form-label"
+                  htmlFor="post-custom-thumbnail"
+                >
+                  {I18NextService.i18n.t("custom_thumbnail_url")}
+                </label>
+                <div className="col-sm-10">
+                  <input
+                    type="url"
+                    id="post-custom-thumbnail"
+                    placeholder={I18NextService.i18n.t("optional")}
+                    className="form-control mb-3"
+                    value={this.state.form.custom_thumbnail}
+                    onInput={e => handleCustomThumbnailChange(this, e)}
+                  />
+                </div>
+              </div>
+            )}
+            <div className="mb-3 row">
+              <label className="col-sm-2 col-form-label">
+                {I18NextService.i18n.t("body")}
+              </label>
+              <div className="col-sm-10">
+                <MarkdownTextArea
+                  initialContent={this.state.form.body}
+                  placeholder={I18NextService.i18n.t("optional")}
+                  onContentChange={val => handlePostBodyChange(this, val)}
+                  onContentBlur={val => handlePostBodyBlur(this, val)}
+                  allLanguages={this.props.allLanguages}
+                  siteLanguages={this.props.siteLanguages}
+                  hideNavigationWarnings
+                  maxLength={postMarkdownFieldCharacterLimit}
+                  myUserInfo={this.props.myUserInfo}
+                />
+              </div>
+            </div>
+            <LanguageSelect
               allLanguages={this.props.allLanguages}
               siteLanguages={this.props.siteLanguages}
-              hideNavigationWarnings
-              maxLength={postMarkdownFieldCharacterLimit}
+              selectedLanguageIds={selectedLangs}
+              multiple={false}
+              onChange={val => handleLanguageChange(this, val)}
               myUserInfo={this.props.myUserInfo}
             />
-          </div>
-        </div>
-        <LanguageSelect
-          allLanguages={this.props.allLanguages}
-          siteLanguages={this.props.siteLanguages}
-          selectedLanguageIds={selectedLangs}
-          multiple={false}
-          onChange={val => handleLanguageChange(this, val)}
-          myUserInfo={this.props.myUserInfo}
-        />
-        {url && isMedia(url) && (
-          <div className="mb-3 row">
-            <label className="col-sm-2 col-form-label" htmlFor="post-alt-text">
-              {I18NextService.i18n.t("column_alttext")}
-            </label>
-            <div className="col-sm-10">
-              <input
-                autoComplete="false"
-                name="alt_text"
-                placeholder={I18NextService.i18n.t("optional")}
-                type="text"
-                className="form-control"
-                id="post-alt-text"
-                value={this.state.form.alt_text}
-                onInput={e => handleAltTextChange(this, e)}
-              />
-            </div>
-          </div>
-        )}
-        {!this.props.post_view && (
-          <div className="mb-3 row align-items-center">
-            <label className="col-sm-2 col-form-label" htmlFor="post-community">
-              {I18NextService.i18n.t("community")}
-            </label>
-            <div className="col-sm-10">
-              <SearchableSelect
-                id="post-community"
-                value={this.state.form.community_id}
-                options={[
-                  {
-                    label: I18NextService.i18n.t("select_a_community"),
-                    value: "",
-                    disabled: true,
-                  } as Choice,
-                ].concat(this.state.communitySearchOptions)}
-                loading={this.state.communitySearchLoading}
-                onChange={choice => handleCommunitySelect(this, choice)}
-                onSearch={text => handleCommunitySearch(this, text)}
-              />
-            </div>
-          </div>
+            {url && isMedia(url) && (
+              <div className="mb-3 row">
+                <label
+                  className="col-sm-2 col-form-label"
+                  htmlFor="post-alt-text"
+                >
+                  {I18NextService.i18n.t("column_alttext")}
+                </label>
+                <div className="col-sm-10">
+                  <input
+                    autoComplete="false"
+                    name="alt_text"
+                    placeholder={I18NextService.i18n.t("optional")}
+                    type="text"
+                    className="form-control"
+                    id="post-alt-text"
+                    value={this.state.form.alt_text}
+                    onInput={e => handleAltTextChange(this, e)}
+                  />
+                </div>
+              </div>
+            )}
+            {!this.props.post_view && (
+              <div className="mb-3 row align-items-center">
+                <label
+                  className="col-sm-2 col-form-label"
+                  htmlFor="post-community"
+                >
+                  {I18NextService.i18n.t("community")}
+                </label>
+                <div className="col-sm-10">
+                  <SearchableSelect
+                    id="post-community"
+                    value={this.state.form.community_id}
+                    options={[
+                      {
+                        label: I18NextService.i18n.t("select_a_community"),
+                        value: "",
+                        disabled: true,
+                      } as Choice,
+                    ].concat(this.state.communitySearchOptions)}
+                    loading={this.state.communitySearchLoading}
+                    onChange={choice => handleCommunitySelect(this, choice)}
+                    onSearch={text => handleCommunitySearch(this, text)}
+                  />
+                </div>
+              </div>
+            )}
+          </>
         )}
         {this.props.enableNsfw && !this.props.isNsfwCommunity && (
           <div className="form-check mb-3">
@@ -518,7 +553,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </label>
           </div>
         )}
-        {!this.props.post_view && (
+        {this.editorType === "creator" && !this.props.post_view && (
           <div className="mb-3 row">
             <label className="col-sm-2 col-form-label" htmlFor="post-schedule">
               {I18NextService.i18n.t("scheduled_publish_time")}
@@ -542,7 +577,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 {I18NextService.i18n.t("tags")}
               </label>
               <div className="col-sm-10">
-                {/** TODO This should use an abstracted FilterChipMultiDropdown **/}
+                {/** TODO This should use an abstracted FilterChipMultiDropdown. **/}
                 <select
                   id="post-tags"
                   className="form-select"
@@ -550,15 +585,17 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   aria-label={I18NextService.i18n.t("tags")}
                   onChange={e => handleTagsChange(this, e)}
                 >
-                  {this.props.selectedCommunityTags.map(tag => (
-                    <option
-                      key={tag.id}
-                      value={tag.id}
-                      selected={(this.state.form.tags ?? []).includes(tag.id)}
-                    >
-                      {communityTagName(tag)}
-                    </option>
-                  ))}
+                  {this.props.selectedCommunityTags
+                    .filter(t => !t.deleted)
+                    .map(tag => (
+                      <option
+                        key={tag.id}
+                        value={tag.id}
+                        selected={(this.state.form.tags ?? []).includes(tag.id)}
+                      >
+                        {communityTagName(tag)}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>
@@ -660,8 +697,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 postListingMode="list"
                 voteLoading={undefined}
                 // All of these are unused, since its view only
-                onPostEdit={() => EMPTY_REQUEST}
-                onPostVote={() => EMPTY_REQUEST}
+                onPostEdit={() => {}}
+                onPostModEdit={() => {}}
+                onPostVote={() => {}}
                 onPostReport={() => {}}
                 onBlockPerson={() => {}}
                 onBlockCommunity={() => {}}
@@ -751,23 +789,36 @@ function handlePostSubmit(i: PostForm, event: FormEvent<HTMLFormElement>) {
   );
 
   if (pv) {
-    i.props.onEdit?.(
-      {
-        post_id: pv.post.id,
-        name: pForm.name,
-        url: pForm.url,
-        body: pForm.body,
-        nsfw: pForm.nsfw,
-        language_id: pForm.language_id,
-        custom_thumbnail: pForm.custom_thumbnail,
-        alt_text: pForm.alt_text,
-        tags: pForm.tags,
-        scheduled_publish_time_at,
-      },
-      () => {
-        i.setState({ bypassNavWarning: true });
-      },
-    );
+    if (i.editorType === "creator") {
+      i.props.onEdit?.(
+        {
+          post_id: pv.post.id,
+          name: pForm.name,
+          url: pForm.url,
+          body: pForm.body,
+          nsfw: pForm.nsfw,
+          language_id: pForm.language_id,
+          custom_thumbnail: pForm.custom_thumbnail,
+          alt_text: pForm.alt_text,
+          tags: pForm.tags,
+          scheduled_publish_time_at,
+        },
+        () => {
+          i.setState({ bypassNavWarning: true });
+        },
+      );
+    } else if (i.editorType === "mod_or_admin") {
+      i.props.onModEdit?.(
+        {
+          post_id: pv.post.id,
+          nsfw: pForm.nsfw,
+          tags: pForm.tags,
+        },
+        () => {
+          i.setState({ bypassNavWarning: true });
+        },
+      );
+    }
   } else if (pForm.name && pForm.community_id) {
     i.props.onCreate?.(
       {

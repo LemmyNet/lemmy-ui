@@ -387,8 +387,9 @@ export class Notifications extends Component<
               showBody={"preview"}
               editLoading={false}
               viewOnly // TODO: comments do allow edits and moderation
-              onPostEdit={() => EMPTY_REQUEST}
-              onPostVote={() => EMPTY_REQUEST}
+              onPostEdit={() => {}}
+              onPostModEdit={() => {}}
+              onPostVote={() => {}}
               onPostReport={() => {}}
               onBlockPerson={() => {}}
               onBlockCommunity={() => {}}

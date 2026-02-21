@@ -84,6 +84,7 @@ import {
   RemoveCommunity,
   CommentId,
   PostId,
+  ModEditPost,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -642,6 +643,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               }
               voteLoading={itemLoading(this.state.votePostRes)}
               onPostEdit={form => handlePostEdit(this, form)}
+              onPostModEdit={form => handlePostModEdit(this, form)}
               onPostVote={form => handlePostVote(this, form)}
               onPostReport={form => handlePostReport(form)}
               onLockPost={form => handleLockPost(this, form)}
@@ -1133,6 +1135,12 @@ async function handleCommentVote(i: Community, form: CreateCommentLike) {
 
 async function handlePostEdit(i: Community, form: EditPost) {
   const res = await HttpService.client.editPost(form);
+  findAndUpdatePost(i, res);
+  return res;
+}
+
+async function handlePostModEdit(i: Community, form: ModEditPost) {
+  const res = await HttpService.client.modEditPost(form);
   findAndUpdatePost(i, res);
   return res;
 }

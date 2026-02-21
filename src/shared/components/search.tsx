@@ -304,8 +304,9 @@ const postListing = (
               markReadLoading={false}
               voteLoading={false}
               // All of these are unused, since its view only
-              onPostEdit={() => EMPTY_REQUEST}
-              onPostVote={() => EMPTY_REQUEST}
+              onPostEdit={() => {}}
+              onPostModEdit={() => {}}
+              onPostVote={() => {}}
               onPostReport={() => {}}
               onBlockPerson={() => {}}
               onBlockCommunity={() => {}}
@@ -1009,8 +1010,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 markReadLoading={false}
                 voteLoading={false}
                 // All of these are unused, since its view only
-                onPostEdit={() => EMPTY_REQUEST}
-                onPostVote={() => EMPTY_REQUEST}
+                onPostEdit={() => {}}
+                onPostModEdit={() => {}}
+                onPostVote={() => {}}
                 onPostReport={() => {}}
                 onBlockPerson={() => {}}
                 onBlockCommunity={() => {}}

@@ -13,7 +13,6 @@ import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { PostListing } from "./post-listing";
-import { EMPTY_REQUEST } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import ActionButton from "@components/common/content-actions/action-button";
 import {
@@ -100,8 +99,9 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           markReadLoading={false}
           voteLoading={false}
           // All of these are unused, since its view only
-          onPostEdit={() => EMPTY_REQUEST}
-          onPostVote={() => EMPTY_REQUEST}
+          onPostEdit={() => {}}
+          onPostModEdit={() => {}}
+          onPostVote={() => {}}
           onPostReport={() => {}}
           onBlockPerson={() => {}}
           onBlockCommunity={() => {}}

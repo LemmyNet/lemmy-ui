@@ -17,7 +17,6 @@ import {
   CreatePostLike,
   CreatePostReport,
   DeletePost,
-  EditPost,
   FeaturePost,
   HidePost,
   Language,
@@ -76,7 +75,6 @@ type PostListingCardProps = {
   markReadLoading: boolean;
   voteLoading: boolean;
   onEditClick: () => void;
-  onPostEdit: (form: EditPost) => void;
   onPostVote: (form: CreatePostLike) => void;
   onPostReport: (form: CreatePostReport) => void;
   onBlockPerson: (form: BlockPerson) => void;
