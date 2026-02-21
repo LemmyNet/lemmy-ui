@@ -631,11 +631,11 @@ export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   } else return context.router.staticContext;
 }
 
-export async function updateMyUserInfo(myUserInfo: MyUserInfo | undefined) {
+export function updateMyUserInfo(myUserInfo: MyUserInfo | undefined) {
   if (isBrowser()) {
     if (window.isoData) {
       window.isoData.myUserInfo = myUserInfo;
-      await UnreadCounterService.Instance.configure(myUserInfo);
+      UnreadCounterService.Instance.configure(myUserInfo);
     }
   }
 }

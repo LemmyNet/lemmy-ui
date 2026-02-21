@@ -35,9 +35,11 @@ export class UnreadCounterService {
     return true;
   }
 
-  public async configure(myUserInfo: MyUserInfo | undefined) {
+  public configure(myUserInfo: MyUserInfo | undefined) {
     this.enableUnreadCounts = !!myUserInfo;
-    await poll(
+    // Don't await this, since its a poll
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    poll(
       async () => await this.updateUnreadCounts(),
       updateUnreadCountsInterval,
     );

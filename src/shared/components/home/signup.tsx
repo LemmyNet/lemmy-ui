@@ -475,7 +475,7 @@ async function handleRegisterSubmit(
           const myUserRes = await HttpService.client.getMyUser();
 
           if (myUserRes.state === "success") {
-            await updateMyUserInfo(myUserRes.data);
+            updateMyUserInfo(myUserRes.data);
           }
 
           i.props.history.replace("/communities");

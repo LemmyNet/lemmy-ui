@@ -163,7 +163,7 @@ async function handleOAuthLoginSuccess(
   ]);
 
   if (site.state === "success" && myUser.state === "success") {
-    await updateMyUserInfo(myUser.data);
+    updateMyUserInfo(myUser.data);
     refreshTheme();
   }
 

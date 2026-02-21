@@ -50,11 +50,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
     unreadPendingFollowsCount: 0,
   };
 
-  async componentWillMount() {
+  componentWillMount() {
     // Subscribe to jwt changes
     if (isBrowser()) {
       // On the first load, check the unreads
-      await UnreadCounterService.Instance.configure(this.props.myUserInfo);
+      UnreadCounterService.Instance.configure(this.props.myUserInfo);
       this.unreadNotifsCountSubscription =
         UnreadCounterService.Instance.notificationCount.subscribe(
           unreadNotifsCount => this.setState({ unreadNotifsCount }),

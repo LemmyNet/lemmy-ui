@@ -1880,7 +1880,7 @@ async function handleSaveSettingsSubmit(
         siteRes: siteRes.data,
       });
 
-      await updateMyUserInfo(userRes.data);
+      updateMyUserInfo(userRes.data);
       await I18NextService.reconfigure(
         window.navigator.languages,
         userRes.data.local_user_view.local_user.interface_language,
@@ -2005,7 +2005,7 @@ async function handleImportSettings(i: Settings) {
         },
       } = userRes.data.local_user_view;
 
-      await updateMyUserInfo(userRes.data);
+      updateMyUserInfo(userRes.data);
       refreshTheme();
 
       i.setState(prev => ({
