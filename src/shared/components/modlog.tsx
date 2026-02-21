@@ -566,6 +566,10 @@ export function processModlogEntry(
         ),
       };
     }
+    // TODO mod warn comment and post still need to be done
+    case "mod_warn_comment":
+    case "mod_warn_post":
+      return <></>;
   }
 }
 

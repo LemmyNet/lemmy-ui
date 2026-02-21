@@ -818,7 +818,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               showSubscribed
               showSuggested={
                 !!this.isoData.siteRes.site_view.local_site
-                  .suggested_communities
+                  .suggested_multi_community_id
               }
               onSelect={type => handleListingTypeChange(this, type)}
               myUserInfo={this.isoData.myUserInfo}

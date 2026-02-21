@@ -240,7 +240,7 @@ export class Communities extends Component<
                 showSubscribed
                 showSuggested={
                   !!this.isoData.siteRes.site_view.local_site
-                    .suggested_communities
+                    .suggested_multi_community_id
                 }
                 myUserInfo={myUserInfo}
                 showLabel
