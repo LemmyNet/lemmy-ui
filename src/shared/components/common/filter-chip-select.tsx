@@ -11,11 +11,15 @@ type Props = {
   multiple: boolean;
   label?: NoOptionI18nKeys;
   className?: string;
+  disabled?: boolean;
   onSelect: (val: Choice[]) => void;
   onSearch?: (val: string) => void;
 };
 
-type State = { id: string; choices: Choices | undefined };
+type State = {
+  id: string;
+  choices: Choices | undefined;
+};
 
 export class FilterChipSelect extends Component<Props, State> {
   state: State = {
@@ -24,6 +28,7 @@ export class FilterChipSelect extends Component<Props, State> {
   };
 
   async componentDidMount() {
+    // Only load choices on first mount
     const Choices = (await import("choices.js")).default;
     const element = document.querySelector("#" + this.state.id);
     if (element) {
@@ -54,6 +59,7 @@ export class FilterChipSelect extends Component<Props, State> {
             "bg-light",
             "border-light-subtle",
             "no-caret",
+            // These classes ended up not working
             // "btn",
             // "btn-light",
             // "btn-sm",
@@ -120,12 +126,16 @@ export class FilterChipSelect extends Component<Props, State> {
       <select
         id={this.state.id}
         multiple={this.props.multiple}
+        disabled={this.props.disabled}
         onChange={e => handleSelect(this, e)}
       ></select>
     );
   }
 }
 
+/**
+ * De-dupes the choices, and sets the selected ones.
+ **/
 function buildChoices(
   allOptions: Choice[],
   selectedOptions: string[],
