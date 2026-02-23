@@ -347,7 +347,9 @@ export default class ContentActionDropdown extends Component<
                     <li>
                       <ActionButton
                         icon="edit"
-                        label={I18NextService.i18n.t("edit")}
+                        label={I18NextService.i18n.t(
+                          this.amCreator ? "edit" : "edit_as_mod",
+                        )}
                         noLoading
                         onClick={onEdit}
                       />
