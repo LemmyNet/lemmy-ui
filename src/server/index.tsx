@@ -95,8 +95,8 @@ server.get(["/c/:name/feed", "/c/{:name}.rss"], CommunityFeedHandler);
 server.get(["/m/:name/feed", "/m/{:name}.rss"], MultiCommunityFeedHandler);
 server.get("/{*splat}", CatchAllHandler);
 
-const listener = server.listen(Number(port), hostname, () => {
-  verifyDynamicImports(true);
+const listener = server.listen(Number(port), hostname, async () => {
+  await verifyDynamicImports(true);
 
   setupMarkdown();
 

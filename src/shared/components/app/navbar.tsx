@@ -19,6 +19,7 @@ import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 import { Subscription } from "rxjs";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface NavbarProps {
   siteRes?: GetSiteResponse;
@@ -475,7 +476,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   get currentLocation() {
-    return this.context.router.history.location.pathname;
+    const context: RouterContext = this.context;
+    return context.router.history.location.pathname;
   }
 }
 
@@ -489,8 +491,8 @@ function handleCollapseClick(i: Navbar) {
   }
 }
 
-function handleLogOut(i: Navbar) {
-  UserService.Instance.logout();
+async function handleLogOut(i: Navbar) {
+  await UserService.Instance.logout();
   handleCollapseClick(i);
 }
 

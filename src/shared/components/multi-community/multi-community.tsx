@@ -89,6 +89,7 @@ import { MultiCommunityLink } from "./multi-community-link";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { MultiCommunityEntryList } from "./multi-community-entry-form";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type MultiCommunityData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
@@ -231,16 +232,16 @@ export class MultiCommunity extends Component<RouteProps, State> {
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: RouteProps & { children?: InfernoNode },
   ) {
     if (
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      this.fetchMultiCommunity(nextProps);
+      await this.fetchMultiCommunity(nextProps);
     }
-    this.fetchData(nextProps);
+    await this.fetchData(nextProps);
   }
 
   static fetchInitialData = async ({
@@ -857,7 +858,8 @@ function updateMultiCommunity(
 function purgeItem(i: MultiCommunity, purgeRes: RequestState<SuccessResponse>) {
   if (purgeRes.state === "success") {
     toast(I18NextService.i18n.t("purge_success"));
-    i.context.router.history.push(`/`);
+    const context: RouterContext = i.context;
+    context.router.history.push(`/`);
   }
 }
 

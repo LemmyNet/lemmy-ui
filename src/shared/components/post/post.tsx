@@ -120,6 +120,7 @@ import { Link } from "inferno-router";
 import { Action } from "history";
 import { CommentSortDropdown } from "@components/common/sort-dropdown";
 import { CommentViewTypeDropdown } from "@components/common/comment-view-type-dropdown";
+import { RouterContext } from "inferno-router/dist/Router";
 
 const commentsShownInterval = 15;
 
@@ -455,7 +456,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: PostRouteProps) {
+  async componentWillReceiveProps(nextProps: PostRouteProps) {
     const { post_id: nextPost, comment_id: nextComment } =
       nextProps.match.params;
     const { post_id: prevPost, comment_id: prevComment } =
@@ -485,10 +486,10 @@ export class Post extends Component<PostRouteProps, PostState> {
       nextProps.sort !== this.props.sort;
 
     if (needPost) {
-      this.fetchPost(nextProps);
+      await this.fetchPost(nextProps);
     }
     if (needComments) {
-      this.fetchComments(nextProps);
+      await this.fetchComments(nextProps);
     }
 
     if (
@@ -592,6 +593,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 showCrossPosts="expanded"
                 showBody="full"
                 showCommunity
+                topBorder={false}
                 admins={siteRes.admins}
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}
@@ -1019,7 +1021,8 @@ export class Post extends Component<PostRouteProps, PostState> {
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      this.context.router.history.push(`/`);
+      const context: RouterContext = this.context;
+      context.router.history.push(`/`);
     }
   }
 

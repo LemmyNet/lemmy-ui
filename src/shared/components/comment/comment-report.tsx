@@ -85,6 +85,7 @@ export class CommentReport extends Component<
           fetchChildrenLoading={undefined}
           voteLoading={undefined}
           viewOnly
+          noBorder
           showCommunity
           showContext={false}
           allLanguages={[]}

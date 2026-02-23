@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component, FocusEvent, FormEvent } from "inferno";
 import { I18NextService } from "../../services/I18NextService";
 
 interface UrlListTextareaProps {
@@ -10,7 +10,10 @@ interface UrlListTextareaState {
   text: string;
 }
 
-function handleTextChange(i: UrlListTextarea, event: any) {
+function handleTextChange(
+  i: UrlListTextarea,
+  event: FormEvent<HTMLTextAreaElement>,
+) {
   i.setState({ text: event.target.value });
 }
 
@@ -20,7 +23,10 @@ function processUrl(str: string) {
   return new URL(str).toString().replace(URL_SCHEME, "");
 }
 
-function handleTextBlur(i: UrlListTextarea, event: any) {
+function handleTextBlur(
+  i: UrlListTextarea,
+  event: FocusEvent<HTMLTextAreaElement>,
+) {
   const inputValue: string = event.currentTarget?.value ?? "";
 
   const intermediateText = inputValue.replace(/\s+/g, "\n");

@@ -26,7 +26,7 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, InfernoNode, MouseEventHandler } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
@@ -117,7 +117,11 @@ import { BannedDialog } from "./banned-dialog";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { MultiCommunityLink } from "@components/multi-community/multi-community-link";
 import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
-import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import {
+  ExpandChipCheckbox,
+  FilterChipCheckbox,
+} from "@components/common/filter-chip-checkbox";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
@@ -257,24 +261,6 @@ export function getHomeQueryParams(
   );
 }
 
-const MobileButton = ({
-  textKey,
-  show,
-  onClick,
-}: {
-  textKey: NoOptionI18nKeys;
-  show: boolean;
-  onClick: MouseEventHandler<HTMLButtonElement>;
-}) => (
-  <button
-    className="btn btn-sm btn-light border-light-subtle d-inline-block mb-2 me-3"
-    onClick={onClick}
-  >
-    {I18NextService.i18n.t(textKey)}{" "}
-    <Icon icon={show ? `minus-square` : `plus-square`} classes="icon-inline" />
-  </button>
-);
-
 type HomePathProps = Record<string, never>;
 type HomeRouteProps = RouteComponentProps<HomePathProps> & HomeProps;
 export type HomeFetchConfig = IRoutePropsWithFetch<
@@ -342,10 +328,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: HomeRouteProps & { children?: InfernoNode },
   ) {
-    this.fetchData(nextProps);
+    await this.fetchData(nextProps);
   }
 
   static fetchInitialData = async ({
@@ -443,9 +429,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                   )}
                 ></div>
               )}
-              <div className="d-block d-md-none">{this.mobileView}</div>
               {this.posts}
             </div>
+            {/* Only show the sidebar on md or larger */}
             <aside className="d-none d-md-block col-md-4 col-lg-3">
               {this.mySidebar}
             </aside>
@@ -465,7 +451,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     return !!mui && mui.multi_community_follows.length > 0;
   }
 
-  get mobileView() {
+  get mobileSidebarAndSubscribed() {
     const {
       siteRes: {
         site_view: { local_site, site },
@@ -476,42 +462,32 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     } = this.state;
 
     return (
-      <div className="row">
-        <div className="col-12">
-          {this.hasFollows && (
-            <MobileButton
-              textKey="subscribed"
-              show={showSubscribedMobile}
-              onClick={() => handleShowSubscribedMobile(this)}
-            />
-          )}
-          <MobileButton
-            textKey="sidebar"
-            show={showSidebarMobile}
-            onClick={() => handleShowSidebarMobile(this)}
-          />
-          {showSidebarMobile && (
-            <SiteSidebar
-              site={site}
-              admins={admins}
-              localSite={local_site}
-              isMobile
-              myUserInfo={this.isoData.myUserInfo}
-              allLanguages={this.state.siteRes.all_languages}
-              siteLanguages={this.state.siteRes.discussion_languages}
-              activePlugins={this.state.siteRes.active_plugins}
-            />
-          )}
-          {showSubscribedMobile && (
-            <>
-              <div className="card mb-3">
-                {this.subscribedCommunities(true)}
-              </div>
-              <div className="card mb-3">
-                {this.subscribedMultiCommunities(true)}
-              </div>
-            </>
-          )}
+      <div className="d-block d-md-none">
+        <div className="row">
+          <div className="col-12">
+            {showSidebarMobile && (
+              <SiteSidebar
+                site={site}
+                admins={admins}
+                localSite={local_site}
+                isMobile
+                myUserInfo={this.isoData.myUserInfo}
+                allLanguages={this.state.siteRes.all_languages}
+                siteLanguages={this.state.siteRes.discussion_languages}
+                activePlugins={this.state.siteRes.active_plugins}
+              />
+            )}
+            {showSubscribedMobile && (
+              <>
+                <div className="card mb-3">
+                  {this.subscribedCommunities(true)}
+                </div>
+                <div className="card mb-3">
+                  {this.subscribedMultiCommunities(true)}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -719,6 +695,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       <div className="main-content-wrapper">
         <div>
           {this.selects}
+          {this.mobileSidebarAndSubscribed}
           {this.listings}
           <div className="row">
             <div className="col">
@@ -890,8 +867,27 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       showRead,
     } = this.props;
 
+    const { showSubscribedMobile, showSidebarMobile } = this.state;
+
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-3">
+        {/* Only show these two selects on mobile */}
+        {this.hasFollows && (
+          <div className="d-block d-md-none col">
+            <ExpandChipCheckbox
+              option="show_subscribed"
+              isChecked={showSubscribedMobile}
+              onCheck={show => handleShowSubscribedMobile(this, show)}
+            />
+          </div>
+        )}
+        <div className="d-block d-md-none col">
+          <ExpandChipCheckbox
+            option="show_sidebar"
+            isChecked={showSidebarMobile}
+            onCheck={show => handleShowSidebarMobile(this, show)}
+          />
+        </div>
         <div className="col">
           <PostOrCommentTypeDropdown
             currentOption={postOrCommentType}
@@ -926,7 +922,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             showLocal={showLocal(this.isoData)}
             showSubscribed
             showSuggested={
-              !!this.isoData.siteRes.site_view.local_site.suggested_communities
+              !!this.isoData.siteRes.site_view.local_site
+                .suggested_multi_community_id
             }
             showLabel
             myUserInfo={this.isoData.myUserInfo}
@@ -1061,7 +1058,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      this.context.router.history.push(`/`);
+      const context: RouterContext = this.context;
+      context.router.history.push(`/`);
     }
   }
 
@@ -1111,12 +1109,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 }
 
-function handleShowSubscribedMobile(i: Home) {
-  i.setState({ showSubscribedMobile: !i.state.showSubscribedMobile });
+function handleShowSubscribedMobile(i: Home, show: boolean) {
+  i.setState({ showSubscribedMobile: show });
 }
 
-function handleShowSidebarMobile(i: Home) {
-  i.setState({ showSidebarMobile: !i.state.showSidebarMobile });
+function handleShowSidebarMobile(i: Home, show: boolean) {
+  i.setState({ showSidebarMobile: show });
 }
 
 function handleCollapseSubscribe(i: Home) {

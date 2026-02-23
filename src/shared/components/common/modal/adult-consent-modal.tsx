@@ -6,6 +6,7 @@ import { I18NextService } from "../../../services";
 import { isHttps } from "@utils/env";
 import { IsoData } from "@utils/types";
 import { setIsoData } from "@utils/app";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface AdultConsentModalProps {
   contentWarning: string;
@@ -118,7 +119,8 @@ export default class AdultConsentModal extends Component<
 
   componentDidUpdate() {
     if (this.state.redirectCountdown === 0) {
-      this.context.router.history.back();
+      const context: RouterContext = this.context;
+      context.router.history.back();
     }
   }
 

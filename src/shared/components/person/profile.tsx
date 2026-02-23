@@ -118,6 +118,7 @@ import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
@@ -388,7 +389,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: ProfileRouteProps) {
+  async componentWillReceiveProps(nextProps: ProfileRouteProps) {
     const reload = bareRoutePush(this.props, nextProps);
 
     const newUsername =
@@ -402,7 +403,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       newUsername ||
       reload
     ) {
-      this.fetchUserData(nextProps, reload || newUsername);
+      await this.fetchUserData(nextProps, reload || newUsername);
     }
   }
 
@@ -681,15 +682,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 description={bio}
                 image={personRes.person_view.person.avatar}
               />
-
               {this.userInfo(personRes.person_view)}
-
-              <hr />
-
               {this.selects}
-
               {isUpload && this.renderUploadsRes()}
-
               {!isUpload &&
                 (resState === "loading" ? (
                   <h5>
@@ -1367,7 +1362,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      this.context.router.history.push(`/`);
+      const context: RouterContext = this.context;
+      context.router.history.push(`/`);
     }
   }
 
@@ -1458,7 +1454,7 @@ function handleModBanSubmitCancel(i: Profile) {
   i.setState({ showBanDialog: false });
 }
 
-function handleRegistrationShow(i: Profile) {
+async function handleRegistrationShow(i: Profile) {
   if (i.state.registrationRes.state !== "success") {
     i.setState({ registrationRes: LOADING_REQUEST });
   }
@@ -1466,7 +1462,7 @@ function handleRegistrationShow(i: Profile) {
   i.setState({ showRegistrationDialog: true });
 
   if (i.state.personRes.state === "success") {
-    HttpService.client
+    await HttpService.client
       .getRegistrationApplication({
         person_id: i.state.personRes.data.person_view.person.id,
       })
@@ -1530,20 +1526,20 @@ async function handleToggleBlockPerson(
   }
 }
 
-function handleUnblockPerson(
+async function handleUnblockPerson(
   i: Profile,
   personId: number,
   myUserInfo: MyUserInfo | undefined,
 ) {
-  handleToggleBlockPerson(i, personId, false, myUserInfo);
+  await handleToggleBlockPerson(i, personId, false, myUserInfo);
 }
 
-function handleBlockPerson(
+async function handleBlockPerson(
   i: Profile,
   personId: number,
   myUserInfo: MyUserInfo | undefined,
 ) {
-  handleToggleBlockPerson(i, personId, true, myUserInfo);
+  await handleToggleBlockPerson(i, personId, true, myUserInfo);
 }
 
 async function handleAddModToCommunity(form: AddModToCommunity) {

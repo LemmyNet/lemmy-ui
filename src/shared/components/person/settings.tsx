@@ -90,6 +90,7 @@ import { VoteShowDropdown } from "@components/common/vote-show-dropdown";
 import { InterfaceLanguageDropdown } from "@components/common/interface-language-dropdown";
 import { ThemeDropdown } from "@components/common/theme-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: PagedResponse<FederatedInstanceView>;
@@ -337,9 +338,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     // In case `interface_language` change wasn't saved.
-    I18NextService.reconfigure(
+    await I18NextService.reconfigure(
       window.navigator.languages,
       this.isoData.myUserInfo?.local_user_view.local_user.interface_language,
     );
@@ -913,7 +914,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 showSubscribed
                 showSuggested={
                   !!this.isoData.siteRes.site_view.local_site
-                    .suggested_communities
+                    .suggested_multi_community_id
                 }
                 myUserInfo={myUserInfo}
                 showLabel={false}
@@ -1734,8 +1735,8 @@ function handleThemeChange(i: Settings, theme: string) {
   setThemeOverride(theme);
 }
 
-function handleInterfaceLangChange(i: Settings, newLang: string) {
-  I18NextService.reconfigure(navigator.languages, newLang);
+async function handleInterfaceLangChange(i: Settings, newLang: string) {
+  await I18NextService.reconfigure(navigator.languages, newLang);
 
   i.setState(s => ((s.saveUserSettingsForm.interface_language = newLang), s));
 }
@@ -1880,7 +1881,7 @@ async function handleSaveSettingsSubmit(
       });
 
       updateMyUserInfo(userRes.data);
-      I18NextService.reconfigure(
+      await I18NextService.reconfigure(
         window.navigator.languages,
         userRes.data.local_user_view.local_user.interface_language,
       );
@@ -1925,8 +1926,13 @@ async function handleChangePasswordSubmit(
   }
 }
 
-function handleImportFileChange(i: Settings, event: any) {
-  i.setState({ settingsFile: event.target.files?.item(0) });
+function handleImportFileChange(
+  i: Settings,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState({
+    settingsFile: event.target.files?.item(0) ?? undefined,
+  });
 }
 
 async function handleExportSettings(i: Settings) {
@@ -2059,7 +2065,10 @@ function handleDeleteAccountPasswordChange(
   i.setState(s => ((s.deleteAccountForm.password = event.target.value), s));
 }
 
-async function handleDeleteAccount(i: Settings, event: Event) {
+async function handleDeleteAccount(
+  i: Settings,
+  event: FormEvent<HTMLFormElement>,
+) {
   event.preventDefault();
   const password = i.state.deleteAccountForm.password;
   if (password) {
@@ -2069,8 +2078,9 @@ async function handleDeleteAccount(i: Settings, event: Event) {
       delete_content: i.state.deleteAccountForm.delete_content || false,
     });
     if (deleteAccountRes.state === "success") {
-      UserService.Instance.logout();
-      i.context.router.history.replace("/");
+      await UserService.Instance.logout();
+      const context: RouterContext = i.context;
+      context.router.history.replace("/");
     }
 
     i.setState({ deleteAccountRes });

@@ -85,6 +85,7 @@ import {
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
 import { ShowUnreadOnlyCheckbox } from "@components/common/show-unread-only-checkbox";
+import { RouterContext } from "inferno-router/dist/Router";
 
 const messageTypeOptions: FilterOption<NotificationTypeFilter>[] = [
   { value: "all", i18n: "all" },
@@ -369,6 +370,7 @@ export class Notifications extends Component<
               markReadLoading={
                 itemLoading(this.state.markPostReadLoadingRes) === data.post.id
               }
+              topBorder
               voteLoading={false}
               showCommunity
               showCrossPosts="show_separately"
@@ -482,7 +484,7 @@ export class Notifications extends Component<
           });
         }
       });
-    UnreadCounterService.Instance.updateUnreadCounts();
+    await UnreadCounterService.Instance.updateUnreadCounts();
   }
 
   findAndUpdateMessage(res: RequestState<PrivateMessageResponse>) {
@@ -576,7 +578,8 @@ export class Notifications extends Component<
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      this.context.router.history.push(`/`);
+      const context: RouterContext = this.context;
+      context.router.history.push(`/`);
     }
   }
 
@@ -647,9 +650,9 @@ async function handleMarkAllAsRead(i: Notifications) {
         });
       }
       // Refetch to reload the data
-      i.refetch();
       return { notifsRes: s.notifsRes, markAllAsReadRes };
     });
+    await i.refetch();
   } else {
     i.setState({ markAllAsReadRes });
   }

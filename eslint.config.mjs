@@ -53,13 +53,11 @@ export default [
     rules: {
       "@typescript-eslint/no-explicit-any": 0,
       "@typescript-eslint/no-unsafe-assignment": 0,
-      "@typescript-eslint/no-unsafe-call": 0,
       "@typescript-eslint/no-unsafe-member-access": 0,
       "@typescript-eslint/no-unsafe-argument": 0,
       "@typescript-eslint/no-unsafe-return": 0,
       // TODO: the following is caused by calling async functions from sync functions
       "@typescript-eslint/no-misused-promises": 0,
-      "@typescript-eslint/no-floating-promises": 0,
       "no-console": ["error", { allow: ["warn", "error", "debug", "assert"] }],
       "@typescript-eslint/no-useless-constructor": "error",
       "inferno/jsx-boolean-value": "error",

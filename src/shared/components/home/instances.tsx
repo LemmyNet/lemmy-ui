@@ -116,8 +116,8 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: InstancesRouteProps) {
-    this.fetchInstances(nextProps);
+  async componentWillReceiveProps(nextProps: InstancesRouteProps) {
+    await this.fetchInstances(nextProps);
   }
 
   async fetchInstances(props: InstancesProps) {
@@ -311,8 +311,8 @@ export function InstanceList({
                 new Date(i.instance.updated_at ?? i.instance.published_at),
               ) && " 💀"}
             </div>
+            <hr />
           </div>
-          <hr />
         </>
       ))}
     </div>

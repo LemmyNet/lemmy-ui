@@ -1,7 +1,7 @@
 import { getQueryString, validInstanceTLD } from "@utils/helpers";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, MouseEventHandler, createRef, linkEvent } from "inferno";
+import { Component, FormEvent, MouseEventHandler, createRef } from "inferno";
 import { CommunityFollowerState, DbUrl } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { VERSION } from "../../version";
@@ -97,16 +97,17 @@ interface RemoteFetchModalState {
   instanceText: string;
 }
 
-function handleInput(i: RemoteFetchModal, event: any) {
+function handleInput(i: RemoteFetchModal, event: FormEvent<HTMLInputElement>) {
   i.setState({ instanceText: event.target.value });
 }
 
 function submitRemoteFollow(
-  { state: { instanceText }, props: { apId } }: RemoteFetchModal,
-  event: Event,
+  i: RemoteFetchModal,
+  event: FormEvent<HTMLFormElement>,
 ) {
   event.preventDefault();
-  instanceText = instanceText.trim();
+
+  let instanceText = i.state.instanceText.trim();
 
   if (!validInstanceTLD(instanceText)) {
     toast(
@@ -129,7 +130,7 @@ function submitRemoteFollow(
   }
 
   window.location.href = `${instanceText}/activitypub/externalInteraction${getQueryString(
-    { uri: apId },
+    { uri: i.props.apId },
   )}`;
 }
 
@@ -175,7 +176,7 @@ class RemoteFetchModal extends Component<
             <form
               id="remote-fetch-form"
               className="modal-body d-flex flex-column justify-content-center"
-              onSubmit={linkEvent(this, submitRemoteFollow)}
+              onSubmit={e => submitRemoteFollow(this, e)}
             >
               <label className="form-label" htmlFor="remoteFetchInstance">
                 {I18NextService.i18n.t("remote_follow_prompt")}
@@ -186,7 +187,7 @@ class RemoteFetchModal extends Component<
                 className="form-control"
                 name="instance"
                 value={this.state.instanceText}
-                onInput={linkEvent(this, handleInput)}
+                onInput={e => handleInput(this, e)}
                 required
                 enterKeyHint="go"
                 inputMode="url"

@@ -65,6 +65,7 @@ import { SearchableSelect } from "@components/common/searchable-select";
 import { CommunityTagForm } from "./community-tag-form";
 import { NoOptionI18nKeys } from "i18next";
 import { CommunityLink } from "./community-link";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type CommunitySettingsData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -161,14 +162,14 @@ export class CommunitySettings extends Component<RouteProps, State> {
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: RouteProps & { children?: InfernoNode },
   ) {
     if (
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      this.fetchCommunity(nextProps);
+      await this.fetchCommunity(nextProps);
     }
   }
 
@@ -589,7 +590,7 @@ async function handleDeleteCommunity(i: CommunitySettings, deleted: boolean) {
   }
 }
 
-function handleAddModSelect(i: CommunitySettings, choice: Choice) {
+async function handleAddModSelect(i: CommunitySettings, choice: Choice) {
   const person_id = getIdFromString(choice.value);
   if (i.state.communityRes.state === "success" && person_id) {
     const form: AddModToCommunity = {
@@ -597,7 +598,7 @@ function handleAddModSelect(i: CommunitySettings, choice: Choice) {
       community_id: i.state.communityRes.data.community_view.community.id,
       added: true,
     };
-    handleAddMod(i, form);
+    await handleAddMod(i, form);
   }
 }
 
@@ -716,7 +717,8 @@ async function handleLeaveModTeam(
     if (i.state.leaveModTeamRes.state === "success") {
       toast(I18NextService.i18n.t("left_mod_team"));
       i.setState({ showLeaveModTeamDialog: false });
-      i.context.router.history.replace("/");
+      const context: RouterContext = i.context;
+      context.router.history.replace("/");
     }
   }
 }

@@ -196,9 +196,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     if (this.state.form.url && isBrowser()) {
-      fetchPageTitle(this);
+      await fetchPageTitle(this);
     }
   }
 
@@ -281,7 +281,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               value={this.state.form.name}
               id="post-title"
               onInput={e => handlePostNameChange(this, e)}
-              onBlur={e => handlePostNameBlur(this, e)}
               className={`form-control ${
                 !validTitle(this.state.form.name) && "is-invalid"
               }`}
@@ -311,7 +310,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               className="form-control mb-3"
               value={url}
               onInput={e => handlePostUrlChange(this, e)}
-              onBlur={e => handlePostUrlBlur(this, e)}
               onPaste={e => handleImageUploadPaste(this, e)}
             />
             {this.renderSuggestedTitleCopy()}
@@ -434,7 +432,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 className="form-control mb-3"
                 value={this.state.form.custom_thumbnail}
                 onInput={e => handleCustomThumbnailChange(this, e)}
-                onBlur={e => handleCustomThumbnailBlur(this, e)}
               />
             </div>
           </div>
@@ -480,7 +477,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 id="post-alt-text"
                 value={this.state.form.alt_text}
                 onInput={e => handleAltTextChange(this, e)}
-                onBlur={e => handleAltTextBlur(this, e)}
               />
             </div>
           </div>
@@ -838,7 +834,7 @@ function handleCommunitySelect(i: PostForm, choice: Choice) {
   updateUrl(i, () => i.props.onSelectCommunity?.(choice));
 }
 
-function handleCopySuggestedTitle(i: PostForm, suggestedTitle?: string) {
+async function handleCopySuggestedTitle(i: PostForm, suggestedTitle?: string) {
   if (suggestedTitle) {
     i.setState(
       s => (
@@ -846,7 +842,7 @@ function handleCopySuggestedTitle(i: PostForm, suggestedTitle?: string) {
         s
       ),
     );
-    fetchSimilarPosts(i);
+    await fetchSimilarPosts(i);
     i.setState({ suggestedPostsRes: EMPTY_REQUEST });
     setTimeout(() => {
       if (i.postTitleRef.current) {
@@ -860,7 +856,10 @@ function handleCopySuggestedTitle(i: PostForm, suggestedTitle?: string) {
   }
 }
 
-function handlePostUrlChange(i: PostForm, event: FormEvent<HTMLInputElement>) {
+async function handlePostUrlChange(
+  i: PostForm,
+  event: FormEvent<HTMLInputElement>,
+) {
   const url = event.target.value;
 
   i.setState(prev => ({
@@ -872,11 +871,7 @@ function handlePostUrlChange(i: PostForm, event: FormEvent<HTMLInputElement>) {
     uploadedImage: undefined,
   }));
 
-  fetchPageTitle(i);
-}
-
-function handlePostUrlBlur(i: PostForm, event: any) {
-  updateUrl(i, () => i.props.onUrlBlur?.(event.target.value));
+  await fetchPageTitle(i);
 }
 
 function handlePostNsfwChange(i: PostForm, event: FormEvent<HTMLInputElement>) {
@@ -906,10 +901,6 @@ function handleAltTextChange(i: PostForm, event: FormEvent<HTMLInputElement>) {
   i.setState(s => ((s.form.alt_text = event.target.value), s));
 }
 
-function handleAltTextBlur(i: PostForm, event: any) {
-  updateUrl(i, () => i.props.onAltTextBlur?.(event.target.value));
-}
-
 function handleCustomThumbnailChange(
   i: PostForm,
   event: FormEvent<HTMLInputElement>,
@@ -917,27 +908,26 @@ function handleCustomThumbnailChange(
   i.setState(s => ((s.form.custom_thumbnail = event.target.value), s));
 }
 
-function handleCustomThumbnailBlur(i: PostForm, event: any) {
-  updateUrl(i, () => i.props.onThumbnailUrlBlur?.(event.target.value));
-}
-
 function handleCancel(i: PostForm) {
   i.props.onCancel?.();
 }
 
-function handleImageUploadPaste(
+async function handleImageUploadPaste(
   i: PostForm,
   event: ClipboardEvent<HTMLInputElement>,
 ) {
   const image = event.clipboardData?.files[0];
   if (image) {
-    handleImageUpload(i, image);
+    await handleImageUpload(i, image);
   }
 }
 
-function handleImageUpload(i: PostForm, event: any) {
+async function handleImageUpload(
+  i: PostForm,
+  event: File | FormEvent<HTMLInputElement>,
+) {
   let file: any;
-  if (event.target) {
+  if (event instanceof Event) {
     event.preventDefault();
     file = event.target.files?.[0];
   } else {
@@ -946,7 +936,7 @@ function handleImageUpload(i: PostForm, event: any) {
 
   i.setState({ imageLoading: true });
 
-  HttpService.client.uploadImage({ image: file }).then(res => {
+  await HttpService.client.uploadImage({ image: file }).then(res => {
     if (res.state === "success") {
       i.state.form.url = res.data.image_url;
       i.setState({
@@ -970,23 +960,19 @@ function handleTagsChange(i: PostForm, event: FormEvent<HTMLSelectElement>) {
   i.setState(s => ((s.form.tags = tagIdsSelected), s));
 }
 
-function handlePostNameChange(
+async function handlePostNameChange(
   i: PostForm,
   event: FormEvent<HTMLTextAreaElement>,
 ) {
   i.setState(s => ((s.form.name = event.target.value), s));
-  fetchSimilarPosts(i);
+  await fetchSimilarPosts(i);
 }
 
-function handlePostNameBlur(i: PostForm, event: any) {
-  updateUrl(i, () => i.props.onTitleBlur?.(event.target.value));
-}
-
-function handleImageDelete(i: PostForm) {
+async function handleImageDelete(i: PostForm) {
   const { uploadedImage } = i.state;
 
   if (uploadedImage) {
-    HttpService.client.deleteMedia({
+    await HttpService.client.deleteMedia({
       filename: uploadedImage.filename,
     });
   }

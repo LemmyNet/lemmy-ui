@@ -294,6 +294,7 @@ const postListing = (
               admins={isoData.siteRes.admins}
               postListingMode="list"
               viewOnly
+              topBorder={false}
               crossPosts={[]}
               communityTags={[]}
               showBody={"hidden"}
@@ -358,6 +359,7 @@ const commentListing = (
               viewOnly
               postLockedOrRemovedOrDeleted
               isTopLevel
+              noBorder
               showCommunity
               myUserInfo={isoData.myUserInfo}
               localSite={isoData.siteRes.site_view.local_site}
@@ -462,9 +464,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      this.fetchAll(this.props);
+      await this.fetchAll(this.props);
     }
   }
 
@@ -474,14 +476,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: SearchRouteProps) {
+  async componentWillReceiveProps(nextProps: SearchRouteProps) {
     if (nextProps.communityId !== this.props.communityId) {
-      this.fetchSelectedCommunity(nextProps);
+      await this.fetchSelectedCommunity(nextProps);
     }
     if (nextProps.creatorId !== this.props.creatorId) {
-      this.fetchSelectedCreator(nextProps);
+      await this.fetchSelectedCreator(nextProps);
     }
-    this.search(nextProps);
+    await this.search(nextProps);
   }
 
   fetchDefaultCommunitiesToken?: symbol;
@@ -818,7 +820,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               showSubscribed
               showSuggested={
                 !!this.isoData.siteRes.site_view.local_site
-                  .suggested_communities
+                  .suggested_multi_community_id
               }
               onSelect={type => handleListingTypeChange(this, type)}
               myUserInfo={this.isoData.myUserInfo}
@@ -995,6 +997,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 viewOnly
+                topBorder={false}
                 myUserInfo={this.isoData.myUserInfo}
                 localSite={siteRes.site_view.local_site}
                 admins={this.isoData.siteRes.admins}

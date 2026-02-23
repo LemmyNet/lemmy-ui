@@ -38,6 +38,7 @@ import { PostForm } from "./post-form";
 import { PostListingList } from "./post-listing-list";
 import { PostListingCard } from "./post-listing-card";
 import { masonryUpdate } from "@utils/browser";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type PostListingState = {
   showEdit: boolean;
@@ -66,6 +67,7 @@ type PostListingProps = {
   notificationRead?: boolean;
   markReadLoading: boolean;
   voteLoading: boolean;
+  topBorder: boolean;
   onPostEdit: (form: EditPost) => void;
   onPostVote: (form: CreatePostLike) => void;
   onPostReport: (form: CreatePostReport) => void;
@@ -99,7 +101,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentWillMount() {
     // Leave edit mode on navigation
-    this.unlisten = this.context.router.history.listen(() => {
+    const context: RouterContext = this.context;
+    this.unlisten = context.router.history.listen(() => {
       if (this.state.showEdit) {
         this.setState({ showEdit: false });
       }
@@ -122,7 +125,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   render() {
     const p = this.props;
     return (
-      <div className="post-listing mt-2">
+      <div className="post-listing my-2">
         {!this.state.showEdit ? (
           this.renderListingMode()
         ) : (
@@ -182,6 +185,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             hideImage={p.hideImage}
             enableNsfw={p.enableNsfw}
             viewOnly={p.viewOnly}
+            topBorder={p.topBorder}
             showAdultConsentModal={p.showAdultConsentModal}
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
