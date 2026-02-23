@@ -131,6 +131,7 @@ export interface Choice {
   value: string;
   label: string;
   disabled?: boolean;
+  selected?: boolean;
 }
 
 export interface CommunityTribute {

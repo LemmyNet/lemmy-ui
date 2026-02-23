@@ -6,7 +6,6 @@ import {
   PagedResponse,
   MyUserInfo,
 } from "lemmy-js-client";
-import { I18NextService } from "../../services";
 import {
   communityToChoice,
   fetchCommunities,
@@ -14,10 +13,10 @@ import {
 } from "@utils/app";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { EMPTY_REQUEST, RequestState } from "@services/HttpService";
-import { SearchableSelect } from "@components/common/searchable-select";
 import { Choice } from "@utils/types";
 import { CommunityLink } from "@components/community/community-link";
 import { Icon } from "@components/common/icon";
+import { FilterChipSelect } from "@components/common/filter-chip-select";
 
 interface Props {
   currentCommunities: CommunityView[];
@@ -47,18 +46,16 @@ export class MultiCommunityEntryForm extends Component<Props, State> {
       <div className={`multi-community-entry-form-${id}`}>
         <div className="row">
           <div className="col-12">
-            <SearchableSelect
-              id="multi-community-entry-select"
-              value={this.state.selectedCommunity?.community.id}
-              options={[
-                {
-                  label: I18NextService.i18n.t("add_community"),
-                  value: "",
-                  disabled: true,
-                } as Choice,
-              ].concat(this.state.communitySearchOptions)}
-              loading={this.state.communitySearchLoading}
-              onChange={choice => handleCommunitySelect(this, choice)}
+            <FilterChipSelect
+              label={"add_community"}
+              multiple={false}
+              allOptions={this.state.communitySearchOptions}
+              selectedOptions={
+                this.state.selectedCommunity
+                  ? [this.state.selectedCommunity.community.id.toString()]
+                  : []
+              }
+              onSelect={choices => handleCommunitySelect(this, choices)}
               onSearch={res => handleCommunitySearch(this, res)}
             />
           </div>
@@ -68,8 +65,8 @@ export class MultiCommunityEntryForm extends Component<Props, State> {
   }
 }
 
-function handleCommunitySelect(i: MultiCommunityEntryForm, choice: Choice) {
-  const communityId = getIdFromString(choice.value);
+function handleCommunitySelect(i: MultiCommunityEntryForm, choices: Choice[]) {
+  const communityId = getIdFromString(choices[0].value);
   if (communityId) {
     i.props.onCreate(communityId);
   }

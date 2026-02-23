@@ -58,7 +58,6 @@ import { toast } from "@utils/app";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
-import { SearchableSelect } from "../common/searchable-select";
 import { PostListings } from "./post-listings";
 import { isBrowser } from "@utils/browser";
 import { isMagnetLink, extractMagnetLinkDownloadName } from "@utils/media";
@@ -68,6 +67,7 @@ import {
   unixTimeToLocalDateStr,
 } from "@utils/date";
 import { communityTagName } from "@components/community/community-tag";
+import { FilterChipSelect } from "@components/common/filter-chip-select";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -487,19 +487,17 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               {I18NextService.i18n.t("community")}
             </label>
             <div className="col-sm-10">
-              <SearchableSelect
-                id="post-community"
-                value={this.state.form.community_id}
-                options={[
-                  {
-                    label: I18NextService.i18n.t("select_a_community"),
-                    value: "",
-                    disabled: true,
-                  } as Choice,
-                ].concat(this.state.communitySearchOptions)}
-                loading={this.state.communitySearchLoading}
-                onChange={choice => handleCommunitySelect(this, choice)}
+              <FilterChipSelect
+                label={"select_a_community"}
+                multiple={false}
+                allOptions={this.state.communitySearchOptions}
+                selectedOptions={
+                  this.state.form.community_id
+                    ? [this.state.form.community_id.toString()]
+                    : []
+                }
                 onSearch={text => handleCommunitySearch(this, text)}
+                onSelect={choices => handleCommunitySelect(this, choices[0])}
               />
             </div>
           </div>
@@ -542,24 +540,22 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 {I18NextService.i18n.t("tags")}
               </label>
               <div className="col-sm-10">
-                {/** TODO This should use an abstracted FilterChipMultiDropdown **/}
-                <select
-                  id="post-tags"
-                  className="form-select"
+                <FilterChipSelect
+                  label={"tags"}
                   multiple
-                  aria-label={I18NextService.i18n.t("tags")}
-                  onChange={e => handleTagsChange(this, e)}
-                >
-                  {this.props.selectedCommunityTags.map(tag => (
-                    <option
-                      key={tag.id}
-                      value={tag.id}
-                      selected={(this.state.form.tags ?? []).includes(tag.id)}
-                    >
-                      {communityTagName(tag)}
-                    </option>
-                  ))}
-                </select>
+                  allOptions={this.props.selectedCommunityTags
+                    .filter(t => !t.deleted)
+                    .map(tag => {
+                      return {
+                        value: tag.id.toString(),
+                        label: communityTagName(tag),
+                      };
+                    })}
+                  selectedOptions={(this.state.form.tags ?? []).map(t =>
+                    t.toString(),
+                  )}
+                  onSelect={choices => handleTagsChange(this, choices)}
+                />
               </div>
             </div>
           )}
@@ -951,13 +947,8 @@ async function handleImageUpload(
   });
 }
 
-function handleTagsChange(i: PostForm, event: FormEvent<HTMLSelectElement>) {
-  const options: HTMLOptionElement[] = Array.from(event.target.options);
-  const tagIdsSelected: number[] = options
-    .filter(o => o.selected)
-    .map(o => Number(o.value));
-
-  i.setState(s => ((s.form.tags = tagIdsSelected), s));
+function handleTagsChange(i: PostForm, choices: Choice[]) {
+  i.setState(s => ((s.form.tags = choices.map(c => Number(c.value))), s));
 }
 
 async function handlePostNameChange(

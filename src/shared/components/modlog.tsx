@@ -50,7 +50,6 @@ import {
 import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";
-import { SearchableSelect } from "./common/searchable-select";
 import { communityLink, CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { getHttpBaseInternal } from "../utils/env";
@@ -61,12 +60,11 @@ import { PaginatorCursor } from "./common/paginator-cursor";
 import { TableHr } from "./common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { ModlogKindFilterDropdown } from "./common/modlog-kind-filter-dropdown";
+import { FilterChipSelect } from "./common/filter-chip-select";
 
 const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";
 const ACTION_COLS = "col-12 col-md-6";
-
-type FilterType = "mod" | "user" | "community";
 
 type ModlogData = RouteDataResponse<{
   res: PagedResponse<ModlogView>;
@@ -570,34 +568,26 @@ export function processModlogEntry(
 }
 
 const Filter = ({
-  filterType,
   title,
   onChange,
   value,
   onSearch,
   options,
-  loading,
 }: {
-  filterType: FilterType;
   title: NoOptionI18nKeys;
-  onChange: (option: Choice) => void;
+  onChange: (options: Choice[]) => void;
   value?: number | null;
   onSearch: (text: string) => void;
   options: Choice[];
   loading: boolean;
 }) => (
-  <SearchableSelect
-    id={`filter-${filterType}`}
-    value={value ?? 0}
-    options={[
-      {
-        label: I18NextService.i18n.t(title) as string,
-        value: "0",
-      },
-    ].concat(options)}
-    onChange={onChange}
+  <FilterChipSelect
+    label={title}
+    multiple={false}
+    allOptions={options}
+    selectedOptions={value ? [value.toString()] : []}
     onSearch={onSearch}
-    loading={loading}
+    onSelect={onChange}
   />
 );
 
@@ -875,9 +865,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           </div>
           <div className="col">
             <Filter
-              filterType="user"
               title="all_users"
-              onChange={choice => handleUserChange(this, choice)}
+              onChange={choices => handleUserChange(this, choices)}
               onSearch={text => handleSearchUsers(this, text)}
               value={userId}
               options={userSearchOptions}
@@ -886,9 +875,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           </div>
           <div className="col">
             <Filter
-              filterType="community"
               title="all_communities"
-              onChange={choice => handleCommunityChange(this, choice)}
+              onChange={choices => handleCommunityChange(this, choices)}
               onSearch={text => handleSearchCommunities(this, text)}
               value={communityId}
               options={communitySearchOptions}
@@ -898,9 +886,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           {this.amAdminOrMod && (
             <div className="col">
               <Filter
-                filterType="mod"
                 title="all_mods"
-                onChange={choice => handleModChange(this, choice)}
+                onChange={choices => handleModChange(this, choices)}
                 onSearch={text => handleSearchMods(this, text)}
                 value={modId}
                 options={modSearchOptions}
@@ -1110,22 +1097,22 @@ function handlePageChange(i: Modlog, cursor?: PaginationCursor) {
   i.updateUrl({ cursor });
 }
 
-function handleUserChange(i: Modlog, option: Choice) {
+function handleUserChange(i: Modlog, options: Choice[]) {
   i.updateUrl({
-    userId: getIdFromString(option.value),
+    userId: getIdFromString(options[0].value),
     cursor: undefined,
   });
 }
 
-function handleCommunityChange(i: Modlog, option: Choice) {
+function handleCommunityChange(i: Modlog, options: Choice[]) {
   i.updateUrl({
-    communityId: getIdFromString(option.value),
+    communityId: getIdFromString(options[0].value),
     cursor: undefined,
   });
 }
 
-function handleModChange(i: Modlog, option: Choice) {
-  i.updateUrl({ modId: getIdFromString(option.value), cursor: undefined });
+function handleModChange(i: Modlog, options: Choice[]) {
+  i.updateUrl({ modId: getIdFromString(options[0].value), cursor: undefined });
 }
 
 const handleSearchUsers = debounce(async (i: Modlog, text: string) => {

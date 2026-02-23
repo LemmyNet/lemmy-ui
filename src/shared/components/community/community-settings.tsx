@@ -61,11 +61,11 @@ import ConfirmationModal from "@components/common/modal/confirmation-modal";
 import { UserBadges } from "@components/common/user-badges";
 import { Icon, Spinner } from "@components/common/icon";
 import { amTopMod, amHigherModerator, amTopModExcludeMe } from "@utils/roles";
-import { SearchableSelect } from "@components/common/searchable-select";
 import { CommunityTagForm } from "./community-tag-form";
 import { NoOptionI18nKeys } from "i18next";
 import { CommunityLink } from "./community-link";
 import { RouterContext } from "inferno-router/dist/Router";
+import { FilterChipSelect } from "@components/common/filter-chip-select";
 
 type CommunitySettingsData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -490,17 +490,12 @@ export class CommunitySettings extends Component<RouteProps, State> {
         </div>
         <div className="row mb-4">
           <div className="col-12 col-md-4">
-            <SearchableSelect
-              id="add-mod-to-community-select"
-              options={[
-                {
-                  label: I18NextService.i18n.t("appoint_mod"),
-                  value: "",
-                  disabled: true,
-                } as Choice,
-              ].concat(this.state.addModSearchOptions)}
-              loading={this.state.addModSearchLoading}
-              onChange={choice => handleAddModSelect(this, choice)}
+            <FilterChipSelect
+              label={"appoint_mod"}
+              multiple={false}
+              allOptions={this.state.addModSearchOptions}
+              selectedOptions={[]}
+              onSelect={choices => handleAddModSelect(this, choices)}
               onSearch={res => handleAddModSearch(this, res)}
             />
           </div>
@@ -590,8 +585,8 @@ async function handleDeleteCommunity(i: CommunitySettings, deleted: boolean) {
   }
 }
 
-async function handleAddModSelect(i: CommunitySettings, choice: Choice) {
-  const person_id = getIdFromString(choice.value);
+async function handleAddModSelect(i: CommunitySettings, choices: Choice[]) {
+  const person_id = getIdFromString(choices[0].value);
   if (i.state.communityRes.state === "success" && person_id) {
     const form: AddModToCommunity = {
       person_id,

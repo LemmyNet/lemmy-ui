@@ -523,3 +523,40 @@ em-emoji-picker {
 .interval-filter-input {
   max-width: 50px;
 }
+
+/* Choices */
+.no-caret {
+  background-image: none !important;
+}
+
+.choices {
+  min-width: 100px;
+}
+.choices[data-type*="select"] > .choices__inner,
+.choices__list[aria-expanded] .choices__item--selectable {
+  background-color: var(--bs-body-bg);
+}
+
+.choices__list,
+.choices__placeholder {
+  color: unset;
+  background-color: unset;
+}
+
+.choices__list--dropdown .choices__item--selectable.is-highlighted,
+.choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
+  background-color: var(--bs-highlight-bg);
+  color: var(--bs-highlight-color);
+}
+
+.choices__list--multiple .choices__item {
+  color: var(--bs-secondary-color);
+  background-color: var(--bs-secondary-bg);
+  border-width: var(--bs-border-width);
+  border-color: var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+}
+
+.choices__input {
+  background-color: var(--bs-body-secondary) !important;
+}

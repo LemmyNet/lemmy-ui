@@ -7,6 +7,8 @@ import { I18NextService } from "../../services";
 import { Icon } from "./icon";
 import { languageName } from "./language-list";
 
+// TODO get rid
+
 interface LanguageSelectProps {
   allLanguages?: Language[];
   siteLanguages?: number[];
