@@ -297,7 +297,7 @@ function handleSubmitEmoji(
   }
 }
 
-function handleImageUpload(
+async function handleImageUpload(
   i: EmojiForm,
   event: FormEvent<HTMLInputElement> | File | undefined,
 ) {
@@ -315,7 +315,7 @@ function handleImageUpload(
   if (file) {
     i.setState({ loadingImage: true });
 
-    HttpService.client.uploadImage({ image: file }).then(res => {
+    await HttpService.client.uploadImage({ image: file }).then(res => {
       if (res.state === "success") {
         pictrsDeleteToast(res.data.filename);
         i.setState({

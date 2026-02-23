@@ -195,7 +195,7 @@ async function handleRegisterSubmit(
     if (i.state.registerRes.state === "success") {
       const data = i.state.registerRes.data;
 
-      UserService.Instance.login({ res: data });
+      await UserService.Instance.login({ res: data });
       i.setState({ doneRegisteringUser: true });
     }
   }

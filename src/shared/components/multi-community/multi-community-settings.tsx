@@ -109,14 +109,14 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: RouteProps & { children?: InfernoNode },
   ) {
     if (
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      this.fetchMultiCommunity(nextProps);
+      await this.fetchMultiCommunity(nextProps);
     }
   }
 
@@ -291,7 +291,7 @@ async function handleCreateMultiCommunityEntry(
   }
 
   // Refetch to rebuild the community list
-  i.fetchMultiCommunity(i.props);
+  await i.fetchMultiCommunity(i.props);
 }
 
 async function handleDeleteMultiCommunityEntry(
@@ -308,5 +308,5 @@ async function handleDeleteMultiCommunityEntry(
     toast(I18NextService.i18n.t("community_removed"), "danger");
   }
 
-  i.fetchMultiCommunity(i.props);
+  await i.fetchMultiCommunity(i.props);
 }

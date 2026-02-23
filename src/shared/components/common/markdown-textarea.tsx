@@ -382,13 +382,13 @@ function handleEmoji(i: MarkdownTextArea, e: any) {
   handleInsertAtCursor(i, value);
 }
 
-function handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
+async function handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
   if (!event.clipboardData) return;
 
   // check clipboard files
   const image = event.clipboardData.files[0];
   if (image) {
-    handleImageUpload(i, image);
+    await handleImageUpload(i, image);
     return;
   }
 
@@ -432,7 +432,7 @@ function handleUrlPaste(
   }
 }
 
-function handleImageUpload(
+async function handleImageUpload(
   i: MarkdownTextArea,
   event: File | FormEvent<HTMLInputElement>,
 ) {
@@ -461,7 +461,7 @@ function handleImageUpload(
       imageUploadStatus: { total: files.length, uploaded: 0 },
     });
 
-    handleUploadImages(i, files).then(() => {
+    await handleUploadImages(i, files).then(() => {
       i.setState({ imageUploadStatus: undefined });
     });
   }

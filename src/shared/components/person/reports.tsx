@@ -642,9 +642,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     });
   }
 
-  update() {
-    UnreadCounterService.Instance.updateUnreadCounts();
-    this.refetch();
+  async update() {
+    await UnreadCounterService.Instance.updateUnreadCounts();
+    await this.refetch();
   }
 }
 
@@ -682,7 +682,7 @@ async function handleResolveCommentReport(
   const res = await HttpService.client.resolveCommentReport(form);
   i.setState({ commentResolveRes: { id: form.report_id, res } });
   i.findAndUpdateCommentReport(res);
-  i.update();
+  await i.update();
 }
 
 async function handleResolvePostReport(i: Reports, form: ResolvePostReport) {
@@ -694,17 +694,17 @@ async function handleResolvePostReport(i: Reports, form: ResolvePostReport) {
     postResolveRes: { id: form.report_id, res },
   });
   i.findAndUpdatePostReport(res);
-  i.update();
+  await i.update();
 }
 
 async function handleRemovePost(i: Reports, form: RemovePost) {
   await HttpService.client.removePost(form);
-  i.update();
+  await i.update();
 }
 
 async function handleRemoveComment(i: Reports, form: RemoveComment) {
   await HttpService.client.removeComment(form);
-  i.update();
+  await i.update();
 }
 
 function handleModBanFromCommunity(i: Reports, form: BanFromCommunityData) {
@@ -728,7 +728,7 @@ async function handleResolvePrivateMessageReport(
   });
   i.findAndUpdatePrivateMessageReport(res);
 
-  i.update();
+  await i.update();
 }
 
 async function handleResolveCommunityReport(
@@ -745,7 +745,7 @@ async function handleResolveCommunityReport(
   // TODO
   toast("Not implemented");
   i.findAndUpdateCommunityReport(res);
-  i.update();
+  await i.update();
 }
 
 async function handleSubmitBanFromCommunity(i: Reports, form: BanUpdateForm) {
@@ -759,7 +759,7 @@ async function handleSubmitBanFromCommunity(i: Reports, form: BanUpdateForm) {
       reason: form.reason,
     });
     i.setState({ banFromCommunityForm: undefined });
-    i.update();
+    await i.update();
   }
 }
 
@@ -773,7 +773,7 @@ async function handleSubmitAdminBan(i: Reports, form: BanUpdateForm) {
       reason: form.reason,
     });
     i.setState({ adminBanForm: undefined });
-    i.update();
+    await i.update();
   }
 }
 
@@ -784,9 +784,9 @@ function handleCloseModActionModals(i: Reports) {
   });
 }
 
-function handleClickshowCommunityReports(i: Reports, val: boolean) {
+async function handleClickshowCommunityReports(i: Reports, val: boolean) {
   i.setState({
     showCommunityRuleViolations: val,
   });
-  i.update();
+  await i.update();
 }

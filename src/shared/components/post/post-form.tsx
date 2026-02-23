@@ -196,9 +196,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     if (this.state.form.url && isBrowser()) {
-      fetchPageTitle(this);
+      await fetchPageTitle(this);
     }
   }
 
@@ -834,7 +834,7 @@ function handleCommunitySelect(i: PostForm, choice: Choice) {
   updateUrl(i, () => i.props.onSelectCommunity?.(choice));
 }
 
-function handleCopySuggestedTitle(i: PostForm, suggestedTitle?: string) {
+async function handleCopySuggestedTitle(i: PostForm, suggestedTitle?: string) {
   if (suggestedTitle) {
     i.setState(
       s => (
@@ -842,7 +842,7 @@ function handleCopySuggestedTitle(i: PostForm, suggestedTitle?: string) {
         s
       ),
     );
-    fetchSimilarPosts(i);
+    await fetchSimilarPosts(i);
     i.setState({ suggestedPostsRes: EMPTY_REQUEST });
     setTimeout(() => {
       if (i.postTitleRef.current) {
@@ -856,7 +856,10 @@ function handleCopySuggestedTitle(i: PostForm, suggestedTitle?: string) {
   }
 }
 
-function handlePostUrlChange(i: PostForm, event: FormEvent<HTMLInputElement>) {
+async function handlePostUrlChange(
+  i: PostForm,
+  event: FormEvent<HTMLInputElement>,
+) {
   const url = event.target.value;
 
   i.setState(prev => ({
@@ -868,7 +871,7 @@ function handlePostUrlChange(i: PostForm, event: FormEvent<HTMLInputElement>) {
     uploadedImage: undefined,
   }));
 
-  fetchPageTitle(i);
+  await fetchPageTitle(i);
 }
 
 function handlePostNsfwChange(i: PostForm, event: FormEvent<HTMLInputElement>) {
@@ -909,17 +912,17 @@ function handleCancel(i: PostForm) {
   i.props.onCancel?.();
 }
 
-function handleImageUploadPaste(
+async function handleImageUploadPaste(
   i: PostForm,
   event: ClipboardEvent<HTMLInputElement>,
 ) {
   const image = event.clipboardData?.files[0];
   if (image) {
-    handleImageUpload(i, image);
+    await handleImageUpload(i, image);
   }
 }
 
-function handleImageUpload(
+async function handleImageUpload(
   i: PostForm,
   event: File | FormEvent<HTMLInputElement>,
 ) {
@@ -933,7 +936,7 @@ function handleImageUpload(
 
   i.setState({ imageLoading: true });
 
-  HttpService.client.uploadImage({ image: file }).then(res => {
+  await HttpService.client.uploadImage({ image: file }).then(res => {
     if (res.state === "success") {
       i.state.form.url = res.data.image_url;
       i.setState({
@@ -957,19 +960,19 @@ function handleTagsChange(i: PostForm, event: FormEvent<HTMLSelectElement>) {
   i.setState(s => ((s.form.tags = tagIdsSelected), s));
 }
 
-function handlePostNameChange(
+async function handlePostNameChange(
   i: PostForm,
   event: FormEvent<HTMLTextAreaElement>,
 ) {
   i.setState(s => ((s.form.name = event.target.value), s));
-  fetchSimilarPosts(i);
+  await fetchSimilarPosts(i);
 }
 
-function handleImageDelete(i: PostForm) {
+async function handleImageDelete(i: PostForm) {
   const { uploadedImage } = i.state;
 
   if (uploadedImage) {
-    HttpService.client.deleteMedia({
+    await HttpService.client.deleteMedia({
       filename: uploadedImage.filename,
     });
   }

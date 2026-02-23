@@ -186,7 +186,7 @@ async function handleSubmitTotp(i: Login, totp: string) {
   const successful = loginRes.state === "success";
   if (successful) {
     i.setState({ show2faModal: false });
-    handleLoginSuccess(i, loginRes.data);
+    await handleLoginSuccess(i, loginRes.data);
   } else {
     toast(I18NextService.i18n.t("incorrect_totp_code"), "danger");
   }
@@ -195,7 +195,7 @@ async function handleSubmitTotp(i: Login, totp: string) {
 }
 
 async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
-  UserService.Instance.login({
+  await UserService.Instance.login({
     res: loginRes,
   });
   const [site, myUser] = await Promise.all([
@@ -221,7 +221,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
     i.props.history.replace("/");
   }
 
-  UnreadCounterService.Instance.updateUnreadCounts();
+  await UnreadCounterService.Instance.updateUnreadCounts();
 }
 
 async function handleLoginSubmit(i: Login, event: FormEvent<HTMLFormElement>) {
@@ -236,6 +236,8 @@ async function handleLoginSubmit(i: Login, event: FormEvent<HTMLFormElement>) {
       password,
       stay_logged_in,
     });
+    i.setState({ loginRes });
+
     switch (loginRes.state) {
       case "failed": {
         if (loginRes.err.name === "missing_totp_token") {
@@ -259,13 +261,11 @@ async function handleLoginSubmit(i: Login, event: FormEvent<HTMLFormElement>) {
           }
           toast(errStr, "danger");
         }
-
-        i.setState({ loginRes });
         break;
       }
 
       case "success": {
-        handleLoginSuccess(i, loginRes.data);
+        await handleLoginSuccess(i, loginRes.data);
         break;
       }
     }

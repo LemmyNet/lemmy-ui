@@ -40,18 +40,18 @@ async function handleSubmit(i: TotpModal, totp: string) {
   }
 }
 
-function handleInput(i: TotpModal, event: FormEvent<HTMLInputElement>) {
+async function handleInput(i: TotpModal, event: FormEvent<HTMLInputElement>) {
   i.setState({
     totp: event.target.value,
   });
 
   const { totp } = i.state;
   if (totp.length >= TOTP_LENGTH) {
-    handleSubmit(i, totp);
+    await handleSubmit(i, totp);
   }
 }
 
-function handlePaste(i: TotpModal, event: ClipboardEvent) {
+async function handlePaste(i: TotpModal, event: ClipboardEvent) {
   event.preventDefault();
   const text = event.clipboardData?.getData("text")?.trim();
   if (!text) {
@@ -65,7 +65,7 @@ function handlePaste(i: TotpModal, event: ClipboardEvent) {
     i.setState({ totp: text });
 
     if (text.length === TOTP_LENGTH) {
-      handleSubmit(i, text);
+      await handleSubmit(i, text);
     }
   }
 }

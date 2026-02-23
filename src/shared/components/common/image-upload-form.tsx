@@ -124,15 +124,18 @@ export class ImageUploadForm extends Component<
     );
   }
 
-  guardedImageUpload(i: ImageUploadForm, event: FormEvent<HTMLInputElement>) {
+  async guardedImageUpload(
+    i: ImageUploadForm,
+    event: FormEvent<HTMLInputElement>,
+  ) {
     const image = event.target.files?.[0];
     i.setState({ pendingUpload: image });
     if (i.props.noConfirmation) {
-      i.performImageUpload(i);
+      await i.performImageUpload(i);
     }
   }
 
-  performImageUpload(i: ImageUploadForm) {
+  async performImageUpload(i: ImageUploadForm) {
     if (!i.state.pendingUpload) {
       return;
     }
@@ -153,7 +156,7 @@ export class ImageUploadForm extends Component<
       uploadPromise = HttpService.client[i.props.uploadKey]({ image });
     }
 
-    uploadPromise.then((res: RequestState<UploadImageResponse>) => {
+    await uploadPromise.then((res: RequestState<UploadImageResponse>) => {
       if (res.state === "success") {
         i.props.onImageChange(res.data.image_url);
         toast(I18NextService.i18n.t("image_uploaded"));

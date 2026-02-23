@@ -162,14 +162,14 @@ export class CommunitySettings extends Component<RouteProps, State> {
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: RouteProps & { children?: InfernoNode },
   ) {
     if (
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      this.fetchCommunity(nextProps);
+      await this.fetchCommunity(nextProps);
     }
   }
 
@@ -590,7 +590,7 @@ async function handleDeleteCommunity(i: CommunitySettings, deleted: boolean) {
   }
 }
 
-function handleAddModSelect(i: CommunitySettings, choice: Choice) {
+async function handleAddModSelect(i: CommunitySettings, choice: Choice) {
   const person_id = getIdFromString(choice.value);
   if (i.state.communityRes.state === "success" && person_id) {
     const form: AddModToCommunity = {
@@ -598,7 +598,7 @@ function handleAddModSelect(i: CommunitySettings, choice: Choice) {
       community_id: i.state.communityRes.data.community_view.community.id,
       added: true,
     };
-    handleAddMod(i, form);
+    await handleAddMod(i, form);
   }
 }
 

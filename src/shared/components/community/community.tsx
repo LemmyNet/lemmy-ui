@@ -119,7 +119,10 @@ import { NoOptionI18nKeys } from "i18next";
 import { TimeIntervalFilter } from "@components/common/time-interval-filter";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { communityName } from "./community-link";
-import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import {
+  ExpandChipCheckbox,
+  FilterChipCheckbox,
+} from "@components/common/filter-chip-checkbox";
 import { RouterContext } from "inferno-router/dist/Router";
 
 type CommunityData = RouteDataResponse<{
@@ -299,16 +302,16 @@ export class Community extends Component<CommunityRouteProps, State> {
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: CommunityRouteProps & { children?: InfernoNode },
   ) {
     if (
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      this.fetchCommunity(nextProps);
+      await this.fetchCommunity(nextProps);
     }
-    this.fetchData(nextProps);
+    await this.fetchData(nextProps);
   }
 
   static fetchInitialData = async ({
@@ -475,23 +478,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             image={res.community_view.community.icon}
           />
         )}
-
         {this.communityInfo()}
-        <div className="d-block d-md-none">
-          <button
-            className="btn btn-sm btn-light border-light-subtle d-inline-block mb-2 me-3"
-            onClick={() => handleShowSidebarMobile(this)}
-          >
-            {I18NextService.i18n.t("sidebar")}{" "}
-            <Icon
-              icon={
-                this.state.showSidebarMobile ? `minus-square` : `plus-square`
-              }
-              classes="icon-inline"
-            />
-          </button>
-          {this.state.showSidebarMobile && this.sidebar()}
-        </div>
       </>
     );
   }
@@ -511,6 +498,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               <>
                 {this.renderCommunity()}
                 {this.selects()}
+                {this.mobileSidebar()}
                 {this.listings()}
                 <div className="row">
                   <div className="col">
@@ -522,7 +510,7 @@ export class Community extends Component<CommunityRouteProps, State> {
                       }
                     />
                   </div>
-                  <div className="col-auto">{this.markPageAsReadButton}</div>
+                  <div className="col-auto">{this.markPageAsReadButton()}</div>
                 </div>
               </>
             ) : (
@@ -549,7 +537,19 @@ export class Community extends Component<CommunityRouteProps, State> {
     );
   }
 
-  get markPageAsReadButton(): InfernoNode {
+  mobileSidebar() {
+    return (
+      <div className="d-block d-md-none">
+        <div className="row">
+          <div className="col-12">
+            {this.state.showSidebarMobile && this.sidebar()}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  markPageAsReadButton(): InfernoNode {
     const { postOrCommentType } = this.props;
     const { postsRes, markPageAsReadLoading } = this.state;
     const myUserInfo = this.isoData.myUserInfo;
@@ -754,11 +754,19 @@ export class Community extends Component<CommunityRouteProps, State> {
     const communityRss = res
       ? communityRSSUrl(res.community_view.community, sort)
       : undefined;
+    const showSidebarMobile = this.state.showSidebarMobile;
 
     const myUserInfo = this.isoData.myUserInfo;
 
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-3">
+        <div className="d-block d-md-none col">
+          <ExpandChipCheckbox
+            option="show_sidebar"
+            isChecked={showSidebarMobile}
+            onCheck={show => handleShowSidebarMobile(this, show)}
+          />
+        </div>
         <div className="col">
           <PostOrCommentTypeDropdown
             currentOption={postOrCommentType}
@@ -924,10 +932,8 @@ function handleHideReadChange(i: Community, hideRead: boolean) {
   });
 }
 
-function handleShowSidebarMobile(i: Community) {
-  i.setState(({ showSidebarMobile }) => ({
-    showSidebarMobile: !showSidebarMobile,
-  }));
+function handleShowSidebarMobile(i: Community, show: boolean) {
+  i.setState({ showSidebarMobile: show });
 }
 
 async function handleAddModToCommunity(i: Community, form: AddModToCommunity) {

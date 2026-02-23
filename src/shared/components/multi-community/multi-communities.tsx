@@ -126,8 +126,8 @@ export class MultiCommunities extends Component<RouteProps, State> {
     }
   }
 
-  componentWillReceiveProps(nextProps: RouteProps) {
-    this.refetch(nextProps);
+  async componentWillReceiveProps(nextProps: RouteProps) {
+    await this.refetch(nextProps);
   }
 
   get documentTitle(): string {

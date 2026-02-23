@@ -132,14 +132,14 @@ export class RegistrationApplications extends Component<
     }
   }
 
-  componentWillReceiveProps(
+  async componentWillReceiveProps(
     nextProps: RegistrationApplicationsRouteProps & { children?: InfernoNode },
   ) {
     if (
       nextProps.view !== this.props.view ||
       nextProps.cursor !== this.props.cursor
     ) {
-      this.refetch(nextProps);
+      await this.refetch(nextProps);
     }
   }
 
