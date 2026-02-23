@@ -914,7 +914,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 showSubscribed
                 showSuggested={
                   !!this.isoData.siteRes.site_view.local_site
-                    .suggested_communities
+                    .suggested_multi_community_id
                 }
                 myUserInfo={myUserInfo}
                 showLabel={false}
