@@ -69,6 +69,7 @@ import {
   unixTimeToLocalDateStr,
 } from "@utils/date";
 import { communityTagName } from "@components/community/community-tag";
+import { PostName } from "./common";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -293,6 +294,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             ) && !this.state.bypassNavWarning
           }
         />
+        {/* Show an un-editable title for mod edits */}
+        {this.editorType === "mod_or_admin" && this.props.post_view && (
+          <div className="mb-3">
+            <PostName post={this.props.post_view.post} showBody={"preview"} />
+          </div>
+        )}
         {this.editorType === "creator" && (
           <>
             <div className="mb-3 row">
