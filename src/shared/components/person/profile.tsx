@@ -683,15 +683,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 description={bio}
                 image={personRes.person_view.person.avatar}
               />
-
               {this.userInfo(personRes.person_view)}
-
-              <hr />
-
               {this.selects}
-
               {isUpload && this.renderUploadsRes()}
-
               {!isUpload &&
                 (resState === "loading" ? (
                   <h5>

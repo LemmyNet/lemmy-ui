@@ -205,7 +205,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
 
   if (site.state === "success" && myUser.state === "success") {
     const isoData = setIsoData(i.context);
-    await updateMyUserInfo(myUser.data);
+    updateMyUserInfo(myUser.data);
     isoData.siteRes.oauth_providers = site.data.oauth_providers;
     isoData.siteRes.admin_oauth_providers = site.data.admin_oauth_providers;
     refreshTheme();
@@ -236,6 +236,8 @@ async function handleLoginSubmit(i: Login, event: FormEvent<HTMLFormElement>) {
       password,
       stay_logged_in,
     });
+    i.setState({ loginRes });
+
     switch (loginRes.state) {
       case "failed": {
         if (loginRes.err.name === "missing_totp_token") {
@@ -259,8 +261,6 @@ async function handleLoginSubmit(i: Login, event: FormEvent<HTMLFormElement>) {
           }
           toast(errStr, "danger");
         }
-
-        i.setState({ loginRes });
         break;
       }
 

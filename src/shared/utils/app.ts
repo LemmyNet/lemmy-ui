@@ -331,7 +331,7 @@ export function enableDownvotes(siteRes: GetSiteResponse): boolean {
 }
 
 export function enableNsfw(siteRes?: GetSiteResponse): boolean {
-  return !!siteRes?.site_view.site.content_warning;
+  return !siteRes?.site_view.local_site.disallow_nsfw_content;
 }
 
 export async function fetchCommunities(q: string) {
@@ -631,11 +631,11 @@ export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   } else return context.router.staticContext;
 }
 
-export async function updateMyUserInfo(myUserInfo: MyUserInfo | undefined) {
+export function updateMyUserInfo(myUserInfo: MyUserInfo | undefined) {
   if (isBrowser()) {
     if (window.isoData) {
       window.isoData.myUserInfo = myUserInfo;
-      await UnreadCounterService.Instance.configure(myUserInfo);
+      UnreadCounterService.Instance.configure(myUserInfo);
     }
   }
 }

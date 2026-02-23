@@ -594,6 +594,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 showCrossPosts="expanded"
                 showBody="full"
                 showCommunity
+                topBorder={false}
                 admins={siteRes.admins}
                 enableNsfw={enableNsfw(siteRes)}
                 showAdultConsentModal={this.isoData.showAdultConsentModal}

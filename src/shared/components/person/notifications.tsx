@@ -370,6 +370,7 @@ export class Notifications extends Component<
               markReadLoading={
                 itemLoading(this.state.markPostReadLoadingRes) === data.post.id
               }
+              topBorder
               voteLoading={false}
               showCommunity
               showCrossPosts="show_separately"

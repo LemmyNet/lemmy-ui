@@ -107,6 +107,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                   admins={this.props.admins}
                   showBody={"preview"}
                   hideImage={false}
+                  topBorder={false}
                   disableAutoMarkAsRead={false}
                   editLoading={false}
                   markReadLoading={false}

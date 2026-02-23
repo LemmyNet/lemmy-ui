@@ -924,7 +924,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             showLocal={showLocal(this.isoData)}
             showSubscribed
             showSuggested={
-              !!this.isoData.siteRes.site_view.local_site.suggested_communities
+              !!this.isoData.siteRes.site_view.local_site
+                .suggested_multi_community_id
             }
             showLabel
             myUserInfo={this.isoData.myUserInfo}
