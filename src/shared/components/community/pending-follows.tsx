@@ -115,7 +115,7 @@ export class PendingFollows extends Component<
     return resourcesSettled([this.state.appsRes]);
   }
 
-  constructor(props: any, context: any) {
+  constructor(props: PendingFollowsRouteProps, context: PendingFollowsState) {
     super(props, context);
 
     // Only fetch the data if coming from another route
@@ -213,9 +213,9 @@ export class PendingFollows extends Component<
               myUserInfo={this.isoData.myUserInfo}
               loading={
                 itemLoading(this.state.approveRes)?.communityId ===
-                  pendingFollow.community.id &&
+                pendingFollow.community.id &&
                 itemLoading(this.state.approveRes)?.personId ===
-                  pendingFollow.person.id
+                pendingFollow.person.id
               }
               onApproveFollower={form => handleApproveFollower(this, form)}
             />
@@ -242,10 +242,10 @@ export class PendingFollows extends Component<
     return {
       listPendingFollowsResponse: headers["Authorization"]
         ? await client.listCommunityPendingFollows({
-            unread_only: state === "unread",
-            page_cursor: cursor,
-            limit: fetchLimit,
-          })
+          unread_only: state === "unread",
+          page_cursor: cursor,
+          limit: fetchLimit,
+        })
         : EMPTY_REQUEST,
     };
   };

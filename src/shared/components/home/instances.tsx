@@ -91,7 +91,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     return resourcesSettled([this.state.instancesRes]);
   }
 
-  constructor(props: any, context: any) {
+  constructor(props: InstancesRouteProps, context: InstancesState) {
     super(props, context);
 
     // Only fetch the data if coming from another route
@@ -156,9 +156,8 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   };
 
   get documentTitle(): string {
-    return `${I18NextService.i18n.t("instances")} - ${
-      this.state.siteRes.site_view.site.name
-    }`;
+    return `${I18NextService.i18n.t("instances")} - ${this.state.siteRes.site_view.site.name
+      }`;
   }
 
   renderInstances() {

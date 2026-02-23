@@ -138,7 +138,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     return resourcesSettled([this.state.reportsRes]);
   }
 
-  constructor(props: any, context: any) {
+  constructor(props: ReportsRouteProps, context: ReportsState) {
     super(props, context);
 
     // Only fetch the data if coming from another route

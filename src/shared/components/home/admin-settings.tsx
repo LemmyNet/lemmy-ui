@@ -138,7 +138,7 @@ export class AdminSettings extends Component<
     ]);
   }
 
-  constructor(props: any, context: any) {
+  constructor(props: AdminSettingsRouteProps, context: AdminSettingsState) {
     super(props, context);
 
     // Only fetch the data if coming from another route
@@ -185,9 +185,8 @@ export class AdminSettings extends Component<
   }
 
   get documentTitle(): string {
-    return `${I18NextService.i18n.t("admin_settings")} - ${
-      this.isoData.siteRes?.site_view.site.name
-    }`;
+    return `${I18NextService.i18n.t("admin_settings")} - ${this.isoData.siteRes?.site_view.site.name
+      }`;
   }
 
   render() {

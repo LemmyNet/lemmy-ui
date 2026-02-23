@@ -175,7 +175,7 @@ export default async (req: Request, res: Response) => {
       await createSsrHtml(
         root,
         isoData,
-        res.locals.cspNonce,
+        res.locals.cspNonce as string,
         languages,
         interfaceLanguage,
       ),
