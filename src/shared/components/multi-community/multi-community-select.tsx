@@ -12,6 +12,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { EMPTY_REQUEST, RequestState } from "@services/HttpService";
 import { SearchableSelect } from "@components/common/searchable-select";
 import { Choice } from "@utils/types";
+import { isBrowser } from "@utils/browser";
 
 interface Props {
   myUserInfo: MyUserInfo | undefined;
@@ -34,11 +35,10 @@ export class MultiCommunitySelect extends Component<Props, State> {
     multiCommunitySearchLoading: false,
   };
 
-  constructor(props: Props, context: any) {
-    super(props, context);
-    (async () => {
+  async componentWillMount() {
+    if (isBrowser()) {
       await handleMultiCommunitySearch(this, "", true);
-    })();
+    }
   }
 
   render() {
@@ -48,9 +48,9 @@ export class MultiCommunitySelect extends Component<Props, State> {
         value={this.props.value}
         options={[
           {
-            label: I18NextService.i18n.t("suggested"),
-            value: "",
-            disabled: true,
+            label: I18NextService.i18n.t("none"),
+            value: "0",
+            disabled: false,
           } as Choice,
         ].concat(this.state.multiCommunitySearchOptions)}
         loading={this.state.multiCommunitySearchLoading}
@@ -63,10 +63,8 @@ export class MultiCommunitySelect extends Component<Props, State> {
 
 function handleMultiCommunitySelect(i: MultiCommunitySelect, choice: Choice) {
   const multiCommunityId = getIdFromString(choice.value);
-  if (multiCommunityId) {
-    i.props.onSelect(multiCommunityId);
-    updateLabel(i, multiCommunityId);
-  }
+  i.props.onSelect(multiCommunityId ?? 0);
+  updateLabel(i, multiCommunityId);
 }
 
 function updateLabel(
