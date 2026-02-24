@@ -209,11 +209,14 @@ export function setupMarkdown() {
     env: any,
     self: Renderer,
   ) {
-    //Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
-    const item = tokens[idx] as any;
-    const title: string = item.attrs.length > 2 ? item.attrs[2][1] : "";
-    const splitTitle = title.split(/ (.*)/, 2);
-    const isEmoji = splitTitle[0] === "emoji";
+    // Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
+    const item = tokens[idx];
+    const title = item.attrs?.at(2)?.at(1);
+    const splitTitle = title?.split(/ (.*)/, 2);
+    const isEmoji = splitTitle?.at(0) === "emoji";
+    // const src = item.attrs?.at(0)?.at(1) || undefined;
+    // const alt = item.attrs?.at(1)?.at(1) || undefined;
+
     const imgElement =
       defaultImageRenderer?.(tokens, idx, options, env, self) ?? "";
     if (imgElement) {

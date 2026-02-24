@@ -39,9 +39,12 @@ import { PostListingList } from "./post-listing-list";
 import { PostListingCard } from "./post-listing-card";
 import { masonryUpdate } from "@utils/browser";
 import { RouterContext } from "inferno-router/dist/Router";
+import Viewer from "viewerjs";
+import { VIEWERJS_TOOLBAR_OPTIONS } from "@components/common/pictrs-image";
 
 type PostListingState = {
   showEdit: boolean;
+  viewerjss: Viewer[];
 };
 
 type PostListingProps = {
@@ -95,6 +98,7 @@ type PostListingProps = {
 export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
+    viewerjss: [],
   };
 
   unlisten = () => {};
@@ -111,6 +115,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentWillUnmount() {
     this.unlisten();
+    this.unloadViewerJs();
   }
 
   componentWillReceiveProps(
@@ -120,6 +125,34 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     if (this.props.editLoading && !nextProps.editLoading) {
       this.setState({ showEdit: false });
     }
+  }
+
+  loadViewerJsForImages(setState: boolean = true) {
+    // Load the image viewer for every image in the post body
+    const images = document.querySelectorAll(
+      "#postContent > div > div > p > img",
+    );
+    const viewerjss: Viewer[] = [];
+    images.forEach((i: HTMLElement) => {
+      const viewer = new Viewer(i, { toolbar: VIEWERJS_TOOLBAR_OPTIONS });
+      viewerjss.push(viewer);
+    });
+
+    if (setState) {
+      this.setState({ viewerjss });
+    }
+  }
+
+  unloadViewerJs() {
+    this.state.viewerjss.forEach(v => v.destroy());
+  }
+
+  componentDidMount() {
+    this.loadViewerJsForImages();
+  }
+
+  componentDidUpdate() {
+    this.loadViewerJsForImages(false);
   }
 
   render() {

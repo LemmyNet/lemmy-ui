@@ -17,7 +17,21 @@ const thumbnailSize = 256;
 // For some reason, masonry needs a default image size, and will properly size it down
 const defaultImgSize = 512;
 
-interface PictrsImageProps {
+export const VIEWERJS_TOOLBAR_OPTIONS: Viewer.ToolbarOptions = {
+  zoomIn: 4,
+  zoomOut: 4,
+  oneToOne: 4,
+  reset: 4,
+  prev: 0,
+  play: 0,
+  next: 0,
+  rotateLeft: 4,
+  rotateRight: 4,
+  flipHorizontal: 4,
+  flipVertical: 4,
+};
+
+type Props = {
   src: string;
   alt?: string;
   icon?: boolean;
@@ -29,11 +43,12 @@ interface PictrsImageProps {
   cardTop?: boolean;
   imageDetails?: ImageDetails;
   viewer?: boolean;
-}
+};
 
-interface PictrsImageState {
+type State = {
   src: string;
-}
+  viewerjs?: Viewer;
+};
 
 function handleImgLoadError(i: PictrsImage) {
   i.setState({
@@ -41,17 +56,17 @@ function handleImgLoadError(i: PictrsImage) {
   });
 }
 
-export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
+export class PictrsImage extends Component<Props, State> {
   // TODO this should be a prop
   private readonly isoData: IsoData = setIsoData(this.context);
   private imageRef = createRef<HTMLImageElement>();
   private lazyLoadCleanup: undefined | (() => void);
 
-  state: PictrsImageState = {
+  state: State = {
     src: this.props.src,
   };
 
-  componentDidUpdate(prevProps: PictrsImageProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.src !== this.props.src) {
       this.setState({ src: this.props.src });
     }
@@ -63,31 +78,21 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
       this.lazyLoadCleanup = lazyLoad(this.imageRef.current);
 
       if (this.props.viewer) {
-        const viewer = new Viewer(this.imageRef.current, {
-          viewed() {
-            viewer.zoomTo(1);
-          },
+        const viewerjs = new Viewer(this.imageRef.current, {
           title: () => this.alt() ?? undefined,
-          toolbar: {
-            zoomIn: 4,
-            zoomOut: 4,
-            oneToOne: 4,
-            reset: 4,
-            prev: 0,
-            play: 0,
-            next: 0,
-            rotateLeft: 4,
-            rotateRight: 4,
-            flipHorizontal: 4,
-            flipVertical: 4,
-          },
+          toolbar: VIEWERJS_TOOLBAR_OPTIONS,
         });
+        this.setState({ viewerjs });
       }
     }
   }
 
   componentWillUnmount() {
     this.lazyLoadCleanup?.();
+
+    if (this.state.viewerjs) {
+      this.state.viewerjs.destroy();
+    }
   }
 
   render() {
