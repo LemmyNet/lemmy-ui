@@ -313,6 +313,7 @@ export function PostImg({
         alt={post.alt_text}
         imageDetails={postView.image_details}
         nsfw={postView.post.nsfw || postView.community.nsfw}
+        viewer
       />
     </div>
   ) : (
