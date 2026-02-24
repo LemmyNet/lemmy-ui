@@ -129,8 +129,9 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   loadViewerJsForImages(setState: boolean = true) {
     // Load the image viewer for every image in the post body
+    const id = this.props.postView.post.id;
     const images = document.querySelectorAll(
-      "#postContent > div > div > p > img",
+      `#post-listing-${id} > div > article > div:nth-child(3) > article > div > div > p:nth-child(2) > img`,
     );
     const viewerjss: Viewer[] = [];
     images.forEach((i: HTMLElement) => {
@@ -158,7 +159,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   render() {
     const p = this.props;
     return (
-      <div className="post-listing my-2">
+      <div
+        id={`post-listing-${p.postView.post.id}`}
+        className="post-listing my-2"
+      >
         {!this.state.showEdit ? (
           this.renderListingMode()
         ) : (
