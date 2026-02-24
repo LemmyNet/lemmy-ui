@@ -308,14 +308,12 @@ export function PostImg({
     imageSrc &&
     !hideAnimatedImage(imageSrc, myUserInfo) ? (
     <div className="my-2">
-      <a href={imageSrc}>
-        <PictrsImage
-          src={imageSrc}
-          alt={post.alt_text}
-          imageDetails={postView.image_details}
-          nsfw={postView.post.nsfw || postView.community.nsfw}
-        />
-      </a>
+      <PictrsImage
+        src={imageSrc}
+        alt={post.alt_text}
+        imageDetails={postView.image_details}
+        nsfw={postView.post.nsfw || postView.community.nsfw}
+      />
     </div>
   ) : (
     <></>

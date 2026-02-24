@@ -200,6 +200,9 @@ importers:
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
+      viewerjs:
+        specifier: ^1.11.7
+        version: 1.11.7
       webpack:
         specifier: ^5.94.0
         version: 5.105.2(webpack-cli@6.0.1)
@@ -4835,6 +4838,9 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
+
+  viewerjs@1.11.7:
+    resolution: {integrity: sha512-0JuVqOmL5v1jmEAlG5EBDR3XquxY8DWFQbFMprOXgaBB0F7Q/X9xWdEaQc59D8xzwkdUgXEMSSknTpriq95igg==}
 
   void-elements@2.0.1:
     resolution: {integrity: sha512-qZKX4RnBzH2ugr8Lxa7x+0V6XD9Sb/ouARtiasEQCHB1EVU4NXtmHsDDrx1dO4ne5fc3J6EW05BP1Dl0z0iung==}
@@ -10171,6 +10177,8 @@ snapshots:
   validator@13.15.15: {}
 
   vary@1.1.2: {}
+
+  viewerjs@1.11.7: {}
 
   void-elements@2.0.1: {}
 

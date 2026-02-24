@@ -1,5 +1,6 @@
 // @ts-expect-error has a weird import error
 import { lazyLoad } from "unlazy";
+import Viewer from "viewerjs";
 import classNames from "classnames";
 import { Component } from "inferno";
 
@@ -27,6 +28,7 @@ interface PictrsImageProps {
   pushup?: boolean;
   cardTop?: boolean;
   imageDetails?: ImageDetails;
+  viewer?: boolean;
 }
 
 interface PictrsImageState {
@@ -40,6 +42,7 @@ function handleImgLoadError(i: PictrsImage) {
 }
 
 export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
+  // TODO this should be a prop
   private readonly isoData: IsoData = setIsoData(this.context);
   private imageRef = createRef<HTMLImageElement>();
   private lazyLoadCleanup: undefined | (() => void);
@@ -58,6 +61,28 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
     if (this.imageRef.current) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       this.lazyLoadCleanup = lazyLoad(this.imageRef.current);
+
+      if (this.props.viewer) {
+        const viewer = new Viewer(this.imageRef.current, {
+          viewed() {
+            viewer.zoomTo(1);
+          },
+          title: () => this.alt() ?? undefined,
+          toolbar: {
+            zoomIn: 4,
+            zoomOut: 4,
+            oneToOne: 4,
+            reset: 4,
+            prev: 0,
+            play: 0,
+            next: 0,
+            rotateLeft: 4,
+            rotateRight: 4,
+            flipHorizontal: 4,
+            flipVertical: 4,
+          },
+        });
+      }
     }
   }
 

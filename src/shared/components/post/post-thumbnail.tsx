@@ -27,20 +27,14 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
     thumbnail
   ) {
     return (
-      <a
-        className="d-block position-relative"
-        href={url}
-        rel={relTags}
-        title={url}
-        target={linkTarget(myUserInfo)}
-      >
-        <ImgThumb postView={postView} />
+      <div className="d-block position-relative">
+        <ImgThumb postView={postView} viewer />
         <Icon
           icon="image"
           small
           classes="d-block text-white position-absolute end-0 top-0 mini-overlay text-opacity-75 text-opacity-100-hover"
         />
-      </a>
+      </div>
     );
   } else if (
     !hideImages_ &&
@@ -133,11 +127,12 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
 
 type ImgThumbProps = {
   postView: PostView;
+  viewer?: boolean;
 };
 /**
  * Renders a thumbnail only if one exists
  **/
-function ImgThumb({ postView }: ImgThumbProps) {
+function ImgThumb({ postView, viewer }: ImgThumbProps) {
   return postView.post.thumbnail_url ? (
     <PictrsImage
       src={postView.post.thumbnail_url}
@@ -145,6 +140,7 @@ function ImgThumb({ postView }: ImgThumbProps) {
       alt={postView.post.alt_text}
       imageDetails={postView.image_details}
       nsfw={postView.post.nsfw || postView.community.nsfw}
+      viewer={viewer}
     />
   ) : (
     <></>
