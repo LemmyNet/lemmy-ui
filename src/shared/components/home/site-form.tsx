@@ -8,6 +8,7 @@ import {
   FederationMode,
   GetSiteResponse,
   ListingType,
+  MultiCommunityId,
   MyUserInfo,
   PostListingMode,
   PostSortType,
@@ -31,6 +32,7 @@ import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
 import { RegistrationModeDropdown } from "@components/common/registration-mode-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { ThemeDropdown } from "@components/common/theme-dropdown";
+import { MultiCommunitySelect } from "@components/multi-community/multi-community-select";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -88,6 +90,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       default_comment_sort_type: ls?.default_comment_sort_type,
       default_post_sort_type: ls?.default_post_sort_type,
       default_post_time_range_seconds: ls?.default_post_time_range_seconds,
+      suggested_multi_community_id: ls?.suggested_multi_community_id,
     };
   }
 
@@ -524,6 +527,18 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("suggested_multi_community")}
+          </label>
+          <div className="col-sm-9">
+            <MultiCommunitySelect
+              value={this.state.siteForm.suggested_multi_community_id}
+              myUserInfo={this.props.myUserInfo}
+              onSelect={val => handleSelectSuggestedMultiComm(this, val)}
+            />
+          </div>
+        </div>
         <div className="mb-3 row">
           <div className="col-12">
             <button
@@ -747,4 +762,11 @@ function handleBlockedUrlsUpdate(i: SiteForm, newBlockedUrls: string[]) {
 
 function handleSiteContentWarningChange(i: SiteForm, val: string) {
   i.setState(s => ((s.siteForm.content_warning = val), s));
+}
+
+function handleSelectSuggestedMultiComm(
+  i: SiteForm,
+  suggested: MultiCommunityId,
+) {
+  i.setState(s => ((s.siteForm.suggested_multi_community_id = suggested), s));
 }
