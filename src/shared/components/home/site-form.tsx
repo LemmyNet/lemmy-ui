@@ -31,10 +31,6 @@ import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
 import { RegistrationModeDropdown } from "@components/common/registration-mode-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { ThemeDropdown } from "@components/common/theme-dropdown";
-import {
-  CaptchaDifficulty,
-  CaptchaDifficultyDropdown,
-} from "@components/common/captcha-difficulty-dropdown";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -85,8 +81,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       discussion_languages: this.props.siteRes?.discussion_languages,
       slur_filter_regex: ls?.slur_filter_regex,
       federation_enabled: ls?.federation_enabled,
-      captcha_enabled: ls?.captcha_enabled,
-      captcha_difficulty: ls?.captcha_difficulty,
       blocked_urls: this.props.siteRes?.blocked_urls.map(u => u.url),
       content_warning: this.props.siteRes?.site_view.site.content_warning,
       disable_email_notifications: ls?.disable_email_notifications,
@@ -532,30 +526,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         </div>
         <div className="mb-3 row">
           <div className="col-12">
-            <FilterChipCheckbox
-              option={"captcha_enabled"}
-              isChecked={this.state.siteForm.captcha_enabled ?? false}
-              onCheck={val => handleSiteCaptchaEnabled(this, val)}
-            />
-          </div>
-        </div>
-        {this.state.siteForm.captcha_enabled && (
-          <div className="mb-3 row">
-            <label className="col-sm-3 col-form-label">
-              {I18NextService.i18n.t("captcha_difficulty")}
-            </label>
-            <div className="col-sm-9">
-              <CaptchaDifficultyDropdown
-                currentOption={
-                  this.state.siteForm.captcha_difficulty as CaptchaDifficulty
-                }
-                onSelect={val => handleSiteCaptchaDifficulty(this, val)}
-              />
-            </div>
-          </div>
-        )}
-        <div className="mb-3 row">
-          <div className="col-12">
             <button
               type="submit"
               className="btn btn-light border-light-subtle me-2"
@@ -635,8 +605,6 @@ function handleSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
       rate_limit_import_user_settings_interval_seconds:
         stateSiteForm.rate_limit_import_user_settings_interval_seconds,
       federation_enabled: stateSiteForm.federation_enabled,
-      captcha_enabled: stateSiteForm.captcha_enabled,
-      captcha_difficulty: stateSiteForm.captcha_difficulty,
       discussion_languages: stateSiteForm.discussion_languages,
     };
     i.props.onCreate?.(form);
@@ -747,14 +715,6 @@ function handleSiteSlurFilterRegex(
 
 function handleSiteFederationEnabled(i: SiteForm, val: boolean) {
   i.setState(s => ((s.siteForm.federation_enabled = val), s));
-}
-
-function handleSiteCaptchaEnabled(i: SiteForm, val: boolean) {
-  i.setState(s => ((s.siteForm.captcha_enabled = val), s));
-}
-
-function handleSiteCaptchaDifficulty(i: SiteForm, val: CaptchaDifficulty) {
-  i.setState(s => ((s.siteForm.captcha_difficulty = val), s));
 }
 
 function handleDiscussionLanguageChange(i: SiteForm, val: number[]) {
