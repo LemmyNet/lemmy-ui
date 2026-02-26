@@ -374,12 +374,12 @@ export class MarkdownTextArea extends Component<
 function handleEmoji(i: MarkdownTextArea, e: any) {
   let value = e.native;
   if (!value) {
-    const emoji = customEmojisLookup.get(e.id)?.custom_emoji;
+    const emoji = customEmojisLookup.get(e.id as string)?.custom_emoji;
     if (emoji) {
       value = `![${emoji.alt_text}](${emoji.image_url} "emoji ${emoji.shortcode}")`;
     }
   }
-  handleInsertAtCursor(i, value);
+  handleInsertAtCursor(i, value as string);
 }
 
 async function handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
