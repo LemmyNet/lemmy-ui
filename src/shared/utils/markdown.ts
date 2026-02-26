@@ -182,7 +182,7 @@ export function setupMarkdown() {
     .use(markdown_it_ruby as PluginSimple)
     .use(localInstanceLinkParser)
     .use(markdown_it_bidi as PluginSimple)
-    .use(mila  as PluginSimple, milaAttrs);
+    .use(mila as PluginSimple, milaAttrs);
   // .use(markdown_it_emoji, {
   //   defs: emojiDefs,
   // });

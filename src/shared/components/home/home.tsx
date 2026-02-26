@@ -795,7 +795,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onHidePost={form => handleHidePost(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               postListingMode={this.state.postListingMode}
-              onScrollIntoCommentsClick={() => { }}
+              onScrollIntoCommentsClick={() => {}}
             />
           );
         }
@@ -848,8 +848,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onEditComment={form => handleEditComment(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               onLockComment={form => handleLockComment(this, form)}
-              onMarkRead={() => { }}
-              onFetchChildren={() => { }}
+              onMarkRead={() => {}}
+              onFetchChildren={() => {}}
             />
           );
         }
@@ -965,7 +965,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         <div className="col">
           {getRss(
             listingType ??
-            this.state.siteRes.site_view.local_site.default_post_listing_type,
+              this.state.siteRes.site_view.local_site.default_post_listing_type,
             sort,
           )}
         </div>

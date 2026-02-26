@@ -418,7 +418,8 @@ function handleUrlPaste(
 
     // update textarea content
     i.setState(({ content }) => ({
-      content: `${content?.substring(0, selectionStart) ?? ""
+      content: `${
+        content?.substring(0, selectionStart) ?? ""
       }[${selectedText}](${url})${content?.substring(selectionEnd) ?? ""}`,
     }));
     handleSubmitContentChange(i);

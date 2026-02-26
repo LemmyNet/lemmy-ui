@@ -136,8 +136,9 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
   }
 
   get documentTitle(): string {
-    return `${I18NextService.i18n.t("login")} - ${this.state.siteRes.site_view.site.name
-      }`;
+    return `${I18NextService.i18n.t("login")} - ${
+      this.state.siteRes.site_view.site.name
+    }`;
   }
 
   render() {

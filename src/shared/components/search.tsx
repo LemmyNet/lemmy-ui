@@ -20,7 +20,7 @@ import {
 } from "@utils/helpers";
 import type { IsoData, QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import { Component, createRef, FormEvent} from "inferno";
+import { Component, createRef, FormEvent } from "inferno";
 import {
   CommunityView,
   GetCommunity,

@@ -185,8 +185,9 @@ export class AdminSettings extends Component<
   }
 
   get documentTitle(): string {
-    return `${I18NextService.i18n.t("admin_settings")} - ${this.isoData.siteRes?.site_view.site.name
-      }`;
+    return `${I18NextService.i18n.t("admin_settings")} - ${
+      this.isoData.siteRes?.site_view.site.name
+    }`;
   }
 
   render() {

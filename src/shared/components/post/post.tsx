@@ -652,25 +652,25 @@ export class Post extends Component<PostRouteProps, PostState> {
                 getCommentIdFromProps(this.props) ||
                 res.post_view.community_actions?.received_ban_at
               ) && (
-                  <CommentForm
-                    key={
-                      this.context.router.history.location.key +
-                      this.state.lastCreatedCommentId
-                      // reset on new location, otherwise <Prompt /> stops working
-                    }
-                    node={res.post_view.post.id}
-                    disabled={postLockedDeletedOrRemoved(res.post_view)}
-                    allLanguages={siteRes.all_languages}
-                    siteLanguages={siteRes.discussion_languages}
-                    containerClass="post-comment-container"
-                    myUserInfo={myUserInfo}
-                    onCreateComment={form =>
-                      handleCreateToplevelComment(this, form)
-                    }
-                    onEditComment={() => { }}
-                    loading={itemLoading(this.state.createCommentRes) === 0}
-                  />
-                )}
+                <CommentForm
+                  key={
+                    this.context.router.history.location.key +
+                    this.state.lastCreatedCommentId
+                    // reset on new location, otherwise <Prompt /> stops working
+                  }
+                  node={res.post_view.post.id}
+                  disabled={postLockedDeletedOrRemoved(res.post_view)}
+                  allLanguages={siteRes.all_languages}
+                  siteLanguages={siteRes.discussion_languages}
+                  containerClass="post-comment-container"
+                  myUserInfo={myUserInfo}
+                  onCreateComment={form =>
+                    handleCreateToplevelComment(this, form)
+                  }
+                  onEditComment={() => {}}
+                  loading={itemLoading(this.state.createCommentRes) === 0}
+                />
+              )}
               <div className="d-block d-md-none">
                 <button
                   className="btn btn-light border-light-subtle d-inline-block mb-2 me-3"
@@ -803,7 +803,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
-            onMarkRead={async () => { }}
+            onMarkRead={async () => {}}
           />
         </div>
       );
@@ -871,14 +871,14 @@ export class Post extends Component<PostRouteProps, PostState> {
                 postRes.data.community_view.community,
                 commentIdFromProps,
               ) && (
-                  <Link
-                    className="ps-0 d-block btn btn-link text-muted text-start"
-                    to={handleViewContext(this)}
-                    target={linkTarget(myUserInfo)}
-                  >
-                    {I18NextService.i18n.t("show_context")} ➔
-                  </Link>
-                )}
+                <Link
+                  className="ps-0 d-block btn btn-link text-muted text-start"
+                  to={handleViewContext(this)}
+                  target={linkTarget(myUserInfo)}
+                >
+                  {I18NextService.i18n.t("show_context")} ➔
+                </Link>
+              )}
             </>
           )}
           <CommentNodes
@@ -936,7 +936,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
-            onMarkRead={async () => { }}
+            onMarkRead={async () => {}}
           />
         </div>
       )
@@ -953,7 +953,7 @@ export class Post extends Component<PostRouteProps, PostState> {
         if (
           s.postRes.state === "success" &&
           s.postRes.data.post_view.creator.id ===
-          banRes.data.person_view.person.id
+            banRes.data.person_view.person.id
         ) {
           const pv = s.postRes.data.post_view;
           pv.creator_banned_from_community = banned;
@@ -977,7 +977,7 @@ export class Post extends Component<PostRouteProps, PostState> {
         if (
           s.postRes.state === "success" &&
           s.postRes.data.post_view.creator.id ===
-          banRes.data.person_view.person.id
+            banRes.data.person_view.person.id
         ) {
           s.postRes.data.post_view.creator_banned = banned;
         }
