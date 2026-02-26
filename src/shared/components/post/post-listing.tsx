@@ -40,7 +40,6 @@ import { PostListingCard } from "./post-listing-card";
 import { masonryUpdate } from "@utils/browser";
 import { RouterContext } from "inferno-router/dist/Router";
 import Viewer from "viewerjs";
-import { VIEWERJS_TOOLBAR_OPTIONS } from "@components/common/pictrs-image";
 
 type PostListingState = {
   showEdit: boolean;
@@ -135,7 +134,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     );
     const viewerjss: Viewer[] = [];
     images.forEach((i: HTMLElement) => {
-      const viewer = new Viewer(i, { toolbar: VIEWERJS_TOOLBAR_OPTIONS });
+      const viewer = new Viewer(i, { toolbar: false });
       viewerjss.push(viewer);
     });
 

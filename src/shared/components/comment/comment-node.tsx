@@ -60,7 +60,6 @@ import CommentActionDropdown from "../common/content-actions/comment-action-drop
 import { canAdmin } from "@utils/roles";
 import ActionButton from "@components/common/content-actions/action-button";
 import Viewer from "viewerjs";
-import { VIEWERJS_TOOLBAR_OPTIONS } from "@components/common/pictrs-image";
 
 type CommentNodeState = {
   showReply: boolean;
@@ -199,7 +198,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     );
     const viewerjss: Viewer[] = [];
     images.forEach((i: HTMLElement) => {
-      const viewer = new Viewer(i, { toolbar: VIEWERJS_TOOLBAR_OPTIONS });
+      const viewer = new Viewer(i, { toolbar: false });
       viewerjss.push(viewer);
     });
     if (setState) {

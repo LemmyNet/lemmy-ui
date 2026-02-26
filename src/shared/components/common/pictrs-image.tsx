@@ -17,20 +17,6 @@ const thumbnailSize = 256;
 // For some reason, masonry needs a default image size, and will properly size it down
 const defaultImgSize = 512;
 
-export const VIEWERJS_TOOLBAR_OPTIONS: Viewer.ToolbarOptions = {
-  zoomIn: 4,
-  zoomOut: 4,
-  oneToOne: 4,
-  reset: 4,
-  prev: 0,
-  play: 0,
-  next: 0,
-  rotateLeft: 4,
-  rotateRight: 4,
-  flipHorizontal: 4,
-  flipVertical: 4,
-};
-
 type Props = {
   src: string;
   alt?: string;
@@ -80,7 +66,7 @@ export class PictrsImage extends Component<Props, State> {
       if (this.props.viewer) {
         const viewerjs = new Viewer(this.imageRef.current, {
           title: () => this.alt() ?? undefined,
-          toolbar: VIEWERJS_TOOLBAR_OPTIONS,
+          toolbar: false,
         });
         this.setState({ viewerjs });
       }
