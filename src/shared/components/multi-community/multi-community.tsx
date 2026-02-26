@@ -59,6 +59,7 @@ import {
   MultiCommunityResponse,
   PaginationCursor,
   PostId,
+  ModEditPost,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -449,6 +450,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
             onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
             onBlockCommunity={form => handleBlockCommunity(form, myUserInfo)}
             onPostEdit={form => handlePostEdit(this, form)}
+            onPostModEdit={form => handlePostModEdit(this, form)}
             onPostVote={form => handlePostVote(this, form)}
             onPostReport={form => handlePostReport(form)}
             onLockPost={form => handleLockPost(this, form)}
@@ -693,6 +695,12 @@ async function handleMarkPostAsRead(
 
 async function handlePostEdit(i: MultiCommunity, form: EditPost) {
   const res = await HttpService.client.editPost(form);
+  findAndUpdatePost(i, res);
+  return res;
+}
+
+async function handlePostModEdit(i: MultiCommunity, form: ModEditPost) {
+  const res = await HttpService.client.modEditPost(form);
   findAndUpdatePost(i, res);
   return res;
 }

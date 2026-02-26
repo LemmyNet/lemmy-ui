@@ -19,6 +19,7 @@ import {
   LocalSite,
   LockPost,
   MarkPostAsRead,
+  ModEditPost,
   MyUserInfo,
   NotePerson,
   PersonView,
@@ -51,6 +52,7 @@ interface PostListingsProps {
   postListingMode: PostListingMode;
   voteLoading: PostId | undefined;
   onPostEdit: (form: EditPost) => void;
+  onPostModEdit: (form: ModEditPost) => void;
   onPostVote: (form: CreatePostLike) => void;
   onPostReport: (form: CreatePostReport) => void;
   onBlockPerson: (form: BlockPerson) => void;
@@ -111,6 +113,7 @@ export class PostListings extends Component<PostListingsProps, any> {
                   markReadLoading={false}
                   voteLoading={this.props.voteLoading === postView.post.id}
                   onPostEdit={this.props.onPostEdit}
+                  onPostModEdit={this.props.onPostModEdit}
                   onPostVote={this.props.onPostVote}
                   onPostReport={this.props.onPostReport}
                   onBlockPerson={this.props.onBlockPerson}
