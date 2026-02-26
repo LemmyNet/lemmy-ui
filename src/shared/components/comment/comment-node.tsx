@@ -194,7 +194,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     // Load the viewer for every image in the comment
     const id = this.commentView.comment.id;
     const images = document.querySelectorAll(
-      `#comment-${id} > div > div.comment-content > div > p:nth-child(2) > img`,
+      `#comment-${id} > div > div.comment-content > div > p > img`,
     );
     const viewerjss: Viewer[] = [];
     images.forEach((i: HTMLElement) => {
