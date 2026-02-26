@@ -77,6 +77,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       private_instance: ls?.private_instance,
       default_theme: ls?.default_theme,
       default_post_listing_type: ls?.default_post_listing_type,
+      default_post_listing_mode: ls?.default_post_listing_mode,
       legal_information: ls?.legal_information,
       application_email_admins: ls?.application_email_admins,
       reports_email_admins: ls?.reports_email_admins,
@@ -91,6 +92,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       default_post_sort_type: ls?.default_post_sort_type,
       default_post_time_range_seconds: ls?.default_post_time_range_seconds,
       suggested_multi_community_id: ls?.suggested_multi_community_id,
+      disallow_nsfw_content: ls?.disallow_nsfw_content,
     };
   }
 
