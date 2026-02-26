@@ -827,6 +827,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       );
     }
 
+    const uploadsContentType = contentType === "uploads";
+
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-2">
         <div className="col">
@@ -839,7 +841,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             onSelect={val => handleContentTypeChange(this, val)}
           />
         </div>
-        {this.amCurrentUser && (
+        {this.amCurrentUser && !uploadsContentType && (
           <div className="col">
             <FilterChipDropdown
               label={"view"}
@@ -849,13 +851,15 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             />
           </div>
         )}
-        <div className="col">
-          <SearchSortDropdown
-            currentOption={sort}
-            onSelect={val => handleSortChange(this, val)}
-            showLabel
-          />
-        </div>
+        {!uploadsContentType && (
+          <div className="col">
+            <SearchSortDropdown
+              currentOption={sort}
+              onSelect={val => handleSortChange(this, val)}
+              showLabel
+            />
+          </div>
+        )}
         {/* TODO: Rss feed for the Saved, Uploads, and Upvoted */}
         {viewType === "all" && (
           <div className="col">
