@@ -27,6 +27,7 @@ import {
   SavePost,
   CommunityTag,
   TransferCommunity,
+  ModEditPost,
 } from "lemmy-js-client";
 import {
   ShowBodyType,
@@ -69,6 +70,7 @@ type PostListingProps = {
   voteLoading: boolean;
   topBorder: boolean;
   onPostEdit: (form: EditPost) => void;
+  onPostModEdit: (form: ModEditPost) => void;
   onPostVote: (form: CreatePostLike) => void;
   onPostReport: (form: CreatePostReport) => void;
   onBlockPerson: (form: BlockPerson) => void;
@@ -143,6 +145,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
             onEdit={p.onPostEdit}
+            onModEdit={p.onPostModEdit}
             onCancel={() => handleEditCancel(this)}
           />
         )}
@@ -197,7 +200,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             markReadLoading={p.markReadLoading}
             voteLoading={p.voteLoading}
             onEditClick={() => handleEditClick(this)}
-            onPostEdit={p.onPostEdit}
             onPostVote={p.onPostVote}
             onPostReport={p.onPostReport}
             onBlockPerson={p.onBlockPerson}
