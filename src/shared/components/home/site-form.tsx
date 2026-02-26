@@ -91,6 +91,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       default_post_sort_type: ls?.default_post_sort_type,
       default_post_time_range_seconds: ls?.default_post_time_range_seconds,
       suggested_multi_community_id: ls?.suggested_multi_community_id,
+      disallow_nsfw_content: ls?.disallow_nsfw_content,
     };
   }
 
