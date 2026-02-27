@@ -3,7 +3,7 @@ import { debounce, groupBy } from "@utils/helpers";
 import { CommunityTribute, PersonTribute } from "@utils/types";
 import { Picker } from "emoji-mart";
 import { CustomEmojiView } from "lemmy-js-client";
-import { default as MarkdownIt } from "markdown-it";
+import { default as MarkdownIt, PluginSimple } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
 import { Renderer, Token } from "markdown-it";
 import { relTags } from "./config";
@@ -173,33 +173,33 @@ export function setupMarkdown() {
   //   {}
   // );
   md = new MarkdownIt(markdownItConfig)
-    .use(markdown_it_sub)
-    .use(markdown_it_sup)
-    .use(markdown_it_footnote)
-    .use(markdown_it_html5_embed, html5EmbedConfig)
+    .use(markdown_it_sub as PluginSimple)
+    .use(markdown_it_sup as PluginSimple)
+    .use(markdown_it_footnote as PluginSimple)
+    .use(markdown_it_html5_embed as PluginSimple, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
-    .use(markdown_it_highlightjs, highlightjsConfig)
-    .use(markdown_it_ruby)
+    .use(markdown_it_highlightjs as PluginSimple, highlightjsConfig)
+    .use(markdown_it_ruby as PluginSimple)
     .use(localInstanceLinkParser)
-    .use(markdown_it_bidi)
-    .use(mila, milaAttrs);
+    .use(markdown_it_bidi as PluginSimple)
+    .use(mila as PluginSimple, milaAttrs);
   // .use(markdown_it_emoji, {
   //   defs: emojiDefs,
   // });
 
   mdNoImages = new MarkdownIt(markdownItConfig)
-    .use(markdown_it_sub)
-    .use(markdown_it_sup)
-    .use(markdown_it_footnote)
-    .use(markdown_it_html5_embed, html5EmbedConfig)
+    .use(markdown_it_sub as PluginSimple)
+    .use(markdown_it_sup as PluginSimple)
+    .use(markdown_it_footnote as PluginSimple)
+    .use(markdown_it_html5_embed as PluginSimple, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
-    .use(markdown_it_highlightjs, highlightjsConfig)
+    .use(markdown_it_highlightjs as PluginSimple, highlightjsConfig)
     .use(localInstanceLinkParser)
-    .use(markdown_it_bidi)
+    .use(markdown_it_bidi as PluginSimple)
     // .use(markdown_it_emoji, {
     //   defs: emojiDefs,
     // })
-    .use(mila, milaAttrs)
+    .use(mila as PluginSimple, milaAttrs)
     .disable("image");
   const defaultImageRenderer = md.renderer.rules.image;
   md.renderer.rules.image = function (
@@ -319,7 +319,7 @@ export async function setupTribute() {
         },
         selectTemplate: (item: any) => {
           const customEmoji = customEmojisLookup.get(
-            item.original.key,
+            item.original.key as string,
           )?.custom_emoji;
           if (customEmoji === undefined) return `${item.original.val}`;
           else

@@ -215,7 +215,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     exportSettingsRes: EMPTY_REQUEST,
   };
 
-  constructor(props: any, context: any) {
+  constructor(props: SettingsRouteProps, context: SettingsState) {
     super(props, context);
 
     this.userSettings = this.userSettings.bind(this);

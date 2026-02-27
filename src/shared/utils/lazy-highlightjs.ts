@@ -35,7 +35,7 @@ class LazyHighlightjs implements HLJSPlugin {
         `highlight.js/lib/languages/${lang}.js`
       )
         .then(x => {
-          hljs.registerLanguage(lang, x.default);
+          hljs.registerLanguage(lang, x.default as LanguageFn);
           this.loadedLanguages.add(lang);
         })
         .catch(err => {

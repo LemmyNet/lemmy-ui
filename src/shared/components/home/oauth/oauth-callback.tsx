@@ -13,6 +13,7 @@ import { HttpService } from "../../../services/HttpService";
 import { toast } from "@utils/app";
 import { NoOptionI18nKeys } from "i18next";
 import { Action } from "history";
+import { LocalOauthState } from "./oauth-login";
 
 interface OAuthCallbackProps {
   code?: string;
@@ -52,7 +53,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
 
   async componentDidMount() {
     // store state in local storage
-    const local_oauth_state = JSON.parse(
+    const local_oauth_state: LocalOauthState = JSON.parse(
       localStorage.getItem("oauth_state") || "{}",
     );
     if (
