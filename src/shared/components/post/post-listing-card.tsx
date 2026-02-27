@@ -242,7 +242,7 @@ type BodyProps = {
   viewSource: boolean;
 };
 function Body({ viewSource, body, showBody }: BodyProps) {
-  const classes = classNames("my-2", {
+  const classes = classNames("my-2 postContent", {
     "fade-preview": showBody === "preview",
   });
 
@@ -251,7 +251,7 @@ function Body({ viewSource, body, showBody }: BodyProps) {
   });
 
   return (
-    <article id="postContent" className={classes}>
+    <article className={classes}>
       {viewSource ? (
         <pre>{body}</pre>
       ) : (
