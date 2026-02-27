@@ -543,6 +543,12 @@ em-emoji-picker {
   background-color: unset;
 }
 
+.choices__list--dropdown {
+  border-width: var(--bs-border-width);
+  border-color: var(--bs-border-color);
+  border-radius: var(--bs-border-radius) !important;
+}
+
 .choices__list--dropdown .choices__item--selectable.is-highlighted,
 .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
   background-color: var(--bs-highlight-bg);
@@ -555,6 +561,9 @@ em-emoji-picker {
   border-width: var(--bs-border-width);
   border-color: var(--bs-border-color);
   border-radius: var(--bs-border-radius);
+  border: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 
 .choices__input {
