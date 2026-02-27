@@ -268,7 +268,6 @@ export default class ContentActionDropdown extends Component<
                 <li>
                   <hr className="dropdown-divider" />
                 </li>
-
                 {(type === "comment" ||
                   (type === "post" &&
                     this.props.showBody === "full" &&
@@ -341,27 +340,32 @@ export default class ContentActionDropdown extends Component<
                       </li>
                     </>
                   )}
-                {this.amCreator &&
+                {/* Mods / admins can also edit post tags or nsfw. */}
+                {(this.amCreator || this.canMod) &&
                 !userNotLoggedInOrBanned(this.props.myUserInfo) ? (
                   <>
                     <li>
                       <ActionButton
                         icon="edit"
-                        label={I18NextService.i18n.t("edit")}
+                        label={I18NextService.i18n.t(
+                          this.amCreator ? "edit" : "edit_as_mod",
+                        )}
                         noLoading
                         onClick={onEdit}
                       />
                     </li>
-                    <li>
-                      <ActionButton
-                        onClick={onDelete}
-                        icon={deleted ? "undo-trash" : "trash"}
-                        label={I18NextService.i18n.t(
-                          deleted ? "undelete" : "delete",
-                        )}
-                        iconClass={`text-${deleted ? "success" : "danger"}`}
-                      />
-                    </li>
+                    {this.amCreator && (
+                      <li>
+                        <ActionButton
+                          onClick={onDelete}
+                          icon={deleted ? "undo-trash" : "trash"}
+                          label={I18NextService.i18n.t(
+                            deleted ? "undelete" : "delete",
+                          )}
+                          iconClass={`text-${deleted ? "success" : "danger"}`}
+                        />
+                      </li>
+                    )}
                   </>
                 ) : (
                   this.props.myUserInfo && (
@@ -416,7 +420,6 @@ export default class ContentActionDropdown extends Component<
                     </>
                   )
                 )}
-
                 {(amMod(
                   this.props.type === "comment"
                     ? this.props.commentView
@@ -622,7 +625,6 @@ export default class ContentActionDropdown extends Component<
                       />
                     </li>
                   )}
-
                 {this.canAdmin && (showToggleAdmin || !creator_is_admin) && (
                   <>
                     <li>

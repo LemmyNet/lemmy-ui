@@ -8,6 +8,7 @@ import {
   FederationMode,
   GetSiteResponse,
   ListingType,
+  MultiCommunityId,
   MyUserInfo,
   PostListingMode,
   PostSortType,
@@ -31,10 +32,7 @@ import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
 import { RegistrationModeDropdown } from "@components/common/registration-mode-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { ThemeDropdown } from "@components/common/theme-dropdown";
-import {
-  CaptchaDifficulty,
-  CaptchaDifficultyDropdown,
-} from "@components/common/captcha-difficulty-dropdown";
+import { MultiCommunitySelect } from "@components/multi-community/multi-community-select";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -79,14 +77,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       private_instance: ls?.private_instance,
       default_theme: ls?.default_theme,
       default_post_listing_type: ls?.default_post_listing_type,
+      default_post_listing_mode: ls?.default_post_listing_mode,
       legal_information: ls?.legal_information,
       application_email_admins: ls?.application_email_admins,
       reports_email_admins: ls?.reports_email_admins,
       discussion_languages: this.props.siteRes?.discussion_languages,
       slur_filter_regex: ls?.slur_filter_regex,
       federation_enabled: ls?.federation_enabled,
-      captcha_enabled: ls?.captcha_enabled,
-      captcha_difficulty: ls?.captcha_difficulty,
       blocked_urls: this.props.siteRes?.blocked_urls.map(u => u.url),
       content_warning: this.props.siteRes?.site_view.site.content_warning,
       disable_email_notifications: ls?.disable_email_notifications,
@@ -94,6 +91,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       default_comment_sort_type: ls?.default_comment_sort_type,
       default_post_sort_type: ls?.default_post_sort_type,
       default_post_time_range_seconds: ls?.default_post_time_range_seconds,
+      suggested_multi_community_id: ls?.suggested_multi_community_id,
+      disallow_nsfw_content: ls?.disallow_nsfw_content,
     };
   }
 
@@ -530,30 +529,17 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="mb-3 row">
-          <div className="col-12">
-            <FilterChipCheckbox
-              option={"captcha_enabled"}
-              isChecked={this.state.siteForm.captcha_enabled ?? false}
-              onCheck={val => handleSiteCaptchaEnabled(this, val)}
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("suggested_multi_community")}
+          </label>
+          <div className="col-sm-9">
+            <MultiCommunitySelect
+              value={this.state.siteForm.suggested_multi_community_id}
+              onSelect={val => handleSelectSuggestedMultiComm(this, val)}
             />
           </div>
         </div>
-        {this.state.siteForm.captcha_enabled && (
-          <div className="mb-3 row">
-            <label className="col-sm-3 col-form-label">
-              {I18NextService.i18n.t("captcha_difficulty")}
-            </label>
-            <div className="col-sm-9">
-              <CaptchaDifficultyDropdown
-                currentOption={
-                  this.state.siteForm.captcha_difficulty as CaptchaDifficulty
-                }
-                onSelect={val => handleSiteCaptchaDifficulty(this, val)}
-              />
-            </div>
-          </div>
-        )}
         <div className="mb-3 row">
           <div className="col-12">
             <button
@@ -635,8 +621,6 @@ function handleSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
       rate_limit_import_user_settings_interval_seconds:
         stateSiteForm.rate_limit_import_user_settings_interval_seconds,
       federation_enabled: stateSiteForm.federation_enabled,
-      captcha_enabled: stateSiteForm.captcha_enabled,
-      captcha_difficulty: stateSiteForm.captcha_difficulty,
       discussion_languages: stateSiteForm.discussion_languages,
     };
     i.props.onCreate?.(form);
@@ -749,14 +733,6 @@ function handleSiteFederationEnabled(i: SiteForm, val: boolean) {
   i.setState(s => ((s.siteForm.federation_enabled = val), s));
 }
 
-function handleSiteCaptchaEnabled(i: SiteForm, val: boolean) {
-  i.setState(s => ((s.siteForm.captcha_enabled = val), s));
-}
-
-function handleSiteCaptchaDifficulty(i: SiteForm, val: CaptchaDifficulty) {
-  i.setState(s => ((s.siteForm.captcha_difficulty = val), s));
-}
-
 function handleDiscussionLanguageChange(i: SiteForm, val: number[]) {
   i.setState(s => ((s.siteForm.discussion_languages = val), s));
 }
@@ -787,4 +763,11 @@ function handleBlockedUrlsUpdate(i: SiteForm, newBlockedUrls: string[]) {
 
 function handleSiteContentWarningChange(i: SiteForm, val: string) {
   i.setState(s => ((s.siteForm.content_warning = val), s));
+}
+
+function handleSelectSuggestedMultiComm(
+  i: SiteForm,
+  suggested: MultiCommunityId,
+) {
+  i.setState(s => ((s.siteForm.suggested_multi_community_id = suggested), s));
 }

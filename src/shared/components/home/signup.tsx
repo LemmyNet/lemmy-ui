@@ -71,16 +71,13 @@ export class Signup extends Component<SignupRouteProps, State> {
 
   loadingSettled() {
     return (
-      !this.isoData.siteRes?.site_view.local_site.captcha_enabled ||
+      !this.isoData.siteRes?.captcha_enabled ||
       resourcesSettled([this.state.captchaRes])
     );
   }
 
   async componentWillMount() {
-    if (
-      this.isoData.siteRes?.site_view.local_site.captcha_enabled &&
-      isBrowser()
-    ) {
+    if (this.isoData.siteRes?.captcha_enabled && isBrowser()) {
       await this.fetchCaptcha();
     }
   }
@@ -475,7 +472,7 @@ async function handleRegisterSubmit(
           const myUserRes = await HttpService.client.getMyUser();
 
           if (myUserRes.state === "success") {
-            await updateMyUserInfo(myUserRes.data);
+            updateMyUserInfo(myUserRes.data);
           }
 
           i.props.history.replace("/communities");

@@ -33,10 +33,6 @@ export default class ActionButton extends Component<
   ActionButtonProps,
   ActionButtonState
 > {
-  state: ActionButtonState = {
-    loading: false,
-  };
-
   render() {
     const { label, icon, iconClass, inline, inlineWithText, onClick } =
       this.props;
@@ -57,15 +53,11 @@ export default class ActionButton extends Component<
         {this.props.loading ? (
           <Spinner />
         ) : (
-          <Icon
-            classes={classNames(iconClass, {
-              "me-2": !(inline || inlineWithText),
-            })}
-            icon={icon}
-            inline
-          />
+          <>
+            <Icon classes={classNames(iconClass, "me-1")} icon={icon} inline />
+            {(!inline || inlineWithText) && label}
+          </>
         )}
-        {(!inline || inlineWithText) && label}
       </button>
     );
   }

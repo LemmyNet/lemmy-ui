@@ -27,6 +27,7 @@ import {
   SavePost,
   CommunityTag,
   TransferCommunity,
+  ModEditPost,
 } from "lemmy-js-client";
 import {
   ShowBodyType,
@@ -39,9 +40,11 @@ import { PostListingList } from "./post-listing-list";
 import { PostListingCard } from "./post-listing-card";
 import { masonryUpdate } from "@utils/browser";
 import { RouterContext } from "inferno-router/dist/Router";
+import Viewer from "viewerjs";
 
 type PostListingState = {
   showEdit: boolean;
+  viewerjss: Viewer[];
 };
 
 type PostListingProps = {
@@ -67,7 +70,9 @@ type PostListingProps = {
   notificationRead?: boolean;
   markReadLoading: boolean;
   voteLoading: boolean;
+  topBorder: boolean;
   onPostEdit: (form: EditPost) => void;
+  onPostModEdit: (form: ModEditPost) => void;
   onPostVote: (form: CreatePostLike) => void;
   onPostReport: (form: CreatePostReport) => void;
   onBlockPerson: (form: BlockPerson) => void;
@@ -94,6 +99,7 @@ type PostListingProps = {
 export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
+    viewerjss: [],
   };
 
   unlisten = () => {};
@@ -110,6 +116,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentWillUnmount() {
     this.unlisten();
+    this.unloadViewerJs();
   }
 
   componentWillReceiveProps(
@@ -121,10 +128,42 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
+  loadViewerJsForImages(setState: boolean = true) {
+    // Load the image viewer for every image in the post body
+    const id = this.props.postView.post.id;
+    const images = document.querySelectorAll(
+      `#post-listing-${id} > div > article > div > article > div > div > p > img`,
+    );
+    const viewerjss: Viewer[] = [];
+    images.forEach((i: HTMLElement) => {
+      const viewer = new Viewer(i, { toolbar: false });
+      viewerjss.push(viewer);
+    });
+
+    if (setState) {
+      this.setState({ viewerjss });
+    }
+  }
+
+  unloadViewerJs() {
+    this.state.viewerjss.forEach(v => v.destroy());
+  }
+
+  componentDidMount() {
+    this.loadViewerJsForImages();
+  }
+
+  componentDidUpdate() {
+    this.loadViewerJsForImages(false);
+  }
+
   render() {
     const p = this.props;
     return (
-      <div className="post-listing mt-2">
+      <div
+        id={`post-listing-${p.postView.post.id}`}
+        className="post-listing my-2"
+      >
         {!this.state.showEdit ? (
           this.renderListingMode()
         ) : (
@@ -142,6 +181,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
             onEdit={p.onPostEdit}
+            onModEdit={p.onPostModEdit}
             onCancel={() => handleEditCancel(this)}
           />
         )}
@@ -184,6 +224,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             hideImage={p.hideImage}
             enableNsfw={p.enableNsfw}
             viewOnly={p.viewOnly}
+            topBorder={p.topBorder}
             showAdultConsentModal={p.showAdultConsentModal}
             myUserInfo={p.myUserInfo}
             localSite={p.localSite}
@@ -195,7 +236,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             markReadLoading={p.markReadLoading}
             voteLoading={p.voteLoading}
             onEditClick={() => handleEditClick(this)}
-            onPostEdit={p.onPostEdit}
             onPostVote={p.onPostVote}
             onPostReport={p.onPostReport}
             onBlockPerson={p.onBlockPerson}

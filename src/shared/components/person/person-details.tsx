@@ -38,6 +38,7 @@ import {
   BlockCommunity,
   CommentId,
   PostId,
+  ModEditPost,
 } from "lemmy-js-client";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
@@ -77,6 +78,7 @@ interface PersonDetailsProps {
   onPurgePerson: (form: PurgePerson) => void;
   onPurgeComment: (form: PurgeComment) => void;
   onPostEdit: (form: EditPost) => void;
+  onPostModEdit: (form: ModEditPost) => void;
   onPostVote: (form: CreatePostLike) => void;
   onPostReport: (form: CreatePostReport) => void;
   onLockPost: (form: LockPost) => void;
@@ -100,7 +102,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             nodes={[commentToFlatNode(i)]}
             viewType={"flat"}
             admins={this.props.admins}
-            noBorder
             showCommunity
             showContext
             showMarkRead={"hide"}
@@ -148,6 +149,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             communityTags={[]}
             postListingMode="small_card"
             showCommunity
+            topBorder
             crossPosts={[]}
             showBody={"preview"}
             hideImage={false}
@@ -163,6 +165,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             myUserInfo={this.props.myUserInfo}
             localSite={this.props.localSite}
             onPostEdit={this.props.onPostEdit}
+            onPostModEdit={this.props.onPostModEdit}
             onPostVote={this.props.onPostVote}
             onPostReport={this.props.onPostReport}
             onBlockPerson={this.props.onBlockPerson}
@@ -193,13 +196,6 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
   render(): InfernoNode {
     const combined: PostCommentCombinedView[] = this.props.content;
 
-    return (
-      <div>
-        {combined.map(i => [
-          this.renderItemType(i),
-          <hr key={i.type_} className="my-3" />,
-        ])}
-      </div>
-    );
+    return <div>{combined.map(i => [this.renderItemType(i)])}</div>;
   }
 }

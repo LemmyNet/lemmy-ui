@@ -43,7 +43,7 @@ importers:
         version: 5.3.8(@popperjs/core@2.11.8)
       caniuse-lite:
         specifier: ^1.0.30001735
-        version: 1.0.30001770
+        version: 1.0.30001772
       check-password-strength:
         specifier: ^3.0.0
         version: 3.0.0
@@ -120,8 +120,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-refreshed-at-api.0
-        version: 1.0.0-refreshed-at-api.0
+        specifier: 1.0.0-captcha-plugin.0
+        version: 1.0.0-captcha-plugin.0
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.1
@@ -203,6 +203,9 @@ importers:
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
+      viewerjs:
+        specifier: ^1.11.7
+        version: 1.11.7
       webpack:
         specifier: ^5.94.0
         version: 5.105.2(webpack-cli@6.0.1)
@@ -2016,8 +2019,8 @@ packages:
     resolution: {integrity: sha512-ksWePWBloaWPxJYQ8TL0JHvtci6G5QTKwQ95RcWAa/lzoAKuAOflGdAK92hpHXjkwb8zLxoLNUoNYZgVsaJzvQ==}
     engines: {node: '>=4'}
 
-  caniuse-lite@1.0.30001770:
-    resolution: {integrity: sha512-x/2CLQ1jHENRbHg5PSId2sXq1CIO1CISvwWAj027ltMVG2UNgW+w9oH2+HzgEIRFembL8bUlXtfbBHR1fCg2xw==}
+  caniuse-lite@1.0.30001772:
+    resolution: {integrity: sha512-mIwLZICj+ntVTw4BT2zfp+yu/AqV6GMKfJVJMx3MwPxs+uk/uj2GLl2dH8LQbjiLDX66amCga5nKFyDgRR43kg==}
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -3396,8 +3399,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  lemmy-js-client@1.0.0-refreshed-at-api.0:
-    resolution: {integrity: sha512-eFXNHG0SI3n+ZJURSRHWgug7Yuyz2sl5DBrC6z9ePIwk8AJ2O6LdW5nJ/d2msVyQKgu0oLrcVOn9ufGK0NpGYw==}
+  lemmy-js-client@1.0.0-captcha-plugin.0:
+    resolution: {integrity: sha512-R++kNRxj/Bsx+8XUjWjsZM51TtuMlKnQ4dDBEL8vf7l7SE4UaWXQiK4ZpJYA7MqhIQX0yjbH9okvUIAnrC0zOQ==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -4845,6 +4848,9 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
+
+  viewerjs@1.11.7:
+    resolution: {integrity: sha512-0JuVqOmL5v1jmEAlG5EBDR3XquxY8DWFQbFMprOXgaBB0F7Q/X9xWdEaQc59D8xzwkdUgXEMSSknTpriq95igg==}
 
   void-elements@2.0.1:
     resolution: {integrity: sha512-qZKX4RnBzH2ugr8Lxa7x+0V6XD9Sb/ouARtiasEQCHB1EVU4NXtmHsDDrx1dO4ne5fc3J6EW05BP1Dl0z0iung==}
@@ -7104,7 +7110,7 @@ snapshots:
   browserslist@4.28.1:
     dependencies:
       baseline-browser-mapping: 2.9.19
-      caniuse-lite: 1.0.30001770
+      caniuse-lite: 1.0.30001772
       electron-to-chromium: 1.5.286
       node-releases: 2.0.27
       update-browserslist-db: 1.2.3(browserslist@4.28.1)
@@ -7156,7 +7162,7 @@ snapshots:
 
   callsites@2.0.0: {}
 
-  caniuse-lite@1.0.30001770: {}
+  caniuse-lite@1.0.30001772: {}
 
   chalk@4.1.2:
     dependencies:
@@ -8748,7 +8754,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  lemmy-js-client@1.0.0-refreshed-at-api.0:
+  lemmy-js-client@1.0.0-captcha-plugin.0:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:
@@ -10187,6 +10193,8 @@ snapshots:
   validator@13.15.15: {}
 
   vary@1.1.2: {}
+
+  viewerjs@1.11.7: {}
 
   void-elements@2.0.1: {}
 

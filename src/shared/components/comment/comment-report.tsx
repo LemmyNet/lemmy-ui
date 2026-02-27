@@ -10,7 +10,6 @@ import {
   ResolveCommentReport,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
-import { Icon, Spinner } from "../common/icon";
 import { PersonListing } from "../person/person-listing";
 import { CommentNode } from "./comment-node";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -85,6 +84,7 @@ export class CommentReport extends Component<
           fetchChildrenLoading={undefined}
           voteLoading={undefined}
           viewOnly
+          noBorder
           showCommunity
           showContext={false}
           allLanguages={[]}
@@ -150,57 +150,62 @@ export class CommentReport extends Component<
             )}
           </div>
         )}
-        <button
-          className="btn btn-link btn-animate text-muted py-0"
-          onClick={() => handleResolveReport(this)}
-          data-tippy-content={tippyContent}
-          aria-label={tippyContent}
-        >
-          {this.props.loading ? (
-            <Spinner />
-          ) : (
-            <Icon
-              icon="check"
-              classes={`icon-inline ${
-                r.comment_report.resolved ? "text-success" : "text-danger"
-              }`}
+        <div className="row row-cols-auto align-items-center gx-3 my-2">
+          <div className="col">
+            <ActionButton
+              label={tippyContent}
+              inlineWithText
+              icon={r.comment_report.resolved ? "check" : "x"}
+              loading={this.props.loading}
+              onClick={() => handleResolveReport(this)}
+              iconClass={`text-${r.comment_report.resolved ? "success" : "danger"}`}
             />
+          </div>
+          <div className="col">
+            <ActionButton
+              label={I18NextService.i18n.t(
+                comment_view.comment.removed
+                  ? "restore_comment"
+                  : "remove_comment",
+              )}
+              inlineWithText
+              icon={comment_view.comment.removed ? "restore" : "x"}
+              noLoading
+              onClick={() => this.setState({ showRemoveCommentDialog: true })}
+              iconClass={`text-${comment_view.comment.removed ? "success" : "danger"}`}
+            />
+          </div>
+          <div className="col">
+            <ActionButton
+              label={I18NextService.i18n.t(
+                comment_view.creator_banned
+                  ? "unban_from_community"
+                  : "ban_from_community",
+              )}
+              inlineWithText
+              icon={comment_view.creator_banned ? "unban" : "ban"}
+              noLoading
+              onClick={() => handleModBanFromCommunity(this)}
+              iconClass={`text-${comment_view.creator_banned ? "success" : "danger"}`}
+            />
+          </div>
+          {this.props.myUserInfo?.local_user_view.local_user.admin && (
+            <div className="col">
+              <ActionButton
+                label={I18NextService.i18n.t(
+                  comment_view.creator_banned
+                    ? "unban_from_site"
+                    : "ban_from_site",
+                )}
+                inlineWithText
+                icon={comment_view.creator_banned ? "unban" : "ban"}
+                noLoading
+                onClick={() => handleAdminBan(this)}
+                iconClass={`text-${comment_view.creator_banned ? "success" : "danger"}`}
+              />
+            </div>
           )}
-        </button>
-        <ActionButton
-          label={I18NextService.i18n.t(
-            comment_view.comment.removed ? "restore_comment" : "remove_comment",
-          )}
-          inline
-          icon={comment_view.comment.removed ? "restore" : "x"}
-          noLoading
-          onClick={() => this.setState({ showRemoveCommentDialog: true })}
-          iconClass={`text-${comment_view.comment.removed ? "success" : "danger"}`}
-        />
-        <ActionButton
-          label={I18NextService.i18n.t(
-            comment_view.creator_banned
-              ? "unban_from_community"
-              : "ban_from_community",
-          )}
-          inlineWithText
-          icon={comment_view.creator_banned ? "unban" : "ban"}
-          noLoading
-          onClick={() => handleModBanFromCommunity(this)}
-          iconClass={`text-${comment_view.creator_banned ? "success" : "danger"}`}
-        />
-        {this.props.myUserInfo?.local_user_view.local_user.admin && (
-          <ActionButton
-            label={I18NextService.i18n.t(
-              comment_view.creator_banned ? "unban_from_site" : "ban_from_site",
-            )}
-            inlineWithText
-            icon={comment_view.creator_banned ? "unban" : "ban"}
-            noLoading
-            onClick={() => handleAdminBan(this)}
-            iconClass={`text-${comment_view.creator_banned ? "success" : "danger"}`}
-          />
-        )}
+        </div>
         {this.state.showRemoveCommentDialog && (
           <ModActionFormModal
             onSubmit={reason => handleRemoveComment(this, reason)}

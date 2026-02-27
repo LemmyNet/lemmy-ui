@@ -84,6 +84,7 @@ import {
   PaginationCursor,
   CommentId,
   PostId,
+  ModEditPost,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsContentType } from "@utils/types";
@@ -682,15 +683,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                 description={bio}
                 image={personRes.person_view.person.avatar}
               />
-
               {this.userInfo(personRes.person_view)}
-
-              <hr />
-
               {this.selects}
-
               {isUpload && this.renderUploadsRes()}
-
               {!isUpload &&
                 (resState === "loading" ? (
                   <h5>
@@ -747,6 +742,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onCreateComment={form => handleCreateComment(this, form)}
                     onEditComment={form => handleEditComment(this, form)}
                     onPostEdit={form => handlePostEdit(this, form)}
+                    onPostModEdit={form => handlePostModEdit(this, form)}
                     onPostVote={form => handlePostVote(this, form)}
                     onPostReport={form => handlePostReport(form)}
                     onLockPost={form => handleLockPost(this, form)}
@@ -831,6 +827,8 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       );
     }
 
+    const uploadsContentType = contentType === "uploads";
+
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-2">
         <div className="col">
@@ -843,7 +841,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             onSelect={val => handleContentTypeChange(this, val)}
           />
         </div>
-        {this.amCurrentUser && (
+        {this.amCurrentUser && !uploadsContentType && (
           <div className="col">
             <FilterChipDropdown
               label={"view"}
@@ -853,13 +851,15 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             />
           </div>
         )}
-        <div className="col">
-          <SearchSortDropdown
-            currentOption={sort}
-            onSelect={val => handleSortChange(this, val)}
-            showLabel
-          />
-        </div>
+        {!uploadsContentType && (
+          <div className="col">
+            <SearchSortDropdown
+              currentOption={sort}
+              onSelect={val => handleSortChange(this, val)}
+              showLabel
+            />
+          </div>
+        )}
         {/* TODO: Rss feed for the Saved, Uploads, and Upvoted */}
         {viewType === "all" && (
           <div className="col">
@@ -1682,6 +1682,12 @@ async function handlePostVote(i: Profile, form: CreatePostLike) {
 
 async function handlePostEdit(i: Profile, form: EditPost) {
   const res = await HttpService.client.editPost(form);
+  i.findAndUpdatePost(res);
+  return res;
+}
+
+async function handlePostModEdit(i: Profile, form: ModEditPost) {
+  const res = await HttpService.client.modEditPost(form);
   i.findAndUpdatePost(res);
   return res;
 }

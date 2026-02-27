@@ -141,9 +141,7 @@ function buildChoices(
   selectedOptions: string[],
 ): Choice[] {
   const newChoices = dedupByProperty(allOptions, option => option.value);
-  newChoices
-    .filter(o => selectedOptions.includes(o.value))
-    .forEach(o => (o.selected = true));
+  newChoices.forEach(o => (o.selected = selectedOptions.includes(o.value)));
 
   return newChoices;
 }

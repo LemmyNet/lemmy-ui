@@ -17,7 +17,6 @@ import {
   CreatePostLike,
   CreatePostReport,
   DeletePost,
-  EditPost,
   FeaturePost,
   HidePost,
   Language,
@@ -75,8 +74,8 @@ type PostListingCardProps = {
   notificationRead?: boolean;
   markReadLoading: boolean;
   voteLoading: boolean;
+  topBorder: boolean;
   onEditClick: () => void;
-  onPostEdit: (form: EditPost) => void;
   onPostVote: (form: CreatePostLike) => void;
   onPostReport: (form: CreatePostReport) => void;
   onBlockPerson: (form: BlockPerson) => void;
@@ -120,7 +119,11 @@ export class PostListingCard extends Component<
 
     return (
       <div>
-        <article className="post-container">
+        <article
+          className={classNames("post-container", {
+            "border-top border-light-subtle": p.topBorder,
+          })}
+        >
           <div className="row mb-1">
             <div className="col flex-grow-1">
               <PostCreatedLine
@@ -133,7 +136,7 @@ export class PostListingCard extends Component<
                 myUserInfo={p.myUserInfo}
               />
             </div>
-            <div className="col-auto small ps-1">
+            <div className="col-auto small text-muted ps-1">
               <PostPublishedTime post={p.postView.post} />
             </div>
           </div>
@@ -239,7 +242,7 @@ type BodyProps = {
   viewSource: boolean;
 };
 function Body({ viewSource, body, showBody }: BodyProps) {
-  const classes = classNames("my-2", {
+  const classes = classNames("my-2 postContent", {
     "fade-preview": showBody === "preview",
   });
 
@@ -248,7 +251,7 @@ function Body({ viewSource, body, showBody }: BodyProps) {
   });
 
   return (
-    <article id="postContent" className={classes}>
+    <article className={classes}>
       {viewSource ? (
         <pre>{body}</pre>
       ) : (

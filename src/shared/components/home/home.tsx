@@ -79,6 +79,7 @@ import {
   PaginationCursor,
   CommentId,
   PostId,
+  ModEditPost,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -775,6 +776,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
               onBlockCommunity={form => handleBlockCommunity(form, myUserInfo)}
               onPostEdit={form => handlePostEdit(this, form)}
+              onPostModEdit={form => handlePostModEdit(this, form)}
               onPostVote={form => handlePostVote(this, form)}
               onPostReport={form => handlePostReport(form)}
               onLockPost={form => handleLockPost(this, form)}
@@ -922,7 +924,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             showLocal={showLocal(this.isoData)}
             showSubscribed
             showSuggested={
-              !!this.isoData.siteRes.site_view.local_site.suggested_communities
+              !!this.isoData.siteRes.site_view.local_site
+                .suggested_multi_community_id
             }
             showLabel
             myUserInfo={this.isoData.myUserInfo}
@@ -1356,6 +1359,12 @@ async function handleCommentVote(i: Home, form: CreateCommentLike) {
 
 async function handlePostEdit(i: Home, form: EditPost) {
   const res = await HttpService.client.editPost(form);
+  i.findAndUpdatePost(res);
+  return res;
+}
+
+async function handlePostModEdit(i: Home, form: ModEditPost) {
+  const res = await HttpService.client.modEditPost(form);
   i.findAndUpdatePost(res);
   return res;
 }
