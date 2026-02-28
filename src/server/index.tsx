@@ -2,6 +2,7 @@ import { setupDateFns } from "@utils/app";
 import { getStaticDir } from "@utils/env";
 import { VERSION } from "../shared/version";
 import express from "express";
+import morgan from "morgan";
 import path from "path";
 import process from "process";
 import CatchAllHandler from "./handlers/catch-all-handler";
@@ -17,6 +18,11 @@ import { verifyDynamicImports } from "../shared/dynamic-imports";
 import cookieParser from "cookie-parser";
 
 const server = express();
+if (process.env["NODE_ENV"] === "development") {
+  server.use(morgan("dev"));
+} else {
+  server.use(morgan("combined"));
+}
 server.use(cookieParser());
 
 const [hostname, port] = process.env["LEMMY_UI_HOST"]
