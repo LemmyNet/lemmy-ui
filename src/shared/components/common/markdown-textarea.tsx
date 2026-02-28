@@ -305,6 +305,7 @@ export class MarkdownTextArea extends Component<
           {this.props.showLanguage && (
             <div className="col ms-auto">
               <LanguageSelect
+                multiple={false}
                 iconVersion
                 allLanguages={this.props.allLanguages}
                 selectedLanguageIds={

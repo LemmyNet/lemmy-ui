@@ -12,7 +12,6 @@ import {
 import { scrollMixin } from "./mixins/scroll-mixin";
 import {
   debounce,
-  dedupByProperty,
   getIdFromString,
   getQueryParams,
   getQueryString,
@@ -64,7 +63,6 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "./common/paginator-cursor";
 import { SearchSortDropdown } from "./common/sort-dropdown";
-import { SearchableSelect } from "./common/searchable-select";
 import { UserBadges } from "./common/user-badges";
 import { CommunityBadges, MultiCommunityBadges } from "./common/badges";
 import { CommunityLink } from "./community/community-link";
@@ -74,6 +72,7 @@ import { ListingTypeDropdown } from "./common/listing-type-dropdown";
 import { SearchTypeDropdown } from "./common/search-type-dropdown";
 import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
 import { NoOptionI18nKeys } from "i18next";
+import { FilterChipSelect } from "./common/filter-chip-select";
 
 interface SearchProps {
   q?: string;
@@ -93,8 +92,6 @@ type SearchData = RouteDataResponse<{
   creatorDetailsResponse: GetPersonDetailsResponse;
   searchResponse: SearchResponse;
 }>;
-
-type FilterType = "creator" | "community";
 
 interface SearchState {
   searchRes: RequestState<SearchResponse>;
@@ -149,35 +146,26 @@ const getPostUrlOnlyFromQuery = (postUrlOnly?: string): boolean =>
   postUrlOnly?.toLowerCase() === "true";
 
 const Filter = ({
-  filterType,
   title,
   options,
   onChange,
   onSearch,
   value,
-  loading,
 }: {
-  filterType: FilterType;
   title: NoOptionI18nKeys;
   options: Choice[];
   onSearch: (text: string) => void;
-  onChange: (choice: Choice) => void;
+  onChange: (choices: Choice[]) => void;
   value?: number | null;
-  loading: boolean;
 }) => {
   return (
-    <SearchableSelect
-      id={`${filterType}-filter`}
-      options={[
-        {
-          label: I18NextService.i18n.t(title) as string,
-          value: "0",
-        },
-      ].concat(dedupByProperty(options, option => option.value))}
-      value={value ?? 0}
+    <FilterChipSelect
+      label={title}
+      multiple={false}
+      allOptions={options}
+      selectedOptions={value ? [value.toString()] : []}
       onSearch={onSearch}
-      onChange={onChange}
-      loading={loading}
+      onSelect={onChange}
     />
   );
 };
@@ -798,12 +786,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       communityId,
       creatorId,
     } = this.props;
-    const {
-      communitySearchOptions,
-      creatorSearchOptions,
-      searchCommunitiesLoading,
-      searchCreatorLoading,
-    } = this.state;
+    const { communitySearchOptions, creatorSearchOptions } = this.state;
 
     return (
       <>
@@ -855,24 +838,20 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           </div>
           <div className="col">
             <Filter
-              filterType="community"
               title="all_communities"
-              onChange={choice => handleCommunityFilterChange(this, choice)}
+              onChange={choices => handleCommunityFilterChange(this, choices)}
               onSearch={text => handleCommunitySearch(this, text)}
               options={communitySearchOptions}
               value={communityId}
-              loading={searchCommunitiesLoading}
             />
           </div>
           <div className="col">
             <Filter
-              filterType="creator"
               title="all_creators"
-              onChange={choice => handleCreatorFilterChange(this, choice)}
+              onChange={choices => handleCreatorFilterChange(this, choices)}
               onSearch={text => handleCreatorSearch(this, text)}
               options={creatorSearchOptions}
               value={creatorId}
-              loading={searchCreatorLoading}
             />
           </div>
         </div>
@@ -1248,17 +1227,17 @@ function handleListingTypeChange(i: Search, listingType: ListingType) {
   });
 }
 
-function handleCommunityFilterChange(i: Search, { value }: Choice) {
+function handleCommunityFilterChange(i: Search, choices: Choice[]) {
   i.updateUrl({
-    communityId: getIdFromString(value),
+    communityId: getIdFromString(choices[0].value),
     cursor: undefined,
     q: i.getQ(),
   });
 }
 
-function handleCreatorFilterChange(i: Search, { value }: Choice) {
+function handleCreatorFilterChange(i: Search, choices: Choice[]) {
   i.updateUrl({
-    creatorId: getIdFromString(value),
+    creatorId: getIdFromString(choices[0].value),
     cursor: undefined,
     q: i.getQ(),
   });
