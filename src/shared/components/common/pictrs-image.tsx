@@ -66,6 +66,7 @@ export class PictrsImage extends Component<Props, State> {
       if (this.props.viewer) {
         const viewerjs = new Viewer(this.imageRef.current, {
           title: () => this.alt() ?? undefined,
+          url: (image: { src: string }) => viewerJsFullSizeImageUrl(image),
           toolbar: false,
         });
         this.setState({ viewerjs });
@@ -93,8 +94,6 @@ export class PictrsImage extends Component<Props, State> {
       imageDetails,
     } = this.props;
 
-    const { src } = this.state;
-
     const blurImage =
       nsfw &&
       (this.isoData.myUserInfo?.local_user_view.local_user.blur_nsfw ??
@@ -111,13 +110,10 @@ export class PictrsImage extends Component<Props, State> {
     return (
       !this.isoData.showAdultConsentModal && (
         <picture>
-          <source data-srcset={this.src("webp")} type="image/webp" />
-          <source data-srcset={src} />
-          <source data-srcset={this.src("jpg")} type="image/jpeg" />
           <img
             ref={this.imageRef}
             src={base64Placeholder(width, height)}
-            data-src={src}
+            data-src={this.src()}
             data-blurhash={imageDetails?.blurhash}
             alt={this.alt()}
             title={this.alt()}
@@ -147,7 +143,7 @@ export class PictrsImage extends Component<Props, State> {
     );
   }
 
-  src(format: string): string {
+  src(): string {
     // sample url:
     // http://localhost:8535/pictrs/image/file.png?thumbnail=256&format=jpg
 
@@ -160,23 +156,18 @@ export class PictrsImage extends Component<Props, State> {
 
     // If there's no match, then it's not a pictrs image
     if (
-      !url.pathname.includes("/pictrs/image/") &&
-      !url.pathname.includes("/api/v3/image_proxy") &&
-      !url.pathname.includes("/api/v4/image/proxy")
+      !url.pathname.includes("/api/v3/image") &&
+      !url.pathname.includes("/api/v4/image")
     ) {
       return this.state.src;
     }
 
-    // Keeps original search params. Could probably do `url.search = ""` here.
-
-    url.searchParams.set("format", format);
-
     if (this.props.thumbnail) {
-      url.searchParams.set("thumbnail", thumbnailSize.toString());
+      url.searchParams.set("max_size", thumbnailSize.toString());
     } else if (this.props.icon) {
-      url.searchParams.set("thumbnail", iconThumbnailSize.toString());
+      url.searchParams.set("max_size", iconThumbnailSize.toString());
     } else {
-      url.searchParams.delete("thumbnail");
+      url.searchParams.set("max_size", defaultImgSize.toString());
     }
 
     return url.href;
@@ -204,4 +195,12 @@ export class PictrsImage extends Component<Props, State> {
 }
 function base64Placeholder(width: number = 32, height: number = 32) {
   return `data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}'%3e%3c/svg%3e`;
+}
+
+export function viewerJsFullSizeImageUrl(image: { src: string }): string {
+  // Remove the max_size params from the image viewer
+  const srcUrl = new URL(image.src);
+  srcUrl.searchParams.delete("max_size");
+
+  return srcUrl.href;
 }
