@@ -107,7 +107,7 @@ export class PictrsImage extends Component<Props, State> {
           <img
             ref={this.imageRef}
             src={base64Placeholder(width, height)}
-            data-src={this.src()}
+            data-src={buildPictrsSrc(this.state.src, type)}
             data-blurhash={imageDetails?.blurhash}
             alt={this.alt()}
             title={this.alt()}
@@ -135,40 +135,6 @@ export class PictrsImage extends Component<Props, State> {
     );
   }
 
-  src(): string {
-    // sample url:
-    // http://localhost:8535/pictrs/image/file.png?thumbnail=256&format=jpg
-
-    let url: URL | undefined;
-    try {
-      url = new URL(this.state.src);
-    } catch {
-      return this.state.src;
-    }
-
-    // If there's no match, then it's not a pictrs image
-    if (
-      !url.pathname.includes("/api/v3/image") &&
-      !url.pathname.includes("/api/v4/image")
-    ) {
-      return this.state.src;
-    }
-
-    switch (this.props.type) {
-      case "thumbnail":
-        url.searchParams.set("max_size", thumbnailSize.toString());
-        break;
-      case "icon":
-        url.searchParams.set("max_size", iconThumbnailSize.toString());
-        break;
-      default:
-        url.searchParams.set("max_size", defaultImgSize.toString());
-        break;
-    }
-
-    return url.href;
-  }
-
   alt(): string {
     switch (this.props.type) {
       case "icon":
@@ -194,6 +160,44 @@ export class PictrsImage extends Component<Props, State> {
     }
   }
 }
+
+/**
+ * If an image has a pictrs-like URL, it will fetch an appropriately sized image.
+ */
+export function buildPictrsSrc(src: string, type: PictrsImageType): string {
+  // sample pictrs url:
+  // http://localhost:8536/api/v4/image/file.webp?max_size=256
+
+  let url: URL | undefined;
+  try {
+    url = new URL(src);
+  } catch {
+    return src;
+  }
+
+  // If there's no match, then it's not a pictrs image
+  if (
+    !url.pathname.includes("/api/v3/image") &&
+    !url.pathname.includes("/api/v4/image")
+  ) {
+    return src;
+  }
+
+  switch (type) {
+    case "thumbnail":
+      url.searchParams.set("max_size", thumbnailSize.toString());
+      break;
+    case "icon":
+      url.searchParams.set("max_size", iconThumbnailSize.toString());
+      break;
+    default:
+      url.searchParams.set("max_size", defaultImgSize.toString());
+      break;
+  }
+
+  return url.href;
+}
+
 function base64Placeholder(width: number = 32, height: number = 32) {
   return `data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}'%3e%3c/svg%3e`;
 }
