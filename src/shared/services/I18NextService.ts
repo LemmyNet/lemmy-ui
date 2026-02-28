@@ -3,7 +3,7 @@ import { ImportReport } from "@utils/dynamic-imports";
 import { en } from "../translations/en";
 import { Locale, setDefaultOptions } from "date-fns";
 import { isBrowser } from "@utils/browser";
-import { toast } from "@utils/app";
+import { sync, toast } from "@utils/app";
 
 export type TranslationDesc = {
   // Name of the translation file in `lemmy-translations`
@@ -232,7 +232,9 @@ export async function loadLanguageInstances(
         i18n.addResourceBundle(t.code, "translation", data["translation"]);
       }),
   );
-  await new Promise(r => i18n.changeLanguage(translationDescs[0].code, r));
+  await new Promise(r =>
+    sync(i18n.changeLanguage(translationDescs[0].code, r)),
+  );
 
   return [await localePromise, i18n];
 }
@@ -254,7 +256,9 @@ export async function updateLanguageInstances(
         i18n.addResourceBundle(t.code, "translation", data["translation"]);
       }),
   );
-  await new Promise(r => i18n.changeLanguage(translationDescs[0].code, r));
+  await new Promise(r =>
+    sync(i18n.changeLanguage(translationDescs[0].code, r)),
+  );
   setDefaultOptions({ locale: await locale });
 }
 

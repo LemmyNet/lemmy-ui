@@ -6,8 +6,9 @@ import {
   fetchCommunities,
   fetchUsers,
   personToChoice,
-  setIsoData,
   showLocal,
+  setIsoData,
+  sync,
 } from "@utils/app";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import {
@@ -465,9 +466,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.fetchAll(this.props);
+      sync(this.fetchAll(this.props));
     }
   }
 
@@ -477,14 +478,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     }
   }
 
-  async componentWillReceiveProps(nextProps: SearchRouteProps) {
+  componentWillReceiveProps(nextProps: SearchRouteProps) {
     if (nextProps.communityId !== this.props.communityId) {
-      await this.fetchSelectedCommunity(nextProps);
+      sync(this.fetchSelectedCommunity(nextProps));
     }
     if (nextProps.creatorId !== this.props.creatorId) {
-      await this.fetchSelectedCreator(nextProps);
+      sync(this.fetchSelectedCreator(nextProps));
     }
-    await this.search(nextProps);
+    sync(this.search(nextProps));
   }
 
   fetchDefaultCommunitiesToken?: symbol;
@@ -858,7 +859,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               filterType="community"
               title="all_communities"
               onChange={choice => handleCommunityFilterChange(this, choice)}
-              onSearch={text => handleCommunitySearch(this, text)}
+              onSearch={text => sync(handleCommunitySearch(this, text))}
               options={communitySearchOptions}
               value={communityId}
               loading={searchCommunitiesLoading}
@@ -869,7 +870,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               filterType="creator"
               title="all_creators"
               onChange={choice => handleCreatorFilterChange(this, choice)}
-              onSearch={text => handleCreatorSearch(this, text)}
+              onSearch={text => sync(handleCreatorSearch(this, text))}
               options={creatorSearchOptions}
               value={creatorId}
               loading={searchCreatorLoading}

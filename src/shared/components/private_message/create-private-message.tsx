@@ -1,4 +1,4 @@
-import { getRecipientIdFromProps, setIsoData } from "@utils/app";
+import { getRecipientIdFromProps, setIsoData, sync } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
 import { Component } from "inferno";
 import {
@@ -80,9 +80,9 @@ export class CreatePrivateMessage extends Component<
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.fetchPersonDetails();
+      sync(this.fetchPersonDetails());
     }
   }
 
@@ -144,7 +144,7 @@ export class CreatePrivateMessage extends Component<
               <PrivateMessageForm
                 myUserInfo={this.isoData.myUserInfo}
                 onCreate={(form, bypass) =>
-                  handlePrivateMessageCreate(this, form, bypass)
+                  sync(handlePrivateMessageCreate(this, form, bypass))
                 }
                 recipient={res.person_view.person}
                 createOrEditLoading={
