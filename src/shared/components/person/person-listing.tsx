@@ -105,7 +105,9 @@ function AvatarAndName({
 
   return (
     <>
-      {!hideAvatar_ && !banned && avatar && <PictrsImage src={avatar} icon />}
+      {!hideAvatar_ && !banned && avatar && (
+        <PictrsImage src={avatar} type="icon" />
+      )}
       <span className={nameClasses}>{name}</span>
       {serverStr && <small className="text-muted">{serverStr}</small>}
     </>

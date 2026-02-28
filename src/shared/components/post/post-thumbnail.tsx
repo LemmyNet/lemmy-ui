@@ -136,7 +136,7 @@ function ImgThumb({ postView, viewer }: ImgThumbProps) {
   return postView.post.thumbnail_url ? (
     <PictrsImage
       src={postView.post.thumbnail_url}
-      thumbnail
+      type="thumbnail"
       alt={postView.post.alt_text}
       imageDetails={postView.image_details}
       nsfw={postView.post.nsfw || postView.community.nsfw}

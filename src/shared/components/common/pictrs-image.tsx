@@ -17,16 +17,19 @@ const thumbnailSize = 256;
 // For some reason, masonry needs a default image size, and will properly size it down
 const defaultImgSize = 512;
 
+type PictrsImageType =
+  | "full_size"
+  | "thumbnail"
+  | "icon"
+  | "banner"
+  | "icon_under_banner"
+  | "card_top";
+
 type Props = {
   src: string;
+  type: PictrsImageType;
   alt?: string;
-  icon?: boolean;
-  banner?: boolean;
-  thumbnail?: boolean;
   nsfw?: boolean;
-  iconOverlay?: boolean;
-  pushup?: boolean;
-  cardTop?: boolean;
   imageDetails?: ImageDetails;
   viewer?: boolean;
 };
@@ -83,16 +86,7 @@ export class PictrsImage extends Component<Props, State> {
   }
 
   render() {
-    const {
-      icon,
-      iconOverlay,
-      banner,
-      thumbnail,
-      nsfw,
-      pushup,
-      cardTop,
-      imageDetails,
-    } = this.props;
+    const { type, nsfw, imageDetails } = this.props;
 
     const blurImage =
       nsfw &&
@@ -121,19 +115,17 @@ export class PictrsImage extends Component<Props, State> {
             width={width}
             height={height}
             className={classNames("overflow-hidden pictrs-image", {
-              "img-fluid": !(icon || iconOverlay),
-              banner,
-              "thumbnail rounded object-fit-cover":
-                thumbnail && !(icon || banner),
-              "img-expanded slight-radius": !(thumbnail || icon),
-              "img-blur": thumbnail && nsfw,
-              "object-fit-cover img-icon me-1": icon,
-              "img-blur-icon": icon && blurImage,
-              "img-blur-thumb": thumbnail && blurImage,
-              "ms-2 mb-0 rounded-circle object-fit-cover avatar-overlay":
-                iconOverlay,
-              "avatar-pushup": pushup,
-              "card-img-top": cardTop,
+              "img-fluid": type !== "icon",
+              "thumbnail rounded object-fit-cover": type === "thumbnail",
+              "img-expanded slight-radius":
+                type !== "thumbnail" && type !== "icon",
+              "img-blur": type === "thumbnail" && nsfw,
+              "object-fit-cover img-icon me-1": type === "icon",
+              "img-blur-icon": type === "icon" && blurImage,
+              "img-blur-thumb": type === "thumbnail" && blurImage,
+              "ms-2 mb-0 rounded-circle object-fit-cover avatar-overlay avatar-pushup":
+                type === "icon_under_banner",
+              "card-img-top": type === "card_top",
             })}
             onLoad={() => masonryUpdate()}
             onError={() => handleImgLoadError(this)}
@@ -162,34 +154,43 @@ export class PictrsImage extends Component<Props, State> {
       return this.state.src;
     }
 
-    if (this.props.thumbnail) {
-      url.searchParams.set("max_size", thumbnailSize.toString());
-    } else if (this.props.icon) {
-      url.searchParams.set("max_size", iconThumbnailSize.toString());
-    } else {
-      url.searchParams.set("max_size", defaultImgSize.toString());
+    switch (this.props.type) {
+      case "thumbnail":
+        url.searchParams.set("max_size", thumbnailSize.toString());
+        break;
+      case "icon":
+        url.searchParams.set("max_size", iconThumbnailSize.toString());
+        break;
+      default:
+        url.searchParams.set("max_size", defaultImgSize.toString());
+        break;
     }
 
     return url.href;
   }
 
   alt(): string {
-    if (this.props.icon) {
-      return "";
+    switch (this.props.type) {
+      case "icon":
+      case "banner":
+      case "icon_under_banner":
+        return "";
+      default:
+        return this.props.alt || "";
     }
-    return this.props.alt || "";
   }
 
   widthAndHeight(): [number, number] {
-    if (this.props.icon) {
-      return [iconThumbnailSize, iconThumbnailSize];
-    } else if (this.props.thumbnail) {
-      return [thumbnailSize, thumbnailSize];
-    } else {
-      return [
-        this.props.imageDetails?.width ?? defaultImgSize,
-        this.props.imageDetails?.height ?? defaultImgSize,
-      ];
+    switch (this.props.type) {
+      case "icon":
+        return [iconThumbnailSize, iconThumbnailSize];
+      case "thumbnail":
+        return [thumbnailSize, thumbnailSize];
+      default:
+        return [
+          this.props.imageDetails?.width ?? defaultImgSize,
+          this.props.imageDetails?.height ?? defaultImgSize,
+        ];
     }
   }
 }

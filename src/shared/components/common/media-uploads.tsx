@@ -64,7 +64,10 @@ export class MediaUploads extends Component<Props, any> {
                 <MomentTime published={i.local_image.published_at} />
               </div>
               <div className={cols}>
-                <PictrsImage src={buildImageUrl(i.local_image.pictrs_alias)} />
+                <PictrsImage
+                  src={buildImageUrl(i.local_image.pictrs_alias)}
+                  type="full_size"
+                />
               </div>
               <div className={cols}>{this.deleteImageBtn(i.local_image)}</div>
               <hr />
