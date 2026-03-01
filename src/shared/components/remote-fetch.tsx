@@ -189,7 +189,10 @@ export class RemoteFetch extends Component<
             <h1>{I18NextService.i18n.t("community_federated")}</h1>
             <div className="card mt-5">
               {communityView.community.banner && (
-                <PictrsImage src={communityView.community.banner} cardTop />
+                <PictrsImage
+                  src={communityView.community.banner}
+                  type="card_top"
+                />
               )}
               <div className="card-body">
                 <h2 className="card-title">

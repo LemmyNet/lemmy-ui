@@ -20,6 +20,7 @@ import markdown_it_sup from "markdown-it-sup";
 import markdown_it_highlightjs from "markdown-it-highlightjs/core";
 import { getStaticDir } from "./env";
 import mila from "markdown-it-link-attributes";
+import { buildPictrsSrc } from "@components/common/pictrs-image";
 
 export let md: MarkdownIt = new MarkdownIt();
 
@@ -211,14 +212,21 @@ export function setupMarkdown() {
   ) {
     // Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
     const item = tokens[idx];
-    const title = item.attrs?.at(2)?.at(1);
-    const splitTitle = title?.split(/ (.*)/, 2);
-    const isEmoji = splitTitle?.at(0) === "emoji";
-    // const src = item.attrs?.at(0)?.at(1) || undefined;
-    // const alt = item.attrs?.at(1)?.at(1) || undefined;
+
+    // Make any pictrs images a smaller size
+    const src = item.attrGet("src");
+    if (src) {
+      const pictrsSrc = buildPictrsSrc(src, "thumbnail");
+      item.attrSet("src", pictrsSrc);
+    }
 
     const imgElement =
       defaultImageRenderer?.(tokens, idx, options, env, self) ?? "";
+
+    const title = item.attrGet("title");
+    const splitTitle = title?.split(/ (.*)/, 2);
+    const isEmoji = splitTitle?.at(0) === "emoji";
+
     if (imgElement) {
       return isEmoji
         ? `<span class="icon icon-emoji">${imgElement}</span>`
