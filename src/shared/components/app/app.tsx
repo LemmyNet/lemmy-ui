@@ -81,7 +81,7 @@ export default class App extends Component<AppProps, object> {
             queryProps = {
               ...routeProps,
               ...getQueryParams(
-                routeProps.location.search,
+                routeProps.location.search as string,
                 this.isoData.siteRes,
                 this.isoData.myUserInfo,
               ),

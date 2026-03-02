@@ -54,20 +54,29 @@ function handleLoginWithProvider(
       `state=${state}`,
     ].join("&");
 
+  const oauth_state: LocalOauthState = {
+    state,
+    oauth_provider_id: oauth_provider.id,
+    redirect_uri: redirectUri,
+    prev: prev ?? "/",
+    username: username,
+    answer: answer,
+    show_nsfw: show_nsfw,
+    expires_at: Date.now() + 5 * 60_000,
+  };
   // store state in local storage
-  localStorage.setItem(
-    "oauth_state",
-    JSON.stringify({
-      state,
-      oauth_provider_id: oauth_provider.id,
-      redirect_uri: redirectUri,
-      prev: prev ?? "/",
-      username: username,
-      answer: answer,
-      show_nsfw: show_nsfw,
-      expires_at: Date.now() + 5 * 60_000,
-    }),
-  );
+  localStorage.setItem("oauth_state", JSON.stringify(oauth_state));
 
   window.location.assign(requestUri);
+}
+
+export interface LocalOauthState {
+  state: string;
+  oauth_provider_id: number;
+  redirect_uri: string;
+  prev: string;
+  username?: string;
+  answer?: string;
+  show_nsfw?: boolean;
+  expires_at?: number;
 }

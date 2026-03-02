@@ -36,6 +36,7 @@ export function scrollMixin<
     private blocked?: string;
 
     constructor(...args: any[]) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       super(...args);
 
       if (!isBrowser()) {

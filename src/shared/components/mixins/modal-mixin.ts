@@ -13,6 +13,7 @@ export function modalMixin<
   return class extends base {
     modal?: Modal;
     constructor(...args: any[]) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       super(...args);
       this.handleHide = this.handleHide?.bind(this);
       this.handleShow = this.handleShow?.bind(this);

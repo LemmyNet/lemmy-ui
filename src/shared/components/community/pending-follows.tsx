@@ -115,7 +115,7 @@ export class PendingFollows extends Component<
     return resourcesSettled([this.state.appsRes]);
   }
 
-  constructor(props: any, context: any) {
+  constructor(props: PendingFollowsRouteProps, context: PendingFollowsState) {
     super(props, context);
 
     // Only fetch the data if coming from another route
