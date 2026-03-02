@@ -322,6 +322,7 @@ export async function setupTribute() {
           else
             return `![${customEmoji.alt_text}](${customEmoji.image_url} "emoji ${customEmoji.shortcode}")`;
         },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         values: Object.entries(emojiShortName)
           .map(e => {
             return { key: e[1], val: e[0] };
