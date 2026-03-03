@@ -67,10 +67,7 @@ export class CreatePrivateMessage extends Component<
     return resourcesSettled([this.state.recipientRes]);
   }
 
-  constructor(
-    props: CreatePrivateMessageRouteProps,
-    context: CreatePrivateMessageState,
-  ) {
+  constructor(props: CreatePrivateMessageRouteProps, context: any) {
     super(props, context);
 
     // Only fetch the data if coming from another route

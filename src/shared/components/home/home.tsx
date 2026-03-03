@@ -299,7 +299,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     ]);
   }
 
-  constructor(props: HomeRouteProps, context: HomeState) {
+  constructor(props: HomeRouteProps, context: any) {
     super(props, context);
 
     // Only fetch the data if coming from another route
