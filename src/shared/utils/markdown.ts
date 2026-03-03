@@ -349,8 +349,10 @@ export async function setupTribute() {
           const it: PersonTribute = item.original;
           return it.key;
         },
-        values: debounce(async (text: string, cb) => {
-          cb(await personSearch(text));
+        values: debounce((text: string, cb) => {
+          personSearch(text)
+            .then(cb)
+            .catch(() => {});
         }),
         allowSpaces: false,
         autocompleteMode: true,
@@ -366,8 +368,10 @@ export async function setupTribute() {
           const it: CommunityTribute = item.original;
           return it.key;
         },
-        values: debounce(async (text: string, cb) => {
-          cb(await communitySearch(text));
+        values: debounce((text: string, cb) => {
+          communitySearch(text)
+            .then(cb)
+            .catch(() => {});
         }),
         allowSpaces: false,
         autocompleteMode: true,
