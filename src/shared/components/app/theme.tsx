@@ -16,7 +16,7 @@ interface State {
 
 export class Theme extends Component<Props, State> {
   private lightQuery?: MediaQueryList;
-  constructor(props: any, context: any) {
+  constructor(props: Props, context: State) {
     super(props, context);
     if (isBrowser()) {
       window.addEventListener("refresh-theme", this.eventListener);
@@ -26,7 +26,7 @@ export class Theme extends Component<Props, State> {
     }
   }
 
-  private graceTimer;
+  private graceTimer: NodeJS.Timeout | undefined;
   private eventListener = e => {
     if (e.type === "refresh-theme" || e.type === "change") {
       this.forceUpdate();

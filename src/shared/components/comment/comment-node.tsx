@@ -59,6 +59,7 @@ import { BanUpdateForm } from "../common/modal/mod-action-form-modal";
 import CommentActionDropdown from "../common/content-actions/comment-action-dropdown";
 import { canAdmin } from "@utils/roles";
 import ActionButton from "@components/common/content-actions/action-button";
+import Viewer from "viewerjs";
 
 type CommentNodeState = {
   showReply: boolean;
@@ -66,6 +67,7 @@ type CommentNodeState = {
   collapsed: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
+  viewerjss: Viewer[];
 };
 
 type CommentNodeProps = {
@@ -123,6 +125,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     collapsed: this.initCommentCollapsed(),
     viewSource: false,
     showAdvanced: false,
+    viewerjss: [],
   };
 
   componentWillReceiveProps(
@@ -185,6 +188,38 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     } else {
       return this.props.node.postCreatorId;
     }
+  }
+
+  loadViewerJsForImages(setState: boolean = true) {
+    // Load the viewer for every image in the comment
+    const id = this.commentView.comment.id;
+    const images = document.querySelectorAll(
+      `#comment-${id} > div > div.comment-content > div > p > img`,
+    );
+    const viewerjss: Viewer[] = [];
+    images.forEach((i: HTMLElement) => {
+      const viewer = new Viewer(i, { toolbar: false });
+      viewerjss.push(viewer);
+    });
+    if (setState) {
+      this.setState({ viewerjss });
+    }
+  }
+
+  unloadViewerJs() {
+    this.state.viewerjss.forEach(v => v.destroy());
+  }
+
+  componentWillUnmount() {
+    this.unloadViewerJs();
+  }
+
+  componentDidMount() {
+    this.loadViewerJsForImages();
+  }
+
+  componentDidUpdate() {
+    this.loadViewerJsForImages(false);
   }
 
   render() {

@@ -96,7 +96,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     };
   }
 
-  constructor(props: any, context: any) {
+  constructor(props: SiteFormProps, context: SiteFormState) {
     super(props, context);
 
     const { icon, banner } = this.props.siteRes.site_view.site;
@@ -536,7 +536,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div className="col-sm-9">
             <MultiCommunitySelect
               value={this.state.siteForm.suggested_multi_community_id}
-              myUserInfo={this.props.myUserInfo}
               onSelect={val => handleSelectSuggestedMultiComm(this, val)}
             />
           </div>

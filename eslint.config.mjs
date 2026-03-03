@@ -54,7 +54,6 @@ export default [
       "@typescript-eslint/no-explicit-any": 0,
       "@typescript-eslint/no-unsafe-assignment": 0,
       "@typescript-eslint/no-unsafe-member-access": 0,
-      "@typescript-eslint/no-unsafe-argument": 0,
       "@typescript-eslint/no-unsafe-return": 0,
       "no-console": ["error", { allow: ["warn", "error", "debug", "assert"] }],
       "@typescript-eslint/no-useless-constructor": "error",

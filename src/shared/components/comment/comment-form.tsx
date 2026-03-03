@@ -46,6 +46,11 @@ export class CommentForm extends Component<CommentFormProps, any> {
     const disabled =
       this.props.disabled || userNotLoggedInOrBanned(this.props.myUserInfo);
 
+    const initialLanguageId =
+      typeof this.props.node !== "number"
+        ? this.props.node.view.comment_view.comment.language_id
+        : undefined;
+
     return (
       <div
         className={["comment-form", "mb-3", this.props.containerClass].join(
@@ -55,6 +60,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
         {this.props.myUserInfo ? (
           <MarkdownTextArea
             initialContent={initialContent}
+            initialLanguageId={initialLanguageId}
             showLanguage
             buttonTitle={this.buttonTitle}
             replyType={typeof this.props.node !== "number"}

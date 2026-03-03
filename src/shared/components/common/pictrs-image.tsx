@@ -1,5 +1,6 @@
 // @ts-expect-error has a weird import error
 import { lazyLoad } from "unlazy";
+import Viewer from "viewerjs";
 import classNames from "classnames";
 import { Component } from "inferno";
 
@@ -16,7 +17,7 @@ const thumbnailSize = 256;
 // For some reason, masonry needs a default image size, and will properly size it down
 const defaultImgSize = 512;
 
-interface PictrsImageProps {
+type Props = {
   src: string;
   alt?: string;
   icon?: boolean;
@@ -27,11 +28,13 @@ interface PictrsImageProps {
   pushup?: boolean;
   cardTop?: boolean;
   imageDetails?: ImageDetails;
-}
+  viewer?: boolean;
+};
 
-interface PictrsImageState {
+type State = {
   src: string;
-}
+  viewerjs?: Viewer;
+};
 
 function handleImgLoadError(i: PictrsImage) {
   i.setState({
@@ -39,16 +42,17 @@ function handleImgLoadError(i: PictrsImage) {
   });
 }
 
-export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
+export class PictrsImage extends Component<Props, State> {
+  // TODO this should be a prop
   private readonly isoData: IsoData = setIsoData(this.context);
   private imageRef = createRef<HTMLImageElement>();
   private lazyLoadCleanup: undefined | (() => void);
 
-  state: PictrsImageState = {
+  state: State = {
     src: this.props.src,
   };
 
-  componentDidUpdate(prevProps: PictrsImageProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.src !== this.props.src) {
       this.setState({ src: this.props.src });
     }
@@ -58,11 +62,23 @@ export class PictrsImage extends Component<PictrsImageProps, PictrsImageState> {
     if (this.imageRef.current) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       this.lazyLoadCleanup = lazyLoad(this.imageRef.current);
+
+      if (this.props.viewer) {
+        const viewerjs = new Viewer(this.imageRef.current, {
+          title: () => this.alt() ?? undefined,
+          toolbar: false,
+        });
+        this.setState({ viewerjs });
+      }
     }
   }
 
   componentWillUnmount() {
     this.lazyLoadCleanup?.();
+
+    if (this.state.viewerjs) {
+      this.state.viewerjs.destroy();
+    }
   }
 
   render() {

@@ -9,7 +9,7 @@ interface EmojiMartProps {
 export class EmojiMart extends Component<EmojiMartProps> {
   div: RefObject<HTMLDivElement>;
 
-  constructor(props: any, context: any) {
+  constructor(props: EmojiMartProps, context: object) {
     super(props, context);
 
     this.div = createRef();

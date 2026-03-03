@@ -88,6 +88,7 @@ export function getQueryParams<PropsT, FallbacksT extends Empty = Empty>(
   for (const key in processors) {
     ret[key as string] = processors[key](
       searchParams.get(key) ?? undefined,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       fallbacks[key as string],
     );
   }
