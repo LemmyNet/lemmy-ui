@@ -667,13 +667,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       />
                     </li>
                     <li className="list-inline-item">
-                      <UserBadges
-                        classNames="ms-1"
-                        isBanned={pv.person.banned}
-                        isDeleted={pv.person.deleted}
-                        isAdmin={pv.is_admin}
-                        isBot={pv.person.bot_account}
-                      />
+                      <UserBadges classNames="ms-1" isAdmin={pv.is_admin} />
                     </li>
                   </ul>
                 </div>
