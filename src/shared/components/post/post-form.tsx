@@ -1,5 +1,6 @@
 import {
   communityToChoice,
+  sync,
   userNotLoggedInOrBanned,
   fetchCommunities,
   filterCommunitySelection,
@@ -201,9 +202,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (this.state.form.url && isBrowser()) {
-      await fetchPageTitle(this);
+      sync(fetchPageTitle(this));
     }
   }
 
@@ -310,7 +311,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 <textarea
                   value={this.state.form.name}
                   id="post-title"
-                  onInput={e => handlePostNameChange(this, e)}
+                  onInput={e => sync(handlePostNameChange(this, e))}
                   className={`form-control ${
                     !validTitle(this.state.form.name) && "is-invalid"
                   }`}
@@ -339,8 +340,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   id="post-url"
                   className="form-control mb-3"
                   value={url}
-                  onInput={e => handlePostUrlChange(this, e)}
-                  onPaste={e => handleImageUploadPaste(this, e)}
+                  onInput={e => sync(handlePostUrlChange(this, e))}
+                  onPaste={e => sync(handleImageUploadPaste(this, e))}
                 />
                 {this.renderSuggestedTitleCopy()}
                 {url && validURL(url) && (
@@ -386,7 +387,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   name="file"
                   className="small col-sm-10 form-control"
                   disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
-                  onChange={e => handleImageUpload(this, e)}
+                  onChange={e => sync(handleImageUpload(this, e))}
                 />
                 {this.state.imageLoading && <Spinner />}
                 {url && isImage(url) && (
@@ -395,7 +396,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 {this.state.uploadedImage && (
                   <button
                     className="btn btn-danger btn-sm mt-2"
-                    onClick={() => handleImageDelete(this)}
+                    onClick={() => sync(handleImageDelete(this))}
                   >
                     <Icon icon="x" classes="icon-inline me-1" />
                     {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
@@ -536,7 +537,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                         ? [this.state.form.community_id.toString()]
                         : []
                     }
-                    onSearch={text => handleCommunitySearch(this, text)}
+                    onSearch={text => sync(handleCommunitySearch(this, text))}
                     onSelect={choices =>
                       handleCommunitySelect(this, choices[0])
                     }
@@ -657,7 +658,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             <button
               type="button"
               className="mt-1 small border-0 bg-transparent p-0 d-block text-muted fw-bold pointer"
-              onClick={() => handleCopySuggestedTitle(this, suggestedTitle)}
+              onClick={() =>
+                sync(handleCopySuggestedTitle(this, suggestedTitle))
+              }
             >
               {I18NextService.i18n.t("copy_suggested_title", { title: "" })}{" "}
               {suggestedTitle}

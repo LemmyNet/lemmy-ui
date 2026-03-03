@@ -6,6 +6,7 @@ import { I18NextService } from "@services/index";
 import {
   postIsInteractable,
   setIsoData,
+  sync,
   userNotLoggedInOrBanned,
 } from "@utils/app";
 import { share } from "@utils/browser";
@@ -168,7 +169,7 @@ export function PostActionBar(props: PostActionBarProps, context: any) {
           onPersonNote={props.onPersonNote}
           onViewSource={props.onViewSource}
           onSharePost={() =>
-            handleShare(props.postView.post, setIsoData(context))
+            sync(handleShare(props.postView.post, setIsoData(context)))
           }
           onMarkPostAsRead={() => handleMarkPostAsRead(props)}
         />

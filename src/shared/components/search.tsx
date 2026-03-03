@@ -841,7 +841,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             <Filter
               title="all_communities"
               onChange={choices => handleCommunityFilterChange(this, choices)}
-              onSearch={text => handleCommunitySearch(this, text)}
+              onSearch={text => sync(handleCommunitySearch(this, text))}
               options={communitySearchOptions}
               value={communityId}
             />
@@ -850,7 +850,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             <Filter
               title="all_creators"
               onChange={choices => handleCreatorFilterChange(this, choices)}
-              onSearch={text => handleCreatorSearch(this, text)}
+              onSearch={text => sync(handleCreatorSearch(this, text))}
               options={creatorSearchOptions}
               value={creatorId}
             />
