@@ -28,7 +28,7 @@ import CommunityReportModal from "@components/common/modal/community-report-moda
 import { CommunityNotificationsDropdown } from "@components/common/notifications-dropdown";
 import { LanguageList } from "@components/common/language-list";
 import { NoOptionI18nKeys } from "i18next";
-import { canViewCommunity, reportToast } from "@utils/app";
+import { canViewCommunity, reportToast, sync } from "@utils/app";
 import { CreatePostButton } from "@components/common/content-actions/create-item-buttons";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
 import { Link } from "inferno-router";
@@ -150,7 +150,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     {I18NextService.i18n.t("create_report")}
                   </button>
                   <CommunityReportModal
-                    onSubmit={reason => handleSubmitReport(this, reason)}
+                    onSubmit={reason => sync(handleSubmitReport(this, reason))}
                     onCancel={() => handleHideReportModal(this)}
                     show={this.state.showReportModal}
                   />

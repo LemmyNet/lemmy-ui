@@ -1,4 +1,4 @@
-import { enableNsfw, setIsoData } from "@utils/app";
+import { enableNsfw, setIsoData, sync } from "@utils/app";
 import { Component } from "inferno";
 import {
   CommunityResponse,
@@ -52,7 +52,7 @@ export class CreateCommunity extends Component<
             </h1>
             <CommunityForm
               onCreate={form =>
-                handleCommunityCreate(this, form, this.isoData.myUserInfo)
+                sync(handleCommunityCreate(this, form, this.isoData.myUserInfo))
               }
               enableNsfw={enableNsfw(this.isoData.siteRes)}
               allLanguages={this.isoData.siteRes?.all_languages}

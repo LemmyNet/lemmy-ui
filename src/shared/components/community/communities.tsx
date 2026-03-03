@@ -1,4 +1,4 @@
-import { editCommunity, setIsoData, showLocal } from "@utils/app";
+import { editCommunity, setIsoData, showLocal, sync } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
@@ -124,14 +124,14 @@ export class Communities extends Component<
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.refetch(this.props);
+      sync(this.refetch(this.props));
     }
   }
 
-  async componentWillReceiveProps(nextProps: CommunitiesRouteProps) {
-    await this.refetch(nextProps);
+  componentWillReceiveProps(nextProps: CommunitiesRouteProps) {
+    sync(this.refetch(nextProps));
   }
 
   get documentTitle(): string {
@@ -199,9 +199,9 @@ export class Communities extends Component<
                     <SubscribeButton
                       followState={cv.community_actions?.follow_state}
                       apId={cv.community.ap_id}
-                      onFollow={() => handleFollow(this, cv.community.id, true)}
+                      onFollow={() => sync(handleFollow(this, cv.community.id, true))}
                       onUnFollow={() =>
-                        handleFollow(this, cv.community.id, false)
+                        sync(handleFollow(this, cv.community.id, false))
                       }
                       isLink
                       showRemoteFetch={!this.isoData.myUserInfo}
