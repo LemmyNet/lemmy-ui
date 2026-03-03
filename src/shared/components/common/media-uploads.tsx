@@ -11,7 +11,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { MomentTime } from "./moment-time";
 import { PictrsImage } from "./pictrs-image";
 import { httpBackendUrl } from "@utils/env";
-import { toast } from "@utils/app";
+import { sync, toast } from "@utils/app";
 import { TableHr } from "./tables";
 
 interface Props {
@@ -78,7 +78,7 @@ export class MediaUploads extends Component<Props, any> {
   deleteImageBtn(image: LocalImage) {
     return (
       <button
-        onClick={() => this.handleDeleteImage(image)}
+        onClick={() => sync(this.handleDeleteImage(image))}
         className="btn btn-danger"
       >
         {I18NextService.i18n.t("delete")}

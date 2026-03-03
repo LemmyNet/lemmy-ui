@@ -4,6 +4,7 @@ import { Component, FormEvent, InfernoNode } from "inferno";
 import Choices from "choices.js/public/types/src/scripts/choices";
 import { Choice } from "@utils/types";
 import { I18NextService } from "@services/I18NextService";
+import { sync } from "@utils/app";
 
 type Props = {
   allOptions: Choice[];
@@ -27,86 +28,86 @@ export class FilterChipSelect extends Component<Props, State> {
     id: `filter-chip-select-${randomStr()}`,
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     // Only load choices on first mount
-    const Choices = (await import("choices.js")).default;
-    const element = document.querySelector("#" + this.state.id);
-    if (element) {
-      const choices = new Choices(element, {
-        choices: buildChoices(
-          this.props.allOptions,
-          this.props.selectedOptions,
-        ),
-        placeholderValue: this.props.label
-          ? I18NextService.i18n.t(this.props.label)
-          : undefined,
-        shouldSort: false,
-        removeItemButton: true,
-        itemSelectText: "",
-        removeItemIconText: () => (this.props.multiple ? `x` : ""),
-        noChoicesText: I18NextService.i18n.t("no_results"),
-        noResultsText: I18NextService.i18n.t("none_found"),
-        classNames: {
-          containerOuter: [
-            "choices",
-            // "w-auto",
-            // "d-inline-block",
-          ],
-          containerInner: [
-            // "choices__inner",
-            "form-select",
-            "form-select-sm",
-            "bg-light",
-            "border-light-subtle",
-            "no-caret",
-            // These classes ended up not working
-            // "btn",
-            // "btn-light",
-            // "btn-sm",
-            // "border-light-subtle",
-            // "w-auto",
-            // "d-inline-block",
-          ],
-          input: ["choices__input"],
-          inputCloned: ["choices__input--cloned"],
-          list: ["choices__list"],
-          listItems: ["choices__list--multiple"],
-          listSingle: ["choices__list--single", "p-0"],
-          listDropdown: ["choices__list--dropdown"],
-          item: ["choices__item"],
-          itemSelectable: ["choices__item--selectable"],
-          itemDisabled: ["choices__item--disabled"],
-          itemChoice: ["choices__item--choice"],
-          description: ["choices__description"],
-          placeholder: ["choices__placeholder", "opacity-100"],
-          group: ["choices__group"],
-          groupHeading: ["choices__heading"],
-          button: ["btn", "btn-sm"],
-          activeState: ["is-active"],
-          focusState: ["is-focused"],
-          openState: ["is-open", "p-absolute"],
-          disabledState: ["is-disabled"],
-          highlightedState: ["is-highlighted"],
-          selectedState: ["is-selected"],
-          flippedState: ["is-flipped"],
-          loadingState: ["is-loading"],
-          notice: ["choices__notice"],
-          addChoice: ["choices__item--selectable", "add-choice"],
-          noResults: ["has-no-results"],
-          noChoices: ["has-no-choices"],
-        },
-      });
-
-      this.setState({ choices });
-
-      // If its searchable, add the search event
-      if (this.props.onSearch) {
-        element.addEventListener("search", (e: any) => {
-          const searchText: string = e.detail.value;
-          this.props.onSearch?.(searchText);
+    sync(import("choices.js"), c => {
+      const Choices = c.default;
+      const element = document.querySelector("#" + this.state.id);
+      if (element) {
+        const choices = new Choices(element, {
+          choices: buildChoices(
+            this.props.allOptions,
+            this.props.selectedOptions,
+          ),
+          placeholderValue: this.props.label
+            ? I18NextService.i18n.t(this.props.label)
+            : undefined,
+          shouldSort: false,
+          removeItemButton: true,
+          itemSelectText: "",
+          removeItemIconText: () => (this.props.multiple ? `x` : ""),
+          noChoicesText: I18NextService.i18n.t("no_results"),
+          noResultsText: I18NextService.i18n.t("none_found"),
+          classNames: {
+            containerOuter: [
+              "choices",
+              // "w-auto",
+              // "d-inline-block",
+            ],
+            containerInner: [
+              // "choices__inner",
+              "form-select",
+              "form-select-sm",
+              "bg-light",
+              "border-light-subtle",
+              "no-caret",
+              // These classes ended up not working
+              // "btn",
+              // "btn-light",
+              // "btn-sm",
+              // "border-light-subtle",
+              // "w-auto",
+              // "d-inline-block",
+            ],
+            input: ["choices__input"],
+            inputCloned: ["choices__input--cloned"],
+            list: ["choices__list"],
+            listItems: ["choices__list--multiple"],
+            listSingle: ["choices__list--single", "p-0"],
+            listDropdown: ["choices__list--dropdown"],
+            item: ["choices__item"],
+            itemSelectable: ["choices__item--selectable"],
+            itemDisabled: ["choices__item--disabled"],
+            itemChoice: ["choices__item--choice"],
+            description: ["choices__description"],
+            placeholder: ["choices__placeholder", "opacity-100"],
+            group: ["choices__group"],
+            groupHeading: ["choices__heading"],
+            button: ["btn", "btn-sm"],
+            activeState: ["is-active"],
+            focusState: ["is-focused"],
+            openState: ["is-open", "p-absolute"],
+            disabledState: ["is-disabled"],
+            highlightedState: ["is-highlighted"],
+            selectedState: ["is-selected"],
+            flippedState: ["is-flipped"],
+            loadingState: ["is-loading"],
+            notice: ["choices__notice"],
+            addChoice: ["choices__item--selectable", "add-choice"],
+            noResults: ["has-no-results"],
+            noChoices: ["has-no-choices"],
+          },
         });
+        // If its searchable, add the search event
+        if (this.props.onSearch) {
+          element.addEventListener("search", (e: any) => {
+            const searchText: string = e.detail.value;
+            this.props.onSearch?.(searchText);
+          });
+        }
+        this.setState({ choices });
       }
-    }
+    });
   }
 
   async componentWillReceiveProps(

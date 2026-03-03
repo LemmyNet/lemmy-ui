@@ -19,6 +19,7 @@ import { PersonListing } from "../../person/person-listing";
 import { modalMixin } from "../../mixins/modal-mixin";
 import { UserBadges } from "../user-badges";
 import { isBrowser } from "@utils/browser";
+import { sync } from "@utils/app";
 import { PaginatorCursor } from "../paginator-cursor";
 
 interface ViewVotesModalProps {
@@ -98,16 +99,16 @@ export default class ViewVotesModal extends Component<
     this.handleShow = this.handleShow.bind(this);
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (this.props.show && isBrowser()) {
-      await this.refetch();
+      sync(this.refetch());
     }
   }
 
-  async componentWillReceiveProps({ show: nextShow }: ViewVotesModalProps) {
+  componentWillReceiveProps({ show: nextShow }: ViewVotesModalProps) {
     if (nextShow !== this.props.show) {
       if (nextShow) {
-        await this.refetch();
+        sync(this.refetch());
       }
     }
   }
@@ -150,7 +151,7 @@ export default class ViewVotesModal extends Component<
               <PaginatorCursor
                 resource={this.currentRes}
                 current={this.state.cursor}
-                onPageChange={cursor => handlePageChange(this, cursor)}
+                onPageChange={cursor => sync(handlePageChange(this, cursor))}
               />
             </div>
           </div>

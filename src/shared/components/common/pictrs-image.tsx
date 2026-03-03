@@ -4,7 +4,7 @@ import Viewer from "viewerjs";
 import classNames from "classnames";
 import { Component } from "inferno";
 
-import { setIsoData } from "@utils/app";
+import { setIsoData, sync } from "@utils/app";
 import { IsoData } from "@utils/types";
 import { getStaticDir } from "@utils/env";
 import { masonryUpdate } from "@utils/browser";
@@ -139,7 +139,7 @@ export class PictrsImage extends Component<Props, State> {
               "avatar-pushup": pushup,
               "card-img-top": cardTop,
             })}
-            onLoad={() => masonryUpdate()}
+            onLoad={() => sync(masonryUpdate())}
             onError={() => handleImgLoadError(this)}
           />
         </picture>

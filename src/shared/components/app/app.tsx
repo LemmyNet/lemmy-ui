@@ -18,6 +18,7 @@ import { destroyTippy, setupTippy } from "@utils/tippy";
 import { Locale, setDefaultOptions } from "date-fns";
 import { i18n } from "i18next";
 import { setupEmojiDataModel } from "@utils/markdown";
+import { sync } from "@utils/app";
 
 function handleJumpToContent(
   app: App,
@@ -47,9 +48,9 @@ export default class App extends Component<AppProps, object> {
     setDefaultOptions({ locale: this.props.dateFnsLocale });
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     setupTippy(this.rootRef);
-    await setupEmojiDataModel();
+    sync(setupEmojiDataModel());
   }
 
   componentWillUnmount() {
