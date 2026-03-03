@@ -979,7 +979,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                           "d-flex align-self-start btn btn-light border-light-subtle me-2"
                         }
                         onClick={() =>
-                          handleUnblockPerson(this, pv.person.id, myUserInfo)
+                          sync(
+                            handleUnblockPerson(this, pv.person.id, myUserInfo),
+                          )
                         }
                       >
                         {I18NextService.i18n.t("unblock_user")}
@@ -990,7 +992,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                           "d-flex align-self-start btn btn-light border-light-subtle me-2"
                         }
                         onClick={() =>
-                          handleBlockPerson(this, pv.person.id, myUserInfo)
+                          sync(
+                            handleBlockPerson(this, pv.person.id, myUserInfo),
+                          )
                         }
                       >
                         {I18NextService.i18n.t("block_user")}
@@ -1017,7 +1021,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       className={
                         "d-flex align-self-start btn btn-light border-light-subtle me-2"
                       }
-                      onClick={e => handleModBanSubmit(this, e)}
+                      onClick={e => sync(handleModBanSubmit(this, e))}
                       aria-label={I18NextService.i18n.t("unban")}
                     >
                       {capitalizeFirstLetter(I18NextService.i18n.t("unban"))}
@@ -1030,7 +1034,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                         "d-flex registration-self-start btn btn-light border-light-subtle me-2"
                       }
                       aria-label={I18NextService.i18n.t("view_registration")}
-                      onClick={() => handleRegistrationShow(this)}
+                      onClick={() => sync(handleRegistrationShow(this))}
                     >
                       {I18NextService.i18n.t("view_registration")}
                     </button>
@@ -1122,7 +1126,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     return (
       showBanDialog && (
-        <form onSubmit={e => handleModBanSubmit(this, e)}>
+        <form onSubmit={e => sync(handleModBanSubmit(this, e))}>
           <div className="mb-3 row col-12">
             <label className="col-form-label" htmlFor="profile-ban-reason">
               {I18NextService.i18n.t("reason")}
