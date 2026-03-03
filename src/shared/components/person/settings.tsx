@@ -45,7 +45,7 @@ import {
   CommunityId,
   MyUserInfo,
 } from "lemmy-js-client";
-import { matrixUrl, emDash, fetchLimit, relTags } from "@utils/config";
+import { matrixUrl, fetchLimit, relTags } from "@utils/config";
 import { FirstLoadService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -63,7 +63,6 @@ import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
-import { SearchableSelect } from "../common/searchable-select";
 import { PostSortDropdown, CommentSortDropdown } from "../common/sort-dropdown";
 import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
@@ -91,6 +90,7 @@ import { InterfaceLanguageDropdown } from "@components/common/interface-language
 import { ThemeDropdown } from "@components/common/theme-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { RouterContext } from "inferno-router/dist/Router";
+import { FilterChipSelect } from "@components/common/filter-chip-select";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: PagedResponse<FederatedInstanceView>;
@@ -143,12 +143,11 @@ const Filter = ({
   options,
   onChange,
   onSearch,
-  loading = false,
 }: {
   filterType: FilterType;
   options: Choice[];
   onSearch: (text: string) => void;
-  onChange: (choice: Choice) => void;
+  onChange: (choices: Choice[]) => void;
   loading?: boolean;
 }) => (
   <div className="mb-3 row">
@@ -159,14 +158,12 @@ const Filter = ({
       {I18NextService.i18n.t(`block_${filterType}`)}
     </label>
     <div className="col-md-8">
-      <SearchableSelect
-        id={`block-${filterType}-filter`}
-        options={[
-          { label: emDash, value: "0", disabled: true } as Choice,
-        ].concat(options)}
-        loading={loading}
-        onChange={onChange}
+      <FilterChipSelect
+        multiple={false}
+        allOptions={options}
+        selectedOptions={[]}
         onSearch={onSearch}
+        onSelect={onChange}
       />
     </div>
   </div>
@@ -540,7 +537,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <Filter
           filterType="user"
           loading={searchPersonLoading}
-          onChange={choice => handleBlockPerson(this, choice)}
+          onChange={choices => handleBlockPerson(this, choices)}
           onSearch={text => handlePersonSearch(this, text)}
           options={searchPersonOptions}
         />
@@ -583,7 +580,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <Filter
           filterType="community"
           loading={searchCommunityLoading}
-          onChange={choice => handleBlockCommunity(this, choice)}
+          onChange={choices => handleBlockCommunity(this, choices)}
           onSearch={text => handleCommunitySearch(this, text)}
           options={searchCommunityOptions}
         />
@@ -624,7 +621,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <div>
         <Filter
           filterType="instance"
-          onChange={choice => handleBlockInstanceCommunities(this, choice)}
+          onChange={choices => handleBlockInstanceCommunities(this, choices)}
           onSearch={text => handleInstanceSearch(this, text)}
           options={searchInstanceOptions}
         />
@@ -640,7 +637,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <div>
         <Filter
           filterType="instance"
-          onChange={choice => handleBlockInstancePersons(this, choice)}
+          onChange={choices => handleBlockInstancePersons(this, choices)}
           onSearch={text => handleInstanceSearch(this, text)}
           options={searchInstanceOptions}
         />
@@ -1508,8 +1505,9 @@ const handleInstanceSearch = debounce((i: Settings, text: string) => {
   });
 });
 
-async function handleBlockPerson(i: Settings, { value }: Choice) {
+async function handleBlockPerson(i: Settings, choices: Choice[]) {
   const block = true;
+  const value = choices[0].value;
   if (value !== "0") {
     const res = await HttpService.client.blockPerson({
       person_id: Number(value),
@@ -1528,8 +1526,9 @@ async function handleUnblockPerson(i: Settings, recipientId: PersonId) {
   i.personBlock(res, block);
 }
 
-async function handleBlockCommunity(i: Settings, { value }: Choice) {
+async function handleBlockCommunity(i: Settings, choices: Choice[]) {
   const block = true;
+  const value = choices[0].value;
   if (value !== "0") {
     const res = await HttpService.client.blockCommunity({
       community_id: Number(value),
@@ -1550,8 +1549,9 @@ async function handleUnblockCommunity(i: Settings, communityId: CommunityId) {
   }
 }
 
-async function handleBlockInstanceCommunities(i: Settings, { value }: Choice) {
+async function handleBlockInstanceCommunities(i: Settings, choices: Choice[]) {
   const block = true;
+  const value = choices[0].value;
   if (value !== "0") {
     const id = Number(value);
     const res = await HttpService.client.userBlockInstanceCommunities({
@@ -1578,8 +1578,9 @@ async function handleUnblockInstanceCommunities(
   }
 }
 
-async function handleBlockInstancePersons(i: Settings, { value }: Choice) {
+async function handleBlockInstancePersons(i: Settings, choices: Choice[]) {
   const block = true;
+  const value = choices[0].value;
   if (value !== "0") {
     const id = Number(value);
     const res = await HttpService.client.userBlockInstancePersons({

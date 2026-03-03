@@ -51,6 +51,7 @@
     "bootstrap": "^5.3.3",
     "caniuse-lite": "^1.0.30001735",
     "check-password-strength": "^3.0.0",
+    "choices.js": "^11.1.0",
     "classnames": "^2.5.1",
     "clean-webpack-plugin": "^4.0.0",
     "compression": "^1.8.1",

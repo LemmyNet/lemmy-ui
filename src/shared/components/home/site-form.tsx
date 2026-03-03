@@ -536,7 +536,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div className="col-sm-9">
             <MultiCommunitySelect
               value={this.state.siteForm.suggested_multi_community_id}
-              myUserInfo={this.props.myUserInfo}
               onSelect={val => handleSelectSuggestedMultiComm(this, val)}
             />
           </div>

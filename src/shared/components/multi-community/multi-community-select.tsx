@@ -1,28 +1,19 @@
-import { debounce, getIdFromString, hostname } from "@utils/helpers";
+import { debounce, hostname } from "@utils/helpers";
 import { Component } from "inferno";
-import {
-  PagedResponse,
-  MyUserInfo,
-  MultiCommunityId,
-  MultiCommunityView,
-} from "lemmy-js-client";
-import { I18NextService } from "../../services";
+import { MultiCommunityId, MultiCommunityView } from "lemmy-js-client";
 import { fetchSearchResults } from "@utils/app";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { EMPTY_REQUEST, RequestState } from "@services/HttpService";
-import { SearchableSelect } from "@components/common/searchable-select";
 import { Choice } from "@utils/types";
 import { isBrowser } from "@utils/browser";
+import { FilterChipSelect } from "@components/common/filter-chip-select";
+import { I18NextService } from "@services/I18NextService";
 
 interface Props {
-  myUserInfo: MyUserInfo | undefined;
   onSelect: (id: MultiCommunityId) => void;
   value?: MultiCommunityId;
 }
 
 interface State {
-  listMultiCommunitiesRes: RequestState<PagedResponse<MultiCommunityView>>;
-  selectedMultiCommunity?: MultiCommunityView;
   multiCommunitySearchOptions: Choice[];
   multiCommunitySearchLoading: boolean;
 }
@@ -30,7 +21,6 @@ interface State {
 @tippyMixin
 export class MultiCommunitySelect extends Component<Props, State> {
   state: State = {
-    listMultiCommunitiesRes: EMPTY_REQUEST,
     multiCommunitySearchOptions: [],
     multiCommunitySearchLoading: false,
   };
@@ -43,41 +33,24 @@ export class MultiCommunitySelect extends Component<Props, State> {
 
   render() {
     return (
-      <SearchableSelect
-        id="multi-community-select"
-        value={this.props.value}
-        options={[
-          {
-            label: I18NextService.i18n.t("none"),
-            value: "0",
-            disabled: false,
-          } as Choice,
-        ].concat(this.state.multiCommunitySearchOptions)}
-        loading={this.state.multiCommunitySearchLoading}
-        onChange={choice => handleMultiCommunitySelect(this, choice)}
+      <FilterChipSelect
+        label={"suggested_multi_community"}
+        multiple={false}
+        allOptions={this.state.multiCommunitySearchOptions}
+        selectedOptions={[(this.props.value ?? 0).toString()]}
+        onSelect={choice => handleMultiCommunitySelect(this, choice)}
         onSearch={res => handleMultiCommunitySearch(this, res, false)}
       />
     );
   }
 }
 
-function handleMultiCommunitySelect(i: MultiCommunitySelect, choice: Choice) {
-  const multiCommunityId = getIdFromString(choice.value);
-  i.props.onSelect(multiCommunityId ?? 0);
-  updateLabel(i, multiCommunityId);
-}
-
-function updateLabel(
+function handleMultiCommunitySelect(
   i: MultiCommunitySelect,
-  multiCommunityId?: MultiCommunityId,
+  choices: Choice[],
 ) {
-  const res = i.state.listMultiCommunitiesRes;
-  const selected =
-    res.state === "success" &&
-    res.data.items.find(i => i.multi.id === multiCommunityId);
-  if (selected) {
-    i.setState({ selectedMultiCommunity: selected });
-  }
+  const multiCommunityId = choices[0].value;
+  i.props.onSelect(Number(multiCommunityId));
 }
 
 async function fetchMultiCommunities(q: string) {
@@ -102,20 +75,20 @@ function communitySelectName(m: MultiCommunityView): string {
 }
 
 const handleMultiCommunitySearch = debounce(
-  async (i: MultiCommunitySelect, text: string, initial_load: boolean) => {
+  async (i: MultiCommunitySelect, text: string, initialLoad: boolean) => {
     i.setState({ multiCommunitySearchLoading: true });
 
     const newOptions: Choice[] = [];
 
-    if (text.length > 0 || initial_load) {
+    if (text.length > 0 || initialLoad) {
       newOptions.push(
+        { label: I18NextService.i18n.t("none"), value: "0" },
         ...(await fetchMultiCommunities(text)).map(multiCommunityToChoice),
       );
 
       i.setState({
         multiCommunitySearchOptions: newOptions,
       });
-      updateLabel(i, i.props.value);
     }
 
     i.setState({
