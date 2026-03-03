@@ -131,7 +131,7 @@ module.exports = (env, argv) => {
   const clientConfig = {
     ...base,
     entry: "./src/client/index.tsx",
-    target: "web",
+    target: "browserslist", // from package.json, matches babel config
     output: {
       ...base.output,
       filename: "js/client.js",
@@ -155,7 +155,7 @@ module.exports = (env, argv) => {
   const embeddedConfig = {
     ...base,
     entry: "./src/embedded/index.ts",
-    target: "browserslist", // looks up package.json
+    target: "browserslist", // from package.json, matches babel config
     output: {
       ...base.output,
       filename: "js/embedded.js",
