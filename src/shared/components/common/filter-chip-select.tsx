@@ -4,6 +4,7 @@ import { Component, FormEvent, InfernoNode } from "inferno";
 import Choices from "choices.js/public/types/src/scripts/choices";
 import { Choice } from "@utils/types";
 import { I18NextService } from "@services/I18NextService";
+import { createRef, RefObject } from "inferno";
 
 type Props = {
   allOptions: Choice[];
@@ -22,6 +23,7 @@ type State = {
 };
 
 export class FilterChipSelect extends Component<Props, State> {
+  selectRef: RefObject<HTMLSelectElement> = createRef();
   state: State = {
     choices: undefined,
     id: `filter-chip-select-${randomStr()}`,
@@ -30,7 +32,7 @@ export class FilterChipSelect extends Component<Props, State> {
   async componentDidMount() {
     // Only load choices on first mount
     const Choices = (await import("choices.js")).default;
-    const element = document.querySelector("#" + this.state.id);
+    const element = this.selectRef.current;
     if (element) {
       const choices = new Choices(element, {
         choices: buildChoices(
@@ -125,6 +127,7 @@ export class FilterChipSelect extends Component<Props, State> {
     return (
       <select
         id={this.state.id}
+        ref={this.selectRef}
         multiple={this.props.multiple}
         disabled={this.props.disabled}
         onChange={e => handleSelect(this, e)}

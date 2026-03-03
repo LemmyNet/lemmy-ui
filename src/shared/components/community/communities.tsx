@@ -44,7 +44,6 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { TableHr } from "@components/common/tables";
-import { NoOptionI18nKeys } from "i18next";
 import { CreateCommunityButton } from "@components/common/content-actions/create-item-buttons";
 import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
 import { RouterContext } from "inferno-router/dist/Router";
@@ -184,8 +183,7 @@ export class Communities extends Component<
                   </div>
                   <div className={countCols}>
                     {I18NextService.i18n.t(
-                      ("community_visibility_" +
-                        cv.community.visibility) as NoOptionI18nKeys,
+                      `community_visibility_${cv.community.visibility}`,
                     )}
                   </div>
                   <div className={countCols}>
@@ -397,7 +395,7 @@ function handleSearchChange(
   i: Communities,
   event: FormEvent<HTMLInputElement>,
 ) {
-  i.setState({ searchText: (event.target as HTMLInputElement).value });
+  i.setState({ searchText: event.target.value });
 }
 
 function handleSearchSubmit(i: Communities, event: FormEvent<HTMLFormElement>) {
