@@ -338,7 +338,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             key={i.type_ + i.private_message_report.id}
             report={i}
             onResolveReport={form =>
-              handleResolvePrivateMessageReport(this, form)
+              sync(handleResolvePrivateMessageReport(this, form))
             }
             loading={
               itemLoading(this.state.pmResolveRes) ===
@@ -415,7 +415,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                     cr.comment_report.id
                   }
                   onResolveReport={form =>
-                    handleResolveCommentReport(this, form)
+                    sync(handleResolveCommentReport(this, form))
                   }
                   onRemoveComment={form =>
                     sync(handleRemoveComment(this, form))
@@ -504,7 +504,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                     pmr.private_message_report.id
                   }
                   onResolveReport={form =>
-                    handleResolvePrivateMessageReport(this, form)
+                    sync(handleResolvePrivateMessageReport(this, form))
                   }
                   myUserInfo={this.isoData.myUserInfo}
                 />
@@ -540,7 +540,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
                     cr.community_report.id
                   }
                   onResolveReport={form =>
-                    handleResolveCommunityReport(this, form)
+                    sync(handleResolveCommunityReport(this, form))
                   }
                   myUserInfo={this.isoData.myUserInfo}
                 />
