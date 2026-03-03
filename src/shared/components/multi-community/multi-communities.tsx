@@ -1,4 +1,4 @@
-import { editMultiCommunity, setIsoData, showLocal } from "@utils/app";
+import { editMultiCommunity, setIsoData, showLocal, sync } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
@@ -120,14 +120,14 @@ export class MultiCommunities extends Component<RouteProps, State> {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.refetch(this.props);
+      sync(this.refetch(this.props));
     }
   }
 
-  async componentWillReceiveProps(nextProps: RouteProps) {
-    await this.refetch(nextProps);
+  componentWillReceiveProps(nextProps: RouteProps) {
+    sync(this.refetch(nextProps));
   }
 
   get documentTitle(): string {
@@ -182,8 +182,12 @@ export class MultiCommunities extends Component<RouteProps, State> {
                     <SubscribeButton
                       followState={v.follow_state}
                       apId={v.multi.ap_id}
-                      onFollow={() => handleFollow(this, v.multi.id, true)}
-                      onUnFollow={() => handleFollow(this, v.multi.id, false)}
+                      onFollow={() =>
+                        sync(handleFollow(this, v.multi.id, true))
+                      }
+                      onUnFollow={() =>
+                        sync(handleFollow(this, v.multi.id, false))
+                      }
                       showRemoteFetch={!this.isoData.myUserInfo}
                       isLink
                     />

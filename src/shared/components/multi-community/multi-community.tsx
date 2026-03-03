@@ -7,6 +7,7 @@ import {
   multiCommunityRSSUrl,
   reportToast,
   setIsoData,
+  sync,
   updateCommunityBlock,
   updatePersonBlock,
 } from "@utils/app";
@@ -224,25 +225,27 @@ export class MultiCommunity extends Component<RouteProps, State> {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await Promise.all([
-        this.fetchMultiCommunity(this.props),
-        this.fetchData(this.props),
-      ]);
+      sync(
+        Promise.all([
+          this.fetchMultiCommunity(this.props),
+          this.fetchData(this.props),
+        ]),
+      );
     }
   }
 
-  async componentWillReceiveProps(
+  componentWillReceiveProps(
     nextProps: RouteProps & { children?: InfernoNode },
   ) {
     if (
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      await this.fetchMultiCommunity(nextProps);
+      sync(this.fetchMultiCommunity(nextProps));
     }
-    await this.fetchData(nextProps);
+    sync(this.fetchData(nextProps));
   }
 
   static fetchInitialData = async ({
@@ -372,7 +375,9 @@ export class MultiCommunity extends Component<RouteProps, State> {
       <div className="my-2">
         <button
           className="btn btn-light border-light-subtle"
-          onClick={() => handleMarkPageAsRead(this, this.isoData.myUserInfo)}
+          onClick={() =>
+            sync(handleMarkPageAsRead(this, this.isoData.myUserInfo))
+          }
         >
           {I18NextService.i18n.t("mark_page_as_read")}
         </button>
@@ -390,7 +395,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
       <MultiCommunitySidebar
         multiCommunityView={res.multi_community_view}
         myUserInfo={this.isoData.myUserInfo}
-        onFollow={form => handleFollow(this, form)}
+        onFollow={form => sync(handleFollow(this, form))}
         followLoading={this.state.followRes.state === "loading"}
       />
     );
@@ -447,31 +452,33 @@ export class MultiCommunity extends Component<RouteProps, State> {
             localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
             voteLoading={itemLoading(this.state.votePostRes)}
-            onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
-            onBlockCommunity={form => handleBlockCommunity(form, myUserInfo)}
-            onPostEdit={form => handlePostEdit(this, form)}
-            onPostModEdit={form => handlePostModEdit(this, form)}
-            onPostVote={form => handlePostVote(this, form)}
-            onPostReport={form => handlePostReport(form)}
-            onLockPost={form => handleLockPost(this, form)}
-            onDeletePost={form => handleDeletePost(this, form)}
-            onRemovePost={form => handleRemovePost(this, form)}
-            onSavePost={form => handleSavePost(this, form)}
-            onPurgePerson={form => handlePurgePerson(this, form)}
-            onPurgePost={form => handlePurgePost(this, form)}
-            onBanPerson={form => handleBanPerson(this, form)}
+            onBlockPerson={form => sync(handleBlockPerson(form, myUserInfo))}
+            onBlockCommunity={form =>
+              sync(handleBlockCommunity(form, myUserInfo))
+            }
+            onPostEdit={form => sync(handlePostEdit(this, form))}
+            onPostModEdit={form => sync(handlePostModEdit(this, form))}
+            onPostVote={form => sync(handlePostVote(this, form))}
+            onPostReport={form => sync(handlePostReport(form))}
+            onLockPost={form => sync(handleLockPost(this, form))}
+            onDeletePost={form => sync(handleDeletePost(this, form))}
+            onRemovePost={form => sync(handleRemovePost(this, form))}
+            onSavePost={form => sync(handleSavePost(this, form))}
+            onPurgePerson={form => sync(handlePurgePerson(this, form))}
+            onPurgePost={form => sync(handlePurgePost(this, form))}
+            onBanPerson={form => sync(handleBanPerson(this, form))}
             onBanPersonFromCommunity={form =>
-              handleBanFromCommunity(this, form)
+              sync(handleBanFromCommunity(this, form))
             }
-            onAddModToCommunity={form => handleAddModToCommunity(form)}
-            onAddAdmin={form => handleAddAdmin(this, form)}
-            onTransferCommunity={form => handleTransferCommunity(form)}
-            onFeaturePost={form => handleFeaturePost(this, form)}
+            onAddModToCommunity={form => sync(handleAddModToCommunity(form))}
+            onAddAdmin={form => sync(handleAddAdmin(this, form))}
+            onTransferCommunity={form => sync(handleTransferCommunity(form))}
+            onFeaturePost={form => sync(handleFeaturePost(this, form))}
             onMarkPostAsRead={form =>
-              handleMarkPostAsRead(this, form, myUserInfo)
+              sync(handleMarkPostAsRead(this, form, myUserInfo))
             }
-            onHidePost={form => handleHidePost(this, form, myUserInfo)}
-            onPersonNote={form => handlePersonNote(this, form)}
+            onHidePost={form => sync(handleHidePost(this, form, myUserInfo))}
+            onPersonNote={form => sync(handlePersonNote(this, form))}
             onScrollIntoCommentsClick={() => {}}
           />
         );
@@ -530,7 +537,9 @@ export class MultiCommunity extends Component<RouteProps, State> {
         <div className="col">
           <PostListingModeDropdown
             currentOption={this.state.postListingMode}
-            onSelect={val => handlePostListingModeChange(this, val, myUserInfo)}
+            onSelect={val =>
+              sync(handlePostListingModeChange(this, val, myUserInfo))
+            }
             showLabel
           />
         </div>

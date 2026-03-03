@@ -10,6 +10,7 @@ import {
   communityToChoice,
   fetchCommunities,
   filterCommunitySelection,
+  sync,
 } from "@utils/app";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { EMPTY_REQUEST, RequestState } from "@services/HttpService";
@@ -56,7 +57,7 @@ export class MultiCommunityEntryForm extends Component<Props, State> {
                   : []
               }
               onSelect={choices => handleCommunitySelect(this, choices)}
-              onSearch={res => handleCommunitySearch(this, res)}
+              onSearch={res => sync(handleCommunitySearch(this, res))}
             />
           </div>
         </div>
