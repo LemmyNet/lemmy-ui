@@ -4,6 +4,7 @@ import {
   getUncombinedReport,
   setIsoData,
   toast,
+  sync,
 } from "@utils/app";
 import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -152,9 +153,9 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.refetch();
+      sync(this.refetch());
     }
   }
 
@@ -257,7 +258,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         label={"type"}
         allOptions={options}
         currentOption={options.find(t => t.value === this.state.reportType)}
-        onSelect={val => handleReportTypeChange(this, val)}
+        onSelect={val => sync(handleReportTypeChange(this, val))}
       />
     );
   }
@@ -269,7 +270,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <FilterChipCheckbox
             option={"show_unresolved_only"}
             isChecked={this.state.showUnresolvedOnly}
-            onCheck={val => handleShowUnresolvedOnlyChange(this, val)}
+            onCheck={val => sync(handleShowUnresolvedOnlyChange(this, val))}
           />
         </div>
         <div className="col">{this.reportTypeFilters()}</div>
@@ -278,7 +279,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             <FilterChipCheckbox
               option={"show_community_reports"}
               isChecked={this.state.showCommunityRuleViolations ?? false}
-              onCheck={val => handleClickshowCommunityReports(this, val)}
+              onCheck={val => sync(handleClickshowCommunityReports(this, val))}
             />
           </div>
         )}
@@ -300,8 +301,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             loading={
               itemLoading(this.state.commentResolveRes) === i.comment_report.id
             }
-            onResolveReport={form => handleResolveCommentReport(this, form)}
-            onRemoveComment={form => handleRemoveComment(this, form)}
+            onResolveReport={form =>
+              sync(handleResolveCommentReport(this, form))
+            }
+            onRemoveComment={form => sync(handleRemoveComment(this, form))}
             onAdminBan={form => handleAdminBan(this, form)}
             onModBanFromCommunity={form =>
               handleModBanFromCommunity(this, form)
@@ -321,8 +324,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             loading={
               itemLoading(this.state.postResolveRes) === i.post_report.id
             }
-            onResolveReport={form => handleResolvePostReport(this, form)}
-            onRemovePost={form => handleRemovePost(this, form)}
+            onResolveReport={form => sync(handleResolvePostReport(this, form))}
+            onRemovePost={form => sync(handleRemovePost(this, form))}
             onAdminBan={form => handleAdminBan(this, form)}
             onModBanFromCommunity={form =>
               handleModBanFromCommunity(this, form)

@@ -135,7 +135,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onPurgeComment={this.props.onPurgeComment}
             onPersonNote={this.props.onPersonNote}
             onLockComment={this.props.onLockComment}
-            onMarkRead={async () => {}}
+            onMarkRead={() => {}}
           />
         );
       }
@@ -182,7 +182,7 @@ export class PersonDetails extends Component<PersonDetailsProps, any> {
             onAddModToCommunity={this.props.onAddModToCommunity}
             onAddAdmin={this.props.onAddAdmin}
             onTransferCommunity={this.props.onTransferCommunity}
-            onHidePost={async () => {}}
+            onHidePost={() => {}}
             showMarkRead="dropdown"
             onMarkPostAsRead={this.props.onMarkPostAsRead}
             onPersonNote={this.props.onPersonNote}

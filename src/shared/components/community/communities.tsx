@@ -199,7 +199,9 @@ export class Communities extends Component<
                     <SubscribeButton
                       followState={cv.community_actions?.follow_state}
                       apId={cv.community.ap_id}
-                      onFollow={() => sync(handleFollow(this, cv.community.id, true))}
+                      onFollow={() =>
+                        sync(handleFollow(this, cv.community.id, true))
+                      }
                       onUnFollow={() =>
                         sync(handleFollow(this, cv.community.id, false))
                       }

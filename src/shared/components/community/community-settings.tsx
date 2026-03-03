@@ -1,4 +1,10 @@
-import { enableNsfw, fetchUsers, personToChoice, setIsoData, sync } from "@utils/app";
+import {
+  enableNsfw,
+  fetchUsers,
+  personToChoice,
+  setIsoData,
+  sync,
+} from "@utils/app";
 import {
   resourcesSettled,
   bareRoutePush,
@@ -248,7 +254,9 @@ export class CommunitySettings extends Component<RouteProps, State> {
                             communityLanguages={
                               getCommunityRes.discussion_languages
                             }
-                            onEdit={form => sync(handleEditCommunity(this, form))}
+                            onEdit={form =>
+                              sync(handleEditCommunity(this, form))
+                            }
                             createOrEditLoading={
                               this.state.editCommunityRes.state === "loading"
                             }

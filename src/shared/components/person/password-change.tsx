@@ -1,4 +1,4 @@
-import { setIsoData, updateMyUserInfo } from "@utils/app";
+import { setIsoData, sync, updateMyUserInfo } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
@@ -67,7 +67,9 @@ export class PasswordChange extends Component<
 
   passwordChangeForm() {
     return (
-      <form onSubmit={event => this.handlePasswordChangeSubmit(this, event)}>
+      <form
+        onSubmit={event => sync(this.handlePasswordChangeSubmit(this, event))}
+      >
         <div className="mb-3">
           <PasswordInput
             id="new-password"

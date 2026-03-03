@@ -1,4 +1,4 @@
-import { editRegistrationApplication, setIsoData } from "@utils/app";
+import { editRegistrationApplication, setIsoData, sync } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
@@ -129,20 +129,20 @@ export class RegistrationApplications extends Component<
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.refetch(this.props);
+      sync(this.refetch(this.props));
     }
   }
 
-  async componentWillReceiveProps(
+  componentWillReceiveProps(
     nextProps: RegistrationApplicationsRouteProps & { children?: InfernoNode },
   ) {
     if (
       nextProps.view !== this.props.view ||
       nextProps.cursor !== this.props.cursor
     ) {
-      await this.refetch(nextProps);
+      sync(this.refetch(nextProps));
     }
   }
 
@@ -224,7 +224,7 @@ export class RegistrationApplications extends Component<
             <RegistrationApplication
               application={ra}
               onApproveApplication={form =>
-                handleApproveApplication(this, form)
+                sync(handleApproveApplication(this, form))
               }
               loading={
                 itemLoading(this.state.approveRes) ===

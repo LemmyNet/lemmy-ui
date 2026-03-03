@@ -7,6 +7,7 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
+  sync,
 } from "@utils/app";
 import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -174,9 +175,9 @@ export class Notifications extends Component<
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.refetch();
+      sync(this.refetch());
     }
   }
 
@@ -229,7 +230,7 @@ export class Notifications extends Component<
             <PaginatorCursor
               current={this.state.cursor}
               resource={this.state.notifsRes}
-              onPageChange={form => handlePageChange(this, form)}
+              onPageChange={form => sync(handlePageChange(this, form))}
             />
           </div>
         </div>
@@ -245,7 +246,7 @@ export class Notifications extends Component<
         currentOption={messageTypeOptions.find(
           t => t.value === this.state.messageType,
         )}
-        onSelect={val => handleMessageTypeChange(this, val)}
+        onSelect={val => sync(handleMessageTypeChange(this, val))}
       />
     );
   }
@@ -257,7 +258,7 @@ export class Notifications extends Component<
           <FilterChipCheckbox
             option={"show_unread_only"}
             isChecked={this.state.showUnreadOnly}
-            onCheck={val => handleShowUnreadOnlyChange(this, val)}
+            onCheck={val => sync(handleShowUnreadOnlyChange(this, val))}
           />
         </div>
         <div className="col">{this.messageTypeFilters()}</div>
@@ -272,7 +273,7 @@ export class Notifications extends Component<
     return (
       <button
         className="btn btn-sm btn-light border-light-subtle"
-        onClick={() => handleMarkAllAsRead(this)}
+        onClick={() => sync(handleMarkAllAsRead(this))}
       >
         {this.state.markAllAsReadRes.state === "loading" ? (
           <Spinner />
@@ -311,28 +312,34 @@ export class Notifications extends Component<
             myUserInfo={myUserInfo}
             localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
-            onSaveComment={form => handleSaveComment(this, form)}
-            onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
-            onBlockCommunity={form => handleBlockCommunity(form, myUserInfo)}
-            onDeleteComment={form => handleDeleteComment(this, form)}
-            onRemoveComment={form => handleRemoveComment(this, form)}
-            onCommentVote={form => handleCommentVote(this, form)}
-            onCommentReport={form => handleCommentReport(form)}
-            onDistinguishComment={form => handleDistinguishComment(this, form)}
-            onAddModToCommunity={form => handleAddModToCommunity(form)}
-            onAddAdmin={form => handleAddAdmin(this, form)}
-            onTransferCommunity={form => handleTransferCommunity(form)}
-            onPurgeComment={form => handlePurgeComment(this, form)}
-            onPurgePerson={form => handlePurgePerson(this, form)}
-            onBanPersonFromCommunity={form =>
-              handleBanFromCommunity(this, form)
+            onSaveComment={form => sync(handleSaveComment(this, form))}
+            onBlockPerson={form => sync(handleBlockPerson(form, myUserInfo))}
+            onBlockCommunity={form =>
+              sync(handleBlockCommunity(form, myUserInfo))
             }
-            onBanPerson={form => handleBanPerson(this, form)}
-            onCreateComment={form => handleCreateComment(this, form)}
-            onEditComment={form => handleEditComment(this, form)}
-            onPersonNote={form => handlePersonNote(this, form)}
-            onLockComment={form => handleLockComment(this, form)}
-            onMarkRead={(id, read) => handleMarkCommentAsRead(this, id, read)}
+            onDeleteComment={form => sync(handleDeleteComment(this, form))}
+            onRemoveComment={form => sync(handleRemoveComment(this, form))}
+            onCommentVote={form => sync(handleCommentVote(this, form))}
+            onCommentReport={form => sync(handleCommentReport(form))}
+            onDistinguishComment={form =>
+              sync(handleDistinguishComment(this, form))
+            }
+            onAddModToCommunity={form => sync(handleAddModToCommunity(form))}
+            onAddAdmin={form => sync(handleAddAdmin(this, form))}
+            onTransferCommunity={form => sync(handleTransferCommunity(form))}
+            onPurgeComment={form => sync(handlePurgeComment(this, form))}
+            onPurgePerson={form => sync(handlePurgePerson(this, form))}
+            onBanPersonFromCommunity={form =>
+              sync(handleBanFromCommunity(this, form))
+            }
+            onBanPerson={form => sync(handleBanPerson(this, form))}
+            onCreateComment={form => sync(handleCreateComment(this, form))}
+            onEditComment={form => sync(handleEditComment(this, form))}
+            onPersonNote={form => sync(handlePersonNote(this, form))}
+            onLockComment={form => sync(handleLockComment(this, form))}
+            onMarkRead={(id, read) =>
+              sync(handleMarkCommentAsRead(this, id, read))
+            }
             onFetchChildren={() => {}}
           />
         );
@@ -343,11 +350,13 @@ export class Notifications extends Component<
             private_message_view={data}
             read={item.notification.read}
             myUserInfo={myUserInfo}
-            onDelete={form => handleDeleteMessage(this, form)}
-            onReport={form => handleMessageReport(form)}
-            onCreate={form => handleCreateMessage(this, form)}
-            onEdit={form => handleEditMessage(this, form)}
-            onMarkRead={(id, read) => handleMarkMessageAsRead(this, id, read)}
+            onDelete={form => sync(handleDeleteMessage(this, form))}
+            onReport={form => sync(handleMessageReport(form))}
+            onCreate={form => sync(handleCreateMessage(this, form))}
+            onEdit={form => sync(handleEditMessage(this, form))}
+            onMarkRead={(id, read) =>
+              sync(handleMarkMessageAsRead(this, id, read))
+            }
             createOrEditLoading={
               itemLoading(this.state.privateMessageRes) ===
               data.private_message.id
@@ -410,8 +419,8 @@ export class Notifications extends Component<
               onHidePost={() => {}}
               showMarkRead="main_bar"
               disableAutoMarkAsRead
-              onMarkPostAsRead={form => handleMarkPostAsRead(this, form)}
-              onPersonNote={form => handlePersonNote(this, form)}
+              onMarkPostAsRead={form => sync(handleMarkPostAsRead(this, form))}
+              onPersonNote={form => sync(handlePersonNote(this, form))}
               onScrollIntoCommentsClick={() => {}}
             />
           )
@@ -422,7 +431,7 @@ export class Notifications extends Component<
             notification={item.notification}
             modlog_view={data}
             myUserInfo={myUserInfo}
-            onMarkRead={form => handleMarkNotificationAsRead(this, form)}
+            onMarkRead={form => sync(handleMarkNotificationAsRead(this, form))}
           />
         );
       }

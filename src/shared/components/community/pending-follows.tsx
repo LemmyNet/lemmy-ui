@@ -217,7 +217,9 @@ export class PendingFollows extends Component<
                 itemLoading(this.state.approveRes)?.personId ===
                   pendingFollow.person.id
               }
-              onApproveFollower={form => sync(handleApproveFollower(this, form))}
+              onApproveFollower={form =>
+                sync(handleApproveFollower(this, form))
+              }
             />
           </>
         ))}
