@@ -313,7 +313,9 @@ export class Community extends Component<CommunityRouteProps, State> {
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      sync(this.fetchCommunity(nextProps).then(() => this.fetchData(nextProps)));
+      sync(
+        this.fetchCommunity(nextProps).then(() => this.fetchData(nextProps)),
+      );
     } else {
       sync(this.fetchData(nextProps));
     }
@@ -515,7 +517,7 @@ export class Community extends Component<CommunityRouteProps, State> {
                       }
                     />
                   </div>
-                    <div className="col-auto">{this.markPageAsReadButton()}</div>
+                  <div className="col-auto">{this.markPageAsReadButton()}</div>
                 </div>
               </>
             ) : (
@@ -568,7 +570,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     if (!haveUnread || !myUserInfo) return undefined;
     return (
-        <div className="my-2">
+      <div className="my-2">
         <button
           className="btn btn-light border-light-subtle"
           onClick={() => sync(handleMarkPageAsRead(this, myUserInfo))}
@@ -593,7 +595,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     return (
       <>
-            <CommunitySidebar
+        <CommunitySidebar
           communityView={res.community_view}
           moderators={res.moderators}
           admins={siteRes.admins}
@@ -660,9 +662,13 @@ export class Community extends Component<CommunityRouteProps, State> {
               onBanPersonFromCommunity={form =>
                 sync(handleBanFromCommunity(this, form))
               }
-              onAddModToCommunity={form => sync(handleAddModToCommunity(this, form))}
+              onAddModToCommunity={form =>
+                sync(handleAddModToCommunity(this, form))
+              }
               onAddAdmin={form => sync(handleAddAdmin(this, form))}
-              onTransferCommunity={form => sync(handleTransferCommunity(this, form))}
+              onTransferCommunity={form =>
+                sync(handleTransferCommunity(this, form))
+              }
               onFeaturePost={form => sync(handleFeaturePost(this, form))}
               onMarkPostAsRead={form =>
                 sync(handleMarkPostAsRead(this, form, myUserInfo))
@@ -713,9 +719,13 @@ export class Community extends Component<CommunityRouteProps, State> {
               onDistinguishComment={form =>
                 sync(handleDistinguishComment(this, form))
               }
-              onAddModToCommunity={form => sync(handleAddModToCommunity(this, form))}
+              onAddModToCommunity={form =>
+                sync(handleAddModToCommunity(this, form))
+              }
               onAddAdmin={form => sync(handleAddAdmin(this, form))}
-              onTransferCommunity={form => sync(handleTransferCommunity(this, form))}
+              onTransferCommunity={form =>
+                sync(handleTransferCommunity(this, form))
+              }
               onPurgeComment={form => sync(handlePurgeComment(this, form))}
               onPurgePerson={form => sync(handlePurgePerson(this, form))}
               onBanPersonFromCommunity={form =>
@@ -800,7 +810,9 @@ export class Community extends Component<CommunityRouteProps, State> {
         <div className="col">
           <PostListingModeDropdown
             currentOption={this.state.postListingMode}
-            onSelect={val => sync(handlePostListingModeChange(this, val, myUserInfo))}
+            onSelect={val =>
+              sync(handlePostListingModeChange(this, val, myUserInfo))
+            }
             showLabel
           />
         </div>

@@ -441,10 +441,12 @@ export class Post extends Component<PostRouteProps, PostState> {
     if (isBrowser()) {
       this.shouldScrollToComments = this.props.scrollToComments;
       if (!this.state.isIsomorphic) {
-        sync(Promise.all([
-          this.fetchPost(this.props),
-          this.fetchComments(this.props),
-        ]));
+        sync(
+          Promise.all([
+            this.fetchPost(this.props),
+            this.fetchComments(this.props),
+          ]),
+        );
       }
     }
   }
@@ -608,7 +610,9 @@ export class Post extends Component<PostRouteProps, PostState> {
                 disableAutoMarkAsRead={false}
                 editLoading={this.state.editPostRes.state === "loading"}
                 voteLoading={this.state.votePostRes.state === "loading"}
-                onBlockPerson={form => sync(handleBlockPerson(form, myUserInfo))}
+                onBlockPerson={form =>
+                  sync(handleBlockPerson(form, myUserInfo))
+                }
                 onBlockCommunity={form =>
                   sync(handleBlockCommunity(this, form, myUserInfo))
                 }
@@ -634,7 +638,9 @@ export class Post extends Component<PostRouteProps, PostState> {
                   sync(handleTransferCommunity(this, form))
                 }
                 onFeaturePost={form => sync(handleFeaturePost(this, form))}
-                onHidePost={form => sync(handleHidePost(this, form, myUserInfo))}
+                onHidePost={form =>
+                  sync(handleHidePost(this, form, myUserInfo))
+                }
                 onScrollIntoCommentsClick={e =>
                   handleScrollIntoCommentsClick(this, e)
                 }
@@ -711,7 +717,9 @@ export class Post extends Component<PostRouteProps, PostState> {
                     <Icon icon="bell" classes="me-2" />
                     <PostNotificationsDropdown
                       currentOption={this.state.notifications}
-                      onSelect={val => sync(handleNotificationChange(this, val))}
+                      onSelect={val =>
+                        sync(handleNotificationChange(this, val))
+                      }
                     />
                   </div>
                 </div>
@@ -791,10 +799,16 @@ export class Post extends Component<PostRouteProps, PostState> {
             onRemoveComment={form => sync(handleRemoveComment(this, form))}
             onCommentVote={form => sync(handleCommentVote(this, form))}
             onCommentReport={form => sync(handleCommentReport(form))}
-            onDistinguishComment={form => sync(handleDistinguishComment(this, form))}
-            onAddModToCommunity={form => sync(handleAddModToCommunity(this, form))}
+            onDistinguishComment={form =>
+              sync(handleDistinguishComment(this, form))
+            }
+            onAddModToCommunity={form =>
+              sync(handleAddModToCommunity(this, form))
+            }
             onAddAdmin={form => sync(handleAddAdmin(this, form))}
-            onTransferCommunity={form => sync(handleTransferCommunity(this, form))}
+            onTransferCommunity={form =>
+              sync(handleTransferCommunity(this, form))
+            }
             onFetchChildren={form => sync(handleFetchChildren(this, form))}
             onPurgeComment={form => sync(handlePurgeComment(this, form))}
             onPurgePerson={form => sync(handlePurgePerson(this, form))}
@@ -924,10 +938,16 @@ export class Post extends Component<PostRouteProps, PostState> {
             onRemoveComment={form => sync(handleRemoveComment(this, form))}
             onCommentVote={form => sync(handleCommentVote(this, form))}
             onCommentReport={form => sync(handleCommentReport(form))}
-            onDistinguishComment={form => sync(handleDistinguishComment(this, form))}
-            onAddModToCommunity={form => sync(handleAddModToCommunity(this, form))}
+            onDistinguishComment={form =>
+              sync(handleDistinguishComment(this, form))
+            }
+            onAddModToCommunity={form =>
+              sync(handleAddModToCommunity(this, form))
+            }
             onAddAdmin={form => sync(handleAddAdmin(this, form))}
-            onTransferCommunity={form => sync(handleTransferCommunity(this, form))}
+            onTransferCommunity={form =>
+              sync(handleTransferCommunity(this, form))
+            }
             onFetchChildren={form => sync(handleFetchChildren(this, form))}
             onPurgeComment={form => sync(handlePurgeComment(this, form))}
             onPurgePerson={form => sync(handlePurgePerson(this, form))}
