@@ -16,7 +16,7 @@ interface State {
 
 export class Theme extends Component<Props, State> {
   private lightQuery?: MediaQueryList;
-  constructor(props: Props, context: State) {
+  constructor(props: Props, context: any) {
     super(props, context);
     if (isBrowser()) {
       window.addEventListener("refresh-theme", this.eventListener);

@@ -91,7 +91,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     return resourcesSettled([this.state.instancesRes]);
   }
 
-  constructor(props: InstancesRouteProps, context: InstancesState) {
+  constructor(props: InstancesRouteProps, context: any) {
     super(props, context);
 
     // Only fetch the data if coming from another route
