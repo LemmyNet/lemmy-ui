@@ -91,26 +91,27 @@ export class MarkdownTextArea extends Component<
     previewMode: false,
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     if (isBrowser()) {
-      const tribute = await setupTribute();
-      const textarea: HTMLTextAreaElement | null = document.getElementById(
-        this.state.id,
-      ) as HTMLTextAreaElement;
-      if (textarea) {
-        autosize(textarea);
-        tribute.attach(textarea);
-        textarea.addEventListener("tribute-replaced", () => {
-          this.setState({ content: textarea.value });
-          autosize.update(textarea);
-        });
+      sync(setupTribute(), tribute => {
+        const textarea: HTMLTextAreaElement | null = document.getElementById(
+          this.state.id,
+        ) as HTMLTextAreaElement;
+        if (textarea) {
+          autosize(textarea);
+          tribute.attach(textarea);
+          textarea.addEventListener("tribute-replaced", () => {
+            this.setState({ content: textarea.value });
+            autosize.update(textarea);
+          });
 
-        handleQuoteInsert(this);
+          handleQuoteInsert(this);
 
-        if (this.props.focus) {
-          textarea.focus();
+          if (this.props.focus) {
+            textarea.focus();
+          }
         }
-      }
+      });
     }
   }
 

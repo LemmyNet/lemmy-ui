@@ -1,4 +1,4 @@
-import { setIsoData, updateMyUserInfo } from "@utils/app";
+import { setIsoData, sync, updateMyUserInfo } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { resourcesSettled, validEmail } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
@@ -76,9 +76,9 @@ export class Signup extends Component<SignupRouteProps, State> {
     );
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (this.isoData.siteRes?.captcha_enabled && isBrowser()) {
-      await this.fetchCaptcha();
+      sync(this.fetchCaptcha());
     }
   }
 
@@ -132,7 +132,7 @@ export class Signup extends Component<SignupRouteProps, State> {
     return (
       <form
         className="was-validated"
-        onSubmit={e => handleRegisterSubmit(this, e)}
+        onSubmit={e => sync(handleRegisterSubmit(this, e))}
       >
         <h1 className="h4 mb-4">{this.titleName(siteView)}</h1>
 
@@ -365,7 +365,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               <button
                 type="button"
                 className="btn btn-light border-light-subtle"
-                onClick={() => handleRegenCaptcha(this)}
+                onClick={() => sync(handleRegenCaptcha(this))}
                 aria-label={I18NextService.i18n.t("captcha")}
               >
                 <Icon icon="refresh-cw" classes="icon-refresh-cw" />
@@ -404,7 +404,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               className="rounded-bottom btn btn-sm btn-light border-light-subtle d-block"
               style="border-top-right-radius: 0; border-top-left-radius: 0;"
               title={I18NextService.i18n.t("play_captcha_audio")}
-              onClick={() => handleCaptchaPlay(this)}
+              onClick={() => sync(handleCaptchaPlay(this))}
               type="button"
               disabled={this.state.captchaPlaying}
             >

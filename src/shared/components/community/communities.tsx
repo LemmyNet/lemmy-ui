@@ -266,7 +266,7 @@ export class Communities extends Component<
             <div className="col me-auto">
               <button
                 className="btn btn-sm btn-light border-outline-subtle"
-                onClick={() => handleVisitRandomCommunity(this)}
+                onClick={() => sync(handleVisitRandomCommunity(this))}
                 aria-label={I18NextService.i18n.t("visit_random_community")}
                 data-tippy-content={I18NextService.i18n.t(
                   "visit_random_community",

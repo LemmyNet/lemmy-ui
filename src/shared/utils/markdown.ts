@@ -1,4 +1,4 @@
-import { communitySearch, personSearch } from "@utils/app";
+import { communitySearch, personSearch, sync } from "@utils/app";
 import { debounce, groupBy } from "@utils/helpers";
 import { CommunityTribute, PersonTribute } from "@utils/types";
 import { Picker } from "emoji-mart";
@@ -349,8 +349,8 @@ export async function setupTribute() {
           const it: PersonTribute = item.original;
           return it.key;
         },
-        values: debounce(async (text: string, cb) => {
-          cb(await personSearch(text));
+        values: debounce((text: string, cb) => {
+          sync(personSearch(text), cb);
         }),
         allowSpaces: false,
         autocompleteMode: true,
@@ -366,8 +366,8 @@ export async function setupTribute() {
           const it: CommunityTribute = item.original;
           return it.key;
         },
-        values: debounce(async (text: string, cb) => {
-          cb(await communitySearch(text));
+        values: debounce((text: string, cb) => {
+          sync(communitySearch(text), cb);
         }),
         allowSpaces: false,
         autocompleteMode: true,

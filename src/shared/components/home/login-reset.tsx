@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, sync } from "@utils/app";
 import { capitalizeFirstLetter, validEmail } from "@utils/helpers";
 import { Component, FormEvent, InfernoMouseEvent } from "inferno";
 import { HttpService, I18NextService } from "../../services";
@@ -52,7 +52,7 @@ export class LoginReset extends Component<
 
   loginResetForm() {
     return (
-      <form onSubmit={event => this.handlePasswordReset(this, event)}>
+      <form onSubmit={event => sync(this.handlePasswordReset(this, event))}>
         <h1 className="h4 mb-4">
           {capitalizeFirstLetter(I18NextService.i18n.t("forgot_password"))}
         </h1>
@@ -89,7 +89,7 @@ export class LoginReset extends Component<
           <div className="col-sm-10">
             <button
               type="button"
-              onClick={event => this.handlePasswordReset(this, event)}
+              onClick={event => sync(this.handlePasswordReset(this, event))}
               className="btn btn-light border-light-subtle"
               disabled={
                 !validEmail(this.state.form.email) || this.state.form.loading
