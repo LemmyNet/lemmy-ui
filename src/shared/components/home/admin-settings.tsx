@@ -178,7 +178,7 @@ export class AdminSettings extends Component<
       if (!this.state.isIsomorphic) {
         sync(this.fetchData());
       } else {
-        sync(fetchThemeList().then(themeList => this.setState({ themeList })));
+        sync(fetchThemeList(), themeList => this.setState({ themeList }));
       }
     }
   }

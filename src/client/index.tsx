@@ -14,7 +14,7 @@ import { sync } from "@utils/app";
 async function startClient() {
   // Allows to test imports from the browser console.
   window.checkLazyScripts = () => {
-    sync(verifyDynamicImports(true).then(x => console.debug(x)));
+    sync(verifyDynamicImports(true));
   };
 
   window.history.scrollRestoration = "manual";

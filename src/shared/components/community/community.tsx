@@ -313,12 +313,9 @@ export class Community extends Component<CommunityRouteProps, State> {
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      sync(
-        this.fetchCommunity(nextProps).then(() => this.fetchData(nextProps)),
-      );
-    } else {
-      sync(this.fetchData(nextProps));
+      sync(this.fetchCommunity(nextProps));
     }
+    sync(this.fetchData(nextProps));
   }
 
   static fetchInitialData = async ({
