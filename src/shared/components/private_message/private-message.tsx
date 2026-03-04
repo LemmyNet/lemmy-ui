@@ -60,6 +60,13 @@ export class PrivateMessage extends Component<
     );
   }
 
+  get is_recipient(): boolean {
+    return (
+      this.props.myUserInfo?.local_user_view.person.id ===
+      this.props.private_message_view.recipient.id
+    );
+  }
+
   render() {
     const message_view = this.props.private_message_view;
     const otherPerson: Person = this.mine
@@ -152,6 +159,40 @@ export class PrivateMessage extends Component<
                         <Icon icon="reply1" classes="icon-inline" />
                       </button>
                     </div>
+                    <div className="col">
+                      <button
+                        type="button"
+                        className="btn btn-sm border-light-subtle btn-animate text-muted"
+                        onClick={() =>
+                          handleDeleteClick(
+                            this,
+                            message_view.private_message.deleted_by_recipient,
+                          )
+                        }
+                        data-tippy-content={
+                          !message_view.private_message.deleted_by_recipient
+                            ? I18NextService.i18n.t("delete")
+                            : I18NextService.i18n.t("restore")
+                        }
+                        aria-label={
+                          !message_view.private_message.deleted_by_recipient
+                            ? I18NextService.i18n.t("delete")
+                            : I18NextService.i18n.t("restore")
+                        }
+                      >
+                        {this.props.deleteLoading ? (
+                          <Spinner />
+                        ) : (
+                          <Icon
+                            icon="trash"
+                            classes={`icon-inline ${
+                              message_view.private_message
+                                .deleted_by_recipient && "text-danger"
+                            }`}
+                          />
+                        )}
+                      </button>
+                    </div>
                   </>
                 )}
                 {this.mine && (
@@ -171,7 +212,12 @@ export class PrivateMessage extends Component<
                       <button
                         type="button"
                         className="btn btn-sm border-light-subtle btn-animate text-muted"
-                        onClick={() => handleDeleteClick(this)}
+                        onClick={() =>
+                          handleDeleteClick(
+                            this,
+                            message_view.private_message.deleted,
+                          )
+                        }
                         data-tippy-content={
                           !message_view.private_message.deleted
                             ? I18NextService.i18n.t("delete")
@@ -257,7 +303,8 @@ export class PrivateMessage extends Component<
 
   get messageUnlessRemoved(): string {
     const message = this.props.private_message_view.private_message;
-    return message.deleted
+    return message.deleted ||
+      (message.deleted_by_recipient && this.is_recipient)
       ? `*${I18NextService.i18n.t("deleted")}*`
       : message.content;
   }
@@ -271,10 +318,10 @@ function handleEditClick(i: PrivateMessage) {
   i.setState({ showEdit: true });
 }
 
-function handleDeleteClick(i: PrivateMessage) {
+function handleDeleteClick(i: PrivateMessage, deleted: boolean) {
   i.props.onDelete({
     private_message_id: i.props.private_message_view.private_message.id,
-    deleted: !i.props.private_message_view.private_message.deleted,
+    deleted: !deleted,
   });
 }
 
