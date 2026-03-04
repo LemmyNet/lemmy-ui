@@ -1,25 +1,15 @@
 import { Icon } from "@components/common/icon";
 import { MomentTime } from "@components/common/moment-time";
-import { PictrsImage } from "@components/common/pictrs-image";
 import { UserBadges } from "@components/common/user-badges";
 import { CommunityLink } from "@components/community/community-link";
 import { PersonListing } from "@components/person/person-listing";
 import { I18NextService } from "@services/index";
-import {
-  hideAnimatedImage,
-  hideImages,
-  linkTarget,
-  setIsoData,
-} from "@utils/app";
+import { linkTarget, setIsoData } from "@utils/app";
 import { relTags, torrentHelpUrl } from "@utils/config";
 import { formatRelativeDate } from "@utils/date";
 import { httpFrontendUrl } from "@utils/env";
 import { mdToHtmlInline } from "@utils/markdown";
-import {
-  isMagnetLink,
-  extractMagnetLinkDownloadName,
-  isImage,
-} from "@utils/media";
+import { isMagnetLink, extractMagnetLinkDownloadName } from "@utils/media";
 import { Link } from "inferno-router";
 import {
   Post,
@@ -280,45 +270,6 @@ export function UrlLine({ postView, myUserInfo }: UrlLineProps, context: any) {
       );
     }
   }
-}
-
-type PostImgProps = {
-  postView: PostView;
-  showAdultConsentModal: boolean;
-  hideImage: boolean;
-  myUserInfo: MyUserInfo | undefined;
-};
-export function PostImg({
-  postView,
-  showAdultConsentModal,
-  hideImage,
-  myUserInfo,
-}: PostImgProps) {
-  if (showAdultConsentModal) {
-    return <></>;
-  }
-
-  // Use the full-size image for expands
-  const post = postView.post;
-  const url = post.url;
-  const thumbnail = post.thumbnail_url;
-  const imageSrc = url && isImage(url) ? url : thumbnail;
-
-  return !hideImages(hideImage, myUserInfo) &&
-    imageSrc &&
-    !hideAnimatedImage(imageSrc, myUserInfo) ? (
-    <div className="my-2">
-      <PictrsImage
-        src={imageSrc}
-        alt={post.alt_text}
-        imageDetails={postView.image_details}
-        nsfw={postView.post.nsfw || postView.community.nsfw}
-        viewer
-      />
-    </div>
-  ) : (
-    <></>
-  );
 }
 
 export function TorrentHelp() {
