@@ -19,6 +19,7 @@ import ModActionFormModal from "../common/modal/mod-action-form-modal";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { mark_as_read_i18n } from "@utils/app";
 import ActionButton from "@components/common/content-actions/action-button";
+import classNames from "classnames";
 
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
@@ -60,7 +61,7 @@ export class PrivateMessage extends Component<
     );
   }
 
-  get is_recipient(): boolean {
+  get isRecipient(): boolean {
     return (
       this.props.myUserInfo?.local_user_view.person.id ===
       this.props.private_message_view.recipient.id
@@ -169,26 +170,23 @@ export class PrivateMessage extends Component<
                             message_view.private_message.deleted_by_recipient,
                           )
                         }
-                        data-tippy-content={
-                          !message_view.private_message.deleted_by_recipient
-                            ? I18NextService.i18n.t("delete")
-                            : I18NextService.i18n.t("restore")
-                        }
-                        aria-label={
-                          !message_view.private_message.deleted_by_recipient
-                            ? I18NextService.i18n.t("delete")
-                            : I18NextService.i18n.t("restore")
-                        }
+                        data-tippy-content={getDeleteButtonText(
+                          message_view.private_message.deleted_by_recipient,
+                        )}
+                        aria-label={getDeleteButtonText(
+                          message_view.private_message.deleted_by_recipient,
+                        )}
                       >
                         {this.props.deleteLoading ? (
                           <Spinner />
                         ) : (
                           <Icon
                             icon="trash"
-                            classes={`icon-inline ${
-                              message_view.private_message
-                                .deleted_by_recipient && "text-danger"
-                            }`}
+                            classes={classNames("icon-inline", {
+                              "text-danger":
+                                message_view.private_message
+                                  .deleted_by_recipient,
+                            })}
                           />
                         )}
                       </button>
@@ -218,16 +216,12 @@ export class PrivateMessage extends Component<
                             message_view.private_message.deleted,
                           )
                         }
-                        data-tippy-content={
-                          !message_view.private_message.deleted
-                            ? I18NextService.i18n.t("delete")
-                            : I18NextService.i18n.t("restore")
-                        }
-                        aria-label={
-                          !message_view.private_message.deleted
-                            ? I18NextService.i18n.t("delete")
-                            : I18NextService.i18n.t("restore")
-                        }
+                        data-tippy-content={getDeleteButtonText(
+                          message_view.private_message.deleted,
+                        )}
+                        aria-label={getDeleteButtonText(
+                          message_view.private_message.deleted,
+                        )}
                       >
                         {this.props.deleteLoading ? (
                           <Spinner />
@@ -303,8 +297,7 @@ export class PrivateMessage extends Component<
 
   get messageUnlessRemoved(): string {
     const message = this.props.private_message_view.private_message;
-    return message.deleted ||
-      (message.deleted_by_recipient && this.is_recipient)
+    return message.deleted || (message.deleted_by_recipient && this.isRecipient)
       ? `*${I18NextService.i18n.t("deleted")}*`
       : message.content;
   }
@@ -367,4 +360,10 @@ function handleReportSubmit(i: PrivateMessage, reason: string) {
   });
 
   handleHideReportDialog(i);
+}
+
+function getDeleteButtonText(deleted: boolean) {
+  return !deleted
+    ? I18NextService.i18n.t("delete")
+    : I18NextService.i18n.t("restore");
 }
