@@ -959,7 +959,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             )}
           </div>
           <button
-            className="btn btn-ghost"
+            className="col btn btn-ghost"
             onclick={_ => handleHideSelectButtons(this)}
           >
             <Icon icon="chevrons-down" />
