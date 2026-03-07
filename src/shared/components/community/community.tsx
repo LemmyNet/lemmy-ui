@@ -149,6 +149,7 @@ interface State {
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
   postListingMode: PostListingMode;
+  selectButtonsHidden: boolean;
 }
 
 interface CommunityProps {
@@ -251,6 +252,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     isIsomorphic: false,
     markPageAsReadLoading: false,
     postListingMode: defaultPostListingMode(this.isoData),
+    selectButtonsHidden: true,
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -761,22 +763,82 @@ export class Community extends Component<CommunityRouteProps, State> {
     const myUserInfo = this.isoData.myUserInfo;
 
     return (
-      <div className="row row-cols-auto align-items-center g-3 mb-3">
-        <div className="d-block d-md-none col">
-          <ExpandChipCheckbox
-            option="show_sidebar"
-            isChecked={showSidebarMobile}
-            onCheck={show => handleShowSidebarMobile(this, show)}
-          />
-        </div>
-        <div className="col">
-          <PostOrCommentTypeDropdown
-            currentOption={postOrCommentType}
-            onSelect={val => handlePostOrCommentTypeChange(this, val)}
-          />
+      <div className="g-3 mb-3">
+        <div className="row row-cols-auto align-items-center">
+          <div className="d-block d-md-none col">
+            <ExpandChipCheckbox
+              option="show_sidebar"
+              isChecked={showSidebarMobile}
+              onCheck={show => handleShowSidebarMobile(this, show)}
+            />
+          </div>
+          <div className="col">
+            <PostOrCommentTypeDropdown
+              currentOption={postOrCommentType}
+              onSelect={val => handlePostOrCommentTypeChange(this, val)}
+            />
+          </div>
+          <div className="col">
+            <PostListingModeDropdown
+              currentOption={this.state.postListingMode}
+              onSelect={val =>
+                handlePostListingModeChange(this, val, myUserInfo)
+              }
+              showLabel
+            />
+          </div>
+          {this.props.postOrCommentType === "post" ? (
+            <>
+              <div className="col">
+                <PostSortDropdown
+                  currentOption={mixedToPostSortType(sort)}
+                  onSelect={val => handleSortChange(this, val)}
+                  showLabel
+                />
+              </div>
+              <div className="col">
+                <TimeIntervalFilter
+                  currentSeconds={postTimeRange}
+                  onChange={val => handlePostTimeRangeChange(this, val)}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="col">
+              <CommentSortDropdown
+                currentOption={mixedToCommentSortType(sort)}
+                onSelect={val => handleCommentSortChange(this, val)}
+                showLabel
+              />
+            </div>
+          )}
+          {communityRss && (
+            <div className="col">
+              <a href={communityRss} title="RSS" rel={relTags}>
+                <Icon icon="rss" classes="text-muted small" />
+              </a>
+              <link
+                rel="alternate"
+                type="application/atom+xml"
+                href={communityRss}
+              />
+            </div>
+          )}
+          <button
+            className="col btn btn-ghost"
+            onclick={_ => handleHideSelectButtons(this)}
+          >
+            <Icon icon="chevrons-down" />
+          </button>
         </div>
         {postOrCommentType === "post" && myUserInfo && (
-          <>
+          <div
+            className={
+              this.state.selectButtonsHidden
+                ? "d-none"
+                : "row row-cols-auto mt-2"
+            }
+          >
             <div className="col">
               <FilterChipCheckbox
                 option={"show_hidden_posts"}
@@ -791,50 +853,6 @@ export class Community extends Component<CommunityRouteProps, State> {
                 onCheck={hideRead => handleHideReadChange(this, hideRead)}
               />
             </div>
-          </>
-        )}
-        <div className="col">
-          <PostListingModeDropdown
-            currentOption={this.state.postListingMode}
-            onSelect={val => handlePostListingModeChange(this, val, myUserInfo)}
-            showLabel
-          />
-        </div>
-        {this.props.postOrCommentType === "post" ? (
-          <>
-            <div className="col">
-              <PostSortDropdown
-                currentOption={mixedToPostSortType(sort)}
-                onSelect={val => handleSortChange(this, val)}
-                showLabel
-              />
-            </div>
-            <div className="col">
-              <TimeIntervalFilter
-                currentSeconds={postTimeRange}
-                onChange={val => handlePostTimeRangeChange(this, val)}
-              />
-            </div>
-          </>
-        ) : (
-          <div className="col">
-            <CommentSortDropdown
-              currentOption={mixedToCommentSortType(sort)}
-              onSelect={val => handleCommentSortChange(this, val)}
-              showLabel
-            />
-          </div>
-        )}
-        {communityRss && (
-          <div className="col">
-            <a href={communityRss} title="RSS" rel={relTags}>
-              <Icon icon="rss" classes="text-muted small" />
-            </a>
-            <link
-              rel="alternate"
-              type="application/atom+xml"
-              href={communityRss}
-            />
           </div>
         )}
       </div>
@@ -1470,4 +1488,8 @@ function DeadInstanceOrCommunityWarning() {
       </div>
     </div>
   );
+}
+
+function handleHideSelectButtons(i: Community) {
+  i.setState({ selectButtonsHidden: !i.state.selectButtonsHidden });
 }
