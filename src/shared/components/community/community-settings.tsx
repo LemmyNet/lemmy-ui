@@ -1,4 +1,10 @@
-import { enableNsfw, fetchUsers, personToChoice, setIsoData } from "@utils/app";
+import {
+  enableNsfw,
+  fetchUsers,
+  personToChoice,
+  setIsoData,
+  sync,
+} from "@utils/app";
 import {
   resourcesSettled,
   bareRoutePush,
@@ -156,20 +162,20 @@ export class CommunitySettings extends Component<RouteProps, State> {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.fetchCommunity(this.props);
+      sync(this.fetchCommunity(this.props));
     }
   }
 
-  async componentWillReceiveProps(
+  componentWillReceiveProps(
     nextProps: RouteProps & { children?: InfernoNode },
   ) {
     if (
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      await this.fetchCommunity(nextProps);
+      sync(this.fetchCommunity(nextProps));
     }
   }
 
@@ -248,12 +254,14 @@ export class CommunitySettings extends Component<RouteProps, State> {
                             communityLanguages={
                               getCommunityRes.discussion_languages
                             }
-                            onEdit={form => handleEditCommunity(this, form)}
+                            onEdit={form =>
+                              sync(handleEditCommunity(this, form))
+                            }
                             createOrEditLoading={
                               this.state.editCommunityRes.state === "loading"
                             }
                             onDelete={deleted =>
-                              handleDeleteCommunity(this, deleted)
+                              sync(handleDeleteCommunity(this, deleted))
                             }
                             deleteLoading={
                               this.state.deleteCommunityRes.state === "loading"
@@ -317,8 +325,8 @@ export class CommunitySettings extends Component<RouteProps, State> {
             <CommunityTagForm
               key={`community-tag-form-${t.id}`}
               tag={t}
-              onEdit={form => handleEditTag(this, form)}
-              onDeleteOrRestore={form => handleDeleteTag(this, form)}
+              onEdit={form => sync(handleEditTag(this, form))}
+              onDeleteOrRestore={form => sync(handleDeleteTag(this, form))}
               createOrEditLoading={
                 itemLoading(this.state.createOrEditTagRes) === t.id
               }
@@ -330,7 +338,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
           ))}
           {/** The create or empty tag form **/}
           <CommunityTagForm
-            onCreate={form => handleCreateTag(this, form)}
+            onCreate={form => sync(handleCreateTag(this, form))}
             communityId={res.community_view.community.id}
             createOrEditLoading={
               itemLoading(this.state.createOrEditTagRes) === 0
@@ -422,11 +430,13 @@ export class CommunitySettings extends Component<RouteProps, State> {
                             this.setState({ showRemoveModDialog: undefined })
                           }
                           onYes={() =>
-                            handleAddMod(this, {
-                              community_id: res.community_view.community.id,
-                              person_id: m.moderator.id,
-                              added: false,
-                            })
+                            sync(
+                              handleAddMod(this, {
+                                community_id: res.community_view.community.id,
+                                person_id: m.moderator.id,
+                                added: false,
+                              }),
+                            )
                           }
                         />
                       </>
@@ -469,10 +479,12 @@ export class CommunitySettings extends Component<RouteProps, State> {
                             this.setState({ showTransferDialog: undefined })
                           }
                           onYes={() =>
-                            handleTransferCommunity(this, {
-                              community_id: res.community_view.community.id,
-                              person_id: m.moderator.id,
-                            })
+                            sync(
+                              handleTransferCommunity(this, {
+                                community_id: res.community_view.community.id,
+                                person_id: m.moderator.id,
+                              }),
+                            )
                           }
                         />
                       </>
@@ -495,8 +507,8 @@ export class CommunitySettings extends Component<RouteProps, State> {
               multiple={false}
               allOptions={this.state.addModSearchOptions}
               selectedOptions={[]}
-              onSelect={choices => handleAddModSelect(this, choices)}
-              onSearch={res => handleAddModSearch(this, res)}
+              onSelect={choices => sync(handleAddModSelect(this, choices))}
+              onSearch={res => sync(handleAddModSearch(this, res))}
             />
           </div>
         </div>
@@ -507,7 +519,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
               message={I18NextService.i18n.t("leave_mod_team_confirmation")}
               loadingMessage={I18NextService.i18n.t("leaving_mod_team")}
               onNo={() => handleToggleShowLeaveModTeamConfirmation(this)}
-              onYes={() => handleLeaveModTeam(this, myUserInfo)}
+              onYes={() => sync(handleLeaveModTeam(this, myUserInfo))}
               show={this.state.showLeaveModTeamDialog}
             />
           </>

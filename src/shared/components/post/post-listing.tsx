@@ -39,6 +39,7 @@ import { PostForm } from "./post-form";
 import { PostListingList } from "./post-listing-list";
 import { PostListingCard } from "./post-listing-card";
 import { masonryUpdate } from "@utils/browser";
+import { sync } from "@utils/app";
 import { RouterContext } from "inferno-router/dist/Router";
 import Viewer from "viewerjs";
 import { viewerJsFullSizeImageUrl } from "@components/common/pictrs-image";
@@ -186,7 +187,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             localSite={p.localSite}
             onEdit={p.onPostEdit}
             onModEdit={p.onPostModEdit}
-            onCancel={() => handleEditCancel(this)}
+            onCancel={() => sync(handleEditCancel(this))}
           />
         )}
       </div>
@@ -239,7 +240,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             notificationRead={p.notificationRead}
             markReadLoading={p.markReadLoading}
             voteLoading={p.voteLoading}
-            onEditClick={() => handleEditClick(this)}
+            onEditClick={() => sync(handleEditClick(this))}
             onPostVote={p.onPostVote}
             onPostReport={p.onPostReport}
             onBlockPerson={p.onBlockPerson}

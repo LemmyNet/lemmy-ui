@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, sync, toast } from "@utils/app";
 import { Component } from "inferno";
 import {
   CreateMultiCommunity as CreateMultiCommunityI,
@@ -10,7 +10,6 @@ import { HtmlTags } from "../common/html-tags";
 import { MultiCommunityForm } from "./multi-community-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { toast } from "@utils/app";
 import { NoOptionI18nKeys } from "i18next";
 import {
   EMPTY_REQUEST,
@@ -51,7 +50,7 @@ export class CreateMultiCommunity extends Component<
               {I18NextService.i18n.t("create_multi_community")}
             </h1>
             <MultiCommunityForm
-              onCreate={form => handleCreate(this, form, myUserInfo)}
+              onCreate={form => sync(handleCreate(this, form, myUserInfo))}
               createOrEditLoading={this.state.createRes.state === "loading"}
               myUserInfo={myUserInfo}
             />

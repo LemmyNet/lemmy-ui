@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, sync } from "@utils/app";
 import { Component } from "inferno";
 import { SuccessResponse } from "lemmy-js-client";
 import { I18NextService } from "../../services";
@@ -47,9 +47,9 @@ export class VerifyEmail extends Component<
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (isBrowser()) {
-      await this.verify();
+      sync(this.verify());
     }
   }
 

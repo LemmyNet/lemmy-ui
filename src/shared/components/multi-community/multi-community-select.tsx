@@ -1,7 +1,7 @@
 import { debounce, hostname } from "@utils/helpers";
 import { Component } from "inferno";
 import { MultiCommunityId, MultiCommunityView } from "lemmy-js-client";
-import { fetchSearchResults } from "@utils/app";
+import { fetchSearchResults, sync } from "@utils/app";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Choice } from "@utils/types";
 import { isBrowser } from "@utils/browser";
@@ -25,9 +25,9 @@ export class MultiCommunitySelect extends Component<Props, State> {
     multiCommunitySearchLoading: false,
   };
 
-  async componentWillMount() {
+  componentWillMount() {
     if (isBrowser()) {
-      await handleMultiCommunitySearch(this, "", true);
+      sync(handleMultiCommunitySearch(this, "", true));
     }
   }
 
@@ -39,7 +39,7 @@ export class MultiCommunitySelect extends Component<Props, State> {
         allOptions={this.state.multiCommunitySearchOptions}
         selectedOptions={[(this.props.value ?? 0).toString()]}
         onSelect={choice => handleMultiCommunitySelect(this, choice)}
-        onSearch={res => handleMultiCommunitySearch(this, res, false)}
+        onSearch={res => sync(handleMultiCommunitySearch(this, res, false))}
       />
     );
   }

@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, sync } from "@utils/app";
 import { getQueryParams, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
@@ -122,17 +122,21 @@ export class RemoteFetch extends Component<
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
       const { uri } = this.props;
 
       if (uri) {
         this.setState({ resolveObjectRes: LOADING_REQUEST });
-        this.setState({
-          resolveObjectRes: await HttpService.client.resolveObject({
+        sync(
+          HttpService.client.resolveObject({
             q: uriToQuery(uri),
           }),
-        });
+          resolveObjectRes =>
+            this.setState({
+              resolveObjectRes,
+            }),
+        );
       }
     }
   }
@@ -209,8 +213,8 @@ export class RemoteFetch extends Component<
                 <SubscribeButton
                   followState={communityView.community_actions?.follow_state}
                   apId={communityView.community.ap_id}
-                  onFollow={() => handleToggleFollow(this, true)}
-                  onUnFollow={() => handleToggleFollow(this, false)}
+                  onFollow={() => sync(handleToggleFollow(this, true))}
+                  onUnFollow={() => sync(handleToggleFollow(this, false))}
                   loading={this.state.followRes.state === "loading"}
                   showRemoteFetch={!this.isoData.myUserInfo}
                 />

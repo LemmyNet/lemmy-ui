@@ -9,6 +9,7 @@ import {
   personToChoice,
   setIsoData,
   showLocal,
+  sync,
   updateCommunityBlock,
   updateInstanceCommunitiesBlock,
   updateInstancePersonsBlock,
@@ -317,29 +318,35 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (isBrowser()) {
-      this.setState({ themeList: await fetchThemeList() });
+      sync(fetchThemeList(), themeList => {
+        this.setState({ themeList });
+      });
 
       if (!this.state.isIsomorphic) {
         this.setState({
           instancesRes: LOADING_REQUEST,
         });
 
-        this.setState({
-          instancesRes: await HttpService.client.getFederatedInstances({
+        sync(
+          HttpService.client.getFederatedInstances({
             kind: "linked",
           }),
-        });
+          instancesRes => {
+            this.setState({ instancesRes });
+          },
+        );
       }
     }
   }
 
-  async componentWillUnmount() {
-    // In case `interface_language` change wasn't saved.
-    await I18NextService.reconfigure(
-      window.navigator.languages,
-      this.isoData.myUserInfo?.local_user_view.local_user.interface_language,
+  componentWillUnmount() {
+    sync(
+      I18NextService.reconfigure(
+        window.navigator.languages,
+        this.isoData.myUserInfo?.local_user_view.local_user.interface_language,
+      ),
     );
     setThemeOverride(undefined);
   }
@@ -486,7 +493,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     return (
       <>
         <h2 className="h5">{I18NextService.i18n.t("change_password")}</h2>
-        <form onSubmit={e => handleChangePasswordSubmit(this, e)}>
+        <form onSubmit={e => sync(handleChangePasswordSubmit(this, e))}>
           <div className="mb-3">
             <PasswordInput
               id="new-password"
@@ -537,8 +544,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <Filter
           filterType="user"
           loading={searchPersonLoading}
-          onChange={choices => handleBlockPerson(this, choices)}
-          onSearch={text => handlePersonSearch(this, text)}
+          onChange={choices => sync(handleBlockPerson(this, choices))}
+          onSearch={text => sync(handlePersonSearch(this, text))}
           options={searchPersonOptions}
         />
         {this.blockedUsersList()}
@@ -560,7 +567,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
               <button
                 className="btn btn-sm"
-                onClick={() => handleUnblockPerson(this, p.id)}
+                onClick={() => sync(handleUnblockPerson(this, p.id))}
                 data-tippy-content={I18NextService.i18n.t("unblock_user")}
               >
                 <Icon icon="x" classes="icon-inline" />
@@ -580,8 +587,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         <Filter
           filterType="community"
           loading={searchCommunityLoading}
-          onChange={choices => handleBlockCommunity(this, choices)}
-          onSearch={text => handleCommunitySearch(this, text)}
+          onChange={choices => sync(handleBlockCommunity(this, choices))}
+          onSearch={text => sync(handleCommunitySearch(this, text))}
           options={searchCommunityOptions}
         />
         {this.blockedCommunitiesList()}
@@ -602,7 +609,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
               <button
                 className="btn btn-sm"
-                onClick={() => handleUnblockCommunity(this, c.id)}
+                onClick={() => sync(handleUnblockCommunity(this, c.id))}
                 data-tippy-content={I18NextService.i18n.t("unblock_community")}
               >
                 <Icon icon="x" classes="icon-inline" />
@@ -621,7 +628,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <div>
         <Filter
           filterType="instance"
-          onChange={choices => handleBlockInstanceCommunities(this, choices)}
+          onChange={choices =>
+            sync(handleBlockInstanceCommunities(this, choices))
+          }
           onSearch={text => handleInstanceSearch(this, text)}
           options={searchInstanceOptions}
         />
@@ -637,7 +646,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
       <div>
         <Filter
           filterType="instance"
-          onChange={choices => handleBlockInstancePersons(this, choices)}
+          onChange={choices => sync(handleBlockInstancePersons(this, choices))}
           onSearch={text => handleInstanceSearch(this, text)}
           options={searchInstanceOptions}
         />
@@ -660,7 +669,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               {i.domain}
               <button
                 className="btn btn-sm"
-                onClick={() => handleUnblockInstanceCommunities(this, i.id)}
+                onClick={() =>
+                  sync(handleUnblockInstanceCommunities(this, i.id))
+                }
                 data-tippy-content={I18NextService.i18n.t("unblock_instance")}
               >
                 <Icon icon="x" classes="icon-inline" />
@@ -684,7 +695,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               {i.domain}
               <button
                 className="btn btn-sm"
-                onClick={() => handleUnblockInstancePersons(this, i.id)}
+                onClick={() => sync(handleUnblockInstancePersons(this, i.id))}
                 data-tippy-content={I18NextService.i18n.t("unblock_instance")}
               >
                 <Icon icon="x" classes="icon-inline" />
@@ -710,7 +721,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           <>
             <button
               className="btn btn-light border-light-subtle mb-4"
-              onClick={() => handleExportSettings(this)}
+              onClick={() => sync(handleExportSettings(this))}
               type="button"
             >
               {I18NextService.i18n.t("export")}
@@ -725,7 +736,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
               <button
                 className="btn btn-light border-light-subtle mt-3"
-                onClick={() => handleImportSettings(this)}
+                onClick={() => sync(handleImportSettings(this))}
                 type="button"
                 disabled={!this.state.settingsFile}
               >
@@ -756,7 +767,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     return (
       <>
         <h2 className="h5">{I18NextService.i18n.t("settings")}</h2>
-        <form onSubmit={e => handleSaveSettingsSubmit(this, e)}>
+        <form onSubmit={e => sync(handleSaveSettingsSubmit(this, e))}>
           <div className="mb-3 row">
             <label className="col-sm-3 col-form-label" htmlFor="display-name">
               {I18NextService.i18n.t("display_name")}
@@ -865,7 +876,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                   this.state.saveUserSettingsForm.interface_language ??
                   "browser"
                 }
-                onSelect={val => handleInterfaceLangChange(this, val)}
+                onSelect={val => sync(handleInterfaceLangChange(this, val))}
               />
             </div>
           </div>
@@ -1228,7 +1239,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     return (
       <>
         <h2 className="h5">{I18NextService.i18n.t("delete_account")}</h2>
-        <form className="mb-3" onSubmit={e => handleDeleteAccount(this, e)}>
+        <form
+          className="mb-3"
+          onSubmit={e => sync(handleDeleteAccount(this, e))}
+        >
           <button
             type="button"
             className="btn d-block btn-danger"
@@ -1301,7 +1315,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           type="button"
           className="btn btn-light border-light-subtle my-2"
           onClick={() =>
-            totpEnabled ? handleShowTotpModal(this) : handleGenerateTotp(this)
+            totpEnabled
+              ? handleShowTotpModal(this)
+              : sync(handleGenerateTotp(this))
           }
         >
           {I18NextService.i18n.t(totpActionStr)}

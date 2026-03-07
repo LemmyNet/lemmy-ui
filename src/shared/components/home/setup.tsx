@@ -1,4 +1,4 @@
-import { fetchThemeList, setIsoData } from "@utils/app";
+import { fetchThemeList, setIsoData, sync } from "@utils/app";
 import { Component, FormEvent } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { CreateSite, LoginResponse, Register } from "lemmy-js-client";
@@ -49,9 +49,9 @@ export class Setup extends Component<
     doneRegisteringUser: !!this.isoData.myUserInfo,
   };
 
-  async componentWillMount() {
+  componentWillMount() {
     if (isBrowser()) {
-      this.setState({ themeList: await fetchThemeList() });
+      sync(fetchThemeList(), themeList => this.setState({ themeList }));
     }
   }
 
@@ -73,7 +73,7 @@ export class Setup extends Component<
             ) : (
               <SiteForm
                 showLocal
-                onCreate={form => handleCreateSite(this, form)}
+                onCreate={form => sync(handleCreateSite(this, form))}
                 siteRes={this.isoData.siteRes}
                 themeList={this.state.themeList}
                 loading={false}
@@ -88,7 +88,7 @@ export class Setup extends Component<
 
   registerUser() {
     return (
-      <form onSubmit={e => handleRegisterSubmit(this, e)}>
+      <form onSubmit={e => sync(handleRegisterSubmit(this, e))}>
         <h2 className="h5 mb-3">{I18NextService.i18n.t("setup_admin")}</h2>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label" htmlFor="username">

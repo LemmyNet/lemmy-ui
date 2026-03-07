@@ -25,6 +25,7 @@ import {
   CommunityFeedHandler,
   MultiCommunityFeedHandler,
 } from "./handlers/feed-handler";
+import { sync } from "@utils/app";
 
 const server = express();
 server.use(cookieParser());
@@ -95,8 +96,8 @@ server.get(["/c/:name/feed", "/c/{:name}.rss"], CommunityFeedHandler);
 server.get(["/m/:name/feed", "/m/{:name}.rss"], MultiCommunityFeedHandler);
 server.get("/{*splat}", CatchAllHandler);
 
-const listener = server.listen(Number(port), hostname, async () => {
-  await verifyDynamicImports(true);
+const listener = server.listen(Number(port), hostname, () => {
+  sync(verifyDynamicImports(true));
 
   setupMarkdown();
 

@@ -697,14 +697,15 @@ export function pictrsDeleteToast(filename: string) {
       gravity: "top",
       position: "right",
       duration: 10000,
-      onClick: async () => {
+      onClick: () => {
         if (toast) {
-          const res = await HttpService.client.deleteMedia({ filename });
-          if (res.state === "success") {
-            alert(deletePictureText);
-          } else {
-            alert(failedDeletePictureText);
-          }
+          sync(HttpService.client.deleteMedia({ filename }), res => {
+            if (res.state === "success") {
+              alert(deletePictureText);
+            } else {
+              alert(failedDeletePictureText);
+            }
+          });
         }
       },
       close: true,
@@ -942,4 +943,11 @@ export function mark_as_read_i18n(read: boolean): string {
   return read
     ? I18NextService.i18n.t("mark_as_unread")
     : I18NextService.i18n.t("mark_as_read");
+}
+
+export function sync<T>(
+  promise: Promise<T>,
+  callback: (arg0: T) => void = () => {},
+) {
+  promise.then(callback).catch(console.error);
 }

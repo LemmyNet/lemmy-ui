@@ -7,7 +7,7 @@ import {
   createRef,
 } from "inferno";
 import { I18NextService } from "../../../services";
-import { toast } from "@utils/app";
+import { toast, sync } from "@utils/app";
 import type { Modal } from "bootstrap";
 import { modalMixin } from "../../mixins/modal-mixin";
 
@@ -159,8 +159,8 @@ export default class TotpModal extends Component<
                     maxLength={TOTP_LENGTH}
                     id="totp-input"
                     className="form-control form-control-lg mx-2 p-1 p-md-2 text-center"
-                    onInput={event => handleInput(this, event)}
-                    onPaste={event => handlePaste(this, event)}
+                    onInput={event => sync(handleInput(this, event))}
+                    onPaste={event => sync(handlePaste(this, event))}
                     ref={this.inputRef}
                     enterKeyHint="done"
                     value={totp}

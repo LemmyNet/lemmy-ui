@@ -3,6 +3,7 @@ import {
   enableNsfw,
   filterCommunitySelection,
   setIsoData,
+  sync,
 } from "@utils/app";
 import {
   bareRoutePush,
@@ -164,23 +165,20 @@ export class CreatePost extends Component<
     }
   }
 
-  async componentWillMount() {
-    // TODO test this
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
       const { communityId } = this.props;
 
-      const initialCommunitiesRes = await fetchCommunitiesForOptions(
-        HttpService.client,
-      );
-
-      this.setState({
-        initialCommunitiesRes,
+      sync(fetchCommunitiesForOptions(HttpService.client), res => {
+        this.setState({
+          initialCommunitiesRes: res,
+        });
       });
 
       if (
         communityId?.toString() !== this.state.selectedCommunity?.community.id
       ) {
-        await this.fetchCommunity({ communityId });
+        sync(this.fetchCommunity({ communityId }));
       } else if (!communityId) {
         this.setState({
           selectedCommunity: undefined,
@@ -191,26 +189,30 @@ export class CreatePost extends Component<
         | CrossPostParams
         | undefined;
       if (locationState) {
-        await this.updateUrl({
-          title: locationState.name,
-          url: locationState.url,
-          body: locationState.body,
-          altText: locationState.altText,
-          nsfw: locationState.nsfw,
-          languageId: locationState.languageId,
-          customThumbnailUrl: locationState.customThumbnailUrl,
-        });
-        this.setState(s => ({ resetCounter: s.resetCounter + 1 }));
+        sync(
+          this.updateUrl({
+            title: locationState.name,
+            url: locationState.url,
+            body: locationState.body,
+            altText: locationState.altText,
+            nsfw: locationState.nsfw,
+            languageId: locationState.languageId,
+            customThumbnailUrl: locationState.customThumbnailUrl,
+          }),
+          () => {
+            this.setState(s => ({ resetCounter: s.resetCounter + 1 }));
+          },
+        );
       }
     }
   }
 
-  async componentWillReceiveProps(nextProps: CreatePostRouteProps) {
+  componentWillReceiveProps(nextProps: CreatePostRouteProps) {
     if (bareRoutePush(this.props, nextProps)) {
       this.setState(s => ({ resetCounter: s.resetCounter + 1 }));
     }
     if (this.props.communityId !== nextProps.communityId) {
-      await this.fetchCommunity(nextProps);
+      sync(this.fetchCommunity(nextProps));
     }
   }
 
@@ -267,7 +269,7 @@ export class CreatePost extends Component<
             <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>
             <PostForm
               onCreate={(form, bypassNav) =>
-                handlePostCreate(this, form, bypassNav)
+                sync(handlePostCreate(this, form, bypassNav))
               }
               params={params}
               enableNsfw={enableNsfw(siteRes)}
@@ -276,7 +278,7 @@ export class CreatePost extends Component<
               siteLanguages={siteRes?.discussion_languages}
               selectedCommunityChoice={selectedCommunityChoice}
               onSelectCommunity={form =>
-                handleSelectedCommunityChange(this, form)
+                sync(handleSelectedCommunityChange(this, form))
               }
               selectedCommunityTags={selectedCommunity?.tags}
               initialCommunities={
@@ -291,17 +293,19 @@ export class CreatePost extends Component<
               myUserInfo={myUserInfo}
               localSite={siteRes.site_view.local_site}
               admins={siteRes.admins}
-              onBodyBlur={form => handleBodyBlur(this, form)}
+              onBodyBlur={form => sync(handleBodyBlur(this, form))}
               onLanguageChange={languangeId =>
-                handleLanguageChange(this, languangeId)
+                sync(handleLanguageChange(this, languangeId))
               }
-              onTitleBlur={form => handleTitleBlur(this, form)}
-              onUrlBlur={form => handleUrlBlur(this, form)}
-              onThumbnailUrlBlur={form => handleThumbnailUrlBlur(this, form)}
-              onNsfwChange={form => handleNsfwChange(this, form)}
-              onAltTextBlur={form => handleAltTextBlur(this, form)}
+              onTitleBlur={form => sync(handleTitleBlur(this, form))}
+              onUrlBlur={form => sync(handleUrlBlur(this, form))}
+              onThumbnailUrlBlur={form =>
+                sync(handleThumbnailUrlBlur(this, form))
+              }
+              onNsfwChange={form => sync(handleNsfwChange(this, form))}
+              onAltTextBlur={form => sync(handleAltTextBlur(this, form))}
               onCopySuggestedTitle={(url, title) =>
-                handleCopySuggestedTitle(this, url, title)
+                sync(handleCopySuggestedTitle(this, url, title))
               }
               isNsfwCommunity={selectedCommunityIsNsfw}
             />

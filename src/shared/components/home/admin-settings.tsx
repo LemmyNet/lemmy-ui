@@ -1,4 +1,4 @@
-import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
+import { fetchThemeList, setIsoData, showLocal, sync } from "@utils/app";
 import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
@@ -173,13 +173,12 @@ export class AdminSettings extends Component<
     };
   };
 
-  async componentWillMount() {
+  componentWillMount() {
     if (isBrowser()) {
       if (!this.state.isIsomorphic) {
-        await this.fetchData();
+        sync(this.fetchData());
       } else {
-        const themeList = await fetchThemeList();
-        this.setState({ themeList });
+        sync(fetchThemeList(), themeList => this.setState({ themeList }));
       }
     }
   }
@@ -217,7 +216,7 @@ export class AdminSettings extends Component<
                     <div className="col-12 col-md-6">
                       <SiteForm
                         showLocal={showLocal(this.isoData)}
-                        onEdit={form => handleEditSite(this, form)}
+                        onEdit={form => sync(handleEditSite(this, form))}
                         siteRes={this.isoData.siteRes}
                         themeList={this.state.themeList}
                         loading={this.state.loading}
@@ -276,7 +275,7 @@ export class AdminSettings extends Component<
                     rateLimits={
                       this.isoData.siteRes?.site_view.local_site_rate_limit
                     }
-                    onSaveSite={form => handleEditSite(this, form)}
+                    onSaveSite={form => sync(handleEditSite(this, form))}
                     loading={this.state.loading}
                   />
                 </div>
@@ -342,9 +341,13 @@ export class AdminSettings extends Component<
                     oauthProviders={
                       this.isoData.siteRes?.admin_oauth_providers ?? []
                     }
-                    onCreate={form => handleCreateOAuthProvider(this, form)}
-                    onDelete={form => handleDeleteOAuthProvider(this, form)}
-                    onEdit={form => handleEditOAuthProvider(this, form)}
+                    onCreate={form =>
+                      sync(handleCreateOAuthProvider(this, form))
+                    }
+                    onDelete={form =>
+                      sync(handleDeleteOAuthProvider(this, form))
+                    }
+                    onEdit={form => sync(handleEditOAuthProvider(this, form))}
                   />
                 </div>
               ),
@@ -519,7 +522,7 @@ export class AdminSettings extends Component<
           message={I18NextService.i18n.t("leave_admin_team_confirmation")}
           loadingMessage={I18NextService.i18n.t("leaving_admin_team")}
           onNo={() => handleToggleShowLeaveAdminConfirmation(this)}
-          onYes={() => handleLeaveAdminTeam(this)}
+          onYes={() => sync(handleLeaveAdminTeam(this))}
           show={this.state.showConfirmLeaveAdmin}
         />
       </>
@@ -549,7 +552,7 @@ export class AdminSettings extends Component<
           <div className="col">
             <AllOrBannedDropdown
               currentOption={this.state.allOrBanned}
-              onSelect={val => handleUsersAllOrBannedChange(this, val)}
+              onSelect={val => sync(handleUsersAllOrBannedChange(this, val))}
             />
           </div>
         </div>
@@ -622,7 +625,7 @@ export class AdminSettings extends Component<
             <PaginatorCursor
               current={this.state.usersCursor}
               resource={this.state.usersRes}
-              onPageChange={cursor => handleUsersPageChange(this, cursor)}
+              onPageChange={cursor => sync(handleUsersPageChange(this, cursor))}
             />
           </div>
         );
@@ -650,7 +653,9 @@ export class AdminSettings extends Component<
             <PaginatorCursor
               current={this.state.uploadsCursor}
               resource={this.state.uploadsRes}
-              onPageChange={cursor => handleUploadsPageChange(this, cursor)}
+              onPageChange={cursor =>
+                sync(handleUploadsPageChange(this, cursor))
+              }
             />
           </div>
         );
@@ -677,8 +682,8 @@ export class AdminSettings extends Component<
                 key={`tagline-form-${t.id}`}
                 tagline={t}
                 myUserInfo={this.isoData.myUserInfo}
-                onEdit={form => handleEditTagline(this, form)}
-                onDelete={form => handleDeleteTagline(this, form)}
+                onEdit={form => sync(handleEditTagline(this, form))}
+                onDelete={form => sync(handleDeleteTagline(this, form))}
               />
             ))}
             {this.emptyTaglineForm()}
@@ -686,7 +691,9 @@ export class AdminSettings extends Component<
               <PaginatorCursor
                 current={this.state.taglinesCursor}
                 resource={this.state.taglinesRes}
-                onPageChange={cursor => handleTaglinesPageChange(this, cursor)}
+                onPageChange={cursor =>
+                  sync(handleTaglinesPageChange(this, cursor))
+                }
               />
             )}
           </>
@@ -715,8 +722,8 @@ export class AdminSettings extends Component<
               <EmojiForm
                 key={`emoji-form-${e.custom_emoji.id}`}
                 emoji={e}
-                onEdit={form => handleEditEmoji(this, form)}
-                onDelete={form => handleDeleteEmoji(this, form)}
+                onEdit={form => sync(handleEditEmoji(this, form))}
+                onDelete={form => sync(handleDeleteEmoji(this, form))}
               />
             ))}
             {this.emptyEmojiForm()}
@@ -731,13 +738,13 @@ export class AdminSettings extends Component<
     return (
       <TaglineForm
         myUserInfo={this.isoData.myUserInfo}
-        onCreate={form => handleCreateTagline(this, form)}
+        onCreate={form => sync(handleCreateTagline(this, form))}
       />
     );
   }
 
   emptyEmojiForm() {
-    return <EmojiForm onCreate={form => handleCreateEmoji(this, form)} />;
+    return <EmojiForm onCreate={form => sync(handleCreateEmoji(this, form))} />;
   }
 
   instanceBlocksTab() {
@@ -758,12 +765,12 @@ export class AdminSettings extends Component<
               <div className="col me-auto">
                 <InstancesKindDropdown
                   currentOption={this.state.instancesKind}
-                  onSelect={val => handleInstancesKindChange(this, val)}
+                  onSelect={val => sync(handleInstancesKindChange(this, val))}
                 />
               </div>
               <form
                 className="d-flex col"
-                onSubmit={e => handleInstancesDomainSearchSubmit(this, e)}
+                onSubmit={e => sync(handleInstancesDomainSearchSubmit(this, e))}
               >
                 <input
                   name="q"
@@ -788,32 +795,34 @@ export class AdminSettings extends Component<
               showRemove={["blocked", "allowed"].includes(
                 this.state.instancesKind,
               )}
-              onRemove={async instance => {
+              onRemove={instance => {
                 if (this.state.instancesKind === "blocked") {
-                  await handleInstanceBlockRemove(this, instance);
+                  sync(handleInstanceBlockRemove(this, instance));
                 } else if (this.state.instancesKind === "allowed") {
-                  await handleInstanceAllowRemove(this, instance);
+                  sync(handleInstanceAllowRemove(this, instance));
                 }
               }}
             />
             <PaginatorCursor
               current={this.state.instancesCursor}
               resource={this.state.instancesRes}
-              onPageChange={cursor => handleInstancesPageChange(this, cursor)}
+              onPageChange={cursor =>
+                sync(handleInstancesPageChange(this, cursor))
+              }
             />
             <hr />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("block_instance")}
             </h1>
             <InstanceBlockForm
-              onCreate={form => handleInstanceBlockCreate(this, form)}
+              onCreate={form => sync(handleInstanceBlockCreate(this, form))}
             />
             <hr />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("allow_instance")}
             </h1>
             <InstanceAllowForm
-              onCreate={form => handleInstanceAllowCreate(this, form)}
+              onCreate={form => sync(handleInstanceAllowCreate(this, form))}
             />
           </div>
         );

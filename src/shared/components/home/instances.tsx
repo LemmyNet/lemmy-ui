@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, sync } from "@utils/app";
 import { QueryParams, RouteDataResponse } from "@utils/types";
 import { Component, FormEvent } from "inferno";
 import {
@@ -104,9 +104,9 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.fetchInstances(this.props);
+      sync(this.fetchInstances(this.props));
     }
   }
 
@@ -116,8 +116,8 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     }
   }
 
-  async componentWillReceiveProps(nextProps: InstancesRouteProps) {
-    await this.fetchInstances(nextProps);
+  componentWillReceiveProps(nextProps: InstancesRouteProps) {
+    sync(this.fetchInstances(nextProps));
   }
 
   async fetchInstances(props: InstancesProps) {

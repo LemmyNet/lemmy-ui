@@ -1,4 +1,4 @@
-import { showAvatars } from "@utils/app";
+import { showAvatars, sync } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { numToSI } from "@utils/helpers";
 import {
@@ -432,7 +432,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         <li>
                           <button
                             className="dropdown-item btn btn-link px-2"
-                            onClick={() => handleLogOut(this)}
+                            onClick={() => sync(handleLogOut(this))}
                           >
                             <Icon icon="log-out" classes="me-1" />
                             {I18NextService.i18n.t("logout")}

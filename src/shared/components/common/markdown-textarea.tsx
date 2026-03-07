@@ -17,7 +17,12 @@ import {
 import { customEmojisLookup, mdToHtml, setupTribute } from "@utils/markdown";
 import { HttpService, I18NextService } from "@services/index";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { userNotLoggedInOrBanned, pictrsDeleteToast, toast } from "@utils/app";
+import {
+  userNotLoggedInOrBanned,
+  pictrsDeleteToast,
+  toast,
+  sync,
+} from "@utils/app";
 import { EmojiPicker } from "./emoji-picker";
 import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
@@ -86,26 +91,27 @@ export class MarkdownTextArea extends Component<
     previewMode: false,
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     if (isBrowser()) {
-      const tribute = await setupTribute();
-      const textarea: HTMLTextAreaElement | null = document.getElementById(
-        this.state.id,
-      ) as HTMLTextAreaElement;
-      if (textarea) {
-        autosize(textarea);
-        tribute.attach(textarea);
-        textarea.addEventListener("tribute-replaced", () => {
-          this.setState({ content: textarea.value });
-          autosize.update(textarea);
-        });
+      sync(setupTribute(), tribute => {
+        const textarea: HTMLTextAreaElement | null = document.getElementById(
+          this.state.id,
+        ) as HTMLTextAreaElement;
+        if (textarea) {
+          autosize(textarea);
+          tribute.attach(textarea);
+          textarea.addEventListener("tribute-replaced", () => {
+            this.setState({ content: textarea.value });
+            autosize.update(textarea);
+          });
 
-        handleQuoteInsert(this);
+          handleQuoteInsert(this);
 
-        if (this.props.focus) {
-          textarea.focus();
+          if (this.props.focus) {
+            textarea.focus();
+          }
         }
-      }
+      });
     }
   }
 
@@ -175,7 +181,7 @@ export class MarkdownTextArea extends Component<
                     className="d-none"
                     multiple
                     disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
-                    onChange={e => handleImageUpload(this, e)}
+                    onChange={e => sync(handleImageUpload(this, e))}
                   />
                   {this.getFormatButton("header", () =>
                     handleInsertHeader(this),
@@ -217,7 +223,7 @@ export class MarkdownTextArea extends Component<
                   )}
                   value={this.state.content}
                   onInput={e => handleContentChange(this, e)}
-                  onPaste={e => handlePaste(this, e)}
+                  onPaste={e => sync(handlePaste(this, e))}
                   onKeyDown={e => handleKeyBinds(this, e)}
                   required
                   disabled={this.isDisabled}

@@ -9,7 +9,7 @@ import {
   EditCustomEmoji,
 } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
-import { pictrsDeleteToast, toast } from "@utils/app";
+import { pictrsDeleteToast, toast, sync } from "@utils/app";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Prompt } from "inferno-router";
 import { Spinner } from "@components/common/icon";
@@ -117,7 +117,7 @@ export class EmojiForm extends Component<EmojiFormProps, EmojiFormState> {
                 type="file"
                 accept="image/*"
                 className="d-none"
-                onChange={e => handleImageUpload(this, e)}
+                onChange={e => sync(handleImageUpload(this, e))}
               />
             </label>
           </div>

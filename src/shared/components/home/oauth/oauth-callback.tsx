@@ -1,4 +1,4 @@
-import { setIsoData, updateMyUserInfo } from "@utils/app";
+import { setIsoData, sync, updateMyUserInfo } from "@utils/app";
 import { Component } from "inferno";
 import { refreshTheme } from "@utils/browser";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
@@ -51,7 +51,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
     siteRes: this.isoData.siteRes,
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     // store state in local storage
     const local_oauth_state: LocalOauthState = JSON.parse(
       localStorage.getItem("oauth_state") || "{}",
@@ -71,67 +71,74 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
       toast(I18NextService.i18n.t("oauth_authorization_invalid"), "danger");
       this.props.history.replace("/login");
     } else {
-      const loginRes = await HttpService.client.authenticateWithOAuth({
-        code: this.props.code,
-        oauth_provider_id: local_oauth_state.oauth_provider_id,
-        redirect_uri: local_oauth_state.redirect_uri,
-        show_nsfw: local_oauth_state.show_nsfw,
-        username: local_oauth_state.username,
-        answer: local_oauth_state.answer,
-      });
-
-      switch (loginRes.state) {
-        case "success": {
-          if (loginRes.data.jwt) {
-            await handleOAuthLoginSuccess(
-              this,
-              local_oauth_state.prev,
-              loginRes.data,
-            );
-          } else {
-            if (loginRes.data.verify_email_sent) {
-              toast(I18NextService.i18n.t("verify_email_sent"));
+      sync(
+        HttpService.client.authenticateWithOAuth({
+          code: this.props.code,
+          oauth_provider_id: local_oauth_state.oauth_provider_id,
+          redirect_uri: local_oauth_state.redirect_uri,
+          show_nsfw: local_oauth_state.show_nsfw,
+          username: local_oauth_state.username,
+          answer: local_oauth_state.answer,
+        }),
+        loginRes => {
+          switch (loginRes.state) {
+            case "success": {
+              if (loginRes.data.jwt) {
+                sync(
+                  handleOAuthLoginSuccess(
+                    this,
+                    local_oauth_state.prev,
+                    loginRes.data,
+                  ),
+                );
+              } else {
+                if (loginRes.data.verify_email_sent) {
+                  toast(I18NextService.i18n.t("verify_email_sent"));
+                }
+                if (loginRes.data.registration_created) {
+                  toast(I18NextService.i18n.t("registration_application_sent"));
+                }
+                this.props.history.push("/login");
+              }
+              break;
             }
-            if (loginRes.data.registration_created) {
-              toast(I18NextService.i18n.t("registration_application_sent"));
+            case "failed": {
+              let err_redirect = "/login";
+              switch (loginRes.err.message) {
+                case "registration_username_required":
+                case "registration_application_answer_required":
+                  err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
+                  toast(
+                    I18NextService.i18n.t(
+                      loginRes.err.message as NoOptionI18nKeys,
+                    ),
+                    "danger",
+                  );
+                  break;
+                case "registration_application_is_pending":
+                  toast(
+                    I18NextService.i18n.t("registration_application_pending"),
+                    "danger",
+                  );
+                  break;
+                case "registration_denied":
+                case "oauth_authorization_invalid":
+                case "oauth_login_failed":
+                case "oauth_registration_closed":
+                case "email_already_exists":
+                case "username_already_exists":
+                case "no_email_setup":
+                  toast(I18NextService.i18n.t(loginRes.err.message), "danger");
+                  break;
+                default:
+                  toast(I18NextService.i18n.t("incorrect_login"), "danger");
+                  break;
+              }
+              this.props.history.push(err_redirect);
             }
-            this.props.history.push("/login");
           }
-          break;
-        }
-        case "failed": {
-          let err_redirect = "/login";
-          switch (loginRes.err.message) {
-            case "registration_username_required":
-            case "registration_application_answer_required":
-              err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
-              toast(
-                I18NextService.i18n.t(loginRes.err.message as NoOptionI18nKeys),
-                "danger",
-              );
-              break;
-            case "registration_application_is_pending":
-              toast(
-                I18NextService.i18n.t("registration_application_pending"),
-                "danger",
-              );
-              break;
-            case "registration_denied":
-            case "oauth_authorization_invalid":
-            case "oauth_login_failed":
-            case "oauth_registration_closed":
-            case "email_already_exists":
-            case "username_already_exists":
-            case "no_email_setup":
-              toast(I18NextService.i18n.t(loginRes.err.message), "danger");
-              break;
-            default:
-              toast(I18NextService.i18n.t("incorrect_login"), "danger");
-              break;
-          }
-          this.props.history.push(err_redirect);
-        }
-      }
+        },
+      );
     }
   }
 

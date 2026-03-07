@@ -4,6 +4,7 @@ import {
   fetchUsers,
   personToChoice,
   setIsoData,
+  sync,
 } from "@utils/app";
 import {
   debounce,
@@ -683,30 +684,32 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await Promise.all([
-        this.fetchModlog(this.props),
-        this.fetchCommunity(this.props),
-        this.fetchUser(this.props),
-        this.fetchMod(this.props),
-      ]);
+      sync(
+        Promise.all([
+          this.fetchModlog(this.props),
+          this.fetchCommunity(this.props),
+          this.fetchUser(this.props),
+          this.fetchMod(this.props),
+        ]),
+      );
     }
   }
 
-  async componentWillReceiveProps(nextProps: ModlogRouteProps) {
-    await this.fetchModlog(nextProps);
+  componentWillReceiveProps(nextProps: ModlogRouteProps) {
+    sync(this.fetchModlog(nextProps));
 
     const reload = bareRoutePush(this.props, nextProps);
 
     if (nextProps.modId !== this.props.modId || reload) {
-      await this.fetchMod(nextProps);
+      sync(this.fetchMod(nextProps));
     }
     if (nextProps.userId !== this.props.userId || reload) {
-      await this.fetchUser(nextProps);
+      sync(this.fetchUser(nextProps));
     }
     if (nextProps.communityId !== this.props.communityId || reload) {
-      await this.fetchCommunity(nextProps);
+      sync(this.fetchCommunity(nextProps));
     }
   }
 
@@ -871,7 +874,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             <Filter
               title="all_users"
               onChange={choices => handleUserChange(this, choices)}
-              onSearch={text => handleSearchUsers(this, text)}
+              onSearch={text => sync(handleSearchUsers(this, text))}
               value={userId}
               options={userSearchOptions}
               loading={loadingUserSearch}
@@ -881,7 +884,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             <Filter
               title="all_communities"
               onChange={choices => handleCommunityChange(this, choices)}
-              onSearch={text => handleSearchCommunities(this, text)}
+              onSearch={text => sync(handleSearchCommunities(this, text))}
               value={communityId}
               options={communitySearchOptions}
               loading={loadingCommunitySearch}
@@ -892,7 +895,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               <Filter
                 title="all_mods"
                 onChange={choices => handleModChange(this, choices)}
-                onSearch={text => handleSearchMods(this, text)}
+                onSearch={text => sync(handleSearchMods(this, text))}
                 value={modId}
                 options={modSearchOptions}
                 loading={loadingModSearch}

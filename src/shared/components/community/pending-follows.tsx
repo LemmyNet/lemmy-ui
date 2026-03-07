@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, sync } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
@@ -128,20 +128,20 @@ export class PendingFollows extends Component<
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.refetch(this.props);
+      sync(this.refetch(this.props));
     }
   }
 
-  async componentWillReceiveProps(
+  componentWillReceiveProps(
     nextProps: PendingFollowsRouteProps & { children?: InfernoNode },
   ) {
     if (
       nextProps.viewState !== this.props.viewState ||
       nextProps.cursor !== this.props.cursor
     ) {
-      await this.refetch(nextProps);
+      sync(this.refetch(nextProps));
     }
   }
 
@@ -217,7 +217,9 @@ export class PendingFollows extends Component<
                 itemLoading(this.state.approveRes)?.personId ===
                   pendingFollow.person.id
               }
-              onApproveFollower={form => handleApproveFollower(this, form)}
+              onApproveFollower={form =>
+                sync(handleApproveFollower(this, form))
+              }
             />
           </>
         ))}

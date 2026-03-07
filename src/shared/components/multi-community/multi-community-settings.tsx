@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, sync } from "@utils/app";
 import { resourcesSettled, bareRoutePush } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
@@ -103,20 +103,20 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.fetchMultiCommunity(this.props);
+      sync(this.fetchMultiCommunity(this.props));
     }
   }
 
-  async componentWillReceiveProps(
+  componentWillReceiveProps(
     nextProps: RouteProps & { children?: InfernoNode },
   ) {
     if (
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      await this.fetchMultiCommunity(nextProps);
+      sync(this.fetchMultiCommunity(nextProps));
     }
   }
 
@@ -182,10 +182,12 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
               </h1>
               <MultiCommunityForm
                 multiCommunityView={getMultiRes.multi_community_view}
-                onEdit={form => handleEditMultiCommunity(this, form)}
+                onEdit={form => sync(handleEditMultiCommunity(this, form))}
                 createOrEditLoading={this.state.editRes.state === "loading"}
                 deleteLoading={this.state.deleteRes.state === "loading"}
-                onDelete={deleted => handleDeleteMultiCommunity(this, deleted)}
+                onDelete={deleted =>
+                  sync(handleDeleteMultiCommunity(this, deleted))
+                }
                 myUserInfo={myUserInfo}
               />
             </div>
@@ -197,10 +199,12 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
                 communities={getMultiRes.communities}
                 isCreator={this.amCreator}
                 onDelete={communityId =>
-                  handleDeleteMultiCommunityEntry(
-                    this,
-                    getMultiRes.multi_community_view.multi.id,
-                    communityId,
+                  sync(
+                    handleDeleteMultiCommunityEntry(
+                      this,
+                      getMultiRes.multi_community_view.multi.id,
+                      communityId,
+                    ),
                   )
                 }
                 myUserInfo={myUserInfo}
@@ -209,10 +213,12 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
                 <MultiCommunityEntryForm
                   currentCommunities={getMultiRes.communities}
                   onCreate={communityId =>
-                    handleCreateMultiCommunityEntry(
-                      this,
-                      getMultiRes.multi_community_view.multi.id,
-                      communityId,
+                    sync(
+                      handleCreateMultiCommunityEntry(
+                        this,
+                        getMultiRes.multi_community_view.multi.id,
+                        communityId,
+                      ),
                     )
                   }
                   myUserInfo={myUserInfo}

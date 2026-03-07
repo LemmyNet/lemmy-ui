@@ -2,7 +2,7 @@ import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, FormEvent } from "inferno";
 import { HttpService, I18NextService } from "../../services";
-import { toast } from "@utils/app";
+import { toast, sync } from "@utils/app";
 import { Icon, Spinner } from "./icon";
 import { RequestState, WrappedLemmyHttp } from "../../services/HttpService";
 import {
@@ -94,7 +94,7 @@ export class ImageUploadForm extends Component<
               <button
                 className="position-absolute d-block p-0 end-0 border-0 top-0 bg-transparent text-white"
                 type="button"
-                onClick={() => this.handleRemoveImage(this)}
+                onClick={() => sync(this.handleRemoveImage(this))}
                 aria-label={I18NextService.i18n.t("remove")}
               >
                 <Icon icon="x" classes="mini-overlay" />
@@ -105,8 +105,8 @@ export class ImageUploadForm extends Component<
 
         {this.state?.pendingUpload && !this.props.noConfirmation && (
           <ImageUploadConfirmModalModal
-            onConfirm={() => this.performImageUpload(this)}
-            onCancel={() => this.handleRemoveImage(this)}
+            onConfirm={() => sync(this.performImageUpload(this))}
+            onCancel={() => sync(this.handleRemoveImage(this))}
             pendingImageURL={URL.createObjectURL(this.state.pendingUpload)}
             show
           />
@@ -118,7 +118,7 @@ export class ImageUploadForm extends Component<
           className="small form-control"
           name={this.id}
           disabled={this.props.disabled}
-          onChange={event => this.guardedImageUpload(this, event)}
+          onChange={event => sync(this.guardedImageUpload(this, event))}
         />
       </form>
     );

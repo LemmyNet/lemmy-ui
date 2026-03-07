@@ -9,11 +9,12 @@ import { setupMarkdown } from "@utils/markdown";
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
 import "bootstrap/js/dist/modal";
+import { sync } from "@utils/app";
 
 async function startClient() {
   // Allows to test imports from the browser console.
-  window.checkLazyScripts = async () => {
-    await verifyDynamicImports(true).then(x => console.debug(x));
+  window.checkLazyScripts = () => {
+    sync(verifyDynamicImports(true));
   };
 
   window.history.scrollRestoration = "manual";

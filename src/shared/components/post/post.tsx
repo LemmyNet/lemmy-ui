@@ -1,5 +1,6 @@
 import {
   buildCommentsTree,
+  sync,
   editPersonNotes,
   editCommentSlim,
   enableNsfw,
@@ -436,14 +437,16 @@ export class Post extends Component<PostRouteProps, PostState> {
     document.removeEventListener("scroll", this.commentScrollDebounced);
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     if (isBrowser()) {
       this.shouldScrollToComments = this.props.scrollToComments;
       if (!this.state.isIsomorphic) {
-        await Promise.all([
-          this.fetchPost(this.props),
-          this.fetchComments(this.props),
-        ]);
+        sync(
+          Promise.all([
+            this.fetchPost(this.props),
+            this.fetchComments(this.props),
+          ]),
+        );
       }
     }
   }
@@ -457,7 +460,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  async componentWillReceiveProps(nextProps: PostRouteProps) {
+  componentWillReceiveProps(nextProps: PostRouteProps) {
     const { post_id: nextPost, comment_id: nextComment } =
       nextProps.match.params;
     const { post_id: prevPost, comment_id: prevComment } =
@@ -487,10 +490,10 @@ export class Post extends Component<PostRouteProps, PostState> {
       nextProps.sort !== this.props.sort;
 
     if (needPost) {
-      await this.fetchPost(nextProps);
+      sync(this.fetchPost(nextProps));
     }
     if (needComments) {
-      await this.fetchComments(nextProps);
+      sync(this.fetchComments(nextProps));
     }
 
     if (
@@ -607,33 +610,37 @@ export class Post extends Component<PostRouteProps, PostState> {
                 disableAutoMarkAsRead={false}
                 editLoading={this.state.editPostRes.state === "loading"}
                 voteLoading={this.state.votePostRes.state === "loading"}
-                onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
-                onBlockCommunity={form =>
-                  handleBlockCommunity(this, form, myUserInfo)
+                onBlockPerson={form =>
+                  sync(handleBlockPerson(form, myUserInfo))
                 }
-                onPostEdit={form => handlePostEdit(this, form)}
-                onPostModEdit={form => handlePostModEdit(this, form)}
-                onPostVote={form => handlePostVote(this, form)}
-                onPostReport={form => handlePostReport(form)}
-                onLockPost={form => handleLockPost(this, form)}
-                onDeletePost={form => handleDeletePost(this, form)}
-                onRemovePost={form => handleRemovePost(this, form)}
-                onSavePost={form => handleSavePost(this, form)}
-                onPurgePerson={form => handlePurgePerson(this, form)}
-                onPurgePost={form => handlePurgePost(this, form)}
-                onBanPerson={form => handleBanPerson(this, form)}
+                onBlockCommunity={form =>
+                  sync(handleBlockCommunity(this, form, myUserInfo))
+                }
+                onPostEdit={form => sync(handlePostEdit(this, form))}
+                onPostModEdit={form => sync(handlePostModEdit(this, form))}
+                onPostVote={form => sync(handlePostVote(this, form))}
+                onPostReport={form => sync(handlePostReport(form))}
+                onLockPost={form => sync(handleLockPost(this, form))}
+                onDeletePost={form => sync(handleDeletePost(this, form))}
+                onRemovePost={form => sync(handleRemovePost(this, form))}
+                onSavePost={form => sync(handleSavePost(this, form))}
+                onPurgePerson={form => sync(handlePurgePerson(this, form))}
+                onPurgePost={form => sync(handlePurgePost(this, form))}
+                onBanPerson={form => sync(handleBanPerson(this, form))}
                 onBanPersonFromCommunity={form =>
-                  handleBanFromCommunity(this, form)
+                  sync(handleBanFromCommunity(this, form))
                 }
                 onAddModToCommunity={form =>
-                  handleAddModToCommunity(this, form)
+                  sync(handleAddModToCommunity(this, form))
                 }
-                onAddAdmin={form => handleAddAdmin(this, form)}
+                onAddAdmin={form => sync(handleAddAdmin(this, form))}
                 onTransferCommunity={form =>
-                  handleTransferCommunity(this, form)
+                  sync(handleTransferCommunity(this, form))
                 }
-                onFeaturePost={form => handleFeaturePost(this, form)}
-                onHidePost={form => handleHidePost(this, form, myUserInfo)}
+                onFeaturePost={form => sync(handleFeaturePost(this, form))}
+                onHidePost={form =>
+                  sync(handleHidePost(this, form, myUserInfo))
+                }
                 onScrollIntoCommentsClick={e =>
                   handleScrollIntoCommentsClick(this, e)
                 }
@@ -642,9 +649,9 @@ export class Post extends Component<PostRouteProps, PostState> {
                   this.state.markPostAsReadRes.state === "loading"
                 }
                 onMarkPostAsRead={form =>
-                  handleMarkPostAsRead(this, form, myUserInfo)
+                  sync(handleMarkPostAsRead(this, form, myUserInfo))
                 }
-                onPersonNote={form => handlePersonNote(this, form)}
+                onPersonNote={form => sync(handlePersonNote(this, form))}
                 postListingMode="small_card"
               />
               <div ref={this.commentSectionRef} className="mb-2" />
@@ -667,7 +674,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   containerClass="post-comment-container"
                   myUserInfo={myUserInfo}
                   onCreateComment={form =>
-                    handleCreateToplevelComment(this, form)
+                    sync(handleCreateToplevelComment(this, form))
                   }
                   onEditComment={() => {}}
                   loading={itemLoading(this.state.createCommentRes) === 0}
@@ -710,7 +717,9 @@ export class Post extends Component<PostRouteProps, PostState> {
                     <Icon icon="bell" classes="me-2" />
                     <PostNotificationsDropdown
                       currentOption={this.state.notifications}
-                      onSelect={val => handleNotificationChange(this, val)}
+                      onSelect={val =>
+                        sync(handleNotificationChange(this, val))
+                      }
                     />
                   </div>
                 </div>
@@ -781,31 +790,37 @@ export class Post extends Component<PostRouteProps, PostState> {
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={myUserInfo}
             localSite={siteRes.site_view.local_site}
-            onSaveComment={form => handleSaveComment(this, form)}
-            onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
+            onSaveComment={form => sync(handleSaveComment(this, form))}
+            onBlockPerson={form => sync(handleBlockPerson(form, myUserInfo))}
             onBlockCommunity={form =>
-              handleBlockCommunity(this, form, myUserInfo)
+              sync(handleBlockCommunity(this, form, myUserInfo))
             }
-            onDeleteComment={form => handleDeleteComment(this, form)}
-            onRemoveComment={form => handleRemoveComment(this, form)}
-            onCommentVote={form => handleCommentVote(this, form)}
-            onCommentReport={form => handleCommentReport(form)}
-            onDistinguishComment={form => handleDistinguishComment(this, form)}
-            onAddModToCommunity={form => handleAddModToCommunity(this, form)}
-            onAddAdmin={form => handleAddAdmin(this, form)}
-            onTransferCommunity={form => handleTransferCommunity(this, form)}
-            onFetchChildren={form => handleFetchChildren(this, form)}
-            onPurgeComment={form => handlePurgeComment(this, form)}
-            onPurgePerson={form => handlePurgePerson(this, form)}
+            onDeleteComment={form => sync(handleDeleteComment(this, form))}
+            onRemoveComment={form => sync(handleRemoveComment(this, form))}
+            onCommentVote={form => sync(handleCommentVote(this, form))}
+            onCommentReport={form => sync(handleCommentReport(form))}
+            onDistinguishComment={form =>
+              sync(handleDistinguishComment(this, form))
+            }
+            onAddModToCommunity={form =>
+              sync(handleAddModToCommunity(this, form))
+            }
+            onAddAdmin={form => sync(handleAddAdmin(this, form))}
+            onTransferCommunity={form =>
+              sync(handleTransferCommunity(this, form))
+            }
+            onFetchChildren={form => sync(handleFetchChildren(this, form))}
+            onPurgeComment={form => sync(handlePurgeComment(this, form))}
+            onPurgePerson={form => sync(handlePurgePerson(this, form))}
             onBanPersonFromCommunity={form =>
-              handleBanFromCommunity(this, form)
+              sync(handleBanFromCommunity(this, form))
             }
-            onBanPerson={form => handleBanPerson(this, form)}
-            onCreateComment={form => handleCreateComment(this, form)}
-            onEditComment={form => handleEditComment(this, form)}
-            onPersonNote={form => handlePersonNote(this, form)}
-            onLockComment={form => handleLockComment(this, form)}
-            onMarkRead={async () => {}}
+            onBanPerson={form => sync(handleBanPerson(this, form))}
+            onCreateComment={form => sync(handleCreateComment(this, form))}
+            onEditComment={form => sync(handleEditComment(this, form))}
+            onPersonNote={form => sync(handlePersonNote(this, form))}
+            onLockComment={form => sync(handleLockComment(this, form))}
+            onMarkRead={() => {}}
           />
         </div>
       );
@@ -827,11 +842,11 @@ export class Post extends Component<PostRouteProps, PostState> {
           allLanguages={this.state.siteRes.all_languages}
           siteLanguages={this.state.siteRes.discussion_languages}
           myUserInfo={this.isoData.myUserInfo}
-          onFollow={form => handleFollow(this, form, myUserInfo)}
-          onBlock={form => handleBlockCommunity(this, form, myUserInfo)}
-          onEditNotifs={form => handleEditCommunityNotifs(form)}
-          onRemove={form => handleModRemoveCommunity(this, form)}
-          onPurge={form => handlePurgeCommunity(this, form)}
+          onFollow={form => sync(handleFollow(this, form, myUserInfo))}
+          onBlock={form => sync(handleBlockCommunity(this, form, myUserInfo))}
+          onEditNotifs={form => sync(handleEditCommunityNotifs(form))}
+          onRemove={form => sync(handleModRemoveCommunity(this, form))}
+          onPurge={form => sync(handlePurgeCommunity(this, form))}
           removeLoading={this.state.removeCommunityRes.state === "loading"}
           purgeLoading={this.state.purgeCommunityRes.state === "loading"}
           followLoading={this.state.followCommunityRes.state === "loading"}
@@ -914,31 +929,37 @@ export class Post extends Component<PostRouteProps, PostState> {
             siteLanguages={siteRes.discussion_languages}
             myUserInfo={myUserInfo}
             localSite={siteRes.site_view.local_site}
-            onSaveComment={form => handleSaveComment(this, form)}
-            onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
+            onSaveComment={form => sync(handleSaveComment(this, form))}
+            onBlockPerson={form => sync(handleBlockPerson(form, myUserInfo))}
             onBlockCommunity={form =>
-              handleBlockCommunity(this, form, myUserInfo)
+              sync(handleBlockCommunity(this, form, myUserInfo))
             }
-            onDeleteComment={form => handleDeleteComment(this, form)}
-            onRemoveComment={form => handleRemoveComment(this, form)}
-            onCommentVote={form => handleCommentVote(this, form)}
-            onCommentReport={form => handleCommentReport(form)}
-            onDistinguishComment={form => handleDistinguishComment(this, form)}
-            onAddModToCommunity={form => handleAddModToCommunity(this, form)}
-            onAddAdmin={form => handleAddAdmin(this, form)}
-            onTransferCommunity={form => handleTransferCommunity(this, form)}
-            onFetchChildren={form => handleFetchChildren(this, form)}
-            onPurgeComment={form => handlePurgeComment(this, form)}
-            onPurgePerson={form => handlePurgePerson(this, form)}
+            onDeleteComment={form => sync(handleDeleteComment(this, form))}
+            onRemoveComment={form => sync(handleRemoveComment(this, form))}
+            onCommentVote={form => sync(handleCommentVote(this, form))}
+            onCommentReport={form => sync(handleCommentReport(form))}
+            onDistinguishComment={form =>
+              sync(handleDistinguishComment(this, form))
+            }
+            onAddModToCommunity={form =>
+              sync(handleAddModToCommunity(this, form))
+            }
+            onAddAdmin={form => sync(handleAddAdmin(this, form))}
+            onTransferCommunity={form =>
+              sync(handleTransferCommunity(this, form))
+            }
+            onFetchChildren={form => sync(handleFetchChildren(this, form))}
+            onPurgeComment={form => sync(handlePurgeComment(this, form))}
+            onPurgePerson={form => sync(handlePurgePerson(this, form))}
             onBanPersonFromCommunity={form =>
-              handleBanFromCommunity(this, form)
+              sync(handleBanFromCommunity(this, form))
             }
-            onBanPerson={form => handleBanPerson(this, form)}
-            onCreateComment={form => handleCreateComment(this, form)}
-            onEditComment={form => handleEditComment(this, form)}
-            onPersonNote={form => handlePersonNote(this, form)}
-            onLockComment={form => handleLockComment(this, form)}
-            onMarkRead={async () => {}}
+            onBanPerson={form => sync(handleBanPerson(this, form))}
+            onCreateComment={form => sync(handleCreateComment(this, form))}
+            onEditComment={form => sync(handleEditComment(this, form))}
+            onPersonNote={form => sync(handlePersonNote(this, form))}
+            onLockComment={form => sync(handleLockComment(this, form))}
+            onMarkRead={() => {}}
           />
         </div>
       )

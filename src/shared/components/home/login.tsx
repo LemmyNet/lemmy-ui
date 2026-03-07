@@ -1,4 +1,4 @@
-import { setIsoData, updateMyUserInfo } from "@utils/app";
+import { setIsoData, sync, updateMyUserInfo } from "@utils/app";
 import { refreshTheme } from "@utils/browser";
 import { getQueryParams, validEmail } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
@@ -102,7 +102,7 @@ export class Login extends Component<LoginRouteProps, State> {
   loginForm() {
     return (
       <div>
-        <form onSubmit={e => handleLoginSubmit(this, e)}>
+        <form onSubmit={e => sync(handleLoginSubmit(this, e))}>
           <h1 className="h4 mb-4">{I18NextService.i18n.t("login")}</h1>
           <div className="mb-3 row">
             <label
@@ -126,7 +126,7 @@ export class Login extends Component<LoginRouteProps, State> {
                 validEmail(this.state.form.username_or_email) && (
                   <button
                     className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
-                    onClick={() => handleResendVerificationEmail(this)}
+                    onClick={() => sync(handleResendVerificationEmail(this))}
                   >
                     {I18NextService.i18n.t("resend_verification_email")}
                   </button>

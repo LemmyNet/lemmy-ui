@@ -1,3 +1,4 @@
+import { sync } from "@utils/app";
 import { Modal } from "bootstrap";
 import { Component, InfernoNode, RefObject } from "inferno";
 
@@ -31,9 +32,10 @@ export function modalMixin<
       }
     }
 
-    async componentDidMount() {
+    componentDidMount() {
       // Keeping this sync to allow the super implementation to be sync
-      await import("bootstrap/js/dist/modal").then(
+      sync(
+        import("bootstrap/js/dist/modal"),
         (res: { default: typeof Modal }) => {
           if (!this.modalDivRef.current) {
             return;
