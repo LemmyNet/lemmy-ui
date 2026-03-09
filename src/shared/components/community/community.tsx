@@ -763,8 +763,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     const myUserInfo = this.isoData.myUserInfo;
 
     return (
-      <div className="g-3 mb-3">
-        <div className="row row-cols-auto align-items-center">
+      <div>
+        <div className="row row-cols-auto align-items-center g-3 mb-3">
           <div className="d-block d-md-none col">
             <ExpandChipCheckbox
               option="show_sidebar"

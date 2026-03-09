@@ -874,8 +874,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const { showSubscribedMobile, showSidebarMobile } = this.state;
 
     return (
-      <div className="g-3 mb-3">
-        <div className="row row-cols-auto align-items-center">
+      <div>
+        <div className="row row-cols-auto align-items-center g-3 mb-3">
           {/* Only show these two selects on mobile */}
           {this.hasFollows && (
             <div className="d-block d-md-none col">
