@@ -113,7 +113,7 @@ export class RegistrationApplications extends Component<
     return resourcesSettled([this.state.appsRes]);
   }
 
-  constructor(props: RegistrationApplicationsRouteProps, context: any) {
+  constructor(props: RegistrationApplicationsRouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route

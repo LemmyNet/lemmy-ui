@@ -159,7 +159,7 @@ export class Notifications extends Component<
     return resourcesSettled([this.state.notifsRes]);
   }
 
-  constructor(props: NotificationsRouteProps, context: any) {
+  constructor(props: NotificationsRouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route

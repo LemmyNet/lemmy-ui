@@ -19,7 +19,7 @@ export default class ImageUploadConfirmModalModal extends Component<
   readonly okButtonRef: RefObject<HTMLButtonElement>;
   modal?: Modal;
 
-  constructor(props: ImageUploadConfirmModalModalProps, context: any) {
+  constructor(props: ImageUploadConfirmModalModalProps, context: object) {
     super(props, context);
 
     this.modalDivRef = createRef();

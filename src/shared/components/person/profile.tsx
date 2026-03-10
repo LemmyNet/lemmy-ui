@@ -356,7 +356,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     return resourcesSettled([this.state.personRes, this.currentRes]);
   }
 
-  constructor(props: ProfileRouteProps, context: any) {
+  constructor(props: ProfileRouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route

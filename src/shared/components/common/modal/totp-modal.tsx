@@ -83,7 +83,7 @@ export default class TotpModal extends Component<
     pending: false,
   };
 
-  constructor(props: TotpModalProps, context: any) {
+  constructor(props: TotpModalProps, context: object) {
     super(props, context);
 
     this.modalDivRef = createRef();

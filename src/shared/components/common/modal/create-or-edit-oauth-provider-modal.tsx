@@ -124,7 +124,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
     loading: false,
   };
 
-  constructor(props: CreateOrEditOAuthProviderModalProps, context: any) {
+  constructor(props: CreateOrEditOAuthProviderModalProps, context: object) {
     super(props, context);
 
     this.modalDivRef = createRef();
