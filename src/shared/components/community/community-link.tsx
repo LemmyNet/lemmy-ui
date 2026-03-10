@@ -17,7 +17,7 @@ interface CommunityLinkProps {
   myUserInfo: MyUserInfo | undefined;
 }
 
-export class CommunityLink extends Component<CommunityLinkProps, any> {
+export class CommunityLink extends Component<CommunityLinkProps, unknown> {
   render() {
     const { community, useApubName } = this.props;
 
@@ -61,7 +61,7 @@ export class CommunityLink extends Component<CommunityLinkProps, any> {
         {!hideAvatar && !this.props.community.removed && icon && (
           <PictrsImage src={icon} type="icon" nsfw={nsfw} />
         )}
-        <span className="overflow-wrap-anywhere">
+        <span className="overflow-wrap-unknownwhere">
           {title}
           {serverStr && <small className="text-muted">{serverStr}</small>}
         </span>

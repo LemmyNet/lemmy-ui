@@ -2,8 +2,8 @@ import { Component, RefObject, createRef } from "inferno";
 import { getEmojiMart } from "@utils/markdown";
 
 interface EmojiMartProps {
-  onEmojiClick?(val: any): any;
-  pickerOptions: any;
+  onEmojiClick?(val: unknown): unknown;
+  pickerOptions: unknown;
 }
 
 export class EmojiMart extends Component<EmojiMartProps> {
@@ -20,7 +20,7 @@ export class EmojiMart extends Component<EmojiMartProps> {
       getEmojiMart(
         e => handleEmojiClick(this, e),
         this.props.pickerOptions,
-      ) as any,
+      ) as unknown,
     );
   }
 
@@ -29,6 +29,6 @@ export class EmojiMart extends Component<EmojiMartProps> {
   }
 }
 
-function handleEmojiClick(i: EmojiMart, e: any) {
+function handleEmojiClick(i: EmojiMart, e: unknown) {
   i.props.onEmojiClick?.(e);
 }

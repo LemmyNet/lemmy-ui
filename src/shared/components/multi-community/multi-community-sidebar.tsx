@@ -23,7 +23,7 @@ interface Props {
 }
 
 @tippyMixin
-export class MultiCommunitySidebar extends Component<Props, any> {
+export class MultiCommunitySidebar extends Component<Props, unknown> {
   render() {
     return <div className="multi-community-sidebar">{this.sidebar()}</div>;
   }

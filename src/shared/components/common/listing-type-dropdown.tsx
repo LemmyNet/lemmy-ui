@@ -32,7 +32,7 @@ export function ListingTypeDropdown({
 }: ListingTypeDropdownProps) {
   let filteredOptions = options;
 
-  // Hide moderator view for those who don't mod anything
+  // Hide moderator view for those who don't mod unknownthing
   const amModOfSomething = (myUserInfo?.moderates.length ?? 0) > 0;
   if (!amModOfSomething) {
     filteredOptions = filteredOptions.filter(o => "moderator_view" !== o.value);

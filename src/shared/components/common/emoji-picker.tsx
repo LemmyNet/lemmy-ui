@@ -5,7 +5,7 @@ import { Icon } from "./icon";
 import { tippyMixin } from "../mixins/tippy-mixin";
 
 interface EmojiPickerProps {
-  onEmojiClick?(val: any): any;
+  onEmojiClick?(val: unknown): unknown;
   disabled?: boolean;
 }
 
@@ -81,7 +81,7 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
   }
 }
 
-function handleEmojiClick(i: EmojiPicker, e: any) {
+function handleEmojiClick(i: EmojiPicker, e: unknown) {
   i.props.onEmojiClick?.(e);
   i.setState({ showPicker: false });
 }

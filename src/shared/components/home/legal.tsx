@@ -4,7 +4,7 @@ import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 
-export class Legal extends Component<any, any> {
+export class Legal extends Component<unknown, unknown> {
   private isoData = setIsoData(this.context);
 
   get documentTitle(): string {

@@ -376,7 +376,7 @@ export class MarkdownTextArea extends Component<
   }
 }
 
-function handleEmoji(i: MarkdownTextArea, e: any) {
+function handleEmoji(i: MarkdownTextArea, e: unknown) {
   let value = e.native;
   if (!value) {
     const emoji = customEmojisLookup.get(e.id as string)?.custom_emoji;

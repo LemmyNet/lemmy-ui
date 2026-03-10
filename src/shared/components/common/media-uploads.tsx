@@ -21,7 +21,7 @@ interface Props {
 }
 
 @tippyMixin
-export class MediaUploads extends Component<Props, any> {
+export class MediaUploads extends Component<Props, unknown> {
   componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & Props>,
   ) {

@@ -488,7 +488,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     return (
       <div className="mb-2">
         <div>
-          <h1 className="h4 mb-0 overflow-wrap-anywhere d-inline">
+          <h1 className="h4 mb-0 overflow-wrap-unknownwhere d-inline">
             {multi ? multi.title || multi.name : <LoadingEllipses />}
           </h1>
         </div>

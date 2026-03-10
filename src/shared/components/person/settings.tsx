@@ -129,8 +129,8 @@ interface SettingsState {
   searchInstanceOptions: Choice[];
   isIsomorphic: boolean;
   show2faModal: boolean;
-  importSettingsRes: RequestState<any>;
-  exportSettingsRes: RequestState<any>;
+  importSettingsRes: RequestState<unknown>;
+  exportSettingsRes: RequestState<unknown>;
   settingsFile?: File;
   avatar?: string;
   banner?: string;

@@ -6,7 +6,7 @@ interface CodeThemeProps {
   theme: string;
 }
 
-export class CodeTheme extends Component<CodeThemeProps, any> {
+export class CodeTheme extends Component<CodeThemeProps, unknown> {
   render() {
     const { theme } = this.props;
     const hasTheme = theme !== "browser" && theme !== "browser-compact";

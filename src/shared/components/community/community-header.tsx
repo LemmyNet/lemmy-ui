@@ -22,7 +22,7 @@ export class CommunityHeader extends Component<CommunityHeaderProps> {
         )}
         <div>
           <h1
-            className="h4 mb-0 overflow-wrap-anywhere d-inline"
+            className="h4 mb-0 overflow-wrap-unknownwhere d-inline"
             data-tippy-content={
               community?.posting_restricted_to_mods
                 ? I18NextService.i18n.t("community_locked")
