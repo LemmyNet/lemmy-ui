@@ -77,6 +77,19 @@ export default [
           ],
         },
       ],
+      "no-restricted-properties": [
+        "error",
+        {
+          object: "document",
+          property: "querySelector",
+          message: "Use createRef instead",
+        },
+        {
+          object: "document",
+          property: "getElementById",
+          message: "Use createRef instead",
+        },
+      ],
     },
   },
 ];
