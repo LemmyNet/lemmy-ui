@@ -938,6 +938,7 @@ async function handleCreateMessage(
         // FIXME: maybe just let it disappear, comments do too (own comments don't show in notifs)
         notification: {
           id: 0,
+          creator_id: 0,
           recipient_id: 0,
           read: true,
           published_at: nowBoolean(true) ?? "",
