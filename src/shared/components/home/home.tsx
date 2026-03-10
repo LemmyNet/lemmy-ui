@@ -969,10 +969,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               type="range"
               className="form-range mt-0"
               min="0"
-              max="4"
+              max={POST_TIME_RANGE_STEPS.length - 1}
               value={
                 POST_TIME_RANGE_STEPS.find(x => x.seconds === postTimeRange)
-                  ?.step ?? 4
+                  ?.step ?? POST_TIME_RANGE_STEPS.length - 1
               }
               onInput={e => handlePostTimeRangeChange(this, e)}
             />
@@ -1164,14 +1164,21 @@ function handleSortChange(i: Home, val: PostSortType) {
   i.updateUrl({ sort: val, cursor: undefined });
 }
 
-const DAY = 24 * 60 * 60;
+const HOUR = 60 * 60;
+const DAY = 24 * HOUR;
+const MONTH = 30 * DAY;
 
 const POST_TIME_RANGE_STEPS = [
-  { step: 0, label: "1 Day", seconds: DAY },
-  { step: 1, label: "1 Week", seconds: 7 * DAY },
-  { step: 2, label: "1 Month", seconds: 30 * DAY },
-  { step: 3, label: "1 Year", seconds: 365 * DAY },
-  { step: 4, label: "All", seconds: undefined },
+  { step: 0, label: "1 Hour", seconds: HOUR },
+  { step: 1, label: "6 Hours", seconds: 6 * HOUR },
+  { step: 2, label: "12 Hours", seconds: 12 * HOUR },
+  { step: 3, label: "1 Day", seconds: DAY },
+  { step: 4, label: "1 Week", seconds: 7 * DAY },
+  { step: 5, label: "1 Month", seconds: MONTH },
+  { step: 6, label: "3 Months", seconds: 3 * MONTH },
+  { step: 7, label: "6 Months", seconds: 6 * MONTH },
+  { step: 8, label: "1 Year", seconds: 365 * DAY },
+  { step: 9, label: "All", seconds: undefined },
 ];
 
 function handlePostTimeRangeChange(
