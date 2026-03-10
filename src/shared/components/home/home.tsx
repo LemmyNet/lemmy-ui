@@ -26,7 +26,7 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, InfernoNode } from "inferno";
+import { Component, FormEvent, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
@@ -113,7 +113,6 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
-import { TimeIntervalFilter } from "@components/common/time-interval-filter";
 import { BannedDialog } from "./banned-dialog";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { MultiCommunityLink } from "@components/multi-community/multi-community-link";
@@ -147,7 +146,7 @@ interface HomeProps {
   listingType?: ListingType;
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
-  postTimeRange: number;
+  postTimeRange?: number;
   showHidden?: boolean;
   showRead?: boolean;
   cursor?: PaginationCursor;
@@ -682,7 +681,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       listingType,
       cursor,
       sort,
-      postTimeRange: postTimeRange.toString(),
+      postTimeRange: postTimeRange?.toString(),
       showHidden: showHidden?.toString(),
       showRead: showRead?.toString(),
     };
@@ -934,12 +933,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                   showLabel
                 />
               </div>
-              <div className="col">
-                <TimeIntervalFilter
-                  currentSeconds={postTimeRange}
-                  onChange={seconds => handlePostTimeRangeChange(this, seconds)}
-                />
-              </div>
             </>
           ) : (
             <div className="col">
@@ -965,6 +958,17 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <Icon icon="chevrons-down" />
           </button>
         </div>
+        <label for="post-time-range" className="form-label">
+          {postTimeRangeValue(postTimeRange)}
+        </label>
+        <input
+          id="post-time-range"
+          type="range"
+          className="form-range"
+          min="0"
+          max="4"
+          onInput={e => handlePostTimeRangeChange(this, e)}
+        />
         {postOrCommentType === "post" &&
           this.isoData.myUserInfo &&
           !this.state.selectButtonsHidden && (
@@ -1151,8 +1155,46 @@ function handleSortChange(i: Home, val: PostSortType) {
   i.updateUrl({ sort: val, cursor: undefined });
 }
 
-function handlePostTimeRangeChange(i: Home, val: number) {
-  i.updateUrl({ postTimeRange: val, cursor: undefined });
+const DAY = 24 * 60 * 60;
+
+function handlePostTimeRangeChange(
+  i: Home,
+  event: FormEvent<HTMLInputElement>,
+) {
+  event.preventDefault();
+  let x: number | undefined = undefined;
+  switch (event.target.value) {
+    case "0":
+      x = DAY;
+      break; // one day
+    case "1":
+      x = 7 * DAY;
+      break; // one week
+    case "2":
+      x = 30 * DAY;
+      break; // one month
+    case "3":
+      x = 365 * DAY;
+      break; // one year
+    case "4":
+      x = undefined;
+  }
+  i.updateUrl({ postTimeRange: x, cursor: undefined });
+}
+
+function postTimeRangeValue(value?: number): string {
+  switch (value) {
+    case DAY:
+      return "1 Day";
+    case 7 * DAY:
+      return "1 Week";
+    case 30 * DAY:
+      return "1 Month";
+    case 365 * DAY:
+      return "1 Year";
+    default:
+      return "All";
+  }
 }
 
 function handleCommentSortChange(i: Home, val: CommentSortType) {
