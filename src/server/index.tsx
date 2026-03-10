@@ -115,7 +115,7 @@ const exit_signal = 128; // Fatal error signal code on Linux systems
 const exit_timeout = 8000; // Because Docker SIGTERMs after 10 secs
 
 function shutdown(signal: string, value: number) {
-  // TODO: Should set a flag here for the listener to reject unknown further
+  // TODO: Should set a flag here for the listener to reject any further
   // incoming connections with a HTTP 503 error while shutting down.
   // Otherwise the connection count may not reach zero before timeout.
   listener.close(() => {

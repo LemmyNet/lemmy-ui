@@ -61,7 +61,7 @@ export class CommunityLink extends Component<CommunityLinkProps, unknown> {
         {!hideAvatar && !this.props.community.removed && icon && (
           <PictrsImage src={icon} type="icon" nsfw={nsfw} />
         )}
-        <span className="overflow-wrap-unknownwhere">
+        <span className="overflow-wrap-anywhere">
           {title}
           {serverStr && <small className="text-muted">{serverStr}</small>}
         </span>
