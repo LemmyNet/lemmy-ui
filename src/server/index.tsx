@@ -82,6 +82,11 @@ if (
   server.use(setDefaultCsp);
 }
 
+// Stop NodeJS from exiting on unhandled promise rejections. Browsers just log an error.
+process.on("unhandledRejection", (error: any) => {
+  console.error("Unhandled promise rejection:", error);
+});
+
 server.get("/.well-known/security.txt", SecurityHandler);
 server.get("/robots.txt", RobotsHandler);
 server.get("/service-worker.js", ServiceWorkerHandler);
