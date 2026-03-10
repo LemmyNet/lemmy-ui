@@ -89,6 +89,11 @@ export default [
           property: "getElementById",
           message: "Use createRef instead",
         },
+        {
+          object: "Element",
+          property: "querySelector",
+          message: "Use createRef instead",
+        },
       ],
     },
   },
