@@ -60,6 +60,7 @@ export default [
         "error",
         {
           checksVoidReturn: {
+            // An unhandledRejection handler prevents NodeJS from exiting on unhandled rejections.
             inheritedMethods: false, // allow async lifecycles in class components
             attributes: false, // allow async event handlers in tsx
           },

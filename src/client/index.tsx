@@ -10,6 +10,11 @@ import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
 import "bootstrap/js/dist/modal";
 
+window.addEventListener("unhandledrejection", (ev: PromiseRejectionEvent) => {
+  ev.preventDefault();
+  console.error("Unhandled promise rejection:", ev.reason);
+});
+
 async function startClient() {
   // Allows to test imports from the browser console.
   window.checkLazyScripts = async () => {
