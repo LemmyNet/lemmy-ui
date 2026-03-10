@@ -965,30 +965,26 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <Icon icon="chevrons-down" />
           </button>
         </div>
-        {postOrCommentType === "post" && this.isoData.myUserInfo && (
-          <div
-            className={
-              this.state.selectButtonsHidden
-                ? "d-none"
-                : "row row-cols-auto mt-2"
-            }
-          >
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_hidden_posts"}
-                isChecked={showHidden ?? false}
-                onCheck={hidden => handleShowHiddenChange(this, hidden)}
-              />
+        {postOrCommentType === "post" &&
+          this.isoData.myUserInfo &&
+          !this.state.selectButtonsHidden && (
+            <div className="row row-cols-auto mt-2">
+              <div className="col">
+                <FilterChipCheckbox
+                  option={"show_hidden_posts"}
+                  isChecked={showHidden ?? false}
+                  onCheck={hidden => handleShowHiddenChange(this, hidden)}
+                />
+              </div>
+              <div className="col">
+                <FilterChipCheckbox
+                  option={"hide_read_posts"}
+                  isChecked={!(showRead ?? false)}
+                  onCheck={hideRead => handleHideReadChange(this, hideRead)}
+                />
+              </div>
             </div>
-            <div className="col">
-              <FilterChipCheckbox
-                option={"hide_read_posts"}
-                isChecked={!(showRead ?? false)}
-                onCheck={hideRead => handleHideReadChange(this, hideRead)}
-              />
-            </div>
-          </div>
-        )}
+          )}
       </div>
     );
   }

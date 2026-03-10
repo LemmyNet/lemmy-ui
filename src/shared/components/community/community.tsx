@@ -763,7 +763,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     const myUserInfo = this.isoData.myUserInfo;
 
     return (
-      <div>
+      <>
         <div className="row row-cols-auto align-items-center g-3 mb-3">
           <div className="d-block d-md-none col">
             <ExpandChipCheckbox
@@ -831,31 +831,27 @@ export class Community extends Component<CommunityRouteProps, State> {
             <Icon icon="chevrons-down" />
           </button>
         </div>
-        {postOrCommentType === "post" && myUserInfo && (
-          <div
-            className={
-              this.state.selectButtonsHidden
-                ? "d-none"
-                : "row row-cols-auto mt-2"
-            }
-          >
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_hidden_posts"}
-                isChecked={showHidden ?? false}
-                onCheck={hidden => handleShowHiddenChange(this, hidden)}
-              />
+        {postOrCommentType === "post" &&
+          myUserInfo &&
+          !this.state.selectButtonsHidden && (
+            <div className="row row-cols-auto mt-2">
+              <div className="col">
+                <FilterChipCheckbox
+                  option={"show_hidden_posts"}
+                  isChecked={showHidden ?? false}
+                  onCheck={hidden => handleShowHiddenChange(this, hidden)}
+                />
+              </div>
+              <div className="col">
+                <FilterChipCheckbox
+                  option={"hide_read_posts"}
+                  isChecked={!(showRead ?? false)}
+                  onCheck={hideRead => handleHideReadChange(this, hideRead)}
+                />
+              </div>
             </div>
-            <div className="col">
-              <FilterChipCheckbox
-                option={"hide_read_posts"}
-                isChecked={!(showRead ?? false)}
-                onCheck={hideRead => handleHideReadChange(this, hideRead)}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+      </>
     );
   }
 }
