@@ -874,8 +874,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     const hidePostTimeRange = sort === "new" || sort === "old";
     return (
-      <div>
-        <div className="row row-cols-auto align-items-center g-3 mb-3">
+      <div className="mb-3">
+        <div className="row row-cols-auto align-items-center g-3 ">
           {/* Only show these two selects on mobile */}
           {this.hasFollows && (
             <div className="d-block d-md-none col">
@@ -958,26 +958,26 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           >
             <Icon icon="chevrons-down" />
           </button>
+          {!hidePostTimeRange && (
+            <>
+              <label for="post-time-range" className="form-label col ms-auto">
+                {postTimeRangeValue(postTimeRange)}
+              </label>
+              <input
+                id="post-time-range"
+                type="range"
+                className="form-range mt-0"
+                min="0"
+                max={POST_TIME_RANGE_STEPS.length - 1}
+                value={
+                  POST_TIME_RANGE_STEPS.find(x => x.seconds === postTimeRange)
+                    ?.step ?? POST_TIME_RANGE_STEPS.length - 1
+                }
+                onInput={e => handlePostTimeRangeChange(this, e)}
+              />
+            </>
+          )}
         </div>
-        {!hidePostTimeRange && (
-          <>
-            <label for="post-time-range" className="form-label">
-              {postTimeRangeValue(postTimeRange)}
-            </label>
-            <input
-              id="post-time-range"
-              type="range"
-              className="form-range mt-0"
-              min="0"
-              max={POST_TIME_RANGE_STEPS.length - 1}
-              value={
-                POST_TIME_RANGE_STEPS.find(x => x.seconds === postTimeRange)
-                  ?.step ?? POST_TIME_RANGE_STEPS.length - 1
-              }
-              onInput={e => handlePostTimeRangeChange(this, e)}
-            />
-          </>
-        )}
         {postOrCommentType === "post" &&
           this.isoData.myUserInfo &&
           !this.state.selectButtonsHidden && (
