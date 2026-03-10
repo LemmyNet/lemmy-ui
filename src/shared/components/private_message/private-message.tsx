@@ -61,13 +61,6 @@ export class PrivateMessage extends Component<
     );
   }
 
-  get isRecipient(): boolean {
-    return (
-      this.props.myUserInfo?.local_user_view.person.id ===
-      this.props.private_message_view.recipient.id
-    );
-  }
-
   render() {
     const message_view = this.props.private_message_view;
     const otherPerson: Person = this.mine
@@ -297,7 +290,7 @@ export class PrivateMessage extends Component<
 
   get messageUnlessRemoved(): string {
     const message = this.props.private_message_view.private_message;
-    return message.deleted || (message.deleted_by_recipient && this.isRecipient)
+    return message.deleted || message.deleted_by_recipient
       ? `*${I18NextService.i18n.t("deleted")}*`
       : message.content;
   }
