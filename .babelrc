@@ -5,7 +5,7 @@
       "@babel/preset-env",
       {
         "loose": true,
-        "browserslistEnv": "package.json"
+        "browserslistEnv": "package.json" // matches webpack target config
       }
     ],
     ["@babel/typescript", { "isTSX": true, "allExtensions": true }]
