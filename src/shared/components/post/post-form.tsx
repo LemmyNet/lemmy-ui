@@ -371,37 +371,41 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               </div>
             </div>
             <div className="mb-3 row">
-              <label
-                htmlFor="file-upload"
-                className={"col-sm-2 col-form-label"}
-              >
-                {capitalizeFirstLetter(I18NextService.i18n.t("image"))}
-                <Icon icon="image" classes="icon-inline ms-1" />
-              </label>
-              <div className="col-sm-10">
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept="image/*,video/*"
-                  name="file"
-                  className="small col-sm-10 form-control"
-                  disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
-                  onChange={e => handleImageUpload(this, e)}
-                />
-                {this.state.imageLoading && <Spinner />}
-                {url && isImage(url) && (
-                  <img src={url} className="img-fluid mt-2" alt="" />
-                )}
-                {this.state.uploadedImage && (
-                  <button
-                    className="btn btn-danger btn-sm mt-2"
-                    onClick={() => handleImageDelete(this)}
+              {!this.props.localSite.image_upload_disabled && (
+                <>
+                  <label
+                    htmlFor="file-upload"
+                    className={"col-sm-2 col-form-label"}
                   >
-                    <Icon icon="x" classes="icon-inline me-1" />
-                    {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
-                  </button>
-                )}
-              </div>
+                    {capitalizeFirstLetter(I18NextService.i18n.t("image"))}
+                    <Icon icon="image" classes="icon-inline ms-1" />
+                  </label>
+                  <div className="col-sm-10">
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept="image/*,video/*"
+                      name="file"
+                      className="small col-sm-10 form-control"
+                      disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
+                      onChange={e => handleImageUpload(this, e)}
+                    />
+                    {this.state.imageLoading && <Spinner />}
+                    {url && isImage(url) && (
+                      <img src={url} className="img-fluid mt-2" alt="" />
+                    )}
+                    {this.state.uploadedImage && (
+                      <button
+                        className="btn btn-danger btn-sm mt-2"
+                        onClick={() => handleImageDelete(this)}
+                      >
+                        <Icon icon="x" classes="icon-inline me-1" />
+                        {capitalizeFirstLetter(I18NextService.i18n.t("delete"))}
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
 
               {this.props.crossPosts && this.props.crossPosts.length > 0 && (
                 <>

@@ -7,6 +7,7 @@ import {
   EditSite,
   FederationMode,
   GetSiteResponse,
+  ImageMode,
   ListingType,
   MultiCommunityId,
   MyUserInfo,
@@ -14,6 +15,7 @@ import {
   PostSortType,
   RegistrationMode,
 } from "lemmy-js-client";
+import { Choice } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -33,6 +35,7 @@ import { RegistrationModeDropdown } from "@components/common/registration-mode-d
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { ThemeDropdown } from "@components/common/theme-dropdown";
 import { MultiCommunitySelect } from "@components/multi-community/multi-community-select";
+import { FilterChipSelect } from "@components/common/filter-chip-select";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -93,6 +96,16 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       default_post_time_range_seconds: ls?.default_post_time_range_seconds,
       suggested_multi_community_id: ls?.suggested_multi_community_id,
       disallow_nsfw_content: ls?.disallow_nsfw_content,
+      federation_signed_fetch: ls?.federation_signed_fetch,
+      image_mode: ls?.image_mode,
+      image_proxy_bypass_domains: ls?.image_proxy_bypass_domains,
+      image_upload_timeout_seconds: ls?.image_upload_timeout_seconds,
+      image_max_thumbnail_size: ls?.image_max_thumbnail_size,
+      image_max_avatar_size: ls?.image_max_avatar_size,
+      image_max_banner_size: ls?.image_max_banner_size,
+      image_max_upload_size: ls?.image_max_upload_size,
+      image_allow_video_uploads: ls?.image_allow_video_uploads,
+      image_upload_disabled: ls?.image_upload_disabled,
     };
   }
 
@@ -110,6 +123,17 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   render() {
     const siteSetup = this.props.siteRes?.site_view.local_site.site_setup;
+    const image_mode_options: Choice[] = [
+      { value: "none", label: I18NextService.i18n.t("none") },
+      {
+        value: "store_link_previews",
+        label: I18NextService.i18n.t("store_link_previews"),
+      },
+      {
+        value: "proxy_all_images",
+        label: I18NextService.i18n.t("proxy_all_images"),
+      },
+    ];
     return (
       <form className="site-form" onSubmit={e => handleSubmit(this, e)}>
         <Prompt
@@ -541,6 +565,161 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="mb-3 row">
+          <FilterChipSelect
+            label="image_mode"
+            multiple={false}
+            allOptions={image_mode_options}
+            selectedOptions={
+              this.state.siteForm.image_mode
+                ? [this.state.siteForm.image_mode.toString()]
+                : []
+            }
+            disabled={this.props.loading}
+            onSelect={choice => handleChangeImageMode(this, choice)}
+          />
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_proxy_bypass_domains"
+          >
+            {I18NextService.i18n.t("image_proxy_bypass_domains")}
+          </label>
+          <div className="col-12">
+            <input
+              type="text"
+              id="image_proxy_bypass_domains"
+              placeholder="example.com,sample.org"
+              className="form-control"
+              value={this.state.siteForm.image_proxy_bypass_domains}
+              onInput={e => handleImageProxyBypassDomains(this, e)}
+              minLength={3}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_upload_timeout_seconds"
+          >
+            {I18NextService.i18n.t("image_upload_timeout_seconds")}
+          </label>
+          <div className="col-12">
+            <input
+              type="number"
+              id="image_upload_timeout_seconds"
+              placeholder="example.com,sample.org"
+              className="form-control"
+              value={this.state.siteForm.image_upload_timeout_seconds}
+              onInput={e => handleImageUploadTimeout(this, e)}
+              minLength={3}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_max_thumbnail_size"
+          >
+            {I18NextService.i18n.t("image_max_thumbnail_size")}
+          </label>
+          <div className="col-12">
+            <input
+              type="number"
+              id="image_max_thumbnail_size"
+              placeholder="example.com,sample.org"
+              className="form-control"
+              value={this.state.siteForm.image_max_thumbnail_size}
+              onInput={e => handleImageMaxThumbnailSize(this, e)}
+              minLength={3}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_max_avatar_size"
+          >
+            {I18NextService.i18n.t("image_max_avatar_size")}
+          </label>
+          <div className="col-12">
+            <input
+              type="number"
+              id="image_max_avatar_size"
+              placeholder="example.com,sample.org"
+              className="form-control"
+              value={this.state.siteForm.image_max_avatar_size}
+              onInput={e => handleImageMaxAvatarSize(this, e)}
+              minLength={3}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_max_banner_size"
+          >
+            {I18NextService.i18n.t("image_max_banner_size")}
+          </label>
+          <div className="col-12">
+            <input
+              type="number"
+              id="image_max_banner_size"
+              placeholder="example.com,sample.org"
+              className="form-control"
+              value={this.state.siteForm.image_max_banner_size}
+              onInput={e => handleImageMaxBannerSize(this, e)}
+              minLength={3}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_max_upload_size"
+          >
+            {I18NextService.i18n.t("image_max_upload_size")}
+          </label>
+          <div className="col-12">
+            <input
+              type="number"
+              id="image_max_upload_size"
+              placeholder="example.com,sample.org"
+              className="form-control"
+              value={this.state.siteForm.image_max_upload_size}
+              onInput={e => handleImageMaxUploadSize(this, e)}
+              minLength={3}
+            />
+          </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"image_allow_video_uploads"}
+              isChecked={this.state.siteForm.image_allow_video_uploads ?? false}
+              onCheck={val => handleImageAllowVideoUploads(this, val)}
+            />
+          </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"image_upload_disabled"}
+              isChecked={this.state.siteForm.image_upload_disabled ?? false}
+              onCheck={val => handleImageUploadsDisabled(this, val)}
+            />
+          </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"federation_signed_fetch"}
+              isChecked={this.state.siteForm.federation_signed_fetch ?? false}
+              onCheck={val => handleFederationSignedFetch(this, val)}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
           <div className="col-12">
             <button
               type="submit"
@@ -622,6 +801,16 @@ function handleSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
         stateSiteForm.rate_limit_import_user_settings_interval_seconds,
       federation_enabled: stateSiteForm.federation_enabled,
       discussion_languages: stateSiteForm.discussion_languages,
+      federation_signed_fetch: stateSiteForm.federation_signed_fetch,
+      image_mode: stateSiteForm.image_mode,
+      image_proxy_bypass_domains: stateSiteForm.image_proxy_bypass_domains,
+      image_upload_timeout_seconds: stateSiteForm.image_upload_timeout_seconds,
+      image_max_thumbnail_size: stateSiteForm.image_max_thumbnail_size,
+      image_max_avatar_size: stateSiteForm.image_max_avatar_size,
+      image_max_banner_size: stateSiteForm.image_max_banner_size,
+      image_max_upload_size: stateSiteForm.image_max_upload_size,
+      image_allow_video_uploads: stateSiteForm.image_allow_video_uploads,
+      image_upload_disabled: stateSiteForm.image_upload_disabled,
     };
     i.props.onCreate?.(form);
   }
@@ -770,4 +959,85 @@ function handleSelectSuggestedMultiComm(
   suggested: MultiCommunityId,
 ) {
   i.setState(s => ((s.siteForm.suggested_multi_community_id = suggested), s));
+}
+
+function handleChangeImageMode(i: SiteForm, image_mode: Choice[]) {
+  if (image_mode.length !== 0) {
+    const mode = image_mode[0].value as ImageMode | undefined;
+    if (mode) {
+      i.setState(s => ((s.siteForm.image_mode = mode), s));
+    }
+  }
+}
+
+function handleImageProxyBypassDomains(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.siteForm.image_proxy_bypass_domains = event.target.value), s),
+  );
+}
+
+function handleImageUploadTimeout(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => (
+      (s.siteForm.image_upload_timeout_seconds = Number(event.target.value)),
+      s
+    ),
+  );
+}
+
+function handleImageMaxThumbnailSize(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => (
+      (s.siteForm.image_max_thumbnail_size = Number(event.target.value)),
+      s
+    ),
+  );
+}
+
+function handleImageMaxAvatarSize(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.siteForm.image_max_avatar_size = Number(event.target.value)), s),
+  );
+}
+
+function handleImageMaxBannerSize(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.siteForm.image_max_banner_size = Number(event.target.value)), s),
+  );
+}
+
+function handleImageMaxUploadSize(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.siteForm.image_max_upload_size = Number(event.target.value)), s),
+  );
+}
+
+function handleImageAllowVideoUploads(i: SiteForm, value: boolean) {
+  i.setState(s => ((s.siteForm.image_allow_video_uploads = value), s));
+}
+
+function handleImageUploadsDisabled(i: SiteForm, value: boolean) {
+  i.setState(s => ((s.siteForm.image_upload_disabled = value), s));
+}
+
+function handleFederationSignedFetch(i: SiteForm, value: boolean) {
+  i.setState(s => ((s.siteForm.federation_signed_fetch = value), s));
 }

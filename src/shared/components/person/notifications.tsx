@@ -942,6 +942,7 @@ async function handleCreateMessage(
           read: true,
           published_at: nowBoolean(true) ?? "",
           kind: "private_message",
+          creator_id: 0,
         },
         data: {
           type_: "private_message",
