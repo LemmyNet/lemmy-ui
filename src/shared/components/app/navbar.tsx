@@ -120,7 +120,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             onMouseUp={() => handleCollapseClick(this)}
           >
             {siteView?.site.icon && showAvatars(this.props.myUserInfo) && (
-              <PictrsImage src={siteView.site.icon} icon />
+              <PictrsImage src={siteView.site.icon} type="icon" />
             )}
             {siteView?.site.name}
           </NavLink>
@@ -396,7 +396,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       >
                         {showAvatars(this.props.myUserInfo) &&
                           person.avatar && (
-                            <PictrsImage src={person.avatar} icon />
+                            <PictrsImage src={person.avatar} type="icon" />
                           )}
                         {person.display_name ?? person.name}
                       </button>

@@ -39,7 +39,6 @@ import {
   PostPublishedTime,
   UrlLine,
   TorrentHelp,
-  PostImg,
   PostBadges,
 } from "./common";
 import { CrossPosts } from "./cross-posts";
@@ -47,6 +46,8 @@ import { PostActionBar } from "./post-action-bar";
 import { PostThumbnail } from "./post-thumbnail";
 import classNames from "classnames";
 import { MetadataCard } from "./metadata-card";
+import { hideAnimatedImage, hideImages } from "@utils/app";
+import { PictrsImage } from "@components/common/pictrs-image";
 
 type PostListingCardState = {
   viewSource: boolean;
@@ -315,6 +316,46 @@ function VideoBlock({ postView }: VideoBlockProps) {
       </div>
     );
   }
+}
+
+type PostImgProps = {
+  postView: PostView;
+  showAdultConsentModal: boolean;
+  hideImage: boolean;
+  myUserInfo: MyUserInfo | undefined;
+};
+function PostImg({
+  postView,
+  showAdultConsentModal,
+  hideImage,
+  myUserInfo,
+}: PostImgProps) {
+  if (showAdultConsentModal) {
+    return <></>;
+  }
+
+  // Use the full-size image for expands
+  const post = postView.post;
+  const url = post.url;
+  const thumbnail = post.thumbnail_url;
+  const imageSrc = url && isImage(url) ? url : thumbnail;
+
+  return !hideImages(hideImage, myUserInfo) &&
+    imageSrc &&
+    !hideAnimatedImage(imageSrc, myUserInfo) ? (
+    <div className="my-2">
+      <PictrsImage
+        src={imageSrc}
+        type="full_size"
+        alt={post.alt_text}
+        imageDetails={postView.image_details}
+        nsfw={postView.post.nsfw || postView.community.nsfw}
+        viewer
+      />
+    </div>
+  ) : (
+    <></>
+  );
 }
 
 function handleMediaLoadStart(e: Event) {

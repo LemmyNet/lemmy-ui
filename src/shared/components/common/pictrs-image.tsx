@@ -17,16 +17,19 @@ const thumbnailSize = 256;
 // For some reason, masonry needs a default image size, and will properly size it down
 const defaultImgSize = 512;
 
+type PictrsImageType =
+  | "full_size"
+  | "thumbnail"
+  | "icon"
+  | "banner"
+  | "icon_under_banner"
+  | "card_top";
+
 type Props = {
   src: string;
+  type: PictrsImageType;
   alt?: string;
-  icon?: boolean;
-  banner?: boolean;
-  thumbnail?: boolean;
   nsfw?: boolean;
-  iconOverlay?: boolean;
-  pushup?: boolean;
-  cardTop?: boolean;
   imageDetails?: ImageDetails;
   viewer?: boolean;
 };
@@ -66,6 +69,7 @@ export class PictrsImage extends Component<Props, State> {
       if (this.props.viewer) {
         const viewerjs = new Viewer(this.imageRef.current, {
           title: () => this.alt() ?? undefined,
+          url: (image: { src: string }) => viewerJsFullSizeImageUrl(image),
           toolbar: false,
         });
         this.setState({ viewerjs });
@@ -82,18 +86,7 @@ export class PictrsImage extends Component<Props, State> {
   }
 
   render() {
-    const {
-      icon,
-      iconOverlay,
-      banner,
-      thumbnail,
-      nsfw,
-      pushup,
-      cardTop,
-      imageDetails,
-    } = this.props;
-
-    const { src } = this.state;
+    const { type, nsfw, imageDetails } = this.props;
 
     const blurImage =
       nsfw &&
@@ -111,13 +104,10 @@ export class PictrsImage extends Component<Props, State> {
     return (
       !this.isoData.showAdultConsentModal && (
         <picture>
-          <source data-srcset={this.src("webp")} type="image/webp" />
-          <source data-srcset={src} />
-          <source data-srcset={this.src("jpg")} type="image/jpeg" />
           <img
             ref={this.imageRef}
             src={base64Placeholder(width, height)}
-            data-src={src}
+            data-src={buildPictrsSrc(this.state.src, type)}
             data-blurhash={imageDetails?.blurhash}
             alt={this.alt()}
             title={this.alt()}
@@ -125,19 +115,17 @@ export class PictrsImage extends Component<Props, State> {
             width={width}
             height={height}
             className={classNames("overflow-hidden pictrs-image", {
-              "img-fluid": !(icon || iconOverlay),
-              banner,
-              "thumbnail rounded object-fit-cover":
-                thumbnail && !(icon || banner),
-              "img-expanded slight-radius": !(thumbnail || icon),
-              "img-blur": thumbnail && nsfw,
-              "object-fit-cover img-icon me-1": icon,
-              "img-blur-icon": icon && blurImage,
-              "img-blur-thumb": thumbnail && blurImage,
-              "ms-2 mb-0 rounded-circle object-fit-cover avatar-overlay":
-                iconOverlay,
-              "avatar-pushup": pushup,
-              "card-img-top": cardTop,
+              "img-fluid": type !== "icon",
+              "thumbnail rounded object-fit-cover": type === "thumbnail",
+              "img-expanded slight-radius":
+                type !== "thumbnail" && type !== "icon",
+              "img-blur": type === "thumbnail" && nsfw,
+              "object-fit-cover img-icon me-1": type === "icon",
+              "img-blur-icon": type === "icon" && blurImage,
+              "img-blur-thumb": type === "thumbnail" && blurImage,
+              "ms-2 mb-0 rounded-circle object-fit-cover avatar-overlay avatar-pushup":
+                type === "icon_under_banner",
+              "card-img-top": type === "card_top",
             })}
             onLoad={() => masonryUpdate()}
             onError={() => handleImgLoadError(this)}
@@ -147,61 +135,77 @@ export class PictrsImage extends Component<Props, State> {
     );
   }
 
-  src(format: string): string {
-    // sample url:
-    // http://localhost:8535/pictrs/image/file.png?thumbnail=256&format=jpg
-
-    let url: URL | undefined;
-    try {
-      url = new URL(this.state.src);
-    } catch {
-      return this.state.src;
-    }
-
-    // If there's no match, then it's not a pictrs image
-    if (
-      !url.pathname.includes("/pictrs/image/") &&
-      !url.pathname.includes("/api/v3/image_proxy") &&
-      !url.pathname.includes("/api/v4/image/proxy")
-    ) {
-      return this.state.src;
-    }
-
-    // Keeps original search params. Could probably do `url.search = ""` here.
-
-    url.searchParams.set("format", format);
-
-    if (this.props.thumbnail) {
-      url.searchParams.set("thumbnail", thumbnailSize.toString());
-    } else if (this.props.icon) {
-      url.searchParams.set("thumbnail", iconThumbnailSize.toString());
-    } else {
-      url.searchParams.delete("thumbnail");
-    }
-
-    return url.href;
-  }
-
   alt(): string {
-    if (this.props.icon) {
-      return "";
+    switch (this.props.type) {
+      case "icon":
+      case "banner":
+      case "icon_under_banner":
+        return "";
+      default:
+        return this.props.alt || "";
     }
-    return this.props.alt || "";
   }
 
   widthAndHeight(): [number, number] {
-    if (this.props.icon) {
-      return [iconThumbnailSize, iconThumbnailSize];
-    } else if (this.props.thumbnail) {
-      return [thumbnailSize, thumbnailSize];
-    } else {
-      return [
-        this.props.imageDetails?.width ?? defaultImgSize,
-        this.props.imageDetails?.height ?? defaultImgSize,
-      ];
+    switch (this.props.type) {
+      case "icon":
+        return [iconThumbnailSize, iconThumbnailSize];
+      case "thumbnail":
+        return [thumbnailSize, thumbnailSize];
+      default:
+        return [
+          this.props.imageDetails?.width ?? defaultImgSize,
+          this.props.imageDetails?.height ?? defaultImgSize,
+        ];
     }
   }
 }
+
+/**
+ * If an image has a pictrs-like URL, it will fetch an appropriately sized image.
+ */
+export function buildPictrsSrc(src: string, type: PictrsImageType): string {
+  // sample pictrs url:
+  // http://localhost:8536/api/v4/image/file.webp?max_size=256
+
+  let url: URL | undefined;
+  try {
+    url = new URL(src);
+  } catch {
+    return src;
+  }
+
+  // If there's no match, then it's not a pictrs image
+  if (
+    !url.pathname.includes("/api/v3/image") &&
+    !url.pathname.includes("/api/v4/image")
+  ) {
+    return src;
+  }
+
+  switch (type) {
+    case "thumbnail":
+      url.searchParams.set("max_size", thumbnailSize.toString());
+      break;
+    case "icon":
+      url.searchParams.set("max_size", iconThumbnailSize.toString());
+      break;
+    default:
+      url.searchParams.set("max_size", defaultImgSize.toString());
+      break;
+  }
+
+  return url.href;
+}
+
 function base64Placeholder(width: number = 32, height: number = 32) {
   return `data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}'%3e%3c/svg%3e`;
+}
+
+export function viewerJsFullSizeImageUrl(image: { src: string }): string {
+  // Remove the max_size params from the image viewer
+  const srcUrl = new URL(image.src);
+  srcUrl.searchParams.delete("max_size");
+
+  return srcUrl.href;
 }
