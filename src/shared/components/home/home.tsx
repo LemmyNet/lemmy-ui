@@ -872,6 +872,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     const { showSubscribedMobile, showSidebarMobile } = this.state;
 
+    const hidePostTimeRange = sort === "new" || sort === "old";
     return (
       <div>
         <div className="row row-cols-auto align-items-center g-3 mb-3">
@@ -958,17 +959,25 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <Icon icon="chevrons-down" />
           </button>
         </div>
-        <label for="post-time-range" className="form-label">
-          {postTimeRangeValue(postTimeRange)}
-        </label>
-        <input
-          id="post-time-range"
-          type="range"
-          className="form-range"
-          min="0"
-          max="4"
-          onInput={e => handlePostTimeRangeChange(this, e)}
-        />
+        {!hidePostTimeRange && (
+          <>
+            <label for="post-time-range" className="form-label">
+              {postTimeRangeValue(postTimeRange)}
+            </label>
+            <input
+              id="post-time-range"
+              type="range"
+              className="form-range mt-0"
+              min="0"
+              max="4"
+              value={
+                POST_TIME_RANGE_STEPS.find(x => x.seconds === postTimeRange)
+                  ?.step ?? 4
+              }
+              onInput={e => handlePostTimeRangeChange(this, e)}
+            />
+          </>
+        )}
         {postOrCommentType === "post" &&
           this.isoData.myUserInfo &&
           !this.state.selectButtonsHidden && (
@@ -1157,44 +1166,27 @@ function handleSortChange(i: Home, val: PostSortType) {
 
 const DAY = 24 * 60 * 60;
 
+const POST_TIME_RANGE_STEPS = [
+  { step: 0, label: "1 Day", seconds: DAY },
+  { step: 1, label: "1 Week", seconds: 7 * DAY },
+  { step: 2, label: "1 Month", seconds: 30 * DAY },
+  { step: 3, label: "1 Year", seconds: 365 * DAY },
+  { step: 4, label: "All", seconds: undefined },
+];
+
 function handlePostTimeRangeChange(
   i: Home,
   event: FormEvent<HTMLInputElement>,
 ) {
   event.preventDefault();
-  let x: number | undefined = undefined;
-  switch (event.target.value) {
-    case "0":
-      x = DAY;
-      break; // one day
-    case "1":
-      x = 7 * DAY;
-      break; // one week
-    case "2":
-      x = 30 * DAY;
-      break; // one month
-    case "3":
-      x = 365 * DAY;
-      break; // one year
-    case "4":
-      x = undefined;
-  }
-  i.updateUrl({ postTimeRange: x, cursor: undefined });
+  const postTimeRange = POST_TIME_RANGE_STEPS.find(
+    x => x.step === Number(event.target.value),
+  )?.seconds;
+  i.updateUrl({ postTimeRange, cursor: undefined });
 }
 
 function postTimeRangeValue(value?: number): string {
-  switch (value) {
-    case DAY:
-      return "1 Day";
-    case 7 * DAY:
-      return "1 Week";
-    case 30 * DAY:
-      return "1 Month";
-    case 365 * DAY:
-      return "1 Year";
-    default:
-      return "All";
-  }
+  return POST_TIME_RANGE_STEPS.find(x => x.seconds === value)?.label ?? "All";
 }
 
 function handleCommentSortChange(i: Home, val: CommentSortType) {
