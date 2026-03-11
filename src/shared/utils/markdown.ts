@@ -207,7 +207,7 @@ export function setupMarkdown() {
     tokens: Token[],
     idx: number,
     options: MarkdownIt.Options,
-    env: any,
+    env: never,
     self: Renderer,
   ) {
     // Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
@@ -246,7 +246,7 @@ export function setupMarkdown() {
     tokens: Token[],
     idx: number,
     options: MarkdownIt.Options,
-    env: any,
+    env: never,
     self: Renderer,
   ) {
     tokens[idx].attrPush(["rel", relTags]);
@@ -292,9 +292,13 @@ export async function setupEmojiDataModel(
   return true;
 }
 
+export interface EmojiEvent {
+  native: string;
+  id: string;
+}
+
 export function getEmojiMart(
-  onEmojiSelect: (e: any) => void,
-  customPickerOptions: any = {},
+  onEmojiSelect: (e: EmojiEvent) => void,
 ) {
   const data = async () => {
     const response = await fetch(`${getStaticDir()}/assets/emojis.json`);
@@ -305,7 +309,6 @@ export function getEmojiMart(
     onEmojiSelect: onEmojiSelect,
     custom: customEmojis,
     data,
-    ...customPickerOptions,
   };
   return new Picker(pickerOptions);
 }

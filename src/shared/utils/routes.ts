@@ -133,7 +133,7 @@ export interface IRoutePropsWithFetch<
   >;
 }
 
-export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
+export const routes: IRoutePropsWithFetch<RouteData, Record<string,string>, any>[] = [
   {
     path: `/`,
     component: Home,

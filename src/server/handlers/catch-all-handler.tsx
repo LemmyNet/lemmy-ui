@@ -40,7 +40,7 @@ export default async (req: Request, res: Response) => {
   try {
     const languages = headerLanguages(req.headers["accept-language"]);
 
-    let match: Match<unknown> | null | undefined;
+    let match: Match<Record<string, string>> | null | undefined;
     const activeRoute = routes.find(
       route => (match = matchPath(req.path, route)),
     );
@@ -104,7 +104,7 @@ export default async (req: Request, res: Response) => {
 
       if (siteRes && activeRoute?.fetchInitialData && match) {
         const { search } = parsePath(url);
-        const initialFetchReq: InitialFetchRequest<Record<string, unknown>> = {
+        const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
           path,
           query:
             activeRoute.getQueryParams?.(search, siteRes, myUserInfo) ?? {},

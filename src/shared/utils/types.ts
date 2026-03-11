@@ -125,7 +125,7 @@ export function itemLoading<IdType, Response>(
   return idAndRes.res.state === "loading" ? idAndRes.id : undefined;
 }
 
-export type RouteData = Record<string, RequestState<any>>;
+export type RouteData = Record<string, RequestState<unknown>>;
 
 export interface Choice {
   value: string;
@@ -149,11 +149,11 @@ export interface PersonTribute {
   view: PersonView;
 }
 
-export type QueryParams<T extends Record<string, any>> = {
+export type QueryParams< T extends Record<string, any>> = {
   [key in keyof T]?: string;
 };
 
-export type RouteDataResponse<T extends Record<string, any>> = {
+export type RouteDataResponse<T extends Record<string, unknown>> = {
   [K in keyof T]: RequestState<T[K]>;
 };
 

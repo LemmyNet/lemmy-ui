@@ -3,9 +3,10 @@ import { I18NextService } from "../../services";
 import { EmojiMart } from "./emoji-mart";
 import { Icon } from "./icon";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import { EmojiEvent } from "@utils/markdown";
 
 interface EmojiPickerProps {
-  onEmojiClick?(val: unknown): unknown;
+  onEmojiClick?(event: EmojiEvent);
   disabled?: boolean;
 }
 
@@ -50,7 +51,6 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
               <div className="emoji-picker-container">
                 <EmojiMart
                   onEmojiClick={val => handleEmojiClick(this, val)}
-                  pickerOptions={{}}
                 ></EmojiMart>
               </div>
               {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
@@ -81,7 +81,7 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
   }
 }
 
-function handleEmojiClick(i: EmojiPicker, e: unknown) {
+function handleEmojiClick(i: EmojiPicker, e: EmojiEvent) {
   i.props.onEmojiClick?.(e);
   i.setState({ showPicker: false });
 }

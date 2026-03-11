@@ -60,6 +60,7 @@ export default [
       "@typescript-eslint/no-useless-constructor": "error",
       "inferno/jsx-boolean-value": "error",
       "inferno/jsx-props-class-name": "error",
+      "@typescript-eslint/no-explicit-any": ["error",{ignoreRestArgs: true}],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_" },
