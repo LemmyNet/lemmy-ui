@@ -893,12 +893,25 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onCheck={show => handleShowSidebarMobile(this, show)}
             />
           </div>
-          <div className="col">
-            <PostOrCommentTypeDropdown
-              currentOption={postOrCommentType}
-              onSelect={val => handlePostOrCommentTypeChange(this, val)}
-            />
-          </div>
+          {this.props.postOrCommentType === "post" ? (
+            <>
+              <div className="col">
+                <PostSortDropdown
+                  currentOption={mixedToPostSortType(sort)}
+                  onSelect={val => handleSortChange(this, val)}
+                  showLabel
+                />
+              </div>
+            </>
+          ) : (
+            <div className="col">
+              <CommentSortDropdown
+                currentOption={mixedToCommentSortType(sort)}
+                onSelect={val => handleCommentSortChange(this, val)}
+                showLabel
+              />
+            </div>
+          )}
           {/** TODO add show read posts also **/}
           <div className="col">
             <ListingTypeDropdown
@@ -925,25 +938,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showLabel
             />
           </div>
-          {this.props.postOrCommentType === "post" ? (
-            <>
-              <div className="col">
-                <PostSortDropdown
-                  currentOption={mixedToPostSortType(sort)}
-                  onSelect={val => handleSortChange(this, val)}
-                  showLabel
-                />
-              </div>
-            </>
-          ) : (
-            <div className="col">
-              <CommentSortDropdown
-                currentOption={mixedToCommentSortType(sort)}
-                onSelect={val => handleCommentSortChange(this, val)}
-                showLabel
-              />
-            </div>
-          )}
+          <div className="col">
+            <PostOrCommentTypeDropdown
+              currentOption={postOrCommentType}
+              onSelect={val => handlePostOrCommentTypeChange(this, val)}
+            />
+          </div>
           <div className="col">
             {getRss(
               listingType ??
