@@ -758,100 +758,99 @@ export class Community extends Component<CommunityRouteProps, State> {
     const communityRss = res
       ? communityRSSUrl(res.community_view.community, sort)
       : undefined;
-    const showSidebarMobile = this.state.showSidebarMobile;
+    const { showSidebarMobile, selectButtonsHidden, postListingMode } =
+      this.state;
 
     const myUserInfo = this.isoData.myUserInfo;
 
     return (
-      <>
-        <div className="row row-cols-auto align-items-center g-3 mb-3">
-          <div className="d-block d-md-none col">
-            <ExpandChipCheckbox
-              option="show_sidebar"
-              isChecked={showSidebarMobile}
-              onCheck={show => handleShowSidebarMobile(this, show)}
-            />
-          </div>
-          <div className="col">
-            <PostOrCommentTypeDropdown
-              currentOption={postOrCommentType}
-              onSelect={val => handlePostOrCommentTypeChange(this, val)}
-            />
-          </div>
-          <div className="col">
-            <PostListingModeDropdown
-              currentOption={this.state.postListingMode}
-              onSelect={val =>
-                handlePostListingModeChange(this, val, myUserInfo)
-              }
-              showLabel
-            />
-          </div>
-          {this.props.postOrCommentType === "post" ? (
-            <>
-              <div className="col">
-                <PostSortDropdown
-                  currentOption={mixedToPostSortType(sort)}
-                  onSelect={val => handleSortChange(this, val)}
-                  showLabel
-                />
-              </div>
-              <div className="col">
-                <TimeIntervalFilter
-                  currentSeconds={postTimeRange}
-                  onChange={val => handlePostTimeRangeChange(this, val)}
-                />
-              </div>
-            </>
-          ) : (
+      <div className="row row-cols-auto align-items-center g-3 mb-3">
+        <div className="d-block d-md-none col">
+          <ExpandChipCheckbox
+            option="show_sidebar"
+            isChecked={showSidebarMobile}
+            onCheck={show => handleShowSidebarMobile(this, show)}
+          />
+        </div>
+        <div className="col">
+          <PostOrCommentTypeDropdown
+            currentOption={postOrCommentType}
+            onSelect={val => handlePostOrCommentTypeChange(this, val)}
+          />
+        </div>
+        {postOrCommentType === "post" && myUserInfo && !selectButtonsHidden && (
+          <>
             <div className="col">
-              <CommentSortDropdown
-                currentOption={mixedToCommentSortType(sort)}
-                onSelect={val => handleCommentSortChange(this, val)}
+              <FilterChipCheckbox
+                option={"show_hidden_posts"}
+                isChecked={showHidden ?? false}
+                onCheck={hidden => handleShowHiddenChange(this, hidden)}
+              />
+            </div>
+            <div className="col">
+              <FilterChipCheckbox
+                option={"hide_read_posts"}
+                isChecked={!(showRead ?? false)}
+                onCheck={hideRead => handleHideReadChange(this, hideRead)}
+              />
+            </div>
+          </>
+        )}
+        <div className="col">
+          <PostListingModeDropdown
+            currentOption={postListingMode}
+            onSelect={val => handlePostListingModeChange(this, val, myUserInfo)}
+            showLabel
+          />
+        </div>
+        {this.props.postOrCommentType === "post" ? (
+          <>
+            <div className="col">
+              <PostSortDropdown
+                currentOption={mixedToPostSortType(sort)}
+                onSelect={val => handleSortChange(this, val)}
                 showLabel
               />
             </div>
-          )}
-          {communityRss && (
             <div className="col">
-              <a href={communityRss} title="RSS" rel={relTags}>
-                <Icon icon="rss" classes="text-muted small" />
-              </a>
-              <link
-                rel="alternate"
-                type="application/atom+xml"
-                href={communityRss}
+              <TimeIntervalFilter
+                currentSeconds={postTimeRange}
+                onChange={val => handlePostTimeRangeChange(this, val)}
               />
             </div>
-          )}
-          <button
-            className="col btn btn-ghost"
-            onclick={_ => handleHideSelectButtons(this)}
-          >
-            <Icon icon="chevrons-down" />
-          </button>
-        </div>
-        {postOrCommentType === "post" &&
-          myUserInfo &&
-          !this.state.selectButtonsHidden && (
-            <div className="row row-cols-auto mt-2">
-              <div className="col">
-                <FilterChipCheckbox
-                  option={"show_hidden_posts"}
-                  isChecked={showHidden ?? false}
-                  onCheck={hidden => handleShowHiddenChange(this, hidden)}
-                />
-              </div>
-              <div className="col">
-                <FilterChipCheckbox
-                  option={"hide_read_posts"}
-                  isChecked={!(showRead ?? false)}
-                  onCheck={hideRead => handleHideReadChange(this, hideRead)}
-                />
-              </div>
-            </div>
-          )}
-      </>
+          </>
+        ) : (
+          <div className="col">
+            <CommentSortDropdown
+              currentOption={mixedToCommentSortType(sort)}
+              onSelect={val => handleCommentSortChange(this, val)}
+              showLabel
+            />
+          </div>
+        )}
+        {communityRss && (
+          <div className="col">
+            <a href={communityRss} title="RSS" rel={relTags}>
+              <Icon icon="rss" classes="text-muted small" />
+            </a>
+            <link
+              rel="alternate"
+              type="application/atom+xml"
+              href={communityRss}
+            />
+          </div>
+        )}
+        {myUserInfo && (
+          <div className="col">
+            <button
+              className="btn btn-sm btn-ghost text-muted"
+              onclick={_ => handleHideSelectButtons(this)}
+            >
+              <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />
+            </button>
+          </div>
+        )}
+      </div>
     );
   }
 }
