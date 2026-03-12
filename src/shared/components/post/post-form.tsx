@@ -146,7 +146,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
 
   postTitleRef = createRef<HTMLTextAreaElement>();
 
-  constructor(props: PostFormProps, context: any) {
+  constructor(props: PostFormProps, context: object) {
     super(props, context);
 
     const { post_view, selectedCommunityChoice, params } = this.props;

@@ -27,7 +27,6 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import CommunityReportModal from "@components/common/modal/community-report-modal";
 import { CommunityNotificationsDropdown } from "@components/common/notifications-dropdown";
 import { LanguageList } from "@components/common/language-list";
-import { NoOptionI18nKeys } from "i18next";
 import { canViewCommunity, reportToast } from "@utils/app";
 import { CreatePostButton } from "@components/common/content-actions/create-item-buttons";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
@@ -90,10 +89,8 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
       community_actions: { received_ban_at } = {},
     } = communityView;
 
-    const visibilityLabel = ("community_visibility_" +
-      visibility) as NoOptionI18nKeys;
-    const visibilityDescription = (visibilityLabel +
-      "_desc") as NoOptionI18nKeys;
+    const visibilityLabel = `community_visibility_${visibility}` as const;
+    const visibilityDescription = `${visibilityLabel}_desc` as const;
     const canViewCommunity_ = canViewCommunity(communityView);
 
     return (

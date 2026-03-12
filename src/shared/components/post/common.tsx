@@ -237,7 +237,10 @@ type UrlLineProps = {
   postView: PostView;
   myUserInfo: MyUserInfo | undefined;
 };
-export function UrlLine({ postView, myUserInfo }: UrlLineProps, context: any) {
+export function UrlLine(
+  { postView, myUserInfo }: UrlLineProps,
+  context: object,
+) {
   const post = postView.post;
   const url = post.url;
 

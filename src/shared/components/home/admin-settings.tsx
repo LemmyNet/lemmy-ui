@@ -138,7 +138,7 @@ export class AdminSettings extends Component<
     ]);
   }
 
-  constructor(props: AdminSettingsRouteProps, context: AdminSettingsState) {
+  constructor(props: AdminSettingsRouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route

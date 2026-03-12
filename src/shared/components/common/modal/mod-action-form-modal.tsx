@@ -154,7 +154,7 @@ export default class ModActionFormModal extends Component<
     reason: "",
   };
 
-  constructor(props: ModActionFormModalProps, context: any) {
+  constructor(props: ModActionFormModalProps, context: object) {
     super(props, context);
     this.modalDivRef = createRef();
     this.reasonRef = createRef();

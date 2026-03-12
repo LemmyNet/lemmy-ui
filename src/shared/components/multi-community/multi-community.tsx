@@ -194,7 +194,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     ]);
   }
 
-  constructor(props: RouteProps, context: any) {
+  constructor(props: RouteProps, context: object) {
     super(props, context);
 
     this.mainContentRef = createRef();

@@ -36,7 +36,7 @@ export default class CommunityReportModal extends Component<
   readonly reasonRef: RefObject<HTMLInputElement>;
   modal?: Modal;
 
-  constructor(props: CommunityReportModalProps, context: any) {
+  constructor(props: CommunityReportModalProps, context: object) {
     super(props, context);
 
     this.modalDivRef = createRef();

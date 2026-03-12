@@ -83,7 +83,7 @@ type PostActionBarProps = {
   onPersonNote: (form: NotePerson) => void;
 };
 
-export function PostActionBar(props: PostActionBarProps, context: any) {
+export function PostActionBar(props: PostActionBarProps, context: object) {
   const {
     postView,
     admins,

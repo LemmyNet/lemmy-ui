@@ -304,7 +304,7 @@ async function handleImageUpload(
   let file: File | undefined = undefined;
   if (event instanceof Event && event.target) {
     event.preventDefault();
-    const target = event.target as HTMLInputElement;
+    const target = event.target;
     if (target?.files) {
       file = target.files[0];
     }

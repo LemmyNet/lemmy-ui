@@ -23,6 +23,7 @@ import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 import ProgressBar from "./progress-bar";
 import { validURL } from "@utils/helpers";
+import { createRef, RefObject } from "inferno";
 
 interface MarkdownTextAreaProps {
   /**
@@ -78,6 +79,7 @@ export class MarkdownTextArea extends Component<
   MarkdownTextAreaProps,
   MarkdownTextAreaState
 > {
+  textAreaRef: RefObject<HTMLTextAreaElement> = createRef();
   state: MarkdownTextAreaState = {
     id: `markdown-textarea-${randomStr()}`,
     formId: `markdown-form-${randomStr()}`,
@@ -89,9 +91,7 @@ export class MarkdownTextArea extends Component<
   async componentDidMount() {
     if (isBrowser()) {
       const tribute = await setupTribute();
-      const textarea: HTMLTextAreaElement | null = document.getElementById(
-        this.state.id,
-      ) as HTMLTextAreaElement;
+      const textarea = this.textAreaRef.current;
       if (textarea) {
         autosize(textarea);
         tribute.attach(textarea);
@@ -209,6 +209,7 @@ export class MarkdownTextArea extends Component<
               <div>
                 <textarea
                   id={this.state.id}
+                  ref={this.textAreaRef}
                   className={classNames(
                     "form-control border-0 rounded-top-0 rounded-bottom",
                     {
@@ -356,8 +357,11 @@ export class MarkdownTextArea extends Component<
   }
 
   getSelectedText(): string {
-    const { selectionStart: start, selectionEnd: end } =
-      document.getElementById(this.state.id) as HTMLTextAreaElement;
+    const textarea = this.textAreaRef.current;
+    if (!textarea) {
+      return "";
+    }
+    const { selectionStart: start, selectionEnd: end } = textarea;
     return start !== end
       ? (this.state.content?.substring(start, end) ?? "")
       : "";
@@ -405,10 +409,9 @@ function handleUrlPaste(
   url: string,
   event: ClipboardEvent,
 ) {
-  // query textarea element
-  const textarea = document.getElementById(i.state.id);
+  const textarea = i.textAreaRef.current;
 
-  if (textarea instanceof HTMLTextAreaElement) {
+  if (textarea) {
     const { selectionStart, selectionEnd } = textarea;
 
     // if no selection, just insert url
@@ -515,9 +518,10 @@ function handleInsertAtCursor(
   text: string,
   cursorOffset: number = 0,
 ) {
-  const textarea: HTMLTextAreaElement = document.getElementById(
-    i.state.id,
-  ) as HTMLTextAreaElement;
+  const textarea = i.textAreaRef.current;
+  if (!textarea) {
+    return;
+  }
   const cursorPosition = textarea.selectionStart;
 
   i.setState(({ content }) => {
@@ -621,9 +625,10 @@ function handleReplyCancel(i: MarkdownTextArea) {
 }
 
 function handleInsertLink(i: MarkdownTextArea) {
-  const textarea: HTMLTextAreaElement = document.getElementById(
-    i.state.id,
-  ) as HTMLTextAreaElement;
+  const textarea = i.textAreaRef.current;
+  if (!textarea) {
+    return;
+  }
   const start: number = textarea.selectionStart;
   const end: number = textarea.selectionEnd;
 
@@ -673,9 +678,10 @@ function handleSimpleSurroundBeforeAfter(
     i.setState({ content: "" });
   }
 
-  const textarea: HTMLTextAreaElement = document.getElementById(
-    i.state.id,
-  ) as HTMLTextAreaElement;
+  const textarea = i.textAreaRef.current;
+  if (!textarea) {
+    return;
+  }
   const start: number = textarea.selectionStart;
   const end: number = textarea.selectionEnd;
 
@@ -768,10 +774,10 @@ function handleInsertSpoiler(i: MarkdownTextArea) {
 }
 
 function handleQuoteInsert(i: MarkdownTextArea) {
-  const textarea: any = document.getElementById(i.state.id);
+  const textarea = i.textAreaRef.current;
   const selectedText = window.getSelection()?.toString();
   let { content } = i.state;
-  if (selectedText) {
+  if (textarea && selectedText) {
     const quotedText =
       selectedText
         .split("\n")
