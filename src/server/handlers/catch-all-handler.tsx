@@ -30,6 +30,7 @@ import { parsePath } from "history";
 import { getQueryString } from "@utils/helpers";
 import { adultConsentCookieKey } from "@utils/config";
 import { loadLanguageInstances } from "@services/I18NextService";
+import { createRef } from "inferno";
 
 const specifiedFrontend = process.env.LEMMY_UI_FRONTEND
   ? getBaseUrl(process.env.LEMMY_UI_FRONTEND)
@@ -165,7 +166,7 @@ export default async (req: Request, res: Response) => {
 
     const wrapper = (
       <StaticRouter location={url} context={isoData}>
-        <App dateFnsLocale={dateFnsLocale} i18n={i18n} />
+        <App dateFnsLocale={dateFnsLocale} i18n={i18n} rootRef={createRef()} />
       </StaticRouter>
     );
 

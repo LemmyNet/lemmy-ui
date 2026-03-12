@@ -9,6 +9,7 @@ import { setupMarkdown } from "@utils/markdown";
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
 import "bootstrap/js/dist/modal";
+import { createRef } from "inferno";
 
 window.addEventListener("unhandledrejection", (ev: PromiseRejectionEvent) => {
   ev.preventDefault();
@@ -35,18 +36,19 @@ async function startClient() {
     loadLanguageInstances(fallbackLanguages, interfaceLanguage),
   ]);
 
+  const rootRef = createRef<HTMLDivElement>();
   const wrapper = (
     <BrowserRouter>
-      <App dateFnsLocale={dateFnsLocale} i18n={i18n} />
+      <App dateFnsLocale={dateFnsLocale} i18n={i18n} rootRef={rootRef} />
     </BrowserRouter>
   );
 
-  const root = document.getElementById("root");
+  if (rootRef.current) {
+    hydrate(wrapper, rootRef.current);
 
-  if (root) {
-    hydrate(wrapper, root);
-
-    root.dispatchEvent(new CustomEvent("lemmy-hydrated", { bubbles: true }));
+    rootRef.current.dispatchEvent(
+      new CustomEvent("lemmy-hydrated", { bubbles: true }),
+    );
   }
 }
 

@@ -112,6 +112,7 @@ export class MarkdownTextArea extends Component<
 
   render() {
     const languageId = this.state.languageId;
+    const fileUploadRef = createRef<HTMLInputElement>();
     return createElement(
       this.props.renderAsDiv ? "div" : "form",
       {
@@ -163,9 +164,7 @@ export class MarkdownTextArea extends Component<
                             type="button"
                             className="btn btn-sm btn-link rounded-0 text-muted mb-0"
                             onClick={() => {
-                              document
-                                .getElementById(`file-upload-${this.state.id}`)
-                                ?.click();
+                              fileUploadRef.current?.click();
                             }}
                           >
                             <Icon icon="image" classes="icon-inline" />
@@ -174,6 +173,7 @@ export class MarkdownTextArea extends Component<
                       </label>
                       <input
                         id={`file-upload-${this.state.id}`}
+                        ref={fileUploadRef}
                         type="file"
                         accept="image/*,video/*"
                         name="file"
