@@ -245,6 +245,7 @@ export class Signup extends Component<SignupRouteProps, State> {
                   siteLanguages={[]}
                   renderAsDiv
                   myUserInfo={this.isoData.myUserInfo}
+                  imageUploadDisabled
                 />
               </div>
             </div>

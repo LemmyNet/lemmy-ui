@@ -7,6 +7,7 @@ import {
   EditSite,
   FederationMode,
   GetSiteResponse,
+  ImageMode,
   ListingType,
   MultiCommunityId,
   MyUserInfo,
@@ -33,6 +34,10 @@ import { RegistrationModeDropdown } from "@components/common/registration-mode-d
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { ThemeDropdown } from "@components/common/theme-dropdown";
 import { MultiCommunitySelect } from "@components/multi-community/multi-community-select";
+import {
+  FilterChipDropdown,
+  FilterOption,
+} from "@components/common/filter-chip-dropdown";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -50,6 +55,18 @@ interface SiteFormState {
   icon?: string;
   banner?: string;
 }
+
+const IMAGE_MODE_OPTIONS: FilterOption<ImageMode>[] = [
+  { value: "none", i18n: "none" },
+  {
+    value: "store_link_previews",
+    i18n: "store_link_previews",
+  },
+  {
+    value: "proxy_all_images",
+    i18n: "proxy_all_images",
+  },
+];
 
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   state: SiteFormState = {
@@ -93,6 +110,16 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       default_post_time_range_seconds: ls?.default_post_time_range_seconds,
       suggested_multi_community_id: ls?.suggested_multi_community_id,
       disallow_nsfw_content: ls?.disallow_nsfw_content,
+      federation_signed_fetch: ls?.federation_signed_fetch,
+      image_mode: ls?.image_mode,
+      image_proxy_bypass_domains: ls?.image_proxy_bypass_domains,
+      image_upload_timeout_seconds: ls?.image_upload_timeout_seconds,
+      image_max_thumbnail_size: ls?.image_max_thumbnail_size,
+      image_max_avatar_size: ls?.image_max_avatar_size,
+      image_max_banner_size: ls?.image_max_banner_size,
+      image_max_upload_size: ls?.image_max_upload_size,
+      image_allow_video_uploads: ls?.image_allow_video_uploads,
+      image_upload_disabled: ls?.image_upload_disabled,
     };
   }
 
@@ -110,6 +137,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   render() {
     const siteSetup = this.props.siteRes?.site_view.local_site.site_setup;
+    const imageUploadDisabled =
+      this.props.siteRes.site_view.local_site.image_upload_disabled;
     return (
       <form className="site-form" onSubmit={e => handleSubmit(this, e)}>
         <Prompt
@@ -206,6 +235,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               allLanguages={[]}
               siteLanguages={[]}
               myUserInfo={this.props.myUserInfo}
+              imageUploadDisabled={imageUploadDisabled}
             />
           </div>
         </div>
@@ -221,6 +251,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               allLanguages={[]}
               siteLanguages={[]}
               myUserInfo={this.props.myUserInfo}
+              imageUploadDisabled={imageUploadDisabled}
             />
           </div>
         </div>
@@ -298,6 +329,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 allLanguages={[]}
                 siteLanguages={[]}
                 myUserInfo={this.props.myUserInfo}
+                imageUploadDisabled={imageUploadDisabled}
               />
             </div>
           </div>
@@ -327,6 +359,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 allLanguages={[]}
                 siteLanguages={[]}
                 myUserInfo={this.props.myUserInfo}
+                imageUploadDisabled={imageUploadDisabled}
               />
             </div>
           </div>
@@ -541,6 +574,155 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="mb-3 row">
+          <FilterChipDropdown
+            label="image_mode"
+            allOptions={IMAGE_MODE_OPTIONS}
+            currentOption={
+              this.state.siteForm.image_mode && {
+                value: this.state.siteForm.image_mode,
+                i18n: this.state.siteForm.image_mode,
+              }
+            }
+            onSelect={choice => handleChangeImageMode(this, choice)}
+          />
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_proxy_bypass_domains"
+          >
+            {I18NextService.i18n.t("image_proxy_bypass_domains")}
+          </label>
+          <div className="col-12">
+            <input
+              type="text"
+              id="image_proxy_bypass_domains"
+              placeholder="example.com,sample.org"
+              className="form-control"
+              value={this.state.siteForm.image_proxy_bypass_domains}
+              onInput={e => handleImageProxyBypassDomains(this, e)}
+              minLength={3}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_upload_timeout_seconds"
+          >
+            {I18NextService.i18n.t("image_upload_timeout_seconds")}
+          </label>
+          <div className="col-12">
+            <input
+              type="number"
+              id="image_upload_timeout_seconds"
+              className="form-control"
+              value={this.state.siteForm.image_upload_timeout_seconds}
+              onInput={e => handleImageUploadTimeout(this, e)}
+              min="0"
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_max_thumbnail_size"
+          >
+            {I18NextService.i18n.t("image_max_thumbnail_size")}
+          </label>
+          <div className="col-12">
+            <input
+              type="number"
+              id="image_max_thumbnail_size"
+              className="form-control"
+              value={this.state.siteForm.image_max_thumbnail_size}
+              onInput={e => handleImageMaxThumbnailSize(this, e)}
+              min="0"
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_max_avatar_size"
+          >
+            {I18NextService.i18n.t("image_max_avatar_size")}
+          </label>
+          <div className="col-12">
+            <input
+              type="number"
+              id="image_max_avatar_size"
+              className="form-control"
+              value={this.state.siteForm.image_max_avatar_size}
+              onInput={e => handleImageMaxAvatarSize(this, e)}
+              min="0"
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_max_banner_size"
+          >
+            {I18NextService.i18n.t("image_max_banner_size")}
+          </label>
+          <div className="col-12">
+            <input
+              type="number"
+              id="image_max_banner_size"
+              className="form-control"
+              value={this.state.siteForm.image_max_banner_size}
+              onInput={e => handleImageMaxBannerSize(this, e)}
+              min="0"
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="image_max_upload_size"
+          >
+            {I18NextService.i18n.t("image_max_upload_size")}
+          </label>
+          <div className="col-12">
+            <input
+              type="number"
+              id="image_max_upload_size"
+              className="form-control"
+              value={this.state.siteForm.image_max_upload_size}
+              onInput={e => handleImageMaxUploadSize(this, e)}
+              min="0"
+            />
+          </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"image_allow_video_uploads"}
+              isChecked={this.state.siteForm.image_allow_video_uploads ?? false}
+              onCheck={val => handleImageAllowVideoUploads(this, val)}
+            />
+          </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"image_upload_disabled"}
+              isChecked={this.state.siteForm.image_upload_disabled ?? false}
+              onCheck={val => handleImageUploadsDisabled(this, val)}
+            />
+          </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"federation_signed_fetch"}
+              isChecked={this.state.siteForm.federation_signed_fetch ?? false}
+              onCheck={val => handleFederationSignedFetch(this, val)}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
           <div className="col-12">
             <button
               type="submit"
@@ -622,6 +804,16 @@ function handleSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
         stateSiteForm.rate_limit_import_user_settings_interval_seconds,
       federation_enabled: stateSiteForm.federation_enabled,
       discussion_languages: stateSiteForm.discussion_languages,
+      federation_signed_fetch: stateSiteForm.federation_signed_fetch,
+      image_mode: stateSiteForm.image_mode,
+      image_proxy_bypass_domains: stateSiteForm.image_proxy_bypass_domains,
+      image_upload_timeout_seconds: stateSiteForm.image_upload_timeout_seconds,
+      image_max_thumbnail_size: stateSiteForm.image_max_thumbnail_size,
+      image_max_avatar_size: stateSiteForm.image_max_avatar_size,
+      image_max_banner_size: stateSiteForm.image_max_banner_size,
+      image_max_upload_size: stateSiteForm.image_max_upload_size,
+      image_allow_video_uploads: stateSiteForm.image_allow_video_uploads,
+      image_upload_disabled: stateSiteForm.image_upload_disabled,
     };
     i.props.onCreate?.(form);
   }
@@ -770,4 +962,80 @@ function handleSelectSuggestedMultiComm(
   suggested: MultiCommunityId,
 ) {
   i.setState(s => ((s.siteForm.suggested_multi_community_id = suggested), s));
+}
+
+function handleChangeImageMode(i: SiteForm, image_mode: ImageMode) {
+  i.setState(s => ((s.siteForm.image_mode = image_mode), s));
+}
+
+function handleImageProxyBypassDomains(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.siteForm.image_proxy_bypass_domains = event.target.value), s),
+  );
+}
+
+function handleImageUploadTimeout(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => (
+      (s.siteForm.image_upload_timeout_seconds = Number(event.target.value)),
+      s
+    ),
+  );
+}
+
+function handleImageMaxThumbnailSize(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => (
+      (s.siteForm.image_max_thumbnail_size = Number(event.target.value)),
+      s
+    ),
+  );
+}
+
+function handleImageMaxAvatarSize(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.siteForm.image_max_avatar_size = Number(event.target.value)), s),
+  );
+}
+
+function handleImageMaxBannerSize(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.siteForm.image_max_banner_size = Number(event.target.value)), s),
+  );
+}
+
+function handleImageMaxUploadSize(
+  i: SiteForm,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState(
+    s => ((s.siteForm.image_max_upload_size = Number(event.target.value)), s),
+  );
+}
+
+function handleImageAllowVideoUploads(i: SiteForm, value: boolean) {
+  i.setState(s => ((s.siteForm.image_allow_video_uploads = value), s));
+}
+
+function handleImageUploadsDisabled(i: SiteForm, value: boolean) {
+  i.setState(s => ((s.siteForm.image_upload_disabled = value), s));
+}
+
+function handleFederationSignedFetch(i: SiteForm, value: boolean) {
+  i.setState(s => ((s.siteForm.federation_signed_fetch = value), s));
 }

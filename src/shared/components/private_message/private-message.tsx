@@ -28,6 +28,7 @@ interface PrivateMessageProps {
   createOrEditLoading: boolean;
   deleteLoading: boolean;
   readLoading: boolean;
+  imageUploadDisabled: boolean;
   onDelete: (form: DeletePrivateMessage) => void;
   onReport: (form: CreatePrivateMessageReport) => void;
   onCreate: (form: CreatePrivateMessage) => void;
@@ -99,6 +100,7 @@ export class PrivateMessage extends Component<
               onEdit={form => handleEdit(this, form)}
               onCancel={() => handleReplyCancel(this)}
               createOrEditLoading={this.props.createOrEditLoading}
+              imageUploadDisabled={this.props.imageUploadDisabled}
             />
           )}
           {!this.state.showEdit && (
@@ -267,6 +269,7 @@ export class PrivateMessage extends Component<
                 myUserInfo={this.props.myUserInfo}
                 onCreate={form => handleCreate(this, form)}
                 createOrEditLoading={this.props.createOrEditLoading}
+                imageUploadDisabled={this.props.imageUploadDisabled}
               />
             </div>
           </div>
