@@ -23,7 +23,7 @@ interface Props {
 }
 
 @tippyMixin
-export class MultiCommunitySidebar extends Component<Props, unknown> {
+export class MultiCommunitySidebar extends Component<Props, never> {
   render() {
     return <div className="multi-community-sidebar">{this.sidebar()}</div>;
   }
@@ -128,7 +128,6 @@ export class MultiCommunitySidebar extends Component<Props, unknown> {
 function handleFollowMultiCommunity(i: MultiCommunitySidebar, follow: boolean) {
   const mv = i.props.multiCommunityView;
 
-  i.setState({ followLoading: true });
   i.props.onFollow({
     multi_community_id: mv.multi.id,
     follow,

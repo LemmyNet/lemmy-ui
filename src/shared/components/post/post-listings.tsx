@@ -75,7 +75,7 @@ interface PostListingsProps {
   onScrollIntoCommentsClick: () => void;
 }
 
-export class PostListings extends Component<PostListingsProps, unknown> {
+export class PostListings extends Component<PostListingsProps, never> {
   duplicatesMap = new Map<number, PostView[]>();
 
   get posts() {

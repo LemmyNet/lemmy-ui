@@ -32,7 +32,7 @@ interface CommentFormProps {
   onReplyCancel?: () => void;
 }
 
-export class CommentForm extends Component<CommentFormProps, unknown> {
+export class CommentForm extends Component<CommentFormProps, never> {
   render() {
     const initialContent =
       typeof this.props.node !== "number"

@@ -94,7 +94,7 @@ interface CommentNodesProps {
   onMarkRead: (commentId: CommentId, read: boolean) => void;
 }
 
-export class CommentNodes extends Component<CommentNodesProps, unknown> {
+export class CommentNodes extends Component<CommentNodesProps, never> {
   render() {
     const maxComments = this.props.maxCommentsShown ?? this.props.nodes.length;
 

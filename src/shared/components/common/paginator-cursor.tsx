@@ -30,7 +30,7 @@ function handleFirstPage(i: PaginatorCursor) {
   i.props.onPageChange(undefined);
 }
 
-export class PaginatorCursor extends Component<PaginatorCursorProps, unknown> {
+export class PaginatorCursor extends Component<PaginatorCursorProps, never> {
   get nextPage(): PaginationCursor | undefined {
     return this.props.resource.state === "success"
       ? this.props.resource.data.next_page

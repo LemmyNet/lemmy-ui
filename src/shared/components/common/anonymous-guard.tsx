@@ -8,7 +8,7 @@ interface AnonymousGuardProps {
   myUserInfo: MyUserInfo | undefined;
 }
 
-class AnonymousGuard extends Component<AnonymousGuardProps, unknown> {
+class AnonymousGuard extends Component<AnonymousGuardProps, never> {
   hasAuth() {
     return this.props.myUserInfo;
   }

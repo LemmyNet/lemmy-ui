@@ -5,7 +5,7 @@ import { Link } from "inferno-router";
 import { IsoData } from "@utils/types";
 import { I18NextService } from "../../services";
 
-export class ErrorPage extends Component<unknown, unknown> {
+export class ErrorPage extends Component<object, unknown> {
   private isoData: IsoData = setIsoData(this.context);
 
   render() {

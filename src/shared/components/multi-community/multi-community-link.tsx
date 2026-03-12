@@ -14,7 +14,7 @@ interface Props {
   myUserInfo: MyUserInfo | undefined;
 }
 
-export class MultiCommunityLink extends Component<Props, unknown> {
+export class MultiCommunityLink extends Component<Props, never> {
   render() {
     const { multiCommunity, useApubName } = this.props;
 

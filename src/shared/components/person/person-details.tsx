@@ -92,7 +92,7 @@ interface PersonDetailsProps {
   onLockComment: (form: LockComment) => void;
 }
 
-export class PersonDetails extends Component<PersonDetailsProps, unknown> {
+export class PersonDetails extends Component<PersonDetailsProps, never> {
   renderItemType(i: PostCommentCombinedView): InfernoNode {
     switch (i.type_) {
       case "comment": {

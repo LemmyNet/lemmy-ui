@@ -8,7 +8,7 @@ interface CakeDayProps {
 }
 
 @tippyMixin
-export class CakeDay extends Component<CakeDayProps, unknown> {
+export class CakeDay extends Component<CakeDayProps, never> {
   render() {
     return (
       <div
