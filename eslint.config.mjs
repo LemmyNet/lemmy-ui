@@ -1,6 +1,5 @@
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
-import prettier from "eslint-plugin-prettier/recommended";
 import jsxa11y from "eslint-plugin-jsx-a11y";
 import inferno from "eslint-plugin-inferno";
 
@@ -69,7 +68,7 @@ export default [
       "@typescript-eslint/no-useless-constructor": "error",
       "inferno/jsx-boolean-value": "error",
       "inferno/jsx-props-class-name": "error",
-      "@typescript-eslint/no-explicit-any": ["error",{ignoreRestArgs: true}],
+      "@typescript-eslint/no-explicit-any": ["error", { ignoreRestArgs: true }],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_" },
