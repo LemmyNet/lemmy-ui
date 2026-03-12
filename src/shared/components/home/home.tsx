@@ -871,7 +871,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       showRead,
     } = this.props;
 
-    const { showSubscribedMobile, showSidebarMobile } = this.state;
+    const { showSubscribedMobile, showSidebarMobile, selectButtonsHidden } =
+      this.state;
+    const myUserInfo = this.isoData.myUserInfo;
 
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-3">
@@ -898,26 +900,24 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             onSelect={val => handlePostOrCommentTypeChange(this, val)}
           />
         </div>
-        {postOrCommentType === "post" &&
-          this.isoData.myUserInfo &&
-          !this.state.selectButtonsHidden && (
-            <>
-              <div className="col">
-                <FilterChipCheckbox
-                  option={"show_hidden_posts"}
-                  isChecked={showHidden ?? false}
-                  onCheck={hidden => handleShowHiddenChange(this, hidden)}
-                />
-              </div>
-              <div className="col">
-                <FilterChipCheckbox
-                  option={"hide_read_posts"}
-                  isChecked={!(showRead ?? false)}
-                  onCheck={hideRead => handleHideReadChange(this, hideRead)}
-                />
-              </div>
-            </>
-          )}
+        {postOrCommentType === "post" && myUserInfo && !selectButtonsHidden && (
+          <>
+            <div className="col">
+              <FilterChipCheckbox
+                option={"show_hidden_posts"}
+                isChecked={showHidden ?? false}
+                onCheck={hidden => handleShowHiddenChange(this, hidden)}
+              />
+            </div>
+            <div className="col">
+              <FilterChipCheckbox
+                option={"hide_read_posts"}
+                isChecked={!(showRead ?? false)}
+                onCheck={hideRead => handleHideReadChange(this, hideRead)}
+              />
+            </div>
+          </>
+        )}
         {/** TODO add show read posts also **/}
         <div className="col">
           <ListingTypeDropdown
@@ -932,7 +932,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                 .suggested_multi_community_id
             }
             showLabel
-            myUserInfo={this.isoData.myUserInfo}
+            myUserInfo={myUserInfo}
             onSelect={val => handleListingTypeChange(this, val)}
           />
         </div>
@@ -975,16 +975,16 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             sort,
           )}
         </div>
-        <div className="col">
-          <button
-            className="btn btn-sm btn-ghost text-muted"
-            onclick={_ => handleHideSelectButtons(this)}
-          >
-            <Icon
-              icon={`chevrons-${this.state.selectButtonsHidden ? "down" : "up"}`}
-            />
-          </button>
-        </div>
+        {myUserInfo && (
+          <div className="col">
+            <button
+              className="btn btn-sm btn-ghost text-muted"
+              onclick={_ => handleHideSelectButtons(this)}
+            >
+              <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />
+            </button>
+          </div>
+        )}
       </div>
     );
   }

@@ -758,7 +758,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     const communityRss = res
       ? communityRSSUrl(res.community_view.community, sort)
       : undefined;
-    const showSidebarMobile = this.state.showSidebarMobile;
+    const { showSidebarMobile, selectButtonsHidden, postListingMode } =
+      this.state;
 
     const myUserInfo = this.isoData.myUserInfo;
 
@@ -777,29 +778,27 @@ export class Community extends Component<CommunityRouteProps, State> {
             onSelect={val => handlePostOrCommentTypeChange(this, val)}
           />
         </div>
-        {postOrCommentType === "post" &&
-          myUserInfo &&
-          !this.state.selectButtonsHidden && (
-            <>
-              <div className="col">
-                <FilterChipCheckbox
-                  option={"show_hidden_posts"}
-                  isChecked={showHidden ?? false}
-                  onCheck={hidden => handleShowHiddenChange(this, hidden)}
-                />
-              </div>
-              <div className="col">
-                <FilterChipCheckbox
-                  option={"hide_read_posts"}
-                  isChecked={!(showRead ?? false)}
-                  onCheck={hideRead => handleHideReadChange(this, hideRead)}
-                />
-              </div>
-            </>
-          )}
+        {postOrCommentType === "post" && myUserInfo && !selectButtonsHidden && (
+          <>
+            <div className="col">
+              <FilterChipCheckbox
+                option={"show_hidden_posts"}
+                isChecked={showHidden ?? false}
+                onCheck={hidden => handleShowHiddenChange(this, hidden)}
+              />
+            </div>
+            <div className="col">
+              <FilterChipCheckbox
+                option={"hide_read_posts"}
+                isChecked={!(showRead ?? false)}
+                onCheck={hideRead => handleHideReadChange(this, hideRead)}
+              />
+            </div>
+          </>
+        )}
         <div className="col">
           <PostListingModeDropdown
-            currentOption={this.state.postListingMode}
+            currentOption={postListingMode}
             onSelect={val => handlePostListingModeChange(this, val, myUserInfo)}
             showLabel
           />
@@ -841,16 +840,16 @@ export class Community extends Component<CommunityRouteProps, State> {
             />
           </div>
         )}
-        <div className="col">
-          <button
-            className="btn btn-sm btn-ghost text-muted"
-            onclick={_ => handleHideSelectButtons(this)}
-          >
-            <Icon
-              icon={`chevrons-${this.state.selectButtonsHidden ? "down" : "up"}`}
-            />
-          </button>
-        </div>
+        {myUserInfo && (
+          <div className="col">
+            <button
+              className="btn btn-sm btn-ghost text-muted"
+              onclick={_ => handleHideSelectButtons(this)}
+            >
+              <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />
+            </button>
+          </div>
+        )}
       </div>
     );
   }
