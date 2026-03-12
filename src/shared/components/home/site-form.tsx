@@ -137,6 +137,8 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   render() {
     const siteSetup = this.props.siteRes?.site_view.local_site.site_setup;
+    const imageUploadDisabled =
+      this.props.siteRes.site_view.local_site.image_upload_disabled;
     return (
       <form className="site-form" onSubmit={e => handleSubmit(this, e)}>
         <Prompt
@@ -233,6 +235,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               allLanguages={[]}
               siteLanguages={[]}
               myUserInfo={this.props.myUserInfo}
+              imageUploadDisabled={imageUploadDisabled}
             />
           </div>
         </div>
@@ -248,6 +251,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               allLanguages={[]}
               siteLanguages={[]}
               myUserInfo={this.props.myUserInfo}
+              imageUploadDisabled={imageUploadDisabled}
             />
           </div>
         </div>
@@ -325,6 +329,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 allLanguages={[]}
                 siteLanguages={[]}
                 myUserInfo={this.props.myUserInfo}
+                imageUploadDisabled={imageUploadDisabled}
               />
             </div>
           </div>
@@ -354,6 +359,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 allLanguages={[]}
                 siteLanguages={[]}
                 myUserInfo={this.props.myUserInfo}
+                imageUploadDisabled={imageUploadDisabled}
               />
             </div>
           </div>

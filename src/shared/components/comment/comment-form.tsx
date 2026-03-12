@@ -30,6 +30,7 @@ interface CommentFormProps {
   onCreateComment: (form: CreateComment) => void;
   onEditComment: (form: EditComment) => void;
   onReplyCancel?: () => void;
+  imageUploadDisabled: boolean;
 }
 
 export class CommentForm extends Component<CommentFormProps, any> {
@@ -75,6 +76,7 @@ export class CommentForm extends Component<CommentFormProps, any> {
             siteLanguages={this.props.siteLanguages}
             myUserInfo={this.props.myUserInfo}
             loading={this.props.loading}
+            imageUploadDisabled={this.props.imageUploadDisabled}
           />
         ) : (
           <div className="alert alert-warning" role="alert">

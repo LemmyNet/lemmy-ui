@@ -281,6 +281,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     const selectedLangs = firstLang ? Array.of(firstLang) : undefined;
 
     const url = this.state.form.url;
+    const imageUploadDisabled = this.props.localSite.image_upload_disabled;
 
     return (
       <form className="post-form" onSubmit={e => handlePostSubmit(this, e)}>
@@ -489,6 +490,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   hideNavigationWarnings
                   maxLength={postMarkdownFieldCharacterLimit}
                   myUserInfo={this.props.myUserInfo}
+                  imageUploadDisabled={imageUploadDisabled}
                 />
               </div>
             </div>
