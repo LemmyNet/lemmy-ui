@@ -122,6 +122,7 @@ import {
   FilterChipCheckbox,
 } from "@components/common/filter-chip-checkbox";
 import { RouterContext } from "inferno-router/dist/Router";
+import { TimeIntervalFilter } from "@components/common/time-interval-filter";
 
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
@@ -959,45 +960,51 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <Icon icon="chevrons-down" />
           </button>
           {!hidePostTimeRange && (
-            <>
-              <label for="post-time-range" className="form-label col ms-auto">
-                {postTimeRangeValue(postTimeRange)}
-              </label>
-              <input
-                id="post-time-range"
-                type="range"
-                className="form-range mt-0"
-                min="0"
-                max={POST_TIME_RANGE_STEPS.length - 1}
-                value={
-                  POST_TIME_RANGE_STEPS.find(x => x.seconds === postTimeRange)
-                    ?.step ?? POST_TIME_RANGE_STEPS.length - 1
-                }
-                onInput={e => handlePostTimeRangeChange(this, e)}
-              />
-            </>
+            <label for="post-time-range" className="form-label col ms-auto">
+              {postTimeRangeValue(postTimeRange)}
+            </label>
           )}
         </div>
         {postOrCommentType === "post" &&
           this.isoData.myUserInfo &&
           !this.state.selectButtonsHidden && (
-            <div className="row row-cols-auto mt-2">
-              <div className="col">
+            <div className="row row-cols-auto g-3 mt-1">
+              <div className="col mt-0">
                 <FilterChipCheckbox
                   option={"show_hidden_posts"}
                   isChecked={showHidden ?? false}
                   onCheck={hidden => handleShowHiddenChange(this, hidden)}
                 />
               </div>
-              <div className="col">
+              <div className="col mt-0">
                 <FilterChipCheckbox
                   option={"hide_read_posts"}
                   isChecked={!(showRead ?? false)}
                   onCheck={hideRead => handleHideReadChange(this, hideRead)}
                 />
               </div>
+              <div className="col mt-0">
+                <TimeIntervalFilter
+                  currentSeconds={postTimeRange}
+                  onChange={val => handlePostTimeRangeChange2(this, val)}
+                />
+              </div>
             </div>
           )}
+        {!hidePostTimeRange && (
+          <input
+            id="post-time-range"
+            type="range"
+            className="form-range mt-0"
+            min="0"
+            max={POST_TIME_RANGE_STEPS.length - 1}
+            value={
+              POST_TIME_RANGE_STEPS.find(x => x.seconds === postTimeRange)
+                ?.step ?? POST_TIME_RANGE_STEPS.length - 1
+            }
+            onInput={e => handlePostTimeRangeChange(this, e)}
+          />
+        )}
       </div>
     );
   }
@@ -1190,6 +1197,10 @@ function handlePostTimeRangeChange(
     x => x.step === Number(event.target.value),
   )?.seconds;
   i.updateUrl({ postTimeRange, cursor: undefined });
+}
+
+function handlePostTimeRangeChange2(i: Home, val: number) {
+  i.updateUrl({ postTimeRange: val, cursor: undefined });
 }
 
 function postTimeRangeValue(value?: number): string {
