@@ -128,7 +128,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
     return resourcesSettled([this.state.communityRes]);
   }
 
-  constructor(props: RouteProps, context: any) {
+  constructor(props: RouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route

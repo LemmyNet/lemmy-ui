@@ -291,7 +291,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     return resourcesSettled([this.state.postRes, this.state.commentsRes]);
   }
 
-  constructor(props: PostRouteProps, context: PostState) {
+  constructor(props: PostRouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route

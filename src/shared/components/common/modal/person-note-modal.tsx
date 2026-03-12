@@ -38,7 +38,7 @@ export default class PersonNoteModal extends Component<
     note: this.props.note,
   };
 
-  constructor(props: PersonNoteModalProps, context: any) {
+  constructor(props: PersonNoteModalProps, context: object) {
     super(props, context);
 
     this.modalDivRef = createRef();

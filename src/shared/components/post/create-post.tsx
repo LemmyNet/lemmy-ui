@@ -127,7 +127,7 @@ export class CreatePost extends Component<
     showSidebarMobile: false,
   };
 
-  constructor(props: CreatePostRouteProps, context: any) {
+  constructor(props: CreatePostRouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another routeupdate

@@ -415,7 +415,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     return resourcesSettled([this.state.searchRes]);
   }
 
-  constructor(props: SearchRouteProps, context: any) {
+  constructor(props: SearchRouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route

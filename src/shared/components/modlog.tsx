@@ -643,7 +643,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     return resourcesSettled([this.state.res]);
   }
 
-  constructor(props: ModlogRouteProps, context: any) {
+  constructor(props: ModlogRouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route

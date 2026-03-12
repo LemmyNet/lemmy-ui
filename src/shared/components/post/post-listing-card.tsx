@@ -6,7 +6,7 @@ import {
   ShowCrossPostsType,
   ShowMarkReadType,
 } from "@utils/types";
-import { Component } from "inferno";
+import { Component, SemiSyntheticEvent } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -358,8 +358,8 @@ function PostImg({
   );
 }
 
-function handleMediaLoadStart(e: Event) {
-  const video = e.target as HTMLMediaElement;
+function handleMediaLoadStart(e: SemiSyntheticEvent<HTMLMediaElement>) {
+  const video = e.currentTarget;
   const volume = localStorage.getItem("video_volume_level");
   const muted = localStorage.getItem("video_muted");
   video.volume = Number(volume || 0);
@@ -370,8 +370,8 @@ function handleMediaLoadStart(e: Event) {
   }
 }
 
-function handleMediaVolumeChange(e: Event) {
-  const video = e.target as HTMLMediaElement;
+function handleMediaVolumeChange(e: SemiSyntheticEvent<HTMLMediaElement>) {
+  const video = e.currentTarget;
   localStorage.setItem("video_muted", video.muted.toString());
   localStorage.setItem("video_volume_level", video.volume.toString());
 }

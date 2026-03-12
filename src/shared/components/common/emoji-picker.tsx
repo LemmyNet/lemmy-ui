@@ -26,7 +26,7 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
   };
 
   state: EmojiPickerState;
-  constructor(props: EmojiPickerProps, context: any) {
+  constructor(props: EmojiPickerProps, context: object) {
     super(props, context);
     this.state = this.emptyState;
   }

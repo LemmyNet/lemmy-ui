@@ -96,7 +96,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
     };
   }
 
-  constructor(props: SiteFormProps, context: SiteFormState) {
+  constructor(props: SiteFormProps, context: object) {
     super(props, context);
 
     const { icon, banner } = this.props.siteRes.site_view.site;
