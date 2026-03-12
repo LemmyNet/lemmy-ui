@@ -691,26 +691,30 @@ export function pictrsDeleteToast(filename: string) {
 
     const backgroundColor = `var(--bs-light)`;
 
-    const toast = Toastify({
+    const toastify = Toastify({
       text: clickToDeleteText,
       backgroundColor: backgroundColor,
       gravity: "top",
       position: "right",
       duration: 10000,
-      onClick: async () => {
-        if (toast) {
-          const res = await HttpService.client.deleteMedia({ filename });
-          if (res.state === "success") {
-            alert(deletePictureText);
-          } else {
-            alert(failedDeletePictureText);
-          }
-        }
+      onClick: () => {
+        HttpService.client
+          .deleteMedia({ filename })
+          .then(res => {
+            if (res.state === "success") {
+              toast(deletePictureText, "success");
+            } else {
+              throw new Error();
+            }
+          })
+          .catch(() => {
+            toast(failedDeletePictureText, "danger");
+          });
       },
       close: true,
     });
 
-    toast.showToast();
+    toastify.showToast();
   }
 }
 

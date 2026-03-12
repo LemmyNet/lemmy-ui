@@ -35,7 +35,7 @@ export type IsoDataOptionalSite<T extends RouteData = any> = Partial<
 declare global {
   interface Window {
     isoData: IsoDataOptionalSite;
-    checkLazyScripts?: () => void;
+    checkLazyScripts?: () => Promise<void>;
   }
   interface String {
     toLowerCase<T extends string>(this: T): Lowercase<T>;
