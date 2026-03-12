@@ -15,7 +15,6 @@ import {
   PostSortType,
   RegistrationMode,
 } from "lemmy-js-client";
-import { Choice } from "@utils/types";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
@@ -35,7 +34,10 @@ import { RegistrationModeDropdown } from "@components/common/registration-mode-d
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { ThemeDropdown } from "@components/common/theme-dropdown";
 import { MultiCommunitySelect } from "@components/multi-community/multi-community-select";
-import { FilterChipSelect } from "@components/common/filter-chip-select";
+import {
+  FilterChipDropdown,
+  FilterOption,
+} from "@components/common/filter-chip-dropdown";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -53,6 +55,18 @@ interface SiteFormState {
   icon?: string;
   banner?: string;
 }
+
+const IMAGE_MODE_OPTIONS: FilterOption<ImageMode>[] = [
+  { value: "none", i18n: "none" },
+  {
+    value: "store_link_previews",
+    i18n: "store_link_previews",
+  },
+  {
+    value: "proxy_all_images",
+    i18n: "proxy_all_images",
+  },
+];
 
 export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   state: SiteFormState = {
@@ -123,17 +137,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
   render() {
     const siteSetup = this.props.siteRes?.site_view.local_site.site_setup;
-    const image_mode_options: Choice[] = [
-      { value: "none", label: I18NextService.i18n.t("none") },
-      {
-        value: "store_link_previews",
-        label: I18NextService.i18n.t("store_link_previews"),
-      },
-      {
-        value: "proxy_all_images",
-        label: I18NextService.i18n.t("proxy_all_images"),
-      },
-    ];
     return (
       <form className="site-form" onSubmit={e => handleSubmit(this, e)}>
         <Prompt
@@ -565,16 +568,15 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </div>
         </div>
         <div className="mb-3 row">
-          <FilterChipSelect
+          <FilterChipDropdown
             label="image_mode"
-            multiple={false}
-            allOptions={image_mode_options}
-            selectedOptions={
-              this.state.siteForm.image_mode
-                ? [this.state.siteForm.image_mode.toString()]
-                : []
+            allOptions={IMAGE_MODE_OPTIONS}
+            currentOption={
+              this.state.siteForm.image_mode && {
+                value: this.state.siteForm.image_mode,
+                i18n: this.state.siteForm.image_mode,
+              }
             }
-            disabled={this.props.loading}
             onSelect={choice => handleChangeImageMode(this, choice)}
           />
         </div>
@@ -608,11 +610,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <input
               type="number"
               id="image_upload_timeout_seconds"
-              placeholder="example.com,sample.org"
               className="form-control"
               value={this.state.siteForm.image_upload_timeout_seconds}
               onInput={e => handleImageUploadTimeout(this, e)}
-              minLength={3}
+              min="0"
             />
           </div>
         </div>
@@ -627,11 +628,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <input
               type="number"
               id="image_max_thumbnail_size"
-              placeholder="example.com,sample.org"
               className="form-control"
               value={this.state.siteForm.image_max_thumbnail_size}
               onInput={e => handleImageMaxThumbnailSize(this, e)}
-              minLength={3}
+              min="0"
             />
           </div>
         </div>
@@ -646,11 +646,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <input
               type="number"
               id="image_max_avatar_size"
-              placeholder="example.com,sample.org"
               className="form-control"
               value={this.state.siteForm.image_max_avatar_size}
               onInput={e => handleImageMaxAvatarSize(this, e)}
-              minLength={3}
+              min="0"
             />
           </div>
         </div>
@@ -665,11 +664,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <input
               type="number"
               id="image_max_banner_size"
-              placeholder="example.com,sample.org"
               className="form-control"
               value={this.state.siteForm.image_max_banner_size}
               onInput={e => handleImageMaxBannerSize(this, e)}
-              minLength={3}
+              min="0"
             />
           </div>
         </div>
@@ -684,11 +682,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <input
               type="number"
               id="image_max_upload_size"
-              placeholder="example.com,sample.org"
               className="form-control"
               value={this.state.siteForm.image_max_upload_size}
               onInput={e => handleImageMaxUploadSize(this, e)}
-              minLength={3}
+              min="0"
             />
           </div>
         </div>
@@ -961,13 +958,8 @@ function handleSelectSuggestedMultiComm(
   i.setState(s => ((s.siteForm.suggested_multi_community_id = suggested), s));
 }
 
-function handleChangeImageMode(i: SiteForm, image_mode: Choice[]) {
-  if (image_mode.length !== 0) {
-    const mode = image_mode[0].value as ImageMode | undefined;
-    if (mode) {
-      i.setState(s => ((s.siteForm.image_mode = mode), s));
-    }
-  }
+function handleChangeImageMode(i: SiteForm, image_mode: ImageMode) {
+  i.setState(s => ((s.siteForm.image_mode = image_mode), s));
 }
 
 function handleImageProxyBypassDomains(
