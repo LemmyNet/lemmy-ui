@@ -82,6 +82,11 @@ if (
   server.use(setDefaultCsp);
 }
 
+// Stop NodeJS from exiting on unhandled promise rejections. Browsers just log an error.
+process.on("unhandledRejection", (error: any) => {
+  console.error("Unhandled promise rejection:", error);
+});
+
 server.get("/.well-known/security.txt", SecurityHandler);
 server.get("/robots.txt", RobotsHandler);
 server.get("/service-worker.js", ServiceWorkerHandler);
@@ -95,8 +100,8 @@ server.get(["/c/:name/feed", "/c/{:name}.rss"], CommunityFeedHandler);
 server.get(["/m/:name/feed", "/m/{:name}.rss"], MultiCommunityFeedHandler);
 server.get("/{*splat}", CatchAllHandler);
 
-const listener = server.listen(Number(port), hostname, async () => {
-  await verifyDynamicImports(true);
+const listener = server.listen(Number(port), hostname, () => {
+  verifyDynamicImports(true).catch(error => console.error(error));
 
   setupMarkdown();
 

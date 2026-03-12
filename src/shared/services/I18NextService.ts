@@ -232,7 +232,7 @@ export async function loadLanguageInstances(
         i18n.addResourceBundle(t.code, "translation", data["translation"]);
       }),
   );
-  await new Promise(r => i18n.changeLanguage(translationDescs[0].code, r));
+  await i18n.changeLanguage(translationDescs[0].code);
 
   return [await localePromise, i18n];
 }
@@ -254,7 +254,7 @@ export async function updateLanguageInstances(
         i18n.addResourceBundle(t.code, "translation", data["translation"]);
       }),
   );
-  await new Promise(r => i18n.changeLanguage(translationDescs[0].code, r));
+  await i18n.changeLanguage(translationDescs[0].code);
   setDefaultOptions({ locale: await locale });
 }
 
