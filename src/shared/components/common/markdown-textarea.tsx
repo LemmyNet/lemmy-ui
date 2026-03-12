@@ -14,7 +14,12 @@ import {
   maxUploadImages,
   relTags,
 } from "@utils/config";
-import { customEmojisLookup, EmojiEvent, mdToHtml, setupTribute } from "@utils/markdown";
+import {
+  customEmojisLookup,
+  EmojiEvent,
+  mdToHtml,
+  setupTribute,
+} from "@utils/markdown";
 import { HttpService, I18NextService } from "@services/index";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { userNotLoggedInOrBanned, pictrsDeleteToast, toast } from "@utils/app";
@@ -422,8 +427,9 @@ function handleUrlPaste(
 
     // update textarea content
     i.setState(({ content }) => ({
-      content: `${content?.substring(0, selectionStart) ?? ""
-        }[${selectedText}](${url})${content?.substring(selectionEnd) ?? ""}`,
+      content: `${
+        content?.substring(0, selectionStart) ?? ""
+      }[${selectedText}](${url})${content?.substring(selectionEnd) ?? ""}`,
     }));
     handleSubmitContentChange(i);
 

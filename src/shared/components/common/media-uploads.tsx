@@ -1,4 +1,4 @@
-import { Component, } from "inferno";
+import { Component } from "inferno";
 import {
   LocalImage,
   LocalImageView,
@@ -22,7 +22,6 @@ interface Props {
 
 @tippyMixin
 export class MediaUploads extends Component<Props, never> {
-
   render() {
     const images = this.props.uploads.items;
 

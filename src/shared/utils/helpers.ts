@@ -5,10 +5,9 @@ import { Action } from "history";
 
 // Intended to allow reloading all the data of the current page by clicking the
 // navigation link of the current page.
-export function bareRoutePush<P extends RouteComponentProps<Record<string,string>>>(
-  prevProps: P,
-  nextProps: P,
-) {
+export function bareRoutePush<
+  P extends RouteComponentProps<Record<string, string>>,
+>(prevProps: P, nextProps: P) {
   return (
     prevProps.location.pathname === nextProps.location.pathname &&
     !nextProps.location.search &&
@@ -221,10 +220,10 @@ export function validURL(str: string) {
   }
 }
 
-export function dedupByProperty<
-  T ,
-  R extends number | string | boolean,
->(collection: T[], keyFn: (obj: T) => R) {
+export function dedupByProperty<T, R extends number | string | boolean>(
+  collection: T[],
+  keyFn: (obj: T) => R,
+) {
   return collection.reduce(
     (acc, cur) => {
       const key = keyFn(cur);

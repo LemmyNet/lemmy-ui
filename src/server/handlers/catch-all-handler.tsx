@@ -104,6 +104,7 @@ export default async (req: Request, res: Response) => {
 
       if (siteRes && activeRoute?.fetchInitialData && match) {
         const { search } = parsePath(url);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
           path,
           query:

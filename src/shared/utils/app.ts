@@ -624,6 +624,7 @@ export function selectableLanguages(
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {

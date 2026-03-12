@@ -16,6 +16,7 @@ import { Match } from "inferno-router/dist/Route";
 /**
  * This contains serialized data, it needs to be deserialized before use.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface IsoData<T extends RouteData = any> {
   path: string;
   routeData: T;
@@ -27,6 +28,7 @@ export interface IsoData<T extends RouteData = any> {
   lemmyFrontend: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type IsoDataOptionalSite<T extends RouteData = any> = Partial<
   IsoData<T>
 > &
@@ -44,6 +46,7 @@ declare global {
 
 export interface InitialFetchRequest<
   P extends Record<string, string> = Record<string, never>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends Record<string, any> = Record<string, never>,
 > {
   path: string;
@@ -149,7 +152,8 @@ export interface PersonTribute {
   view: PersonView;
 }
 
-export type QueryParams< T extends Record<string, any>> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type QueryParams<T extends Record<string, any>> = {
   [key in keyof T]?: string;
 };
 

@@ -16,9 +16,7 @@ export class EmojiMart extends Component<EmojiMartProps> {
 
   componentDidMount() {
     this.div.current?.appendChild(
-      getEmojiMart(
-        e => handleEmojiClick(this, e),
-      ) as unknown as HTMLElement,
+      getEmojiMart(e => handleEmojiClick(this, e)) as unknown as HTMLElement,
     );
   }
 

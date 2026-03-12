@@ -297,9 +297,7 @@ export interface EmojiEvent {
   id: string;
 }
 
-export function getEmojiMart(
-  onEmojiSelect: (e: EmojiEvent) => void,
-) {
+export function getEmojiMart(onEmojiSelect: (e: EmojiEvent) => void) {
   const data = async () => {
     const response = await fetch(`${getStaticDir()}/assets/emojis.json`);
 
@@ -324,10 +322,12 @@ export async function setupTribute() {
       // Emojis
       {
         trigger: ":",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         menuItemTemplate: (item: any) => {
           const shortName = `:${item.original.key}:`;
           return `${item.original.val} ${shortName}`;
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         selectTemplate: (item: any) => {
           const customEmoji = customEmojisLookup.get(
             item.original.key as string,
@@ -356,6 +356,7 @@ export async function setupTribute() {
       // Persons
       {
         trigger: "@",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         selectTemplate: (item: any) => {
           const it: PersonTribute = item.original;
           return it.key;
@@ -375,6 +376,7 @@ export async function setupTribute() {
       // Communities
       {
         trigger: "!",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         selectTemplate: (item: any) => {
           const it: CommunityTribute = item.original;
           return it.key;
