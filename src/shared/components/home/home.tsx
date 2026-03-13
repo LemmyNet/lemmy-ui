@@ -871,11 +871,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       showRead,
     } = this.props;
 
-    const { showSubscribedMobile, showSidebarMobile } = this.state;
+    const { showSubscribedMobile, showSidebarMobile, selectButtonsHidden } =
+      this.state;
+    const myUserInfo = this.isoData.myUserInfo;
 
     return (
-      <div>
-        <div className="row row-cols-auto align-items-center g-3 mb-3">
+      <div className=" mb-3">
+        <div className="row row-cols-auto align-items-center g-3">
           {/* Only show these two selects on mobile */}
           {this.hasFollows && (
             <div className="d-block d-md-none col">
@@ -958,12 +960,16 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               sort,
             )}
           </div>
-          <button
-            className="col btn btn-ghost"
-            onclick={_ => handleHideSelectButtons(this)}
-          >
-            <Icon icon="chevrons-down" />
-          </button>
+          {myUserInfo && (
+            <button
+              className="btn btn-sm btn-ghost text-muted"
+              onclick={_ => handleHideSelectButtons(this)}
+            >
+              <Icon
+                icon={selectButtonsHidden ? "chevrons-down" : "chevrons-up"}
+              />
+            </button>
+          )}
         </div>
         {postOrCommentType === "post" &&
           this.isoData.myUserInfo &&
