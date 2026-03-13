@@ -67,7 +67,7 @@ export function modalMixin<
 
     componentWillReceiveProps(
       nextProps: Readonly<{ children?: InfernoNode } & P>,
-      nextContext: any,
+      nextContext: unknown,
     ) {
       if (nextProps.show !== this.props.show) {
         if (nextProps.show) {

@@ -597,7 +597,10 @@ function handleEditComment(i: CommentNode, form: EditComment) {
   i.props.onEditComment(form);
 }
 
-function handleCommentCollapse(i: CommentNode, event: InfernoMouseEvent<any>) {
+function handleCommentCollapse(
+  i: CommentNode,
+  event: InfernoMouseEvent<unknown>,
+) {
   event.stopPropagation();
   i.setState({ collapsed: !i.state.collapsed });
 }

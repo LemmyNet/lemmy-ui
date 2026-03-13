@@ -5,7 +5,7 @@ interface LoadingEllipsesState {
 }
 
 // TODO get rid
-export class LoadingEllipses extends Component<any, LoadingEllipsesState> {
+export class LoadingEllipses extends Component<unknown, LoadingEllipsesState> {
   state: LoadingEllipsesState = {
     ellipses: "...",
   };

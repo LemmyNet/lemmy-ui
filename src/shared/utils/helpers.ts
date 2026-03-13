@@ -5,10 +5,9 @@ import { Action } from "history";
 
 // Intended to allow reloading all the data of the current page by clicking the
 // navigation link of the current page.
-export function bareRoutePush<P extends RouteComponentProps<any>>(
-  prevProps: P,
-  nextProps: P,
-) {
+export function bareRoutePush<
+  P extends RouteComponentProps<Record<string, string>>,
+>(prevProps: P, nextProps: P) {
   return (
     prevProps.location.pathname === nextProps.location.pathname &&
     !nextProps.location.search &&
@@ -20,7 +19,7 @@ export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function debounce<T extends any[], R>(
+export function debounce<T extends unknown[], R>(
   func: (...e: T) => R,
   wait = 1000,
   immediate = false,
@@ -183,7 +182,7 @@ export function randomStr(
     .join("");
 }
 
-export function resourcesSettled(resources: RequestState<any>[]) {
+export function resourcesSettled(resources: RequestState<unknown>[]) {
   return resources.every(r => r.state === "success" || r.state === "failed");
 }
 
@@ -221,10 +220,10 @@ export function validURL(str: string) {
   }
 }
 
-export function dedupByProperty<
-  T extends Record<string, any>,
-  R extends number | string | boolean,
->(collection: T[], keyFn: (obj: T) => R) {
+export function dedupByProperty<T, R extends number | string | boolean>(
+  collection: T[],
+  keyFn: (obj: T) => R,
+) {
   return collection.reduce(
     (acc, cur) => {
       const key = keyFn(cur);

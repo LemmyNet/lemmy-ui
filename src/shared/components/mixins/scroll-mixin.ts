@@ -28,7 +28,7 @@ export function scrollMixin<
   P extends { location: Location; history: History },
   S,
   Base extends new (
-    ...args: any
+    ...args: any[]
   ) => Component<P, S> & { loadingSettled(): boolean },
 >(base: Base, _context?: ClassDecoratorContext<Base>) {
   return class extends base {
@@ -54,7 +54,7 @@ export function scrollMixin<
     componentDidUpdate(
       prevProps: Readonly<{ children?: InfernoNode } & P>,
       prevState: S,
-      snapshot: any,
+      snapshot: unknown,
     ) {
       this.restoreIfLoaded();
       return super.componentDidUpdate?.(prevProps, prevState, snapshot);
@@ -67,7 +67,7 @@ export function scrollMixin<
 
     componentWillReceiveProps(
       nextProps: Readonly<{ children?: InfernoNode } & P>,
-      nextContext: any,
+      nextContext: unknown,
     ) {
       if (this.props.location.key !== nextProps.location.key) {
         if (nextProps.history.action !== Action.Replace) {
@@ -135,7 +135,7 @@ export function scrollMixin<
 export function simpleScrollMixin<
   P extends { location: Location; history: History },
   S,
-  Base extends new (...args: any) => Component<P, S>,
+  Base extends new (...args: any[]) => Component<P, S>,
 >(base: Base, _context?: ClassDecoratorContext<Base>) {
   @scrollMixin
   class SimpleScrollMixin extends base {
