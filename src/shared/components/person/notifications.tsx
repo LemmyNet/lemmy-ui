@@ -343,6 +343,9 @@ export class Notifications extends Component<
             private_message_view={data}
             read={item.notification.read}
             myUserInfo={myUserInfo}
+            imageUploadDisabled={
+              siteRes.site_view.local_site.image_upload_disabled
+            }
             onDelete={form => handleDeleteMessage(this, form)}
             onReport={form => handleMessageReport(form)}
             onCreate={form => handleCreateMessage(this, form)}

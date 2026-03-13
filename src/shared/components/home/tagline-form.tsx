@@ -59,6 +59,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
                 allLanguages={[]}
                 siteLanguages={[]}
                 myUserInfo={this.props.myUserInfo}
+                imageUploadDisabled
               />
             )}
           </div>

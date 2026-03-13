@@ -205,6 +205,8 @@ export class CommunitySettings extends Component<RouteProps, State> {
     const getCommunityRes =
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
+    const imageUploadDisabled =
+      this.isoData.siteRes.site_view.local_site.image_upload_disabled;
 
     return (
       <div className="community-settings container">
@@ -260,6 +262,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                             }
                             enableNsfw={enableNsfw(siteRes)}
                             myUserInfo={myUserInfo}
+                            imageUploadDisabled={imageUploadDisabled}
                           />
                         </div>
                       </div>

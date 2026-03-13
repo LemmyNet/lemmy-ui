@@ -63,6 +63,7 @@ interface MarkdownTextAreaProps {
   renderAsDiv?: boolean;
   myUserInfo: MyUserInfo | undefined;
   loading?: boolean;
+  imageUploadDisabled: boolean;
 }
 
 interface ImageUploadStatus {
@@ -150,38 +151,46 @@ export class MarkdownTextArea extends Component<
                   <EmojiPicker
                     onEmojiClick={emoji => handleEmoji(this, emoji)}
                   ></EmojiPicker>
-                  <label
-                    htmlFor={`file-upload-${this.state.id}`}
-                    className={classNames("mb-0", {
-                      pointer: this.props.myUserInfo,
-                    })}
-                    data-tippy-content={I18NextService.i18n.t("upload_image")}
-                  >
-                    {this.state.imageUploadStatus ? (
-                      <Spinner />
-                    ) : (
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-link rounded-0 text-muted mb-0"
-                        onClick={() => {
-                          fileUploadRef.current?.click();
-                        }}
+                  {!this.props.imageUploadDisabled && (
+                    <>
+                      <label
+                        htmlFor={`file-upload-${this.state.id}`}
+                        className={classNames("mb-0", {
+                          pointer: this.props.myUserInfo,
+                        })}
+                        data-tippy-content={I18NextService.i18n.t(
+                          "upload_image",
+                        )}
                       >
-                        <Icon icon="image" classes="icon-inline" />
-                      </button>
-                    )}
-                  </label>
-                  <input
-                    id={`file-upload-${this.state.id}`}
-                    ref={fileUploadRef}
-                    type="file"
-                    accept="image/*,video/*"
-                    name="file"
-                    className="d-none"
-                    multiple
-                    disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
-                    onChange={e => handleImageUpload(this, e)}
-                  />
+                        {this.state.imageUploadStatus ? (
+                          <Spinner />
+                        ) : (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-link rounded-0 text-muted mb-0"
+                            onClick={() => {
+                              fileUploadRef.current?.click();
+                            }}
+                          >
+                            <Icon icon="image" classes="icon-inline" />
+                          </button>
+                        )}
+                      </label>
+                      <input
+                        id={`file-upload-${this.state.id}`}
+                        ref={fileUploadRef}
+                        type="file"
+                        accept="image/*,video/*"
+                        name="file"
+                        className="d-none"
+                        multiple
+                        disabled={userNotLoggedInOrBanned(
+                          this.props.myUserInfo,
+                        )}
+                        onChange={e => handleImageUpload(this, e)}
+                      />
+                    </>
+                  )}
                   {this.getFormatButton("header", () =>
                     handleInsertHeader(this),
                   )}
@@ -393,7 +402,7 @@ function handleEmoji(i: MarkdownTextArea, e: EmojiEvent) {
 }
 
 async function handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
-  if (!event.clipboardData) return;
+  if (!event.clipboardData || this.props.imageUploadDisabled) return;
 
   // check clipboard files
   const image = event.clipboardData.files[0];

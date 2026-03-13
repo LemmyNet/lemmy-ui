@@ -313,6 +313,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   onEditComment={form => handleEditComment(this, form)}
                   onCreateComment={() => {}}
                   loading={this.props.editLoading === id}
+                  imageUploadDisabled={
+                    !this.props.localSite.image_upload_disabled
+                  }
                 />
               )}
               {!this.state.showEdit && !this.state.collapsed && (
@@ -455,6 +458,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                 onCreateComment={form => handleCreateComment(this, form)}
                 onEditComment={() => {}}
                 loading={this.props.createLoading === id}
+                imageUploadDisabled={this.props.localSite.image_upload_disabled}
               />
             </div>
           )}
