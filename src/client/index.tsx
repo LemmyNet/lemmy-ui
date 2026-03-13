@@ -5,11 +5,9 @@ import { lazyHighlightjs } from "@utils/lazy-highlightjs";
 import { loadLanguageInstances } from "@services/I18NextService";
 import { verifyDynamicImports } from "@utils/dynamic-imports";
 import { setupMarkdown } from "@utils/markdown";
-
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
 import "bootstrap/js/dist/modal";
-import { createRef } from "inferno";
 
 window.addEventListener("unhandledrejection", (ev: PromiseRejectionEvent) => {
   ev.preventDefault();
@@ -36,19 +34,20 @@ async function startClient() {
     loadLanguageInstances(fallbackLanguages, interfaceLanguage),
   ]);
 
-  const rootRef = createRef<HTMLDivElement>();
   const wrapper = (
     <BrowserRouter>
-      <App dateFnsLocale={dateFnsLocale} i18n={i18n} rootRef={rootRef} />
+      <App dateFnsLocale={dateFnsLocale} i18n={i18n} />
     </BrowserRouter>
   );
 
-  if (rootRef.current) {
-    hydrate(wrapper, rootRef.current);
+  // This element seems to be defined somewhere in infernojs codebase, so we cannot
+  // access it via createRef
+  // eslint-disable-next-line no-restricted-properties
+  const root = document.getElementById("root");
+  if (root) {
+    hydrate(wrapper, root);
 
-    rootRef.current.dispatchEvent(
-      new CustomEvent("lemmy-hydrated", { bubbles: true }),
-    );
+    root.dispatchEvent(new CustomEvent("lemmy-hydrated", { bubbles: true }));
   }
 }
 

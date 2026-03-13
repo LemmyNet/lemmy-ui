@@ -19,7 +19,6 @@ import { Locale, setDefaultOptions } from "date-fns";
 import { i18n } from "i18next";
 import { setupEmojiDataModel } from "@utils/markdown";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { RefObject } from "inferno";
 
 function handleJumpToContent(
   app: App,
@@ -32,11 +31,11 @@ function handleJumpToContent(
 interface AppProps {
   dateFnsLocale: Locale;
   i18n: i18n;
-  rootRef: RefObject<HTMLDivElement>;
 }
 
 export default class App extends Component<AppProps, object> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
+  private readonly rootRef = createRef<HTMLDivElement>();
   readonly contentRef = createRef<HTMLDivElement>();
 
   constructor(props: AppProps, context: object) {
@@ -50,7 +49,7 @@ export default class App extends Component<AppProps, object> {
   }
 
   async componentDidMount() {
-    setupTippy(this.props.rootRef);
+    setupTippy(this.rootRef);
     await setupEmojiDataModel();
   }
 
@@ -138,7 +137,7 @@ export default class App extends Component<AppProps, object> {
           <div
             id="app"
             className="lemmy-site"
-            ref={this.props.rootRef}
+            ref={this.rootRef}
             data-adult-consent={this.isoData.showAdultConsentModal || null}
           >
             <button
