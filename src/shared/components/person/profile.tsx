@@ -357,7 +357,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
 
     const personRes = await HttpService.client.getPersonDetails({
-      username: props.match.params.username,
+      username: decodeURIComponent(props.match.params.username),
       sort,
       saved_only: view === PersonDetailsView.Saved,
       page,
@@ -409,7 +409,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
 
     const form: GetPersonDetails = {
-      username: username,
+      username: decodeURIComponent(username),
       sort,
       saved_only: view === PersonDetailsView.Saved,
       page,
