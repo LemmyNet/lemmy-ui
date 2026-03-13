@@ -205,10 +205,7 @@ export class Notifications extends Component<
       <div className="notifications container-lg">
         <div className="row">
           <div className="col-12">
-            <HtmlTags
-              title={this.documentTitle}
-              path={this.context.router.route.match.url}
-            />
+            <HtmlTags title={this.documentTitle} context={this.context} />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("notifications")}
               {notifsRss && (

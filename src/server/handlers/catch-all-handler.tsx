@@ -187,9 +187,7 @@ export default async (req: Request, res: Response) => {
     console.error(err);
     res.statusCode = 500;
 
-    res.send(
-      process.env.NODE_ENV === "development" ? err.name : "Server error",
-    );
+    res.send(err);
   }
 };
 

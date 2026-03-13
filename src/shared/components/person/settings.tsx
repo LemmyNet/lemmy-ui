@@ -374,7 +374,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         />
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context}
           description={this.documentTitle}
           image={this.state.avatar}
         />

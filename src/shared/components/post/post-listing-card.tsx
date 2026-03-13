@@ -281,7 +281,7 @@ function VideoBlock({ postView }: VideoBlockProps) {
       <div className="ratio ratio-16x9 mt-3">
         <video
           onLoadStart={handleMediaLoadStart}
-          onPlay={this.handleMediaLoadStart}
+          onPlay={handleMediaLoadStart}
           onVolumeChange={handleMediaVolumeChange}
           controls
           aria-label={post.alt_text}

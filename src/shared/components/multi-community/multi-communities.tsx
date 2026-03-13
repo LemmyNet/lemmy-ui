@@ -204,10 +204,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
 
     return (
       <div className="multi-communities container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         <div>
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("multi_communities")}
