@@ -311,6 +311,15 @@ export function getEmojiMart(onEmojiSelect: (e: EmojiEvent) => void) {
   return new Picker(pickerOptions);
 }
 
+interface TributeItem<T> {
+  original: T;
+}
+
+interface EmojiTribute {
+  key: string;
+  val: string;
+}
+
 export async function setupTribute() {
   const Tribute = (await import("tributejs")).default;
 
@@ -322,17 +331,17 @@ export async function setupTribute() {
       // Emojis
       {
         trigger: ":",
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        menuItemTemplate: (item: any) => {
-          const shortName = `:${item.original.key}:`;
-          return `${item.original.val} ${shortName}`;
+        menuItemTemplate: (item: unknown) => {
+          const item2 = item as TributeItem<EmojiTribute>;
+          const shortName = `:${item2.original.key}:`;
+          return `${item2.original.val} ${shortName}`;
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        selectTemplate: (item: any) => {
+        selectTemplate: (item: unknown) => {
+          const item2 = item as TributeItem<EmojiTribute>;
           const customEmoji = customEmojisLookup.get(
-            item.original.key as string,
+            item2.original.key,
           )?.custom_emoji;
-          if (customEmoji === undefined) return `${item.original.val}`;
+          if (customEmoji === undefined) return `${item2.original.val}`;
           else
             return `![${customEmoji.alt_text}](${customEmoji.image_url} "emoji ${customEmoji.shortcode}")`;
         },
@@ -356,9 +365,9 @@ export async function setupTribute() {
       // Persons
       {
         trigger: "@",
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        selectTemplate: (item: any) => {
-          const it: PersonTribute = item.original;
+        selectTemplate: (item: unknown) => {
+          const item2 = item as TributeItem<PersonTribute>;
+          const it = item2.original;
           return it.key;
         },
         values: debounce((text: string, cb) => {
@@ -376,9 +385,9 @@ export async function setupTribute() {
       // Communities
       {
         trigger: "!",
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        selectTemplate: (item: any) => {
-          const it: CommunityTribute = item.original;
+        selectTemplate: (item: unknown) => {
+          const item2 = item as TributeItem<CommunityTribute>;
+          const it = item2.original;
           return it.key;
         },
         values: debounce((text: string, cb) => {
