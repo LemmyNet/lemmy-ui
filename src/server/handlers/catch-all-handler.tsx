@@ -39,7 +39,7 @@ export default async (req: Request, res: Response) => {
   try {
     const languages = headerLanguages(req.headers["accept-language"]);
 
-    let match: Match<any> | null | undefined;
+    let match: Match<Record<string, string>> | null | undefined;
     const activeRoute = routes.find(
       route => (match = matchPath(req.path, route)),
     );
@@ -103,6 +103,7 @@ export default async (req: Request, res: Response) => {
 
       if (siteRes && activeRoute?.fetchInitialData && match) {
         const { search } = parsePath(url);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
           path,
           query:
@@ -185,9 +186,7 @@ export default async (req: Request, res: Response) => {
     console.error(err);
     res.statusCode = 500;
 
-    res.send(
-      process.env.NODE_ENV === "development" ? err.name : "Server error",
-    );
+    res.send(err);
   }
 };
 

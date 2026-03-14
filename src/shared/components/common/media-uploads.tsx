@@ -1,4 +1,4 @@
-import { Component, InfernoNode } from "inferno";
+import { Component } from "inferno";
 import {
   LocalImage,
   LocalImageView,
@@ -21,15 +21,7 @@ interface Props {
 }
 
 @tippyMixin
-export class MediaUploads extends Component<Props, any> {
-  componentWillReceiveProps(
-    nextProps: Readonly<{ children?: InfernoNode } & Props>,
-  ) {
-    if (this.props !== nextProps) {
-      this.setState({ loading: false });
-    }
-  }
-
+export class MediaUploads extends Component<Props, never> {
   render() {
     const images = this.props.uploads.items;
 

@@ -129,8 +129,8 @@ interface SettingsState {
   searchInstanceOptions: Choice[];
   isIsomorphic: boolean;
   show2faModal: boolean;
-  importSettingsRes: RequestState<any>;
-  exportSettingsRes: RequestState<any>;
+  importSettingsRes: RequestState<unknown>;
+  exportSettingsRes: RequestState<unknown>;
   settingsFile?: File;
   avatar?: string;
   banner?: string;
@@ -374,7 +374,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         />
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context}
           description={this.documentTitle}
           image={this.state.avatar}
         />

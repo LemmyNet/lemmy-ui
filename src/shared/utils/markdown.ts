@@ -207,7 +207,7 @@ export function setupMarkdown() {
     tokens: Token[],
     idx: number,
     options: MarkdownIt.Options,
-    env: any,
+    env: never,
     self: Renderer,
   ) {
     // Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
@@ -246,7 +246,7 @@ export function setupMarkdown() {
     tokens: Token[],
     idx: number,
     options: MarkdownIt.Options,
-    env: any,
+    env: never,
     self: Renderer,
   ) {
     tokens[idx].attrPush(["rel", relTags]);
@@ -292,10 +292,12 @@ export async function setupEmojiDataModel(
   return true;
 }
 
-export function getEmojiMart(
-  onEmojiSelect: (e: any) => void,
-  customPickerOptions: any = {},
-) {
+export interface EmojiEvent {
+  native: string;
+  id: string;
+}
+
+export function getEmojiMart(onEmojiSelect: (e: EmojiEvent) => void) {
   const data = async () => {
     const response = await fetch(`${getStaticDir()}/assets/emojis.json`);
 
@@ -305,9 +307,17 @@ export function getEmojiMart(
     onEmojiSelect: onEmojiSelect,
     custom: customEmojis,
     data,
-    ...customPickerOptions,
   };
   return new Picker(pickerOptions);
+}
+
+interface TributeItem<T> {
+  original: T;
+}
+
+interface EmojiTribute {
+  key: string;
+  val: string;
 }
 
 export async function setupTribute() {
@@ -321,15 +331,17 @@ export async function setupTribute() {
       // Emojis
       {
         trigger: ":",
-        menuItemTemplate: (item: any) => {
-          const shortName = `:${item.original.key}:`;
-          return `${item.original.val} ${shortName}`;
+        menuItemTemplate: (item: unknown) => {
+          const item2 = item as TributeItem<EmojiTribute>;
+          const shortName = `:${item2.original.key}:`;
+          return `${item2.original.val} ${shortName}`;
         },
-        selectTemplate: (item: any) => {
+        selectTemplate: (item: unknown) => {
+          const item2 = item as TributeItem<EmojiTribute>;
           const customEmoji = customEmojisLookup.get(
-            item.original.key as string,
+            item2.original.key,
           )?.custom_emoji;
-          if (customEmoji === undefined) return `${item.original.val}`;
+          if (customEmoji === undefined) return `${item2.original.val}`;
           else
             return `![${customEmoji.alt_text}](${customEmoji.image_url} "emoji ${customEmoji.shortcode}")`;
         },
@@ -353,8 +365,9 @@ export async function setupTribute() {
       // Persons
       {
         trigger: "@",
-        selectTemplate: (item: any) => {
-          const it: PersonTribute = item.original;
+        selectTemplate: (item: unknown) => {
+          const item2 = item as TributeItem<PersonTribute>;
+          const it = item2.original;
           return it.key;
         },
         values: debounce((text: string, cb) => {
@@ -372,8 +385,9 @@ export async function setupTribute() {
       // Communities
       {
         trigger: "!",
-        selectTemplate: (item: any) => {
-          const it: CommunityTribute = item.original;
+        selectTemplate: (item: unknown) => {
+          const item2 = item as TributeItem<CommunityTribute>;
+          const it = item2.original;
           return it.key;
         },
         values: debounce((text: string, cb) => {

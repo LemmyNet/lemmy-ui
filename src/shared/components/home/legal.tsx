@@ -4,7 +4,7 @@ import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 
-export class Legal extends Component<any, any> {
+export class Legal extends Component<object, object> {
   private isoData = setIsoData(this.context);
 
   get documentTitle(): string {
@@ -15,10 +15,7 @@ export class Legal extends Component<any, any> {
     const legal = this.isoData.siteRes?.site_view.local_site.legal_information;
     return (
       <div className="legal container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         {legal && (
           <div
             className="md-div"

@@ -19,7 +19,7 @@ function formatDate(input: string) {
 }
 
 @tippyMixin
-export class MomentTime extends Component<MomentTimeProps, any> {
+export class MomentTime extends Component<MomentTimeProps, never> {
   createdAndModifiedTimes() {
     const updated = this.updatedTime;
     let line = `${capitalizeFirstLetter(

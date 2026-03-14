@@ -39,10 +39,7 @@ export class LoginReset extends Component<
   render() {
     return (
       <div className="container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         <div className="col-12 col-lg-6 col-md-8 m-auto">
           {this.loginResetForm()}
         </div>

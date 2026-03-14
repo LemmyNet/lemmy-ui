@@ -2,7 +2,7 @@ import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import { ErrorPage } from "../app/error-page";
 
-class ErrorGuard extends Component<any, any> {
+class ErrorGuard extends Component<object, never> {
   private isoData = setIsoData(this.context);
 
   componentWillUnmount() {

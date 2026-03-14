@@ -35,7 +35,7 @@ export type RequestState<T> =
   | SuccessRequestState<T>;
 
 export type WrappedLemmyHttp = WrappedLemmyHttpClient & {
-  [K in keyof LemmyHttp]: LemmyHttp[K] extends (...args: any[]) => any
+  [K in keyof LemmyHttp]: LemmyHttp[K] extends (...args: unknown[]) => unknown
     ? ReturnType<LemmyHttp[K]> extends Promise<infer U>
       ? (...args: Parameters<LemmyHttp[K]>) => Promise<RequestState<U>>
       : (
@@ -54,7 +54,7 @@ class WrappedLemmyHttpClient {
       Object.getPrototypeOf(this.rawClient),
     )) {
       if (key !== "constructor") {
-        this[key] = async (...args: any[]) => {
+        this[key] = async (...args: unknown[]) => {
           try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             const res = await this.rawClient[key](...args);

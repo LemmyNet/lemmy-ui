@@ -81,10 +81,7 @@ export class Login extends Component<LoginRouteProps, State> {
   render() {
     return (
       <div className="login container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         <TotpModal
           type="login"
           onSubmit={totp => handleSubmitTotp(this, totp)}

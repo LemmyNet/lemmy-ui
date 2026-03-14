@@ -27,7 +27,7 @@ interface NavbarProps {
 }
 
 interface NavbarState {
-  onSiteBanner?(url: string): any;
+  onSiteBanner?(url: string): unknown;
   unreadNotifsCount: number;
   unreadReportCount: number;
   unreadApplicationCount: number;
