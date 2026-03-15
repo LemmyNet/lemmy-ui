@@ -745,7 +745,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  get listings() {
+  get listings(): InfernoNode | void {
     const { postOrCommentType } = this.props;
     const siteRes = this.state.siteRes;
     const myUserInfo = this.isoData.myUserInfo;

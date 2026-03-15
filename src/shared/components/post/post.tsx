@@ -32,7 +32,7 @@ import {
   QueryParams,
   RouteDataResponse,
 } from "@utils/types";
-import { Component, createRef } from "inferno";
+import { Component, createRef, InfernoNode } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -564,7 +564,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     } else return undefined;
   }
 
-  renderPostRes() {
+  renderPostRes(): InfernoNode | void {
     const myUserInfo = this.isoData.myUserInfo;
 
     switch (this.state.postRes.state) {
@@ -734,7 +734,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     return <div className="post container-lg">{this.renderPostRes()}</div>;
   }
 
-  commentsFlat() {
+  commentsFlat(): InfernoNode | void {
     if (this.state.commentsRes.state === "loading") {
       return (
         <div className="text-center">
@@ -815,7 +815,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  sidebar() {
+  sidebar(): InfernoNode | void {
     const res = this.state.postRes;
     const myUserInfo = this.isoData.myUserInfo;
 

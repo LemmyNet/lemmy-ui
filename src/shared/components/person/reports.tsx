@@ -360,7 +360,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  all() {
+  all(): InfernoNode | void {
     switch (this.state.reportsRes.state) {
       case "loading":
         return (
@@ -382,7 +382,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  commentReports() {
+  commentReports(): InfernoNode | void {
     const res = this.state.reportsRes;
     const siteRes = this.state.siteRes;
     switch (res.state) {
@@ -426,7 +426,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  postReports() {
+  postReports(): InfernoNode | void {
     const res = this.state.reportsRes;
     const siteRes = this.state.siteRes;
     switch (res.state) {
@@ -469,7 +469,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  privateMessageReports() {
+  privateMessageReports(): InfernoNode | void {
     const res = this.state.reportsRes;
     switch (res.state) {
       case "loading":
@@ -507,7 +507,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  communityReports() {
+  communityReports(): InfernoNode | void {
     const res = this.state.reportsRes;
     switch (res.state) {
       case "loading":

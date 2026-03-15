@@ -19,7 +19,7 @@ import {
 } from "@utils/helpers";
 import type { IsoData, QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import { Component, createRef, FormEvent } from "inferno";
+import { Component, createRef, FormEvent, InfernoNode } from "inferno";
 import {
   CommunityView,
   GetCommunity,
@@ -699,7 +699,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     );
   }
 
-  displayResolve() {
+  displayResolve(): InfernoNode | void {
     const { searchRes: searchResponse } = this.state;
     if (searchResponse.state === "success" && searchResponse.data.resolve) {
       const resolve = searchResponse.data.resolve;

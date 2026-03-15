@@ -6,7 +6,7 @@ import {
   ShowCrossPostsType,
   ShowMarkReadType,
 } from "@utils/types";
-import { Component, SemiSyntheticEvent } from "inferno";
+import { Component, SemiSyntheticEvent, InfernoNode } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -270,7 +270,7 @@ function Body({ viewSource, body, showBody }: BodyProps) {
 type VideoBlockProps = {
   postView: PostView;
 };
-function VideoBlock({ postView }: VideoBlockProps) {
+function VideoBlock({ postView }: VideoBlockProps): InfernoNode | void {
   const post = postView.post;
   const url = post.url;
 

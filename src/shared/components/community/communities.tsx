@@ -7,7 +7,7 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component, FormEvent } from "inferno";
+import { Component, FormEvent, InfernoNode } from "inferno";
 import {
   CommunityResponse,
   CommunitySortType,
@@ -139,7 +139,7 @@ export class Communities extends Component<
     }`;
   }
 
-  renderListingsTable() {
+  renderListingsTable(): InfernoNode | void {
     const nameCols = "col-12 col-md-7";
     const countCols = "col-6 col-md-1";
 

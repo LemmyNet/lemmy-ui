@@ -159,7 +159,7 @@ export default class ViewVotesModal extends Component<
     );
   }
 
-  postLikes() {
+  postLikes(): InfernoNode | void {
     switch (this.state.postLikesRes.state) {
       case "loading":
         return (
@@ -174,7 +174,7 @@ export default class ViewVotesModal extends Component<
     }
   }
 
-  commentLikes() {
+  commentLikes(): InfernoNode | void {
     switch (this.state.commentLikesRes.state) {
       case "loading":
         return (

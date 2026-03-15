@@ -3,7 +3,7 @@ import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import classNames from "classnames";
-import { Component } from "inferno";
+import { Component, FormEvent, InfernoNode } from "inferno";
 import {
   AdminAllowInstanceParams,
   AdminBlockInstanceParams,
@@ -68,7 +68,6 @@ import {
   AllOrBannedDropdown,
 } from "@components/common/all-or-banned-dropdown";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
-import { FormEvent } from "inferno";
 import { RouterContext } from "inferno-router/dist/Router";
 
 type AdminSettingsData = RouteDataResponse<{
@@ -557,7 +556,7 @@ export class AdminSettings extends Component<
     );
   }
 
-  userList() {
+  userList(): InfernoNode | void {
     switch (this.state.usersRes.state) {
       case "loading":
         return (
@@ -630,7 +629,7 @@ export class AdminSettings extends Component<
     }
   }
 
-  uploads() {
+  uploads(): InfernoNode | void {
     switch (this.state.uploadsRes.state) {
       case "loading":
         return (
@@ -658,7 +657,7 @@ export class AdminSettings extends Component<
     }
   }
 
-  taglinesTab() {
+  taglinesTab(): InfernoNode | void {
     switch (this.state.taglinesRes.state) {
       case "loading":
         return (
@@ -695,7 +694,7 @@ export class AdminSettings extends Component<
     }
   }
 
-  emojisTab() {
+  emojisTab(): InfernoNode | void {
     switch (this.state.emojisRes.state) {
       case "loading":
         return (
@@ -740,7 +739,7 @@ export class AdminSettings extends Component<
     return <EmojiForm onCreate={form => handleCreateEmoji(this, form)} />;
   }
 
-  instanceBlocksTab() {
+  instanceBlocksTab(): InfernoNode | void {
     switch (this.state.instancesRes.state) {
       case "loading":
         return (

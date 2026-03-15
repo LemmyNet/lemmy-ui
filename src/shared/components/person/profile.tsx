@@ -28,7 +28,7 @@ import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
 import { format } from "date-fns";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, FormEvent, InfernoMouseEvent } from "inferno";
+import { Component, FormEvent, InfernoMouseEvent, InfernoNode } from "inferno";
 import { Link } from "inferno-router";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
@@ -600,7 +600,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       : siteName;
   }
 
-  renderUploadsRes() {
+  renderUploadsRes(): InfernoNode | void {
     switch (this.state.uploadsRes.state) {
       case "loading":
         return (
@@ -622,7 +622,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     }
   }
 
-  renderPersonRes() {
+  renderPersonRes(): InfernoNode | void {
     switch (this.state.personRes.state) {
       case "loading":
         return (
