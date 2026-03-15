@@ -130,6 +130,7 @@ export class RegistrationApplication extends Component<
                 allLanguages={[]}
                 siteLanguages={[]}
                 myUserInfo={this.props.myUserInfo}
+                imageUploadDisabled
               />
             </div>
           </div>

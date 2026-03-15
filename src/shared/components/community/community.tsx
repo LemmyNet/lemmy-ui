@@ -265,7 +265,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     ]);
   }
 
-  constructor(props: CommunityRouteProps, context: any) {
+  constructor(props: CommunityRouteProps, context: object) {
     super(props, context);
 
     this.mainContentRef = createRef();

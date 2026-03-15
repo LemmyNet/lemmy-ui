@@ -36,7 +36,7 @@ export default class ConfirmationModal extends Component<
     loading: false,
   };
 
-  constructor(props: ConfirmationModalProps, context: any) {
+  constructor(props: ConfirmationModalProps, context: object) {
     super(props, context);
 
     this.modalDivRef = createRef();

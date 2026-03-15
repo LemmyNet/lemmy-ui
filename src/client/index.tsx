@@ -5,10 +5,14 @@ import { lazyHighlightjs } from "@utils/lazy-highlightjs";
 import { loadLanguageInstances } from "@services/I18NextService";
 import { verifyDynamicImports } from "@utils/dynamic-imports";
 import { setupMarkdown } from "@utils/markdown";
-
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
 import "bootstrap/js/dist/modal";
+
+window.addEventListener("unhandledrejection", (ev: PromiseRejectionEvent) => {
+  ev.preventDefault();
+  console.error("Unhandled promise rejection:", ev.reason);
+});
 
 async function startClient() {
   // Allows to test imports from the browser console.
@@ -36,8 +40,10 @@ async function startClient() {
     </BrowserRouter>
   );
 
+  // This element seems to be defined somewhere in infernojs codebase, so we cannot
+  // access it via createRef
+  // eslint-disable-next-line no-restricted-properties
   const root = document.getElementById("root");
-
   if (root) {
     hydrate(wrapper, root);
 

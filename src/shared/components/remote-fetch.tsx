@@ -108,7 +108,7 @@ export class RemoteFetch extends Component<
     return resourcesSettled([this.state.resolveObjectRes]);
   }
 
-  constructor(props: RemoteFetchRouteProps, context: any) {
+  constructor(props: RemoteFetchRouteProps, context: object) {
     super(props, context);
 
     if (FirstLoadService.isFirstLoad) {

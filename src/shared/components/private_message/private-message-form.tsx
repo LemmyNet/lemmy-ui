@@ -21,6 +21,7 @@ interface PrivateMessageFormProps {
   replyType?: boolean;
   myUserInfo: MyUserInfo | undefined;
   createOrEditLoading: boolean;
+  imageUploadDisabled: boolean;
   onCancel?: () => void;
   onCreate?: (form: CreatePrivateMessage, bypassNavWarning: () => void) => void;
   onEdit?: (form: EditPrivateMessage, bypassNavWarning: () => void) => void;
@@ -120,6 +121,7 @@ export class PrivateMessageForm extends Component<
               }
               myUserInfo={this.props.myUserInfo}
               loading={this.props.createOrEditLoading}
+              imageUploadDisabled={this.props.imageUploadDisabled}
             />
           </div>
         </div>

@@ -159,7 +159,7 @@ export class Notifications extends Component<
     return resourcesSettled([this.state.notifsRes]);
   }
 
-  constructor(props: NotificationsRouteProps, context: NotificationsState) {
+  constructor(props: NotificationsRouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route
@@ -343,6 +343,9 @@ export class Notifications extends Component<
             private_message_view={data}
             read={item.notification.read}
             myUserInfo={myUserInfo}
+            imageUploadDisabled={
+              siteRes.site_view.local_site.image_upload_disabled
+            }
             onDelete={form => handleDeleteMessage(this, form)}
             onReport={form => handleMessageReport(form)}
             onCreate={form => handleCreateMessage(this, form)}
@@ -938,6 +941,7 @@ async function handleCreateMessage(
         // FIXME: maybe just let it disappear, comments do too (own comments don't show in notifs)
         notification: {
           id: 0,
+          creator_id: 0,
           recipient_id: 0,
           read: true,
           published_at: nowBoolean(true) ?? "",

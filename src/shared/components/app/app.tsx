@@ -18,6 +18,7 @@ import { destroyTippy, setupTippy } from "@utils/tippy";
 import { Locale, setDefaultOptions } from "date-fns";
 import { i18n } from "i18next";
 import { setupEmojiDataModel } from "@utils/markdown";
+import { RouteComponentProps } from "inferno-router/dist/Route";
 
 function handleJumpToContent(
   app: App,
@@ -68,7 +69,9 @@ export default class App extends Component<AppProps, object> {
         key={path}
         path={path}
         exact
-        component={routeProps => {
+        component={(
+          routeProps: RouteComponentProps<Record<string, string>>,
+        ) => {
           if (!fetchInitialData) {
             FirstLoadService.falsify();
           }
@@ -81,7 +84,7 @@ export default class App extends Component<AppProps, object> {
             queryProps = {
               ...routeProps,
               ...getQueryParams(
-                routeProps.location.search as string,
+                routeProps.location.search,
                 this.isoData.siteRes,
                 this.isoData.myUserInfo,
               ),

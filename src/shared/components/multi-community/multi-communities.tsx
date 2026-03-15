@@ -105,7 +105,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
     return resourcesSettled([this.state.listMultiCommunitiesRes]);
   }
 
-  constructor(props: RouteProps, context: any) {
+  constructor(props: RouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route

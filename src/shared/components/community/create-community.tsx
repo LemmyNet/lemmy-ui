@@ -39,6 +39,8 @@ export class CreateCommunity extends Component<
   }
 
   render() {
+    const imageUploadDisabled =
+      this.isoData.siteRes.site_view.local_site.image_upload_disabled;
     return (
       <div className="create-community container-lg">
         <HtmlTags
@@ -62,6 +64,7 @@ export class CreateCommunity extends Component<
                 this.state.createCommunityRes.state === "loading"
               }
               myUserInfo={this.isoData.myUserInfo}
+              imageUploadDisabled={imageUploadDisabled}
             />
           </div>
         </div>

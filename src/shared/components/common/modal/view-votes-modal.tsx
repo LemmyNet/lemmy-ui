@@ -88,7 +88,7 @@ export default class ViewVotesModal extends Component<
     commentLikesRes: EMPTY_REQUEST,
   };
 
-  constructor(props: ViewVotesModalProps, context: any) {
+  constructor(props: ViewVotesModalProps, context: object) {
     super(props, context);
 
     this.modalDivRef = createRef();

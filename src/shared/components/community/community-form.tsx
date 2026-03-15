@@ -28,6 +28,7 @@ interface CommunityFormProps {
   createOrEditLoading?: boolean;
   deleteLoading?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  imageUploadDisabled: boolean;
   onCreate?: (form: CreateCommunity) => void;
   onEdit?: (form: EditCommunity) => void;
   onDelete?: (deleted: boolean) => void;
@@ -243,6 +244,7 @@ export class CommunityForm extends Component<
               allLanguages={[]}
               siteLanguages={[]}
               myUserInfo={this.props.myUserInfo}
+              imageUploadDisabled={this.props.imageUploadDisabled}
             />
           </div>
         </div>

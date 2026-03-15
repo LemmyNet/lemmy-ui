@@ -23,6 +23,7 @@ import { Icon, Spinner } from "./icon";
 import { LanguageSelect } from "./language-select";
 import ProgressBar from "./progress-bar";
 import { validURL } from "@utils/helpers";
+import { createRef, RefObject } from "inferno";
 
 interface MarkdownTextAreaProps {
   /**
@@ -57,6 +58,7 @@ interface MarkdownTextAreaProps {
   renderAsDiv?: boolean;
   myUserInfo: MyUserInfo | undefined;
   loading?: boolean;
+  imageUploadDisabled: boolean;
 }
 
 interface ImageUploadStatus {
@@ -78,6 +80,7 @@ export class MarkdownTextArea extends Component<
   MarkdownTextAreaProps,
   MarkdownTextAreaState
 > {
+  textAreaRef: RefObject<HTMLTextAreaElement> = createRef();
   state: MarkdownTextAreaState = {
     id: `markdown-textarea-${randomStr()}`,
     formId: `markdown-form-${randomStr()}`,
@@ -89,9 +92,7 @@ export class MarkdownTextArea extends Component<
   async componentDidMount() {
     if (isBrowser()) {
       const tribute = await setupTribute();
-      const textarea: HTMLTextAreaElement | null = document.getElementById(
-        this.state.id,
-      ) as HTMLTextAreaElement;
+      const textarea = this.textAreaRef.current;
       if (textarea) {
         autosize(textarea);
         tribute.attach(textarea);
@@ -111,6 +112,7 @@ export class MarkdownTextArea extends Component<
 
   render() {
     const languageId = this.state.languageId;
+    const fileUploadRef = createRef<HTMLInputElement>();
     return createElement(
       this.props.renderAsDiv ? "div" : "form",
       {
@@ -144,39 +146,46 @@ export class MarkdownTextArea extends Component<
                   <EmojiPicker
                     onEmojiClick={emoji => handleEmoji(this, emoji)}
                   ></EmojiPicker>
-                  <label
-                    htmlFor={`file-upload-${this.state.id}`}
-                    className={classNames("mb-0", {
-                      pointer: this.props.myUserInfo,
-                    })}
-                    data-tippy-content={I18NextService.i18n.t("upload_image")}
-                  >
-                    {this.state.imageUploadStatus ? (
-                      <Spinner />
-                    ) : (
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-link rounded-0 text-muted mb-0"
-                        onClick={() => {
-                          document
-                            .getElementById(`file-upload-${this.state.id}`)
-                            ?.click();
-                        }}
+                  {!this.props.imageUploadDisabled && (
+                    <>
+                      <label
+                        htmlFor={`file-upload-${this.state.id}`}
+                        className={classNames("mb-0", {
+                          pointer: this.props.myUserInfo,
+                        })}
+                        data-tippy-content={I18NextService.i18n.t(
+                          "upload_image",
+                        )}
                       >
-                        <Icon icon="image" classes="icon-inline" />
-                      </button>
-                    )}
-                  </label>
-                  <input
-                    id={`file-upload-${this.state.id}`}
-                    type="file"
-                    accept="image/*,video/*"
-                    name="file"
-                    className="d-none"
-                    multiple
-                    disabled={userNotLoggedInOrBanned(this.props.myUserInfo)}
-                    onChange={e => handleImageUpload(this, e)}
-                  />
+                        {this.state.imageUploadStatus ? (
+                          <Spinner />
+                        ) : (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-link rounded-0 text-muted mb-0"
+                            onClick={() => {
+                              fileUploadRef.current?.click();
+                            }}
+                          >
+                            <Icon icon="image" classes="icon-inline" />
+                          </button>
+                        )}
+                      </label>
+                      <input
+                        id={`file-upload-${this.state.id}`}
+                        ref={fileUploadRef}
+                        type="file"
+                        accept="image/*,video/*"
+                        name="file"
+                        className="d-none"
+                        multiple
+                        disabled={userNotLoggedInOrBanned(
+                          this.props.myUserInfo,
+                        )}
+                        onChange={e => handleImageUpload(this, e)}
+                      />
+                    </>
+                  )}
                   {this.getFormatButton("header", () =>
                     handleInsertHeader(this),
                   )}
@@ -209,6 +218,7 @@ export class MarkdownTextArea extends Component<
               <div>
                 <textarea
                   id={this.state.id}
+                  ref={this.textAreaRef}
                   className={classNames(
                     "form-control border-0 rounded-top-0 rounded-bottom",
                     {
@@ -356,8 +366,11 @@ export class MarkdownTextArea extends Component<
   }
 
   getSelectedText(): string {
-    const { selectionStart: start, selectionEnd: end } =
-      document.getElementById(this.state.id) as HTMLTextAreaElement;
+    const textarea = this.textAreaRef.current;
+    if (!textarea) {
+      return "";
+    }
+    const { selectionStart: start, selectionEnd: end } = textarea;
     return start !== end
       ? (this.state.content?.substring(start, end) ?? "")
       : "";
@@ -384,7 +397,7 @@ function handleEmoji(i: MarkdownTextArea, e: any) {
 }
 
 async function handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
-  if (!event.clipboardData) return;
+  if (!event.clipboardData || this.props.imageUploadDisabled) return;
 
   // check clipboard files
   const image = event.clipboardData.files[0];
@@ -405,10 +418,9 @@ function handleUrlPaste(
   url: string,
   event: ClipboardEvent,
 ) {
-  // query textarea element
-  const textarea = document.getElementById(i.state.id);
+  const textarea = i.textAreaRef.current;
 
-  if (textarea instanceof HTMLTextAreaElement) {
+  if (textarea) {
     const { selectionStart, selectionEnd } = textarea;
 
     // if no selection, just insert url
@@ -515,9 +527,10 @@ function handleInsertAtCursor(
   text: string,
   cursorOffset: number = 0,
 ) {
-  const textarea: HTMLTextAreaElement = document.getElementById(
-    i.state.id,
-  ) as HTMLTextAreaElement;
+  const textarea = i.textAreaRef.current;
+  if (!textarea) {
+    return;
+  }
   const cursorPosition = textarea.selectionStart;
 
   i.setState(({ content }) => {
@@ -621,9 +634,10 @@ function handleReplyCancel(i: MarkdownTextArea) {
 }
 
 function handleInsertLink(i: MarkdownTextArea) {
-  const textarea: HTMLTextAreaElement = document.getElementById(
-    i.state.id,
-  ) as HTMLTextAreaElement;
+  const textarea = i.textAreaRef.current;
+  if (!textarea) {
+    return;
+  }
   const start: number = textarea.selectionStart;
   const end: number = textarea.selectionEnd;
 
@@ -673,9 +687,10 @@ function handleSimpleSurroundBeforeAfter(
     i.setState({ content: "" });
   }
 
-  const textarea: HTMLTextAreaElement = document.getElementById(
-    i.state.id,
-  ) as HTMLTextAreaElement;
+  const textarea = i.textAreaRef.current;
+  if (!textarea) {
+    return;
+  }
   const start: number = textarea.selectionStart;
   const end: number = textarea.selectionEnd;
 
@@ -768,10 +783,10 @@ function handleInsertSpoiler(i: MarkdownTextArea) {
 }
 
 function handleQuoteInsert(i: MarkdownTextArea) {
-  const textarea: any = document.getElementById(i.state.id);
+  const textarea = i.textAreaRef.current;
   const selectedText = window.getSelection()?.toString();
   let { content } = i.state;
-  if (selectedText) {
+  if (textarea && selectedText) {
     const quotedText =
       selectedText
         .split("\n")

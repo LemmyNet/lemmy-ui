@@ -212,7 +212,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     exportSettingsRes: EMPTY_REQUEST,
   };
 
-  constructor(props: SettingsRouteProps, context: SettingsState) {
+  constructor(props: SettingsRouteProps, context: object) {
     super(props, context);
 
     this.userSettings = this.userSettings.bind(this);
@@ -752,6 +752,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     const selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
     const siteRes = this.state.siteRes;
     const myUserInfo = this.isoData.myUserInfo;
+    const imageUploadDisabled =
+      siteRes.site_view.local_site.image_upload_disabled;
 
     return (
       <>
@@ -787,6 +789,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 allLanguages={siteRes.all_languages}
                 siteLanguages={siteRes.discussion_languages}
                 myUserInfo={myUserInfo}
+                imageUploadDisabled={imageUploadDisabled}
               />
             </div>
           </div>

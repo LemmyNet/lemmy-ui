@@ -291,7 +291,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     return resourcesSettled([this.state.postRes, this.state.commentsRes]);
   }
 
-  constructor(props: PostRouteProps, context: PostState) {
+  constructor(props: PostRouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route
@@ -577,6 +577,8 @@ export class Post extends Component<PostRouteProps, PostState> {
       case "success": {
         const res = this.state.postRes.data;
         const siteRes = this.state.siteRes;
+        const imageUploadDisabled =
+          siteRes.site_view.local_site.image_upload_disabled;
         return (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9 mb-3">
@@ -671,6 +673,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   }
                   onEditComment={() => {}}
                   loading={itemLoading(this.state.createCommentRes) === 0}
+                  imageUploadDisabled={imageUploadDisabled}
                 />
               )}
               <div className="d-block d-md-none">

@@ -67,10 +67,7 @@ export class CreatePrivateMessage extends Component<
     return resourcesSettled([this.state.recipientRes]);
   }
 
-  constructor(
-    props: CreatePrivateMessageRouteProps,
-    context: CreatePrivateMessageState,
-  ) {
+  constructor(props: CreatePrivateMessageRouteProps, context: object) {
     super(props, context);
 
     // Only fetch the data if coming from another route
@@ -138,6 +135,8 @@ export class CreatePrivateMessage extends Component<
         );
       case "success": {
         const res = this.state.recipientRes.data;
+        const imageUploadDisabled =
+          this.isoData.siteRes.site_view.local_site.image_upload_disabled;
         return (
           <div className="row">
             <div className="col-12 col-lg-6 offset-lg-3 mb-4">
@@ -153,6 +152,7 @@ export class CreatePrivateMessage extends Component<
                 createOrEditLoading={
                   this.state.createMessageRes.state === "loading"
                 }
+                imageUploadDisabled={imageUploadDisabled}
               />
             </div>
           </div>
