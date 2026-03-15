@@ -117,7 +117,15 @@ import { isBrowser } from "@utils/browser";
 import { CommunityHeader } from "./community-header";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
-import { TimeIntervalFilter } from "@components/common/time-interval-filter";
+import {
+  ALL_TIME_INTERVAL,
+  Interval,
+  intervalFromQuery,
+  intervalToQuery,
+  intervalToSeconds,
+  secondsToLargestInterval,
+  TimeIntervalFilter,
+} from "@components/common/time-interval-filter";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { communityName } from "./community-link";
 import {
@@ -155,7 +163,7 @@ interface State {
 interface CommunityProps {
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
-  postTimeRange: number;
+  postTimeRange: Interval;
   cursor?: PaginationCursor;
   showHidden?: boolean;
   showRead?: boolean;
@@ -163,7 +171,7 @@ interface CommunityProps {
 
 type Fallbacks = {
   sort: PostSortType | CommentSortType;
-  postTimeRange: number;
+  postTimeRange: Interval;
   showRead: boolean;
 };
 
@@ -179,7 +187,7 @@ export function getCommunityQueryParams(
       postOrCommentType: getPostOrCommentTypeFromQuery,
       cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
-      postTimeRange: getPostTimeRangeFromQuery,
+      postTimeRange: intervalFromQuery,
       showHidden: getShowHiddenFromQuery,
       showRead: getShowReadFromQuery,
     },
@@ -187,7 +195,9 @@ export function getCommunityQueryParams(
     {
       sort:
         local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
-      postTimeRange: local_user?.default_post_time_range_seconds ?? 0,
+      postTimeRange:
+        secondsToLargestInterval(local_user?.default_post_time_range_seconds) ??
+        ALL_TIME_INTERVAL,
       showRead: local_user?.show_read_posts ?? true,
     },
   );
@@ -202,13 +212,6 @@ function getSortTypeFromQuery(
   fallback: PostSortType | CommentSortType,
 ): PostSortType | CommentSortType {
   return type ? (type as PostSortType | CommentSortType) : fallback;
-}
-
-function getPostTimeRangeFromQuery(
-  type: string | undefined,
-  fallback: number,
-): number {
-  return type ? Number(type) : fallback;
 }
 
 function getShowHiddenFromQuery(hidden: string | undefined): boolean {
@@ -350,7 +353,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       const getPostsForm: GetPosts = {
         community_name: communityName,
         sort: mixedToPostSortType(sort),
-        time_range_seconds: postTimeRange,
+        time_range_seconds: intervalToSeconds(postTimeRange),
         type_: "all",
         show_hidden: showHidden,
         show_read: showRead,
@@ -391,6 +394,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       sort,
       showHidden,
       showRead,
+      postTimeRange,
       match: {
         params: { name },
       },
@@ -405,6 +409,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       sort,
       showHidden: showHidden?.toString(),
       showRead: showRead?.toString(),
+      postTimeRange: intervalToQuery(postTimeRange),
     };
 
     this.props.history.push(`/c/${name}${getQueryString(queryParams)}`);
@@ -428,7 +433,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       const postsRes = await HttpService.client.getPosts({
         page_cursor: cursor,
         sort: mixedToPostSortType(sort),
-        time_range_seconds: postTimeRange,
+        time_range_seconds: intervalToSeconds(postTimeRange),
         type_: "all",
         community_name: name,
         show_hidden: showHidden,
@@ -798,7 +803,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               </div>
               <div className="col">
                 <TimeIntervalFilter
-                  currentSeconds={postTimeRange}
+                  interval={postTimeRange}
                   onChange={val => handlePostTimeRangeChange(this, val)}
                 />
               </div>
@@ -904,7 +909,7 @@ function handleSortChange(i: Community, sort: PostSortType) {
   i.updateUrl({ sort, cursor: undefined });
 }
 
-function handlePostTimeRangeChange(i: Community, val: number) {
+function handlePostTimeRangeChange(i: Community, val: Interval) {
   i.updateUrl({ postTimeRange: val, cursor: undefined });
 }
 

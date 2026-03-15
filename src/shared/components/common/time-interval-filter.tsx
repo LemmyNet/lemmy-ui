@@ -2,33 +2,65 @@ import { Component, FormEvent } from "inferno";
 import { I18NextService } from "../../services";
 import { NoOptionI18nKeys } from "i18next";
 
-type IntervalUnit = NoOptionI18nKeys &
+export type IntervalUnit = NoOptionI18nKeys &
   ("seconds" | "minutes" | "hours" | "days" | "weeks" | "months" | "years");
 
-type Interval = {
-  num: number | undefined;
+export type Interval = {
+  num: number;
   unit: IntervalUnit;
 };
 
+const intervalRegex = /^(?<num>[0-9.]+)(?<unit>[^0-9]+)$/;
+
+export function intervalFromQuery(query: `${number}${IntervalUnit}`): Interval {
+  const { groups: { num, unit } = { ...ALL_TIME_INTERVAL } } =
+    intervalRegex.exec(query) ?? {};
+  return { num: Number(num), unit: unit as IntervalUnit };
+}
+
+export function intervalToQuery(interval: Interval) {
+  return `${interval.num}${interval.unit}`;
+}
+
+export function intervalToSeconds(interval: Interval): number {
+  const num = interval.num ?? 0;
+  const mult = conversions.find(t => t.unit === interval.unit)?.num ?? 1;
+  const secs = num * mult;
+  return secs;
+}
+
 type Props = {
-  currentSeconds: number | undefined;
-  onChange: (seconds: number) => void;
+  interval: Interval;
+  onChange: (interval: Interval) => void;
 };
 
-type State = {
+export const ALL_TIME_INTERVAL: Interval = { unit: "days", num: 0 };
+
+type TimePreset = {
+  label: /* FIXME: i18n */ string;
   interval: Interval;
 };
 
-export class TimeIntervalFilter extends Component<Props, State> {
-  state: State = {
-    interval: this.props.currentSeconds
-      ? secondsToLargestInterval(this.props.currentSeconds)
-      : { num: undefined, unit: "days" },
-  };
+export const TIME_RANGE_PRESETS: TimePreset[] = [
+  { label: "All time", interval: { ...ALL_TIME_INTERVAL } },
+  { label: "60 Seconds", interval: { num: 60, unit: "seconds" } },
+  { label: "30 Minutes", interval: { num: 30, unit: "minutes" } },
+  { label: "1 Hour", interval: { num: 1, unit: "hours" } },
+  { label: "6 Hours", interval: { num: 6, unit: "hours" } },
+  { label: "12 Hours", interval: { num: 12, unit: "hours" } },
+  { label: "1 Day", interval: { num: 1, unit: "days" } },
+  { label: "1 Week", interval: { num: 1, unit: "weeks" } },
+  { label: "1 Month", interval: { num: 1, unit: "months" } },
+  { label: "3 Months", interval: { num: 3, unit: "months" } },
+  { label: "6 Months", interval: { num: 6, unit: "months" } },
+  { label: "1 Year", interval: { num: 1, unit: "years" } },
+];
 
+export class TimeIntervalFilter extends Component<Props, never> {
   render() {
-    const { num, unit } = this.state.interval;
+    const { num, unit } = this.props.interval;
 
+    // TODO: aria representation is weird
     return (
       <div className="input-group input-group-sm">
         <input
@@ -57,13 +89,13 @@ export class TimeIntervalFilter extends Component<Props, State> {
               {I18NextService.i18n.t("custom_time")}
             </button>
           </li>
-          {conversions.map(({ unit }) => (
+          {TIME_RANGE_PRESETS.map(({ interval, label }) => (
             <li>
               <button
                 className="dropdown-item"
-                onClick={() => handleTimeIntervalUnitChange(this, unit)}
+                onClick={() => this.props.onChange(interval)}
               >
-                {I18NextService.i18n.t(unit)}
+                {/* FIXME: i18n */ label}
               </button>
             </li>
           ))}
@@ -77,31 +109,10 @@ function handleTimeIntervalNumChange(
   i: TimeIntervalFilter,
   event: FormEvent<HTMLInputElement>,
 ) {
-  const interval = {
+  i.props.onChange({
     num: Number(event.target.value),
-    unit: i.state.interval.unit,
-  };
-
-  handleTimeIntervalChange(i, interval);
-}
-
-function handleTimeIntervalUnitChange(
-  i: TimeIntervalFilter,
-  unit: IntervalUnit,
-) {
-  const interval = { num: i.state.interval.num, unit };
-
-  handleTimeIntervalChange(i, interval);
-}
-
-function handleTimeIntervalChange(i: TimeIntervalFilter, interval: Interval) {
-  i.setState({ interval });
-
-  const num = interval.num ?? 0;
-  const mult = conversions.find(t => t.unit === interval.unit)?.num ?? 1;
-  const secs = num * mult;
-
-  i.props.onChange(secs);
+    unit: i.props.interval.unit,
+  });
 }
 
 const conversions: Interval[] = [
@@ -115,7 +126,12 @@ const conversions: Interval[] = [
 ];
 
 // Taken from https://stackoverflow.com/questions/70805666/how-to-convert-seconds-to-biggest-significative-time-unit
-function secondsToLargestInterval(seconds: number): Interval {
+export function secondsToLargestInterval(
+  seconds?: number,
+): Interval | undefined {
+  if (seconds === undefined) {
+    return undefined;
+  }
   let bestInterval = conversions[0];
   for (const interval of conversions) {
     if (seconds >= (interval.num ?? 1)) {

@@ -26,7 +26,7 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, FormEvent, InfernoNode } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
 import {
@@ -122,7 +122,16 @@ import {
   FilterChipCheckbox,
 } from "@components/common/filter-chip-checkbox";
 import { RouterContext } from "inferno-router/dist/Router";
-import { TimeIntervalFilter } from "@components/common/time-interval-filter";
+import {
+  ALL_TIME_INTERVAL,
+  Interval,
+  intervalFromQuery,
+  intervalToQuery,
+  intervalToSeconds,
+  secondsToLargestInterval,
+  TIME_RANGE_PRESETS,
+  TimeIntervalFilter,
+} from "@components/common/time-interval-filter";
 
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
@@ -147,7 +156,7 @@ interface HomeProps {
   listingType?: ListingType;
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
-  postTimeRange?: number;
+  postTimeRange: Interval;
   showHidden?: boolean;
   showRead?: boolean;
   cursor?: PaginationCursor;
@@ -208,13 +217,6 @@ function getSortTypeFromQuery(
   return type ? (type as PostSortType | CommentSortType) : fallback;
 }
 
-function getPostTimeRangeFromQuery(
-  type: string | undefined,
-  fallback: number,
-): number {
-  return type ? Number(type) : fallback;
-}
-
 function getShowHiddenFromQuery(hidden: string | undefined): boolean {
   return hidden === "true";
 }
@@ -228,7 +230,7 @@ function getShowReadFromQuery(
 
 type Fallbacks = {
   sort: PostSortType | CommentSortType;
-  postTimeRange: number;
+  postTimeRange: Interval;
   listingType: ListingType;
   showRead: boolean;
 };
@@ -243,7 +245,7 @@ export function getHomeQueryParams(
   return getQueryParams<HomeProps, Fallbacks>(
     {
       sort: getSortTypeFromQuery,
-      postTimeRange: getPostTimeRangeFromQuery,
+      postTimeRange: intervalFromQuery,
       listingType: getListingTypeFromQuery,
       cursor: (cursor?: string) => cursor,
       postOrCommentType: getPostOrCommentTypeFromQuery,
@@ -257,7 +259,9 @@ export function getHomeQueryParams(
       listingType:
         local_user?.default_listing_type ??
         local_site.default_post_listing_type,
-      postTimeRange: local_user?.default_post_time_range_seconds ?? 0,
+      postTimeRange:
+        secondsToLargestInterval(local_user?.default_post_time_range_seconds) ??
+        ALL_TIME_INTERVAL,
       showRead: local_user?.show_read_posts ?? true,
     },
   );
@@ -363,7 +367,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         type_: listingType,
         page_cursor: cursor,
         sort: mixedToPostSortType(sort),
-        time_range_seconds: postTimeRange,
+        time_range_seconds: intervalToSeconds(postTimeRange),
         show_hidden: showHidden,
         show_read: showRead,
       };
@@ -682,7 +686,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       listingType,
       cursor,
       sort,
-      postTimeRange: postTimeRange?.toString(),
+      postTimeRange: intervalToQuery(postTimeRange),
       showHidden: showHidden?.toString(),
       showRead: showRead?.toString(),
     };
@@ -961,7 +965,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           </button>
           {!hidePostTimeRange && (
             <label for="post-time-range" className="form-label col ms-auto">
-              {postTimeRangeValue(postTimeRange)}
+              {
+                TIME_RANGE_PRESETS.find(
+                  ({ interval: { num, unit } }) =>
+                    postTimeRange.unit === unit && postTimeRange.num === num,
+                )?.label
+              }
             </label>
           )}
         </div>
@@ -985,8 +994,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               </div>
               <div className="col mt-0">
                 <TimeIntervalFilter
-                  currentSeconds={postTimeRange}
-                  onChange={val => handlePostTimeRangeChange2(this, val)}
+                  interval={postTimeRange}
+                  onChange={val => handlePostTimeRangeChange(this, val)}
                 />
               </div>
             </div>
@@ -997,12 +1006,20 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             type="range"
             className="form-range mt-0"
             min="0"
-            max={POST_TIME_RANGE_STEPS.length - 1}
+            max={TIME_RANGE_PRESETS.length - 1}
             value={
-              POST_TIME_RANGE_STEPS.find(x => x.seconds === postTimeRange)
-                ?.step ?? POST_TIME_RANGE_STEPS.length - 1
+              TIME_RANGE_PRESETS.findIndex(
+                x =>
+                  x.interval.num === postTimeRange.num &&
+                  x.interval.unit === postTimeRange.unit,
+              ) ?? 0
             }
-            onInput={e => handlePostTimeRangeChange(this, e)}
+            onInput={e =>
+              handlePostTimeRangeChange(
+                this,
+                TIME_RANGE_PRESETS[Number(e.currentTarget.value)]?.interval,
+              )
+            }
           />
         )}
       </div>
@@ -1025,7 +1042,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       const postsRes = await HttpService.client.getPosts({
         page_cursor: cursor,
         sort: mixedToPostSortType(sort),
-        time_range_seconds: postTimeRange,
+        time_range_seconds: intervalToSeconds(postTimeRange),
         type_: listingType,
         show_hidden: showHidden,
         show_read: showRead,
@@ -1171,40 +1188,8 @@ function handleSortChange(i: Home, val: PostSortType) {
   i.updateUrl({ sort: val, cursor: undefined });
 }
 
-const HOUR = 60 * 60;
-const DAY = 24 * HOUR;
-const MONTH = 30 * DAY;
-
-const POST_TIME_RANGE_STEPS = [
-  { step: 0, label: "1 Hour", seconds: HOUR },
-  { step: 1, label: "6 Hours", seconds: 6 * HOUR },
-  { step: 2, label: "12 Hours", seconds: 12 * HOUR },
-  { step: 3, label: "1 Day", seconds: DAY },
-  { step: 4, label: "1 Week", seconds: 7 * DAY },
-  { step: 5, label: "1 Month", seconds: MONTH },
-  { step: 6, label: "3 Months", seconds: 3 * MONTH },
-  { step: 7, label: "6 Months", seconds: 6 * MONTH },
-  { step: 8, label: "1 Year", seconds: 365 * DAY },
-  { step: 9, label: "All", seconds: undefined },
-];
-
-function handlePostTimeRangeChange(
-  i: Home,
-  event: FormEvent<HTMLInputElement>,
-) {
-  event.preventDefault();
-  const postTimeRange = POST_TIME_RANGE_STEPS.find(
-    x => x.step === Number(event.target.value),
-  )?.seconds;
-  i.updateUrl({ postTimeRange, cursor: undefined });
-}
-
-function handlePostTimeRangeChange2(i: Home, val: number) {
+function handlePostTimeRangeChange(i: Home, val: Interval) {
   i.updateUrl({ postTimeRange: val, cursor: undefined });
-}
-
-function postTimeRangeValue(value?: number): string {
-  return POST_TIME_RANGE_STEPS.find(x => x.seconds === value)?.label ?? "All";
 }
 
 function handleCommentSortChange(i: Home, val: CommentSortType) {

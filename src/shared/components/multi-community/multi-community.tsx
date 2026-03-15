@@ -84,7 +84,14 @@ import { MultiCommunitySidebar } from "./multi-community-sidebar";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { nowBoolean } from "@utils/date";
-import { TimeIntervalFilter } from "@components/common/time-interval-filter";
+import {
+  ALL_TIME_INTERVAL,
+  Interval,
+  intervalFromQuery,
+  intervalToSeconds,
+  secondsToLargestInterval,
+  TimeIntervalFilter,
+} from "@components/common/time-interval-filter";
 import { LoadingEllipses } from "@components/common/loading-ellipses";
 import { MultiCommunityLink } from "./multi-community-link";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
@@ -111,14 +118,14 @@ type State = {
 
 interface Props {
   sort: PostSortType;
-  postTimeRange: number;
+  postTimeRange: Interval;
   cursor?: PaginationCursor;
   showHidden?: boolean;
 }
 
 type Fallbacks = {
   sort: PostSortType;
-  postTimeRange: number;
+  postTimeRange: Interval;
 };
 
 export function getMultiCommunityQueryParams(
@@ -132,14 +139,16 @@ export function getMultiCommunityQueryParams(
     {
       cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
-      postTimeRange: getPostTimeRangeFromQuery,
+      postTimeRange: intervalFromQuery,
       showHidden: getShowHiddenFromQuery,
     },
     source,
     {
       sort:
         local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
-      postTimeRange: local_user?.default_post_time_range_seconds ?? 0,
+      postTimeRange:
+        secondsToLargestInterval(local_user?.default_post_time_range_seconds) ??
+        ALL_TIME_INTERVAL,
     },
   );
 }
@@ -149,13 +158,6 @@ function getSortTypeFromQuery(
   fallback: PostSortType,
 ): PostSortType {
   return type ? (type as PostSortType) : fallback;
-}
-
-function getPostTimeRangeFromQuery(
-  type: string | undefined,
-  fallback: number,
-): number {
-  return type ? Number(type) : fallback;
 }
 
 function getShowHiddenFromQuery(hidden: string | undefined): boolean {
@@ -262,7 +264,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     const getPostsForm: GetPosts = {
       multi_community_name: name,
       sort: mixedToPostSortType(sort),
-      time_range_seconds: postTimeRange,
+      time_range_seconds: intervalToSeconds(postTimeRange),
       type_: "all",
       show_hidden: showHidden,
       page_cursor: cursor,
@@ -543,8 +545,8 @@ export class MultiCommunity extends Component<RouteProps, State> {
         </div>
         <div className="col">
           <TimeIntervalFilter
-            currentSeconds={postTimeRange}
-            onChange={seconds => handlePostTimeRangeChange(this, seconds)}
+            interval={postTimeRange}
+            onChange={interval => handlePostTimeRangeChange(this, interval)}
           />
         </div>
         {multiCommunityRss && (
@@ -595,7 +597,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     const postsRes = await HttpService.client.getPosts({
       page_cursor: cursor,
       sort: mixedToPostSortType(sort),
-      time_range_seconds: postTimeRange,
+      time_range_seconds: intervalToSeconds(postTimeRange),
       type_: "all",
       multi_community_name,
       show_hidden: showHidden,
@@ -891,7 +893,7 @@ function handleSortChange(i: MultiCommunity, sort: PostSortType) {
   i.updateUrl({ sort, cursor: undefined });
 }
 
-function handlePostTimeRangeChange(i: MultiCommunity, val: number) {
+function handlePostTimeRangeChange(i: MultiCommunity, val: Interval) {
   i.updateUrl({ postTimeRange: val, cursor: undefined });
 }
 

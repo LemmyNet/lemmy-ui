@@ -80,7 +80,13 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
-import { TimeIntervalFilter } from "@components/common/time-interval-filter";
+import {
+  ALL_TIME_INTERVAL,
+  Interval,
+  intervalToSeconds,
+  secondsToLargestInterval,
+  TimeIntervalFilter,
+} from "@components/common/time-interval-filter";
 import BlockingKeywordsTextArea from "@components/common/blocking-keywords-textarea";
 import { NoOptionI18nKeys } from "i18next";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
@@ -975,11 +981,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </label>
             <div className="col-sm-9">
               <TimeIntervalFilter
-                currentSeconds={
-                  this.state.saveUserSettingsForm
-                    .default_post_time_range_seconds
+                interval={
+                  secondsToLargestInterval(
+                    this.state.saveUserSettingsForm
+                      .default_post_time_range_seconds,
+                  ) ?? ALL_TIME_INTERVAL
                 }
-                onChange={seconds => handlePostTimeRangeChange(this, seconds)}
+                onChange={interval => handlePostTimeRangeChange(this, interval)}
               />
             </div>
           </div>
@@ -1763,9 +1771,13 @@ function handleCommentSortTypeChange(i: Settings, val: CommentSortType) {
   );
 }
 
-function handlePostTimeRangeChange(i: Settings, val: number) {
+function handlePostTimeRangeChange(i: Settings, val: Interval) {
   i.setState(
-    s => ((s.saveUserSettingsForm.default_post_time_range_seconds = val), s),
+    s => (
+      (s.saveUserSettingsForm.default_post_time_range_seconds =
+        intervalToSeconds(val)),
+      s
+    ),
   );
 }
 
