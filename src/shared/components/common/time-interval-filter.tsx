@@ -10,22 +10,6 @@ type Interval = {
   unit: IntervalUnit;
 };
 
-type Preset = { key: NoOptionI18nKeys; interval: Interval };
-
-const presets: Preset[] = [
-  { key: "all_time", interval: { num: undefined, unit: "days" } },
-  { key: "one_hour", interval: { num: 1, unit: "hours" } },
-  { key: "six_hours", interval: { num: 6, unit: "hours" } },
-  { key: "twelve_hours", interval: { num: 12, unit: "hours" } },
-  { key: "one_day", interval: { num: 1, unit: "days" } },
-  { key: "one_week", interval: { num: 1, unit: "weeks" } },
-  { key: "one_month", interval: { num: 1, unit: "months" } },
-  { key: "three_months", interval: { num: 3, unit: "months" } },
-  { key: "six_months", interval: { num: 6, unit: "months" } },
-  { key: "nine_months", interval: { num: 9, unit: "months" } },
-  { key: "one_year", interval: { num: 1, unit: "years" } },
-];
-
 type Props = {
   currentSeconds: number | undefined;
   onChange: (seconds: number) => void;
@@ -68,18 +52,6 @@ export class TimeIntervalFilter extends Component<Props, State> {
           className="dropdown-menu dropdown-menu-end"
           id="time-interval-unit-dropdown"
         >
-          {/* Presets first, then the custom ones */}
-          {presets.map(p => (
-            <li>
-              <button
-                className="dropdown-item"
-                onClick={() => handlePresetSelect(this, p)}
-              >
-                {I18NextService.i18n.t(p.key)}
-              </button>
-            </li>
-          ))}
-          <hr className="dropdown-divider" />
           <li>
             <button className="dropdown-item disabled" aria-disabled="true">
               {I18NextService.i18n.t("custom_time")}
@@ -118,12 +90,6 @@ function handleTimeIntervalUnitChange(
   unit: IntervalUnit,
 ) {
   const interval = { num: i.state.interval.num, unit };
-
-  handleTimeIntervalChange(i, interval);
-}
-
-function handlePresetSelect(i: TimeIntervalFilter, preset: Preset) {
-  const interval = preset.interval;
 
   handleTimeIntervalChange(i, interval);
 }
