@@ -17,7 +17,7 @@ interface CommunityLinkProps {
   myUserInfo: MyUserInfo | undefined;
 }
 
-export class CommunityLink extends Component<CommunityLinkProps, any> {
+export class CommunityLink extends Component<CommunityLinkProps, never> {
   render() {
     const { community, useApubName } = this.props;
 

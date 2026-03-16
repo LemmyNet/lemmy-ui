@@ -20,7 +20,10 @@ interface DisplayModalProps {
 }
 
 @modalMixin
-export default class DisplayModal extends Component<DisplayModalProps, any> {
+export default class DisplayModal extends Component<
+  DisplayModalProps,
+  unknown
+> {
   readonly modalDivRef: RefObject<HTMLDivElement>;
   modal?: Modal;
 

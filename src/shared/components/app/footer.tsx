@@ -9,7 +9,7 @@ interface FooterProps {
   site?: GetSiteResponse;
 }
 
-export class Footer extends Component<FooterProps, any> {
+export class Footer extends Component<FooterProps, never> {
   render() {
     return (
       <footer className="app-footer container-lg navbar navbar-expand-md navbar-light navbar-bg p-3">

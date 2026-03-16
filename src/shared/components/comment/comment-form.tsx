@@ -33,7 +33,7 @@ interface CommentFormProps {
   imageUploadDisabled: boolean;
 }
 
-export class CommentForm extends Component<CommentFormProps, any> {
+export class CommentForm extends Component<CommentFormProps, never> {
   render() {
     const initialContent =
       typeof this.props.node !== "number"

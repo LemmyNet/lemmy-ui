@@ -14,7 +14,12 @@ import {
   maxUploadImages,
   relTags,
 } from "@utils/config";
-import { customEmojisLookup, mdToHtml, setupTribute } from "@utils/markdown";
+import {
+  customEmojisLookup,
+  EmojiEvent,
+  mdToHtml,
+  setupTribute,
+} from "@utils/markdown";
 import { HttpService, I18NextService } from "@services/index";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { userNotLoggedInOrBanned, pictrsDeleteToast, toast } from "@utils/app";
@@ -385,15 +390,15 @@ export class MarkdownTextArea extends Component<
   }
 }
 
-function handleEmoji(i: MarkdownTextArea, e: any) {
+function handleEmoji(i: MarkdownTextArea, e: EmojiEvent) {
   let value = e.native;
   if (!value) {
-    const emoji = customEmojisLookup.get(e.id as string)?.custom_emoji;
+    const emoji = customEmojisLookup.get(e.id)?.custom_emoji;
     if (emoji) {
       value = `![${emoji.alt_text}](${emoji.image_url} "emoji ${emoji.shortcode}")`;
     }
   }
-  handleInsertAtCursor(i, value as string);
+  handleInsertAtCursor(i, value);
 }
 
 async function handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {

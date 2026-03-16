@@ -83,7 +83,7 @@ if (
 }
 
 // Stop NodeJS from exiting on unhandled promise rejections. Browsers just log an error.
-process.on("unhandledRejection", (error: any) => {
+process.on("unhandledRejection", (error: unknown) => {
   console.error("Unhandled promise rejection:", error);
 });
 

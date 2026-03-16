@@ -6,7 +6,10 @@ interface BannerIconHeaderProps {
   icon?: string;
 }
 
-export class BannerIconHeader extends Component<BannerIconHeaderProps, any> {
+export class BannerIconHeader extends Component<
+  BannerIconHeaderProps,
+  unknown
+> {
   render() {
     const banner = this.props.banner;
     const icon = this.props.icon;

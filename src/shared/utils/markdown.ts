@@ -207,7 +207,7 @@ export function setupMarkdown() {
     tokens: Token[],
     idx: number,
     options: MarkdownIt.Options,
-    env: any,
+    env: never,
     self: Renderer,
   ) {
     // Provide custom renderer for our emojis to allow us to add a css class and force size dimensions on them.
@@ -246,7 +246,7 @@ export function setupMarkdown() {
     tokens: Token[],
     idx: number,
     options: MarkdownIt.Options,
-    env: any,
+    env: never,
     self: Renderer,
   ) {
     tokens[idx].attrPush(["rel", relTags]);
@@ -292,10 +292,12 @@ export async function setupEmojiDataModel(
   return true;
 }
 
-export function getEmojiMart(
-  onEmojiSelect: (e: any) => void,
-  customPickerOptions: any = {},
-) {
+export interface EmojiEvent {
+  native: string;
+  id: string;
+}
+
+export function getEmojiMart(onEmojiSelect: (e: EmojiEvent) => void) {
   const data = async () => {
     const response = await fetch(`${getStaticDir()}/assets/emojis.json`);
 
@@ -305,7 +307,6 @@ export function getEmojiMart(
     onEmojiSelect: onEmojiSelect,
     custom: customEmojis,
     data,
-    ...customPickerOptions,
   };
   return new Picker(pickerOptions);
 }
@@ -321,10 +322,12 @@ export async function setupTribute() {
       // Emojis
       {
         trigger: ":",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         menuItemTemplate: (item: any) => {
           const shortName = `:${item.original.key}:`;
           return `${item.original.val} ${shortName}`;
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         selectTemplate: (item: any) => {
           const customEmoji = customEmojisLookup.get(
             item.original.key as string,
@@ -353,6 +356,7 @@ export async function setupTribute() {
       // Persons
       {
         trigger: "@",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         selectTemplate: (item: any) => {
           const it: PersonTribute = item.original;
           return it.key;
@@ -372,6 +376,7 @@ export async function setupTribute() {
       // Communities
       {
         trigger: "!",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         selectTemplate: (item: any) => {
           const it: CommunityTribute = item.original;
           return it.key;

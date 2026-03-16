@@ -103,7 +103,7 @@ export class FilterChipSelect extends Component<Props, State> {
 
       // If its searchable, add the search event
       if (this.props.onSearch) {
-        element.addEventListener("search", (e: any) => {
+        element.addEventListener("search", (e: CustomEvent) => {
           const searchText: string = e.detail.value;
           this.props.onSearch?.(searchText);
         });

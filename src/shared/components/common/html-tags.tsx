@@ -15,7 +15,7 @@ interface HtmlTagsProps {
 }
 
 /// Taken from https://metatags.io/
-export class HtmlTags extends Component<HtmlTagsProps, any> {
+export class HtmlTags extends Component<HtmlTagsProps, never> {
   render() {
     const url = httpFrontendUrl(this.props.path, setIsoData(this.context));
     const canonicalUrl = this.props.canonicalPath ?? url;
