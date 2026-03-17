@@ -133,6 +133,12 @@ export interface IRoutePropsWithFetch<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any
   >;
+  metadata?: (DataT, GetSiteResponse) => Metadata | undefined;
+}
+
+export interface Metadata {
+  title: string;
+  canonicalPath?: string;
 }
 
 export const routes: IRoutePropsWithFetch<
@@ -205,6 +211,7 @@ export const routes: IRoutePropsWithFetch<
     fetchInitialData: Post.fetchInitialData,
     getQueryParams: getPostQueryParams,
     mountedSameRouteNavKey: "post",
+    metadata: Post.metadata,
   } as PostFetchConfig,
   {
     path: `/comment/:comment_id`,

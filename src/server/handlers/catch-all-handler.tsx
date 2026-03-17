@@ -3,6 +3,7 @@ import {
   getBackendHostExternal,
   getBaseUrl,
   getHttpBaseInternal,
+  httpBackendUrl,
 } from "@utils/env";
 import { ErrorPageData, IsoDataOptionalSite } from "@utils/types";
 import type { Request, Response } from "express";
@@ -17,7 +18,7 @@ import {
 } from "lemmy-js-client";
 import App from "../../shared/components/app/app";
 import { InitialFetchRequest, RouteData } from "@utils/types";
-import { routes } from "@utils/routes";
+import { Metadata, routes } from "@utils/routes";
 import {
   FailedRequestState,
   wrapClient,
@@ -172,12 +173,24 @@ export default async (req: Request, res: Response) => {
 
     const root = renderToString(wrapper);
 
+    let metadata: Metadata | undefined;
+    if (activeRoute?.metadata) {
+      metadata = activeRoute.metadata(routeData, siteRes);
+    }
+
+    if (!metadata) {
+      metadata = {
+        title: siteRes?.site_view.site.name ?? getBackendHostExternal(),
+      };
+    }
     res.send(
       await createSsrHtml(
         root,
         isoData,
         res.locals.cspNonce as string,
         languages,
+        httpBackendUrl(url),
+        metadata,
         interfaceLanguage,
       ),
     );

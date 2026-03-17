@@ -112,7 +112,7 @@ import { CommunitySidebar } from "@components/community/community-sidebar";
 import { PostListing } from "./post-listing";
 import { getHttpBaseInternal } from "@utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { compareAsc, compareDesc } from "date-fns";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
@@ -548,13 +548,6 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   };
 
-  get documentTitle(): string {
-    const siteName = this.state.siteRes.site_view.site.name;
-    return this.state.postRes.state === "success"
-      ? `${this.state.postRes.data.post_view.post.name} - ${siteName}`
-      : siteName;
-  }
-
   get imageTag(): string | undefined {
     if (this.state.postRes.state === "success") {
       const post = this.state.postRes.data.post_view.post;
@@ -563,6 +556,25 @@ export class Post extends Component<PostRouteProps, PostState> {
       return thumbnail || (url && isImage(url) ? url : undefined);
     } else return undefined;
   }
+
+  static metadata = (
+    postData: PostData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    if (postData.postRes.state !== "success") {
+      return undefined;
+    }
+
+    const siteName = siteRes.site_view.site.name;
+    const title =
+      postData.postRes.state === "success"
+        ? `${postData.postRes.data.post_view.post.name} - ${siteName}`
+        : siteName;
+    return {
+      title,
+      canonicalPath: postData.postRes.data.post_view.post.ap_id,
+    };
+  };
 
   renderPostRes() {
     const myUserInfo = this.isoData.myUserInfo;
@@ -583,7 +595,7 @@ export class Post extends Component<PostRouteProps, PostState> {
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9 mb-3">
               <HtmlTags
-                title={this.documentTitle}
+                title={"TODO: remove"}
                 path={this.context.router.route.match.url}
                 canonicalPath={res.post_view.post.ap_id}
                 image={this.imageTag}

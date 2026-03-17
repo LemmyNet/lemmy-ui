@@ -11,6 +11,7 @@ import { findLanguageChunkNames } from "@services/I18NextService";
 import path from "path";
 import { readFileSync, existsSync } from "node:fs";
 import { enableEruda } from "./dev-env";
+import { Metadata } from "@utils/routes";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
@@ -32,6 +33,8 @@ export async function createSsrHtml(
   isoData: IsoDataOptionalSite,
   cspNonce: string,
   languages: readonly string[],
+  current_url: string,
+  metadata: Metadata,
   interfaceLanguage?: string,
 ) {
   const site = isoData.siteRes;
@@ -98,16 +101,19 @@ export async function createSsrHtml(
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const helmet = Helmet.renderStatic();
 
+  // data-bs-theme="light" lang="en"
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const helmetAttr = helmet.htmlAttributes.toString();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const helmetTitle = helmet.title.toString();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const helmetMeta = helmet.meta.toString();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const helmetLink = helmet.link.toString();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const helmetBodyAttr = helmet.bodyAttributes.toString();
+  const helmetTitle = `<title>${metadata.title}</title>`;
+  const helmetMeta = `<meta property="title" content="${metadata.title}">
+  <meta property="og:title" content="${metadata.title}">
+  <meta property="twitter:title" content="${metadata.title}">
+  <meta property="og:url" content="${current_url}">
+  <meta property="twitter:url" content="${current_url}">
+  <meta property="og:type" content="website">
+  <meta property="twitter:card" content="summary_large_image">`;
+  // <link rel="stylesheet" type="text/css" href="/css/themes/browser.css"><link rel="stylesheet" type="text/css" href="/css/code-themes/atom-one-light.css" media="(prefers-color-scheme: light)"><link rel="stylesheet" type="text/css" href="/css/code-themes/atom-one-dark.css" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)">
+  const helmetLink = `<link rel="canonical" href="${metadata.canonicalPath}">`;
 
   return `
     <!DOCTYPE html>
@@ -164,7 +170,7 @@ export async function createSsrHtml(
     
     </head>
   
-    <body ${helmetBodyAttr}>
+    <body>
       <noscript>
         <div class="alert alert-danger rounded-0" role="alert">
           <b>Javascript is disabled. Actions will not work.</b>
