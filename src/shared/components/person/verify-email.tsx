@@ -1,6 +1,5 @@
-import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
-import { SuccessResponse } from "lemmy-js-client";
+import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -9,11 +8,11 @@ import {
   RequestState,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { isBrowser } from "@utils/browser";
+import { Metadata } from "@utils/routes";
 
 interface State {
   verifyRes: RequestState<SuccessResponse>;
@@ -24,8 +23,6 @@ export class VerifyEmail extends Component<
   RouteComponentProps<Record<string, never>>,
   State
 > {
-  private isoData = setIsoData(this.context);
-
   state: State = {
     verifyRes: EMPTY_REQUEST,
   };
@@ -53,19 +50,21 @@ export class VerifyEmail extends Component<
     }
   }
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("verify_email")} - ${
-      this.isoData.siteRes?.site_view.site.name
+  static metadata = (
+    _: never,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    const title = `${I18NextService.i18n.t("verify_email")} - ${
+      siteRes?.site_view.site.name
     }`;
-  }
+    return {
+      title,
+    };
+  };
 
   render() {
     return (
       <div className="verfy-email container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">{I18NextService.i18n.t("verify_email")}</h1>

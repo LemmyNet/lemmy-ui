@@ -19,11 +19,10 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import {
   getQueryParams,
   getQueryString,
@@ -155,11 +154,15 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     };
   };
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("instances")} - ${
-      this.state.siteRes.site_view.site.name
+  static metadata = (
+    _: InstancesData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    const title = `${I18NextService.i18n.t("instances")} - ${
+      siteRes.site_view.site.name
     }`;
-  }
+    return { title };
+  };
 
   renderInstances() {
     switch (this.state.instancesRes.state) {
@@ -183,10 +186,6 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   render() {
     return (
       <div className="home-instances container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         {this.renderFilters()}
         {this.renderInstances()}
         <PaginatorCursor

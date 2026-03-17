@@ -5,6 +5,7 @@ import { Component, FormEvent } from "inferno";
 import {
   CaptchaResponse,
   GetCaptchaResponse,
+  GetSiteResponse,
   LoginResponse,
   SiteView,
 } from "lemmy-js-client";
@@ -18,7 +19,6 @@ import {
   RequestState,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
@@ -26,7 +26,7 @@ import { secondsDurationToAlertClass, secondsDurationToStr } from "@utils/date";
 import { scrollMixin } from "@components/mixins/scroll-mixin";
 import { RouteData } from "@utils/types";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { OAuthLogin } from "./oauth/oauth-login";
 
 interface State {
@@ -96,24 +96,24 @@ export class Signup extends Component<SignupRouteProps, State> {
     });
   }
 
-  get documentTitle(): string {
-    const siteView = this.isoData.siteRes?.site_view;
-    return `${this.titleName(siteView)} - ${siteView?.site.name}`;
-  }
-
-  titleName(siteView?: SiteView): string {
+  static titleName(siteView?: SiteView): string {
     return I18NextService.i18n.t(
       siteView?.local_site.private_instance ? "apply_to_join" : "sign_up",
     );
   }
 
+  static metadata = (
+    _: never,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    const siteView = siteRes?.site_view;
+    const title = `${Signup.titleName(siteView)} - ${siteView?.site.name}`;
+    return { title };
+  };
+
   render() {
     return (
       <div className="home-signup container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">
             {this.registerForm()}
@@ -134,7 +134,7 @@ export class Signup extends Component<SignupRouteProps, State> {
         className="was-validated"
         onSubmit={e => handleRegisterSubmit(this, e)}
       >
-        <h1 className="h4 mb-4">{this.titleName(siteView)}</h1>
+        <h1 className="h4 mb-4">{Signup.titleName(siteView)}</h1>
 
         <div className="mb-3 row">
           <label
@@ -342,7 +342,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               {this.state.registerRes.state === "loading" ? (
                 <Spinner />
               ) : (
-                this.titleName(siteView)
+                Signup.titleName(siteView)
               )}
             </button>
           </div>

@@ -18,6 +18,7 @@ import {
   MultiCommunityResponse,
   MultiCommunitySortType,
   PaginationCursor,
+  GetSiteResponse,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService } from "@services/FirstLoadService";
@@ -30,13 +31,12 @@ import {
   RequestState,
   wrapClient,
 } from "@services/HttpService";
-import { HtmlTags } from "@components/common/html-tags";
 import { Icon, Spinner } from "@components/common/icon";
 import { MultiCommunitiesSortDropdown } from "@components/common/sort-dropdown";
 import { SubscribeButton } from "@components/common/subscribe-button";
 import { multiCommunityLimit } from "@utils/config";
 import { getHttpBaseInternal } from "@utils/env";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
@@ -130,11 +130,15 @@ export class MultiCommunities extends Component<RouteProps, State> {
     await this.refetch(nextProps);
   }
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("multi_communities")} - ${
-      this.isoData.siteRes?.site_view.site.name
+  static metadata = (
+    _: MultiCommunitiesData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    const title = `${I18NextService.i18n.t("multi_communities")} - ${
+      siteRes?.site_view.site.name
     }`;
-  }
+    return { title };
+  };
 
   renderListingsTable() {
     const nameCols = "col-12 col-md-9";
@@ -204,10 +208,6 @@ export class MultiCommunities extends Component<RouteProps, State> {
 
     return (
       <div className="multi-communities container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <div>
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("multi_communities")}

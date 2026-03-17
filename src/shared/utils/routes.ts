@@ -133,12 +133,18 @@ export interface IRoutePropsWithFetch<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any
   >;
-  metadata?: (DataT, GetSiteResponse) => Metadata | undefined;
+  metadata?: (
+    data: DataT,
+    site?: GetSiteResponse,
+    mui?: MyUserInfo,
+  ) => Metadata | undefined;
 }
 
 export interface Metadata {
   title: string;
   canonicalPath?: string;
+  image?: string;
+  description?: string;
 }
 
 export const routes: IRoutePropsWithFetch<
@@ -154,19 +160,23 @@ export const routes: IRoutePropsWithFetch<
     exact: true,
     getQueryParams: getHomeQueryParams,
     mountedSameRouteNavKey: "home",
+    metadata: Home.metadata,
   } as HomeFetchConfig,
   {
     path: `/login`,
     component: Login,
     getQueryParams: getLoginQueryParams,
+    metadata: Login.metadata,
   } as LoginFetchConfig,
   {
     path: `/login_reset`,
     component: LoginReset,
+    metadata: LoginReset.metadata,
   },
   {
     path: `/signup`,
     component: Signup,
+    metadata: Signup.metadata,
   } as SignupFetchConfig,
   {
     path: `/create_post`,
@@ -178,15 +188,18 @@ export const routes: IRoutePropsWithFetch<
   {
     path: `/create_community`,
     component: CreateCommunity,
+    metadata: CreateCommunity.metadata,
   },
   {
     path: `/create_multi_community`,
     component: CreateMultiCommunity,
+    metadata: CreateMultiCommunity.metadata,
   },
   {
     path: `/create_private_message/:recipient_id`,
     component: CreatePrivateMessage,
     fetchInitialData: CreatePrivateMessage.fetchInitialData,
+    metadata: CreatePrivateMessage.metadata,
   } as CreatePrivateMessageFetchConfig,
   {
     path: `/communities`,
@@ -194,6 +207,7 @@ export const routes: IRoutePropsWithFetch<
     fetchInitialData: Communities.fetchInitialData,
     getQueryParams: getCommunitiesQueryParams,
     mountedSameRouteNavKey: "communities",
+    metadata: Communities.metadata,
   } as CommunitiesFetchConfig,
   {
     path: `/multi_communities`,
@@ -201,6 +215,7 @@ export const routes: IRoutePropsWithFetch<
     fetchInitialData: MultiCommunities.fetchInitialData,
     getQueryParams: getMultiCommunitiesQueryParams,
     mountedSameRouteNavKey: "multi_communities",
+    metadata: MultiCommunities.metadata,
   } as MultiCommunitiesFetchConfig,
   {
     // "/comment/:post_id?/:comment_id" would be preferable as direct comment
@@ -226,11 +241,13 @@ export const routes: IRoutePropsWithFetch<
     fetchInitialData: Community.fetchInitialData,
     getQueryParams: getCommunityQueryParams,
     mountedSameRouteNavKey: "community",
+    metadata: Community.metadata,
   } as CommunityFetchConfig,
   {
     path: `/c/:name/settings`,
     component: CommunitySettings,
     fetchInitialData: CommunitySettings.fetchInitialData,
+    metadata: CommunitySettings.metadata,
   } as CommunitySettingsFetchConfig,
   {
     path: `/m/:name`,
@@ -238,11 +255,13 @@ export const routes: IRoutePropsWithFetch<
     fetchInitialData: MultiCommunity.fetchInitialData,
     getQueryParams: getMultiCommunityQueryParams,
     mountedSameRouteNavKey: "multi_community",
+    metadata: MultiCommunity.metadata,
   } as MultiCommunityFetchConfig,
   {
     path: `/m/:name/settings`,
     component: MultiCommunitySettings,
     fetchInitialData: MultiCommunitySettings.fetchInitialData,
+    metadata: MultiCommunitySettings.metadata,
   } as MultiCommunitySettingsFetchConfig,
   {
     path: `/u/:username`,
@@ -250,16 +269,19 @@ export const routes: IRoutePropsWithFetch<
     fetchInitialData: Profile.fetchInitialData,
     getQueryParams: getProfileQueryParams,
     mountedSameRouteNavKey: "profile",
+    metadata: Profile.metadata,
   } as ProfileFetchConfig,
   {
     path: `/notifications`,
     component: Notifications,
     fetchInitialData: Notifications.fetchInitialData,
+    metadata: Notifications.metadata,
   } as NotificationsFetchConfig,
   {
     path: `/settings`,
     component: Settings,
     fetchInitialData: Settings.fetchInitialData,
+    metadata: Settings.metadata,
   } as SettingsFetchConfig,
   {
     path: `/modlog/:communityId?`,
@@ -267,23 +289,27 @@ export const routes: IRoutePropsWithFetch<
     fetchInitialData: Modlog.fetchInitialData,
     getQueryParams: getModlogQueryParams,
     mountedSameRouteNavKey: "modlog",
+    metadata: Modlog.metadata,
   } as ModlogFetchConfig,
-  { path: `/setup`, component: Setup },
+  { path: `/setup`, component: Setup, metadata: Setup.metadata },
   {
     path: `/admin`,
     component: AdminSettings,
     fetchInitialData: AdminSettings.fetchInitialData,
+    metadata: AdminSettings.metadata,
   } as AdminSettingsFetchConfig,
   {
     path: `/reports`,
     component: Reports,
     fetchInitialData: Reports.fetchInitialData,
+    metadata: Reports.metadata,
   } as ReportsFetchConfig,
   {
     path: `/registration_applications`,
     component: RegistrationApplications,
     fetchInitialData: RegistrationApplications.fetchInitialData,
     getQueryParams: getRegistrationApplicationQueryParams,
+    metadata: RegistrationApplications.metadata,
   } as RegistrationApplicationsFetchConfig,
   {
     path: `/pending_follows`,
@@ -297,14 +323,17 @@ export const routes: IRoutePropsWithFetch<
     fetchInitialData: Search.fetchInitialData,
     getQueryParams: getSearchQueryParams,
     mountedSameRouteNavKey: "search",
+    metadata: Search.metadata,
   } as SearchFetchConfig,
   {
     path: `/password_change/:token`,
     component: PasswordChange,
+    metadata: PasswordChange.metadata,
   },
   {
     path: `/verify_email/:token`,
     component: VerifyEmail,
+    metadata: VerifyEmail.metadata,
   },
   {
     path: `/oauth/callback`,
@@ -317,12 +346,14 @@ export const routes: IRoutePropsWithFetch<
     fetchInitialData: Instances.fetchInitialData,
     getQueryParams: getInstancesQueryParams,
     mountedSameRouteNavKey: "instances",
+    metadata: Instances.metadata,
   } as InstancesFetchConfig,
-  { path: `/legal`, component: Legal },
+  { path: `/legal`, component: Legal, metadata: Legal.metadata },
   {
     path: "/activitypub/externalInteraction",
     component: RemoteFetch,
     fetchInitialData: RemoteFetch.fetchInitialData,
     getQueryParams: getRemoteFetchQueryParams,
+    metadata: RemoteFetch.metadata,
   } as RemoteFetchFetchConfig,
 ];

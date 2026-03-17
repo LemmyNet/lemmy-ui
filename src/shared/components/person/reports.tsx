@@ -34,6 +34,7 @@ import {
   PostReportId,
   PrivateMessageReportId,
   CommunityReportId,
+  MyUserInfo,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, HttpService, I18NextService } from "../../services";
@@ -44,14 +45,13 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { CommentReport } from "../comment/comment-report";
-import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PostReport } from "../post/post-report";
 import { PrivateMessageReport } from "../private_message/private-message-report";
 import { UnreadCounterService } from "../../services";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { CommunityReport } from "../community/community-report";
@@ -158,14 +158,19 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  get documentTitle(): string {
-    const mui = this.isoData.myUserInfo;
-    return mui
-      ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
-          "reports",
-        )} - ${this.state.siteRes.site_view.site.name}`
-      : "";
-  }
+  static metadata = (
+    data: ReportsData,
+    siteRes: GetSiteResponse,
+    mui: MyUserInfo,
+  ): Metadata | undefined => {
+    if (data.reportsRes.state !== "success") {
+      return undefined;
+    }
+    const title = `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
+      "reports",
+    )} - ${siteRes.site_view.site.name}`;
+    return { title };
+  };
 
   get nextPageCursor(): PaginationCursor | undefined {
     const { reportsRes: res } = this.state;
@@ -202,10 +207,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         )}
         <div className="row">
           <div className="col-12">
-            <HtmlTags
-              title={this.documentTitle}
-              path={this.context.router.route.match.url}
-            />
             <h1 className="h4 mb-4">{I18NextService.i18n.t("reports")}</h1>
             {this.selects()}
             {this.section}

@@ -34,6 +34,7 @@ import {
   CommunityTagId,
   TransferCommunity,
   EditCommunityTag,
+  GetSiteResponse,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -48,10 +49,9 @@ import {
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { getHttpBaseInternal } from "../../utils/env";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import classNames from "classnames";
-import { HtmlTags } from "@components/common/html-tags";
 import Tabs from "@components/common/tabs";
 import { CommunityForm } from "./community-form";
 import { TableHr } from "@components/common/tables";
@@ -193,12 +193,17 @@ export class CommunitySettings extends Component<RouteProps, State> {
     };
   };
 
-  get documentTitle(): string {
-    const cRes = this.state.communityRes;
-    return cRes.state === "success"
-      ? `${cRes.data.community_view.community.title} ${I18NextService.i18n.t("settings")} - ${this.isoData.siteRes.site_view.site.name}`
-      : "";
-  }
+  static metadata = (
+    data: CommunitySettingsData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    if (data.communityRes.state !== "success") {
+      return undefined;
+    }
+    return {
+      title: `${data.communityRes.data.community_view.community.title} ${I18NextService.i18n.t("settings")} - ${siteRes.site_view.site.name}`,
+    };
+  };
 
   render() {
     const { siteRes, myUserInfo } = this.isoData;
@@ -210,10 +215,6 @@ export class CommunitySettings extends Component<RouteProps, State> {
 
     return (
       <div className="community-settings container">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <Tabs
           tabs={[
             {

@@ -100,7 +100,6 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostOrCommentTypeDropdown } from "../common/post-or-comment-type-dropdown";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { PostSortDropdown, CommentSortDropdown } from "../common/sort-dropdown";
 import { SiteSidebar } from "../home/site-sidebar";
@@ -112,7 +111,7 @@ import {
   PostsLoadingSkeleton,
 } from "../common/loading-skeleton";
 import { CommunitySidebar } from "./community-sidebar";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { CommunityHeader } from "./community-header";
 import { nowBoolean } from "@utils/date";
@@ -457,32 +456,22 @@ export class Community extends Component<CommunityRouteProps, State> {
     }
   }
 
-  get documentTitle(): string {
-    const cRes = this.state.communityRes;
-    return cRes.state === "success"
-      ? `${cRes.data.community_view.community.title} - ${this.isoData.siteRes.site_view.site.name}`
-      : "";
-  }
-
-  renderCommunity() {
-    const res =
-      this.state.communityRes.state === "success" &&
-      this.state.communityRes.data;
-    return (
-      <>
-        {res && (
-          <HtmlTags
-            title={this.documentTitle}
-            path={this.context.router.route.match.url}
-            canonicalPath={res.community_view.community.ap_id}
-            description={res.community_view.community.summary}
-            image={res.community_view.community.icon}
-          />
-        )}
-        {this.communityInfo()}
-      </>
-    );
-  }
+  static metadata = (
+    data: CommunityData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    if (data.communityRes.state !== "success") {
+      return undefined;
+    }
+    const community = data.communityRes.data.community_view.community;
+    const title = `${community.title} - ${siteRes.site_view.site.name}`;
+    return {
+      title,
+      canonicalPath: community.ap_id,
+      description: community.summary,
+      image: community.icon,
+    };
+  };
 
   render() {
     const res =
@@ -730,7 +719,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     }
   }
 
-  communityInfo() {
+  renderCommunity() {
     const res =
       (this.state.communityRes.state === "success" &&
         this.state.communityRes.data) ||

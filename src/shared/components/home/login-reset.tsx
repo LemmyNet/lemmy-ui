@@ -1,13 +1,13 @@
-import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter, validEmail } from "@utils/helpers";
 import { Component, FormEvent, InfernoMouseEvent } from "inferno";
 import { HttpService, I18NextService } from "../../services";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { RouterContext } from "inferno-router/dist/Router";
+import { GetSiteResponse } from "lemmy-js-client";
+import { Metadata } from "@utils/routes";
 
 interface State {
   form: {
@@ -21,8 +21,6 @@ export class LoginReset extends Component<
   RouteComponentProps<Record<string, never>>,
   State
 > {
-  private isoData = setIsoData(this.context);
-
   state: State = {
     form: {
       email: "",
@@ -30,19 +28,19 @@ export class LoginReset extends Component<
     },
   };
 
-  get documentTitle(): string {
-    return `${capitalizeFirstLetter(
+  static metadata = (
+    _: never,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    const title = `${capitalizeFirstLetter(
       I18NextService.i18n.t("forgot_password"),
-    )} - ${this.isoData.siteRes?.site_view.site.name}`;
-  }
+    )} - ${siteRes?.site_view.site.name}`;
+    return { title };
+  };
 
   render() {
     return (
       <div className="container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <div className="col-12 col-lg-6 col-md-8 m-auto">
           {this.loginResetForm()}
         </div>

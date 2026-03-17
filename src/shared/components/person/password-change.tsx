@@ -8,12 +8,12 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "../../services/HttpService";
-import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import { toast } from "@utils/app";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { Metadata } from "@utils/routes";
 
 interface State {
   passwordChangeRes: RequestState<SuccessResponse>;
@@ -40,19 +40,19 @@ export class PasswordChange extends Component<
     },
   };
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("password_change")} - ${
-      this.state.siteRes.site_view.site.name
+  static metadata = (
+    _: never,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    const title = `${I18NextService.i18n.t("password_change")} - ${
+      siteRes.site_view.site.name
     }`;
-  }
+    return { title };
+  };
 
   render() {
     return (
       <div className="password-change container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">

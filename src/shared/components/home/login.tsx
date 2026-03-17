@@ -3,7 +3,7 @@ import { refreshTheme } from "@utils/browser";
 import { getQueryParams, validEmail } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { LoginResponse } from "lemmy-js-client";
+import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import {
   EMPTY_REQUEST,
@@ -12,13 +12,12 @@ import {
   RequestState,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import TotpModal from "../common/modal/totp-modal";
 import { UnreadCounterService } from "../../services";
 import { RouteData } from "@utils/types";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { NoOptionI18nKeys } from "i18next";
 import { OAuthLogin } from "./oauth/oauth-login";
@@ -72,19 +71,19 @@ export class Login extends Component<LoginRouteProps, State> {
     showResendVerificationEmailBtn: false,
   };
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("login")} - ${
-      this.isoData.siteRes.site_view.site.name
+  static metadata = (
+    _: never,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    const title = `${I18NextService.i18n.t("login")} - ${
+      siteRes.site_view.site.name
     }`;
-  }
+    return { title };
+  };
 
   render() {
     return (
       <div className="login container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <TotpModal
           type="login"
           onSubmit={totp => handleSubmitTotp(this, totp)}

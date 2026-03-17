@@ -106,7 +106,6 @@ import {
 import { toast } from "@utils/app";
 import { CommentForm } from "@components/comment/comment-form";
 import { CommentNodes } from "@components/comment/comment-nodes";
-import { HtmlTags } from "@components/common/html-tags";
 import { Icon, Spinner } from "@components/common/icon";
 import { CommunitySidebar } from "@components/community/community-sidebar";
 import { PostListing } from "./post-listing";
@@ -548,31 +547,28 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   };
 
-  get imageTag(): string | undefined {
-    if (this.state.postRes.state === "success") {
-      const post = this.state.postRes.data.post_view.post;
-      const thumbnail = post.thumbnail_url;
-      const url = post.url;
-      return thumbnail || (url && isImage(url) ? url : undefined);
-    } else return undefined;
-  }
-
   static metadata = (
-    postData: PostData,
+    data: PostData,
     siteRes: GetSiteResponse,
   ): Metadata | undefined => {
-    if (postData.postRes.state !== "success") {
+    if (data.postRes.state !== "success") {
       return undefined;
     }
 
     const siteName = siteRes.site_view.site.name;
     const title =
-      postData.postRes.state === "success"
-        ? `${postData.postRes.data.post_view.post.name} - ${siteName}`
+      data.postRes.state === "success"
+        ? `${data.postRes.data.post_view.post.name} - ${siteName}`
         : siteName;
+    const post = data.postRes.data.post_view.post;
+    const thumbnail = post.thumbnail_url;
+    const url = post.url;
+    const image = thumbnail || (url && isImage(url) ? url : undefined);
     return {
       title,
-      canonicalPath: postData.postRes.data.post_view.post.ap_id,
+      canonicalPath: post.ap_id,
+      image,
+      description: post.body,
     };
   };
 
@@ -594,13 +590,6 @@ export class Post extends Component<PostRouteProps, PostState> {
         return (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9 mb-3">
-              <HtmlTags
-                title={"TODO: remove"}
-                path={this.context.router.route.match.url}
-                canonicalPath={res.post_view.post.ap_id}
-                image={this.imageTag}
-                description={res.post_view.post.body}
-              />
               <PostListing
                 postView={res.post_view}
                 crossPosts={res.cross_posts}

@@ -18,12 +18,11 @@ import {
   wrapClient,
 } from "@services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
@@ -116,14 +115,15 @@ export class CreatePrivateMessage extends Component<
     });
   }
 
-  get documentTitle(): string {
-    if (this.state.recipientRes.state === "success") {
-      const name_ = this.state.recipientRes.data.person_view.person.name;
-      return `${I18NextService.i18n.t("create_private_message")} - ${name_}`;
-    } else {
-      return "";
+  static metadata = (data: CreatePrivateMessageData): Metadata | undefined => {
+    if (data.recipientDetailsResponse.state !== "success") {
+      return undefined;
     }
-  }
+
+    const name_ = data.recipientDetailsResponse.data.person_view.person.name;
+    const title = `${I18NextService.i18n.t("create_private_message")} - ${name_}`;
+    return { title };
+  };
 
   renderRecipientRes() {
     switch (this.state.recipientRes.state) {
@@ -164,10 +164,6 @@ export class CreatePrivateMessage extends Component<
   render() {
     return (
       <div className="create-private-message container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         {this.renderRecipientRes()}
       </div>
     );

@@ -99,7 +99,6 @@ import {
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
 import { BannerIconHeader } from "../common/banner-icon-header";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { SearchSortDropdown } from "../common/sort-dropdown";
@@ -108,7 +107,7 @@ import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
 import { PersonListing } from "./person-listing";
 import { getHttpBaseInternal } from "@utils/env";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { MediaUploads } from "../common/media-uploads";
 import { cakeDate, futureDaysToUnixTime, nowBoolean } from "@utils/date";
 import { isBrowser } from "@utils/browser";
@@ -592,13 +591,25 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
     });
   };
 
-  get documentTitle(): string {
-    const siteName = this.state.siteRes.site_view.site.name;
-    const res = this.state.personRes;
-    return res.state === "success"
-      ? `@${res.data.person_view.person.name} - ${siteName}`
-      : siteName;
-  }
+  static metadata = (
+    data: ProfileData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    if (data.personRes.state !== "success") {
+      return undefined;
+    }
+
+    const siteName = siteRes.site_view.site.name;
+    const person_view = data.personRes.data.person_view;
+    const title = `@${person_view.person.name} - ${siteName}`;
+    const bio = !person_view.banned ? person_view.person.bio : "";
+    return {
+      title,
+      canonicalPath: person_view.person.ap_id,
+      description: bio,
+      image: person_view.person.avatar,
+    };
+  };
 
   renderUploadsRes() {
     switch (this.state.uploadsRes.state) {
@@ -669,20 +680,9 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
         const isUpload = view === "uploads";
 
-        const bio = !personRes.person_view.banned
-          ? personRes.person_view.person.bio
-          : "";
-
         return (
           <div className="row">
             <div className="col-12 col-md-8">
-              <HtmlTags
-                title={this.documentTitle}
-                path={this.context.router.route.match.url}
-                canonicalPath={personRes.person_view.person.ap_id}
-                description={bio}
-                image={personRes.person_view.person.avatar}
-              />
               {this.userInfo(personRes.person_view)}
               {this.selects}
               {isUpload && this.renderUploadsRes()}

@@ -57,7 +57,6 @@ import {
 import { I18NextService } from "../../services/I18NextService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
@@ -77,7 +76,7 @@ import {
   snapToTop,
 } from "../../utils/browser";
 import { getHttpBaseInternal } from "../../utils/env";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { TimeIntervalFilter } from "@components/common/time-interval-filter";
@@ -355,9 +354,16 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     };
   };
 
-  get documentTitle(): string {
-    return I18NextService.i18n.t("settings");
-  }
+  static metadata = (
+    data: SettingsData,
+    _: GetSiteResponse,
+  ): Metadata | undefined => {
+    if (data.instancesRes.state !== "success") {
+      return undefined;
+    }
+    // TODO: add `this.state.avatar` but its not part of fetchInitialData
+    return { title: I18NextService.i18n.t("settings") };
+  };
 
   render() {
     /* eslint-disable jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid */
@@ -371,12 +377,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           className="d-none"
           href="javascript:void(0)"
           aria-hidden="true"
-        />
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-          description={this.documentTitle}
-          image={this.state.avatar}
         />
         <Tabs
           tabs={[

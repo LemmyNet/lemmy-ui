@@ -53,13 +53,12 @@ import {
   wrapClient,
 } from "../services/HttpService";
 import { CommentNodes } from "./comment/comment-nodes";
-import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "./common/paginator-cursor";
 import { SearchSortDropdown } from "./common/sort-dropdown";
@@ -662,25 +661,26 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     return res.state === "success" ? res.data.next_page : undefined;
   }
 
-  get documentTitle(): string {
-    const { q } = this.props;
-    const name = this.state.siteRes.site_view.site.name;
-    return `${I18NextService.i18n.t("search")} - ${q ? `${q} - ` : ""}${name}`;
-  }
+  static metadata = (
+    data: SearchData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    if (data.searchResponse.state !== "success") {
+      return undefined;
+    }
+    // TODO: seems we need to pass props into metadata
+    //const { q } = this.props;
+    const q = undefined;
+    const name = siteRes.site_view.site.name;
+    const title = `${I18NextService.i18n.t("search")} - ${q ? `${q} - ` : ""}${name}`;
+    return { title };
+  };
 
   render() {
     const { type } = this.props;
 
     return (
       <div className="search container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-          canonicalPath={
-            this.context.router.route.match.url +
-            this.context.router.route.location.search
-          }
-        />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("search")}</h1>
         {this.selects}
         {this.searchForm}

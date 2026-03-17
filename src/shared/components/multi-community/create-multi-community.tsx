@@ -2,11 +2,11 @@ import { setIsoData } from "@utils/app";
 import { Component } from "inferno";
 import {
   CreateMultiCommunity as CreateMultiCommunityI,
+  GetSiteResponse,
   MultiCommunityResponse,
   MyUserInfo,
 } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
-import { HtmlTags } from "../common/html-tags";
 import { MultiCommunityForm } from "./multi-community-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -17,6 +17,7 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "@services/HttpService";
+import { Metadata } from "@utils/routes";
 
 interface State {
   createRes: RequestState<MultiCommunityResponse>;
@@ -30,21 +31,21 @@ export class CreateMultiCommunity extends Component<
   private isoData = setIsoData(this.context);
   state: State = { createRes: EMPTY_REQUEST };
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("create_multi_community")} - ${
-      this.isoData.siteRes?.site_view.site.name
+  static metadata = (
+    _: never,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    const title = `${I18NextService.i18n.t("create_multi_community")} - ${
+      siteRes?.site_view.site.name
     }`;
-  }
+    return { title };
+  };
 
   render() {
     const myUserInfo = this.isoData.myUserInfo;
 
     return (
       <div className="create-multi-community container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">

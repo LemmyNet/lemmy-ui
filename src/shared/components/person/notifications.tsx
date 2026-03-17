@@ -66,13 +66,12 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { PrivateMessage } from "../private_message/private-message";
 import { getHttpBaseInternal } from "@utils/env";
 import { CommentsLoadingSkeleton } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "../common/paginator-cursor";
 import { NoOptionI18nKeys } from "i18next";
@@ -180,14 +179,19 @@ export class Notifications extends Component<
     }
   }
 
-  get documentTitle(): string {
-    const mui = this.isoData.myUserInfo;
-    return mui
-      ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
-          "notifications",
-        )} - ${this.state.siteRes.site_view.site.name}`
-      : "";
-  }
+  static metadata = (
+    data: NotificationsData,
+    siteRes: GetSiteResponse,
+    mui: MyUserInfo,
+  ): Metadata | undefined => {
+    if (data.notifsRes.state !== "success") {
+      return undefined;
+    }
+    const title = `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
+      "notifications",
+    )} - ${siteRes.site_view.site.name}`;
+    return { title };
+  };
 
   get hasUnreads(): boolean {
     if (this.state.showUnreadOnly) {
@@ -205,10 +209,6 @@ export class Notifications extends Component<
       <div className="notifications container-lg">
         <div className="row">
           <div className="col-12">
-            <HtmlTags
-              title={this.documentTitle}
-              path={this.context.router.route.match.url}
-            />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("notifications")}
               {notifsRss && (

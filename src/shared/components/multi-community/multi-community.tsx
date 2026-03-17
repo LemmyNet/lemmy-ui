@@ -73,7 +73,6 @@ import {
 } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { PostSortDropdown } from "../common/sort-dropdown";
 import { PostListings } from "../post/post-listings";
@@ -81,7 +80,7 @@ import { PaginatorCursor } from "../common/paginator-cursor";
 import { getHttpBaseInternal } from "../../utils/env";
 import { PostsLoadingSkeleton } from "../common/loading-skeleton";
 import { MultiCommunitySidebar } from "./multi-community-sidebar";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { nowBoolean } from "@utils/date";
 import { TimeIntervalFilter } from "@components/common/time-interval-filter";
@@ -287,28 +286,21 @@ export class MultiCommunity extends Component<RouteProps, State> {
     return this.state.postsRes;
   }
 
-  get documentTitle(): string {
-    const cRes = this.state.multiCommunityRes;
-    return cRes.state === "success"
-      ? `${cRes.data.multi_community_view.multi.title ?? cRes.data.multi_community_view.multi.name} - ${this.isoData.siteRes.site_view.site.name}`
-      : "";
-  }
+  static metadata = (
+    data: MultiCommunityData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    if (data.multiCommunityRes.state !== "success") {
+      return undefined;
+    }
+    const multi = data.multiCommunityRes.data.multi_community_view.multi;
+    const title = `${multi.title ?? multi.name} - ${siteRes.site_view.site.name}`;
+    return { title, canonicalPath: multi.ap_id, description: multi.summary };
+  };
 
   renderCommunity() {
-    const res =
-      this.state.multiCommunityRes.state === "success" &&
-      this.state.multiCommunityRes.data;
     return (
       <>
-        {res && (
-          <HtmlTags
-            title={this.documentTitle}
-            path={this.context.router.route.match.url}
-            canonicalPath={res.multi_community_view.multi.ap_id}
-            description={res.multi_community_view.multi.summary}
-          />
-        )}
-
         {this.multiCommunityInfo()}
         <div className="d-block d-md-none">
           <button

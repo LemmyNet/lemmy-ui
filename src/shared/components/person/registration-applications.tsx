@@ -14,7 +14,9 @@ import {
 import { Component } from "inferno";
 import {
   ApproveRegistrationApplication,
+  GetSiteResponse,
   LemmyHttp,
+  MyUserInfo,
   PagedResponse,
   PaginationCursor,
   RegistrationApplicationId,
@@ -31,14 +33,13 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { RegistrationApplication } from "../common/registration-application";
 import { getHttpBaseInternal } from "../../utils/env";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { InfernoNode } from "inferno";
 import {
   RegistrationState,
@@ -143,14 +144,19 @@ export class RegistrationApplications extends Component<
     }
   }
 
-  get documentTitle(): string {
-    const mui = this.isoData.myUserInfo;
-    return mui
-      ? `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
-          "registration_applications",
-        )} - ${this.isoData.siteRes.site_view.site.name}`
-      : "";
-  }
+  static metadata = (
+    data: RegistrationApplicationsData,
+    siteRes: GetSiteResponse,
+    mui: MyUserInfo,
+  ): Metadata | undefined => {
+    if (data.listRegistrationApplicationsResponse.state !== "success") {
+      return undefined;
+    }
+    const title = `@${mui.local_user_view.person.name} ${I18NextService.i18n.t(
+      "registration_applications",
+    )} - ${siteRes.site_view.site.name}`;
+    return { title };
+  };
 
   renderApps() {
     const appsState = this.state.appsRes.state;
@@ -159,10 +165,6 @@ export class RegistrationApplications extends Component<
     return (
       <div className="row">
         <div className="col-12">
-          <HtmlTags
-            title={this.documentTitle}
-            path={this.context.router.route.match.url}
-          />
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("registration_applications")}
           </h1>

@@ -96,7 +96,6 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostOrCommentTypeDropdown } from "../common/post-or-comment-type-dropdown";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { CommentSortDropdown, PostSortDropdown } from "../common/sort-dropdown";
 import { CommunityLink } from "../community/community-link";
@@ -109,7 +108,7 @@ import {
   PostsLoadingSkeleton,
 } from "../common/loading-skeleton";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
@@ -387,11 +386,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     };
   };
 
-  get documentTitle(): string {
-    const { name, summary } = this.state.siteRes.site_view.site;
-
-    return summary ? `${name} - ${summary}` : name;
-  }
+  static metadata = (
+    _: HomeData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    const { name, summary } = siteRes.site_view.site;
+    const title = summary ? `${name} - ${summary}` : name;
+    return { title };
+  };
 
   render() {
     const {
@@ -406,10 +408,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     return (
       <div className="home container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         {site_setup && (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9">

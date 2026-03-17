@@ -38,7 +38,6 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
@@ -48,7 +47,7 @@ import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { MediaUploads } from "../common/media-uploads";
 import { snapToTop } from "@utils/browser";
 import { isBrowser } from "@utils/browser";
@@ -184,19 +183,18 @@ export class AdminSettings extends Component<
     }
   }
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("admin_settings")} - ${
-      this.isoData.siteRes?.site_view.site.name
+  static metadata = (
+    _: AdminSettingsData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    const title = `${I18NextService.i18n.t("admin_settings")} - ${
+      siteRes?.site_view.site.name
     }`;
-  }
-
+    return { title };
+  };
   render() {
     return (
       <div className="admin-settings container">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <Tabs
           tabs={[
             {

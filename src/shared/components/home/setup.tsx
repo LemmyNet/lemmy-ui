@@ -1,6 +1,5 @@
 import { fetchThemeList, setIsoData } from "@utils/app";
 import { Component, FormEvent } from "inferno";
-import { Helmet } from "inferno-helmet";
 import { CreateSite, LoginResponse, Register } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import {
@@ -15,6 +14,7 @@ import { SiteForm } from "./site-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { isBrowser } from "@utils/browser";
+import { Metadata } from "@utils/routes";
 
 interface State {
   form: {
@@ -55,14 +55,13 @@ export class Setup extends Component<
     }
   }
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("setup")} - Lemmy`;
-  }
+  static metadata = (): Metadata | undefined => {
+    return { title: `${I18NextService.i18n.t("setup")} - Lemmy` };
+  };
 
   render() {
     return (
       <div className="home-setup container-lg">
-        <Helmet title={this.documentTitle} />
         <div className="row">
           <div className="col-12 offset-lg-3 col-lg-6">
             <h1 className="h4 mb-4">

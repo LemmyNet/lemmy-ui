@@ -36,6 +36,7 @@ import {
   Modlog as Modlog_,
   PaginationCursor,
   ModlogKindFilter,
+  GetSiteResponse,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -47,13 +48,12 @@ import {
   RequestState,
   wrapClient,
 } from "../services/HttpService";
-import { HtmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";
 import { communityLink, CommunityLink } from "./community/community-link";
 import { PersonListing } from "./person/person-listing";
 import { getHttpBaseInternal } from "../utils/env";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { LoadingEllipses } from "./common/loading-ellipses";
 import { PaginatorCursor } from "./common/paginator-cursor";
@@ -795,9 +795,14 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       : I18NextService.i18n.t("mod");
   }
 
-  get documentTitle(): string {
-    return `Modlog - ${this.isoData.siteRes.site_view.site.name}`;
-  }
+  static metadata = (
+    _: ModlogData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    return {
+      title: `${I18NextService.i18n.t("modlog")} - ${siteRes.site_view.site.name}`,
+    };
+  };
 
   render() {
     const {
@@ -816,11 +821,6 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
     return (
       <div className="modlog container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
-
         <h1 className="h4 mb-4">{I18NextService.i18n.t("modlog")}</h1>
 
         <div

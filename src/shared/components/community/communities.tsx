@@ -18,6 +18,7 @@ import {
   CommunityView,
   ListingType,
   PaginationCursor,
+  GetSiteResponse,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService } from "@services/FirstLoadService";
@@ -30,7 +31,6 @@ import {
   RequestState,
   wrapClient,
 } from "@services/HttpService";
-import { HtmlTags } from "@components/common/html-tags";
 import { Spinner } from "@components/common/icon";
 import { CommunitiesSortDropdown } from "@components/common/sort-dropdown";
 import { SubscribeButton } from "@components/common/subscribe-button";
@@ -38,7 +38,7 @@ import { Icon } from "@components/common/icon";
 import { communityLink, CommunityLink } from "./community-link";
 import { communityLimit } from "@utils/config";
 import { getHttpBaseInternal } from "@utils/env";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
@@ -133,12 +133,6 @@ export class Communities extends Component<
     await this.refetch(nextProps);
   }
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("communities")} - ${
-      this.isoData.siteRes?.site_view.site.name
-    }`;
-  }
-
   renderListingsTable() {
     const nameCols = "col-12 col-md-7";
     const countCols = "col-6 col-md-1";
@@ -215,6 +209,17 @@ export class Communities extends Component<
     }
   }
 
+  static metadata = (
+    _: CommunitiesData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    return {
+      title: `${I18NextService.i18n.t("communities")} - ${
+        siteRes?.site_view.site.name
+      }`,
+    };
+  };
+
   render() {
     const { listingType, sort } = this.props;
     const myUserInfo = this.isoData.myUserInfo;
@@ -222,10 +227,6 @@ export class Communities extends Component<
 
     return (
       <div className="communities container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <div>
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("list_of_communities")}

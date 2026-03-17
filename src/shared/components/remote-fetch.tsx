@@ -6,6 +6,7 @@ import { Component } from "inferno";
 import {
   CommunityResponse,
   CommunityView,
+  GetSiteResponse,
   LemmyHttp,
   SearchResponse,
 } from "lemmy-js-client";
@@ -17,7 +18,6 @@ import {
   RequestState,
   wrapClient,
 } from "../services/HttpService";
-import { HtmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
 import { LoadingEllipses } from "./common/loading-ellipses";
 import { PictrsImage } from "./common/pictrs-image";
@@ -25,7 +25,7 @@ import { SubscribeButton } from "./common/subscribe-button";
 import { CommunityLink } from "./community/community-link";
 import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 
 interface RemoteFetchProps {
@@ -137,13 +137,27 @@ export class RemoteFetch extends Component<
     }
   }
 
+  static metadata = (
+    data: RemoteFetchData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    if (data.resolveObjectRes.state !== "success") {
+      return undefined;
+    }
+
+    // TODO: how to pass uri here? Putting it into RemoteFetchData adds extra RequestState
+    //       wrapper which breaks it.
+    const uri = "";
+    const name = siteRes?.site_view.site.name;
+    const title = `${I18NextService.i18n.t("remote_follow")} - ${
+      uri ? `${uri} - ` : ""
+    }${name}`;
+    return { title };
+  };
+
   render() {
     return (
       <div className="remote-fetch container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 text-center">
             {this.content}
@@ -248,14 +262,6 @@ export class RemoteFetch extends Component<
         );
       }
     }
-  }
-
-  get documentTitle(): string {
-    const { uri } = this.props;
-    const name = this.isoData.siteRes?.site_view.site.name;
-    return `${I18NextService.i18n.t("remote_follow")} - ${
-      uri ? `${uri} - ` : ""
-    }${name}`;
   }
 
   static fetchInitialData = async ({

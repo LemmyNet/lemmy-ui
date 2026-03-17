@@ -3,10 +3,10 @@ import { Component } from "inferno";
 import {
   CommunityResponse,
   CreateCommunity as CreateCommunityI,
+  GetSiteResponse,
   MyUserInfo,
 } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
-import { HtmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
@@ -17,6 +17,7 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "@services/HttpService";
+import { Metadata } from "@utils/routes";
 
 interface CreateCommunityState {
   createCommunityRes: RequestState<CommunityResponse>;
@@ -32,21 +33,21 @@ export class CreateCommunity extends Component<
     createCommunityRes: EMPTY_REQUEST,
   };
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("create_community")} - ${
-      this.isoData.siteRes?.site_view.site.name
+  static metadata = (
+    _: never,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    const title = `${I18NextService.i18n.t("create_community")} - ${
+      siteRes?.site_view.site.name
     }`;
-  }
+    return { title };
+  };
 
   render() {
     const imageUploadDisabled =
       this.isoData.siteRes.site_view.local_site.image_upload_disabled;
     return (
       <div className="create-community container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">

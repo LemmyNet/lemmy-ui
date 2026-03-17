@@ -15,6 +15,7 @@ import { Component } from "inferno";
 import {
   ApproveCommunityPendingFollower,
   CommunityId,
+  GetSiteResponse,
   LemmyHttp,
   PagedResponse,
   PaginationCursor,
@@ -33,13 +34,12 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { getHttpBaseInternal } from "../../utils/env";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { RouteComponentProps } from "inferno-router/dist/Route";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { InfernoNode } from "inferno";
 import { PendingFollow } from "@components/common/pending-follow";
 import {
@@ -145,11 +145,12 @@ export class PendingFollows extends Component<
     }
   }
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t(
+  static metadata = (siteRes: GetSiteResponse): Metadata | undefined => {
+    const title = `${I18NextService.i18n.t(
       "community_pending_follows",
-    )} - ${this.isoData.siteRes.site_view.site.name}`;
-  }
+    )} - ${siteRes.site_view.site.name}`;
+    return { title };
+  };
 
   render() {
     const state = this.state.appsRes.state;
@@ -158,10 +159,6 @@ export class PendingFollows extends Component<
       <div className="container-lg">
         <div className="row">
           <div className="col-12">
-            <HtmlTags
-              title={this.documentTitle}
-              path={this.context.router.route.match.url}
-            />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("community_pending_follows")}
             </h1>

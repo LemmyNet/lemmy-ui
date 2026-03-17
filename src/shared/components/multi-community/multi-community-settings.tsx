@@ -12,6 +12,7 @@ import {
   MultiCommunityId,
   MultiCommunityResponse,
   EditMultiCommunity,
+  GetSiteResponse,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -26,9 +27,8 @@ import {
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { getHttpBaseInternal } from "../../utils/env";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
-import { HtmlTags } from "@components/common/html-tags";
 import { MultiCommunityForm } from "./multi-community-form";
 import {
   MultiCommunityEntryForm,
@@ -143,13 +143,6 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
     };
   };
 
-  get documentTitle(): string {
-    const cRes = this.state.multiRes;
-    return cRes.state === "success"
-      ? `${cRes.data.multi_community_view.multi.title} ${I18NextService.i18n.t("settings")} - ${this.isoData.siteRes.site_view.site.name}`
-      : "";
-  }
-
   get amCreator(): boolean {
     return (
       this.state.multiRes.state === "success" &&
@@ -157,6 +150,18 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
         this.state.multiRes.data.multi_community_view.owner.id
     );
   }
+
+  static metadata = (
+    res: MultiCommunitySettingsData,
+    siteRes: GetSiteResponse,
+  ): Metadata | undefined => {
+    if (res.multiCommunityRes.state !== "success") {
+      return undefined;
+    }
+
+    const title = `${res.multiCommunityRes.data.multi_community_view.multi.title} ${I18NextService.i18n.t("settings")} - ${siteRes.site_view.site.name}`;
+    return { title };
+  };
 
   render() {
     const getMultiRes =
@@ -166,10 +171,6 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
     return (
       getMultiRes && (
         <div className="multi-community-settings container">
-          <HtmlTags
-            title={this.documentTitle}
-            path={this.context.router.route.match.url}
-          />
           <div className="row">
             <div className="col-12 col-md-6">
               <h1 className="h4 mb-4">

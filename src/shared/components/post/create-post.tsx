@@ -24,6 +24,7 @@ import {
   CreatePost as CreatePostI,
   GetCommunity,
   GetCommunityResponse,
+  GetSiteResponse,
   LemmyHttp,
   PagedResponse,
   PostResponse,
@@ -38,10 +39,9 @@ import {
   WrappedLemmyHttp,
   wrapClient,
 } from "../../services/HttpService";
-import { HtmlTags } from "../common/html-tags";
 import { PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
-import { IRoutePropsWithFetch } from "@utils/routes";
+import { IRoutePropsWithFetch, Metadata } from "@utils/routes";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { toast } from "@utils/app";
 import { isBrowser } from "@utils/browser";
@@ -214,11 +214,14 @@ export class CreatePost extends Component<
     }
   }
 
-  get documentTitle(): string {
-    return `${I18NextService.i18n.t("create_post")} - ${
-      this.isoData.siteRes?.site_view.site.name
+  static metadata = (siteRes: GetSiteResponse): Metadata | undefined => {
+    const title = `${I18NextService.i18n.t("create_post")} - ${
+      siteRes?.site_view.site.name
     }`;
-  }
+    return {
+      title,
+    };
+  };
 
   render() {
     const {
@@ -258,10 +261,6 @@ export class CreatePost extends Component<
       : undefined;
     return (
       <div className="create-post container-lg" key={resetCounter}>
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
         <div className="row">
           <div id="createPostForm" className="col-12 col-lg-6 offset-lg-2 mb-4">
             <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>

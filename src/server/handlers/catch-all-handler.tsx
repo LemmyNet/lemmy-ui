@@ -175,7 +175,9 @@ export default async (req: Request, res: Response) => {
 
     let metadata: Metadata | undefined;
     if (activeRoute?.metadata) {
-      metadata = activeRoute.metadata(routeData, siteRes);
+      metadata = activeRoute.metadata(routeData, siteRes, myUserInfo);
+      // TODO: always append ` - ${siteRes.site_view.site.name}`
+      //       instead of doing it manually in each handler
     }
 
     if (!metadata) {

@@ -12,6 +12,8 @@ import path from "path";
 import { readFileSync, existsSync } from "node:fs";
 import { enableEruda } from "./dev-env";
 import { Metadata } from "@utils/routes";
+import { htmlToText } from "html-to-text";
+import { md } from "@utils/markdown";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
@@ -102,18 +104,30 @@ export async function createSsrHtml(
   const helmet = Helmet.renderStatic();
 
   // data-bs-theme="light" lang="en"
+  // TODO: use lang=I18NextService.i18n.resolvedLanguage
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const helmetAttr = helmet.htmlAttributes.toString();
   const helmetTitle = `<title>${metadata.title}</title>`;
-  const helmetMeta = `<meta property="title" content="${metadata.title}">
+  let helmetMeta = `<meta property="title" content="${metadata.title}">
   <meta property="og:title" content="${metadata.title}">
   <meta property="twitter:title" content="${metadata.title}">
   <meta property="og:url" content="${current_url}">
   <meta property="twitter:url" content="${current_url}">
   <meta property="og:type" content="website">
-  <meta property="twitter:card" content="summary_large_image">`;
+  <meta property="twitter:card" content="summary_large_image">\n`;
+  if (metadata.image) {
+    helmetMeta += `<meta key="og:image" property="og:image" content="${metadata.image}" />\n`;
+    helmetMeta += `<meta key="twitter:image" property="twitter:image" content="${metadata.image}" />\n`;
+  }
+  if (metadata.description) {
+    const desc = htmlToText(md.renderInline(metadata.description));
+    helmetMeta += `<meta key="description" name="description" content="${desc}"/>\n`;
+    helmetMeta += `<meta key="og:description" name="description" content="${desc}"/>\n`;
+    helmetMeta += `<meta key="twitter:description" name="description" content="${desc}"/>\n`;
+  }
+
   // <link rel="stylesheet" type="text/css" href="/css/themes/browser.css"><link rel="stylesheet" type="text/css" href="/css/code-themes/atom-one-light.css" media="(prefers-color-scheme: light)"><link rel="stylesheet" type="text/css" href="/css/code-themes/atom-one-dark.css" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)">
-  const helmetLink = `<link rel="canonical" href="${metadata.canonicalPath}">`;
+  const helmetLink = `<link rel="canonical" href="${metadata.canonicalPath ?? current_url}">`;
 
   return `
     <!DOCTYPE html>
