@@ -1,6 +1,8 @@
-import { Component, FormEvent } from "inferno";
+import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { NoOptionI18nKeys } from "i18next";
+import classNames from "classnames";
+import { createRef } from "inferno";
 
 export type IntervalUnit = NoOptionI18nKeys &
   ("seconds" | "minutes" | "hours" | "days" | "weeks" | "months" | "years");
@@ -57,60 +59,106 @@ export const TIME_RANGE_PRESETS: TimePreset[] = [
 ];
 
 export class TimeIntervalFilter extends Component<Props, never> {
+  buttonRef = createRef<HTMLButtonElement>();
+  numInputRef = createRef<HTMLInputElement>();
   render() {
-    const { num, unit } = this.props.interval;
+    const {
+      interval: { num, unit },
+    } = this.props;
 
-    // TODO: aria representation is weird
+    const activePreset = TIME_RANGE_PRESETS.find(
+      preset => preset.interval.num === num && preset.interval.unit === unit,
+    );
+
     return (
       <div className="input-group input-group-sm">
-        <input
-          type="number"
-          className="form-control interval-filter-input border-light-subtle"
-          aria-label={I18NextService.i18n.t("time_interval")}
-          value={num}
-          onInput={e => handleTimeIntervalNumChange(this, e)}
-        />
         <button
+          ref={this.buttonRef}
           className="btn btn-light border-light-subtle dropdown-toggle"
           data-tippy-content={I18NextService.i18n.t("time_interval")}
           data-bs-toggle="dropdown"
           aria-expanded="false"
           aria-controls="time-interval-unit-dropdown"
           aria-label={I18NextService.i18n.t("time_unit")}
+          data-bs-auto-close="outside"
         >
-          {I18NextService.i18n.t(unit)}
+          {num === 0
+            ? I18NextService.i18n.t("all_time")
+            : `${num} ${I18NextService.i18n.t(unit)}`}
         </button>
         <ul
           className="dropdown-menu dropdown-menu-end"
           id="time-interval-unit-dropdown"
         >
-          <li>
-            <button className="dropdown-item disabled" aria-disabled="true">
-              {I18NextService.i18n.t("custom_time")}
-            </button>
-          </li>
           {TIME_RANGE_PRESETS.map(({ interval, label }) => (
             <li>
               <button
-                className="dropdown-item"
-                onClick={() => this.props.onChange(interval)}
+                className={classNames("dropdown-item", {
+                  active: label === activePreset?.label,
+                })}
+                onClick={() => handleIntervalChange(this, interval)}
               >
                 {/* FIXME: i18n */ label}
               </button>
             </li>
           ))}
+          <div className="dropdown-divider" />
+          <li>
+            <span
+              className={classNames("dropdown-header", {
+                active: !activePreset,
+              })}
+            >
+              {I18NextService.i18n.t("custom_time")}
+            </span>
+            <div
+              className={classNames("dropdown-item", { active: !activePreset })}
+            >
+              <form
+                key={unit + num} // Necessary to update input.defaultValue
+                method="dialog"
+                className="input-group flex-nowrap"
+              >
+                <input
+                  ref={this.numInputRef}
+                  type="number"
+                  id="timeNum"
+                  className="form-control border-light-subtle interval-filter-input"
+                  aria-label={I18NextService.i18n.t("time_interval")}
+                  defaultValue={num}
+                />
+                <label
+                  className="input-group-text border-top-0 border-bottom-0"
+                  htmlFor="timeNum"
+                >
+                  {I18NextService.i18n.t(unit)}
+                </label>
+                <button
+                  type="submit"
+                  className="btn btn-secondary"
+                  onClick={() => handleTimeIntervalNumChange(this)}
+                >
+                  Update
+                </button>
+              </form>
+            </div>
+          </li>
         </ul>
       </div>
     );
   }
 }
 
-function handleTimeIntervalNumChange(
-  i: TimeIntervalFilter,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.props.onChange({
-    num: Number(event.target.value),
+function handleIntervalChange(i: TimeIntervalFilter, interval: Interval) {
+  if (i.buttonRef.current?.getAttribute("aria-expanded")) {
+    i.buttonRef.current?.click();
+  }
+  i.props.onChange(interval);
+}
+
+function handleTimeIntervalNumChange(i: TimeIntervalFilter) {
+  handleIntervalChange(i, {
+    num: Number(i.numInputRef.current?.value),
     unit: i.props.interval.unit,
   });
 }
