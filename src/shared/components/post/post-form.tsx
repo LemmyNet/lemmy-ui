@@ -103,10 +103,6 @@ interface PostFormState {
 
 function handlePostSubmit(i: PostForm, event: any) {
   event.preventDefault();
-  // Coerce empty url string to undefined
-  if ((i.state.form.url ?? "") === "") {
-    i.setState(s => ((s.form.url = undefined), s));
-  }
   // This forces `props.loading` to become true, then false, to enable the
   // submit button again.
   i.setState({ submitted: true });
