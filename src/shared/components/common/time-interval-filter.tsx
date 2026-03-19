@@ -3,6 +3,7 @@ import { I18NextService } from "../../services";
 import { NoOptionI18nKeys } from "i18next";
 import classNames from "classnames";
 import { createRef } from "inferno";
+import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
 
 export type IntervalUnit = NoOptionI18nKeys &
   ("seconds" | "minutes" | "hours" | "days" | "weeks" | "months" | "years");
@@ -36,6 +37,8 @@ type Props = {
   onChange: (interval: Interval) => void;
 };
 
+type State = { customInterval?: Interval };
+
 export const ALL_TIME_INTERVAL: Interval = { unit: "days", num: 0 };
 
 type TimePreset = {
@@ -45,8 +48,6 @@ type TimePreset = {
 
 export const TIME_RANGE_PRESETS: TimePreset[] = [
   { label: "All time", interval: { ...ALL_TIME_INTERVAL } },
-  { label: "60 Seconds", interval: { num: 60, unit: "seconds" } },
-  { label: "30 Minutes", interval: { num: 30, unit: "minutes" } },
   { label: "1 Hour", interval: { num: 1, unit: "hours" } },
   { label: "6 Hours", interval: { num: 6, unit: "hours" } },
   { label: "12 Hours", interval: { num: 12, unit: "hours" } },
@@ -57,18 +58,26 @@ export const TIME_RANGE_PRESETS: TimePreset[] = [
   { label: "6 Months", interval: { num: 6, unit: "months" } },
   { label: "1 Year", interval: { num: 1, unit: "years" } },
 ];
+const TIME_RANGE_UNITS = Array.from(
+  new Set(TIME_RANGE_PRESETS.map(x => x.interval.unit)).values(),
+);
+const TIME_RANGE_UNIT_OPTIONS: FilterOption<IntervalUnit>[] =
+  TIME_RANGE_UNITS.map(u => ({ value: u, i18n: u }));
 
-export class TimeIntervalFilter extends Component<Props, never> {
+export class TimeIntervalFilter extends Component<Props, State> {
+  state: State = {};
   buttonRef = createRef<HTMLButtonElement>();
-  numInputRef = createRef<HTMLInputElement>();
   render() {
     const {
+      interval,
       interval: { num, unit },
     } = this.props;
 
     const activePreset = TIME_RANGE_PRESETS.find(
       preset => preset.interval.num === num && preset.interval.unit === unit,
     );
+
+    const customInterval = this.state.customInterval ?? interval;
 
     return (
       <div className="input-group input-group-sm">
@@ -114,29 +123,38 @@ export class TimeIntervalFilter extends Component<Props, never> {
             <div
               className={classNames("dropdown-item", { active: !activePreset })}
             >
-              <form
-                key={unit + num} // Necessary to update input.defaultValue
-                method="dialog"
-                className="input-group flex-nowrap"
-              >
+              <form method="dialog" className="input-group flex-nowrap">
                 <input
-                  ref={this.numInputRef}
                   type="number"
-                  id="timeNum"
                   className="form-control border-light-subtle interval-filter-input"
                   aria-label={I18NextService.i18n.t("time_interval")}
-                  defaultValue={num}
+                  onInput={e =>
+                    this.setState({
+                      customInterval: {
+                        num: Number(e.target.value),
+                        unit: customInterval.unit,
+                      },
+                    })
+                  }
+                  value={customInterval.num}
                 />
-                <label
-                  className="input-group-text border-top-0 border-bottom-0"
-                  htmlFor="timeNum"
-                >
-                  {I18NextService.i18n.t(unit)}
-                </label>
+                <FilterChipDropdown
+                  className="form-control"
+                  allOptions={TIME_RANGE_UNIT_OPTIONS}
+                  currentOption={{
+                    value: customInterval.unit,
+                    i18n: customInterval.unit,
+                  }}
+                  onSelect={option =>
+                    this.setState({
+                      customInterval: { num: customInterval.num, unit: option },
+                    })
+                  }
+                />
                 <button
                   type="submit"
                   className="btn btn-secondary"
-                  onClick={() => handleTimeIntervalNumChange(this)}
+                  onClick={() => handleIntervalChange(this, customInterval)}
                 >
                   Update
                 </button>
@@ -153,14 +171,8 @@ function handleIntervalChange(i: TimeIntervalFilter, interval: Interval) {
   if (i.buttonRef.current?.getAttribute("aria-expanded")) {
     i.buttonRef.current?.click();
   }
+  i.setState({ customInterval: undefined });
   i.props.onChange(interval);
-}
-
-function handleTimeIntervalNumChange(i: TimeIntervalFilter) {
-  handleIntervalChange(i, {
-    num: Number(i.numInputRef.current?.value),
-    unit: i.props.interval.unit,
-  });
 }
 
 const conversions: Interval[] = [
