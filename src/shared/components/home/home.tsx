@@ -965,12 +965,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           </button>
           {!hidePostTimeRange && (
             <label for="post-time-range" className="form-label col ms-auto">
-              {
-                TIME_RANGE_PRESETS.find(
-                  ({ interval: { num, unit } }) =>
-                    postTimeRange.unit === unit && postTimeRange.num === num,
-                )?.label
-              }
+              {I18NextService.i18n.t(`n_${postTimeRange.unit}`, {
+                count: postTimeRange.num,
+                formattedCount: postTimeRange.num,
+              })}
             </label>
           )}
         </div>
@@ -1010,14 +1008,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             value={
               TIME_RANGE_PRESETS.findIndex(
                 x =>
-                  x.interval.num === postTimeRange.num &&
-                  x.interval.unit === postTimeRange.unit,
+                  x.num === postTimeRange.num && x.unit === postTimeRange.unit,
               ) ?? 0
             }
             onInput={e =>
               handlePostTimeRangeChange(
                 this,
-                TIME_RANGE_PRESETS[Number(e.currentTarget.value)]?.interval,
+                TIME_RANGE_PRESETS[Number(e.currentTarget.value)],
               )
             }
           />

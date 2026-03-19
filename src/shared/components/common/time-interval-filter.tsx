@@ -41,25 +41,20 @@ type State = { customInterval?: Interval };
 
 export const ALL_TIME_INTERVAL: Interval = { unit: "days", num: 0 };
 
-type TimePreset = {
-  label: /* FIXME: i18n */ string;
-  interval: Interval;
-};
-
-export const TIME_RANGE_PRESETS: TimePreset[] = [
-  { label: "All time", interval: { ...ALL_TIME_INTERVAL } },
-  { label: "1 Hour", interval: { num: 1, unit: "hours" } },
-  { label: "6 Hours", interval: { num: 6, unit: "hours" } },
-  { label: "12 Hours", interval: { num: 12, unit: "hours" } },
-  { label: "1 Day", interval: { num: 1, unit: "days" } },
-  { label: "1 Week", interval: { num: 1, unit: "weeks" } },
-  { label: "1 Month", interval: { num: 1, unit: "months" } },
-  { label: "3 Months", interval: { num: 3, unit: "months" } },
-  { label: "6 Months", interval: { num: 6, unit: "months" } },
-  { label: "1 Year", interval: { num: 1, unit: "years" } },
+export const TIME_RANGE_PRESETS: Interval[] = [
+  { ...ALL_TIME_INTERVAL },
+  { num: 1, unit: "hours" },
+  { num: 6, unit: "hours" },
+  { num: 12, unit: "hours" },
+  { num: 1, unit: "days" },
+  { num: 1, unit: "weeks" },
+  { num: 1, unit: "months" },
+  { num: 3, unit: "months" },
+  { num: 6, unit: "months" },
+  { num: 1, unit: "years" },
 ];
 const TIME_RANGE_UNITS = Array.from(
-  new Set(TIME_RANGE_PRESETS.map(x => x.interval.unit)).values(),
+  new Set(TIME_RANGE_PRESETS.map(x => x.unit)).values(),
 );
 const TIME_RANGE_UNIT_OPTIONS: FilterOption<IntervalUnit>[] =
   TIME_RANGE_UNITS.map(u => ({ value: u, i18n: u }));
@@ -74,7 +69,7 @@ export class TimeIntervalFilter extends Component<Props, State> {
     } = this.props;
 
     const activePreset = TIME_RANGE_PRESETS.find(
-      preset => preset.interval.num === num && preset.interval.unit === unit,
+      preset => preset.num === num && preset.unit === unit,
     );
 
     const customInterval = this.state.customInterval ?? interval;
@@ -84,30 +79,40 @@ export class TimeIntervalFilter extends Component<Props, State> {
         <button
           ref={this.buttonRef}
           className="btn btn-light border-light-subtle dropdown-toggle"
-          data-tippy-content={I18NextService.i18n.t("time_interval")}
+          data-tippy-content={I18NextService.i18n.t("time_filter")}
           data-bs-toggle="dropdown"
           aria-expanded="false"
           aria-controls="time-interval-unit-dropdown"
-          aria-label={I18NextService.i18n.t("time_unit")}
+          aria-label={I18NextService.i18n.t("time_filter")}
           data-bs-auto-close="outside"
         >
           {num === 0
             ? I18NextService.i18n.t("all_time")
-            : `${num} ${I18NextService.i18n.t(unit)}`}
+            : I18NextService.i18n.t(`n_${unit}`, {
+                count: num,
+                formattedCount: num,
+              })}
         </button>
         <ul
           className="dropdown-menu dropdown-menu-end"
           id="time-interval-unit-dropdown"
         >
-          {TIME_RANGE_PRESETS.map(({ interval, label }) => (
+          {TIME_RANGE_PRESETS.map(interval => (
             <li>
               <button
                 className={classNames("dropdown-item", {
-                  active: label === activePreset?.label,
+                  "fw-bold":
+                    activePreset?.num === interval.num &&
+                    activePreset?.unit === interval.unit,
                 })}
                 onClick={() => handleIntervalChange(this, interval)}
               >
-                {/* FIXME: i18n */ label}
+                {interval.num === 0
+                  ? I18NextService.i18n.t("all_time")
+                  : I18NextService.i18n.t(`n_${interval.unit}`, {
+                      count: interval.num,
+                      formattedCount: interval.num,
+                    })}
               </button>
             </li>
           ))}
@@ -156,7 +161,7 @@ export class TimeIntervalFilter extends Component<Props, State> {
                   className="btn btn-secondary"
                   onClick={() => handleIntervalChange(this, customInterval)}
                 >
-                  Update
+                  {I18NextService.i18n.t("update")}
                 </button>
               </form>
             </div>
