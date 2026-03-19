@@ -17,7 +17,10 @@ interface AdultConsentModalProps {
 }
 
 @modalMixin
-class AdultConsentModalInner extends Component<AdultConsentModalProps, any> {
+class AdultConsentModalInner extends Component<
+  AdultConsentModalProps,
+  unknown
+> {
   readonly modalDivRef = createRef<HTMLDivElement>();
   readonly continueButtonRef = createRef<HTMLButtonElement>();
 

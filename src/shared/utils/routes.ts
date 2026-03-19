@@ -116,6 +116,7 @@ import {
 export interface IRoutePropsWithFetch<
   DataT extends RouteData,
   PathPropsT extends Record<string, string>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   QueryPropsT extends Record<string, any>,
 > extends IRouteProps {
   fetchInitialData?: (
@@ -129,11 +130,17 @@ export interface IRoutePropsWithFetch<
   mountedSameRouteNavKey?: string;
   component: typeof Component<
     RouteComponentProps<PathPropsT> & QueryPropsT,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any
   >;
 }
 
-export const routes: IRoutePropsWithFetch<RouteData, any, any>[] = [
+export const routes: IRoutePropsWithFetch<
+  RouteData,
+  Record<string, string>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  any
+>[] = [
   {
     path: `/`,
     component: Home,

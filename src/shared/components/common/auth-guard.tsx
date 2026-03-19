@@ -10,7 +10,7 @@ interface AuthGuardProps extends RouteComponentProps<Record<string, string>> {
   myUserInfo: MyUserInfo | undefined;
 }
 
-export default class AuthGuard extends Component<AuthGuardProps, any> {
+export default class AuthGuard extends Component<AuthGuardProps, never> {
   hasAuth() {
     return this.props.myUserInfo;
   }

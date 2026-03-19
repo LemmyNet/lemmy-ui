@@ -4,13 +4,13 @@ import { cleanupTippy } from "@utils/tippy";
 export function tippyMixin<
   P,
   S,
-  Base extends new (...args: any) => Component<P, S>,
+  Base extends new (...args: any[]) => Component<P, S>,
 >(base: Base, _context?: ClassDecoratorContext<Base>) {
   return class extends base {
     componentDidUpdate(
       prevProps: P & { children?: InfernoNode },
       prevState: S,
-      snapshot: any,
+      snapshot: unknown,
     ) {
       // For conditional rendering, old tippy instances aren't reused
       cleanupTippy();

@@ -786,10 +786,6 @@ function updateUrl(i: PostForm, update: () => void) {
 
 function handlePostSubmit(i: PostForm, event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
-  // Coerce empty url string to undefined
-  if ((i.state.form.url ?? "") === "") {
-    i.setState(s => ((s.form.url = undefined), s));
-  }
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
@@ -986,7 +982,7 @@ async function handleImageUpload(
   i: PostForm,
   event: File | FormEvent<HTMLInputElement>,
 ) {
-  let file: any;
+  let file: File | undefined;
   if (event instanceof Event) {
     event.preventDefault();
     file = event.target.files?.[0];
@@ -996,19 +992,21 @@ async function handleImageUpload(
 
   i.setState({ imageLoading: true });
 
-  await HttpService.client.uploadImage({ image: file }).then(res => {
-    if (res.state === "success") {
-      i.state.form.url = res.data.image_url;
-      i.setState({
-        imageLoading: false,
-        uploadedImage: res.data,
-      });
-    } else if (res.state === "failed") {
-      console.error(res.err.name);
-      toast(res.err.name, "danger");
-      i.setState({ imageLoading: false });
-    }
-  });
+  if (file) {
+    await HttpService.client.uploadImage({ image: file }).then(res => {
+      if (res.state === "success") {
+        i.state.form.url = res.data.image_url;
+        i.setState({
+          imageLoading: false,
+          uploadedImage: res.data,
+        });
+      } else if (res.state === "failed") {
+        console.error(res.err.name);
+        toast(res.err.name, "danger");
+        i.setState({ imageLoading: false });
+      }
+    });
+  }
 }
 
 function handleTagsChange(i: PostForm, choices: Choice[]) {

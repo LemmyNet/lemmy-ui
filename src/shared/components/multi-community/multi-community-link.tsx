@@ -14,7 +14,7 @@ interface Props {
   myUserInfo: MyUserInfo | undefined;
 }
 
-export class MultiCommunityLink extends Component<Props, any> {
+export class MultiCommunityLink extends Component<Props, never> {
   render() {
     const { multiCommunity, useApubName } = this.props;
 
@@ -42,7 +42,7 @@ export class MultiCommunityLink extends Component<Props, any> {
 
   name(title: string, serverStr?: string) {
     return (
-      <span className="overflow-wrap-anywhere">
+      <span className="overflow-wrap-unknownwhere">
         {title}
         {serverStr && <small className="text-muted">{serverStr}</small>}
       </span>
