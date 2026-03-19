@@ -59,6 +59,15 @@ const TIME_RANGE_UNITS = Array.from(
 const TIME_RANGE_UNIT_OPTIONS: FilterOption<IntervalUnit>[] =
   TIME_RANGE_UNITS.map(u => ({ value: u, i18n: u }));
 
+function presetLabel(interval: Interval): string {
+  return interval.num === 0
+    ? I18NextService.i18n.t("all_time")
+    : I18NextService.i18n.t(`n_${interval.unit}`, {
+        count: interval.num,
+        formattedCount: interval.num,
+      });
+}
+
 export class TimeIntervalFilter extends Component<Props, State> {
   state: State = {};
   buttonRef = createRef<HTMLButtonElement>();
@@ -68,106 +77,79 @@ export class TimeIntervalFilter extends Component<Props, State> {
       interval: { num, unit },
     } = this.props;
 
-    const activePreset = TIME_RANGE_PRESETS.find(
-      preset => preset.num === num && preset.unit === unit,
-    );
-
     const customInterval = this.state.customInterval ?? interval;
 
+    const allOptions = TIME_RANGE_PRESETS.map((interval, index) => ({
+      value: index.toString(),
+      noI18n: presetLabel(interval),
+      interval,
+    }));
+    const currentOption = allOptions.find(
+      option => option.interval.num === num && option.interval.unit === unit,
+    );
+
     return (
-      <div className="input-group input-group-sm">
-        <button
-          ref={this.buttonRef}
-          className="btn btn-light border-light-subtle dropdown-toggle"
-          data-tippy-content={I18NextService.i18n.t("time_filter")}
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-          aria-controls="time-interval-unit-dropdown"
-          aria-label={I18NextService.i18n.t("time_filter")}
-          data-bs-auto-close="outside"
-        >
-          {num === 0
-            ? I18NextService.i18n.t("all_time")
-            : I18NextService.i18n.t(`n_${unit}`, {
-                count: num,
-                formattedCount: num,
-              })}
-        </button>
-        <ul
-          className="dropdown-menu dropdown-menu-end"
-          id="time-interval-unit-dropdown"
-        >
-          {TIME_RANGE_PRESETS.map(interval => (
-            <li>
-              <button
-                className={classNames("dropdown-item", {
-                  "fw-bold":
-                    activePreset?.num === interval.num &&
-                    activePreset?.unit === interval.unit,
-                })}
-                onClick={() => handleIntervalChange(this, interval)}
-              >
-                {interval.num === 0
-                  ? I18NextService.i18n.t("all_time")
-                  : I18NextService.i18n.t(`n_${interval.unit}`, {
-                      count: interval.num,
-                      formattedCount: interval.num,
-                    })}
-              </button>
-            </li>
-          ))}
-          <div className="dropdown-divider" />
-          <li>
-            <span
-              className={classNames("dropdown-header", {
-                active: !activePreset,
-              })}
+      <FilterChipDropdown
+        buttonRef={this.buttonRef}
+        label="time_filter"
+        allOptions={allOptions}
+        currentOption={currentOption}
+        onSelect={value => {
+          const selected = allOptions.find(
+            option => option.value === value,
+          )?.interval;
+          if (selected) {
+            handleIntervalChange(this, selected);
+          }
+        }}
+        autoClose="outside"
+        noCurrentText={I18NextService.i18n.t(`n_${unit}`, {
+          count: num,
+          formattedCount: num,
+        })}
+      >
+        <div className={classNames("dropdown-header")}>
+          {I18NextService.i18n.t("custom_time")}
+        </div>
+        <div className="dropdown-item-text">
+          <form method="dialog" className="input-group flex-nowrap">
+            <input
+              type="number"
+              className="form-control form-control-sm border-light-subtle interval-filter-input"
+              aria-label={I18NextService.i18n.t("time_interval")}
+              onInput={e =>
+                this.setState({
+                  customInterval: {
+                    num: Number(e.target.value),
+                    unit: customInterval.unit,
+                  },
+                })
+              }
+              value={customInterval.num}
+            />
+            <FilterChipDropdown
+              className="btn btn-sm btn-light border-light-subtle rounded-0"
+              allOptions={TIME_RANGE_UNIT_OPTIONS}
+              currentOption={{
+                value: customInterval.unit,
+                i18n: customInterval.unit,
+              }}
+              onSelect={option =>
+                this.setState({
+                  customInterval: { num: customInterval.num, unit: option },
+                })
+              }
+            />
+            <button
+              type="submit"
+              className="btn btn-sm btn-primary border-light-subtle"
+              onClick={() => handleIntervalChange(this, customInterval)}
             >
-              {I18NextService.i18n.t("custom_time")}
-            </span>
-            <div
-              className={classNames("dropdown-item", { active: !activePreset })}
-            >
-              <form method="dialog" className="input-group flex-nowrap">
-                <input
-                  type="number"
-                  className="form-control border-light-subtle interval-filter-input"
-                  aria-label={I18NextService.i18n.t("time_interval")}
-                  onInput={e =>
-                    this.setState({
-                      customInterval: {
-                        num: Number(e.target.value),
-                        unit: customInterval.unit,
-                      },
-                    })
-                  }
-                  value={customInterval.num}
-                />
-                <FilterChipDropdown
-                  className="form-control"
-                  allOptions={TIME_RANGE_UNIT_OPTIONS}
-                  currentOption={{
-                    value: customInterval.unit,
-                    i18n: customInterval.unit,
-                  }}
-                  onSelect={option =>
-                    this.setState({
-                      customInterval: { num: customInterval.num, unit: option },
-                    })
-                  }
-                />
-                <button
-                  type="submit"
-                  className="btn btn-secondary"
-                  onClick={() => handleIntervalChange(this, customInterval)}
-                >
-                  {I18NextService.i18n.t("update")}
-                </button>
-              </form>
-            </div>
-          </li>
-        </ul>
-      </div>
+              {I18NextService.i18n.t("update")}
+            </button>
+          </form>
+        </div>
+      </FilterChipDropdown>
     );
   }
 }
