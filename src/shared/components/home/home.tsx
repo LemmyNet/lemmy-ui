@@ -1052,6 +1052,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       const commentsRes = await HttpService.client.getComments({
         page_cursor: cursor,
         sort: mixedToCommentSortType(sort),
+        time_range_seconds: undefined, // FIXME: rename postTimeRange and use it here
         type_: listingType,
       });
       if (token === this.fetchDataToken) {
