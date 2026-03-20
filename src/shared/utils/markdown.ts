@@ -301,7 +301,7 @@ export function getEmojiMart(onEmojiSelect: (e: EmojiEvent) => void) {
   const data = async () => {
     const response = await fetch(`${getStaticDir()}/assets/emojis.json`);
 
-    return response.json();
+    return response.json() as object;
   };
   const pickerOptions = {
     onEmojiSelect: onEmojiSelect,

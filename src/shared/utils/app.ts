@@ -354,7 +354,9 @@ export function fetchSearchResults(q: string, type_: SearchType) {
 }
 
 export async function fetchThemeList(): Promise<string[]> {
-  return fetch("/css/themelist").then(res => res.json());
+  return fetch("/css/themelist")
+    .then(res => res.json())
+    .then(json => json as string[]);
 }
 
 export async function fetchUsers(q: string) {
@@ -629,7 +631,7 @@ export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
   // If its the browser, you need to deserialize the data from the window
   if (isBrowser()) {
     return window.isoData as IsoData<T>; // This cast is wrong for things outside of <ErrorGuard />
-  } else return context.router.staticContext;
+  } else return context.router.staticContext as IsoData<T>;
 }
 
 export function updateMyUserInfo(myUserInfo: MyUserInfo | undefined) {

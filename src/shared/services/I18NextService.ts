@@ -100,7 +100,7 @@ async function loadTranslation(
   return import(
     /* webpackChunkName: `translation-[request]`  */
     `../translations/${resource}`
-  ).then(x => x[resource]);
+  ).then(x => x[resource] as Resource);
 }
 
 export async function verifyTranslationImports(): Promise<ImportReport> {
@@ -143,7 +143,7 @@ async function loadLocale(locale: TranslationDesc): Promise<Locale> {
   return import(
     /* webpackChunkName: `date-fns-[request]` */
     `date-fns/locale/${locale.datefns_resource ?? locale.resource}.js`
-  ).then(x => x.default);
+  ).then(x => x.default as Locale);
 }
 
 export async function verifyDateFnsImports(): Promise<ImportReport> {
