@@ -614,7 +614,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     );
   }
 
-  listings() {
+  listings(): InfernoNode | void {
     const { postOrCommentType } = this.props;
     const { siteRes, myUserInfo } = this.isoData;
 

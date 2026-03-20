@@ -424,7 +424,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     );
   }
 
-  listings() {
+  listings(): InfernoNode | void {
     const { siteRes, myUserInfo } = this.isoData;
 
     switch (this.state.postsRes.state) {

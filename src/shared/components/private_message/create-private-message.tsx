@@ -1,6 +1,6 @@
 import { getRecipientIdFromProps, setIsoData } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
-import { Component } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   CreatePrivateMessage as CreatePrivateMessageI,
   GetPersonDetails,
@@ -125,7 +125,7 @@ export class CreatePrivateMessage extends Component<
     }
   }
 
-  renderRecipientRes() {
+  renderRecipientRes(): InfernoNode | void {
     switch (this.state.recipientRes.state) {
       case "loading":
         return (

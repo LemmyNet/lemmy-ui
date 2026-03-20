@@ -1,4 +1,4 @@
-import { Component } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import { MyUserInfo } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { T } from "inferno-i18next-dess";
@@ -27,7 +27,7 @@ export class DonationDialog extends Component<Props, State> {
     return lastNotifDate < oneYearAgo;
   }
 
-  render() {
+  render(): InfernoNode | void {
     if (this.state.show) {
       return (
         <div className="alert alert-info fade show" role="alert">

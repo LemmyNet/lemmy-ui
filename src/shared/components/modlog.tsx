@@ -567,7 +567,10 @@ export function processModlogEntry(
     // TODO mod warn comment and post still need to be done
     case "mod_warn_comment":
     case "mod_warn_post":
-      return <></>;
+      return {
+        modlog,
+        data: <></>,
+      };
   }
 }
 
@@ -902,7 +905,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     );
   }
 
-  renderModlogTable() {
+  renderModlogTable(): InfernoNode | void {
     switch (this.state.res.state) {
       case "loading":
         return (

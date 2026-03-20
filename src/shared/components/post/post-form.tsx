@@ -649,7 +649,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     );
   }
 
-  renderSuggestedTitleCopy() {
+  renderSuggestedTitleCopy(): InfernoNode | void {
     switch (this.state.metadataRes.state) {
       case "loading":
         return <Spinner />;
@@ -674,7 +674,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  renderSuggestedPosts() {
+  renderSuggestedPosts(): InfernoNode | void {
     switch (this.state.suggestedPostsRes.state) {
       case "loading":
         return <Spinner />;
@@ -786,10 +786,6 @@ function updateUrl(i: PostForm, update: () => void) {
 
 function handlePostSubmit(i: PostForm, event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
-  // Coerce empty url string to undefined
-  if ((i.state.form.url ?? "") === "") {
-    i.setState(s => ((s.form.url = undefined), s));
-  }
 
   const pForm = i.state.form;
   const pv = i.props.post_view;

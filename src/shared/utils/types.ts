@@ -12,6 +12,7 @@ import {
 } from "lemmy-js-client";
 import { RequestState } from "@services/HttpService";
 import { Match } from "inferno-router/dist/Route";
+import { InfernoNode } from "inferno";
 
 /**
  * This contains serialized data, it needs to be deserialized before use.
@@ -41,6 +42,10 @@ declare global {
   }
   interface String {
     toLowerCase<T extends string>(this: T): Lowercase<T>;
+  }
+  /* eslint-disable-next-line @typescript-eslint/no-namespace */
+  namespace JSX {
+    type Element = InfernoNode;
   }
 }
 

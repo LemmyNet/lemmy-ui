@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { QueryParams, RouteDataResponse } from "@utils/types";
-import { Component, FormEvent } from "inferno";
+import { Component, FormEvent, createRef, InfernoNode } from "inferno";
 import {
   GetFederatedInstancesKind,
   PagedResponse,
@@ -34,7 +34,6 @@ import { isBrowser } from "@utils/browser";
 import { formatRelativeDate, isWeekOld } from "@utils/date";
 import { TableHr } from "@components/common/tables";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
-import { createRef } from "inferno";
 import { Action } from "history";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
 import { RouterContext } from "inferno-router/dist/Router";
@@ -162,7 +161,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     }`;
   }
 
-  renderInstances() {
+  renderInstances(): InfernoNode | void {
     switch (this.state.instancesRes.state) {
       case "loading":
         return (
