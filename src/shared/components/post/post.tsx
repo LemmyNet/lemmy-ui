@@ -579,12 +579,13 @@ export class Post extends Component<PostRouteProps, PostState> {
         const siteRes = this.state.siteRes;
         const imageUploadDisabled =
           siteRes.site_view.local_site.image_upload_disabled;
+        const context = this.context as RouterContext;
         return (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9 mb-3">
               <HtmlTags
                 title={this.documentTitle}
-                path={this.context.router.route.match.url}
+                context={this.context}
                 canonicalPath={res.post_view.post.ap_id}
                 image={this.imageTag}
                 description={res.post_view.post.body}
@@ -658,7 +659,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               ) && (
                 <CommentForm
                   key={
-                    this.context.router.history.location.key +
+                    context.router.history.location.key +
                     this.state.lastCreatedCommentId
                     // reset on new location, otherwise <Prompt /> stops working
                   }

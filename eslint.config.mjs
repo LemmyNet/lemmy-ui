@@ -51,7 +51,6 @@ export default [
     files: ["src/**/*.js", "src/**/*.mjs", "src/**/*.ts", "src/**/*.tsx"],
     rules: {
       "@typescript-eslint/no-unsafe-assignment": 0,
-      "@typescript-eslint/no-unsafe-member-access": 0,
       // TODO: the following is caused by calling async functions from sync functions
       "@typescript-eslint/no-misused-promises": [
         "error",

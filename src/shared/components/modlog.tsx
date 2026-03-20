@@ -819,10 +819,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
     return (
       <div className="modlog container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
 
         <h1 className="h4 mb-4">{I18NextService.i18n.t("modlog")}</h1>
 

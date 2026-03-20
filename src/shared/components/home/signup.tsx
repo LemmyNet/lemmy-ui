@@ -110,10 +110,7 @@ export class Signup extends Component<SignupRouteProps, State> {
   render() {
     return (
       <div className="home-signup container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">
             {this.registerForm()}

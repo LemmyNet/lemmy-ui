@@ -166,10 +166,7 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
     return (
       getMultiRes && (
         <div className="multi-community-settings container">
-          <HtmlTags
-            title={this.documentTitle}
-            path={this.context.router.route.match.url}
-          />
+          <HtmlTags title={this.documentTitle} context={this.context} />
           <div className="row">
             <div className="col-12 col-md-6">
               <h1 className="h4 mb-4">

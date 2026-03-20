@@ -192,10 +192,7 @@ export class AdminSettings extends Component<
   render() {
     return (
       <div className="admin-settings container">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         <Tabs
           tabs={[
             {

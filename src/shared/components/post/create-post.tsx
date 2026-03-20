@@ -258,10 +258,7 @@ export class CreatePost extends Component<
       : undefined;
     return (
       <div className="create-post container-lg" key={resetCounter}>
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         <div className="row">
           <div id="createPostForm" className="col-12 col-lg-6 offset-lg-2 mb-4">
             <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>
