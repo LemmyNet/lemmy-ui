@@ -12,7 +12,7 @@ async function lazyLoad(lang: string): Promise<LanguageFn> {
   return import(
     /* webpackChunkName: "hljs-[request]" */
     `highlight.js/lib/languages/${lang}.js`
-  ).then(x => x.default as LanguageFn);
+  ).then((x: { default: LanguageFn }) => x.default);
 }
 
 class LazyHighlightjs implements HLJSPlugin {
@@ -34,8 +34,8 @@ class LazyHighlightjs implements HLJSPlugin {
         /* webpackMode: "eager" */
         `highlight.js/lib/languages/${lang}.js`
       )
-        .then(x => {
-          hljs.registerLanguage(lang, x.default as LanguageFn);
+        .then((x: { default: LanguageFn }) => {
+          hljs.registerLanguage(lang, x.default);
           this.loadedLanguages.add(lang);
         })
         .catch(err => {
