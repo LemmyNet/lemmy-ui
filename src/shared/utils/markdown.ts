@@ -21,6 +21,7 @@ import markdown_it_highlightjs from "markdown-it-highlightjs/core";
 import { getStaticDir } from "./env";
 import mila from "markdown-it-link-attributes";
 import { buildPictrsSrc } from "@components/common/pictrs-image";
+import { TributeCollection } from "tributejs";
 
 export let md: MarkdownIt = new MarkdownIt();
 
@@ -311,10 +312,6 @@ export function getEmojiMart(onEmojiSelect: (e: EmojiEvent) => void) {
   return new Picker(pickerOptions);
 }
 
-interface TributeItem<T> {
-  original: T;
-}
-
 interface EmojiTribute {
   key: string;
   val: string;
@@ -331,22 +328,19 @@ export async function setupTribute() {
       // Emojis
       {
         trigger: ":",
-        menuItemTemplate: (item: unknown) => {
-          const item2 = item as TributeItem<EmojiTribute>;
-          const shortName = `:${item2.original.key}:`;
-          return `${item2.original.val} ${shortName}`;
+        menuItemTemplate: item => {
+          const shortName = `:${item.original.key}:`;
+          return `${item.original.val} ${shortName}`;
         },
-        selectTemplate: (item: unknown) => {
-          const item2 = item as TributeItem<EmojiTribute>;
+        selectTemplate: item => {
           const customEmoji = customEmojisLookup.get(
-            item2.original.key,
+            item.original.key,
           )?.custom_emoji;
-          if (customEmoji === undefined) return `${item2.original.val}`;
+          if (customEmoji === undefined) return `${item.original.val}`;
           else
             return `![${customEmoji.alt_text}](${customEmoji.image_url} "emoji ${customEmoji.shortcode}")`;
         },
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        values: Object.entries(emojiShortName)
+        values: Object.entries(emojiShortName as Record<string, string>)
           .map(e => {
             return { key: e[1], val: e[0] };
           })
@@ -361,13 +355,12 @@ export async function setupTribute() {
         // TODO
         // menuItemLimit: mentionDropdownFetchLimit,
         menuShowMinLength: 2,
-      },
+      } as TributeCollection<EmojiTribute>,
       // Persons
       {
         trigger: "@",
-        selectTemplate: (item: unknown) => {
-          const item2 = item as TributeItem<PersonTribute>;
-          const it = item2.original;
+        selectTemplate: item => {
+          const it = item.original;
           return it.key;
         },
         values: debounce((text: string, cb) => {
@@ -380,14 +373,13 @@ export async function setupTribute() {
         // TODO
         // menuItemLimit: mentionDropdownFetchLimit,
         menuShowMinLength: 2,
-      },
+      } as TributeCollection<PersonTribute>,
 
       // Communities
       {
         trigger: "!",
-        selectTemplate: (item: unknown) => {
-          const item2 = item as TributeItem<CommunityTribute>;
-          const it = item2.original;
+        selectTemplate: item => {
+          const it = item.original;
           return it.key;
         },
         values: debounce((text: string, cb) => {
@@ -400,7 +392,7 @@ export async function setupTribute() {
         // TODO
         // menuItemLimit: mentionDropdownFetchLimit,
         menuShowMinLength: 2,
-      },
+      } as TributeCollection<CommunityTribute>,
     ],
   });
 }

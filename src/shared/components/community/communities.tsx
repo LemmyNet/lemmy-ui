@@ -214,7 +214,6 @@ export class Communities extends Component<
       }
     }
   }
-  P;
 
   render() {
     const { listingType, sort } = this.props;
