@@ -402,7 +402,7 @@ function handleEmoji(i: MarkdownTextArea, e: EmojiEvent) {
 }
 
 async function handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
-  if (!event.clipboardData || this.props.imageUploadDisabled) return;
+  if (!event.clipboardData || i.props.imageUploadDisabled) return;
 
   // check clipboard files
   const image = event.clipboardData.files[0];

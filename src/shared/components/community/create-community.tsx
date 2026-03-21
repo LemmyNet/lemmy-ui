@@ -43,10 +43,7 @@ export class CreateCommunity extends Component<
       this.isoData.siteRes.site_view.local_site.image_upload_disabled;
     return (
       <div className="create-community container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">

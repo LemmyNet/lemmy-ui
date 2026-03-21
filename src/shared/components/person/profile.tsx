@@ -678,7 +678,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             <div className="col-12 col-md-8">
               <HtmlTags
                 title={this.documentTitle}
-                path={this.context.router.route.match.url}
+                context={this.context}
                 canonicalPath={personRes.person_view.person.ap_id}
                 description={bio}
                 image={personRes.person_view.person.avatar}

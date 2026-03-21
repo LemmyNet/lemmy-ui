@@ -214,6 +214,7 @@ export class Communities extends Component<
       }
     }
   }
+  P;
 
   render() {
     const { listingType, sort } = this.props;
@@ -222,10 +223,7 @@ export class Communities extends Component<
 
     return (
       <div className="communities container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         <div>
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("list_of_communities")}
