@@ -208,10 +208,10 @@ importers:
         version: 1.11.7
       webpack:
         specifier: ^5.94.0
-        version: 5.105.4(webpack-cli@7.0.0)
+        version: 5.105.4(webpack-cli@7.0.2)
       webpack-cli:
         specifier: ^7.0.0
-        version: 7.0.0(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3)(webpack@5.105.4)
+        version: 7.0.2(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3)(webpack@5.105.4)
       webpack-node-externals:
         specifier: ^3.0.0
         version: 3.0.0
@@ -338,7 +338,7 @@ importers:
         version: 5.2.0
       webpack-dev-server:
         specifier: 5.2.3
-        version: 5.2.3(webpack-cli@7.0.0)(webpack@5.105.4)
+        version: 5.2.3(webpack-cli@7.0.2)(webpack@5.105.4)
 
 packages:
 
@@ -2391,8 +2391,8 @@ packages:
     resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
     engines: {node: '>=0.12'}
 
-  envinfo@7.14.0:
-    resolution: {integrity: sha512-CO40UI41xDQzhLB1hWyqUKgFhs250pNcGbyGKe1l/e4FSaI/+YE4IMG76GDt0In67WLPACIITC+sOi08x4wIvg==}
+  envinfo@7.21.0:
+    resolution: {integrity: sha512-Lw7I8Zp5YKHFCXL7+Dz95g4CcbMEpgvqZNNq3AmlT5XAV6CgAAk6gyAMqn2zjw08K9BHfcNuKrMiCPLByGafow==}
     engines: {node: '>=4'}
     hasBin: true
 
@@ -4887,8 +4887,8 @@ packages:
     engines: {node: '>= 20.9.0'}
     hasBin: true
 
-  webpack-cli@7.0.0:
-    resolution: {integrity: sha512-NbM62WodkUPXQGR/Ip3pSFsFUKJSseDIFr2H5Z1+4fHwB9X4cO10knPShIopFqAHZa8a5Q8pdtmtE6C12/mlMQ==}
+  webpack-cli@7.0.2:
+    resolution: {integrity: sha512-dB0R4T+C/8YuvM+fabdvil6QE44/ChDXikV5lOOkrUeCkW5hTJv2pGLE3keh+D5hjYw8icBaJkZzpFoaHV4T+g==}
     engines: {node: '>=20.9.0'}
     hasBin: true
     peerDependencies:
@@ -6994,7 +6994,7 @@ snapshots:
       '@babel/core': 7.29.0
       find-up: 5.0.0
     optionalDependencies:
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
   babel-plugin-inferno@6.8.5(@babel/core@7.29.0):
     dependencies:
@@ -7219,7 +7219,7 @@ snapshots:
   clean-webpack-plugin@4.0.0(webpack@5.105.4):
     dependencies:
       del: 4.1.1
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
   cli-cursor@5.0.0:
     dependencies:
@@ -7310,7 +7310,7 @@ snapshots:
       normalize-path: 3.0.0
       schema-utils: 4.2.0
       serialize-javascript: 6.0.2
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
   copy-webpack-plugin@14.0.0(webpack@5.105.4):
     dependencies:
@@ -7319,7 +7319,7 @@ snapshots:
       schema-utils: 4.3.3
       serialize-javascript: 7.0.4
       tinyglobby: 0.2.15
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
   core-js-compat@3.49.0:
     dependencies:
@@ -7353,7 +7353,7 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.7.4
     optionalDependencies:
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
   cssesc@3.0.0: {}
 
@@ -7538,7 +7538,7 @@ snapshots:
 
   entities@7.0.1: {}
 
-  envinfo@7.14.0: {}
+  envinfo@7.21.0: {}
 
   environment@1.1.0: {}
 
@@ -8958,7 +8958,7 @@ snapshots:
     dependencies:
       schema-utils: 4.3.3
       tapable: 2.3.0
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
   minimalistic-assert@1.0.1: {}
 
@@ -9488,7 +9488,7 @@ snapshots:
 
   run-node-webpack-plugin@2.0.0(webpack@5.105.4):
     dependencies:
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
   run-parallel@1.2.0:
     dependencies:
@@ -9543,7 +9543,7 @@ snapshots:
       neo-async: 2.6.2
     optionalDependencies:
       sass: 1.98.0
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
   sass@1.98.0:
     dependencies:
@@ -9662,7 +9662,7 @@ snapshots:
     dependencies:
       copy-webpack-plugin: 11.0.0(webpack@5.105.4)
       schema-utils: 4.2.0
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
       webpack-inject-entry-plugin: 0.0.4(webpack@5.105.4)
       workbox-build: 6.6.0
       workbox-webpack-plugin: 6.6.0(webpack@5.105.4)
@@ -9955,7 +9955,7 @@ snapshots:
 
   style-loader@4.0.0(webpack@5.105.4):
     dependencies:
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
   supports-color@7.2.0:
     dependencies:
@@ -9988,7 +9988,7 @@ snapshots:
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       terser: 5.46.1
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
   terser@5.46.1:
     dependencies:
@@ -10258,21 +10258,21 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  webpack-cli@7.0.0(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3)(webpack@5.105.4):
+  webpack-cli@7.0.2(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3)(webpack@5.105.4):
     dependencies:
       '@discoveryjs/json-ext': 1.0.0
       commander: 14.0.3
       cross-spawn: 7.0.6
-      envinfo: 7.14.0
+      envinfo: 7.21.0
       fastest-levenshtein: 1.0.16
       import-local: 3.2.0
       interpret: 3.1.1
       rechoir: 0.8.0
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
       webpack-merge: 6.0.1
     optionalDependencies:
       webpack-bundle-analyzer: 5.2.0
-      webpack-dev-server: 5.2.3(webpack-cli@7.0.0)(webpack@5.105.4)
+      webpack-dev-server: 5.2.3(webpack-cli@7.0.2)(webpack@5.105.4)
 
   webpack-dev-middleware@7.4.2(webpack@5.105.4):
     dependencies:
@@ -10283,9 +10283,9 @@ snapshots:
       range-parser: 1.2.1
       schema-utils: 4.3.3
     optionalDependencies:
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
-  webpack-dev-server@5.2.3(webpack-cli@7.0.0)(webpack@5.105.4):
+  webpack-dev-server@5.2.3(webpack-cli@7.0.2)(webpack@5.105.4):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -10316,8 +10316,8 @@ snapshots:
       webpack-dev-middleware: 7.4.2(webpack@5.105.4)
       ws: 8.18.0
     optionalDependencies:
-      webpack: 5.105.4(webpack-cli@7.0.0)
-      webpack-cli: 7.0.0(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3)(webpack@5.105.4)
+      webpack: 5.105.4(webpack-cli@7.0.2)
+      webpack-cli: 7.0.2(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3)(webpack@5.105.4)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -10327,7 +10327,7 @@ snapshots:
   webpack-inject-entry-plugin@0.0.4(webpack@5.105.4):
     dependencies:
       schema-utils: 4.2.0
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
 
   webpack-merge@6.0.1:
     dependencies:
@@ -10344,7 +10344,7 @@ snapshots:
 
   webpack-sources@3.3.4: {}
 
-  webpack@5.105.4(webpack-cli@7.0.0):
+  webpack@5.105.4(webpack-cli@7.0.2):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -10372,7 +10372,7 @@ snapshots:
       watchpack: 2.5.1
       webpack-sources: 3.3.4
     optionalDependencies:
-      webpack-cli: 7.0.0(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3)(webpack@5.105.4)
+      webpack-cli: 7.0.2(webpack-bundle-analyzer@5.2.0)(webpack-dev-server@5.2.3)(webpack@5.105.4)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -10570,7 +10570,7 @@ snapshots:
       fast-json-stable-stringify: 2.1.0
       pretty-bytes: 5.6.0
       upath: 1.2.0
-      webpack: 5.105.4(webpack-cli@7.0.0)
+      webpack: 5.105.4(webpack-cli@7.0.2)
       webpack-sources: 1.4.3
       workbox-build: 6.6.0
     transitivePeerDependencies:
