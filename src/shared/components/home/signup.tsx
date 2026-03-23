@@ -28,6 +28,7 @@ import { RouteData } from "@utils/types";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { OAuthLogin } from "./oauth/oauth-login";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -110,7 +111,10 @@ export class Signup extends Component<SignupRouteProps, State> {
   render() {
     return (
       <div className="home-signup container-lg">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">
             {this.registerForm()}

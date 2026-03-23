@@ -14,6 +14,7 @@ import { Spinner } from "../common/icon";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { isBrowser } from "@utils/browser";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface State {
   verifyRes: RequestState<SuccessResponse>;
@@ -62,7 +63,10 @@ export class VerifyEmail extends Component<
   render() {
     return (
       <div className="verfy-email container-lg">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">{I18NextService.i18n.t("verify_email")}</h1>

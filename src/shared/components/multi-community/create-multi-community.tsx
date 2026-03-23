@@ -17,6 +17,7 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "@services/HttpService";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface State {
   createRes: RequestState<MultiCommunityResponse>;
@@ -41,7 +42,10 @@ export class CreateMultiCommunity extends Component<
 
     return (
       <div className="create-multi-community container-lg">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">

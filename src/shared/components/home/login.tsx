@@ -23,6 +23,7 @@ import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { NoOptionI18nKeys } from "i18next";
 import { OAuthLogin } from "./oauth/oauth-login";
 import { Action } from "history";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface LoginProps {
   prev?: string;
@@ -81,7 +82,10 @@ export class Login extends Component<LoginRouteProps, State> {
   render() {
     return (
       <div className="login container-lg">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         <TotpModal
           type="login"
           onSubmit={totp => handleSubmitTotp(this, totp)}

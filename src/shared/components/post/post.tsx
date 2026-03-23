@@ -585,7 +585,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             <div className="col-12 col-md-8 col-lg-9 mb-3">
               <HtmlTags
                 title={this.documentTitle}
-                context={this.context}
+                context={this.context as RouterContext}
                 canonicalPath={res.post_view.post.ap_id}
                 image={this.imageTag}
                 description={res.post_view.post.body}
@@ -1027,7 +1027,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      const context: RouterContext = this.context;
+      const context = this.context as RouterContext;
       context.router.history.push(`/`);
     }
   }

@@ -192,7 +192,10 @@ export class AdminSettings extends Component<
   render() {
     return (
       <div className="admin-settings container">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         <Tabs
           tabs={[
             {
@@ -927,7 +930,7 @@ async function handleLeaveAdminTeam(i: AdminSettings) {
   if (i.state.leaveAdminTeamRes.state === "success") {
     toast(I18NextService.i18n.t("left_admin_team"));
     i.setState({ showConfirmLeaveAdmin: false });
-    const context: RouterContext = i.context;
+    const context = i.context as RouterContext;
     context.router.history.replace("/");
   }
 }

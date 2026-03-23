@@ -406,7 +406,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     return (
       <div className="home container-lg">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         {site_setup && (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9">
@@ -1057,7 +1060,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      const context: RouterContext = this.context;
+      const context = this.context as RouterContext;
       context.router.history.push(`/`);
     }
   }

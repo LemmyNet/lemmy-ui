@@ -183,7 +183,10 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   render() {
     return (
       <div className="home-instances container-lg">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         {this.renderFilters()}
         {this.renderInstances()}
         <PaginatorCursor

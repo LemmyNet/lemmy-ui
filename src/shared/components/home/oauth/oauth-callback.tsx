@@ -52,9 +52,9 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
 
   async componentDidMount() {
     // store state in local storage
-    const local_oauth_state: LocalOauthState = JSON.parse(
+    const local_oauth_state = JSON.parse(
       localStorage.getItem("oauth_state") || "{}",
-    );
+    ) as LocalOauthState;
     if (
       !(
         this.props.state &&

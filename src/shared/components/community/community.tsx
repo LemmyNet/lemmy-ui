@@ -473,7 +473,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         {res && (
           <HtmlTags
             title={this.documentTitle}
-            context={this.context}
+            context={this.context as RouterContext}
             canonicalPath={res.community_view.community.ap_id}
             description={res.community_view.community.summary}
             image={res.community_view.community.icon}
@@ -1343,7 +1343,7 @@ function updateCommunityFull(
 function purgeItem(i: Community, purgeRes: RequestState<SuccessResponse>) {
   if (purgeRes.state === "success") {
     toast(I18NextService.i18n.t("purge_success"));
-    const context: RouterContext = i.context;
+    const context = i.context as RouterContext;
     context.router.history.push(`/`);
   }
 }

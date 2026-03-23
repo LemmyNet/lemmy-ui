@@ -424,7 +424,7 @@ function handleSearchSubmit(
 ) {
   event.preventDefault();
   const searchParamEncoded = i.state.searchText;
-  const context: RouterContext = i.context;
+  const context = i.context as RouterContext;
   context.router.history.push(
     `/search${getQueryString({ q: searchParamEncoded, communityId: i.props.communityView.community.id.toString() })}`,
   );

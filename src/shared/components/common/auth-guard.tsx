@@ -18,7 +18,7 @@ export default class AuthGuard extends Component<AuthGuardProps, never> {
   componentWillMount() {
     if (!this.hasAuth() && isBrowser()) {
       const { pathname, search } = this.props.location;
-      const context: RouterContext = this.context;
+      const context = this.context as RouterContext;
       context.router.history.replace(
         `/login${getQueryString({ prev: pathname + search })}`,
       );
