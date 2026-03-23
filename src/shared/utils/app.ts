@@ -956,3 +956,28 @@ export function mark_as_read_i18n(read: boolean): string {
     ? I18NextService.i18n.t("mark_as_unread")
     : I18NextService.i18n.t("mark_as_read");
 }
+
+export function dummy() {
+  // FAIL
+  document.removeEventListener("", () => {});
+  document.removeEventListener("", function () {});
+  document.removeEventListener("", function notAnon() {});
+
+  // PASS
+  const arrow = () => {};
+  document.removeEventListener("", arrow);
+  const func = function () {};
+  document.removeEventListener("", func);
+  function namedFn() {}
+  document.removeEventListener("", namedFn);
+
+  class X {
+    member(this: void) {}
+    prop = () => {};
+    test() {
+      document.removeEventListener("", this.member);
+      document.removeEventListener("", this.prop);
+    }
+  }
+  console.error(X);
+}
