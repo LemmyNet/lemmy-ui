@@ -17,7 +17,7 @@ import {
   RouteDataResponse,
   StringBoolean,
 } from "@utils/types";
-import { Component } from "inferno";
+import { InfernoNode, Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   CommunityView,
@@ -384,7 +384,7 @@ export class CreatePost extends Component<
     return data;
   };
 
-  sidebar() {
+  sidebar(): InfernoNode | void {
     if (this.state.selectedCommunity) {
       return (
         <CommunitySidebar

@@ -1,7 +1,7 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { resourcesSettled, validEmail } from "@utils/helpers";
-import { Component, FormEvent } from "inferno";
+import { Component, FormEvent, InfernoNode } from "inferno";
 import {
   CaptchaResponse,
   GetCaptchaResponse,
@@ -348,7 +348,7 @@ export class Signup extends Component<SignupRouteProps, State> {
     );
   }
 
-  renderCaptcha() {
+  renderCaptcha(): InfernoNode | void {
     switch (this.state.captchaRes.state) {
       case "loading":
         return <Spinner />;
