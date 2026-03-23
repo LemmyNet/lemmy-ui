@@ -95,7 +95,7 @@ export default [
         },
       ],
       "no-restricted-syntax": [
-        "warn",
+        "error",
         /* To figure out the node types and hierarchy, set the info view to ESTree in the
          * typescript-eslint Playground (https://typescript-eslint.io/play/) and move the cursor in
          * the code view to the positions you're interested in.

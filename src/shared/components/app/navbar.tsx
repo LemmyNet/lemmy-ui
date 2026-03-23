@@ -79,16 +79,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           );
       }
 
-      document.addEventListener("mouseup", e =>
-        handleOutsideMenuClick(this, e),
-      );
+      document.addEventListener("mouseup", this.outsideMenuClickHandler);
     }
   }
 
+  outsideMenuClickHandler = (e: MouseEvent) => {
+    if (!this.mobileMenuRef.current?.contains(e.target as Node | null)) {
+      handleCollapseClick(this);
+    }
+  };
+
   componentWillUnmount() {
-    document.removeEventListener("mouseup", e =>
-      handleOutsideMenuClick(this, e),
-    );
+    document.removeEventListener("mouseup", this.outsideMenuClickHandler);
     this.unreadNotifsCountSubscription.unsubscribe();
     this.unreadReportCountSubscription.unsubscribe();
     if (moderatesSomething(this.props.myUserInfo)) {
@@ -494,10 +496,4 @@ function handleCollapseClick(i: Navbar) {
 async function handleLogOut(i: Navbar) {
   await UserService.Instance.logout();
   handleCollapseClick(i);
-}
-
-function handleOutsideMenuClick(i: Navbar, event: MouseEvent) {
-  if (!i.mobileMenuRef.current?.contains(event.target as Node | null)) {
-    handleCollapseClick(i);
-  }
 }
