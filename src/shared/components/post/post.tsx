@@ -32,7 +32,7 @@ import {
   QueryParams,
   RouteDataResponse,
 } from "@utils/types";
-import { Component, createRef } from "inferno";
+import { Component, createRef, InfernoNode } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -564,7 +564,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     } else return undefined;
   }
 
-  renderPostRes() {
+  renderPostRes(): InfernoNode | void {
     const myUserInfo = this.isoData.myUserInfo;
 
     switch (this.state.postRes.state) {
@@ -579,12 +579,13 @@ export class Post extends Component<PostRouteProps, PostState> {
         const siteRes = this.state.siteRes;
         const imageUploadDisabled =
           siteRes.site_view.local_site.image_upload_disabled;
+        const context = this.context as RouterContext;
         return (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9 mb-3">
               <HtmlTags
                 title={this.documentTitle}
-                path={this.context.router.route.match.url}
+                context={this.context}
                 canonicalPath={res.post_view.post.ap_id}
                 image={this.imageTag}
                 description={res.post_view.post.body}
@@ -658,7 +659,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               ) && (
                 <CommentForm
                   key={
-                    this.context.router.history.location.key +
+                    context.router.history.location.key +
                     this.state.lastCreatedCommentId
                     // reset on new location, otherwise <Prompt /> stops working
                   }
@@ -734,7 +735,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     return <div className="post container-lg">{this.renderPostRes()}</div>;
   }
 
-  commentsFlat() {
+  commentsFlat(): InfernoNode | void {
     if (this.state.commentsRes.state === "loading") {
       return (
         <div className="text-center">
@@ -815,7 +816,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  sidebar() {
+  sidebar(): InfernoNode | void {
     const res = this.state.postRes;
     const myUserInfo = this.isoData.myUserInfo;
 

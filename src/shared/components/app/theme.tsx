@@ -27,13 +27,15 @@ export class Theme extends Component<Props, State> {
   }
 
   private graceTimer: NodeJS.Timeout | undefined;
-  private eventListener = e => {
+  private eventListener = (e: CustomEvent) => {
     if (e.type === "refresh-theme" || e.type === "change") {
       this.forceUpdate();
     } else if (e.type === "set-theme-override") {
-      if (e.detail?.theme) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const theme = e.detail?.theme as string;
+      if (theme) {
         this.setState({
-          themeOverride: e.detail.theme,
+          themeOverride: theme,
           graceTheme: this.state?.themeOverride ?? this.currentTheme(),
         });
         // Keep both themes enabled for one second. Avoids unstyled flashes.

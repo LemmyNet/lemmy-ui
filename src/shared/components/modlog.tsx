@@ -567,7 +567,10 @@ export function processModlogEntry(
     // TODO mod warn comment and post still need to be done
     case "mod_warn_comment":
     case "mod_warn_post":
-      return <></>;
+      return {
+        modlog,
+        data: <></>,
+      };
   }
 }
 
@@ -816,10 +819,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
 
     return (
       <div className="modlog container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
 
         <h1 className="h4 mb-4">{I18NextService.i18n.t("modlog")}</h1>
 
@@ -905,7 +905,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     );
   }
 
-  renderModlogTable() {
+  renderModlogTable(): InfernoNode | void {
     switch (this.state.res.state) {
       case "loading":
         return (

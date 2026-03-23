@@ -22,6 +22,7 @@ import { T } from "inferno-i18next-dess";
 import { hostname } from "@utils/helpers";
 import { ShowBodyType } from "@utils/types";
 import { CommunityTag } from "@components/community/community-tag";
+import { InfernoNode } from "inferno";
 
 type PostNameProps = {
   post: Post;
@@ -240,7 +241,7 @@ type UrlLineProps = {
 export function UrlLine(
   { postView, myUserInfo }: UrlLineProps,
   context: object,
-) {
+): InfernoNode | void {
   const post = postView.post;
   const url = post.url;
 

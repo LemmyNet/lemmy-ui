@@ -5,10 +5,11 @@ import { Helmet } from "inferno-helmet";
 import { md } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { setIsoData } from "@utils/app";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface HtmlTagsProps {
   title: string;
-  path: string;
+  context: RouterContext;
   canonicalPath?: string;
   description?: string;
   image?: string;
@@ -17,7 +18,10 @@ interface HtmlTagsProps {
 /// Taken from https://metatags.io/
 export class HtmlTags extends Component<HtmlTagsProps, never> {
   render() {
-    const url = httpFrontendUrl(this.props.path, setIsoData(this.context));
+    const url = httpFrontendUrl(
+      this.props.context.router.route.location.pathname,
+      setIsoData(this.context),
+    );
     const canonicalUrl = this.props.canonicalPath ?? url;
     const desc = this.props.description;
     const image = this.props.image;

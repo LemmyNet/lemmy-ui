@@ -6,7 +6,7 @@ import {
   ShowCrossPostsType,
   ShowMarkReadType,
 } from "@utils/types";
-import { Component, SemiSyntheticEvent } from "inferno";
+import { Component, SemiSyntheticEvent, InfernoNode } from "inferno";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -270,7 +270,7 @@ function Body({ viewSource, body, showBody }: BodyProps) {
 type VideoBlockProps = {
   postView: PostView;
 };
-function VideoBlock({ postView }: VideoBlockProps) {
+function VideoBlock({ postView }: VideoBlockProps): InfernoNode | void {
   const post = postView.post;
   const url = post.url;
 
@@ -281,7 +281,7 @@ function VideoBlock({ postView }: VideoBlockProps) {
       <div className="ratio ratio-16x9 mt-3">
         <video
           onLoadStart={handleMediaLoadStart}
-          onPlay={this.handleMediaLoadStart}
+          onPlay={handleMediaLoadStart}
           onVolumeChange={handleMediaVolumeChange}
           controls
           aria-label={post.alt_text}

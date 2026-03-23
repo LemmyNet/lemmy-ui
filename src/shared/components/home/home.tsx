@@ -406,10 +406,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     return (
       <div className="home container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         {site_setup && (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9">
@@ -745,7 +742,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  get listings() {
+  get listings(): InfernoNode | void {
     const { postOrCommentType } = this.props;
     const siteRes = this.state.siteRes;
     const myUserInfo = this.isoData.myUserInfo;

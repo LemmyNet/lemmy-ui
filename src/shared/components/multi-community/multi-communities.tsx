@@ -7,7 +7,7 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component, FormEvent } from "inferno";
+import { Component, FormEvent, InfernoNode } from "inferno";
 import {
   LemmyHttp,
   ListMultiCommunities,
@@ -136,7 +136,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
     }`;
   }
 
-  renderListingsTable() {
+  renderListingsTable(): InfernoNode | void {
     const nameCols = "col-12 col-md-9";
     // 3 of these: subscribers, communities, subscribe
     const countCols = "col-4 col-md-1";
@@ -204,10 +204,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
 
     return (
       <div className="multi-communities container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         <div>
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("multi_communities")}

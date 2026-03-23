@@ -1,7 +1,7 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { resourcesSettled, validEmail } from "@utils/helpers";
-import { Component, FormEvent } from "inferno";
+import { Component, FormEvent, InfernoNode } from "inferno";
 import {
   CaptchaResponse,
   GetCaptchaResponse,
@@ -110,10 +110,7 @@ export class Signup extends Component<SignupRouteProps, State> {
   render() {
     return (
       <div className="home-signup container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">
             {this.registerForm()}
@@ -351,7 +348,7 @@ export class Signup extends Component<SignupRouteProps, State> {
     );
   }
 
-  renderCaptcha() {
+  renderCaptcha(): InfernoNode | void {
     switch (this.state.captchaRes.state) {
       case "loading":
         return <Spinner />;

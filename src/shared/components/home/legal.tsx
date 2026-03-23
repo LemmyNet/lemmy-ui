@@ -15,10 +15,7 @@ export class Legal extends Component<object, object> {
     const legal = this.isoData.siteRes?.site_view.local_site.legal_information;
     return (
       <div className="legal container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          path={this.context.router.route.match.url}
-        />
+        <HtmlTags title={this.documentTitle} context={this.context} />
         {legal && (
           <div
             className="md-div"
