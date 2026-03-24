@@ -88,7 +88,7 @@ export default class App extends Component<AppProps, object> {
                 this.isoData.siteRes,
                 this.isoData.myUserInfo,
               ),
-            };
+            } as RouteComponentProps<Record<string, string>>;
           }
 
           // When key is location.key the component will be recreated when
