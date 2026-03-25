@@ -342,83 +342,80 @@ export default class ContentActionDropdown extends Component<
                   )}
                 {/* Mods / admins can also edit post tags or nsfw. */}
                 {(this.amCreator || this.canMod) &&
-                !userNotLoggedInOrBanned(this.props.myUserInfo) ? (
-                  <>
-                    <li>
-                      <ActionButton
-                        icon="edit"
-                        label={I18NextService.i18n.t(
-                          this.amCreator ? "edit" : "edit_as_mod",
-                        )}
-                        noLoading
-                        onClick={onEdit}
-                      />
-                    </li>
-                    {this.amCreator && (
-                      <li>
-                        <ActionButton
-                          onClick={onDelete}
-                          icon={deleted ? "undo-trash" : "trash"}
-                          label={I18NextService.i18n.t(
-                            deleted ? "undelete" : "delete",
-                          )}
-                          iconClass={`text-${deleted ? "success" : "danger"}`}
-                        />
-                      </li>
-                    )}
-                  </>
-                ) : (
-                  this.props.myUserInfo && (
+                  !userNotLoggedInOrBanned(this.props.myUserInfo) && (
                     <>
-                      {type === "comment" && (
-                        <li>
-                          <Link
-                            className="btn btn-light border-light-subtle btn-sm d-flex align-items-center rounded-0 dropdown-item"
-                            to={`/create_private_message/${creator.id}`}
-                            title={I18NextService.i18n.t("message")}
-                            aria-label={I18NextService.i18n.t("message")}
-                            data-tippy-content={I18NextService.i18n.t(
-                              "message",
-                            )}
-                          >
-                            <Icon icon="mail" inline classes="me-2" />
-                            {I18NextService.i18n.t("message")}
-                          </Link>
-                        </li>
-                      )}
-
-                      <li>
-                        <ActionButton
-                          icon="flag"
-                          label={I18NextService.i18n.t("create_report")}
-                          onClick={() => handleToggleReportDialogShow(this)}
-                          noLoading
-                        />
-                      </li>
                       <li>
                         <ActionButton
                           icon="edit"
-                          label={I18NextService.i18n.t("create_user_note")}
-                          onClick={() => handleTogglePersonNoteShow(this)}
+                          label={I18NextService.i18n.t(
+                            this.amCreator ? "edit" : "edit_as_mod",
+                          )}
                           noLoading
+                          onClick={onEdit}
                         />
                       </li>
-                      <li>
-                        <ActionButton
-                          icon="slash"
-                          label={I18NextService.i18n.t("block_user")}
-                          onClick={onBlockPerson}
-                        />
-                      </li>
-                      <li>
-                        <ActionButton
-                          icon="slash"
-                          label={I18NextService.i18n.t("block_community")}
-                          onClick={this.props.onBlockCommunity}
-                        />
-                      </li>
+                      {this.amCreator && (
+                        <li>
+                          <ActionButton
+                            onClick={onDelete}
+                            icon={deleted ? "undo-trash" : "trash"}
+                            label={I18NextService.i18n.t(
+                              deleted ? "undelete" : "delete",
+                            )}
+                            iconClass={`text-${deleted ? "success" : "danger"}`}
+                          />
+                        </li>
+                      )}
                     </>
-                  )
+                  )}
+                {!this.amCreator && this.props.myUserInfo && (
+                  <>
+                    {type === "comment" && (
+                      <li>
+                        <Link
+                          className="btn btn-light border-light-subtle btn-sm d-flex align-items-center rounded-0 dropdown-item"
+                          to={`/create_private_message/${creator.id}`}
+                          title={I18NextService.i18n.t("message")}
+                          aria-label={I18NextService.i18n.t("message")}
+                          data-tippy-content={I18NextService.i18n.t("message")}
+                        >
+                          <Icon icon="mail" inline classes="me-2" />
+                          {I18NextService.i18n.t("message")}
+                        </Link>
+                      </li>
+                    )}
+
+                    <li>
+                      <ActionButton
+                        icon="flag"
+                        label={I18NextService.i18n.t("create_report")}
+                        onClick={() => handleToggleReportDialogShow(this)}
+                        noLoading
+                      />
+                    </li>
+                    <li>
+                      <ActionButton
+                        icon="edit"
+                        label={I18NextService.i18n.t("create_user_note")}
+                        onClick={() => handleTogglePersonNoteShow(this)}
+                        noLoading
+                      />
+                    </li>
+                    <li>
+                      <ActionButton
+                        icon="slash"
+                        label={I18NextService.i18n.t("block_user")}
+                        onClick={onBlockPerson}
+                      />
+                    </li>
+                    <li>
+                      <ActionButton
+                        icon="slash"
+                        label={I18NextService.i18n.t("block_community")}
+                        onClick={this.props.onBlockCommunity}
+                      />
+                    </li>
+                  </>
                 )}
                 {(amMod(
                   this.props.type === "comment"
