@@ -1,7 +1,7 @@
 import { debounce, hostname } from "@utils/helpers";
 import { Component } from "inferno";
 import { MultiCommunityId, MultiCommunityView } from "lemmy-js-client";
-import { fetchSearchResults } from "@utils/app";
+import { searchMultiCommunities, } from "@utils/app";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Choice } from "@utils/types";
 import { isBrowser } from "@utils/browser";
@@ -53,14 +53,6 @@ function handleMultiCommunitySelect(
   i.props.onSelect(Number(multiCommunityId));
 }
 
-async function fetchMultiCommunities(q: string) {
-  const res = await fetchSearchResults(q, "multi_communities");
-
-  return res.state === "success"
-    ? res.data.search.filter(s => s.type_ === "multi_community")
-    : [];
-}
-
 function multiCommunityToChoice(m: MultiCommunityView): Choice {
   return {
     value: m.multi.id.toString(),
@@ -83,7 +75,7 @@ const handleMultiCommunitySearch = debounce(
     if (text.length > 0 || initialLoad) {
       newOptions.push(
         { label: I18NextService.i18n.t("none"), value: "0" },
-        ...(await fetchMultiCommunities(text)).map(multiCommunityToChoice),
+        ...(await searchMultiCommunities(text)).map(multiCommunityToChoice),
       );
 
       i.setState({

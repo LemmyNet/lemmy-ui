@@ -1,5 +1,13 @@
-import { SearchType } from "lemmy-js-client";
+
 import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
+
+export type SearchType =
+  | "all"
+  | "comments"
+  | "posts"
+  | "communities"
+  | "users"
+  | "multi_communities";
 
 const options: FilterOption<SearchType>[] = [
   { value: "all", i18n: "all" },

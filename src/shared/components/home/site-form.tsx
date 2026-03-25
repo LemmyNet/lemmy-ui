@@ -89,7 +89,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       post_downvotes: ls?.post_downvotes,
       comment_upvotes: ls?.comment_upvotes,
       comment_downvotes: ls?.comment_downvotes,
-      require_email_verification: ls?.require_email_verification,
+      email_verification_required: ls?.email_verification_required,
       application_question: ls?.application_question,
       private_instance: ls?.private_instance,
       default_theme: ls?.default_theme,
@@ -103,13 +103,13 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       federation_enabled: ls?.federation_enabled,
       blocked_urls: this.props.siteRes?.blocked_urls.map(u => u.url),
       content_warning: this.props.siteRes?.site_view.site.content_warning,
-      disable_email_notifications: ls?.disable_email_notifications,
+      email_notifications_disabled: ls?.email_notifications_disabled,
       default_items_per_page: ls?.default_items_per_page,
       default_comment_sort_type: ls?.default_comment_sort_type,
       default_post_sort_type: ls?.default_post_sort_type,
       default_post_time_range_seconds: ls?.default_post_time_range_seconds,
       suggested_multi_community_id: ls?.suggested_multi_community_id,
-      disallow_nsfw_content: ls?.disallow_nsfw_content,
+      nsfw_content_disallowed: ls?.nsfw_content_disallowed,
       federation_signed_fetch: ls?.federation_signed_fetch,
       image_mode: ls?.image_mode,
       image_proxy_bypass_domains: ls?.image_proxy_bypass_domains,
@@ -305,12 +305,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           <div className="col">
             <FilterChipCheckbox
               option={"disallow_nsfw_content"}
-              isChecked={this.state.siteForm.disallow_nsfw_content ?? false}
+              isChecked={this.state.siteForm.nsfw_content_disallowed ?? false}
               onCheck={val => handleSiteEnableNsfwChange(this, val)}
             />
           </div>
         </div>
-        {!this.state.siteForm.disallow_nsfw_content && (
+        {!this.state.siteForm.nsfw_content_disallowed && (
           <div className="mb-3 row">
             <div className="alert small alert-info" role="alert">
               <Icon icon="info" classes="icon-inline me-2" />
@@ -389,7 +389,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <FilterChipCheckbox
               option={"disable_email_notifications"}
               isChecked={
-                this.state.siteForm.disable_email_notifications ?? false
+                this.state.siteForm.email_notifications_disabled ?? false
               }
               onCheck={val => handleSiteDisableEmailNotifications(this, val)}
             />
@@ -400,7 +400,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             <FilterChipCheckbox
               option={"require_email_verification"}
               isChecked={
-                this.state.siteForm.require_email_verification ?? false
+                this.state.siteForm.email_verification_required ?? false
               }
               onCheck={val => handleSiteRequireEmailVerification(this, val)}
             />
@@ -764,11 +764,11 @@ function handleSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
       post_downvotes: stateSiteForm.post_downvotes,
       comment_upvotes: stateSiteForm.comment_upvotes,
       comment_downvotes: stateSiteForm.comment_downvotes,
-      disallow_nsfw_content: stateSiteForm.disallow_nsfw_content,
+      nsfw_content_disallowed: stateSiteForm.nsfw_content_disallowed,
       application_question: stateSiteForm.application_question,
       registration_mode: stateSiteForm.registration_mode,
       oauth_registration: stateSiteForm.oauth_registration,
-      require_email_verification: stateSiteForm.require_email_verification,
+      email_verification_required: stateSiteForm.email_verification_required,
       private_instance: stateSiteForm.private_instance,
       default_theme: stateSiteForm.default_theme,
       default_post_listing_type: stateSiteForm.default_post_listing_type,
@@ -853,7 +853,7 @@ function handleSiteSummaryChange(
 
 function handleSiteEnableNsfwChange(i: SiteForm, val: boolean) {
   const newState = i.state;
-  newState.siteForm.disallow_nsfw_content = val;
+  newState.siteForm.nsfw_content_disallowed = val;
   if (val) {
     newState.siteForm.content_warning = "";
   }
@@ -883,7 +883,7 @@ function handleSiteVoteModeChange(
 }
 
 function handleSiteRequireEmailVerification(i: SiteForm, val: boolean) {
-  i.setState(s => ((s.siteForm.require_email_verification = val), s));
+  i.setState(s => ((s.siteForm.email_verification_required = val), s));
 }
 
 function handleSiteApplicationEmailAdmins(i: SiteForm, val: boolean) {
@@ -891,7 +891,7 @@ function handleSiteApplicationEmailAdmins(i: SiteForm, val: boolean) {
 }
 
 function handleSiteDisableEmailNotifications(i: SiteForm, val: boolean) {
-  i.setState(s => ((s.siteForm.disable_email_notifications = val), s));
+  i.setState(s => ((s.siteForm.email_notifications_disabled = val), s));
 }
 
 function handleSiteReportsEmailAdmins(i: SiteForm, val: boolean) {

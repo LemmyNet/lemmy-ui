@@ -1,7 +1,7 @@
 import {
   communityToChoice,
-  fetchCommunities,
-  fetchUsers,
+  searchCommunities,
+  searchUsers,
   personToChoice,
   setIsoData,
 } from "@utils/app";
@@ -612,7 +612,7 @@ async function createNewOptions({
     return oldOptions
       .filter(choice => parseInt(choice.value, 10) === id)
       .concat(
-        (await fetchUsers(text)).slice(0, fetchLimit).map(personToChoice),
+        (await searchUsers(text)).slice(0, fetchLimit).map(personToChoice),
       );
   } else {
     return oldOptions;
@@ -1156,7 +1156,7 @@ const handleSearchCommunities = debounce(async (i: Modlog, text: string) => {
   const newOptions = communitySearchOptions
     .filter(choice => parseInt(choice.value, 10) === communityId)
     .concat(
-      (await fetchCommunities(text))
+      (await searchCommunities(text))
         .slice(0, fetchLimit)
         .map(communityToChoice),
     );

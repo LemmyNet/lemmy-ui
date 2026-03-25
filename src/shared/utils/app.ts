@@ -6,9 +6,7 @@ import {
   MyUserInfo,
   PostView,
   RegistrationApplicationView,
-  Search,
   Comment,
-  SearchType,
   PersonView,
   Language,
   Instance,
@@ -35,6 +33,9 @@ import {
   PostReportResponse,
   PrivateMessageReportResponse,
   CommunityReportResponse,
+  ListCommunities,
+  ListPersons,
+  ListMultiCommunities,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -203,7 +204,7 @@ export function notificationsRSSUrl(auth: string): string {
 export async function communitySearch(
   text: string,
 ): Promise<CommunityTribute[]> {
-  const communitiesResponse = await fetchCommunities(text);
+  const communitiesResponse = await searchCommunities(text);
 
   return communitiesResponse.map(cv => ({
     key: `!${cv.community.name}@${hostname(cv.community.ap_id)}`,
@@ -332,26 +333,33 @@ export function enableDownvotes(siteRes: GetSiteResponse): boolean {
 }
 
 export function enableNsfw(siteRes?: GetSiteResponse): boolean {
-  return !siteRes?.site_view.local_site.disallow_nsfw_content;
+  return !siteRes?.site_view.local_site.nsfw_content_disallowed;
 }
 
-export async function fetchCommunities(q: string) {
-  const res = await fetchSearchResults(q, "communities");
+export async function searchCommunities(search_term: string) {
+  const form: ListCommunities = {
+    search_term,
+    sort: "active_monthly",
+    type_: "all",
+  };
+  const res = await HttpService.client.listCommunities(form);
 
   return res.state === "success"
-    ? res.data.search.filter(s => s.type_ === "community")
+    ? res.data.items
     : [];
 }
 
-export function fetchSearchResults(q: string, type_: SearchType) {
-  const form: Search = {
-    q,
-    type_,
-    sort: "top",
-    listing_type: "all",
+export async function searchMultiCommunities(search_term: string) {
+  const form: ListMultiCommunities = {
+    search_term,
+    sort: "subscribers",
+    type_: "all",
   };
+  const res = await HttpService.client.listMultiCommunities(form);
 
-  return HttpService.client.search(form);
+  return res.state === "success"
+    ? res.data.items
+    : [];
 }
 
 export async function fetchThemeList(): Promise<string[]> {
@@ -360,11 +368,16 @@ export async function fetchThemeList(): Promise<string[]> {
     .then(json => json as string[]);
 }
 
-export async function fetchUsers(q: string) {
-  const res = await fetchSearchResults(q, "users");
+export async function searchUsers(search_term: string) {
+  const form: ListPersons = {
+    search_term,
+    sort: "comment_score",
+    type_: "all",
+  };
+  const res = await HttpService.client.listPersons(form);
 
   return res.state === "success"
-    ? res.data.search.filter(s => s.type_ === "person")
+    ? res.data.items
     : [];
 }
 
@@ -508,7 +521,7 @@ export function nsfwCheck(
 }
 
 export async function personSearch(text: string): Promise<PersonTribute[]> {
-  const usersResponse = await fetchUsers(text);
+  const usersResponse = await searchUsers(text);
 
   return usersResponse.map(pv => ({
     key: `@${pv.person.name}@${hostname(pv.person.ap_id)}`,
@@ -919,7 +932,7 @@ export function hideAnimatedImage(
 ): boolean {
   return (
     isAnimatedImage(url) &&
-    !user?.local_user_view.local_user.enable_animated_images
+    !user?.local_user_view.local_user.animated_images_enabled
   );
 }
 

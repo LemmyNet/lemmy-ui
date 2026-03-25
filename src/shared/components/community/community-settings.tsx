@@ -1,4 +1,4 @@
-import { enableNsfw, fetchUsers, personToChoice, setIsoData } from "@utils/app";
+import { enableNsfw, searchUsers, personToChoice, setIsoData } from "@utils/app";
 import {
   resourcesSettled,
   bareRoutePush,
@@ -439,47 +439,47 @@ export class CommunitySettings extends Component<RouteProps, State> {
                       res.moderators,
                       myUserInfo,
                     ) && (
-                      <>
-                        <button
-                          className="btn btn-link"
-                          onClick={() =>
-                            this.setState({
-                              showTransferDialog: m,
-                            })
-                          }
-                          data-tippy-content={I18NextService.i18n.t(
-                            "transfer_community",
-                          )}
-                        >
-                          <Icon icon="transfer" classes="icon-inline" />
-                        </button>
-                        <ConfirmationModal
-                          show={
-                            this.state.showTransferDialog?.moderator.id ===
-                            m.moderator.id
-                          }
-                          message={I18NextService.i18n.t(
-                            "transfer_community_are_you_sure",
-                            {
-                              user: getApubName(m.moderator),
-                              community: getApubName(m.community),
-                            },
-                          )}
-                          loadingMessage={I18NextService.i18n.t(
-                            "transferring_community",
-                          )}
-                          onNo={() =>
-                            this.setState({ showTransferDialog: undefined })
-                          }
-                          onYes={() =>
-                            handleTransferCommunity(this, {
-                              community_id: res.community_view.community.id,
-                              person_id: m.moderator.id,
-                            })
-                          }
-                        />
-                      </>
-                    )}
+                        <>
+                          <button
+                            className="btn btn-link"
+                            onClick={() =>
+                              this.setState({
+                                showTransferDialog: m,
+                              })
+                            }
+                            data-tippy-content={I18NextService.i18n.t(
+                              "transfer_community",
+                            )}
+                          >
+                            <Icon icon="transfer" classes="icon-inline" />
+                          </button>
+                          <ConfirmationModal
+                            show={
+                              this.state.showTransferDialog?.moderator.id ===
+                              m.moderator.id
+                            }
+                            message={I18NextService.i18n.t(
+                              "transfer_community_are_you_sure",
+                              {
+                                user: getApubName(m.moderator),
+                                community: getApubName(m.community),
+                              },
+                            )}
+                            loadingMessage={I18NextService.i18n.t(
+                              "transferring_community",
+                            )}
+                            onNo={() =>
+                              this.setState({ showTransferDialog: undefined })
+                            }
+                            onYes={() =>
+                              handleTransferCommunity(this, {
+                                community_id: res.community_view.community.id,
+                                person_id: m.moderator.id,
+                              })
+                            }
+                          />
+                        </>
+                      )}
                   </div>
                   <div className={dataCols}>
                     <MomentTime published={m.moderator.published_at} />
@@ -738,7 +738,7 @@ const handleAddModSearch = debounce(
 
     if (text.length > 0) {
       newOptions.push(
-        ...(await fetchUsers(text))
+        ...(await searchUsers(text))
           // Filter out current mods
           .filter(
             pv =>
