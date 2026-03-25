@@ -40,6 +40,8 @@ import {
   CommentView,
   MultiCommunityView,
   CommunitySortType,
+  GetPosts,
+  GetComments,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -292,28 +294,28 @@ const postListing = (
               markReadLoading={false}
               voteLoading={false}
               // All of these are unused, since its view only
-              onPostEdit={() => { }}
-              onPostModEdit={() => { }}
-              onPostVote={() => { }}
-              onPostReport={() => { }}
-              onBlockPerson={() => { }}
-              onBlockCommunity={() => { }}
-              onLockPost={() => { }}
-              onDeletePost={() => { }}
-              onRemovePost={() => { }}
-              onSavePost={() => { }}
-              onFeaturePost={() => { }}
-              onPurgePerson={() => { }}
-              onPurgePost={() => { }}
-              onBanPersonFromCommunity={() => { }}
-              onBanPerson={() => { }}
-              onAddModToCommunity={() => { }}
-              onAddAdmin={() => { }}
-              onTransferCommunity={() => { }}
-              onMarkPostAsRead={() => { }}
-              onHidePost={() => { }}
-              onPersonNote={() => { }}
-              onScrollIntoCommentsClick={() => { }}
+              onPostEdit={() => {}}
+              onPostModEdit={() => {}}
+              onPostVote={() => {}}
+              onPostReport={() => {}}
+              onBlockPerson={() => {}}
+              onBlockCommunity={() => {}}
+              onLockPost={() => {}}
+              onDeletePost={() => {}}
+              onRemovePost={() => {}}
+              onSavePost={() => {}}
+              onFeaturePost={() => {}}
+              onPurgePerson={() => {}}
+              onPurgePost={() => {}}
+              onBanPersonFromCommunity={() => {}}
+              onBanPerson={() => {}}
+              onAddModToCommunity={() => {}}
+              onAddAdmin={() => {}}
+              onTransferCommunity={() => {}}
+              onMarkPostAsRead={() => {}}
+              onHidePost={() => {}}
+              onPersonNote={() => {}}
+              onScrollIntoCommentsClick={() => {}}
             />
           </div>
         ))}
@@ -357,27 +359,27 @@ const commentListing = (
               showContext={false}
               hideImages={false}
               // All of these are unused, since its viewonly
-              onSaveComment={() => { }}
-              onBlockPerson={() => { }}
-              onBlockCommunity={() => { }}
-              onDeleteComment={() => { }}
-              onRemoveComment={() => { }}
-              onCommentVote={() => { }}
-              onCommentReport={() => { }}
-              onDistinguishComment={() => { }}
-              onAddModToCommunity={() => { }}
-              onAddAdmin={() => { }}
-              onTransferCommunity={() => { }}
-              onPurgeComment={() => { }}
-              onPurgePerson={() => { }}
-              onBanPersonFromCommunity={() => { }}
-              onBanPerson={() => { }}
-              onCreateComment={() => { }}
-              onEditComment={() => { }}
-              onPersonNote={() => { }}
-              onLockComment={() => { }}
-              onMarkRead={() => { }}
-              onFetchChildren={() => { }}
+              onSaveComment={() => {}}
+              onBlockPerson={() => {}}
+              onBlockCommunity={() => {}}
+              onDeleteComment={() => {}}
+              onRemoveComment={() => {}}
+              onCommentVote={() => {}}
+              onCommentReport={() => {}}
+              onDistinguishComment={() => {}}
+              onAddModToCommunity={() => {}}
+              onAddAdmin={() => {}}
+              onTransferCommunity={() => {}}
+              onPurgeComment={() => {}}
+              onPurgePerson={() => {}}
+              onBanPersonFromCommunity={() => {}}
+              onBanPerson={() => {}}
+              onCreateComment={() => {}}
+              onEditComment={() => {}}
+              onPersonNote={() => {}}
+              onLockComment={() => {}}
+              onMarkRead={() => {}}
+              onFetchChildren={() => {}}
             />
           </div>
         ))}
@@ -586,17 +588,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   static fetchInitialData = async ({
     headers,
-    query: {
-      q: query,
-      type: searchType,
-      sort,
-      listingType: listing_type,
-      titleOnly: title_only,
-      postUrlOnly: post_url_only,
-      communityId: community_id,
-      creatorId: creator_id,
-      cursor,
-    },
+    query,
   }: InitialFetchRequest<
     SearchPathProps,
     SearchProps
@@ -605,9 +597,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
-    if (community_id) {
+    if (query.communityId) {
       const getCommunityForm: GetCommunity = {
-        id: community_id,
+        id: query.communityId,
       };
 
       communityResponse = await client.getCommunity(getCommunityForm);
@@ -621,33 +613,15 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     let creatorDetailsResponse: RequestState<GetPersonDetailsResponse> =
       EMPTY_REQUEST;
-    if (creator_id) {
+    if (query.creatorId) {
       const getCreatorForm: GetPersonDetails = {
-        person_id: creator_id,
+        person_id: query.creatorId,
       };
 
       creatorDetailsResponse = await client.getPersonDetails(getCreatorForm);
     }
 
-    let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
-
-    if (query) {
-      const form: SearchForm = {
-        search_term: query,
-        // TODO
-        //community_id,
-        //creator_id,
-        //type_: searchType,
-        //sort,
-        //listing_type,
-        //title_only,
-        //post_url_only,
-        //limit: fetchLimit,
-        //page_cursor: cursor,
-      };
-
-      searchResponse = await client.search(form);
-    }
+    const searchResponse = await doSearch(query);
 
     return {
       communityResponse,
@@ -701,7 +675,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   displayResolve(): InfernoNode | void {
     const { searchRes: searchResponse } = this.state;
-    if (searchResponse.state === "success" && searchResponse.data.resolve) {
+    if (
+      searchResponse.state === "success" &&
+      "resolve" in searchResponse.data &&
+      searchResponse.data.resolve
+    ) {
       const resolve = searchResponse.data.resolve;
       switch (resolve.type_) {
         case "post":
@@ -798,63 +776,70 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               onSelect={val => handleTypeChange(this, val)}
             />
           </div>
+          {type !== "all" && (
+            <div className="col">
+              <ListingTypeDropdown
+                currentOption={listingType}
+                showLocal={showLocal(this.isoData)}
+                showSubscribed
+                showSuggested={
+                  !!this.isoData.siteRes.site_view.local_site
+                    .suggested_multi_community_id
+                }
+                onSelect={type => handleListingTypeChange(this, type)}
+                myUserInfo={this.isoData.myUserInfo}
+                showLabel
+              />
+            </div>
+          )}
           <div className="col">
-            <ListingTypeDropdown
-              currentOption={listingType}
-              showLocal={showLocal(this.isoData)}
-              showSubscribed
-              showSuggested={
-                !!this.isoData.siteRes.site_view.local_site
-                  .suggested_multi_community_id
-              }
-              onSelect={type => handleListingTypeChange(this, type)}
-              myUserInfo={this.isoData.myUserInfo}
-              showLabel
+            {/*TODO: should be called "title_only", not post_title_only*/}
+            <FilterChipCheckbox
+              option={"post_title_only"}
+              isChecked={titleOnly}
+              onCheck={val => handleTitleOnlyChange(this, val)}
             />
           </div>
-          {(type === "all" || type === "posts") && (
+          {type === "posts" && (
+            <div className="col">
+              <FilterChipCheckbox
+                option={"post_url_only"}
+                isChecked={postUrlOnly}
+                onCheck={val => handlePostUrlOnlyChange(this, val)}
+              />
+            </div>
+          )}
+          {type !== "all" && (
             <>
               <div className="col">
-                <FilterChipCheckbox
-                  option={"post_title_only"}
-                  isChecked={titleOnly}
-                  onCheck={val => handleTitleOnlyChange(this, val)}
+                <SearchSortDropdown
+                  currentOption={sort}
+                  onSelect={val => handleSortChange(this, val)}
+                  showLabel
                 />
               </div>
               <div className="col">
-                <FilterChipCheckbox
-                  option={"post_url_only"}
-                  isChecked={postUrlOnly}
-                  onCheck={val => handlePostUrlOnlyChange(this, val)}
+                <Filter
+                  title="all_communities"
+                  onChange={choices =>
+                    handleCommunityFilterChange(this, choices)
+                  }
+                  onSearch={text => handleCommunitySearch(this, text)}
+                  options={communitySearchOptions}
+                  value={communityId}
+                />
+              </div>
+              <div className="col">
+                <Filter
+                  title="all_creators"
+                  onChange={choices => handleCreatorFilterChange(this, choices)}
+                  onSearch={text => handleCreatorSearch(this, text)}
+                  options={creatorSearchOptions}
+                  value={creatorId}
                 />
               </div>
             </>
           )}
-          <div className="col">
-            <SearchSortDropdown
-              currentOption={sort}
-              onSelect={val => handleSortChange(this, val)}
-              showLabel
-            />
-          </div>
-          <div className="col">
-            <Filter
-              title="all_communities"
-              onChange={choices => handleCommunityFilterChange(this, choices)}
-              onSearch={text => handleCommunitySearch(this, text)}
-              options={communitySearchOptions}
-              value={communityId}
-            />
-          </div>
-          <div className="col">
-            <Filter
-              title="all_creators"
-              onChange={choices => handleCreatorFilterChange(this, choices)}
-              onSearch={text => handleCreatorSearch(this, text)}
-              options={creatorSearchOptions}
-              value={creatorId}
-            />
-          </div>
         </div>
       </>
     );
@@ -865,7 +850,10 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     return searchResponse.state === "success" ? (
       <>
-        {communityListing(searchResponse.data.communities, this.isoData.myUserInfo)}
+        {communityListing(
+          searchResponse.data.communities,
+          this.isoData.myUserInfo,
+        )}
         {multiCommunityListing(
           searchResponse.data.multi_communities,
           this.isoData.myUserInfo,
@@ -874,13 +862,15 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         {postListing(searchResponse.data.posts, this.isoData)}
         {commentListing(searchResponse.data.comments, this.isoData)}
       </>
-    ) : (<></>);
+    ) : (
+      <></>
+    );
   }
 
   get comments() {
     const { searchRes: searchResponse, siteRes } = this.state;
     const comments =
-      searchResponse.state === "success"
+      searchResponse.state === "success" && "comments" in searchResponse.data
         ? searchResponse.data.comments
         : [];
 
@@ -906,27 +896,27 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         showContext={false}
         hideImages={false}
         // All of these are unused, since its viewonly
-        onSaveComment={() => { }}
-        onBlockPerson={() => { }}
-        onBlockCommunity={() => { }}
-        onDeleteComment={() => { }}
-        onRemoveComment={() => { }}
-        onCommentVote={() => { }}
-        onCommentReport={() => { }}
-        onDistinguishComment={() => { }}
-        onAddModToCommunity={() => { }}
-        onAddAdmin={() => { }}
-        onTransferCommunity={() => { }}
-        onPurgeComment={() => { }}
-        onPurgePerson={() => { }}
-        onBanPersonFromCommunity={() => { }}
-        onBanPerson={() => { }}
-        onCreateComment={() => { }}
-        onEditComment={() => { }}
-        onPersonNote={() => { }}
-        onLockComment={() => { }}
-        onMarkRead={() => { }}
-        onFetchChildren={() => { }}
+        onSaveComment={() => {}}
+        onBlockPerson={() => {}}
+        onBlockCommunity={() => {}}
+        onDeleteComment={() => {}}
+        onRemoveComment={() => {}}
+        onCommentVote={() => {}}
+        onCommentReport={() => {}}
+        onDistinguishComment={() => {}}
+        onAddModToCommunity={() => {}}
+        onAddAdmin={() => {}}
+        onTransferCommunity={() => {}}
+        onPurgeComment={() => {}}
+        onPurgePerson={() => {}}
+        onBanPersonFromCommunity={() => {}}
+        onBanPerson={() => {}}
+        onCreateComment={() => {}}
+        onEditComment={() => {}}
+        onPersonNote={() => {}}
+        onLockComment={() => {}}
+        onMarkRead={() => {}}
+        onFetchChildren={() => {}}
       />
     );
   }
@@ -934,7 +924,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get posts() {
     const { searchRes: searchResponse, siteRes } = this.state;
     const posts =
-      searchResponse.state === "success"
+      searchResponse.state === "success" && "posts" in searchResponse.data
         ? searchResponse.data.posts
         : [];
 
@@ -967,28 +957,28 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 markReadLoading={false}
                 voteLoading={false}
                 // All of these are unused, since its view only
-                onPostEdit={() => { }}
-                onPostModEdit={() => { }}
-                onPostVote={() => { }}
-                onPostReport={() => { }}
-                onBlockPerson={() => { }}
-                onBlockCommunity={() => { }}
-                onLockPost={() => { }}
-                onDeletePost={() => { }}
-                onRemovePost={() => { }}
-                onSavePost={() => { }}
-                onFeaturePost={() => { }}
-                onPurgePerson={() => { }}
-                onPurgePost={() => { }}
-                onBanPersonFromCommunity={() => { }}
-                onBanPerson={() => { }}
-                onAddModToCommunity={() => { }}
-                onAddAdmin={() => { }}
-                onTransferCommunity={() => { }}
-                onMarkPostAsRead={() => { }}
-                onHidePost={() => { }}
-                onPersonNote={() => { }}
-                onScrollIntoCommentsClick={() => { }}
+                onPostEdit={() => {}}
+                onPostModEdit={() => {}}
+                onPostVote={() => {}}
+                onPostReport={() => {}}
+                onBlockPerson={() => {}}
+                onBlockCommunity={() => {}}
+                onLockPost={() => {}}
+                onDeletePost={() => {}}
+                onRemovePost={() => {}}
+                onSavePost={() => {}}
+                onFeaturePost={() => {}}
+                onPurgePerson={() => {}}
+                onPurgePost={() => {}}
+                onBanPersonFromCommunity={() => {}}
+                onBanPerson={() => {}}
+                onAddModToCommunity={() => {}}
+                onAddAdmin={() => {}}
+                onTransferCommunity={() => {}}
+                onMarkPostAsRead={() => {}}
+                onHidePost={() => {}}
+                onPersonNote={() => {}}
+                onScrollIntoCommentsClick={() => {}}
               />
             </div>
           </div>
@@ -1000,7 +990,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get communities() {
     const { searchRes: searchResponse } = this.state;
     const communities =
-      searchResponse.state === "success"
+      searchResponse.state === "success" && "communities" in searchResponse.data
         ? searchResponse.data.communities
         : [];
 
@@ -1016,7 +1006,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get multiCommunities() {
     const { searchRes: searchResponse } = this.state;
     const multiCommunities =
-      searchResponse.state === "success"
+      searchResponse.state === "success" &&
+      "multi_communities" in searchResponse.data
         ? searchResponse.data.multi_communities
         : [];
 
@@ -1032,7 +1023,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get users() {
     const { searchRes: searchResponse } = this.state;
     const users =
-      searchResponse.state === "success"
+      searchResponse.state === "success" && "persons" in searchResponse.data
         ? searchResponse.data.persons
         : [];
 
@@ -1050,7 +1041,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     if (r.state === "success") {
       const resolveCount = r.data.resolve !== undefined ? 1 : 0;
-      return r.data.comments.length + r.data.posts.length + r.data.communities.length + r.data.multi_communities.length + r.data.persons.length + resolveCount;
+      return (
+        r.data.comments.length +
+        r.data.posts.length +
+        r.data.communities.length +
+        r.data.multi_communities.length +
+        r.data.persons.length +
+        resolveCount
+      );
     } else {
       return 0;
     }
@@ -1058,40 +1056,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   searchToken?: symbol;
   async search(props: SearchRouteProps) {
-    const token = (this.searchToken = Symbol());
-    const {
-      q,
-      communityId,
-      creatorId,
-      type,
-      sort,
-      listingType,
-      titleOnly,
-      postUrlOnly,
-      cursor,
-    } = props;
-
-    if (q) {
-      this.setState({ searchRes: LOADING_REQUEST });
-      const searchRes = await HttpService.client.search({
-        search_term: q,
-        community_id: communityId ?? undefined,
-        creator_id: creatorId ?? undefined,
-        type_: type,
-        sort,
-        listing_type: listingType,
-        title_only: titleOnly,
-        post_url_only: postUrlOnly,
-        limit: fetchLimit,
-        page_cursor: cursor,
-      });
-      if (token !== this.searchToken) {
-        return;
-      }
-      this.setState({ searchRes });
-    } else {
-      this.setState({ searchRes: EMPTY_REQUEST });
-    }
+    this.setState({ searchRes: LOADING_REQUEST });
+    const searchRes = await doSearch(props);
+    this.setState({ searchRes });
   }
 
   getQ(): string | undefined {
@@ -1227,4 +1194,97 @@ function handleSearchSubmit(i: Search, event: FormEvent<HTMLFormElement>) {
     q: i.getQ(),
     cursor: undefined,
   });
+}
+
+async function doSearch(
+  props: SearchProps,
+): Promise<RequestState<SearchResponse>> {
+  let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
+  const {
+    q,
+    communityId: community_id,
+    creatorId,
+    type,
+    sort,
+    listingType,
+    titleOnly: search_title_only,
+    postUrlOnly: search_url_only,
+    cursor,
+  } = props;
+  if (!q) {
+    return searchResponse;
+  }
+
+  const searchResponseInner: SearchResponse = {
+    comments: [],
+    posts: [],
+    communities: [],
+    persons: [],
+    multi_communities: [],
+  };
+  switch (type) {
+    case "all": {
+      const form: SearchForm = {
+        search_term: q,
+        // TODO: not available
+        //community_id,
+        //creator_id,
+        //sort,
+        //listing_type,
+        search_title_only,
+        //post_url_only,
+        //limit: fetchLimit,
+        //page_cursor: cursor,
+      };
+
+      searchResponse = await HttpService.client.search(form);
+      break;
+    }
+    case "posts": {
+      const form: GetPosts = {
+        search_term: q,
+        community_id,
+        // TODO: missing creator_id
+        //creator_id,
+        sort,
+        type_: listingType,
+        search_title_only,
+        search_url_only,
+        limit: fetchLimit,
+        page_cursor: cursor,
+      };
+      const posts = await HttpService.client.getPosts(form);
+      if (posts.state === "success") {
+        searchResponseInner.posts = posts.data.items;
+        searchResponse = { state: posts.state, data: searchResponseInner };
+      } else {
+        // TODO: not working
+        //searchResponse = { state: posts.state };
+      }
+      break;
+    }
+    case "comments": {
+      const form: GetComments = {
+        search_term: q,
+        community_id,
+        // TODO: missing creator_id
+        //creator_id,
+        sort,
+        type_: listingType,
+        limit: fetchLimit,
+        page_cursor: cursor,
+      };
+      const comments = await HttpService.client.getComments(form);
+      if (comments.state === "success") {
+        searchResponseInner.comments = comments.data.items;
+        searchResponse = { state: comments.state, data: searchResponseInner };
+      } else {
+        // TODO: not working
+        //searchResponse = { state: comments.state };
+      }
+      break;
+    }
+    // TODO: communities, users, multi-communities
+  }
+  return searchResponse;
 }

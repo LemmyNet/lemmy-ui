@@ -218,7 +218,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
   ) {
     if (
       this.props.selectedCommunityChoice?.value !==
-      nextProps.selectedCommunityChoice?.value &&
+        nextProps.selectedCommunityChoice?.value &&
       nextProps.selectedCommunityChoice
     ) {
       this.setState(
@@ -314,8 +314,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   value={this.state.form.name}
                   id="post-title"
                   onInput={e => handlePostNameChange(this, e)}
-                  className={`form-control ${!validTitle(this.state.form.name) && "is-invalid"
-                    }`}
+                  className={`form-control ${
+                    !validTitle(this.state.form.name) && "is-invalid"
+                  }`}
                   required
                   rows={1}
                   minLength={3}
@@ -430,28 +431,28 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                     postListingMode="list"
                     voteLoading={undefined}
                     // All of these are unused, since its view only
-                    onPostEdit={() => { }}
-                    onPostModEdit={() => { }}
-                    onPostVote={() => { }}
-                    onPostReport={() => { }}
-                    onBlockPerson={() => { }}
-                    onBlockCommunity={() => { }}
-                    onLockPost={() => { }}
-                    onDeletePost={() => { }}
-                    onRemovePost={() => { }}
-                    onSavePost={() => { }}
-                    onFeaturePost={() => { }}
-                    onPurgePerson={() => { }}
-                    onPurgePost={() => { }}
-                    onBanPersonFromCommunity={() => { }}
-                    onBanPerson={() => { }}
-                    onAddModToCommunity={() => { }}
-                    onAddAdmin={() => { }}
-                    onTransferCommunity={() => { }}
-                    onMarkPostAsRead={() => { }}
-                    onHidePost={() => { }}
-                    onPersonNote={() => { }}
-                    onScrollIntoCommentsClick={() => { }}
+                    onPostEdit={() => {}}
+                    onPostModEdit={() => {}}
+                    onPostVote={() => {}}
+                    onPostReport={() => {}}
+                    onBlockPerson={() => {}}
+                    onBlockCommunity={() => {}}
+                    onLockPost={() => {}}
+                    onDeletePost={() => {}}
+                    onRemovePost={() => {}}
+                    onSavePost={() => {}}
+                    onFeaturePost={() => {}}
+                    onPurgePerson={() => {}}
+                    onPurgePost={() => {}}
+                    onBanPersonFromCommunity={() => {}}
+                    onBanPerson={() => {}}
+                    onAddModToCommunity={() => {}}
+                    onAddAdmin={() => {}}
+                    onTransferCommunity={() => {}}
+                    onMarkPostAsRead={() => {}}
+                    onHidePost={() => {}}
+                    onPersonNote={() => {}}
+                    onScrollIntoCommentsClick={() => {}}
                   />
                 </>
               )}
@@ -705,28 +706,28 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 postListingMode="list"
                 voteLoading={undefined}
                 // All of these are unused, since its view only
-                onPostEdit={() => { }}
-                onPostModEdit={() => { }}
-                onPostVote={() => { }}
-                onPostReport={() => { }}
-                onBlockPerson={() => { }}
-                onBlockCommunity={() => { }}
-                onLockPost={() => { }}
-                onDeletePost={() => { }}
-                onRemovePost={() => { }}
-                onSavePost={() => { }}
-                onFeaturePost={() => { }}
-                onPurgePerson={() => { }}
-                onPurgePost={() => { }}
-                onBanPersonFromCommunity={() => { }}
-                onBanPerson={() => { }}
-                onAddModToCommunity={() => { }}
-                onAddAdmin={() => { }}
-                onTransferCommunity={() => { }}
-                onMarkPostAsRead={() => { }}
-                onHidePost={() => { }}
-                onPersonNote={() => { }}
-                onScrollIntoCommentsClick={() => { }}
+                onPostEdit={() => {}}
+                onPostModEdit={() => {}}
+                onPostVote={() => {}}
+                onPostReport={() => {}}
+                onBlockPerson={() => {}}
+                onBlockCommunity={() => {}}
+                onLockPost={() => {}}
+                onDeletePost={() => {}}
+                onRemovePost={() => {}}
+                onSavePost={() => {}}
+                onFeaturePost={() => {}}
+                onPurgePerson={() => {}}
+                onPurgePost={() => {}}
+                onBanPersonFromCommunity={() => {}}
+                onBanPerson={() => {}}
+                onAddModToCommunity={() => {}}
+                onAddAdmin={() => {}}
+                onTransferCommunity={() => {}}
+                onMarkPostAsRead={() => {}}
+                onHidePost={() => {}}
+                onPersonNote={() => {}}
+                onScrollIntoCommentsClick={() => {}}
               />
             </>
           )

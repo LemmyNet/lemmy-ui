@@ -1,4 +1,3 @@
-
 import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
 
 export type SearchType =

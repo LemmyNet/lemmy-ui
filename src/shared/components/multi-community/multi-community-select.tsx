@@ -1,7 +1,7 @@
 import { debounce, hostname } from "@utils/helpers";
 import { Component } from "inferno";
 import { MultiCommunityId, MultiCommunityView } from "lemmy-js-client";
-import { searchMultiCommunities, } from "@utils/app";
+import { searchMultiCommunities } from "@utils/app";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Choice } from "@utils/types";
 import { isBrowser } from "@utils/browser";

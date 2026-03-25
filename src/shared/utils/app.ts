@@ -344,9 +344,7 @@ export async function searchCommunities(search_term: string) {
   };
   const res = await HttpService.client.listCommunities(form);
 
-  return res.state === "success"
-    ? res.data.items
-    : [];
+  return res.state === "success" ? res.data.items : [];
 }
 
 export async function searchMultiCommunities(search_term: string) {
@@ -357,9 +355,7 @@ export async function searchMultiCommunities(search_term: string) {
   };
   const res = await HttpService.client.listMultiCommunities(form);
 
-  return res.state === "success"
-    ? res.data.items
-    : [];
+  return res.state === "success" ? res.data.items : [];
 }
 
 export async function fetchThemeList(): Promise<string[]> {
@@ -376,9 +372,7 @@ export async function searchUsers(search_term: string) {
   };
   const res = await HttpService.client.listPersons(form);
 
-  return res.state === "success"
-    ? res.data.items
-    : [];
+  return res.state === "success" ? res.data.items : [];
 }
 
 export function getCommentIdFromProps(
