@@ -476,7 +476,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   get currentLocation() {
-    const context: RouterContext = this.context;
+    const context = this.context as RouterContext;
     return context.router.history.location.pathname;
   }
 }

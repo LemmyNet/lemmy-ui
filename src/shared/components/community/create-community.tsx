@@ -17,6 +17,7 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "@services/HttpService";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface CreateCommunityState {
   createCommunityRes: RequestState<CommunityResponse>;
@@ -43,7 +44,10 @@ export class CreateCommunity extends Component<
       this.isoData.siteRes.site_view.local_site.image_upload_disabled;
     return (
       <div className="create-community container-lg">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">

@@ -215,9 +215,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   constructor(props: SettingsRouteProps, context: object) {
     super(props, context);
 
-    this.userSettings = this.userSettings.bind(this);
-    this.blockCards = this.blockCards.bind(this);
-
     const mui = this.isoData.myUserInfo;
     if (mui) {
       const {
@@ -374,7 +371,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         />
         <HtmlTags
           title={this.documentTitle}
-          context={this.context}
+          context={this.context as RouterContext}
           description={this.documentTitle}
           image={this.state.avatar}
         />
@@ -383,12 +380,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             {
               key: "settings",
               label: I18NextService.i18n.t("settings"),
-              getNode: this.userSettings,
+              getNode: s => this.userSettings(s),
             },
             {
               key: "blocks",
               label: I18NextService.i18n.t("blocks"),
-              getNode: this.blockCards,
+              getNode: s => this.blockCards(s),
             },
           ]}
         />
@@ -397,7 +394,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     /* eslint-enable jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid */
   }
 
-  userSettings = (isSelected: boolean) => {
+  userSettings(isSelected: boolean) {
     return (
       <div
         className={classNames("tab-pane show", {
@@ -439,9 +436,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         </div>
       </div>
     );
-  };
+  }
 
-  blockCards = (isSelected: boolean) => {
+  blockCards(isSelected: boolean) {
     return (
       !userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
         <div
@@ -480,7 +477,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         </div>
       )
     );
-  };
+  }
 
   changePasswordHtmlForm() {
     return (
@@ -2083,7 +2080,7 @@ async function handleDeleteAccount(
     });
     if (deleteAccountRes.state === "success") {
       await UserService.Instance.logout();
-      const context: RouterContext = i.context;
+      const context = i.context as RouterContext;
       context.router.history.replace("/");
     }
 

@@ -222,7 +222,10 @@ export class Communities extends Component<
 
     return (
       <div className="communities container-lg">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         <div>
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("list_of_communities")}
@@ -399,7 +402,7 @@ function handleSearchSubmit(i: Communities, event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
   const searchParamEncoded = i.state.searchText;
   const { listingType } = i.props;
-  const context: RouterContext = i.context;
+  const context = i.context as RouterContext;
   context.router.history.push(
     `/search${getQueryString({ q: searchParamEncoded, type: "communities", listingType })}`,
   );
@@ -414,7 +417,7 @@ async function handleVisitRandomCommunity(i: Communities) {
 
   if (res.state === "success") {
     const link = communityLink(res.data.community_view.community).link;
-    const context: RouterContext = i.context;
+    const context = i.context as RouterContext;
     context.router.history.push(link);
   }
 }

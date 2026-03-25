@@ -138,7 +138,7 @@ export async function verifyHighlighjsImports(): Promise<ImportReport> {
           throw Error("unexpected format");
         }
       })
-      .catch(err => report.error.push({ id: lang, error: err })),
+      .catch(err => report.error.push({ id: lang, error: err as Error })),
   );
   await Promise.all(promises);
   return report;

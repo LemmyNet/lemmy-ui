@@ -64,7 +64,9 @@ export class PictrsImage extends Component<Props, State> {
   componentDidMount() {
     if (this.imageRef.current) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      this.lazyLoadCleanup = lazyLoad(this.imageRef.current);
+      this.lazyLoadCleanup = lazyLoad(this.imageRef.current) as
+        | undefined
+        | (() => void);
 
       if (this.props.viewer) {
         const viewerjs = new Viewer(this.imageRef.current, {

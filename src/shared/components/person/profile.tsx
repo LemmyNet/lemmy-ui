@@ -678,7 +678,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
             <div className="col-12 col-md-8">
               <HtmlTags
                 title={this.documentTitle}
-                context={this.context}
+                context={this.context as RouterContext}
                 canonicalPath={personRes.person_view.person.ap_id}
                 description={bio}
                 image={personRes.person_view.person.avatar}
@@ -1368,7 +1368,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      const context: RouterContext = this.context;
+      const context = this.context as RouterContext;
       context.router.history.push(`/`);
     }
   }

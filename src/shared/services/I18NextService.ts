@@ -114,7 +114,7 @@ export async function verifyTranslationImports(): Promise<ImportReport> {
           throw new Error("unexpected format");
         }
       })
-      .catch(err => report.error.push({ id: lang.code, error: err })),
+      .catch(err => report.error.push({ id: lang.code, error: err as Error })),
   );
   await Promise.all(promises);
   return report;
@@ -157,7 +157,9 @@ export async function verifyDateFnsImports(): Promise<ImportReport> {
           throw new Error("unexpected format");
         }
       })
-      .catch(err => report.error.push({ id: locale.code, error: err })),
+      .catch(err =>
+        report.error.push({ id: locale.code, error: err as Error }),
+      ),
   );
   await Promise.all(promises);
   return report;

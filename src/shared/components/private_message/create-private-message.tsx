@@ -164,7 +164,10 @@ export class CreatePrivateMessage extends Component<
   render() {
     return (
       <div className="create-private-message container-lg">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         {this.renderRecipientRes()}
       </div>
     );
@@ -185,7 +188,7 @@ async function handlePrivateMessageCreate(
 
     bypassNavWarning();
     // Navigate to the front
-    const context: RouterContext = i.context;
+    const context = i.context as RouterContext;
     context.router.history.push("/");
   } else if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");

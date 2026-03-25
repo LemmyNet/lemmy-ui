@@ -122,7 +122,7 @@ export default class AdultConsentModal extends Component<
 
   componentDidUpdate() {
     if (this.state.redirectCountdown === 0) {
-      const context: RouterContext = this.context;
+      const context = this.context as RouterContext;
       context.router.history.back();
     }
   }

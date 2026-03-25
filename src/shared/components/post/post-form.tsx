@@ -253,7 +253,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       const params = nextProps.params;
       for (const k in params) {
         if (this.props.params?.[k] !== params[k]) {
-          this.setState(s => ({ form: { ...s.form, [k]: params[k] } }));
+          this.setState(s => ({
+            form: { ...s.form, [k]: params[k] as unknown },
+          }));
         }
       }
     }

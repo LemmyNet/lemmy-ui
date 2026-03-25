@@ -44,6 +44,7 @@ import {
   RegistrationState,
   RegistrationStateDropdown,
 } from "@components/common/registration-state-dropdown";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type RegistrationApplicationsData = RouteDataResponse<{
   listRegistrationApplicationsResponse: PagedResponse<RegistrationApplicationView>;
@@ -159,7 +160,10 @@ export class RegistrationApplications extends Component<
     return (
       <div className="row">
         <div className="col-12">
-          <HtmlTags title={this.documentTitle} context={this.context} />
+          <HtmlTags
+            title={this.documentTitle}
+            context={this.context as RouterContext}
+          />
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("registration_applications")}
           </h1>

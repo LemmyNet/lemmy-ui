@@ -12,12 +12,6 @@ export function modalMixin<
 >(base: Base, _context?: ClassDecoratorContext<Base>) {
   return class extends base {
     modal?: Modal;
-    constructor(...args: any[]) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      super(...args);
-      this.handleHide = this.handleHide?.bind(this);
-      this.handleShow = this.handleShow?.bind(this);
-    }
 
     private addModalListener(type: string, listener?: () => void) {
       if (listener) {

@@ -39,7 +39,10 @@ export class LoginReset extends Component<
   render() {
     return (
       <div className="container-lg">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         <div className="col-12 col-lg-6 col-md-8 m-auto">
           {this.loginResetForm()}
         </div>
@@ -123,7 +126,7 @@ export class LoginReset extends Component<
 
       if (res.state === "success") {
         toast(I18NextService.i18n.t("reset_password_mail_sent"));
-        const context: RouterContext = i.context;
+        const context = i.context as RouterContext;
         context.router.history.push("/login");
       }
 

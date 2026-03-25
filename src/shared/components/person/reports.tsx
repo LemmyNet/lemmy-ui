@@ -64,6 +64,7 @@ import {
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type ReportsData = RouteDataResponse<{
   reportsRes: PagedResponse<ReportCombinedView>;
@@ -202,7 +203,10 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         )}
         <div className="row">
           <div className="col-12">
-            <HtmlTags title={this.documentTitle} context={this.context} />
+            <HtmlTags
+              title={this.documentTitle}
+              context={this.context as RouterContext}
+            />
             <h1 className="h4 mb-4">{I18NextService.i18n.t("reports")}</h1>
             {this.selects()}
             {this.section}

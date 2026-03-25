@@ -15,7 +15,7 @@ class AnonymousGuard extends Component<AnonymousGuardProps, never> {
 
   componentWillMount() {
     if (this.hasAuth() && isBrowser()) {
-      const context: RouterContext = this.context;
+      const context = this.context as RouterContext;
       context.router.history.replace(`/`);
     }
   }

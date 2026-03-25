@@ -204,7 +204,10 @@ export class MultiCommunities extends Component<RouteProps, State> {
 
     return (
       <div className="multi-communities container-lg">
-        <HtmlTags title={this.documentTitle} context={this.context} />
+        <HtmlTags
+          title={this.documentTitle}
+          context={this.context as RouterContext}
+        />
         <div>
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("multi_communities")}
@@ -365,7 +368,7 @@ function handleSearchSubmit(
   event.preventDefault();
   const searchParamEncoded = i.state.searchText;
   const { listingType } = i.props;
-  const context: RouterContext = i.context;
+  const context = i.context as RouterContext;
   context.router.history.push(
     `/search${getQueryString({ q: searchParamEncoded, type: "multi_communities", listingType })}`,
   );
