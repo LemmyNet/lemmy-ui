@@ -1,7 +1,7 @@
 import {
   communityToChoice,
   userNotLoggedInOrBanned,
-  fetchCommunities,
+  searchCommunities,
   filterCommunitySelection,
 } from "@utils/app";
 import {
@@ -34,11 +34,11 @@ import {
   MyUserInfo,
   PersonView,
   PostView,
-  SearchResponse,
   CommunityTag,
   CommunityTagId,
   UploadImageResponse,
   ModEditPost,
+  PagedResponse,
 } from "lemmy-js-client";
 import {
   archiveTodayUrl,
@@ -119,7 +119,7 @@ interface PostFormState {
     // Javascript treats this field as a string, that can't have timezone info.
     scheduled_publish_time_at?: string;
   };
-  suggestedPostsRes: RequestState<SearchResponse>;
+  suggestedPostsRes: RequestState<PagedResponse<PostView>>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
   imageLoading: boolean;
   uploadedImage?: UploadImageResponse;
@@ -681,9 +681,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       case "loading":
         return <Spinner />;
       case "success": {
-        const suggestedPosts = this.state.suggestedPostsRes.data.search.filter(
-          r => r.type_ === "post",
-        );
+        const suggestedPosts = this.state.suggestedPostsRes.data.items;
 
         return (
           suggestedPosts &&
@@ -765,15 +763,14 @@ const fetchPageTitle = debounce(async (i: PostForm) => {
 });
 
 const fetchSimilarPosts = debounce(async (i: PostForm) => {
-  const q = i.state.form.name;
-  if (q && q !== "") {
+  const search_term = i.state.form.name;
+  if (search_term && search_term !== "") {
     i.setState({ suggestedPostsRes: LOADING_REQUEST });
     i.setState({
-      suggestedPostsRes: await HttpService.client.search({
-        q,
-        type_: "posts",
+      suggestedPostsRes: await HttpService.client.getPosts({
+        search_term,
         sort: "top",
-        listing_type: "all",
+        type_: "all",
         community_id: i.state.form.community_id,
       }),
     });
@@ -873,7 +870,7 @@ const handleCommunitySearch = debounce(async (i: PostForm, text: string) => {
   if (text.length > 0) {
     newOptions.push(
       ...filterCommunitySelection(
-        await fetchCommunities(text),
+        await searchCommunities(text),
         i.props.myUserInfo,
       ).map(communityToChoice),
     );

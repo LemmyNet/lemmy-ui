@@ -1,4 +1,9 @@
-import { enableNsfw, fetchUsers, personToChoice, setIsoData } from "@utils/app";
+import {
+  enableNsfw,
+  searchUsers,
+  personToChoice,
+  setIsoData,
+} from "@utils/app";
 import {
   resourcesSettled,
   bareRoutePush,
@@ -738,7 +743,7 @@ const handleAddModSearch = debounce(
 
     if (text.length > 0) {
       newOptions.push(
-        ...(await fetchUsers(text))
+        ...(await searchUsers(text))
           // Filter out current mods
           .filter(
             pv =>

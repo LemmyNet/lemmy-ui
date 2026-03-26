@@ -3,8 +3,8 @@ import {
   commentToFlatNode,
   communityToChoice,
   enableNsfw,
-  fetchCommunities,
-  fetchUsers,
+  searchCommunities,
+  searchUsers,
   personToChoice,
   setIsoData,
   showLocal,
@@ -34,13 +34,14 @@ import {
   PostView,
   Search as SearchForm,
   SearchResponse,
-  SearchType,
   SearchSortType,
   PaginationCursor,
   MyUserInfo,
   CommentView,
   MultiCommunityView,
   CommunitySortType,
+  GetPosts,
+  GetComments,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -61,7 +62,6 @@ import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
-import { PaginatorCursor } from "./common/paginator-cursor";
 import { SearchSortDropdown } from "./common/sort-dropdown";
 import { UserBadges } from "./common/user-badges";
 import { CommunityBadges, MultiCommunityBadges } from "./common/badges";
@@ -69,7 +69,7 @@ import { CommunityLink } from "./community/community-link";
 import { MultiCommunityLink } from "./multi-community/multi-community-link";
 import { Action } from "history";
 import { ListingTypeDropdown } from "./common/listing-type-dropdown";
-import { SearchTypeDropdown } from "./common/search-type-dropdown";
+import { SearchType, SearchTypeDropdown } from "./common/search-type-dropdown";
 import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
 import { NoOptionI18nKeys } from "i18next";
 import { FilterChipSelect } from "./common/filter-chip-select";
@@ -588,17 +588,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   static fetchInitialData = async ({
     headers,
-    query: {
-      q: query,
-      type: searchType,
-      sort,
-      listingType: listing_type,
-      titleOnly: title_only,
-      postUrlOnly: post_url_only,
-      communityId: community_id,
-      creatorId: creator_id,
-      cursor,
-    },
+    query,
   }: InitialFetchRequest<
     SearchPathProps,
     SearchProps
@@ -607,9 +597,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
-    if (community_id) {
+    if (query.communityId) {
       const getCommunityForm: GetCommunity = {
-        id: community_id,
+        id: query.communityId,
       };
 
       communityResponse = await client.getCommunity(getCommunityForm);
@@ -623,32 +613,15 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     let creatorDetailsResponse: RequestState<GetPersonDetailsResponse> =
       EMPTY_REQUEST;
-    if (creator_id) {
+    if (query.creatorId) {
       const getCreatorForm: GetPersonDetails = {
-        person_id: creator_id,
+        person_id: query.creatorId,
       };
 
       creatorDetailsResponse = await client.getPersonDetails(getCreatorForm);
     }
 
-    let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
-
-    if (query) {
-      const form: SearchForm = {
-        q: query,
-        community_id,
-        creator_id,
-        type_: searchType,
-        sort,
-        listing_type,
-        title_only,
-        post_url_only,
-        limit: fetchLimit,
-        page_cursor: cursor,
-      };
-
-      searchResponse = await client.search(form);
-    }
+    const searchResponse = await doSearch(query);
 
     return {
       communityResponse,
@@ -658,10 +631,12 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     };
   };
 
+  /*
   get getNextPage(): PaginationCursor | undefined {
     const { searchRes: res } = this.state;
     return res.state === "success" ? res.data.next_page : undefined;
   }
+  */
 
   get documentTitle(): string {
     const { q } = this.props;
@@ -687,18 +662,24 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           this.state.searchRes.state === "success" && (
             <span>{I18NextService.i18n.t("no_results")}</span>
           )}
+        {/*
         <PaginatorCursor
           current={this.props.cursor}
           resource={this.state.searchRes}
           onPageChange={cursor => handlePageChange(this, cursor)}
         />
+        */}
       </div>
     );
   }
 
   displayResolve(): InfernoNode | void {
     const { searchRes: searchResponse } = this.state;
-    if (searchResponse.state === "success" && searchResponse.data.resolve) {
+    if (
+      searchResponse.state === "success" &&
+      "resolve" in searchResponse.data &&
+      searchResponse.data.resolve
+    ) {
       const resolve = searchResponse.data.resolve;
       switch (resolve.type_) {
         case "post":
@@ -795,116 +776,102 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               onSelect={val => handleTypeChange(this, val)}
             />
           </div>
+          {type !== "all" && (
+            <div className="col">
+              <ListingTypeDropdown
+                currentOption={listingType}
+                showLocal={showLocal(this.isoData)}
+                showSubscribed
+                showSuggested={
+                  !!this.isoData.siteRes.site_view.local_site
+                    .suggested_multi_community_id
+                }
+                onSelect={type => handleListingTypeChange(this, type)}
+                myUserInfo={this.isoData.myUserInfo}
+                showLabel
+              />
+            </div>
+          )}
           <div className="col">
-            <ListingTypeDropdown
-              currentOption={listingType}
-              showLocal={showLocal(this.isoData)}
-              showSubscribed
-              showSuggested={
-                !!this.isoData.siteRes.site_view.local_site
-                  .suggested_multi_community_id
-              }
-              onSelect={type => handleListingTypeChange(this, type)}
-              myUserInfo={this.isoData.myUserInfo}
-              showLabel
+            {/*TODO: should be called "title_only", not post_title_only*/}
+            <FilterChipCheckbox
+              option={"post_title_only"}
+              isChecked={titleOnly}
+              onCheck={val => handleTitleOnlyChange(this, val)}
             />
           </div>
-          {(type === "all" || type === "posts") && (
+          {type === "posts" && (
+            <div className="col">
+              <FilterChipCheckbox
+                option={"post_url_only"}
+                isChecked={postUrlOnly}
+                onCheck={val => handlePostUrlOnlyChange(this, val)}
+              />
+            </div>
+          )}
+          {type !== "all" && (
             <>
               <div className="col">
-                <FilterChipCheckbox
-                  option={"post_title_only"}
-                  isChecked={titleOnly}
-                  onCheck={val => handleTitleOnlyChange(this, val)}
+                <SearchSortDropdown
+                  currentOption={sort}
+                  onSelect={val => handleSortChange(this, val)}
+                  showLabel
                 />
               </div>
               <div className="col">
-                <FilterChipCheckbox
-                  option={"post_url_only"}
-                  isChecked={postUrlOnly}
-                  onCheck={val => handlePostUrlOnlyChange(this, val)}
+                <Filter
+                  title="all_communities"
+                  onChange={choices =>
+                    handleCommunityFilterChange(this, choices)
+                  }
+                  onSearch={text => handleCommunitySearch(this, text)}
+                  options={communitySearchOptions}
+                  value={communityId}
+                />
+              </div>
+              <div className="col">
+                <Filter
+                  title="all_creators"
+                  onChange={choices => handleCreatorFilterChange(this, choices)}
+                  onSearch={text => handleCreatorSearch(this, text)}
+                  options={creatorSearchOptions}
+                  value={creatorId}
                 />
               </div>
             </>
           )}
-          <div className="col">
-            <SearchSortDropdown
-              currentOption={sort}
-              onSelect={val => handleSortChange(this, val)}
-              showLabel
-            />
-          </div>
-          <div className="col">
-            <Filter
-              title="all_communities"
-              onChange={choices => handleCommunityFilterChange(this, choices)}
-              onSearch={text => handleCommunitySearch(this, text)}
-              options={communitySearchOptions}
-              value={communityId}
-            />
-          </div>
-          <div className="col">
-            <Filter
-              title="all_creators"
-              onChange={choices => handleCreatorFilterChange(this, choices)}
-              onSearch={text => handleCreatorSearch(this, text)}
-              options={creatorSearchOptions}
-              value={creatorId}
-            />
-          </div>
         </div>
       </>
     );
   }
 
-  get all() {
+  get all(): InfernoNode | undefined {
     const { searchRes: searchResponse } = this.state;
-    const comments_array: CommentView[] = [];
-    const posts_array: PostView[] = [];
-    const communities_array: CommunityView[] = [];
-    const persons_array: PersonView[] = [];
-    const multi_communities_array: MultiCommunityView[] = [];
-    if (searchResponse.state === "success") {
-      searchResponse.data.search.forEach(sr => {
-        switch (sr.type_) {
-          case "post":
-            posts_array.push(sr);
-            break;
-          case "comment":
-            comments_array.push(sr);
-            break;
-          case "community":
-            communities_array.push(sr);
-            break;
-          case "person":
-            persons_array.push(sr);
-            break;
-          case "multi_community":
-            multi_communities_array.push(sr);
-            break;
-        }
-      });
-    }
 
-    return (
+    return searchResponse.state === "success" ? (
       <>
-        {communityListing(communities_array, this.isoData.myUserInfo)}
-        {multiCommunityListing(
-          multi_communities_array,
+        {communityListing(
+          searchResponse.data.communities,
           this.isoData.myUserInfo,
         )}
-        {personListing(persons_array, this.isoData.myUserInfo)}
-        {postListing(posts_array, this.isoData)}
-        {commentListing(comments_array, this.isoData)}
+        {multiCommunityListing(
+          searchResponse.data.multi_communities,
+          this.isoData.myUserInfo,
+        )}
+        {personListing(searchResponse.data.persons, this.isoData.myUserInfo)}
+        {postListing(searchResponse.data.posts, this.isoData)}
+        {commentListing(searchResponse.data.comments, this.isoData)}
       </>
+    ) : (
+      <></>
     );
   }
 
   get comments() {
     const { searchRes: searchResponse, siteRes } = this.state;
     const comments =
-      searchResponse.state === "success"
-        ? searchResponse.data.search.filter(s => s.type_ === "comment")
+      searchResponse.state === "success" && "comments" in searchResponse.data
+        ? searchResponse.data.comments
         : [];
 
     return (
@@ -957,8 +924,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get posts() {
     const { searchRes: searchResponse, siteRes } = this.state;
     const posts =
-      searchResponse.state === "success"
-        ? searchResponse.data.search.filter(s => s.type_ === "post")
+      searchResponse.state === "success" && "posts" in searchResponse.data
+        ? searchResponse.data.posts
         : [];
 
     return (
@@ -1023,8 +990,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get communities() {
     const { searchRes: searchResponse } = this.state;
     const communities =
-      searchResponse.state === "success"
-        ? searchResponse.data.search.filter(s => s.type_ === "community")
+      searchResponse.state === "success" && "communities" in searchResponse.data
+        ? searchResponse.data.communities
         : [];
 
     return (
@@ -1039,8 +1006,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get multiCommunities() {
     const { searchRes: searchResponse } = this.state;
     const multiCommunities =
-      searchResponse.state === "success"
-        ? searchResponse.data.search.filter(s => s.type_ === "multi_community")
+      searchResponse.state === "success" &&
+      "multi_communities" in searchResponse.data
+        ? searchResponse.data.multi_communities
         : [];
 
     return (
@@ -1055,8 +1023,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get users() {
     const { searchRes: searchResponse } = this.state;
     const users =
-      searchResponse.state === "success"
-        ? searchResponse.data.search.filter(s => s.type_ === "person")
+      searchResponse.state === "success" && "persons" in searchResponse.data
+        ? searchResponse.data.persons
         : [];
 
     return (
@@ -1073,7 +1041,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     if (r.state === "success") {
       const resolveCount = r.data.resolve !== undefined ? 1 : 0;
-      return r.data.search.length + resolveCount;
+      return (
+        r.data.comments.length +
+        r.data.posts.length +
+        r.data.communities.length +
+        r.data.multi_communities.length +
+        r.data.persons.length +
+        resolveCount
+      );
     } else {
       return 0;
     }
@@ -1081,40 +1056,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   searchToken?: symbol;
   async search(props: SearchRouteProps) {
-    const token = (this.searchToken = Symbol());
-    const {
-      q,
-      communityId,
-      creatorId,
-      type,
-      sort,
-      listingType,
-      titleOnly,
-      postUrlOnly,
-      cursor,
-    } = props;
-
-    if (q) {
-      this.setState({ searchRes: LOADING_REQUEST });
-      const searchRes = await HttpService.client.search({
-        q,
-        community_id: communityId ?? undefined,
-        creator_id: creatorId ?? undefined,
-        type_: type,
-        sort,
-        listing_type: listingType,
-        title_only: titleOnly,
-        post_url_only: postUrlOnly,
-        limit: fetchLimit,
-        page_cursor: cursor,
-      });
-      if (token !== this.searchToken) {
-        return;
-      }
-      this.setState({ searchRes });
-    } else {
-      this.setState({ searchRes: EMPTY_REQUEST });
-    }
+    this.setState({ searchRes: LOADING_REQUEST });
+    const searchRes = await doSearch(props);
+    this.setState({ searchRes });
   }
 
   getQ(): string | undefined {
@@ -1162,7 +1106,7 @@ const handleCreatorSearch = debounce(async (i: Search, text: string) => {
 
     const newOptions = creatorSearchOptions
       .filter(choice => getIdFromString(choice.value) === creatorId)
-      .concat((await fetchUsers(text)).map(personToChoice));
+      .concat((await searchUsers(text)).map(personToChoice));
 
     i.setState({
       searchCreatorLoading: false,
@@ -1182,7 +1126,7 @@ const handleCommunitySearch = debounce(async (i: Search, text: string) => {
 
     const newOptions = communitySearchOptions
       .filter(choice => getIdFromString(choice.value) === communityId)
-      .concat((await fetchCommunities(text)).map(communityToChoice));
+      .concat((await searchCommunities(text)).map(communityToChoice));
 
     i.setState({
       searchCommunitiesLoading: false,
@@ -1213,9 +1157,11 @@ function handleTypeChange(i: Search, type: SearchType) {
   });
 }
 
+/*
 function handlePageChange(i: Search, cursor?: PaginationCursor) {
   i.updateUrl({ cursor });
 }
+*/
 
 function handleListingTypeChange(i: Search, listingType: ListingType) {
   i.updateUrl({
@@ -1248,4 +1194,97 @@ function handleSearchSubmit(i: Search, event: FormEvent<HTMLFormElement>) {
     q: i.getQ(),
     cursor: undefined,
   });
+}
+
+async function doSearch(
+  props: SearchProps,
+): Promise<RequestState<SearchResponse>> {
+  let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
+  const {
+    q,
+    communityId: community_id,
+    creatorId,
+    type,
+    sort,
+    listingType,
+    titleOnly: search_title_only,
+    postUrlOnly: search_url_only,
+    cursor,
+  } = props;
+  if (!q) {
+    return searchResponse;
+  }
+
+  const searchResponseInner: SearchResponse = {
+    comments: [],
+    posts: [],
+    communities: [],
+    persons: [],
+    multi_communities: [],
+  };
+  switch (type) {
+    case "all": {
+      const form: SearchForm = {
+        search_term: q,
+        // TODO: not available
+        //community_id,
+        //creator_id,
+        //sort,
+        //listing_type,
+        search_title_only,
+        //post_url_only,
+        //limit: fetchLimit,
+        //page_cursor: cursor,
+      };
+
+      searchResponse = await HttpService.client.search(form);
+      break;
+    }
+    case "posts": {
+      const form: GetPosts = {
+        search_term: q,
+        community_id,
+        // TODO: missing creator_id
+        //creator_id,
+        sort,
+        type_: listingType,
+        search_title_only,
+        search_url_only,
+        limit: fetchLimit,
+        page_cursor: cursor,
+      };
+      const posts = await HttpService.client.getPosts(form);
+      if (posts.state === "success") {
+        searchResponseInner.posts = posts.data.items;
+        searchResponse = { state: posts.state, data: searchResponseInner };
+      } else {
+        // TODO: not working
+        //searchResponse = { state: posts.state };
+      }
+      break;
+    }
+    case "comments": {
+      const form: GetComments = {
+        search_term: q,
+        community_id,
+        // TODO: missing creator_id
+        //creator_id,
+        sort,
+        type_: listingType,
+        limit: fetchLimit,
+        page_cursor: cursor,
+      };
+      const comments = await HttpService.client.getComments(form);
+      if (comments.state === "success") {
+        searchResponseInner.comments = comments.data.items;
+        searchResponse = { state: comments.state, data: searchResponseInner };
+      } else {
+        // TODO: not working
+        //searchResponse = { state: comments.state };
+      }
+      break;
+    }
+    // TODO: communities, users, multi-communities
+  }
+  return searchResponse;
 }
