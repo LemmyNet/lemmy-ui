@@ -138,7 +138,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 >
                   <Icon icon="bell" />
                   {this.state.unreadNotifsCount > 0 && (
-                    <span className="mx-1 badge text-bg-light">
+                    <span className="mx-1 badge rounded-pill text-bg-danger">
                       {numToSI(this.state.unreadNotifsCount)}
                     </span>
                   )}
@@ -157,7 +157,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   >
                     <Icon icon="shield" />
                     {this.state.unreadReportCount > 0 && (
-                      <span className="mx-1 badge text-bg-light">
+                      <span className="mx-1 badge rounded-pill text-bg-danger">
                         {numToSI(this.state.unreadReportCount)}
                       </span>
                     )}
@@ -183,7 +183,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   >
                     <Icon icon="clipboard" />
                     {this.state.unreadApplicationCount > 0 && (
-                      <span className="mx-1 badge text-bg-light">
+                      <span className="mx-1 badge rounded-pill text-bg-danger">
                         {numToSI(this.state.unreadApplicationCount)}
                       </span>
                     )}
@@ -271,14 +271,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                       onMouseUp={() => handleCollapseClick(this)}
                     >
                       <Icon icon="bell" />
-                      <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
+                      <span className="badge rounded-pill text-bg-danger d-inline ms-1 d-md-none ms-md-0">
                         {I18NextService.i18n.t("unread_messages", {
                           count: Number(this.state.unreadNotifsCount),
                           formattedCount: numToSI(this.state.unreadNotifsCount),
                         })}
                       </span>
                       {this.state.unreadNotifsCount > 0 && (
-                        <span className="mx-1 badge text-bg-light">
+                        <span className="mx-1 badge rounded-pill text-bg-danger">
                           {numToSI(this.state.unreadNotifsCount)}
                         </span>
                       )}
@@ -296,7 +296,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         onMouseUp={() => handleCollapseClick(this)}
                       >
                         <Icon icon="shield" />
-                        <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
+                        <span className="badge rounded-pill text-bg-danger d-inline ms-1 d-md-none ms-md-0">
                           {I18NextService.i18n.t("unread_reports", {
                             count: Number(this.state.unreadReportCount),
                             formattedCount: numToSI(
@@ -305,7 +305,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           })}
                         </span>
                         {this.state.unreadReportCount > 0 && (
-                          <span className="mx-1 badge text-bg-light">
+                          <span className="mx-1 badge rounded-pill text-bg-danger">
                             {numToSI(this.state.unreadReportCount)}
                           </span>
                         )}
@@ -329,7 +329,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         onMouseUp={() => handleCollapseClick(this)}
                       >
                         <Icon icon="clipboard" />
-                        <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
+                        <span className="badge rounded-pill text-bg-danger d-inline ms-1 d-md-none ms-md-0">
                           {I18NextService.i18n.t(
                             "unread_registration_applications",
                             {
@@ -341,7 +341,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           )}
                         </span>
                         {this.state.unreadApplicationCount > 0 && (
-                          <span className="mx-1 badge text-bg-light">
+                          <span className="mx-1 badge rounded-pill text-bg-danger">
                             {numToSI(this.state.unreadApplicationCount)}
                           </span>
                         )}
@@ -365,7 +365,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         onMouseUp={() => handleCollapseClick(this)}
                       >
                         <Icon icon="lock" />
-                        <span className="badge text-bg-light d-inline ms-1 d-md-none ms-md-0">
+                        <span className="badge rounded-pill text-bg-danger d-inline ms-1 d-md-none ms-md-0">
                           {I18NextService.i18n.t(
                             "pending_private_community_follows",
                             {
@@ -379,7 +379,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           )}
                         </span>
                         {this.state.unreadPendingFollowsCount > 0 && (
-                          <span className="mx-1 badge text-bg-light">
+                          <span className="mx-1 badge rounded-pill text-bg-danger">
                             {numToSI(this.state.unreadPendingFollowsCount)}
                           </span>
                         )}
