@@ -140,6 +140,7 @@ interface HomeState {
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
   postListingMode: PostListingMode;
+  selectButtonsHidden: boolean;
 }
 
 interface HomeProps {
@@ -289,6 +290,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     isIsomorphic: false,
     markPageAsReadLoading: false,
     postListingMode: defaultPostListingMode(this.isoData),
+    selectButtonsHidden: true,
   };
 
   loadingSettled(): boolean {
@@ -869,108 +871,126 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       showRead,
     } = this.props;
 
-    const { showSubscribedMobile, showSidebarMobile } = this.state;
+    const { showSubscribedMobile, showSidebarMobile, selectButtonsHidden } =
+      this.state;
+    const myUserInfo = this.isoData.myUserInfo;
 
     return (
-      <div className="row row-cols-auto align-items-center g-3 mb-3">
-        {/* Only show these two selects on mobile */}
-        {this.hasFollows && (
+      <div className=" mb-3">
+        <div className="row row-cols-auto align-items-center g-3">
+          {/* Only show these two selects on mobile */}
+          {this.hasFollows && (
+            <div className="d-block d-md-none col">
+              <ExpandChipCheckbox
+                option="show_subscribed"
+                isChecked={showSubscribedMobile}
+                onCheck={show => handleShowSubscribedMobile(this, show)}
+              />
+            </div>
+          )}
           <div className="d-block d-md-none col">
             <ExpandChipCheckbox
-              option="show_subscribed"
-              isChecked={showSubscribedMobile}
-              onCheck={show => handleShowSubscribedMobile(this, show)}
+              option="show_sidebar"
+              isChecked={showSidebarMobile}
+              onCheck={show => handleShowSidebarMobile(this, show)}
             />
           </div>
-        )}
-        <div className="d-block d-md-none col">
-          <ExpandChipCheckbox
-            option="show_sidebar"
-            isChecked={showSidebarMobile}
-            onCheck={show => handleShowSidebarMobile(this, show)}
-          />
-        </div>
-        <div className="col">
-          <PostOrCommentTypeDropdown
-            currentOption={postOrCommentType}
-            onSelect={val => handlePostOrCommentTypeChange(this, val)}
-          />
-        </div>
-        {postOrCommentType === "post" && this.isoData.myUserInfo && (
-          <>
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_hidden_posts"}
-                isChecked={showHidden ?? false}
-                onCheck={hidden => handleShowHiddenChange(this, hidden)}
-              />
-            </div>
-            <div className="col">
-              <FilterChipCheckbox
-                option={"hide_read_posts"}
-                isChecked={!(showRead ?? false)}
-                onCheck={hideRead => handleHideReadChange(this, hideRead)}
-              />
-            </div>
-          </>
-        )}
-        {/** TODO add show read posts also **/}
-        <div className="col">
-          <ListingTypeDropdown
-            currentOption={
-              listingType ??
-              this.state.siteRes.site_view.local_site.default_post_listing_type
-            }
-            showLocal={showLocal(this.isoData)}
-            showSubscribed
-            showSuggested={
-              !!this.isoData.siteRes.site_view.local_site
-                .suggested_multi_community_id
-            }
-            showLabel
-            myUserInfo={this.isoData.myUserInfo}
-            onSelect={val => handleListingTypeChange(this, val)}
-          />
-        </div>
-        <div className="col">
-          <PostListingModeDropdown
-            currentOption={this.state.postListingMode}
-            onSelect={val => handlePostListingModeChange(this, val)}
-            showLabel
-          />
-        </div>
-        {this.props.postOrCommentType === "post" ? (
-          <>
-            <div className="col">
-              <PostSortDropdown
-                currentOption={mixedToPostSortType(sort)}
-                onSelect={val => handleSortChange(this, val)}
-                showLabel
-              />
-            </div>
-            <div className="col">
-              <TimeIntervalFilter
-                currentSeconds={postTimeRange}
-                onChange={seconds => handlePostTimeRangeChange(this, seconds)}
-              />
-            </div>
-          </>
-        ) : (
           <div className="col">
-            <CommentSortDropdown
-              currentOption={mixedToCommentSortType(sort)}
-              onSelect={val => handleCommentSortChange(this, val)}
+            <PostOrCommentTypeDropdown
+              currentOption={postOrCommentType}
+              onSelect={val => handlePostOrCommentTypeChange(this, val)}
+            />
+          </div>
+          {/** TODO add show read posts also **/}
+          <div className="col">
+            <ListingTypeDropdown
+              currentOption={
+                listingType ??
+                this.state.siteRes.site_view.local_site
+                  .default_post_listing_type
+              }
+              showLocal={showLocal(this.isoData)}
+              showSubscribed
+              showSuggested={
+                !!this.isoData.siteRes.site_view.local_site
+                  .suggested_multi_community_id
+              }
+              showLabel
+              myUserInfo={this.isoData.myUserInfo}
+              onSelect={val => handleListingTypeChange(this, val)}
+            />
+          </div>
+          <div className="col">
+            <PostListingModeDropdown
+              currentOption={this.state.postListingMode}
+              onSelect={val => handlePostListingModeChange(this, val)}
               showLabel
             />
           </div>
-        )}
-        <div className="col">
-          {getRss(
-            listingType ??
-              this.state.siteRes.site_view.local_site.default_post_listing_type,
-            sort,
+          {this.props.postOrCommentType === "post" ? (
+            <>
+              <div className="col">
+                <PostSortDropdown
+                  currentOption={mixedToPostSortType(sort)}
+                  onSelect={val => handleSortChange(this, val)}
+                  showLabel
+                />
+              </div>
+              <div className="col">
+                <TimeIntervalFilter
+                  currentSeconds={postTimeRange}
+                  onChange={seconds => handlePostTimeRangeChange(this, seconds)}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="col">
+              <CommentSortDropdown
+                currentOption={mixedToCommentSortType(sort)}
+                onSelect={val => handleCommentSortChange(this, val)}
+                showLabel
+              />
+            </div>
+          )}
+          <div className="col">
+            {getRss(
+              listingType ??
+                this.state.siteRes.site_view.local_site
+                  .default_post_listing_type,
+              sort,
+            )}
+          </div>
+          {myUserInfo && (
+            <button
+              className="btn btn-sm btn-ghost text-muted"
+              onclick={_ => handleHideSelectButtons(this)}
+            >
+              <Icon
+                icon={selectButtonsHidden ? "chevrons-down" : "chevrons-up"}
+              />
+            </button>
           )}
         </div>
+        {postOrCommentType === "post" &&
+          this.isoData.myUserInfo &&
+          !this.state.selectButtonsHidden && (
+            <div className="row row-cols-auto mt-2">
+              <div className="col">
+                <FilterChipCheckbox
+                  option={"show_hidden_posts"}
+                  isChecked={showHidden ?? false}
+                  onCheck={hidden => handleShowHiddenChange(this, hidden)}
+                />
+              </div>
+              <div className="col">
+                <FilterChipCheckbox
+                  option={"hide_read_posts"}
+                  isChecked={!(showRead ?? false)}
+                  onCheck={hideRead => handleHideReadChange(this, hideRead)}
+                />
+              </div>
+            </div>
+          )}
       </div>
     );
   }
@@ -1493,4 +1513,8 @@ async function handleHideDonationDialog(myUserInfo?: MyUserInfo) {
         new Date(0).toString();
     }
   }
+}
+
+function handleHideSelectButtons(i: Home) {
+  i.setState({ selectButtonsHidden: !i.state.selectButtonsHidden });
 }
