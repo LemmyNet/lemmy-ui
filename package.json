@@ -144,7 +144,7 @@
     "rimraf": "^6.0.1",
     "style-loader": "^4.0.0",
     "terser": "^5.31.6",
-    "typescript": "^5.5.4",
+    "typescript": "^6.0.0",
     "typescript-eslint": "^8.3.0",
     "typescript-language-server": "^5.0.0",
     "unlazy": "^1.0.0",
