@@ -160,7 +160,7 @@ importers:
         version: 4.2.2
       mini-css-extract-plugin:
         specifier: ^2.9.1
-        version: 2.10.1(webpack@5.105.4)
+        version: 2.10.2(webpack@5.105.4)
       qreator:
         specifier: ^9.3.0
         version: 9.7.2
@@ -3585,8 +3585,8 @@ packages:
   mimoza@1.0.0:
     resolution: {integrity: sha512-+j7SSye/hablu66K/jjeyPmk6WL8RoXfeZ+MMn37vSNDGuaWY/5wm10LpSpxAHX4kNoEwkTWYHba8ePVip+Hqg==}
 
-  mini-css-extract-plugin@2.10.1:
-    resolution: {integrity: sha512-k7G3Y5QOegl380tXmZ68foBRRjE9Ljavx835ObdvmZjQ639izvZD8CS7BkWw1qKPPzHsGL/JDhl0uyU1zc2rJw==}
+  mini-css-extract-plugin@2.10.2:
+    resolution: {integrity: sha512-AOSS0IdEB95ayVkxn5oGzNQwqAi2J0Jb/kKm43t7H73s8+f5873g0yuj0PNvK4dO75mu5DHg4nlgp4k6Kga8eg==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
@@ -4604,6 +4604,10 @@ packages:
 
   tapable@2.3.0:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
+    engines: {node: '>=6'}
+
+  tapable@2.3.2:
+    resolution: {integrity: sha512-1MOpMXuhGzGL5TTCZFItxCc0AARf1EZFQkGqMm7ERKj8+Hgr5oLvJOVFcC+lRmR8hCe2S3jC4T5D7Vg/d7/fhA==}
     engines: {node: '>=6'}
 
   temp-dir@2.0.0:
@@ -8954,10 +8958,10 @@ snapshots:
     dependencies:
       mime-db: 1.53.0
 
-  mini-css-extract-plugin@2.10.1(webpack@5.105.4):
+  mini-css-extract-plugin@2.10.2(webpack@5.105.4):
     dependencies:
       schema-utils: 4.3.3
-      tapable: 2.3.0
+      tapable: 2.3.2
       webpack: 5.105.4(webpack-cli@7.0.2)
 
   minimalistic-assert@1.0.1: {}
@@ -9972,6 +9976,8 @@ snapshots:
       '@pkgr/core': 0.2.9
 
   tapable@2.3.0: {}
+
+  tapable@2.3.2: {}
 
   temp-dir@2.0.0: {}
 
