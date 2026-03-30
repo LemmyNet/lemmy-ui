@@ -129,7 +129,6 @@ import {
   intervalToQuery,
   intervalToSeconds,
   secondsToLargestInterval,
-  TIME_RANGE_PRESETS,
   TimeIntervalFilter,
 } from "@components/common/time-interval-filter";
 
@@ -877,7 +876,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     const { showSubscribedMobile, showSidebarMobile } = this.state;
 
-    const hidePostTimeRange = sort === "new" || sort === "old";
     return (
       <div className="mb-3">
         <div className="row row-cols-auto align-items-center g-3 ">
@@ -963,14 +961,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           >
             <Icon icon="chevrons-down" />
           </button>
-          {!hidePostTimeRange && (
-            <label for="post-time-range" className="form-label col ms-auto">
-              {I18NextService.i18n.t(`n_${postTimeRange.unit}`, {
-                count: postTimeRange.num,
-                formattedCount: postTimeRange.num,
-              })}
-            </label>
-          )}
         </div>
         {postOrCommentType === "post" &&
           this.isoData.myUserInfo &&
@@ -998,27 +988,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               </div>
             </div>
           )}
-        {!hidePostTimeRange && (
-          <input
-            id="post-time-range"
-            type="range"
-            className="form-range mt-0"
-            min="0"
-            max={TIME_RANGE_PRESETS.length - 1}
-            value={
-              TIME_RANGE_PRESETS.findIndex(
-                x =>
-                  x.num === postTimeRange.num && x.unit === postTimeRange.unit,
-              ) ?? 0
-            }
-            onInput={e =>
-              handlePostTimeRangeChange(
-                this,
-                TIME_RANGE_PRESETS[Number(e.currentTarget.value)],
-              )
-            }
-          />
-        )}
       </div>
     );
   }
