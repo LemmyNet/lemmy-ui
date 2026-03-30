@@ -958,9 +958,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           </div>
           <button
             className="col btn btn-ghost"
-            onclick={_ => handleHideSelectButtons(this)}
+            onClick={_ => handleHideSelectButtons(this)}
           >
-            <Icon icon="chevrons-down" />
+            {this.state.selectButtonsHidden ? (
+              <Icon icon="chevrons-down" />
+            ) : (
+              <Icon icon="chevrons-up" />
+            )}
           </button>
         </div>
         {postOrCommentType === "post" &&

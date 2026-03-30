@@ -114,6 +114,7 @@ type State = {
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
   postListingMode: PostListingMode;
+  selectButtonsHidden: boolean;
 };
 
 interface Props {
@@ -186,6 +187,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     isIsomorphic: false,
     markPageAsReadLoading: false,
     postListingMode: defaultPostListingMode(this.isoData),
+    selectButtonsHidden: true,
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -564,6 +566,16 @@ export class MultiCommunity extends Component<RouteProps, State> {
             />
           </div>
         )}
+        <button
+          className="col btn btn-ghost"
+          onClick={_ => handleHideSelectButtons(this)}
+        >
+          {this.state.selectButtonsHidden ? (
+            <Icon icon="chevrons-down" />
+          ) : (
+            <Icon icon="chevrons-up" />
+          )}
+        </button>
       </div>
     );
   }
@@ -949,4 +961,8 @@ async function handleMarkPageAsRead(
       i.setState({ markPageAsReadLoading: false });
     }
   }
+}
+
+function handleHideSelectButtons(i: MultiCommunity) {
+  i.setState({ selectButtonsHidden: !i.state.selectButtonsHidden });
 }
