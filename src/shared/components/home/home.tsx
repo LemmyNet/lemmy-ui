@@ -948,6 +948,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onSelect={val => handlePostOrCommentTypeChange(this, val)}
             />
           </div>
+          {!hidePostTimeRange && (
+            <div className="col">
+              <TimeIntervalFilter
+                interval={postTimeRange}
+                onChange={val => handlePostTimeRangeChange(this, val)}
+              />
+            </div>
+          )}
           <div className="col">
             {getRss(
               listingType ??
@@ -985,14 +993,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                   onCheck={hideRead => handleHideReadChange(this, hideRead)}
                 />
               </div>
-              {!hidePostTimeRange && (
-                <div className="col mt-0">
-                  <TimeIntervalFilter
-                    interval={postTimeRange}
-                    onChange={val => handlePostTimeRangeChange(this, val)}
-                  />
-                </div>
-              )}
             </div>
           )}
       </div>
