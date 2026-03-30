@@ -106,7 +106,7 @@ export class MultiCommunitySidebar extends Component<Props, never> {
         <li className="list-inline-item">
           {I18NextService.i18n.t("creator")}:{" "}
         </li>
-        <li key={creator.id} className="list-inline-item">
+        <li className="list-inline-item">
           <PersonListing
             person={creator}
             banned={false}

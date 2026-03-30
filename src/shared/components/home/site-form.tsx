@@ -27,7 +27,13 @@ import {
   CommentSortDropdown,
   PostSortDropdown,
 } from "@components/common/sort-dropdown";
-import { TimeIntervalFilter } from "@components/common/time-interval-filter";
+import {
+  ALL_TIME_INTERVAL,
+  Interval,
+  intervalToSeconds,
+  secondsToLargestInterval,
+  TimeIntervalFilter,
+} from "@components/common/time-interval-filter";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
 import { RegistrationModeDropdown } from "@components/common/registration-mode-dropdown";
@@ -514,10 +520,12 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </label>
           <div className="col-sm-9">
             <TimeIntervalFilter
-              currentSeconds={
-                this.state.siteForm.default_post_time_range_seconds
+              interval={
+                secondsToLargestInterval(
+                  this.state.siteForm.default_post_time_range_seconds,
+                ) ?? ALL_TIME_INTERVAL
               }
-              onChange={seconds => handlePostTimeRangeChange(this, seconds)}
+              onChange={interval => handlePostTimeRangeChange(this, interval)}
             />
           </div>
         </div>
@@ -945,8 +953,13 @@ function handlePostListingModeChange(i: SiteForm, val: PostListingMode) {
   i.setState(s => ((s.siteForm.default_post_listing_mode = val), s));
 }
 
-function handlePostTimeRangeChange(i: SiteForm, val: number) {
-  i.setState(s => ((s.siteForm.default_post_time_range_seconds = val), s));
+function handlePostTimeRangeChange(i: SiteForm, val: Interval) {
+  i.setState(
+    s => (
+      (s.siteForm.default_post_time_range_seconds = intervalToSeconds(val)),
+      s
+    ),
+  );
 }
 
 function handleBlockedUrlsUpdate(i: SiteForm, newBlockedUrls: string[]) {
