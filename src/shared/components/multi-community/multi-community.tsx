@@ -517,6 +517,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     const multiCommunityRss = res
       ? multiCommunityRSSUrl(res.multi_community_view.multi, sort)
       : undefined;
+    const hidePostTimeRange = sort === "new" || sort === "old";
 
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-3">
@@ -543,12 +544,14 @@ export class MultiCommunity extends Component<RouteProps, State> {
             showLabel
           />
         </div>
-        <div className="col">
-          <TimeIntervalFilter
-            interval={postTimeRange}
-            onChange={interval => handlePostTimeRangeChange(this, interval)}
-          />
-        </div>
+        {!hidePostTimeRange && (
+          <div className="col">
+            <TimeIntervalFilter
+              interval={postTimeRange}
+              onChange={interval => handlePostTimeRangeChange(this, interval)}
+            />
+          </div>
+        )}
         {multiCommunityRss && (
           <div className="col">
             <a href={multiCommunityRss} title="RSS" rel={relTags}>

@@ -876,6 +876,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
     const { showSubscribedMobile, showSidebarMobile } = this.state;
 
+    const hidePostTimeRange = sort === "new" || sort === "old";
     return (
       <div className="mb-3">
         <div className="row row-cols-auto align-items-center g-3 ">
@@ -980,12 +981,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                   onCheck={hideRead => handleHideReadChange(this, hideRead)}
                 />
               </div>
-              <div className="col mt-0">
-                <TimeIntervalFilter
-                  interval={postTimeRange}
-                  onChange={val => handlePostTimeRangeChange(this, val)}
-                />
-              </div>
+              {!hidePostTimeRange && (
+                <div className="col mt-0">
+                  <TimeIntervalFilter
+                    interval={postTimeRange}
+                    onChange={val => handlePostTimeRangeChange(this, val)}
+                  />
+                </div>
+              )}
             </div>
           )}
       </div>

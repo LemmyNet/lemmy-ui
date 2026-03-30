@@ -766,6 +766,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     const showSidebarMobile = this.state.showSidebarMobile;
 
     const myUserInfo = this.isoData.myUserInfo;
+    const hidePostTimeRange = sort === "new" || sort === "old";
 
     return (
       <>
@@ -801,12 +802,14 @@ export class Community extends Component<CommunityRouteProps, State> {
                   showLabel
                 />
               </div>
-              <div className="col">
-                <TimeIntervalFilter
-                  interval={postTimeRange}
-                  onChange={val => handlePostTimeRangeChange(this, val)}
-                />
-              </div>
+              {!hidePostTimeRange && (
+                <div className="col">
+                  <TimeIntervalFilter
+                    interval={postTimeRange}
+                    onChange={val => handlePostTimeRangeChange(this, val)}
+                  />
+                </div>
+              )}
             </>
           ) : (
             <div className="col">
