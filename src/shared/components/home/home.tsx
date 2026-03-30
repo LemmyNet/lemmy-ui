@@ -414,7 +414,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       <div className="home container-lg">
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context as RouterContext}
         />
         {site_setup && (
           <div className="row">
@@ -751,7 +751,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     }
   }
 
-  get listings() {
+  get listings(): InfernoNode | void {
     const { postOrCommentType } = this.props;
     const siteRes = this.state.siteRes;
     const myUserInfo = this.isoData.myUserInfo;
@@ -1109,7 +1109,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      const context: RouterContext = this.context;
+      const context = this.context as RouterContext;
       context.router.history.push(`/`);
     }
   }

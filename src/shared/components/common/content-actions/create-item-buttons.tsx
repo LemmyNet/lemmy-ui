@@ -13,7 +13,7 @@ export function CrossPostButton(props: CrossPostParams): InfernoNode {
   const label = I18NextService.i18n.t("cross_post");
   return (
     <Link
-      className="btn btn-link d-flex align-items-center rounded-0 dropdown-item"
+      className="btn btn-sm border-light-subtle d-flex align-items-center rounded-0 dropdown-item"
       to={{
         pathname: "/create_post",
         state: props,

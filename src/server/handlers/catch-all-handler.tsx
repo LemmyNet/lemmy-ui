@@ -107,7 +107,11 @@ export default async (req: Request, res: Response) => {
         const initialFetchReq: InitialFetchRequest<Record<string, any>> = {
           path,
           query:
-            activeRoute.getQueryParams?.(search, siteRes, myUserInfo) ?? {},
+            (activeRoute.getQueryParams?.(
+              search,
+              siteRes,
+              myUserInfo,
+            ) as Record<string, never>) ?? {},
           match,
           site: siteRes,
           myUserInfo,
@@ -186,9 +190,7 @@ export default async (req: Request, res: Response) => {
     console.error(err);
     res.statusCode = 500;
 
-    res.send(
-      process.env.NODE_ENV === "development" ? err.name : "Server error",
-    );
+    res.send(err);
   }
 };
 

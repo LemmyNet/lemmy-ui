@@ -14,6 +14,7 @@ import PasswordInput from "../common/password-input";
 import { toast } from "@utils/app";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface State {
   passwordChangeRes: RequestState<SuccessResponse>;
@@ -51,7 +52,7 @@ export class PasswordChange extends Component<
       <div className="password-change container-lg">
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context as RouterContext}
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">

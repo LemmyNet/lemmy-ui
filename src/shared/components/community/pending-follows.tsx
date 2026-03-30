@@ -46,6 +46,7 @@ import {
   RegistrationState,
   RegistrationStateDropdown,
 } from "@components/common/registration-state-dropdown";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type PendingFollowsData = RouteDataResponse<{
   listPendingFollowsResponse: PagedResponse<PendingFollowerView>;
@@ -160,7 +161,7 @@ export class PendingFollows extends Component<
           <div className="col-12">
             <HtmlTags
               title={this.documentTitle}
-              path={this.context.router.route.match.url}
+              context={this.context as RouterContext}
             />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("community_pending_follows")}

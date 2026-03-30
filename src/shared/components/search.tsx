@@ -19,7 +19,7 @@ import {
 } from "@utils/helpers";
 import type { IsoData, QueryParams } from "@utils/types";
 import { Choice, RouteDataResponse } from "@utils/types";
-import { Component, createRef, FormEvent } from "inferno";
+import { Component, createRef, FormEvent, InfernoNode } from "inferno";
 import {
   CommunityView,
   GetCommunity,
@@ -73,6 +73,7 @@ import { SearchTypeDropdown } from "./common/search-type-dropdown";
 import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
 import { NoOptionI18nKeys } from "i18next";
 import { FilterChipSelect } from "./common/filter-chip-select";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface SearchProps {
   q?: string;
@@ -675,11 +676,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       <div className="search container-lg">
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
-          canonicalPath={
-            this.context.router.route.match.url +
-            this.context.router.route.location.search
-          }
+          context={this.context as RouterContext}
         />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("search")}</h1>
         {this.selects}
@@ -699,7 +696,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     );
   }
 
-  displayResolve() {
+  displayResolve(): InfernoNode | void {
     const { searchRes: searchResponse } = this.state;
     if (searchResponse.state === "success" && searchResponse.data.resolve) {
       const resolve = searchResponse.data.resolve;
@@ -740,6 +737,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   get searchForm() {
+    const context = this.context as RouterContext;
     return (
       <form
         className="row gx-2 gy-3"
@@ -749,7 +747,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           {/* key is necessary for defaultValue to update when props.q changes,
               e.g. back button. */}
           <input
-            key={this.context.router.history.location.key}
+            key={context.router.history.location.key}
             type="text"
             className="form-control me-2 mb-2 col-sm-8"
             defaultValue={this.props.q ?? ""}

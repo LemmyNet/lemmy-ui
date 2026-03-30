@@ -212,7 +212,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
       <div className="community-settings container">
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context as RouterContext}
         />
         <Tabs
           tabs={[
@@ -715,7 +715,7 @@ async function handleLeaveModTeam(
     if (i.state.leaveModTeamRes.state === "success") {
       toast(I18NextService.i18n.t("left_mod_team"));
       i.setState({ showLeaveModTeamDialog: false });
-      const context: RouterContext = i.context;
+      const context = i.context as RouterContext;
       context.router.history.replace("/");
     }
   }

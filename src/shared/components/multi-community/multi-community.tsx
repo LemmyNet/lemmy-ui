@@ -305,7 +305,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
         {res && (
           <HtmlTags
             title={this.documentTitle}
-            path={this.context.router.route.match.url}
+            context={this.context as RouterContext}
             canonicalPath={res.multi_community_view.multi.ap_id}
             description={res.multi_community_view.multi.summary}
           />
@@ -426,7 +426,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     );
   }
 
-  listings() {
+  listings(): InfernoNode | void {
     const { siteRes, myUserInfo } = this.isoData;
 
     switch (this.state.postsRes.state) {
@@ -868,7 +868,7 @@ function updateMultiCommunity(
 function purgeItem(i: MultiCommunity, purgeRes: RequestState<SuccessResponse>) {
   if (purgeRes.state === "success") {
     toast(I18NextService.i18n.t("purge_success"));
-    const context: RouterContext = i.context;
+    const context = i.context as RouterContext;
     context.router.history.push(`/`);
   }
 }

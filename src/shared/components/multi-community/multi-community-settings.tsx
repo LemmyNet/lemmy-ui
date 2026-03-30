@@ -35,6 +35,7 @@ import {
   MultiCommunityEntryList,
 } from "./multi-community-entry-form";
 import { MultiCommunityLink } from "./multi-community-link";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type MultiCommunitySettingsData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
@@ -168,7 +169,7 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
         <div className="multi-community-settings container">
           <HtmlTags
             title={this.documentTitle}
-            path={this.context.router.route.match.url}
+            context={this.context as RouterContext}
           />
           <div className="row">
             <div className="col-12 col-md-6">

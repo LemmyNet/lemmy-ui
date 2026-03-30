@@ -89,7 +89,7 @@
     "markdown-it-sup": "^2.0.0",
     "masonry-layout": "^4.2.2",
     "mini-css-extract-plugin": "^2.9.1",
-    "qreator": "^9.3.0",
+    "qreator": "^10.0.0",
     "register-service-worker": "^1.7.2",
     "run-node-webpack-plugin": "^2.0.0",
     "rxjs": "^7.8.1",

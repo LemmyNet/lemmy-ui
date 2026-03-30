@@ -107,7 +107,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
   componentWillMount() {
     // Leave edit mode on navigation
-    const context: RouterContext = this.context;
+    const context = this.context as RouterContext;
     this.unlisten = context.router.history.listen(() => {
       if (this.state.showEdit) {
         this.setState({ showEdit: false });

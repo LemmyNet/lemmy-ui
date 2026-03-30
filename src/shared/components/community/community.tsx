@@ -480,7 +480,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         {res && (
           <HtmlTags
             title={this.documentTitle}
-            path={this.context.router.route.match.url}
+            context={this.context as RouterContext}
             canonicalPath={res.community_view.community.ap_id}
             description={res.community_view.community.summary}
             image={res.community_view.community.icon}
@@ -621,7 +621,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     );
   }
 
-  listings() {
+  listings(): InfernoNode | void {
     const { postOrCommentType } = this.props;
     const { siteRes, myUserInfo } = this.isoData;
 
@@ -1362,7 +1362,7 @@ function updateCommunityFull(
 function purgeItem(i: Community, purgeRes: RequestState<SuccessResponse>) {
   if (purgeRes.state === "success") {
     toast(I18NextService.i18n.t("purge_success"));
-    const context: RouterContext = i.context;
+    const context = i.context as RouterContext;
     context.router.history.push(`/`);
   }
 }

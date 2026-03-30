@@ -7,7 +7,7 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component, FormEvent } from "inferno";
+import { Component, FormEvent, InfernoNode } from "inferno";
 import {
   LemmyHttp,
   ListMultiCommunities,
@@ -136,7 +136,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
     }`;
   }
 
-  renderListingsTable() {
+  renderListingsTable(): InfernoNode | void {
     const nameCols = "col-12 col-md-9";
     // 3 of these: subscribers, communities, subscribe
     const countCols = "col-4 col-md-1";
@@ -206,7 +206,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
       <div className="multi-communities container-lg">
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context as RouterContext}
         />
         <div>
           <h1 className="h4 mb-4">
@@ -368,7 +368,7 @@ function handleSearchSubmit(
   event.preventDefault();
   const searchParamEncoded = i.state.searchText;
   const { listingType } = i.props;
-  const context: RouterContext = i.context;
+  const context = i.context as RouterContext;
   context.router.history.push(
     `/search${getQueryString({ q: searchParamEncoded, type: "multi_communities", listingType })}`,
   );

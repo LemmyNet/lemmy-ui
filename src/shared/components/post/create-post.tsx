@@ -17,7 +17,7 @@ import {
   RouteDataResponse,
   StringBoolean,
 } from "@utils/types";
-import { Component } from "inferno";
+import { InfernoNode, Component } from "inferno";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import {
   CommunityView,
@@ -48,6 +48,7 @@ import { isBrowser } from "@utils/browser";
 import { NoOptionI18nKeys } from "i18next";
 import { CommunitySidebar } from "@components/community/community-sidebar";
 import { Icon } from "@components/common/icon";
+import { RouterContext } from "inferno-router/dist/Router";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -260,7 +261,7 @@ export class CreatePost extends Component<
       <div className="create-post container-lg" key={resetCounter}>
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context as RouterContext}
         />
         <div className="row">
           <div id="createPostForm" className="col-12 col-lg-6 offset-lg-2 mb-4">
@@ -387,7 +388,7 @@ export class CreatePost extends Component<
     return data;
   };
 
-  sidebar() {
+  sidebar(): InfernoNode | void {
     if (this.state.selectedCommunity) {
       return (
         <CommunitySidebar

@@ -93,9 +93,6 @@ export default class ViewVotesModal extends Component<
 
     this.modalDivRef = createRef();
     this.yesButtonRef = createRef();
-
-    this.handleDismiss = this.handleDismiss.bind(this);
-    this.handleShow = this.handleShow.bind(this);
   }
 
   async componentWillMount() {
@@ -159,7 +156,7 @@ export default class ViewVotesModal extends Component<
     );
   }
 
-  postLikes() {
+  postLikes(): InfernoNode | void {
     switch (this.state.postLikesRes.state) {
       case "loading":
         return (
@@ -174,7 +171,7 @@ export default class ViewVotesModal extends Component<
     }
   }
 
-  commentLikes() {
+  commentLikes(): InfernoNode | void {
     switch (this.state.commentLikesRes.state) {
       case "loading":
         return (
@@ -187,10 +184,6 @@ export default class ViewVotesModal extends Component<
         return voteViewTable(likes, this.props.myUserInfo);
       }
     }
-  }
-
-  handleShow() {
-    this.yesButtonRef.current?.focus();
   }
 
   handleDismiss() {

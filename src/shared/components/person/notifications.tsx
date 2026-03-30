@@ -207,7 +207,7 @@ export class Notifications extends Component<
           <div className="col-12">
             <HtmlTags
               title={this.documentTitle}
-              path={this.context.router.route.match.url}
+              context={this.context as RouterContext}
             />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("notifications")}
@@ -583,7 +583,7 @@ export class Notifications extends Component<
   purgeItem(purgeRes: RequestState<SuccessResponse>) {
     if (purgeRes.state === "success") {
       toast(I18NextService.i18n.t("purge_success"));
-      const context: RouterContext = this.context;
+      const context = this.context as RouterContext;
       context.router.history.push(`/`);
     }
   }

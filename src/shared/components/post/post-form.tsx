@@ -253,7 +253,9 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       const params = nextProps.params;
       for (const k in params) {
         if (this.props.params?.[k] !== params[k]) {
-          this.setState(s => ({ form: { ...s.form, [k]: params[k] } }));
+          this.setState(s => ({
+            form: { ...s.form, [k]: params[k] as unknown },
+          }));
         }
       }
     }
@@ -649,7 +651,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     );
   }
 
-  renderSuggestedTitleCopy() {
+  renderSuggestedTitleCopy(): InfernoNode | void {
     switch (this.state.metadataRes.state) {
       case "loading":
         return <Spinner />;
@@ -674,7 +676,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
     }
   }
 
-  renderSuggestedPosts() {
+  renderSuggestedPosts(): InfernoNode | void {
     switch (this.state.suggestedPostsRes.state) {
       case "loading":
         return <Spinner />;

@@ -57,7 +57,7 @@ class WrappedLemmyHttpClient {
         this[key] = async (...args: unknown[]) => {
           try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            const res = await this.rawClient[key](...args);
+            const res = (await this.rawClient[key](...args)) as unknown;
 
             return {
               data: res,
@@ -66,7 +66,7 @@ class WrappedLemmyHttpClient {
           } catch (error) {
             return {
               state: "failed",
-              err: error,
+              err: error as Error,
             };
           }
         };

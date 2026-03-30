@@ -43,8 +43,6 @@ export default class PersonNoteModal extends Component<
 
     this.modalDivRef = createRef();
     this.yesButtonRef = createRef();
-
-    this.handleDismiss = this.handleDismiss.bind(this);
   }
 
   render() {
@@ -114,10 +112,6 @@ export default class PersonNoteModal extends Component<
         </div>
       </div>
     );
-  }
-
-  handleShow() {
-    this.yesButtonRef.current?.focus();
   }
 
   handleDismiss() {

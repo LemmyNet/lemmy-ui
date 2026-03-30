@@ -1,6 +1,6 @@
 import { setIsoData } from "@utils/app";
 import { QueryParams, RouteDataResponse } from "@utils/types";
-import { Component, FormEvent } from "inferno";
+import { Component, FormEvent, createRef, InfernoNode } from "inferno";
 import {
   GetFederatedInstancesKind,
   PagedResponse,
@@ -34,9 +34,9 @@ import { isBrowser } from "@utils/browser";
 import { formatRelativeDate, isWeekOld } from "@utils/date";
 import { TableHr } from "@components/common/tables";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
-import { createRef } from "inferno";
 import { Action } from "history";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
+import { RouterContext } from "inferno-router/dist/Router";
 
 function getKindFromQuery(kind?: string): GetFederatedInstancesKind {
   return kind ? (kind as GetFederatedInstancesKind) : "all";
@@ -161,7 +161,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
     }`;
   }
 
-  renderInstances() {
+  renderInstances(): InfernoNode | void {
     switch (this.state.instancesRes.state) {
       case "loading":
         return (
@@ -185,7 +185,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
       <div className="home-instances container-lg">
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context as RouterContext}
         />
         {this.renderFilters()}
         {this.renderInstances()}
@@ -211,6 +211,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   }
 
   renderFilters() {
+    const context = this.context as RouterContext;
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-2">
         <div className="col me-auto">
@@ -226,7 +227,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
           {/* key is necessary for defaultValue to update when domain_filter
             changes, e.g. back button. */}
           <input
-            key={this.context.router.history.location.key}
+            key={context.router.history.location.key}
             name="q"
             type="search"
             className="form-control"

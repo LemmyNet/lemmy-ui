@@ -1,6 +1,6 @@
 import { getRecipientIdFromProps, setIsoData } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
-import { Component } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   CreatePrivateMessage as CreatePrivateMessageI,
   GetPersonDetails,
@@ -125,7 +125,7 @@ export class CreatePrivateMessage extends Component<
     }
   }
 
-  renderRecipientRes() {
+  renderRecipientRes(): InfernoNode | void {
     switch (this.state.recipientRes.state) {
       case "loading":
         return (
@@ -166,7 +166,7 @@ export class CreatePrivateMessage extends Component<
       <div className="create-private-message container-lg">
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context as RouterContext}
         />
         {this.renderRecipientRes()}
       </div>
@@ -188,7 +188,7 @@ async function handlePrivateMessageCreate(
 
     bypassNavWarning();
     // Navigate to the front
-    const context: RouterContext = i.context;
+    const context = i.context as RouterContext;
     context.router.history.push("/");
   } else if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");

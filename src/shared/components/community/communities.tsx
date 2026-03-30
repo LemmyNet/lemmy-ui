@@ -7,7 +7,7 @@ import {
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
-import { Component, FormEvent } from "inferno";
+import { Component, FormEvent, InfernoNode } from "inferno";
 import {
   CommunityResponse,
   CommunitySortType,
@@ -139,7 +139,7 @@ export class Communities extends Component<
     }`;
   }
 
-  renderListingsTable() {
+  renderListingsTable(): InfernoNode | void {
     const nameCols = "col-12 col-md-7";
     const countCols = "col-6 col-md-1";
 
@@ -224,7 +224,7 @@ export class Communities extends Component<
       <div className="communities container-lg">
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context as RouterContext}
         />
         <div>
           <h1 className="h4 mb-4">
@@ -402,7 +402,7 @@ function handleSearchSubmit(i: Communities, event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
   const searchParamEncoded = i.state.searchText;
   const { listingType } = i.props;
-  const context: RouterContext = i.context;
+  const context = i.context as RouterContext;
   context.router.history.push(
     `/search${getQueryString({ q: searchParamEncoded, type: "communities", listingType })}`,
   );
@@ -417,7 +417,7 @@ async function handleVisitRandomCommunity(i: Communities) {
 
   if (res.state === "success") {
     const link = communityLink(res.data.community_view.community).link;
-    const context: RouterContext = i.context;
+    const context = i.context as RouterContext;
     context.router.history.push(link);
   }
 }

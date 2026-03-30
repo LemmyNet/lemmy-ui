@@ -27,6 +27,7 @@ import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface RemoteFetchProps {
   uri?: string;
@@ -142,7 +143,7 @@ export class RemoteFetch extends Component<
       <div className="remote-fetch container-lg">
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context as RouterContext}
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 text-center">

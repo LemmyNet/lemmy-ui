@@ -35,6 +35,7 @@ async function startClient() {
   ]);
 
   const wrapper = (
+    // @ts-expect-error BrowserRouter uses a different type for children
     <BrowserRouter>
       <App dateFnsLocale={dateFnsLocale} i18n={i18n} />
     </BrowserRouter>

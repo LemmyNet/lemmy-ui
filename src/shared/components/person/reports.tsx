@@ -64,6 +64,7 @@ import {
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { RouterContext } from "inferno-router/dist/Router";
 
 type ReportsData = RouteDataResponse<{
   reportsRes: PagedResponse<ReportCombinedView>;
@@ -204,7 +205,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div className="col-12">
             <HtmlTags
               title={this.documentTitle}
-              path={this.context.router.route.match.url}
+              context={this.context as RouterContext}
             />
             <h1 className="h4 mb-4">{I18NextService.i18n.t("reports")}</h1>
             {this.selects()}
@@ -360,7 +361,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  all() {
+  all(): InfernoNode | void {
     switch (this.state.reportsRes.state) {
       case "loading":
         return (
@@ -382,7 +383,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  commentReports() {
+  commentReports(): InfernoNode | void {
     const res = this.state.reportsRes;
     const siteRes = this.state.siteRes;
     switch (res.state) {
@@ -426,7 +427,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  postReports() {
+  postReports(): InfernoNode | void {
     const res = this.state.reportsRes;
     const siteRes = this.state.siteRes;
     switch (res.state) {
@@ -469,7 +470,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  privateMessageReports() {
+  privateMessageReports(): InfernoNode | void {
     const res = this.state.reportsRes;
     switch (res.state) {
       case "loading":
@@ -507,7 +508,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  communityReports() {
+  communityReports(): InfernoNode | void {
     const res = this.state.reportsRes;
     switch (res.state) {
       case "loading":

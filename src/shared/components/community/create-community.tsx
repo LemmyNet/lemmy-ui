@@ -17,6 +17,7 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "@services/HttpService";
+import { RouterContext } from "inferno-router/dist/Router";
 
 interface CreateCommunityState {
   createCommunityRes: RequestState<CommunityResponse>;
@@ -45,7 +46,7 @@ export class CreateCommunity extends Component<
       <div className="create-community container-lg">
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context as RouterContext}
         />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">

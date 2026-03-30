@@ -61,6 +61,7 @@ import { TableHr } from "./common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { ModlogKindFilterDropdown } from "./common/modlog-kind-filter-dropdown";
 import { FilterChipSelect } from "./common/filter-chip-select";
+import { RouterContext } from "inferno-router/dist/Router";
 
 const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";
@@ -567,7 +568,10 @@ export function processModlogEntry(
     // TODO mod warn comment and post still need to be done
     case "mod_warn_comment":
     case "mod_warn_post":
-      return <></>;
+      return {
+        modlog,
+        data: <></>,
+      };
   }
 }
 
@@ -818,7 +822,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       <div className="modlog container-lg">
         <HtmlTags
           title={this.documentTitle}
-          path={this.context.router.route.match.url}
+          context={this.context as RouterContext}
         />
 
         <h1 className="h4 mb-4">{I18NextService.i18n.t("modlog")}</h1>
@@ -905,7 +909,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     );
   }
 
-  renderModlogTable() {
+  renderModlogTable(): InfernoNode | void {
     switch (this.state.res.state) {
       case "loading":
         return (
