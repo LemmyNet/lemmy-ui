@@ -27,7 +27,8 @@ export function intervalToQuery(interval: Interval) {
 
 export function intervalToSeconds(interval: Interval): number {
   const num = interval.num ?? 0;
-  const mult = conversions.find(t => t.unit === interval.unit)?.num ?? 1;
+  const mult =
+    TIME_RANGE_CONVERSIONS.find(t => t.unit === interval.unit)?.num ?? 1;
   const secs = num * mult;
   return secs;
 }
@@ -41,7 +42,7 @@ type State = { customInterval?: Interval };
 
 export const ALL_TIME_INTERVAL: Interval = { unit: "days", num: 0 };
 
-export const TIME_RANGE_PRESETS: Interval[] = [
+const TIME_RANGE_PRESETS: Interval[] = [
   { ...ALL_TIME_INTERVAL },
   { num: 1, unit: "hours" },
   { num: 6, unit: "hours" },
@@ -53,8 +54,19 @@ export const TIME_RANGE_PRESETS: Interval[] = [
   { num: 6, unit: "months" },
   { num: 1, unit: "years" },
 ];
-const TIME_RANGE_UNITS = Array.from(
-  new Set(TIME_RANGE_PRESETS.map(x => x.unit)).values(),
+
+const TIME_RANGE_CONVERSIONS: Interval[] = [
+  { num: 1, unit: "seconds" },
+  { num: 60, unit: "minutes" },
+  { num: 60 * 60, unit: "hours" },
+  { num: 60 * 60 * 24, unit: "days" },
+  { num: 60 * 60 * 24 * 7, unit: "weeks" },
+  { num: 60 * 60 * 24 * 31, unit: "months" },
+  { num: 60 * 60 * 24 * 365, unit: "years" },
+];
+
+const TIME_RANGE_UNITS: IntervalUnit[] = TIME_RANGE_CONVERSIONS.map(
+  c => c.unit,
 );
 const TIME_RANGE_UNIT_OPTIONS: FilterOption<IntervalUnit>[] =
   TIME_RANGE_UNITS.map(u => ({ value: u, i18n: u }));
@@ -162,16 +174,6 @@ function handleIntervalChange(i: TimeIntervalFilter, interval: Interval) {
   i.props.onChange(interval);
 }
 
-const conversions: Interval[] = [
-  { num: 1, unit: "seconds" },
-  { num: 60, unit: "minutes" },
-  { num: 60 * 60, unit: "hours" },
-  { num: 60 * 60 * 24, unit: "days" },
-  { num: 60 * 60 * 24 * 7, unit: "weeks" },
-  { num: 60 * 60 * 24 * 31, unit: "months" },
-  { num: 60 * 60 * 24 * 365, unit: "years" },
-];
-
 // Taken from https://stackoverflow.com/questions/70805666/how-to-convert-seconds-to-biggest-significative-time-unit
 export function secondsToLargestInterval(
   seconds?: number,
@@ -179,8 +181,8 @@ export function secondsToLargestInterval(
   if (seconds === undefined) {
     return undefined;
   }
-  let bestInterval = conversions[0];
-  for (const interval of conversions) {
+  let bestInterval = TIME_RANGE_CONVERSIONS[0];
+  for (const interval of TIME_RANGE_CONVERSIONS) {
     if (seconds >= (interval.num ?? 1)) {
       bestInterval = interval;
     }
