@@ -155,7 +155,7 @@ interface HomeProps {
   listingType?: ListingType;
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
-  postTimeRange: Interval;
+  time: Interval;
   showHidden?: boolean;
   showRead?: boolean;
   cursor?: PaginationCursor;
@@ -229,7 +229,7 @@ function getShowReadFromQuery(
 
 type Fallbacks = {
   sort: PostSortType | CommentSortType;
-  postTimeRange: Interval;
+  time: Interval;
   listingType: ListingType;
   showRead: boolean;
 };
@@ -244,7 +244,7 @@ export function getHomeQueryParams(
   return getQueryParams<HomeProps, Fallbacks>(
     {
       sort: getSortTypeFromQuery,
-      postTimeRange: intervalFromQuery,
+      time: intervalFromQuery,
       listingType: getListingTypeFromQuery,
       cursor: (cursor?: string) => cursor,
       postOrCommentType: getPostOrCommentTypeFromQuery,
@@ -258,7 +258,7 @@ export function getHomeQueryParams(
       listingType:
         local_user?.default_listing_type ??
         local_site.default_post_listing_type,
-      postTimeRange:
+      time:
         secondsToLargestInterval(local_user?.default_post_time_range_seconds) ??
         ALL_TIME_INTERVAL,
       showRead: local_user?.show_read_posts ?? true,
@@ -345,7 +345,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       listingType,
       postOrCommentType,
       sort,
-      postTimeRange,
+      time,
       cursor,
       showHidden,
       showRead,
@@ -366,7 +366,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         type_: listingType,
         page_cursor: cursor,
         sort: mixedToPostSortType(sort),
-        time_range_seconds: intervalToSeconds(postTimeRange),
+        time_range_seconds: intervalToSeconds(time),
         show_hidden: showHidden,
         show_read: showRead,
       };
@@ -673,7 +673,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       listingType,
       cursor,
       sort,
-      postTimeRange,
+      time,
       showHidden,
       showRead,
     } = {
@@ -685,7 +685,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       listingType,
       cursor,
       sort,
-      postTimeRange: intervalToQuery(postTimeRange),
+      time: intervalToQuery(time),
       showHidden: showHidden?.toString(),
       showRead: showRead?.toString(),
     };
@@ -865,18 +865,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get selects() {
-    const {
-      listingType,
-      postOrCommentType,
-      sort,
-      postTimeRange,
-      showHidden,
-      showRead,
-    } = this.props;
+    const { listingType, postOrCommentType, sort, time, showHidden, showRead } =
+      this.props;
 
     const { showSubscribedMobile, showSidebarMobile } = this.state;
 
-    const hidePostTimeRange = sort === "new" || sort === "old";
+    const hideTimeSelect = sort === "new" || sort === "old";
     return (
       <div className="mb-3">
         <div className="row row-cols-auto align-items-center g-3 ">
@@ -948,11 +942,11 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onSelect={val => handlePostOrCommentTypeChange(this, val)}
             />
           </div>
-          {!hidePostTimeRange && (
+          {!hideTimeSelect && (
             <div className="col">
               <TimeIntervalFilter
-                interval={postTimeRange}
-                onChange={val => handlePostTimeRangeChange(this, val)}
+                interval={time}
+                onChange={val => handleTimeChange(this, val)}
               />
             </div>
           )}
@@ -1005,7 +999,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     cursor,
     listingType,
     sort,
-    postTimeRange,
+    time,
     showHidden,
     showRead,
   }: HomeProps) {
@@ -1015,7 +1009,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       const postsRes = await HttpService.client.getPosts({
         page_cursor: cursor,
         sort: mixedToPostSortType(sort),
-        time_range_seconds: intervalToSeconds(postTimeRange),
+        time_range_seconds: intervalToSeconds(time),
         type_: listingType,
         show_hidden: showHidden,
         show_read: showRead,
@@ -1028,7 +1022,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       const commentsRes = await HttpService.client.getComments({
         page_cursor: cursor,
         sort: mixedToCommentSortType(sort),
-        time_range_seconds: undefined, // FIXME: rename postTimeRange and use it here
+        time_range_seconds: intervalToSeconds(time),
         type_: listingType,
       });
       if (token === this.fetchDataToken) {
@@ -1162,8 +1156,8 @@ function handleSortChange(i: Home, val: PostSortType) {
   i.updateUrl({ sort: val, cursor: undefined });
 }
 
-function handlePostTimeRangeChange(i: Home, val: Interval) {
-  i.updateUrl({ postTimeRange: val, cursor: undefined });
+function handleTimeChange(i: Home, val: Interval) {
+  i.updateUrl({ time: val, cursor: undefined });
 }
 
 function handleCommentSortChange(i: Home, val: CommentSortType) {

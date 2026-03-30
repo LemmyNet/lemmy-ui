@@ -163,7 +163,7 @@ interface State {
 interface CommunityProps {
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
-  postTimeRange: Interval;
+  time: Interval;
   cursor?: PaginationCursor;
   showHidden?: boolean;
   showRead?: boolean;
@@ -171,7 +171,7 @@ interface CommunityProps {
 
 type Fallbacks = {
   sort: PostSortType | CommentSortType;
-  postTimeRange: Interval;
+  time: Interval;
   showRead: boolean;
 };
 
@@ -187,7 +187,7 @@ export function getCommunityQueryParams(
       postOrCommentType: getPostOrCommentTypeFromQuery,
       cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
-      postTimeRange: intervalFromQuery,
+      time: intervalFromQuery,
       showHidden: getShowHiddenFromQuery,
       showRead: getShowReadFromQuery,
     },
@@ -195,7 +195,7 @@ export function getCommunityQueryParams(
     {
       sort:
         local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
-      postTimeRange:
+      time:
         secondsToLargestInterval(local_user?.default_post_time_range_seconds) ??
         ALL_TIME_INTERVAL,
       showRead: local_user?.show_read_posts ?? true,
@@ -322,14 +322,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   static fetchInitialData = async ({
     headers,
-    query: {
-      postOrCommentType,
-      cursor,
-      sort,
-      postTimeRange,
-      showHidden,
-      showRead,
-    },
+    query: { postOrCommentType, cursor, sort, time, showHidden, showRead },
     match: { params: props },
   }: InitialFetchRequest<
     CommunityPathProps,
@@ -353,7 +346,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       const getPostsForm: GetPosts = {
         community_name: communityName,
         sort: mixedToPostSortType(sort),
-        time_range_seconds: intervalToSeconds(postTimeRange),
+        time_range_seconds: intervalToSeconds(time),
         type_: "all",
         show_hidden: showHidden,
         show_read: showRead,
@@ -365,6 +358,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       const getCommentsForm: GetComments = {
         community_name: communityName,
         sort: mixedToCommentSortType(sort),
+        time_range_seconds: intervalToSeconds(time),
         type_: "all",
         page_cursor: cursor,
       };
@@ -394,7 +388,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       sort,
       showHidden,
       showRead,
-      postTimeRange,
+      time,
       match: {
         params: { name },
       },
@@ -409,7 +403,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       sort,
       showHidden: showHidden?.toString(),
       showRead: showRead?.toString(),
-      postTimeRange: intervalToQuery(postTimeRange),
+      time: intervalToQuery(time),
     };
 
     this.props.history.push(`/c/${name}${getQueryString(queryParams)}`);
@@ -418,14 +412,8 @@ export class Community extends Component<CommunityRouteProps, State> {
   fetchDataToken?: symbol;
   async fetchData(props: CommunityRouteProps) {
     const token = (this.fetchDataToken = Symbol());
-    const {
-      postOrCommentType,
-      cursor,
-      sort,
-      postTimeRange,
-      showHidden,
-      showRead,
-    } = props;
+    const { postOrCommentType, cursor, sort, time, showHidden, showRead } =
+      props;
     const name = decodeURIComponent(props.match.params.name);
 
     if (postOrCommentType === "post") {
@@ -433,7 +421,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       const postsRes = await HttpService.client.getPosts({
         page_cursor: cursor,
         sort: mixedToPostSortType(sort),
-        time_range_seconds: intervalToSeconds(postTimeRange),
+        time_range_seconds: intervalToSeconds(time),
         type_: "all",
         community_name: name,
         show_hidden: showHidden,
@@ -758,15 +746,14 @@ export class Community extends Component<CommunityRouteProps, State> {
     const res =
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
-    const { postOrCommentType, sort, postTimeRange, showHidden, showRead } =
-      this.props;
+    const { postOrCommentType, sort, time, showHidden, showRead } = this.props;
     const communityRss = res
       ? communityRSSUrl(res.community_view.community, sort)
       : undefined;
     const showSidebarMobile = this.state.showSidebarMobile;
 
     const myUserInfo = this.isoData.myUserInfo;
-    const hidePostTimeRange = sort === "new" || sort === "old";
+    const hideTimeSelect = sort === "new" || sort === "old";
 
     return (
       <>
@@ -802,11 +789,11 @@ export class Community extends Component<CommunityRouteProps, State> {
                   showLabel
                 />
               </div>
-              {!hidePostTimeRange && (
+              {!hideTimeSelect && (
                 <div className="col">
                   <TimeIntervalFilter
-                    interval={postTimeRange}
-                    onChange={val => handlePostTimeRangeChange(this, val)}
+                    interval={time}
+                    onChange={val => handleTimeChange(this, val)}
                   />
                 </div>
               )}
@@ -916,8 +903,8 @@ function handleSortChange(i: Community, sort: PostSortType) {
   i.updateUrl({ sort, cursor: undefined });
 }
 
-function handlePostTimeRangeChange(i: Community, val: Interval) {
-  i.updateUrl({ postTimeRange: val, cursor: undefined });
+function handleTimeChange(i: Community, val: Interval) {
+  i.updateUrl({ time: val, cursor: undefined });
 }
 
 function handleCommentSortChange(i: Community, sort: CommentSortType) {

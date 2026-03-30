@@ -119,14 +119,14 @@ type State = {
 
 interface Props {
   sort: PostSortType;
-  postTimeRange: Interval;
+  time: Interval;
   cursor?: PaginationCursor;
   showHidden?: boolean;
 }
 
 type Fallbacks = {
   sort: PostSortType;
-  postTimeRange: Interval;
+  time: Interval;
 };
 
 export function getMultiCommunityQueryParams(
@@ -140,14 +140,14 @@ export function getMultiCommunityQueryParams(
     {
       cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
-      postTimeRange: intervalFromQuery,
+      time: intervalFromQuery,
       showHidden: getShowHiddenFromQuery,
     },
     source,
     {
       sort:
         local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
-      postTimeRange:
+      time:
         secondsToLargestInterval(local_user?.default_post_time_range_seconds) ??
         ALL_TIME_INTERVAL,
     },
@@ -251,7 +251,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
   static fetchInitialData = async ({
     headers,
-    query: { cursor, sort, postTimeRange, showHidden },
+    query: { cursor, sort, time, showHidden },
     match: { params: props },
   }: InitialFetchRequest<PathProps, Props>): Promise<MultiCommunityData> => {
     const client = wrapClient(
@@ -266,7 +266,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     const getPostsForm: GetPosts = {
       multi_community_name: name,
       sort: mixedToPostSortType(sort),
-      time_range_seconds: intervalToSeconds(postTimeRange),
+      time_range_seconds: intervalToSeconds(time),
       type_: "all",
       show_hidden: showHidden,
       page_cursor: cursor,
@@ -510,7 +510,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
   }
 
   selects() {
-    const { sort, postTimeRange, showHidden } = this.props;
+    const { sort, time, showHidden } = this.props;
 
     const myUserInfo = this.isoData.myUserInfo;
     const res =
@@ -519,7 +519,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     const multiCommunityRss = res
       ? multiCommunityRSSUrl(res.multi_community_view.multi, sort)
       : undefined;
-    const hidePostTimeRange = sort === "new" || sort === "old";
+    const hideTimeSelect = sort === "new" || sort === "old";
 
     return (
       <div className="row row-cols-auto align-items-center g-3 mb-3">
@@ -546,11 +546,11 @@ export class MultiCommunity extends Component<RouteProps, State> {
             showLabel
           />
         </div>
-        {!hidePostTimeRange && (
+        {!hideTimeSelect && (
           <div className="col">
             <TimeIntervalFilter
-              interval={postTimeRange}
-              onChange={interval => handlePostTimeRangeChange(this, interval)}
+              interval={time}
+              onChange={interval => handleTimeChange(this, interval)}
             />
           </div>
         )}
@@ -605,14 +605,14 @@ export class MultiCommunity extends Component<RouteProps, State> {
   fetchDataToken?: symbol;
   async fetchData(props: RouteProps) {
     const token = (this.fetchDataToken = Symbol());
-    const { cursor, sort, postTimeRange, showHidden } = props;
+    const { cursor, sort, time, showHidden } = props;
     const multi_community_name = decodeURIComponent(props.match.params.name);
 
     this.setState({ postsRes: LOADING_REQUEST });
     const postsRes = await HttpService.client.getPosts({
       page_cursor: cursor,
       sort: mixedToPostSortType(sort),
-      time_range_seconds: intervalToSeconds(postTimeRange),
+      time_range_seconds: intervalToSeconds(time),
       type_: "all",
       multi_community_name,
       show_hidden: showHidden,
@@ -908,8 +908,8 @@ function handleSortChange(i: MultiCommunity, sort: PostSortType) {
   i.updateUrl({ sort, cursor: undefined });
 }
 
-function handlePostTimeRangeChange(i: MultiCommunity, val: Interval) {
-  i.updateUrl({ postTimeRange: val, cursor: undefined });
+function handleTimeChange(i: MultiCommunity, val: Interval) {
+  i.updateUrl({ time: val, cursor: undefined });
 }
 
 function handleShowHiddenChange(i: MultiCommunity, showHidden: boolean) {
