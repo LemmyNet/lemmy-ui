@@ -511,8 +511,9 @@ export class MultiCommunity extends Component<RouteProps, State> {
 
   selects() {
     const { sort, time, showHidden } = this.props;
+    const { selectButtonsHidden } = this.state;
 
-    const myUserInfo = this.isoData.myUserInfo;
+    const { myUserInfo } = this.isoData;
     const res =
       this.state.multiCommunityRes.state === "success" &&
       this.state.multiCommunityRes.data;
@@ -566,16 +567,14 @@ export class MultiCommunity extends Component<RouteProps, State> {
             />
           </div>
         )}
-        <button
-          className="col btn btn-ghost"
-          onClick={_ => handleHideSelectButtons(this)}
-        >
-          {this.state.selectButtonsHidden ? (
-            <Icon icon="chevrons-down" />
-          ) : (
-            <Icon icon="chevrons-up" />
-          )}
-        </button>
+        {myUserInfo && (
+          <button
+            className="col btn btn-ghost"
+            onClick={_ => handleHideSelectButtons(this)}
+          >
+            <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />
+          </button>
+        )}
       </div>
     );
   }

@@ -868,7 +868,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const { listingType, postOrCommentType, sort, time, showHidden, showRead } =
       this.props;
 
-    const { showSubscribedMobile, showSidebarMobile } = this.state;
+    const { showSubscribedMobile, showSidebarMobile, selectButtonsHidden } =
+      this.state;
+    const { myUserInfo } = this.isoData;
 
     const hideTimeSelect = sort === "new" || sort === "old";
     return (
@@ -925,7 +927,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                   .suggested_multi_community_id
               }
               showLabel
-              myUserInfo={this.isoData.myUserInfo}
+              myUserInfo={myUserInfo}
               onSelect={val => handleListingTypeChange(this, val)}
             />
           </div>
@@ -958,37 +960,33 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               sort,
             )}
           </div>
-          <button
-            className="col btn btn-ghost"
-            onClick={_ => handleHideSelectButtons(this)}
-          >
-            {this.state.selectButtonsHidden ? (
-              <Icon icon="chevrons-down" />
-            ) : (
-              <Icon icon="chevrons-up" />
-            )}
-          </button>
-        </div>
-        {postOrCommentType === "post" &&
-          this.isoData.myUserInfo &&
-          !this.state.selectButtonsHidden && (
-            <div className="row row-cols-auto g-3 mt-1">
-              <div className="col mt-0">
-                <FilterChipCheckbox
-                  option={"show_hidden_posts"}
-                  isChecked={showHidden ?? false}
-                  onCheck={hidden => handleShowHiddenChange(this, hidden)}
-                />
-              </div>
-              <div className="col mt-0">
-                <FilterChipCheckbox
-                  option={"hide_read_posts"}
-                  isChecked={!(showRead ?? false)}
-                  onCheck={hideRead => handleHideReadChange(this, hideRead)}
-                />
-              </div>
-            </div>
+          {myUserInfo && (
+            <button
+              className="col btn btn-ghost"
+              onClick={_ => handleHideSelectButtons(this)}
+            >
+              <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />
+            </button>
           )}
+        </div>
+        {postOrCommentType === "post" && myUserInfo && !selectButtonsHidden && (
+          <div className="row row-cols-auto g-3 mt-1">
+            <div className="col mt-0">
+              <FilterChipCheckbox
+                option={"show_hidden_posts"}
+                isChecked={showHidden ?? false}
+                onCheck={hidden => handleShowHiddenChange(this, hidden)}
+              />
+            </div>
+            <div className="col mt-0">
+              <FilterChipCheckbox
+                option={"hide_read_posts"}
+                isChecked={!(showRead ?? false)}
+                onCheck={hideRead => handleHideReadChange(this, hideRead)}
+              />
+            </div>
+          </div>
+        )}
       </div>
     );
   }
