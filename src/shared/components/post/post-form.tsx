@@ -346,6 +346,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   onPaste={e => handleImageUploadPaste(this, e)}
                 />
                 {this.renderSuggestedTitleCopy()}
+                {/* Show a warning for media posts with missing alt text */}
+                {url && isMedia(url) && !this.state.form.alt_text && (
+                  <div className="alert alert-warning" role="alert">
+                    {I18NextService.i18n.t("missing_alt_text")}
+                  </div>
+                )}
                 {url && validURL(url) && (
                   <div>
                     <a
