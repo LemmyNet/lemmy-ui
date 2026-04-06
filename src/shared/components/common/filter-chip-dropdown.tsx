@@ -2,6 +2,8 @@ import { I18NextService } from "@services/index";
 import { randomStr } from "@utils/helpers";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
+import { RefObject } from "inferno";
+import { InfernoNode } from "inferno";
 
 export type FilterOption<T extends string> = {
   value: T;
@@ -16,6 +18,10 @@ type FilterChipDropdownProps<T extends string> = {
   label?: NoOptionI18nKeys;
   onSelect: (val: T) => void;
   className?: string;
+  children?: InfernoNode;
+  buttonRef?: RefObject<HTMLButtonElement>;
+  autoClose?: "true" | "false" | "outside" | "inside";
+  noCurrentText?: string;
 };
 
 export function FilterChipDropdown<T extends string>({
@@ -24,22 +30,29 @@ export function FilterChipDropdown<T extends string>({
   label,
   onSelect,
   className,
+  children,
+  buttonRef,
+  autoClose,
+  noCurrentText = "",
 }: FilterChipDropdownProps<T>) {
   const id = randomStr();
   const labelTitle = label ? `${I18NextService.i18n.t(label)}: ` : "";
   const buttonTitle =
-    labelTitle + (currentOption && filterOptioni18nStr(currentOption));
+    labelTitle +
+    ((currentOption && filterOptioni18nStr(currentOption)) || noCurrentText);
 
   return (
     <div className="dropdown">
       <div className="btn-group">
         <button
+          ref={buttonRef}
           className={classNames("dropdown-toggle", className, {
             "btn btn-sm btn-light border-light-subtle": className === undefined,
           })}
           type="button"
           aria-expanded={false}
           data-bs-toggle="dropdown"
+          data-bs-auto-close={autoClose}
         >
           {buttonTitle}
         </button>
@@ -61,6 +74,12 @@ export function FilterChipDropdown<T extends string>({
               </button>
             </li>
           ))}
+          {children && (
+            <>
+              <div className="dropdown-divider" />
+              <li>{children}</li>
+            </>
+          )}
         </ul>
       </div>
     </div>

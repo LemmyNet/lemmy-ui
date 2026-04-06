@@ -14,12 +14,6 @@ interface EmojiPickerState {
   showPicker: boolean;
 }
 
-function closeEmojiMartOnEsc(i: EmojiPicker, event: KeyboardEvent) {
-  if (event.key === "Escape") {
-    i.setState({ showPicker: false });
-  }
-}
-
 @tippyMixin
 export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
   private emptyState: EmojiPickerState = {
@@ -65,8 +59,14 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
     );
   }
 
+  closeEmojiMartOnEscHandler = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      this.setState({ showPicker: false });
+    }
+  };
+
   componentWillUnmount() {
-    document.removeEventListener("keyup", e => closeEmojiMartOnEsc(this, e));
+    document.removeEventListener("keyup", this.closeEmojiMartOnEscHandler);
   }
 
   togglePicker(i: EmojiPicker, e: Event) {
@@ -74,9 +74,9 @@ export class EmojiPicker extends Component<EmojiPickerProps, EmojiPickerState> {
     i.setState({ showPicker: !i.state.showPicker });
 
     if (i.state.showPicker) {
-      document.addEventListener("keyup", e => closeEmojiMartOnEsc(i, e));
+      document.addEventListener("keyup", this.closeEmojiMartOnEscHandler);
     } else {
-      document.removeEventListener("keyup", e => closeEmojiMartOnEsc(i, e));
+      document.removeEventListener("keyup", this.closeEmojiMartOnEscHandler);
     }
   }
 }

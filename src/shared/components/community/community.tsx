@@ -117,7 +117,15 @@ import { isBrowser } from "@utils/browser";
 import { CommunityHeader } from "./community-header";
 import { nowBoolean } from "@utils/date";
 import { NoOptionI18nKeys } from "i18next";
-import { TimeIntervalFilter } from "@components/common/time-interval-filter";
+import {
+  ALL_TIME_INTERVAL,
+  Interval,
+  intervalFromQuery,
+  intervalToQuery,
+  intervalToSeconds,
+  secondsToLargestInterval,
+  TimeIntervalFilter,
+} from "@components/common/time-interval-filter";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { communityName } from "./community-link";
 import {
@@ -149,12 +157,13 @@ interface State {
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
   postListingMode: PostListingMode;
+  selectButtonsHidden: boolean;
 }
 
 interface CommunityProps {
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
-  postTimeRange: number;
+  time: Interval;
   cursor?: PaginationCursor;
   showHidden?: boolean;
   showRead?: boolean;
@@ -162,7 +171,7 @@ interface CommunityProps {
 
 type Fallbacks = {
   sort: PostSortType | CommentSortType;
-  postTimeRange: number;
+  time: Interval;
   showRead: boolean;
 };
 
@@ -178,7 +187,7 @@ export function getCommunityQueryParams(
       postOrCommentType: getPostOrCommentTypeFromQuery,
       cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
-      postTimeRange: getPostTimeRangeFromQuery,
+      time: intervalFromQuery,
       showHidden: getShowHiddenFromQuery,
       showRead: getShowReadFromQuery,
     },
@@ -186,7 +195,9 @@ export function getCommunityQueryParams(
     {
       sort:
         local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
-      postTimeRange: local_user?.default_post_time_range_seconds ?? 0,
+      time:
+        secondsToLargestInterval(local_user?.default_post_time_range_seconds) ??
+        ALL_TIME_INTERVAL,
       showRead: local_user?.show_read_posts ?? true,
     },
   );
@@ -201,13 +212,6 @@ function getSortTypeFromQuery(
   fallback: PostSortType | CommentSortType,
 ): PostSortType | CommentSortType {
   return type ? (type as PostSortType | CommentSortType) : fallback;
-}
-
-function getPostTimeRangeFromQuery(
-  type: string | undefined,
-  fallback: number,
-): number {
-  return type ? Number(type) : fallback;
 }
 
 function getShowHiddenFromQuery(hidden: string | undefined): boolean {
@@ -251,6 +255,7 @@ export class Community extends Component<CommunityRouteProps, State> {
     isIsomorphic: false,
     markPageAsReadLoading: false,
     postListingMode: defaultPostListingMode(this.isoData),
+    selectButtonsHidden: true,
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
 
@@ -317,14 +322,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   static fetchInitialData = async ({
     headers,
-    query: {
-      postOrCommentType,
-      cursor,
-      sort,
-      postTimeRange,
-      showHidden,
-      showRead,
-    },
+    query: { postOrCommentType, cursor, sort, time, showHidden, showRead },
     match: { params: props },
   }: InitialFetchRequest<
     CommunityPathProps,
@@ -348,7 +346,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       const getPostsForm: GetPosts = {
         community_name: communityName,
         sort: mixedToPostSortType(sort),
-        time_range_seconds: postTimeRange,
+        time_range_seconds: intervalToSeconds(time),
         type_: "all",
         show_hidden: showHidden,
         show_read: showRead,
@@ -360,6 +358,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       const getCommentsForm: GetComments = {
         community_name: communityName,
         sort: mixedToCommentSortType(sort),
+        time_range_seconds: intervalToSeconds(time),
         type_: "all",
         page_cursor: cursor,
       };
@@ -389,6 +388,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       sort,
       showHidden,
       showRead,
+      time,
       match: {
         params: { name },
       },
@@ -403,6 +403,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       sort,
       showHidden: showHidden?.toString(),
       showRead: showRead?.toString(),
+      time: intervalToQuery(time),
     };
 
     this.props.history.push(`/c/${name}${getQueryString(queryParams)}`);
@@ -411,14 +412,8 @@ export class Community extends Component<CommunityRouteProps, State> {
   fetchDataToken?: symbol;
   async fetchData(props: CommunityRouteProps) {
     const token = (this.fetchDataToken = Symbol());
-    const {
-      postOrCommentType,
-      cursor,
-      sort,
-      postTimeRange,
-      showHidden,
-      showRead,
-    } = props;
+    const { postOrCommentType, cursor, sort, time, showHidden, showRead } =
+      props;
     const name = decodeURIComponent(props.match.params.name);
 
     if (postOrCommentType === "post") {
@@ -426,7 +421,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       const postsRes = await HttpService.client.getPosts({
         page_cursor: cursor,
         sort: mixedToPostSortType(sort),
-        time_range_seconds: postTimeRange,
+        time_range_seconds: intervalToSeconds(time),
         type_: "all",
         community_name: name,
         show_hidden: showHidden,
@@ -751,32 +746,90 @@ export class Community extends Component<CommunityRouteProps, State> {
     const res =
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
-    const { postOrCommentType, sort, postTimeRange, showHidden, showRead } =
-      this.props;
+    const { postOrCommentType, sort, time, showHidden, showRead } = this.props;
     const communityRss = res
       ? communityRSSUrl(res.community_view.community, sort)
       : undefined;
-    const showSidebarMobile = this.state.showSidebarMobile;
+    const { showSidebarMobile, selectButtonsHidden } = this.state;
 
     const myUserInfo = this.isoData.myUserInfo;
+    const hideTimeSelect = sort === "new" || sort === "old";
 
     return (
-      <div className="row row-cols-auto align-items-center g-3 mb-3">
-        <div className="d-block d-md-none col">
-          <ExpandChipCheckbox
-            option="show_sidebar"
-            isChecked={showSidebarMobile}
-            onCheck={show => handleShowSidebarMobile(this, show)}
-          />
+      <>
+        <div className="row row-cols-auto align-items-center g-3 mb-3">
+          <div className="d-block d-md-none col">
+            <ExpandChipCheckbox
+              option="show_sidebar"
+              isChecked={showSidebarMobile}
+              onCheck={show => handleShowSidebarMobile(this, show)}
+            />
+          </div>
+          <div className="col">
+            <PostOrCommentTypeDropdown
+              currentOption={postOrCommentType}
+              onSelect={val => handlePostOrCommentTypeChange(this, val)}
+            />
+          </div>
+          <div className="col">
+            <PostListingModeDropdown
+              currentOption={this.state.postListingMode}
+              onSelect={val =>
+                handlePostListingModeChange(this, val, myUserInfo)
+              }
+              showLabel
+            />
+          </div>
+          {this.props.postOrCommentType === "post" ? (
+            <>
+              <div className="col">
+                <PostSortDropdown
+                  currentOption={mixedToPostSortType(sort)}
+                  onSelect={val => handleSortChange(this, val)}
+                  showLabel
+                />
+              </div>
+              {!hideTimeSelect && (
+                <div className="col">
+                  <TimeIntervalFilter
+                    interval={time}
+                    onChange={val => handleTimeChange(this, val)}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="col">
+              <CommentSortDropdown
+                currentOption={mixedToCommentSortType(sort)}
+                onSelect={val => handleCommentSortChange(this, val)}
+                showLabel
+              />
+            </div>
+          )}
+          {communityRss && (
+            <div className="col">
+              <a href={communityRss} title="RSS" rel={relTags}>
+                <Icon icon="rss" classes="text-muted small" />
+              </a>
+              <link
+                rel="alternate"
+                type="application/atom+xml"
+                href={communityRss}
+              />
+            </div>
+          )}
+          {myUserInfo && (
+            <button
+              className="col btn btn-ghost"
+              onClick={_ => handleHideSelectButtons(this)}
+            >
+              <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />
+            </button>
+          )}
         </div>
-        <div className="col">
-          <PostOrCommentTypeDropdown
-            currentOption={postOrCommentType}
-            onSelect={val => handlePostOrCommentTypeChange(this, val)}
-          />
-        </div>
-        {postOrCommentType === "post" && myUserInfo && (
-          <>
+        {postOrCommentType === "post" && myUserInfo && !selectButtonsHidden && (
+          <div className="row row-cols-auto mt-2">
             <div className="col">
               <FilterChipCheckbox
                 option={"show_hidden_posts"}
@@ -791,53 +844,9 @@ export class Community extends Component<CommunityRouteProps, State> {
                 onCheck={hideRead => handleHideReadChange(this, hideRead)}
               />
             </div>
-          </>
-        )}
-        <div className="col">
-          <PostListingModeDropdown
-            currentOption={this.state.postListingMode}
-            onSelect={val => handlePostListingModeChange(this, val, myUserInfo)}
-            showLabel
-          />
-        </div>
-        {this.props.postOrCommentType === "post" ? (
-          <>
-            <div className="col">
-              <PostSortDropdown
-                currentOption={mixedToPostSortType(sort)}
-                onSelect={val => handleSortChange(this, val)}
-                showLabel
-              />
-            </div>
-            <div className="col">
-              <TimeIntervalFilter
-                currentSeconds={postTimeRange}
-                onChange={val => handlePostTimeRangeChange(this, val)}
-              />
-            </div>
-          </>
-        ) : (
-          <div className="col">
-            <CommentSortDropdown
-              currentOption={mixedToCommentSortType(sort)}
-              onSelect={val => handleCommentSortChange(this, val)}
-              showLabel
-            />
           </div>
         )}
-        {communityRss && (
-          <div className="col">
-            <a href={communityRss} title="RSS" rel={relTags}>
-              <Icon icon="rss" classes="text-muted small" />
-            </a>
-            <link
-              rel="alternate"
-              type="application/atom+xml"
-              href={communityRss}
-            />
-          </div>
-        )}
-      </div>
+      </>
     );
   }
 }
@@ -890,8 +899,8 @@ function handleSortChange(i: Community, sort: PostSortType) {
   i.updateUrl({ sort, cursor: undefined });
 }
 
-function handlePostTimeRangeChange(i: Community, val: number) {
-  i.updateUrl({ postTimeRange: val, cursor: undefined });
+function handleTimeChange(i: Community, val: Interval) {
+  i.updateUrl({ time: val, cursor: undefined });
 }
 
 function handleCommentSortChange(i: Community, sort: CommentSortType) {
@@ -1470,4 +1479,8 @@ function DeadInstanceOrCommunityWarning() {
       </div>
     </div>
   );
+}
+
+function handleHideSelectButtons(i: Community) {
+  i.setState({ selectButtonsHidden: !i.state.selectButtonsHidden });
 }
