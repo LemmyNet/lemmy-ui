@@ -21,7 +21,7 @@ export function modalMixin<
 
     private removeModalListener(type: string, listener?: () => void) {
       if (listener) {
-        this.modalDivRef.current?.addEventListener(type, listener);
+        this.modalDivRef.current?.removeEventListener(type, listener);
       }
     }
 

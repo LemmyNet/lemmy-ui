@@ -94,6 +94,26 @@ export default [
           message: "Use createRef instead",
         },
       ],
+      "no-restricted-syntax": [
+        "error",
+        /* To figure out the node types and hierarchy, set the info view to ESTree in the
+         * typescript-eslint Playground (https://typescript-eslint.io/play/) and move the cursor in
+         * the code view to the positions you're interested in.
+         *
+         * For the selector syntax: https://eslint.org/docs/latest/extend/selectors
+         */
+        {
+          /* Expected to catch:
+           * document.removeEventListener("", () => {});
+           * document.removeEventListener("", function () {});
+           * document.removeEventListener("", function notAnon() {});
+           */
+          selector:
+            "CallExpression[callee.property.name=removeEventListener] > :matches(FunctionExpression, ArrowFunctionExpression):nth-child(2)",
+          message:
+            "removeEventListener has to be called with the same listener as addEventListener. You are passing a new function.",
+        },
+      ],
     },
   },
 ];
