@@ -569,3 +569,8 @@ em-emoji-picker {
 .choices__input {
   background-color: var(--bs-body-secondary) !important;
 }
+
+/* A faster animation for viewerjs */
+.viewer-transition {
+  transition-duration: 0.1s; /* 0.3s -> 0.1s */
+}
