@@ -96,6 +96,7 @@ export class FilterChipSelect extends Component<Props, State> {
           addChoice: ["choices__item--selectable", "add-choice"],
           noResults: ["has-no-results"],
           noChoices: ["has-no-choices"],
+          invalidState: ["is-invalid"],
         },
       });
 
