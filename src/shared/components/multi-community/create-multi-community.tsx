@@ -9,7 +9,7 @@ import { HttpService, I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
 import { MultiCommunityForm } from "./multi-community-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { toast } from "@utils/app";
 import { NoOptionI18nKeys } from "i18next";
 import {
@@ -17,7 +17,6 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "@services/HttpService";
-import { RouterContext } from "inferno-router/dist/Router";
 
 interface State {
   createRes: RequestState<MultiCommunityResponse>;

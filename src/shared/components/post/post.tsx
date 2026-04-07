@@ -111,7 +111,7 @@ import { Icon, Spinner } from "@components/common/icon";
 import { CommunitySidebar } from "@components/community/community-sidebar";
 import { PostListing } from "./post-listing";
 import { getHttpBaseInternal } from "@utils/env";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { compareAsc, compareDesc } from "date-fns";
 import { nowBoolean } from "@utils/date";
@@ -121,7 +121,6 @@ import { Link } from "inferno-router";
 import { Action } from "history";
 import { CommentSortDropdown } from "@components/common/sort-dropdown";
 import { CommentViewTypeDropdown } from "@components/common/comment-view-type-dropdown";
-import { RouterContext } from "inferno-router/dist/Router";
 
 const commentsShownInterval = 15;
 

@@ -7,7 +7,7 @@ import {
 import { ErrorPageData, IsoDataOptionalSite } from "@utils/types";
 import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
-import { Match } from "inferno-router/dist/Route";
+import { Match } from "inferno-router";
 import { renderToString } from "inferno-server";
 import {
   GetSiteResponse,

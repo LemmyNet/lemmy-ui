@@ -38,7 +38,7 @@ import { Spinner } from "../common/icon";
 import { getHttpBaseInternal } from "../../utils/env";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { InfernoNode } from "inferno";
 import { PendingFollow } from "@components/common/pending-follow";
@@ -46,7 +46,6 @@ import {
   RegistrationState,
   RegistrationStateDropdown,
 } from "@components/common/registration-state-dropdown";
-import { RouterContext } from "inferno-router/dist/Router";
 
 type PendingFollowsData = RouteDataResponse<{
   listPendingFollowsResponse: PagedResponse<PendingFollowerView>;

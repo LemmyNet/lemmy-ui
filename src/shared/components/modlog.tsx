@@ -21,7 +21,7 @@ import { Choice, RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import {
   GetCommunity,
   GetCommunityResponse,
@@ -61,7 +61,6 @@ import { TableHr } from "./common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { ModlogKindFilterDropdown } from "./common/modlog-kind-filter-dropdown";
 import { FilterChipSelect } from "./common/filter-chip-select";
-import { RouterContext } from "inferno-router/dist/Router";
 
 const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";

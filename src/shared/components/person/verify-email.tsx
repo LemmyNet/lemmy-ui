@@ -12,9 +12,8 @@ import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { isBrowser } from "@utils/browser";
-import { RouterContext } from "inferno-router/dist/Router";
 
 interface State {
   verifyRes: RequestState<SuccessResponse>;

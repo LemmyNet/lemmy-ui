@@ -108,7 +108,7 @@ import {
   CommentsLoadingSkeleton,
   PostsLoadingSkeleton,
 } from "../common/loading-skeleton";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { DonationDialog } from "./donation-dialog";
@@ -121,7 +121,6 @@ import {
   ExpandChipCheckbox,
   FilterChipCheckbox,
 } from "@components/common/filter-chip-checkbox";
-import { RouterContext } from "inferno-router/dist/Router";
 import {
   ALL_TIME_INTERVAL,
   Interval,

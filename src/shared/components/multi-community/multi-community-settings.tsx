@@ -3,7 +3,7 @@ import { resourcesSettled, bareRoutePush } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import {
   CommunityId,
   GetMultiCommunity,
@@ -35,7 +35,6 @@ import {
   MultiCommunityEntryList,
 } from "./multi-community-entry-form";
 import { MultiCommunityLink } from "./multi-community-link";
-import { RouterContext } from "inferno-router/dist/Router";
 
 type MultiCommunitySettingsData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;

@@ -25,7 +25,7 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode, RefObject, createRef } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -132,7 +132,6 @@ import {
   ExpandChipCheckbox,
   FilterChipCheckbox,
 } from "@components/common/filter-chip-checkbox";
-import { RouterContext } from "inferno-router/dist/Router";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;

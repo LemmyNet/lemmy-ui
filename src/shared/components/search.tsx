@@ -58,7 +58,7 @@ import { Icon, Spinner } from "./common/icon";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
 import { getHttpBaseInternal } from "../utils/env";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "./common/paginator-cursor";
@@ -73,7 +73,6 @@ import { SearchTypeDropdown } from "./common/search-type-dropdown";
 import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
 import { NoOptionI18nKeys } from "i18next";
 import { FilterChipSelect } from "./common/filter-chip-select";
-import { RouterContext } from "inferno-router/dist/Router";
 
 interface SearchProps {
   q?: string;

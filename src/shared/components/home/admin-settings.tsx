@@ -47,7 +47,7 @@ import RateLimitForm from "./rate-limit-form";
 import { SiteForm } from "./site-form";
 import { TaglineForm } from "./tagline-form";
 import { getHttpBaseInternal } from "../../utils/env";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { MediaUploads } from "../common/media-uploads";
 import { snapToTop } from "@utils/browser";
@@ -68,7 +68,6 @@ import {
   AllOrBannedDropdown,
 } from "@components/common/all-or-banned-dropdown";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
-import { RouterContext } from "inferno-router/dist/Router";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: PagedResponse<LocalUserView>;

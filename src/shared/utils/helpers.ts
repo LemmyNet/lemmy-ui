@@ -1,4 +1,4 @@
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps } from "inferno-router";
 import { RequestState } from "@services/HttpService";
 import { PostView } from "lemmy-js-client";
 import { Action } from "history";

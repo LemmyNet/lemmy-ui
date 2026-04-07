@@ -30,7 +30,7 @@ import { format } from "date-fns";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, FormEvent, InfernoMouseEvent, InfernoNode } from "inferno";
 import { Link } from "inferno-router";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -119,7 +119,6 @@ import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
-import { RouterContext } from "inferno-router/dist/Router";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;

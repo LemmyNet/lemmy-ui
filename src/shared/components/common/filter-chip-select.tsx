@@ -1,7 +1,7 @@
 import { NoOptionI18nKeys } from "i18next";
 import { dedupByProperty, randomStr } from "@utils/helpers";
 import { Component, FormEvent, InfernoNode } from "inferno";
-import Choices from "choices.js/public/types/src/scripts/choices";
+import Choices from "choices.js";
 import { Choice } from "@utils/types";
 import { I18NextService } from "@services/I18NextService";
 import { createRef, RefObject } from "inferno";
