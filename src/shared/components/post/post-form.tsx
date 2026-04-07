@@ -346,6 +346,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   onPaste={e => handleImageUploadPaste(this, e)}
                 />
                 {this.renderSuggestedTitleCopy()}
+                {/* Show a warning for media posts with missing alt text */}
+                {url && isMedia(url) && !this.state.form.alt_text && (
+                  <div className="alert alert-warning" role="alert">
+                    {I18NextService.i18n.t("missing_alt_text")}
+                  </div>
+                )}
                 {url && validURL(url) && (
                   <div>
                     <a
@@ -457,6 +463,28 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 </>
               )}
             </div>
+            {url && isMedia(url) && (
+              <div className="mb-3 row">
+                <label
+                  className="col-sm-2 col-form-label"
+                  htmlFor="post-alt-text"
+                >
+                  {I18NextService.i18n.t("column_alttext")}
+                </label>
+                <div className="col-sm-10">
+                  <input
+                    autoComplete="false"
+                    name="alt_text"
+                    placeholder={I18NextService.i18n.t("optional")}
+                    type="text"
+                    className="form-control mb-3"
+                    id="post-alt-text"
+                    value={this.state.form.alt_text}
+                    onInput={e => handleAltTextChange(this, e)}
+                  />
+                </div>
+              </div>
+            )}
             {!isImage(url || "") && (
               <div className="mb-3 row">
                 <label
@@ -504,28 +532,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               onChange={val => handleLanguageChange(this, val)}
               myUserInfo={this.props.myUserInfo}
             />
-            {url && isMedia(url) && (
-              <div className="mb-3 row">
-                <label
-                  className="col-sm-2 col-form-label"
-                  htmlFor="post-alt-text"
-                >
-                  {I18NextService.i18n.t("column_alttext")}
-                </label>
-                <div className="col-sm-10">
-                  <input
-                    autoComplete="false"
-                    name="alt_text"
-                    placeholder={I18NextService.i18n.t("optional")}
-                    type="text"
-                    className="form-control"
-                    id="post-alt-text"
-                    value={this.state.form.alt_text}
-                    onInput={e => handleAltTextChange(this, e)}
-                  />
-                </div>
-              </div>
-            )}
             {!this.props.post_view && (
               <div className="mb-3 row align-items-center">
                 <label
