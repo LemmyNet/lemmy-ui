@@ -18,7 +18,7 @@ import { destroyTippy, setupTippy } from "@utils/tippy";
 import { Locale, setDefaultOptions } from "date-fns";
 import { i18n } from "i18next";
 import { setupEmojiDataModel } from "@utils/markdown";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps } from "inferno-router";
 
 function handleJumpToContent(
   app: App,

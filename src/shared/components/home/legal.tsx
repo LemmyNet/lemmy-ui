@@ -3,7 +3,7 @@ import { Component } from "inferno";
 import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { HtmlTags } from "../common/html-tags";
-import { RouterContext } from "inferno-router/dist/Router";
+import { RouterContext } from "inferno-router";
 
 export class Legal extends Component<object, object> {
   private isoData = setIsoData(this.context);

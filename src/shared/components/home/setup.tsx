@@ -13,7 +13,7 @@ import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import { SiteForm } from "./site-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps } from "inferno-router";
 import { isBrowser } from "@utils/browser";
 
 interface State {

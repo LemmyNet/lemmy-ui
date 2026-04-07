@@ -37,7 +37,7 @@ import { SubscribeButton } from "@components/common/subscribe-button";
 import { multiCommunityLimit } from "@utils/config";
 import { getHttpBaseInternal } from "@utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
@@ -45,7 +45,6 @@ import { TableHr } from "@components/common/tables";
 import { MultiCommunityLink } from "./multi-community-link";
 import { MultiCommunityListingTypeDropdown } from "@components/common/multi-community-listing-type-dropdown";
 import { CreateMultiCommunityButton } from "@components/common/content-actions/create-item-buttons";
-import { RouterContext } from "inferno-router/dist/Router";
 
 type MultiCommunitiesData = RouteDataResponse<{
   listMultiCommunitiesRes: PagedResponse<MultiCommunityView>;

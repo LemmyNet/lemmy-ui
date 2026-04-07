@@ -5,7 +5,7 @@ import { Helmet } from "inferno-helmet";
 import { md } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { setIsoData } from "@utils/app";
-import { RouterContext } from "inferno-router/dist/Router";
+import { RouterContext } from "inferno-router";
 
 interface HtmlTagsProps {
   title: string;

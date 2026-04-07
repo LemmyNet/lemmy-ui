@@ -2,7 +2,7 @@ import { setIsoData, updateMyUserInfo } from "@utils/app";
 import { refreshTheme } from "@utils/browser";
 import { getQueryParams, validEmail } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { LoginResponse } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import {
@@ -23,7 +23,6 @@ import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { NoOptionI18nKeys } from "i18next";
 import { OAuthLogin } from "./oauth/oauth-login";
 import { Action } from "history";
-import { RouterContext } from "inferno-router/dist/Router";
 
 interface LoginProps {
   prev?: string;

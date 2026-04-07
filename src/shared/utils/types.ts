@@ -11,7 +11,7 @@ import {
   Community,
 } from "lemmy-js-client";
 import { RequestState } from "@services/HttpService";
-import { Match } from "inferno-router/dist/Route";
+import { Match } from "inferno-router";
 import { InfernoNode } from "inferno";
 
 /**

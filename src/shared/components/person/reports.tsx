@@ -50,7 +50,7 @@ import { PostReport } from "../post/post-report";
 import { PrivateMessageReport } from "../private_message/private-message-report";
 import { UnreadCounterService } from "../../services";
 import { getHttpBaseInternal } from "../../utils/env";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "../common/paginator-cursor";
@@ -64,7 +64,6 @@ import {
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
-import { RouterContext } from "inferno-router/dist/Router";
 
 type ReportsData = RouteDataResponse<{
   reportsRes: PagedResponse<ReportCombinedView>;

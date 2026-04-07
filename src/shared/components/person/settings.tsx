@@ -78,7 +78,7 @@ import {
 } from "../../utils/browser";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import {
   ALL_TIME_INTERVAL,
@@ -95,7 +95,6 @@ import { VoteShowDropdown } from "@components/common/vote-show-dropdown";
 import { InterfaceLanguageDropdown } from "@components/common/interface-language-dropdown";
 import { ThemeDropdown } from "@components/common/theme-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
-import { RouterContext } from "inferno-router/dist/Router";
 import { FilterChipSelect } from "@components/common/filter-chip-select";
 
 type SettingsData = RouteDataResponse<{

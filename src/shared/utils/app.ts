@@ -51,7 +51,7 @@ import {
   PersonTribute,
   ThemeColor,
 } from "@utils/types";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps } from "inferno-router";
 import {
   HttpService,
   I18NextService,

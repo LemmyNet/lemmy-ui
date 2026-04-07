@@ -3,9 +3,12 @@ import { debounce, groupBy } from "@utils/helpers";
 import { CommunityTribute, PersonTribute } from "@utils/types";
 import { Picker } from "emoji-mart";
 import { CustomEmojiView } from "lemmy-js-client";
-import { default as MarkdownIt, PluginSimple } from "markdown-it";
+import {
+  default as MarkdownIt,
+  Options as MarkdownItOptions,
+  PluginSimple,
+} from "markdown-it";
 import markdown_it_container from "markdown-it-container";
-import { Renderer, Token } from "markdown-it";
 import { relTags } from "./config";
 import { lazyHighlightjs } from "./lazy-highlightjs";
 import { HttpService, WrappedLemmyHttp } from "@services/HttpService";
@@ -22,6 +25,8 @@ import { getStaticDir } from "./env";
 import mila from "markdown-it-link-attributes";
 import { buildPictrsSrc } from "@components/common/pictrs-image";
 import { TributeCollection } from "tributejs";
+import Token from "markdown-it/lib/token.mjs";
+import Renderer from "markdown-it/lib/renderer.mjs";
 
 export let md: MarkdownIt = new MarkdownIt();
 
@@ -163,7 +168,7 @@ function localInstanceLinkParser(md: MarkdownIt) {
 }
 
 export function setupMarkdown() {
-  const markdownItConfig: MarkdownIt.Options = {
+  const markdownItConfig: MarkdownItOptions = {
     html: false,
     linkify: true,
     typographer: true,
@@ -207,7 +212,7 @@ export function setupMarkdown() {
   md.renderer.rules.image = function (
     tokens: Token[],
     idx: number,
-    options: MarkdownIt.Options,
+    options: MarkdownItOptions,
     env: never,
     self: Renderer,
   ) {
@@ -246,7 +251,7 @@ export function setupMarkdown() {
   md.renderer.rules.link_open = function (
     tokens: Token[],
     idx: number,
-    options: MarkdownIt.Options,
+    options: MarkdownItOptions,
     env: never,
     self: Renderer,
   ) {

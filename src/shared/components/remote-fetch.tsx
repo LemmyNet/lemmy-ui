@@ -24,10 +24,9 @@ import { PictrsImage } from "./common/pictrs-image";
 import { SubscribeButton } from "./common/subscribe-button";
 import { CommunityLink } from "./community/community-link";
 import { getHttpBaseInternal } from "../utils/env";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
-import { RouterContext } from "inferno-router/dist/Router";
 
 interface RemoteFetchProps {
   uri?: string;

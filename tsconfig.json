@@ -1,17 +1,16 @@
 {
   "compilerOptions": {
     "pretty": true,
-    "target": "esnext",
-    "module": "esnext",
     "allowSyntheticDefaultImports": true,
     "preserveConstEnums": true,
     "sourceMap": true,
-    "moduleResolution": "node",
     "lib": ["es2022", "dom"],
-    "types": ["inferno"],
+    "types": ["inferno", "node"],
     "jsx": "preserve",
     "noUnusedLocals": true,
-    "baseUrl": "./src",
+    "strict": false,
+    "noUncheckedSideEffectImports": false,
+    "rootDir": "./src",
     "noEmit": true,
     "skipLibCheck": true,
     "noUnusedParameters": true,
@@ -21,15 +20,10 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@/*": ["/*"],
-      "@utils/*": ["shared/utils/*"],
-      "@services/*": ["shared/services/*"],
-      "@components/*": ["shared/components/*"]
+      "@utils/*": ["./src/shared/utils/*"],
+      "@services/*": ["./src/shared/services/*"],
+      "@components/*": ["./src/shared/components/*"]
     }
   },
-  "include": [
-    "src/shared/build-config.d.ts",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "node_modules/inferno/dist/index.d.ts"
-  ]
+  "include": ["src/shared/build-config.d.ts", "src/**/*.ts", "src/**/*.tsx"]
 }

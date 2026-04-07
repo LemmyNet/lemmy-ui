@@ -39,14 +39,13 @@ import { communityLink, CommunityLink } from "./community-link";
 import { communityLimit } from "@utils/config";
 import { getHttpBaseInternal } from "@utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { TableHr } from "@components/common/tables";
 import { CreateCommunityButton } from "@components/common/content-actions/create-item-buttons";
 import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
-import { RouterContext } from "inferno-router/dist/Router";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: PagedResponse<CommunityView>;

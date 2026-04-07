@@ -31,7 +31,7 @@ import { canViewCommunity, reportToast } from "@utils/app";
 import { CreatePostButton } from "@components/common/content-actions/create-item-buttons";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
 import { Link } from "inferno-router";
-import { RouterContext } from "inferno-router/dist/Router";
+import { RouterContext } from "inferno-router";
 
 interface SidebarProps {
   communityView: CommunityView;

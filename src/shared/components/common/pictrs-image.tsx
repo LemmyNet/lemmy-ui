@@ -1,4 +1,3 @@
-// @ts-expect-error has a weird import error
 import { lazyLoad } from "unlazy";
 import Viewer from "viewerjs";
 import classNames from "classnames";
@@ -63,7 +62,6 @@ export class PictrsImage extends Component<Props, State> {
 
   componentDidMount() {
     if (this.imageRef.current) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       this.lazyLoadCleanup = lazyLoad(this.imageRef.current) as
         | undefined
         | (() => void);

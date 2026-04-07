@@ -25,10 +25,9 @@ import PasswordInput from "../common/password-input";
 import { secondsDurationToAlertClass, secondsDurationToStr } from "@utils/date";
 import { scrollMixin } from "@components/mixins/scroll-mixin";
 import { RouteData } from "@utils/types";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { OAuthLogin } from "./oauth/oauth-login";
-import { RouterContext } from "inferno-router/dist/Router";
 
 interface State {
   registerRes: RequestState<LoginResponse>;

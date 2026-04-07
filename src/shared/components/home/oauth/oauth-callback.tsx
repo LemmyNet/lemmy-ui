@@ -7,7 +7,7 @@ import { getQueryParams } from "@utils/helpers";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { RouteData } from "@utils/types";
 import { I18NextService, UserService } from "../../../services";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps } from "inferno-router";
 import { UnreadCounterService } from "../../../services";
 import { HttpService } from "../../../services/HttpService";
 import { toast } from "@utils/app";

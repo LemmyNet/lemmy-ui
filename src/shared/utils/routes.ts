@@ -1,4 +1,4 @@
-import { IRouteProps, RouteComponentProps } from "inferno-router/dist/Route";
+import { IRouteProps, RouteComponentProps } from "inferno-router";
 import {
   Communities,
   CommunitiesFetchConfig,
