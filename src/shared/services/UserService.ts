@@ -84,15 +84,12 @@ export class UserService {
     if (isBrowser()) {
       const auth = cookie.parse(document.cookie)[authCookieName];
 
-      // TODO: throws error saying that setHeaders doesnt exist
-      /*
       if (auth) {
         await HttpService.client.setHeaders({
           Authorization: `Bearer ${auth}`,
         });
         this.authInfo = { auth, claims: jwtDecode(auth) };
       }
-      */
     }
   }
 

@@ -28,7 +28,6 @@ import {
   PostListingMode,
   MultiCommunity,
   MultiCommunityView,
-  SearchSortType,
   CommentReportResponse,
   PostReportResponse,
   PrivateMessageReportResponse,
@@ -190,11 +189,8 @@ export function subscribedRSSUrl(
   return httpBackendUrl(`/feeds/front/${auth}.xml${queryString}`);
 }
 
-export function profileRSSUrl(
-  username: string,
-  sort: SearchSortType = "new",
-): string {
-  return httpBackendUrl(`/feeds/u/${username}.xml${getQueryString({ sort })}`);
+export function profileRSSUrl(username: string): string {
+  return httpBackendUrl(`/feeds/u/${username}.xml`);
 }
 
 export function notificationsRSSUrl(auth: string): string {

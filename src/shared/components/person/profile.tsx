@@ -75,7 +75,6 @@ import {
   PostCommentCombinedView,
   Person,
   MarkPostAsRead,
-  SearchSortType,
   NotePerson,
   PostView,
   LockComment,
@@ -102,7 +101,6 @@ import { BannerIconHeader } from "../common/banner-icon-header";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
-import { SearchSortDropdown } from "../common/sort-dropdown";
 import { UserBadges } from "../common/user-badges";
 import { CommunityLink } from "../community/community-link";
 import { PersonDetails } from "./person-details";
@@ -173,7 +171,6 @@ const viewTypeOptions: FilterOption<ViewType>[] = [
 
 interface ProfileProps {
   contentType: PersonDetailsContentType;
-  sort: SearchSortType;
   cursor?: PaginationCursor;
   viewType: ViewType;
 }
@@ -183,15 +180,10 @@ export function getProfileQueryParams(source?: string): ProfileProps {
     {
       contentType: getContentTypeFromQuery,
       cursor: (cursor?: string) => cursor,
-      sort: getSortTypeFromQuery,
       viewType: getViewTypeFromQuery,
     },
     source,
   );
-}
-
-function getSortTypeFromQuery(sort?: string): SearchSortType {
-  return sort ? (sort as SearchSortType) : "new";
 }
 
 function getContentTypeFromQuery(
@@ -398,7 +390,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     if (
       nextProps.contentType !== this.props.contentType ||
-      nextProps.sort !== this.props.sort ||
       nextProps.cursor !== this.props.cursor ||
       nextProps.viewType !== this.props.viewType ||
       newUsername ||
@@ -633,7 +624,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
       case "success": {
         const siteRes = this.state.siteRes;
         const personRes = this.state.personRes.data;
-        const { sort, contentType: view, viewType: filter } = this.props;
+        const { contentType: view, viewType: filter } = this.props;
         const myUserInfo = this.isoData.myUserInfo;
 
         const savedContent =
@@ -702,7 +693,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                       []
                     }
                     admins={siteRes.admins}
-                    sort={sort}
+                    sort="active"
                     limit={fetchLimit}
                     createCommentLoading={itemLoading(
                       this.state.createCommentRes,
@@ -813,10 +804,10 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   }
 
   get selects() {
-    const { sort, viewType, contentType } = this.props;
+    const { viewType, contentType } = this.props;
     const { username } = this.props.match.params;
 
-    const profileRss = profileRSSUrl(username, sort);
+    const profileRss = profileRSSUrl(username);
 
     let filteredContentTypeOptions = contentTypeOptions;
 
@@ -848,15 +839,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
               allOptions={viewTypeOptions}
               currentOption={viewTypeOptions.find(t => t.value === viewType)}
               onSelect={val => handleViewChange(this, val)}
-            />
-          </div>
-        )}
-        {!uploadsContentType && (
-          <div className="col">
-            <SearchSortDropdown
-              currentOption={sort}
-              onSelect={val => handleSortChange(this, val)}
-              showLabel
             />
           </div>
         )}
@@ -1185,7 +1167,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   updateUrl(props: Partial<ProfileRouteProps>) {
     const {
       cursor,
-      sort,
       contentType: view,
       viewType: filter,
       match: {
@@ -1195,7 +1176,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
     const queryParams: QueryParams<ProfileProps> = {
       cursor,
-      sort,
       contentType:
         view !== getContentTypeFromQuery(undefined) ? view : undefined,
       viewType: filter !== getViewTypeFromQuery(undefined) ? filter : undefined,
@@ -1403,10 +1383,6 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
 function handlePageChange(i: Profile, cursor?: PaginationCursor) {
   i.updateUrl({ cursor });
-}
-
-function handleSortChange(i: Profile, sort: SearchSortType) {
-  i.updateUrl({ sort, cursor: undefined });
 }
 
 function handleContentTypeChange(

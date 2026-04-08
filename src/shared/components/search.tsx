@@ -3,9 +3,9 @@ import {
   commentToFlatNode,
   communityToChoice,
   enableNsfw,
+  personToChoice,
   searchCommunities,
   searchUsers,
-  personToChoice,
   setIsoData,
   showLocal,
 } from "@utils/app";
@@ -34,14 +34,12 @@ import {
   PostView,
   Search as SearchForm,
   SearchResponse,
-  SearchSortType,
+  SearchType,
   PaginationCursor,
   MyUserInfo,
   CommentView,
   MultiCommunityView,
   CommunitySortType,
-  GetPosts,
-  GetComments,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -62,14 +60,13 @@ import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps } from "inferno-router/dist/Route";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
-import { SearchSortDropdown } from "./common/sort-dropdown";
 import { UserBadges } from "./common/user-badges";
 import { CommunityBadges, MultiCommunityBadges } from "./common/badges";
 import { CommunityLink } from "./community/community-link";
 import { MultiCommunityLink } from "./multi-community/multi-community-link";
 import { Action } from "history";
 import { ListingTypeDropdown } from "./common/listing-type-dropdown";
-import { SearchType, SearchTypeDropdown } from "./common/search-type-dropdown";
+import { SearchTypeDropdown } from "./common/search-type-dropdown";
 import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
 import { NoOptionI18nKeys } from "i18next";
 import { FilterChipSelect } from "./common/filter-chip-select";
@@ -78,7 +75,6 @@ import { RouterContext } from "inferno-router/dist/Router";
 interface SearchProps {
   q?: string;
   type: SearchType;
-  sort: SearchSortType;
   listingType: ListingType;
   titleOnly: boolean;
   postUrlOnly: boolean;
@@ -105,7 +101,6 @@ interface SearchState {
 }
 
 const defaultSearchType: SearchType = "all";
-const defaultSearchSortType: SearchSortType = "top";
 const defaultListingType: ListingType = "all";
 const defaultCommunitySortType: CommunitySortType = "hot";
 
@@ -114,7 +109,6 @@ export function getSearchQueryParams(source?: string): SearchProps {
     {
       q: getSearchQueryFromQuery,
       type: getSearchTypeFromQuery,
-      sort: getSortTypeFromQuery,
       listingType: getListingTypeFromQuery,
       titleOnly: getTitleOnlyFromQuery,
       postUrlOnly: getPostUrlOnlyFromQuery,
@@ -130,10 +124,6 @@ const getSearchQueryFromQuery = (q?: string): string | undefined => q;
 
 function getSearchTypeFromQuery(type_?: string): SearchType {
   return type_ ? (type_ as SearchType) : defaultSearchType;
-}
-
-function getSortTypeFromQuery(sort?: string): SearchSortType {
-  return sort ? (sort as SearchSortType) : defaultSearchSortType;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
@@ -588,7 +578,15 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   static fetchInitialData = async ({
     headers,
-    query,
+    query: {
+      q: query,
+      type: searchType,
+      listingType: listing_type,
+      titleOnly: title_only,
+      postUrlOnly: post_url_only,
+      communityId: community_id,
+      creatorId: creator_id,
+    },
   }: InitialFetchRequest<
     SearchPathProps,
     SearchProps
@@ -597,9 +595,9 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
-    if (query.communityId) {
+    if (community_id) {
       const getCommunityForm: GetCommunity = {
-        id: query.communityId,
+        id: community_id,
       };
 
       communityResponse = await client.getCommunity(getCommunityForm);
@@ -613,15 +611,30 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     let creatorDetailsResponse: RequestState<GetPersonDetailsResponse> =
       EMPTY_REQUEST;
-    if (query.creatorId) {
+    if (creator_id) {
       const getCreatorForm: GetPersonDetails = {
-        person_id: query.creatorId,
+        person_id: creator_id,
       };
 
       creatorDetailsResponse = await client.getPersonDetails(getCreatorForm);
     }
 
-    const searchResponse = await doSearch(query);
+    let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
+
+    if (query) {
+      const form: SearchForm = {
+        search_term: query,
+        community_id,
+        creator_id,
+        type_: searchType,
+        listing_type,
+        title_only,
+        post_url_only,
+        limit: fetchLimit,
+      };
+
+      searchResponse = await client.search(form);
+    }
 
     return {
       communityResponse,
@@ -630,13 +643,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       searchResponse,
     };
   };
-
-  /*
-  get getNextPage(): PaginationCursor | undefined {
-    const { searchRes: res } = this.state;
-    return res.state === "success" ? res.data.next_page : undefined;
-  }
-  */
 
   get documentTitle(): string {
     const { q } = this.props;
@@ -662,24 +668,13 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           this.state.searchRes.state === "success" && (
             <span>{I18NextService.i18n.t("no_results")}</span>
           )}
-        {/*
-        <PaginatorCursor
-          current={this.props.cursor}
-          resource={this.state.searchRes}
-          onPageChange={cursor => handlePageChange(this, cursor)}
-        />
-        */}
       </div>
     );
   }
 
   displayResolve(): InfernoNode | void {
     const { searchRes: searchResponse } = this.state;
-    if (
-      searchResponse.state === "success" &&
-      "resolve" in searchResponse.data &&
-      searchResponse.data.resolve
-    ) {
+    if (searchResponse.state === "success" && searchResponse.data.resolve) {
       const resolve = searchResponse.data.resolve;
       switch (resolve.type_) {
         case "post":
@@ -761,7 +756,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       listingType,
       titleOnly,
       postUrlOnly,
-      sort,
       communityId,
       creatorId,
     } = this.props;
@@ -776,103 +770,88 @@ export class Search extends Component<SearchRouteProps, SearchState> {
               onSelect={val => handleTypeChange(this, val)}
             />
           </div>
-          {type !== "all" && (
-            <div className="col">
-              <ListingTypeDropdown
-                currentOption={listingType}
-                showLocal={showLocal(this.isoData)}
-                showSubscribed
-                showSuggested={
-                  !!this.isoData.siteRes.site_view.local_site
-                    .suggested_multi_community_id
-                }
-                onSelect={type => handleListingTypeChange(this, type)}
-                myUserInfo={this.isoData.myUserInfo}
-                showLabel
-              />
-            </div>
-          )}
           <div className="col">
-            {/*TODO: should be called "title_only", not post_title_only*/}
-            <FilterChipCheckbox
-              option={"post_title_only"}
-              isChecked={titleOnly}
-              onCheck={val => handleTitleOnlyChange(this, val)}
+            <ListingTypeDropdown
+              currentOption={listingType}
+              showLocal={showLocal(this.isoData)}
+              showSubscribed
+              showSuggested={
+                !!this.isoData.siteRes.site_view.local_site
+                  .suggested_multi_community_id
+              }
+              onSelect={type => handleListingTypeChange(this, type)}
+              myUserInfo={this.isoData.myUserInfo}
+              showLabel
             />
           </div>
-          {type === "posts" && (
-            <div className="col">
-              <FilterChipCheckbox
-                option={"post_url_only"}
-                isChecked={postUrlOnly}
-                onCheck={val => handlePostUrlOnlyChange(this, val)}
-              />
-            </div>
-          )}
-          {type !== "all" && (
+          {(type === "all" || type === "posts") && (
             <>
               <div className="col">
-                <SearchSortDropdown
-                  currentOption={sort}
-                  onSelect={val => handleSortChange(this, val)}
-                  showLabel
+                <FilterChipCheckbox
+                  option={"post_title_only"}
+                  isChecked={titleOnly}
+                  onCheck={val => handleTitleOnlyChange(this, val)}
                 />
               </div>
               <div className="col">
-                <Filter
-                  title="all_communities"
-                  onChange={choices =>
-                    handleCommunityFilterChange(this, choices)
-                  }
-                  onSearch={text => handleCommunitySearch(this, text)}
-                  options={communitySearchOptions}
-                  value={communityId}
-                />
-              </div>
-              <div className="col">
-                <Filter
-                  title="all_creators"
-                  onChange={choices => handleCreatorFilterChange(this, choices)}
-                  onSearch={text => handleCreatorSearch(this, text)}
-                  options={creatorSearchOptions}
-                  value={creatorId}
+                <FilterChipCheckbox
+                  option={"post_url_only"}
+                  isChecked={postUrlOnly}
+                  onCheck={val => handlePostUrlOnlyChange(this, val)}
                 />
               </div>
             </>
           )}
+          <div className="col">
+            <Filter
+              title="all_communities"
+              onChange={choices => handleCommunityFilterChange(this, choices)}
+              onSearch={text => handleCommunitySearch(this, text)}
+              options={communitySearchOptions}
+              value={communityId}
+            />
+          </div>
+          <div className="col">
+            <Filter
+              title="all_creators"
+              onChange={choices => handleCreatorFilterChange(this, choices)}
+              onSearch={text => handleCreatorSearch(this, text)}
+              options={creatorSearchOptions}
+              value={creatorId}
+            />
+          </div>
         </div>
       </>
     );
   }
 
-  get all(): InfernoNode | undefined {
+  get all() {
     const { searchRes: searchResponse } = this.state;
-
-    return searchResponse.state === "success" ? (
-      <>
-        {communityListing(
-          searchResponse.data.communities,
-          this.isoData.myUserInfo,
-        )}
-        {multiCommunityListing(
-          searchResponse.data.multi_communities,
-          this.isoData.myUserInfo,
-        )}
-        {personListing(searchResponse.data.persons, this.isoData.myUserInfo)}
-        {postListing(searchResponse.data.posts, this.isoData)}
-        {commentListing(searchResponse.data.comments, this.isoData)}
-      </>
-    ) : (
-      <></>
-    );
+    if (searchResponse.state === "success") {
+      return (
+        <>
+          {communityListing(
+            searchResponse.data.communities,
+            this.isoData.myUserInfo,
+          )}
+          {multiCommunityListing(
+            searchResponse.data.multi_communities,
+            this.isoData.myUserInfo,
+          )}
+          {personListing(searchResponse.data.persons, this.isoData.myUserInfo)}
+          {postListing(searchResponse.data.posts, this.isoData)}
+          {commentListing(searchResponse.data.comments, this.isoData)}
+        </>
+      );
+    } else {
+      return <></>;
+    }
   }
 
   get comments() {
     const { searchRes: searchResponse, siteRes } = this.state;
     const comments =
-      searchResponse.state === "success" && "comments" in searchResponse.data
-        ? searchResponse.data.comments
-        : [];
+      searchResponse.state === "success" ? searchResponse.data.comments : [];
 
     return (
       <CommentNodes
@@ -924,9 +903,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get posts() {
     const { searchRes: searchResponse, siteRes } = this.state;
     const posts =
-      searchResponse.state === "success" && "posts" in searchResponse.data
-        ? searchResponse.data.posts
-        : [];
+      searchResponse.state === "success" ? searchResponse.data.posts : [];
 
     return (
       <>
@@ -990,9 +967,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get communities() {
     const { searchRes: searchResponse } = this.state;
     const communities =
-      searchResponse.state === "success" && "communities" in searchResponse.data
-        ? searchResponse.data.communities
-        : [];
+      searchResponse.state === "success" ? searchResponse.data.communities : [];
 
     return (
       <>
@@ -1006,8 +981,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get multiCommunities() {
     const { searchRes: searchResponse } = this.state;
     const multiCommunities =
-      searchResponse.state === "success" &&
-      "multi_communities" in searchResponse.data
+      searchResponse.state === "success"
         ? searchResponse.data.multi_communities
         : [];
 
@@ -1023,9 +997,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get users() {
     const { searchRes: searchResponse } = this.state;
     const users =
-      searchResponse.state === "success" && "persons" in searchResponse.data
-        ? searchResponse.data.persons
-        : [];
+      searchResponse.state === "success" ? searchResponse.data.persons : [];
 
     return (
       <>
@@ -1042,11 +1014,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     if (r.state === "success") {
       const resolveCount = r.data.resolve !== undefined ? 1 : 0;
       return (
-        r.data.comments.length +
         r.data.posts.length +
+        r.data.comments.length +
         r.data.communities.length +
-        r.data.multi_communities.length +
         r.data.persons.length +
+        r.data.multi_communities.length +
         resolveCount
       );
     } else {
@@ -1056,9 +1028,36 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   searchToken?: symbol;
   async search(props: SearchRouteProps) {
-    this.setState({ searchRes: LOADING_REQUEST });
-    const searchRes = await doSearch(props);
-    this.setState({ searchRes });
+    const token = (this.searchToken = Symbol());
+    const {
+      q,
+      communityId,
+      type,
+      listingType,
+      titleOnly,
+      postUrlOnly,
+      creatorId,
+    } = props;
+
+    if (q) {
+      this.setState({ searchRes: LOADING_REQUEST });
+      const searchRes = await HttpService.client.search({
+        search_term: q,
+        community_id: communityId ?? undefined,
+        creator_id: creatorId ?? undefined,
+        type_: type,
+        listing_type: listingType,
+        title_only: titleOnly,
+        post_url_only: postUrlOnly,
+        limit: fetchLimit,
+      });
+      if (token !== this.searchToken) {
+        return;
+      }
+      this.setState({ searchRes });
+    } else {
+      this.setState({ searchRes: EMPTY_REQUEST });
+    }
   }
 
   getQ(): string | undefined {
@@ -1072,7 +1071,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       listingType,
       titleOnly,
       postUrlOnly,
-      sort,
       communityId,
       creatorId,
       cursor,
@@ -1090,7 +1088,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       communityId: communityId?.toString(),
       creatorId: creatorId?.toString(),
       cursor,
-      sort,
     };
 
     this.props.history.push(`/search${getQueryString(queryParams)}`);
@@ -1135,10 +1132,6 @@ const handleCommunitySearch = debounce(async (i: Search, text: string) => {
   }
 });
 
-function handleSortChange(i: Search, sort: SearchSortType) {
-  i.updateUrl({ sort, cursor: undefined, q: i.getQ() });
-}
-
 function handleTitleOnlyChange(i: Search, titleOnly: boolean) {
   // Don't allow post url and post title only to be checked at the same time
   i.updateUrl({ titleOnly, q: i.getQ(), postUrlOnly: false });
@@ -1156,12 +1149,6 @@ function handleTypeChange(i: Search, type: SearchType) {
     q: i.getQ(),
   });
 }
-
-/*
-function handlePageChange(i: Search, cursor?: PaginationCursor) {
-  i.updateUrl({ cursor });
-}
-*/
 
 function handleListingTypeChange(i: Search, listingType: ListingType) {
   i.updateUrl({
@@ -1194,97 +1181,4 @@ function handleSearchSubmit(i: Search, event: FormEvent<HTMLFormElement>) {
     q: i.getQ(),
     cursor: undefined,
   });
-}
-
-async function doSearch(
-  props: SearchProps,
-): Promise<RequestState<SearchResponse>> {
-  let searchResponse: RequestState<SearchResponse> = EMPTY_REQUEST;
-  const {
-    q,
-    communityId: community_id,
-    creatorId,
-    type,
-    sort,
-    listingType,
-    titleOnly: search_title_only,
-    postUrlOnly: search_url_only,
-    cursor,
-  } = props;
-  if (!q) {
-    return searchResponse;
-  }
-
-  const searchResponseInner: SearchResponse = {
-    comments: [],
-    posts: [],
-    communities: [],
-    persons: [],
-    multi_communities: [],
-  };
-  switch (type) {
-    case "all": {
-      const form: SearchForm = {
-        search_term: q,
-        // TODO: not available
-        //community_id,
-        //creator_id,
-        //sort,
-        //listing_type,
-        search_title_only,
-        //post_url_only,
-        //limit: fetchLimit,
-        //page_cursor: cursor,
-      };
-
-      searchResponse = await HttpService.client.search(form);
-      break;
-    }
-    case "posts": {
-      const form: GetPosts = {
-        search_term: q,
-        community_id,
-        // TODO: missing creator_id
-        //creator_id,
-        sort,
-        type_: listingType,
-        search_title_only,
-        search_url_only,
-        limit: fetchLimit,
-        page_cursor: cursor,
-      };
-      const posts = await HttpService.client.getPosts(form);
-      if (posts.state === "success") {
-        searchResponseInner.posts = posts.data.items;
-        searchResponse = { state: posts.state, data: searchResponseInner };
-      } else {
-        // TODO: not working
-        //searchResponse = { state: posts.state };
-      }
-      break;
-    }
-    case "comments": {
-      const form: GetComments = {
-        search_term: q,
-        community_id,
-        // TODO: missing creator_id
-        //creator_id,
-        sort,
-        type_: listingType,
-        limit: fetchLimit,
-        page_cursor: cursor,
-      };
-      const comments = await HttpService.client.getComments(form);
-      if (comments.state === "success") {
-        searchResponseInner.comments = comments.data.items;
-        searchResponse = { state: comments.state, data: searchResponseInner };
-      } else {
-        // TODO: not working
-        //searchResponse = { state: comments.state };
-      }
-      break;
-    }
-    // TODO: communities, users, multi-communities
-  }
-  return searchResponse;
 }
