@@ -68,6 +68,7 @@ type PostActionBarProps = {
   onBlockPerson: (form: BlockPerson) => void;
   onBlockCommunity: (form: BlockCommunity) => void;
   onLockPost: (form: LockPost) => void;
+  onWarnPost: (form: { post_id: number; reason: string }) => void;
   onDeletePost: (form: DeletePost) => void;
   onRemovePost: (form: RemovePost) => void;
   onSavePost: (form: SavePost) => void;
@@ -154,6 +155,7 @@ export function PostActionBar(props: PostActionBarProps, context: object) {
           onEdit={props.onEditClick}
           onDelete={() => handleDeletePost(props)}
           onLock={reason => handleModLock(props, reason)}
+          onWarn={reason => handleWarnPost(props, reason)}
           onFeatureCommunity={() => handleModFeaturePostCommunity(props)}
           onFeatureLocal={() => handleModFeaturePostLocal(props)}
           onRemove={reason => handleRemove(props, reason)}
@@ -379,6 +381,13 @@ function handleModLock(i: PostActionBarProps, reason: string) {
   return i.onLockPost({
     post_id: i.postView.post.id,
     locked: !i.postView.post.locked,
+    reason,
+  });
+}
+
+function handleWarnPost(i: PostActionBarProps, reason: string) {
+  return i.onWarnPost({
+    post_id: i.postView.post.id,
     reason,
   });
 }

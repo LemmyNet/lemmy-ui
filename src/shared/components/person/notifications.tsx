@@ -332,6 +332,7 @@ export class Notifications extends Component<
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
+            onWarnComment={form => handleWarnComment(form)}
             onMarkRead={(id, read) => handleMarkCommentAsRead(this, id, read)}
             onFetchChildren={() => {}}
           />
@@ -766,6 +767,16 @@ async function handleLockComment(i: Notifications, form: LockComment) {
   if (res.state === "success") {
     toast(I18NextService.i18n.t(form.locked ? "locked" : "unlocked"));
     i.findAndUpdateComment(res);
+  }
+}
+
+async function handleWarnComment(form: {
+  comment_id: CommentId;
+  reason: string;
+}) {
+  const res = await HttpService.client.warnComment(form);
+  if (res.state === "success") {
+    toast("Warned comment");
   }
 }
 

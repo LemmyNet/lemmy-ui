@@ -746,6 +746,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onPostVote={form => handlePostVote(this, form)}
                     onPostReport={form => handlePostReport(form)}
                     onLockPost={form => handleLockPost(this, form)}
+                    onWarnPost={form => handleWarnPost(form)}
                     onDeletePost={form => handleDeletePost(this, form)}
                     onRemovePost={form => handleRemovePost(this, form)}
                     onSavePost={form => handleSavePost(this, form)}
@@ -756,6 +757,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     }
                     onPersonNote={form => handlePersonNote(this, form)}
                     onLockComment={form => handleLockComment(this, form)}
+                    onWarnComment={form => handleWarnComment(form)}
                     onFetchChildren={() => {}}
                   />
                 ))}
@@ -1649,6 +1651,13 @@ async function handleLockComment(i: Profile, form: LockComment) {
   i.findAndUpdateComment(res);
 }
 
+async function handleWarnComment(form: { comment_id: number; reason: string }) {
+  const res = await HttpService.client.warnComment(form);
+  if (res.state === "success") {
+    toast("Warned comment");
+  }
+}
+
 async function handleSaveComment(i: Profile, form: SaveComment) {
   const saveCommentRes = await HttpService.client.saveComment(form);
   i.findAndUpdateComment(saveCommentRes);
@@ -1705,6 +1714,13 @@ async function handlePostReport(form: CreatePostReport) {
 async function handleLockPost(i: Profile, form: LockPost) {
   const lockRes = await HttpService.client.lockPost(form);
   i.findAndUpdatePost(lockRes);
+}
+
+async function handleWarnPost(form: { post_id: number; reason: string }) {
+  const res = await HttpService.client.warnPost(form);
+  if (res.state === "success") {
+    toast("Warned post");
+  }
 }
 
 async function handleDistinguishComment(i: Profile, form: DistinguishComment) {

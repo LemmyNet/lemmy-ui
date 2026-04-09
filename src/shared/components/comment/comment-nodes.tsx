@@ -91,6 +91,7 @@ interface CommentNodesProps {
   onPurgeComment: (form: PurgeComment) => void;
   onPersonNote: (form: NotePerson) => void;
   onLockComment: (form: LockComment) => void;
+  onWarnComment: (form: { comment_id: CommentId; reason: string }) => void;
   onMarkRead: (commentId: CommentId, read: boolean) => void;
 }
 
@@ -162,6 +163,7 @@ export class CommentNodes extends Component<CommentNodesProps, never> {
               onPurgeComment={this.props.onPurgeComment}
               onPersonNote={this.props.onPersonNote}
               onLockComment={this.props.onLockComment}
+              onWarnComment={this.props.onWarnComment}
               onMarkRead={this.props.onMarkRead}
             />
           ))}

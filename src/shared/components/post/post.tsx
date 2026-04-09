@@ -91,6 +91,7 @@ import {
   PersonId,
   Community,
   ModEditPost,
+  PostId,
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "@utils/config";
 import { CommentViewType, InitialFetchRequest } from "@utils/types";
@@ -619,6 +620,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onPostVote={form => handlePostVote(this, form)}
                 onPostReport={form => handlePostReport(form)}
                 onLockPost={form => handleLockPost(this, form)}
+                onWarnPost={form => handleWarnPost(form)}
                 onDeletePost={form => handleDeletePost(this, form)}
                 onRemovePost={form => handleRemovePost(this, form)}
                 onSavePost={form => handleSavePost(this, form)}
@@ -809,6 +811,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
+            onWarnComment={form => handleWarnComment(form)}
             onMarkRead={async () => {}}
           />
         </div>
@@ -942,6 +945,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
+            onWarnComment={form => handleWarnComment(form)}
             onMarkRead={async () => {}}
           />
         </div>
@@ -1377,6 +1381,16 @@ async function handleLockComment(i: Post, form: LockComment) {
   });
 }
 
+async function handleWarnComment(form: {
+  comment_id: CommentId;
+  reason: string;
+}) {
+  const res = await HttpService.client.warnComment(form);
+  if (res.state === "success") {
+    toast("Warned comment");
+  }
+}
+
 async function handleSaveComment(i: Post, form: SaveComment) {
   const saveCommentRes = await HttpService.client.saveComment(form);
   i.findAndUpdateComment(saveCommentRes);
@@ -1455,6 +1469,13 @@ async function handleLockPost(i: Post, form: LockPost) {
   i.updatePost(lockRes);
   if (lockRes.state === "success") {
     toast(I18NextService.i18n.t(form.locked ? "locked_post" : "unlocked_post"));
+  }
+}
+
+async function handleWarnPost(form: { post_id: PostId; reason: string }) {
+  const res = await HttpService.client.warnPost(form);
+  if (res.state === "success") {
+    toast("Warned post");
   }
 }
 

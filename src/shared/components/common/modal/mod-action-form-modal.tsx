@@ -60,6 +60,11 @@ interface ModActionFormModalPropsLock {
   onSubmit: (reason: string) => void;
 }
 
+interface ModActionFormModalPropsWarn {
+  modActionType: "warn-post" | "warn-comment";
+  onSubmit: (reason: string) => void;
+}
+
 interface ModActionFormModalPropsRest {
   modActionType:
     | "report-post"
@@ -78,6 +83,7 @@ type ModActionFormModalProps = (
   | ModActionFormModalPropsPurgeCommunity
   | ModActionFormModalPropsRemove
   | ModActionFormModalPropsLock
+  | ModActionFormModalPropsWarn
 ) & {
   onCancel: () => void;
   show: boolean;
@@ -421,6 +427,12 @@ export default class ModActionFormModal extends Component<
           this.props.isLocked ? "unlock_comment" : "lock_comment",
         );
       }
+      case "warn-post": {
+        return "Warn Post";
+      }
+      case "warn-comment": {
+        return "Warn Comment";
+      }
     }
   }
 
@@ -460,6 +472,12 @@ export default class ModActionFormModal extends Component<
         return I18NextService.i18n.t(
           this.props.isLocked ? "unlock_comment" : "lock_comment",
         );
+      }
+      case "warn-post": {
+        return "Warn Post";
+      }
+      case "warn-comment": {
+        return "Warn Comment";
       }
     }
   }
@@ -504,6 +522,10 @@ export default class ModActionFormModal extends Component<
       case "lock-comment": {
         translation = this.props.isLocked ? "unlocking" : "locking";
         break;
+      }
+      case "warn-post":
+      case "warn-comment": {
+        return "Warning User...";
       }
     }
 

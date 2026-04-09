@@ -115,6 +115,7 @@ type CommentNodeProps = {
   onPurgeComment: (form: PurgeComment) => void;
   onPersonNote: (form: NotePerson) => void;
   onLockComment: (form: LockComment) => void;
+  onWarnComment: (form: { comment_id: CommentId; reason: string }) => void;
 };
 
 @tippyMixin
@@ -409,6 +410,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             onAppointAdmin={() => handleAppointAdmin(this)}
                             onPersonNote={form => handlePersonNote(this, form)}
                             onLock={reason => handleModLock(this, reason)}
+                            onWarn={reason => handleWarnComment(this, reason)}
                             onViewSource={() => handleToggleViewSource(this)}
                           />
                         </div>
@@ -509,6 +511,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               onPurgeComment={this.props.onPurgeComment}
               onPersonNote={this.props.onPersonNote}
               onLockComment={this.props.onLockComment}
+              onWarnComment={this.props.onWarnComment}
               onMarkRead={this.props.onMarkRead}
             />
           )}
@@ -729,6 +732,13 @@ function handleModLock(i: CommentNode, reason: string) {
   return i.props.onLockComment({
     comment_id: i.commentId,
     locked: !i.commentView.comment.locked,
+    reason,
+  });
+}
+
+function handleWarnComment(i: CommentNode, reason: string) {
+  return i.props.onWarnComment({
+    comment_id: i.commentId,
     reason,
   });
 }
