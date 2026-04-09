@@ -400,6 +400,7 @@ export class Notifications extends Component<
               onBlockPerson={() => {}}
               onBlockCommunity={() => {}}
               onLockPost={() => {}}
+              onWarnPost={form => handleWarnPost(form)}
               onDeletePost={() => {}}
               onRemovePost={() => {}}
               onSavePost={() => {}}
@@ -767,6 +768,13 @@ async function handleLockComment(i: Notifications, form: LockComment) {
   if (res.state === "success") {
     toast(I18NextService.i18n.t(form.locked ? "locked" : "unlocked"));
     i.findAndUpdateComment(res);
+  }
+}
+
+async function handleWarnPost(form: { post_id: PostId; reason: string }) {
+  const res = await HttpService.client.warnPost(form);
+  if (res.state === "success") {
+    toast("Warned post");
   }
 }
 

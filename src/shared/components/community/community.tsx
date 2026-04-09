@@ -642,6 +642,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onPostVote={form => handlePostVote(this, form)}
               onPostReport={form => handlePostReport(form)}
               onLockPost={form => handleLockPost(this, form)}
+              onWarnPost={form => handleWarnPost(form)}
               onDeletePost={form => handleDeletePost(this, form)}
               onRemovePost={form => handleRemovePost(this, form)}
               onSavePost={form => handleSavePost(this, form)}
@@ -717,6 +718,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onEditComment={form => handleEditComment(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               onLockComment={form => handleLockComment(this, form)}
+              onWarnComment={form => handleWarnComment(form)}
               onMarkRead={() => {}}
               onFetchChildren={() => {}}
             />
@@ -1096,6 +1098,16 @@ async function handleLockComment(i: Community, form: LockComment) {
   findAndUpdateComment(i, res);
 }
 
+async function handleWarnComment(form: {
+  comment_id: CommentId;
+  reason: string;
+}) {
+  const res = await HttpService.client.warnComment(form);
+  if (res.state === "success") {
+    toast("Warned comment");
+  }
+}
+
 async function handleSaveComment(i: Community, form: SaveComment) {
   const saveCommentRes = await HttpService.client.saveComment(form);
   findAndUpdateComment(i, saveCommentRes);
@@ -1176,6 +1188,13 @@ async function handlePostReport(form: CreatePostReport) {
 async function handleLockPost(i: Community, form: LockPost) {
   const lockRes = await HttpService.client.lockPost(form);
   findAndUpdatePost(i, lockRes);
+}
+
+async function handleWarnPost(form: { post_id: PostId; reason: string }) {
+  const res = await HttpService.client.warnPost(form);
+  if (res.state === "success") {
+    toast("Warned post");
+  }
 }
 
 async function handleHidePost(

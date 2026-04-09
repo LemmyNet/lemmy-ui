@@ -438,6 +438,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                     onBlockPerson={() => {}}
                     onBlockCommunity={() => {}}
                     onLockPost={() => {}}
+                    onWarnPost={() => {}}
                     onDeletePost={() => {}}
                     onRemovePost={() => {}}
                     onSavePost={() => {}}
@@ -715,6 +716,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 onBlockPerson={() => {}}
                 onBlockCommunity={() => {}}
                 onLockPost={() => {}}
+                onWarnPost={() => {}}
                 onDeletePost={() => {}}
                 onRemovePost={() => {}}
                 onSavePost={() => {}}

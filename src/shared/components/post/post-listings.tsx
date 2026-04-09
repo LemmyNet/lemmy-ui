@@ -58,6 +58,7 @@ interface PostListingsProps {
   onBlockPerson: (form: BlockPerson) => void;
   onBlockCommunity: (form: BlockCommunity) => void;
   onLockPost: (form: LockPost) => void;
+  onWarnPost: (form: { post_id: number; reason: string }) => void;
   onDeletePost: (form: DeletePost) => void;
   onRemovePost: (form: RemovePost) => void;
   onSavePost: (form: SavePost) => void;
@@ -119,6 +120,7 @@ export class PostListings extends Component<PostListingsProps, never> {
                   onBlockPerson={this.props.onBlockPerson}
                   onBlockCommunity={this.props.onBlockCommunity}
                   onLockPost={this.props.onLockPost}
+                  onWarnPost={this.props.onWarnPost}
                   onDeletePost={this.props.onDeletePost}
                   onRemovePost={this.props.onRemovePost}
                   onSavePost={this.props.onSavePost}

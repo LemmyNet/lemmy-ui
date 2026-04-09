@@ -458,6 +458,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
             onPostVote={form => handlePostVote(this, form)}
             onPostReport={form => handlePostReport(form)}
             onLockPost={form => handleLockPost(this, form)}
+            onWarnPost={form => handleWarnPost(form)}
             onDeletePost={form => handleDeletePost(this, form)}
             onRemovePost={form => handleRemovePost(this, form)}
             onSavePost={form => handleSavePost(this, form)}
@@ -738,6 +739,13 @@ async function handlePostReport(form: CreatePostReport) {
 async function handleLockPost(i: MultiCommunity, form: LockPost) {
   const lockRes = await HttpService.client.lockPost(form);
   findAndUpdatePost(i, lockRes);
+}
+
+async function handleWarnPost(form: { post_id: PostId; reason: string }) {
+  const res = await HttpService.client.warnPost(form);
+  if (res.state === "success") {
+    toast("Warned post");
+  }
 }
 
 async function handleHidePost(

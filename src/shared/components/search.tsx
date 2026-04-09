@@ -8,6 +8,7 @@ import {
   personToChoice,
   setIsoData,
   showLocal,
+  toast,
 } from "@utils/app";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import {
@@ -41,6 +42,8 @@ import {
   CommentView,
   MultiCommunityView,
   CommunitySortType,
+  CommentId,
+  PostId,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -301,6 +304,7 @@ const postListing = (
               onBlockPerson={() => {}}
               onBlockCommunity={() => {}}
               onLockPost={() => {}}
+              onWarnPost={form => handleWarnPost(form)}
               onDeletePost={() => {}}
               onRemovePost={() => {}}
               onSavePost={() => {}}
@@ -378,6 +382,7 @@ const commentListing = (
               onEditComment={() => {}}
               onPersonNote={() => {}}
               onLockComment={() => {}}
+              onWarnComment={form => handleWarnComment(form)}
               onMarkRead={() => {}}
               onFetchChildren={() => {}}
             />
@@ -948,6 +953,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onEditComment={() => {}}
         onPersonNote={() => {}}
         onLockComment={() => {}}
+        onWarnComment={form => handleWarnComment(form)}
         onMarkRead={() => {}}
         onFetchChildren={() => {}}
       />
@@ -997,6 +1003,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 onBlockPerson={() => {}}
                 onBlockCommunity={() => {}}
                 onLockPost={() => {}}
+                onWarnPost={form => handleWarnPost(form)}
                 onDeletePost={() => {}}
                 onRemovePost={() => {}}
                 onSavePost={() => {}}
@@ -1248,4 +1255,21 @@ function handleSearchSubmit(i: Search, event: FormEvent<HTMLFormElement>) {
     q: i.getQ(),
     cursor: undefined,
   });
+}
+
+async function handleWarnComment(form: {
+  comment_id: CommentId;
+  reason: string;
+}) {
+  const res = await HttpService.client.warnComment(form);
+  if (res.state === "success") {
+    toast("Warned comment");
+  }
+}
+
+async function handleWarnPost(form: { post_id: PostId; reason: string }) {
+  const res = await HttpService.client.warnPost(form);
+  if (res.state === "success") {
+    toast("Warned post");
+  }
 }
