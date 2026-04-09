@@ -6,7 +6,6 @@ import {
   CommunitySortType,
   MultiCommunitySortType,
   PostSortType,
-  SearchSortType,
 } from "lemmy-js-client";
 import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
 
@@ -136,31 +135,6 @@ export function MultiCommunitiesSortDropdown({
         currentOption={multiCommunitiesSortOptions.find(
           t => t.value === currentOption,
         )}
-        onSelect={onSelect}
-        className={className}
-      />
-      <SortingHelp />
-    </div>
-  );
-}
-
-const searchSortOptions: FilterOption<SearchSortType>[] = [
-  { i18n: "top", value: "top" },
-  { i18n: "new", value: "new" },
-  { i18n: "old", value: "old" },
-];
-export function SearchSortDropdown({
-  currentOption,
-  onSelect,
-  showLabel,
-  className,
-}: SortDropdownProps<SearchSortType>) {
-  return (
-    <div className="d-flex align-items-center">
-      <FilterChipDropdown
-        label={showLabel ? "sort" : undefined}
-        allOptions={searchSortOptions}
-        currentOption={searchSortOptions.find(t => t.value === currentOption)}
         onSelect={onSelect}
         className={className}
       />

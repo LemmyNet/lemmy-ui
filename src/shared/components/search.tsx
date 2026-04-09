@@ -3,9 +3,9 @@ import {
   commentToFlatNode,
   communityToChoice,
   enableNsfw,
-  fetchCommunities,
-  fetchUsers,
   personToChoice,
+  searchCommunities,
+  searchUsers,
   setIsoData,
   showLocal,
 } from "@utils/app";
@@ -35,7 +35,6 @@ import {
   Search as SearchForm,
   SearchResponse,
   SearchType,
-  SearchSortType,
   PaginationCursor,
   MyUserInfo,
   CommentView,
@@ -61,8 +60,6 @@ import { getHttpBaseInternal } from "../utils/env";
 import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
-import { PaginatorCursor } from "./common/paginator-cursor";
-import { SearchSortDropdown } from "./common/sort-dropdown";
 import { UserBadges } from "./common/user-badges";
 import { CommunityBadges, MultiCommunityBadges } from "./common/badges";
 import { CommunityLink } from "./community/community-link";
@@ -77,7 +74,6 @@ import { FilterChipSelect } from "./common/filter-chip-select";
 interface SearchProps {
   q?: string;
   type: SearchType;
-  sort: SearchSortType;
   listingType: ListingType;
   titleOnly: boolean;
   postUrlOnly: boolean;
@@ -104,7 +100,6 @@ interface SearchState {
 }
 
 const defaultSearchType: SearchType = "all";
-const defaultSearchSortType: SearchSortType = "top";
 const defaultListingType: ListingType = "all";
 const defaultCommunitySortType: CommunitySortType = "hot";
 
@@ -113,7 +108,6 @@ export function getSearchQueryParams(source?: string): SearchProps {
     {
       q: getSearchQueryFromQuery,
       type: getSearchTypeFromQuery,
-      sort: getSortTypeFromQuery,
       listingType: getListingTypeFromQuery,
       titleOnly: getTitleOnlyFromQuery,
       postUrlOnly: getPostUrlOnlyFromQuery,
@@ -129,10 +123,6 @@ const getSearchQueryFromQuery = (q?: string): string | undefined => q;
 
 function getSearchTypeFromQuery(type_?: string): SearchType {
   return type_ ? (type_ as SearchType) : defaultSearchType;
-}
-
-function getSortTypeFromQuery(sort?: string): SearchSortType {
-  return sort ? (sort as SearchSortType) : defaultSearchSortType;
 }
 
 function getListingTypeFromQuery(listingType?: string): ListingType {
@@ -590,13 +580,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     query: {
       q: query,
       type: searchType,
-      sort,
       listingType: listing_type,
       titleOnly: title_only,
       postUrlOnly: post_url_only,
       communityId: community_id,
       creatorId: creator_id,
-      cursor,
     },
   }: InitialFetchRequest<
     SearchPathProps,
@@ -634,16 +622,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     if (query) {
       const form: SearchForm = {
-        q: query,
+        search_term: query,
         community_id,
         creator_id,
         type_: searchType,
-        sort,
         listing_type,
         title_only,
         post_url_only,
         limit: fetchLimit,
-        page_cursor: cursor,
       };
 
       searchResponse = await client.search(form);
@@ -656,11 +642,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       searchResponse,
     };
   };
-
-  get getNextPage(): PaginationCursor | undefined {
-    const { searchRes: res } = this.state;
-    return res.state === "success" ? res.data.next_page : undefined;
-  }
 
   get documentTitle(): string {
     const { q } = this.props;
@@ -686,11 +667,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           this.state.searchRes.state === "success" && (
             <span>{I18NextService.i18n.t("no_results")}</span>
           )}
-        <PaginatorCursor
-          current={this.props.cursor}
-          resource={this.state.searchRes}
-          onPageChange={cursor => handlePageChange(this, cursor)}
-        />
       </div>
     );
   }
@@ -779,7 +755,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       listingType,
       titleOnly,
       postUrlOnly,
-      sort,
       communityId,
       creatorId,
     } = this.props;
@@ -827,13 +802,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
             </>
           )}
           <div className="col">
-            <SearchSortDropdown
-              currentOption={sort}
-              onSelect={val => handleSortChange(this, val)}
-              showLabel
-            />
-          </div>
-          <div className="col">
             <Filter
               title="all_communities"
               onChange={choices => handleCommunityFilterChange(this, choices)}
@@ -858,53 +826,31 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
   get all() {
     const { searchRes: searchResponse } = this.state;
-    const comments_array: CommentView[] = [];
-    const posts_array: PostView[] = [];
-    const communities_array: CommunityView[] = [];
-    const persons_array: PersonView[] = [];
-    const multi_communities_array: MultiCommunityView[] = [];
     if (searchResponse.state === "success") {
-      searchResponse.data.search.forEach(sr => {
-        switch (sr.type_) {
-          case "post":
-            posts_array.push(sr);
-            break;
-          case "comment":
-            comments_array.push(sr);
-            break;
-          case "community":
-            communities_array.push(sr);
-            break;
-          case "person":
-            persons_array.push(sr);
-            break;
-          case "multi_community":
-            multi_communities_array.push(sr);
-            break;
-        }
-      });
+      return (
+        <>
+          {communityListing(
+            searchResponse.data.communities,
+            this.isoData.myUserInfo,
+          )}
+          {multiCommunityListing(
+            searchResponse.data.multi_communities,
+            this.isoData.myUserInfo,
+          )}
+          {personListing(searchResponse.data.persons, this.isoData.myUserInfo)}
+          {postListing(searchResponse.data.posts, this.isoData)}
+          {commentListing(searchResponse.data.comments, this.isoData)}
+        </>
+      );
+    } else {
+      return <></>;
     }
-
-    return (
-      <>
-        {communityListing(communities_array, this.isoData.myUserInfo)}
-        {multiCommunityListing(
-          multi_communities_array,
-          this.isoData.myUserInfo,
-        )}
-        {personListing(persons_array, this.isoData.myUserInfo)}
-        {postListing(posts_array, this.isoData)}
-        {commentListing(comments_array, this.isoData)}
-      </>
-    );
   }
 
   get comments() {
     const { searchRes: searchResponse, siteRes } = this.state;
     const comments =
-      searchResponse.state === "success"
-        ? searchResponse.data.search.filter(s => s.type_ === "comment")
-        : [];
+      searchResponse.state === "success" ? searchResponse.data.comments : [];
 
     return (
       <CommentNodes
@@ -956,9 +902,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get posts() {
     const { searchRes: searchResponse, siteRes } = this.state;
     const posts =
-      searchResponse.state === "success"
-        ? searchResponse.data.search.filter(s => s.type_ === "post")
-        : [];
+      searchResponse.state === "success" ? searchResponse.data.posts : [];
 
     return (
       <>
@@ -1022,9 +966,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get communities() {
     const { searchRes: searchResponse } = this.state;
     const communities =
-      searchResponse.state === "success"
-        ? searchResponse.data.search.filter(s => s.type_ === "community")
-        : [];
+      searchResponse.state === "success" ? searchResponse.data.communities : [];
 
     return (
       <>
@@ -1039,7 +981,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const { searchRes: searchResponse } = this.state;
     const multiCommunities =
       searchResponse.state === "success"
-        ? searchResponse.data.search.filter(s => s.type_ === "multi_community")
+        ? searchResponse.data.multi_communities
         : [];
 
     return (
@@ -1054,9 +996,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   get users() {
     const { searchRes: searchResponse } = this.state;
     const users =
-      searchResponse.state === "success"
-        ? searchResponse.data.search.filter(s => s.type_ === "person")
-        : [];
+      searchResponse.state === "success" ? searchResponse.data.persons : [];
 
     return (
       <>
@@ -1072,7 +1012,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
 
     if (r.state === "success") {
       const resolveCount = r.data.resolve !== undefined ? 1 : 0;
-      return r.data.search.length + resolveCount;
+      return (
+        r.data.posts.length +
+        r.data.comments.length +
+        r.data.communities.length +
+        r.data.persons.length +
+        r.data.multi_communities.length +
+        resolveCount
+      );
     } else {
       return 0;
     }
@@ -1084,28 +1031,24 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     const {
       q,
       communityId,
-      creatorId,
       type,
-      sort,
       listingType,
       titleOnly,
       postUrlOnly,
-      cursor,
+      creatorId,
     } = props;
 
     if (q) {
       this.setState({ searchRes: LOADING_REQUEST });
       const searchRes = await HttpService.client.search({
-        q,
+        search_term: q,
         community_id: communityId ?? undefined,
         creator_id: creatorId ?? undefined,
         type_: type,
-        sort,
         listing_type: listingType,
         title_only: titleOnly,
         post_url_only: postUrlOnly,
         limit: fetchLimit,
-        page_cursor: cursor,
       });
       if (token !== this.searchToken) {
         return;
@@ -1127,7 +1070,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       listingType,
       titleOnly,
       postUrlOnly,
-      sort,
       communityId,
       creatorId,
       cursor,
@@ -1145,7 +1087,6 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       communityId: communityId?.toString(),
       creatorId: creatorId?.toString(),
       cursor,
-      sort,
     };
 
     this.props.history.push(`/search${getQueryString(queryParams)}`);
@@ -1161,7 +1102,7 @@ const handleCreatorSearch = debounce(async (i: Search, text: string) => {
 
     const newOptions = creatorSearchOptions
       .filter(choice => getIdFromString(choice.value) === creatorId)
-      .concat((await fetchUsers(text)).map(personToChoice));
+      .concat((await searchUsers(text)).map(personToChoice));
 
     i.setState({
       searchCreatorLoading: false,
@@ -1181,7 +1122,7 @@ const handleCommunitySearch = debounce(async (i: Search, text: string) => {
 
     const newOptions = communitySearchOptions
       .filter(choice => getIdFromString(choice.value) === communityId)
-      .concat((await fetchCommunities(text)).map(communityToChoice));
+      .concat((await searchCommunities(text)).map(communityToChoice));
 
     i.setState({
       searchCommunitiesLoading: false,
@@ -1189,10 +1130,6 @@ const handleCommunitySearch = debounce(async (i: Search, text: string) => {
     });
   }
 });
-
-function handleSortChange(i: Search, sort: SearchSortType) {
-  i.updateUrl({ sort, cursor: undefined, q: i.getQ() });
-}
 
 function handleTitleOnlyChange(i: Search, titleOnly: boolean) {
   // Don't allow post url and post title only to be checked at the same time
@@ -1210,10 +1147,6 @@ function handleTypeChange(i: Search, type: SearchType) {
     cursor: undefined,
     q: i.getQ(),
   });
-}
-
-function handlePageChange(i: Search, cursor?: PaginationCursor) {
-  i.updateUrl({ cursor });
 }
 
 function handleListingTypeChange(i: Search, listingType: ListingType) {

@@ -8,7 +8,7 @@ import {
 } from "lemmy-js-client";
 import {
   communityToChoice,
-  fetchCommunities,
+  searchCommunities,
   filterCommunitySelection,
 } from "@utils/app";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -81,7 +81,7 @@ const handleCommunitySearch = debounce(
     if (text.length > 0) {
       newOptions.push(
         ...filterCommunitySelection(
-          await fetchCommunities(text),
+          await searchCommunities(text),
           i.props.myUserInfo,
         )
           // Filter out currently selected comms

@@ -1,9 +1,9 @@
 import {
   communityToChoice,
   enableDownvotes,
-  fetchCommunities,
+  searchCommunities,
   fetchThemeList,
-  fetchUsers,
+  searchUsers,
   instanceToChoice,
   myAuth,
   personToChoice,
@@ -44,6 +44,7 @@ import {
   PersonId,
   CommunityId,
   MyUserInfo,
+  UserSettingsBackup,
 } from "lemmy-js-client";
 import { matrixUrl, fetchLimit, relTags } from "@utils/config";
 import { FirstLoadService, UserService } from "../../services";
@@ -240,14 +241,14 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           send_notifications_to_email,
           email,
           open_links_in_new_tab,
-          enable_private_messages,
+          private_messages_enabled,
           auto_mark_fetched_posts_as_read,
           show_score,
           show_upvotes,
           show_downvotes,
           show_upvote_percentage,
           show_person_votes,
-          enable_animated_images,
+          animated_images_enabled,
           hide_media,
           collapse_bot_comments,
         },
@@ -295,10 +296,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           send_notifications_to_email,
           matrix_user_id,
           open_links_in_new_tab,
-          enable_private_messages,
+          private_messages_enabled,
           auto_mark_fetched_posts_as_read,
           blocking_keywords: mui.keyword_blocks,
-          enable_animated_images,
+          animated_images_enabled,
           hide_media,
           collapse_bot_comments,
         },
@@ -1105,7 +1106,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <FilterChipCheckbox
                 option={"show_animated_images"}
                 isChecked={
-                  this.state.saveUserSettingsForm.enable_animated_images ??
+                  this.state.saveUserSettingsForm.animated_images_enabled ??
                   false
                 }
                 onCheck={val =>
@@ -1193,7 +1194,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <FilterChipCheckbox
                 option={"enable_private_messages"}
                 isChecked={
-                  this.state.saveUserSettingsForm.enable_private_messages ??
+                  this.state.saveUserSettingsForm.private_messages_enabled ??
                   false
                 }
                 onCheck={val => handleEnablePrivateMessages(this, val)}
@@ -1467,7 +1468,7 @@ const handlePersonSearch = debounce(async (i: Settings, text: string) => {
   const searchPersonOptions: Choice[] = [];
 
   if (text.length > 0) {
-    searchPersonOptions.push(...(await fetchUsers(text)).map(personToChoice));
+    searchPersonOptions.push(...(await searchUsers(text)).map(personToChoice));
   }
 
   i.setState({
@@ -1483,7 +1484,7 @@ const handleCommunitySearch = debounce(async (i: Settings, text: string) => {
 
   if (text.length > 0) {
     searchCommunityOptions.push(
-      ...(await fetchCommunities(text)).map(communityToChoice),
+      ...(await searchCommunities(text)).map(communityToChoice),
     );
   }
 
@@ -1641,9 +1642,9 @@ function handleEnableAnimatedImagesChange(
 ) {
   const mui = myUserInfo;
   if (mui) {
-    mui.local_user_view.local_user.enable_animated_images = val;
+    mui.local_user_view.local_user.animated_images_enabled = val;
   }
-  i.setState(s => ((s.saveUserSettingsForm.enable_animated_images = val), s));
+  i.setState(s => ((s.saveUserSettingsForm.animated_images_enabled = val), s));
 }
 
 function handleHideMediaChange(
@@ -1675,7 +1676,7 @@ function handleOpenLinksInNewTabChange(i: Settings, val: boolean) {
 }
 
 function handleEnablePrivateMessages(i: Settings, val: boolean) {
-  i.setState(s => ((s.saveUserSettingsForm.enable_private_messages = val), s));
+  i.setState(s => ((s.saveUserSettingsForm.private_messages_enabled = val), s));
 }
 
 function handleAutoMarkFetchedPostsAsReadChange(i: Settings, val: boolean) {
@@ -1949,7 +1950,7 @@ function handleImportFileChange(
 
 async function handleExportSettings(i: Settings) {
   i.setState({ exportSettingsRes: LOADING_REQUEST });
-  const res = await HttpService.client.exportSettings();
+  const res = await HttpService.client.exportUserSettings();
 
   if (res.state === "success") {
     i.exportSettingsLink.current!.href = `data:application/json,${encodeURIComponent(
@@ -1971,8 +1972,8 @@ async function handleExportSettings(i: Settings) {
 async function handleImportSettings(i: Settings) {
   i.setState({ importSettingsRes: LOADING_REQUEST });
 
-  const res = await HttpService.client.importSettings(
-    JSON.parse(await i.state.settingsFile!.text()),
+  const res = await HttpService.client.importUserSettings(
+    JSON.parse(await i.state.settingsFile!.text()) as UserSettingsBackup,
   );
 
   if (res.state === "success") {
@@ -2004,7 +2005,7 @@ async function handleImportSettings(i: Settings) {
           send_notifications_to_email,
           email,
           open_links_in_new_tab,
-          enable_private_messages,
+          private_messages_enabled,
           auto_mark_fetched_posts_as_read,
         },
         person: {
@@ -2043,7 +2044,7 @@ async function handleImportSettings(i: Settings) {
           open_links_in_new_tab,
           send_notifications_to_email,
           show_read_posts,
-          enable_private_messages,
+          private_messages_enabled,
           auto_mark_fetched_posts_as_read,
         },
         avatar,
