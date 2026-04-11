@@ -23,10 +23,9 @@ $success: $green;
 $info: $orange;
 $dark: $gray-300;
 
-$body-color: $gray-300;
-$body-bg: $gray-900;
-$border-color: rgba($body-color, 0.25);
-$mark-bg: #333;
+$body-color-dark: $gray-300;
+$body-bg-dark: $gray-900;
+$border-color-dark: rgba($body-color-dark, 0.25);
 $mark-bg-dark: #333;
 $text-muted: $gray-600;
 $yiq-contrasted-threshold: 175;
@@ -72,16 +71,16 @@ $nav-tabs-link-active-border-color: $nav-tabs-border-color
 $input-bg: $gray-700;
 $input-color: $white;
 $input-disabled-bg: darken($gray-700, 10%);
-$input-border-color: $body-bg;
+$input-border-color: $body-bg-dark;
 $input-group-addon-color: $gray-500;
 $input-group-addon-bg: $gray-700;
 
-$hr-border-color: rgba($body-color, 0.25);
+$hr-border-color: rgba($body-color-dark, 0.25);
 
 $table-border-color: $gray-700;
 
 $custom-file-color: $gray-500;
-$custom-file-border-color: $body-bg;
+$custom-file-border-color: $body-bg-dark;
 
 $dropdown-bg: $gray-900;
 $dropdown-border-color: $gray-700;

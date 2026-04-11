@@ -28,10 +28,10 @@ $warning: #aa00aa;
 $light: $gray-800;
 $dark: $gray-300;
 
-$body-bg: #000084;
-$body-color: $gray-300;
+$body-bg-dark: #000084;
+$body-color-dark: $gray-300;
 
-$link-hover-color: $white;
+$link-hover-color-dark: $white;
 
 $font-family-sans-serif: DOS, Monaco, Menlo, Consolas, "Courier New", monospace;
 $font-family-monospace: DOS, Monaco, Menlo, Consolas, "Courier New", monospace;
@@ -55,5 +55,4 @@ $input-disabled-bg: $gray-800;
 
 $card-bg: $gray-800;
 $card-border-color: $white;
-$mark-bg: #463b00;
 $mark-bg-dark: #463b00;
