@@ -1654,7 +1654,9 @@ async function handleLockComment(i: Profile, form: LockComment) {
 async function handleWarnComment(form: { comment_id: number; reason: string }) {
   const res = await HttpService.client.warnComment(form);
   if (res.state === "success") {
-    toast("Warned comment");
+    toast(I18NextService.i18n.t("warning_sent"));
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
 }
 
@@ -1719,7 +1721,9 @@ async function handleLockPost(i: Profile, form: LockPost) {
 async function handleWarnPost(form: { post_id: number; reason: string }) {
   const res = await HttpService.client.warnPost(form);
   if (res.state === "success") {
-    toast("Warned post");
+    toast(I18NextService.i18n.t("warning_sent"));
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
 }
 

@@ -427,11 +427,9 @@ export default class ModActionFormModal extends Component<
           this.props.isLocked ? "unlock_comment" : "lock_comment",
         );
       }
-      case "warn-post": {
-        return "Warn Post";
-      }
+      case "warn-post":
       case "warn-comment": {
-        return "Warn Comment";
+        return I18NextService.i18n.t("warn_user");
       }
     }
   }
@@ -473,11 +471,9 @@ export default class ModActionFormModal extends Component<
           this.props.isLocked ? "unlock_comment" : "lock_comment",
         );
       }
-      case "warn-post": {
-        return "Warn Post";
-      }
+      case "warn-post":
       case "warn-comment": {
-        return "Warn Comment";
+        return I18NextService.i18n.t("warn_user");
       }
     }
   }
@@ -525,7 +521,7 @@ export default class ModActionFormModal extends Component<
       }
       case "warn-post":
       case "warn-comment": {
-        return "Warning User...";
+        return I18NextService.i18n.t("warn_user");
       }
     }
 

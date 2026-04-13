@@ -563,7 +563,7 @@ export default class ContentActionDropdown extends Component<
                       <ActionButton
                         noLoading
                         onClick={() => handleToggleWarnShow(this)}
-                        label={type === "post" ? "Warn post" : "Warn comment"}
+                        label={I18NextService.i18n.t("warn_user")}
                         icon="alert-triangle"
                         iconClass="text-warning"
                       />
