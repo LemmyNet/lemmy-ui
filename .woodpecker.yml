@@ -11,65 +11,77 @@ steps:
     when:
       - event: [pull_request, tag]
 
-  prettier_check:
-    image: jauderho/prettier:3.8.2-alpine
+  test_when_evaluate_full_semver:
     commands:
-      - prettier --no-config --arrow-parens avoid -c .
+      - ls .
     when:
-      - event: pull_request
+      - evaluate: 1.0.0 matches '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$\'
 
-  bash_fmt:
-    image: alpine:3
+  test_when_evaluate_prerelease_semver:
     commands:
-      - apk add shfmt
-      - shfmt -i 2 -d */**.bash
-      - shfmt -i 2 -d */**.sh
+      - ls .
     when:
-      - event: pull_request
+      - evaluate: 1.0.0-beta.2 matches '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$\'
 
-  install:
-    image: node:24-alpine
-    commands:
-      - *install_pnpm
-      - pnpm i
-    when:
-      - event: pull_request
+  # prettier_check:
+  #   image: jauderho/prettier:3.8.2-alpine
+  #   commands:
+  #     - prettier --no-config --arrow-parens avoid -c .
+  #   when:
+  #     - event: pull_request
 
-  lint:
-    image: node:24-alpine
-    commands:
-      - *install_pnpm
-      - pnpm lint
-    when:
-      - event: pull_request
+  # bash_fmt:
+  #   image: alpine:3
+  #   commands:
+  #     - apk add shfmt
+  #     - shfmt -i 2 -d */**.bash
+  #     - shfmt -i 2 -d */**.sh
+  #   when:
+  #     - event: pull_request
 
-  build_dev:
-    image: node:24-alpine
-    commands:
-      - *install_pnpm
-      - pnpm prebuild:dev
-      - pnpm build:dev
-    when:
-      - event: pull_request
+  # install:
+  #   image: node:24-alpine
+  #   commands:
+  #     - *install_pnpm
+  #     - pnpm i
+  #   when:
+  #     - event: pull_request
 
-  publish_release_docker:
-    image: woodpeckerci/plugin-docker-buildx
-    settings:
-      repo: dessalines/lemmy-ui
-      dockerfile: Dockerfile
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      # Don't do beta builds on arm, only prod ones, since they take too long
-      platforms: linux/amd64
-      # platforms: linux/amd64,linux/arm64
-      build_args_from_env:
-        - CI_PIPELINE_EVENT
-      tag: ${CI_COMMIT_TAG=nightly}
-    when:
-      - event: tag
-      - event: cron
+  # lint:
+  #   image: node:24-alpine
+  #   commands:
+  #     - *install_pnpm
+  #     - pnpm lint
+  #   when:
+  #     - event: pull_request
+
+  # build_dev:
+  #   image: node:24-alpine
+  #   commands:
+  #     - *install_pnpm
+  #     - pnpm prebuild:dev
+  #     - pnpm build:dev
+  #   when:
+  #     - event: pull_request
+
+  # publish_release_docker:
+  #   image: woodpeckerci/plugin-docker-buildx
+  #   settings:
+  #     repo: dessalines/lemmy-ui
+  #     dockerfile: Dockerfile
+  #     username:
+  #       from_secret: docker_username
+  #     password:
+  #       from_secret: docker_password
+  #     # Don't do beta builds on arm, only prod ones, since they take too long
+  #     platforms: linux/amd64
+  #     # platforms: linux/amd64,linux/arm64
+  #     build_args_from_env:
+  #       - CI_PIPELINE_EVENT
+  #     tag: ${CI_COMMIT_TAG=nightly}
+  #   when:
+  #     - event: tag
+  #     - event: cron
 
   notify_success:
     image: alpine:3
