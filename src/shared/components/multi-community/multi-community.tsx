@@ -9,6 +9,7 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
+  warnToast,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -98,7 +99,6 @@ import { PostListingModeDropdown } from "@components/common/post-listing-mode-dr
 import { MultiCommunityEntryList } from "./multi-community-entry-form";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { RouterContext } from "inferno-router/dist/Router";
-import { NoOptionI18nKeys } from "i18next";
 
 type MultiCommunityData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
@@ -744,11 +744,7 @@ async function handleLockPost(i: MultiCommunity, form: LockPost) {
 
 async function handleWarnPost(form: { post_id: PostId; reason: string }) {
   const res = await HttpService.client.warnPost(form);
-  if (res.state === "success") {
-    toast(I18NextService.i18n.t("warning_sent"));
-  } else if (res.state === "failed") {
-    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-  }
+  warnToast(res);
 }
 
 async function handleHidePost(

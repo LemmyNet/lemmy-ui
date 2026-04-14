@@ -7,6 +7,7 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
+  warnToast,
 } from "@utils/app";
 import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -773,11 +774,7 @@ async function handleLockComment(i: Notifications, form: LockComment) {
 
 async function handleWarnPost(form: { post_id: PostId; reason: string }) {
   const res = await HttpService.client.warnPost(form);
-  if (res.state === "success") {
-    toast(I18NextService.i18n.t("warning_sent"));
-  } else if (res.state === "failed") {
-    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-  }
+  warnToast(res);
 }
 
 async function handleWarnComment(form: {
@@ -785,11 +782,7 @@ async function handleWarnComment(form: {
   reason: string;
 }) {
   const res = await HttpService.client.warnComment(form);
-  if (res.state === "success") {
-    toast(I18NextService.i18n.t("warning_sent"));
-  } else if (res.state === "failed") {
-    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-  }
+  warnToast(res);
 }
 
 async function handleSaveComment(i: Notifications, form: SaveComment) {

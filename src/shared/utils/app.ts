@@ -35,6 +35,8 @@ import {
   PostReportResponse,
   PrivateMessageReportResponse,
   CommunityReportResponse,
+  CommentResponse,
+  PostResponse,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -737,6 +739,14 @@ export function reportToast(
 ) {
   if (res.state === "success") {
     toast(I18NextService.i18n.t("report_created"));
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
+  }
+}
+
+export function warnToast(res: RequestState<CommentResponse | PostResponse>) {
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("warning_sent"));
   } else if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }

@@ -16,6 +16,7 @@ import {
   subscribedRSSUrl,
   updateCommunityBlock,
   updatePersonBlock,
+  warnToast,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -1335,11 +1336,7 @@ async function handleWarnComment(form: {
   reason: string;
 }) {
   const res = await HttpService.client.warnComment(form);
-  if (res.state === "success") {
-    toast(I18NextService.i18n.t("warning_sent"));
-  } else if (res.state === "failed") {
-    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-  }
+  warnToast(res);
 }
 
 async function handleSaveComment(i: Home, form: SaveComment) {
@@ -1426,11 +1423,7 @@ async function handleLockPost(i: Home, form: LockPost) {
 
 async function handleWarnPost(form: { post_id: PostId; reason: string }) {
   const res = await HttpService.client.warnPost(form);
-  if (res.state === "success") {
-    toast(I18NextService.i18n.t("warning_sent"));
-  } else if (res.state === "failed") {
-    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
-  }
+  warnToast(res);
 }
 
 async function handleDistinguishComment(i: Home, form: DistinguishComment) {
