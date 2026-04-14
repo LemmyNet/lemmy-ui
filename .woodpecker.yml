@@ -16,7 +16,7 @@ steps:
     commands:
       - ls .
     when:
-      - evaluate: '"1.2.3" matches "([A-Z])\w+"'
+      - evaluate: '"1.2.3" matches "\([A-Z]\)\w+"'
       # - evaluate: '"1.0.0" matches ''^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$\'''
 
   # test_when_evaluate_prerelease_semver:
