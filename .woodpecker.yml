@@ -17,7 +17,7 @@ steps:
       - ls .
     when:
       # - evaluate: '"1.2.3" matches ''([A-Z])/w+'''
-      - evaluate: '"1.0.0" matches  ''^(0|[1-9]\d*).(0|[1-9]\d*).(0|[1-9]\d*)$'''
+      - evaluate: '"1.0.0" matches ''^(0\|[1-9]\d*).(0|[1-9]\d*).(0|[1-9]\d*)$'''
 
   # prettier_check:
   #   image: jauderho/prettier:3.8.2-alpine
