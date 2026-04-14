@@ -62,7 +62,6 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      # Don't do beta builds on arm, only prod ones, since they take too long
       platforms: linux/arm64
       build_args_from_env:
         - CI_PIPELINE_EVENT
@@ -82,7 +81,6 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      # Don't do beta builds on arm, only prod ones, since they take too long
       platforms: linux/amd64
       build_args_from_env:
         - CI_PIPELINE_EVENT
