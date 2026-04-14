@@ -16,7 +16,7 @@ steps:
     commands:
       - ls .
     when:
-      - evaluate: "${CI_COMMIT_TAG} matches '^([0-9]\d*).([0-9]\d*).([0-9]\d*)$'"
+      - evaluate: '"${CI_COMMIT_TAG}" matches ''^([0-9]\\\d*).([0-9]\\\d*).([0-9]\\\d*)$'''
 
   # prettier_check:
   #   image: jauderho/prettier:3.8.2-alpine
