@@ -8,6 +8,7 @@ import { Person } from "lemmy-js-client";
 import { relTags } from "../../config";
 import { PictrsImage } from "../common/pictrs-image";
 import { CakeDay } from "./cake-day";
+import { UserBadges } from "../common/user-badges";
 
 interface PersonListingProps {
   person: Person;
@@ -62,6 +63,13 @@ export class PersonListing extends Component<PersonListingProps, any> {
         )}
 
         {isCakeDay(person.published) && <CakeDay creatorName={name} />}
+
+        <UserBadges
+          classNames="ms-1"
+          isBot={person.bot_account}
+          isDeleted={person.deleted}
+          isBanned={person.banned}
+        />
       </>
     );
   }
