@@ -22,11 +22,10 @@ $secondary: $gray-600;
 $success: $green;
 $dark: $gray-300;
 
-$body-color: $gray-200;
-$body-bg: $black;
-$link-color: $success;
-$border-color: rgba($body-color, 0.25);
-$mark-bg: $gray-900;
+$body-color-dark: $gray-200;
+$body-bg-dark: $black;
+$link-color-dark: $success;
+$border-color-dark: rgba($body-color-dark, 0.25);
 $mark-bg-dark: $gray-900;
 $text-muted: $gray-600;
 $yiq-contrasted-threshold: 175;
@@ -79,12 +78,12 @@ $input-border-color: $gray-800;
 $input-group-addon-color: $gray-800;
 $input-group-addon-bg: $gray-800;
 
-$hr-border-color: rgba($body-color, 0.25);
+$hr-border-color: rgba($body-color-dark, 0.25);
 
 $table-border-color: $gray-700;
 
 $custom-file-color: $gray-500;
-$custom-file-border-color: $body-bg;
+$custom-file-border-color: $body-bg-dark;
 
 $dropdown-bg: $gray-900;
 $dropdown-border-color: $gray-800;

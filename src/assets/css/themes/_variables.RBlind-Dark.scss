@@ -76,11 +76,10 @@ $secondary: $gray-500;
 $success: $green;
 $dark: $gray-300;
 
-$body-color: $gray-300;
-$body-bg: $gray-900;
-$link-color: $cyan;
-$border-color: rgba($body-color, 0.25);
-$mark-bg: #333;
+$body-color-dark: $gray-300;
+$body-bg-dark: $gray-900;
+$link-color-dark: $cyan;
+$border-color-dark: rgba($body-color-dark, 0.25);
 $mark-bg-dark: #333;
 $text-muted: $gray-600;
 $yiq-contrasted-threshold: 175;
@@ -93,8 +92,8 @@ $dropdown-link-active-color: $gray-900;
 $dropdown-link-active-bg: $gray-200;
 $dropdown-link-hover-bg: $gray-200;
 $dropdown-link-hover-color: $gray-900;
-$code-color: $yellow;
-$border-color: $gray-500 !important;
+$code-color-dark: $yellow;
+$border-color-dark: $gray-500 !important;
 $table-color: $gray-200;
 $btn-disabled-color: $gray-200;
 $btn-disabled-opacity: 0.65; // default
