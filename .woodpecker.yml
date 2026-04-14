@@ -53,7 +53,7 @@ steps:
       - event: pull_request
 
   # Only publish arm builds on non-pre-release builds
-  publish_release_docker_amd64:
+  publish_release_docker_arm64:
     image: woodpeckerci/plugin-docker-buildx
     settings:
       repo: dessalines/lemmy-ui
@@ -73,7 +73,7 @@ steps:
       # Ensures that its a full semver release, and not a pre-release one like 1.0.0-alpha.1
       - evaluate: '"${CI_COMMIT_TAG}" matches ''^([0-9]\\\d*).([0-9]\\\d*).([0-9]\\\d*)$'''
 
-  publish_release_docker_arm64:
+  publish_release_docker_amd64:
     image: woodpeckerci/plugin-docker-buildx
     settings:
       repo: dessalines/lemmy-ui
