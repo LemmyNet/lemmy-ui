@@ -32,17 +32,29 @@ export type RequestState<T> =
   | EmptyRequestState
   | LoadingRequestState
   | FailedRequestState
-  | SuccessRequestState<T>;
+  // undefined and null produce an EmptyRequestState
+  | (T extends null | undefined | void ? never : SuccessRequestState<T>);
 
 export type WrappedLemmyHttp = WrappedLemmyHttpClient & {
   [K in keyof LemmyHttp]: LemmyHttp[K] extends (...args: unknown[]) => unknown
-    ? ReturnType<LemmyHttp[K]> extends Promise<infer U>
-      ? (...args: Parameters<LemmyHttp[K]>) => Promise<RequestState<U>>
-      : (
-          ...args: Parameters<LemmyHttp[K]>
-        ) => Promise<RequestState<LemmyHttp[K]>>
-    : LemmyHttp[K];
+    ? (
+        ...args: Parameters<LemmyHttp[K]>
+      ) => Promise<RequestState<Awaited<ReturnType<LemmyHttp[K]>>>>
+    : never;
 };
+
+function getHttpClientFunctionNames(): Set<keyof LemmyHttp> {
+  const properties = new Set<keyof LemmyHttp>();
+  let proto: object = LemmyHttp.prototype;
+  while (proto && proto !== Object.prototype) {
+    Object.getOwnPropertyNames(proto)
+      .filter(name => name !== "constructor")
+      .filter(name => typeof LemmyHttp.prototype[name] === "function")
+      .forEach(name => properties.add(name as keyof LemmyHttp));
+    proto = Object.getPrototypeOf(proto) as object;
+  }
+  return properties;
+}
 
 class WrappedLemmyHttpClient {
   rawClient: LemmyHttp;
@@ -50,27 +62,25 @@ class WrappedLemmyHttpClient {
   constructor(client: LemmyHttp) {
     this.rawClient = client;
 
-    for (const key of Object.getOwnPropertyNames(
-      Object.getPrototypeOf(this.rawClient),
-    )) {
-      if (key !== "constructor") {
-        this[key] = async (...args: unknown[]) => {
-          try {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            const res = (await this.rawClient[key](...args)) as unknown;
+    for (const key of getHttpClientFunctionNames()) {
+      this[key] = async (...args: unknown[]) => {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          const res = (await (this.rawClient[key] as CallableFunction)(
+            ...args,
+          )) as unknown;
 
-            return {
-              data: res,
-              state: !(res === undefined || res === null) ? "success" : "empty",
-            };
-          } catch (error) {
-            return {
-              state: "failed",
-              err: error as Error,
-            };
-          }
-        };
-      }
+          return {
+            data: res,
+            state: !(res === undefined || res === null) ? "success" : "empty",
+          };
+        } catch (error) {
+          return {
+            state: "failed",
+            err: error as Error,
+          };
+        }
+      };
     }
   }
 }
