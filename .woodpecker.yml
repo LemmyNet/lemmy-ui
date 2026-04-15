@@ -71,7 +71,7 @@ steps:
       - "curl -d'Lemmy-UI CI build failed: ${CI_PIPELINE_URL}' ntfy.sh/lemmy_drone_ci"
     when:
       - event: [pull_request, tag]
-        status: failure
+        status: [failure]
 
   notify_on_tag_deploy:
     image: alpine:3
