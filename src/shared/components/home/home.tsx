@@ -6,6 +6,8 @@ import {
   editPersonNotes,
   editPost,
   enableNsfw,
+  handleWarnComment,
+  handleWarnPost,
   localRSSUrl,
   mixedToCommentSortType,
   mixedToPostSortType,
@@ -16,7 +18,6 @@ import {
   subscribedRSSUrl,
   updateCommunityBlock,
   updatePersonBlock,
-  warnToast,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -1331,14 +1332,6 @@ async function handleLockComment(i: Home, form: LockComment) {
   i.findAndUpdateComment(res);
 }
 
-async function handleWarnComment(form: {
-  comment_id: CommentId;
-  reason: string;
-}) {
-  const res = await HttpService.client.warnComment(form);
-  warnToast(res);
-}
-
 async function handleSaveComment(i: Home, form: SaveComment) {
   const saveCommentRes = await HttpService.client.saveComment(form);
   i.findAndUpdateComment(saveCommentRes);
@@ -1419,11 +1412,6 @@ async function handlePostReport(form: CreatePostReport) {
 async function handleLockPost(i: Home, form: LockPost) {
   const lockRes = await HttpService.client.lockPost(form);
   i.findAndUpdatePost(lockRes);
-}
-
-async function handleWarnPost(form: { post_id: PostId; reason: string }) {
-  const res = await HttpService.client.warnPost(form);
-  warnToast(res);
 }
 
 async function handleDistinguishComment(i: Home, form: DistinguishComment) {

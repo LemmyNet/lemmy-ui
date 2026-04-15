@@ -13,7 +13,8 @@ import {
   editCommentsSlimLocked,
   linkTarget,
   reportToast,
-  warnToast,
+  handleWarnComment,
+  handleWarnPost,
 } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import {
@@ -92,7 +93,6 @@ import {
   PersonId,
   Community,
   ModEditPost,
-  PostId,
 } from "lemmy-js-client";
 import { commentTreeMaxDepth } from "@utils/config";
 import { CommentViewType, InitialFetchRequest } from "@utils/types";
@@ -1382,14 +1382,6 @@ async function handleLockComment(i: Post, form: LockComment) {
   });
 }
 
-async function handleWarnComment(form: {
-  comment_id: CommentId;
-  reason: string;
-}) {
-  const res = await HttpService.client.warnComment(form);
-  warnToast(res);
-}
-
 async function handleSaveComment(i: Post, form: SaveComment) {
   const saveCommentRes = await HttpService.client.saveComment(form);
   i.findAndUpdateComment(saveCommentRes);
@@ -1469,11 +1461,6 @@ async function handleLockPost(i: Post, form: LockPost) {
   if (lockRes.state === "success") {
     toast(I18NextService.i18n.t(form.locked ? "locked_post" : "unlocked_post"));
   }
-}
-
-async function handleWarnPost(form: { post_id: PostId; reason: string }) {
-  const res = await HttpService.client.warnPost(form);
-  warnToast(res);
 }
 
 async function handleDistinguishComment(i: Post, form: DistinguishComment) {

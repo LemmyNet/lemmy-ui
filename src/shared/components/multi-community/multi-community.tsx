@@ -3,13 +3,13 @@ import {
   editPersonNotes,
   editPost,
   enableNsfw,
+  handleWarnPost,
   mixedToPostSortType,
   multiCommunityRSSUrl,
   reportToast,
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
-  warnToast,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -740,11 +740,6 @@ async function handlePostReport(form: CreatePostReport) {
 async function handleLockPost(i: MultiCommunity, form: LockPost) {
   const lockRes = await HttpService.client.lockPost(form);
   findAndUpdatePost(i, lockRes);
-}
-
-async function handleWarnPost(form: { post_id: PostId; reason: string }) {
-  const res = await HttpService.client.warnPost(form);
-  warnToast(res);
 }
 
 async function handleHidePost(

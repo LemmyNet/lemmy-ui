@@ -1,13 +1,14 @@
 import {
   commentToFlatNode,
   enableNsfw,
+  handleWarnComment,
+  handleWarnPost,
   myAuth,
   notificationsRSSUrl,
   reportToast,
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
-  warnToast,
 } from "@utils/app";
 import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -770,19 +771,6 @@ async function handleLockComment(i: Notifications, form: LockComment) {
     toast(I18NextService.i18n.t(form.locked ? "locked" : "unlocked"));
     i.findAndUpdateComment(res);
   }
-}
-
-async function handleWarnPost(form: { post_id: PostId; reason: string }) {
-  const res = await HttpService.client.warnPost(form);
-  warnToast(res);
-}
-
-async function handleWarnComment(form: {
-  comment_id: CommentId;
-  reason: string;
-}) {
-  const res = await HttpService.client.warnComment(form);
-  warnToast(res);
 }
 
 async function handleSaveComment(i: Notifications, form: SaveComment) {

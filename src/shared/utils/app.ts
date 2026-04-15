@@ -37,6 +37,7 @@ import {
   CommunityReportResponse,
   CommentResponse,
   PostResponse,
+  PostId,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -744,12 +745,28 @@ export function reportToast(
   }
 }
 
-export function warnToast(res: RequestState<CommentResponse | PostResponse>) {
+function warnToast(res: RequestState<CommentResponse | PostResponse>) {
   if (res.state === "success") {
     toast(I18NextService.i18n.t("warning_sent"));
   } else if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
+}
+
+export async function handleWarnComment(form: {
+  comment_id: CommentId;
+  reason: string;
+}) {
+  const res = await HttpService.client.warnComment(form);
+  warnToast(res);
+}
+
+export async function handleWarnPost(form: {
+  post_id: PostId;
+  reason: string;
+}) {
+  const res = await HttpService.client.warnPost(form);
+  warnToast(res);
 }
 
 export function updateCommunityBlock(

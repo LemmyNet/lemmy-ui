@@ -7,13 +7,14 @@ import {
   editPersonNotes,
   editPost,
   enableNsfw,
+  handleWarnComment,
+  handleWarnPost,
   mixedToCommentSortType,
   mixedToPostSortType,
   reportToast,
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
-  warnToast,
 } from "@utils/app";
 import { T } from "inferno-i18next-dess";
 import {
@@ -1099,14 +1100,6 @@ async function handleLockComment(i: Community, form: LockComment) {
   findAndUpdateComment(i, res);
 }
 
-async function handleWarnComment(form: {
-  comment_id: CommentId;
-  reason: string;
-}) {
-  const res = await HttpService.client.warnComment(form);
-  warnToast(res);
-}
-
 async function handleSaveComment(i: Community, form: SaveComment) {
   const saveCommentRes = await HttpService.client.saveComment(form);
   findAndUpdateComment(i, saveCommentRes);
@@ -1187,11 +1180,6 @@ async function handlePostReport(form: CreatePostReport) {
 async function handleLockPost(i: Community, form: LockPost) {
   const lockRes = await HttpService.client.lockPost(form);
   findAndUpdatePost(i, lockRes);
-}
-
-async function handleWarnPost(form: { post_id: PostId; reason: string }) {
-  const res = await HttpService.client.warnPost(form);
-  warnToast(res);
 }
 
 async function handleHidePost(

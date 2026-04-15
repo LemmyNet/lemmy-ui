@@ -5,10 +5,11 @@ import {
   enableNsfw,
   fetchCommunities,
   fetchUsers,
+  handleWarnComment,
+  handleWarnPost,
   personToChoice,
   setIsoData,
   showLocal,
-  warnToast,
 } from "@utils/app";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import {
@@ -42,8 +43,6 @@ import {
   CommentView,
   MultiCommunityView,
   CommunitySortType,
-  CommentId,
-  PostId,
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -1255,17 +1254,4 @@ function handleSearchSubmit(i: Search, event: FormEvent<HTMLFormElement>) {
     q: i.getQ(),
     cursor: undefined,
   });
-}
-
-async function handleWarnComment(form: {
-  comment_id: CommentId;
-  reason: string;
-}) {
-  const res = await HttpService.client.warnComment(form);
-  warnToast(res);
-}
-
-async function handleWarnPost(form: { post_id: PostId; reason: string }) {
-  const res = await HttpService.client.warnPost(form);
-  warnToast(res);
 }
