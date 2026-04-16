@@ -22,7 +22,7 @@ import {
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { getHttpBaseInternal } from "../../utils/env";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import {
   getQueryParams,
@@ -36,7 +36,6 @@ import { TableHr } from "@components/common/tables";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { Action } from "history";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
-import { RouterContext } from "inferno-router/dist/Router";
 
 function getKindFromQuery(kind?: string): GetFederatedInstancesKind {
   return kind ? (kind as GetFederatedInstancesKind) : "all";

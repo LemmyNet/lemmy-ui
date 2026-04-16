@@ -39,6 +39,8 @@ import {
   CommentId,
   PostId,
   ModEditPost,
+  CreateCommentWarning,
+  CreatePostWarning,
 } from "lemmy-js-client";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
@@ -82,7 +84,7 @@ interface PersonDetailsProps {
   onPostVote: (form: CreatePostLike) => void;
   onPostReport: (form: CreatePostReport) => void;
   onLockPost: (form: LockPost) => void;
-  onWarnPost: (form: { post_id: number; reason: string }) => void;
+  onWarnPost: (form: CreatePostWarning) => void;
   onDeletePost: (form: DeletePost) => void;
   onRemovePost: (form: RemovePost) => void;
   onSavePost: (form: SavePost) => void;
@@ -91,7 +93,7 @@ interface PersonDetailsProps {
   onMarkPostAsRead: (form: MarkPostAsRead) => void;
   onPersonNote: (form: NotePerson) => void;
   onLockComment: (form: LockComment) => void;
-  onWarnComment: (form: { comment_id: CommentId; reason: string }) => void;
+  onWarnComment: (form: CreateCommentWarning) => void;
 }
 
 export class PersonDetails extends Component<PersonDetailsProps, never> {

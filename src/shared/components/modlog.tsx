@@ -1,7 +1,7 @@
 import {
   communityToChoice,
-  fetchCommunities,
-  fetchUsers,
+  searchCommunities,
+  searchUsers,
   personToChoice,
   setIsoData,
 } from "@utils/app";
@@ -21,7 +21,7 @@ import { Choice, RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode } from "inferno";
 import { T } from "inferno-i18next-dess";
 import { Link } from "inferno-router";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import {
   GetCommunity,
   GetCommunityResponse,
@@ -61,7 +61,6 @@ import { TableHr } from "./common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { ModlogKindFilterDropdown } from "./common/modlog-kind-filter-dropdown";
 import { FilterChipSelect } from "./common/filter-chip-select";
-import { RouterContext } from "inferno-router/dist/Router";
 
 const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";
@@ -572,23 +571,16 @@ export function processModlogEntry(
         moderator,
         data: target_person && (
           <>
-            <span>Warned</span>
-            <span>
-              {" "}
-              Comment{" "}
-              <Link to={`/comment/${target_comment?.id}`}>
-                {target_comment?.content}
-              </Link>
-            </span>
-            <span>
-              {" "}
-              by{" "}
-              <PersonListing
-                person={target_person}
-                myUserInfo={myUserInfo}
-                banned={false}
-              />
-            </span>
+            <span>Warned </span>
+            <PersonListing
+              person={target_person}
+              myUserInfo={myUserInfo}
+              banned={false}
+            />
+            <span> about Comment </span>
+            <Link to={`/comment/${target_comment?.id}`}>
+              {target_comment?.content}
+            </Link>
             {reason && (
               <span>
                 <div>reason: {reason}</div>
@@ -604,21 +596,14 @@ export function processModlogEntry(
         moderator,
         data: target_person && (
           <>
-            <span>Warned</span>
-            <span>
-              {" "}
-              Post{" "}
-              <Link to={`/post/${target_post?.id}`}>{target_post?.name}</Link>
-            </span>
-            <span>
-              {" "}
-              by{" "}
-              <PersonListing
-                person={target_person}
-                myUserInfo={myUserInfo}
-                banned={false}
-              />
-            </span>
+            <span>Warned </span>
+            <PersonListing
+              person={target_person}
+              myUserInfo={myUserInfo}
+              banned={false}
+            />
+            <span> about Post </span>
+            <Link to={`/post/${target_post?.id}`}>{target_post?.name}</Link>
             {reason && (
               <span>
                 <div>reason: {reason}</div>
@@ -667,7 +652,7 @@ async function createNewOptions({
     return oldOptions
       .filter(choice => parseInt(choice.value, 10) === id)
       .concat(
-        (await fetchUsers(text)).slice(0, fetchLimit).map(personToChoice),
+        (await searchUsers(text)).slice(0, fetchLimit).map(personToChoice),
       );
   } else {
     return oldOptions;
@@ -1211,7 +1196,7 @@ const handleSearchCommunities = debounce(async (i: Modlog, text: string) => {
   const newOptions = communitySearchOptions
     .filter(choice => parseInt(choice.value, 10) === communityId)
     .concat(
-      (await fetchCommunities(text))
+      (await searchCommunities(text))
         .slice(0, fetchLimit)
         .map(communityToChoice),
     );

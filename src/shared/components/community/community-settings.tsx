@@ -1,4 +1,9 @@
-import { enableNsfw, fetchUsers, personToChoice, setIsoData } from "@utils/app";
+import {
+  enableNsfw,
+  searchUsers,
+  personToChoice,
+  setIsoData,
+} from "@utils/app";
 import {
   resourcesSettled,
   bareRoutePush,
@@ -15,7 +20,7 @@ import {
   RouteDataResponse,
 } from "@utils/types";
 import { Component, InfernoNode } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import {
   AddModToCommunity,
   AddModToCommunityResponse,
@@ -64,7 +69,6 @@ import { amTopMod, amHigherModerator, amTopModExcludeMe } from "@utils/roles";
 import { CommunityTagForm } from "./community-tag-form";
 import { NoOptionI18nKeys } from "i18next";
 import { CommunityLink } from "./community-link";
-import { RouterContext } from "inferno-router/dist/Router";
 import { FilterChipSelect } from "@components/common/filter-chip-select";
 
 type CommunitySettingsData = RouteDataResponse<{
@@ -738,7 +742,7 @@ const handleAddModSearch = debounce(
 
     if (text.length > 0) {
       newOptions.push(
-        ...(await fetchUsers(text))
+        ...(await searchUsers(text))
           // Filter out current mods
           .filter(
             pv =>

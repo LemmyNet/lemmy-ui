@@ -25,10 +25,9 @@ import PasswordInput from "../common/password-input";
 import { secondsDurationToAlertClass, secondsDurationToStr } from "@utils/date";
 import { scrollMixin } from "@components/mixins/scroll-mixin";
 import { RouteData } from "@utils/types";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { OAuthLogin } from "./oauth/oauth-login";
-import { RouterContext } from "inferno-router/dist/Router";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -170,17 +169,17 @@ export class Signup extends Component<SignupRouteProps, State> {
               id="register-email"
               className="form-control"
               placeholder={
-                siteView?.local_site.require_email_verification
+                siteView?.local_site.email_verification_required
                   ? I18NextService.i18n.t("required")
                   : I18NextService.i18n.t("optional")
               }
               value={this.state.form.email}
               autoComplete="email"
               onInput={e => handleRegisterEmailChange(this, e)}
-              required={siteView?.local_site.require_email_verification}
+              required={siteView?.local_site.email_verification_required}
               minLength={3}
             />
-            {!siteView?.local_site.require_email_verification &&
+            {!siteView?.local_site.email_verification_required &&
               this.state.form.email &&
               !validEmail(this.state.form.email) && (
                 <div className="mt-2 mb-0 alert alert-warning" role="alert">

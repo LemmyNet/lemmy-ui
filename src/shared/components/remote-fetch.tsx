@@ -7,7 +7,7 @@ import {
   CommunityResponse,
   CommunityView,
   LemmyHttp,
-  SearchResponse,
+  ResolveObjectView,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, HttpService, I18NextService } from "../services";
@@ -24,21 +24,20 @@ import { PictrsImage } from "./common/pictrs-image";
 import { SubscribeButton } from "./common/subscribe-button";
 import { CommunityLink } from "./community/community-link";
 import { getHttpBaseInternal } from "../utils/env";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
-import { RouterContext } from "inferno-router/dist/Router";
 
 interface RemoteFetchProps {
   uri?: string;
 }
 
 type RemoteFetchData = RouteDataResponse<{
-  resolveObjectRes: SearchResponse;
+  resolveObjectRes: ResolveObjectView;
 }>;
 
 interface RemoteFetchState {
-  resolveObjectRes: RequestState<SearchResponse>;
+  resolveObjectRes: RequestState<ResolveObjectView>;
   followRes: RequestState<CommunityResponse>;
   isIsomorphic: boolean;
 }
@@ -156,8 +155,8 @@ export class RemoteFetch extends Component<
 
   get community(): CommunityView | undefined {
     const { resolveObjectRes: res } = this.state;
-    if (res.state === "success" && res.data.resolve?.type_ === "community") {
-      return res.data.resolve;
+    if (res.state === "success" && res.data.type_ === "community") {
+      return res.data;
     } else {
       return undefined;
     }

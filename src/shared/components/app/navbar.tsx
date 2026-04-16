@@ -19,7 +19,7 @@ import { Icon } from "../common/icon";
 import { PictrsImage } from "../common/pictrs-image";
 import { Subscription } from "rxjs";
 import { tippyMixin } from "../mixins/tippy-mixin";
-import { RouterContext } from "inferno-router/dist/Router";
+import { RouterContext } from "inferno-router";
 
 interface NavbarProps {
   siteRes?: GetSiteResponse;

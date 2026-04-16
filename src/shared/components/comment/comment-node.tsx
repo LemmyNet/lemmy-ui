@@ -20,6 +20,7 @@ import {
   CreateComment,
   CreateCommentLike,
   CreateCommentReport,
+  CreateCommentWarning,
   DeleteComment,
   DistinguishComment,
   EditComment,
@@ -115,7 +116,7 @@ type CommentNodeProps = {
   onPurgeComment: (form: PurgeComment) => void;
   onPersonNote: (form: NotePerson) => void;
   onLockComment: (form: LockComment) => void;
-  onWarnComment: (form: { comment_id: CommentId; reason: string }) => void;
+  onWarnComment: (form: CreateCommentWarning) => void;
 };
 
 @tippyMixin

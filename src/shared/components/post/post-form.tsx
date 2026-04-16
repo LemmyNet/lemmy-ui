@@ -1,7 +1,7 @@
 import {
   communityToChoice,
   userNotLoggedInOrBanned,
-  fetchCommunities,
+  searchCommunities,
   filterCommunitySelection,
 } from "@utils/app";
 import {
@@ -34,11 +34,11 @@ import {
   MyUserInfo,
   PersonView,
   PostView,
-  SearchResponse,
   CommunityTag,
   CommunityTagId,
   UploadImageResponse,
   ModEditPost,
+  PagedResponse,
 } from "lemmy-js-client";
 import {
   archiveTodayUrl,
@@ -119,7 +119,7 @@ interface PostFormState {
     // Javascript treats this field as a string, that can't have timezone info.
     scheduled_publish_time_at?: string;
   };
-  suggestedPostsRes: RequestState<SearchResponse>;
+  suggestedPostsRes: RequestState<PagedResponse<PostView>>;
   metadataRes: RequestState<GetSiteMetadataResponse>;
   imageLoading: boolean;
   uploadedImage?: UploadImageResponse;
@@ -346,6 +346,12 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   onPaste={e => handleImageUploadPaste(this, e)}
                 />
                 {this.renderSuggestedTitleCopy()}
+                {/* Show a warning for media posts with missing alt text */}
+                {url && isMedia(url) && !this.state.form.alt_text && (
+                  <div className="alert alert-warning" role="alert">
+                    {I18NextService.i18n.t("missing_alt_text")}
+                  </div>
+                )}
                 {url && validURL(url) && (
                   <div>
                     <a
@@ -458,6 +464,28 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 </>
               )}
             </div>
+            {url && isMedia(url) && (
+              <div className="mb-3 row">
+                <label
+                  className="col-sm-2 col-form-label"
+                  htmlFor="post-alt-text"
+                >
+                  {I18NextService.i18n.t("column_alttext")}
+                </label>
+                <div className="col-sm-10">
+                  <input
+                    autoComplete="false"
+                    name="alt_text"
+                    placeholder={I18NextService.i18n.t("optional")}
+                    type="text"
+                    className="form-control mb-3"
+                    id="post-alt-text"
+                    value={this.state.form.alt_text}
+                    onInput={e => handleAltTextChange(this, e)}
+                  />
+                </div>
+              </div>
+            )}
             {!isImage(url || "") && (
               <div className="mb-3 row">
                 <label
@@ -505,28 +533,6 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               onChange={val => handleLanguageChange(this, val)}
               myUserInfo={this.props.myUserInfo}
             />
-            {url && isMedia(url) && (
-              <div className="mb-3 row">
-                <label
-                  className="col-sm-2 col-form-label"
-                  htmlFor="post-alt-text"
-                >
-                  {I18NextService.i18n.t("column_alttext")}
-                </label>
-                <div className="col-sm-10">
-                  <input
-                    autoComplete="false"
-                    name="alt_text"
-                    placeholder={I18NextService.i18n.t("optional")}
-                    type="text"
-                    className="form-control"
-                    id="post-alt-text"
-                    value={this.state.form.alt_text}
-                    onInput={e => handleAltTextChange(this, e)}
-                  />
-                </div>
-              </div>
-            )}
             {!this.props.post_view && (
               <div className="mb-3 row align-items-center">
                 <label
@@ -682,9 +688,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
       case "loading":
         return <Spinner />;
       case "success": {
-        const suggestedPosts = this.state.suggestedPostsRes.data.search.filter(
-          r => r.type_ === "post",
-        );
+        const suggestedPosts = this.state.suggestedPostsRes.data.items;
 
         return (
           suggestedPosts &&
@@ -767,15 +771,14 @@ const fetchPageTitle = debounce(async (i: PostForm) => {
 });
 
 const fetchSimilarPosts = debounce(async (i: PostForm) => {
-  const q = i.state.form.name;
-  if (q && q !== "") {
+  const search_term = i.state.form.name;
+  if (search_term && search_term !== "") {
     i.setState({ suggestedPostsRes: LOADING_REQUEST });
     i.setState({
-      suggestedPostsRes: await HttpService.client.search({
-        q,
-        type_: "posts",
+      suggestedPostsRes: await HttpService.client.getPosts({
+        search_term,
         sort: "top",
-        listing_type: "all",
+        type_: "all",
         community_id: i.state.form.community_id,
       }),
     });
@@ -875,7 +878,7 @@ const handleCommunitySearch = debounce(async (i: PostForm, text: string) => {
   if (text.length > 0) {
     newOptions.push(
       ...filterCommunitySelection(
-        await fetchCommunities(text),
+        await searchCommunities(text),
         i.props.myUserInfo,
       ).map(communityToChoice),
     );

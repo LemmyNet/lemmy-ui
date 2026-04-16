@@ -6,7 +6,7 @@ import { I18NextService } from "../../../services";
 import { isHttps } from "@utils/env";
 import { IsoData } from "@utils/types";
 import { setIsoData } from "@utils/app";
-import { RouterContext } from "inferno-router/dist/Router";
+import { RouterContext } from "inferno-router";
 
 interface AdultConsentModalProps {
   contentWarning: string;

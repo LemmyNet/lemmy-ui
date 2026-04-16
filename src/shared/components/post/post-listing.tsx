@@ -28,6 +28,7 @@ import {
   CommunityTag,
   TransferCommunity,
   ModEditPost,
+  CreatePostWarning,
 } from "lemmy-js-client";
 import {
   ShowBodyType,
@@ -39,7 +40,7 @@ import { PostForm } from "./post-form";
 import { PostListingList } from "./post-listing-list";
 import { PostListingCard } from "./post-listing-card";
 import { masonryUpdate } from "@utils/browser";
-import { RouterContext } from "inferno-router/dist/Router";
+import { RouterContext } from "inferno-router";
 import Viewer from "viewerjs";
 import { viewerJsFullSizeImageUrl } from "@components/common/pictrs-image";
 
@@ -79,7 +80,7 @@ type PostListingProps = {
   onBlockPerson: (form: BlockPerson) => void;
   onBlockCommunity: (form: BlockCommunity) => void;
   onLockPost: (form: LockPost) => void;
-  onWarnPost: (form: { post_id: number; reason: string }) => void;
+  onWarnPost: (form: CreatePostWarning) => void;
   onDeletePost: (form: DeletePost) => void;
   onRemovePost: (form: RemovePost) => void;
   onSavePost: (form: SavePost) => void;

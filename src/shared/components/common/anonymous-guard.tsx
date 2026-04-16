@@ -2,7 +2,7 @@ import { Component } from "inferno";
 import { Spinner } from "./icon";
 import { isBrowser } from "@utils/browser";
 import { MyUserInfo } from "lemmy-js-client";
-import { RouterContext } from "inferno-router/dist/Router";
+import { RouterContext } from "inferno-router";
 
 interface AnonymousGuardProps {
   myUserInfo: MyUserInfo | undefined;

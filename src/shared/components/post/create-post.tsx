@@ -18,7 +18,7 @@ import {
   StringBoolean,
 } from "@utils/types";
 import { InfernoNode, Component } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import {
   CommunityView,
   CreatePost as CreatePostI,
@@ -48,7 +48,6 @@ import { isBrowser } from "@utils/browser";
 import { NoOptionI18nKeys } from "i18next";
 import { CommunitySidebar } from "@components/community/community-sidebar";
 import { Icon } from "@components/common/icon";
-import { RouterContext } from "inferno-router/dist/Router";
 
 export interface CreatePostProps {
   communityId?: number;

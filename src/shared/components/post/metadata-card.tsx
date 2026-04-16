@@ -1,6 +1,6 @@
 import { Component } from "inferno";
 import { Post } from "lemmy-js-client";
-import * as sanitizeHtml from "sanitize-html";
+import sanitize from "sanitize-html";
 import { relTags } from "@utils/config";
 import { Icon } from "../common/icon";
 
@@ -41,7 +41,7 @@ export class MetadataCard extends Component<MetadataCardProps> {
                   <div
                     className="card-text small text-muted md-div"
                     dangerouslySetInnerHTML={{
-                      __html: sanitizeHtml(post.embed_description),
+                      __html: sanitize(post.embed_description),
                     }}
                   />
                 )}

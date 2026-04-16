@@ -1,10 +1,9 @@
 import { Component } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { Spinner } from "./icon";
 import { getQueryString } from "@utils/helpers";
 import { isBrowser } from "@utils/browser";
 import { MyUserInfo } from "lemmy-js-client";
-import { RouterContext } from "inferno-router/dist/Router";
 
 interface AuthGuardProps extends RouteComponentProps<Record<string, string>> {
   myUserInfo: MyUserInfo | undefined;

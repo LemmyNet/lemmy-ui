@@ -73,7 +73,7 @@ import { Icon, Spinner } from "../common/icon";
 import { PrivateMessage } from "../private_message/private-message";
 import { getHttpBaseInternal } from "@utils/env";
 import { CommentsLoadingSkeleton } from "../common/loading-skeleton";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "../common/paginator-cursor";
@@ -86,7 +86,6 @@ import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
-import { RouterContext } from "inferno-router/dist/Router";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 
 const messageTypeOptions: FilterOption<NotificationTypeFilter>[] = [

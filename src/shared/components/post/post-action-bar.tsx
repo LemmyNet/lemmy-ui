@@ -45,6 +45,7 @@ import {
   RemovePost,
   SavePost,
   TransferCommunity,
+  CreatePostWarning,
 } from "lemmy-js-client";
 
 type PostActionBarProps = {
@@ -68,7 +69,7 @@ type PostActionBarProps = {
   onBlockPerson: (form: BlockPerson) => void;
   onBlockCommunity: (form: BlockCommunity) => void;
   onLockPost: (form: LockPost) => void;
-  onWarnPost: (form: { post_id: number; reason: string }) => void;
+  onWarnPost: (form: CreatePostWarning) => void;
   onDeletePost: (form: DeletePost) => void;
   onRemovePost: (form: RemovePost) => void;
   onSavePost: (form: SavePost) => void;

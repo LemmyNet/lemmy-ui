@@ -13,8 +13,7 @@ import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import { toast } from "@utils/app";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
-import { RouteComponentProps } from "inferno-router/dist/Route";
-import { RouterContext } from "inferno-router/dist/Router";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 
 interface State {
   passwordChangeRes: RequestState<SuccessResponse>;

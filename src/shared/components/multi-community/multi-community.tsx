@@ -21,7 +21,7 @@ import { scrollMixin } from "../mixins/scroll-mixin";
 import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode, RefObject, createRef } from "inferno";
-import { RouteComponentProps } from "inferno-router/dist/Route";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -98,7 +98,6 @@ import { MultiCommunityLink } from "./multi-community-link";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { MultiCommunityEntryList } from "./multi-community-entry-form";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
-import { RouterContext } from "inferno-router/dist/Router";
 
 type MultiCommunityData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
