@@ -67,10 +67,9 @@ steps:
         - CI_PIPELINE_EVENT
       tag: ${CI_COMMIT_TAG=nightly}
     when:
-      - event: tag
-      - event: cron
-      # Ensures that its a full semver release, and not a pre-release one like 1.0.0-alpha.1
-      - evaluate: '"${CI_COMMIT_TAG}" matches ''^([0-9]\\\d*).([0-9]\\\d*).([0-9]\\\d*)$'''
+      - event: [tag, cron]
+        # Ensures that its a full semver release, and not a pre-release one like 1.0.0-alpha.1
+        evaluate: '"${CI_COMMIT_TAG}" matches ''^([0-9]\\\d*).([0-9]\\\d*).([0-9]\\\d*)$'''
 
   publish_release_docker_amd64:
     image: woodpeckerci/plugin-docker-buildx
@@ -86,8 +85,7 @@ steps:
         - CI_PIPELINE_EVENT
       tag: ${CI_COMMIT_TAG=nightly}
     when:
-      - event: tag
-      - event: cron
+      - event: [tag, cron]
 
   notify_success:
     image: alpine:3
