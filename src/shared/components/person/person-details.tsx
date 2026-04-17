@@ -39,6 +39,8 @@ import {
   CommentId,
   PostId,
   ModEditPost,
+  CreateCommentWarning,
+  CreatePostWarning,
 } from "lemmy-js-client";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
@@ -82,6 +84,7 @@ interface PersonDetailsProps {
   onPostVote: (form: CreatePostLike) => void;
   onPostReport: (form: CreatePostReport) => void;
   onLockPost: (form: LockPost) => void;
+  onWarnPost: (form: CreatePostWarning) => void;
   onDeletePost: (form: DeletePost) => void;
   onRemovePost: (form: RemovePost) => void;
   onSavePost: (form: SavePost) => void;
@@ -90,6 +93,7 @@ interface PersonDetailsProps {
   onMarkPostAsRead: (form: MarkPostAsRead) => void;
   onPersonNote: (form: NotePerson) => void;
   onLockComment: (form: LockComment) => void;
+  onWarnComment: (form: CreateCommentWarning) => void;
 }
 
 export class PersonDetails extends Component<PersonDetailsProps, never> {
@@ -135,6 +139,7 @@ export class PersonDetails extends Component<PersonDetailsProps, never> {
             onPurgeComment={this.props.onPurgeComment}
             onPersonNote={this.props.onPersonNote}
             onLockComment={this.props.onLockComment}
+            onWarnComment={this.props.onWarnComment}
             onMarkRead={async () => {}}
           />
         );
@@ -171,6 +176,7 @@ export class PersonDetails extends Component<PersonDetailsProps, never> {
             onBlockPerson={this.props.onBlockPerson}
             onBlockCommunity={this.props.onBlockCommunity}
             onLockPost={this.props.onLockPost}
+            onWarnPost={this.props.onWarnPost}
             onDeletePost={this.props.onDeletePost}
             onRemovePost={this.props.onRemovePost}
             onSavePost={this.props.onSavePost}

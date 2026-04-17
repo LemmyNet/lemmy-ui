@@ -113,6 +113,7 @@ export class CommentReport extends Component<
           onEditComment={() => {}}
           onPersonNote={() => {}}
           onLockComment={() => {}}
+          onWarnComment={() => {}}
           onMarkRead={() => {}}
           onFetchChildren={() => {}}
         />

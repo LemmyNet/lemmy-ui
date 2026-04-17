@@ -7,6 +7,8 @@ import {
   editPersonNotes,
   editPost,
   enableNsfw,
+  handleWarnComment,
+  handleWarnPost,
   mixedToCommentSortType,
   mixedToPostSortType,
   reportToast,
@@ -641,6 +643,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onPostVote={form => handlePostVote(this, form)}
               onPostReport={form => handlePostReport(form)}
               onLockPost={form => handleLockPost(this, form)}
+              onWarnPost={form => handleWarnPost(form)}
               onDeletePost={form => handleDeletePost(this, form)}
               onRemovePost={form => handleRemovePost(this, form)}
               onSavePost={form => handleSavePost(this, form)}
@@ -716,6 +719,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               onEditComment={form => handleEditComment(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               onLockComment={form => handleLockComment(this, form)}
+              onWarnComment={form => handleWarnComment(form)}
               onMarkRead={() => {}}
               onFetchChildren={() => {}}
             />

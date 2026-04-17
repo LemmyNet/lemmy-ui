@@ -64,6 +64,7 @@ interface ContentActionDropdownPropsBase {
   onAppointAdmin: () => void;
   onPersonNote: (form: NotePerson) => void;
   onLock: (reason: string) => void;
+  onWarn: (reason: string) => void;
   onViewSource: () => void;
 }
 
@@ -100,7 +101,8 @@ type DialogType =
   | "AppointAdminDialog"
   | "ViewVotesDialog"
   | "PersonNoteDialog"
-  | "LockDialog";
+  | "LockDialog"
+  | "WarnDialog";
 
 type ActionTypeState = {
   banType?: BanType;
@@ -138,6 +140,7 @@ export default class ContentActionDropdown extends Component<
     showViewVotesDialog: false,
     showPersonNoteDialog: false,
     showLockDialog: false,
+    showWarnDialog: false,
     renderAppointAdminDialog: false,
     renderAppointModDialog: false,
     renderBanDialog: false,
@@ -148,6 +151,7 @@ export default class ContentActionDropdown extends Component<
     renderViewVotesDialog: false,
     renderPersonNoteDialog: false,
     renderLockDialog: false,
+    renderWarnDialog: false,
     dropdownOpenedOnce: false,
   };
 
@@ -555,6 +559,15 @@ export default class ContentActionDropdown extends Component<
                         icon={locked ? "unlock" : "lock"}
                       />
                     </li>
+                    <li>
+                      <ActionButton
+                        noLoading
+                        onClick={() => handleToggleWarnShow(this)}
+                        label={I18NextService.i18n.t("warn_user")}
+                        icon="alert-triangle"
+                        iconClass="text-warning"
+                      />
+                    </li>
                   </>
                 )}
                 {this.canMod &&
@@ -706,6 +719,7 @@ export default class ContentActionDropdown extends Component<
       showViewVotesDialog,
       showPersonNoteDialog,
       showLockDialog,
+      showWarnDialog,
       renderBanDialog,
       renderPurgeDialog,
       renderRemoveDialog,
@@ -716,6 +730,7 @@ export default class ContentActionDropdown extends Component<
       renderViewVotesDialog,
       renderPersonNoteDialog,
       renderLockDialog,
+      renderWarnDialog,
     } = this.state;
     const {
       removed,
@@ -740,6 +755,7 @@ export default class ContentActionDropdown extends Component<
       onAppointAdmin,
       onPersonNote,
       onLock,
+      onWarn,
       type,
       community,
     } = this.props;
@@ -919,6 +935,18 @@ export default class ContentActionDropdown extends Component<
             isLocked={locked}
           />
         )}
+        {renderWarnDialog && (
+          <ModActionFormModal
+            onSubmit={(reason: string) => {
+              handleHideAllDialogs(this);
+              onWarn(reason);
+            }}
+            modActionType={type === "post" ? "warn-post" : "warn-comment"}
+            onCancel={() => handleHideAllDialogs(this)}
+            show={showWarnDialog}
+            loading={false}
+          />
+        )}
       </>
     );
   }
@@ -1039,6 +1067,7 @@ function handleToggleDialogShow(
     showViewVotesDialog: false,
     showPersonNoteDialog: false,
     showLockDialog: false,
+    showWarnDialog: false,
     [showKey]: !i.state[showKey],
     [renderKey]: true, // for fade out just keep rendering after show becomes false
     ...stateOverride,
@@ -1057,6 +1086,7 @@ function handleHideAllDialogs(i: ContentActionDropdown) {
     showViewVotesDialog: false,
     showPersonNoteDialog: false,
     showLockDialog: false,
+    showWarnDialog: false,
   });
 }
 
@@ -1114,4 +1144,8 @@ function handleTogglePersonNoteShow(i: ContentActionDropdown) {
 
 function handleToggleLockShow(i: ContentActionDropdown) {
   handleToggleDialogShow(i, "LockDialog");
+}
+
+function handleToggleWarnShow(i: ContentActionDropdown) {
+  handleToggleDialogShow(i, "WarnDialog");
 }

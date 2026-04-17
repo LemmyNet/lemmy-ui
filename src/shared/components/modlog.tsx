@@ -564,12 +564,53 @@ export function processModlogEntry(
         ),
       };
     }
-    // TODO mod warn comment and post still need to be done
+
     case "mod_warn_comment":
+      return {
+        modlog,
+        moderator,
+        data: target_person && (
+          <>
+            <span>Warned </span>
+            <PersonListing
+              person={target_person}
+              myUserInfo={myUserInfo}
+              banned={false}
+            />
+            <span> about Comment </span>
+            <Link to={`/comment/${target_comment?.id}`}>
+              {target_comment?.content}
+            </Link>
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+          </>
+        ),
+      };
+
     case "mod_warn_post":
       return {
         modlog,
-        data: <></>,
+        moderator,
+        data: target_person && (
+          <>
+            <span>Warned </span>
+            <PersonListing
+              person={target_person}
+              myUserInfo={myUserInfo}
+              banned={false}
+            />
+            <span> about Post </span>
+            <Link to={`/post/${target_post?.id}`}>{target_post?.name}</Link>
+            {reason && (
+              <span>
+                <div>reason: {reason}</div>
+              </span>
+            )}
+          </>
+        ),
       };
   }
 }

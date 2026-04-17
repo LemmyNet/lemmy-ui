@@ -13,6 +13,8 @@ import {
   editCommentsSlimLocked,
   linkTarget,
   reportToast,
+  handleWarnComment,
+  handleWarnPost,
 } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import {
@@ -618,6 +620,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 onPostVote={form => handlePostVote(this, form)}
                 onPostReport={form => handlePostReport(form)}
                 onLockPost={form => handleLockPost(this, form)}
+                onWarnPost={form => handleWarnPost(form)}
                 onDeletePost={form => handleDeletePost(this, form)}
                 onRemovePost={form => handleRemovePost(this, form)}
                 onSavePost={form => handleSavePost(this, form)}
@@ -808,6 +811,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
+            onWarnComment={form => handleWarnComment(form)}
             onMarkRead={async () => {}}
           />
         </div>
@@ -941,6 +945,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
+            onWarnComment={form => handleWarnComment(form)}
             onMarkRead={async () => {}}
           />
         </div>

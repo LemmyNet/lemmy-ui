@@ -3,6 +3,8 @@ import {
   commentToFlatNode,
   communityToChoice,
   enableNsfw,
+  handleWarnComment,
+  handleWarnPost,
   personToChoice,
   searchCommunities,
   searchUsers,
@@ -290,6 +292,7 @@ const postListing = (
               onBlockPerson={() => {}}
               onBlockCommunity={() => {}}
               onLockPost={() => {}}
+              onWarnPost={form => handleWarnPost(form)}
               onDeletePost={() => {}}
               onRemovePost={() => {}}
               onSavePost={() => {}}
@@ -367,6 +370,7 @@ const commentListing = (
               onEditComment={() => {}}
               onPersonNote={() => {}}
               onLockComment={() => {}}
+              onWarnComment={form => handleWarnComment(form)}
               onMarkRead={() => {}}
               onFetchChildren={() => {}}
             />
@@ -893,6 +897,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         onEditComment={() => {}}
         onPersonNote={() => {}}
         onLockComment={() => {}}
+        onWarnComment={form => handleWarnComment(form)}
         onMarkRead={() => {}}
         onFetchChildren={() => {}}
       />
@@ -940,6 +945,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 onBlockPerson={() => {}}
                 onBlockCommunity={() => {}}
                 onLockPost={() => {}}
+                onWarnPost={form => handleWarnPost(form)}
                 onDeletePost={() => {}}
                 onRemovePost={() => {}}
                 onSavePost={() => {}}

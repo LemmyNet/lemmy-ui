@@ -16,6 +16,7 @@ import {
   BlockPerson,
   CreatePostLike,
   CreatePostReport,
+  CreatePostWarning,
   DeletePost,
   FeaturePost,
   HidePost,
@@ -82,6 +83,7 @@ type PostListingCardProps = {
   onBlockPerson: (form: BlockPerson) => void;
   onBlockCommunity: (form: BlockCommunity) => void;
   onLockPost: (form: LockPost) => void;
+  onWarnPost: (form: CreatePostWarning) => void;
   onDeletePost: (form: DeletePost) => void;
   onRemovePost: (form: RemovePost) => void;
   onSavePost: (form: SavePost) => void;
@@ -202,6 +204,7 @@ export class PostListingCard extends Component<
             onBlockPerson={p.onBlockPerson}
             onBlockCommunity={p.onBlockCommunity}
             onLockPost={p.onLockPost}
+            onWarnPost={p.onWarnPost}
             onDeletePost={p.onDeletePost}
             onRemovePost={p.onRemovePost}
             onSavePost={p.onSavePost}

@@ -3,6 +3,7 @@ import {
   editPersonNotes,
   editPost,
   enableNsfw,
+  handleWarnPost,
   mixedToPostSortType,
   multiCommunityRSSUrl,
   reportToast,
@@ -457,6 +458,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
             onPostVote={form => handlePostVote(this, form)}
             onPostReport={form => handlePostReport(form)}
             onLockPost={form => handleLockPost(this, form)}
+            onWarnPost={form => handleWarnPost(form)}
             onDeletePost={form => handleDeletePost(this, form)}
             onRemovePost={form => handleRemovePost(this, form)}
             onSavePost={form => handleSavePost(this, form)}

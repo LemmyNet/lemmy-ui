@@ -1,6 +1,8 @@
 import {
   commentToFlatNode,
   enableNsfw,
+  handleWarnComment,
+  handleWarnPost,
   myAuth,
   notificationsRSSUrl,
   reportToast,
@@ -331,6 +333,7 @@ export class Notifications extends Component<
             onEditComment={form => handleEditComment(this, form)}
             onPersonNote={form => handlePersonNote(this, form)}
             onLockComment={form => handleLockComment(this, form)}
+            onWarnComment={form => handleWarnComment(form)}
             onMarkRead={(id, read) => handleMarkCommentAsRead(this, id, read)}
             onFetchChildren={() => {}}
           />
@@ -398,6 +401,7 @@ export class Notifications extends Component<
               onBlockPerson={() => {}}
               onBlockCommunity={() => {}}
               onLockPost={() => {}}
+              onWarnPost={form => handleWarnPost(form)}
               onDeletePost={() => {}}
               onRemovePost={() => {}}
               onSavePost={() => {}}

@@ -6,6 +6,8 @@ import {
   editPost,
   enableNsfw,
   getUncombinedPersonContent,
+  handleWarnComment,
+  handleWarnPost,
   postViewToPersonContentCombinedView,
   profileRSSUrl,
   reportToast,
@@ -736,6 +738,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onPostVote={form => handlePostVote(this, form)}
                     onPostReport={form => handlePostReport(form)}
                     onLockPost={form => handleLockPost(this, form)}
+                    onWarnPost={form => handleWarnPost(form)}
                     onDeletePost={form => handleDeletePost(this, form)}
                     onRemovePost={form => handleRemovePost(this, form)}
                     onSavePost={form => handleSavePost(this, form)}
@@ -746,6 +749,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     }
                     onPersonNote={form => handlePersonNote(this, form)}
                     onLockComment={form => handleLockComment(this, form)}
+                    onWarnComment={form => handleWarnComment(form)}
                     onFetchChildren={() => {}}
                   />
                 ))}

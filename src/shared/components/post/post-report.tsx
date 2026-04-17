@@ -106,6 +106,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           onBlockPerson={() => {}}
           onBlockCommunity={() => {}}
           onLockPost={() => {}}
+          onWarnPost={() => {}}
           onDeletePost={() => {}}
           onRemovePost={() => {}}
           onSavePost={() => {}}

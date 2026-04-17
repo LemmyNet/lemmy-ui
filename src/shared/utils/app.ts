@@ -32,9 +32,13 @@ import {
   PostReportResponse,
   PrivateMessageReportResponse,
   CommunityReportResponse,
+  CommentResponse,
+  PostResponse,
   ListCommunities,
   ListPersons,
   ListMultiCommunities,
+  CreateCommentWarning,
+  CreatePostWarning,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -743,6 +747,24 @@ export function reportToast(
   } else if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
+}
+
+function warnToast(res: RequestState<CommentResponse | PostResponse>) {
+  if (res.state === "success") {
+    toast(I18NextService.i18n.t("warning_sent"));
+  } else if (res.state === "failed") {
+    toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
+  }
+}
+
+export async function handleWarnComment(form: CreateCommentWarning) {
+  const res = await HttpService.client.warnComment(form);
+  warnToast(res);
+}
+
+export async function handleWarnPost(form: CreatePostWarning) {
+  const res = await HttpService.client.warnPost(form);
+  warnToast(res);
 }
 
 export function updateCommunityBlock(

@@ -6,6 +6,8 @@ import {
   editPersonNotes,
   editPost,
   enableNsfw,
+  handleWarnComment,
+  handleWarnPost,
   localRSSUrl,
   mixedToCommentSortType,
   mixedToPostSortType,
@@ -784,6 +786,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onPostVote={form => handlePostVote(this, form)}
               onPostReport={form => handlePostReport(form)}
               onLockPost={form => handleLockPost(this, form)}
+              onWarnPost={form => handleWarnPost(form)}
               onDeletePost={form => handleDeletePost(this, form)}
               onRemovePost={form => handleRemovePost(this, form)}
               onSavePost={form => handleSavePost(this, form)}
@@ -854,6 +857,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onEditComment={form => handleEditComment(this, form)}
               onPersonNote={form => handlePersonNote(this, form)}
               onLockComment={form => handleLockComment(this, form)}
+              onWarnComment={form => handleWarnComment(form)}
               onMarkRead={() => {}}
               onFetchChildren={() => {}}
             />
