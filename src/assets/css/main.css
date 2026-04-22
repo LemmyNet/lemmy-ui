@@ -396,16 +396,16 @@ br.big {
 }
 
 .avatar-overlay {
-  width: 20vw;
-  height: 20vw;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+
+.avatar {
   max-width: 120px;
   max-height: 120px;
   min-width: 80px;
   min-height: 80px;
-}
-
-.avatar-pushup {
-  margin-top: -60px;
 }
 
 .img-icon {

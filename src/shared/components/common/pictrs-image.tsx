@@ -15,13 +15,15 @@ const thumbnailSize = 256;
 
 // For some reason, masonry needs a default image size, and will properly size it down
 const defaultImgSize = 512;
+const bannerSize = 2048;
 
 type PictrsImageType =
   | "full_size"
   | "thumbnail"
   | "icon"
   | "banner"
-  | "icon_under_banner"
+  | "icon_and_banner"
+  | "icon_without_banner"
   | "card_top";
 
 type Props = {
@@ -115,7 +117,10 @@ export class PictrsImage extends Component<Props, State> {
             width={width}
             height={height}
             className={classNames("overflow-hidden pictrs-image", {
-              "img-fluid": type !== "icon",
+              "img-fluid":
+                type !== "icon" &&
+                type !== "icon_and_banner" &&
+                type !== "icon_without_banner",
               "thumbnail rounded object-fit-cover": type === "thumbnail",
               "img-expanded slight-radius":
                 type !== "thumbnail" && type !== "icon",
@@ -123,8 +128,10 @@ export class PictrsImage extends Component<Props, State> {
               "object-fit-cover img-icon me-1": type === "icon",
               "img-blur-icon": type === "icon" && blurImage,
               "img-blur-thumb": type === "thumbnail" && blurImage,
-              "ms-2 mb-0 rounded-circle object-fit-cover avatar-overlay avatar-pushup":
-                type === "icon_under_banner",
+              "avatar rounded-circle object-fit-cover":
+                type === "icon_and_banner" || type === "icon_without_banner",
+              // The icon and banner uses an overlay
+              "avatar-overlay": type === "icon_and_banner",
               "card-img-top": type === "card_top",
             })}
             onLoad={() => masonryUpdate()}
@@ -139,7 +146,7 @@ export class PictrsImage extends Component<Props, State> {
     switch (this.props.type) {
       case "icon":
       case "banner":
-      case "icon_under_banner":
+      case "icon_and_banner":
         return "";
       default:
         return this.props.alt || "";
@@ -152,6 +159,8 @@ export class PictrsImage extends Component<Props, State> {
         return [iconThumbnailSize, iconThumbnailSize];
       case "thumbnail":
         return [thumbnailSize, thumbnailSize];
+      case "banner":
+        return [bannerSize, bannerSize];
       default:
         return [
           this.props.imageDetails?.width ?? defaultImgSize,
@@ -189,6 +198,9 @@ export function buildPictrsSrc(src: string, type: PictrsImageType): string {
       break;
     case "icon":
       url.searchParams.set("max_size", iconThumbnailSize.toString());
+      break;
+    case "banner":
+      url.searchParams.set("max_size", bannerSize.toString());
       break;
     default:
       url.searchParams.set("max_size", defaultImgSize.toString());
