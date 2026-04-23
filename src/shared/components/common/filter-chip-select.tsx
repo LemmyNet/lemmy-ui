@@ -107,8 +107,8 @@ export class FilterChipSelect extends Component<Props, State> {
         // From MDN: "This feature is not standardized." and the event type is "A generic Event."
         // Not supported in Firefox and Safari
         element.addEventListener("search", (e: CustomEvent) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-          const searchText: string = e.detail.value;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          const searchText = e.detail.value as string;
           this.props.onSearch?.(searchText);
         });
       }
