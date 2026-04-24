@@ -72,6 +72,7 @@ import { SearchTypeDropdown } from "./common/search-type-dropdown";
 import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
 import { NoOptionI18nKeys } from "i18next";
 import { FilterChipSelect } from "./common/filter-chip-select";
+import { PaginatorCursor } from "./common/paginator-cursor";
 
 interface SearchProps {
   q?: string;
@@ -589,6 +590,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       postUrlOnly: post_url_only,
       communityId: community_id,
       creatorId: creator_id,
+      cursor,
     },
   }: InitialFetchRequest<
     SearchPathProps,
@@ -634,6 +636,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         title_only,
         post_url_only,
         limit: fetchLimit,
+        page_cursor: cursor,
       };
 
       searchResponse = await client.search(form);
@@ -647,6 +650,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
     };
   };
 
+  get getNextPage(): PaginationCursor | undefined {
+    const { searchRes: res } = this.state;
+    return res.state === "success" ? res.data.next_page : undefined;
+  }
+
   get documentTitle(): string {
     const { q } = this.props;
     const name = this.state.siteRes.site_view.site.name;
@@ -654,7 +662,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   }
 
   render() {
-    const { type } = this.props;
+    const { type, cursor } = this.props;
 
     return (
       <div className="search container-lg">
@@ -671,6 +679,11 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           this.state.searchRes.state === "success" && (
             <span>{I18NextService.i18n.t("no_results")}</span>
           )}
+        <PaginatorCursor
+          current={cursor}
+          resource={this.state.searchRes}
+          onPageChange={cursor => handlePageChange(this, cursor)}
+        />
       </div>
     );
   }
@@ -1042,6 +1055,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
       titleOnly,
       postUrlOnly,
       creatorId,
+      cursor,
     } = props;
 
     if (q) {
@@ -1055,6 +1069,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         title_only: titleOnly,
         post_url_only: postUrlOnly,
         limit: fetchLimit,
+        page_cursor: cursor,
       });
       if (token !== this.searchToken) {
         return;
@@ -1145,6 +1160,10 @@ function handleTitleOnlyChange(i: Search, titleOnly: boolean) {
 function handlePostUrlOnlyChange(i: Search, postUrlOnly: boolean) {
   // Don't allow post url and post title only to be checked at the same time
   i.updateUrl({ postUrlOnly, q: i.getQ(), titleOnly: false });
+}
+
+function handlePageChange(i: Search, cursor?: PaginationCursor) {
+  i.updateUrl({ cursor });
 }
 
 function handleTypeChange(i: Search, type: SearchType) {
