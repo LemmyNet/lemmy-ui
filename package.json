@@ -65,7 +65,7 @@
     "express": "~5.2.0",
     "highlight.js": "^11.10.0",
     "history": "^5.3.0",
-    "html-to-text": "^9.0.5",
+    "html-to-text": "^10.0.0",
     "i18next": "^23.14.0",
     "inferno": "^9.1.0",
     "inferno-create-element": "^9.1.0",
