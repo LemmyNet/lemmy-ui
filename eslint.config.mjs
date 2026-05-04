@@ -66,6 +66,10 @@ export default [
       "inferno/jsx-boolean-value": "error",
       "inferno/jsx-props-class-name": "error",
       "@typescript-eslint/no-explicit-any": ["error", { ignoreRestArgs: true }],
+      "@typescript-eslint/no-unnecessary-type-assertion": [
+        "error",
+        { typesToIgnore: ["NoOptionI18nKeys"] },
+      ],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_" },

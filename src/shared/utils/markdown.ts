@@ -331,6 +331,7 @@ export async function setupTribute() {
     },
     collection: [
       // Emojis
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       {
         trigger: ":",
         menuItemTemplate: item => {
@@ -362,6 +363,7 @@ export async function setupTribute() {
         menuShowMinLength: 2,
       } as TributeCollection<EmojiTribute>,
       // Persons
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       {
         trigger: "@",
         selectTemplate: item => {
@@ -381,6 +383,7 @@ export async function setupTribute() {
       } as TributeCollection<PersonTribute>,
 
       // Communities
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       {
         trigger: "!",
         selectTemplate: item => {
