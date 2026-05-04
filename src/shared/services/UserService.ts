@@ -24,13 +24,13 @@ export class UserService {
 
   private constructor() {}
 
-  static async init() {
+  static init() {
     const s = new this();
-    await s.#setAuthInfo();
+    s.#setAuthInfo();
     return s;
   }
 
-  public async login({
+  public login({
     res,
     showToast = true,
   }: {
@@ -42,7 +42,7 @@ export class UserService {
         toast(I18NextService.i18n.t("logged_in"));
       }
       setAuthCookie(res.jwt);
-      await this.#setAuthInfo();
+      this.#setAuthInfo();
     }
   }
 
@@ -80,12 +80,12 @@ export class UserService {
     }
   }
 
-  async #setAuthInfo() {
+  #setAuthInfo() {
     if (isBrowser()) {
       const auth = cookie.parse(document.cookie)[authCookieName];
 
       if (auth) {
-        await HttpService.client.setHeaders({
+        HttpService.client.setHeaders({
           Authorization: `Bearer ${auth}`,
         });
         this.authInfo = { auth, claims: jwtDecode(auth) };
@@ -98,4 +98,4 @@ export class UserService {
   }
 }
 
-const instance: UserService = await UserService.init();
+const instance: UserService = UserService.init();
