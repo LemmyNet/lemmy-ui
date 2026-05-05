@@ -75,7 +75,7 @@
     "inferno-router": "^9.1.0",
     "inferno-server": "^9.1.0",
     "jwt-decode": "^4.0.0",
-    "lemmy-js-client": "1.0.0-search.3",
+    "lemmy-js-client": "1.0.0-search-pagination.1",
     "markdown-it": "^14.1.0",
     "markdown-it-bidi": "^0.2.0",
     "markdown-it-container": "^4.0.0",
