@@ -1,10 +1,7 @@
 import { getBackendHostExternal } from "@utils/env";
 import { LemmyHttp } from "lemmy-js-client";
-import {
-  wrapClient,
-  WrappedLemmyHttp,
-} from "lemmy-js-client/wrapper/request_state";
 
+export type WrappedLemmyHttp = LemmyHttp;
 export {
   EMPTY_REQUEST,
   EmptyRequestState,
@@ -13,9 +10,11 @@ export {
   FailedRequestState,
   SuccessRequestState,
   RequestState,
-  WrappedLemmyHttp,
-  wrapClient,
-} from "lemmy-js-client/wrapper/request_state";
+} from "lemmy-js-client";
+
+export function wrapClient(client: LemmyHttp) {
+  return client;
+}
 
 export class HttpService {
   static #_instance: HttpService;
