@@ -1,6 +1,6 @@
 {
   "name": "lemmy-ui",
-  "version": "1.0.0-try-arm-build.4",
+  "version": "1.0.0-alpha.18",
   "description": "An isomorphic UI for lemmy",
   "repository": "https://github.com/LemmyNet/lemmy-ui",
   "license": "AGPL-3.0",
@@ -135,7 +135,7 @@
     "globals": "^17.0.0",
     "husky": "^9.1.5",
     "import-sort-style-module": "^6.0.0",
-    "lint-staged": "^16.0.0",
+    "lint-staged": "^17.0.0",
     "prettier": "^3.6.2",
     "prettier-plugin-import-sort": "^0.0.7",
     "prettier-plugin-organize-imports": "^4.2.0",

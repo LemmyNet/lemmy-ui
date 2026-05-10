@@ -64,9 +64,7 @@ export class PictrsImage extends Component<Props, State> {
 
   componentDidMount() {
     if (this.imageRef.current) {
-      this.lazyLoadCleanup = lazyLoad(this.imageRef.current) as
-        | undefined
-        | (() => void);
+      this.lazyLoadCleanup = lazyLoad(this.imageRef.current);
 
       if (this.props.viewer) {
         const viewerjs = new Viewer(this.imageRef.current, {
