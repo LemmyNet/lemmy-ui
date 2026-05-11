@@ -99,6 +99,9 @@ export class MarkdownTextArea extends Component<
       const tribute = await setupTribute();
       const textarea = this.textAreaRef.current;
       if (textarea) {
+        const content: string | undefined =
+          localStorage.getItem("lemmy-markdown") ?? undefined;
+        this.setState({ content });
         autosize(textarea);
         tribute.attach(textarea);
         textarea.addEventListener("tribute-replaced", () => {
@@ -112,6 +115,13 @@ export class MarkdownTextArea extends Component<
           textarea.focus();
         }
       }
+    }
+  }
+
+  componentWillUnmount() {
+    const textarea = this.textAreaRef.current;
+    if (textarea) {
+      localStorage.setItem("lemmy-markdown", textarea.textContent);
     }
   }
 
