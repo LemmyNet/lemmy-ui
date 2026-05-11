@@ -151,7 +151,7 @@
     "webpack-bundle-analyzer": "^5.0.0",
     "webpack-dev-server": "5.2.3"
   },
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@11.1.0",
   "engines": {
     "node": ">=8.9.0"
   },
