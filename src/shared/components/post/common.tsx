@@ -25,28 +25,31 @@ import { CommunityTag } from "@components/community/community-tag";
 import { InfernoNode } from "inferno";
 
 type PostNameProps = {
-  post: Post;
+  post_view: PostView;
   showBody: ShowBodyType;
 };
-export function PostName({ post, showBody }: PostNameProps) {
-  const url = post.url;
+export function PostName({ post_view, showBody }: PostNameProps) {
+  const url = post_view.post.url;
 
   return (
     <h1 className="post-name h5 d-inline text-break">
       {showBody === "full" ? (
         <a
           className={
-            !post.featured_community && !post.featured_local
+            !post_view.post.featured_community && !post_view.post.featured_local
               ? "text-body"
               : "link-primary"
           }
           href={url}
           title={url}
           rel={relTags}
-          dangerouslySetInnerHTML={mdToHtmlInline(post.name)}
+          dangerouslySetInnerHTML={mdToHtmlInline(post_view.post.name)}
         ></a>
       ) : (
-        <PostLink post={post} />
+        <PostLink post={post_view.post} />
+      )}
+      {post_view.post_actions?.hidden_at && (
+        <Icon icon="eye-slash" small inline classes="ms-1" />
       )}
     </h1>
   );

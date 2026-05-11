@@ -61,7 +61,7 @@ export function PostListingList({
           </div>
         )}
         <div className="col flex-grow-1">
-          <PostName post={postView.post} showBody="hidden" />
+          <PostName post_view={postView} showBody="hidden" />
           <PostCreatedLine
             postView={postView}
             showCommunity={showCommunity}
