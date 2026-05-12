@@ -30,6 +30,8 @@ import ProgressBar from "./progress-bar";
 import { validURL } from "@utils/helpers";
 import { createRef, RefObject } from "inferno";
 
+const LOCAL_STORAGE_KEY = "lemmy-markdown";
+
 interface MarkdownTextAreaProps {
   /**
    * Initial content inside the textarea
@@ -100,7 +102,7 @@ export class MarkdownTextArea extends Component<
       const textarea = this.textAreaRef.current;
       if (textarea) {
         const content: string | undefined =
-          localStorage.getItem("lemmy-markdown") ?? undefined;
+          localStorage.getItem(LOCAL_STORAGE_KEY) ?? undefined;
         this.setState({ content });
         autosize(textarea);
         tribute.attach(textarea);
@@ -115,13 +117,6 @@ export class MarkdownTextArea extends Component<
           textarea.focus();
         }
       }
-    }
-  }
-
-  componentWillUnmount() {
-    const textarea = this.textAreaRef.current;
-    if (textarea) {
-      localStorage.setItem("lemmy-markdown", textarea.textContent);
     }
   }
 
@@ -578,6 +573,7 @@ function handleContentChange(
   event: FormEvent<HTMLTextAreaElement>,
 ) {
   i.setState({ content: event.target.value });
+  localStorage.setItem(LOCAL_STORAGE_KEY, event.target.value);
   handleSubmitContentChange(i);
 }
 
@@ -640,6 +636,7 @@ function handleLanguageChange(i: MarkdownTextArea, val: number[]) {
 function handleSubmit(i: MarkdownTextArea, event: KeyboardEvent) {
   event.preventDefault();
   if (i.state.content) {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
     i.props.onSubmit?.(i.state.content, i.state.languageId);
   }
 }
