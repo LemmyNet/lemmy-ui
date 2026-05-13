@@ -300,7 +300,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
         {/* Show an un-editable title for mod edits */}
         {this.editorType === "mod_or_admin" && this.props.post_view && (
           <div className="mb-3">
-            <PostName post_view={this.props.post_view} showBody={"preview"} />
+            <PostName post={this.props.post_view.post} showBody={"preview"} />
           </div>
         )}
         {this.editorType === "creator" && (
