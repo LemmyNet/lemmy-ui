@@ -642,6 +642,7 @@ function handleSubmit(i: MarkdownTextArea, event: KeyboardEvent) {
 }
 
 function handleReplyCancel(i: MarkdownTextArea) {
+  localStorage.removeItem(LOCAL_STORAGE_KEY);
   i.props.onReplyCancel?.();
 }
 
