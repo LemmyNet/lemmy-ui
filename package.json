@@ -149,9 +149,9 @@
     "typescript-language-server": "^5.0.0",
     "unlazy": "^2.0.0",
     "webpack-bundle-analyzer": "^5.0.0",
-    "webpack-dev-server": "5.2.3"
+    "webpack-dev-server": "5.2.4"
   },
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@11.1.2",
   "engines": {
     "node": ">=8.9.0"
   },

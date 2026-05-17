@@ -41,6 +41,7 @@ import {
   ModEditPost,
   CreateCommentWarning,
   CreatePostWarning,
+  HidePost,
 } from "lemmy-js-client";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostListing } from "../post/post-listing";
@@ -94,6 +95,7 @@ interface PersonDetailsProps {
   onPersonNote: (form: NotePerson) => void;
   onLockComment: (form: LockComment) => void;
   onWarnComment: (form: CreateCommentWarning) => void;
+  onHidePost: (form: HidePost) => void;
 }
 
 export class PersonDetails extends Component<PersonDetailsProps, never> {
@@ -188,7 +190,7 @@ export class PersonDetails extends Component<PersonDetailsProps, never> {
             onAddModToCommunity={this.props.onAddModToCommunity}
             onAddAdmin={this.props.onAddAdmin}
             onTransferCommunity={this.props.onTransferCommunity}
-            onHidePost={async () => {}}
+            onHidePost={this.props.onHidePost}
             showMarkRead="dropdown"
             onMarkPostAsRead={this.props.onMarkPostAsRead}
             onPersonNote={this.props.onPersonNote}
