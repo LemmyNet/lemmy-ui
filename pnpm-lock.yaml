@@ -120,8 +120,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-search.3
-        version: 1.0.0-search.3
+        specifier: 1.0.0-request-state.0
+        version: 1.0.0-request-state.0
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.1
@@ -3416,8 +3416,8 @@ packages:
   leac@0.7.0:
     resolution: {integrity: sha512-qMrZeyEekgdRQ9o6a4NAB2EQZrv827GJdn1vnapwSJ90hWRB4TzUSunvacPkxQ2TnNqHNI1/zSt0hlo0crG8Jw==}
 
-  lemmy-js-client@1.0.0-search.3:
-    resolution: {integrity: sha512-eHI7x7Kpz7z6QwaN35JPB8wIlXz0PBB277y4WXxUbpAUKUU9kByJeohzHJ4Sqz0lXQ5dJ3//tqR7Z3kCocrYxQ==}
+  lemmy-js-client@1.0.0-request-state.0:
+    resolution: {integrity: sha512-sd26d3Ywfg1VxHr4Od/iX75fp1L8TV2jzk8/urwRCayGNX1HbDisxvlZueDqawb0hNlbhxuPpeSxOLM//qS2OA==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8818,7 +8818,7 @@ snapshots:
 
   leac@0.7.0: {}
 
-  lemmy-js-client@1.0.0-search.3:
+  lemmy-js-client@1.0.0-request-state.0:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:
