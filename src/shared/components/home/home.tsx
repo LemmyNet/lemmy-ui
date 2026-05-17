@@ -1506,7 +1506,7 @@ async function handleMarkPageAsRead(i: Home, myUserInfo?: MyUserInfo) {
 }
 
 async function handleHideDonationDialog(myUserInfo?: MyUserInfo) {
-  const res = await HttpService.client.donationDialogShown();
+  const res = await HttpService.client.markDonationDialogShown();
   if (res.state === "success") {
     if (myUserInfo !== undefined) {
       myUserInfo.local_user_view.local_user.last_donation_notification_at =
