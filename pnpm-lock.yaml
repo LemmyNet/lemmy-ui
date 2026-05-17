@@ -311,7 +311,7 @@ importers:
         version: 3.0.2(prettier@3.8.3)
       qs:
         specifier: ^6.13.0
-        version: 6.15.1
+        version: 6.15.2
       rimraf:
         specifier: ^6.0.1
         version: 6.1.3
@@ -4136,6 +4136,10 @@ packages:
 
   qs@6.15.1:
     resolution: {integrity: sha512-6YHEFRL9mfgcAvql/XhwTvf5jKcOiiupt2FiJxHkiX1z4j7WL8J/jRHYLluORvc1XxB5rV20KoeK00gVJamspg==}
+    engines: {node: '>=0.6'}
+
+  qs@6.15.2:
+    resolution: {integrity: sha512-Rzq0KEyX/w/tEybncDgdkZrJgVUsUMk3xjh3t5bv3S1HTAtg+uOYt72+ZfwiQwKdysThkTBdL/rTi6HDmX9Ddw==}
     engines: {node: '>=0.6'}
 
   queue-microtask@1.2.3:
@@ -9372,6 +9376,10 @@ snapshots:
       side-channel: 1.1.0
 
   qs@6.15.1:
+    dependencies:
+      side-channel: 1.1.0
+
+  qs@6.15.2:
     dependencies:
       side-channel: 1.1.0
 
