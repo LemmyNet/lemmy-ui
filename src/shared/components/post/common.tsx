@@ -170,8 +170,6 @@ export function PostCreatedLine({
       />
       <UserBadges
         classNames="ms-1"
-        isModerator={postView.creator_is_moderator}
-        isAdmin={postView.creator_is_admin}
         creator={postView.creator}
         isBanned={postView.creator_banned}
         isBannedFromCommunity={postView.creator_banned_from_community}

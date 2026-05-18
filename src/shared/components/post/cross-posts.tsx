@@ -145,8 +145,6 @@ function ExpandedCrossPosts({
                   />
                   <UserBadges
                     classNames="ms-1"
-                    isModerator={pv.creator_is_moderator}
-                    isAdmin={pv.creator_is_admin}
                     creator={pv.creator}
                     isBanned={pv.creator_banned}
                     isBannedFromCommunity={pv.creator_banned_from_community}
