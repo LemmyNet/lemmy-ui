@@ -234,7 +234,6 @@ const personListing = (
             />
             <UserBadges
               classNames="ms-1"
-              isAdmin={p.is_admin}
               isBanned={p.banned}
               myUserInfo={myUserInfo}
               personActions={p.person_actions}
