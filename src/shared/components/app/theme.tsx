@@ -78,7 +78,10 @@ export class Theme extends Component<Props, State> {
   }
 
   renderTheme(theme: string) {
-    const hasTheme = theme !== "instance" && theme !== "instance-compact";
+    const hasTheme =
+      theme !== "instance" &&
+      theme !== "instance-compact" &&
+      theme !== "browser";
 
     const detectedBsTheme = {};
     if (this.lightQuery) {
@@ -102,7 +105,8 @@ export class Theme extends Component<Props, State> {
       );
     } else if (
       this.props.defaultTheme !== "instance" &&
-      this.props.defaultTheme !== "instance-compact"
+      this.props.defaultTheme !== "instance-compact" &&
+      this.props.defaultTheme !== "browser"
     ) {
       return (
         <>
