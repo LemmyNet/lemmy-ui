@@ -123,6 +123,7 @@ export default class OAuthProvidersTab extends Component<
                       onClick={() =>
                         handleShowCreateOrEditProviderModal(this, {
                           type: "add",
+                          provider: provider,
                         })
                       }
                     >
