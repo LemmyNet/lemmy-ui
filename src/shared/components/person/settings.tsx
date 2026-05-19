@@ -62,7 +62,10 @@ import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
-import { MarkdownTextArea } from "../common/markdown-textarea";
+import {
+  MarkdownTextArea,
+  removeLocalStorageMarkdown,
+} from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
 import { PostSortDropdown, CommentSortDropdown } from "../common/sort-dropdown";
 import Tabs from "../common/tabs";
@@ -1876,6 +1879,7 @@ async function handleSaveSettingsSubmit(
   event: FormEvent<HTMLFormElement>,
 ) {
   event.preventDefault();
+  removeLocalStorageMarkdown();
   i.setState({ saveRes: LOADING_REQUEST });
 
   const saveRes = await HttpService.client.saveUserSettings({
