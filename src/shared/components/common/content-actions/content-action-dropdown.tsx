@@ -345,33 +345,34 @@ export default class ContentActionDropdown extends Component<
                     </>
                   )}
                 {/* Mods / admins can also edit post tags or nsfw. */}
-                {(this.amCreator || this.canMod) &&
-                  !userNotLoggedInOrBanned(this.props.myUserInfo) && (
-                    <>
+                {((type === "post" && this.canMod) ||
+                  (this.amCreator &&
+                    !userNotLoggedInOrBanned(this.props.myUserInfo))) && (
+                  <>
+                    <li>
+                      <ActionButton
+                        icon="edit"
+                        label={I18NextService.i18n.t(
+                          this.amCreator ? "edit" : "edit_as_mod",
+                        )}
+                        noLoading
+                        onClick={onEdit}
+                      />
+                    </li>
+                    {this.amCreator && (
                       <li>
                         <ActionButton
-                          icon="edit"
+                          onClick={onDelete}
+                          icon={deleted ? "undo-trash" : "trash"}
                           label={I18NextService.i18n.t(
-                            this.amCreator ? "edit" : "edit_as_mod",
+                            deleted ? "undelete" : "delete",
                           )}
-                          noLoading
-                          onClick={onEdit}
+                          iconClass={`text-${deleted ? "success" : "danger"}`}
                         />
                       </li>
-                      {this.amCreator && (
-                        <li>
-                          <ActionButton
-                            onClick={onDelete}
-                            icon={deleted ? "undo-trash" : "trash"}
-                            label={I18NextService.i18n.t(
-                              deleted ? "undelete" : "delete",
-                            )}
-                            iconClass={`text-${deleted ? "success" : "danger"}`}
-                          />
-                        </li>
-                      )}
-                    </>
-                  )}
+                    )}
+                  </>
+                )}
                 {!this.amCreator && this.props.myUserInfo && (
                   <>
                     {type === "comment" && (
