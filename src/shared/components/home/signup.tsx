@@ -20,7 +20,10 @@ import {
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import { MarkdownTextArea } from "../common/markdown-textarea";
+import {
+  MarkdownTextArea,
+  removeLocalStorageMarkdown,
+} from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
 import { secondsDurationToAlertClass, secondsDurationToStr } from "@utils/date";
 import { scrollMixin } from "@components/mixins/scroll-mixin";
@@ -425,6 +428,7 @@ async function handleRegisterSubmit(
   event: FormEvent<HTMLFormElement>,
 ) {
   event.preventDefault();
+  removeLocalStorageMarkdown();
   const {
     show_nsfw,
     answer,

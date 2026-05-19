@@ -7,7 +7,10 @@ import {
   EditTagline,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
-import { MarkdownTextArea } from "../common/markdown-textarea";
+import {
+  MarkdownTextArea,
+  removeLocalStorageMarkdown,
+} from "../common/markdown-textarea";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { Prompt } from "inferno-router";
 
@@ -109,6 +112,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
     event: InfernoMouseEvent<HTMLButtonElement>,
   ) {
     event.preventDefault();
+    removeLocalStorageMarkdown();
 
     const content = i.state.content ?? "";
 

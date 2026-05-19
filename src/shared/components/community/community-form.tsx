@@ -13,7 +13,10 @@ import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
-import { MarkdownTextArea } from "../common/markdown-textarea";
+import {
+  MarkdownTextArea,
+  removeLocalStorageMarkdown,
+} from "../common/markdown-textarea";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { validActorRegexPattern } from "@utils/config";
 import { userNotLoggedInOrBanned } from "@utils/app";
@@ -362,6 +365,7 @@ function handleCommunitySubmit(
   event.preventDefault();
   i.setState({ submitted: true });
   const cForm = i.state.form;
+  removeLocalStorageMarkdown();
 
   const cv = i.props.communityView;
 
