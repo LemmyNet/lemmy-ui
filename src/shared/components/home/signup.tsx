@@ -1,5 +1,5 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
-import { isBrowser } from "@utils/browser";
+import { isBrowser, refreshTheme } from "@utils/browser";
 import { resourcesSettled, validEmail } from "@utils/helpers";
 import { Component, FormEvent, InfernoNode } from "inferno";
 import {
@@ -472,6 +472,11 @@ async function handleRegisterSubmit(
 
           if (myUserRes.state === "success") {
             updateMyUserInfo(myUserRes.data);
+            refreshTheme();
+            await I18NextService.reconfigure(
+              window.navigator.languages,
+              myUserRes.data.local_user_view.local_user.interface_language,
+            );
           }
 
           i.props.history.replace("/communities");

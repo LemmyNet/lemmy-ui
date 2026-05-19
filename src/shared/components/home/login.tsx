@@ -209,6 +209,10 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
     isoData.siteRes.oauth_providers = site.data.oauth_providers;
     isoData.siteRes.admin_oauth_providers = site.data.admin_oauth_providers;
     refreshTheme();
+    await I18NextService.reconfigure(
+      window.navigator.languages,
+      isoData.myUserInfo?.local_user_view.local_user.interface_language,
+    );
   }
 
   const { prev } = i.props;
