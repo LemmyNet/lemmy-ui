@@ -86,6 +86,7 @@ import {
   CommentId,
   PostId,
   ModEditPost,
+  HidePost,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest, PersonDetailsContentType } from "@utils/types";
@@ -751,6 +752,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
                     onLockComment={form => handleLockComment(this, form)}
                     onWarnComment={form => handleWarnComment(form)}
                     onFetchChildren={() => {}}
+                    onHidePost={form => handleHidePost(this, form)}
                   />
                 ))}
               <PaginatorCursor
@@ -1785,4 +1787,9 @@ async function handleBanFromCommunity(i: Profile, form: BanFromCommunity) {
 async function handleBanPerson(i: Profile, form: BanPerson) {
   const banRes = await HttpService.client.banPerson(form);
   i.updateBan(banRes, form.ban);
+}
+
+async function handleHidePost(i: Profile, form: HidePost) {
+  const res = await HttpService.client.hidePost(form);
+  i.findAndUpdatePost(res);
 }

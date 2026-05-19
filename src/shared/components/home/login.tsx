@@ -195,7 +195,7 @@ async function handleSubmitTotp(i: Login, totp: string) {
 }
 
 async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
-  await UserService.Instance.login({
+  UserService.Instance.login({
     res: loginRes,
   });
   const [site, myUser] = await Promise.all([

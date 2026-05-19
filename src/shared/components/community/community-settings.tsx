@@ -392,8 +392,6 @@ export class CommunitySettings extends Component<RouteProps, State> {
                     />
                     <UserBadges
                       classNames="ms-1"
-                      isAdmin={false}
-                      isBanned={false}
                       myUserInfo={myUserInfo}
                       creator={m.moderator}
                     />

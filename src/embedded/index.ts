@@ -5,7 +5,7 @@ import { lazyLoad } from "unlazy";
 
 // document.body doesn't exist yet
 window.requestAnimationFrame(() => {
-  const cleanup = lazyLoad('img[loading="lazy"]') as () => void;
+  const cleanup = lazyLoad('img[loading="lazy"]');
   // The timeout gives enough time to display the blurred image and to start
   // loading the images, the Pictrs component creates a new lazyLoad instance
   // that will handle the actual display of loaded image.

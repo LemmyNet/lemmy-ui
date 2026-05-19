@@ -466,9 +466,7 @@ async function handleRegisterSubmit(
 
         // Only log them in if a jwt was set
         if (data.jwt) {
-          await UserService.Instance.login({
-            res: data,
-          });
+          UserService.Instance.login({ res: data });
 
           const myUserRes = await HttpService.client.getMyUser();
 

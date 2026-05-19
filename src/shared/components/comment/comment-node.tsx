@@ -810,10 +810,8 @@ function CommentHeader({
   myUserInfo,
 }: CommentHeaderProps) {
   const {
-    creator_is_moderator,
     creator_banned_from_community,
     creator_banned,
-    creator_is_admin,
     comment: { deleted, removed, language_id, distinguished, locked, post_id },
     creator,
     person_actions,
@@ -832,8 +830,6 @@ function CommentHeader({
       )}
       <UserBadges
         classNames="ms-1"
-        isModerator={creator_is_moderator}
-        isAdmin={creator_is_admin}
         creator={creator}
         isBanned={creator_banned}
         isBannedFromCommunity={creator_banned_from_community}

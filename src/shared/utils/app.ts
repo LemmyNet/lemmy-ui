@@ -341,6 +341,7 @@ export async function searchCommunities(search_term: string) {
     search_term,
     sort: "active_monthly",
     type_: "all",
+    search_title_only: true,
   };
   const res = await HttpService.client.listCommunities(form);
 
