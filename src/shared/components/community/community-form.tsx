@@ -239,6 +239,13 @@ export class CommunityForm extends Component<
             {I18NextService.i18n.t("sidebar")}
           </label>
           <div className="col-12 col-sm-10">
+            {cv?.community.visibility === "private" && (
+              <div className="alert alert-warning text-bg-warning" role="alert">
+                <div className="card-text">
+                  {I18NextService.i18n.t("private_community_sidebar_warning")}
+                </div>
+              </div>
+            )}
             <MarkdownTextArea
               initialContent={this.state.form.sidebar}
               placeholder={I18NextService.i18n.t("sidebar") ?? undefined}
@@ -276,7 +283,11 @@ export class CommunityForm extends Component<
           </legend>
           <div className="col-sm-9">
             <CommunityVisibilityDropdown
-              currentOption={this.state.form.visibility ?? "public"}
+              currentOption={
+                this.state.form.visibility ??
+                cv?.community.visibility ??
+                "public"
+              }
               onSelect={val => handleCommunityVisibilityChange(this, val)}
             />
           </div>
