@@ -502,9 +502,7 @@ export class Community extends Component<CommunityRouteProps, State> {
                     <PaginatorCursor
                       current={this.props.cursor}
                       resource={this.currentRes}
-                      onPageChange={() =>
-                        handlePageChange(this, this.props.cursor)
-                      }
+                      onPageChange={cursor => handlePageChange(this, cursor)}
                     />
                   </div>
                   <div className="col-auto">{this.markPageAsReadButton()}</div>
