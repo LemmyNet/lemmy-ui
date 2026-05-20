@@ -1959,7 +1959,7 @@ async function handleExportSettings(i: Settings) {
     i.exportSettingsLink.current?.click();
   } else if (res.state === "failed") {
     toast(
-      res.err.name === "rate_limit_error"
+      res.err.name === "too_many_requests"
         ? I18NextService.i18n.t("import_export_rate_limit_error")
         : I18NextService.i18n.t("export_error"),
       "danger",
@@ -2053,7 +2053,7 @@ async function handleImportSettings(i: Settings) {
     }
   } else if (res.state === "failed") {
     toast(
-      res.err.name === "rate_limit_error"
+      res.err.name === "too_many_requests"
         ? I18NextService.i18n.t("import_export_rate_limit_error")
         : I18NextService.i18n.t("import_error"),
       "danger",
