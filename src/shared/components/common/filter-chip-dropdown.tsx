@@ -43,7 +43,7 @@ export function FilterChipDropdown<T extends string>({
 
   return (
     <div className="dropdown">
-      <div className="btn-group">
+      <div className="btn-group d-block">
         <button
           ref={buttonRef}
           className={classNames("dropdown-toggle", className, {
