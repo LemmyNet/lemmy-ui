@@ -156,16 +156,15 @@ export class ImageUploadForm extends Component<
       uploadPromise = HttpService.client[i.props.uploadKey]({ image });
     }
 
-    await uploadPromise.then((res: RequestState<UploadImageResponse>) => {
-      if (res.state === "success") {
-        i.props.onImageChange(res.data.image_url);
-        toast(I18NextService.i18n.t("image_uploaded"));
-      } else if (res.state === "failed") {
-        toast(res.err.name, "danger");
-      }
+    const res = await uploadPromise;
+    if (res.state === "success") {
+      i.props.onImageChange(res.data.image_url);
+      toast(I18NextService.i18n.t("image_uploaded"));
+    } else if (res.state === "failed") {
+      toast(res.err.name, "danger");
+    }
 
-      i.setState({ loading: false });
-    });
+    i.setState({ loading: false });
   }
 
   async handleRemoveImage(i: ImageUploadForm) {
