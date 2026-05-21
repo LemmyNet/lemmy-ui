@@ -1,5 +1,5 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
-import { Component } from "inferno";
+import { Component, FormEvent } from "inferno";
 import { refreshTheme } from "@utils/browser";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { Spinner } from "../../common/icon";
@@ -41,6 +41,8 @@ export type OAuthCallbackConfig = IRoutePropsWithFetch<
 
 interface State {
   siteRes: GetSiteResponse;
+  username_required: boolean;
+  username?: string;
 }
 
 export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
@@ -48,10 +50,15 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
 
   state: State = {
     siteRes: this.isoData.siteRes,
+    username_required: false,
   };
 
   async componentDidMount() {
-    // store state in local storage
+    await this.doLogin();
+  }
+
+  async doLogin() {
+    // restore state from local storage
     const local_oauth_state = JSON.parse(
       localStorage.getItem("oauth_state") || "{}",
     ) as LocalOauthState;
@@ -75,7 +82,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
         oauth_provider_id: local_oauth_state.oauth_provider_id,
         redirect_uri: local_oauth_state.redirect_uri,
         show_nsfw: local_oauth_state.show_nsfw,
-        username: local_oauth_state.username,
+        username: this.state.username,
         answer: local_oauth_state.answer,
       });
 
@@ -102,6 +109,8 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
           let err_redirect = "/login";
           switch (loginRes.err.name) {
             case "registration_username_required":
+              this.setState({ username_required: true });
+              return;
             case "registration_application_answer_required":
               err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
               toast(I18NextService.i18n.t(loginRes.err.name), "danger");
@@ -130,7 +139,6 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
       }
     }
   }
-
   get documentTitle(): string {
     return `${I18NextService.i18n.t("login")} - ${
       this.state.siteRes.site_view.site.name
@@ -140,7 +148,19 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
   render() {
     return (
       <div className="container-lg">
-        <Spinner />
+        {this.state.username_required ? (
+          <div>
+            <input
+              type="text"
+              onInput={e => handleInputUsername(this, e)}
+            ></input>
+            <button type="submit" onClick={_e => handleSubmitUsername(this)}>
+              Submit
+            </button>
+          </div>
+        ) : (
+          <Spinner />
+        )}
       </div>
     );
   }
@@ -173,4 +193,20 @@ async function handleOAuthLoginSuccess(
   }
 
   await UnreadCounterService.Instance.updateUnreadCounts();
+}
+
+function handleInputUsername(
+  i: OAuthCallback,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState({
+    username: event.target.value,
+  });
+}
+
+async function handleSubmitUsername(i: OAuthCallback) {
+  i.setState({
+    username_required: false,
+  });
+  await i.doLogin();
 }

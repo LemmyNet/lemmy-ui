@@ -59,7 +59,6 @@ function handleLoginWithProvider(
     oauth_provider_id: oauth_provider.id,
     redirect_uri: redirectUri,
     prev: prev ?? "/",
-    username: username,
     answer: answer,
     show_nsfw: show_nsfw,
     expires_at: Date.now() + 5 * 60_000,
@@ -75,7 +74,6 @@ export interface LocalOauthState {
   oauth_provider_id: number;
   redirect_uri: string;
   prev: string;
-  username?: string;
   answer?: string;
   show_nsfw?: boolean;
   expires_at?: number;
