@@ -37,7 +37,6 @@ export class OAuthLogin extends Component<OAuthLoginProps, object> {
 function handleLoginWithProvider(
   oauth_provider: PublicOAuthProvider,
   prev?: string,
-  username?: string,
   answer?: string,
   show_nsfw?: boolean,
 ) {
