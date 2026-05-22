@@ -780,6 +780,8 @@ const fetchSimilarPosts = debounce(async (i: PostForm) => {
     i.setState({
       suggestedPostsRes: await HttpService.client.getPosts({
         search_term,
+        search_title_only: true,
+        limit: 5,
         sort: "top",
         type_: "all",
         community_id: i.state.form.community_id,
