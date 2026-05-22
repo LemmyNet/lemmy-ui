@@ -34,8 +34,9 @@ export class OAuthLogin extends Component<OAuthLoginProps, object> {
   }
 }
 
-function handleLoginWithProvider(
+export function handleLoginWithProvider(
   oauth_provider: PublicOAuthProvider,
+  username?: string,
   prev?: string,
   answer?: string,
   show_nsfw?: boolean,
@@ -58,6 +59,7 @@ function handleLoginWithProvider(
     oauth_provider_id: oauth_provider.id,
     redirect_uri: redirectUri,
     prev: prev ?? "/",
+    username: username,
     answer: answer,
     show_nsfw: show_nsfw,
     expires_at: Date.now() + 5 * 60_000,
@@ -75,5 +77,6 @@ export interface LocalOauthState {
   prev: string;
   answer?: string;
   show_nsfw?: boolean;
+  username?: string;
   expires_at?: number;
 }

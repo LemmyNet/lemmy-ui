@@ -12,7 +12,8 @@ import { UnreadCounterService } from "../../../services";
 import { HttpService } from "../../../services/HttpService";
 import { toast } from "@utils/app";
 import { Action } from "history";
-import { LocalOauthState } from "./oauth-login";
+import { handleLoginWithProvider, LocalOauthState } from "./oauth-login";
+import { NoOptionI18nKeys } from "i18next";
 
 interface OAuthCallbackProps {
   code?: string;
@@ -46,7 +47,7 @@ interface State {
 }
 
 export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
-  isoData = setIsoData(this.context);
+  public isoData = setIsoData(this.context);
 
   state: State = {
     siteRes: this.isoData.siteRes,
@@ -82,7 +83,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
         oauth_provider_id: local_oauth_state.oauth_provider_id,
         redirect_uri: local_oauth_state.redirect_uri,
         show_nsfw: local_oauth_state.show_nsfw,
-        username: this.state.username,
+        username: local_oauth_state.username,
         answer: local_oauth_state.answer,
       });
 
@@ -106,32 +107,16 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
           break;
         }
         case "failed": {
-          let err_redirect = "/login";
+          const err_redirect = "/login";
           switch (loginRes.err.name) {
             case "registration_username_required":
               this.setState({ username_required: true });
               return;
-            case "registration_application_answer_required":
-              err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
-              toast(I18NextService.i18n.t(loginRes.err.name), "danger");
-              break;
-            case "registration_application_is_pending":
+            default:
               toast(
-                I18NextService.i18n.t("registration_application_pending"),
+                I18NextService.i18n.t(loginRes.err.name as NoOptionI18nKeys),
                 "danger",
               );
-              break;
-            case "registration_denied":
-            case "oauth_authorization_invalid":
-            case "oauth_login_failed":
-            case "oauth_registration_closed":
-            case "email_already_exists":
-            case "username_already_exists":
-            case "no_email_setup":
-              toast(I18NextService.i18n.t(loginRes.err.name), "danger");
-              break;
-            default:
-              toast(I18NextService.i18n.t("incorrect_login"), "danger");
               break;
           }
           this.props.history.push(err_redirect);
@@ -149,13 +134,22 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
     return (
       <div className="container-lg">
         {this.state.username_required ? (
-          <div>
+          <div className="col-6 align-self-center">
+            <label htmlFor="username">
+              {I18NextService.i18n.t("username")}
+            </label>
             <input
+              id="username"
               type="text"
+              className="form-control w-50 inline"
               onInput={e => handleInputUsername(this, e)}
             ></input>
-            <button type="submit" onClick={_e => handleSubmitUsername(this)}>
-              Submit
+            <button
+              type="submit"
+              className="btn btn-light border-light-subtle mt-2"
+              onClick={_e => handleSubmitUsername(this)}
+            >
+              {I18NextService.i18n.t("submit")}
             </button>
           </div>
         ) : (
@@ -204,9 +198,20 @@ function handleInputUsername(
   });
 }
 
-async function handleSubmitUsername(i: OAuthCallback) {
+function handleSubmitUsername(i: OAuthCallback) {
   i.setState({
     username_required: false,
   });
-  await i.doLogin();
+  const local_oauth_state = JSON.parse(
+    localStorage.getItem("oauth_state") || "{}",
+  ) as LocalOauthState;
+
+  const provider = i.isoData.siteRes.oauth_providers.find(
+    p => p.id === local_oauth_state.oauth_provider_id,
+  );
+  if (provider) {
+    handleLoginWithProvider(provider, i.state.username);
+  } else {
+    i.props.history.push("/login");
+  }
 }
