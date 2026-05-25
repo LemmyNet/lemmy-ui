@@ -368,7 +368,10 @@ export class MarkdownTextArea extends Component<
         className="btn btn-sm btn-link rounded-0 text-muted"
         data-tippy-content={I18NextService.i18n.t(type)}
         aria-label={I18NextService.i18n.t(type)}
-        onClick={() => handleClick(this)}
+        onClick={e => {
+          e.preventDefault();
+          handleClick(this);
+        }}
       >
         <Icon icon={iconType} classes="icon-inline" />
       </button>
