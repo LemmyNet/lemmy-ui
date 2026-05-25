@@ -13,7 +13,10 @@ import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
-import { MarkdownTextArea } from "../common/markdown-textarea";
+import {
+  MarkdownTextArea,
+  removeLocalStorageMarkdown,
+} from "../common/markdown-textarea";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { validActorRegexPattern } from "@utils/config";
 import { userNotLoggedInOrBanned } from "@utils/app";
@@ -236,6 +239,13 @@ export class CommunityForm extends Component<
             {I18NextService.i18n.t("sidebar")}
           </label>
           <div className="col-12 col-sm-10">
+            {cv?.community.visibility === "private" && (
+              <div className="alert alert-warning text-bg-warning" role="alert">
+                <div className="card-text">
+                  {I18NextService.i18n.t("private_community_sidebar_warning")}
+                </div>
+              </div>
+            )}
             <MarkdownTextArea
               initialContent={this.state.form.sidebar}
               placeholder={I18NextService.i18n.t("sidebar") ?? undefined}
@@ -273,7 +283,11 @@ export class CommunityForm extends Component<
           </legend>
           <div className="col-sm-9">
             <CommunityVisibilityDropdown
-              currentOption={this.state.form.visibility ?? "public"}
+              currentOption={
+                this.state.form.visibility ??
+                cv?.community.visibility ??
+                "public"
+              }
               onSelect={val => handleCommunityVisibilityChange(this, val)}
             />
           </div>
@@ -362,6 +376,7 @@ function handleCommunitySubmit(
   event.preventDefault();
   i.setState({ submitted: true });
   const cForm = i.state.form;
+  removeLocalStorageMarkdown();
 
   const cv = i.props.communityView;
 

@@ -9,7 +9,10 @@ import { mdToHtml } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { PersonListing } from "../person/person-listing";
 import { Spinner } from "./icon";
-import { MarkdownTextArea } from "./markdown-textarea";
+import {
+  MarkdownTextArea,
+  removeLocalStorageMarkdown,
+} from "./markdown-textarea";
 import { MomentTime } from "./moment-time";
 
 interface RegistrationApplicationProps {
@@ -172,6 +175,7 @@ function handleApprove(i: RegistrationApplication) {
 
 function handleDeny(i: RegistrationApplication) {
   if (i.state.denyExpanded) {
+    removeLocalStorageMarkdown();
     i.setState({ denyExpanded: false });
     i.props.onApproveApplication({
       id: i.props.application.registration_application.id,

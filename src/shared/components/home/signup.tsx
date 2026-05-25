@@ -1,5 +1,5 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
-import { isBrowser } from "@utils/browser";
+import { isBrowser, refreshTheme } from "@utils/browser";
 import { resourcesSettled, validEmail } from "@utils/helpers";
 import { Component, FormEvent, InfernoNode } from "inferno";
 import {
@@ -20,7 +20,10 @@ import {
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import { MarkdownTextArea } from "../common/markdown-textarea";
+import {
+  MarkdownTextArea,
+  removeLocalStorageMarkdown,
+} from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
 import { secondsDurationToAlertClass, secondsDurationToStr } from "@utils/date";
 import { scrollMixin } from "@components/mixins/scroll-mixin";
@@ -425,6 +428,7 @@ async function handleRegisterSubmit(
   event: FormEvent<HTMLFormElement>,
 ) {
   event.preventDefault();
+  removeLocalStorageMarkdown();
   const {
     show_nsfw,
     answer,
@@ -472,6 +476,11 @@ async function handleRegisterSubmit(
 
           if (myUserRes.state === "success") {
             updateMyUserInfo(myUserRes.data);
+            refreshTheme();
+            await I18NextService.reconfigure(
+              window.navigator.languages,
+              myUserRes.data.local_user_view.local_user.interface_language,
+            );
           }
 
           i.props.history.replace("/communities");

@@ -636,7 +636,7 @@ function handleLanguageChange(i: MarkdownTextArea, val: number[]) {
 function handleSubmit(i: MarkdownTextArea, event: KeyboardEvent) {
   event.preventDefault();
   if (i.state.content) {
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    removeLocalStorageMarkdown();
     i.props.onSubmit?.(i.state.content, i.state.languageId);
   }
 }
@@ -819,4 +819,8 @@ function handleQuoteInsert(i: MarkdownTextArea) {
     // Not sure why this needs a delay
     setTimeout(() => autosize.update(textarea), 10);
   }
+}
+
+export function removeLocalStorageMarkdown() {
+  localStorage.removeItem(LOCAL_STORAGE_KEY);
 }

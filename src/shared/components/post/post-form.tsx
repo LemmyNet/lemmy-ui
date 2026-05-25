@@ -58,7 +58,10 @@ import {
 import { toast } from "@utils/app";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
-import { MarkdownTextArea } from "../common/markdown-textarea";
+import {
+  MarkdownTextArea,
+  removeLocalStorageMarkdown,
+} from "../common/markdown-textarea";
 import { PostListings } from "./post-listings";
 import { isBrowser } from "@utils/browser";
 import { isMagnetLink, extractMagnetLinkDownloadName } from "@utils/media";
@@ -793,6 +796,7 @@ function updateUrl(i: PostForm, update: () => void) {
 
 function handlePostSubmit(i: PostForm, event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
+  removeLocalStorageMarkdown();
 
   const pForm = i.state.form;
   const pv = i.props.post_view;
@@ -1000,19 +1004,22 @@ async function handleImageUpload(
   i.setState({ imageLoading: true });
 
   if (file) {
-    await HttpService.client.uploadImage({ image: file }).then(res => {
-      if (res.state === "success") {
-        i.state.form.url = res.data.image_url;
-        i.setState({
-          imageLoading: false,
-          uploadedImage: res.data,
-        });
-      } else if (res.state === "failed") {
-        console.error(res.err.name);
-        toast(res.err.name, "danger");
-        i.setState({ imageLoading: false });
-      }
-    });
+    const res = await HttpService.client.uploadImage({ image: file });
+    if (res.state === "success") {
+      const url = res.data.image_url;
+      i.setState(prev => ({
+        ...prev,
+        form: {
+          ...prev.form,
+          url,
+        },
+        uploadedImage: res.data,
+      }));
+    } else if (res.state === "failed") {
+      console.error(res.err.name);
+      toast(res.err.name, "danger");
+    }
+    i.setState({ imageLoading: false });
   }
 }
 

@@ -207,7 +207,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                             onSelect={val =>
                               handleNotificationChange(this, val)
                             }
-                            className="btn btn-light border-light-subtle d-block w-100 text-truncate"
+                            className="btn btn-light border-light-subtle d-block w-100 text-wrap"
                           />
                         </div>
                         <form

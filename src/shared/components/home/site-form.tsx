@@ -19,7 +19,10 @@ import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
-import { MarkdownTextArea } from "../common/markdown-textarea";
+import {
+  MarkdownTextArea,
+  removeLocalStorageMarkdown,
+} from "../common/markdown-textarea";
 import UrlListTextarea from "../common/url-list-textarea";
 import { FormEvent } from "inferno";
 import { FederationModeDropdown } from "./federation-mode-dropdown";
@@ -754,6 +757,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
 
 function handleSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
+  removeLocalStorageMarkdown();
   i.setState({ submitted: true });
 
   const stateSiteForm = i.state.siteForm;
