@@ -21,16 +21,15 @@ import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import {
-  MarkdownTextArea,
   removeLocalStorageMarkdown,
 } from "../common/markdown-textarea";
 import PasswordInput from "../common/password-input";
-import { secondsDurationToAlertClass, secondsDurationToStr } from "@utils/date";
 import { scrollMixin } from "@components/mixins/scroll-mixin";
 import { RouteData } from "@utils/types";
 import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { OAuthLogin } from "./oauth/oauth-login";
+import { RegistrationApplicationInput } from "./registration-application-input";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -101,10 +100,10 @@ export class Signup extends Component<SignupRouteProps, State> {
 
   get documentTitle(): string {
     const siteView = this.isoData.siteRes?.site_view;
-    return `${this.titleName(siteView)} - ${siteView?.site.name}`;
+    return `${Signup.titleName(siteView)} - ${siteView?.site.name}`;
   }
 
-  titleName(siteView?: SiteView): string {
+  static titleName(siteView?: SiteView): string {
     return I18NextService.i18n.t(
       siteView?.local_site.private_instance ? "apply_to_join" : "sign_up",
     );
@@ -129,15 +128,13 @@ export class Signup extends Component<SignupRouteProps, State> {
 
   registerForm() {
     const siteView = this.isoData.siteRes?.site_view;
-    const lastApplicationDurationSeconds =
-      this.isoData.siteRes.last_application_duration_seconds;
 
     return (
       <form
         className="was-validated"
         onSubmit={e => handleRegisterSubmit(this, e)}
       >
-        <h1 className="h4 mb-4">{this.titleName(siteView)}</h1>
+        <h1 className="h4 mb-4">{Signup.titleName(siteView)}</h1>
 
         <div className="mb-3 row">
           <label
@@ -212,66 +209,7 @@ export class Signup extends Component<SignupRouteProps, State> {
           />
         </div>
 
-        {siteView?.local_site.registration_mode === "require_application" && (
-          <>
-            <div className="mb-3 row">
-              <div className="offset-sm-2 col-sm-10">
-                <div className="mt-2 alert alert-warning" role="alert">
-                  <Icon icon="alert-triangle" classes="icon-inline me-2" />
-                  {I18NextService.i18n.t("fill_out_application")}
-                </div>
-                {siteView.local_site.application_question && (
-                  <div
-                    className="md-div"
-                    dangerouslySetInnerHTML={mdToHtml(
-                      siteView.local_site.application_question,
-                      () => this.forceUpdate(),
-                    )}
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="mb-3 row">
-              <label
-                className="col-sm-2 col-form-label"
-                htmlFor="application_answer"
-              >
-                {I18NextService.i18n.t("answer")}
-              </label>
-              <div className="col-sm-10">
-                <MarkdownTextArea
-                  initialContent=""
-                  onContentChange={val => handleAnswerChange(this, val)}
-                  hideNavigationWarnings
-                  allLanguages={[]}
-                  siteLanguages={[]}
-                  renderAsDiv
-                  myUserInfo={this.isoData.myUserInfo}
-                  imageUploadDisabled
-                />
-              </div>
-            </div>
-            {lastApplicationDurationSeconds && (
-              <div className="mb-3 row">
-                <div className="offset-sm-2 col-sm-10">
-                  <div
-                    className={secondsDurationToAlertClass(
-                      lastApplicationDurationSeconds,
-                    )}
-                    role="alert"
-                  >
-                    {I18NextService.i18n.t("estimated_approval_time", {
-                      time: secondsDurationToStr(
-                        lastApplicationDurationSeconds,
-                      ),
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+        <RegistrationApplicationInput getSiteRes={this.isoData.siteRes} onAnswerChange={answer => handleAnswerChange(this, answer)} />
         {this.renderCaptcha()}
         {siteView.local_site.legal_information && (
           <div className="mb-3 card card-body ">
@@ -345,7 +283,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               {this.state.registerRes.state === "loading" ? (
                 <Spinner />
               ) : (
-                this.titleName(siteView)
+                Signup.titleName(siteView)
               )}
             </button>
           </div>

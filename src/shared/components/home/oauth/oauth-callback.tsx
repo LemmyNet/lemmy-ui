@@ -14,6 +14,9 @@ import { toast } from "@utils/app";
 import { Action } from "history";
 import { handleLoginWithProvider, LocalOauthState } from "./oauth-login";
 import { NoOptionI18nKeys } from "i18next";
+import { RegistrationApplicationInput } from "../registration-application-input";
+import { validActorRegexPattern } from "@utils/config";
+import { Signup } from "../signup";
 
 interface OAuthCallbackProps {
   code?: string;
@@ -44,6 +47,7 @@ interface State {
   siteRes: GetSiteResponse;
   username_required: boolean;
   username?: string;
+  answer?: string;
 }
 
 export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
@@ -109,6 +113,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
         case "failed": {
           const err_redirect = "/login";
           switch (loginRes.err.name) {
+            case "registration_application_answer_required":
             case "registration_username_required":
               this.setState({ username_required: true });
               return;
@@ -125,33 +130,40 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
     }
   }
   get documentTitle(): string {
-    return `${I18NextService.i18n.t("login")} - ${
-      this.state.siteRes.site_view.site.name
-    }`;
+    return `${I18NextService.i18n.t("login")} - ${this.state.siteRes.site_view.site.name
+      }`;
   }
 
   render() {
     return (
       <div className="container-lg">
-        {this.state.username_required ? (
-          <div className="col-6 align-self-center">
-            <label htmlFor="username">
+        {this.state.username_required ? (<form onSubmit={_e => handleSubmit(this)}>
+          <h1 className="h4 mb-4">{Signup.titleName(this.state.siteRes.site_view)}</h1>
+          <div className="mb-3 row">
+            <label
+              className="col-sm-2 col-form-label" htmlFor="username">
               {I18NextService.i18n.t("username")}
             </label>
-            <input
-              id="username"
-              type="text"
-              className="form-control w-50 inline"
-              onInput={e => handleInputUsername(this, e)}
-            ></input>
+            <div className="col-sm-10">
+              <input
+                id="username"
+                type="text"
+                className="form-control"
+                onInput={e => handleInputUsername(this, e)}
+                required
+                minLength={3}
+                pattern={validActorRegexPattern}
+                title={I18NextService.i18n.t("community_reqs")}
+              ></input>
+            </div>
+            <RegistrationApplicationInput getSiteRes={this.isoData.siteRes} onAnswerChange={answer => handleAnswerChange(this, answer)} />
             <button
               type="submit"
               className="btn btn-light border-light-subtle mt-2"
-              onClick={_e => handleSubmitUsername(this)}
             >
               {I18NextService.i18n.t("submit")}
             </button>
-          </div>
+          </div></form>
         ) : (
           <Spinner />
         )}
@@ -198,19 +210,28 @@ function handleInputUsername(
   });
 }
 
-function handleSubmitUsername(i: OAuthCallback) {
+function handleAnswerChange(
+  i: OAuthCallback,
+  answer: string
+) {
+  i.setState({
+    answer
+  });
+}
+
+function handleSubmit(i: OAuthCallback) {
   i.setState({
     username_required: false,
   });
   const local_oauth_state = JSON.parse(
-    localStorage.getItem("oauth_state") || "{}",
+    localStorage.getItem("oauth_state") || "{ }",
   ) as LocalOauthState;
 
   const provider = i.isoData.siteRes.oauth_providers.find(
     p => p.id === local_oauth_state.oauth_provider_id,
   );
   if (provider) {
-    handleLoginWithProvider(provider, i.state.username);
+    handleLoginWithProvider(provider, i.state.username, undefined, i.state.answer);
   } else {
     i.props.history.push("/login");
   }
