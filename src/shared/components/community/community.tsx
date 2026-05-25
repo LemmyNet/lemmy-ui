@@ -759,20 +759,20 @@ export class Community extends Component<CommunityRouteProps, State> {
     return (
       <>
         <div className="row row-cols-auto align-items-center g-3 mb-3">
-          <div className="d-block d-md-none col">
+          <div className="d-block d-md-none col mt-1">
             <ExpandChipCheckbox
               option="show_sidebar"
               isChecked={showSidebarMobile}
               onCheck={show => handleShowSidebarMobile(this, show)}
             />
           </div>
-          <div className="col">
+          <div className="col mt-1">
             <PostOrCommentTypeDropdown
               currentOption={postOrCommentType}
               onSelect={val => handlePostOrCommentTypeChange(this, val)}
             />
           </div>
-          <div className="col">
+          <div className="col mt-1">
             <PostListingModeDropdown
               currentOption={this.state.postListingMode}
               onSelect={val =>
@@ -783,7 +783,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           </div>
           {this.props.postOrCommentType === "post" ? (
             <>
-              <div className="col">
+              <div className="col mt-1">
                 <PostSortDropdown
                   currentOption={mixedToPostSortType(sort)}
                   onSelect={val => handleSortChange(this, val)}
@@ -791,7 +791,7 @@ export class Community extends Component<CommunityRouteProps, State> {
                 />
               </div>
               {!hideTimeSelect && (
-                <div className="col">
+                <div className="col mt-1">
                   <TimeIntervalFilter
                     interval={time}
                     onChange={val => handleTimeChange(this, val)}
@@ -800,7 +800,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               )}
             </>
           ) : (
-            <div className="col">
+            <div className="col mt-1">
               <CommentSortDropdown
                 currentOption={mixedToCommentSortType(sort)}
                 onSelect={val => handleCommentSortChange(this, val)}
@@ -809,7 +809,7 @@ export class Community extends Component<CommunityRouteProps, State> {
             </div>
           )}
           {communityRss && (
-            <div className="col">
+            <div className="col mt-1">
               <a href={communityRss} title="RSS" rel={relTags}>
                 <Icon icon="rss" classes="text-muted small" />
               </a>
@@ -822,7 +822,7 @@ export class Community extends Component<CommunityRouteProps, State> {
           )}
           {myUserInfo && (
             <button
-              className="col btn btn-ghost"
+              className="col btn btn-ghost mt-1"
               onClick={_ => handleHideSelectButtons(this)}
             >
               <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />
@@ -831,14 +831,14 @@ export class Community extends Component<CommunityRouteProps, State> {
         </div>
         {postOrCommentType === "post" && myUserInfo && !selectButtonsHidden && (
           <div className="row row-cols-auto mt-2">
-            <div className="col">
+            <div className="col mt-1">
               <FilterChipCheckbox
                 option={"show_hidden_posts"}
                 isChecked={showHidden ?? false}
                 onCheck={hidden => handleShowHiddenChange(this, hidden)}
               />
             </div>
-            <div className="col">
+            <div className="col mt-1">
               <FilterChipCheckbox
                 option={"hide_read_posts"}
                 isChecked={!(showRead ?? false)}

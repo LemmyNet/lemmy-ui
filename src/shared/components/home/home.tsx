@@ -881,7 +881,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         <div className="row row-cols-auto align-items-center g-3 ">
           {/* Only show these two selects on mobile */}
           {this.hasFollows && (
-            <div className="d-block d-md-none col">
+            <div className="d-block d-md-none col mt-1">
               <ExpandChipCheckbox
                 option="show_subscribed"
                 isChecked={showSubscribedMobile}
@@ -889,7 +889,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               />
             </div>
           )}
-          <div className="d-block d-md-none col">
+          <div className="d-block d-md-none col mt-1">
             <ExpandChipCheckbox
               option="show_sidebar"
               isChecked={showSidebarMobile}
@@ -898,7 +898,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           </div>
           {this.props.postOrCommentType === "post" ? (
             <>
-              <div className="col">
+              <div className="col mt-1">
                 <PostSortDropdown
                   currentOption={mixedToPostSortType(sort)}
                   onSelect={val => handleSortChange(this, val)}
@@ -907,7 +907,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               </div>
             </>
           ) : (
-            <div className="col">
+            <div className="col  mt-1">
               <CommentSortDropdown
                 currentOption={mixedToCommentSortType(sort)}
                 onSelect={val => handleCommentSortChange(this, val)}
@@ -916,7 +916,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             </div>
           )}
           {/** TODO add show read posts also **/}
-          <div className="col">
+          <div className="col  mt-1">
             <ListingTypeDropdown
               currentOption={
                 listingType ??
@@ -934,28 +934,28 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               onSelect={val => handleListingTypeChange(this, val)}
             />
           </div>
-          <div className="col">
+          <div className="col mt-1">
             <PostListingModeDropdown
               currentOption={this.state.postListingMode}
               onSelect={val => handlePostListingModeChange(this, val)}
               showLabel
             />
           </div>
-          <div className="col">
+          <div className="col mt-1">
             <PostOrCommentTypeDropdown
               currentOption={postOrCommentType}
               onSelect={val => handlePostOrCommentTypeChange(this, val)}
             />
           </div>
           {!hideTimeSelect && (
-            <div className="col">
+            <div className="col mt-1">
               <TimeIntervalFilter
                 interval={time}
                 onChange={val => handleTimeChange(this, val)}
               />
             </div>
           )}
-          <div className="col">
+          <div className="col mt-1">
             {getRss(
               listingType ??
                 this.state.siteRes.site_view.local_site
@@ -965,7 +965,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           </div>
           {myUserInfo && (
             <button
-              className="col btn btn-ghost"
+              className="col btn btn-ghost mt-0"
               onClick={_ => handleHideSelectButtons(this)}
             >
               <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />
