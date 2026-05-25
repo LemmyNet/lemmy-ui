@@ -34,10 +34,10 @@ export class OAuthLogin extends Component<OAuthLoginProps, object> {
   }
 }
 
-function handleLoginWithProvider(
+export function handleLoginWithProvider(
   oauth_provider: PublicOAuthProvider,
-  prev?: string,
   username?: string,
+  prev?: string,
   answer?: string,
   show_nsfw?: boolean,
 ) {
@@ -75,8 +75,8 @@ export interface LocalOauthState {
   oauth_provider_id: number;
   redirect_uri: string;
   prev: string;
-  username?: string;
   answer?: string;
   show_nsfw?: boolean;
+  username?: string;
   expires_at?: number;
 }

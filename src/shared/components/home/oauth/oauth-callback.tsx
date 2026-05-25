@@ -1,5 +1,5 @@
 import { setIsoData, updateMyUserInfo } from "@utils/app";
-import { Component } from "inferno";
+import { Component, FormEvent } from "inferno";
 import { refreshTheme } from "@utils/browser";
 import { GetSiteResponse, LoginResponse } from "lemmy-js-client";
 import { Spinner } from "../../common/icon";
@@ -12,7 +12,8 @@ import { UnreadCounterService } from "../../../services";
 import { HttpService } from "../../../services/HttpService";
 import { toast } from "@utils/app";
 import { Action } from "history";
-import { LocalOauthState } from "./oauth-login";
+import { handleLoginWithProvider, LocalOauthState } from "./oauth-login";
+import { NoOptionI18nKeys } from "i18next";
 
 interface OAuthCallbackProps {
   code?: string;
@@ -41,17 +42,24 @@ export type OAuthCallbackConfig = IRoutePropsWithFetch<
 
 interface State {
   siteRes: GetSiteResponse;
+  username_required: boolean;
+  username?: string;
 }
 
 export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
-  isoData = setIsoData(this.context);
+  public isoData = setIsoData(this.context);
 
   state: State = {
     siteRes: this.isoData.siteRes,
+    username_required: false,
   };
 
   async componentDidMount() {
-    // store state in local storage
+    await this.doLogin();
+  }
+
+  async doLogin() {
+    // restore state from local storage
     const local_oauth_state = JSON.parse(
       localStorage.getItem("oauth_state") || "{}",
     ) as LocalOauthState;
@@ -99,30 +107,16 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
           break;
         }
         case "failed": {
-          let err_redirect = "/login";
+          const err_redirect = "/login";
           switch (loginRes.err.name) {
             case "registration_username_required":
-            case "registration_application_answer_required":
-              err_redirect = `/signup?sso_provider_id=${local_oauth_state.oauth_provider_id}`;
-              toast(I18NextService.i18n.t(loginRes.err.name), "danger");
-              break;
-            case "registration_application_is_pending":
+              this.setState({ username_required: true });
+              return;
+            default:
               toast(
-                I18NextService.i18n.t("registration_application_pending"),
+                I18NextService.i18n.t(loginRes.err.name as NoOptionI18nKeys),
                 "danger",
               );
-              break;
-            case "registration_denied":
-            case "oauth_authorization_invalid":
-            case "oauth_login_failed":
-            case "oauth_registration_closed":
-            case "email_already_exists":
-            case "username_already_exists":
-            case "no_email_setup":
-              toast(I18NextService.i18n.t(loginRes.err.name), "danger");
-              break;
-            default:
-              toast(I18NextService.i18n.t("incorrect_login"), "danger");
               break;
           }
           this.props.history.push(err_redirect);
@@ -130,7 +124,6 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
       }
     }
   }
-
   get documentTitle(): string {
     return `${I18NextService.i18n.t("login")} - ${
       this.state.siteRes.site_view.site.name
@@ -140,7 +133,28 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
   render() {
     return (
       <div className="container-lg">
-        <Spinner />
+        {this.state.username_required ? (
+          <div className="col-6 align-self-center">
+            <label htmlFor="username">
+              {I18NextService.i18n.t("username")}
+            </label>
+            <input
+              id="username"
+              type="text"
+              className="form-control w-50 inline"
+              onInput={e => handleInputUsername(this, e)}
+            ></input>
+            <button
+              type="submit"
+              className="btn btn-light border-light-subtle mt-2"
+              onClick={_e => handleSubmitUsername(this)}
+            >
+              {I18NextService.i18n.t("submit")}
+            </button>
+          </div>
+        ) : (
+          <Spinner />
+        )}
       </div>
     );
   }
@@ -173,4 +187,31 @@ async function handleOAuthLoginSuccess(
   }
 
   await UnreadCounterService.Instance.updateUnreadCounts();
+}
+
+function handleInputUsername(
+  i: OAuthCallback,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState({
+    username: event.target.value,
+  });
+}
+
+function handleSubmitUsername(i: OAuthCallback) {
+  i.setState({
+    username_required: false,
+  });
+  const local_oauth_state = JSON.parse(
+    localStorage.getItem("oauth_state") || "{}",
+  ) as LocalOauthState;
+
+  const provider = i.isoData.siteRes.oauth_providers.find(
+    p => p.id === local_oauth_state.oauth_provider_id,
+  );
+  if (provider) {
+    handleLoginWithProvider(provider, i.state.username);
+  } else {
+    i.props.history.push("/login");
+  }
 }
