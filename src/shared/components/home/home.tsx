@@ -883,7 +883,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           {this.hasFollows && (
             <div className="d-block d-md-none col">
               <ExpandChipCheckbox
-                option="show_subscribed"
+                option="subscribed"
                 isChecked={showSubscribedMobile}
                 onCheck={show => handleShowSubscribedMobile(this, show)}
               />
@@ -891,7 +891,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           )}
           <div className="d-block d-md-none col">
             <ExpandChipCheckbox
-              option="show_sidebar"
+              option="sidebar"
               isChecked={showSidebarMobile}
               onCheck={show => handleShowSidebarMobile(this, show)}
             />

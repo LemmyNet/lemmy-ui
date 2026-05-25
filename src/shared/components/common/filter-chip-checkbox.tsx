@@ -40,10 +40,7 @@ function ChipCheckbox({
         onChange={e => onCheck(e.target.checked)}
       />
       <label
-        className={classNames(
-          "btn btn-sm btn-light border-light-subtle",
-          className,
-        )}
+        className={classNames("btn btn-sm btn-outline-primary", className)}
         for={`filter-check-${id}`}
       >
         <Icon icon={icon} classes="icon-inline me-1" />
