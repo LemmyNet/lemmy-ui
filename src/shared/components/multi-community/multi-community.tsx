@@ -440,6 +440,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
             posts={this.state.postsRes.data.items}
             showCrossPosts="small"
             showCommunity
+            multiCommunity
             viewOnly={false}
             postListingMode={this.state.postListingMode}
             showMarkRead="dropdown"
