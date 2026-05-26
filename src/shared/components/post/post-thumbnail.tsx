@@ -1,9 +1,11 @@
 import { Icon } from "@components/common/icon";
 import { PictrsImage } from "@components/common/pictrs-image";
+import { I18NextService } from "@services/index";
 import { hideAnimatedImage, hideImages, linkTarget } from "@utils/app";
 import { relTags } from "@utils/config";
 import { isImage, isVideo } from "@utils/media";
 import classNames from "classnames";
+import { Link } from "inferno-router";
 import { PostView, MyUserInfo } from "lemmy-js-client";
 
 type Props = {
@@ -104,8 +106,22 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
       );
     }
   } else {
-    // Don't show thumbnails for text posts
-    return;
+    return (
+      <Link
+        className="text-body"
+        to={`/post/${post.id}`}
+        title={I18NextService.i18n.t("comments")}
+        target={linkTarget(myUserInfo)}
+      >
+        <div className="thumbnail rounded bg-light d-flex justify-content-center">
+          <Icon
+            icon="message-square"
+            small
+            classes="d-flex align-items-center"
+          />
+        </div>
+      </Link>
+    );
   }
 }
 
