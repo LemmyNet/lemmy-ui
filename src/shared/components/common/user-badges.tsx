@@ -94,7 +94,7 @@ export class UserBadges extends Component<UserBadgesProps> {
           )}
         >
           {this.props.isBanned && (
-            <span className="col">
+            <span className="col-auto">
               <RoleLabelPill
                 label={I18NextService.i18n.t("banned")}
                 tooltip={I18NextService.i18n.t("banned")}
@@ -103,7 +103,7 @@ export class UserBadges extends Component<UserBadgesProps> {
             </span>
           )}
           {this.props.isBannedFromCommunity && (
-            <span className="col">
+            <span className="col-auto">
               <RoleLabelPill
                 label={I18NextService.i18n.t("banned_from_community_badge")}
                 tooltip={I18NextService.i18n.t("banned_from_community_badge")}
@@ -112,7 +112,7 @@ export class UserBadges extends Component<UserBadgesProps> {
             </span>
           )}
           {isDeleted && (
-            <span className="col">
+            <span className="col-auto">
               <RoleLabelPill
                 label={I18NextService.i18n.t("deleted")}
                 tooltip={I18NextService.i18n.t("deleted")}
@@ -121,7 +121,7 @@ export class UserBadges extends Component<UserBadgesProps> {
           )}
 
           {this.props.isModerator && (
-            <span className="col">
+            <span className="col-auto">
               <RoleLabelIcon
                 icon="shield"
                 tooltip={I18NextService.i18n.t("mod")}
@@ -130,7 +130,7 @@ export class UserBadges extends Component<UserBadgesProps> {
             </span>
           )}
           {this.props.isAdmin && (
-            <span className="col">
+            <span className="col-auto">
               <RoleLabelIcon
                 icon="shield"
                 tooltip={I18NextService.i18n.t("admin")}
@@ -139,7 +139,7 @@ export class UserBadges extends Component<UserBadgesProps> {
             </span>
           )}
           {isBot && (
-            <span className="col">
+            <span className="col-auto">
               <RoleLabelPill
                 label={I18NextService.i18n.t("bot_account").toLowerCase()}
                 tooltip={I18NextService.i18n.t("bot_account")}
@@ -147,7 +147,7 @@ export class UserBadges extends Component<UserBadgesProps> {
             </span>
           )}
           {showPersonVotes && (
-            <span className="col">
+            <span className="col-auto">
               <RoleLabelPill
                 label={personVotesLabel(this.props.personActions)}
                 tooltip={I18NextService.i18n.t("vote_totals_for_user")}
@@ -159,11 +159,12 @@ export class UserBadges extends Component<UserBadgesProps> {
               <RoleLabelPill
                 label={personNote}
                 tooltip={I18NextService.i18n.t("note_for_user")}
+                classes={"text-bg-light text-wrap"}
               />
             </span>
           )}
           {isNewAccount && (
-            <span className="col">
+            <span className="col-auto">
               <RoleLabelIcon
                 icon="user-plus"
                 tooltip={I18NextService.i18n.t("new_account_label")}
@@ -173,7 +174,7 @@ export class UserBadges extends Component<UserBadgesProps> {
           )}
           {showCounts && (
             <>
-              <span className="col">
+              <span className="col-auto">
                 <RoleLabelPill
                   label={I18NextService.i18n.t("number_of_posts", {
                     count: Number(this.props.creator.post_count),
@@ -182,7 +183,7 @@ export class UserBadges extends Component<UserBadgesProps> {
                   classes="list-inline-item badge text-bg-light"
                 />
               </span>
-              <span className="col">
+              <span className="col-auto">
                 <RoleLabelPill
                   label={I18NextService.i18n.t("number_of_comments", {
                     count: Number(this.props.creator.comment_count),
