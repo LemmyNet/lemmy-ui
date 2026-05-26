@@ -17,6 +17,8 @@ import { NoOptionI18nKeys } from "i18next";
 import { RegistrationApplicationInput } from "../registration-application-input";
 import { validActorRegexPattern } from "@utils/config";
 import { Signup } from "../signup";
+import { RegistrationLegalInfo } from "../registration-legal-info";
+import { RegistrationCheckboxes } from "../registration-checkboxes";
 
 interface OAuthCallbackProps {
   code?: string;
@@ -48,6 +50,8 @@ interface State {
   username_required: boolean;
   username?: string;
   answer?: string;
+  show_nsfw: boolean;
+  stay_logged_in: boolean;
 }
 
 export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
@@ -56,6 +60,8 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
   state: State = {
     siteRes: this.isoData.siteRes,
     username_required: false,
+    show_nsfw: false,
+    stay_logged_in: false,
   };
 
   async componentDidMount() {
@@ -87,6 +93,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
         oauth_provider_id: local_oauth_state.oauth_provider_id,
         redirect_uri: local_oauth_state.redirect_uri,
         show_nsfw: local_oauth_state.show_nsfw,
+        stay_logged_in: local_oauth_state.stay_logged_in,
         username: local_oauth_state.username,
         answer: local_oauth_state.answer,
       });
@@ -135,35 +142,47 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
   }
 
   render() {
+    const siteView = this.state.siteRes.site_view;
     return (
       <div className="container-lg">
-        {this.state.username_required ? (<form onSubmit={_e => handleSubmit(this)}>
-          <h1 className="h4 mb-4">{Signup.titleName(this.state.siteRes.site_view)}</h1>
-          <div className="mb-3 row">
-            <label
-              className="col-sm-2 col-form-label" htmlFor="username">
-              {I18NextService.i18n.t("username")}
-            </label>
-            <div className="col-sm-10">
-              <input
-                id="username"
-                type="text"
-                className="form-control"
-                onInput={e => handleInputUsername(this, e)}
-                required
-                minLength={3}
-                pattern={validActorRegexPattern}
-                title={I18NextService.i18n.t("community_reqs")}
-              ></input>
+        {this.state.username_required ? (
+          <form onSubmit={_e => handleSubmit(this)}>
+            <h1 className="h4 mb-4">{Signup.titleName(siteView)}</h1>
+            <div className="mb-3 row">
+              <label className="col-sm-2 col-form-label" htmlFor="username">
+                {I18NextService.i18n.t("username")}
+              </label>
+              <div className="col-sm-10">
+                <input
+                  id="username"
+                  type="text"
+                  className="form-control"
+                  onInput={e => handleUsernameChange(this, e)}
+                  required
+                  minLength={3}
+                  pattern={validActorRegexPattern}
+                  title={I18NextService.i18n.t("community_reqs")}
+                ></input>
+              </div>
+              <RegistrationApplicationInput
+                getSiteRes={this.isoData.siteRes}
+                onAnswerChange={answer => handleAnswerChange(this, answer)}
+              />
+              <RegistrationLegalInfo siteView={siteView} />
+              <RegistrationCheckboxes
+                form={this.state}
+                onRegisterShowNsfwChange={e =>
+                  handleRegisterShowNsfwChange(this, e)
+                }
+                onStayLoggedInChange={e => handleStayLoggedInChange(this, e)}
+              />
+              <div className="mb-3 row">
+                <div className="col-sm-10">
+                  <button type="submit" className="btn btn-light border-light-subtle">
+                    {I18NextService.i18n.t("submit")}
+                  </button></div></div>
             </div>
-            <RegistrationApplicationInput getSiteRes={this.isoData.siteRes} onAnswerChange={answer => handleAnswerChange(this, answer)} />
-            <button
-              type="submit"
-              className="btn btn-light border-light-subtle mt-2"
-            >
-              {I18NextService.i18n.t("submit")}
-            </button>
-          </div></form>
+          </form>
         ) : (
           <Spinner />
         )}
@@ -201,7 +220,7 @@ async function handleOAuthLoginSuccess(
   await UnreadCounterService.Instance.updateUnreadCounts();
 }
 
-function handleInputUsername(
+function handleUsernameChange(
   i: OAuthCallback,
   event: FormEvent<HTMLInputElement>,
 ) {
@@ -210,12 +229,21 @@ function handleInputUsername(
   });
 }
 
-function handleAnswerChange(
-  i: OAuthCallback,
-  answer: string
-) {
+function handleAnswerChange(i: OAuthCallback, answer: string) {
   i.setState({
-    answer
+    answer,
+  });
+}
+
+function handleRegisterShowNsfwChange(i: OAuthCallback, show_nsfw: boolean) {
+  i.setState({
+    show_nsfw,
+  });
+}
+
+function handleStayLoggedInChange(i: OAuthCallback, stay_logged_in: boolean) {
+  i.setState({
+    stay_logged_in,
   });
 }
 
@@ -231,7 +259,14 @@ function handleSubmit(i: OAuthCallback) {
     p => p.id === local_oauth_state.oauth_provider_id,
   );
   if (provider) {
-    handleLoginWithProvider(provider, i.state.username, undefined, i.state.answer);
+    handleLoginWithProvider(
+      provider,
+      i.state.username,
+      decodeURIComponent(local_oauth_state.redirect_uri),
+      i.state.answer,
+      i.state.show_nsfw,
+      i.state.stay_logged_in,
+    );
   } else {
     i.props.history.push("/login");
   }

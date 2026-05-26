@@ -40,6 +40,7 @@ export function handleLoginWithProvider(
   prev?: string,
   answer?: string,
   show_nsfw?: boolean,
+  stay_logged_in?: boolean,
 ) {
   const redirectUri = `${window.location.origin}/oauth/callback`;
   const state = uuidv4();
@@ -63,6 +64,7 @@ export function handleLoginWithProvider(
     username: username,
     answer: answer,
     show_nsfw: show_nsfw,
+    stay_logged_in: stay_logged_in,
     expires_at: Date.now() + 5 * 60_000,
   };
   // store state in local storage
@@ -78,6 +80,7 @@ export interface LocalOauthState {
   prev: string;
   answer?: string;
   show_nsfw?: boolean;
+  stay_logged_in?: boolean;
   username?: string;
   expires_at?: number;
 }
