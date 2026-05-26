@@ -73,6 +73,7 @@ import {
 import { communityTagName } from "@components/community/community-tag";
 import { FilterChipSelect } from "@components/common/filter-chip-select";
 import { PostName } from "./common";
+import { NoOptionI18nKeys } from "i18next";
 
 const MAX_POST_TITLE_LENGTH = 200;
 
@@ -1019,7 +1020,7 @@ async function handleImageUpload(
       }));
     } else if (res.state === "failed") {
       console.error(res.err.name);
-      toast(res.err.name, "danger");
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
     }
     i.setState({ imageLoading: false });
   }
