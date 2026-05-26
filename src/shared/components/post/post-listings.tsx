@@ -42,6 +42,7 @@ interface PostListingsProps {
   allLanguages: Language[];
   siteLanguages: LanguageId[];
   showCommunity: boolean;
+  multiCommunity: boolean;
   showCrossPosts: ShowCrossPostsType;
   showMarkRead: ShowMarkReadType;
   enableNsfw: boolean;
@@ -149,7 +150,7 @@ export class PostListings extends Component<PostListingsProps, never> {
         ) : (
           <>
             <div>{I18NextService.i18n.t("no_posts")}</div>
-            {this.props.showCommunity && (
+            {this.props.showCommunity && !this.props.multiCommunity && (
               <T i18nKey="subscribe_to_communities">
                 #<Link to="/communities">#</Link>
               </T>

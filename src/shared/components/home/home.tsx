@@ -768,6 +768,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             <PostListings
               posts={posts}
               showCommunity
+              multiCommunity={false}
               showCrossPosts="small"
               showMarkRead="dropdown"
               viewOnly={false}

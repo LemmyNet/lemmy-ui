@@ -623,6 +623,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               showCrossPosts="show_separately"
               showMarkRead="dropdown"
               showCommunity={false}
+              multiCommunity={false}
               viewOnly={false}
               enableNsfw={enableNsfw(siteRes)}
               showAdultConsentModal={this.isoData.showAdultConsentModal}

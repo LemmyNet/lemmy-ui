@@ -426,6 +426,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                   </div>
                   <PostListings
                     showCommunity
+                    multiCommunity={false}
                     viewOnly
                     showMarkRead="hide"
                     posts={this.props.crossPosts}
@@ -702,6 +703,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               </div>
               <PostListings
                 showCommunity
+                multiCommunity={false}
                 viewOnly
                 showMarkRead="hide"
                 posts={suggestedPosts}
