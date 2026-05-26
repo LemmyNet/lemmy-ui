@@ -9,23 +9,23 @@ import {
   SiteView,
 } from "lemmy-js-client";
 import { validActorRegexPattern } from "@utils/config";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService, UserService } from "../../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
   LOADING_REQUEST,
   RequestState,
-} from "../../services/HttpService";
+} from "../../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
-import { Icon, Spinner } from "../common/icon";
-import { removeLocalStorageMarkdown } from "../common/markdown-textarea";
-import PasswordInput from "../common/password-input";
+import { HtmlTags } from "../../common/html-tags";
+import { Icon, Spinner } from "../../common/icon";
+import { removeLocalStorageMarkdown } from "../../common/markdown-textarea";
+import PasswordInput from "../../common/password-input";
 import { scrollMixin } from "@components/mixins/scroll-mixin";
 import { RouteData } from "@utils/types";
 import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
-import { OAuthLogin } from "./oauth/oauth-login";
+import { OAuthLogin } from "../oauth/oauth-login";
 import { RegistrationApplicationInput } from "./registration-application-input";
 import { RegistrationLegalInfo } from "./registration-legal-info";
 import { RegistrationCheckboxes } from "./registration-checkboxes";

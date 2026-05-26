@@ -14,11 +14,11 @@ import { toast } from "@utils/app";
 import { Action } from "history";
 import { handleLoginWithProvider, LocalOauthState } from "./oauth-login";
 import { NoOptionI18nKeys } from "i18next";
-import { RegistrationApplicationInput } from "../registration-application-input";
+import { RegistrationApplicationInput } from "../authenticate/registration-application-input";
 import { validActorRegexPattern } from "@utils/config";
-import { Signup } from "../signup";
-import { RegistrationLegalInfo } from "../registration-legal-info";
-import { RegistrationCheckboxes } from "../registration-checkboxes";
+import { Signup } from "../authenticate/signup";
+import { RegistrationLegalInfo } from "../authenticate/registration-legal-info";
+import { RegistrationCheckboxes } from "../authenticate/registration-checkboxes";
 
 interface OAuthCallbackProps {
   code?: string;
@@ -137,8 +137,9 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
     }
   }
   get documentTitle(): string {
-    return `${I18NextService.i18n.t("login")} - ${this.state.siteRes.site_view.site.name
-      }`;
+    return `${I18NextService.i18n.t("login")} - ${
+      this.state.siteRes.site_view.site.name
+    }`;
   }
 
   render() {
@@ -178,9 +179,14 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
               />
               <div className="mb-3 row">
                 <div className="col-sm-10">
-                  <button type="submit" className="btn btn-light border-light-subtle">
+                  <button
+                    type="submit"
+                    className="btn btn-light border-light-subtle"
+                  >
                     {I18NextService.i18n.t("submit")}
-                  </button></div></div>
+                  </button>
+                </div>
+              </div>
             </div>
           </form>
         ) : (

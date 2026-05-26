@@ -29,10 +29,13 @@ import {
   Login,
   LoginFetchConfig,
   getLoginQueryParams,
-} from "@components/home/login";
-import { LoginReset } from "@components/home/login-reset";
+} from "@components/home/authenticate/login";
+import { LoginReset } from "@components/home/authenticate/login-reset";
 import { Setup } from "@components/home/setup";
-import { Signup, SignupFetchConfig } from "@components/home/signup";
+import {
+  Signup,
+  SignupFetchConfig,
+} from "@components/home/authenticate/signup";
 import {
   Modlog,
   ModlogFetchConfig,
