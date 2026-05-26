@@ -106,9 +106,10 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
       );
     }
   } else {
+    // Don't show on screens smaller than md
     return (
       <Link
-        className="text-body"
+        className="text-body d-none d-md-block"
         to={`/post/${post.id}`}
         title={I18NextService.i18n.t("comments")}
         target={linkTarget(myUserInfo)}
