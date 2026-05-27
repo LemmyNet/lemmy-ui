@@ -879,7 +879,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     const hideTimeSelect = sort === "new" || sort === "old";
     return (
       <div className="mb-3">
-        <div className="row row-cols-auto align-items-center g-3 ">
+        <div className="row row-cols-auto align-items-center g-1 ">
           {/* Only show these two selects on mobile */}
           {this.hasFollows && (
             <div className="d-block d-md-none col">
