@@ -525,6 +525,7 @@ export class Community extends Component<CommunityRouteProps, State> {
                       )}
                     </div>
                   </div>
+                  {/** Force show sidebar on mobile if it's a private unfollowed community, so that it can be followed.**/}
                   {this.mobileSidebar(true)}
                 </>
               )
