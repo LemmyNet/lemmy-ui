@@ -495,7 +495,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               <>
                 {this.renderCommunity()}
                 {this.selects()}
-                {this.mobileSidebar()}
+                {this.mobileSidebar(canViewCommunity_)}
                 {this.listings()}
                 <div className="row">
                   <div className="col">
@@ -511,16 +511,23 @@ export class Community extends Component<CommunityRouteProps, State> {
             ) : (
               // Check if res is set to avoid flashing the alert box on page load.
               res && (
-                <div className="alert alert-danger text-bg-danger" role="alert">
-                  <h4 className="alert-heading">
-                    {I18NextService.i18n.t("community_visibility_private")}
-                  </h4>
-                  <div className="card-text">
-                    {I18NextService.i18n.t(
-                      "cant_view_private_community_message",
-                    )}
+                <>
+                  <div
+                    className="alert alert-danger text-bg-danger"
+                    role="alert"
+                  >
+                    <h4 className="alert-heading">
+                      {I18NextService.i18n.t("community_visibility_private")}
+                    </h4>
+                    <div className="card-text">
+                      {I18NextService.i18n.t(
+                        "cant_view_private_community_message",
+                      )}
+                    </div>
                   </div>
-                </div>
+                  {/** Force show sidebar on mobile if it's a private unfollowed community, so that it can be followed.**/}
+                  {this.mobileSidebar(true)}
+                </>
               )
             )}
           </div>
@@ -532,13 +539,12 @@ export class Community extends Component<CommunityRouteProps, State> {
     );
   }
 
-  mobileSidebar() {
+  mobileSidebar(forceShow?: boolean) {
+    const showSidebar = forceShow || this.state.showSidebarMobile;
     return (
       <div className="d-block d-md-none">
         <div className="row">
-          <div className="col-12">
-            {this.state.showSidebarMobile && this.sidebar()}
-          </div>
+          <div className="col-12">{showSidebar && this.sidebar()}</div>
         </div>
       </div>
     );
