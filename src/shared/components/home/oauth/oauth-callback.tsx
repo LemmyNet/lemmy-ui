@@ -16,7 +16,7 @@ import { handleLoginWithProvider, LocalOauthState } from "./oauth-login";
 import { NoOptionI18nKeys } from "i18next";
 import { RegistrationApplicationInput } from "../authenticate/registration-application-input";
 import { validActorRegexPattern } from "@utils/config";
-import { Signup } from "../authenticate/signup";
+import { signupTitleName } from "../authenticate/signup";
 import { RegistrationLegalInfo } from "../authenticate/registration-legal-info";
 import { RegistrationCheckboxes } from "../authenticate/registration-checkboxes";
 
@@ -148,7 +148,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
       <div className="container-lg">
         {this.state.username_required ? (
           <form onSubmit={_e => handleSubmit(this)}>
-            <h1 className="h4 mb-4">{Signup.titleName(siteView)}</h1>
+            <h1 className="h4 mb-4">{signupTitleName(siteView)}</h1>
             <div className="mb-3 row">
               <label className="col-sm-2 col-form-label" htmlFor="username">
                 {I18NextService.i18n.t("username")}

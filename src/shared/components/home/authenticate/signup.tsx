@@ -9,13 +9,14 @@ import {
   SiteView,
 } from "lemmy-js-client";
 import { validActorRegexPattern } from "@utils/config";
-import { I18NextService, UserService } from "../../../services";
+import { I18NextService } from "@services/I18NextService";
+import { UserService } from "@services/UserService";
 import {
   EMPTY_REQUEST,
   HttpService,
   LOADING_REQUEST,
   RequestState,
-} from "../../../services/HttpService";
+} from "@services/HttpService";
 import { toast } from "@utils/app";
 import { HtmlTags } from "../../common/html-tags";
 import { Icon, Spinner } from "../../common/icon";
@@ -99,13 +100,7 @@ export class Signup extends Component<SignupRouteProps, State> {
 
   get documentTitle(): string {
     const siteView = this.isoData.siteRes?.site_view;
-    return `${Signup.titleName(siteView)} - ${siteView?.site.name}`;
-  }
-
-  static titleName(siteView?: SiteView): string {
-    return I18NextService.i18n.t(
-      siteView?.local_site.private_instance ? "apply_to_join" : "sign_up",
-    );
+    return `${signupTitleName(siteView)} - ${siteView?.site.name}`;
   }
 
   render() {
@@ -133,7 +128,7 @@ export class Signup extends Component<SignupRouteProps, State> {
         className="was-validated"
         onSubmit={e => handleRegisterSubmit(this, e)}
       >
-        <h1 className="h4 mb-4">{Signup.titleName(siteView)}</h1>
+        <h1 className="h4 mb-4">{signupTitleName(siteView)}</h1>
 
         <div className="mb-3 row">
           <label
@@ -226,7 +221,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               {this.state.registerRes.state === "loading" ? (
                 <Spinner />
               ) : (
-                Signup.titleName(siteView)
+                signupTitleName(siteView)
               )}
             </button>
           </div>
@@ -473,4 +468,10 @@ async function handleCaptchaPlay(i: Signup) {
 
 function captchaPngSrc(captcha: CaptchaResponse) {
   return `data:image/png;base64,${captcha.png}`;
+}
+
+export function signupTitleName(siteView?: SiteView): string {
+  return I18NextService.i18n.t(
+    siteView?.local_site.private_instance ? "apply_to_join" : "sign_up",
+  );
 }

@@ -4,7 +4,8 @@ import { getQueryParams, validEmail } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
 import { RouteComponentProps, RouterContext } from "inferno-router";
 import { LoginResponse } from "lemmy-js-client";
-import { I18NextService, UserService } from "../../../services";
+import { I18NextService } from "@services/I18NextService";
+import { UserService } from "@services/UserService";
 import {
   EMPTY_REQUEST,
   HttpService,
