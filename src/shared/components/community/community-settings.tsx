@@ -666,6 +666,9 @@ async function handleEditTag(i: CommunitySettings, form: EditCommunityTag) {
     createOrEditTagRes: { id: form.tag_id, res },
   });
 
+  // Need to refetch community to update tags
+  await i.fetchCommunity(i.props);
+
   if (res.state === "success") {
     toast(I18NextService.i18n.t("community_tag_edited"));
   }

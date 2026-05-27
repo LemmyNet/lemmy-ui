@@ -8,6 +8,7 @@ import {
   CommunityTag as CommunityTagI,
   CommunityTagId,
   EditCommunityTag,
+  TagColor,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { tippyMixin } from "../mixins/tippy-mixin";
@@ -15,6 +16,7 @@ import { Prompt } from "inferno-router";
 import { Spinner } from "@components/common/icon";
 import { validActorRegexPattern } from "@utils/config";
 import { CommunityTag } from "./community-tag";
+import { TagColorDropdown } from "@components/common/tag-color-dropdown";
 
 type CommunityTagGenericForm = {
   tag_id?: CommunityTagId;
@@ -22,6 +24,7 @@ type CommunityTagGenericForm = {
   name?: string;
   display_name?: string;
   summary?: string;
+  color?: TagColor;
 };
 
 interface CommunityTagFormProps {
@@ -68,6 +71,7 @@ export class CommunityTagForm extends Component<
         name: tag.name,
         display_name: tag.display_name,
         summary: tag.summary,
+        color: tag.color,
       };
     } else {
       return { community_id: this.props.communityId };
@@ -151,6 +155,12 @@ export class CommunityTagForm extends Component<
             />
           </div>
           <div className="col-12">
+            <TagColorDropdown
+              currentOption={this.state.form.color ?? "color01"}
+              onSelect={val => handleTagColorChange(this, val)}
+            />
+          </div>
+          <div className="col-12">
             <button
               className="btn btn-light border-light-subtle me-2"
               type="submit"
@@ -199,6 +209,13 @@ function handleDisplayNameChange(
 ) {
   i.setState({
     form: { ...i.state.form, display_name: event.target.value },
+    bypassNavWarning: false,
+  });
+}
+
+function handleTagColorChange(i: CommunityTagForm, color: TagColor) {
+  i.setState({
+    form: { ...i.state.form, color },
     bypassNavWarning: false,
   });
 }

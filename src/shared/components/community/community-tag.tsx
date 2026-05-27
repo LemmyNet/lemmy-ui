@@ -1,3 +1,4 @@
+import { tagColorToColorClass } from "@components/common/tag-color-dropdown";
 import { CommunityTag as CommunityTagI } from "lemmy-js-client";
 
 type CommunityTagProps = {
@@ -5,15 +6,16 @@ type CommunityTagProps = {
   useName: boolean;
 };
 export function CommunityTag({ tag, useName }: CommunityTagProps) {
-  const { name, summary } = tag;
+  const { name, summary, color } = tag;
   const label = useName ? name : communityTagName(tag);
 
   const summaryStr = summary ? ` - ${summary}` : "";
   const tooltip = `${name}${summaryStr}`;
+  const colorClass = tagColorToColorClass(color);
 
   return (
     <span
-      className={`badge text-bg-light`}
+      className={`badge text-bg-${colorClass}`}
       aria-label={tooltip}
       data-tippy-content={tooltip}
       data-tippy-allowHTML
