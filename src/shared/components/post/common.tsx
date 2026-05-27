@@ -59,7 +59,7 @@ type PostBadgesProps = {
 };
 export function PostBadges({ post, tags, allLanguages }: PostBadgesProps) {
   return (
-    <>
+    <span className="ms-1">
       {tags.map(tag => (
         <span className="me-1">
           <CommunityTag tag={tag} useName={false} />
@@ -71,7 +71,7 @@ export function PostBadges({ post, tags, allLanguages }: PostBadgesProps) {
         </span>
       )}{" "}
       {post.scheduled_publish_time_at && (
-        <span className="mx-1 badge text-bg-light">
+        <span className="me-1 badge text-bg-light">
           {I18NextService.i18n.t("publish_in_time", {
             time: formatRelativeDate(post.scheduled_publish_time_at, true),
           })}
@@ -121,7 +121,7 @@ export function PostBadges({ post, tags, allLanguages }: PostBadgesProps) {
           {I18NextService.i18n.t("nsfw")}
         </small>
       )}
-    </>
+    </span>
   );
 }
 
