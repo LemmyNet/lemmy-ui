@@ -27,7 +27,9 @@ export class CommunityLink extends Component<CommunityLinkProps, never> {
 
     const { link, serverStr } = communityLink(community, this.props.realLink);
 
-    const classes = `community-link ${this.props.muted ? "text-muted" : ""}`;
+    const classes = classNames(`community-link`, {
+      "text-muted": this.props.muted,
+    });
 
     return !this.props.realLink ? (
       <Link title={title} className={classes} to={link}>
