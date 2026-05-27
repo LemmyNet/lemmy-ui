@@ -201,6 +201,17 @@ function getCommentViewTypeFromQuery(source?: string): CommentViewType {
   }
 }
 
+function getMaxDepthFromViewType(
+  viewType: CommentViewType,
+): number | undefined {
+  switch (viewType) {
+    case "tree":
+      return commentTreeMaxDepth;
+    case "flat":
+      return undefined;
+  }
+}
+
 function getQueryStringFromCommentView(
   view: CommentViewType,
 ): string | undefined {
@@ -341,12 +352,12 @@ export class Post extends Component<PostRouteProps, PostState> {
   fetchCommentsToken?: symbol;
   async fetchComments(props: PostRouteProps) {
     const token = (this.fetchCommentsToken = Symbol());
-    const { sort } = props;
+    const { sort, view } = props;
     this.setState({ commentsRes: LOADING_REQUEST });
     const commentsRes = await HttpService.client.getCommentsSlim({
       post_id: getIdFromProps(props),
       parent_id: getCommentIdFromProps(props),
-      max_depth: commentTreeMaxDepth,
+      max_depth: getMaxDepthFromViewType(view),
       sort,
       type_: "all",
     });
@@ -401,7 +412,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   static fetchInitialData = async ({
     headers,
     match,
-    query: { sort },
+    query: { sort, view },
   }: InitialFetchRequest<PostPathProps, PostProps>): Promise<PostData> => {
     const client = wrapClient(
       new LemmyHttp(getHttpBaseInternal(), { headers }),
@@ -417,7 +428,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     const commentsForm: GetComments = {
       post_id: postId,
       parent_id: commentId,
-      max_depth: commentTreeMaxDepth,
+      max_depth: getMaxDepthFromViewType(view),
       sort,
       type_: "all",
     };

@@ -75,7 +75,7 @@
     "inferno-router": "^9.1.0",
     "inferno-server": "^9.1.0",
     "jwt-decode": "^4.0.0",
-    "lemmy-js-client": "1.0.0-image-uploads-request.0",
+    "lemmy-js-client": "1.0.0-upload-status-ok.0",
     "markdown-it": "^14.1.0",
     "markdown-it-bidi": "^0.2.0",
     "markdown-it-container": "^4.0.0",
@@ -95,7 +95,7 @@
     "rxjs": "^7.8.1",
     "sanitize-html": "^2.13.0",
     "sass": "^1.77.8",
-    "sass-loader": "^16.0.1",
+    "sass-loader": "^17.0.0",
     "serialize-javascript": "^7.0.0",
     "service-worker-webpack": "^1.0.0",
     "sharp": "0.34.5",
@@ -151,7 +151,7 @@
     "webpack-bundle-analyzer": "^5.0.0",
     "webpack-dev-server": "5.2.4"
   },
-  "packageManager": "pnpm@11.1.2",
+  "packageManager": "pnpm@11.3.0",
   "engines": {
     "node": ">=8.9.0"
   },

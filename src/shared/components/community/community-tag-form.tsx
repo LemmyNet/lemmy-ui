@@ -132,6 +132,7 @@ export class CommunityTagForm extends Component<
               value={this.state.form.display_name}
               pattern="^(?!@)(.+)$"
               minLength={3}
+              maxLength={50}
               onInput={e => handleDisplayNameChange(this, e)}
             />
           </div>

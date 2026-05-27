@@ -779,6 +779,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 onInput={e => handleDisplayNameChange(this, e)}
                 pattern="^(?!@)(.+)$"
                 minLength={3}
+                maxLength={50}
               />
             </div>
           </div>
