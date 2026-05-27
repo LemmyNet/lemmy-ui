@@ -768,7 +768,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         <div className="row row-cols-auto align-items-center g-1 mb-3">
           <div className="d-block d-md-none col">
             <ExpandChipCheckbox
-              option="show_sidebar"
+              option="sidebar"
               isChecked={showSidebarMobile}
               onCheck={show => handleShowSidebarMobile(this, show)}
             />
