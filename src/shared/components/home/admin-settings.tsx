@@ -163,9 +163,9 @@ export class AdminSettings extends Component<
       new LemmyHttp(getHttpBaseInternal(), { headers }),
     );
     return {
-      usersRes: await client.listUsers({ banned_only: false }),
+      usersRes: await client.adminListUsers({ banned_only: false }),
       instancesRes: await client.getFederatedInstances({ kind: "all" }),
-      uploadsRes: await client.listMediaAdmin({ limit: fetchLimit }),
+      uploadsRes: await client.adminListMedia({ limit: fetchLimit }),
       taglinesRes: await client.listTaglines({ limit: fetchLimit }),
       emojisRes: await client.listCustomEmojis({}),
     };
@@ -371,13 +371,13 @@ export class AdminSettings extends Component<
       emojisRes,
       themeList,
     ] = await Promise.all([
-      HttpService.client.listUsers({
+      HttpService.client.adminListUsers({
         banned_only: this.state.allOrBanned === "banned",
         page_cursor: this.state.usersCursor,
         limit: fetchLimit,
       }),
       HttpService.client.getFederatedInstances({ kind: "all" }),
-      HttpService.client.listMediaAdmin({
+      HttpService.client.adminListMedia({
         page_cursor: this.state.uploadsCursor,
         limit: fetchLimit,
       }),
@@ -403,7 +403,7 @@ export class AdminSettings extends Component<
     this.setState({
       usersRes: LOADING_REQUEST,
     });
-    const usersRes = await HttpService.client.listUsers({
+    const usersRes = await HttpService.client.adminListUsers({
       page_cursor: this.state.usersCursor,
       banned_only: this.state.allOrBanned === "banned",
       limit: fetchLimit,
@@ -416,7 +416,7 @@ export class AdminSettings extends Component<
     this.setState({
       uploadsRes: LOADING_REQUEST,
     });
-    const uploadsRes = await HttpService.client.listMediaAdmin({
+    const uploadsRes = await HttpService.client.adminListMedia({
       page_cursor: this.state.uploadsCursor,
       limit: fetchLimit,
     });

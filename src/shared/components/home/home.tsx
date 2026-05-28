@@ -1482,7 +1482,7 @@ async function handleMarkPageAsRead(i: Home, myUserInfo?: MyUserInfo) {
 
   if (post_ids && post_ids.length) {
     i.setState({ markPageAsReadLoading: true });
-    const res = await HttpService.client.markManyPostAsRead({
+    const res = await HttpService.client.markManyPostsAsRead({
       post_ids,
       read: true,
     });

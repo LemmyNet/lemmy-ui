@@ -399,8 +399,6 @@ function handleCommunitySubmit(
         title: cForm.title,
         summary: cForm.summary,
         sidebar: cForm.sidebar,
-        icon: cForm.icon,
-        banner: cForm.banner,
         nsfw: cForm.nsfw,
         posting_restricted_to_mods: cForm.posting_restricted_to_mods,
         discussion_languages: cForm.discussion_languages,

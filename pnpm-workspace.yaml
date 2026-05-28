@@ -3,4 +3,4 @@ allowBuilds:
   inferno: true
   sharp: true
 minimumReleaseAgeExclude:
-  - lemmy-js-client@1.0.0-upload-status-ok.0
+  - lemmy-js-client
