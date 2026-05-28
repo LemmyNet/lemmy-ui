@@ -68,6 +68,7 @@ import {
   AllOrBannedDropdown,
 } from "@components/common/all-or-banned-dropdown";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: PagedResponse<LocalUserView>;
@@ -902,6 +903,7 @@ async function handleEditSite(i: AdminSettings, form: EditSite) {
   const editRes = await HttpService.client.editSite(form);
 
   if (editRes.state === "success") {
+    removeLocalStorageMarkdown();
     i.forceUpdate();
     toast(I18NextService.i18n.t("site_saved"));
 
