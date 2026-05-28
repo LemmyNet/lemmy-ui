@@ -1361,6 +1361,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     if (res.state === "success") {
+      removeLocalStorageMarkdown();
       this.editCombinedCurrent(
         commentViewToPersonContentCombinedView(res.data.comment_view),
       );
@@ -1370,6 +1371,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.personContentRes.state === "success" && res.state === "success") {
+        removeLocalStorageMarkdown();
         s.personContentRes.data.items.unshift(
           commentViewToPersonContentCombinedView(res.data.comment_view),
         );

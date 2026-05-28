@@ -1372,6 +1372,7 @@ function findAndUpdateCommentEdit(
 ) {
   i.setState(s => {
     if (s.commentsRes.state === "success" && res.state === "success") {
+      removeLocalStorageMarkdown();
       s.commentsRes.data.items = editComment(
         res.data.comment_view,
         s.commentsRes.data.items,
@@ -1402,6 +1403,7 @@ function createAndUpdateComments(
 ) {
   i.setState(s => {
     if (s.commentsRes.state === "success" && res.state === "success") {
+      removeLocalStorageMarkdown();
       s.commentsRes.data.items.unshift(res.data.comment_view);
     }
     return s;

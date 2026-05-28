@@ -1090,6 +1090,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
+        removeLocalStorageMarkdown();
         s.commentsRes.data.items = editComment(
           res.data.comment_view,
           s.commentsRes.data.items,
@@ -1102,6 +1103,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
+        removeLocalStorageMarkdown();
         s.commentsRes.data.items = editComment(
           res.data.comment_view,
           s.commentsRes.data.items,
@@ -1114,6 +1116,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
+        removeLocalStorageMarkdown();
         s.commentsRes.data.items.unshift(res.data.comment_view);
       }
       return s;
