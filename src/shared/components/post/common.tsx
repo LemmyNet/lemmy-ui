@@ -59,7 +59,7 @@ type PostBadgesProps = {
 };
 export function PostBadges({ post, tags, allLanguages }: PostBadgesProps) {
   return (
-    <>
+    <span className="mx-1">
       {tags.map(tag => (
         <span className="me-1">
           <CommunityTag tag={tag} useName={false} />
@@ -121,7 +121,7 @@ export function PostBadges({ post, tags, allLanguages }: PostBadgesProps) {
           {I18NextService.i18n.t("nsfw")}
         </small>
       )}
-    </>
+    </span>
   );
 }
 
@@ -131,6 +131,8 @@ type PostCreatedLineProps = {
   showPublishedTime: boolean;
   showUrlLine: boolean;
   showPostBadges: boolean;
+  mutedPersonName: boolean;
+  mutedCommunityName: boolean;
   allLanguages: Language[];
   myUserInfo: MyUserInfo | undefined;
 };
@@ -140,6 +142,8 @@ export function PostCreatedLine({
   showPublishedTime,
   showUrlLine,
   showPostBadges,
+  mutedPersonName,
+  mutedCommunityName,
   allLanguages,
   myUserInfo,
 }: PostCreatedLineProps) {
@@ -148,24 +152,13 @@ export function PostCreatedLine({
 
   return (
     <div className="small mb-1 mb-md-0">
-      {showCommunity && (
-        <>
-          <CommunityLink
-            community={postView.community}
-            myUserInfo={myUserInfo}
-          />
-          <span className="mx-1 small text-muted">
-            {I18NextService.i18n.t("by")}
-          </span>
-        </>
-      )}
       <PersonListing
         person={postView.creator}
         banned={
           postView.creator_banned || postView.creator_banned_from_community
         }
         myUserInfo={myUserInfo}
-        muted
+        muted={mutedPersonName}
         hideAvatar={hideAvatar}
       />
       <UserBadges
@@ -176,6 +169,18 @@ export function PostCreatedLine({
         myUserInfo={myUserInfo}
         personActions={postView.person_actions}
       />
+      {showCommunity && (
+        <>
+          <span className="mx-1 small text-muted">
+            {I18NextService.i18n.t("to")}
+          </span>
+          <CommunityLink
+            community={postView.community}
+            myUserInfo={myUserInfo}
+            muted={mutedCommunityName}
+          />
+        </>
+      )}
       {showPostBadges && (
         <PostBadges
           post={postView.post}
