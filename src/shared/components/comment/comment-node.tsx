@@ -91,6 +91,7 @@ type CommentNodeProps = {
   showBadgeForPostCreator: boolean;
   mutedPersonName: boolean;
   mutedCommunityName: boolean;
+  hideAvatar: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   createLoading: CommentId | undefined;
@@ -292,6 +293,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     showBadgeForPostCreator={this.props.showBadgeForPostCreator}
                     mutedPersonName={this.props.mutedPersonName}
                     mutedCommunityName={this.props.mutedCommunityName}
+                    hideAvatar={this.props.hideAvatar}
                     isPostCreator={this.isPostCreator}
                     allLanguages={this.props.allLanguages}
                     myUserInfo={this.props.myUserInfo}
@@ -490,6 +492,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               showBadgeForPostCreator={this.props.showBadgeForPostCreator}
               mutedPersonName={this.props.mutedPersonName}
               mutedCommunityName={this.props.mutedCommunityName}
+              hideAvatar={this.props.hideAvatar}
               read={this.props.read}
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
@@ -809,6 +812,7 @@ type CommentHeaderProps = {
   showBadgeForPostCreator: boolean;
   mutedPersonName: boolean;
   mutedCommunityName: boolean;
+  hideAvatar: boolean;
   isPostCreator: boolean;
   allLanguages: Language[];
   myUserInfo: MyUserInfo | undefined;
@@ -823,6 +827,7 @@ function CommentHeader({
   myUserInfo,
   mutedPersonName,
   mutedCommunityName,
+  hideAvatar,
 }: CommentHeaderProps) {
   const {
     creator_banned_from_community,
@@ -859,6 +864,7 @@ function CommentHeader({
         myUserInfo={myUserInfo}
         badgeForPostCreator={showBadgeForPostCreator && isPostCreator}
         muted={mutedPersonName}
+        hideAvatar={hideAvatar}
       />
       {distinguished && (
         <Icon icon="shield" inline classes="text-danger ms-1" />

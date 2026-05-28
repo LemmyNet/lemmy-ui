@@ -622,6 +622,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 disableAutoMarkAsRead={false}
                 mutedCommunityName={false}
                 mutedPersonName={false}
+                hideAvatar={false}
                 editLoading={this.state.editPostRes.state === "loading"}
                 voteLoading={this.state.votePostRes.state === "loading"}
                 onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
@@ -780,6 +781,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             showBadgeForPostCreator
             mutedCommunityName={false}
             mutedPersonName={false}
+            hideAvatar={false}
             markReadLoading={undefined}
             postCreatorId={postRes.data.post_view.post.creator_id}
             community={postRes.data.community_view.community}
@@ -917,6 +919,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             showMarkRead={"hide"}
             mutedCommunityName={false}
             mutedPersonName={false}
+            hideAvatar={false}
             showBadgeForPostCreator
             markReadLoading={undefined}
             postCreatorId={postRes.data.post_view.post.creator_id}

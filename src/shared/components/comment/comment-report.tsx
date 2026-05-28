@@ -90,6 +90,7 @@ export class CommentReport extends Component<
           showBadgeForPostCreator={false}
           mutedPersonName={false}
           mutedCommunityName={false}
+          hideAvatar={false}
           allLanguages={[]}
           siteLanguages={[]}
           hideImages

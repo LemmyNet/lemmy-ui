@@ -309,6 +309,7 @@ export class Notifications extends Component<
             showBadgeForPostCreator={false}
             mutedPersonName={false}
             mutedCommunityName
+            hideAvatar
             markReadLoading={itemLoading(this.state.markCommentReadLoadingRes)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
@@ -398,6 +399,7 @@ export class Notifications extends Component<
               editLoading={false}
               mutedPersonName={false}
               mutedCommunityName
+              hideAvatar={false}
               viewOnly // TODO: comments do allow edits and moderation
               onPostEdit={() => {}}
               onPostModEdit={() => {}}

@@ -26,6 +26,7 @@ type Props = {
   voteLoading: boolean;
   mutedPersonName: boolean;
   mutedCommunityName: boolean;
+  hideAvatar: boolean;
   onPostVote: (form: CreatePostLike) => void;
   onScrollIntoCommentsClick: (e: MouseEvent) => void;
 };
@@ -45,6 +46,7 @@ export function PostListingList({
   voteLoading,
   mutedPersonName,
   mutedCommunityName,
+  hideAvatar,
 }: Props) {
   return (
     <div>
@@ -76,6 +78,7 @@ export function PostListingList({
             myUserInfo={myUserInfo}
             mutedPersonName={mutedPersonName}
             mutedCommunityName={mutedCommunityName}
+            hideAvatar={hideAvatar}
           />
           <CommentsButton
             postView={postView}

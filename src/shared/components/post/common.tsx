@@ -133,6 +133,7 @@ type PostCreatedLineProps = {
   showPostBadges: boolean;
   mutedPersonName: boolean;
   mutedCommunityName: boolean;
+  hideAvatar: boolean;
   allLanguages: Language[];
   myUserInfo: MyUserInfo | undefined;
 };
@@ -144,12 +145,10 @@ export function PostCreatedLine({
   showPostBadges,
   mutedPersonName,
   mutedCommunityName,
+  hideAvatar,
   allLanguages,
   myUserInfo,
 }: PostCreatedLineProps) {
-  // Hide the person avatar only on the home page (IE where you show the community)
-  const hideAvatar = showCommunity;
-
   return (
     <div className="small mb-1 mb-md-0">
       {showCommunity && (

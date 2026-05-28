@@ -75,6 +75,7 @@ type PostListingProps = {
   topBorder: boolean;
   mutedPersonName: boolean;
   mutedCommunityName: boolean;
+  hideAvatar: boolean;
   onPostEdit: (form: EditPost) => void;
   onPostModEdit: (form: ModEditPost) => void;
   onPostVote: (form: CreatePostLike) => void;
@@ -215,6 +216,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             voteLoading={p.voteLoading}
             mutedPersonName={p.mutedPersonName}
             mutedCommunityName={p.mutedCommunityName}
+            hideAvatar={p.hideAvatar}
             onPostVote={p.onPostVote}
             onScrollIntoCommentsClick={p.onScrollIntoCommentsClick}
           />
@@ -247,6 +249,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             voteLoading={p.voteLoading}
             mutedPersonName={p.mutedPersonName}
             mutedCommunityName={p.mutedCommunityName}
+            hideAvatar={p.hideAvatar}
             onEditClick={() => handleEditClick(this)}
             onPostVote={p.onPostVote}
             onPostReport={p.onPostReport}

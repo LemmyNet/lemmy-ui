@@ -443,6 +443,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                     voteLoading={undefined}
                     mutedCommunityName={false}
                     mutedPersonName
+                    hideAvatar
                     // All of these are unused, since its view only
                     onPostEdit={() => {}}
                     onPostModEdit={() => {}}
@@ -722,6 +723,7 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 voteLoading={undefined}
                 mutedCommunityName={false}
                 mutedPersonName
+                hideAvatar
                 // All of these are unused, since its view only
                 onPostEdit={() => {}}
                 onPostModEdit={() => {}}

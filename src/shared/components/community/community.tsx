@@ -641,6 +641,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               voteLoading={itemLoading(this.state.votePostRes)}
               mutedCommunityName
               mutedPersonName={false}
+              hideAvatar={false}
               onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
               onBlockCommunity={form =>
                 handleBlockCommunity(this, form, myUserInfo)
@@ -698,6 +699,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               showBadgeForPostCreator={false}
               mutedCommunityName
               mutedPersonName={false}
+              hideAvatar={false}
               markReadLoading={undefined}
               admins={siteRes.admins}
               allLanguages={siteRes.all_languages}

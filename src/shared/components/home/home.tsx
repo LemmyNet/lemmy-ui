@@ -783,6 +783,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               voteLoading={itemLoading(this.state.votePostRes)}
               mutedPersonName
               mutedCommunityName={false}
+              hideAvatar
               onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
               onBlockCommunity={form => handleBlockCommunity(form, myUserInfo)}
               onPostEdit={form => handlePostEdit(this, form)}
@@ -834,6 +835,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showBadgeForPostCreator={false}
               mutedPersonName
               mutedCommunityName={false}
+              hideAvatar
               markReadLoading={undefined}
               hideImages={false}
               allLanguages={siteRes.all_languages}

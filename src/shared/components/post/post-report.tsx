@@ -100,6 +100,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           voteLoading={false}
           mutedPersonName={false}
           mutedCommunityName={false}
+          hideAvatar={false}
           // All of these are unused, since its view only
           onPostEdit={() => {}}
           onPostModEdit={() => {}}
