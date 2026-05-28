@@ -1068,6 +1068,7 @@ async function handleCreateTagline(i: AdminSettings, form: CreateTagline) {
   const res = await HttpService.client.createTagline(form);
 
   if (res.state === "success") {
+    removeLocalStorageMarkdown();
     toast(I18NextService.i18n.t("tagline_created"));
     await i.fetchTaglinesOnly();
   } else {
@@ -1095,6 +1096,7 @@ async function handleEditTagline(i: AdminSettings, form: EditTagline) {
   const res = await HttpService.client.editTagline(form);
 
   if (res.state === "success") {
+    removeLocalStorageMarkdown();
     toast(I18NextService.i18n.t("tagline_updated"));
   } else {
     toast(I18NextService.i18n.t("couldnt_update_tagline"), "danger");
