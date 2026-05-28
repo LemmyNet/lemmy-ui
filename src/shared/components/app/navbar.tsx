@@ -192,6 +192,31 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   </NavLink>
                 </li>
               )}
+              {moderatesPrivateCommunity(this.props.myUserInfo) && (
+                <li className="nav-item nav-item-icon">
+                  <NavLink
+                    to="/pending_follows"
+                    className="p-1 nav-link border-0"
+                    title={I18NextService.i18n.t(
+                      "pending_private_community_follows",
+                      {
+                        count: Number(this.state.unreadPendingFollowsCount),
+                        formattedCount: numToSI(
+                          this.state.unreadPendingFollowsCount,
+                        ),
+                      },
+                    )}
+                    onMouseUp={() => handleCollapseClick(this)}
+                  >
+                    <Icon icon="lock" />
+                    {this.state.unreadPendingFollowsCount > 0 && (
+                      <span className="mx-1 badge rounded-pill text-bg-danger">
+                        {numToSI(this.state.unreadPendingFollowsCount)}
+                      </span>
+                    )}
+                  </NavLink>
+                </li>
+              )}
             </ul>
           )}
           <button
