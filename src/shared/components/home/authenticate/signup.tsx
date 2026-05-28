@@ -9,28 +9,27 @@ import {
   SiteView,
 } from "lemmy-js-client";
 import { validActorRegexPattern } from "@utils/config";
-import { mdToHtml } from "@utils/markdown";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "@services/I18NextService";
+import { UserService } from "@services/UserService";
 import {
   EMPTY_REQUEST,
   HttpService,
   LOADING_REQUEST,
   RequestState,
-} from "../../services/HttpService";
+} from "@services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
-import { Icon, Spinner } from "../common/icon";
-import {
-  MarkdownTextArea,
-  removeLocalStorageMarkdown,
-} from "../common/markdown-textarea";
-import PasswordInput from "../common/password-input";
-import { secondsDurationToAlertClass, secondsDurationToStr } from "@utils/date";
+import { HtmlTags } from "../../common/html-tags";
+import { Icon, Spinner } from "../../common/icon";
+import { removeLocalStorageMarkdown } from "../../common/markdown-textarea";
+import PasswordInput from "../../common/password-input";
 import { scrollMixin } from "@components/mixins/scroll-mixin";
 import { RouteData } from "@utils/types";
 import { RouteComponentProps, RouterContext } from "inferno-router";
 import { IRoutePropsWithFetch } from "@utils/routes";
-import { OAuthLogin } from "./oauth/oauth-login";
+import { OAuthLogin } from "../oauth/oauth-login";
+import { RegistrationApplicationInput } from "./registration-application-input";
+import { RegistrationLegalInfo } from "./registration-legal-info";
+import { RegistrationCheckboxes } from "./registration-checkboxes";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -101,13 +100,7 @@ export class Signup extends Component<SignupRouteProps, State> {
 
   get documentTitle(): string {
     const siteView = this.isoData.siteRes?.site_view;
-    return `${this.titleName(siteView)} - ${siteView?.site.name}`;
-  }
-
-  titleName(siteView?: SiteView): string {
-    return I18NextService.i18n.t(
-      siteView?.local_site.private_instance ? "apply_to_join" : "sign_up",
-    );
+    return `${signupTitleName(siteView)} - ${siteView?.site.name}`;
   }
 
   render() {
@@ -129,15 +122,13 @@ export class Signup extends Component<SignupRouteProps, State> {
 
   registerForm() {
     const siteView = this.isoData.siteRes?.site_view;
-    const lastApplicationDurationSeconds =
-      this.isoData.siteRes.last_application_duration_seconds;
 
     return (
       <form
         className="was-validated"
         onSubmit={e => handleRegisterSubmit(this, e)}
       >
-        <h1 className="h4 mb-4">{this.titleName(siteView)}</h1>
+        <h1 className="h4 mb-4">{signupTitleName(siteView)}</h1>
 
         <div className="mb-3 row">
           <label
@@ -212,140 +203,25 @@ export class Signup extends Component<SignupRouteProps, State> {
           />
         </div>
 
-        {siteView?.local_site.registration_mode === "require_application" && (
-          <>
-            <div className="mb-3 row">
-              <div className="offset-sm-2 col-sm-10">
-                <div className="mt-2 alert alert-warning" role="alert">
-                  <Icon icon="alert-triangle" classes="icon-inline me-2" />
-                  {I18NextService.i18n.t("fill_out_application")}
-                </div>
-                {siteView.local_site.application_question && (
-                  <div
-                    className="md-div"
-                    dangerouslySetInnerHTML={mdToHtml(
-                      siteView.local_site.application_question,
-                      () => this.forceUpdate(),
-                    )}
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="mb-3 row">
-              <label
-                className="col-sm-2 col-form-label"
-                htmlFor="application_answer"
-              >
-                {I18NextService.i18n.t("answer")}
-              </label>
-              <div className="col-sm-10">
-                <MarkdownTextArea
-                  initialContent=""
-                  onContentChange={val => handleAnswerChange(this, val)}
-                  hideNavigationWarnings
-                  allLanguages={[]}
-                  siteLanguages={[]}
-                  renderAsDiv
-                  myUserInfo={this.isoData.myUserInfo}
-                  imageUploadDisabled
-                />
-              </div>
-            </div>
-            {lastApplicationDurationSeconds && (
-              <div className="mb-3 row">
-                <div className="offset-sm-2 col-sm-10">
-                  <div
-                    className={secondsDurationToAlertClass(
-                      lastApplicationDurationSeconds,
-                    )}
-                    role="alert"
-                  >
-                    {I18NextService.i18n.t("estimated_approval_time", {
-                      time: secondsDurationToStr(
-                        lastApplicationDurationSeconds,
-                      ),
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-        {this.renderCaptcha()}
-        {siteView.local_site.legal_information && (
-          <div className="mb-3 card card-body ">
-            <div
-              className="mb-2 legal-info-box overflow-y-scroll md-div"
-              dangerouslySetInnerHTML={mdToHtml(
-                siteView.local_site.legal_information,
-                () => this.forceUpdate(),
-              )}
-            />
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                id="register-accept-legal"
-                type="checkbox"
-                required
-              />
-              <label
-                className="form-check-label"
-                htmlFor="register-accept-legal"
-              >
-                {I18NextService.i18n.t("read_terms_and_conditions")}
-              </label>
-            </div>
-          </div>
-        )}
-        <div className="mb-3">
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              id="register-show-nsfw"
-              type="checkbox"
-              checked={this.state.form.show_nsfw}
-              onChange={e => handleRegisterShowNsfwChange(this, e)}
-            />
-            <label className="form-check-label" htmlFor="register-show-nsfw">
-              {I18NextService.i18n.t("show_nsfw")}
-            </label>
-          </div>
-        </div>
-        <input
-          tabIndex={-1}
-          autoComplete="false"
-          name="a_password"
-          type="text"
-          className="form-control honeypot"
-          id="register-honey"
-          value={this.state.form.honeypot}
-          onInput={e => handleHoneyPotChange(this, e)}
+        <RegistrationApplicationInput
+          getSiteRes={this.isoData.siteRes}
+          onAnswerChange={answer => handleAnswerChange(this, answer)}
         />
-        <div className="input-group mb-3">
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              id="register-stay-logged-in"
-              type="checkbox"
-              checked={this.state.form.stay_logged_in}
-              onChange={e => handleStayLoggedInChange(this, e)}
-            />
-            <label
-              className="form-check-label"
-              htmlFor="register-stay-logged-in"
-            >
-              {I18NextService.i18n.t("stay_logged_in")}
-            </label>
-          </div>
-        </div>
+        {this.renderCaptcha()}
+        <RegistrationLegalInfo siteView={siteView} />
+        <RegistrationCheckboxes
+          form={this.state.form}
+          onRegisterShowNsfwChange={e => handleRegisterShowNsfwChange(this, e)}
+          onStayLoggedInChange={e => handleStayLoggedInChange(this, e)}
+          onHoneyPotChange={e => handleHoneyPotChange(this, e)}
+        />
         <div className="mb-3 row">
           <div className="col-sm-10">
             <button type="submit" className="btn btn-light border-light-subtle">
               {this.state.registerRes.state === "loading" ? (
                 <Spinner />
               ) : (
-                this.titleName(siteView)
+                signupTitleName(siteView)
               )}
             </button>
           </div>
@@ -534,19 +410,13 @@ function handleRegisterPasswordVerifyChange(
   i.setState(i.state);
 }
 
-function handleRegisterShowNsfwChange(
-  i: Signup,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.state.form.show_nsfw = event.target.checked;
+function handleRegisterShowNsfwChange(i: Signup, checked: boolean) {
+  i.state.form.show_nsfw = checked;
   i.setState(i.state);
 }
 
-function handleStayLoggedInChange(
-  i: Signup,
-  event: FormEvent<HTMLInputElement>,
-) {
-  i.state.form.stay_logged_in = event.target.checked;
+function handleStayLoggedInChange(i: Signup, checked: boolean) {
+  i.state.form.stay_logged_in = checked;
   i.setState(i.state);
 }
 
@@ -562,8 +432,8 @@ function handleAnswerChange(i: Signup, val: string) {
   i.setState(s => ((s.form.answer = val), s));
 }
 
-function handleHoneyPotChange(i: Signup, event: FormEvent<HTMLInputElement>) {
-  i.state.form.honeypot = event.target.value;
+function handleHoneyPotChange(i: Signup, value: string) {
+  i.state.form.honeypot = value;
   i.setState(i.state);
 }
 
@@ -598,4 +468,10 @@ async function handleCaptchaPlay(i: Signup) {
 
 function captchaPngSrc(captcha: CaptchaResponse) {
   return `data:image/png;base64,${captcha.png}`;
+}
+
+export function signupTitleName(siteView?: SiteView): string {
+  return I18NextService.i18n.t(
+    siteView?.local_site.private_instance ? "apply_to_join" : "sign_up",
+  );
 }

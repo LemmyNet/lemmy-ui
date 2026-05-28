@@ -4,24 +4,25 @@ import { getQueryParams, validEmail } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
 import { RouteComponentProps, RouterContext } from "inferno-router";
 import { LoginResponse } from "lemmy-js-client";
-import { I18NextService, UserService } from "../../services";
+import { I18NextService } from "@services/I18NextService";
+import { UserService } from "@services/UserService";
 import {
   EMPTY_REQUEST,
   HttpService,
   LOADING_REQUEST,
   RequestState,
-} from "../../services/HttpService";
+} from "../../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
-import { Spinner } from "../common/icon";
-import PasswordInput from "../common/password-input";
-import TotpModal from "../common/modal/totp-modal";
-import { UnreadCounterService } from "../../services";
+import { HtmlTags } from "../../common/html-tags";
+import { Spinner } from "../../common/icon";
+import PasswordInput from "../../common/password-input";
+import TotpModal from "../../common/modal/totp-modal";
+import { UnreadCounterService } from "../../../services";
 import { RouteData } from "@utils/types";
 import { IRoutePropsWithFetch } from "@utils/routes";
-import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { simpleScrollMixin } from "../../mixins/scroll-mixin";
 import { NoOptionI18nKeys } from "i18next";
-import { OAuthLogin } from "./oauth/oauth-login";
+import { OAuthLogin } from "../oauth/oauth-login";
 import { Action } from "history";
 
 interface LoginProps {

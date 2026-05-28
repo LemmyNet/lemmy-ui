@@ -14,6 +14,11 @@ import { toast } from "@utils/app";
 import { Action } from "history";
 import { handleLoginWithProvider, LocalOauthState } from "./oauth-login";
 import { NoOptionI18nKeys } from "i18next";
+import { RegistrationApplicationInput } from "../authenticate/registration-application-input";
+import { validActorRegexPattern } from "@utils/config";
+import { signupTitleName } from "../authenticate/signup";
+import { RegistrationLegalInfo } from "../authenticate/registration-legal-info";
+import { RegistrationCheckboxes } from "../authenticate/registration-checkboxes";
 
 interface OAuthCallbackProps {
   code?: string;
@@ -44,6 +49,9 @@ interface State {
   siteRes: GetSiteResponse;
   username_required: boolean;
   username?: string;
+  answer?: string;
+  show_nsfw: boolean;
+  stay_logged_in: boolean;
 }
 
 export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
@@ -52,6 +60,8 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
   state: State = {
     siteRes: this.isoData.siteRes,
     username_required: false,
+    show_nsfw: false,
+    stay_logged_in: false,
   };
 
   async componentDidMount() {
@@ -83,6 +93,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
         oauth_provider_id: local_oauth_state.oauth_provider_id,
         redirect_uri: local_oauth_state.redirect_uri,
         show_nsfw: local_oauth_state.show_nsfw,
+        stay_logged_in: local_oauth_state.stay_logged_in,
         username: local_oauth_state.username,
         answer: local_oauth_state.answer,
       });
@@ -109,6 +120,7 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
         case "failed": {
           const err_redirect = "/login";
           switch (loginRes.err.name) {
+            case "registration_application_answer_required":
             case "registration_username_required":
               this.setState({ username_required: true });
               return;
@@ -131,27 +143,52 @@ export class OAuthCallback extends Component<OAuthCallbackRouteProps, State> {
   }
 
   render() {
+    const siteView = this.state.siteRes.site_view;
     return (
       <div className="container-lg">
         {this.state.username_required ? (
-          <div className="col-6 align-self-center">
-            <label htmlFor="username">
-              {I18NextService.i18n.t("username")}
-            </label>
-            <input
-              id="username"
-              type="text"
-              className="form-control w-50 inline"
-              onInput={e => handleInputUsername(this, e)}
-            ></input>
-            <button
-              type="submit"
-              className="btn btn-light border-light-subtle mt-2"
-              onClick={_e => handleSubmitUsername(this)}
-            >
-              {I18NextService.i18n.t("submit")}
-            </button>
-          </div>
+          <form onSubmit={_e => handleSubmit(this)}>
+            <h1 className="h4 mb-4">{signupTitleName(siteView)}</h1>
+            <div className="mb-3 row">
+              <label className="col-sm-2 col-form-label" htmlFor="username">
+                {I18NextService.i18n.t("username")}
+              </label>
+              <div className="col-sm-10">
+                <input
+                  id="username"
+                  type="text"
+                  className="form-control"
+                  onInput={e => handleUsernameChange(this, e)}
+                  required
+                  minLength={3}
+                  pattern={validActorRegexPattern}
+                  title={I18NextService.i18n.t("community_reqs")}
+                ></input>
+              </div>
+              <RegistrationApplicationInput
+                getSiteRes={this.isoData.siteRes}
+                onAnswerChange={answer => handleAnswerChange(this, answer)}
+              />
+              <RegistrationLegalInfo siteView={siteView} />
+              <RegistrationCheckboxes
+                form={this.state}
+                onRegisterShowNsfwChange={e =>
+                  handleRegisterShowNsfwChange(this, e)
+                }
+                onStayLoggedInChange={e => handleStayLoggedInChange(this, e)}
+              />
+              <div className="mb-3 row">
+                <div className="col-sm-10">
+                  <button
+                    type="submit"
+                    className="btn btn-light border-light-subtle"
+                  >
+                    {I18NextService.i18n.t("submit")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
         ) : (
           <Spinner />
         )}
@@ -189,7 +226,7 @@ async function handleOAuthLoginSuccess(
   await UnreadCounterService.Instance.updateUnreadCounts();
 }
 
-function handleInputUsername(
+function handleUsernameChange(
   i: OAuthCallback,
   event: FormEvent<HTMLInputElement>,
 ) {
@@ -198,19 +235,44 @@ function handleInputUsername(
   });
 }
 
-function handleSubmitUsername(i: OAuthCallback) {
+function handleAnswerChange(i: OAuthCallback, answer: string) {
+  i.setState({
+    answer,
+  });
+}
+
+function handleRegisterShowNsfwChange(i: OAuthCallback, show_nsfw: boolean) {
+  i.setState({
+    show_nsfw,
+  });
+}
+
+function handleStayLoggedInChange(i: OAuthCallback, stay_logged_in: boolean) {
+  i.setState({
+    stay_logged_in,
+  });
+}
+
+function handleSubmit(i: OAuthCallback) {
   i.setState({
     username_required: false,
   });
   const local_oauth_state = JSON.parse(
-    localStorage.getItem("oauth_state") || "{}",
+    localStorage.getItem("oauth_state") || "{ }",
   ) as LocalOauthState;
 
   const provider = i.isoData.siteRes.oauth_providers.find(
     p => p.id === local_oauth_state.oauth_provider_id,
   );
   if (provider) {
-    handleLoginWithProvider(provider, i.state.username);
+    handleLoginWithProvider(
+      provider,
+      i.state.username,
+      decodeURIComponent(local_oauth_state.redirect_uri),
+      i.state.answer,
+      i.state.show_nsfw,
+      i.state.stay_logged_in,
+    );
   } else {
     i.props.history.push("/login");
   }

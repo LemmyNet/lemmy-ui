@@ -1,11 +1,12 @@
 import { setIsoData } from "@utils/app";
 import { capitalizeFirstLetter, validEmail } from "@utils/helpers";
 import { Component, FormEvent, InfernoMouseEvent } from "inferno";
-import { HttpService, I18NextService } from "../../services";
+import { I18NextService } from "@services/I18NextService";
+import { HttpService } from "@services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
-import { Spinner } from "../common/icon";
-import { simpleScrollMixin } from "../mixins/scroll-mixin";
+import { HtmlTags } from "../../common/html-tags";
+import { Spinner } from "../../common/icon";
+import { simpleScrollMixin } from "../../mixins/scroll-mixin";
 import { RouteComponentProps, RouterContext } from "inferno-router";
 
 interface State {
