@@ -48,7 +48,7 @@ COPY .git .git
 # If the CI is the cron, then use nightly, otherwise use the tag.
 ARG CI_PIPELINE_EVENT
 RUN \
-  CURRENT_VERSION=$(git describe --tag --abbrev=0 | sed 's/-.*//g')
+  CURRENT_VERSION=$(git describe --tag --abbrev=0 | sed 's/-.*//g'); \
   VERSION_OUT=$([ "$CI_PIPELINE_EVENT" = "cron" ] && echo "$CURRENT_VERSION-nightly-$(date -u +"%Y-%m-%d")" || echo $(git describe --tag)); \
   echo "export const VERSION = '$VERSION_OUT';" > "src/shared/version.ts"
 RUN cat src/shared/version.ts
