@@ -200,6 +200,8 @@ export function buildPictrsSrc(src: string, type: PictrsImageType): string {
     case "banner":
       url.searchParams.set("max_size", bannerSize.toString());
       break;
+    case "full_size":
+      break;
     default:
       url.searchParams.set("max_size", defaultImgSize.toString());
       break;
