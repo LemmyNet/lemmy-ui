@@ -44,6 +44,7 @@ import {
   RegistrationState,
   RegistrationStateDropdown,
 } from "@components/common/registration-state-dropdown";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 type RegistrationApplicationsData = RouteDataResponse<{
   listRegistrationApplicationsResponse: PagedResponse<RegistrationApplicationView>;
@@ -313,6 +314,7 @@ async function handleApproveApplication(
 
   i.setState(s => {
     if (s.appsRes.state === "success" && res.state === "success") {
+      removeLocalStorageMarkdown();
       s.appsRes.data.items = editRegistrationApplication(
         res.data.registration_application,
         s.appsRes.data.items,
