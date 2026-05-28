@@ -1880,7 +1880,6 @@ async function handleSaveSettingsSubmit(
   event: FormEvent<HTMLFormElement>,
 ) {
   event.preventDefault();
-  removeLocalStorageMarkdown();
   i.setState({ saveRes: LOADING_REQUEST });
 
   const saveRes = await HttpService.client.saveUserSettings({
@@ -1888,6 +1887,7 @@ async function handleSaveSettingsSubmit(
   });
 
   if (saveRes.state === "success") {
+    removeLocalStorageMarkdown();
     const [siteRes, userRes] = await Promise.all([
       HttpService.client.getSite(),
       HttpService.client.getMyUser(),
