@@ -307,6 +307,8 @@ export class Notifications extends Component<
             read={item.notification.read}
             showMarkRead="main_bar"
             showBadgeForPostCreator={false}
+            mutedPersonName={false}
+            mutedCommunityName
             markReadLoading={itemLoading(this.state.markCommentReadLoadingRes)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
@@ -394,6 +396,8 @@ export class Notifications extends Component<
               crossPosts={[]}
               showBody={"preview"}
               editLoading={false}
+              mutedPersonName={false}
+              mutedCommunityName
               viewOnly // TODO: comments do allow edits and moderation
               onPostEdit={() => {}}
               onPostModEdit={() => {}}

@@ -24,6 +24,8 @@ type Props = {
   localSite: LocalSite;
   showCrossPosts: ShowCrossPostsType;
   voteLoading: boolean;
+  mutedPersonName: boolean;
+  mutedCommunityName: boolean;
   onPostVote: (form: CreatePostLike) => void;
   onScrollIntoCommentsClick: (e: MouseEvent) => void;
 };
@@ -41,6 +43,8 @@ export function PostListingList({
   onPostVote,
   onScrollIntoCommentsClick,
   voteLoading,
+  mutedPersonName,
+  mutedCommunityName,
 }: Props) {
   return (
     <div>
@@ -70,6 +74,8 @@ export function PostListingList({
             showPostBadges
             allLanguages={allLanguages}
             myUserInfo={myUserInfo}
+            mutedPersonName={mutedPersonName}
+            mutedCommunityName={mutedCommunityName}
           />
           <CommentsButton
             postView={postView}

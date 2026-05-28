@@ -111,6 +111,7 @@ export class MultiCommunitySidebar extends Component<Props, never> {
             person={creator}
             banned={false}
             myUserInfo={this.props.myUserInfo}
+            muted={false}
           />
         </li>
       </ul>

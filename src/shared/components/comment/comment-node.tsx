@@ -89,6 +89,8 @@ type CommentNodeProps = {
   siteLanguages: number[];
   hideImages: boolean;
   showBadgeForPostCreator: boolean;
+  mutedPersonName: boolean;
+  mutedCommunityName: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   createLoading: CommentId | undefined;
@@ -288,6 +290,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     showCommunity={this.props.showCommunity}
                     showContext={this.props.showContext}
                     showBadgeForPostCreator={this.props.showBadgeForPostCreator}
+                    mutedPersonName={this.props.mutedPersonName}
+                    mutedCommunityName={this.props.mutedCommunityName}
                     isPostCreator={this.isPostCreator}
                     allLanguages={this.props.allLanguages}
                     myUserInfo={this.props.myUserInfo}
@@ -484,6 +488,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               showContext={false}
               showMarkRead={this.props.showMarkRead}
               showBadgeForPostCreator={this.props.showBadgeForPostCreator}
+              mutedPersonName={this.props.mutedPersonName}
+              mutedCommunityName={this.props.mutedCommunityName}
               read={this.props.read}
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
@@ -801,6 +807,8 @@ type CommentHeaderProps = {
   showCommunity: boolean;
   showContext: boolean;
   showBadgeForPostCreator: boolean;
+  mutedPersonName: boolean;
+  mutedCommunityName: boolean;
   isPostCreator: boolean;
   allLanguages: Language[];
   myUserInfo: MyUserInfo | undefined;
@@ -813,6 +821,8 @@ function CommentHeader({
   isPostCreator,
   allLanguages,
   myUserInfo,
+  mutedPersonName,
+  mutedCommunityName,
 }: CommentHeaderProps) {
   const {
     creator_banned_from_community,
@@ -829,6 +839,7 @@ function CommentHeader({
         banned={creator_banned || creator_banned_from_community}
         myUserInfo={myUserInfo}
         badgeForPostCreator={showBadgeForPostCreator && isPostCreator}
+        muted={mutedPersonName}
       />
       {distinguished && (
         <Icon icon="shield" inline classes="text-danger ms-1" />
@@ -847,9 +858,15 @@ function CommentHeader({
           <CommunityLink
             community={node.view.comment_view.community}
             myUserInfo={myUserInfo}
+            muted={mutedCommunityName}
           />
           <span className="mx-2">•</span>
-          <Link className="me-2" to={`/post/${post_id}`}>
+          <Link
+            className={classNames("me-2", {
+              "text-muted": mutedCommunityName,
+            })}
+            to={`/post/${post_id}`}
+          >
             {node.view.comment_view.post.name}
           </Link>
         </>

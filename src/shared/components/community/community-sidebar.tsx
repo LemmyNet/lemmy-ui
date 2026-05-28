@@ -307,6 +307,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
               community={community}
               hideAvatar
               myUserInfo={this.props.myUserInfo}
+              muted={false}
             />
           </span>
           {community.removed && (
@@ -351,6 +352,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
               person={mod.moderator}
               banned={false}
               myUserInfo={this.props.myUserInfo}
+              muted={false}
             />
           </li>
         ))}

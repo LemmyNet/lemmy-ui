@@ -112,6 +112,8 @@ export class PersonDetails extends Component<PersonDetailsProps, never> {
             showContext
             showMarkRead={"hide"}
             showBadgeForPostCreator={false}
+            mutedPersonName
+            mutedCommunityName={false}
             markReadLoading={undefined}
             fetchChildrenLoading={undefined}
             createLoading={this.props.createCommentLoading}
@@ -165,6 +167,8 @@ export class PersonDetails extends Component<PersonDetailsProps, never> {
             disableAutoMarkAsRead={false}
             editLoading={false}
             markReadLoading={false}
+            mutedPersonName
+            mutedCommunityName={false}
             voteLoading={this.props.votePostLoading === i.post.id}
             enableNsfw={this.props.enableNsfw}
             showAdultConsentModal={this.props.showAdultConsentModal}

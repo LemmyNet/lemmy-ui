@@ -81,6 +81,7 @@ export class PrivateMessage extends Component<
               person={otherPerson}
               banned={false}
               myUserInfo={this.props.myUserInfo}
+              muted={false}
             />
           </div>
           <div className="col text-muted small">

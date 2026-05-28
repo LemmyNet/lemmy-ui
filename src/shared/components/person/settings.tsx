@@ -563,6 +563,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
                 person={p}
                 myUserInfo={this.isoData.myUserInfo}
                 banned={false}
+                muted={false}
               />
               <button
                 className="btn btn-sm"
@@ -605,6 +606,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <CommunityLink
                 community={c}
                 myUserInfo={this.isoData.myUserInfo}
+                muted={false}
               />
               <button
                 className="btn btn-sm"

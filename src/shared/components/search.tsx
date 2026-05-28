@@ -173,7 +173,11 @@ const communityListing = (
         {showHeader && <h3>{I18NextService.i18n.t("communities")}</h3>}
         {communities.map(c => (
           <div>
-            <CommunityLink community={c.community} myUserInfo={myUserInfo} />
+            <CommunityLink
+              community={c.community}
+              myUserInfo={myUserInfo}
+              muted={false}
+            />
             <CommunityBadges
               className="ms-2 d-inline-flex"
               community={c.community}
@@ -231,6 +235,7 @@ const personListing = (
               banned={p.banned}
               showApubName
               myUserInfo={myUserInfo}
+              muted={false}
             />
             <UserBadges
               classNames="ms-1"
@@ -283,6 +288,8 @@ const postListing = (
               editLoading={false}
               markReadLoading={false}
               voteLoading={false}
+              mutedPersonName={false}
+              mutedCommunityName
               // All of these are unused, since its view only
               onPostEdit={() => {}}
               onPostModEdit={() => {}}
@@ -333,6 +340,8 @@ const commentListing = (
               viewType={"flat"}
               showMarkRead={"hide"}
               showBadgeForPostCreator={false}
+              mutedPersonName={false}
+              mutedCommunityName
               createLoading={undefined}
               editLoading={undefined}
               markReadLoading={undefined}
@@ -870,6 +879,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         showCommunity
         showMarkRead={"hide"}
         showBadgeForPostCreator={false}
+        mutedPersonName={false}
+        mutedCommunityName
         markReadLoading={undefined}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}
@@ -938,6 +949,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 editLoading={false}
                 markReadLoading={false}
                 voteLoading={false}
+                mutedPersonName={false}
+                mutedCommunityName
                 // All of these are unused, since its view only
                 onPostEdit={() => {}}
                 onPostModEdit={() => {}}

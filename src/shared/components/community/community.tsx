@@ -638,11 +638,13 @@ export class Community extends Component<CommunityRouteProps, State> {
               myUserInfo={this.isoData.myUserInfo}
               localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
+              voteLoading={itemLoading(this.state.votePostRes)}
+              mutedCommunityName
+              mutedPersonName
               onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
               onBlockCommunity={form =>
                 handleBlockCommunity(this, form, myUserInfo)
               }
-              voteLoading={itemLoading(this.state.votePostRes)}
               onPostEdit={form => handlePostEdit(this, form)}
               onPostModEdit={form => handlePostModEdit(this, form)}
               onPostVote={form => handlePostVote(this, form)}
@@ -694,6 +696,8 @@ export class Community extends Component<CommunityRouteProps, State> {
               hideImages={false}
               showMarkRead={"hide"}
               showBadgeForPostCreator={false}
+              mutedCommunityName
+              mutedPersonName
               markReadLoading={undefined}
               admins={siteRes.admins}
               allLanguages={siteRes.all_languages}

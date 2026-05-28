@@ -441,6 +441,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                     admins={this.props.admins}
                     postListingMode="list"
                     voteLoading={undefined}
+                    mutedCommunityName={false}
+                    mutedPersonName
                     // All of these are unused, since its view only
                     onPostEdit={() => {}}
                     onPostModEdit={() => {}}
@@ -718,6 +720,8 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
                 admins={this.props.admins}
                 postListingMode="list"
                 voteLoading={undefined}
+                mutedCommunityName={false}
+                mutedPersonName
                 // All of these are unused, since its view only
                 onPostEdit={() => {}}
                 onPostModEdit={() => {}}

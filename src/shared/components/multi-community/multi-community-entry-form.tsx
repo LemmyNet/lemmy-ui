@@ -131,6 +131,7 @@ export function MultiCommunityEntryList({
                 <CommunityLink
                   community={c.community}
                   myUserInfo={myUserInfo}
+                  muted={false}
                 />
                 {isCreator && onDelete && (
                   <button

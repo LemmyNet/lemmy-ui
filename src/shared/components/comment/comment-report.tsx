@@ -88,6 +88,8 @@ export class CommentReport extends Component<
           showCommunity
           showContext={false}
           showBadgeForPostCreator={false}
+          mutedPersonName={false}
+          mutedCommunityName={false}
           allLanguages={[]}
           siteLanguages={[]}
           hideImages
@@ -124,6 +126,7 @@ export class CommentReport extends Component<
             person={r.creator}
             banned={false}
             myUserInfo={this.props.myUserInfo}
+            muted={false}
           />
         </div>
         <div>
@@ -138,6 +141,7 @@ export class CommentReport extends Component<
                   person={r.resolver}
                   banned={false}
                   myUserInfo={this.props.myUserInfo}
+                  muted={false}
                 />
               </T>
             ) : (
@@ -147,6 +151,7 @@ export class CommentReport extends Component<
                   person={r.resolver}
                   banned={false}
                   myUserInfo={this.props.myUserInfo}
+                  muted={false}
                 />
               </T>
             )}

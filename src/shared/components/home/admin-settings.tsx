@@ -493,6 +493,7 @@ export class AdminSettings extends Component<
                     person={admin.person}
                     banned={admin.banned}
                     myUserInfo={this.isoData.myUserInfo}
+                    muted={false}
                   />
                   <UserBadges
                     classNames="ms-1"
@@ -596,6 +597,7 @@ export class AdminSettings extends Component<
                       person={local_user.person}
                       banned={local_user.banned}
                       myUserInfo={this.isoData.myUserInfo}
+                      muted={false}
                     />
                     <UserBadges
                       classNames="ms-1"

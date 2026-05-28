@@ -594,6 +594,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                     <CommunityLink
                       community={cfv.community}
                       myUserInfo={this.isoData.myUserInfo}
+                      muted={false}
                     />
                   </li>
                 ))}
@@ -780,6 +781,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
               voteLoading={itemLoading(this.state.votePostRes)}
+              mutedPersonName
+              mutedCommunityName={false}
               onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
               onBlockCommunity={form => handleBlockCommunity(form, myUserInfo)}
               onPostEdit={form => handlePostEdit(this, form)}
@@ -829,6 +832,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showContext
               showMarkRead={"hide"}
               showBadgeForPostCreator={false}
+              mutedPersonName
+              mutedCommunityName={false}
               markReadLoading={undefined}
               hideImages={false}
               allLanguages={siteRes.all_languages}

@@ -61,6 +61,7 @@ export class RegistrationApplication extends Component<
             person={a.creator}
             banned={false}
             myUserInfo={this.props.myUserInfo}
+            muted={false}
           />
         </div>
         <div>
@@ -92,6 +93,7 @@ export class RegistrationApplication extends Component<
                   person={a.admin}
                   banned={false}
                   myUserInfo={this.props.myUserInfo}
+                  muted={false}
                 />
               </T>
             ) : (
@@ -102,6 +104,7 @@ export class RegistrationApplication extends Component<
                     person={a.admin}
                     banned={false}
                     myUserInfo={this.props.myUserInfo}
+                    muted={false}
                   />
                 </T>
                 {ra.deny_reason && (
