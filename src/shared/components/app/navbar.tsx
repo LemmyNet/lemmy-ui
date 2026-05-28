@@ -279,11 +279,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                           formattedCount: numToSI(this.state.unreadNotifsCount),
                         })}
                       </span>
-                      {this.state.unreadNotifsCount > 0 && (
-                        <span className="mx-1 badge rounded-pill text-bg-danger">
-                          {numToSI(this.state.unreadNotifsCount)}
-                        </span>
-                      )}
                     </NavLink>
                   </li>
                   {moderatesSomething(this.props.myUserInfo) && (
@@ -306,11 +301,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                             ),
                           })}
                         </span>
-                        {this.state.unreadReportCount > 0 && (
-                          <span className="mx-1 badge rounded-pill text-bg-danger">
-                            {numToSI(this.state.unreadReportCount)}
-                          </span>
-                        )}
                       </NavLink>
                     </li>
                   )}
@@ -342,11 +332,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                             },
                           )}
                         </span>
-                        {this.state.unreadApplicationCount > 0 && (
-                          <span className="mx-1 badge rounded-pill text-bg-danger">
-                            {numToSI(this.state.unreadApplicationCount)}
-                          </span>
-                        )}
                       </NavLink>
                     </li>
                   )}
@@ -380,11 +365,6 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                             },
                           )}
                         </span>
-                        {this.state.unreadPendingFollowsCount > 0 && (
-                          <span className="mx-1 badge rounded-pill text-bg-danger">
-                            {numToSI(this.state.unreadPendingFollowsCount)}
-                          </span>
-                        )}
                       </NavLink>
                     </li>
                   )}
