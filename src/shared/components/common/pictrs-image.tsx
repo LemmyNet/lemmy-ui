@@ -195,9 +195,12 @@ export function buildPictrsSrc(src: string, type: PictrsImageType): string {
       url.searchParams.set("max_size", thumbnailSize.toString());
       break;
     case "icon":
+    case "icon_without_banner":
       url.searchParams.set("max_size", iconThumbnailSize.toString());
       break;
     case "banner":
+    case "icon_and_banner":
+    case "card_top":
       url.searchParams.set("max_size", bannerSize.toString());
       break;
     case "full_size":
