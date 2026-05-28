@@ -59,6 +59,7 @@ interface CommentNodesProps {
   showCommunity: boolean;
   viewType: CommentViewType;
   showMarkRead: ShowMarkReadType;
+  showBadgeForPostCreator: boolean;
   read?: boolean;
   allLanguages: Language[];
   siteLanguages: number[];
@@ -128,6 +129,7 @@ export class CommentNodes extends Component<CommentNodesProps, never> {
                 this.props.postLockedOrRemovedOrDeleted
               }
               showMarkRead={"hide"}
+              showBadgeForPostCreator={this.props.showBadgeForPostCreator}
               read={this.props.read}
               createLoading={this.props.createLoading}
               editLoading={this.props.editLoading}

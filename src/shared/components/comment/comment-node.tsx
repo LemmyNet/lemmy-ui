@@ -88,6 +88,7 @@ type CommentNodeProps = {
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages: boolean;
+  showBadgeForPostCreator: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   createLoading: CommentId | undefined;
@@ -286,6 +287,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     node={this.props.node}
                     showCommunity={this.props.showCommunity}
                     showContext={this.props.showContext}
+                    showBadgeForPostCreator={this.props.showBadgeForPostCreator}
                     isPostCreator={this.isPostCreator}
                     allLanguages={this.props.allLanguages}
                     myUserInfo={this.props.myUserInfo}
@@ -481,6 +483,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               showCommunity={this.props.showCommunity}
               showContext={false}
               showMarkRead={this.props.showMarkRead}
+              showBadgeForPostCreator={this.props.showBadgeForPostCreator}
               read={this.props.read}
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
@@ -797,6 +800,7 @@ type CommentHeaderProps = {
   node: CommentNodeType;
   showCommunity: boolean;
   showContext: boolean;
+  showBadgeForPostCreator: boolean;
   isPostCreator: boolean;
   allLanguages: Language[];
   myUserInfo: MyUserInfo | undefined;
@@ -805,6 +809,7 @@ type CommentHeaderProps = {
 function CommentHeader({
   node,
   showCommunity,
+  showBadgeForPostCreator,
   isPostCreator,
   allLanguages,
   myUserInfo,
@@ -823,7 +828,7 @@ function CommentHeader({
         person={creator}
         banned={creator_banned || creator_banned_from_community}
         myUserInfo={myUserInfo}
-        badgeForPostCreator={isPostCreator}
+        badgeForPostCreator={showBadgeForPostCreator && isPostCreator}
       />
       {distinguished && (
         <Icon icon="shield" inline classes="text-danger ms-1" />

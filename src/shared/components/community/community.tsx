@@ -693,6 +693,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               showCommunity={false}
               hideImages={false}
               showMarkRead={"hide"}
+              showBadgeForPostCreator={false}
               markReadLoading={undefined}
               admins={siteRes.admins}
               allLanguages={siteRes.all_languages}

@@ -828,6 +828,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showCommunity
               showContext
               showMarkRead={"hide"}
+              showBadgeForPostCreator={false}
               markReadLoading={undefined}
               hideImages={false}
               allLanguages={siteRes.all_languages}

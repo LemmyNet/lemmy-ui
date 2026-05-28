@@ -332,6 +332,7 @@ const commentListing = (
               nodes={[commentToFlatNode(c)]}
               viewType={"flat"}
               showMarkRead={"hide"}
+              showBadgeForPostCreator={false}
               createLoading={undefined}
               editLoading={undefined}
               markReadLoading={undefined}
@@ -868,6 +869,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         isTopLevel
         showCommunity
         showMarkRead={"hide"}
+        showBadgeForPostCreator={false}
         markReadLoading={undefined}
         allLanguages={siteRes.all_languages}
         siteLanguages={siteRes.discussion_languages}

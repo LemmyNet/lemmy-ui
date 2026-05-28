@@ -87,6 +87,7 @@ export class CommentReport extends Component<
           noBorder
           showCommunity
           showContext={false}
+          showBadgeForPostCreator={false}
           allLanguages={[]}
           siteLanguages={[]}
           hideImages

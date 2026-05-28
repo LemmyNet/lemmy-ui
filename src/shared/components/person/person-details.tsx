@@ -111,6 +111,7 @@ export class PersonDetails extends Component<PersonDetailsProps, never> {
             showCommunity
             showContext
             showMarkRead={"hide"}
+            showBadgeForPostCreator={false}
             markReadLoading={undefined}
             fetchChildrenLoading={undefined}
             createLoading={this.props.createCommentLoading}

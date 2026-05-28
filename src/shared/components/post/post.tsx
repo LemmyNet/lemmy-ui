@@ -775,6 +775,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             )}
             showCommunity={false}
             showMarkRead={"hide"}
+            showBadgeForPostCreator
             markReadLoading={undefined}
             postCreatorId={postRes.data.post_view.post.creator_id}
             community={postRes.data.community_view.community}
@@ -910,6 +911,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             )}
             showCommunity={false}
             showMarkRead={"hide"}
+            showBadgeForPostCreator
             markReadLoading={undefined}
             postCreatorId={postRes.data.post_view.post.creator_id}
             community={postRes.data.community_view.community}

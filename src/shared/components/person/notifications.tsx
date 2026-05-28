@@ -306,6 +306,7 @@ export class Notifications extends Component<
             hideImages={false}
             read={item.notification.read}
             showMarkRead="main_bar"
+            showBadgeForPostCreator={false}
             markReadLoading={itemLoading(this.state.markCommentReadLoadingRes)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
