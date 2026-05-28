@@ -259,7 +259,7 @@ export function UrlLine(
         !localUrl && (
           <>
             <a
-              className="fst-italic text-body link-opacity-75 link-opacity-100-hover"
+              className="fst-italic text-body link-opacity-75 link-opacity-100-hover overflow-wrap-anywhere"
               href={url}
               title={url}
               rel={relTags}
