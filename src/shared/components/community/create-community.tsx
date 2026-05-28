@@ -17,6 +17,7 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "@services/HttpService";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 interface CreateCommunityState {
   createCommunityRes: RequestState<CommunityResponse>;
@@ -88,6 +89,7 @@ async function handleCommunityCreate(
       moderator: myUserInfo.local_user_view.person,
     });
     const name = res.data.community_view.community.name;
+    removeLocalStorageMarkdown();
     i.props.history.replace(`/c/${name}`);
   } else if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
