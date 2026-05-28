@@ -834,6 +834,25 @@ function CommentHeader({
 
   return (
     <>
+      {showCommunity && isCommentNodeFull(node) && (
+        <>
+          <CommunityLink
+            community={node.view.comment_view.community}
+            myUserInfo={myUserInfo}
+            muted={mutedCommunityName}
+          />
+          <span className="mx-2">•</span>
+          <Link
+            className={classNames("me-1", {
+              "text-muted": mutedCommunityName,
+            })}
+            to={`/post/${post_id}`}
+          >
+            {node.view.comment_view.post.name}
+          </Link>
+          <span className="mx-1">{I18NextService.i18n.t("by")}</span>
+        </>
+      )}
       <PersonListing
         person={creator}
         banned={creator_banned || creator_banned_from_community}
@@ -852,25 +871,6 @@ function CommentHeader({
         myUserInfo={myUserInfo}
         personActions={person_actions}
       />
-      {showCommunity && isCommentNodeFull(node) && (
-        <>
-          <span className="mx-1">{I18NextService.i18n.t("to")}</span>
-          <CommunityLink
-            community={node.view.comment_view.community}
-            myUserInfo={myUserInfo}
-            muted={mutedCommunityName}
-          />
-          <span className="mx-2">•</span>
-          <Link
-            className={classNames("me-2", {
-              "text-muted": mutedCommunityName,
-            })}
-            to={`/post/${post_id}`}
-          >
-            {node.view.comment_view.post.name}
-          </Link>
-        </>
-      )}
       {language_id !== 0 && (
         <span className="badge text-bg-light d-none d-sm-inline me-2">
           {allLanguages.find(lang => lang.id === language_id)?.name}

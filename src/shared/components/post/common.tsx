@@ -152,6 +152,18 @@ export function PostCreatedLine({
 
   return (
     <div className="small mb-1 mb-md-0">
+      {showCommunity && (
+        <>
+          <CommunityLink
+            community={postView.community}
+            myUserInfo={myUserInfo}
+            muted={mutedCommunityName}
+          />
+          <span className="mx-1 small text-muted">
+            {I18NextService.i18n.t("by")}
+          </span>
+        </>
+      )}
       <PersonListing
         person={postView.creator}
         banned={
@@ -169,18 +181,6 @@ export function PostCreatedLine({
         myUserInfo={myUserInfo}
         personActions={postView.person_actions}
       />
-      {showCommunity && (
-        <>
-          <span className="mx-1 small text-muted">
-            {I18NextService.i18n.t("to")}
-          </span>
-          <CommunityLink
-            community={postView.community}
-            myUserInfo={myUserInfo}
-            muted={mutedCommunityName}
-          />
-        </>
-      )}
       {showPostBadges && (
         <PostBadges
           post={postView.post}
