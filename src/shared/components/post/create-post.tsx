@@ -48,6 +48,7 @@ import { isBrowser } from "@utils/browser";
 import { NoOptionI18nKeys } from "i18next";
 import { CommunitySidebar } from "@components/community/community-sidebar";
 import { Icon } from "@components/common/icon";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -474,6 +475,7 @@ async function handlePostCreate(
   if (res.state === "success") {
     const postId = res.data.post_view.post.id;
     bypassNavWarning();
+    removeLocalStorageMarkdown();
     i.props.history.replace(`/post/${postId}`);
   } else if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");

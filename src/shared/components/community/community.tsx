@@ -134,6 +134,7 @@ import {
   ExpandChipCheckbox,
   FilterChipCheckbox,
 } from "@components/common/filter-chip-checkbox";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -1410,6 +1411,7 @@ function createAndUpdateComments(
 function findAndUpdatePost(i: Community, res: RequestState<PostResponse>) {
   i.setState(s => {
     if (s.postsRes.state === "success" && res.state === "success") {
+      removeLocalStorageMarkdown();
       s.postsRes.data.items = editPost(
         res.data.post_view,
         s.postsRes.data.items,

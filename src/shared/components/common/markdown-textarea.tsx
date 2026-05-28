@@ -639,7 +639,6 @@ function handleLanguageChange(i: MarkdownTextArea, val: number[]) {
 function handleSubmit(i: MarkdownTextArea, event: KeyboardEvent) {
   event.preventDefault();
   if (i.state.content) {
-    removeLocalStorageMarkdown();
     i.props.onSubmit?.(i.state.content, i.state.languageId);
   }
 }

@@ -132,6 +132,7 @@ import {
   secondsToLargestInterval,
   TimeIntervalFilter,
 } from "@components/common/time-interval-filter";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
@@ -1122,6 +1123,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
       if (s.postsRes.state === "success" && res.state === "success") {
+        removeLocalStorageMarkdown();
         s.postsRes.data.items = editPost(
           res.data.post_view,
           s.postsRes.data.items,

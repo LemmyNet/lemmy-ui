@@ -123,6 +123,7 @@ import { Link } from "inferno-router";
 import { Action } from "history";
 import { CommentSortDropdown } from "@components/common/sort-dropdown";
 import { CommentViewTypeDropdown } from "@components/common/comment-view-type-dropdown";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 const commentsShownInterval = 15;
 
@@ -1438,6 +1439,7 @@ async function handlePostEdit(i: Post, form: EditPost) {
 
   i.updatePost(res);
   if (res.state === "success") {
+    removeLocalStorageMarkdown();
     toast(I18NextService.i18n.t("edited_post"));
   }
   return res;

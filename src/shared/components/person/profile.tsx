@@ -120,6 +120,7 @@ import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 type ProfileData = RouteDataResponse<{
   personRes: GetPersonDetailsResponse;
@@ -1379,6 +1380,7 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
 
   findAndUpdatePost(res: RequestState<PostResponse>) {
     if (res.state === "success") {
+      removeLocalStorageMarkdown();
       this.editCombinedCurrent(
         postViewToPersonContentCombinedView(res.data.post_view),
       );
