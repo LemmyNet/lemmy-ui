@@ -17,7 +17,8 @@ export function clearAuthCookie() {
 type BsTheme = "dark" | "light";
 
 export function dataBsTheme(theme: string): BsTheme {
-  return (isDark() && theme === "browser") || theme.includes("dark")
+  return (isDark() && theme === "browser") ||
+    theme.toLowerCase().includes("dark")
     ? "dark"
     : "light";
 }
