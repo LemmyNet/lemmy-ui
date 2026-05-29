@@ -110,6 +110,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
     return (
       <div className="shadow-sm">
+        {/* The mobile navbar */}
         <nav
           className="navbar navbar-expand-md navbar-light p-0 px-3 container-lg"
           id="navbar"
@@ -128,6 +129,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           </NavLink>
           {person && (
             <ul className="navbar-nav d-flex flex-row ms-auto d-md-none">
+              {/* Always show the notif button on mobile, but hide the others if the counts are 0. */}
               <li id="navMessages" className="nav-item nav-item-icon">
                 <NavLink
                   to="/notifications"
@@ -146,79 +148,76 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   )}
                 </NavLink>
               </li>
-              {moderatesSomething(this.props.myUserInfo) && (
-                <li className="nav-item nav-item-icon">
-                  <NavLink
-                    to="/reports"
-                    className="p-1 nav-link border-0"
-                    title={I18NextService.i18n.t("unread_reports", {
-                      count: Number(this.state.unreadReportCount),
-                      formattedCount: numToSI(this.state.unreadReportCount),
-                    })}
-                    onMouseUp={() => handleCollapseClick(this)}
-                  >
-                    <Icon icon="shield" />
-                    {this.state.unreadReportCount > 0 && (
+              {this.state.unreadReportCount > 0 &&
+                moderatesSomething(this.props.myUserInfo) && (
+                  <li className="nav-item nav-item-icon">
+                    <NavLink
+                      to="/reports"
+                      className="p-1 nav-link border-0"
+                      title={I18NextService.i18n.t("unread_reports", {
+                        count: Number(this.state.unreadReportCount),
+                        formattedCount: numToSI(this.state.unreadReportCount),
+                      })}
+                      onMouseUp={() => handleCollapseClick(this)}
+                    >
+                      <Icon icon="shield" />
                       <span className="mx-1 badge rounded-pill text-bg-danger">
                         {numToSI(this.state.unreadReportCount)}
                       </span>
-                    )}
-                  </NavLink>
-                </li>
-              )}
-              {/* TODO: what is this section for and why does it duplicate everything? */}
-              {amAdmin(this.props.myUserInfo) && (
-                <li className="nav-item nav-item-icon">
-                  <NavLink
-                    to="/registration_applications"
-                    className="p-1 nav-link border-0"
-                    title={I18NextService.i18n.t(
-                      "unread_registration_applications",
-                      {
-                        count: Number(this.state.unreadApplicationCount),
-                        formattedCount: numToSI(
-                          this.state.unreadApplicationCount,
-                        ),
-                      },
-                    )}
-                    onMouseUp={() => handleCollapseClick(this)}
-                  >
-                    <Icon icon="clipboard" />
-                    {this.state.unreadApplicationCount > 0 && (
+                    </NavLink>
+                  </li>
+                )}
+              {this.state.unreadApplicationCount > 0 &&
+                amAdmin(this.props.myUserInfo) && (
+                  <li className="nav-item nav-item-icon">
+                    <NavLink
+                      to="/registration_applications"
+                      className="p-1 nav-link border-0"
+                      title={I18NextService.i18n.t(
+                        "unread_registration_applications",
+                        {
+                          count: Number(this.state.unreadApplicationCount),
+                          formattedCount: numToSI(
+                            this.state.unreadApplicationCount,
+                          ),
+                        },
+                      )}
+                      onMouseUp={() => handleCollapseClick(this)}
+                    >
+                      <Icon icon="clipboard" />
                       <span className="mx-1 badge rounded-pill text-bg-danger">
                         {numToSI(this.state.unreadApplicationCount)}
                       </span>
-                    )}
-                  </NavLink>
-                </li>
-              )}
-              {moderatesPrivateCommunity(this.props.myUserInfo) && (
-                <li className="nav-item nav-item-icon">
-                  <NavLink
-                    to="/pending_follows"
-                    className="p-1 nav-link border-0"
-                    title={I18NextService.i18n.t(
-                      "pending_private_community_follows",
-                      {
-                        count: Number(this.state.unreadPendingFollowsCount),
-                        formattedCount: numToSI(
-                          this.state.unreadPendingFollowsCount,
-                        ),
-                      },
-                    )}
-                    onMouseUp={() => handleCollapseClick(this)}
-                  >
-                    <Icon icon="lock" />
-                    {this.state.unreadPendingFollowsCount > 0 && (
+                    </NavLink>
+                  </li>
+                )}
+              {this.state.unreadPendingFollowsCount > 0 &&
+                moderatesPrivateCommunity(this.props.myUserInfo) && (
+                  <li className="nav-item nav-item-icon">
+                    <NavLink
+                      to="/pending_follows"
+                      className="p-1 nav-link border-0"
+                      title={I18NextService.i18n.t(
+                        "pending_private_community_follows",
+                        {
+                          count: Number(this.state.unreadPendingFollowsCount),
+                          formattedCount: numToSI(
+                            this.state.unreadPendingFollowsCount,
+                          ),
+                        },
+                      )}
+                      onMouseUp={() => handleCollapseClick(this)}
+                    >
+                      <Icon icon="lock" />
                       <span className="mx-1 badge rounded-pill text-bg-danger">
                         {numToSI(this.state.unreadPendingFollowsCount)}
                       </span>
-                    )}
-                  </NavLink>
-                </li>
-              )}
+                    </NavLink>
+                  </li>
+                )}
             </ul>
           )}
+          {/* The wide-screen navbar */}
           <button
             className="navbar-toggler border-0 p-1"
             type="button"
