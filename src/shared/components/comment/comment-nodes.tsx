@@ -60,8 +60,8 @@ interface CommentNodesProps {
   viewType: CommentViewType;
   showMarkRead: ShowMarkReadType;
   showBadgeForPostCreator: boolean;
-  mutedPersonName: boolean;
-  mutedCommunityName: boolean;
+  mutePersonName: boolean;
+  muteCommunityName: boolean;
   hideAvatar: boolean;
   read?: boolean;
   allLanguages: Language[];
@@ -133,8 +133,8 @@ export class CommentNodes extends Component<CommentNodesProps, never> {
               }
               showMarkRead={"hide"}
               showBadgeForPostCreator={this.props.showBadgeForPostCreator}
-              mutedPersonName={this.props.mutedPersonName}
-              mutedCommunityName={this.props.mutedCommunityName}
+              mutePersonName={this.props.mutePersonName}
+              muteCommunityName={this.props.muteCommunityName}
               hideAvatar={this.props.hideAvatar}
               read={this.props.read}
               createLoading={this.props.createLoading}

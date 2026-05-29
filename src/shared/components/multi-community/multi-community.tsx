@@ -451,8 +451,8 @@ export class MultiCommunity extends Component<RouteProps, State> {
             myUserInfo={myUserInfo}
             localSite={siteRes.site_view.local_site}
             admins={this.isoData.siteRes.admins}
-            mutedPersonName
-            mutedCommunityName={false}
+            mutePersonName
+            muteCommunityName={false}
             hideAvatar
             voteLoading={itemLoading(this.state.votePostRes)}
             onBlockPerson={form => handleBlockPerson(form, myUserInfo)}

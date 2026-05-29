@@ -781,8 +781,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               localSite={siteRes.site_view.local_site}
               admins={this.isoData.siteRes.admins}
               voteLoading={itemLoading(this.state.votePostRes)}
-              mutedPersonName
-              mutedCommunityName={false}
+              mutePersonName
+              muteCommunityName={false}
               hideAvatar
               onBlockPerson={form => handleBlockPerson(form, myUserInfo)}
               onBlockCommunity={form => handleBlockCommunity(form, myUserInfo)}
@@ -833,8 +833,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               showContext
               showMarkRead={"hide"}
               showBadgeForPostCreator={false}
-              mutedPersonName
-              mutedCommunityName={false}
+              mutePersonName
+              muteCommunityName={false}
               hideAvatar
               markReadLoading={undefined}
               hideImages={false}

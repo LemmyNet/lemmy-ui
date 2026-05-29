@@ -98,8 +98,8 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           editLoading={false}
           markReadLoading={false}
           voteLoading={false}
-          mutedPersonName={false}
-          mutedCommunityName={false}
+          mutePersonName={false}
+          muteCommunityName={false}
           hideAvatar={false}
           // All of these are unused, since its view only
           onPostEdit={() => {}}

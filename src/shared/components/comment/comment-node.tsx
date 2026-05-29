@@ -89,8 +89,8 @@ type CommentNodeProps = {
   siteLanguages: number[];
   hideImages: boolean;
   showBadgeForPostCreator: boolean;
-  mutedPersonName: boolean;
-  mutedCommunityName: boolean;
+  mutePersonName: boolean;
+  muteCommunityName: boolean;
   hideAvatar: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
@@ -291,8 +291,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     showCommunity={this.props.showCommunity}
                     showContext={this.props.showContext}
                     showBadgeForPostCreator={this.props.showBadgeForPostCreator}
-                    mutedPersonName={this.props.mutedPersonName}
-                    mutedCommunityName={this.props.mutedCommunityName}
+                    mutePersonName={this.props.mutePersonName}
+                    muteCommunityName={this.props.muteCommunityName}
                     hideAvatar={this.props.hideAvatar}
                     isPostCreator={this.isPostCreator}
                     allLanguages={this.props.allLanguages}
@@ -490,8 +490,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               showContext={false}
               showMarkRead={this.props.showMarkRead}
               showBadgeForPostCreator={this.props.showBadgeForPostCreator}
-              mutedPersonName={this.props.mutedPersonName}
-              mutedCommunityName={this.props.mutedCommunityName}
+              mutePersonName={this.props.mutePersonName}
+              muteCommunityName={this.props.muteCommunityName}
               hideAvatar={this.props.hideAvatar}
               read={this.props.read}
               admins={this.props.admins}
@@ -810,8 +810,8 @@ type CommentHeaderProps = {
   showCommunity: boolean;
   showContext: boolean;
   showBadgeForPostCreator: boolean;
-  mutedPersonName: boolean;
-  mutedCommunityName: boolean;
+  mutePersonName: boolean;
+  muteCommunityName: boolean;
   hideAvatar: boolean;
   isPostCreator: boolean;
   allLanguages: Language[];
@@ -825,8 +825,8 @@ function CommentHeader({
   isPostCreator,
   allLanguages,
   myUserInfo,
-  mutedPersonName,
-  mutedCommunityName,
+  mutePersonName,
+  muteCommunityName,
   hideAvatar,
 }: CommentHeaderProps) {
   const {
@@ -844,12 +844,12 @@ function CommentHeader({
           <CommunityLink
             community={node.view.comment_view.community}
             myUserInfo={myUserInfo}
-            muted={mutedCommunityName}
+            muted={muteCommunityName}
           />
           <span className="mx-2">•</span>
           <Link
             className={classNames("me-1", {
-              "text-muted": mutedCommunityName,
+              "text-muted": muteCommunityName,
             })}
             to={`/post/${post_id}`}
           >
@@ -863,7 +863,7 @@ function CommentHeader({
         banned={creator_banned || creator_banned_from_community}
         myUserInfo={myUserInfo}
         badgeForPostCreator={showBadgeForPostCreator && isPostCreator}
-        muted={mutedPersonName}
+        muted={mutePersonName}
         hideAvatar={hideAvatar}
       />
       {distinguished && (

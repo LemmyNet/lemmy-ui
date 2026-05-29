@@ -73,8 +73,8 @@ type PostListingProps = {
   markReadLoading: boolean;
   voteLoading: boolean;
   topBorder: boolean;
-  mutedPersonName: boolean;
-  mutedCommunityName: boolean;
+  mutePersonName: boolean;
+  muteCommunityName: boolean;
   hideAvatar: boolean;
   onPostEdit: (form: EditPost) => void;
   onPostModEdit: (form: ModEditPost) => void;
@@ -214,8 +214,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             localSite={p.localSite}
             showCrossPosts={p.showCrossPosts}
             voteLoading={p.voteLoading}
-            mutedPersonName={p.mutedPersonName}
-            mutedCommunityName={p.mutedCommunityName}
+            mutePersonName={p.mutePersonName}
+            muteCommunityName={p.muteCommunityName}
             hideAvatar={p.hideAvatar}
             onPostVote={p.onPostVote}
             onScrollIntoCommentsClick={p.onScrollIntoCommentsClick}
@@ -247,8 +247,8 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             notificationRead={p.notificationRead}
             markReadLoading={p.markReadLoading}
             voteLoading={p.voteLoading}
-            mutedPersonName={p.mutedPersonName}
-            mutedCommunityName={p.mutedCommunityName}
+            mutePersonName={p.mutePersonName}
+            muteCommunityName={p.muteCommunityName}
             hideAvatar={p.hideAvatar}
             onEditClick={() => handleEditClick(this)}
             onPostVote={p.onPostVote}

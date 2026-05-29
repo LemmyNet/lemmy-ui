@@ -288,8 +288,8 @@ const postListing = (
               editLoading={false}
               markReadLoading={false}
               voteLoading={false}
-              mutedPersonName={false}
-              mutedCommunityName
+              mutePersonName={false}
+              muteCommunityName
               hideAvatar={false}
               // All of these are unused, since its view only
               onPostEdit={() => {}}
@@ -341,8 +341,8 @@ const commentListing = (
               viewType={"flat"}
               showMarkRead={"hide"}
               showBadgeForPostCreator={false}
-              mutedPersonName={false}
-              mutedCommunityName
+              mutePersonName={false}
+              muteCommunityName
               hideAvatar={false}
               createLoading={undefined}
               editLoading={undefined}
@@ -881,8 +881,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
         showCommunity
         showMarkRead={"hide"}
         showBadgeForPostCreator={false}
-        mutedPersonName={false}
-        mutedCommunityName
+        mutePersonName={false}
+        muteCommunityName
         hideAvatar={false}
         markReadLoading={undefined}
         allLanguages={siteRes.all_languages}
@@ -952,8 +952,8 @@ export class Search extends Component<SearchRouteProps, SearchState> {
                 editLoading={false}
                 markReadLoading={false}
                 voteLoading={false}
-                mutedPersonName={false}
-                mutedCommunityName
+                mutePersonName={false}
+                muteCommunityName
                 hideAvatar={false}
                 // All of these are unused, since its view only
                 onPostEdit={() => {}}

@@ -131,8 +131,8 @@ type PostCreatedLineProps = {
   showPublishedTime: boolean;
   showUrlLine: boolean;
   showPostBadges: boolean;
-  mutedPersonName: boolean;
-  mutedCommunityName: boolean;
+  mutePersonName: boolean;
+  muteCommunityName: boolean;
   hideAvatar: boolean;
   allLanguages: Language[];
   myUserInfo: MyUserInfo | undefined;
@@ -143,8 +143,8 @@ export function PostCreatedLine({
   showPublishedTime,
   showUrlLine,
   showPostBadges,
-  mutedPersonName,
-  mutedCommunityName,
+  mutePersonName,
+  muteCommunityName,
   hideAvatar,
   allLanguages,
   myUserInfo,
@@ -156,7 +156,7 @@ export function PostCreatedLine({
           <CommunityLink
             community={postView.community}
             myUserInfo={myUserInfo}
-            muted={mutedCommunityName}
+            muted={muteCommunityName}
           />
           <span className="mx-1 small text-muted">
             {I18NextService.i18n.t("by")}
@@ -169,7 +169,7 @@ export function PostCreatedLine({
           postView.creator_banned || postView.creator_banned_from_community
         }
         myUserInfo={myUserInfo}
-        muted={mutedPersonName}
+        muted={mutePersonName}
         hideAvatar={hideAvatar}
       />
       <UserBadges

@@ -77,8 +77,8 @@ type PostListingCardProps = {
   markReadLoading: boolean;
   voteLoading: boolean;
   topBorder: boolean;
-  mutedPersonName: boolean;
-  mutedCommunityName: boolean;
+  mutePersonName: boolean;
+  muteCommunityName: boolean;
   hideAvatar: boolean;
   onEditClick: () => void;
   onPostVote: (form: CreatePostLike) => void;
@@ -138,8 +138,8 @@ export class PostListingCard extends Component<
                 showPublishedTime={false}
                 showUrlLine={false}
                 showPostBadges={false}
-                mutedPersonName={p.mutedPersonName}
-                mutedCommunityName={p.mutedCommunityName}
+                mutePersonName={p.mutePersonName}
+                muteCommunityName={p.muteCommunityName}
                 hideAvatar={p.hideAvatar}
                 allLanguages={p.allLanguages}
                 myUserInfo={p.myUserInfo}
