@@ -123,6 +123,7 @@ import { Link } from "inferno-router";
 import { Action } from "history";
 import { CommentSortDropdown } from "@components/common/sort-dropdown";
 import { CommentViewTypeDropdown } from "@components/common/comment-view-type-dropdown";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 const commentsShownInterval = 15;
 
@@ -1050,6 +1051,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
+        removeLocalStorageMarkdown();
         // The comment must be inserted not at the very beginning of the list,
         // because the buildCommentsTree needs a correct path ordering.
         // It should be inserted right after its parent is found
@@ -1073,6 +1075,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
+        removeLocalStorageMarkdown();
         s.commentsRes.data.items = editCommentSlim(
           res.data.comment_view,
           s.commentsRes.data.items,
@@ -1270,6 +1273,7 @@ async function handleEditCommunityNotifs(form: EditCommunityNotifications) {
 async function handleCreateToplevelComment(i: Post, form: CreateComment) {
   const res = await handleCreateComment(i, form);
   if (res.state === "success") {
+    removeLocalStorageMarkdown();
     i.setState({ lastCreatedCommentId: res.data.comment_view.comment.id });
   }
   return res;
@@ -1438,6 +1442,7 @@ async function handlePostEdit(i: Post, form: EditPost) {
 
   i.updatePost(res);
   if (res.state === "success") {
+    removeLocalStorageMarkdown();
     toast(I18NextService.i18n.t("edited_post"));
   }
   return res;
