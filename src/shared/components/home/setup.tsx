@@ -15,6 +15,7 @@ import { SiteForm } from "./site-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps } from "inferno-router";
 import { isBrowser } from "@utils/browser";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 interface State {
   form: {
@@ -204,6 +205,7 @@ async function handleRegisterSubmit(
 async function handleCreateSite(i: Setup, form: CreateSite) {
   const createRes = await HttpService.client.createSite(form);
   if (createRes.state === "success") {
+    removeLocalStorageMarkdown();
     i.props.history.replace("/");
     location.reload();
   }

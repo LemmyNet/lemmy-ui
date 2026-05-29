@@ -68,6 +68,7 @@ import {
   AllOrBannedDropdown,
 } from "@components/common/all-or-banned-dropdown";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: PagedResponse<LocalUserView>;
@@ -902,6 +903,7 @@ async function handleEditSite(i: AdminSettings, form: EditSite) {
   const editRes = await HttpService.client.editSite(form);
 
   if (editRes.state === "success") {
+    removeLocalStorageMarkdown();
     i.forceUpdate();
     toast(I18NextService.i18n.t("site_saved"));
 
@@ -1066,6 +1068,7 @@ async function handleCreateTagline(i: AdminSettings, form: CreateTagline) {
   const res = await HttpService.client.createTagline(form);
 
   if (res.state === "success") {
+    removeLocalStorageMarkdown();
     toast(I18NextService.i18n.t("tagline_created"));
     await i.fetchTaglinesOnly();
   } else {
@@ -1093,6 +1096,7 @@ async function handleEditTagline(i: AdminSettings, form: EditTagline) {
   const res = await HttpService.client.editTagline(form);
 
   if (res.state === "success") {
+    removeLocalStorageMarkdown();
     toast(I18NextService.i18n.t("tagline_updated"));
   } else {
     toast(I18NextService.i18n.t("couldnt_update_tagline"), "danger");

@@ -20,7 +20,6 @@ import {
 import { toast } from "@utils/app";
 import { HtmlTags } from "../../common/html-tags";
 import { Icon, Spinner } from "../../common/icon";
-import { removeLocalStorageMarkdown } from "../../common/markdown-textarea";
 import PasswordInput from "../../common/password-input";
 import { scrollMixin } from "@components/mixins/scroll-mixin";
 import { RouteData } from "@utils/types";
@@ -30,6 +29,7 @@ import { OAuthLogin } from "../oauth/oauth-login";
 import { RegistrationApplicationInput } from "./registration-application-input";
 import { RegistrationLegalInfo } from "./registration-legal-info";
 import { RegistrationCheckboxes } from "./registration-checkboxes";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 interface State {
   registerRes: RequestState<LoginResponse>;
@@ -304,7 +304,6 @@ async function handleRegisterSubmit(
   event: FormEvent<HTMLFormElement>,
 ) {
   event.preventDefault();
-  removeLocalStorageMarkdown();
   const {
     show_nsfw,
     answer,
@@ -343,7 +342,6 @@ async function handleRegisterSubmit(
 
       case "success": {
         const data = registerRes.data;
-
         // Only log them in if a jwt was set
         if (data.jwt) {
           UserService.Instance.login({ res: data });
@@ -351,6 +349,8 @@ async function handleRegisterSubmit(
           const myUserRes = await HttpService.client.getMyUser();
 
           if (myUserRes.state === "success") {
+            removeLocalStorageMarkdown();
+
             updateMyUserInfo(myUserRes.data);
             refreshTheme();
             await I18NextService.reconfigure(

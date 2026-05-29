@@ -87,6 +87,7 @@ import {
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 const messageTypeOptions: FilterOption<NotificationTypeFilter>[] = [
   { value: "all", i18n: "all" },
@@ -717,6 +718,7 @@ async function handleCreateComment(i: Notifications, form: CreateComment) {
   });
 
   if (res.state === "success") {
+    removeLocalStorageMarkdown();
     toast(I18NextService.i18n.t("reply_sent"));
     // The reply just disappears. Only replies to private messages appear in the notifs.
   }

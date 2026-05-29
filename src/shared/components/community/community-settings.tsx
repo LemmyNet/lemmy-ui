@@ -70,6 +70,7 @@ import { CommunityTagForm } from "./community-tag-form";
 import { NoOptionI18nKeys } from "i18next";
 import { CommunityLink } from "./community-link";
 import { FilterChipSelect } from "@components/common/filter-chip-select";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 type CommunitySettingsData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -621,6 +622,7 @@ async function handleEditCommunity(i: CommunitySettings, form: EditCommunity) {
 
   if (i.state.editCommunityRes.state === "success") {
     i.updateCommunity(i.state.editCommunityRes);
+    removeLocalStorageMarkdown();
     toast(I18NextService.i18n.t("saved"));
   }
 }
