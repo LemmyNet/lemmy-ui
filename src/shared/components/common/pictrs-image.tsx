@@ -18,7 +18,7 @@ const defaultImgSize = 512;
 const bannerSize = 2048;
 
 type PictrsImageType =
-  | "full_size"
+  | "large_thumbnail"
   | "thumbnail"
   | "icon"
   | "banner"
@@ -203,7 +203,9 @@ export function buildPictrsSrc(src: string, type: PictrsImageType): string {
     case "card_top":
       url.searchParams.set("max_size", bannerSize.toString());
       break;
-    case "full_size":
+    case "large_thumbnail":
+      // Use bannerSize here for slight downscaling, but larger than thumbnail
+      url.searchParams.set("max_size", bannerSize.toString());
       break;
     default:
       url.searchParams.set("max_size", defaultImgSize.toString());

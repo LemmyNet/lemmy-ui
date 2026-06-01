@@ -222,9 +222,9 @@ export class PostListings extends Component<PostListingsProps, never> {
 function postListingModeCols(mode: PostListingMode): string {
   switch (mode) {
     case "list":
-    case "card":
       return "col-12";
+    case "card":
     case "small_card":
-      return "col-12 col-md-6";
+      return "col-12 col-xl-6";
   }
 }
