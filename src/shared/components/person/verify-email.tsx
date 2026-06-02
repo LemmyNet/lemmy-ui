@@ -61,7 +61,7 @@ export class VerifyEmail extends Component<
 
   render() {
     return (
-      <div className="verfy-email container-lg">
+      <div className="verify-email container-lg">
         <HtmlTags
           title={this.documentTitle}
           context={this.context as RouterContext}
