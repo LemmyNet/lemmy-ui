@@ -82,6 +82,7 @@ export function getModlogQueryParams(source?: string): ModlogProps {
       commentId: getIdFromString,
       postId: getIdFromString,
       communityId: getIdFromString,
+      bulkActionParentId: getIdFromString,
       cursor: (cursor?: string) => cursor,
     },
     source,
@@ -109,6 +110,7 @@ interface ModlogProps {
   postId?: number;
   commentId?: number;
   communityId?: number;
+  bulkActionParentId?: number;
 }
 
 function getActionFromString(action?: string): ModlogKindFilter {
@@ -313,6 +315,11 @@ export function processModlogEntry(
                 <div>expires: {formatRelativeDate(expires_at)}</div>
               </span>
             )}
+            <span>
+              <a href={`/modlog?bulkActionParentId=${modlog.id}`}>
+                View children
+              </a>
+            </span>
           </>
         ),
       };
@@ -349,6 +356,11 @@ export function processModlogEntry(
                 <div>expires: {formatRelativeDate(expires_at)}</div>
               </span>
             )}
+            <span>
+              <a href={`/modlog?bulkActionParentId=${modlog.id}`}>
+                View children
+              </a>
+            </span>
           </>
         ),
       };
@@ -852,7 +864,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       modSearchOptions,
       communitySearchOptions,
     } = this.state;
-    const { actionType, modId, userId, communityId } = this.props;
+    const { actionType, modId, userId, communityId, bulkActionParentId } =
+      this.props;
 
     const communityState = this.state.communityRes.state;
     const communityResp =
@@ -943,6 +956,16 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               />
             </div>
           )}
+          {bulkActionParentId && (
+            <div className="col">
+              <input
+                type="button"
+                className="form-select form-select-sm bg-light border-light-subtle no-caret"
+                value={`Showing children for modlog item ${bulkActionParentId}`}
+                onclick={_ => handleClearBulkActionParentId(this)}
+              />
+            </div>
+          )}
         </div>
         {this.renderModlogTable()}
       </div>
@@ -993,7 +1016,14 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   }
 
   updateUrl(props: Partial<ModlogProps>) {
-    const { actionType, modId, cursor, userId, communityId } = {
+    const {
+      actionType,
+      modId,
+      cursor,
+      userId,
+      communityId,
+      bulkActionParentId,
+    } = {
       ...this.props,
       ...props,
     };
@@ -1004,6 +1034,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       modId: modId?.toString(),
       userId: userId?.toString(),
       communityId: communityId?.toString(),
+      bulkActionParentId: bulkActionParentId?.toString(),
     };
 
     this.props.history.push(`/modlog${getQueryString(queryParams)}`);
@@ -1020,6 +1051,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       postId,
       commentId,
       communityId,
+      bulkActionParentId,
     } = props;
 
     this.setState({ res: LOADING_REQUEST });
@@ -1031,6 +1063,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       mod_person_id: modId,
       comment_id: commentId,
       post_id: postId,
+      bulk_action_parent_id: bulkActionParentId,
       page_cursor: cursor,
     });
 
@@ -1075,6 +1108,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       commentId,
       postId,
       communityId,
+      bulkActionParentId,
     },
   }: InitialFetchRequest<
     ModlogPathProps,
@@ -1093,6 +1127,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       other_person_id: userId,
       comment_id: commentId,
       post_id: postId,
+      bulk_action_parent_id: bulkActionParentId,
     };
 
     let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
@@ -1227,3 +1262,7 @@ const handleSearchMods = debounce(async (i: Modlog, text: string) => {
     loadingModSearch: false,
   });
 });
+
+function handleClearBulkActionParentId(i: Modlog) {
+  i.updateUrl({ bulkActionParentId: undefined, cursor: undefined });
+}
