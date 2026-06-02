@@ -958,12 +958,13 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           )}
           {bulkActionParentId && (
             <div className="col">
-              <input
-                type="button"
+              <button
                 className="form-select form-select-sm bg-light border-light-subtle no-caret"
-                value={`Showing children for modlog item ${bulkActionParentId}`}
-                onclick={_ => handleClearBulkActionParentId(this)}
-              />
+                onClick={_ => handleClearBulkActionParentId(this)}
+              >
+                {`Showing children for modlog item ${bulkActionParentId}`}
+                <Icon icon="x" classes="ms-1" />
+              </button>
             </div>
           )}
         </div>
