@@ -1,5 +1,6 @@
 import { TagColor } from "lemmy-js-client";
 import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
+import { NoOptionI18nKeys } from "i18next";
 
 // There are actually 10 color options in the back end, but squash these down
 const tagColorOptions: FilterOption<TagColor>[] = [
@@ -55,7 +56,7 @@ export function TagColorDropdown({
   return (
     <FilterChipDropdown
       allOptions={tagColorOptions}
-      label={"color"}
+      label={"color" as NoOptionI18nKeys}
       currentOption={tagColorOptions.find(t => t.value === currentOption)}
       onSelect={onSelect}
       className={classes}

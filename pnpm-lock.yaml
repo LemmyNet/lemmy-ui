@@ -120,8 +120,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-admin-endpoints.0
-        version: 1.0.0-admin-endpoints.0
+        specifier: 1.0.0-community-title-optional.0
+        version: 1.0.0-community-title-optional.0
       markdown-it:
         specifier: ^14.1.0
         version: 14.2.0
@@ -3413,8 +3413,8 @@ packages:
   leac@0.7.0:
     resolution: {integrity: sha512-qMrZeyEekgdRQ9o6a4NAB2EQZrv827GJdn1vnapwSJ90hWRB4TzUSunvacPkxQ2TnNqHNI1/zSt0hlo0crG8Jw==}
 
-  lemmy-js-client@1.0.0-admin-endpoints.0:
-    resolution: {integrity: sha512-8MQfRri20Q/nwtfnVRpfRt7OWZAkVcB/2XA53UAGtwhRi+e5nayc5eDCs+9Zv8KRhihxKBFcTZKK/uF+nctWhw==}
+  lemmy-js-client@1.0.0-community-title-optional.0:
+    resolution: {integrity: sha512-ahwhe7RxSTx04ytK9HEv/cKH5fn2s//EeHJpGstnTBlQabbsSxqJ4plTVorcMuaCa167+udIQE4ZGyti/Btrlw==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8784,7 +8784,7 @@ snapshots:
 
   leac@0.7.0: {}
 
-  lemmy-js-client@1.0.0-admin-endpoints.0:
+  lemmy-js-client@1.0.0-community-title-optional.0:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:

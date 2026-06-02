@@ -90,7 +90,7 @@ export class MultiCommunityForm extends Component<Props, State> {
                 value={this.state.form.name}
                 onInput={e => handleNameChange(this, e)}
                 required
-                minLength={3}
+                minLength={2}
                 pattern={validActorRegexPattern}
                 title={I18NextService.i18n.t("community_reqs")}
               />
@@ -117,7 +117,6 @@ export class MultiCommunityForm extends Component<Props, State> {
               value={this.state.form.title}
               onInput={e => handleTitleChange(this, e)}
               className="form-control"
-              required
               minLength={3}
               maxLength={100}
             />
