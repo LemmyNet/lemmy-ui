@@ -61,6 +61,7 @@ import { TableHr } from "./common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { ModlogKindFilterDropdown } from "./common/modlog-kind-filter-dropdown";
 import { FilterChipSelect } from "./common/filter-chip-select";
+import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
 
 const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";
@@ -317,7 +318,7 @@ export function processModlogEntry(
             )}
             <span>
               <a href={`/modlog?bulkActionParentId=${modlog.id}`}>
-                View children
+                {I18NextService.i18n.t("modlog_view_children")}
               </a>
             </span>
           </>
@@ -958,13 +959,11 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
           )}
           {bulkActionParentId && (
             <div className="col">
-              <button
-                className="form-select form-select-sm bg-light border-light-subtle no-caret"
-                onClick={_ => handleClearBulkActionParentId(this)}
-              >
-                {`Showing children for modlog item ${bulkActionParentId}`}
-                <Icon icon="x" classes="ms-1" />
-              </button>
+              <FilterChipCheckbox
+                option="children_for_modlog_item"
+                isChecked={false}
+                onCheck={_ => handleClearBulkActionParentId(this)}
+              />
             </div>
           )}
         </div>

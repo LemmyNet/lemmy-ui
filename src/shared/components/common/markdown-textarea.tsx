@@ -267,7 +267,7 @@ export class MarkdownTextArea extends Component<
                       value={this.state.imageUploadStatus.uploaded}
                       max={this.state.imageUploadStatus.total}
                       text={
-                        I18NextService.i18n.t("pictures_uploaded_progess", {
+                        I18NextService.i18n.t("pictures_uploaded_progress", {
                           uploaded: this.state.imageUploadStatus.uploaded,
                           total: this.state.imageUploadStatus.total,
                         }) ?? undefined

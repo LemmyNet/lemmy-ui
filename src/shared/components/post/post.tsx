@@ -1507,7 +1507,7 @@ async function handleTransferCommunity(i: Post, form: TransferCommunity) {
   const transferCommunityRes = await HttpService.client.transferCommunity(form);
   i.updateCommunityFull(transferCommunityRes);
   if (transferCommunityRes.state === "success") {
-    toast(I18NextService.i18n.t("transfered_community"));
+    toast(I18NextService.i18n.t("transferred_community"));
   }
 }
 
