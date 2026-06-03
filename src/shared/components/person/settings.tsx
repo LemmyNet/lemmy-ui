@@ -239,6 +239,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           default_items_per_page,
           interface_language,
           show_avatars,
+          show_media,
           show_bot_accounts,
           show_read_posts,
           send_notifications_to_email,
@@ -252,7 +253,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           show_upvote_percentage,
           show_person_votes,
           animated_images_enabled,
-          hide_media,
+          hide_posts_with_media,
           collapse_bot_comments,
         },
         person: {
@@ -286,6 +287,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           discussion_languages: mui.discussion_languages,
           display_name,
           show_avatars,
+          show_media,
           bot_account,
           show_bot_accounts,
           show_score,
@@ -303,7 +305,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           auto_mark_fetched_posts_as_read,
           blocking_keywords: mui.keyword_blocks,
           animated_images_enabled,
-          hide_media,
+          hide_posts_with_media,
           collapse_bot_comments,
         },
         avatar,
@@ -1110,6 +1112,15 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           <div className="row mb-3">
             <div className="col">
               <FilterChipCheckbox
+                option={"show_media"}
+                isChecked={this.state.saveUserSettingsForm.show_media ?? false}
+                onCheck={val => handleShowMediaChange(this, val, myUserInfo)}
+              />
+            </div>
+          </div>
+          <div className="row mb-3">
+            <div className="col">
+              <FilterChipCheckbox
                 option={"show_animated_images"}
                 isChecked={
                   this.state.saveUserSettingsForm.animated_images_enabled ??
@@ -1124,9 +1135,13 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           <div className="row mb-3">
             <div className="col">
               <FilterChipCheckbox
-                option={"hide_all_media"}
-                isChecked={this.state.saveUserSettingsForm.hide_media ?? false}
-                onCheck={val => handleHideMediaChange(this, val, myUserInfo)}
+                option={"hide_memes"}
+                isChecked={
+                  this.state.saveUserSettingsForm.hide_posts_with_media ?? false
+                }
+                onCheck={val =>
+                  handleHidePostsWithMediaChange(this, val, myUserInfo)
+                }
               />
             </div>
           </div>
@@ -1641,6 +1656,18 @@ function handleShowAvatarsChange(
   i.setState(s => ((s.saveUserSettingsForm.show_avatars = val), s));
 }
 
+function handleShowMediaChange(
+  i: Settings,
+  val: boolean,
+  myUserInfo: MyUserInfo | undefined,
+) {
+  const mui = myUserInfo;
+  if (mui) {
+    mui.local_user_view.local_user.show_media = val;
+  }
+  i.setState(s => ((s.saveUserSettingsForm.show_media = val), s));
+}
+
 function handleEnableAnimatedImagesChange(
   i: Settings,
   val: boolean,
@@ -1653,16 +1680,16 @@ function handleEnableAnimatedImagesChange(
   i.setState(s => ((s.saveUserSettingsForm.animated_images_enabled = val), s));
 }
 
-function handleHideMediaChange(
+function handleHidePostsWithMediaChange(
   i: Settings,
   val: boolean,
   myUserInfo: MyUserInfo | undefined,
 ) {
   const mui = myUserInfo;
   if (mui) {
-    mui.local_user_view.local_user.hide_media = val;
+    mui.local_user_view.local_user.hide_posts_with_media = val;
   }
-  i.setState(s => ((s.saveUserSettingsForm.hide_media = val), s));
+  i.setState(s => ((s.saveUserSettingsForm.hide_posts_with_media = val), s));
 }
 
 function handleBotAccountChange(i: Settings, val: boolean) {

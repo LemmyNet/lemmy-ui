@@ -1,4 +1,4 @@
-import { hideAnimatedImage, hideImages, showAvatars } from "@utils/app";
+import { hideAnimatedImage, showAvatars, showMedia } from "@utils/app";
 import { hostname } from "@utils/helpers";
 import { Component } from "inferno";
 import { Link } from "inferno-router";
@@ -52,11 +52,13 @@ export class CommunityLink extends Component<CommunityLinkProps, never> {
 
     const hideAvatar =
       // Hide the avatar if you have hide images on
-      hideImages(this.props.hideAvatar ?? false, myUserInfo) ||
+      this.props.hideAvatar ||
       // Or its an animated image
       hideAnimatedImage(icon ?? "", myUserInfo) ||
       // Or you have hide avatars in your user settings
-      !showAvatars(this.props.myUserInfo);
+      !showAvatars(this.props.myUserInfo) ||
+      // Or you have hide media in your user settings
+      !showMedia(myUserInfo);
 
     return (
       <>

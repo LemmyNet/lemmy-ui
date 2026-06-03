@@ -1,4 +1,4 @@
-import { colorList, userNotLoggedInOrBanned, hideImages } from "@utils/app";
+import { colorList, showMedia, userNotLoggedInOrBanned } from "@utils/app";
 import { numToSI } from "@utils/helpers";
 import { futureDaysToUnixTime } from "@utils/date";
 import classNames from "classnames";
@@ -260,10 +260,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
       node.view.children.length === 0 &&
       child_count > 0;
 
-    const hideImages_ = hideImages(
-      this.props.hideImages ?? false,
-      this.props.myUserInfo,
-    );
+    const hideImages_ =
+      this.props.hideImages ?? !showMedia(this.props.myUserInfo);
 
     return (
       !hideDeleted && (
