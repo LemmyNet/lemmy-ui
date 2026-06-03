@@ -49,6 +49,7 @@ export class MediaUploads extends Component<Props, never> {
                     person={i.person}
                     banned={false}
                     myUserInfo={this.props.myUserInfo}
+                    muted={false}
                   />
                 </div>
               )}

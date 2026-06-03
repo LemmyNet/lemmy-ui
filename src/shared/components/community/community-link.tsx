@@ -12,7 +12,7 @@ interface CommunityLinkProps {
   community: Community;
   realLink?: boolean;
   useApubName?: boolean;
-  muted?: boolean;
+  muted: boolean;
   hideAvatar?: boolean;
   myUserInfo: MyUserInfo | undefined;
 }

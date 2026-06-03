@@ -59,7 +59,7 @@ type PostBadgesProps = {
 };
 export function PostBadges({ post, tags, allLanguages }: PostBadgesProps) {
   return (
-    <span className="ms-1">
+    <span className="mx-1">
       {tags.map(tag => (
         <span className="me-1">
           <CommunityTag tag={tag} useName={false} />
@@ -131,6 +131,9 @@ type PostCreatedLineProps = {
   showPublishedTime: boolean;
   showUrlLine: boolean;
   showPostBadges: boolean;
+  mutePersonName: boolean;
+  muteCommunityName: boolean;
+  hideAvatar: boolean;
   allLanguages: Language[];
   myUserInfo: MyUserInfo | undefined;
 };
@@ -140,12 +143,12 @@ export function PostCreatedLine({
   showPublishedTime,
   showUrlLine,
   showPostBadges,
+  mutePersonName,
+  muteCommunityName,
+  hideAvatar,
   allLanguages,
   myUserInfo,
 }: PostCreatedLineProps) {
-  // Hide the person avatar only on the home page (IE where you show the community)
-  const hideAvatar = showCommunity;
-
   return (
     <div className="small mb-1 mb-md-0">
       {showCommunity && (
@@ -153,6 +156,7 @@ export function PostCreatedLine({
           <CommunityLink
             community={postView.community}
             myUserInfo={myUserInfo}
+            muted={muteCommunityName}
           />
           <span className="mx-1 small text-muted">
             {I18NextService.i18n.t("by")}
@@ -165,7 +169,7 @@ export function PostCreatedLine({
           postView.creator_banned || postView.creator_banned_from_community
         }
         myUserInfo={myUserInfo}
-        muted
+        muted={mutePersonName}
         hideAvatar={hideAvatar}
       />
       <UserBadges

@@ -88,6 +88,10 @@ type CommentNodeProps = {
   allLanguages: Language[];
   siteLanguages: number[];
   hideImages: boolean;
+  showBadgeForPostCreator: boolean;
+  mutePersonName: boolean;
+  muteCommunityName: boolean;
+  hideAvatar: boolean;
   myUserInfo: MyUserInfo | undefined;
   localSite: LocalSite;
   createLoading: CommentId | undefined;
@@ -286,6 +290,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                     node={this.props.node}
                     showCommunity={this.props.showCommunity}
                     showContext={this.props.showContext}
+                    showBadgeForPostCreator={this.props.showBadgeForPostCreator}
+                    mutePersonName={this.props.mutePersonName}
+                    muteCommunityName={this.props.muteCommunityName}
+                    hideAvatar={this.props.hideAvatar}
                     isPostCreator={this.isPostCreator}
                     allLanguages={this.props.allLanguages}
                     myUserInfo={this.props.myUserInfo}
@@ -481,6 +489,10 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               showCommunity={this.props.showCommunity}
               showContext={false}
               showMarkRead={this.props.showMarkRead}
+              showBadgeForPostCreator={this.props.showBadgeForPostCreator}
+              mutePersonName={this.props.mutePersonName}
+              muteCommunityName={this.props.muteCommunityName}
+              hideAvatar={this.props.hideAvatar}
               read={this.props.read}
               admins={this.props.admins}
               readCommentsAt={this.props.readCommentsAt}
@@ -797,6 +809,10 @@ type CommentHeaderProps = {
   node: CommentNodeType;
   showCommunity: boolean;
   showContext: boolean;
+  showBadgeForPostCreator: boolean;
+  mutePersonName: boolean;
+  muteCommunityName: boolean;
+  hideAvatar: boolean;
   isPostCreator: boolean;
   allLanguages: Language[];
   myUserInfo: MyUserInfo | undefined;
@@ -805,9 +821,13 @@ type CommentHeaderProps = {
 function CommentHeader({
   node,
   showCommunity,
+  showBadgeForPostCreator,
   isPostCreator,
   allLanguages,
   myUserInfo,
+  mutePersonName,
+  muteCommunityName,
+  hideAvatar,
 }: CommentHeaderProps) {
   const {
     creator_banned_from_community,
@@ -819,11 +839,32 @@ function CommentHeader({
 
   return (
     <>
+      {showCommunity && isCommentNodeFull(node) && (
+        <>
+          <CommunityLink
+            community={node.view.comment_view.community}
+            myUserInfo={myUserInfo}
+            muted={muteCommunityName}
+          />
+          <span className="mx-2">•</span>
+          <Link
+            className={classNames("me-1", {
+              "text-muted": muteCommunityName,
+            })}
+            to={`/post/${post_id}`}
+          >
+            {node.view.comment_view.post.name}
+          </Link>
+          <span className="mx-1">{I18NextService.i18n.t("by")}</span>
+        </>
+      )}
       <PersonListing
         person={creator}
         banned={creator_banned || creator_banned_from_community}
         myUserInfo={myUserInfo}
-        badgeForPostCreator={isPostCreator}
+        badgeForPostCreator={showBadgeForPostCreator && isPostCreator}
+        muted={mutePersonName}
+        hideAvatar={hideAvatar}
       />
       {distinguished && (
         <Icon icon="shield" inline classes="text-danger ms-1" />
@@ -836,19 +877,6 @@ function CommentHeader({
         myUserInfo={myUserInfo}
         personActions={person_actions}
       />
-      {showCommunity && isCommentNodeFull(node) && (
-        <>
-          <span className="mx-1">{I18NextService.i18n.t("to")}</span>
-          <CommunityLink
-            community={node.view.comment_view.community}
-            myUserInfo={myUserInfo}
-          />
-          <span className="mx-2">•</span>
-          <Link className="me-2" to={`/post/${post_id}`}>
-            {node.view.comment_view.post.name}
-          </Link>
-        </>
-      )}
       {language_id !== 0 && (
         <span className="badge text-bg-light d-none d-sm-inline me-2">
           {allLanguages.find(lang => lang.id === language_id)?.name}

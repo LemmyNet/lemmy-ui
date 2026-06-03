@@ -53,6 +53,9 @@ interface PostListingsProps {
   admins: PersonView[];
   postListingMode: PostListingMode;
   voteLoading: PostId | undefined;
+  mutePersonName: boolean;
+  muteCommunityName: boolean;
+  hideAvatar: boolean;
   onPostEdit: (form: EditPost) => void;
   onPostModEdit: (form: ModEditPost) => void;
   onPostVote: (form: CreatePostLike) => void;
@@ -115,6 +118,9 @@ export class PostListings extends Component<PostListingsProps, never> {
                   editLoading={false}
                   markReadLoading={false}
                   voteLoading={this.props.voteLoading === postView.post.id}
+                  mutePersonName={this.props.mutePersonName}
+                  muteCommunityName={this.props.muteCommunityName}
+                  hideAvatar={this.props.hideAvatar}
                   onPostEdit={this.props.onPostEdit}
                   onPostModEdit={this.props.onPostModEdit}
                   onPostVote={this.props.onPostVote}

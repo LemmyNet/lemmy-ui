@@ -66,6 +66,7 @@ export class CommunityReport extends Component<Props, object> {
             person={r.creator}
             banned={false}
             myUserInfo={this.props.myUserInfo}
+            muted={false}
           />
         </div>
         <div>
@@ -80,6 +81,7 @@ export class CommunityReport extends Component<Props, object> {
                   person={r.resolver}
                   banned={false}
                   myUserInfo={this.props.myUserInfo}
+                  muted={false}
                 />
               </T>
             ) : (
@@ -89,6 +91,7 @@ export class CommunityReport extends Component<Props, object> {
                   person={r.resolver}
                   banned={false}
                   myUserInfo={this.props.myUserInfo}
+                  muted={false}
                 />
               </T>
             )}

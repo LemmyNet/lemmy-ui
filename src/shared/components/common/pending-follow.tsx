@@ -26,6 +26,7 @@ export function PendingFollow(props: PendingFollowProps) {
           banned={false}
           showApubName
           myUserInfo={props.myUserInfo}
+          muted={false}
         />
         <UserBadges
           classNames="ms-1"

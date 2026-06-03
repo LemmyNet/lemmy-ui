@@ -242,6 +242,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                                 getCommunityRes.community_view.community
                               }
                               myUserInfo={myUserInfo}
+                              muted={false}
                             />
                           </T>
                         </h1>
@@ -389,6 +390,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                     person={m.moderator}
                     banned={false}
                     myUserInfo={myUserInfo}
+                    muted={false}
                   />
                   <UserBadges
                     classNames="ms-1"

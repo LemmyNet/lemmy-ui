@@ -142,6 +142,7 @@ function ExpandedCrossPosts({
                     banned={
                       pv.creator_banned || pv.creator_banned_from_community
                     }
+                    muted
                   />
                   <UserBadges
                     classNames="ms-1"
@@ -157,6 +158,7 @@ function ExpandedCrossPosts({
                     <CommunityLink
                       community={pv.community}
                       myUserInfo={myUserInfo}
+                      muted={false}
                     />
                   </>
                   {" · "}
