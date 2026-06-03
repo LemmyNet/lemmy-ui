@@ -146,7 +146,7 @@ export class Signup extends Component<SignupRouteProps, State> {
               value={this.state.form.username}
               onInput={e => handleRegisterUsernameChange(this, e)}
               required
-              minLength={3}
+              minLength={2}
               pattern={validActorRegexPattern}
               title={I18NextService.i18n.t("community_reqs")}
             />
