@@ -491,24 +491,23 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                             </NavLink>
                           </li>
                         )}
-                        {moderatesPrivateCommunity(this.props.myUserInfo) &&
-                          this.state.unreadPendingFollowsCount && (
-                            <li id="navApplications" className="nav-item">
-                              <NavLink
-                                to="/pending_follows"
-                                className="dropdown-item px-2"
-                                title={I18NextService.i18n.t(
-                                  "community_pending_follows",
-                                )}
-                                onMouseUp={() => handleCollapseClick(this)}
-                              >
-                                <Icon icon="lock" classes="me-1" />
-                                {I18NextService.i18n.t(
-                                  "community_pending_follows",
-                                )}
-                              </NavLink>
-                            </li>
-                          )}
+                        {moderatesPrivateCommunity(this.props.myUserInfo) && (
+                          <li id="navApplications" className="nav-item">
+                            <NavLink
+                              to="/pending_follows"
+                              className="dropdown-item px-2"
+                              title={I18NextService.i18n.t(
+                                "community_pending_follows",
+                              )}
+                              onMouseUp={() => handleCollapseClick(this)}
+                            >
+                              <Icon icon="lock" classes="me-1" />
+                              {I18NextService.i18n.t(
+                                "community_pending_follows",
+                              )}
+                            </NavLink>
+                          </li>
+                        )}
                         <li>
                           <hr className="dropdown-divider" />
                         </li>
