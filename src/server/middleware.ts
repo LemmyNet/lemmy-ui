@@ -18,7 +18,7 @@ export function setDefaultCsp({
      connect-src *;
      img-src * data: blob:;
      script-src 'self' 'nonce-${res.locals.cspNonce}';
-     style-src 'self' 'unsafe-inline';
+     style-src 'self' 'nonce-${res.locals.cspNonce}';
      form-action 'self';
      base-uri 'self';
      frame-src *;

@@ -129,7 +129,7 @@ export async function createSsrHtml(
     ${helmetTitle}
     ${helmetMeta}
   
-    <style>
+    <style nonce="${cspNonce}">
     #app[data-adult-consent] {
       filter: blur(10px);
       -webkit-filter: blur(10px);
@@ -153,8 +153,8 @@ export async function createSsrHtml(
   
     <!-- Web app manifest -->
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="apple-touch-icon" href=${appleTouchIcon} />
-    <link rel="apple-touch-startup-image" href=${appleTouchIcon} />
+    <link rel="apple-touch-icon" href="${appleTouchIcon}" />
+    <link rel="apple-touch-startup-image" href="${appleTouchIcon}" />
   
     <!-- Styles -->
     <link rel="stylesheet" type="text/css" href="${getStaticDir()}/styles/styles.css" />
