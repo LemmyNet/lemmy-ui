@@ -98,6 +98,7 @@ import { MultiCommunityLink } from "./multi-community-link";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { MultiCommunityEntryList } from "./multi-community-entry-form";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 type MultiCommunityData = RouteDataResponse<{
   multiCommunityRes: GetMultiCommunityResponse;
@@ -895,6 +896,7 @@ function purgeItem(i: MultiCommunity, purgeRes: RequestState<SuccessResponse>) {
 function findAndUpdatePost(i: MultiCommunity, res: RequestState<PostResponse>) {
   i.setState(s => {
     if (s.postsRes.state === "success" && res.state === "success") {
+      removeLocalStorageMarkdown();
       s.postsRes.data.items = editPost(
         res.data.post_view,
         s.postsRes.data.items,

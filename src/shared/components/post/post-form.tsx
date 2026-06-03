@@ -58,10 +58,7 @@ import {
 import { toast } from "@utils/app";
 import { Icon, Spinner } from "../common/icon";
 import { LanguageSelect } from "../common/language-select";
-import {
-  MarkdownTextArea,
-  removeLocalStorageMarkdown,
-} from "../common/markdown-textarea";
+import { MarkdownTextArea } from "../common/markdown-textarea";
 import { PostListings } from "./post-listings";
 import { isBrowser } from "@utils/browser";
 import { isMagnetLink, extractMagnetLinkDownloadName } from "@utils/media";
@@ -807,7 +804,6 @@ function updateUrl(i: PostForm, update: () => void) {
 
 function handlePostSubmit(i: PostForm, event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
-  removeLocalStorageMarkdown();
 
   const pForm = i.state.form;
   const pv = i.props.post_view;

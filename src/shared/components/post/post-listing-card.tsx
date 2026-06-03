@@ -355,7 +355,7 @@ function PostImg({
     <div className="my-2">
       <PictrsImage
         src={imageSrc}
-        type="full_size"
+        type="large_thumbnail"
         alt={post.alt_text}
         imageDetails={postView.image_details}
         nsfw={postView.post.nsfw || postView.community.nsfw}

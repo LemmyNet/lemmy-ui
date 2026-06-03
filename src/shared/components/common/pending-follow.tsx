@@ -36,7 +36,8 @@ export function PendingFollow(props: PendingFollowProps) {
         />
       </span>
       <span className="col">
-        {p.follow_state === "approval_required" && (
+        {(p.follow_state === "approval_required" ||
+          p.follow_state === "denied") && (
           <>
             <button
               className="btn btn-light border-light-subtle me-2 my-2"
@@ -45,13 +46,15 @@ export function PendingFollow(props: PendingFollowProps) {
             >
               {props.loading ? <Spinner /> : I18NextService.i18n.t("approve")}
             </button>
-            <button
-              className="btn btn-light border-light-subtle me-2"
-              onClick={() => handleDeny(props)}
-              aria-label={I18NextService.i18n.t("deny")}
-            >
-              {props.loading ? <Spinner /> : I18NextService.i18n.t("deny")}
-            </button>
+            {p.follow_state === "approval_required" && (
+              <button
+                className="btn btn-light border-light-subtle me-2"
+                onClick={() => handleDeny(props)}
+                aria-label={I18NextService.i18n.t("deny")}
+              >
+                {props.loading ? <Spinner /> : I18NextService.i18n.t("deny")}
+              </button>
+            )}
           </>
         )}
       </span>

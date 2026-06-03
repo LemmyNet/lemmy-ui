@@ -132,6 +132,7 @@ import {
   secondsToLargestInterval,
   TimeIntervalFilter,
 } from "@components/common/time-interval-filter";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
@@ -1097,6 +1098,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdateCommentEdit(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
+        removeLocalStorageMarkdown();
         s.commentsRes.data.items = editComment(
           res.data.comment_view,
           s.commentsRes.data.items,
@@ -1109,6 +1111,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdateComment(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
+        removeLocalStorageMarkdown();
         s.commentsRes.data.items = editComment(
           res.data.comment_view,
           s.commentsRes.data.items,
@@ -1121,6 +1124,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   createAndUpdateComments(res: RequestState<CommentResponse>) {
     this.setState(s => {
       if (s.commentsRes.state === "success" && res.state === "success") {
+        removeLocalStorageMarkdown();
         s.commentsRes.data.items.unshift(res.data.comment_view);
       }
       return s;
@@ -1130,6 +1134,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   findAndUpdatePost(res: RequestState<PostResponse>) {
     this.setState(s => {
       if (s.postsRes.state === "success" && res.state === "success") {
+        removeLocalStorageMarkdown();
         s.postsRes.data.items = editPost(
           res.data.post_view,
           s.postsRes.data.items,

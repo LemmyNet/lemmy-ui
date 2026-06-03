@@ -71,7 +71,7 @@ export function PostBadges({ post, tags, allLanguages }: PostBadgesProps) {
         </span>
       )}{" "}
       {post.scheduled_publish_time_at && (
-        <span className="mx-1 badge text-bg-light">
+        <span className="me-1 badge text-bg-light">
           {I18NextService.i18n.t("publish_in_time", {
             time: formatRelativeDate(post.scheduled_publish_time_at, true),
           })}
