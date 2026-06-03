@@ -199,6 +199,7 @@ export class RemoteFetch extends Component<
                   <CommunityLink
                     community={communityView.community}
                     myUserInfo={this.isoData.myUserInfo}
+                    muted={false}
                   />
                 </h2>
                 {communityView.community.sidebar && (

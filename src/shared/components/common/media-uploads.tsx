@@ -49,6 +49,7 @@ export class MediaUploads extends Component<Props, never> {
                     person={i.person}
                     banned={false}
                     myUserInfo={this.props.myUserInfo}
+                    muted={false}
                   />
                 </div>
               )}
@@ -58,7 +59,7 @@ export class MediaUploads extends Component<Props, never> {
               <div className={cols}>
                 <PictrsImage
                   src={buildImageUrl(i.local_image.pictrs_alias)}
-                  type="full_size"
+                  type="large_thumbnail"
                 />
               </div>
               <div className={cols}>{this.deleteImageBtn(i.local_image)}</div>

@@ -13,7 +13,7 @@ interface PersonListingProps {
   banned: boolean;
   realLink?: boolean;
   useApubName?: boolean;
-  muted?: boolean;
+  muted: boolean;
   hideAvatar?: boolean;
   showApubName?: boolean;
   badgeForPostCreator?: boolean;

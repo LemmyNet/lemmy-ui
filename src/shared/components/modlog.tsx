@@ -235,6 +235,7 @@ export function processModlogEntry(
             <CommunityLink
               community={target_community}
               myUserInfo={myUserInfo}
+              muted={false}
             />
             {reason && (
               <span>
@@ -258,6 +259,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
+                muted={false}
               />
             </span>
             <span> as an admin </span>
@@ -278,6 +280,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
+                muted={false}
               />
             </span>
             <span> as a mod to the community </span>
@@ -285,6 +288,7 @@ export function processModlogEntry(
               <CommunityLink
                 community={target_community}
                 myUserInfo={myUserInfo}
+                muted={false}
               />
             </span>
           </>
@@ -304,6 +308,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={!is_revert}
+                muted={false}
               />
             </span>
             {reason && (
@@ -338,6 +343,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={!is_revert}
+                muted={false}
               />
             </span>
             <span> from the community </span>
@@ -345,6 +351,7 @@ export function processModlogEntry(
               <CommunityLink
                 community={target_community}
                 myUserInfo={myUserInfo}
+                muted={false}
               />
             </span>
             {reason && (
@@ -378,6 +385,7 @@ export function processModlogEntry(
               <CommunityLink
                 community={target_community}
                 myUserInfo={myUserInfo}
+                muted={false}
               />
             </span>
           </>
@@ -400,6 +408,7 @@ export function processModlogEntry(
             <CommunityLink
               community={target_community}
               myUserInfo={myUserInfo}
+              muted={false}
             />
           </>
         ),
@@ -463,6 +472,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
+                muted={false}
               />
             </span>
             {reason && (
@@ -495,6 +505,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
+                muted={false}
               />
             </span>
             {reason && (
@@ -519,6 +530,7 @@ export function processModlogEntry(
               <CommunityLink
                 community={target_community}
                 myUserInfo={myUserInfo}
+                muted={false}
               />
             </span>
             {reason && (
@@ -563,6 +575,7 @@ export function processModlogEntry(
               <CommunityLink
                 community={target_community}
                 myUserInfo={myUserInfo}
+                muted={false}
               />
             </span>
             <span> to </span>
@@ -571,6 +584,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
+                muted={false}
               />
             </span>
           </>
@@ -589,6 +603,7 @@ export function processModlogEntry(
               person={target_person}
               myUserInfo={myUserInfo}
               banned={false}
+              muted={false}
             />
             <span> about Comment </span>
             <Link to={`/comment/${target_comment?.id}`}>
@@ -614,6 +629,7 @@ export function processModlogEntry(
               person={target_person}
               myUserInfo={myUserInfo}
               banned={false}
+              muted={false}
             />
             <span> about Post </span>
             <Link to={`/post/${target_post?.id}`}>{target_post?.name}</Link>
@@ -825,6 +841,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
                   person={moderator}
                   myUserInfo={myUserInfo}
                   banned={false}
+                  muted={false}
                 />
               ) : (
                 <div>{this.modOrAdminText(moderator)}</div>

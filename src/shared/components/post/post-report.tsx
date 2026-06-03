@@ -98,6 +98,9 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           editLoading={false}
           markReadLoading={false}
           voteLoading={false}
+          mutePersonName={false}
+          muteCommunityName={false}
+          hideAvatar={false}
           // All of these are unused, since its view only
           onPostEdit={() => {}}
           onPostModEdit={() => {}}
@@ -129,6 +132,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             person={r.creator}
             banned={false}
             myUserInfo={this.props.myUserInfo}
+            muted={false}
           />
         </div>
         <div>
@@ -143,6 +147,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
                   person={resolver}
                   banned={false}
                   myUserInfo={this.props.myUserInfo}
+                  muted={false}
                 />
               </T>
             ) : (
@@ -152,6 +157,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
                   person={resolver}
                   banned={false}
                   myUserInfo={this.props.myUserInfo}
+                  muted={false}
                 />
               </T>
             )}

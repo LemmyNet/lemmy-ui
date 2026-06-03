@@ -48,6 +48,7 @@ function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
                 banned={v.creator_banned || v.creator_banned_from_community}
                 useApubName
                 myUserInfo={myUserInfo}
+                muted={false}
               />
               <UserBadges
                 classNames="ms-1"

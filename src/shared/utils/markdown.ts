@@ -16,7 +16,7 @@ import emojiShortName from "emoji-short-name";
 // import markdown_it_emoji from "markdown-it-emoji/bare";
 import markdown_it_bidi from "markdown-it-bidi";
 import markdown_it_footnote from "markdown-it-footnote";
-import markdown_it_html5_embed from "markdown-it-html5-embed";
+import { html5Media } from "markdown-it-html5-media";
 import markdown_it_ruby from "markdown-it-ruby";
 import markdown_it_sub from "markdown-it-sub";
 import markdown_it_sup from "markdown-it-sup";
@@ -86,13 +86,8 @@ const highlightjsConfig = {
 };
 
 const html5EmbedConfig = {
-  html5embed: {
-    useImageSyntax: true, // Enables video/audio embed with ![]() syntax (default)
-    attributes: {
-      audio: 'controls preload="metadata"',
-      video: 'width="100%" max-height="100%" controls loop preload="metadata"',
-    },
-  },
+  videoAttrs: 'width="100%" max-height="100%" controls loop preload="metadata"',
+  audioAttrs: 'controls preload="metadata"',
 };
 
 function localInstanceLinkParser(md: MarkdownIt) {
@@ -183,7 +178,7 @@ export function setupMarkdown() {
     .use(markdown_it_sub as PluginSimple)
     .use(markdown_it_sup as PluginSimple)
     .use(markdown_it_footnote as PluginSimple)
-    .use(markdown_it_html5_embed as PluginSimple, html5EmbedConfig)
+    .use(html5Media as PluginSimple, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
     .use(markdown_it_highlightjs as PluginSimple, highlightjsConfig)
     .use(markdown_it_ruby as PluginSimple)
@@ -198,7 +193,7 @@ export function setupMarkdown() {
     .use(markdown_it_sub as PluginSimple)
     .use(markdown_it_sup as PluginSimple)
     .use(markdown_it_footnote as PluginSimple)
-    .use(markdown_it_html5_embed as PluginSimple, html5EmbedConfig)
+    .use(html5Media as PluginSimple, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
     .use(markdown_it_highlightjs as PluginSimple, highlightjsConfig)
     .use(localInstanceLinkParser)
