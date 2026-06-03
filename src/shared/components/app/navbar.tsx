@@ -20,6 +20,7 @@ import { PictrsImage } from "../common/pictrs-image";
 import { Subscription } from "rxjs";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { RouterContext } from "inferno-router";
+import { NoOptionI18nKeys } from "i18next";
 
 interface NavbarProps {
   siteRes?: GetSiteResponse;
@@ -134,10 +135,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                 <NavLink
                   to="/notifications"
                   className="p-1 nav-link border-0 nav-messages"
-                  title={I18NextService.i18n.t("unread_messages", {
-                    count: Number(this.state.unreadNotifsCount),
-                    formattedCount: numToSI(this.state.unreadNotifsCount),
-                  })}
+                  title={unreadNotificationsCount(this.state.unreadNotifsCount)}
                   onMouseUp={() => handleCollapseClick(this)}
                 >
                   <Icon icon="bell" />
@@ -154,10 +152,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <NavLink
                       to="/reports"
                       className="p-1 nav-link border-0"
-                      title={I18NextService.i18n.t("unread_reports", {
-                        count: Number(this.state.unreadReportCount),
-                        formattedCount: numToSI(this.state.unreadReportCount),
-                      })}
+                      title={unreadReportsCount(this.state.unreadReportCount)}
                       onMouseUp={() => handleCollapseClick(this)}
                     >
                       <Icon icon="shield" />
@@ -173,14 +168,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <NavLink
                       to="/registration_applications"
                       className="p-1 nav-link border-0"
-                      title={I18NextService.i18n.t(
-                        "unread_registration_applications",
-                        {
-                          count: Number(this.state.unreadApplicationCount),
-                          formattedCount: numToSI(
-                            this.state.unreadApplicationCount,
-                          ),
-                        },
+                      title={unreadApplicationCount(
+                        this.state.unreadApplicationCount,
                       )}
                       onMouseUp={() => handleCollapseClick(this)}
                     >
@@ -197,14 +186,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <NavLink
                       to="/pending_follows"
                       className="p-1 nav-link border-0"
-                      title={I18NextService.i18n.t(
-                        "pending_private_community_follows",
-                        {
-                          count: Number(this.state.unreadPendingFollowsCount),
-                          formattedCount: numToSI(
-                            this.state.unreadPendingFollowsCount,
-                          ),
-                        },
+                      title={pendingPrivateCommunityFollowsCount(
+                        this.state.unreadPendingFollowsCount,
                       )}
                       onMouseUp={() => handleCollapseClick(this)}
                     >
@@ -290,18 +273,14 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <NavLink
                       className="nav-link d-inline-flex align-items-center d-md-inline-block"
                       to="/notifications"
-                      title={I18NextService.i18n.t("unread_messages", {
-                        count: Number(this.state.unreadNotifsCount),
-                        formattedCount: numToSI(this.state.unreadNotifsCount),
-                      })}
+                      title={unreadNotificationsCount(
+                        this.state.unreadNotifsCount,
+                      )}
                       onMouseUp={() => handleCollapseClick(this)}
                     >
                       <Icon icon="bell" />
                       <span className="badge rounded-pill text-bg-danger d-inline ms-1 d-md-none ms-md-0">
-                        {I18NextService.i18n.t("unread_messages", {
-                          count: Number(this.state.unreadNotifsCount),
-                          formattedCount: numToSI(this.state.unreadNotifsCount),
-                        })}
+                        {unreadNotificationsCount(this.state.unreadNotifsCount)}
                       </span>
                       {this.state.unreadNotifsCount > 0 && (
                         <span className="mx-1 badge rounded-pill text-bg-danger">
@@ -316,22 +295,16 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         <NavLink
                           className="nav-link d-inline-flex align-items-center d-md-inline-block"
                           to="/reports"
-                          title={I18NextService.i18n.t("unread_reports", {
-                            count: Number(this.state.unreadReportCount),
-                            formattedCount: numToSI(
-                              this.state.unreadReportCount,
-                            ),
-                          })}
+                          title={unreadReportsCount(
+                            this.state.unreadReportCount,
+                          )}
                           onMouseUp={() => handleCollapseClick(this)}
                         >
                           <Icon icon="shield" />
                           <span className="badge rounded-pill text-bg-danger d-inline ms-1 d-md-none ms-md-0">
-                            {I18NextService.i18n.t("unread_reports", {
-                              count: Number(this.state.unreadReportCount),
-                              formattedCount: numToSI(
-                                this.state.unreadReportCount,
-                              ),
-                            })}
+                            {pendingPrivateCommunityFollowsCount(
+                              this.state.unreadPendingFollowsCount,
+                            )}
                           </span>
                           {this.state.unreadReportCount > 0 && (
                             <span className="mx-1 badge rounded-pill text-bg-danger">
@@ -347,29 +320,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         <NavLink
                           to="/registration_applications"
                           className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                          title={I18NextService.i18n.t(
-                            "unread_registration_applications",
-                            {
-                              count: Number(this.state.unreadApplicationCount),
-                              formattedCount: numToSI(
-                                this.state.unreadApplicationCount,
-                              ),
-                            },
+                          title={unreadApplicationCount(
+                            this.state.unreadApplicationCount,
                           )}
                           onMouseUp={() => handleCollapseClick(this)}
                         >
                           <Icon icon="clipboard" />
                           <span className="badge rounded-pill text-bg-danger d-inline ms-1 d-md-none ms-md-0">
-                            {I18NextService.i18n.t(
-                              "unread_registration_applications",
-                              {
-                                count: Number(
-                                  this.state.unreadApplicationCount,
-                                ),
-                                formattedCount: numToSI(
-                                  this.state.unreadApplicationCount,
-                                ),
-                              },
+                            {unreadApplicationCount(
+                              this.state.unreadApplicationCount,
                             )}
                           </span>
                           {this.state.unreadApplicationCount > 0 && (
@@ -386,31 +345,15 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         <NavLink
                           to="/pending_follows"
                           className="nav-link d-inline-flex align-items-center d-md-inline-block"
-                          title={I18NextService.i18n.t(
-                            "pending_private_community_follows",
-                            {
-                              count: Number(
-                                this.state.unreadPendingFollowsCount,
-                              ),
-                              formattedCount: numToSI(
-                                this.state.unreadPendingFollowsCount,
-                              ),
-                            },
+                          title={pendingPrivateCommunityFollowsCount(
+                            this.state.unreadPendingFollowsCount,
                           )}
                           onMouseUp={() => handleCollapseClick(this)}
                         >
                           <Icon icon="lock" />
                           <span className="badge rounded-pill text-bg-danger d-inline ms-1 d-md-none ms-md-0">
-                            {I18NextService.i18n.t(
-                              "pending_private_community_follows",
-                              {
-                                count: Number(
-                                  this.state.unreadPendingFollowsCount,
-                                ),
-                                formattedCount: numToSI(
-                                  this.state.unreadPendingFollowsCount,
-                                ),
-                              },
+                            {pendingPrivateCommunityFollowsCount(
+                              this.state.unreadPendingFollowsCount,
                             )}
                           </span>
                           {this.state.unreadPendingFollowsCount > 0 && (
@@ -439,74 +382,41 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         className="dropdown-menu dropdown-menu-end"
                         style={{ "min-width": "fit-content" }}
                       >
-                        <li>
-                          <NavLink
-                            to={`/u/${person.name}`}
-                            className="dropdown-item px-2"
-                            title={I18NextService.i18n.t("profile")}
-                            onMouseUp={() => handleCollapseClick(this)}
-                          >
-                            <Icon icon="user" classes="me-1" />
-                            {I18NextService.i18n.t("profile")}
-                          </NavLink>
-                        </li>
-                        <li>
-                          <NavLink
-                            to="/settings"
-                            className="dropdown-item px-2"
-                            title={I18NextService.i18n.t("settings")}
-                            onMouseUp={() => handleCollapseClick(this)}
-                          >
-                            <Icon icon="settings" classes="me-1" />
-                            {I18NextService.i18n.t("settings")}
-                          </NavLink>
-                        </li>
+                        <Mynavlink
+                          i={this}
+                          to={`/u/${person.name}`}
+                          icon="user"
+                          label="profile"
+                        />
+                        <Mynavlink
+                          i={this}
+                          to="/settings"
+                          icon="settings"
+                          label="settings"
+                        />
                         {moderatesSomething(this.props.myUserInfo) && (
-                          <li>
-                            <NavLink
-                              className="dropdown-item px-2"
-                              to="/reports"
-                              title={I18NextService.i18n.t("reports")}
-                              onMouseUp={() => handleCollapseClick(this)}
-                            >
-                              <Icon icon="shield" classes="me-1" />
-                              {I18NextService.i18n.t("reports")}
-                            </NavLink>
-                          </li>
+                          <Mynavlink
+                            i={this}
+                            to="/reports"
+                            icon="shield"
+                            label="reports"
+                          />
                         )}
                         {amAdmin(this.props.myUserInfo) && (
-                          <li>
-                            <NavLink
-                              to="/registration_applications"
-                              className="dropdown-item px-2"
-                              title={I18NextService.i18n.t(
-                                "registration_applications",
-                              )}
-                              onMouseUp={() => handleCollapseClick(this)}
-                            >
-                              <Icon icon="clipboard" classes="me-1" />
-                              {I18NextService.i18n.t(
-                                "registration_applications",
-                              )}
-                            </NavLink>
-                          </li>
+                          <Mynavlink
+                            i={this}
+                            to="/registration_applications"
+                            icon="clipboard"
+                            label="registration_applications"
+                          />
                         )}
                         {moderatesPrivateCommunity(this.props.myUserInfo) && (
-                          <li id="navApplications" className="nav-item">
-                            <NavLink
-                              to="/pending_follows"
-                              className="dropdown-item px-2"
-                              title={I18NextService.i18n.t(
-                                "community_pending_follows",
-                              )}
-                              onMouseUp={() => handleCollapseClick(this)}
-                            >
-                              <Icon icon="lock" classes="me-1" />
-                              {I18NextService.i18n.t(
-                                "community_pending_follows",
-                              )}
-                            </NavLink>
-                          </li>
+                          <Mynavlink
+                            i={this}
+                            to="/pending_follows"
+                            icon="lock"
+                            label="community_pending_follows"
+                          />
                         )}
                         <li>
                           <hr className="dropdown-divider" />
@@ -576,4 +486,56 @@ function handleCollapseClick(i: Navbar) {
 async function handleLogOut(i: Navbar) {
   await UserService.Instance.logout();
   handleCollapseClick(i);
+}
+
+interface NavlinkProps {
+  i: Navbar;
+  to: string;
+  icon: string;
+  label: NoOptionI18nKeys;
+}
+function Mynavlink({ i, to, icon, label }: NavlinkProps) {
+  return (
+    <li>
+      <NavLink
+        to={to}
+        className="dropdown-item px-2"
+        title={I18NextService.i18n.t(label)}
+        onClick={() => handleCollapseClick(i)}
+      >
+        <Icon icon={icon} classes="me-1" />
+        {I18NextService.i18n.t(label)}
+      </NavLink>
+    </li>
+  );
+}
+
+function unreadReportsCount(unreadReportCount: number) {
+  return I18NextService.i18n.t("unread_reports", {
+    count: Number(unreadReportCount),
+    formattedCount: numToSI(unreadReportCount),
+  });
+}
+
+function unreadApplicationCount(unreadApplicationCount: number) {
+  return I18NextService.i18n.t("unread_registration_applications", {
+    count: Number(unreadApplicationCount),
+    formattedCount: numToSI(unreadApplicationCount),
+  });
+}
+
+function pendingPrivateCommunityFollowsCount(
+  unreadPendingFollowsCount: number,
+) {
+  return I18NextService.i18n.t("pending_private_community_follows", {
+    count: Number(unreadPendingFollowsCount),
+    formattedCount: numToSI(unreadPendingFollowsCount),
+  });
+}
+
+function unreadNotificationsCount(unreadNotifsCount: number) {
+  return I18NextService.i18n.t("unread_messages", {
+    count: Number(unreadNotifsCount),
+    formattedCount: numToSI(unreadNotifsCount),
+  });
 }
