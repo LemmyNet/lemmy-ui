@@ -120,8 +120,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-modlog-child-count.0
-        version: 1.0.0-modlog-child-count.0
+        specifier: 1.0.0-modlog-child-count.1
+        version: 1.0.0-modlog-child-count.1
       markdown-it:
         specifier: ^14.1.0
         version: 14.2.0
@@ -3410,8 +3410,8 @@ packages:
   leac@0.7.0:
     resolution: {integrity: sha512-qMrZeyEekgdRQ9o6a4NAB2EQZrv827GJdn1vnapwSJ90hWRB4TzUSunvacPkxQ2TnNqHNI1/zSt0hlo0crG8Jw==}
 
-  lemmy-js-client@1.0.0-modlog-child-count.0:
-    resolution: {integrity: sha512-ZuJKQ044YxXlAibLM1lfC2plt0ml6UgwRP4G7XvtLuQBd0aJt3hjyXNsqf7Xc7gaelcPYyHpKUNjtj7onE9qag==}
+  lemmy-js-client@1.0.0-modlog-child-count.1:
+    resolution: {integrity: sha512-yDjnKS0/erBITCVESbPicqZW7T1PbO+ZjcjI5fTFgG/QNiFwa3x81ZoU/21OJ5g/h38c9IY+txnvn03giW2fwg==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8766,7 +8766,7 @@ snapshots:
 
   leac@0.7.0: {}
 
-  lemmy-js-client@1.0.0-modlog-child-count.0:
+  lemmy-js-client@1.0.0-modlog-child-count.1:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:

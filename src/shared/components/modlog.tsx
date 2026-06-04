@@ -326,7 +326,8 @@ export function processModlogEntry(
                 <a href={`/modlog?bulkActionParentId=${modlog.id}`}>
                   {I18NextService.i18n.t("modlog_view_children")}
                 </a>
-              </span>)}
+              </span>
+            )}
           </>
         ),
       };
@@ -370,7 +371,8 @@ export function processModlogEntry(
                 <a href={`/modlog?bulkActionParentId=${modlog.id}`}>
                   {I18NextService.i18n.t("modlog_view_children")}
                 </a>
-              </span>)}
+              </span>
+            )}
           </>
         ),
       };
