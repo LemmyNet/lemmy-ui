@@ -119,7 +119,7 @@ export class CommunityForm extends Component<
                 value={this.state.form.name}
                 onInput={e => handleCommunityNameChange(this, e)}
                 required
-                minLength={3}
+                minLength={2}
                 pattern={validActorRegexPattern}
                 title={I18NextService.i18n.t("community_reqs")}
               />
@@ -146,7 +146,6 @@ export class CommunityForm extends Component<
               value={this.state.form.title}
               onInput={e => handleCommunityTitleChange(this, e)}
               className="form-control"
-              required
               minLength={3}
               maxLength={100}
             />
@@ -389,7 +388,7 @@ function handleCommunitySubmit(
       visibility: cForm.visibility,
     });
   } else {
-    if (cForm.title && cForm.name) {
+    if (cForm.name) {
       i.props.onCreate?.({
         name: cForm.name,
         title: cForm.title,
