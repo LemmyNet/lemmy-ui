@@ -120,8 +120,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-split-hide-media.0
-        version: 1.0.0-split-hide-media.0
+        specifier: 1.0.0-alpha.2
+        version: 1.0.0-alpha.2
       markdown-it:
         specifier: ^14.1.0
         version: 14.2.0
@@ -3410,8 +3410,8 @@ packages:
   leac@0.7.0:
     resolution: {integrity: sha512-qMrZeyEekgdRQ9o6a4NAB2EQZrv827GJdn1vnapwSJ90hWRB4TzUSunvacPkxQ2TnNqHNI1/zSt0hlo0crG8Jw==}
 
-  lemmy-js-client@1.0.0-split-hide-media.0:
-    resolution: {integrity: sha512-omJf6ksE8at4fDeEov7r/hx/1wzF1/AOZ4t6UZx/0HStebOQ1BcZBrRNDPGh0KsXsUSEDINgGxgEte28kwgMyw==}
+  lemmy-js-client@1.0.0-alpha.2:
+    resolution: {integrity: sha512-hdHEIObGcAzkz/r/0hxV1XIsZ/JYOnGP28KemCfdKjbdVc5U/rd5AXr+PY4tShi7Zsf9QLFteKs24b/XJ/gYgg==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8766,7 +8766,7 @@ snapshots:
 
   leac@0.7.0: {}
 
-  lemmy-js-client@1.0.0-split-hide-media.0:
+  lemmy-js-client@1.0.0-alpha.2:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:
