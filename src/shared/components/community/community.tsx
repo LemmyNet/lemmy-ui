@@ -87,6 +87,7 @@ import {
   CommentId,
   PostId,
   ModEditPost,
+  CommunityTagId,
 } from "lemmy-js-client";
 import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
@@ -135,6 +136,7 @@ import {
   FilterChipCheckbox,
 } from "@components/common/filter-chip-checkbox";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import { CommunityTagDropdown } from "@components/common/community-tag-dropdown";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -166,6 +168,7 @@ interface CommunityProps {
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
   time: Interval;
+  tagId?: CommunityTagId;
   cursor?: PaginationCursor;
   showHidden?: boolean;
   showRead?: boolean;
@@ -187,6 +190,7 @@ export function getCommunityQueryParams(
   return getQueryParams<CommunityProps, Fallbacks>(
     {
       postOrCommentType: getPostOrCommentTypeFromQuery,
+      tagId: getTagIdFromQuery,
       cursor: (cursor?: string) => cursor,
       sort: getSortTypeFromQuery,
       time: intervalFromQuery,
@@ -207,6 +211,10 @@ export function getCommunityQueryParams(
 
 function getPostOrCommentTypeFromQuery(type?: string): PostOrCommentType {
   return type ? (type as PostOrCommentType) : "post";
+}
+
+function getTagIdFromQuery(tag?: string): CommunityTagId | undefined {
+  return tag ? Number(tag) : undefined;
 }
 
 function getSortTypeFromQuery(
@@ -324,7 +332,15 @@ export class Community extends Component<CommunityRouteProps, State> {
 
   static fetchInitialData = async ({
     headers,
-    query: { postOrCommentType, cursor, sort, time, showHidden, showRead },
+    query: {
+      postOrCommentType,
+      cursor,
+      sort,
+      time,
+      showHidden,
+      showRead,
+      tagId,
+    },
     match: { params: props },
   }: InitialFetchRequest<
     CommunityPathProps,
@@ -352,6 +368,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         type_: "all",
         show_hidden: showHidden,
         show_read: showRead,
+        tag_id: tagId,
         page_cursor: cursor,
       };
 
@@ -386,6 +403,7 @@ export class Community extends Component<CommunityRouteProps, State> {
   updateUrl(props: Partial<CommunityProps>) {
     const {
       postOrCommentType,
+      tagId,
       cursor,
       sort,
       showHidden,
@@ -405,6 +423,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       sort,
       showHidden: showHidden?.toString(),
       showRead: showRead?.toString(),
+      tagId: tagId?.toString(),
       time: intervalToQuery(time),
     };
 
@@ -414,8 +433,15 @@ export class Community extends Component<CommunityRouteProps, State> {
   fetchDataToken?: symbol;
   async fetchData(props: CommunityRouteProps) {
     const token = (this.fetchDataToken = Symbol());
-    const { postOrCommentType, cursor, sort, time, showHidden, showRead } =
-      props;
+    const {
+      postOrCommentType,
+      cursor,
+      sort,
+      time,
+      showHidden,
+      showRead,
+      tagId,
+    } = props;
     const name = decodeURIComponent(props.match.params.name);
 
     if (postOrCommentType === "post") {
@@ -428,6 +454,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         community_name: name,
         show_hidden: showHidden,
         show_read: showRead,
+        tag_id: tagId,
       });
       if (token === this.fetchDataToken) {
         this.setState({ postsRes });
@@ -762,7 +789,8 @@ export class Community extends Component<CommunityRouteProps, State> {
     const res =
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
-    const { postOrCommentType, sort, time, showHidden, showRead } = this.props;
+    const { postOrCommentType, sort, time, showHidden, showRead, tagId } =
+      this.props;
     const communityRss = res
       ? communityRSSUrl(res.community_view.community, sort)
       : undefined;
@@ -770,6 +798,7 @@ export class Community extends Component<CommunityRouteProps, State> {
 
     const myUserInfo = this.isoData.myUserInfo;
     const hideTimeSelect = sort === "new" || sort === "old";
+    const tags = res && res.community_view.tags;
 
     return (
       <>
@@ -805,6 +834,15 @@ export class Community extends Component<CommunityRouteProps, State> {
                   showLabel
                 />
               </div>
+              {tags && tags.length > 0 && (
+                <div className="col">
+                  <CommunityTagDropdown
+                    tags={tags}
+                    currentOption={tagId?.toString() ?? "0"}
+                    onSelect={val => handleCommunityTagFilterChange(this, val)}
+                  />
+                </div>
+              )}
               {!hideTimeSelect && (
                 <div className="col">
                   <TimeIntervalFilter
@@ -928,6 +966,13 @@ function handlePostOrCommentTypeChange(
   postOrCommentType: PostOrCommentType,
 ) {
   i.updateUrl({ postOrCommentType, cursor: undefined });
+}
+
+function handleCommunityTagFilterChange(i: Community, tag: string) {
+  // A zero is an "All" / undefined
+  const tagId = tag === "0" ? undefined : Number(tag);
+
+  i.updateUrl({ tagId, cursor: undefined });
 }
 
 async function handlePostListingModeChange(
