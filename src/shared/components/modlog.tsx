@@ -321,11 +321,12 @@ export function processModlogEntry(
                 <div>expires: {formatRelativeDate(expires_at)}</div>
               </span>
             )}
-            <span>
-              <a href={`/modlog?bulkActionParentId=${modlog.id}`}>
-                {I18NextService.i18n.t("modlog_view_children")}
-              </a>
-            </span>
+            {modlog.child_count && (
+              <span>
+                <a href={`/modlog?bulkActionParentId=${modlog.id}`}>
+                  {I18NextService.i18n.t("modlog_view_children")}
+                </a>
+              </span>)}
           </>
         ),
       };
@@ -364,11 +365,12 @@ export function processModlogEntry(
                 <div>expires: {formatRelativeDate(expires_at)}</div>
               </span>
             )}
-            <span>
-              <a href={`/modlog?bulkActionParentId=${modlog.id}`}>
-                View children
-              </a>
-            </span>
+            {modlog.child_count && (
+              <span>
+                <a href={`/modlog?bulkActionParentId=${modlog.id}`}>
+                  {I18NextService.i18n.t("modlog_view_children")}
+                </a>
+              </span>)}
           </>
         ),
       };
