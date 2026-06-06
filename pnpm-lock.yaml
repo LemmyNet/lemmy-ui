@@ -227,7 +227,7 @@ importers:
         version: 4.0.3
       '@types/bootstrap':
         specifier: ^5.2.10
-        version: 5.2.10
+        version: 5.2.11
       '@types/compression':
         specifier: ^1.8.1
         version: 1.8.1
@@ -1467,8 +1467,8 @@ packages:
   '@types/bonjour@3.5.13':
     resolution: {integrity: sha512-z9fJ5Im06zvUL548KvYNecEVlA7cVDkGUi6kZusb04mpyEFKCIZJvloCcmpmLaIahDpOQGHaHmG6imtPMmPXGQ==}
 
-  '@types/bootstrap@5.2.10':
-    resolution: {integrity: sha512-F2X+cd6551tep0MvVZ6nM8v7XgGN/twpdNDjqS1TUM7YFNEtQYWk+dKAnH+T1gr6QgCoGMPl487xw/9hXooa2g==}
+  '@types/bootstrap@5.2.11':
+    resolution: {integrity: sha512-69ykbLiNzQxi6Q/y/aYJLrlzI5QkLQjhIYW2U+cxujBxAmaBtmXKtxnFes59Ttfpt936as6xJU0dYnmVpcwIwg==}
 
   '@types/compression@1.8.1':
     resolution: {integrity: sha512-kCFuWS0ebDbmxs0AXYn6e2r2nrGAb5KwQhknjSPSPgJcGd8+HVSILlUyFhGqML2gk39HcG7D1ydW9/qpYkN00Q==}
@@ -6468,7 +6468,7 @@ snapshots:
     dependencies:
       '@types/node': 24.12.4
 
-  '@types/bootstrap@5.2.10':
+  '@types/bootstrap@5.2.11':
     dependencies:
       '@popperjs/core': 2.11.8
 
