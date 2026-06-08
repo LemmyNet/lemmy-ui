@@ -899,7 +899,9 @@ export class Community extends Component<CommunityRouteProps, State> {
             </div>
             <div
               className="col"
-              data-tippy-content={I18NextService.i18n.t("locked")}
+              data-tippy-content={I18NextService.i18n.t(
+                "hide_memes_description",
+              )}
             >
               <FilterChipCheckbox
                 option={"hide_memes"}
